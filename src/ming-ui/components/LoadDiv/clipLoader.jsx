@@ -1,5 +1,5 @@
-import { assign } from 'lodash';
 import React from 'react';
+import { assign } from 'lodash';
 import PropTypes from 'prop-types';
 import './clipLoader.css';
 
@@ -70,7 +70,11 @@ class Loader extends React.Component {
   renderLoader = loading => {
     if (loading) {
       return (
-        <div id={this.props.id} style={assign({ height: this.props.size + 5 }, this.props.style)} className={this.props.className}>
+        <div
+          id={this.props.id}
+          style={assign({ height: this.props.size + 5 }, this.props.style)}
+          className={this.props.className}
+        >
           <div style={this.getStyle()} className="ThemeBorderColor3" />
         </div>
       );

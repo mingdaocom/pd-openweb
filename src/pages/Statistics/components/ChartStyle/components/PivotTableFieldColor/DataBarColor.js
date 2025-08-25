@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { Button, Checkbox, ConfigProvider, Input, Modal, Select } from 'antd';
-import cx from 'classnames';
 import { ColorPicker, Icon } from 'ming-ui';
 import { formatNumberFromInput } from 'src/utils/control';
 
@@ -61,7 +60,7 @@ export default class DataBarColor extends Component {
               value={min}
               className="chartInput mRight10"
               placeholder={_l('最小值')}
-              onChange={e => {
+              onChange={() => {
                 const value = formatNumberFromInput(event.target.value);
                 this.setState({ min: value ? value : undefined });
               }}
@@ -112,7 +111,7 @@ export default class DataBarColor extends Component {
               value={max}
               className="chartInput mRight10"
               placeholder={_l('最大值')}
-              onChange={e => {
+              onChange={() => {
                 const value = formatNumberFromInput(event.target.value);
                 this.setState({ max: value ? value : undefined });
               }}

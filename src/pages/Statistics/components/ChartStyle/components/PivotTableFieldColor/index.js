@@ -1,13 +1,14 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import { Dropdown, Menu, Select } from 'antd';
 import cx from 'classnames';
-import { Icon, Tooltip } from 'ming-ui';
-import { Menu, Dropdown, Select } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
-import DataBarColor from './DataBarColor';
+import { Icon, Tooltip } from 'ming-ui';
 import RuleColor from '../Color/RuleColor';
+import DataBarColor from './DataBarColor';
 
 const AddLine = styled.div`
-  color: #2196F3;
+  color: #1677ff;
   &:hover {
     color: #0484fb;
   }
@@ -26,8 +27,8 @@ const EntranceWrapper = styled.div`
     &:hover {
       background-color: #f5f5f5;
     }
-    .icon-closeelement-bg-circle:hover {
-      color: #2196f3 !important;
+    .icon-cancel:hover {
+      color: #1677ff !important;
     }
   }
   &:hover {
@@ -55,7 +56,7 @@ const ColorRuleItem = styled.div`
     padding: 7px;
     display: none;
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
       display: block;
     }
   }
@@ -69,12 +70,12 @@ export default class PivotTableFieldColor extends Component {
       applyType: null,
       dataBarColorModalVisible: false,
       ruleColorModalVisible: false,
-    }
+    };
   }
   renderDataBarModal() {
     const { dataBarColorModalVisible, editControlId, applyType } = this.state;
     const { onChangeDisplayValue, currentReport } = this.props;
-    const { yaxisList, displaySetup } = currentReport;
+    const { displaySetup } = currentReport;
     const { colorRules = [] } = displaySetup;
     const colorRule = _.find(colorRules, { controlId: editControlId });
     const onCancel = () => {
@@ -83,12 +84,12 @@ export default class PivotTableFieldColor extends Component {
         editControlId: null,
         dataBarColorModalVisible: false,
       });
-    }
+    };
     return (
       <DataBarColor
         visible={dataBarColorModalVisible}
         colorRule={_.get(colorRule, applyType) || {}}
-        onSave={(data) => {
+        onSave={data => {
           const rules = colorRules.map(rule => {
             if (rule.controlId === editControlId) {
               rule[applyType] = data;
@@ -114,14 +115,14 @@ export default class PivotTableFieldColor extends Component {
         editControlId: null,
         ruleColorModalVisible: false,
       });
-    }
+    };
     return (
       <RuleColor
         visible={ruleColorModalVisible}
         reportType={reportType}
         yaxisList={yaxisList}
         colorRule={_.get(colorRule, applyType) || {}}
-        onSave={(data) => {
+        onSave={data => {
           const rules = colorRules.map(rule => {
             if (rule.controlId === editControlId) {
               rule[applyType] = data;
@@ -146,7 +147,7 @@ export default class PivotTableFieldColor extends Component {
         <Dropdown
           placement="topLeft"
           trigger={['click']}
-          overlay={(
+          overlay={
             <Menu className="chartMenu">
               {data.map(data => (
                 <Menu.Item
@@ -154,7 +155,7 @@ export default class PivotTableFieldColor extends Component {
                   className="pTop7 pBottom7 pLeft20"
                   onClick={() => {
                     const rules = colorRules.concat({
-                      controlId: data.controlId
+                      controlId: data.controlId,
                     });
                     onChangeDisplayValue('colorRules', rules);
                   }}
@@ -163,7 +164,7 @@ export default class PivotTableFieldColor extends Component {
                 </Menu.Item>
               ))}
             </Menu>
-          )}
+          }
         >
           <AddLine className="Font13 valignWrapper pointer" onClick={e => e.preventDefault()}>
             <Icon icon="add" />
@@ -186,7 +187,7 @@ export default class PivotTableFieldColor extends Component {
         {colorRules.map(data => (
           <ColorRuleItem key={data.controlId} className="flexRow valignWrapper mBottom10">
             <Icon
-              icon="delete2"
+              icon="trash"
               className="Gray_9e Font18 pointer mLeft5 deleteColorRule"
               onClick={() => {
                 const rules = colorRules.filter(item => item.controlId !== data.controlId);
@@ -194,11 +195,19 @@ export default class PivotTableFieldColor extends Component {
               }}
             />
             <Select
-              className={cx('chartSelect flex mRight5', { Red: data.controlId && !_.find(filterYaxisList, { controlId: data.controlId }) })}
+              className={cx('chartSelect flex mRight5', {
+                Red: data.controlId && !_.find(filterYaxisList, { controlId: data.controlId }),
+              })}
               style={{ minWidth: 0 }}
-              value={data.controlId ? (_.find(filterYaxisList, { controlId: data.controlId }) ? data.controlId : _l('已删除')) : undefined}
+              value={
+                data.controlId
+                  ? _.find(filterYaxisList, { controlId: data.controlId })
+                    ? data.controlId
+                    : _l('已删除')
+                  : undefined
+              }
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-              onChange={(value) => {
+              onChange={value => {
                 const rules = colorRules.map(item => {
                   if (item.controlId === data.controlId) {
                     item.controlId = value;
@@ -222,14 +231,20 @@ export default class PivotTableFieldColor extends Component {
             <Tooltip text={<span>{_l('字体色')}</span>}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
-                onClick={() => { this.setState({ ruleColorModalVisible: true, editControlId: data.controlId, applyType: 'textColorRule' }); }}
+                onClick={() => {
+                  this.setState({
+                    ruleColorModalVisible: true,
+                    editControlId: data.controlId,
+                    applyType: 'textColorRule',
+                  });
+                }}
               >
-                <Icon className={cx('Font16', data.textColorRule ? 'ThemeColor' : 'Gray_9e')} icon="letter_a" />
+                <Icon className={cx('Font16', data.textColorRule ? 'ThemeColor' : 'Gray_9e')} icon="text_bold2" />
                 {data.textColorRule && (
                   <Icon
-                    icon="closeelement-bg-circle"
+                    icon="cancel"
                     className="Gray_9e Font15 pointer close"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       const rules = colorRules.map(item => {
                         if (item.controlId === data.controlId) {
@@ -246,14 +261,20 @@ export default class PivotTableFieldColor extends Component {
             <Tooltip text={<span>{_l('背景色')}</span>}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
-                onClick={() => { this.setState({ ruleColorModalVisible: true, editControlId: data.controlId, applyType: 'bgColorRule' }); }}
+                onClick={() => {
+                  this.setState({
+                    ruleColorModalVisible: true,
+                    editControlId: data.controlId,
+                    applyType: 'bgColorRule',
+                  });
+                }}
               >
                 <Icon className={cx('Font18', data.bgColorRule ? 'ThemeColor' : 'Gray_9e')} icon="background_color" />
                 {data.bgColorRule && (
                   <Icon
-                    icon="closeelement-bg-circle"
+                    icon="cancel"
                     className="Gray_9e Font15 pointer close"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       const rules = colorRules.map(item => {
                         if (item.controlId === data.controlId) {
@@ -270,14 +291,20 @@ export default class PivotTableFieldColor extends Component {
             <Tooltip text={<span>{_l('数据条')}</span>}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
-                onClick={() => { this.setState({ dataBarColorModalVisible: true, editControlId: data.controlId, applyType: 'dataBarRule' }) }}
+                onClick={() => {
+                  this.setState({
+                    dataBarColorModalVisible: true,
+                    editControlId: data.controlId,
+                    applyType: 'dataBarRule',
+                  });
+                }}
               >
                 <Icon className={cx('Font16', data.dataBarRule ? 'ThemeColor' : 'Gray_9e')} icon="data_bar" />
                 {data.dataBarRule && (
                   <Icon
-                    icon="closeelement-bg-circle"
+                    icon="cancel"
                     className="Gray_9e Font15 pointer close"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       const rules = colorRules.map(item => {
                         if (item.controlId === data.controlId) {

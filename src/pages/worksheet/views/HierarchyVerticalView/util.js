@@ -1,9 +1,7 @@
-import _ from 'lodash';
-
 // 获取svg的相关位置数据
 export const getPosition = ($parent, $cur, scale = 1, positionStart = false) => {
   if (!$parent || !$cur) return {};
-  const { height, width } = $parent.getBoundingClientRect();
+  const { width } = $parent.getBoundingClientRect();
   const { left: curLeft, width: curWidth } = $cur.getBoundingClientRect();
   const { left: svgLeft } = $parent.nextSibling.getBoundingClientRect();
   const $recordItemWrap = document.querySelector('.mixNode .sortableVerticalTreeNodeWrap .recordItemWrap');

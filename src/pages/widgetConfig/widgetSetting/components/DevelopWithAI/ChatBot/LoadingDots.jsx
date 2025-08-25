@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-const LoadingDots = () => {
+const LoadingDots = ({ dotNumber = 6 }) => {
   const [dotCount, setDotCount] = useState(1);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDotCount(prev => (prev >= 6 ? 1 : prev + 1));
+      setDotCount(prev => (prev >= dotNumber ? 1 : prev + 1));
     }, 300); // 每500ms增加一个点
 
     return () => clearInterval(interval);
@@ -13,7 +13,7 @@ const LoadingDots = () => {
 
   return (
     <div style={{ display: 'flex', gap: '2px', alignItems: 'center', height: '26px' }}>
-      {[...Array(6)].map((_, index) => (
+      {[...Array(dotNumber)].map((_, index) => (
         <span
           key={index}
           style={{
@@ -22,6 +22,7 @@ const LoadingDots = () => {
             backgroundColor: '#9e9e9e',
             borderRadius: '50%',
             display: 'inline-block',
+            transition: 'opacity 0.3s ease-in-out',
             opacity: index < dotCount ? 1 : 0,
           }}
         />

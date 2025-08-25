@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Dialog, QiniuUpload, Radio } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import noVerifyAjax from 'src/api/noVerify';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon, QiniuUpload, Radio } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import { SwitchStyle } from 'src/pages/Role/PortalCon/setting/BaseSet.jsx';
+import noVerifyAjax from 'src/api/noVerify';
+import { SwitchStyle } from 'src/pages/Role/PortalCon/setting/BaseSet/style';
 import ReviewFreeByWorksheetWrap from './ReviewFreeByWorksheetWrap';
 import ReviewFreeMap from './ReviewFreeMap';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   .switchTextP {
@@ -54,7 +54,7 @@ const Wrap = styled.div`
     min-width: 0;
   }
   .up {
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1e88e5 !important;
     }
@@ -222,12 +222,12 @@ export default function ReviewFree(props) {
       },
       max_file_size: '4m',
     },
-    onAdd: (up, files) => {
+    onAdd: up => {
       if (uploadLoading) return;
       setUploadLoading(true);
       up.disableBrowse();
     },
-    onUploaded: (up, file, response) => {
+    onUploaded: (up, file) => {
       up.disableBrowse(false);
       setFileName(file.name);
       setFileUrl(file.serverName + file.key);
@@ -345,7 +345,7 @@ export default function ReviewFree(props) {
                           .delete({
                             appId,
                           })
-                          .then(res => {
+                          .then(() => {
                             setCellConfigs([]);
                             setCells([]);
                             setFileUrl('');

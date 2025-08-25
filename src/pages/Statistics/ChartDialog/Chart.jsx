@@ -100,13 +100,12 @@ export default class Chart extends Component {
       currentReport,
       base,
       direction,
-      getReportSingleCacheId,
       requestOriginalData,
       changeCurrentReport,
     } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
-    const { xaxes = {}, reportType, valueMap, yvalueMap } = reportData;
+    const { xaxes = {}, reportType, valueMap, yvalueMap, locationMap } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
@@ -162,6 +161,7 @@ export default class Chart extends Component {
             map,
             country,
             summary: settingVisible ? currentReport.summary : summary,
+            locationMap,
           }}
         />
       ) : (

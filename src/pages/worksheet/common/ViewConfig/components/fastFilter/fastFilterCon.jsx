@@ -1,13 +1,12 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Tooltip, SortableList } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, SortableList, Tooltip } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import './index.less';
-import { FASTFILTER_CONDITION_TYPE } from './util';
-import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
+import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
+import { FASTFILTER_CONDITION_TYPE } from './util';
+import './index.less';
 
 const Wrap = styled.div`
   .hasData {
@@ -27,7 +26,7 @@ const Wrap = styled.div`
       span.addIcon {
         position: relative;
         background: #f8f8f8;
-        color: #2196f3;
+        color: #1677ff;
         border-radius: 3px;
         display: block;
         padding: 12px 0;
@@ -75,7 +74,7 @@ const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 3px;
         color: #fff;
         display: inline-block;
@@ -124,13 +123,13 @@ const Item = ({ name, type, controlId, onEdit, onDelete, isErr, showOtherField, 
             name || ''
           )}
         </span>
-        {!!onEdit && !isErr && !showOtherField && <Icon className="Font16 Hand editIcon" icon="new_mail" />}
+        {!!onEdit && !isErr && !showOtherField && <Icon className="Font16 Hand editIcon" icon="edit" />}
       </span>
       {!!onDelete && (
         <Tooltip text={<span>{_l('删除')}</span>}>
           <Icon
             className="Font16 Hand deleteIcon mLeft15 mRight15"
-            icon="delete2"
+            icon="trash"
             onClick={() => {
               if (!onDelete) {
                 return;

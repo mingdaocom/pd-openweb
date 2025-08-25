@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Menu, MenuItem, Modal } from 'ming-ui';
+import { Icon, Menu, MenuItem, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
@@ -41,7 +42,7 @@ const Header = styled.div`
     font-size: 22px;
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -251,7 +252,6 @@ function DraftModal(props) {
                   allowEdit={false}
                   selectedIds={selected}
                   onSelectAllWorksheet={() => {
-                    setIsAll(true);
                     setSelected(records.map(row => row.rowid));
                   }}
                   onSelect={newSelected => {
@@ -268,7 +268,7 @@ function DraftModal(props) {
                   data={records}
                 />
               )}
-              onCellClick={(cell, row, rowIndex) => {
+              onCellClick={(cell, row) => {
                 if (cell.type === 29 && cell.enumDefault === 2) {
                   setActiveRelateTableControlIdOfRecord(cell.controlId);
                 }

@@ -1,17 +1,16 @@
-/* eslint-disable no-new */
 import React, { Fragment, useState } from 'react';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import update from 'immutability-helper';
-import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import { Dropdown, Tooltip } from 'antd';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import _ from 'lodash';
 import { Dropdown as MingDropdown } from 'ming-ui';
+import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { DropdownContent, SettingItem } from '../../../../styled';
-import { SelectOtherField, OtherField } from '../../DynamicDefaultValue/components';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { OtherField, SelectOtherField } from '../../DynamicDefaultValue/components';
+import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
-import cx from 'classnames';
-import _ from 'lodash';
-import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 
 const USER_RANGE_CONFIG = [
   { text: _l('用户通讯录'), value: 0 },
@@ -27,12 +26,12 @@ const USER_RANGE = [
 
 export default function UserConfig(props) {
   const { globalSheetInfo, data, onChange } = props;
-  const { enumDefault2 = 0, enumDefault } = data;
+  const { enumDefault2 = 0 } = data;
   const chooseRange = getAdvanceSetting(data, 'chooserange') || [];
   const userType = getAdvanceSetting(data, 'usertype');
   const [overlayVisible, setVisible] = useState(false);
 
-  const handleClick = (item, e) => {
+  const handleClick = item => {
     setVisible(false);
 
     if (item.id === 'assignGroup') {
@@ -178,6 +177,7 @@ export default function UserConfig(props) {
             {_l('选择范围')}
             <Tooltip
               placement="bottom"
+              autoCloseDelay={0}
               title={_l(
                 '用户通讯录指当前操作人的通讯录；组织通讯录指当前组织的通讯录。此外，使用部门作为选择范围时，所设置部门及所有子部门中的人员可选；使用组织角色作为选择范围时，所设置角色下的所有人员可选。',
               )}

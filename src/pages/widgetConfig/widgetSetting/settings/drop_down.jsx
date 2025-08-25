@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
+import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import SelectOptions from '../components/OptionList/SelectOptions';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import _ from 'lodash';
+import SelectOptions from '../components/OptionList/SelectOptions';
 
 const OPTIONS_DISPLAY = [
   {

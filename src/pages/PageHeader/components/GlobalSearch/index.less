@@ -1,4 +1,4 @@
-@mainColor: #2196f3;
+@mainColor: #1677ff;
 .fullScreen {
   position: fixed;
   top: 0;
@@ -8,7 +8,7 @@
   background-color: rgba(0, 0, 0, 0.3);
 }
 .globalSearchWrap {
-  .fullScreen;
+  .fullScreen();
   z-index: 99;
   .inputWrap {
     position: absolute;
@@ -25,7 +25,7 @@
       border-radius: 3px;
       outline: none;
       border: none;
-      box-shadow: 0px 2px 6px 1px rgba(0,0,0,0.16);
+      box-shadow: 0px 2px 6px 1px rgba(0, 0, 0, 0.16);
     }
     input::-webkit-input-placeholder {
       color: #bdbdbd;
@@ -64,7 +64,7 @@
     transform: translateX(-50%);
     height: calc(~'100vh - 94px');
     background: #fff;
-    border-top: 1px solid #E5E5E5;
+    border-top: 1px solid #e5e5e5;
     opacity: 0;
     transition: width 0.2s ease-out;
     &.easeWidth {

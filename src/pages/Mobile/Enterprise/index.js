@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
-import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -43,10 +42,10 @@ const EmptyProject = styled.div`
     }
   }
   .ThemeColor3 {
-    color: #2196f3;
+    color: #1677ff;
   }
   .ThemeBGColor3 {
-    background-color: #2196f3;
+    background-color: #1677ff;
   }
 `;
 
@@ -126,7 +125,7 @@ class ProjectCard extends Component {
     );
   }
   render() {
-    const { item, index, checkedProjectId } = this.props;
+    const { item, checkedProjectId } = this.props;
     const { visible, loading } = this.state;
     return (
       <div className="projectWrapper WhiteBG pTop15 pBottom20 pLeft16 pRight16 mBottom10">

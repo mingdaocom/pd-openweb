@@ -93,7 +93,8 @@ export default class MobileCityPicker extends Component {
   }
 
   handleBack() {
-    const { onClear, select } = this.props;
+    const { onClear, select, handleClick } = this.props;
+
     this.setState({ indexLevel: select.length > 2 ? 2 : 1 });
     select.length > 2 ? handleClick(select[0], 1) : onClear(false);
   }
@@ -151,19 +152,8 @@ export default class MobileCityPicker extends Component {
   }
 
   render() {
-    const {
-      disabled,
-      children,
-      placeholder,
-      callback = () => {},
-      showConfirmBtn,
-      defaultValue,
-      data = [],
-      select = [],
-      handleClick = () => {},
-      level,
-    } = this.props;
-    const { visible, loading, indexLevel, keywords } = this.state;
+    const { disabled, children, placeholder, showConfirmBtn, defaultValue, data = [], select = [], level } = this.props;
+    const { visible, loading, indexLevel } = this.state;
     const last = _.last(select);
     const listData = data.length ? (_.isArray(data[0]) ? data[data.length - 1] : data) : [];
 
@@ -207,7 +197,7 @@ export default class MobileCityPicker extends Component {
                         >
                           <div
                             style={{
-                              color: select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#151515',
+                              color: select.length && select[select.length - 1].id === item.id ? '#1677ff' : '#151515',
                             }}
                           >
                             {showConfirmBtn && <Radio checked={(last || {}).id === item.id} />}
@@ -217,7 +207,7 @@ export default class MobileCityPicker extends Component {
                               className="popupListItemContent"
                               style={{
                                 color:
-                                  select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#151515',
+                                  select.length && select[select.length - 1].id === item.id ? '#1677ff' : '#151515',
                               }}
                             >
                               {!_.isArray(data[0]) ? item.path : item.name}

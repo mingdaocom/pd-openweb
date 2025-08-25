@@ -1,5 +1,5 @@
-import homeAppAjax from 'src/api/homeApp';
 import ajaxRequest from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 
 // 申请状况
@@ -17,7 +17,7 @@ const getAppApplyInfo = appId => (dispatch, getState) => {
   });
 };
 
-export const getMembers = appId => (dispatch, getState) => {
+export const getMembers = appId => dispatch => {
   dispatch({ type: 'MOBILE_FETCH_MEMBER_START' });
   Promise.all([
     homeAppAjax.getApp({ appId }).then(),
@@ -70,34 +70,36 @@ export const getMembers = appId => (dispatch, getState) => {
 };
 
 // 删除应用
-export const deleteApp = ({
-  projectId,
-  appId,
-}, cb) => (dispatch, getState) => {
-  dispatch({
-    type: 'MOBILE_ACTION_ING',
-  });
-  homeAppAjax.deleteApp({
-    appId,
-    projectId,
-    isHomePage: true,
-  }).then(res => {
-    cb && cb(res);
-  });
-};
+export const deleteApp =
+  ({ projectId, appId }, cb) =>
+  dispatch => {
+    dispatch({
+      type: 'MOBILE_ACTION_ING',
+    });
+    homeAppAjax
+      .deleteApp({
+        appId,
+        projectId,
+        isHomePage: true,
+      })
+      .then(res => {
+        cb && cb(res);
+      });
+  };
 
 // 退出应用
-export const quitApp = ({
-  appId,
-  projectId,
-}, cb) => (dispatch, getState) => {
-  dispatch({
-    type: 'MOBILE_ACTION_ING',
-  });
-  ajaxRequest.quitRole({
-    appId,
-    projectId,
-  }).then(res => {
-    cb && cb(res);
-  });
-};
+export const quitApp =
+  ({ appId, projectId }, cb) =>
+  dispatch => {
+    dispatch({
+      type: 'MOBILE_ACTION_ING',
+    });
+    ajaxRequest
+      .quitRole({
+        appId,
+        projectId,
+      })
+      .then(res => {
+        cb && cb(res);
+      });
+  };

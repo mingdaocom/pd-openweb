@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+
 export default class ViewGroup extends PureComponent {
   static propTypes = {
     hasViews: PropTypes.bool,

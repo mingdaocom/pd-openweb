@@ -100,10 +100,13 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
               sectionId: activeContainerInfo.sectionId || undefined,
               tabId: activeContainerInfo.tabId || undefined,
             });
-            setTimeout(() => {
-              const componentsWrap = document.querySelector('#componentsWrap');
-              componentsWrap.scrollTop = componentsWrap.scrollHeight;
-            });
+            const containerId = activeContainerInfo.sectionId || activeContainerInfo.tabId;
+            if (!containerId) {
+              setTimeout(() => {
+                const componentsWrap = document.querySelector('#componentsWrap');
+                componentsWrap.scrollTop = componentsWrap.scrollHeight;
+              });
+            }
           } else if (key === 'richText') {
             addWidget({
               type,
@@ -116,10 +119,13 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
               sectionId: activeContainerInfo.sectionId || undefined,
               tabId: activeContainerInfo.tabId || undefined,
             });
-            setTimeout(() => {
-              const componentsWrap = document.querySelector('#componentsWrap');
-              componentsWrap.scrollTop = componentsWrap.scrollHeight;
-            });
+            const containerId = activeContainerInfo.sectionId || activeContainerInfo.tabId;
+            if (!containerId) {
+              setTimeout(() => {
+                const componentsWrap = document.querySelector('#componentsWrap');
+                componentsWrap.scrollTop = componentsWrap.scrollHeight;
+              });
+            }
           } else {
             setWidget({ type: key });
           }

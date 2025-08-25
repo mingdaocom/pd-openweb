@@ -1,19 +1,24 @@
 import React from 'react';
 import { Modal, notification } from 'antd';
 
-export default function displayNotice({ noticeId, displayType, desc, title }) {
+export default function displayNotice({ noticeId, displayType, desc }) {
   const handleClose = () => {
     if (md.global.Config.IsLocal) return;
-    window.mdyAPI('', '', {
-      accountId: md.global.Account.accountId,
-      noticeId,
-      type: 3,
-    }, {
-      ajaxOptions: {
-        type: 'GET',
-        url: `${md.global.Config.MdNoticeServer}/notice/read`
-      }
-    });
+    window.mdyAPI(
+      '',
+      '',
+      {
+        accountId: md.global.Account.accountId,
+        noticeId,
+        type: 3,
+      },
+      {
+        ajaxOptions: {
+          type: 'GET',
+          url: `${md.global.Config.MdNoticeServer}/notice/read`,
+        },
+      },
+    );
   };
   if (desc) {
     if (displayType === 2) {

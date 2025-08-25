@@ -1,12 +1,12 @@
-import React, { useState, Fragment } from 'react';
-import { Modal } from 'ming-ui';
-import { IconButton, Icon } from './styled';
+import React, { Fragment, useState } from 'react';
 import Remarkable from 'remarkable';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
-import { MarkdownWithCSS } from './ChatBot/MarkdownWithCSS';
 import styled from 'styled-components';
+import { Modal } from 'ming-ui';
+import { MarkdownWithCSS } from './ChatBot/MarkdownWithCSS';
+import { Icon, IconButton } from './styled';
 
 const Con = styled.div`
   padding: 0px 0px 40px;
@@ -31,7 +31,7 @@ function RandomIdGenerator({ value, onChange }) {
           setId(newId);
           onChange(newId);
         }}
-        className="p-2 bg-[#2196f3] text-white rounded-full"
+        className="p-2 bg-[#1677ff] text-white rounded-full"
       >
         <LucideIcon name="RefreshCcw" size="16" />
       </button>
@@ -75,7 +75,7 @@ const md = mdParts.join('\n\n');
 const mdRemarkable = new Remarkable({
   breaks: true,
   typographer: true,
-  highlight(str, lang) {
+  highlight(str) {
     return highlight(str, languages.js);
   },
 });

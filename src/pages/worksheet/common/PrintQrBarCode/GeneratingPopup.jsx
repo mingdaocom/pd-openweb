@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import PDFObject, { embed } from 'pdfobject';
+import React, { useEffect, useRef } from 'react';
+import PDFObject from 'pdfobject';
 import styled from 'styled-components';
 import { FlexCenter, rotate } from 'worksheet/components/Basics';
 
@@ -59,7 +59,7 @@ const Pagination = styled.div`
     cursor: pointer;
     margin-right: 8px;
     &:not(.disabled):hover {
-      color: #2196F3;
+      color: #1677ff;
       background: #F5F5F5;
     }
     &.disabled {

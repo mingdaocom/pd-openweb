@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 import * as actions from '../../redux/actions';
-import { Icon, Dialog, Checkbox, LoadDiv } from 'ming-ui';
 
 const Wrap = styled.div`
   textarea {
@@ -12,12 +12,12 @@ const Wrap = styled.div`
     width: 432px;
     height: 360px;
     background: #ffffff;
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
     border-radius: 5px;
   }
 `;
 function SearchTelsDialog(props) {
-  const { portal = {}, show, setShow, setTelFilters, getList } = props;
+  const { portal = {}, show, setShow, setTelFilters } = props;
   const [tels, setTels] = useState(portal.telFilters || '');
   const onChange = value => {
     setTels(value);
@@ -34,7 +34,6 @@ function SearchTelsDialog(props) {
       }}
       onOk={() => {
         setTelFilters(tels);
-        getList();
         setShow(false);
       }}
     >

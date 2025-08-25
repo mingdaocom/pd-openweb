@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 
 const ToolbarIconWrap = styled.div`
   width: 30px;
@@ -28,7 +28,7 @@ export default class OperatorIcon extends Component {
           style={{ right: 12, top: 11, borderRadius: '50%', background: '#fff', width: 16, height: 16, zIndex: 9 }}
         />
         <Icon
-          icon="delete_out"
+          icon="cancel"
           className="Gray_9e Font20 Absolute ThemeHoverColor3 pointer"
           style={{ right: 10, top: 10, zIndex: 10 }}
           onClick={onClose}

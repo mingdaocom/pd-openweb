@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import AjaxLogin from 'src/api/login.js';
@@ -21,7 +21,7 @@ const types = {
   13: 'Google',
   14: 'Microsoft',
 };
-export default function (props) {
+export default function () {
   const [{ loading, name, avatar }, setState] = useSetState({ loading: true, name: '', avatar: '' });
   useEffect(() => {
     const { unionId, state, tpType } = getRequest();

@@ -1,11 +1,11 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import discussionAjax from 'src/api/discussion';
-import { SOURCE_TYPE } from './config';
 import CommentListItem from './commentListItem';
+import { SOURCE_TYPE } from './config';
 import './css/commentList.less';
-import _ from 'lodash';
 
 class CommentList extends React.Component {
   static propTypes = {
@@ -73,6 +73,7 @@ class CommentList extends React.Component {
           pageIndex: 1,
           isFocus: nextProps.isFocus,
           containAttachment: nextProps.containAttachment,
+          showReplyCommentId: '',
         },
         this.fetch,
       );
@@ -147,21 +148,21 @@ class CommentList extends React.Component {
       });
   }
 
-  switchReplyComment(discussionId) {
+  switchReplyComment = discussionId => {
     // 点击同一个隐藏
     if (discussionId === this.state.showReplyCommentId) {
       discussionId = '';
     }
     this.setState({ showReplyCommentId: discussionId });
-  }
+  };
 
-  updateComment(comment) {
+  updateComment = comment => {
     const commentList = this.props.commentList.map(item => {
       if (item.discussionId === comment.discussionId) return comment;
       else return item;
     });
     this.props.updateCommentList(commentList);
-  }
+  };
 
   render() {
     const { commentList, sourceId, sourceType, isFocus, containAttachment, children, nullCommentList } = this.props;
@@ -202,15 +203,15 @@ class CommentList extends React.Component {
       >
         {commentList
           .filter(o => !!o)
-          .map((item, index) => (
+          .map(item => (
             <CommentListItem
               key={item.discussionId}
               comment={item}
               storageId={`${sourceId}-${item.discussionId}`}
               sourceType={sourceType}
-              switchReplyComment={this.switchReplyComment.bind(this)}
+              switchReplyComment={this.switchReplyComment}
               removeComment={this.props.removeComment}
-              updateComment={comment => this.updateComment(comment)}
+              updateComment={this.updateComment}
             >
               {children && showReplyCommentId === item.discussionId
                 ? React.cloneElement(children, {

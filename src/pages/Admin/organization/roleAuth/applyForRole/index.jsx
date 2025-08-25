@@ -1,9 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
+import { Dialog, LoadDiv, UserHead } from 'ming-ui';
 import RoleController from 'src/api/role';
-import { LoadDiv, UserHead, Dialog } from 'ming-ui';
 import PaginationWrap from '../../../components/PaginationWrap';
 import './style.less';
-import _ from 'lodash';
 
 export default class ApplyForRole extends React.Component {
   constructor() {

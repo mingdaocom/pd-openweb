@@ -4,6 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { addBehaviorLog } from 'src/utils/project.js';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 
 const TelPhone = props => {
@@ -59,18 +60,6 @@ const TelPhone = props => {
   ).current;
 
   useEffect(() => {
-    if (_.isFunction(triggerCustomEvent)) {
-      triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-
-    return () => {
-      if (_.isFunction(triggerCustomEvent)) {
-        triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     setMaskStatus(_.get(props, 'advancedSetting.datamask') === '1');
   }, [flag]);
 
@@ -97,7 +86,13 @@ const TelPhone = props => {
         <span
           className={cx({ overflowEllipsis: !currentValue })}
           onClick={() => {
-            if (disabled && isMask) setMaskStatus(false);
+            if (disabled && isMask) {
+              addBehaviorLog('worksheetDecode', props.worksheetId, {
+                rowId: props.recordId,
+                controlId: props.controlId,
+              });
+              setMaskStatus(false);
+            }
           }}
         >
           {getShowValue()}

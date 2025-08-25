@@ -1,11 +1,10 @@
 import React, { useRef } from 'react';
-import { string } from 'prop-types';
+import moment from 'moment';
 import { DatePicker } from 'ming-ui';
 import Config from '../config';
 import { DatePickerFilterWrap } from './styled';
-import moment from 'moment';
 
-export default function datePickerFilter(props) {
+export default props => {
   const { updateData, dataConfig, ...rest } = props;
   const $ref = useRef(null);
   const formatDate = date => date.format('YYYY-MM-DD');
@@ -62,4 +61,4 @@ export default function datePickerFilter(props) {
       )}
     </DatePickerFilterWrap>
   );
-}
+};

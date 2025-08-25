@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import React, { Component, cloneElement } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './less/Score.less';
 
 class Score extends Component {
@@ -120,7 +120,7 @@ class Score extends Component {
     return (
       <div
         key={index}
-        data-tip={(this.props.disabled || hideTip) ? '' : index + 1}
+        data-tip={this.props.disabled || hideTip ? '' : index + 1}
         onClick={event => this.onSelect(index + 1, event)}
         onMouseEnter={event => this.onMouseEnter(index + 1, event)}
         onMouseLeave={this.onMouseLeave}
@@ -144,7 +144,7 @@ class Score extends Component {
       <div
         key={index}
         className="StarScore-item tip-top"
-        data-tip={(this.props.disabled || hideTip) ? '' : index + 1}
+        data-tip={this.props.disabled || hideTip ? '' : index + 1}
         onClick={event => this.onSelect(index + 1, event)}
         onMouseEnter={event => this.onMouseEnter(index + 1, event)}
         onMouseLeave={this.onMouseLeave}
@@ -160,7 +160,11 @@ class Score extends Component {
   render() {
     const { count, type } = this.props;
     const list = Array.from({ length: count });
-    return <div className="Score-wrapper">{list.map((item, index) => (type === 'line' ? this.renderLine(index) : this.renderStar(index)))}</div>;
+    return (
+      <div className="Score-wrapper">
+        {list.map((item, index) => (type === 'line' ? this.renderLine(index) : this.renderStar(index)))}
+      </div>
+    );
   }
 }
 

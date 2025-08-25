@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { VersionProductType } from 'src/utils/enum';
 
 export const menuList = [
@@ -7,7 +8,7 @@ export const menuList = [
     subMenuList: [
       {
         name: _l('首页'),
-        icon: 'icon-home1',
+        icon: 'icon-home_page',
         key: 'home',
         routes: [
           {
@@ -166,7 +167,7 @@ export const menuList = [
   {
     title: _l('应用管理'),
     key: 'apps',
-    icon: 'icon-now_widgets',
+    icon: 'icon-widgets',
     subMenuList: [
       {
         name: _l('使用分析%15003'),
@@ -231,6 +232,18 @@ export const menuList = [
             path: '/admin/variables/:projectId',
             exact: true,
             component: () => import('./app/globalVariable/index.jsx'),
+          },
+        ],
+      },
+      {
+        name: _l('额度管理'),
+        key: 'quota',
+        featureId: VersionProductType.quota,
+        routes: [
+          {
+            path: '/admin/quota/:projectId',
+            exact: true,
+            component: () => import('./app/quota'),
           },
         ],
       },

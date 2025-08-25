@@ -16,5 +16,5 @@ export const SYS_BTN_LIST = [
   { txt: _l('复制'), key: 'copy', icon: 'copy', color: '#757575' },
   { txt: _l('分享'), key: 'share', icon: 'share', color: '#757575' },
   { txt: _l('打印'), key: 'sysprint', icon: 'print', color: '#757575' },
-  { txt: _l('删除'), key: 'delete', icon: 'task-new-delete', color: '#E82828' },
+  { txt: _l('删除'), key: 'delete', icon: 'trash', color: '#E82828' },
 ];

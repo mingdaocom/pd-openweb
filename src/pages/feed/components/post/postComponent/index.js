@@ -1,6 +1,6 @@
 ﻿import React from 'react';
-import getSpecificComponent from './factory';
 import PropTypes from 'prop-types';
+import getSpecificComponent from './factory';
 
 class PostComponent extends React.Component {
   static propTypes = {

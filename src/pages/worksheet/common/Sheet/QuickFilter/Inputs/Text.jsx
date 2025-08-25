@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
@@ -21,10 +21,10 @@ const Con = styled.div`
   display: flex;
   align-items: center;
   height: 32px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
   border-radius: 4px 0 0 4px;
   &:hover {
-    border-color: #2196f3 !important;
+    border-color: #1677ff !important;
     .icon-cancel {
       display: inline-block;
     }
@@ -88,7 +88,7 @@ const IconBtn = styled.span`
   font-size: 18px;
   font-weight: bold;
   &.active {
-    color: #2196f3;
+    color: #1677ff;
   }
   &:hover {
     background-color: #f5f5f5;

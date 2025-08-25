@@ -68,6 +68,8 @@ export const VersionProductType = {
   flowPlugin: 42, // 工作表插件
   editAttachment: 43, // 附件编辑
   regularBackup: 44, // 定期备份
+  editProtect: 46, //编辑保护
+  quota: 47, // 额度管理
 };
 
 export const VersionProductHelpLink = {
@@ -98,4 +100,16 @@ export const VersionProductHelpLink = {
   31: 'https://help.mingdao.com/application/log',
   33: '',
   40: 'https://help.mingdao.com/org/payment',
+};
+
+export const FAST_GPT_CONFIG = {
+  baseUrl: 'https://api.fastgpt.in/api',
+  appId: '6686401ad09786ad4cf5af3b',
+  apiKey: 'fastgpt-glRUgG77BwL2f6DP8P31RzrvXOCFDqMlS8sfqipg4JcKzm7984FSRTDueQV',
+};
+
+export const FAST_GPT_CONFIG_DEV = {
+  baseUrl: 'https://api.fastgpt.in/api',
+  appId: '67a7382df3811da4b71c0c65',
+  apiKey: 'fastgpt-xAhbB4UMWWmqOfRNQGH3eYyiPgsnM7mbTcfdIbXitsDqXtXt9qpU',
 };

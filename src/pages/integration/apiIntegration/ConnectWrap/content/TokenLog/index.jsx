@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { LoadDiv, Icon, Dropdown } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { TableWrap } from 'src/pages/integration/apiIntegration/style';
-import { Table, ConfigProvider } from 'antd';
-import LogDialog from './LogDialog.jsx';
-import oauth2Ajax from 'src/pages/workflow/api/oauth2';
+import { ConfigProvider, Table } from 'antd';
+import cx from 'classnames';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Dropdown, Icon, LoadDiv } from 'ming-ui';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
+import oauth2Ajax from 'src/pages/workflow/api/oauth2';
+import { TableWrap } from 'src/pages/integration/apiIntegration/style';
+import LogDialog from './LogDialog.jsx';
 
 const Wrap = styled.div`
   width: 800px;
@@ -28,7 +28,7 @@ const Wrap = styled.div`
     border: 1px solid #e8e8e8;
     border-radius: 20px;
     padding: 0 48px;
-    color: #2196f3;
+    color: #1677ff;
   }
   .noData {
     text-align: center;
@@ -65,9 +65,9 @@ const Wrap = styled.div`
       td,
       th {
         .fromTxt {
-          color: #2196f3 !important;
+          color: #1677ff !important;
           a {
-            color: #2196f3 !important;
+            color: #1677ff !important;
           }
         }
       }
@@ -110,7 +110,7 @@ const Wrap = styled.div`
       opacity: 0;
     }
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
     &.hs {
       &:hover {
@@ -137,7 +137,7 @@ const Wrap = styled.div`
     border: 1px solid #ddd;
     border-radius: 3px;
     &:hover {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .dropSearchType,
@@ -150,8 +150,8 @@ const Wrap = styled.div`
 `;
 export default function Log(props) {
   const { logId } = props;
-  const [{ list, id, show, loading, pageIndex, isAll, keyWord, type, status, time, user, logInfo }, setState] =
-    useSetState({
+  const [{ list, show, loading, pageIndex, isAll, keyWord, type, status, time, user, logInfo }, setState] = useSetState(
+    {
       list: [],
       id: '',
       show: false,
@@ -164,7 +164,8 @@ export default function Log(props) {
       time: ['', ''],
       user: {},
       logInfo: null,
-    });
+    },
+  );
 
   const getHistoryListInfo = () => {
     if (isAll || loading) {
@@ -172,13 +173,13 @@ export default function Log(props) {
     }
     setState({ loading: true });
     let obj = {};
-    if (!!time[0]) {
+    if (time[0]) {
       obj.startDate = time[0].format('YYYY-MM-DD HH:mm:ss');
     }
-    if (!!time[1]) {
+    if (time[1]) {
       obj.endDate = time[1].format('YYYY-MM-DD HH:mm:ss');
     }
-    if (!!status) {
+    if (status) {
       obj.status = status;
     }
     oauth2Ajax
@@ -208,7 +209,7 @@ export default function Log(props) {
     {
       title: _l('节点'),
       dataIndex: 'title',
-      render: (text, record) => {
+      render: () => {
         // 来源有工作表和工作流，需要同时显示应用名称。显示为链接 ，点击可以跳转到对应的工作表和工作流；
         return (
           <div className="Bold WordBreak fromTxt">

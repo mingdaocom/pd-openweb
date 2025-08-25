@@ -1,13 +1,14 @@
-import React, { useState, Fragment } from 'react';
-import cx from 'classnames';
+import React, { Fragment } from 'react';
+import store from 'redux/configureStore';
 import { generate } from '@ant-design/colors';
-import SideWrap from 'src/pages/customPage/components/SideWrap';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
+import SideWrap from 'src/pages/customPage/components/SideWrap';
 import BgConfig from './BgConfig';
 import ChartColorConfig from './ChartColorConfig';
-import UrlparamsConfig from './UrlparamsConfig';
 import PageConfig from './PageConfig';
-import store from 'redux/configureStore';
+import UrlparamsConfig from './UrlparamsConfig';
 
 const SideWrapper = styled(SideWrap)`
   &.sideAbsolute {
@@ -35,14 +36,16 @@ const SideWrapper = styled(SideWrap)`
 `;
 
 const Wrap = styled.div`
-  .colorWrap, .addColor, .defaultColor {
+  .colorWrap,
+  .addColor,
+  .defaultColor {
     position: relative;
     cursor: pointer;
     margin-right: 10px;
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    border: 1px solid #E0E0E0;
+    border: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,7 +59,7 @@ const Wrap = styled.div`
       left: -3px;
       width: 32px;
       height: 32px;
-      border: 1px solid #E0E0E0;
+      border: 1px solid #e0e0e0;
       border-radius: 4px;
     }
   }
@@ -75,9 +78,9 @@ const Wrap = styled.div`
   .defaultColor {
     position: relative;
     &.active {
-      border-color: #2196F3;
+      border-color: #1677ff;
       &::after {
-        background-color: #2196F3;
+        background-color: #1677ff;
       }
     }
     &::after {
@@ -87,7 +90,7 @@ const Wrap = styled.div`
       left: 50%;
       width: 1px;
       height: 100%;
-      background-color: #E0E0E0;
+      background-color: #e0e0e0;
       transform: rotateZ(-45deg);
     }
   }
@@ -100,12 +103,12 @@ const Wrap = styled.div`
   .line {
     width: 100%;
     height: 1px;
-    background-color: #E6E6E6;
+    background-color: #e6e6e6;
   }
   .selectChartColor {
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #DDDDDD;
+    border: 1px solid #dddddd;
     .colorBlock {
       width: 24px;
       height: 24px;
@@ -120,8 +123,8 @@ const Wrap = styled.div`
     margin-right: 20px;
     font-weight: 600;
   }
-  .icon-delete1:hover {
-    color: #F44336 !important;
+  .icon-trash:hover {
+    color: #f44336 !important;
   }
   .typeSelect {
     font-size: 13px;
@@ -129,7 +132,7 @@ const Wrap = styled.div`
     width: max-content;
     padding: 3px;
     background-color: #eff0f0;
-    >div {
+    > div {
       height: 25px;
       line-height: 25px;
       padding: 0 15px;
@@ -138,27 +141,31 @@ const Wrap = styled.div`
       justify-content: center;
     }
     .active {
-      color: #2196F3 !important;
+      color: #1677ff !important;
       border-radius: 3px;
       font-weight: bold;
       background-color: #fff;
     }
   }
   .pageSelect {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector, &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      border-color: #2196F3 !important;
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
+      .ant-select-selector {
+      border-color: #1677ff !important;
     }
     .ant-select-selector {
       border-radius: 4px !important;
       box-shadow: none !important;
     }
     &.selectTitleSelect {
-      .ant-select-selector, .ant-select-selection-item {
+      .ant-select-selector,
+      .ant-select-selection-item {
         height: 42px;
         line-height: 40px;
       }
     }
-    .ant-select-selector, .ant-select-selection-item {
+    .ant-select-selector,
+    .ant-select-selection-item {
       height: 32px;
       line-height: 30px;
     }
@@ -167,7 +174,8 @@ const Wrap = styled.div`
       height: auto;
       top: 40%;
     }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
+    .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
       opacity: 1;
       font-size: 13px;
     }
@@ -183,10 +191,13 @@ const Wrap = styled.div`
         height: 30px;
       }
     }
-    &.ant-input-affix-wrapper:hover, &:hover {
-      border-color: #2196F3 !important;
+    &.ant-input-affix-wrapper:hover,
+    &:hover {
+      border-color: #1677ff !important;
     }
-    &.ant-input-affix-wrapper, &.ant-input-affix-wrapper-focused, & {
+    &.ant-input-affix-wrapper,
+    &.ant-input-affix-wrapper-focused,
+    & {
       border-radius: 4px !important;
       box-shadow: none !important;
     }
@@ -199,7 +210,8 @@ const Wrap = styled.div`
       border-left: 1px solid #d9d9d9;
       background-color: #fff;
     }
-    .icon-expand_less, .icon-expand_more {
+    .icon-expand_less,
+    .icon-expand_more {
       line-height: 10px;
     }
     &.ant-picker-range .ant-picker-input > input {
@@ -233,10 +245,10 @@ export const defaultConfig = {
   downloadVisible: true,
   fullScreenVisible: true,
   customColors: [],
-  webNewCols: 48
+  webNewCols: 48,
 };
 
-export default (props) => {
+export default props => {
   const { adjustScreen, className, urlParams = [] } = props;
   const { onClose, updatePageInfo, updateModified = _.noop } = props;
   const { appPkg } = store.getState();
@@ -249,50 +261,48 @@ export default (props) => {
     const params = {
       config: {
         ...config,
-        ...data
-      }
+        ...data,
+      },
     };
     if (data.autoLinkage === false) {
       params.linkageFiltersGroup = {};
     }
     updatePageInfo(params);
-  }
+  };
 
-  const themeColors = [{
-    color: iconColor,
-    title: _l('主题深色'),
-    value: 'iconColor',
-    className: 'themeColorWrap'
-  }, {
-    color: lightColor,
-    title: _l('主题浅色'),
-    value: 'lightColor',
-    className: 'themeColorWrap'
-  }];
+  const themeColors = [
+    {
+      color: iconColor,
+      title: _l('主题深色'),
+      value: 'iconColor',
+      className: 'themeColorWrap',
+    },
+    {
+      color: lightColor,
+      title: _l('主题浅色'),
+      value: 'lightColor',
+      className: 'themeColorWrap',
+    },
+  ];
 
   return (
     <SideWrapper
       isMask={true}
       className={cx('white', className)}
-      headerText={(
+      headerText={
         <Fragment>
           <span className="Font17">{_l('页面配置')}</span>
         </Fragment>
-      )}
+      }
       onClose={() => {
         updatePageInfo({
-          urlParams: _.uniq(urlParams.filter(value => value))
+          urlParams: _.uniq(urlParams.filter(value => value)),
         });
         onClose();
       }}
     >
       <Wrap>
-        <BgConfig
-          appPkg={appPkg}
-          themeColors={themeColors}
-          config={config}
-          handleChangeConfig={handleChangeConfig}
-        />
+        <BgConfig appPkg={appPkg} themeColors={themeColors} config={config} handleChangeConfig={handleChangeConfig} />
         <div className="line mTop20 mBottom20" />
         <ChartColorConfig
           appPkg={appPkg}
@@ -301,10 +311,7 @@ export default (props) => {
           handleChangeConfig={handleChangeConfig}
         />
         <div className="line mTop20 mBottom20" />
-        <UrlparamsConfig
-          urlParams={urlParams}
-          updatePageInfo={updatePageInfo}
-        />
+        <UrlparamsConfig urlParams={urlParams} updatePageInfo={updatePageInfo} />
         <div className="line mTop20 mBottom20" />
         <PageConfig
           appPkg={appPkg}
@@ -316,4 +323,4 @@ export default (props) => {
       </Wrap>
     </SideWrapper>
   );
-}
+};

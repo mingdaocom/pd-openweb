@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Dialog, Button, Support } from 'ming-ui';
 import { Input } from 'antd';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { SettingItem } from '../../../styled';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Button, Dialog, Support } from 'ming-ui';
+import { SettingItem } from '../../../styled';
 
 const TimeFormatConfigWrap = styled.div`
   .intro {

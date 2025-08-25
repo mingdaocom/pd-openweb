@@ -44,7 +44,9 @@ var ShareFolder = function (options) {
   var shareId;
   try {
     shareId = location.pathname.match(/.*\/apps\/kcshareFolder\/(\w+)/)[1];
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   if (shareId) {
     shareajax.getShareFolder({ shareId, token: this.urlParams.token }).then(data => {
       if (data.node) {
@@ -131,7 +133,7 @@ ShareFolder.prototype = {
         );
       }
     });
-    $('.shareFolderCon .main').on('scroll', function (e) {
+    $('.shareFolderCon .main').on('scroll', function () {
       var conHeight = $(this).height();
       var scrollTop = $(this).scrollTop();
       var contentHeight = $('.shareFolderCon .main .fileList').height();
@@ -163,7 +165,7 @@ ShareFolder.prototype = {
         };
       }
     });
-    this.$container.find('.main').on('touchend', function (e) {
+    this.$container.find('.main').on('touchend', function () {
       SF.data.isTouching = false;
       $('.scaleBox').animate({ height: 0 }, 'fast');
     });

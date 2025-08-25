@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Checkbox, Icon, Tooltip } from 'ming-ui';
 
 const ChartColorSettingBox = styled.div(
@@ -16,7 +16,7 @@ const ChartColorSettingBox = styled.div(
   flex-direction: column;
   position: relative;
   &:hover {
-    border: 1px solid #2196F3;
+    border: 1px solid #1677ff;
     .chartWrap,
     .titleWrap {
       opacity: 1;
@@ -36,7 +36,7 @@ const ChartColorSettingBox = styled.div(
     &:hover {
       & + .ChartColorSetting_checkbox {
         .Checkbox-box {
-          border: 1px solid #2196F3;
+          border: 1px solid #1677ff;
         }
       }
     }
@@ -64,7 +64,7 @@ const ChartColorSettingBox = styled.div(
       i {
         color: #9E9E9E;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -195,7 +195,7 @@ export default function ChartColorSetting(props) {
       )}
       <div className="titleWrap" onClick={openDialog}>
         <span className="ellipsis flex Bold">
-          <Tooltip text={name}>
+          <Tooltip text={name} autoCloseDelay={0}>
             <span>{name}</span>
           </Tooltip>
         </span>
@@ -212,7 +212,7 @@ export default function ChartColorSetting(props) {
           }}
         >
           <span className="option" onClick={e => e.stopPropagation()}>
-            <i className="icon-task-point-more Font16"></i>
+            <i className="icon-more_horiz Font16"></i>
           </span>
         </Trigger>
       </div>

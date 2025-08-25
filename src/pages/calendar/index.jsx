@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import './modules/calendarControl/css/fullcalendar.less';
-import './modules/css/share.less';
-import fullCalendar from './modules/calendarControl/javascript/fullcalendar';
-
-import toolBar from './modules/toolbar/toolbar';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
+import fullCalendar from './modules/calendarControl/javascript/fullcalendar';
+import toolBar from './modules/toolbar/toolbar';
+import './modules/calendarControl/css/fullcalendar.less';
+import './modules/css/share.less';
 
 export default class CalendarEntrypoint extends Component {
   constructor(props) {
@@ -37,7 +36,7 @@ export default class CalendarEntrypoint extends Component {
     }
 
     const _this = this;
-    $('#calendar').on('openTask', function(event, taskId) {
+    $('#calendar').on('openTask', function (event, taskId) {
       _this.setState({ openTaskDetail: true, taskId });
     });
   }

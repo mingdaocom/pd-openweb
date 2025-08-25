@@ -20,8 +20,8 @@ const Wrap = styled.div`
     border: 1px solid #dddddd;
     display: inline-block;
     &:hover {
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
     }
   }
   .AddSortCon .Dropdown--input {
@@ -30,7 +30,7 @@ const Wrap = styled.div`
 `;
 
 export default function (props) {
-  const { appId, columns, view = {}, updateCurrentView, sortConditions } = props;
+  const { appId, columns, view = {}, updateCurrentView } = props;
   const canSortLIst = columns.filter(
     o =>
       !(
@@ -194,6 +194,7 @@ export default function (props) {
               }}
             />
             <Tooltip
+              autoCloseDelay={0}
               popupPlacement="bottom"
               tooltipStyle={{ 'max-width': 320 }}
               text={_l(

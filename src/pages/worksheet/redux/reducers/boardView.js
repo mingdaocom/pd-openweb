@@ -1,5 +1,6 @@
 import update from 'immutability-helper';
-import { get, head, isArray } from 'lodash';
+import { get, head } from 'lodash';
+import _ from 'lodash';
 import findIndex from 'lodash/findIndex';
 import { WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
 
@@ -13,37 +14,60 @@ export const getIndex = (state, data) => {
     if (rowIndex < 0) return null;
     return [keyIndex, rowIndex];
   } catch (error) {
+    console.log(error);
     return null;
   }
 };
 // 删除记录
-const delRecord = (state, data) => {
+export const delRecord = (state, data) => {
   const indexList = getIndex(state, data);
   if (!indexList) return state;
   const [keyIndex, rowIndex] = indexList;
-  return update(state, { [keyIndex]: { rows: { $splice: [[rowIndex, 1]] } } });
+  return update(state, { [keyIndex]: { rows: { $splice: [[rowIndex, 1]] }, totalNum: { $apply: num => num - 1 } } });
 };
 
 const sortBoardRecord = (state, data) => {
-  const { targetKey, rowId, key, value } = data;
+  const {
+    key,
+    targetKey,
+    value,
+    firstGroupChange,
+    firstGroupControlId,
+    secondGroupValue,
+    secondGroupChange,
+    secondGroupControlId,
+  } = data;
   const indexList = getIndex(state, data);
   if (!indexList) return state;
   const [keyIndex, rowIndex] = indexList;
   const targetIndex = findIndex(state, item => item.key === targetKey);
   const originData = JSON.parse(get(state, [keyIndex, 'rows', rowIndex]));
   // 多选单独处理 防止重复
-  if (get(head(state), 'type') === 10) {
-    const targetBoard = state.find(item => item.key === targetKey);
-    const ids = (_.get(targetBoard, 'rows') || []).map(item => _.get(JSON.parse(item), 'rowid'));
-    if (ids.includes(rowId)) {
-      return update(state, {
-        [keyIndex]: { rows: { $splice: [[rowIndex, 1]] } },
-      });
-    }
+  // if (get(head(state), 'type') === 10) {
+  //   const targetBoard = state.find(item => item.key === targetKey);
+  //   const ids = (_.get(targetBoard, 'rows') || []).map(item => _.get(JSON.parse(item), 'rowid'));
+  //   if (ids.includes(rowId)) {
+  //     return update(state, {
+  //       [keyIndex]: { rows: { $splice: [[rowIndex, 1]] } },
+  //     });
+  //   }
+  // }
+  const updateValue = {
+    ...(firstGroupChange ? { [firstGroupControlId]: value } : {}),
+    ...(secondGroupChange ? { [secondGroupControlId]: secondGroupValue } : {}),
+  };
+  if (key === targetKey) {
+    return update(state, {
+      [keyIndex]: {
+        rows: {
+          [rowIndex]: { $set: JSON.stringify({ ...originData, ...updateValue }) },
+        },
+      },
+    });
   }
   return update(state, {
     [keyIndex]: { rows: { $splice: [[rowIndex, 1]] } },
-    [targetIndex]: { rows: { $unshift: [JSON.stringify({ ...originData, [key]: value })] } },
+    [targetIndex]: { rows: { $unshift: [JSON.stringify({ ...originData, ...updateValue })] } },
   });
 };
 
@@ -61,7 +85,7 @@ const getKeyAndName = data => {
   const dealFn = parseData => {
     const firstItem = head(parseData);
     if (_.includes([26, 27, 48], type)) {
-      return { name: JSON.stringify(firstItem), targetKey: _.get(firstItem, WIDGET_VALUE_ID[TYPE]) };
+      return { name: JSON.stringify(firstItem), targetKey: _.get(firstItem, WIDGET_VALUE_ID[type]) };
     }
     if (type === 29) {
       return { name: firstItem.name, targetKey: _.get(firstItem, 'sid') };
@@ -80,6 +104,7 @@ const getKeyAndName = data => {
       }
       return defaultPara;
     } catch (error) {
+      console.log(error);
       return defaultPara;
     }
   }
@@ -87,7 +112,7 @@ const getKeyAndName = data => {
 };
 
 // 更新记录
-const updateRecord = (state, data) => {
+export const updateRecord = (state, data) => {
   const indexList = getIndex(state, data);
   if (!indexList) return state;
   const [keyIndex, rowIndex] = indexList;
@@ -101,7 +126,8 @@ const updateRecord = (state, data) => {
     }
   }
   if (data.target !== undefined) {
-    const { name, targetKey } = getKeyAndName(data);
+    let { name, targetKey } = getKeyAndName(data);
+    if (targetKey === 'user-undefined') targetKey = '-1';
     const targetIndex = _.findIndex(state, item => item.key === targetKey);
     if (targetIndex < 0) {
       // 当使用关联表作为看板分组 且清空对应字段关联表时
@@ -136,7 +162,7 @@ const updateRecord = (state, data) => {
   return update(state, { [keyIndex]: { rows: { $splice: [[rowIndex, 1, JSON.stringify(data.item)]] } } });
 };
 
-const addRecord = (state, data) => {
+export const addRecord = (state, data) => {
   const { item, key } = data;
   const keyIndex = _.findIndex(state, item => item.key === key);
   if (keyIndex < 0) return state;
@@ -160,7 +186,7 @@ const updateTitleData = (state, obj) => {
   });
 };
 
-function updateMultiSelectBoard(boardData, data) {
+export function updateMultiSelectBoard(boardData, data) {
   const { rowId, item, prevValue, currentValue, info = {}, selectControl = {} } = data;
   const prevKeys = JSON.parse(prevValue || '[]');
   const currKeys = JSON.parse(currentValue || '[]');
@@ -232,10 +258,15 @@ const INIT_STATE = {
   boardData: [],
   loading: false,
   boardViewState: { hasMoreData: true, kanbanIndex: 1 },
+  boardViewCard: {
+    needUpdate: true,
+    height: 0,
+  },
+  sortedOptionKeys: [],
 };
 export default function boardView(state = INIT_STATE, action) {
   const { type, data } = action;
-  const { boardData, boardViewState, boardViewRecordCount } = state;
+  const { boardData, boardViewState, boardViewRecordCount, boardViewCard } = state;
   switch (type) {
     case 'CHANGE_BOARD_VIEW_DATA':
     case 'UPDATE_BOARD_VIEW_DATA':
@@ -270,6 +301,10 @@ export default function boardView(state = INIT_STATE, action) {
       return { ...state, boardData: updateMultiSelectBoard(boardData, data) };
     case 'CLEAR_BOARD_VIEW':
       return { ...state, ...INIT_STATE, boardViewLoading: true };
+    case 'UPDATE_BOARD_VIEW_CARD':
+      return { ...state, boardViewCard: { ...boardViewCard, ...data } };
+    case 'UPDATE_BOARD_VIEW_SORTED_OPTION_KEYS':
+      return { ...state, sortedOptionKeys: data };
     default:
       return state;
   }

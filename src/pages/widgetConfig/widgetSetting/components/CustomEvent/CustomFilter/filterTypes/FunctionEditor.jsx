@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import FunctionEditorDialog from '../../../FunctionEditorDialog';
 

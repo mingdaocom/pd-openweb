@@ -1,10 +1,10 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Dialog, Dropdown, Radio } from 'ming-ui';
 import { rolePropType } from 'src/pages/Role/config';
-import cx from 'classnames';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   .roleSelect {

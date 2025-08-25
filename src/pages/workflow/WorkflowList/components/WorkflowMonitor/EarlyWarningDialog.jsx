@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Select } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Checkbox, Dialog, Icon, Input, Tooltip, UserHead } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -36,8 +36,8 @@ const AddNotifierBtn = styled.div`
   border-radius: 50%;
   color: #757575;
   &:hover {
-    border: 1px solid #2196f3;
-    color: #2196f3;
+    border: 1px solid #1677ff;
+    color: #1677ff;
   }
 `;
 
@@ -72,7 +72,7 @@ class EarlyWarningDialog extends Component {
     super(props);
     this.state = {
       notifiers: props.notifiers || [],
-      warningValue: props.type === 'balance' && props.warningValue < 10 ? undefined : props.warningValue,
+      warningValue: props.type === 'balance' && props.warningValue < 10 ? undefined : props.warningValue || undefined,
       noticeTypes: props.noticeTypes && props.noticeTypes.length ? props.noticeTypes : ['1'],
     };
   }
@@ -98,14 +98,8 @@ class EarlyWarningDialog extends Component {
   };
 
   changeBalanceWarningValue = value => {
-    const { type = 'balance' } = this.props;
     let val = value.replace(/[^0-9]/g, '');
-    const overLimit =
-      type === 'workflow' ? Number(val) < 1 || Number(val) > 100001 : Number(val) < 10 || Number(val) > 100000;
-
-    overLimit && alert(ALERT_TIP[type], 3);
-
-    this.setState({ warningValue: val, overLimit });
+    this.setState({ warningValue: val });
   };
 
   onChangeNoticeTypes = value => {
@@ -134,6 +128,16 @@ class EarlyWarningDialog extends Component {
           className={cx('mRight16', { overLimit, mTop10: _.includes([1], getCurrentLangCode()) })}
           value={warningValue}
           onChange={this.changeBalanceWarningValue}
+          onBlur={e => {
+            let val = e.target.value;
+            val = val.replace(/[^0-9]/g, '');
+            const overLimit =
+              type === 'workflow' ? Number(val) < 1 || Number(val) > 100001 : Number(val) < 10 || Number(val) > 100000;
+
+            overLimit && alert(ALERT_TIP[type], 3);
+
+            this.setState({ warningValue: val, overLimit });
+          }}
         />
         <span>{type === 'balance' ? _l('时%25310') : _l('条时')}</span>
       </div>
@@ -147,7 +151,7 @@ class EarlyWarningDialog extends Component {
       <NoticeMethod className="mTop26">
         <div className="mBottom12">
           {_l('通知方式')}
-          <Tooltip text={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
+          <Tooltip autoCloseDelay={0} text={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
             <Icon icon="info" className="Gray_bd mLeft8 Font16" />
           </Tooltip>
         </div>
@@ -182,6 +186,7 @@ class EarlyWarningDialog extends Component {
             <div>
               <span>{_l('余额预警')}</span>
               <Tooltip
+                autoCloseDelay={0}
                 text={_l(
                   '设置后，在扣款时若组织账户余额低于预警值则会发送预警给通知人（每天仅发送 1 次预警，若重置预警值则会再次发送）',
                 )}
@@ -216,7 +221,8 @@ class EarlyWarningDialog extends Component {
             </Button>
             <Button
               onClick={() => {
-                if (overLimit) {
+                if (overLimit || !warningValue) {
+                  this.setState({ overLimit: true });
                   alert(ALERT_TIP[type], 3);
                   return;
                 }

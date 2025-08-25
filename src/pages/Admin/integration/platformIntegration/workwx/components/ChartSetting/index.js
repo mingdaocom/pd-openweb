@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { Input, Button } from 'ming-ui';
+import React, { useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Button, Input } from 'ming-ui';
 
 const Wrap = styled.div`
   padding: 20px 24px 0;

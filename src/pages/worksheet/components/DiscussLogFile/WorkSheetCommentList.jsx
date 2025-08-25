@@ -87,7 +87,7 @@ export default class WorkSheetCommentList extends Component {
     return (
       <div
         className={cx('commentFilterBtn', { isActive: isFocus })}
-        onClick={e => this.setState({ isFocus: !isFocus, focusType: 0 })}
+        onClick={() => this.setState({ isFocus: !isFocus, focusType: 0 })}
       >
         {isFocus && <Icon icon="done" className="mRight5 Font14" />}
         <span>{focusType ? _.find(FILTER_OPTIONS, l => l.value === focusType).label : _l('与我有关')}</span>

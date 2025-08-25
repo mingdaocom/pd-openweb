@@ -1,12 +1,33 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, Fragment, useState } from 'react';
 import { Button, Checkbox, ConfigProvider, Input, Modal, Radio, Select } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { SortableList } from 'ming-ui';
 import { ColorPicker, Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
 import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
 import { formatNumberFromInput } from 'src/utils/control';
 import './RuleColor.less';
+
+const MemoColorPicker = props => {
+  const { onChange } = props;
+  const [color, setColor] = useState(props.color);
+  return (
+    <ColorPicker
+      isPopupBody
+      value={color}
+      onChange={value => {
+        setColor(value);
+        onChange(value);
+      }}
+    >
+      <div className="palette valignWrapper pointer">
+        <div className="colorBox" style={{ backgroundColor: color }}></div>
+        <Icon icon="expand_more" className="Gray_9e Font20" />
+      </div>
+    </ColorPicker>
+  );
+};
 
 const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
   const { rulesLength, isPercent } = otherProps;
@@ -48,7 +69,7 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
               value={min}
               placeholder={_l('最小值')}
               className="chartInput"
-              onChange={e => {
+              onChange={event => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ min: value ? value : undefined }, ruleIndex);
               }}
@@ -66,7 +87,7 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
               value={value}
               placeholder={_l('值')}
               className="chartInput"
-              onChange={e => {
+              onChange={event => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ value: value ? value : undefined }, ruleIndex);
               }}
@@ -101,7 +122,7 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
               value={max}
               placeholder={_l('最大值')}
               className="chartInput"
-              onChange={e => {
+              onChange={event => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ max: value ? value : undefined }, ruleIndex);
               }}
@@ -114,18 +135,12 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
         )}
       </div>
       <div className="mLeft10 mRight10">{_l('则为')}</div>
-      <ColorPicker
-        isPopupBody
-        value={color}
+      <MemoColorPicker
+        color={color}
         onChange={value => {
           otherProps.onSetRule({ color: value }, ruleIndex);
         }}
-      >
-        <div className="palette valignWrapper pointer">
-          <div className="colorBox" style={{ backgroundColor: color }}></div>
-          <Icon icon="expand_more" className="Gray_9e Font20" />
-        </div>
-      </ColorPicker>
+      />
       <Icon
         className={cx('pointer Font20 mLeft5', rulesLength === 1 ? 'Gray_d' : 'Gray_bd')}
         icon="close"
@@ -227,7 +242,7 @@ class ColorLevel extends Component {
             value={value}
             placeholder={placeholder}
             className="chartInput flex mRight10"
-            onChange={e => {
+            onChange={event => {
               let value = formatNumberFromInput(event.target.value);
               onChange({
                 ...data,

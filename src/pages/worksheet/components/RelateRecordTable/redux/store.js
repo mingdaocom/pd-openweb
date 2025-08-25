@@ -2,10 +2,10 @@ import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { find, get, includes, isEmpty } from 'lodash';
 import { v4 } from 'uuid';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { isRelateRecordTableControl } from 'src/utils/control';
 import { init, refresh } from './action';
 import reducer from './reducer';
-
 
 export default function generateStore(
   control,
@@ -15,13 +15,14 @@ export default function generateStore(
     isCharge,
     appId,
     recordId,
-    saveSync = true,
     allowEdit,
     worksheetId,
     formData = [],
     instanceId,
     pageSize,
     workId,
+    isDraft,
+    openFrom,
   } = {},
 ) {
   if (!pageSize) {
@@ -48,7 +49,11 @@ export default function generateStore(
       formData,
       instanceId,
       workId,
-      saveSync,
+      saveSync:
+        includes(
+          [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)],
+          String(get(control, 'advancedSetting.showtype', true)),
+        ) || openFrom === 'cell',
       treeLayerControlId,
       isTreeTableView:
         treeLayerControl &&
@@ -56,6 +61,7 @@ export default function generateStore(
         !isRelateRecordTableControl(treeLayerControl) &&
         !!treeLayerControlId,
       initialCount: Number(control.initialValue || control.value || 0),
+      isDraft,
     },
   });
   store.dispatch({

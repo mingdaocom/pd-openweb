@@ -1,9 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import log from './utils/log';
-import { MarkerConfigurableProps, MarkerAllProps, renderMarkerComponent } from './utils/markerUtils';
-import { getAMapPosition, getAMapPixel, isFun, toCapitalString } from './utils/common';
 import PropTypes from 'prop-types';
+import { getAMapPixel, isFun, toCapitalString } from './utils/common';
+import log from './utils/log';
+import { MarkerAllProps, MarkerConfigurableProps, renderMarkerComponent } from './utils/markerUtils';
 
 class Marker extends React.Component {
   static propTypes = {

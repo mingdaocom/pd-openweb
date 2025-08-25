@@ -4,6 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import SelectUser from 'mobile/components/SelectUser';
+import { compatibleMDJS } from 'src/utils/project';
 import { dealUserRange } from '../../../core/utils';
 import { useFormStore } from '../../../index';
 import { getTabTypeBySelectUser, getUserValue } from '../../tools/utils';
@@ -32,7 +33,6 @@ const UserItemBox = styled.div`
 
 function UserSelect(props) {
   const {
-    from,
     projectId,
     disabled,
     formDisabled,
@@ -50,7 +50,6 @@ function UserSelect(props) {
   } = useFormStore();
   const userHeadSize = emSizeNum * 1.5 + 6;
   const selectUsers = getUserValue(value);
-  const filterAccountIds = _.map(selectUsers, 'accountId');
   const [showSelectUser, setShowSelectUser] = useState(false);
   const isUnique = enumDefault === 0;
 
@@ -67,20 +66,9 @@ function UserSelect(props) {
       return;
     }
 
-    if (
-      window.isMingDaoApp &&
-      advancedSetting.usertype === '1' &&
-      enumDefault2 !== 1 &&
-      window.MDJS &&
-      window.MDJS.chooseUsers
-    ) {
-      // 仅限内部用户
-      // 支持全范围选择
-      // 支持限定网络下选择
-      // 不支持指定成员选择
-      // 不支持外部用户选择
-      window.MDJS.chooseUsers({
-        projectId: projectId, // 网络ID, 默认为空, 不限制
+    if (window.isMingDaoApp && advancedSetting.usertype === '1' && enumDefault2 !== 1) {
+      compatibleMDJS('chooseUsers', {
+        projectId: enumDefault2 === 2 ? projectId : undefined, // 网络ID, 默认为空, 不限制
         count: isUnique ? 1 : '', // 默认为空, 不限制数量
         //暂不支持 appointed:[], // [accountId], 特定列表, 只加载约定用户
         selected: selectUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })), // 已选中的用户, 交互上可以取消 [{accountId, fullname, avatar}]
@@ -100,9 +88,7 @@ function UserSelect(props) {
 
           onChange(JSON.stringify(results));
         },
-        cancel: function (res) {
-          // 用户取消
-        },
+        cancel: function () {},
       });
       return;
     }
@@ -120,9 +106,37 @@ function UserSelect(props) {
     onChange(JSON.stringify(newValue));
   };
 
+  const syncObject = obj => {
+    // 同步 name / fullname / fullName
+    const nameValue = obj.name ?? obj.fullname ?? obj.fullName;
+    if (nameValue !== undefined) {
+      obj.name = nameValue;
+      obj.fullname = nameValue;
+      obj.fullName = nameValue;
+    }
+
+    // 同步 accountId / id
+    const idValue = obj.accountId ?? obj.id;
+    if (idValue !== undefined) {
+      obj.accountId = idValue;
+      obj.id = idValue;
+    }
+
+    return obj;
+  };
+
+  const formatSelectUser = () => {
+    return selectUsers.map(syncObject);
+  };
+
   const renderItem = item => {
     return (
-      <UserItemBox key={item.accountId} userHeadSize={userHeadSize} className="customFormCapsule">
+      <UserItemBox
+        key={item.accountId}
+        userHeadSize={userHeadSize}
+        className="customFormCapsule"
+        onClick={() => compatibleMDJS('userDetail', { accountId: item.accountId })}
+      >
         <img className="userHead" src={item.avatar} />
         <div className="userName">{item.name || item.fullname || item.fullName}</div>
 
@@ -175,7 +189,7 @@ function UserSelect(props) {
           // filterAccountIds={filterAccountIds}
           onClose={() => setShowSelectUser(false)}
           onSave={onSave}
-          selectedUsers={selectUsers}
+          selectedUsers={formatSelectUser()}
         />
       )}
     </div>

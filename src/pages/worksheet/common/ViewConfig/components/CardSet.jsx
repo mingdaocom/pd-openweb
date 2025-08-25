@@ -66,7 +66,7 @@ export default function CardSet(props) {
         handleChangeSort={({ newControlSorts, newShowControls }) => {
           if (['board', 'gallery'].includes(viewTypeText)) {
             let showcount = _.get(view, 'advancedSetting.showcount');
-            showcount = !!showcount
+            showcount = showcount
               ? newShowControls.length <= 0
                 ? undefined
                 : Number(showcount) > newShowControls.length

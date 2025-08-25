@@ -4,7 +4,7 @@ export const getNodeList = res => {
   const getList = startEventId => {
     let data = res.flowNodeMap[startEventId];
     l.push(data);
-    if (!!res.flowNodeMap[data.nextId]) {
+    if (res.flowNodeMap[data.nextId]) {
       getList(data.nextId);
     }
   };

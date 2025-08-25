@@ -9,7 +9,7 @@ import '../style.less';
 
 const getInitialLoadType = inboxType => {
   if (inboxType && DROPDOWN_GROUPLIST[inboxType]) {
-    return _(DROPDOWN_GROUPLIST[inboxType]).head();
+    return DROPDOWN_GROUPLIST[inboxType][0];
   } else {
     throw new Error('type in options not recognized!');
   }
@@ -26,7 +26,7 @@ export default class Inbox extends React.Component {
 
   static defaultProps = {
     clearUnread: false,
-    callback: $.noop(),
+    callback: () => {},
   };
 
   state = {

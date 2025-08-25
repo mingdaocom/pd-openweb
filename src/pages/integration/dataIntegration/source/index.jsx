@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Support, Icon } from 'ming-ui';
-import _ from 'lodash';
-import { AddOrEditSource, SourceList } from './components';
+import { Icon, Support } from 'ming-ui';
 import SourceSelectModal from '../components/SourceSelectModal';
+import { AddOrEditSource, SourceList } from './components';
 
 const DataSourceWrapper = styled.div`
   background: #fff;
@@ -18,7 +17,7 @@ const DataSourceWrapper = styled.div`
 
     .addSourceButton {
       padding: 8px 24px;
-      background: #2196f3;
+      background: #1677ff;
       border-radius: 18px;
       color: #fff;
       display: inline-block;

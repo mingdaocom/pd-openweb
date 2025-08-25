@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
 import { SvgIcon } from 'ming-ui';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Plugin extends Component {
   constructor(props) {
@@ -17,7 +17,7 @@ export default class Plugin extends Component {
     if (item.appId && !item.appName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('插件已删除')}
         </div>
       );
@@ -30,7 +30,7 @@ export default class Plugin extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('节点存在异常')}
         </div>
       );
@@ -62,11 +62,11 @@ export default class Plugin extends Component {
               ) : (
                 <i
                   className="workflowAvatar icon-workflow"
-                  style={{ background: (item.fields || []).length ? item.iconColor || '#2196f3' : '#ddd' }}
+                  style={{ background: (item.fields || []).length ? item.iconColor || '#1677ff' : '#ddd' }}
                 />
               )}
             </div>
-            <NodeOperate nodeStyle={{ background: item.iconColor || '#2196f3' }} {...this.props} />
+            <NodeOperate nodeStyle={{ background: item.iconColor || '#1677ff' }} {...this.props} />
             <div className="workflowContent Font13">
               {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>

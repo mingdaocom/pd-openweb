@@ -1,23 +1,24 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { generate } from '@ant-design/colors';
 import cx from 'classnames';
-import { ScrollView, RichText, Skeleton } from 'ming-ui';
-import * as actions from '../redux/actions';
-import { Absolute, BlackBtn, Hr, FormTopImgCon } from 'worksheet/components/Basics';
-import Logo from '../components/Logo';
-import EditableText from '../components/EditableText';
-import EditableButton from '../components/EditableButton';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Menu, MenuItem, RichText, ScrollView, Skeleton } from 'ming-ui';
+import { Absolute, BlackBtn, FormTopImgCon, Hr } from 'worksheet/components/Basics';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import BgContainer from '../components/BgContainer';
+import EditableButton from '../components/EditableButton';
+import EditableText from '../components/EditableText';
+import Logo from '../components/Logo';
+import { themes } from '../enum';
+import * as actions from '../redux/actions';
+import { getDisabledControls, getPageConfig, overridePos } from '../utils';
 import AppearanceConfig from './AppearanceConfig';
 import FormPreview from './FormPreview';
-import { themes } from '../enum';
-import { getDisabledControls, overridePos, getPageConfig } from '../utils';
-import _ from 'lodash';
-import { generate } from '@ant-design/colors';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 
 const TopBar = styled.div(
   ({ color }) => `
@@ -72,14 +73,14 @@ class PublicWorksheetConfigForm extends React.Component {
     super(props);
     this.state = {
       appearanceConfigVisible: false,
-      isEditing: false,
+      headerPopupVisible: false,
     };
   }
 
   componentDidMount() {
     window.scrollToFormEnd = () => {
       if (this.con) {
-        $(this.con).find('.nano').nanoScroller({ scroll: 'bottom' });
+        $(this.con).find('.scrollViewContainer .scroll-viewport').scrollTop(100000);
       }
     };
   }
@@ -93,7 +94,7 @@ class PublicWorksheetConfigForm extends React.Component {
     const { themeBgColor, themeColor } = config;
 
     if (!themeBgColor) {
-      return !themes[themeColor] ? '#2196f3' : (themes[themeColor] || {}).main;
+      return !themes[themeColor] ? '#1677ff' : (themes[themeColor] || {}).main;
     } else {
       return themeBgColor;
     }
@@ -103,6 +104,53 @@ class PublicWorksheetConfigForm extends React.Component {
     const { worksheetSettings } = this.props;
 
     this.props.updateSettings({ ...worksheetSettings, extendDatas: { ...worksheetSettings.extendDatas, ...value } });
+  };
+
+  renderAddHeader = () => {
+    const { headerPopupVisible } = this.state;
+    const headerConfig = _.get(this.props, 'worksheetSettings.extendDatas.visibleHeaders');
+    const visibleHeaders = _.isUndefined(headerConfig) ? ['logo', 'title', 'description'] : safeParse(headerConfig);
+
+    const menuList = [
+      { key: 'logo', text: _l('Logo'), icon: 'picture' },
+      { key: 'title', text: _l('标题'), icon: 'H1' },
+      { key: 'description', text: _l('说明'), icon: 'title' },
+    ];
+
+    return (
+      <Trigger
+        popup={
+          <Menu style={{ width: 240 }} className="Relative">
+            {menuList
+              .filter(item => !visibleHeaders.includes(item.key))
+              .map(item => (
+                <MenuItem
+                  key="newPage"
+                  icon={<Icon icon={item.icon} className="Font16" />}
+                  onClick={() => {
+                    const newVisibleHeaders = visibleHeaders.concat(item.key);
+                    this.saveExtendDatas({ visibleHeaders: JSON.stringify(newVisibleHeaders) });
+                  }}
+                >
+                  <span className="mLeft8">{item.text}</span>
+                </MenuItem>
+              ))}
+          </Menu>
+        }
+        popupVisible={headerPopupVisible}
+        onPopupVisibleChange={visible => this.setState({ headerPopupVisible: visible })}
+        action={['click']}
+        popupAlign={{
+          points: ['tl', 'bl'],
+          offset: [0, 12],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+      >
+        <div className={cx('addBtn', { isActive: headerPopupVisible })}>
+          <Icon icon="add" />
+        </div>
+      </Trigger>
+    );
   };
 
   render() {
@@ -119,12 +167,20 @@ class PublicWorksheetConfigForm extends React.Component {
       onHideControl,
     } = this.props;
     const { logoUrl, submitBtnName, advancedSetting } = worksheetInfo;
-    const { appearanceConfigVisible, isEditing } = this.state;
+    const { appearanceConfigVisible } = this.state;
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
     const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
     const theme = this.getThemeBgColor();
     const extendDatas = worksheetSettings.extendDatas || {};
     const config = getPageConfig(extendDatas.pageConfigs);
+    const visibleHeaders = _.isUndefined(extendDatas.visibleHeaders)
+      ? ['logo', 'title', 'description']
+      : safeParse(extendDatas.visibleHeaders);
+
+    const hideHeader = key => {
+      const newVisibleHeaders = visibleHeaders.filter(item => item !== key);
+      this.saveExtendDatas({ visibleHeaders: JSON.stringify(newVisibleHeaders) });
+    };
 
     const renderContent = () => {
       return (
@@ -158,31 +214,55 @@ class PublicWorksheetConfigForm extends React.Component {
             )}
             {!loading && (
               <div className="formContentHeader">
-                <div className="mLeft20">
-                  <Logo url={logoUrl} onChange={url => updateWorksheetInfo({ logoUrl: url })} />
-                </div>
-                <div className="worksheetName">
-                  <EditableText
-                    turnLine
-                    mutiLine
-                    minHeight={38}
-                    maxLength={200}
-                    emptyTip={_l('未命名表单')}
-                    value={worksheetInfo.name}
-                    onChange={value => updateWorksheetInfo({ name: value.trim() })}
-                  />
-                </div>
-                <div className="worksheetDescription WordBreak">
-                  <RichText
-                    bucket={2}
-                    data={worksheetInfo.desc || ''}
-                    minHeight={46}
-                    className={`descText-${Math.round(Math.random() * 10)}`}
-                    onSave={value => {
-                      updateWorksheetInfo({ desc: value });
-                    }}
-                  />
-                </div>
+                {visibleHeaders.length < 3 && this.renderAddHeader()}
+
+                {visibleHeaders.includes('logo') && (
+                  <div className="mLeft20 mTop32">
+                    <div className={logoUrl ? '' : 'sectionWrapper'} style={{ width: 'fit-content' }}>
+                      <Logo url={logoUrl} onChange={url => updateWorksheetInfo({ logoUrl: url })} />
+                      {!logoUrl && (
+                        <div className="hideIcon" onClick={() => hideHeader('logo')}>
+                          <Icon icon="visibility_off1" className="Font14" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {visibleHeaders.includes('title') && (
+                  <div className="worksheetName sectionWrapper">
+                    <EditableText
+                      turnLine
+                      mutiLine
+                      minHeight={38}
+                      maxLength={200}
+                      emptyTip={_l('未命名表单')}
+                      value={worksheetInfo.name}
+                      onChange={value => updateWorksheetInfo({ name: value.trim() })}
+                    />
+                    <div className="hideIcon" onClick={() => hideHeader('title')}>
+                      <Icon icon="visibility_off1" className="Font14" />
+                    </div>
+                  </div>
+                )}
+
+                {visibleHeaders.includes('description') && (
+                  <div className="worksheetDescription WordBreak sectionWrapper">
+                    <RichText
+                      bucket={2}
+                      data={worksheetInfo.desc || ''}
+                      minHeight={46}
+                      className={`descText-${Math.round(Math.random() * 10)}`}
+                      onSave={value => {
+                        updateWorksheetInfo({ desc: value });
+                      }}
+                    />
+                    <div className="hideIcon" onClick={() => hideHeader('description')}>
+                      <Icon icon="visibility_off1" className="Font14" />
+                    </div>
+                  </div>
+                )}
+
                 <Hr style={{ margin: '16px 0' }} />
               </div>
             )}

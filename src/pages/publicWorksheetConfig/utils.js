@@ -1,9 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { TIME_TYPE, TIME_PERIOD_TYPE, WEEKS } from './enum';
-import CountDown from './common/CountDown';
 import { RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
+import CountDown from './common/CountDown';
+import { TIME_PERIOD_TYPE, TIME_TYPE, WEEKS } from './enum';
 
 export function getNewControlColRow(controls, halfOfNewControl = true) {
   if (!controls.length) {
@@ -34,7 +34,7 @@ export function getNotSupportControlIds(controls) {
             String(RELATION_SEARCH_SHOW_TYPE.TAB_LIST),
             String(RELATION_SEARCH_SHOW_TYPE.LIST),
           ].includes(_.get(control, 'advancedSetting.showtype'))) || // 过滤查询记录列表，表格,标签页表格
-        ['caid', 'ownerid', 'ctime', 'utime'].includes(control.controlId),
+        ['caid', 'ownerid', 'ctime', 'utime', 'wfdtime'].includes(control.controlId),
     )
     .map(control => control.controlId);
   return notSupportIds;

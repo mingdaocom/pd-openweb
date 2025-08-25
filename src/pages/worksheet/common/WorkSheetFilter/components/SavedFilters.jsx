@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import Empty from './Empty';
 import FilterTitleList from './FilterTitleList';

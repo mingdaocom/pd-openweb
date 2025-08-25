@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React from 'react';
 import { Input } from 'antd';
+import _ from 'lodash';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';

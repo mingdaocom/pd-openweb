@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import EmptyImg from '../image/empty.png';
+
 const Container = styled.div`
   font-size: 16px;
   position: absolute;

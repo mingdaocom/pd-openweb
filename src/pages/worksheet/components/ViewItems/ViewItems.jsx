@@ -16,8 +16,8 @@ import { getFeatureStatus } from 'src/utils/project';
 import AddViewDisplayMenu from './AddViewDisplayMenu';
 import HideItem from './HideItem';
 import Item from './Item';
-import './ViewItems.less';
 import 'rc-trigger/assets/index.css';
+import './ViewItems.less';
 
 const EmptyData = styled.div`
   font-size: 12px;
@@ -120,7 +120,7 @@ export default class ViewItems extends Component {
           this.computeDirectionVisible();
         }
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('获取视图列表失败'), 2);
       });
   }
@@ -193,7 +193,7 @@ export default class ViewItems extends Component {
         this.handleScrollPosition(0);
         callback && callback(result);
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('新建视图失败'), 2);
       });
   };
@@ -216,7 +216,7 @@ export default class ViewItems extends Component {
             worksheetId,
             status: 9,
           })
-          .then(result => {
+          .then(() => {
             this.props.onRemoveView(
               showVies.filter(item => item.viewId !== view.viewId),
               view.viewId,
@@ -224,7 +224,7 @@ export default class ViewItems extends Component {
             this.handleScrollPosition(0);
             this.getWorksheetViews(worksheetId, 9);
           })
-          .catch(err => {
+          .catch(() => {
             alert(_l('删除视图失败'), 2);
           });
       },
@@ -248,19 +248,17 @@ export default class ViewItems extends Component {
         this.handleSortViews(list);
         this.props.onAddView(list, result);
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('复制视图失败'), 2);
       });
   };
   handleSortViews = views => {
     const { appId, worksheetId } = this.props;
-    sheetAjax
-      .sortWorksheetViews({
-        appId,
-        worksheetId,
-        viewIds: views.map(view => view.viewId),
-      })
-      .then(result => {});
+    sheetAjax.sortWorksheetViews({
+      appId,
+      worksheetId,
+      viewIds: views.map(view => view.viewId),
+    });
   };
   computeDirectionVisible() {
     if (!this.scrollWraperEl) return;
@@ -280,7 +278,7 @@ export default class ViewItems extends Component {
       setTimeout(() => {
         const activeEl = viewsScrollEl.querySelector('.workSheetViewItem.active');
         if (activeEl) {
-          if ((activeEl.offsetLeft + activeEl.clientWidth) > viewsScrollEl.clientWidth) {
+          if (activeEl.offsetLeft + activeEl.clientWidth > viewsScrollEl.clientWidth) {
             viewsScrollEl.scrollLeft = activeEl.offsetLeft;
           }
         }
@@ -334,8 +332,8 @@ export default class ViewItems extends Component {
         worksheetId,
         viewIds: newSortList.map(l => l.viewId),
       })
-      .then(result => {})
-      .catch(err => {
+      .then(() => {})
+      .catch(() => {
         alert(_l('退拽排序视图失败'), 2);
       });
   };
@@ -374,12 +372,12 @@ export default class ViewItems extends Component {
   loadManageView = callback => {
     const { worksheetId, loadManageView } = this.props;
 
-    if (!!this.getManageView()) return;
+    if (this.getManageView()) return;
 
     loadManageView(worksheetId, callback);
   };
 
-  changeWorksheetHidden = e => {
+  changeWorksheetHidden = () => {
     const { setWorksheetHidden, hasClickDrawe } = this.state;
     if (hasClickDrawe && !setWorksheetHidden) {
       return;
@@ -564,6 +562,7 @@ export default class ViewItems extends Component {
         text={_l(
           '数据管理视图中的记录不受字段属性和业务规则的隐藏、只读、验证影响，始终可查看、编辑所有数据。（仅应用管理员可访问此视图）',
         )}
+        autoCloseDelay={0}
         popupPlacement={'right'}
       >
         <div
@@ -575,7 +574,7 @@ export default class ViewItems extends Component {
           <span className="mLeft14 ellipsis Font13 ">{_l('数据管理')}</span>
           {!isLock && (
             <Icon
-              icon="settings1"
+              icon="settings"
               className="Gray_75 Hover_21 hoverGray manageSettingIcon"
               onClick={this.handleManageItem}
             />
@@ -632,7 +631,6 @@ export default class ViewItems extends Component {
           onRemoveView={this.handleRemoveView}
           updateViewName={this.updateViewName}
           onOpenView={this.handleOpenView}
-          toView={() => navigateTo(getNavigateUrl(options.item))}
         />
       )
     );
@@ -647,8 +645,7 @@ export default class ViewItems extends Component {
       searchWorksheetListValue,
       recycleData = [],
     } = this.state;
-    const { viewList, currentViewId, isCharge, changeViewDisplayType, sheetSwitchPermit, getNavigateUrl, isLock } =
-      this.props;
+    const { viewList, currentViewId, isCharge, isLock } = this.props;
     const showViewList = this.getFilterManageViews(viewList);
     const isEmpty =
       searchWorksheetListValue &&
@@ -711,7 +708,7 @@ export default class ViewItems extends Component {
               />
               {!!searchWorksheetListValue && (
                 <Icon
-                  icon="closeelement-bg-circle"
+                  icon="cancel"
                   className="Font16 Hand Gray_9e mRight10"
                   onClick={() => {
                     this.setState({ searchWorksheetListValue: '' });

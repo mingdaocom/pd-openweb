@@ -1,7 +1,6 @@
 import React from 'react';
-import { ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
-import _ from 'lodash';
+import { ColorPicker } from 'ming-ui';
 
 const ColorBox = styled.div`
   width: 100px;
@@ -51,7 +50,7 @@ export default function ColorSetting(props) {
           <span className="icon-arrow-down-border iconBox"></span>
         ) : (
           <span
-            className="iconBox icon-replay"
+            className="iconBox icon-rotate"
             onClick={e => {
               e.stopPropagation();
               onChange(defaultValue);

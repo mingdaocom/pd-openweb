@@ -1,6 +1,8 @@
 import React from 'react';
 import { CardNav, ScrollView } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { saveSelectExtensionNavType } from 'src/utils/worksheet';
 
 class Sidenav extends React.Component {
@@ -12,7 +14,7 @@ class Sidenav extends React.Component {
   };
 
   render() {
-    const { match = { params: {} } } = this.props;
+    const { match = { params: {} }, projectId } = this.props;
     const { worksheetId, type = '' } = match.params;
     return (
       <ScrollView className="sidenavBox">
@@ -27,16 +29,22 @@ class Sidenav extends React.Component {
               onClick: () => this.handleClickNav('submitForm'),
             },
             {
-              icon: 'workflow_write',
+              icon: 'rename_input',
               title: _l('数据名称'),
               url: `/worksheet/formSet/edit/${worksheetId}/alias`,
               onClick: () => this.handleClickNav('alias'),
             },
             {
-              icon: 'toggle_off',
+              icon: 'ic_toggle_off',
               title: _l('功能开关'),
               url: `/worksheet/formSet/edit/${worksheetId}/functionalSwitch`,
               onClick: () => this.handleClickNav('functionalSwitch'),
+            },
+            {
+              icon: 'share',
+              title: _l('公开分享'),
+              url: `/worksheet/formSet/edit/${worksheetId}/share`,
+              onClick: () => this.handleClickNav('share'),
             },
           ]}
         />
@@ -45,7 +53,7 @@ class Sidenav extends React.Component {
           currentNav={type}
           navList={[
             {
-              icon: 'task-list',
+              icon: 'list',
               title: _l('业务规则'),
               url: `/worksheet/formSet/edit/${worksheetId}/display`,
               onClick: () => this.handleClickNav('display'),
@@ -61,6 +69,13 @@ class Sidenav extends React.Component {
               title: _l('打印模板'),
               url: `/worksheet/formSet/edit/${worksheetId}/printTemplate`,
               onClick: () => this.handleClickNav('printTemplate'),
+            },
+            {
+              icon: 'workflow_write',
+              title: _l('编辑保护'),
+              url: `/worksheet/formSet/edit/${worksheetId}/editProtect`,
+              onClick: () => this.handleClickNav('editProtect'),
+              showUpgradeIcon: getFeatureStatus(projectId, VersionProductType.editProtect) !== '1',
             },
             {
               icon: 'db_index',

@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import _ from 'lodash';
 import { ACTION_ID } from '../../enum';
 import { LoopProcessParameters } from '../components';
 

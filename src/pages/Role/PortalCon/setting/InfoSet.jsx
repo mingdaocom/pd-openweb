@@ -33,7 +33,7 @@ const Wrap = styled.div`
     height: 36px;
     background: #f8f8f8;
     border-radius: 3px;
-    color: #2196f3;
+    color: #1677ff;
     line-height: 34px;
     text-align: center;
     &:hover {
@@ -182,7 +182,7 @@ const Item = props => {
         className="TxtLeft InlineBlock Hand cellect"
         text={''}
         checked={fieldPermission === '110'}
-        onClick={checked => {
+        onClick={() => {
           onChange({
             fieldPermission: fieldPermission === '110' ? '111' : '110',
             controlId,
@@ -220,7 +220,7 @@ const Item = props => {
           allControls={[]}
           fromPortal={true}
           globalSheetInfo={{ appId, projectId }}
-          onOk={({ sheetId, control, sheetName }) => {
+          onOk={({ sheetId, sheetName }) => {
             let para = handleAdvancedSettingChange(
               {
                 ...initData('RELATE_SHEET', null, showCreateRelateControlId),
@@ -326,7 +326,7 @@ export default function InfoSet(props) {
             onClick={() => {
               setHs(true);
               setControls(
-                controls.map((o, i) => {
+                controls.map(o => {
                   return {
                     ...o,
                     fieldPermission:
@@ -421,7 +421,7 @@ export default function InfoSet(props) {
                     }),
                   );
                 }}
-                showEditDialog={(controlId, type) => {
+                showEditDialog={controlId => {
                   setShowId(controlId);
                 }}
                 deleteBtn={controlId => {

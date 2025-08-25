@@ -11,7 +11,7 @@ import discussionAjax from 'src/api/discussion';
 import postAjax from 'src/api/post';
 import 'src/components/autoTextarea/autoTextarea';
 import Emotion from 'src/components/emotion/emotion';
-import 'src/components/mentioninput/mentionsInput';
+import MentionsInput from 'src/components/MentionsInput';
 import UploadFiles from 'src/components/UploadFiles';
 import { generateRandomPassword } from 'src/utils/common';
 import { AT_ALL_TEXT } from './config';
@@ -123,9 +123,12 @@ class Commenter extends React.Component {
     if (!this.props.disableMentions) {
       const { sourceType } = this.props;
       sessionStorage.setItem('atData', JSON.stringify(this.props.atData || []));
-      $textarea.mentionsInput(
+      MentionsInput(
         Object.assign(
           {
+            input: textarea,
+            // getPopupContainer: () => textarea.parentNode,
+            popupAlignOffset: [0, -5],
             submitBtn: this.textareaId + '-submit',
             reset: false,
             searchType: sourceType === SOURCE_TYPE.POST ? 0 : 1,
@@ -159,12 +162,20 @@ class Commenter extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.storageId && nextProps.storageId !== this.props.storageId) {
       this.textarea.value = window.localStorage.getItem('commenter-' + nextProps.storageId) || '';
     }
     if (!nextProps.disableMentions && nextProps.forReacordDiscussion) {
       sessionStorage.setItem('atData', JSON.stringify(nextProps.atData || []));
+    }
+    if (
+      !_.isEqual(_.pick(this.props, ['entityType', 'isHide']), _.pick(nextProps, ['entityType', 'isHide'])) &&
+      nextProps.autoFocus
+    ) {
+      setTimeout(() => {
+        $(this.textarea).focus();
+      }, 50);
     }
   }
 
@@ -186,6 +197,10 @@ class Commenter extends React.Component {
         }, 0);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.textarea.destroy && this.textarea.destroy();
   }
 
   /**
@@ -232,8 +247,8 @@ class Commenter extends React.Component {
     const $textarea = $(textarea);
     const getMessagePromise = this.props.disableMentions
       ? Promise.resolve($textarea.val())
-      : new Promise((resolve, reject) => {
-          $textarea.mentionsInput('val', data => resolve(data));
+      : new Promise(resolve => {
+          textarea.val(data => resolve(data));
         });
     getMessagePromise.then(data => {
       let message = $.trim(data);
@@ -357,7 +372,7 @@ class Commenter extends React.Component {
         kcAttachmentData: [],
       });
       // 处理mentionsInput初始化
-      $textarea.mentionsInput('reset');
+      textarea.reset();
       $textarea.val('');
       if (!this.props.shrinkAfterSubmit) {
         $textarea.focus();
@@ -392,7 +407,6 @@ class Commenter extends React.Component {
   render() {
     const {
       canAddLink,
-      appId,
       projectId,
       sourceId,
       sourceType,
@@ -402,7 +416,7 @@ class Commenter extends React.Component {
       selectGroupOptions = {},
     } = this.props;
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
-    const [worksheetId, recordId] = sourceId.split('|');
+    const [worksheetId] = sourceId.split('|');
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
     const style = !isEditing && !hasAttachment ? { display: 'none' } : {};
     const onFocus = e => {
@@ -428,7 +442,7 @@ class Commenter extends React.Component {
         })}
         onClickAway={() => this.onClickAway()}
         // 知识文件选择层 点击时不收起
-        onClickAwayExceptions={['.folderSelectDialog', '#addLinkFileDialog_container']}
+        onClickAwayExceptions={['.folderSelectDialog', '#addLinkFileDialog_container', '.mentionsAutocompleteList']}
       >
         <textarea
           ref={textarea => {

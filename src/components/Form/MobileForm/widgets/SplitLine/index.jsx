@@ -1,14 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon, SvgIcon } from 'ming-ui';
 import { getAdvanceSetting, getExpandWidgetIds } from '../../tools/utils';
 import { SectionItemWrap } from './style';
-import _ from 'lodash';
 
 const SplitLine = props => {
   const { from, renderData = [], setNavVisible, enumDefault2 = 0, controlName, controlId, worksheetId } = props;
   const sectionstyle = _.get(props, 'widgetStyle.sectionstyle') || '0';
-  const { theme = 'var(--color-primary)', color = 'var(--color-secondary)', icon = '', hidetitle } = getAdvanceSetting(props);
+  const {
+    theme = 'var(--color-primary)',
+    color = 'var(--color-secondary)',
+    icon = '',
+    hidetitle,
+  } = getAdvanceSetting(props);
   const [visible, setVisible] = useState(enumDefault2 !== 2);
   const expandWidgetIds = getExpandWidgetIds(renderData, props, from);
   const $ref = useRef();
@@ -58,7 +63,7 @@ const SplitLine = props => {
     if (sectionstyle === '2' && enumDefault2 !== 0) {
       return (
         <span className="headerArrowIcon">
-          <Icon icon="sidebar_video_tutorial" />
+          <Icon icon="play_circle_filled" />
         </span>
       );
     }

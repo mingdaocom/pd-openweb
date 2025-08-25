@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Dialog, Checkbox, Support, SvgIcon, LoadDiv } from 'ming-ui';
-import appManagementAjax from 'src/api/appManagement';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Checkbox, Dialog, LoadDiv, Support, SvgIcon } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
 
 const CreateBackupCon = styled.div`
   font-size: 13px;
@@ -69,7 +69,7 @@ const Footer = styled.div`
     background: #bdbdbd;
   }
   .confirmBtn {
-    background: #2196f3;
+    background: #1677ff;
     cursor: pointer;
   }
   .confirmBtn:hover {

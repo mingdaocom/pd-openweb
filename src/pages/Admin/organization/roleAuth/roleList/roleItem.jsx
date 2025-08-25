@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Dialog, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import roleApi from 'src/api/role';
 import { getCurrentProject } from 'src/utils/project';

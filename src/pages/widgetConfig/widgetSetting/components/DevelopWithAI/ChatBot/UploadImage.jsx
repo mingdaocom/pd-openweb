@@ -1,9 +1,8 @@
-import React, { useState, Fragment, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, Fragment, useImperativeHandle, useRef, useState } from 'react';
+import { useCallback } from 'react';
 import styled from 'styled-components';
 import { QiniuUpload } from 'ming-ui';
 import { humanFileSize } from 'src/pages/kc/utils';
-import { useCallback } from 'react';
-import { drop, set } from 'lodash';
 
 const Con = styled.div`
   position: relative;
@@ -107,7 +106,7 @@ function UploadImage(
           },
         }}
         bucket={4}
-        onUploaded={(up, file, res) => {
+        onUploaded={(up, file) => {
           setStatus('uploaded');
           onUploaded(file.url);
         }}
@@ -118,7 +117,7 @@ function UploadImage(
           up.disableBrowse();
           onBegin();
         }}
-        onError={(up, err) => {
+        onError={up => {
           alert(_l('上传失败'), 2);
           handleClear();
           up.disableBrowse(false);

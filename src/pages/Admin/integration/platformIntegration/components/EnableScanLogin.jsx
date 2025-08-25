@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Switch, Support } from 'ming-ui';
+import { Support, Switch } from 'ming-ui';
 import workWeiXinAjax from 'src/api/workWeiXin';
 import SettingIconAndName from '../../../components/SettingIconAndName';
-import workWxIcon from '../images/workwx.png';
 import dingIcon from '../images/ding.png';
 import feishuIcon from '../images/feishu.png';
+import workWxIcon from '../images/workwx.png';
 
 const integrationText = { 1: _l('钉钉'), 3: _l('企业微信'), 6: _l('飞书'), 7: 'Lark' };
 const integrationIcon = { 1: dingIcon, 3: workWxIcon, 6: feishuIcon };

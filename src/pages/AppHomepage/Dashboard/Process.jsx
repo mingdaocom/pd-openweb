@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import todoEmpty from 'staticfiles/images/todolist.png';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import MyProcess from 'src/pages/workflow/MyProcess';
-import { TABS } from 'src/pages/workflow/MyProcess/config';
-import cx from 'classnames';
-import { getStateParam } from 'src/pages/workflow/MyProcess';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
-import _ from 'lodash';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
-import todoEmpty from 'staticfiles/images/todolist.png';
+import MyProcess from 'src/pages/workflow/MyProcess';
+import { getStateParam } from 'src/pages/workflow/MyProcess';
+import { TABS } from 'src/pages/workflow/MyProcess/config';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 
 const Wrapper = styled.div`
@@ -242,7 +242,7 @@ export default function Process(props) {
       tab: TABS.WAITING_EXAMINE,
     },
     { key: 'mySponsor', icon: 'adds', shallowIcon: 'adds_shallow', text: _l('发起'), tab: TABS.MY_SPONSOR },
-    { key: 'finished', icon: 'Finish', text: _l('已完成'), tab: TABS.COMPLETE },
+    { key: 'finished', icon: 'check_circle', text: _l('已完成'), tab: TABS.COMPLETE },
   ];
 
   useEffect(() => {

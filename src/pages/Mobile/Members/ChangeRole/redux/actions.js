@@ -1,7 +1,6 @@
 import ajaxRequest from 'src/api/appManagement';
-import homeAppAjax from 'src/api/homeApp';
 
-export const getMembersList = (appId, roleId) => (dispatch, getState) => {
+export const getMembersList = appId => dispatch => {
   dispatch({
     type: 'MOBILE_ROLE_LIST_FETCH_START',
   });

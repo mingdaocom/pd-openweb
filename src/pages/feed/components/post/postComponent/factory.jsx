@@ -1,8 +1,8 @@
 ﻿import React from 'react';
-import MedalContent from './medalContent';
-import VoteContent from './voteContent';
 import UploadFiles from 'src/components/UploadFiles';
 import LinkContent from './linkContent';
+import MedalContent from './medalContent';
+import VoteContent from './voteContent';
 
 /**
  * 获取相应类型动态附加的信息

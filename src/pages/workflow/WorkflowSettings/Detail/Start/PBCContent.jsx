@@ -18,7 +18,7 @@ const GenerateJSONBox = styled.textarea`
   border: 1px solid #ddd;
   resize: none;
   &:focus {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -86,6 +86,7 @@ const openPage = ({ processId, type }) => {
 // 导入生成参数
 const generateJSON = (data, updateSource) => {
   Dialog.confirm({
+    type: 'scroll',
     width: 640,
     title: _l('从JSON示例生成'),
     description: <GenerateJSONBox id="generateJSON" />,
@@ -370,7 +371,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                 updateSource({ controls });
               }}
             >
-              <i className="icon-delete2" />
+              <i className="icon-trash" />
             </span>
             <span
               className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10"
@@ -440,7 +441,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
           </span>
           {!isPlugin && (
             <div className="ThemeHoverColor3 pointer Gray_75" onClick={() => generateJSON(data, updateSource)}>
-              <i className="Font14 icon-knowledge-upload" />
+              <i className="Font14 icon-file_upload" />
               {_l('从JSON示例生成')}
             </div>
           )}
@@ -544,7 +545,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                     onBlur={evt => updateOptions('key', evt.target.value.trim(), selectItem, index, true)}
                   />
                   <i
-                    className="icon-delete2 Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
+                    className="icon-trash Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
                     onClick={() => {
                       let newOptions = selectItem.options.filter((o, i) => i !== index);
 

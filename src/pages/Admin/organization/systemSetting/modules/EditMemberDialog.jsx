@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
-import workSiteController from 'src/api/workSite';
-import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import workSiteController from 'src/api/workSite';
 
 export default class EditMemberDialog extends Component {
   constructor() {
@@ -70,7 +70,7 @@ export default class EditMemberDialog extends Component {
     }
     return (
       <div className="content pBottom10 Font13">
-        <ScrollView onScrollEnd={this.onScrollEnd}>
+        <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
           {userList.length
             ? userList.map(user => {
                 return (
@@ -90,7 +90,7 @@ export default class EditMemberDialog extends Component {
                       <span>{user.job}</span>
                     </div>
                     <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
-                      <span className="ThemeHoverColor3 icon-delete2 deleteMember Gray_9 Hand Font18"></span>
+                      <span className="ThemeHoverColor3 icon-trash deleteMember Gray_9 Hand Font18"></span>
                     </div>
                   </div>
                 );
@@ -195,7 +195,7 @@ export default class EditMemberDialog extends Component {
           </div>
           <div className="pTop20 pBottom15">
             <span className="Hand addMember ThemeColor3 ThemeHoverColor2 Font14" onClick={this.handleAdd.bind(this)}>
-              <span className="icon-addapplication Font30 mRight20 TxtMiddle"></span>
+              <span className="icon-add_circle Font30 mRight20 TxtMiddle"></span>
               <span className="TxtMiddle">{_l('添加成员')}</span>
             </span>
           </div>

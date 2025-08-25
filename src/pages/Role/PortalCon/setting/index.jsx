@@ -56,15 +56,15 @@ const Wrap = styled.div`
       font-weight: 500;
       color: #757575;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
       &.current {
-        color: #2196f3;
+        color: #1677ff;
         &::before {
           content: ' ';
           width: 100%;
           height: 3px;
-          background: #2196f3;
+          background: #1677ff;
           border-radius: 2px;
           display: inline-block;
           position: absolute;
@@ -92,7 +92,7 @@ const WrapCon = styled.div`
     box-sizing: border-box;
     line-height: 36px;
     cursor: pointer;
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
     &:hover {
       background-color: #1565c0;
@@ -109,8 +109,8 @@ const WrapCon = styled.div`
     line-height: 36px;
     cursor: pointer;
     background: #fff;
-    border: 1px solid #2196f3;
-    color: #2196f3;
+    border: 1px solid #1677ff;
+    color: #1677ff;
     margin-left: 16px;
     padding: 0 32px;
     width: auto;
@@ -144,7 +144,7 @@ class PortalSetting extends React.Component {
     this.setState({ portalSet });
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.portalSet, nextProps.portalSet)) {
       this.setState({ portalSet: nextProps.portalSet });
     }
@@ -184,13 +184,7 @@ class PortalSetting extends React.Component {
   editPortal = noClose => {
     const { portalSet = {} } = this.state;
     const { closeSet, appPkg = {} } = this.props;
-    const {
-      portalSetModel = {},
-      controlTemplate = {},
-      authorizerInfo = {},
-      epDiscussWorkFlow = {},
-      extendAttr = [],
-    } = portalSet;
+    const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {}, epDiscussWorkFlow = {} } = portalSet;
     let {
       pageTitle,
       smsSignature,
@@ -274,6 +268,7 @@ class PortalSetting extends React.Component {
             'externalControls',
             'addressExt',
             'autoLogin',
+            'doubleBinding',
             'extendAttr',
           ]),
           epDiscussWorkFlow,

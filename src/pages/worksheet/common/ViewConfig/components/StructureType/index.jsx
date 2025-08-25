@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as baseAction from 'src/pages/worksheet/redux/actions';
-import { HIERARCHY_VIEW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { HIERARCHY_VIEW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import * as baseAction from 'src/pages/worksheet/redux/actions';
 import './index.less';
 
 const HierarchyViewConfigWrap = styled.div`

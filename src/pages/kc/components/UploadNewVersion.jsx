@@ -61,7 +61,7 @@ class UploadNewVersion extends React.Component {
           up.splice(0, up.files.length - 1);
           _this.dialog = uploadNewVersionDailog(item, file, _this.props.callback);
         },
-        Error(up, err, errTip) {},
+        Error() {},
         UploadProgress(up, file) {
           _this.dialog.setProcess((file.loaded / file.size) * 100);
         },

@@ -1,4 +1,4 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import alreadyDelete from './assets/alreadyDelete.png';
 import withoutPermission from './assets/withoutPermission.png';
 
@@ -10,9 +10,7 @@ export default class WorksheetUnNormal extends Component {
     return (
       <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
         <img className="img" src={alreadyDelete} />
-        <div className="text mTop10">
-          {_l('应用项无权限或者已删除')}
-        </div>
+        <div className="text mTop10">{_l('应用项无权限或者已删除')}</div>
       </div>
     );
   }
@@ -22,9 +20,7 @@ export default class WorksheetUnNormal extends Component {
       return (
         <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
           <img className="img" src={alreadyDelete} />
-          <div className="text mTop10">
-            {_l('视图已删除')}
-          </div>
+          <div className="text mTop10">{_l('视图已删除')}</div>
         </div>
       );
     }
@@ -32,18 +28,14 @@ export default class WorksheetUnNormal extends Component {
       return (
         <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
           <img className="img" src={withoutPermission} />
-          <div className="text mTop10">
-            {_l('视图无权限')}
-          </div>
+          <div className="text mTop10">{_l('视图无权限')}</div>
         </div>
       );
     }
     return (
       <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
         <img className="img" src={alreadyDelete} />
-        <div className="text mTop10">
-          {_l('视图未找到')}
-        </div>
+        <div className="text mTop10">{_l('视图未找到')}</div>
       </div>
     );
   }

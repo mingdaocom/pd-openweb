@@ -19,7 +19,7 @@ export const ACTION_TYPES = {
   5: {
     id: 'notice',
     text: _l('通知'),
-    icon: 'workflow_notice',
+    icon: 'send',
   },
   12: {
     id: 'delayed',
@@ -45,7 +45,7 @@ export const ACTION_TYPES = {
     id: 'delayed',
     text: _l('审批流'),
     icon: 'workflow_delayed',
-  }
+  },
 };
 
 export const TYPE_TO_STYLE = {
@@ -55,19 +55,19 @@ export const TYPE_TO_STYLE = {
     shallowBg: '#7E57C233',
   },
   notice: {
-    icon: 'workflow_notice',
+    icon: 'send',
     bg: '#FFA340',
     shallowBg: '#ffa34033',
   },
   edit: {
     icon: 'edit',
-    bg: '#2196f3',
-    shallowBg: '#2196f333',
+    bg: '#1677ff',
+    shallowBg: '#1677ff33',
   },
   workflow: {
     icon: 'workflow',
-    bg: '#2196f3',
-    shallowBg: '#2196f333',
+    bg: '#1677ff',
+    shallowBg: '#1677ff33',
   },
   default: {
     icon: 'workflow',
@@ -118,7 +118,7 @@ export const FLOW_NODE_TYPE_STATUS = {
     22: { text: _l('流程否决'), color: '#fff', shallowBg: '#F44336' },
   },
   5: {
-    0: { text: _l('待查看'), color: '#2196F3', shallowBg: '#2196F326' },
+    0: { text: _l('待查看'), color: '#1677ff', shallowBg: '#1677ff26' },
     1: { text: _l('已查看'), color: '#757575' },
   },
 };
@@ -140,12 +140,8 @@ const getYear = () => {
     result.push({
       text: i === maxYear ? _l('今年') : _l('%0年', i),
       value: {
-        startDate: moment(i.toString())
-          .startOf('year')
-          .format('YYYY-MM-DD'),
-        endDate: moment(i.toString())
-          .endOf('year')
-          .format('YYYY-MM-DD'),
+        startDate: moment(i.toString()).startOf('year').format('YYYY-MM-DD'),
+        endDate: moment(i.toString()).endOf('year').format('YYYY-MM-DD'),
       },
     });
   }
@@ -158,27 +154,21 @@ export const getDateScope = () => {
     {
       text: _l('1个月内'),
       value: {
-        startDate: moment()
-          .day(-30)
-          .format('YYYY-MM-DD'),
+        startDate: moment().day(-30).format('YYYY-MM-DD'),
         endDate,
       },
     },
     {
       text: _l('3个月内'),
       value: {
-        startDate: moment()
-          .day(-90)
-          .format('YYYY-MM-DD'),
+        startDate: moment().day(-90).format('YYYY-MM-DD'),
         endDate,
       },
     },
     {
       text: _l('6个月内'),
       value: {
-        startDate: moment()
-          .day(-180)
-          .format('YYYY-MM-DD'),
+        startDate: moment().day(-180).format('YYYY-MM-DD'),
         endDate,
       },
     },
@@ -186,7 +176,7 @@ export const getDateScope = () => {
   return data.concat(getYear());
 };
 
-export const covertTime = (time) => {
+export const covertTime = time => {
   if (time < 0) time = time * -1;
 
   const day = Math.floor(time / 24 / 60 / 60 / 1000);
@@ -196,7 +186,7 @@ export const covertTime = (time) => {
   return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${
     min ? _l('%0分钟', Math.floor(min) || 1) : ''
   }`;
-}
+};
 
 export const TABS = {
   WAITING_APPROVE: 0, // 待审批

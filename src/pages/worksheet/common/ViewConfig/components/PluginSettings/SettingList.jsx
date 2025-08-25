@@ -1,9 +1,9 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Icon, Input, SortableList } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { PARAM_TYPES } from './config';
 import './index.less';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
 
 const WrapLi = styled.div`
   height: 36px;
@@ -13,7 +13,7 @@ const WrapLi = styled.div`
 
 const Item = data => {
   const { item, onEdit, openEdit, onDelete, list, key, DragHandle } = data;
-  const { type, controlName, fieldId, num } = item;
+  const { type, controlName, fieldId, num, sourceControlType } = item;
 
   const $ref = useRef(null);
   const $refFieldId = useRef(null);
@@ -41,9 +41,21 @@ const Item = data => {
       </DragHandle>
       <div
         className="typeTxt WordBreak overflow_ellipsis"
-        title={(PARAM_TYPES.find(o => o.type === type) || {}).paramName}
+        title={
+          (
+            PARAM_TYPES.find(
+              o => o.type === type && (!sourceControlType || o.sourceControlType === sourceControlType),
+            ) || {}
+          ).paramName
+        }
       >
-        {(PARAM_TYPES.find(o => o.type === type) || {}).paramName}
+        {
+          (
+            PARAM_TYPES.find(
+              o => o.type === type && (!sourceControlType || o.sourceControlType === sourceControlType),
+            ) || {}
+          ).paramName
+        }
       </div>
       <Input
         className="flex mLeft12 placeholderColor"
@@ -71,7 +83,7 @@ const Item = data => {
           }}
           onBlur={e => {
             let newFieldId = e.target.value.trim();
-            if (!!list.find((o, n) => o.fieldId === newFieldId && n !== num)) {
+            if (list.find((o, n) => o.fieldId === newFieldId && n !== num)) {
               $refFieldId.current.value = fieldId;
               alert(_l('变量id重复'), 3);
               return;
@@ -89,7 +101,7 @@ const Item = data => {
       <div className="actionCon">
         <Icon
           className="Font16 Hand editIcon mLeft15"
-          icon="new_mail"
+          icon="edit"
           onClick={() => {
             setTimeout(() => {
               openEdit(num);
@@ -98,7 +110,7 @@ const Item = data => {
         />
         <Icon
           className="Font16 Hand mLeft15 del"
-          icon="delete2"
+          icon="trash"
           onClick={() => {
             onDelete(num);
           }}
@@ -117,7 +129,7 @@ function SettingList(props) {
         return { ...o, num: i };
       })}
       itemKey="num"
-      onSortEnd={(newItems = [], newIndex) => {
+      onSortEnd={(newItems = []) => {
         props.onSortEnd(newItems, false);
       }}
       itemClassName="boderRadAll_4"

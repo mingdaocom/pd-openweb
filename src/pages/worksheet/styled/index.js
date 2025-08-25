@@ -31,7 +31,7 @@ export const Button = styled.button`
   line-height: 36px;
   height: 36px;
   color: #fff;
-  background-color: ${props => props.bgColor || '#2196f3'};
+  background-color: ${props => props.bgColor || '#1677ff'};
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -39,7 +39,7 @@ export const Button = styled.button`
 `;
 
 export const RevertButton = styled(Button)`
-  color: ${props => props.color || '#2196f3'};
+  color: ${props => props.color || '#1677ff'};
   border: 1px solid currentColor;
   background: ${props => props.bgColor || 'transparent'};
   &:hover {

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -7,6 +8,7 @@ import { quickSelectRole } from 'ming-ui/functions';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
 import { browserIsMobile } from 'src/utils/common';
 import { dealUserRange } from '../../tools/utils';
+import QuickOperate from '../UserSelect/QuickOperate';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -19,12 +21,16 @@ export default class Widgets extends Component {
 
   state = {
     showMobileOrgRole: false,
+    showId: '',
   };
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
       !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
-      !_.isEqual(_.pick(nextState, ['showMobileOrgRole']), _.pick(this.state, ['showMobileOrgRole']))
+      !_.isEqual(
+        _.pick(nextState, ['showMobileOrgRole', 'showId']),
+        _.pick(this.state, ['showMobileOrgRole', 'showId']),
+      )
     ) {
       return true;
     }
@@ -34,7 +40,7 @@ export default class Widgets extends Component {
   /**
    * 选择组织角色
    */
-  pickOrgRole = e => {
+  pickOrgRole = replaceItem => {
     const { projectId, formData, enumDefault, value } = this.props;
 
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
@@ -47,21 +53,21 @@ export default class Widgets extends Component {
     } else {
       const orgRange = dealUserRange(this.props, formData);
       const roleValue = JSON.parse(value || '[]');
-      quickSelectRole(e.target, {
+      quickSelectRole(this.pick, {
         projectId,
-        unique: enumDefault !== 1,
+        unique: enumDefault === 0 || !!replaceItem,
         offset: {
           top: 16,
           left: -16,
         },
         value: roleValue,
-        onSave: this.onSave,
+        onSave: (data, isCancel) => this.onSave(data, isCancel, replaceItem),
         appointedOrganizeIds: _.get(orgRange, 'appointedOrganizeIds'),
       });
     }
   };
 
-  onSave = (data, isCancel = false) => {
+  onSave = (data, isCancel = false, replaceItem) => {
     const { enumDefault, onChange, value } = this.props;
     const valueArr = JSON.parse(value || '[]');
     const lastIds = _.sortedUniq(valueArr.map(l => l.organizeId));
@@ -75,7 +81,12 @@ export default class Widgets extends Component {
     if (enumDefault !== 0 || isCancel) {
       newData = isCancel
         ? newData.filter(l => l.organizeId !== filterData[0].organizeId)
-        : _.uniqBy(newData.concat(filterData), 'organizeId');
+        : _.uniqBy(
+            replaceItem
+              ? newData.map(v => (v.organizeId === replaceItem.organizeId ? filterData[0] : v))
+              : newData.concat(filterData),
+            'organizeId',
+          );
     }
 
     onChange(JSON.stringify(newData));
@@ -91,22 +102,51 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
-  renderItem({ item, items = [] }) {
+  renderItem({ item, dragging, items = [], isLayer }) {
     const { disabled, enumDefault } = this.props;
+    const isMobile = browserIsMobile();
+    const disablePopover = disabled || dragging || isMobile || isLayer;
+    const showMenu = this.state.showId === item.organizeId && !disablePopover;
 
     return (
-      <div
-        className={cx('customFormControlTags pLeft10', { selected: browserIsMobile() && !disabled })}
-        key={item.organizeId}
+      <Popover
+        title={null}
+        placement="bottomLeft"
+        overlayClassName="quickConfigPopover"
+        trigger={['click', 'contextMenu']}
+        visible={showMenu}
+        onVisibleChange={visible => {
+          if (disablePopover) return;
+          this.setState({ showId: visible ? item.organizeId : '' });
+        }}
+        content={
+          disablePopover ? null : (
+            <QuickOperate
+              {...this.props}
+              item={item}
+              handleRemove={() => this.removeOrgRole(item.organizeId)}
+              handlePick={() => this.pickOrgRole(item)}
+              closePopover={() => this.setState({ showId: '' })}
+            />
+          )
+        }
       >
-        <span className="ellipsis" style={{ maxWidth: 200 }}>
-          {item.organizeName}
-        </span>
+        <div
+          className={cx('customFormControlTags pLeft10', {
+            selected: isMobile && !disabled,
+            clickActive: showMenu,
+          })}
+          key={item.organizeId}
+        >
+          <span className="ellipsis" style={{ maxWidth: 200 }}>
+            {item.organizeName}
+          </span>
 
-        {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
-          <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeOrgRole(item.organizeId)} />
-        )}
-      </div>
+          {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
+            <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeOrgRole(item.organizeId)} />
+          )}
+        </div>
+      </Popover>
     );
   }
 
@@ -126,13 +166,17 @@ export default class Widgets extends Component {
           direction="vertical"
           renderBody
           renderItem={item => this.renderItem(item)}
-          onSortEnd={items => onChange(JSON.stringify(items))}
+          onSortEnd={items => {
+            this.setState({ showId: '' });
+            onChange(JSON.stringify(items));
+          }}
         />
 
         {!disabled && (
           <div
             className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
-            onClick={this.pickOrgRole}
+            onClick={() => this.pickOrgRole()}
+            ref={con => (this.pick = con)}
           >
             <i className={enumDefault === 0 && value.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
           </div>

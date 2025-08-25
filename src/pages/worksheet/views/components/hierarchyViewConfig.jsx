@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
-import { RadioGroup } from 'ming-ui';
-import styled from 'styled-components';
-import { Button } from 'worksheet/styled';
-import worksheetAjax from 'src/api/worksheet';
-import { Dropdown, Menu } from 'antd';
-import { InfoWrap, SettingItem } from 'src/pages/widgetConfig/styled';
+import React from 'react';
 import { useSetState } from 'react-use';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { RadioGroup } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { Button } from 'worksheet/styled';
+import { InfoWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 
 const RELATE_TYPE = [
   { text: _l('本表关联'), value: 0 },
@@ -41,7 +40,7 @@ const HierarchyViewConfigWrap = styled.div`
       }
       .addRelate {
         width: 280px;
-        color: #2196f3;
+        color: #1677ff;
         font-weight: bold;
       }
       .deleteWrap {
@@ -53,7 +52,7 @@ const HierarchyViewConfigWrap = styled.div`
   }
 `;
 
-export default function HierarchyViewConfig({ fields, handleSelect, currentSheetInfo, worksheetControls }) {
+export default function HierarchyViewConfig({ fields, handleSelect, currentSheetInfo }) {
   // 可选控件为关联表且关联他表
   const getSelectableControls = sheetInfo => {
     const { controls = [] } = _.get(sheetInfo, 'template') || {};
@@ -89,7 +88,8 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
               onClick={() => {
                 setRelate({ multiRelate: multiRelate.concat(item) });
                 getNextGradeControls({ worksheetId: dataSource, appId });
-              }}>
+              }}
+            >
               <i className="icon-close"></i>
               <span className="controlName">{controlName}</span>
               <span>{_l('工作表: %0', selectableSheet.name)}</span>
@@ -140,7 +140,8 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
                   <span>{_l('工作表: %0', 'a')}</span>
                   <div
                     className="deleteWrap"
-                    onClick={() => setRelate({ multiRelate: multiRelate.slice(0, index + 1) })}>
+                    onClick={() => setRelate({ multiRelate: multiRelate.slice(0, index + 1) })}
+                  >
                     <i className="icon-delete_12"></i>
                   </div>
                 </div>

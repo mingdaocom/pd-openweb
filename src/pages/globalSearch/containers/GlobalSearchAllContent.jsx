@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Skeleton } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, ScrollView } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import CommonAjax from 'src/api/addressBook';
@@ -237,7 +237,7 @@ export default class GlobalSearchAllContent extends Component {
   };
 
   onStartBetween = type => {
-    const { appData, recordData, result } = this.state;
+    const { recordData, result } = this.state;
 
     let _list = result.filter(l => ['user', 'group'].indexOf(l.type) < 0);
 
@@ -254,7 +254,7 @@ export default class GlobalSearchAllContent extends Component {
   };
 
   getAllAddressbookByKeywords() {
-    const { searchKeyword, searchScope } = this.state;
+    const { searchKeyword } = this.state;
 
     this.rightAjax && this.rightAjax.abort();
     this.rightAjax = CommonAjax.getAllChatAddressbookByKeywords({
@@ -269,7 +269,7 @@ export default class GlobalSearchAllContent extends Component {
   }
 
   renderRightContent() {
-    const { rightLoading, rightResult, searchKeyword, searchScope, isApp } = this.state;
+    const { rightLoading, rightResult, searchKeyword } = this.state;
 
     if (rightLoading) {
       return (
@@ -282,7 +282,7 @@ export default class GlobalSearchAllContent extends Component {
             title={{ width: '78px' }}
             paragraph={false}
           />
-          {[0, 1, 2, 3].map(l => (
+          {[0, 1, 2, 3].map(() => (
             <Skeleton
               className="mBottom14"
               loading={true}
@@ -354,7 +354,7 @@ export default class GlobalSearchAllContent extends Component {
             title={{ width: '78px' }}
             paragraph={false}
           />
-          {[0, 1, 2, 3].map(l => (
+          {[0, 1, 2, 3].map(() => (
             <Skeleton
               className="mBottom20"
               loading={true}
@@ -458,7 +458,7 @@ export default class GlobalSearchAllContent extends Component {
                         text={_l('只搜索记录标题')}
                         className="Gray_9e"
                         checked={onlyTitle}
-                        onClick={value => {
+                        onClick={() => {
                           this.setState({ onlyTitle: !onlyTitle, loadAppData: true }, () =>
                             this.getAppData({ type: 8 }),
                           );
@@ -483,7 +483,7 @@ export default class GlobalSearchAllContent extends Component {
                         text={_l('只搜索记录标题')}
                         className="Gray_9e"
                         checked={onlyTitle}
-                        onClick={value => {
+                        onClick={() => {
                           this.setState({ onlyTitle: !onlyTitle, loadAppData: true }, () =>
                             this.getAppData({ type: 8 }),
                           );

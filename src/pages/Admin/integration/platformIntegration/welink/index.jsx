@@ -1,14 +1,15 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
-import { Switch, Icon, Button, LoadDiv, MdLink } from 'ming-ui';
 import { Popover } from 'antd';
-import Ajax from 'src/api/workWeiXin';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
 import Dialog from 'ming-ui/components/Dialog';
-import clientIdImg from './img/client_id.png';
-import { integrationFailed, checkClearIntergrationData } from '../utils';
+import Ajax from 'src/api/workWeiXin';
 import CancelIntegration from '../components/CancelIntegration';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { checkClearIntergrationData, integrationFailed } from '../utils';
+import clientIdImg from './img/client_id.png';
 import './style.less';
+
 export default class Welink extends React.Component {
   constructor(props) {
     super(props);
@@ -132,7 +133,7 @@ export default class Welink extends React.Component {
               </span>
             }
           >
-            <Icon icon="sidebar_help" className="Font18 Gray_9e" />
+            <Icon icon="help" className="Font18 Gray_9e" />
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
@@ -159,7 +160,7 @@ export default class Welink extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'circulated'}
+                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -232,7 +233,7 @@ export default class Welink extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand showBtn" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand showBtn" />
             </div>
           ) : (
             <React.Fragment>
@@ -258,7 +259,7 @@ export default class Welink extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand showBtn" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand showBtn" />
             </div>
           )}
           {this.state.isHasInfo && this.state.show2 && (
@@ -287,7 +288,7 @@ export default class Welink extends React.Component {
                   <Button
                     type="primary"
                     className="editInfo"
-                    onClick={e => {
+                    onClick={() => {
                       this.setState({
                         canEditInfo: true,
                       });
@@ -299,7 +300,7 @@ export default class Welink extends React.Component {
                   <Button
                     type="primary"
                     className="saveInfo"
-                    onClick={e => {
+                    onClick={() => {
                       checkClearIntergrationData({
                         projectId: this.props.projectId,
                         onSave: this.editInfo,
@@ -325,7 +326,7 @@ export default class Welink extends React.Component {
                   this.state.isCloseDing ||
                   this.state.showSyncDiaLog,
               })}
-              onClick={e => {
+              onClick={() => {
                 if (
                   (this.state.canEditInfo && !this.state.isHasInfo) ||
                   this.state.isCloseDing ||
@@ -385,7 +386,7 @@ export default class Welink extends React.Component {
           {this.state.isLoading ? (
             <LoadDiv className="" />
           ) : !this.state.failed ? (
-            _.map(this.state.data, (item, i) => {
+            _.map(this.state.data, item => {
               switch (item.type) {
                 case 4:
                   return <p>{`新增${item.items.length}个用户`}</p>;
@@ -458,7 +459,7 @@ export default class Welink extends React.Component {
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (
                 <React.Fragment>
-                  <Icon icon="closeelement-bg-circle" className="Red iconReject" />
+                  <Icon icon="cancel" className="Red iconReject" />
                 </React.Fragment>
               ) : (
                 <React.Fragment>
@@ -473,13 +474,11 @@ export default class Welink extends React.Component {
             {!this.state.hasApply ? (
               <div className="TxtCenter mTop50">
                 <h2 className="Font26 Gray">{_l('申请Welink集成')}</h2>
-                <p className="mTop24 mBottom32 Font16 Gray_75">
-                  {_l('申请通过后，可将应用安装到Welink集成工作台！')}
-                </p>
+                <p className="mTop24 mBottom32 Font16 Gray_75">{_l('申请通过后，可将应用安装到Welink集成工作台！')}</p>
                 <Button
                   type="primary"
                   className="applyBtn mBottom10"
-                  onClick={e => {
+                  onClick={() => {
                     // 提交申请
                     this.editWXProjectSettingStatus(0, () => {
                       this.setState({

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { Checkbox } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 
 export default ({ isSingle = false, controls, fields, updateSource }) => {
   // 刷新计算结果 字段类型 公式数值 || 文本组合 || 公式日期 || 公式函数 || 级联选择存储路径

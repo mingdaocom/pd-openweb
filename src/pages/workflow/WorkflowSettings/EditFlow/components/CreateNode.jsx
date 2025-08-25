@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Menu, MenuItem } from 'ming-ui';
 import _ from 'lodash';
+import { Menu, MenuItem } from 'ming-ui';
 import { NODE_TYPE } from '../../enum';
 import BranchDialog from './BranchDialog';
 
@@ -82,7 +82,7 @@ export default class CreateNode extends Component {
     const LIST = [
       { type: 4, name: _l('审批'), iconColor: '#7E57C2', iconName: 'icon-workflow_ea' },
       { type: 3, name: _l('填写%03025'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
-      { type: 5, name: _l('抄送%03026'), iconColor: '#2196f3', iconName: 'icon-workflow_notice' },
+      { type: 5, name: _l('抄送%03026'), iconColor: '#1677ff', iconName: 'icon-send' },
       { type: 1, name: _l('分支'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },
       { type: 26, name: _l('数据处理'), iconColor: '#ffa340', iconName: 'icon-workflow' },
       { type: -1, name: _l('复制'), iconColor: '#BDBDBD', iconName: 'icon-copy' },

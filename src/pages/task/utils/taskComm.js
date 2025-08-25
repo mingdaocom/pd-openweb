@@ -1,15 +1,15 @@
 ﻿import React from 'react';
-import ajaxRequest from 'src/api/taskCenter';
-import { errorMessage, taskStatusDialog, formatTaskTime, formatStatus, checkIsProject } from './utils';
+import { renderToString } from 'react-dom/server';
 import Store from 'redux/configureStore';
 import doT from 'dot';
-import { addTask } from '../redux/actions';
+import moment from 'moment';
+import { Checkbox, DeleteReconfirm, Dialog, LoadDiv } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import { navigateTo } from 'src/router/navigateTo';
 import singleFolder from '../containers/taskNavigation/tpl/singleFolder.html';
 import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.html';
-import { navigateTo } from 'src/router/navigateTo';
-import moment from 'moment';
-import { Dialog, DeleteReconfirm, Checkbox, LoadDiv } from 'ming-ui';
-import { renderToString } from 'react-dom/server';
+import { addTask } from '../redux/actions';
+import { checkIsProject, errorMessage, formatStatus, formatTaskTime, taskStatusDialog } from './utils';
 
 const loading = renderToString(<LoadDiv />);
 
@@ -39,7 +39,6 @@ const getTrOrLi = function (taskId) {
 
 // 修改任务状态之后数据处理
 export const afterUpdateTaskStatus = (data, status, isAll, $el) => {
-  const folderId = data.folderID;
   let taskIdArray = data.taskIDs;
   let $completedNum;
   let $subCount;
@@ -299,7 +298,6 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
   let taskId;
   let $tr;
   let $parent;
-  let $parentPrev;
   const isList = !folderId;
   let $parents;
   let $singleTreeTask;
@@ -425,7 +423,6 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
     }
   } else {
     // 其他处理
-    const opts = {};
     for (let i = 0; i < taskCount; i++) {
       taskId = taskIdArray[i];
       $tr = getTrOrLi(taskId);
@@ -552,7 +549,7 @@ export const afterUpdateTaskStage = (stageId, taskId, data) => {
 
 // 更新母任务后操作
 export const afterUpdateTaskParent = (taskId, parentId, oldParentId, data) => {
-  const { viewType, folderId } = Store.getState().task.taskConfig;
+  const { folderId } = Store.getState().task.taskConfig;
   // 非项目列表处理
   if (!folderId) {
     afterUpdateTaskParentList(taskId, parentId, oldParentId);
@@ -594,7 +591,7 @@ export const afterUpdateTaskParent = (taskId, parentId, oldParentId, data) => {
 
     import('../containers/taskTree/tpl/treeMaster.html').then(treeListTpl => {
       const allTasks = doT.template(treeListTpl)(newData);
-      afterUpdateTaskParentComm(taskId, parentId, oldParentId, $(ulHtml));
+      afterUpdateTaskParentComm(taskId, parentId, oldParentId, $(allTasks));
     });
   } else {
     afterUpdateTaskParentComm(taskId, parentId, oldParentId);
@@ -1242,7 +1239,7 @@ export const getLeftMenuCount = (filterUserId, projectId) => {
           }
         }
       } else {
-        errorMessage(source.error);
+        errorMessage(result.error);
       }
     });
 };

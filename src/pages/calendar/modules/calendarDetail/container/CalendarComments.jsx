@@ -1,9 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-
-import { CalendarCommentList } from '../components';
 import FileList from 'src/components/comment/FileList';
+import { CalendarCommentList } from '../components';
 
 export default class CalendarComments extends Component {
   constructor(props) {
@@ -27,7 +25,7 @@ export default class CalendarComments extends Component {
   }
 
   render() {
-    const { listRef, ...others } = this.props;
+    const { ...others } = this.props;
     const { id, recurTime } = this.props.calendar;
     const sourceId = recurTime ? `${id}|${recurTime}` : id;
     const sourceType = FileList.TYPES.CALENDAR;

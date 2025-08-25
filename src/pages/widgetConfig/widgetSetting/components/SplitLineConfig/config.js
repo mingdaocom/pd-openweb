@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { controlState } from 'src/components/newCustomFields/tools/utils.js';
 import { fixedBottomWidgets } from 'src/pages/widgetConfig/util';
 
@@ -14,7 +15,7 @@ export const THEME_COLOR_OPTIONS = [
   '#732ED1',
   '#4051B5',
   '#3054EB',
-  '#2196F3',
+  '#1677ff',
   '#00BCD4',
   '#217107',
   '#4CAF50',

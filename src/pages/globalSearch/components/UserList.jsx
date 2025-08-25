@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Avatar, Icon, UserHead } from 'ming-ui';
-import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
-import TextHeightLine from './TextHeightLine';
 import { USER_LIST_NAME } from '../enum';
 import { getImgUrl } from '../utils';
+import TextHeightLine from './TextHeightLine';
 
 const Box = styled.div`
-  padding-bottom: 12px;
   .userListItem {
-    height: 56px;
+    height: 44px;
     border-radius: 4px;
     cursor: pointer;
     padding-left: 14px;
@@ -139,7 +138,7 @@ export default function UserList(props) {
       </ul>
       {count > 20 && (needShowMore || needShowAll) && (showMore || showAll) && (
         <div className={cx('userListShowMore valignWrapper', { userListHr: showHr })}>
-          <Icon icon="task-point-more" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="Gray_9e Font18" />
           <a
             href={showMore ? '' : `/search?search_key=${searchKeyword}&search_type=${USER_LIST_NAME[type].searchType}`}
             className="text mLeft18 Gray_9e"

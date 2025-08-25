@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { arrayOf, string, shape, func, bool, number } from 'prop-types';
+import React from 'react';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import _ from 'lodash';
 
 const Con = styled.div(
   ({ disabled }) => `

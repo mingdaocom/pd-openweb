@@ -30,7 +30,7 @@ export default function MdLinkify(props) {
 
     const elements = [];
     let lastIndex = 0;
-    matches.forEach(function (match, i) {
+    matches.forEach(function (match) {
       if (match.index > lastIndex) {
         elements.push(string.substring(lastIndex, match.index));
       }

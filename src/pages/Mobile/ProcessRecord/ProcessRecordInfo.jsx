@@ -1,5 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
@@ -108,7 +109,7 @@ export default class ProcessRecordInfo extends Component {
           )}
         >
           <Icon icon={typeof action.icon === 'string' ? action.icon : action.icon[appType]} className="Font18" />
-          <span>{name}</span>
+          <span className="ellipsis">{name}</span>
         </div>
         {isStash && <Icon className="Font22 mRight10 Gray_9e" icon="save1" onClick={this.handleStash} />}
       </div>
@@ -118,6 +119,7 @@ export default class ProcessRecordInfo extends Component {
     const { workItem, instance } = this.state;
     return (
       <WorkflowStepItem
+        appId={instance.app.id}
         instance={instance}
         worksheetId={workItem.worksheetId}
         recordId={workItem.rowId}

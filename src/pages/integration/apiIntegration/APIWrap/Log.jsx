@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { ConfigProvider, Table, Tooltip } from 'antd';
 import cx from 'classnames';
@@ -28,7 +28,7 @@ const Wrap = styled.div`
     border: 1px solid #e8e8e8;
     border-radius: 20px;
     padding: 0 48px;
-    color: #2196f3;
+    color: #1677ff;
   }
   .noData {
     text-align: center;
@@ -66,9 +66,9 @@ const Wrap = styled.div`
       td,
       th {
         .fromTxt {
-          color: #2196f3 !important;
+          color: #1677ff !important;
           a {
-            color: #2196f3 !important;
+            color: #1677ff !important;
           }
         }
       }
@@ -111,7 +111,7 @@ const Wrap = styled.div`
       opacity: 0;
     }
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
     &.hs {
       &:hover {
@@ -138,7 +138,7 @@ const Wrap = styled.div`
     border: 1px solid #ddd;
     border-radius: 3px;
     &:hover {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .dropSearchType,
@@ -167,13 +167,13 @@ export default function Log(props) {
     }
     setState({ loading: true });
     let obj = {};
-    if (!!time[0]) {
+    if (time[0]) {
       obj.startDate = time[0].format('YYYY/MM/DD HH:mm');
     }
-    if (!!time[1]) {
+    if (time[1]) {
       obj.endDate = time[1].format('YYYY/MM/DD HH:mm');
     }
-    if (!!status) {
+    if (status) {
       obj.status = status;
     }
     packageVersionAjax
@@ -461,16 +461,16 @@ export default function Log(props) {
           </div>
           <div className={cx('Relative activeCon')}>
             <Icon
-              icon="person1"
+              icon="person"
               onClick={e => {
                 selectUsers(e);
               }}
               className="Gray_bd Font18 ThemeHoverColor3 mLeft3 add Absolute"
             />
             <Icon
-              icon="closeelement-bg-circle"
+              icon="cancel"
               className="Gray_bd Font18 ThemeHoverColor3 mLeft3 closeIcon Absolute"
-              onClick={e => {
+              onClick={() => {
                 setState({ user: {}, loading: false, isAll: false });
               }}
             />

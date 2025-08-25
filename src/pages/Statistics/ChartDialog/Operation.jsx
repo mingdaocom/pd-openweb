@@ -1,13 +1,13 @@
-import React, { Component, Fragment } from 'react';
-import { reportTypes } from '../Charts/common';
-import Sort from '../components/Sort';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { Tooltip } from 'antd';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../redux/actions.js';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { reportTypes } from '../Charts/common';
+import Sort from '../components/Sort';
+import * as actions from '../redux/actions.js';
 
 const Operation = ({
   settingVisible,
@@ -16,7 +16,6 @@ const Operation = ({
   direction,
   currentReport,
   reportData,
-  worksheetInfo,
   sourceType,
   base,
   onChangeScopeVisible,
@@ -118,7 +117,7 @@ const Operation = ({
       >
         <span>
           <Tooltip title={_l('排序')} placement="bottom">
-            <Icon icon="swap_vert" className="Font20 pointer Bold mLeft16 Gray_9e hoverHighlight" />
+            <Icon icon="import_export" className="Font20 pointer Bold mLeft16 Gray_9e hoverHighlight" />
           </Tooltip>
         </span>
       </Sort>

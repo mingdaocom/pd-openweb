@@ -18,25 +18,28 @@ export default function (Comp, props = {}) {
 
   const root = createRoot(div);
 
-  function destory() {
+  function destroy() {
     root.unmount();
     if (div && div.parentNode === document.body) {
       document.body.removeChild(div);
     }
+    window.removeEventListener('popstate', () => !window.isMingDaoApp && destroy());
   }
+
+  window.addEventListener('popstate', () => !window.isMingDaoApp && destroy());
 
   root.render(
     <Comp
       {...(props.visibleName ? { [props.visibleName]: true } : { visible: true })}
       {...props}
       onClose={(...args) => {
-        destory();
+        destroy();
         if (_.isFunction(props.onClose)) {
           props.onClose(...args);
         }
       }}
       onCancel={() => {
-        destory();
+        destroy();
         if (_.isFunction(props.onCancel)) {
           props.onCancel();
         }
@@ -44,7 +47,7 @@ export default function (Comp, props = {}) {
       {...(props.closeFnName
         ? {
             [props.closeFnName]: () => {
-              destory();
+              destroy();
               if (_.isFunction(props[props.closeFnName])) {
                 props[props.closeFnName]();
               }

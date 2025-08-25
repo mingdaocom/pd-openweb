@@ -42,6 +42,7 @@ export default class SelectFields extends Component {
           return false;
         }
       } catch (error) {
+        console.log(error);
         return false;
       }
       return item.controlId !== data.controlId;
@@ -55,7 +56,13 @@ export default class SelectFields extends Component {
   getSheetList = (subListControls, initSheetList) => {
     const { data = {}, from, parentControl } = this.props;
     // 自定义默认值
-    if (_.includes([DYNAMIC_FROM_MODE.CREATE_CUSTOM, DYNAMIC_FROM_MODE.PRINT_TEMP], from)) return initSheetList;
+    if (
+      _.includes(
+        [DYNAMIC_FROM_MODE.CREATE_CUSTOM, DYNAMIC_FROM_MODE.PRINT_TEMP, DYNAMIC_FROM_MODE.API_AUTH_ACCOUNT],
+        from,
+      )
+    )
+      return initSheetList;
     if (_.includes([DYNAMIC_FROM_MODE.SEARCH_PARAMS], from)) {
       // (查询参数 && 非对象数组内字段)不支持关联记录
       if (!data.dataSource) {
@@ -169,7 +176,12 @@ export default class SelectFields extends Component {
       <SelectFieldsWrap
         limitWidth={
           !_.includes(
-            [DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.H5_WATER_MASK, DYNAMIC_FROM_MODE.WATER_MASK],
+            [
+              DYNAMIC_FROM_MODE.CUSTOM_EVENT,
+              DYNAMIC_FROM_MODE.H5_WATER_MASK,
+              DYNAMIC_FROM_MODE.WATER_MASK,
+              DYNAMIC_FROM_MODE.API_AUTH_ACCOUNT,
+            ],
             from,
           )
         }

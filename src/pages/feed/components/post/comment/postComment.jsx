@@ -1,16 +1,15 @@
 ﻿import React from 'react';
-import cx from 'classnames';
-import roleController from 'src/api/role';
-import { removeComment } from '../../../redux/postActions';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import PostMain from '../post/postMain';
-import PostFooter from '../post/postFooter';
-import PostCommentInput from './postCommentInput';
-import UploadFiles from 'src/components/UploadFiles';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { Dialog, UserHead } from 'ming-ui';
 import { checkPermission } from 'src/components/checkPermission';
+import UploadFiles from 'src/components/UploadFiles';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { removeComment } from '../../../redux/postActions';
+import PostFooter from '../post/postFooter';
+import PostMain from '../post/postMain';
+import PostCommentInput from './postCommentInput';
 
 /**
  * 动态的单条回复
@@ -75,7 +74,6 @@ class PostComment extends React.Component {
       title: _l('确认删除此条回复') + '?',
       buttonType: 'primary',
       onOk: () => {
-        const deleteAttachment = $(`#isDeleteAttachmentOf${commentItem.commentID}`).prop('checked');
         this.clearCommentBox();
         dispatch(removeComment(commentItem.postID, commentItem.commentID));
       },
@@ -142,4 +140,4 @@ class PostComment extends React.Component {
   }
 }
 
-export default connect(state => ({}))(PostComment);
+export default connect()(PostComment);

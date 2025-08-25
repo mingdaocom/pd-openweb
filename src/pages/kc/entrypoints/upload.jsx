@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '../main.css';
 import UploadAssistant from '../common/UploadAssistant';
+import '../main.css';
 
 $('html').addClass('APP-react');
 

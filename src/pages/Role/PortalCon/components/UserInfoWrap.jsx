@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -45,7 +45,7 @@ const Wrap = styled.div(
       box-sizing: border-box;
       &.saveBtn {
         color: #fff;
-        background: #2196f3;
+        background: #1677ff;
         &:hover {
           background: #1e88e5;
         }
@@ -54,8 +54,8 @@ const Wrap = styled.div(
         color: #9e9e9e;
         border: 1px solid #dddddd;
         &:hover {
-          color: #2196f3;
-          border: 1px solid #2196f3;
+          color: #1677ff;
+          border: 1px solid #1677ff;
         }
       }
     }

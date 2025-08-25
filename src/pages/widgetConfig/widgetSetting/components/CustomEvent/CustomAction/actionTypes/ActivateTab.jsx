@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import { Dialog } from 'ming-ui';
-import SelectFields from '../SelectFields';
-import { CustomActionWrap } from '../../style';
 import { fixedBottomWidgets } from '../../../../../util';
+import { CustomActionWrap } from '../../style';
+import SelectFields from '../SelectFields';
 
 export default function ActivateTab(props) {
   const { actionData = {}, handleOk, allControls = [] } = props;

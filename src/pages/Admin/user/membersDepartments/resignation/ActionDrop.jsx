@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Trigger from 'rc-trigger';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { hasPermission } from 'src/components/checkPermission';
-import { Icon, Menu, MenuItem } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon, Menu, MenuItem } from 'ming-ui';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const MenuWrap = styled(Menu)`
   width: 130px !important;

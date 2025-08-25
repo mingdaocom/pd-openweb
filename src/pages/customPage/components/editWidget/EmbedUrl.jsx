@@ -1,13 +1,13 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import { Input } from 'antd';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
-import { Dropdown, Input } from 'antd';
-import { FlexCenter, genUrl, parseLink } from '../../util';
-import PreviewWraper from '../previewContent';
-import { connect } from 'react-redux';
-import LinkPara from './LinkPara';
 import { Header } from '../../styled';
+import { FlexCenter, genUrl } from '../../util';
+import PreviewWraper from '../previewContent';
+import LinkPara from './LinkPara';
 
 const ContentWrap = styled(FlexCenter)`
   padding-top: 54px;

@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState, useTitle } from 'react-use';
 import update from 'immutability-helper';
 import { find, findIndex, flatten, get, head, isEmpty, isEqual, isFunction, pick } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -98,7 +99,7 @@ export default function Container(props) {
 
   const {
     data: { info: globalInfo, noAuth },
-  } = useSheetInfo({ worksheetId: sourceId, getSwitchPermit: true });
+  } = useSheetInfo({ worksheetId: sourceId, getSwitchPermit: true, setConfigLoading: setLoading });
 
   useTitle(_l('编辑字段 - %0', get(globalInfo, 'name') || ''));
 
@@ -216,7 +217,6 @@ export default function Container(props) {
     window.IntegratedApi = {};
     // 自动编号重置缓存
     window.auto_id_reset = {};
-    setLoading({ getLoading: true });
     worksheetAjax
       .getWorksheetControls({
         worksheetId: sourceId,
@@ -258,7 +258,11 @@ export default function Container(props) {
         setLoading({ getLoading: false });
       });
 
-    setStyleInfo({ info: _.get(globalInfo, 'advancedSetting') || {} });
+    const tempInfo = safeParse(window.localStorage.getItem(`worksheetPanelFixed-${sourceId}`) || '{}');
+    setStyleInfo({
+      info: _.get(globalInfo, 'advancedSetting') || {},
+      activeStatus: _.isEmpty(tempInfo) ? true : tempInfo.settingPanelFixed,
+    });
     $originStyle.current = _.get(globalInfo, 'advancedSetting') || {};
     getQueryConfigs(globalInfo.isWorksheetQuery);
     if (globalInfo.appId) {
@@ -339,6 +343,7 @@ export default function Container(props) {
         //有配置查询，保存后拉取配置
         const needGetQuery = queryConfigs.length > 0;
         getQueryConfigs(needGetQuery);
+        _.isFunction(callback) && callback();
       })
       .finally(() => {
         setLoading({ saveLoading: false });
@@ -352,6 +357,7 @@ export default function Container(props) {
           worksheetId: globalInfo.worksheetId,
           appId: globalInfo.appId,
           advancedSetting: styleInfo.info,
+          projectId: globalInfo.projectId,
           editAdKeys: [
             'titlestorage',
             'coverid',
@@ -470,7 +476,7 @@ export default function Container(props) {
     globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType', 'appName']),
   };
 
-  const cancelSubmit = ({ redirectfn, desp } = {}) => {
+  const cancelSubmit = ({ redirectfn } = {}) => {
     if (_.isFunction(props.handleClose)) {
       props.handleClose();
       return;
@@ -508,9 +514,9 @@ export default function Container(props) {
 
   return (
     <Fragment>
-      {!globalInfo ? (
+      {getLoading ? (
         <div className="savingMask flexCenter">
-          <LoadDiv />
+          <LoadDiv className="mTop20" />
         </div>
       ) : noAuth ? (
         <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0 }}>

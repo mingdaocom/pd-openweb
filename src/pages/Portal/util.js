@@ -1,7 +1,7 @@
+import _ from 'lodash';
 import api from 'src/api/homeApp';
 import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import { navigateToLogout } from 'src/router/navigateTo';
-import { browserIsMobile } from 'src/utils/common';
 
 export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
   //工作表老路由id补齐
@@ -48,9 +48,5 @@ export function formatPortalHref(props) {
     } else {
       navigateToLogout();
     }
-  }
-  //h5打开外部门户自定义后缀地址访问 地址处理
-  if (md.global.Account.isPortal && browserIsMobile() && getSuffix(location.href) === md.global.Account.addressSuffix) {
-    location.href = (window.subPath || '') + '/' + 'app/' + md.global.Account.appId + location.search;
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Tooltip, Dialog, Input, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
+import { Dialog, Input, LoadDiv, Tooltip } from 'ming-ui';
 import marketplaceApi from 'src/api/marketplace';
 import marketplacePaymentApi from 'src/api/marketplacePayment';
 import './index.less';
@@ -89,6 +89,7 @@ export default function ProductLicenseInfo(props) {
         }}
         action={['hover']}
         popupClassName="licensePopup"
+        autoCloseDelay={0}
         popup={
           <div
             className="Menu ming flexColumn pAll20 appLicenseWrap"

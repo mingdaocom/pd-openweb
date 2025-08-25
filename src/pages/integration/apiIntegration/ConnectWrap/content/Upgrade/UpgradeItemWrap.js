@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 
 const UpgradeContentItem = styled.div`
   padding: 0 12px;
@@ -61,9 +61,13 @@ export default function UpgradeItemWrap(props) {
               })}
             >
               <div className="flex flexRow name alignItemsCenter">
-                <span className="ellipsis" title={it.displayName}>{it.displayName}</span>
+                <span className="ellipsis" title={it.displayName}>
+                  {it.displayName}
+                </span>
               </div>
-              <div className="flex ellipsis" title={it.explain}>{it.explain}</div>
+              <div className="flex ellipsis" title={it.explain}>
+                {it.explain}
+              </div>
               <div className={`w50 TxtLeft ${isAdd ? 'addTxtColor' : ''}`}>{isAdd ? _l('新增') : _l('更新')}</div>
             </div>
           );

@@ -20,7 +20,7 @@ const MenuBox = styled.div`
   max-height: 500px;
   overflow-y: scroll;
   .icon-new_word {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
   .icon-new_excel {
     color: #4caf50 !important;
@@ -36,11 +36,6 @@ const MenuBox = styled.div`
     height: 1px;
     background: #e0e0e0;
     margin: 5px 0;
-  }
-  .Item-content:hover {
-    .icon {
-      color: #fff !important;
-    }
   }
 `;
 

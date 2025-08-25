@@ -20,7 +20,7 @@ const TPTYPES = {
   sso: 5,
   haers: 7,
 };
-function Container(props) {
+function Container() {
   const [{ account, password, unionId, state, tpType, returnUrl, autoLogin, bindSuc, loading }, setState] = useSetState(
     {
       account: request.account,
@@ -93,11 +93,11 @@ function Container(props) {
                     window.close();
                   }
                   if (window.opener) {
-                    window.opener.location.href = window.opener.location.href;
+                    window.opener.location.replace(window.opener.location.href);
                   }
                 }, 2000);
               } else {
-                const redirectUrl = returnUrl || '/dashboard';
+                const redirectUrl = returnUrl ? getDataByFilterXSS(returnUrl) : '/dashboard';
                 window.location.replace(redirectUrl);
               }
             });

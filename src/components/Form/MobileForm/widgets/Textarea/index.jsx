@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, Linkify } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { addBehaviorLog } from 'src/utils/project.js';
 import TextMarkdown from '../../../components/TextMarkdown';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 import { getIsScanQR } from '../../components/ScanQRCode';
@@ -51,7 +52,6 @@ const TextareaWrap = styled.div`
 const Textarea = props => {
   const {
     className,
-    hint,
     maskPermissions,
     enumDefault,
     value = '',
@@ -64,11 +64,17 @@ const Textarea = props => {
     disabled,
     formDisabled,
   } = props;
-  if (enumDefault === 3) {
-    return <TextMarkdown {...props} />;
+  let { hint } = props;
+  const startTextScanCode = !disabled && isScanQR && advancedSetting.scantype;
+  // 禁止手动输入
+  const disableManual = advancedSetting.dismanual === '1';
+
+  // 开启扫码输入并且禁止手动输入，隐藏输入框
+  const disableInput = startTextScanCode && disableManual;
+  if (disableInput) {
+    hint = hint || _l('请扫码输入');
   }
 
-  const startTextScanCode = !disabled && isScanQR && advancedSetting.scantype;
   const getEditValue = () => {
     return enumDefault === 2 ? value.replace(/\r\n|\n/g, ' ') : value;
   };
@@ -142,7 +148,7 @@ const Textarea = props => {
       a.rel = 'nofollow noopener noreferrer';
       a.click();
       event.preventDefault();
-    } else if (!disabled && advancedSetting.dismanual !== '1') {
+    } else if (!disabled && !disableManual) {
       setIsEditing(true);
       setMaskStatus(false);
       textareaRef.current.focus();
@@ -155,26 +161,12 @@ const Textarea = props => {
     coverLayer.scrollTop = event.target.scrollTop;
   };
 
-  const debouncedOnChange = useRef(
-    _.debounce((props, val) => {
-      props.onChange(val);
-    }, 500),
-  ).current;
-
   useEffect(() => {
     if (enumDefault === 1 && textareaRef.current) {
       textareaRef.current.addEventListener('scroll', syncScroll);
     }
 
-    if (_.isFunction(triggerCustomEvent)) {
-      triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
-    }
-
     return () => {
-      if (_.isFunction(triggerCustomEvent)) {
-        triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
-      }
-
       // 穿透pointer-events禁用滚动
       if (enumDefault === 1 && textareaRef.current) {
         textareaRef.current.removeEventListener('scroll', syncScroll);
@@ -194,6 +186,10 @@ const Textarea = props => {
     setCurrentValue(getEditValue());
   }, [value]);
 
+  if (enumDefault === 3) {
+    return <TextMarkdown {...props} />;
+  }
+
   return (
     <Fragment>
       <TextareaWrap
@@ -206,7 +202,7 @@ const Textarea = props => {
       >
         <div
           className={cx('customFormControlBox customFormTextareaView', {
-            controlEditReadonly: !formDisabled && currentValue && disabled,
+            controlEditReadonly: (!formDisabled && currentValue && disabled) || disableInput,
             controlDisabled: formDisabled,
           })}
           style={{
@@ -217,22 +213,27 @@ const Textarea = props => {
         >
           <span
             onClick={() => {
-              if (disabled && isMask) setMaskStatus(false);
+              if (disabled && isMask) {
+                addBehaviorLog('worksheetDecode', props.worksheetId, {
+                  rowId: props.recordId,
+                  controlId: props.controlId,
+                });
+                setMaskStatus(false);
+              }
             }}
           >
             {getShowValue()}
             {isMask && <Icon icon="eye_off" className={cx('commonFormIcon', disabled ? 'mLeft7' : 'maskIcon')} />}
           </span>
         </div>
-        {!disabled && (
+        {!disabled && !disableInput && (
           <textarea
             className={cx('customFormTextarea', className)}
             value={currentValue}
-            disabled={disabled}
             ref={textareaRef}
             style={{
               maxHeight: 10000,
-              minHeight: enumDefault === 1 ? 90 : 36
+              minHeight: enumDefault === 1 ? 90 : 36,
             }}
             onFocus={onFocus}
             onChange={event => {

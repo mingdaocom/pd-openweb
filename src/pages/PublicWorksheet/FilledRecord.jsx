@@ -191,6 +191,9 @@ export default function FilledRecord(props) {
         return _l('支付超时');
       case 5:
         return _l('部分退款');
+      case 7:
+      case 8:
+        return _l('已取消');
       default:
         return _l('待支付');
     }
@@ -276,7 +279,7 @@ export default function FilledRecord(props) {
                         {_l('编辑')}
                       </div>
                     )}
-                    {isAllowEdit(item.ctime) && item.allowdelete && (
+                    {isAllowEdit(item.ctime) && item.allowdelete && !item.sys_lock && (
                       <div
                         className="delete operateBtn"
                         onClick={e => {
@@ -336,7 +339,7 @@ export default function FilledRecord(props) {
           onClose={() => setListDialogVisible(false)}
         >
           <div className="recordHeader">
-            <Icon icon="arrow_back" className="arrowIcon" onClick={() => setListDialogVisible(false)} />
+            <Icon icon="backspace" className="arrowIcon" onClick={() => setListDialogVisible(false)} />
             <span className="Font15 Gray bold mLeft10">{_l('已填记录')}</span>
           </div>
           {renderRecordList()}

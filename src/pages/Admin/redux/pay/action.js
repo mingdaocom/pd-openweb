@@ -1,8 +1,8 @@
-export const changeShowHeader = showHeader => {
+export const changeShowHeader = showHeader => dispatch => {
   dispatch({ type: 'SHOW_HEADER', showHeader });
 };
 
-export const getMerchantData = params => (dispatch, getState) => {
+export const getMerchantData = () => (dispatch, getState) => {
   const { merchantData } = getState().orgManagePage.pay || {};
   dispatch({ type: 'MERCHANT_DATA', data: { ...merchantData, merchantLoading: true } });
 
@@ -44,7 +44,7 @@ export const getMerchantData = params => (dispatch, getState) => {
   dispatch({ type: 'MERCHANT_DATA', data: { ...merchantData, merchantLoading: false, merchantList } });
 };
 
-export const getTransactionDetailsData = params => (dispatch, getState) => {
+export const getTransactionDetailsData = () => (dispatch, getState) => {
   const { transactionDetailsData } = getState().orgManagePage.pay || {};
   dispatch({ type: 'TRANSACTION_DETAIL_DATA', data: { ...transactionDetailsData, transactionDetailsLoading: true } });
 

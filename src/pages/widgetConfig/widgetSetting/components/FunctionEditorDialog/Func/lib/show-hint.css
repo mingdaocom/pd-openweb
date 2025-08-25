@@ -31,7 +31,7 @@
 }
 
 .CodeMirror-hints li.CodeMirror-hint-active {
-  background: #2196f3;
+  background: #1677ff;
 }
 
 .CodeMirror-hints .hint-item {
@@ -42,9 +42,6 @@
 .CodeMirror-hints .hint-item .icon {
   color: #9e9e9e;
 }
-
-
-
 
 .CodeMirror-hint {
   margin: 0;

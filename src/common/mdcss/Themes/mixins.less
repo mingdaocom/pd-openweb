@@ -1,18 +1,8 @@
-﻿.themeLoopClass(@start, @end, @className, @propertyName, @variableName, @pseudo: "")
-  when
-  (@start =< @end) {
-  @varialbeValue: e("@{variableName}@{start}");
+﻿.themeLoopClass(@start, @end, @className, @propertyName, @variableName, @pseudo: '') when (@start =< @end) {
+  @varialbeValue: e('@{variableName}@{start}');
   @pseudoValue: e(@pseudo);
   .@{className}@{start}@{pseudoValue} {
     @{propertyName}: @@varialbeValue !important;
   }
-  .themeLoopClass(
-    @start + 1,
-    @end,
-    @className,
-    @propertyName,
-    @variableName,
-    @pseudo
-  );
+  .themeLoopClass(@start + 1, @end, @className, @propertyName, @variableName, @pseudo);
 }
-

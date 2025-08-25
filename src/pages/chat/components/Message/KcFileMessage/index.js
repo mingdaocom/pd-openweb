@@ -11,7 +11,7 @@ export default class KcFileMessage extends Component {
   componentDidMount() {
     this.getNodeDetail();
   }
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps() {
     this.getNodeDetail();
   }
   getNodeDetail() {

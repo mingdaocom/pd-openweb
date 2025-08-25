@@ -1,7 +1,8 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
+
 /**
  * 单条投票项
  */

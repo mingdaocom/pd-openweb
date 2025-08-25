@@ -3,35 +3,35 @@ import { Icon } from 'ming-ui';
 import loading from './loading.svg';
 
 const style = {
-  justifyContent: 'center'
-}
+  justifyContent: 'center',
+};
 
-export const Loading = (props) => {
+export const Loading = () => {
   return (
     <div className="flex flexColumn valignWrapper" style={style}>
       <img className="chartLoading" src={loading} />
       <div className="Gray_9e mTop10">{_l('正在加载数据...')}</div>
     </div>
   );
-}
+};
 
-export const WithoutData = (props) => {
+export const WithoutData = () => {
   return (
     <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
       {_l('没有记录')}
     </div>
   );
-}
+};
 
-export const Overload = (props) => {
+export const Overload = () => {
   return (
     <div className="flex flexColumn valignWrapper Gray_9e Font16 h100 centerAlign" style={style}>
       {_l('数据量过大，无法绘制可查看的图表如需查看，请选择范围、添加筛选条件或联系应用管理员')}
     </div>
   );
-}
+};
 
-export const Abnormal = (props) => {
+export const Abnormal = props => {
   const { isEdit, status } = props;
   if (isEdit) {
     if (status === -3) {
@@ -74,4 +74,4 @@ export const Abnormal = (props) => {
       );
     }
   }
-}
+};

@@ -1,6 +1,6 @@
-import { navigateTo } from './navigateTo';
-import { compatibleWorksheetRoute } from 'src/pages/Portal/util.js';
 import _ from 'lodash';
+import { compatibleWorksheetRoute } from 'src/pages/Portal/util.js';
+import { navigateTo } from './navigateTo';
 
 export default () => {
   window.closeindex = 0;
@@ -38,7 +38,7 @@ export default () => {
     return isContain;
   };
 
-  $('body').on('click', 'a', function(e) {
+  $('body').on('click', 'a', function (e) {
     if (e.which !== 1) return;
     if (e.ctrlKey || e.shiftKey || e.metaKey) return;
     if ($(e.target).closest('.mdEditorContent').length) return;

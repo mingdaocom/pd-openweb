@@ -1,16 +1,16 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Switch } from 'antd';
-import { Textarea, Button, Icon, Input } from 'ming-ui';
-import styled from 'styled-components';
-import cx from 'classnames';
-import workWeiXinAjax from 'src/api/workWeiXin';
-import wechatPng from '../../img/wechat_work.png';
-import { navigateTo } from 'src/router/navigateTo';
 import { Modal } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Icon, Input, Textarea } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import workWeiXinAjax from 'src/api/workWeiXin';
+import { navigateTo } from 'src/router/navigateTo';
+import wechatPng from '../../img/wechat_work.png';
 import AppSettingHeader from '../AppSettingHeader';
 import AppLinkParamsSettings from './AppLinkParamsSettings';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   h3,
@@ -36,7 +36,7 @@ const WrapCon = styled.div`
     margin-top: 20px;
 
     span {
-      color: #2196f3;
+      color: #1677ff;
       cursor: pointer;
       margin-left: 13px;
       display: inline-block;
@@ -50,7 +50,7 @@ const WrapCon = styled.div`
     padding: 0 12px;
   }
   .editFixed {
-    color: #2196f3;
+    color: #1677ff;
     margin-top: 10px;
   }
   .con {
@@ -131,7 +131,7 @@ class EditPublishSetDialog extends React.Component {
   }
 
   toSetEnterpirse = () => {
-    const { projectId, appId } = this.props;
+    const { projectId } = this.props;
     navigateTo(`/admin/workwxapp/${projectId}`);
     this.setState({ noIntegratedWechat: false });
   };
@@ -284,7 +284,7 @@ class EditPublishSetDialog extends React.Component {
                 s = !cur ? s + 'hover' : s;
                 return (
                   <li
-                    onClick={(checked, event) => {
+                    onClick={() => {
                       let curData = {};
                       if (o === 1) {
                         curData = { pcDisplay: !cur };
@@ -318,7 +318,7 @@ class EditPublishSetDialog extends React.Component {
               }}
             >
               {_l('企业微信工作台')}
-              <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
+              <Icon icon="launch" className="mLeft10 Gray_9e" />
             </span>
           </div>
           <div className="publishAppCourse">
@@ -330,7 +330,7 @@ class EditPublishSetDialog extends React.Component {
               }}
             >
               {_l('钉钉工作台')}
-              <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
+              <Icon icon="launch" className="mLeft10 Gray_9e" />
             </span>
           </div>
           <h6 className="Font15 Bold borTopLine">{_l('发布到到其他平台')}</h6>

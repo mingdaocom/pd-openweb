@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { DynamicValueInputWrap } from '../styled';
+import React from 'react';
 import { OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default function (props) {
   const { onDynamicValueChange } = props;

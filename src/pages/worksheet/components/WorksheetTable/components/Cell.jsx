@@ -1,14 +1,14 @@
-import React, { Fragment, memo, useRef } from 'react';
+import React, { Fragment, memo, useCallback, useRef } from 'react';
 import cx from 'classnames';
-import { every, find, findIndex, get, includes, isEmpty, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
+import { every, find, findIndex, get, includes, isEmpty, isEqual, isFunction, isUndefined } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { controlIsNumber } from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
+import { checkCellIsEmpty, controlIsNumber, isRelateRecordTableControl } from 'src/utils/control';
 import { getRecordColor } from 'src/utils/record';
 import CollapseExpandButton from './CollapseExpandButton';
 import DataCell from './DataCell';
@@ -26,6 +26,35 @@ export function getRelateRecordCountOfControlFromRow(control, row = {}) {
     console.error(err);
     return 0;
   }
+}
+
+/**
+ * 高性能比较 rowFormData 的 value 字段
+ * @param {Array} prevRowFormData - 之前的 rowFormData 数组
+ * @param {Array} nextRowFormData - 新的 rowFormData 数组
+ * @returns {boolean} - 如果所有 value 都相同返回 true，否则返回 false
+ */
+function compareRowFormDataValues(prevRowFormData, nextRowFormData) {
+  // 处理空值情况
+  const prevData = prevRowFormData || [];
+  const nextData = nextRowFormData || [];
+
+  // 先比较数组长度
+  if (prevData.length !== nextData.length) {
+    return false;
+  }
+
+  // 逐个比较 value，有任何不同立即返回 false（短路执行）
+  for (let i = 0; i < prevData.length; i++) {
+    if (prevData[i]?.value !== nextData[i]?.value) {
+      return false;
+    }
+    if (prevData[i]?.fieldPermission === nextData[i]?.fieldPermission) {
+      return false;
+    }
+  }
+
+  return true;
 }
 const CellCon = styled.div`
   .hoverShow {
@@ -57,7 +86,7 @@ const TreeExpandIcon = styled.div`
   margin-right: 10px;
   &:hover {
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
     background: rgba(0, 0, 0, 0.05);
     .line {
@@ -146,23 +175,56 @@ export function getIndex({
 }
 
 const MemorizedDataCell = memo(DataCell, (prevProps, nextProps) => {
+  // 快速检查：如果rowid不同或控件ID不同，肯定需要更新
+  if (prevProps.row?.rowid !== nextProps.row?.rowid || prevProps.control?.controlId !== nextProps.control?.controlId) {
+    return false;
+  }
+
+  // 只有在row和control相同时才进行详细比较
   const compareKeys = [
+    'style',
     'columnStyle',
     'lineEditable',
     'disableQuickEdit',
-    'style',
     'className',
-    'row.rowid',
     'error',
-    'control.controlId',
     'control.value',
     'control.options',
     'control.controlPermissions',
     'control.fieldPermission',
     'control.relationControls',
     'control.advancedSetting.datamask',
+    'row.allowedit',
+    'row.sys_lock',
+    'row.utime', // 添加更新时间比较
   ];
-  return every(compareKeys, key => isEqual(get(prevProps, key), get(nextProps, key)));
+
+  // 先比较简单属性（字符串、数字）
+  const simpleKeys = [
+    'lineEditable',
+    'disableQuickEdit',
+    'className',
+    'error',
+    'row.allowedit',
+    'row.sys_lock',
+    'row.utime',
+  ];
+  if (!every(simpleKeys, key => get(prevProps, key) === get(nextProps, key))) {
+    return false;
+  }
+
+  // 再比较复杂属性（对象、数组）
+  const complexKeys = compareKeys.filter(key => !simpleKeys.includes(key));
+  if (!every(complexKeys, key => isEqual(get(prevProps, key), get(nextProps, key)))) {
+    return false;
+  }
+
+  // 高性能比较 rowFormData 的 value 字段
+  if (!compareRowFormDataValues(get(prevProps, 'rowFormData'), get(nextProps, 'rowFormData'))) {
+    return false;
+  }
+
+  return true;
 });
 
 function getCellType(id) {
@@ -178,6 +240,7 @@ function getCellType(id) {
 function Cell(props) {
   const { key, style = {}, data = {} } = props;
   const {
+    tableDataWithRowFormData,
     columnStyles = {},
     treeTableViewData,
     masterRecord,
@@ -202,7 +265,6 @@ function Cell(props) {
     rows = [],
     controls = [],
     visibleColumns = [],
-    columns = [],
     cellColumnCount,
     rowHeight,
     lineEditable,
@@ -214,11 +276,9 @@ function Cell(props) {
     rowHeightEnum,
     rulePermissions,
     masterData,
-    masterFormData,
     sheetSwitchPermit,
     sheetViewHighlightRows,
     registerRef,
-    expandCellAppendWidth,
     treeLayerControlId,
     headTitleCenter,
     // functions
@@ -233,6 +293,7 @@ function Cell(props) {
     cellUniqueValidate,
     updateCell,
     actions = {},
+    getColumnWidth,
     isDraft,
   } = data;
   const cellCache = useRef({});
@@ -246,6 +307,11 @@ function Cell(props) {
   const cellIndex = rowIndex * cellColumnCount + columnIndex;
   const row = rows[rowIndex] || {};
   cellCache.current.row = row;
+
+  // 缓存 getRow 函数
+  const getRow = useCallback(() => {
+    return row;
+  }, [row]);
   const control = {
     ...(visibleColumns[columnIndex] || {}),
   };
@@ -272,6 +338,7 @@ function Cell(props) {
     {
       rowIsEmpty: isEmpty(row) && cellType === 'data',
       [`control-val-${control.controlId}`]: cellType !== 'head',
+      [`control-head-${control.controlId}`]: cellType === 'head',
       placeholder: !row.rowid,
       emptyRow: row.rowid && isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),
       oddRow: rowIndex % 2 === 1,
@@ -346,6 +413,28 @@ function Cell(props) {
   if (recordColor && recordColorConfig.showBg && recordColor.lightColor && control.type !== 'emptyForResize') {
     cellStyle.backgroundColor = recordColor.lightColor;
   }
+  if (isFunction(renderFunctions.groupMore) && row.rowid === 'loadGroupMore') {
+    return renderFunctions.groupMore({
+      className,
+      key,
+      row,
+      rowIndex,
+      columnIndex,
+      style: cellStyle,
+      getColumnWidth,
+    });
+  }
+  if (isFunction(renderFunctions.groupTitle) && row.rowid === 'groupTitle') {
+    return renderFunctions.groupTitle({
+      className,
+      key,
+      row,
+      rowIndex,
+      columnIndex,
+      style: cellStyle,
+      getColumnWidth,
+    });
+  }
   if (isFunction(renderFunctions.rowHead) && control.type === 'rowHead' && cellType !== 'foot') {
     const rowHeadComp = control.empty ? (
       <span className={className} style={cellStyle} />
@@ -392,6 +481,7 @@ function Cell(props) {
   }
   if (isFunction(renderFunctions.foot) && cellType === 'foot') {
     return renderFunctions.foot({
+      className,
       style: cellStyle,
       columnIndex,
     });
@@ -455,12 +545,8 @@ function Cell(props) {
       masterData={masterData}
       columnStyle={currentColumnStyle}
       // functions
-      rowFormData={() =>
-        (controls || columns)
-          .map(c => ({ ...c, value: (cellCache.current.row || {})[c.controlId] }))
-          .concat(masterFormData().filter(c => c.controlId.length === 24))
-      }
-      getRow={() => cellCache.current.row || {}}
+      rowFormData={tableDataWithRowFormData[rowIndex]}
+      getRow={getRow}
       clearCellError={clearCellError}
       getPopupContainer={getPopupContainer}
       enterEditing={() => enterEditing(cellIndex)}

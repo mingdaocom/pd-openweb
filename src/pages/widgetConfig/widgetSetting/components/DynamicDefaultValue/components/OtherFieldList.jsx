@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { string } from 'prop-types';
 import { renderText as renderCellText } from 'src/utils/control';
 import { FieldInfo, OtherFieldList, RelateControl } from '../styled';
 import { getControlType, getDateType, getTypeList, showClear } from '../util';
@@ -30,6 +29,7 @@ const parseValue = value => {
   try {
     if (typeof value === 'string' && _.isArray(JSON.parse(value))) return JSON.parse(value);
   } catch (error) {
+    console.log(error);
     return value;
   }
   return value;
@@ -144,7 +144,7 @@ export default ({
                   return (
                     <FieldInfo key={departmentId}>
                       <div className="departWrap">
-                        <i className="icon-department1"></i>
+                        <i className="icon-department"></i>
                       </div>
                       <div className="name">{departmentName}</div>
                       <div
@@ -275,7 +275,7 @@ export default ({
           rest.onDynamicValueChange([]);
         }}
       >
-        <span className="icon icon-closeelement-bg-circle Font15"></span>
+        <span className="icon icon-cancel Font15"></span>
       </div>
     )}
   </OtherFieldList>

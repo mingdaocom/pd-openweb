@@ -1,5 +1,3 @@
-
-
 export const sheetDiscussions = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_SET_SHEET_DISCUSSION':
@@ -11,7 +9,7 @@ export const sheetDiscussions = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 export const sheetLogs = (state = [], action) => {
   switch (action.type) {
@@ -22,7 +20,7 @@ export const sheetLogs = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 export const sheetAttachments = (state = [], action) => {
   switch (action.type) {
@@ -31,4 +29,4 @@ export const sheetAttachments = (state = [], action) => {
     default:
       return state;
   }
-}
+};

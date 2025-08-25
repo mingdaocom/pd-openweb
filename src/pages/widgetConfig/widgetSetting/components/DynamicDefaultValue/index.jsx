@@ -12,9 +12,8 @@ import { dealIds, getControlType } from './util';
 
 export default function DynamicDefaultValue(props) {
   const { data, allControls, onChange, from, hideTitle } = props;
-  const { enumDefault, advancedSetting = {} } = data;
   const type = getControlType(data);
-  const showtype = advancedSetting.showtype || String(enumDefault);
+
   if (!type) return null;
 
   const Comp = TYPE_TO_COMP[type];
@@ -59,7 +58,10 @@ export default function DynamicDefaultValue(props) {
         <div className="settingItemTitle">
           {_l('默认值')}
           {type === 'department' && from !== DYNAMIC_FROM_MODE.FAST_FILTER && (
-            <Tooltip text={<span>{_l('默认值为成员字段时，取成员所在的主部门')}</span>}>
+            <Tooltip
+              autoCloseDelay={0}
+              text={<span>{_l('单选选择方式时，使用成员字段设置默认值，将取成员所在主部门')}</span>}
+            >
               <span className="Gray_9e pointer Font15">
                 <i className="icon-help"></i>
               </span>

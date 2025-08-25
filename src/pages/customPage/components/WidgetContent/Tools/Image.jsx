@@ -1,9 +1,36 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useState } from 'react';
+import { Checkbox, Input, Popover, Select, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon, QiniuUpload } from 'ming-ui';
-import { Tooltip, Popover, Input, Checkbox } from 'antd';
 import { TabsSettingPopover } from './styled.js';
+
+const actionType = [
+  {
+    name: _l('无'),
+    value: 0,
+  },
+  {
+    name: _l('预览图片'),
+    value: 1,
+  },
+  {
+    name: _l('打开链接'),
+    value: 2,
+  },
+];
+
+const openModeType = [
+  {
+    name: _l('新页面'),
+    value: 1,
+  },
+  {
+    name: _l('当前页面'),
+    value: 2,
+  },
+];
 
 const ImageUploadWrap = styled.div`
   .imageUpload {
@@ -12,8 +39,8 @@ const ImageUploadWrap = styled.div`
     border: 1.5px dashed #bdbdbd;
     border-radius: 4px;
     &:hover {
-      color: #2196f3;
-      border-color: #2196f3;
+      color: #1677ff;
+      border-color: #1677ff;
     }
   }
   .imageView {
@@ -60,18 +87,22 @@ let isEdit = false;
 export default props => {
   const { icon, type, highlight, widget } = props;
   const { componentConfig = {} } = widget;
-  const { url, name, showType = 1, showName = true } = componentConfig;
+  const { url, name, showName = true, linkUrl } = componentConfig;
+  const showType = _.isNumber(componentConfig.showType) ? componentConfig.showType : 1;
+  const action = _.isNumber(componentConfig.action) ? componentConfig.action : 0;
+  const openMode = _.isNumber(componentConfig.openMode) ? componentConfig.openMode : 1;
   const [popoverVisible, setPopoverVisible] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [uploadLoading, setUploadLoading] = useState(false);
   const previewUrl = componentConfig.previewUrl || url;
   const handleChangeConfig = data => {
     props.handleToolClick(type, {
       componentConfig: {
         ...componentConfig,
-        ...data
-      }
+        ...data,
+      },
     });
-  }
+  };
   const renderQiniuUpload = (className, content) => {
     return (
       <QiniuUpload
@@ -84,13 +115,13 @@ export default props => {
           type: 40,
           max_file_size: '5m',
         }}
-        onUploaded={(up, file, response) => {
+        onUploaded={(up, file) => {
           up.disableBrowse(false);
           const url = file.serverName + file.key;
           handleChangeConfig({ url, previewUrl: file.url });
           setUploadLoading(false);
         }}
-        onAdd={(up, files) => {
+        onAdd={up => {
           setUploadLoading(true);
           up.disableBrowse();
         }}
@@ -101,7 +132,7 @@ export default props => {
         {content}
       </QiniuUpload>
     );
-  }
+  };
   return (
     <Popover
       zIndex={1000}
@@ -110,14 +141,14 @@ export default props => {
       arrowPointAtCenter={true}
       mouseLeaveDelay={0.3}
       overlayInnerStyle={{
-        padding: 24
+        padding: 24,
       }}
       visible={popoverVisible}
       onVisibleChange={visible => {
         if (isEdit) return;
         setPopoverVisible(visible);
       }}
-      content={(
+      content={
         <TabsSettingPopover className="flexColumn disableDrag">
           <div className="flexRow valignWrapper mBottom10">
             <div className="bold flex">{_l('名称')}</div>
@@ -143,10 +174,78 @@ export default props => {
           <div className="flexRow valignWrapper mTop15 mBottom10">
             <div className="bold mRight10">{_l('显示方式')}</div>
             <div className="typeSelect flex flexRow valignWrapper">
-              <div className={cx('centerAlign flex pointer Gray_75', { active: showType === 1 })} onClick={() => handleChangeConfig({ showType: 1 })}>{_l('透明')}</div>
-              <div className={cx('centerAlign flex pointer Gray_75', { active: showType === 2 })} onClick={() => handleChangeConfig({ showType: 2 })}>{_l('卡片')}</div>
+              <div
+                className={cx('centerAlign flex pointer Gray_75', { active: showType === 1 })}
+                onClick={() => handleChangeConfig({ showType: 1 })}
+              >
+                {_l('透明')}
+              </div>
+              <div
+                className={cx('centerAlign flex pointer Gray_75', { active: showType === 2 })}
+                onClick={() => handleChangeConfig({ showType: 2 })}
+              >
+                {_l('卡片')}
+              </div>
             </div>
           </div>
+          <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('点击图片时')}</div>
+          <Select
+            className="mdAntSelect w100"
+            value={action}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              const data = { action: value };
+              if (value === 2) {
+                data.openMode = 1;
+              }
+              handleChangeConfig(data);
+            }}
+          >
+            {actionType.map(c => (
+              <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
+                <div className="valignWrapper h100">
+                  <span className="Font13 ellipsis">{c.name}</span>
+                </div>
+              </Select.Option>
+            ))}
+          </Select>
+          {action === 2 && (
+            <Fragment>
+              <Input
+                className="mTop5"
+                value={linkUrl}
+                placeholder={_l('链接')}
+                onChange={e => handleChangeConfig({ linkUrl: e.target.value.trim() })}
+                onFocus={() => {
+                  isEdit = true;
+                }}
+                onBlur={e => {
+                  isEdit = false;
+                  if (e.target.value && !/^https?:\/\/.+$/.test(e.target.value)) {
+                    alert(_l('请输入正确的 url 格式'), 3);
+                    handleChangeConfig({ linkUrl: '' });
+                  }
+                }}
+              />
+              <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('打开方式')}</div>
+              <Select
+                className="mdAntSelect w100"
+                value={openMode}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={value => {
+                  handleChangeConfig({ openMode: value });
+                }}
+              >
+                {openModeType.map(c => (
+                  <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
+                    <div className="valignWrapper h100">
+                      <span className="Font13 ellipsis">{c.name}</span>
+                    </div>
+                  </Select.Option>
+                ))}
+              </Select>
+            </Fragment>
+          )}
           <ImageUploadWrap className="mTop15">
             <div className="bold">{_l('图片')}</div>
             <div className="Gray_75 mBottom10">{_l('请选择5MB以内的jpg, jpeg或png图片')}</div>
@@ -162,7 +261,7 @@ export default props => {
                         <div className="resetBtn pointer flexRow alignItemsCenter justifyContentCenter">
                           <Icon className="ThemeColor Font20" icon="task-later" />
                         </div>
-                      </Tooltip>
+                      </Tooltip>,
                     )}
                   </div>
                 </div>
@@ -173,21 +272,17 @@ export default props => {
                 <div className="imageUpload flexRow alignItemsCenter justifyContentCenter pointer">
                   <Icon className="Font18" icon="insert_photo_21" />
                   <div className="mLeft5">{_l('选择上传的图片')}</div>
-                </div>
+                </div>,
               )
             )}
           </ImageUploadWrap>
         </TabsSettingPopover>
-      )}
+      }
       getPopupContainer={() => document.body}
     >
-      <li
-        className={cx(type, { highlight })}
-        key={type}
-      >
+      <li className={cx(type, { highlight })} key={type}>
         <i className={`icon-${icon} Font18`}></i>
       </li>
     </Popover>
   );
-}
-
+};

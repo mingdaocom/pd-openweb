@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 const enumObj = obj => {
   _.keys(obj).forEach(key => (obj[obj[key]] = key));
   return obj;
@@ -117,7 +118,7 @@ export const invoiceConfig = [
   { key: 'address', text: _l('邮寄地址'), require: true },
   { key: 'recipientName', text: _l('发票接收人'), half: true, require: true },
   { key: 'postcode', text: _l('邮编'), verify: /^\d+$/, half: true, require: true },
-  { key: 'contactPhone', text: _l('电话'), verify: /^\d+\-?\d+$/, half: true, require: true },
+  { key: 'contactPhone', text: _l('电话'), verify: /^\d+-?\d+$/, half: true, require: true },
   { key: 'mobilePhone', text: _l('手机'), verify: /^\d+$/, half: true, require: true },
   {
     key: 'email',
@@ -143,7 +144,7 @@ export const newInvoiceConfig = [
   { key: 'taxBank', text: _l('开户行'), require: true },
   { key: 'taxBankNumber', text: _l('账号'), require: true },
   { key: 'taxRegAddress', text: _l('注册地址'), require: true },
-  { key: 'taxRegContactPhone', text: _l('注册电话'), verify: /^\d+\-?\d+$/, require: true },
+  { key: 'taxRegContactPhone', text: _l('注册电话'), verify: /^\d+-?\d+$/, require: true },
 ];
 
 export const DATE_FILTER = [

@@ -1,110 +1,116 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import './index.less';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import * as actions from 'src/pages/chat/redux/actions';
 import * as ajax from '../../utils/ajax';
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import './index.less';
 
-const flatten = (res) => {
+const SearchWrap = styled.div`
+  input {
+    border: none;
+    border-radius: 17px;
+    background: #f5f5f5;
+    border: 1px solid #f5f5f5;
+    padding: 4px 5px 4px 35px;
+    width: 100%;
+    &:focus {
+      border-color: #1677ff;
+      background: #fff;
+    }
+  }
+  .icon-cancel {
+    right: 5px;
+  }
+`;
+
+const flatten = res => {
   const result = [];
   result.push(...res.accounts.list, ...res.groups.list);
   return result;
 };
 
-export default class SearchMember extends Component {
+class SearchMember extends Component {
   constructor(props) {
     super(props);
     this.state = {
       value: '',
-      contentVisible: false,
-      style: {},
-      loading: false,
+      loading: true,
       result: [],
       flattenResult: [],
       currentIndex: -1,
     };
   }
+  inputRef = React.createRef();
   componentDidMount() {
-    setTimeout(() => {
-      $(this.input).focus();
-    }, 0);
+    this.handleFocus();
   }
-  getInnerHeight() {
-    const { offsetHeight, clientHeight } = this.SearchMember;
-    const { innerHeight } = window;
-    const headerHeight = 46; // 页面导航高度
-    return {
-      top: -(innerHeight - clientHeight - headerHeight),
-      height: innerHeight - offsetHeight - headerHeight,
-    };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.sessionListVisible && !this.props.sessionListVisible) {
+      this.handleFocus();
+    }
   }
-  getAllAddressbookByKeywords(value) {
-    this.setState({
-      loading: true,
-    });
+  handleFocus = () => {
+    if (this.inputRef.current && !location.href.includes('windowChat')) {
+      setTimeout(() => {
+        this.inputRef.current.focus();
+      }, 300);
+    }
+  };
+  getAllAddressbookByKeywords = () => {
+    const { value } = this.state;
+    this.setState({ loading: true });
     this.ajax && this.ajax.abort();
     this.ajax = ajax.getAllAddressbookByKeywords(value);
-    this.ajax.then((result) => {
+    this.ajax.then(result => {
       this.setState({
         loading: false,
         result,
         flattenResult: flatten(result),
       });
     });
-  }
+  };
   adjustViewport(direction) {
     const { flattenResult, currentIndex } = this.state;
-    const scrollViewEl = this.scrollView.nanoScroller;
-    const $scrollViewEl = $(scrollViewEl);
+    const { viewport } = this.scrollView.getScrollInfo();
+    const $scrollViewEl = $(viewport);
     const current = flattenResult[currentIndex] || {};
     const id = current.accountId ? (current.user ? current.user.userId : current.accountId) : current.groupId;
     const $currentEl = $(`#project-container-item-${id}`);
 
-    if (!scrollViewEl.nanoscroller.isActive || currentIndex === -1) {
+    if (!viewport || currentIndex === -1) {
       return;
     }
     if (direction === 'up') {
       if ($currentEl.position().top < 0 || $currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
-        $scrollViewEl.nanoScroller({ scrollTo: $currentEl });
+        this.scrollView.scrollToElement($currentEl[0]);
       }
     } else if (direction === 'down') {
       if ($currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
-        const bottom =
-          $scrollViewEl.find('.nano-content').get(0).scrollHeight -
-          $scrollViewEl.find('.nano-content').get(0).scrollTop -
-          $currentEl.position().top -
-          $currentEl.height();
-        $scrollViewEl.nanoScroller({ scrollBottom: bottom });
+        const { scrollTop, scrollHeight, maxScrollTop } = this.scrollView.getScrollInfo() || {};
+        const bottom = scrollHeight - scrollTop - $currentEl.position().top - $currentEl.height();
+        this.scrollView.scrollTo({ top: maxScrollTop - bottom });
       } else if ($currentEl.position().top < 0) {
-        $scrollViewEl.nanoScroller({ scrollTo: $currentEl });
+        this.scrollView.scrollToElement($currentEl[0]);
       }
     }
   }
-  handleChange(event) {
-    const { value } = event.target;
-    const { result } = this.state;
-
-    this.setState({
-      value,
-      flattenResult: [],
-      currentIndex: -1,
-    });
-    setTimeout(() => {
-      const { result, contentVisible } = this.state;
-      this.setState({
-        contentVisible: value ? contentVisible : false,
-      });
-      if (value.trim()) {
-        const style = this.getInnerHeight();
-        this.getAllAddressbookByKeywords(value.trim());
-        this.setState({
-          style,
-          contentVisible: true,
-        });
-      }
-    }, window.isWindows ? 500 : 0);
-  }
-  handleKeyDown(event) {
+  handleChange = _.debounce(value => {
+    this.setState(
+      {
+        value,
+        flattenResult: [],
+        currentIndex: -1,
+      },
+      () => {
+        value && this.getAllAddressbookByKeywords();
+      },
+    );
+  }, 300);
+  handleKeyDown = event => {
     const { flattenResult, currentIndex } = this.state;
     const { which } = event;
     if (which === 38 && flattenResult.length) {
@@ -114,7 +120,7 @@ export default class SearchMember extends Component {
         },
         () => {
           this.adjustViewport('up');
-        }
+        },
       );
     } else if (which === 40 && flattenResult.length) {
       this.setState(
@@ -123,65 +129,73 @@ export default class SearchMember extends Component {
         },
         () => {
           this.adjustViewport('down');
-        }
+        },
       );
     } else if (which === 13 && flattenResult.length && currentIndex !== -1) {
       this.handleOpenSession(flattenResult[currentIndex]);
     } else if (which === 27) {
-      this.handleClose();
+      this.setState({ value: '' });
     }
-  }
+  };
   handleOpenSession(data) {
-    this.props.onOpenSession(data);
-    this.handleClose();
-  }
-  handleClose() {
-    this.handleChange({ target: { value: '' } });
-    this.props.onHideSearch();
-  }
-  handleBlur() {
-    const { value } = this.state;
-    if (!value) {
-      this.props.onHideSearch();
+    const { groupId, accountId } = data;
+    if (groupId) {
+      const msg = {
+        to: groupId,
+        avatar: data.avatar,
+        groupname: data.name,
+        msg: { con: '' },
+      };
+      this.props.addGroupSession(groupId, msg);
+    } else {
+      const msg = {
+        logo: data.avatarMiddle,
+        uname: data.fullname,
+        sysType: 1,
+      };
+      this.props.addUserSession(accountId, msg);
     }
+    this.setState({ value: '' });
   }
   renderAccount(account, currentResult) {
     const id = account.user ? account.user.userId : account.accountId;
-    const isCurrent = id !== (currentResult.user ? currentResult.user.userId : currentResult.accountId);
+    const isCurrent = id === (currentResult.user ? currentResult.user.userId : currentResult.accountId);
     return (
       <div
         id={`project-container-item-${id}`}
-        className={cx('project-container-item ThemeBorderColor3 ThemeBGColor3', { 'project-container-hover': isCurrent })}
+        className={cx('project-container-item', { active: isCurrent })}
         onClick={this.handleOpenSession.bind(this, account)}
         key={account.accountId}
       >
         <img src={account.avatarMiddle} />
-        <span className="username" title={account.fullname}>
-          {account.fullname}
-        </span>
-        {account.profession ? (
-          <span className="department" title={account.profession}>
-            {account.profession}
+        <div className="flexColumn flex minWidth0 mLeft10">
+          <span className="username Gray bold Font13" title={account.fullname}>
+            {account.fullname}
           </span>
-        ) : (
-          undefined
-        )}
+          <span className="department Gray_75 ellipsis Font12">
+            {account.profession}
+            {account.profession && account.companyName && ' | '}
+            {account.companyName}
+          </span>
+        </div>
       </div>
     );
   }
   renderGroup(group, currentResult) {
-    const isCurrent = group.groupId !== currentResult.groupId;
+    const isCurrent = group.groupId === currentResult.groupId;
     return (
       <div
         id={`project-container-item-${group.groupId}`}
-        className={cx('project-container-item ThemeBorderColor3 ThemeBGColor3', { 'project-container-hover': isCurrent })}
+        className={cx('project-container-item', { active: isCurrent })}
         onClick={this.handleOpenSession.bind(this, group)}
         key={group.groupId}
       >
         <img src={group.avatar} />
-        <span className="groupname" title={group.name}>
-          {group.name}
-        </span>
+        <div className="flex minWidth0 mLeft10 ellipsis">
+          <span className="groupname Gray bold Font13" title={group.name}>
+            {group.name}
+          </span>
+        </div>
       </div>
     );
   }
@@ -191,41 +205,40 @@ export default class SearchMember extends Component {
     const count = result.groups.list.length + result.accounts.list.length;
     return (
       <div className="content">
-        {
-          result.accounts.list.length ?
+        {!!result.accounts.list.length && (
           <div>
-            <div className="project-container-head">{`${_l('联系人')} ${result.accounts.list.length}`}</div>
-            <div>
-              {result.accounts.list.map(account => this.renderAccount(account, currentResult))}
+            <div className="project-container-head bold">
+              {_l('联系人')}
+              <span className="mLeft5 ThemeColor">{result.accounts.list.length}</span>
             </div>
-          </div> : undefined
-        }
-        {
-          result.groups.list.length ?
+            <div>{result.accounts.list.map(account => this.renderAccount(account, currentResult))}</div>
+          </div>
+        )}
+        {!!result.groups.list.length && (
           <div>
-            <div className="project-container-head">{`${_l('聊天/群组')} ${result.groups.list.length}`}</div>
-            <div>
-              {result.groups.list.map(group => this.renderGroup(group, currentResult))}
+            <div className="project-container-head bold">
+              {_l('聊天/群组')}
+              <span className="mLeft5 ThemeColor">{result.groups.list.length}</span>
             </div>
-          </div> : undefined
-        }
+            <div>{result.groups.list.map(group => this.renderGroup(group, currentResult))}</div>
+          </div>
+        )}
         {!loading && !count ? (
           <div className="nodata-wrapper">
             <div className="nodata-img" />
             <p>{_l('没有搜索结果')}</p>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }
   renderContent() {
-    const { style, loading } = this.state;
+    const { embed } = this.props;
+    const { loading } = this.state;
     return (
-      <div className="ChatList-SearchMember-Content" style={style}>
+      <div className={cx('ChatList-SearchMember-Content', { embed })}>
         <ScrollView
-          ref={(scrollView) => {
+          ref={scrollView => {
             this.scrollView = scrollView;
           }}
         >
@@ -241,31 +254,42 @@ export default class SearchMember extends Component {
     );
   }
   render() {
-    const { visible } = this.props;
-    const { value, contentVisible } = this.state;
+    const { value } = this.state;
     return (
-      <div
-        className="ChatList-SearchMember"
-        ref={(SearchMember) => {
-          this.SearchMember = SearchMember;
-        }}
-      >
-        <i className="icon-search" />
-        <input
-          ref={(input) => {
-            this.input = input;
-          }}
-          className="search-input"
-          placeholder={_l('搜索')}
-          onBlur={this.handleBlur.bind(this)}
-          onChange={this.handleChange.bind(this)}
-          onKeyDown={this.handleKeyDown.bind(this)}
-          type="text"
-          value={value}
-        />
-        {value ? <i onClick={this.handleClose.bind(this)} className="icon-delete" /> : undefined}
-        {contentVisible ? this.renderContent() : undefined}
-      </div>
+      <Fragment>
+        <SearchWrap className="searchWrap flexRow alignItemsCenter flex mRight10 Relative">
+          <Icon icon="search" className="Gray_75 Font20 mLeft10 Absolute" />
+          <input
+            ref={this.inputRef}
+            type="text"
+            className="Font13"
+            placeholder={_l('搜索用户 / 群组')}
+            value={value}
+            onChange={event => {
+              const value = event.target.value.trim();
+              this.setState({ value }, () => {
+                this.handleChange(value);
+              });
+            }}
+            onKeyDown={this.handleKeyDown}
+          />
+          {value && (
+            <Icon
+              icon="cancel"
+              className="Gray_75 Font20 pointer Absolute"
+              onClick={() => this.setState({ value: '' })}
+            />
+          )}
+        </SearchWrap>
+        {value && this.renderContent()}
+      </Fragment>
     );
   }
 }
+
+export default connect(
+  state => ({
+    sessionListVisible: state.chat.toolbarConfig.sessionListVisible,
+  }),
+  dispatch => bindActionCreators(_.pick(actions, ['addGroupSession', 'addUserSession']), dispatch),
+)(SearchMember);

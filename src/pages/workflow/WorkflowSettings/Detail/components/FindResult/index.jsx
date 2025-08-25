@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
+import _ from 'lodash';
 import { Radio } from 'ming-ui';
 import { NODE_TYPE } from '../../../enum';
-import _ from 'lodash';
 
 export default ({ executeType, switchExecuteType, allowAdd = false, nodeType }) => {
   const EXECUTE_TYPE = [
@@ -31,8 +31,8 @@ export default ({ executeType, switchExecuteType, allowAdd = false, nodeType }) 
         {_.includes([NODE_TYPE.WEBHOOK, NODE_TYPE.API], nodeType)
           ? _l('请求超时或请求失败时')
           : nodeType === NODE_TYPE.JSON_PARSE
-          ? _l('触发错误时')
-          : _l('未获取到数据时')}
+            ? _l('触发错误时')
+            : _l('未获取到数据时')}
       </div>
       {EXECUTE_TYPE.map(item => (
         <div className="mTop15" key={item.value}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { SettingItem, AnimationWrap } from '../../../styled';
+import { AnimationWrap, SettingItem } from '../../../styled';
 import { adjustWidthList } from '../../../util/setting';
 
 const WIDTH_SETTING_LIST = [

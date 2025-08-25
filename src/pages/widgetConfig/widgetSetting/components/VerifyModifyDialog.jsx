@@ -1,7 +1,8 @@
 import React from 'react';
-import { Dialog, Button } from 'ming-ui';
-import styled from 'styled-components';
 import { createRoot } from 'react-dom/client';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog } from 'ming-ui';
 
 const VerifyModifyDialogWrap = styled.div`
   p {

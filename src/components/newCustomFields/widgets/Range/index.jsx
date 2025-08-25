@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { CustomScore } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
@@ -24,7 +25,7 @@ export default class Widgets extends Component {
   };
 
   renderContent() {
-    const { disabled, value = 0, type } = this.props;
+    const { disabled, value = 0 } = this.props;
     const isMobile = browserIsMobile();
     return (
       <div

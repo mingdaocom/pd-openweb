@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { identity } from 'lodash';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import RecordCard from 'src/components/recordCard';
+import RecordCoverCard from 'src/components/Form/MobileForm/components/RelateRecordCards/RecordCoverCard';
+import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import * as actions from './redux/actions';
 import './index.less';
@@ -45,13 +45,13 @@ class RelationList extends Component {
   };
 
   loadData = props => {
-    const { controlId, control, instanceId, workId, worksheetId, rowId, getType, data: formData } = props;
+    const { controlId, control, instanceId, workId, worksheetId, recordId, rowId, from, formData } = props;
     let newParams = null;
     if (instanceId && workId) {
       newParams = {
         instanceId,
         workId,
-        rowId,
+        rowId: recordId || rowId,
         worksheetId,
         controlId,
       };
@@ -61,12 +61,12 @@ class RelationList extends Component {
         viewId,
         appId,
         worksheetId,
-        rowId,
+        rowId: recordId || rowId,
         controlId,
       };
     }
     props.updateBase(newParams);
-    props.loadRow({ ...control, formData }, getType);
+    props.loadRow({ ...control, formData }, from);
   };
   handleSelect = (record, selected) => {
     const { relationRow, actionParams, updateActionParams, permissionInfo } = this.props;
@@ -90,27 +90,23 @@ class RelationList extends Component {
     }
   };
   renderRow = item => {
-    const { relationRow, actionParams, permissionInfo, worksheetId, rowInfo, controlId } = this.props;
-    const { showControls, selectedRecordIds, coverCid } = actionParams;
-    const { controls } = relationRow.template;
+    const { actionParams, control, viewId } = this.props;
+    const { showControls, relationControls, selectedRecordIds, isEdit, coverCid } = actionParams;
     const selected = !!_.find(selectedRecordIds, id => id === item.rowid);
-    const control = _.find(rowInfo.templateControls, { controlId }) || {};
 
     return (
-      <div className="mLeft10 mRight10" key={item.rowid}>
-        <RecordCard
-          from={3}
-          control={control}
-          selected={selected}
-          controls={controls}
-          coverCid={coverCid}
-          showControls={showControls}
-          worksheetId={item.wsid}
-          data={item}
-          onClick={() => this.handleSelect(item, !selected)}
-          disabledLink={!permissionInfo.allowLink}
-        />
-      </div>
+      <RecordCoverCard
+        disabled
+        canSelect={isEdit}
+        selected={selected}
+        viewId={viewId}
+        key={item.rowid}
+        cover={getCoverUrl(coverCid, item, relationControls)}
+        controls={showControls.map(cid => _.find(relationControls, { controlId: cid })).filter(identity)}
+        data={item}
+        parentControl={{ ...control, relationControls }}
+        onClick={() => this.handleSelect(item, !selected)}
+      />
     );
   };
 
@@ -122,6 +118,7 @@ class RelationList extends Component {
 
   render() {
     const { rowInfo, controlId, relationRow, relationRows, loadParams, actionParams, permissionInfo } = this.props;
+    const { count } = this.props.control || {};
     const { loading, pageIndex, isMore } = loadParams;
 
     const { previewRecordId, keywords } = this.state;
@@ -157,19 +154,21 @@ class RelationList extends Component {
         )}
         <div className={cx('sheetRelationRow flex', { editRowWrapper: isEdit })}>
           {loading && pageIndex === 1 ? (
-            <div className="flexRow justifyContentCenter alignItemsCenter h100">
-              <SpinLoading color="primary" />
-            </div>
-          ) : relationRows.length ? (
             <Fragment>
-              <div style={{ height: 10 }} />
-              {relationRows.map(item => this.renderRow(item))}
-              {isMore && (
-                <div className="flexRow alignItemsCenter justifyContentCenter">
-                  {loading ? <SpinLoading color="primary" /> : null}
+              {count > 0 && (
+                <div className="flexRow justifyContentCenter alignItemsCenter h100">
+                  <SpinLoading color="primary" />
                 </div>
               )}
-              <div style={{ height: 10 }} />
+            </Fragment>
+          ) : relationRows.length ? (
+            <Fragment>
+              {relationRows.map(item => this.renderRow(item))}
+              {isMore && loading && (
+                <div className="flexRow alignItemsCenter justifyContentCenter">
+                  <SpinLoading color="primary" />
+                </div>
+              )}
               <RecordInfoModal
                 className="full"
                 visible={!!previewRecordId}

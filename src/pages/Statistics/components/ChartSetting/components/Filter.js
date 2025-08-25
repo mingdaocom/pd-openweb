@@ -1,14 +1,14 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import store from 'redux/configureStore';
-import { Dialog } from 'ming-ui';
-import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config';
-import { isTimeControl } from 'statistics/common';
-import worksheetApi from 'src/api/worksheet';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
 import moment from 'moment';
+import { Dialog } from 'ming-ui';
+import worksheetApi from 'src/api/worksheet';
+import { isTimeControl } from 'statistics/common';
+import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 export default class Filter extends Component {
   constructor(props) {

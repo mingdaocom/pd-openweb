@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
@@ -65,7 +65,7 @@ const Wrap = styled.div`
         }
         .ck-focused {
           background: #fff !important;
-          border: 1px solid #2196f3 !important;
+          border: 1px solid #1677ff !important;
           border-radius: 0 0 10px 10px!important;
         }
       }
@@ -176,7 +176,7 @@ function ConnectSet(props) {
                 id={props.id}
                 node={dataCode}
                 connectType={props.connectType}
-                onChange={v => {
+                onChange={() => {
                   props.fetchInfo();
                 }}
                 canEdit={props.isConnectOwner}

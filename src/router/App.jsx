@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
-import store from 'redux/configureStore';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon } from 'ming-ui';
@@ -9,12 +8,10 @@ import privateGuide from 'src/api/privateGuide';
 import preall from 'src/common/preall';
 import ChatList from 'src/pages/chat/containers/ChatList';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
-import * as actions from 'src/pages/chat/redux/actions';
-import { createDiscussion } from 'src/pages/chat/utils/group';
-import weixinCode from 'src/pages/NewPrivateDeployment/images/weixin.png';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
 import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
+import weixinCode from 'src/pages/privateImageInstall/images/weixin.png';
 import { getAppFeaturesVisible } from 'src/utils/app';
 import socketInit from '../socket';
 import { ROUTE_CONFIG, withoutChatUrl } from './config';
@@ -66,26 +63,6 @@ export default class App extends Component {
   bindShortcut() {
     const callDialog = _.debounce(which => {
       switch (which) {
-        case 96:
-          const { visible } = store.getState().chat;
-          store.dispatch(actions.setVisible(!visible));
-          break;
-        case 113:
-          createDiscussion(undefined, (result, isGroup) => {
-            if (!isGroup) {
-              const { accountId, avatar, fullname } = result[0];
-              const msg = {
-                logo: avatar,
-                uname: fullname,
-                sysType: 1,
-              };
-              store.dispatch(actions.addUserSession(accountId, msg));
-            }
-          });
-          break;
-        case 101:
-          store.dispatch(actions.setShowAddressBook(true));
-          break;
         case 102:
           let path = location.pathname.split('/');
           GlobalSearch({
@@ -183,20 +160,20 @@ export default class App extends Component {
     if (md.global.Account.isPortal) {
       return (
         <div id="wrapper" className="flexColumn">
-          <PortalPageHeaderRoute />
-          <section id="containerWrapper" className="flex flexRow minHeight0">
+          <div className="flexColumn flex" id="containerWrapper">
+            <PortalPageHeaderRoute />
             <section id="container">
               <Switch>{this.genRouteComponent(ROUTE_CONFIG_PORTAL)}</Switch>
             </section>
-          </section>
+          </div>
         </div>
       );
     }
 
     return (
-      <div id="wrapper" className="flexColumn">
-        <PageHeaderRoute />
-        <section id="containerWrapper" className="flex flexRow minHeight0">
+      <div id="wrapper" className="flexRow">
+        <div className="flexColumn flex" id="containerWrapper">
+          <PageHeaderRoute />
           <section id="container">
             <Switch>
               {this.genRouteComponent(ROUTE_CONFIG)}
@@ -209,17 +186,19 @@ export default class App extends Component {
               />
             </Switch>
           </section>
-          {ch && (
-            <section id="chat">
-              <Switch>
-                <Route path={withoutChatUrl} component={null} />
-                {!window.isPublicApp && rp && <Route path="*" component={ChatList} />}
-              </Switch>
-            </section>
-          )}
-        </section>
+        </div>
         <section id="chatPanel">{rp && <ChatPanel />}</section>
+
         {this.checkUpgrade()}
+
+        {ch && (
+          <section id="chat">
+            <Switch>
+              <Route path={withoutChatUrl} component={null} />
+              {!window.isPublicApp && rp && <Route path="*" component={ChatList} />}
+            </Switch>
+          </section>
+        )}
       </div>
     );
   }

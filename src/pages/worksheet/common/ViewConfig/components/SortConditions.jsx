@@ -7,8 +7,8 @@ import styled from 'styled-components';
 import { Dropdown, Icon, SortableList, Support, Tooltip } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { filterSysControls, getIconByType } from 'src/pages/widgetConfig/util';
-import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import { filterSysControls } from 'src/pages/widgetConfig/util';
+import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { getCanSelectColumnsForSort } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { getSortData } from 'src/utils/control';
 
@@ -26,7 +26,7 @@ const ConditionsWrap = styled.div`
     line-height: 36px;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
 
     &.disabled {
@@ -58,6 +58,7 @@ const Item = props => {
       <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
         {[9, 10, 11].includes(controlType) && (
           <Tooltip
+            autoCloseDelay={0}
             popupPlacement={'bottom'}
             text={
               <span>
@@ -73,7 +74,7 @@ const Item = props => {
               </span>
             }
           >
-            <i className="icon-info1 tipsIcon Font16 Absolute Gray_9e" />
+            <i className="icon-info tipsIcon Font16 Absolute Gray_9e" />
           </Tooltip>
         )}
         <Dropdown
@@ -127,13 +128,13 @@ const Item = props => {
             data={props.getCanSelectColumns()}
             onChange={value => props.handleAddConditionByValue(index, value)}
             renderPointer={() => {
-              return <Icon className={cx('operateBtn', { disabled: !canAdd })} icon="control_point" />;
+              return <Icon className={cx('operateBtn', { disabled: !canAdd })} icon="add_circle_outline" />;
             }}
           />
         ) : (
           <Icon
             className={cx('operateBtn', { disabled: !canAdd })}
-            icon="control_point"
+            icon="add_circle_outline"
             onClick={() => {
               if (canAdd) props.handleAddCondition(index);
             }}
@@ -280,7 +281,7 @@ export default class SortConditions extends React.Component {
     this.handleChange(listNew);
   };
 
-  renderCondtions = () => {
+  renderConditions = () => {
     const { columns, sortConditions } = this.state;
     return (
       <div className={this.props.forViewControl ? 'mTop16' : 'mTop24'}>
@@ -316,6 +317,6 @@ export default class SortConditions extends React.Component {
 
   render() {
     const { className } = this.props;
-    return <ConditionsWrap className={cx(className, 'sortConditions')}>{this.renderCondtions()}</ConditionsWrap>;
+    return <ConditionsWrap className={cx(className, 'sortConditions')}>{this.renderConditions()}</ConditionsWrap>;
   }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Support } from 'ming-ui';
 import { HAS_WARNING_CONTROL } from 'src/pages/widgetConfig/config';

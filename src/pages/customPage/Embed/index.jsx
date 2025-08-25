@@ -46,7 +46,7 @@ export default class EmbedPage extends Component {
     socketInit();
   }
   renderPage() {
-    const { data, status } = this.state;
+    const { status } = this.state;
     if (status !== 1) {
       return <UnusualContent status={status} appId={this.appId} />;
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import orderController from 'src/api/order';
@@ -80,7 +81,7 @@ const getOrderTxt = data => {
   }
 };
 
-function PaySuccess(props) {
+function PaySuccess() {
   const [resultData, setResResultData] = useState({});
   const { orderType, unLimited, totalUserCount, projectId, startDate, endDate, totalPrice } = resultData;
   const { orderId, payType } = getRequest();

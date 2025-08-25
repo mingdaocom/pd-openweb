@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
@@ -203,7 +202,7 @@ export default function (props) {
     setState({ loginLoading: true });
 
     const loginFetch = res => {
-      const { emailOrTel, isCheck, dialCode, projectId, modeType, isNetwork } = props;
+      const { emailOrTel, isCheck, dialCode } = props;
       let account = emailOrTel;
       let params = {
         verifyCode: otp,

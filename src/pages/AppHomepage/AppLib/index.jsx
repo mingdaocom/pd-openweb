@@ -8,7 +8,7 @@ import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import * as actions from 'src/pages/chat/redux/actions';
 import { emitter } from 'src/utils/common';
 
-@connect(_ => ({}))
+@connect()
 class AppLib extends Component {
   constructor(props) {
     super(props);
@@ -35,7 +35,10 @@ class AppLib extends Component {
         return upgradeVersionDialog({ ...data, isFree: licenseType === 0 });
       },
       MDAppLibraryId: 'containerAppLib',
-      getUrl: (md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/',
+      getUrl:
+        md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2'
+          ? __api_server__.main
+          : 'https://pd.mingdao.com/api/',
       installUrl: AppFileServer,
       accountId,
       projects,

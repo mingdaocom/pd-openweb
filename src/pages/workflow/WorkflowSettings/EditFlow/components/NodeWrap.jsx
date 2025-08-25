@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import CreateNode from './CreateNode';
-import cx from 'classnames';
 
 const Box = styled.div`
   min-width: 333px;
@@ -47,7 +46,7 @@ const EmptyContent = styled.div`
   .workflowLineBtn {
     width: auto !important;
     .icon-custom_add_circle {
-      color: #2196f3 !important;
+      color: #1677ff !important;
       &:hover {
         color: #1565c0 !important;
       }

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
+import _ from 'lodash';
 import styled from 'styled-components';
-import AppPermissions from '../components/AppPermissions';
 import { Button } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import homeAppApi from 'src/api/homeApp';
@@ -10,7 +10,9 @@ import State from 'mobile/RecordList/State/index.js';
 import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import successPng from 'src/pages/NewRecord/success.png';
 import { getRequest } from 'src/utils/common';
+import { compatibleMDJS } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import AppPermissions from '../components/AppPermissions';
 
 const STATUS = {
   NORMAL: 1,
@@ -55,6 +57,7 @@ class AddRecord extends Component {
         getViews: true,
       })
       .then(data => {
+        compatibleMDJS('workItemInfo', { item: data }); // APP内网页集成新建记录落地页根据配置显示草稿箱入口
         if (btnId) {
           worksheetApi
             .getWorksheetBtnByID({
@@ -66,7 +69,11 @@ class AddRecord extends Component {
               this.setState({ loading: false, worksheetInfo: data, writeControls });
             });
         } else {
-          data.template.controls = replaceControlsTranslateInfo(params.appId || appId, params.worksheetId || worksheetId, data.template.controls);
+          data.template.controls = replaceControlsTranslateInfo(
+            params.appId || appId,
+            params.worksheetId || worksheetId,
+            data.template.controls,
+          );
           this.setState({ loading: false, worksheetInfo: data });
         }
       });

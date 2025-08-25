@@ -1,28 +1,28 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import TreeView from '../departmentView';
-import CreateBtn from '../departmentView/createBtn';
-import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
+import cx from 'classnames';
+import { Icon } from 'ming-ui';
+import projectSettingAjax from 'src/api/projectSetting';
+import {
+  fetchApproval,
+  fetchInActive,
+  updateCursor,
+  updateNoDepartmentUsers,
+  updateTypeCursor,
+} from '../../actions/current';
 import {
   loadAllUsers,
-  loadDepartments,
-  loadUsers,
-  loadInactiveUsers,
   loadApprovalUsers,
-  updateShowExport,
+  loadDepartments,
+  loadInactiveUsers,
+  loadUsers,
   updateImportType,
+  updateShowExport,
 } from '../../actions/entities';
-import {
-  updateCursor,
-  updateTypeCursor,
-  fetchInActive,
-  fetchApproval,
-  updateNoDepartmentUsers,
-} from '../../actions/current';
-import projectSettingAjax from 'src/api/projectSetting';
+import TreeView from '../departmentView';
+import CreateBtn from '../departmentView/createBtn';
 import './index.less';
-import cx from 'classnames';
 
 const shouldLoadDepartments = props => {
   const { haveSubDepartment, subDepartments, isLoading, isExpired } = props;
@@ -142,7 +142,7 @@ class TabList extends React.Component {
               }}
               className={cx('Hand', { current: cursor === root && typeCursor === 3 })}
             >
-              <Icon className="Font16 Gray_9e listName mRight10" icon="access_time_filled" />
+              <Icon className="Font16 Gray_9e listName mRight10" icon="watch_later" />
               <span>
                 {_l('待审核')}
                 {approveNumber > 0 && <span className="numTag">{approveNumber > 99 ? '99+' : approveNumber}</span>}

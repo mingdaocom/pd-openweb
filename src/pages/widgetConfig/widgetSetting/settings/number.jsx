@@ -1,16 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dropdown, Checkbox } from 'ming-ui';
-import { SettingItem, NumberRange } from '../../styled';
-import PointerConfig from '../components/PointerConfig';
-import WidgetColor from '../components/WidgetColor';
-import NumberDynamicColor from '../components/NumberDynamicColor';
-import WidgetVerify from '../components/WidgetVerify';
-import PreSuffix from '../components/PreSuffix';
-import DynamicDefaultValue from '../components/DynamicDefaultValue';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
+import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import { NumberRange, SettingItem } from '../../styled';
 import { isCustomWidget } from '../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import DynamicDefaultValue from '../components/DynamicDefaultValue';
+import NumberDynamicColor from '../components/NumberDynamicColor';
+import PointerConfig from '../components/PointerConfig';
+import PreSuffix from '../components/PreSuffix';
+import WidgetColor from '../components/WidgetColor';
+import WidgetVerify from '../components/WidgetVerify';
 
 const NUMBER_TYPES = [
   {
@@ -34,7 +34,7 @@ const NUMBER_COLOR_TYPE = [
 
 const defaultItemColor = {
   type: 1,
-  color: '#2196f3',
+  color: '#1677ff',
   colors: [],
 };
 

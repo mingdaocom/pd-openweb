@@ -3,35 +3,51 @@ import { flushSync } from 'react-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import _, { filter, find, findIndex, get, includes, isArray, isEmpty, isUndefined, last, omit, pick } from 'lodash';
+import _, {
+  filter,
+  find,
+  findIndex,
+  get,
+  includes,
+  isArray,
+  isEmpty,
+  isFunction,
+  isUndefined,
+  last,
+  omit,
+  pick,
+} from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, MenuItem, Skeleton } from 'ming-ui';
+import { Menu, MenuItem, Skeleton, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
+import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import Pagination from 'worksheet/components/Pagination';
-import SearchInput from 'worksheet/components/SearchInput';
+import { SearchInput } from 'worksheet/components/RelateRecordTable/Operate';
+import MobileSearchInput from 'worksheet/components/SearchInput';
 import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { SHEET_VIEW_HIDDEN_TYPES, SYSTEM_CONTROLS, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { selectRecords } from 'src/components/SelectRecords';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { browserIsMobile } from 'src/utils/common';
 import { controlBatchCanEdit } from 'src/utils/control';
 import { isRelateRecordTableControl, parseAdvancedSetting, replaceByIndex } from 'src/utils/control';
 import { sortControlByIds, updateOptionsOfControls } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
 import {
   copySublistRow,
   filterEmptyChildTableRows,
@@ -102,7 +118,7 @@ const BatchAddOfAddRowComp = styled.div`
   padding: 0 8px;
   background: #fff;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -197,11 +213,12 @@ class ChildTable extends React.Component {
         _handleUpdateCell(...args);
       });
     };
+    this.dataFormatCacheMap = new Map();
     props.registerCell(this);
   }
 
   componentDidMount() {
-    const { mode, control, recordId, needResetControls } = this.props;
+    const { control, recordId, needResetControls } = this.props;
     this.updateDefsourceOfControl();
     if (recordId) {
       if (!(get(this, 'props.base.loaded') || get(this, 'props.base.reset'))) {
@@ -218,7 +235,6 @@ class ChildTable extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let { max = 500 } = parseAdvancedSetting(this.props.control.advancedSetting);
     if (nextProps.refreshFlag && nextProps.refreshFlag !== this.props.refreshFlag) {
       this.refresh();
     }
@@ -280,6 +296,9 @@ class ChildTable extends React.Component {
       if (pageIndex > pageNum) {
         this.setState({ pageIndex: pageNum });
       }
+      if (get(nextProps, 'lastAction.type') === 'CLEAR_AND_SET_ROWS') {
+        this.dataFormatCacheMap.clear();
+      }
     }
   }
 
@@ -306,6 +325,7 @@ class ChildTable extends React.Component {
     $(this.childTableCon).off('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
     window.removeEventListener('keydown', this.handleKeyDown);
     this.abortController && this.abortController.abort && this.abortController.abort();
+    this.dataFormatCacheMap.clear();
   }
 
   worksheettable = React.createRef();
@@ -379,7 +399,9 @@ class ChildTable extends React.Component {
     let controlssorts = [];
     try {
       controlssorts = JSON.parse(advancedSetting.controlssorts);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     let result = sortControlByIds(controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(c => {
       const control = { ...c };
       const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
@@ -389,7 +411,11 @@ class ChildTable extends React.Component {
       }
       control.originalFieldPermission = control.fieldPermission;
       if (!_.find(showControls, scid => control.controlId === scid)) {
-        control.fieldPermission = '000';
+        if (control.type === 52) {
+          control.hidden = true;
+        } else {
+          control.fieldPermission = '000';
+        }
       } else {
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
       }
@@ -433,6 +459,7 @@ class ChildTable extends React.Component {
     this.abortController && this.abortController.abort && this.abortController.abort();
     this.abortController = typeof AbortController !== 'undefined' && new AbortController();
     this.requestPool = createRequestPool({ abortController: this.abortController });
+    this.dataFormatCacheMap.clear();
   };
 
   getControl(controlId) {
@@ -470,9 +497,12 @@ class ChildTable extends React.Component {
     });
   }
 
-  loadRows(nextProps, { needResetControls } = {}) {
+  loadRows(nextProps, { needResetControls, isRefresh } = {}) {
     const { control, recordId, masterData, loadRows, from, base = {} } = nextProps || this.props;
-    const { isTreeTableView } = base;
+    const { isTreeTableView, instanceId, workId, worksheetInfo, originControls } = base;
+    const isWorkflow =
+      ((instanceId && workId) || window?.shareState?.isPublicWorkflowRecord) &&
+      worksheetInfo?.workflowChildTableSwitch !== false;
     if (!recordId || !masterData) {
       return;
     }
@@ -507,7 +537,13 @@ class ChildTable extends React.Component {
             state.controls = this.getControls(nextProps, { newControls });
           }
         }
-        this.setState(state);
+        this.setState(state, () => {
+          if (isWorkflow && isRefresh) {
+            if (!isEmpty(originControls) && isFunction(control.updateRelationControls)) {
+              control.updateRelationControls(control.controlId, originControls);
+            }
+          }
+        });
       },
     });
   }
@@ -521,16 +557,16 @@ class ChildTable extends React.Component {
       selectedRowIds: [],
       pageIndex: 1,
     });
-    this.loadRows(nextProps, { needResetControls });
+    this.loadRows(nextProps, { needResetControls, isRefresh: true });
     if (get(this, 'searchRef.current.clear')) {
       this.searchRef.current.clear();
     }
+    this.dataFormatCacheMap.clear();
   };
 
   getShowColumns() {
     const { control, treeTableViewData, rows, base = {} } = this.props;
     const { isTreeTableView } = base;
-    const { treeLayerControlId } = this.settings;
     const { controls } = this.state;
     const hiddenTypes = window.isPublicWorksheet ? [48] : [];
     const { h5showtype } = parseAdvancedSetting(control.advancedSetting);
@@ -565,7 +601,9 @@ class ChildTable extends React.Component {
     let widths = {};
     try {
       widths = JSON.parse(control.advancedSetting.widths);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     if (isArray(widths)) {
       let result = {};
       columns.forEach((column, i) => {
@@ -624,7 +662,7 @@ class ChildTable extends React.Component {
 
   rowUpdate(
     { row, controlId, value, rowId } = {},
-    { isCreate = false, isQueryWorksheetFill = false, isImportFromExcel } = {},
+    { isCreate = false, isQueryWorksheetFill = false, isImportFromExcel, userTriggerChange = true } = {},
   ) {
     const { masterData, recordId } = this.props;
     const { projectId, rules = [] } = this.worksheetInfo;
@@ -642,6 +680,7 @@ class ChildTable extends React.Component {
         {
           isQueryWorksheetFill,
           asyncUpdate: true,
+          userTriggerChange: false,
           updateSuccessCb: needUpdateRow => {
             if (isMobile) {
               this.handleRowDetailSave(needUpdateRow);
@@ -650,75 +689,88 @@ class ChildTable extends React.Component {
         },
       );
     };
-    const formdata = new DataFormat({
-      requestPool: this.requestPool,
-      data: this.state.controls.map(c => {
-        let controlValue = (row || {})[c.controlId];
-        if (_.isUndefined(controlValue) && (isCreate || !row)) {
-          controlValue = c.value;
-        }
-        return {
-          ...c,
-          isSubList: true,
-          isQueryWorksheetFill,
-          isImportFromExcel,
-          value: controlValue,
-        };
-      }),
-      isCreate: isCreate || !row,
-      from: FROM.NEWRECORD,
-      rules,
-      searchConfig,
-      projectId,
-      masterData,
-      abortController: this.abortController,
-      masterRecordRowId: recordId,
-      updateLoadingItems: loadingInfo => {
-        if (!row || !row.needShowLoading) return;
-        this.setState(prev => {
-          const newRowsLoadingStatus = {
-            ...prev.rowsLoadingStatus,
-            [rowId]: !_.every(Object.values(loadingInfo), b => !b),
-          };
-          const newShowLoadingMask = !Object.values(newRowsLoadingStatus).every(v => v === false);
-          this.setState({
-            showLoadingMask: newShowLoadingMask,
-          });
+    let formdata = null;
+    const isNewRecord = isCreate || !row;
+    const cacheKey = isNewRecord ? rowId : row?.rowid;
+    if (isNewRecord || !cacheKey || !this.dataFormatCacheMap.has(cacheKey)) {
+      formdata = new DataFormat({
+        requestPool: this.requestPool,
+        data: this.state.controls.map(c => {
+          let controlValue = (row || {})[c.controlId];
+          if (_.isUndefined(controlValue) && (isCreate || !row)) {
+            controlValue = c.value;
+          }
           return {
-            ...prev,
-            rowsLoadingStatus: newRowsLoadingStatus,
+            ...c,
+            isSubList: true,
+            isQueryWorksheetFill,
+            isImportFromExcel,
+            value: controlValue,
           };
-        });
-      },
-      onAsyncChange: (changes, dataFormat) => {
-        flushSync(() => {
-          if (rowId && row && row.needShowLoading) {
-            this.setState(prev => {
-              const newRowsLoadingStatus = {
-                ...prev.rowsLoadingStatus,
-                [rowId]: !_.every(Object.values(dataFormat.loadingInfo), b => !b),
-              };
-              this.setState({
-                showLoadingMask: !Object.values(newRowsLoadingStatus).every(v => v === false),
+        }),
+        isCreate: isCreate || !row,
+        from: FROM.NEWRECORD,
+        rules,
+        searchConfig,
+        projectId,
+        masterData,
+        abortController: this.abortController,
+        masterRecordRowId: recordId,
+        noAutoSubmit: true,
+        updateLoadingItems: loadingInfo => {
+          if (!row || !row.needShowLoading) return;
+          this.setState(prev => {
+            const newRowsLoadingStatus = {
+              ...prev.rowsLoadingStatus,
+              [rowId]: !_.every(Object.values(loadingInfo), b => !b),
+            };
+            const newShowLoadingMask = !Object.values(newRowsLoadingStatus).every(v => v === false);
+            this.setState({
+              showLoadingMask: newShowLoadingMask,
+            });
+            return {
+              ...prev,
+              rowsLoadingStatus: newRowsLoadingStatus,
+            };
+          });
+        },
+        onAsyncChange: (changes, dataFormat) => {
+          flushSync(() => {
+            if (rowId && row && row.needShowLoading) {
+              this.setState(prev => {
+                const newRowsLoadingStatus = {
+                  ...prev.rowsLoadingStatus,
+                  [rowId]: !_.every(Object.values(dataFormat.loadingInfo), b => !b),
+                };
+                this.setState({
+                  showLoadingMask: !Object.values(newRowsLoadingStatus).every(v => v === false),
+                });
+                return {
+                  ...prev,
+                  rowsLoadingStatus: newRowsLoadingStatus,
+                };
               });
-              return {
-                ...prev,
-                rowsLoadingStatus: newRowsLoadingStatus,
-              };
-            });
-          }
-          if (!_.isEmpty(changes.controlIds)) {
-            changes.controlIds.forEach(cid => {
-              asyncUpdateCell(cid, changes.value);
-            });
-          } else if (changes.controlId) {
-            asyncUpdateCell(changes.controlId, changes.value);
-          }
-        });
-      },
-    });
+            }
+            if (!_.isEmpty(changes.controlIds)) {
+              changes.controlIds.forEach(cid => {
+                asyncUpdateCell(cid, changes.value);
+              });
+            } else if (changes.controlId) {
+              asyncUpdateCell(changes.controlId, changes.value);
+            }
+          });
+        },
+      });
+      this.dataFormatCacheMap.set(cacheKey, formdata);
+      formdata.data.forEach(c => {
+        c.isImportFromExcel = false;
+        c.isQueryWorksheetFill = false;
+      });
+    } else {
+      formdata = this.dataFormatCacheMap.get(cacheKey);
+    }
     if (controlId) {
-      formdata.updateDataSource({ controlId, value });
+      formdata.updateDataSource({ controlId, value, userTriggerChange });
     }
     return [
       {
@@ -726,7 +778,7 @@ class ChildTable extends React.Component {
         rowid: row ? row.rowid : rowId,
         updatedControlIds: _.uniqBy(((row && row.updatedControlIds) || []).concat(formdata.getUpdateControlIds())),
       },
-      ...formdata.getDataSource(),
+      ...filter(formdata.getDataSource(), c => c.controlId !== 'rowid'),
     ].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
   }
 
@@ -744,7 +796,7 @@ class ChildTable extends React.Component {
 
   handleAddRowByLine = () => {
     const { from, control, addRow, rows } = this.props;
-    const { pageSize, pageIndex } = this.state;
+    const { pageSize } = this.state;
     const maxCount = this.settings.maxCount;
     const maxShowRowCount = this.settings.rownum;
     const controlPermission = controlState(control, from);
@@ -774,7 +826,9 @@ class ChildTable extends React.Component {
             activeCell.click();
           }
         }, 100);
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }, 100);
   };
 
@@ -870,22 +924,36 @@ class ChildTable extends React.Component {
               ele.scrollTop = ele.scrollTop + (selectedRecords.length - 1) * itemHeight;
             }
             this.worksheettable.current.table.refs.setScroll(0, 100000);
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
         }, 100);
       },
     });
   };
 
   handleUpdateCell({ control, cell, row = {} }, options) {
-    const { rows, updateRow, addRow } = this.props;
+    const { rows, updateRow } = this.props;
     const { controls } = this.state;
     const rowData = _.find(rows, r => r.rowid === row.rowid);
     if (!rowData) {
       return;
     }
     let { value } = cell;
+    let tempRowId;
+    const isEmptyRow = row?.rowid?.startsWith('empty');
+    if (isEmptyRow) {
+      if (this.disabledNew || this.isExceed) {
+        return;
+      }
+      tempRowId = `temp-${uuidv4()}`;
+    }
     const newRow = this.rowUpdate(
-      { row: rowData, controlId: cell.controlId, value },
+      {
+        row: { ...rowData, ...(tempRowId ? { rowid: tempRowId, isCreate: true } : {}) },
+        controlId: cell.controlId,
+        value,
+      },
       {
         ...options,
         control,
@@ -917,6 +985,9 @@ class ChildTable extends React.Component {
       return;
     }
     update.apply(this);
+    if (isFunction(get(this, 'props.control.triggerCustomEvent'))) {
+      get(this, 'props.control.triggerCustomEvent')(ADD_EVENT_ENUM.CHANGE);
+    }
   }
 
   handleRowDetailSave = (row, updatedControlIds) => {
@@ -951,7 +1022,7 @@ class ChildTable extends React.Component {
     );
   };
 
-  handleSwitch = ({ prev, next }) => {
+  handleSwitch = ({ prev }) => {
     const { previewRowIndex } = this.state;
     let newRowIndex;
     if (prev) {
@@ -963,8 +1034,6 @@ class ChildTable extends React.Component {
   };
 
   openDetail = index => {
-    const { control, rows = [], updateRow } = this.props;
-    const { rowid } = rows[index] || {};
     this.setState({
       previewRowIndex: index,
       recordVisible: true,
@@ -1107,6 +1176,9 @@ class ChildTable extends React.Component {
           return acc;
         }, {});
         updateRows({ rowIds: selectedRowIds, value: changes });
+        selectedRowIds.forEach(rowId => {
+          this.dataFormatCacheMap.delete(rowId);
+        });
         onClose();
       },
     });
@@ -1150,12 +1222,8 @@ class ChildTable extends React.Component {
       allowsingle,
       hidenumber,
       rowheight,
-      showtype,
       enablelimit,
-      min,
-      max,
       rownum,
-      blankrow,
       h5showtype,
       h5abstractids,
       titleCenter,
@@ -1216,6 +1284,8 @@ class ChildTable extends React.Component {
     const columns = this.getShowColumns();
     const isExceed = filterEmptyChildTableRows(originRows).length >= maxCount;
     const disabledNew = noColumns || disabled || !allowadd;
+    this.disabledNew = disabledNew;
+    this.isExceed = isExceed;
     const allowBatch = !_.includes([FROM.DEFAULT], from) && this.settings.allowBatch;
     const allowBatchDelete = allowcancel || (allowadd && !!originRows.filter(r => /^temp/.test(r.rowid)).length);
     const allowImport = this.settings.allowImport && !_.includes([FROM.DEFAULT], from);
@@ -1291,28 +1361,38 @@ class ChildTable extends React.Component {
 
     const operateComp = (
       <Fragment>
-        {showSearch && (
-          <SearchInput
-            ref={this.searchRef}
-            inputWidth={100}
-            searchIcon={
-              <IconBtn className="Hand ThemeHoverColor3">
-                <i className="icon icon-search inherit" />
-              </IconBtn>
-            }
-            keywords={keywords}
-            className={cx('queryInput', { mobileQueryInput: isMobile })}
-            focusedClass={cx({ mRight10: !isMobileSearchFocus })}
-            onOk={value => {
-              this.setState({ keywords: value, pageIndex: 1 });
-            }}
-            onClear={() => {
-              this.setState({ keywords: '', pageIndex: 1, isMobileSearchFocus: false });
-            }}
-            onFocus={() => this.setState({ isMobileSearchFocus: isMobile })}
-            onBlur={() => this.setState({ isMobileSearchFocus: false })}
-          />
-        )}
+        {showSearch &&
+          (isMobile ? (
+            <MobileSearchInput
+              ref={this.searchRef}
+              inputWidth={100}
+              searchIcon={
+                <IconBtn className="Hand ThemeHoverColor3">
+                  <i className="icon icon-search inherit" />
+                </IconBtn>
+              }
+              keywords={keywords}
+              className={cx('queryInput', { mobileQueryInput: isMobile })}
+              focusedClass={cx({ mRight10: !isMobileSearchFocus })}
+              onOk={value => {
+                this.setState({ keywords: value, pageIndex: 1 });
+              }}
+              onClear={() => {
+                this.setState({ keywords: '', pageIndex: 1, isMobileSearchFocus: false });
+              }}
+              onFocus={() => this.setState({ isMobileSearchFocus: isMobile })}
+              onBlur={() => this.setState({ isMobileSearchFocus: false })}
+            />
+          ) : (
+            <SearchInput
+              className={cx('queryInput', { mobileQueryInput: isMobile })}
+              keywords={keywords}
+              control={control}
+              onSearch={value => {
+                this.setState({ keywords: value, pageIndex: 1 });
+              }}
+            />
+          ))}
         {!isMobileSearchFocus &&
           showExport &&
           allowExport &&
@@ -1448,15 +1528,17 @@ class ChildTable extends React.Component {
                           >
                             {_l('增加明细')}
                           </MenuItem>
-                          <MenuItem
-                            onClick={() => {
-                              if (!isExceed) {
-                                this.handleImport({ replace: true });
-                              }
-                            }}
-                          >
-                            {_l('替换已有明细')}
-                          </MenuItem>
+                          {allowEdit && (
+                            <MenuItem
+                              onClick={() => {
+                                if (!isExceed) {
+                                  this.handleImport({ replace: true });
+                                }
+                              }}
+                            >
+                              {_l('替换已有明细')}
+                            </MenuItem>
+                          )}
                         </Menu>
                       }
                       popupClassName="filterTrigger"
@@ -1468,13 +1550,11 @@ class ChildTable extends React.Component {
                       }}
                     >
                       <div className={cx('importFromFile tip-bottom', { disabled: isExceed })}>
-                        <div
-                          className="content"
-                          onClick={isExceed ? () => {} : this.handleImport}
-                          data-tip={_l('导入数据')}
-                        >
-                          <i className="icon icon-knowledge-upload Font16 Gray_75"></i>
-                        </div>
+                        <Tooltip popupPlacement="bottom" text={<span className="preWrap">{_l('导入数据')}</span>}>
+                          <div className="content" onClick={isExceed ? () => {} : this.handleImport}>
+                            <i className="icon icon-file_upload Font16 Gray_75"></i>
+                          </div>
+                        </Tooltip>
                         <DropIcon
                           className="dropdownButtonIcon"
                           onClick={e => {
@@ -1605,6 +1685,7 @@ class ChildTable extends React.Component {
           {!isMobile && !loading && (
             <div className="Relative" style={{ height: tableFooter ? tableHeight + tableFooter.height : tableHeight }}>
               <WorksheetTable
+                showControlStyle
                 showLoadingMask={showLoadingMask}
                 loadingMaskChildren={<span className="childTableIsImportingData">{_l('正在导入数据...')}</span>}
                 isTreeTableView={isTreeTableView}
@@ -1778,10 +1859,14 @@ class ChildTable extends React.Component {
                     _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
                     controlState(control).editable &&
                     !SYS.filter(o => o !== 'ownerid').includes(control.controlId);
+
+                  const showEdit = selectedRowIds.length && controlAllowEdit && allowEdit;
+                  const showFrozen = frozenIndex === columnIndex || (frozenIndex !== columnIndex && columnIndex <= 3);
+                  const showRemoveMask = maskData && !get(window, 'shareState.shareId');
                   return (
                     <ColumnHead
                       disableSort={isTreeTableView}
-                      showDropdown={columnIndex <= 3}
+                      showDropdown={showEdit || showFrozen || showRemoveMask}
                       showRequired={!disabled}
                       isAsc={
                         sortedControl && sortedControl.controlId === control.controlId ? sortedControl.isAsc : undefined
@@ -1804,40 +1889,42 @@ class ChildTable extends React.Component {
                           // specialFilter={target => target === this.head}
                           onClickAway={closeMenu}
                         >
-                          <MenuItem
-                            onClick={() => {
-                              if (window.isPublicApp) {
-                                alert(_l('预览模式下，不能操作'), 3);
-                                return;
-                              }
-                              console.log(columnIndex);
-                              const isFrozen = frozenIndex === columnIndex;
-                              this.setState({
-                                frozenIndex: isFrozen ? 0 : columnIndex,
-                                frozenIndexChanged: true,
-                              });
-                              closeMenu();
-                            }}
-                          >
-                            {frozenIndex === columnIndex && (
-                              <Fragment>
-                                <i className="icon icon-task-new-no-locked font16 mRight6"></i>
-                                {_l('解冻')}
-                              </Fragment>
-                            )}
-                            {frozenIndex !== columnIndex && (
-                              <Fragment>
-                                <i className="icon icon-task-new-locked font16 mRight6"></i>
-                                {_l('冻结')}
-                              </Fragment>
-                            )}
-                          </MenuItem>
-                          {maskData && (
+                          {showFrozen && (
                             <MenuItem
                               onClick={() => {
-                                if (get(window, 'shareState.shareId')) {
+                                if (window.isPublicApp) {
+                                  alert(_l('预览模式下，不能操作'), 3);
                                   return;
                                 }
+                                console.log(columnIndex);
+                                const isFrozen = frozenIndex === columnIndex;
+                                this.setState({
+                                  frozenIndex: isFrozen ? 0 : columnIndex,
+                                  frozenIndexChanged: true,
+                                });
+                                closeMenu();
+                              }}
+                            >
+                              {frozenIndex === columnIndex && (
+                                <Fragment>
+                                  <i className="icon icon-task-new-no-locked font16 mRight6"></i>
+                                  {_l('解冻')}
+                                </Fragment>
+                              )}
+                              {frozenIndex !== columnIndex && columnIndex <= 3 && (
+                                <Fragment>
+                                  <i className="icon icon-lock font16 mRight6"></i>
+                                  {_l('冻结')}
+                                </Fragment>
+                              )}
+                            </MenuItem>
+                          )}
+                          {showRemoveMask && (
+                            <MenuItem
+                              onClick={() => {
+                                addBehaviorLog('worksheetBatchDecode', _.get(base, 'worksheetInfo.worksheetId'), {
+                                  controlId: control.controlId,
+                                });
                                 this.setState({
                                   disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true },
                                 });
@@ -1847,7 +1934,7 @@ class ChildTable extends React.Component {
                               {_l('解码')}
                             </MenuItem>
                           )}
-                          {selectedRowIds.length && controlAllowEdit && allowEdit && (
+                          {showEdit && (
                             <MenuItem
                               onClick={() => {
                                 this.handleBatchUpdateRecords({ tableRows, activeControl: control });
@@ -2059,6 +2146,7 @@ class ChildTable extends React.Component {
           )}
           {recordVisible && (
             <RowDetailComponent
+              widgetStyle={this.worksheetInfo.advancedSetting}
               isEditCurrentRow={isEditCurrentRow}
               masterData={masterData}
               isWorkflow
@@ -2127,7 +2215,7 @@ class ChildTable extends React.Component {
   }
 }
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = state => ({
   baseLoading: state.baseLoading,
   base: state.base,
   treeTableViewData: state.treeTableViewData,

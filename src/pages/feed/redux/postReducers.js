@@ -1,10 +1,9 @@
 ﻿import _ from 'lodash';
 import defaultOptions from './defaultOptions';
-import postEnum from '../constants/postEnum';
 
 function getPostIdsFromPostList(postList, isIReply = false) {
   if (!postList || !postList.length) return [];
-  return _(postList)
+  return _.chain(postList)
     .map(postItem => postItem && (options && isIReply ? postItem.commentID : postItem.postID))
     .compact()
     .value();

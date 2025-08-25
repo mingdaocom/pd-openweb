@@ -1,15 +1,14 @@
 import React from 'react';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { connect } from 'react-redux';
-import EmbedUrl from './EmbedUrl';
-import { getEnumType, componentCountLimit } from '../../util';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { componentCountLimit, getEnumType } from '../../util';
 import Analysis from './analysis';
 import ButtonComp from './button';
-import View from './view';
-import RichText from './richText';
-import Filter from './filter';
 import Carousel from './carousel';
-import _ from 'lodash';
+import EmbedUrl from './EmbedUrl';
+import Filter from './filter';
+import RichText from './richText';
+import View from './view';
 
 const TYPE_TO_COMPONENTS = {
   embedUrl: EmbedUrl,
@@ -34,7 +33,7 @@ function EditWidget(props) {
       }
       addWidget({
         type,
-        ...obj
+        ...obj,
       });
     } else {
       updateWidget({ widget, needUpdate: !widget.needUpdate, ...obj });
@@ -49,6 +48,7 @@ function EditWidget(props) {
 
 export default errorBoundary(
   connect(({ appPkg, customPage }) => ({
+    appPkg: appPkg,
     projectId: appPkg.projectId,
     components: customPage.components,
     config: customPage.config,

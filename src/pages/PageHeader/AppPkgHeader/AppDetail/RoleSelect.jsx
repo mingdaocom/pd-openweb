@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import appManagementApi from 'src/api/appManagement';
-import { Icon, Checkbox, Button } from 'ming-ui';
+import localForage from 'localforage';
+import styled from 'styled-components';
+import { Button, Checkbox, Icon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import appManagementApi from 'src/api/appManagement';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { ICON_ROLE_TYPE } from '../config';
-import localForage from 'localforage';
 
 const OkButtonWrap = styled.div`
   width: 105px;
@@ -58,9 +58,9 @@ const RoleSelectWrap = styled.div`
       &.active {
         background: #e4f3fd;
         font-weight: 600;
-        color: #2196f3;
+        color: #1677ff;
         .icon {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -70,7 +70,7 @@ const RoleSelectWrap = styled.div`
     border-top: 1px solid #e0e0e0;
     border-bottom: 1px solid #e0e0e0;
     .clearAll:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
     .top {
       justify-content: space-between;
@@ -93,7 +93,7 @@ const RoleSelectWrap = styled.div`
 `;
 
 function RoleSelect(props) {
-  const { id, posX, handleClose, roleSelectValue = [], visible, appId } = props;
+  const { id, handleClose, roleSelectValue = [], visible, appId } = props;
 
   const [roleList, setRoleList] = useState([]);
   const [search, setSearch] = useState(undefined);
@@ -148,7 +148,7 @@ function RoleSelect(props) {
   };
 
   return (
-    <RoleSelectWrap className="flexColumn" style={{ transform: `translate3d(${posX}px,0,0)` }}>
+    <RoleSelectWrap className="flexColumn">
       <div className="roleSelectHeader valignWrapper mBottom12">
         <span className="flex overflow_ellipsis Font17 Bold">{_l('选择角色')}</span>
         <span className="ThemeColor Font12 Hand changeTypeCon" onClick={changeType}>

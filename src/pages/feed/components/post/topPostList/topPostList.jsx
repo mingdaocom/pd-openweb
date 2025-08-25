@@ -1,13 +1,13 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-import _ from 'lodash';
-import shallowEqual from 'shallowequal';
-import { loadTop } from '../../../redux/postActions';
 import { connect } from 'react-redux';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import shallowEqual from 'shallowequal';
 import postEnum from '../../../constants/postEnum';
-import PostCard from '../post/postCard';
+import { loadTop } from '../../../redux/postActions';
 import PostBody from '../post/postBody';
+import PostCard from '../post/postCard';
 import TopPostPager from './topPostPager';
 
 class TopPostList extends React.Component {

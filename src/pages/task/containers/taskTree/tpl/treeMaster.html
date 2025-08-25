@@ -1,4 +1,4 @@
-﻿{{?it.deep == 0}}
+{{?it.deep == 0}}
     {{~it.data.stages:stage}}
         {{ var tasks=stage.tasks || [], taskcount=stage.count; }}
         {{? it.pageIndex==1 }}
@@ -85,7 +85,7 @@
                 {{?}}
                 {{? task.totalItemCount > 0}}
                 <span class="taskTagsBG mLeft10">
-                    <i class="icon-task-list Font14 cardColor" tip="{{=_l('检查清单')}}"></i>
+                    <i class="icon-list Font14 cardColor" tip="{{=_l('检查清单')}}"></i>
                     <span class="mLeft5 cardColor">{{=task.totalCompletedItemCount}}/{{=task.totalItemCount}}</span>
                 </span>
                 {{?}}

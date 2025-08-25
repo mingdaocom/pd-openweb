@@ -1,16 +1,19 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Select } from 'antd';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Select } from 'antd';
 import { Icon, ScrollView } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import homeApp from 'src/api/homeApp';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const PopupWrapper = styled.div`
   width: 400px;
   background: #fff;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
   border-radius: 2px;
   padding: 10px;
 
@@ -28,7 +31,7 @@ const PopupWrapper = styled.div`
     height: 32px;
     padding: 0 10px;
     &.active {
-      color: #2196f3;
+      color: #1677ff;
       background-color: #e5f3fe;
       .ellipsis {
         font-weight: 600;
@@ -71,7 +74,7 @@ export default function SheetGroupSelect(props) {
   };
 
   const renderGroupItem = itemData => {
-    const { appSectionId, name, subVisible, parentId, workSheetInfo } = itemData;
+    const { appSectionId, name, subVisible, parentId } = itemData;
     const isChild = !!parentId;
 
     if (searchKeyWords && !name.toLocaleLowerCase().includes(searchKeyWords.toLocaleLowerCase())) {

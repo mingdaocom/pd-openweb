@@ -38,10 +38,10 @@ const SettingCon = styled.div`
       font-size: 13px;
       border: 1px solid #ddd;
       &:hover {
-        border-color: #2196f3;
+        border-color: #1677ff;
       }
       &:focus {
-        border-color: #2196f3;
+        border-color: #1677ff;
       }
     }
   }
@@ -249,10 +249,10 @@ export default class CoverSetting extends React.Component {
                   <SwitchStyle className="flexRow alignItemsCenter">
                     {/* //空(默认没key)或者"1"：允许 "2"：不允许 */}
                     <Icon
-                      icon={!!COVER_IMAGE_PREVIEW[opencover] ? 'ic_toggle_on' : 'ic_toggle_off'}
+                      icon={COVER_IMAGE_PREVIEW[opencover] ? 'ic_toggle_on' : 'ic_toggle_off'}
                       className="Font28 Hand"
                       onClick={() => {
-                        handleChangeOpencover(!!COVER_IMAGE_PREVIEW[opencover] ? '2' : '1');
+                        handleChangeOpencover(COVER_IMAGE_PREVIEW[opencover] ? '2' : '1');
                       }}
                     />
                     <div className="switchText InlineBlock Normal mLeft10">{_l('允许点击查看')}</div>

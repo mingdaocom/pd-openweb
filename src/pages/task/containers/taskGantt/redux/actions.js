@@ -1,9 +1,9 @@
-﻿import utils from '../utils/utils';
+﻿import _ from 'lodash';
 import config from '../config/config';
-import _ from 'lodash';
+import utils from '../utils/utils';
 
 // 改变当前任务状态
-export const changeTaskStatus = (status) => {
+export const changeTaskStatus = status => {
   return {
     type: 'CHANGE_TASK_STATUS',
     status,
@@ -11,7 +11,7 @@ export const changeTaskStatus = (status) => {
 };
 
 // 改变当前视图
-export const changeView = (viewType) => {
+export const changeView = viewType => {
   return {
     type: 'CHANGE_VIEW',
     viewType,
@@ -19,7 +19,7 @@ export const changeView = (viewType) => {
 };
 
 // 是否过滤周末不显示
-export const changeFilterWeekend = (filter) => {
+export const changeFilterWeekend = filter => {
   return {
     type: 'CHANGE_FILTER_WEEKEND',
     filter,
@@ -27,7 +27,7 @@ export const changeFilterWeekend = (filter) => {
 };
 
 // 切换显示子任务的层级
-export const changeSubTaskLevel = (level) => {
+export const changeSubTaskLevel = level => {
   return {
     type: 'CHANGE_SUB_TASK_LEVEL',
     level,
@@ -39,7 +39,13 @@ export const updateDataSource = source => (dispatch, getState) => {
   const { accountTasksKV, stateConfig } = getState().task;
 
   source = _.cloneDeep(source || accountTasksKV);
-  const data = utils.updateTasksDataSource(source, stateConfig.currentStatus, stateConfig.currentView, stateConfig.filterWeekend, stateConfig.currentLevel);
+  const data = utils.updateTasksDataSource(
+    source,
+    stateConfig.currentStatus,
+    stateConfig.currentView,
+    stateConfig.filterWeekend,
+    stateConfig.currentLevel,
+  );
 
   dispatch({
     type: 'UPDATE_DATA_SOURCE',
@@ -52,7 +58,7 @@ export const addMembers = data => (dispatch, getState) => {
   let { accountTasksKV } = getState().task;
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  data.reverse().forEach((user) => {
+  data.reverse().forEach(user => {
     accountTasksKV.unshift({
       account: {
         accountId: user.accountId,
@@ -86,7 +92,7 @@ export const showOrHideTask = (index, id, arrowStatus) => (dispatch, getState) =
   let { accountTasksKV, stateConfig } = getState().task;
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  accountTasksKV[index].tasks.forEach((item) => {
+  accountTasksKV[index].tasks.forEach(item => {
     if (item.taskId === id) {
       item.arrowStatus = arrowStatus;
     }
@@ -100,7 +106,11 @@ export const showOrHideTask = (index, id, arrowStatus) => (dispatch, getState) =
     }
   });
 
-  accountTasksKV[index] = utils.taskTimeBars([accountTasksKV[index]], stateConfig.currentView, stateConfig.filterWeekend)[0];
+  accountTasksKV[index] = utils.taskTimeBars(
+    [accountTasksKV[index]],
+    stateConfig.currentView,
+    stateConfig.filterWeekend,
+  )[0];
 
   dispatch({
     type: 'UPDATE_DATA_SOURCE',
@@ -109,7 +119,7 @@ export const showOrHideTask = (index, id, arrowStatus) => (dispatch, getState) =
 };
 
 // 开始拖拽
-export const ganttDragRecordId = (taskId) => {
+export const ganttDragRecordId = taskId => {
   return {
     type: 'GANTT_DRAG_RECORD_ID',
     taskId,
@@ -117,7 +127,7 @@ export const ganttDragRecordId = (taskId) => {
 };
 
 // 记录经过的人员下标
-export const ganttDragRecordIndex = (index) => {
+export const ganttDragRecordIndex = index => {
   return {
     type: 'GANTT_DRAG_RECORD_INDEX',
     index,
@@ -129,7 +139,7 @@ export const updateStartTimeAndEndTime = (id, index, time, type, isReset) => (di
   let { accountTasksKV, stateConfig } = getState().task;
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  accountTasksKV[index].tasks.forEach((item, i) => {
+  accountTasksKV[index].tasks.forEach(item => {
     if (item.taskId === id) {
       // 拖左侧
       if (type === config.DRAG_DIRECTION.LEFT) {
@@ -159,15 +169,19 @@ export const updateStartTimeAndEndTime = (id, index, time, type, isReset) => (di
   });
 
   accountTasksKV[index].taskTimeBars.forEach((timeBars, i) =>
-    timeBars.forEach((item) => {
+    timeBars.forEach(item => {
       // 记录当前项的下标
       if (item.taskId === id) {
         config.DARG_INDEX = i;
       }
-    })
+    }),
   );
 
-  accountTasksKV[index] = utils.taskTimeBars([accountTasksKV[index]], stateConfig.currentView, stateConfig.filterWeekend)[0];
+  accountTasksKV[index] = utils.taskTimeBars(
+    [accountTasksKV[index]],
+    stateConfig.currentView,
+    stateConfig.filterWeekend,
+  )[0];
 
   // 重置
   config.dragItem = '';
@@ -193,10 +207,10 @@ export const updateFolderSocketSource = source => (dispatch, getState) => {
     return false;
   }
 
-  source.data.forEach((item) => {
+  source.data.forEach(item => {
     // 任务删除
     if (item.eventType === 'D_task') {
-      accountTasksKV.forEach((data) => {
+      accountTasksKV.forEach(data => {
         if (data.account.accountId === item.charge.accountId) {
           _.remove(data.tasks, task => task.taskId === item.taskId);
         }
@@ -204,7 +218,7 @@ export const updateFolderSocketSource = source => (dispatch, getState) => {
     } else if (item.eventType === 'A_task') {
       // 任务新增
       let isInsertSuccess = false;
-      accountTasksKV.forEach((data) => {
+      accountTasksKV.forEach(data => {
         if (data.account.accountId === item.charge.accountId) {
           data.tasks.push(item);
           isInsertSuccess = true;
@@ -225,7 +239,7 @@ export const updateFolderSocketSource = source => (dispatch, getState) => {
       }
     } else {
       accountTasksKV.forEach(data =>
-        data.tasks.forEach((task) => {
+        data.tasks.forEach(task => {
           if (task.taskId === item.taskId) {
             // 更新任务名称
             if (item.eventType === 'U_name') {
@@ -257,21 +271,21 @@ export const updateFolderSocketSource = source => (dispatch, getState) => {
 
             // 移除子任务
             if (item.eventType === 'Pull_subTaskIds') {
-              item.subTaskIds.forEach((id) => {
+              item.subTaskIds.forEach(id => {
                 _.remove(task.subTaskIds, taskId => taskId === id);
               });
             }
 
             // 新增子任务
             if (item.eventType === 'Push_subTaskIds') {
-              item.subTaskIds.forEach((id) => {
+              item.subTaskIds.forEach(id => {
                 if (!_.includes(task.subTaskIds, id)) {
                   task.subTaskIds.push(id);
                 }
               });
             }
           }
-        })
+        }),
       );
     }
   });
@@ -279,7 +293,13 @@ export const updateFolderSocketSource = source => (dispatch, getState) => {
   // 和原始数据比较哪些变更过
   accountTasksKV.forEach((item, i) => {
     if (!_.isEqual(item, oldTaskKV[i])) {
-      item = utils.updateTasksDataSource([item], stateConfig.currentStatus, stateConfig.currentView, stateConfig.filterWeekend, stateConfig.currentLevel)[0];
+      item = utils.updateTasksDataSource(
+        [item],
+        stateConfig.currentStatus,
+        stateConfig.currentView,
+        stateConfig.filterWeekend,
+        stateConfig.currentLevel,
+      )[0];
     }
   });
 
@@ -296,25 +316,25 @@ export const updateSubordinateSocketSource = source => (dispatch, getState) => {
   const currentAccountId = source.id.split('|')[2];
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  source.data.forEach((item) => {
+  source.data.forEach(item => {
     // 任务删除
     if (item.eventType === 'D_task') {
-      accountTasksKV.forEach((data) => {
+      accountTasksKV.forEach(data => {
         if (data.account.accountId === currentAccountId) {
           _.remove(data.tasks, task => task.taskId === item.taskId);
         }
       });
     } else if (item.eventType === 'A_task') {
       // 任务新增
-      accountTasksKV.forEach((data) => {
+      accountTasksKV.forEach(data => {
         if (data.account.accountId === currentAccountId && !data.account.hidden) {
           data.tasks.push(item);
         }
       });
     } else {
-      accountTasksKV.forEach((data) => {
+      accountTasksKV.forEach(data => {
         if (data.account.accountId === currentAccountId) {
-          data.tasks.forEach((task) => {
+          data.tasks.forEach(task => {
             if (task.taskId === item.taskId) {
               // 更新任务名称
               if (item.eventType === 'U_name') {
@@ -346,14 +366,14 @@ export const updateSubordinateSocketSource = source => (dispatch, getState) => {
 
               // 移除子任务
               if (item.eventType === 'Pull_subTaskIds') {
-                item.subTaskIds.forEach((id) => {
+                item.subTaskIds.forEach(id => {
                   _.remove(task.subTaskIds, taskId => taskId === id);
                 });
               }
 
               // 新增子任务
               if (item.eventType === 'Push_subTaskIds') {
-                item.subTaskIds.forEach((id) => {
+                item.subTaskIds.forEach(id => {
                   if (!_.includes(task.subTaskIds, id)) {
                     task.subTaskIds.push(id);
                   }
@@ -369,7 +389,13 @@ export const updateSubordinateSocketSource = source => (dispatch, getState) => {
   // 和原始数据比较哪些变更过
   accountTasksKV.forEach((item, i) => {
     if (!_.isEqual(item, oldTaskKV[i])) {
-      item = utils.updateTasksDataSource([item], stateConfig.currentStatus, stateConfig.currentView, stateConfig.filterWeekend, stateConfig.currentLevel)[0];
+      item = utils.updateTasksDataSource(
+        [item],
+        stateConfig.currentStatus,
+        stateConfig.currentView,
+        stateConfig.filterWeekend,
+        stateConfig.currentLevel,
+      )[0];
     }
   });
 
@@ -384,7 +410,7 @@ export const addFollowMembers = data => (dispatch, getState) => {
   let { accountTasksKV } = getState().task;
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  data.forEach((user) => {
+  data.forEach(user => {
     accountTasksKV.push({
       account: {
         accountId: user.accountId,
@@ -422,7 +448,7 @@ export const updateUserStatus = (accountId, hidden) => (dispatch, getState) => {
   let { accountTasksKV } = getState().task;
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  accountTasksKV.forEach((item) => {
+  accountTasksKV.forEach(item => {
     if (item.account.accountId === accountId) {
       item.account.hidden = hidden;
       item.taskTimeBars = [];
@@ -442,10 +468,10 @@ export const moreSubordinateTasks = data => (dispatch, getState) => {
   const oldTaskKV = _.cloneDeep(accountTasksKV);
   accountTasksKV = _.cloneDeep(accountTasksKV);
 
-  accountTasksKV.forEach((tasksKV) => {
-    data.forEach((item) => {
+  accountTasksKV.forEach(tasksKV => {
+    data.forEach(item => {
       if (tasksKV.account.accountId === item.account.accountId) {
-        item.tasks.forEach((task) => {
+        item.tasks.forEach(task => {
           if (!_.find(tasksKV.tasks, { taskId: task.taskId })) {
             tasksKV.tasks.push(task);
           }
@@ -457,7 +483,13 @@ export const moreSubordinateTasks = data => (dispatch, getState) => {
   // 和原始数据比较哪些变更过
   accountTasksKV.forEach((item, i) => {
     if (!_.isEqual(item, oldTaskKV[i])) {
-      item = utils.updateTasksDataSource([item], stateConfig.currentStatus, stateConfig.currentView, stateConfig.filterWeekend, stateConfig.currentLevel)[0];
+      item = utils.updateTasksDataSource(
+        [item],
+        stateConfig.currentStatus,
+        stateConfig.currentView,
+        stateConfig.filterWeekend,
+        stateConfig.currentLevel,
+      )[0];
     }
   });
 

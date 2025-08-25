@@ -16,10 +16,11 @@ import { getAppFeaturesPath } from 'src/utils/app';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import Switch from '../../components/Switch';
 import { updatePublishState } from '../../redux/actions';
+import { START_APP_TYPE } from '../../WorkflowList/utils';
 import { ProcessParameters } from '../Detail/components';
 import { APP_TYPE, NODE_TYPE } from '../enum';
 import { getIcons, getStartNodeColor } from '../utils';
-import HistoryVersion from './HistoryVersion';
+import HistoryVersion, { restoreVision } from './HistoryVersion';
 import './index.less';
 
 const TABS_OPTS = [
@@ -84,7 +85,7 @@ const TestHeader = styled.div`
     background: #4c7d9e;
   }
   &.BGBlue {
-    background: #2196f3;
+    background: #1677ff;
   }
   &.BGSkyBlue {
     background: #00bcd4;
@@ -248,7 +249,7 @@ class Header extends Component {
 
         location.href = isPlugin
           ? `/plugin/node${featurePath ? '?' + featurePath : ''}`
-          : `/app/${flowInfo.relationId}/workflow${location.hash ? '?' + location.hash.replace('#', '') : ''}${
+          : `${flowInfo.parentId ? `/workflowedit/${flowInfo.parentId}` : `/app/${flowInfo.relationId}/workflow`}${location.hash ? '?' + location.hash.replace('#', '') : ''}${
               featurePath ? (location.hash ? '&' : '?') + featurePath : ''
             }`;
       };
@@ -265,24 +266,6 @@ class Header extends Component {
     } else {
       onBack(flowInfo.enabled);
     }
-  };
-
-  /**
-   * 恢复
-   */
-  handleRestoreVisible = () => {
-    const { flowInfo } = this.props;
-
-    Confirm({
-      title: _l('确定恢复到当前版本吗？'),
-      description: _l('执行此操作后，流程将回滚到当前版本。您未发布的流程修改将会被清除，此操作无法撤回'),
-      okText: _l('确定恢复'),
-      onOk: () => {
-        process.goBack({ processId: flowInfo.id }).then(() => {
-          location.href = `/workflowedit/${flowInfo.parentId}`;
-        });
-      },
-    });
   };
 
   /**
@@ -405,7 +388,7 @@ class Header extends Component {
             <Fragment>
               <TestHeader
                 className={isPlugin ? '' : flowInfo.child ? 'BGBlueAsh' : getStartNodeColor(appType, triggerId)}
-                style={isPlugin ? { background: flowInfo.iconColor || '#2196f3' } : {}}
+                style={isPlugin ? { background: flowInfo.iconColor || '#1677ff' } : {}}
               >
                 {isPlugin && flowInfo.iconName ? (
                   <SvgIcon url={flowInfo.iconName} fill="#fff" size={24} />
@@ -771,21 +754,40 @@ class Header extends Component {
   };
 
   render() {
-    const { tabIndex, switchTabs, flowInfo, isPlugin, openFlowInfo } = this.props;
+    const { tabIndex, switchTabs, flowInfo, isIntegration, isPlugin, openFlowInfo } = this.props;
     const { publishErrorVisible, errorInfo, isProgressing, showTestFlow } = this.state;
     const tabs = TABS_OPTS.filter(
       item => (flowInfo.startAppType !== APP_TYPE.APPROVAL_START && !isPlugin) || item.tabIndex !== 3,
     );
+    const formatString = _l('YYYY年M月D日 HH:mm');
 
     return (
       <div className={cx('workflowSettingsHeader flexRow', { workflowReleaseHeader: flowInfo.parentId })}>
-        <i className="icon-backspace Font20 ThemeColor3 workflowReturn" onClick={this.back} />
+        <div
+          className="workflowReturn tip-bottom-right"
+          onClick={this.back}
+          data-tip={flowInfo.parentId ? _l('返回最新版本') : _l('返回')}
+        >
+          <i className="icon-backspace" />
+        </div>
+
+        <div
+          className="iconWrap mRight10"
+          style={{
+            backgroundColor: (START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconColor,
+          }}
+          data-tip={flowInfo.child ? _l('子流程') : START_APP_TYPE[flowInfo.startAppType]?.text}
+        >
+          <Icon icon={(START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconName} />
+        </div>
+
         <div className="flex relative w100 h100">
           <div className="flexColumn workflowHeaderDesc">
             <div className="Font17 ellipsis pointer" onClick={openFlowInfo}>
               {flowInfo.name}
               {flowInfo.explain && (
                 <Tooltip
+                  autoCloseDelay={0}
                   themeColor="white"
                   popupPlacement="bottomLeft"
                   tooltipStyle={{ maxWidth: 640 }}
@@ -801,14 +803,36 @@ class Header extends Component {
                 <div className="workflowSettingsHeaderUpdateBtn Font12 mLeft5 bold">{_l('已修改')}</div>
               )}
             </div>
-            {flowInfo.lastPublishDate && !flowInfo.parentId && (
-              <div className="Font12">
-                <span className="Gray_75 mRight5">
-                  {_l('上次发布：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
-                </span>
-                <HistoryVersion {...this.props} />
-              </div>
-            )}
+            {flowInfo.lastPublishDate &&
+              (flowInfo.parentId ? (
+                <div className="Font12">
+                  <span className="Gray_75 mRight5">
+                    {_l('版本：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
+                  </span>
+                  <span data-tip={_l('恢复到此版本')}>
+                    <Icon
+                      className="Font14 pointer"
+                      icon="restore2"
+                      onClick={() =>
+                        restoreVision({
+                          ...flowInfo,
+                          date: flowInfo.lastPublishDate,
+                          currentFlowId: flowInfo.parentId,
+                          isIntegration,
+                          isPlugin,
+                        })
+                      }
+                    />
+                  </span>
+                </div>
+              ) : (
+                <div className="Font12">
+                  <span className="Gray_75 mRight5">
+                    {_l('上次发布：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
+                  </span>
+                  <HistoryVersion {...this.props} />
+                </div>
+              ))}
           </div>
         </div>
 
@@ -829,20 +853,8 @@ class Header extends Component {
 
         <div className="flex flexRow" style={{ justifyContent: 'flex-end' }}>
           {flowInfo.parentId ? (
-            <div className="workflowReleaseBtnBox">
-              <div className="workflowReleaseBtn">
-                {_l('历史版本')}
-                <span className="mLeft5">{createTimeSpan(flowInfo.lastPublishDate)}</span>
-                {!isPlugin && (
-                  <span data-tip={_l('恢复')}>
-                    <Icon
-                      className="Font18 mLeft10 White ThemeHoverColor3 pointer"
-                      icon="restore2"
-                      onClick={this.handleRestoreVisible}
-                    />
-                  </span>
-                )}
-              </div>
+            <div className="Font12 workflowReleaseBox">
+              {_l('发布时间：%0', moment(flowInfo.lastPublishDate).format(formatString))}
             </div>
           ) : (
             <Fragment>

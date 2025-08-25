@@ -1,7 +1,7 @@
-﻿import './updateTimeError.less';
+﻿import React from 'react';
 import moment from 'moment';
 import { Dialog } from 'ming-ui';
-import React from 'react';
+import './updateTimeError.less';
 
 const errorMessage = startTime => {
   const time = moment(startTime).format(`MM${_l('月')}DD${_l('日')}HH${_l('点')}`);

@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Select, Tag } from 'antd';
 import cx from 'classnames';
-import _ from 'lodash';
-import { Button, Dropdown, Icon, LoadDiv, Support, Switch, Tooltip } from 'ming-ui';
+import _, { isArray } from 'lodash';
+import { Button, Dialog, Dropdown, Icon, LoadDiv, Support, Switch, Tooltip } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import worksheetAjax from 'src/api/worksheet';
 import worksheetSettingAjax from 'src/api/worksheetSetting';
@@ -90,6 +90,13 @@ const getMapControls = (controls, fieldMapIds, field) => {
 const getControlType = (payAmountControlId, controls) =>
   (_.find(controls, v => v.controlId === payAmountControlId) || {}).type || '';
 
+// 去除已删除的商户
+const getFilterDeletedMchId = (mchId, merchantList = []) => {
+  mchId = isArray(mchId) ? mchId : [mchId];
+
+  return mchId.filter(item => _.findIndex(merchantList, v => v.value === item) > -1);
+};
+
 export default class PayConfig extends Component {
   constructor(props) {
     super(props);
@@ -142,7 +149,6 @@ export default class PayConfig extends Component {
         isEnabledExternalPortal,
         isEnabledPublicForm,
         boundControlIds = [],
-        isAllowedAddOption,
       } = settings;
       const { internalUser = {}, externalUser = {} } = worksheetPaymentSetting;
       const controls = _.get(worksheetInfo, 'template.controls') || [];
@@ -227,6 +233,21 @@ export default class PayConfig extends Component {
     });
   };
 
+  // 变更商户
+  changeMerchant = () => {
+    const { mchid } = this.state;
+
+    if ((_.isArray(mchid) && mchid.length) || (!isArray(mchid) && !mchid)) {
+      Dialog.confirm({
+        title: _l('你确认变更收款商户？'),
+        description: _l('变更后已有的待支付订单统一变更为已取消'),
+        onOk: () => {
+          this.setState({ isChangeMerchant: true }, this.onSave);
+        },
+      });
+    }
+  };
+
   onSave = () => {
     const { worksheetInfo = {} } = this.props;
     const { projectId, appId, worksheetId } = worksheetInfo;
@@ -248,12 +269,27 @@ export default class PayConfig extends Component {
       internalUser = {},
       externalUser = {},
       isAllowedAddOption,
+      isChangeMerchant,
     } = this.state;
 
     if (_.isEmpty(mchid) || !_.find(merchantList, v => _.includes(mchid, v.value))) {
       alert(_l('请选择商户'), 2);
       return;
     }
+
+    const copyInitMchId = getFilterDeletedMchId(initSettings.mchid, merchantList);
+    const currentMchId = getFilterDeletedMchId(mchid, merchantList);
+
+    if (
+      !_.isEmpty(copyInitMchId) &&
+      !_.isEqual(copyInitMchId, currentMchId) &&
+      copyInitMchId.some(id => !_.includes(currentMchId, id)) &&
+      !isChangeMerchant
+    ) {
+      this.changeMerchant();
+      return;
+    }
+
     if (checkIsDeleted(payContentControlId, controls)) {
       alert(_l('请选择支付内容'), 2);
       return;
@@ -298,6 +334,7 @@ export default class PayConfig extends Component {
         if (res) {
           alert(_l('保存成功'));
           this.setState({
+            isChangeMerchant: false,
             initExpireTime: expireTime,
             initSettings: {
               ...initSettings,
@@ -840,7 +877,7 @@ export default class PayConfig extends Component {
                     _l('点击设置')
                   ) : (
                     <Fragment>
-                      <Icon icon="check_circle1" className="mRight10 Font18 TxtMiddle" style={{ color: '#4CAF50' }} />
+                      <Icon icon="check_circle" className="mRight10 Font18 TxtMiddle" style={{ color: '#4CAF50' }} />
                       {_l('已设置')}
                     </Fragment>
                   )}

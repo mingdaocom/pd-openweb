@@ -56,7 +56,9 @@ const clearLocalStorage = () => {
       .forEach(item => {
         localStorage.removeItem(item.key);
       });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
@@ -93,6 +95,11 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
 
   window.config = data.config || {};
   window.md.global = _.merge(defaultGlobal, data['md.global']);
+
+  const LOAD_MOBILE_FORM = localStorage.getItem('LOAD_MOBILE_FORM');
+  if (!LOAD_MOBILE_FORM) {
+    safeLocalStorageSetItem('LOAD_MOBILE_FORM', 'new');
+  }
 
   if (allowNotLogin || window.isPublicApp) return;
 
@@ -157,22 +164,6 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   md.global.Account.isPortal && resetPortalUrl();
 
   redirect(location.pathname);
-
-  const projects = md.global.Account.projects || [];
-  // 是否是明道云网络
-  const IS_MD_PROJECT = projects.some(project => project.projectId === 'fe288386-3d26-4eab-b5d2-51eeab82a7f9');
-  if (IS_MD_PROJECT) {
-    safeLocalStorageSetItem('LOAD_MOBILE_FORM', 'new');
-    safeLocalStorageSetItem('PROJECT_NAME', 'md');
-  } else {
-    const LOAD_MOBILE_FORM = localStorage.getItem('LOAD_MOBILE_FORM');
-    if (!LOAD_MOBILE_FORM) {
-      const isSelfHost = ['meihua.mingdao.com', 'sandbox.mingdao.com', 'localhost'].includes(location.hostname);
-      const _version = !md.global.Config.IsLocal && isSelfHost ? 'new' : 'old';
-
-      safeLocalStorageSetItem('LOAD_MOBILE_FORM', _version);
-    }
-  }
 };
 
 const wrapComponent = function (Comp, { allowNotLogin, requestParams } = {}) {
@@ -208,4 +199,13 @@ export default function (Comp, { allowNotLogin, requestParams } = {}) {
   } else {
     return wrapComponent(Comp, { allowNotLogin, requestParams });
   }
+}
+
+if (location.href.indexOf('?debug') > -1) {
+  const script = document.createElement('script');
+  script.src = 'https://unpkg.com/vconsole/dist/vconsole.min.js';
+  document.head.appendChild(script);
+  script.onload = () => {
+    new VConsole();
+  };
 }

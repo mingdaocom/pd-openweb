@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Table } from 'antd';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
-import alertImg from '../../assets/alert.png';
-import { downloadFile } from '../../../../../util';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { downloadFile } from '../../../../../util';
+import alertImg from '../../assets/alert.png';
 
 const FailInfoCon = styled.div`
   padding: 0 24px;
@@ -38,8 +38,8 @@ const FailInfoCon = styled.div`
       height: 36px;
       text-align: center;
       line-height: 36px;
-      background: #2196f3;
-      border: 1px solid #2196f3;
+      background: #1677ff;
+      border: 1px solid #1677ff;
       opacity: 1;
       border-radius: 28px;
       font-size: 13px;
@@ -280,7 +280,7 @@ export default class ImportResulFailtDetail extends Component {
         )}
         {importError && (
           <ImportError>
-            <Icon icon="task-folder-message" className="errorIcon" />
+            <Icon icon="error1" className="errorIcon" />
             <div className="errorTxt">{_l('导入错误')}</div>
             <div className="errorDes">
               {_l('请')}

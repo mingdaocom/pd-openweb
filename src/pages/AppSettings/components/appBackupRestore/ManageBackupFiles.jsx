@@ -14,7 +14,7 @@ import BackupFiles from './components/BackupFiles';
 import backupFromFiles from './components/BackupFromFiles';
 import RegularBackup from './components/RegularBackup';
 import CreateAppBackupDialog from './CreateAppBackupDialog';
-import { cycleWeekText, Days } from './enum';
+import { cycleWeekText } from './enum';
 import './less/manageBackupFiles.less';
 
 const DrawerWrap = styled(Drawer)`
@@ -44,7 +44,7 @@ const Refresh = styled.span`
   cursor: pointer;
   &:hover {
     background-color: #f5f5f5;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 const ActionWrap = styled.div`
@@ -59,9 +59,9 @@ const ActionWrap = styled.div`
       font-size: 18px;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       .icon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -114,7 +114,7 @@ export default function ManageBackupFiles(props) {
         setCurrentValid(res.currentValid);
         setCountLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setCountLoading(false);
       });
   };

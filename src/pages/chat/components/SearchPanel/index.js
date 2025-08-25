@@ -1,14 +1,10 @@
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
 import cx from 'classnames';
-import './index.less';
-import * as utils from '../../utils';
 import * as ajax from '../../utils/ajax';
-import Constant from '../../utils/constant';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Messages from './Messages';
 import Files from './Files';
 import Members from './Members';
+import Messages from './Messages';
+import './index.less';
 
 const formatMatchedTab = (res, isGroup) => {
   const tab = [
@@ -63,7 +59,7 @@ export default class SearchPanel extends Component {
       keywords: searchText,
       [session.isGroup ? 'groupId' : 'withUser']: session.id,
     };
-    ajax.getCountByTabName(param).then((result) => {
+    ajax.getCountByTabName(param).then(result => {
       result = formatMatchedTab(result, session.isGroup);
       this.setState({
         tab: result,
@@ -95,14 +91,18 @@ export default class SearchPanel extends Component {
     );
   }
   render() {
-    const { type, tabIndex } = this.state;
+    const { type } = this.state;
     const { searchText, session } = this.props;
     return (
       <div className="ChatPanel-SearchPanel">
         {this.renderTab()}
-        {type === 'message' ? <Messages onGotoMessage={this.props.onGotoMessage} session={session} searchText={searchText} /> : undefined}
+        {type === 'message' ? (
+          <Messages onGotoMessage={this.props.onGotoMessage} session={session} searchText={searchText} />
+        ) : undefined}
         {type === 'file' ? <Files session={session} searchText={searchText} /> : undefined}
-        {type === 'member' ? <Members onOpenSession={this.props.onOpenSession} session={session} searchText={searchText} /> : undefined}
+        {type === 'member' ? (
+          <Members onOpenSession={this.props.onOpenSession} session={session} searchText={searchText} />
+        ) : undefined}
       </div>
     );
   }

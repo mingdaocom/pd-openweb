@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import DisplayItem from '../displayItem';
 import { getPathById } from '../../util/widgets';
 import BottomDragPointer from '../components/BottomDragPointer';
+import DisplayItem from '../displayItem';
 
 const DisplayTabWrap = styled.div`
   border-radius: 8px;
@@ -19,7 +20,7 @@ export default function DisplayTab(props) {
 
   return (
     <Fragment>
-      {tabWidgets.map((data, columnIndex) => {
+      {tabWidgets.map(data => {
         const row = _.head(getPathById(widgets, data.controlId));
         return (
           <DisplayTabWrap className="displayRow tabItemWrap">

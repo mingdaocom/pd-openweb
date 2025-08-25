@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
@@ -21,7 +22,7 @@ const BalanceWrap = styled.div`
   .icon-help {
     color: #9d9d9d;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -61,7 +62,7 @@ export default class WithdrawalsRecord extends Component {
         title: _l('提现金额'),
         dataIndex: 'amount',
         width: 160,
-        render: (text, record) => {
+        render: text => {
           return <div style={{ color: '#47b14b' }}>{text}</div>;
         },
       },
@@ -69,7 +70,7 @@ export default class WithdrawalsRecord extends Component {
         title: _l('提现状态'),
         dataIndex: 'status',
         width: 120,
-        render: (text, record) => {
+        render: text => {
           return <div>{text === 0 ? _l('提现中') : text === 2 ? _l('已完成') : '-'}</div>;
         },
       },
@@ -93,6 +94,7 @@ export default class WithdrawalsRecord extends Component {
               />
               <UserName
                 className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                projectId={props.projectId}
                 user={{
                   userName: fullname,
                   accountId: accountId,
@@ -124,7 +126,7 @@ export default class WithdrawalsRecord extends Component {
       .then(res => {
         this.setState({ ...res, balanceLoading: false });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ balanceLoading: false });
       });
   };

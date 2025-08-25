@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { get } from 'lodash';
 
 export { treeTableViewData } from 'worksheet/common/TreeTableHelper/index.js';
 
@@ -93,6 +93,8 @@ const initialSheetViewData = {
   count: 0,
   // 表视图统计信息数据
   rowsSummary: { types: {}, values: {} },
+  // 表视图分组统计信息数据
+  groupRowsSummary: {},
   // 表视图批量编辑权限
   permission: {},
 };
@@ -127,13 +129,26 @@ export function sheetViewData(state = initialSheetViewData, action) {
       };
     // 获取视图统计信息成功
     case 'WORKSHEET_SHEETVIEW_FETCH_REPORT_SUCCESS':
-      return {
-        ...state,
-        rowsSummary: {
-          types: action.types || state.rowsSummary.types || {},
-          values: action.values || state.rowsSummary.values || {},
-        },
-      };
+      if (action.groupKey) {
+        return {
+          ...state,
+          groupRowsSummary: {
+            ...state.groupRowsSummary,
+            [action.groupKey]: {
+              values: action.values || get(state, `groupRowsSummary.${action.groupKey}.values`, {}),
+            },
+            ...(action.types ? { types: action.types || get(state, 'groupRowsSummary.types', {}) } : {}),
+          },
+        };
+      } else {
+        return {
+          ...state,
+          rowsSummary: {
+            types: action.types || state.rowsSummary.types || {},
+            values: action.values || state.rowsSummary.values || {},
+          },
+        };
+      }
     // 隐藏记录
     case 'WORKSHEET_SHEETVIEW_HIDE_ROWS':
       return {
@@ -156,4 +171,32 @@ export function sheetViewData(state = initialSheetViewData, action) {
 
 export function abortController(state = new AbortController(), action) {
   return action.type === 'WORKSHEET_SHEETVIEW_INIT_ABORT_CONTROLLER' ? new AbortController() : state;
+}
+
+export function foldedMap(state = {}, action) {
+  switch (action.type) {
+    case 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START':
+    case 'WORKSHEET_SHEETVIEW_CLEAR_FOLDED':
+      return {};
+    case 'WORKSHEET_SHEETVIEW_UPDATE_FOLDED':
+      return {
+        ...state,
+        ...action.value,
+      };
+    default:
+      return state;
+  }
+}
+
+export function groupFetchParams(state = {}, action) {
+  switch (action.type) {
+    case 'WORKSHEET_SHEETVIEW_CHANGE_GROUP_FETCH_PARAMS':
+      return { ...state, [action.groupKey]: { ...state[action.groupKey], ...action.changes } };
+    case 'WORKSHEET_INIT':
+    case 'WORKSHEET_SHEETVIEW_CLEAR':
+    case 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START':
+      return {};
+    default:
+      return state;
+  }
 }

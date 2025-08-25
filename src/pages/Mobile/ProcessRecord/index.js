@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import Back from 'mobile/components/Back';
@@ -21,7 +21,9 @@ export default props => {
     const { instanceId, workId } = props;
     return (
       <Popup className={cx('mobileModal full', className)} onClose={onClose} visible={visible}>
-        {instanceId && <ProcessRecordInfo isModal={true} instanceId={instanceId} workId={workId} onClose={onClose} onSave={onSave} />}
+        {instanceId && (
+          <ProcessRecordInfo isModal={true} instanceId={instanceId} workId={workId} onClose={onClose} onSave={onSave} />
+        )}
         <Back icon="back" className="Fixed" style={{ bottom: 120 }} onClick={onClose} />
       </Popup>
     );

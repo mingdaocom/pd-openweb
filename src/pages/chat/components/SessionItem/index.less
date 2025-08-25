@@ -1,12 +1,15 @@
 div.SessionList-item.topBGColor {
-  background-color: rgba(170, 170, 170, 0.15);
+  background-color: #f5f5f5;
 }
+
 .SessionList-item {
   position: relative;
   display: flex;
   flex-direction: row;
-  padding: 9px 12px 9px 15px;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 0;
   .delete {
     position: absolute;
     top: 50%;
@@ -20,22 +23,26 @@ div.SessionList-item.topBGColor {
     transition: opacity 0.3s;
     transform: scale(0.8);
   }
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    .delete {
-      opacity: 1;
-    }
-  }
-  &.active {
-    background: hsla(0, 0%, 100%, 0.2);
+  &.active::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 50%;
+    height: 12px;
+    width: 4px;
+    border-radius: 3px;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    background: #1677ff;
   }
   .chat_calendar:before {
-    top: 5px;
+    top: 2px;
   }
 }
 .SessionList-avatar {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,15 +57,17 @@ div.SessionList-item.topBGColor {
   .unread {
     color: #fff;
     position: absolute;
-    right: -4px;
-    top: -7px;
-    border-radius: 50%;
+    right: -6px;
+    top: -4px;
+    border-radius: 16px;
     text-align: center;
-    line-height: 20px;
-    width: 20px;
-    height: 20px;
-    background-color: #ff0000;
+    min-width: 18px;
+    background-color: red;
     z-index: 1;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 4px;
+    line-height: 1;
   }
   .unread-nopush {
     width: 10px;
@@ -66,6 +75,8 @@ div.SessionList-item.topBGColor {
     text-indent: -9999px;
     top: -3px;
     right: 0px;
+    border-radius: 50% !important;
+    min-width: auto !important;
   }
 }
 .SessionList-info {
@@ -81,6 +92,7 @@ div.SessionList-item.topBGColor {
   .name {
     flex: 1 0 0%;
     font-size: 13px;
+    font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -90,7 +102,7 @@ div.SessionList-item.topBGColor {
     flex: 0 1 auto;
     font-size: 12px;
     min-width: 32px;
-    max-width: 70px;
+    max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -106,7 +118,9 @@ div.SessionList-item.topBGColor {
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    &-at, &-draft, &-unread {
+    &-at,
+    &-draft,
+    &-unread {
       max-width: 60px;
       margin-right: 2px;
       overflow: hidden;
@@ -140,9 +154,9 @@ div.SessionList-item.topBGColor {
   color: #fff;
   background-color: #1e88e5;
   i {
-    transform: scale(0.9);
+    transform: scale(0.7);
     position: relative;
-    top: -1px;
+    top: 0px;
   }
 }
 

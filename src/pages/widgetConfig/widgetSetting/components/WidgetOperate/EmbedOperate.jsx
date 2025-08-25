@@ -1,12 +1,10 @@
 import React, { Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 
 // 操作设置
 export default function EmbedOperate(props) {
   const { data, onChange } = props;
   const { enumDefault2 = 0 } = data;
-  const { allowlink } = getAdvanceSetting(data);
 
   return (
     <Fragment>

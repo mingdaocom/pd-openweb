@@ -168,7 +168,7 @@ export default class Files extends Component {
               className="ChatPanel-sessionInfo-hander-entry ThemeColor3"
             >
               {_l('所有文件')}
-              <i className="icon-sidebar-more" />
+              <i className="icon-arrow-right-border" />
             </span>
           ) : undefined}
         </div>

@@ -1,15 +1,11 @@
-import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import * as actions from 'mobile/RecordList/redux/actions';
-import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
 import FilterInput, { NumberTypes } from 'mobile/RecordList/QuickFilter/Inputs';
-import { conditionAdapter, turnControl, formatQuickFilter, validate } from 'mobile/RecordList/QuickFilter/utils';
-
+import { conditionAdapter, formatQuickFilter, turnControl, validate } from 'mobile/RecordList/QuickFilter/utils';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import _ from 'lodash';
 
 const Con = styled.div`
   .header {
@@ -29,7 +25,7 @@ const Con = styled.div`
       margin-bottom: 20px;
     }
     .selected {
-      color: #2196f3;
+      color: #1677ff;
       max-width: 100px;
       padding-left: 10px;
       font-weight: 500;
@@ -42,13 +38,13 @@ const Con = styled.div`
     }
     .query {
       color: #fff;
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
   }
 `;
 
 function QuickFilter(props) {
-  const { enableBtn, filters, controls, updateQuickFilter, onCloseDrawer } = props;
+  const { enableBtn, filters, updateQuickFilter, onCloseDrawer } = props;
   const store = useRef({});
   const [values, setValues] = useState({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));

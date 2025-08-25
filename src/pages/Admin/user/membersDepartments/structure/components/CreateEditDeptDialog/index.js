@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import { Dialog, FunctionWrap } from 'ming-ui';
 import { dialogSelectDept } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
@@ -94,7 +95,7 @@ export default class CreateEditDeptDialog extends Component {
             }
             this.setState({ submitLoading: false });
           })
-          .catch(err => {
+          .catch(() => {
             alert(_l('创建失败'), 2);
             this.setState({ submitLoading: false });
           });
@@ -135,7 +136,7 @@ export default class CreateEditDeptDialog extends Component {
             }
             this.setState({ submitLoading: false });
           })
-          .catch(err => {
+          .catch(() => {
             alert(_l('编辑失败'), 2);
             this.setState({ submitLoading: false });
           });

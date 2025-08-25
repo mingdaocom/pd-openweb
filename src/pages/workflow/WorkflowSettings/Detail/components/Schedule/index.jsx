@@ -12,7 +12,7 @@ import SelectUserDropDown from '../SelectUserDropDown';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 
 const Button = styled.span`
-  border: 1px solid #2196f3;
+  border: 1px solid #1677ff;
   padding: 0 16px;
   height: 28px;
   line-height: 28px;
@@ -295,7 +295,7 @@ export default ({
                 }
               });
 
-            if (!!accountNullIndex.length) {
+            if (accountNullIndex.length) {
               alert(_l('第%0条截止提醒规则的提醒人为空！', accountNullIndex.join('、')), 2);
             } else {
               updateSource({ schedule: Object.assign({}, data, { enable: true }) });
@@ -341,7 +341,7 @@ export default ({
                   <div className="flexRow">
                     <div className="flex bold Gray_75">{_l('提醒%0', index + 1)}</div>
                     <Icon
-                      type="delete2"
+                      type="trash"
                       className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
                       onClick={() => {
                         const actions = [].concat(data.actions);

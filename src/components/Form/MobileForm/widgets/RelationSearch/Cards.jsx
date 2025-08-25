@@ -1,23 +1,9 @@
 import React, { Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import RecordCoverCard from '../../components/RelateRecordCards/RecordCoverCard';
-import { LoadingButton } from '../../components/RelateRecordCards';
 import _, { identity } from 'lodash';
-
-function getCoverUrl(coverId, record, controls) {
-  const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
-  if (!coverControl) {
-    return;
-  }
-  try {
-    const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
-    const { previewUrl = '' } = coverFile;
-    return previewUrl.indexOf('imageView2') > -1
-      ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-      : `${previewUrl}&imageView2/1/w/200/h/140`;
-  } catch (err) {}
-  return;
-}
+import { Icon } from 'ming-ui';
+import { LoadingButton } from '../../components/RelateRecordCards';
+import RecordCoverCard from '../../components/RelateRecordCards/RecordCoverCard';
+import { getCoverUrl } from '../../tools/utils';
 
 export default function Cards(props) {
   const {

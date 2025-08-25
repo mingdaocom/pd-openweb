@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
-import './taskControl.less';
 import { connect } from 'react-redux';
-import config from '../../../config/config';
-import CustomFields from 'src/components/newCustomFields';
-import { taskFoldStatus, updateControlValue, updateTaskControlFiles } from '../../../redux/actions';
+import cx from 'classnames';
 import _ from 'lodash';
+import CustomFields from 'src/components/newCustomFields';
 import { deleteAttachment } from 'src/pages/kc/common/AttachmentsPreview/ajax';
+import config from '../../../config/config';
+import { taskFoldStatus, updateControlValue, updateTaskControlFiles } from '../../../redux/actions';
+import './taskControl.less';
 
 class TaskControl extends Component {
   constructor(props) {
@@ -91,7 +91,7 @@ class TaskControl extends Component {
   /**
    * 更新字段数据
    */
-  updateFieldsData = ({ value, controlId, isBlur }) => {
+  updateFieldsData = ({ controlId, isBlur }) => {
     const errorItems = this.fields.state.errorItems;
     const { data } = this.fields.getSubmitData({ silent: true });
     const currentData = data.find(item => item.controlId === controlId);
@@ -181,7 +181,7 @@ class TaskControl extends Component {
       undefined,
       delFile.originalFilename + delFile.ext,
     )
-      .then(result => {
+      .then(() => {
         alert(_l('删除成功'));
         this.props.dispatch(updateTaskControlFiles(taskId, controlId, newFiles));
       })

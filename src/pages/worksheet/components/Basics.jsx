@@ -1,4 +1,3 @@
-import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 // common
@@ -134,7 +133,7 @@ export const Textarea = styled.textarea`
 `;
 
 export const Absolute = styled.div(
-  ({ top, bottom, left, right, children }) => `
+  ({ top, bottom, left, right }) => `
   position: absolute;
   top: ${numberToPx(top)};
   bottom: ${numberToPx(bottom)};
@@ -144,7 +143,7 @@ export const Absolute = styled.div(
 );
 
 export const Fixed = styled.div(
-  ({ top, bottom, left, right, children }) => `
+  ({ top, bottom, left, right }) => `
   position: fixed;
   top: ${numberToPx(top)};
   bottom: ${numberToPx(bottom)};
@@ -234,4 +233,4 @@ export const FormTopImgCon = styled.div`
     width: 100%;
     height: auto;
   }
-`
+`;

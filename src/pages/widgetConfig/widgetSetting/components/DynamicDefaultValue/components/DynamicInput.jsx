@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import { Tooltip } from 'ming-ui';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
@@ -70,7 +71,7 @@ export default function DynamicInput({
               onChange(handleAdvancedSettingChange(data, { defsource: JSON.stringify([]) }));
             }}
           >
-            <i className="icon-cancel1"></i>
+            <i className="icon-cancel"></i>
           </div>
         </Tooltip>
       </DynamicInputStyle>
@@ -88,7 +89,7 @@ export default function DynamicInput({
       <div className="options">
         <Tooltip text={<span>{_l('清除')}</span>}>
           <div className="delete" onClick={handleDelete}>
-            <i className="icon-cancel1"></i>
+            <i className="icon-cancel"></i>
           </div>
         </Tooltip>
         <div className="edit">

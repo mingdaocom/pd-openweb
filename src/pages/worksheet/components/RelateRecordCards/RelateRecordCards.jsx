@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import sheetAjax from 'src/api/worksheet';
+import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
@@ -14,7 +15,6 @@ import RelateScanQRCode from 'src/components/newCustomFields/components/RelateSc
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { selectRecords } from 'src/components/SelectRecords';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
@@ -68,7 +68,7 @@ export const LoadingButton = styled.div`
   height: 29px;
   line-height: 29px;
   padding: 0 12px;
-  color: #2196f3;
+  color: #1677ff;
   border-radius: 3px;
   font-size: 13px;
   .loading {
@@ -107,10 +107,10 @@ const OperateCon = styled.div`
 
 const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
   &.lineWrap {
-    color: #2196f3;
+    color: #1677ff;
     width: 100%;
     .scanIcon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
       margin-right: 5px;
     }
     .scanButton {
@@ -145,7 +145,7 @@ const WithoutRowsWrap = styled.div`
   background-color: #f8f8f8;
 `;
 
-export function getCardColNum({ width, isMobile, enumDefault, records }) {
+export function getCardColNum({ width, isMobile, enumDefault }) {
   let colNum = 1;
   if (!isMobile || enumDefault === 1) {
     colNum = Math.floor((width + CARDS_GAP) / (CARD_MIN_WIDTH + CARDS_GAP));
@@ -409,7 +409,9 @@ class RelateRecordCards extends Component {
       return previewUrl.indexOf('imageView2') > -1
         ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/200')
         : `${previewUrl}&imageView2/2/w/200`;
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return;
   }
 
@@ -452,6 +454,7 @@ class RelateRecordCards extends Component {
       })
       .then(res => {
         this.setState(state => {
+          res.data = res.data || [];
           const newRecords = _.uniqBy([...state.records, ...res.data], 'rowid');
           const newState = {
             records: newRecords,
@@ -582,6 +585,7 @@ class RelateRecordCards extends Component {
           const cellData = JSON.parse(titleControl.value);
           defaultRelatedSheetValue.name = cellData[0].name;
         } catch (err) {
+          console.log(err);
           defaultRelatedSheetValue.name = '';
         }
       }
@@ -591,6 +595,7 @@ class RelateRecordCards extends Component {
         value: defaultRelatedSheetValue,
       };
     } catch (err) {
+      console.log(err);
       return;
     }
   }
@@ -652,9 +657,9 @@ class RelateRecordCards extends Component {
             : [],
         ),
       showControls: showControls,
+      projectId: control.projectId,
       appId: appId,
       viewId: viewId,
-      isCharge: isCharge,
       masterRecordRowId: recordId,
       relateSheetId: dataSource,
       parentWorksheetId: worksheetId,
@@ -697,7 +702,6 @@ class RelateRecordCards extends Component {
       disabled,
       enumDefault,
       coverCid,
-      openRelateSheet,
       advancedSetting,
       isCharge,
       sheetSwitchPermit,
@@ -755,12 +759,14 @@ class RelateRecordCards extends Component {
                 }
               }}
               renderItem={options => {
-                const { item, index, dragging, isLayer } = options;
+                const { item } = options;
                 const record = item;
                 return (
                   <RecordCoverCard
                     {...options}
-                    className={cardClassName}
+                    className={cx(cardClassName, {
+                      mBottom16: width < 700,
+                    })}
                     hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
                     showAddAsDropdown={this.showAddAsDropdown}
                     containerWidth={width}
@@ -872,7 +878,7 @@ class RelateRecordCards extends Component {
   };
 
   render() {
-    const { control, editable, allowOpenRecord, showCoverAndControls } = this.props;
+    const { control, allowOpenRecord } = this.props;
     const {
       appId,
       viewId,
@@ -887,11 +893,8 @@ class RelateRecordCards extends Component {
       disabled,
       enumDefault,
       enumDefault2,
-      strDefault,
-      showControls = [],
       coverCid,
       formData,
-      sheetSwitchPermit,
       advancedSetting = {},
       isCharge,
       hint,

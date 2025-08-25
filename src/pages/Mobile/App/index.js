@@ -1,9 +1,9 @@
 import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
-import { Collapse, Dialog, List, Space, SpinLoading, TabBar } from 'antd-mobile';
+import { Collapse, Dialog, List, SpinLoading, TabBar } from 'antd-mobile';
 import cx from 'classnames';
-import _, { create } from 'lodash';
+import _ from 'lodash';
 import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
 import CustomPage from 'mobile/CustomPage';
 import RecordList from 'mobile/RecordList';
@@ -99,7 +99,6 @@ class App extends Component {
     if (!_.isEqual(this.props.appDetail, nextProps.appDetail)) {
       const { appSection = [], detail = {} } = _.get(nextProps, 'appDetail') || {};
       const { viewHideNavi } = _.get(nextProps, 'appDetail.detail') || {};
-      const { appNavItemIds } = detail;
       const appExpandGroupInfo =
         (localStorage.getItem(`appExpandGroupInfo-${detail.id}`) &&
           JSON.parse(localStorage.getItem(`appExpandGroupInfo-${detail.id}`))) ||
@@ -243,7 +242,7 @@ class App extends Component {
         const dataSource = transferValue(urlTemplate);
         const urlList = [];
         dataSource.map(o => {
-          if (!!o.staticValue) {
+          if (o.staticValue) {
             urlList.push(o.staticValue);
           } else {
             urlList.push(
@@ -266,7 +265,7 @@ class App extends Component {
     }
   };
 
-  handleSwitchSheet = (item, data) => {
+  handleSwitchSheet = item => {
     const { params } = this.props.match;
     const { appSectionId } = item;
     this.navigateTo(`/mobile/app/${params.appId}/${appSectionId}/${item.workSheetId}`);
@@ -441,7 +440,6 @@ class App extends Component {
   }
 
   renderAppHeader() {
-    const { isHideTabBar } = this.state;
     const { appDetail, match } = this.props;
     const { appName, detail, processCount } = appDetail;
     const { params } = match;
@@ -465,13 +463,19 @@ class App extends Component {
           <div
             className={cx('flex flexRow valignWrapper Gray_75 process Relative', { hide: window.isPublicApp })}
             onClick={() => {
-              this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+              if (processCount) {
+                this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+              } else {
+                this.navigateTo(`/mobile/processMatters`);
+              }
             }}
           >
             <Icon className="Font17" icon="knowledge_file" />
             <div className="mLeft5 Font14">{_l('流程待办')}</div>
             {!!processCount && (
-              <div className="flexRow valignWrapper processCount">{processCount > 99 ? '99+' : processCount}</div>
+              <div className="flexRow valignWrapper processCount mLeft3 ">
+                {processCount > 99 ? '99+' : processCount}
+              </div>
             )}
           </div>
           <div
@@ -497,7 +501,11 @@ class App extends Component {
                   icon="knowledge_file"
                   className="Font26 Gray_bd"
                   onClick={() => {
-                    this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+                    if (processCount) {
+                      this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
+                    } else {
+                      this.navigateTo(`/mobile/processMatters`);
+                    }
                   }}
                 />
                 {!!processCount && (
@@ -835,7 +843,7 @@ class App extends Component {
               }
             }}
           >
-            {sheetList.map((item, index) => (
+            {sheetList.map(item => (
               <TabBar.Item
                 title={getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
                 key={item.workSheetId}

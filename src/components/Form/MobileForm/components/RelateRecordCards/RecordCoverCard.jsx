@@ -13,11 +13,34 @@ const Con = styled.div`
   position: relative;
   width: 100%;
   border-radius: 3px;
-  background-color: var(--color-third);
-  border: 1px solid var(--gray-e0);
+  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--color-third)'};
+  border: 1px solid
+    ${({ borderColor, canSelect, selected }) => {
+      if (canSelect) {
+        return selected ? 'var(--color-primary)' : 'var(--gray-e0)';
+      }
+      return borderColor || 'var(--gray-e0)';
+    }};
 
   & + & {
     margin-top: ${props => (props.disabled ? 10 : 14)}px;
+  }
+
+  .selectIcon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 17px solid ${({ selected }) => (selected ? 'var(--color-primary)' : 'var(--gray-e0)')};
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+  }
+
+  .icon-ok {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    font-size: 18px;
+    color: var(--color-third);
   }
 
   .removeBtn {
@@ -54,6 +77,7 @@ const Title = styled.div`
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  word-break: break-all;
   ${({ titleStyle }) => titleStyle}
 `;
 
@@ -86,7 +110,6 @@ function click(func) {
 export default function RecordCoverCard(props) {
   const {
     className,
-    from,
     hideTitle,
     disabled,
     showAddAsDropdown,
@@ -106,6 +129,8 @@ export default function RecordCoverCard(props) {
     isCharge,
     sheetSwitchPermit = [],
     onReplaceRecord = () => {},
+    canSelect = false,
+    selected = false,
   } = props;
   const [forceShowFullValue, setForceShowFullValue] = useState(false);
   const titleControl = _.find(parentControl.relationControls, { attribute: 1 });
@@ -137,19 +162,25 @@ export default function RecordCoverCard(props) {
   return (
     <Con
       onClick={onClick}
-      style={{
-        ...style,
-        backgroundColor: get(recordCardStyle, 'cardStyle.backgroundColor') || 'var(--color-third)',
-        borderColor: get(recordCardStyle, 'cardStyle.borderColor') || 'var(--gray-e0)',
-      }}
+      style={style}
       className={cx(className, allowlink !== '0')}
       canView={allowlink !== '0'}
       disabled={disabled}
+      backgroundColor={get(recordCardStyle, 'cardStyle.backgroundColor')}
+      borderColor={get(recordCardStyle, 'cardStyle.borderColor')}
+      canSelect={canSelect}
+      selected={selected}
     >
+      {canSelect && (
+        <Fragment>
+          <div className="selectIcon" />
+          <i className="icon-ok" />
+        </Fragment>
+      )}
       {!disabled && !showAddAsDropdown && (
         <Fragment>
           {allowReplaceRecord && <i className="icon-exchange exchangeBtn" onClick={click(onReplaceRecord)} />}
-          <i className="icon-delete_out removeBtn" onClick={click(onDelete)} />
+          <i className="icon-cancel removeBtn" onClick={click(onDelete)} />
         </Fragment>
       )}
       <ControlCon

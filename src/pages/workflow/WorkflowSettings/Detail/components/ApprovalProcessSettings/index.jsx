@@ -1,20 +1,20 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Checkbox, Icon, Dropdown, Radio, Menu, MenuItem, SortableList } from 'ming-ui';
-import UpdateFields from '../UpdateFields';
-import ProcessDetails from '../ProcessDetails';
-import OperatorEmpty from '../OperatorEmpty';
-import WriteFields from '../WriteFields';
-import CustomTextarea from '../CustomTextarea';
-import EmailApproval from '../EmailApproval';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { OPERATION_TYPE, USER_TYPE, NODE_TYPE } from '../../../enum';
-import Member from '../Member';
-import { quickSelectUser } from 'ming-ui/functions';
-import { Tooltip } from 'antd';
-import sheetAjax from 'src/api/worksheet';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Menu, MenuItem, Radio, SortableList } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
+import sheetAjax from 'src/api/worksheet';
+import { NODE_TYPE, OPERATION_TYPE, USER_TYPE } from '../../../enum';
+import CustomTextarea from '../CustomTextarea';
+import EmailApproval from '../EmailApproval';
+import Member from '../Member';
+import OperatorEmpty from '../OperatorEmpty';
+import ProcessDetails from '../ProcessDetails';
+import UpdateFields from '../UpdateFields';
+import WriteFields from '../WriteFields';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -32,7 +32,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #2196f3;
+      border-bottom: 3px solid #1677ff;
     }
   }
 `;
@@ -45,13 +45,13 @@ const SortableItemBox = styled.div`
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-  .icon-delete2 {
+  .icon-trash {
     &:hover {
       color: #f44336 !important;
     }
   }
   .icon-new_word {
-    color: #2196f3;
+    color: #1677ff;
   }
   .icon-new_excel {
     color: #4caf50;
@@ -274,7 +274,7 @@ export default props => {
         </div>
         <Tooltip title={_l('删除')}>
           <i
-            className="icon-delete2 Font16 Gray_75 pointer mLeft10"
+            className="icon-trash Font16 Gray_75 pointer mLeft10"
             onClick={() =>
               updateSource({
                 processConfig: Object.assign({}, data.processConfig, { printIds: items.filter(id => id !== item) }),
@@ -374,7 +374,7 @@ export default props => {
         showCurrent
         content={data.processConfig.recordTitle}
         formulaMap={data.processConfig.formulaMap}
-        onChange={(err, value, obj) =>
+        onChange={(err, value) =>
           updateSource({
             processConfig: Object.assign({}, data.processConfig, { recordTitle: value }),
           })
@@ -721,6 +721,7 @@ export default props => {
             />
             <Tooltip
               overlayStyle={{ maxWidth: 320 }}
+              autoCloseDelay={0}
               title={_l(
                 '指在审批流程中当人员设置为直属上级、上级部门负责人时。如果当前人员没有直属上级，则由本人自己处理；如果当前人员、部门没有上级部门，则由本部门负责人处理。未勾选时，则按照为空处理。',
               )}
@@ -740,6 +741,7 @@ export default props => {
             />
             <Tooltip
               overlayStyle={{ maxWidth: 320 }}
+              autoCloseDelay={0}
               title={
                 <div>
                   <div>
@@ -802,7 +804,7 @@ export default props => {
             </div>
           ) : (
             <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-              <i className="icon-task-setting_promet Font16 Gray_9e" />
+              <i className="icon-error1 Font16 Gray_9e" />
               <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
             </div>
           )}

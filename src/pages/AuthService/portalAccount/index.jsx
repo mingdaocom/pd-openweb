@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import _ from 'lodash';
+import { Icon, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import preall from 'src/common/preall';
 import 'src/pages/AuthService/components/form.less';
@@ -95,7 +96,7 @@ function ContainerCon(props) {
   //自动登录
   const onAutoLogin = cb => {
     const autoLoginKey = window.localStorage.getItem(`PortalLoginInfo-${currentAppId}`) || '';
-    if (!!autoLoginKey) {
+    if (autoLoginKey) {
       externalPortalAjax.autoLogin({ appId: currentAppId, autoLoginKey }).then(res => {
         const { accountResult } = res;
         setAutoLoginKey({ ...res, appId: currentAppId }, !window.isWeiXin || accountResult === 1);
@@ -112,10 +113,10 @@ function ContainerCon(props) {
 
   const getUrlData = () => {
     let request = getRequest();
-    if (!!paramForPcWx) {
+    if (paramForPcWx) {
       request = paramForPcWx;
     }
-    const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
+    const { wxState = '', mdAppId = '', accountId = '' } = request;
     request.status && setStatus(Number(request.status));
     wxState && setState({ state: wxState });
     accountId && setAccount({ accountId });
@@ -166,11 +167,11 @@ function ContainerCon(props) {
     let domainName = '';
     let ajaxPromise = '';
     let request = getRequest();
-    if (!!paramForPcWx) {
+    if (paramForPcWx) {
       request = paramForPcWx;
     }
     const param = customLink ? { customLink } : {};
-    const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
+    const { mdAppId = '', accountId = '' } = request;
     if (!mdAppId) {
       //从returnUrl里提取appid
       domainName = currentAppId;
@@ -269,7 +270,7 @@ function ContainerCon(props) {
                     setState({ isWXauth: false, loginForType: 'phone' });
                   }}
                 >
-                  <Icon type="phone2" />
+                  <Icon type="phone" />
                   {_l('验证码登录')}
                 </div>
               )}

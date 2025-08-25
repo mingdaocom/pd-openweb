@@ -12,10 +12,10 @@
       font-size: 18px;
       .closeIcon {
         position: absolute;
+        height: 24px;
         right: 16px;
         top: 10px;
-        color: #2196f3;
-        font-size: 24px;
+        border-radius: 12px;
       }
     }
     .modalContentBox {
@@ -49,7 +49,7 @@
           padding: 0;
         }
       }
-      .nano-content {
+      .listBox {
         .listItem {
           margin: 0 8px 12px;
           text-align: left;
@@ -58,6 +58,7 @@
           border: 1px solid #eaeaea;
           border-radius: 3px;
           box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.12);
+          overflow: hidden;
           .title {
             color: #151515;
           }
@@ -71,6 +72,17 @@
         }
         .listItem:last-child {
           margin-bottom: 45px;
+        }
+        .colorTag {
+          position: absolute;
+          width: 4px;
+          top: -1px;
+          bottom: -1px;
+          left: 0px;
+          &.colorTagRight {
+            left: unset;
+            right: 0;
+          }
         }
       }
     }

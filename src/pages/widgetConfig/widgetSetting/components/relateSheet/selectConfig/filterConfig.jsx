@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { isEqual } from 'lodash';
+import _ from 'lodash';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { CONTROL_FILTER_WHITELIST } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';

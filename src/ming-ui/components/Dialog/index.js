@@ -1,7 +1,7 @@
-import Dialog from './Dialog';
 import confirm from './Confirm';
-import promise from './Promise';
+import Dialog from './Dialog';
 import DialogBase from './DialogBase';
+import promise from './Promise';
 
 Dialog.confirm = confirm;
 Dialog.promise = promise;

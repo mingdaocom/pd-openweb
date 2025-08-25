@@ -1,6 +1,7 @@
 import React from 'react';
+import _ from 'lodash';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { AddCustomDialog } from '../components/CustomWidget';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { openDevelopWithAI } from '../components/DevelopWithAI';
 
 export default function Custom(props) {

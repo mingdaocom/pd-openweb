@@ -1,9 +1,10 @@
-import React, { Fragment, useState, useRef, useEffect } from 'react';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Tooltip } from 'antd';
-import { Icon, Progress, Menu, MenuItem } from 'ming-ui';
-import { handleShare, handleDownload, loadImage } from '../utils';
+import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import { Icon, Menu, MenuItem, Progress } from 'ming-ui';
+import { handleDownload, handleShare, loadImage } from '../utils';
 import './index.less';
 
 const renderFileImage = (url, coverType, imgClassName = 'w100') => {
@@ -59,7 +60,7 @@ const ImageCard = props => {
           const { width, height } = image;
           setImgClassName(width > height ? 'w100' : 'h100');
         })
-        .catch(error => {
+        .catch(() => {
           setIsPicture(false);
         });
     }
@@ -97,7 +98,7 @@ const ImageCard = props => {
       {wpsEditUrl && (
         <MenuItem
           key="onLineEdit"
-          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          icon={<Icon icon="edit" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
             window.open(wpsEditUrl);
@@ -137,7 +138,7 @@ const ImageCard = props => {
     </Menu>
   );
 
-  const handleFocus = e => {
+  const handleFocus = () => {
     setTimeout(() => {
       ref && ref.current && ref.current.select();
     }, 0);
@@ -260,7 +261,7 @@ const ImageCard = props => {
                   }}
                   className="panelBtn delete"
                 >
-                  <Icon className="Gray_9e Font17" icon="task-new-delete" />
+                  <Icon className="Gray_9e Font17" icon="trash" />
                 </div>
               </Tooltip>
             )}
@@ -274,8 +275,8 @@ const ImageCard = props => {
                         controlId: isOtherSheet
                           ? sourceControlId
                           : isSubListFile
-                          ? _.get(masterData, 'controlId')
-                          : controlId,
+                            ? _.get(masterData, 'controlId')
+                            : controlId,
                         rowId: recordId,
                         parentWorksheetId: _.get(masterData, 'worksheetId'),
                         parentRowId: _.get(masterData, 'recordId'),
@@ -310,7 +311,7 @@ const ImageCard = props => {
                       }}
                       className="panelBtn"
                     >
-                      <Icon className="Gray_9e Font17" icon="task-point-more" />
+                      <Icon className="Gray_9e Font17" icon="more_horiz" />
                     </div>
                   </Tooltip>
                 </Trigger>
@@ -333,8 +334,8 @@ const NotSaveImageCard = props => {
   const previewImageUrl = isKc
     ? data.viewUrl
     : url.indexOf('imageView2') > -1
-    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`)
-    : url + `${url.includes('?') ? '&' : '?'}imageView2/${mode}/${size}`;
+      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/${mode}/${size}`)
+      : url + `${url.includes('?') ? '&' : '?'}imageView2/${mode}/${size}`;
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [imgClassName, setImgClassName] = useState('w100');
@@ -347,13 +348,13 @@ const NotSaveImageCard = props => {
           const { width, height } = image;
           setImgClassName(width > height ? 'w100' : 'h100');
         })
-        .catch(error => {
+        .catch(() => {
           setIsPicture(false);
         });
     }
   }, []);
 
-  const handleFocus = e => {
+  const handleFocus = () => {
     setTimeout(() => {
       ref && ref.current && ref.current.select();
     }, 0);
@@ -450,7 +451,7 @@ const NotSaveImageCard = props => {
               }}
               className="panelBtn delete"
             >
-              <Icon className="Gray_9e Font17" icon="task-new-delete" />
+              <Icon className="Gray_9e Font17" icon="trash" />
             </div>
           </Tooltip>
           {!isKc && (

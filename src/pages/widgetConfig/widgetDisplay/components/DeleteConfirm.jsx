@@ -1,9 +1,9 @@
 import React from 'react';
 import Trigger from 'rc-trigger';
-import { Button } from 'ming-ui';
 import styled from 'styled-components';
-import 'rc-trigger/assets/index.css';
+import { Button } from 'ming-ui';
 import WorksheetReference from '../../widgetSetting/components/WorksheetReference';
+import 'rc-trigger/assets/index.css';
 
 const DeleteConfirmWrap = styled.div`
   width: 320px;
@@ -56,7 +56,7 @@ export default function DeleteConfirm({
         offset: [0, 5],
         overflow: { adjustX: true, adjustY: true },
       }}
-      zIndex={99}
+      zIndex={1000}
       popup={
         content || (
           <DeleteConfirmWrap>

@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 
 function Header(props) {
   const { lineLoading, logo, hasGetLogo, isDefaultLogo, loading } = props;
@@ -23,7 +24,11 @@ function Header(props) {
       {lineLoading && <div className="loadingLine"></div>}
       {!loading && !_.get(md, 'global.SysSettings.hideBrandLogo') && brandLogo && (
         <div className="titleHeader">
-          {isMingDaoApp || !brandLogoRedirectUrl ? renderLogo() : <a href={brandLogoRedirectUrl}>{renderLogo()}</a>}
+          {window.isMingDaoApp || !brandLogoRedirectUrl ? (
+            renderLogo()
+          ) : (
+            <a href={brandLogoRedirectUrl}>{renderLogo()}</a>
+          )}
         </div>
       )}
     </React.Fragment>

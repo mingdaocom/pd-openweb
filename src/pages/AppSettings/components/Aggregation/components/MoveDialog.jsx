@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Dialog, Icon } from 'ming-ui';
-import cx from 'classnames';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Dialog, Dropdown, Icon } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 
@@ -48,7 +48,7 @@ export default function MoveDialog(props) {
         aggTableId: item.aggTableId,
       },
       { isAggTable: true },
-    ).then(res => {
+    ).then(() => {
       onOk();
       onCancel();
     });

@@ -1,11 +1,11 @@
-import React, { useState, useContext } from 'react';
-import { Input } from 'ming-ui';
-import cx from 'classnames';
+import React, { useContext, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
+import cx from 'classnames';
 import update from 'immutability-helper';
-import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Input } from 'ming-ui';
+import SheetContext from 'worksheet/common/Sheet/SheetContext';
 
 const ItemTitle = styled.ul`
   background-color: #f5f5f8;
@@ -22,7 +22,7 @@ const ItemTitle = styled.ul`
       border: none;
       padding-left: 0;
       height: 28px;
-      border-bottom: 2px solid #2196f3;
+      border-bottom: 2px solid #1677ff;
       background-color: transparent;
       font-size: 14px;
       border-radius: 0;

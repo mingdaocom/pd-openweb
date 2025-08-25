@@ -1,12 +1,12 @@
-import React, { useState, useEffect, Fragment, useCallback } from 'react';
-import { Support, Button, Dropdown, Dialog } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import styled from 'styled-components';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { find } from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Dropdown, Support } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
 import { useGetApps } from '../../../hooks';
-import { formatAppsToDropdown } from '../../../util';
 import { SettingItem } from '../../../styled';
+import { formatAppsToDropdown } from '../../../util';
 import EditOptionList from './EditOptionList';
 
 const DialogFooter = styled.div`
@@ -14,7 +14,7 @@ const DialogFooter = styled.div`
   justify-content: space-between;
   .addOptionList {
     cursor: pointer;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #2b65c4;
     }
@@ -27,7 +27,7 @@ const DialogFooter = styled.div`
 `;
 
 export default function SelectOptionList(props) {
-  const { globalSheetInfo, onOk, onCancel, ...rest } = props;
+  const { globalSheetInfo, onOk, onCancel } = props;
   const { projectId, appId } = globalSheetInfo;
   const [apps] = useGetApps({ projectId });
   const [visible, setVisible] = useState(false);

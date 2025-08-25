@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, RadioGroup } from 'ming-ui';
-import { SettingItem } from '../../../../../styled';
-import DynamicDefaultValue from '../../../DynamicDefaultValue';
-import { CustomActionWrap } from '../../style';
-import { ALERT_TYPE_OPTIONS } from '../../config';
-import { getAdvanceSetting } from '../../../../../util/setting';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Dialog } from 'ming-ui';
+import { SettingItem } from '../../../../../styled';
+import { getAdvanceSetting } from '../../../../../util/setting';
+import DynamicDefaultValue from '../../../DynamicDefaultValue';
+import { ALERT_TYPE_OPTIONS } from '../../config';
+import { CustomActionWrap } from '../../style';
 
 export default function PromptMessage(props) {
   const { actionData = {}, handleOk } = props;

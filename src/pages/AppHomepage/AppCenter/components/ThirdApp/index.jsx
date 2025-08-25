@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
+import api from 'api/application';
+import _ from 'lodash';
 import { func } from 'prop-types';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import ThirdAppGroup from './ThirdAppGroup';
-import api from 'api/application';
-
 import './index.less';
-import _ from 'lodash';
 
 export default class ThirdPartyApp extends Component {
   static propTypes = {
@@ -31,11 +30,6 @@ export default class ThirdPartyApp extends Component {
     api.updateAccountAppTop({ isTop, apps: [para] }).then(res => {
       if (res) this.getData();
     });
-  };
-
-  getAppsAmount = () => {
-    const { data } = this.state;
-    const { top: topData, account: personalData, projects: projectData } = data;
   };
 
   renderApps = () => {

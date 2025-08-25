@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Dialog, Dropdown, Checkbox, Tooltip, Icon, VerifyPasswordInput } from 'ming-ui';
 import _ from 'lodash';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import cx from 'classnames';
-import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, Tooltip, VerifyPasswordInput } from 'ming-ui';
 import verifyPassword from 'src/components/verifyPassword';
+import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const Wrap = styled.div`
   .ming.Dropdown,
@@ -29,16 +27,16 @@ export default function PublishSetDialog(props) {
   const { onClose, onOk } = props;
   const [{ value, writeMode, isCleanDestTableData, password, fieldForIdentifyDuplicate, loading }, setState] =
     useSetState({
-      value: !!props.fieldForIdentifyDuplicate
+      value: props.fieldForIdentifyDuplicate
         ? _.get(
             props.controls.find(o => o.id === _.get(props, 'fieldForIdentifyDuplicate.id')),
             'id',
           )
         : undefined,
-      writeMode: !!props.writeMode ? props.writeMode : undefined,
+      writeMode: props.writeMode ? props.writeMode : undefined,
       isCleanDestTableData: !!props.isCleanDestTableData,
       password: '',
-      fieldForIdentifyDuplicate: !!props.fieldForIdentifyDuplicate
+      fieldForIdentifyDuplicate: props.fieldForIdentifyDuplicate
         ? props.controls.find(o => o.id === _.get(props, 'fieldForIdentifyDuplicate.id'))
         : {},
       loading: false,

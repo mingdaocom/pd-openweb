@@ -2,7 +2,8 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useClickAway } from 'react-use';
-import { find, findIndex, get, identity, includes, isArray, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
+import { find, findIndex, get, includes, isArray, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
+import _ from 'lodash';
 import { arrayOf, bool, func, number, shape } from 'prop-types';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
@@ -19,8 +20,10 @@ import { getVisibleControls } from './utils';
 function getCellWidths(control, controls) {
   let widths = [];
   try {
-    widths = JSON.parse(control.advancedSetting.widths);
-  } catch (err) {}
+    widths = safeParse(control.advancedSetting.widths);
+  } catch (err) {
+    console.log(err);
+  }
   if (isArray(widths)) {
     const result = {};
     control.showControls
@@ -37,10 +40,8 @@ function getCellWidths(control, controls) {
 function getTableConfig(control) {
   const {
     allowdelete = '1', // 允许删除
-    allowexport = '1', // 允许导出
     allowedit = '1', // 允许行内编辑
     showquick = '1', // 允许快捷操作
-    allowbatch = '0', // 允许批量操作
     alternatecolor = '1', // 交替显示行颜色
     sheettype = '0', // 表格交互方式
     allowlink, // 允许打开记录,
@@ -97,6 +98,7 @@ function TableComp(props) {
   const { isCustomButtonFillRecord } = control || {};
   const { addedRecords = [] } = changes;
   let { records } = props;
+  // records = records.filter(r => !find(addedRecords, { rowid: r.rowid }));
   const { updateWorksheetControls } = props;
   const {
     isTab,
@@ -115,6 +117,7 @@ function TableComp(props) {
     relateWorksheetInfo = {},
     addVisible,
     isHiddenOtherViewRecord,
+    showNumber,
   } = base;
   const {
     tableLoading,
@@ -213,6 +216,7 @@ function TableComp(props) {
   }
   return (
     <WorksheetTable
+      showControlStyle
       isDraft={isDraft}
       isTreeTableView={isTreeTableView}
       treeLayerControlId={treeLayerControlId}
@@ -274,6 +278,7 @@ function TableComp(props) {
         const canRemoveRelation = allowRemoveRelation || !isSavedRecord;
         return (
           <RowHead
+            showNumber={showNumber && !isTreeTableView}
             tableType={tableConfig.tableType}
             isBatchEditing={isBatchEditing}
             showQuickFromSetting={showQuickFromSetting}
@@ -440,6 +445,9 @@ function TableComp(props) {
               });
             }}
             onShowFullValue={() => {
+              addBehaviorLog('worksheetBatchDecode', _.get(props, 'control.dataSource'), {
+                controlId: control.controlId,
+              });
               updateTableState({
                 disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true },
               });
@@ -451,7 +459,7 @@ function TableComp(props) {
         );
       }}
       onCellClick={(cell, row) => {
-        addBehaviorLog('worksheetRecord', control.dataSource, { rowId: row.rowid }); // 埋点
+        addBehaviorLog('worksheetRecord', _.get(props, 'control.dataSource'), { rowId: row.rowid }); // 埋点
         handleOpenRecordInfo({
           recordId: row.rowid,
           activeRelateTableControlIdOfRecord: cell.type === 29 ? cell.controlId : undefined,

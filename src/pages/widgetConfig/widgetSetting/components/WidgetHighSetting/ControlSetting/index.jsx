@@ -5,7 +5,7 @@ import { Checkbox } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 import AttachmentConfig from './AttachmentConfig';
 import CascaderConfig from './CascaderConfig';
-import DateConfig, { ShowFormat } from './DateConfig';
+import DateConfig from './DateConfig';
 import DropConfig from './DropConfig';
 import FormulaDateConfig from './FormulaDateConfig';
 import NumberConfig from './NumberConfig';
@@ -44,10 +44,9 @@ export default function WidgetConfig(props) {
     anylevel,
     allpath,
     showdelete,
-    showcount = '0',
     allowcustom,
-    usertype = '1',
     checkusertype,
+    usetimezone = '0',
   } = getAdvanceSetting(data);
 
   // 文本、文本组合
@@ -75,9 +74,29 @@ export default function WidgetConfig(props) {
               <span>{_l('支持拼音排序')}</span>
               <Tooltip
                 placement={'bottom'}
+                autoCloseDelay={0}
                 title={_l(
                   '勾选后，中文可按拼音A-Z进行排序。注意，勾选了支持拼音排序时排序索引不生效。如无需要，建议不勾选。',
                 )}
+              >
+                <i className="icon icon-help Gray_9e Font16"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+        )}
+
+        {type === 33 && (
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={usetimezone === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { usetimezone: checked ? '0' : '1' }))}
+            >
+              <span>{_l('按应用时区拼接')}</span>
+              <Tooltip
+                placement={'bottom'}
+                autoCloseDelay={0}
+                title={_l('勾选后，当编号规则含时间相关字段时，对应的时间将按照应用时区显示。')}
               >
                 <i className="icon icon-help Gray_9e Font16"></i>
               </Tooltip>
@@ -181,6 +200,7 @@ export default function WidgetConfig(props) {
             <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
             <Tooltip
               popupPlacement="bottom"
+              autoCloseDelay={0}
               title={
                 <span>
                   {_l('未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段')}
@@ -243,6 +263,7 @@ export default function WidgetConfig(props) {
             >
               <Tooltip
                 popupPlacement="bottom"
+                autoCloseDelay={0}
                 title={
                   <span>
                     {_l('成员类型为常规时，不写入外部门户类型的成员，反之亦然。对工作流API写入或者批量导入不生效')}
@@ -278,7 +299,11 @@ export default function WidgetConfig(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { showdelete: String(+!checked) }))}
           >
             <span>{_l('显示已删除')}</span>
-            <Tooltip placement={'bottom'} title={_l('勾选时，组织中被删除的部门显示为“已删除”，否则不显示')}>
+            <Tooltip
+              placement={'bottom'}
+              autoCloseDelay={0}
+              title={_l('勾选时，组织中被删除的部门显示为“已删除”，否则不显示')}
+            >
               <i className="icon-help Gray_bd Font15"></i>
             </Tooltip>
           </Checkbox>
@@ -289,7 +314,6 @@ export default function WidgetConfig(props) {
 
   if (type === 53) {
     if (enumDefault2 === 6) return <NumberConfig {...props} />;
-    if (_.includes([15, 16], enumDefault2)) return <ShowFormat {...props} />;
     return null;
   }
 

@@ -1,27 +1,23 @@
 import React, { Component } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui';
-import cx from 'classnames';
-import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import dataSourceApi from 'src/pages/integration/api/datasource.js';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import dataSourceApi from 'src/pages/integration/api/datasource.js';
+import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting/index.jsx';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import {
-  setFieldsMappingDefaultData,
   getFields,
-  hsMorePkControl,
   getUnionFeids,
+  hsMorePkControl,
   setFeildAlias,
+  setFieldsMappingDefaultData,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 import { getInitFieldsMapping } from 'src/pages/integration/dataIntegration/utils.js';
-import _ from 'lodash';
 import SlideLayerTem from './SlideLayerTem';
-import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting/index.jsx';
 
-const tabList = [
-  { key: 0, txt: _l('字段设置') },
-  { key: 1, txt: _l('数据预览') },
-];
 const Wrap = styled.div`
   .AliasInput {
     max-width: 200px;
@@ -59,7 +55,7 @@ const Wrap = styled.div`
       .icon {
         color: #9e9e9e;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       .tabItem {
@@ -72,16 +68,16 @@ const Wrap = styled.div`
       background: #ffffff;
       bottom: 0;
       .btnCon {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
         height: 36px;
         line-height: 36px;
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
         border-radius: 3px;
         padding: 0 36px;
         &.cancleBtn {
           background: #fff;
-          color: #2196f3;
+          color: #1677ff;
         }
         &.disabled {
           border: 1px solid #bdbdbd;
@@ -199,7 +195,9 @@ export default class CellEdit extends Component {
           isDestAppType: isDestMDType,
           destType: _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType'),
         })) || [];
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
     data = data.filter(o => !disableList.includes(o.jdbcTypeId));
     this.setState({
       fieldsBysource: data,

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { TagTextarea } from 'ming-ui';
-import SelectOtherFields from '../SelectOtherFields';
-import Tag from '../Tag';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { TagTextarea } from 'ming-ui';
 import { handleGlobalVariableName } from '../../../utils';
+import SelectOtherFields from '../SelectOtherFields';
+import Tag from '../Tag';
 
 export default class CustomTextarea extends Component {
   static propTypes = {
@@ -48,7 +48,7 @@ export default class CustomTextarea extends Component {
     this.props.getRef(this.tagtextarea);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (this.tagtextarea && prevProps.content !== this.props.content) {
       const cursor = this.tagtextarea.cmObj.getCursor();
 
@@ -93,7 +93,7 @@ export default class CustomTextarea extends Component {
             this.tagtextarea = tagtextarea;
           }}
           onFocus={onFocus}
-          renderTag={(tag, options) => {
+          renderTag={tag => {
             const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
             const nodeObj = formulaMap[ids[0]] || {};
             const controlObj = formulaMap[ids.join('-')] || {};

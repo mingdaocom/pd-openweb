@@ -1,8 +1,8 @@
 import React from 'react';
-import cx from 'classnames';
-import { Icon, ColorPicker } from 'ming-ui';
 import { Input } from 'antd';
+import cx from 'classnames';
 import styled from 'styled-components';
+import { ColorPicker, Icon } from 'ming-ui';
 import { defaultTitleStyles, replaceTitleColor } from 'src/pages/customPage/components/ConfigSideWrap/util';
 
 const Wrap = styled.div`
@@ -16,7 +16,7 @@ const Wrap = styled.div`
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    border: 1px solid #E0E0E0;
+    border: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -28,10 +28,13 @@ const Wrap = styled.div`
         height: 30px;
       }
     }
-    &.ant-input-affix-wrapper:hover, &:hover {
-      border-color: #2196F3 !important;
+    &.ant-input-affix-wrapper:hover,
+    &:hover {
+      border-color: #1677ff !important;
     }
-    &.ant-input-affix-wrapper, &.ant-input-affix-wrapper-focused, & {
+    &.ant-input-affix-wrapper,
+    &.ant-input-affix-wrapper-focused,
+    & {
       border-radius: 4px !important;
       box-shadow: none !important;
     }
@@ -44,7 +47,8 @@ const Wrap = styled.div`
       border-left: 1px solid #d9d9d9;
       background-color: #fff;
     }
-    .icon-expand_less, .icon-expand_more {
+    .icon-expand_less,
+    .icon-expand_more {
       line-height: 10px;
     }
     &.ant-picker-range .ant-picker-input > input {
@@ -76,11 +80,11 @@ export default props => {
         titleStyles: {
           ...newTitleStyles,
           ...data,
-          index: Date.now()
-        }
-      }
+          index: Date.now(),
+        },
+      },
     });
-  }
+  };
   return (
     <Wrap className="settingItem mTop24">
       <div className="settingTitle">{_l('标题与样式')}</div>
@@ -104,11 +108,7 @@ export default props => {
                 handleChange(data);
               }}
             >
-              <div
-                className="colorWrap"
-                style={{ backgroundColor: color }}
-              >
-              </div>
+              <div className="colorWrap" style={{ backgroundColor: color }}></div>
             </ColorPicker>
             <Input
               className="pageInput countInput mRight10"
@@ -123,7 +123,7 @@ export default props => {
                     onClick={() => {
                       let value = Number(newTitleStyles.fontSize) + 1;
                       handleChange({
-                        fontSize: newTitleStyles.fontSize === 32 ? 32 : value
+                        fontSize: newTitleStyles.fontSize === 32 ? 32 : value,
                       });
                     }}
                   />
@@ -133,7 +133,7 @@ export default props => {
                     onClick={() => {
                       let value = Number(newTitleStyles.fontSize) - 1;
                       handleChange({
-                        fontSize: newTitleStyles.fontSize === 13 ? 13 : value
+                        fontSize: newTitleStyles.fontSize === 13 ? 13 : value,
                       });
                     }}
                   />
@@ -145,7 +145,7 @@ export default props => {
               style={{ backgroundColor: '#fff' }}
               onClick={() => {
                 handleChange({
-                  fontBold: !newTitleStyles.fontBold
+                  fontBold: !newTitleStyles.fontBold,
                 });
               }}
             >
@@ -156,7 +156,7 @@ export default props => {
               style={{ backgroundColor: '#fff' }}
               onClick={() => {
                 handleChange({
-                  fontItalic: !newTitleStyles.fontItalic
+                  fontItalic: !newTitleStyles.fontItalic,
                 });
               }}
             >
@@ -174,20 +174,24 @@ export default props => {
           <div className="label">{_l('对齐方式')}</div>
           <div className="typeSelect flexRow valignWrapper">
             <div
-              className={cx('centerAlign pLeft10 pRight10 pointer Gray_75', { active: newTitleStyles.textAlign === 'left' })}
+              className={cx('centerAlign pLeft10 pRight10 pointer Gray_75', {
+                active: newTitleStyles.textAlign === 'left',
+              })}
               onClick={() => {
                 handleChange({
-                  textAlign: 'left'
+                  textAlign: 'left',
                 });
               }}
             >
               <Icon icon="format_align_left" className="Font18" />
             </div>
             <div
-              className={cx('centerAlign pLeft10 pRight10 pointer Gray_75', { active: newTitleStyles.textAlign === 'center' })}
+              className={cx('centerAlign pLeft10 pRight10 pointer Gray_75', {
+                active: newTitleStyles.textAlign === 'center',
+              })}
               onClick={() => {
                 handleChange({
-                  textAlign: 'center'
+                  textAlign: 'center',
                 });
               }}
             >
@@ -198,4 +202,4 @@ export default props => {
       </div>
     </Wrap>
   );
-}
+};

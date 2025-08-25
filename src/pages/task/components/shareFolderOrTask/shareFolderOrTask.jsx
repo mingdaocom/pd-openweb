@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
-import './shareFolderOrTask.less';
 import copy from 'copy-to-clipboard';
 import { Dialog } from 'ming-ui';
+import './shareFolderOrTask.less';
 
 export default class ShareFolderOrTask extends Component {
   static defaultProps = {

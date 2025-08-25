@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
-import TimePicker from 'ming-ui/components/TimePicker/TimePicker';
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
+import TimePicker from 'ming-ui/components/TimePicker/TimePicker';
 
 class CalendarFooter extends Component {
   /**
@@ -32,18 +31,6 @@ class CalendarFooter extends Component {
         </a>
       );
     }
-
-    const todayBtn = (
-      <a onClick={() => props.onToday()} className={`${prefixCls}-today-btn`} role="button">
-        {locale.lang.today}
-      </a>
-    );
-
-    const tomorrowBtn = (
-      <a onClick={() => props.onToMorrow()} className={`${prefixCls}-morrow-btn`} role="button">
-        {locale.lang.tomorrow}
-      </a>
-    );
 
     const okBtn = (
       <a onClick={() => props.onOk()} className={`${prefixCls}-ok-btn`} role="button">
@@ -75,7 +62,7 @@ class CalendarFooter extends Component {
         <div className={`${prefixCls}-footer-back`}>
           <Icon
             icon="cancel"
-            onClick={event => {
+            onClick={() => {
               this.back();
             }}
           />

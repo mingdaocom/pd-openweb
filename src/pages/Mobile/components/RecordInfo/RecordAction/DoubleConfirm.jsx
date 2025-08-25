@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Popup } from 'antd-mobile';
+import React, { useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { Button, Textarea, Icon, Checkbox, VerifyPasswordInput } from 'ming-ui';
-
+import { Popup } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Icon, Textarea, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import verifyPassword from 'src/components/verifyPassword';
-import styled from 'styled-components';
-import cx from 'classnames';
 
 const ConfirmDialogWrap = styled(Popup)`
   .adm-popup-body {
@@ -54,10 +54,10 @@ const ConfirmDialogWrap = styled(Popup)`
       border: 1px solid #ddd;
     }
     .ming.Button--primary {
-      background: #2196f3;
+      background: #1677ff;
     }
     .ming.Button--primary:hover {
-      background: #2196f3;
+      background: #1677ff;
     }
   }
 `;
@@ -81,7 +81,7 @@ const SectionName = styled.div`
     right: 0;
     top: 0;
     font-weight: 400;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -126,31 +126,15 @@ const RemarkModeModal = styled(Popup)`
     border: 1px solid #ddd;
   }
   .ming.Button--primary {
-    background: #2196f3;
+    background: #1677ff;
   }
   .ming.Button--primary:hover {
-    background: #2196f3;
+    background: #1677ff;
   }
-`;
-
-const User = styled.div`
-  height: 36px;
-  background: #f5f5f5;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-  padding: 0 10px;
 `;
 
 function RemarkMode(props) {
-  const {
-    className,
-    isFreeInput,
-    remarkoptions,
-    onClose,
-    visible,
-    setRemarkValue = () => {},
-    setIsInput = () => {},
-  } = props;
+  const { isFreeInput, remarkoptions, onClose, visible, setRemarkValue = () => {}, setIsInput = () => {} } = props;
   const list = _.get(safeParse(remarkoptions), 'template') || [];
   const [listData, setListData] = useState(list);
 

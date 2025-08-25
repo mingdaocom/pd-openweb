@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import './style.less';
-import List from './list';
+import PropTypes from 'prop-types';
 import LibCalender from '../../NewDateTimePicker/lib/calender';
+import List from './list';
+import './style.less';
 
 class TimeMenu extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class TimeMenu extends Component {
     this.setState(this.init(nextProps));
   }
 
-  init = (props) => {
+  init = props => {
     const state = {
       /**
        * 小时列表
@@ -34,7 +34,7 @@ class TimeMenu extends Component {
     return state;
   };
 
-  generateHourList = (props) => {
+  generateHourList = props => {
     const list = [];
 
     let i = 0;
@@ -62,7 +62,7 @@ class TimeMenu extends Component {
     return list;
   };
 
-  generateMinuteList = (props) => {
+  generateMinuteList = props => {
     const list = [];
 
     let i = 0;
@@ -76,7 +76,7 @@ class TimeMenu extends Component {
             minute: i,
           },
           props.min,
-          props.max
+          props.max,
         ),
         current: i === props.value.minute,
       });
@@ -87,7 +87,7 @@ class TimeMenu extends Component {
     return list;
   };
 
-  generateSecondList = (props) => {
+  generateSecondList = props => {
     const list = [];
 
     let i = 0;
@@ -102,7 +102,7 @@ class TimeMenu extends Component {
             second: i,
           },
           props.min,
-          props.max
+          props.max,
         ),
         current: i === props.value.second,
       });
@@ -193,7 +193,7 @@ class TimeMenu extends Component {
               this.onPick(event, 'minute', value);
             }}
           />
-        </div>
+        </div>,
       );
     }
     if (this.props.mode === 'second') {
@@ -205,7 +205,7 @@ class TimeMenu extends Component {
               this.onPick(event, 'second', value);
             }}
           />
-        </div>
+        </div>,
       );
     }
 
@@ -256,9 +256,7 @@ TimeMenu.defaultProps = {
     minute: 0,
     second: 0,
   },
-  onPick: (event, value) => {
-    //
-  },
+  onPick: () => {},
 };
 
 export default TimeMenu;

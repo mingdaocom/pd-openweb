@@ -1,8 +1,6 @@
-import _ from 'lodash';
-
 export function loading(state = true, action) {
   switch (action.type) {
-    case 'CHANGE_RESOURCE_LOADINNG':
+    case 'CHANGE_RESOURCE_LOADING':
       return action.data;
     default:
       return state;

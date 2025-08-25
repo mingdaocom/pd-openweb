@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import './index.less';
 
@@ -72,7 +72,9 @@ export default class TagInput extends Component {
         <ul className="tagWrap">
           {tags.map((item, i) => (
             <li key={i} className="tagItem flexRow">
-              <span className="tag" title={item}>{item}</span>
+              <span className="tag" title={item}>
+                {item}
+              </span>
               <span className="delTag" onClick={() => this.delTag(item)}>
                 <Icon icon="close" className="pointer" />
               </span>

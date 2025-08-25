@@ -1,79 +1,17 @@
+import _ from 'lodash';
 import PDFObject from 'pdfobject';
-import QRCode from '@mdfe/qrcode-base';
+import {
+  BAR_LABEL_SIZE,
+  BAR_LABEL_SIZES,
+  BAR_LAYOUT,
+  PRINT_TYPE,
+  QR_LABEL_SIZE,
+  QR_LABEL_SIZES,
+  QR_LAYOUT,
+} from './enum';
 import genQrDataurl, { QRErrorCorrectLevel } from './genQrDataurl';
 import { A4_OPTS, A4_SIZE } from './printConfig';
 import { createBarLabeObjectFromConfig, createQrLabeObjectFromConfig } from './util';
-import {
-  BAR_LAYOUT,
-  BAR_LABEL_SIZE,
-  BAR_LABEL_SIZES,
-  PRINT_TYPE,
-  QR_LAYOUT,
-  QR_LABEL_SIZE,
-  QR_LABEL_SIZES,
-} from './enum';
-import _ from 'lodash';
-
-const defaultOptions = {
-  gap: 0,
-  render: 'canvas',
-  width: 256,
-  height: 256,
-  typeNumber: -1,
-  correctLevel: QRErrorCorrectLevel.M,
-  background: '#ffffff',
-  foreground: '#000000',
-  setFillColor: () => {},
-  rect: () => {},
-  renderCell: () => {},
-};
-
-const renderQr = function (options) {
-  options = Object.assign({}, defaultOptions, options);
-  const qrcode = new QRCode(options.typeNumber, options.correctLevel);
-  qrcode.addData(options.value);
-  qrcode.make();
-  console.log(qrcode.getModuleCount());
-  const tileW = (options.width - options.gap * 2) / qrcode.getModuleCount();
-  const tileH = (options.height - options.gap * 2) / qrcode.getModuleCount();
-  console.log(qrcode.isDark(1, 0));
-  for (let row = 0; row < qrcode.getModuleCount(); row++) {
-    for (let col = 0; col < qrcode.getModuleCount(); col++) {
-      const w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
-      const h = Math.ceil((row + 1) * tileH) - Math.floor(row * tileH);
-      // const w = tileW;
-      // const h = tileH;
-      options.renderCell({
-        x: Math.round(col * tileW) + options.gap,
-        y: Math.round(row * tileH) + options.gap,
-        w,
-        h,
-        isDark: qrcode.isDark(row, col),
-        color: qrcode.isDark(row, col) ? options.foreground : options.background,
-      });
-    }
-  }
-};
-
-function mmToPt(mm) {
-  return mm * 2.83464567;
-}
-
-function cutText(text, fontSize, width) {
-  fontSize = fontSize || 12;
-  width = width || 100;
-  const $text = document.createElement('span');
-  $text.style.fontSize = fontSize + 'px';
-  $text.innerText = text;
-  document.body.appendChild($text);
-  const textwidth = $text.offsetWidth;
-  $text.remove();
-  if (textwidth <= width) {
-    return text;
-  } else {
-    return text.slice(0, Math.floor(width / fontSize));
-  }
-}
 
 function cutString(text, maxWidth, fontSize, maxLine = 3) {
   text = text.slice(0, 300);

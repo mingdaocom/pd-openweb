@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Qr, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
@@ -76,14 +75,14 @@ export default class Con extends React.Component {
     this.loadWorksheetShortUrl();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (_.get(this.props, ['printData', 'shareType']) !== _.get(nextProps, ['printData', 'shareType'])) {
       this.loadWorksheetShortUrl(nextProps);
     }
   }
 
   loadWorksheetShortUrl = props => {
-    let { appId, worksheetId, viewId, rowId, printId, type, from, printType, isDefault, projectId } = this.props.params;
+    let { appId, worksheetId, viewId, rowId, printId, type, printType, isDefault, projectId } = this.props.params;
     const { printData } = props || this.props;
     const { shareType = 0, rowIdForQr } = printData;
 
@@ -181,7 +180,9 @@ export default class Con extends React.Component {
                 let records = [];
                 try {
                   records = JSON.parse(item[0].value);
-                } catch (err) {}
+                } catch (err) {
+                  console.log(err);
+                }
                 // 子表records不是数组
                 if (records.length <= 0) {
                   return null;
@@ -263,7 +264,9 @@ export default class Con extends React.Component {
                       let records = [];
                       try {
                         records = JSON.parse(item[0].value);
-                      } catch (err) {}
+                      } catch (err) {
+                        console.log(err);
+                      }
                       if (records.length <= 0) {
                         hideNum++;
                         return '';
@@ -471,7 +474,7 @@ export default class Con extends React.Component {
       //只展示checked
       controls = controls.filter(it => {
         let data = relationControls.find(o => o.controlId === it.controlId) || [];
-        if (data.checked && !UN_PRINT_CONTROL.includes(o.type)) {
+        if (data.checked && !UN_PRINT_CONTROL.includes(it.type)) {
           return it;
         }
       });
@@ -547,8 +550,8 @@ export default class Con extends React.Component {
                 <li
                   style={{
                     ...STYLE_PRINT.relations_Ul_Li,
-                    border: sign === !i ? '0.1px solid #2196f3' : '0.1px solid #bdbdbd',
-                    color: sign === !i ? '#2196f3' : '#bdbdbd',
+                    border: sign === !i ? '0.1px solid #1677ff' : '0.1px solid #bdbdbd',
+                    color: sign === !i ? '#1677ff' : '#bdbdbd',
                     zIndex: sign === !i ? 1 : 0,
                   }}
                   onClick={() => setStyle(l.value)}
@@ -755,7 +758,7 @@ export default class Con extends React.Component {
 
   renderWorks = (_works = undefined, _name) => {
     const { printData } = this.props;
-    const { workflow = [], processName, approvePosition, font } = printData;
+    const { workflow = [], processName, approvePosition } = printData;
     const works = _works || workflow;
     const visibleItemLength = works.filter(item => item.checked).length;
     const name = _works ? _name : processName;
@@ -967,7 +970,7 @@ export default class Con extends React.Component {
   renderApproval = () => {
     const { printData, sheetSwitchPermit, params } = this.props;
     const { viewId } = params;
-    const { approval = [], approvePosition } = printData;
+    const { approval = [] } = printData;
     const visibleItem = approval.filter(item => item.child && item.child.some(l => l.checked));
 
     if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId)) {
@@ -978,7 +981,7 @@ export default class Con extends React.Component {
       <React.Fragment>
         {visibleItem.length > 0 && (
           <React.Fragment>
-            {visibleItem.map((item, index) => {
+            {visibleItem.map(item => {
               return (
                 <div className="approval">
                   {item.child.map(l => {

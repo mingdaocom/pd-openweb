@@ -1,14 +1,14 @@
 import React from 'react';
+import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
 import { getControlTypeName } from '../../../utils';
-import _ from 'lodash';
 
 export default ({ controls, sorts, updateSource }) => {
   const renderTitle = controlId => {
     return <span>{_.find(controls, item => item.controlId === controlId).controlName}</span>;
   };
   let ruleSort = [];
-  let ruleControls = controls
+  let ruleControls = (controls || [])
     .filter(
       item => _.includes([2, 6, 8, 15, 16, 31, 37, 38, 46], item.type) || (item.type === 29 && item.enumDefault === 2),
     )

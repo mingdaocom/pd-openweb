@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import { CommonDisplay } from '../../styled';
 
-export default function Location(props) {
+export default function Location() {
   return <CommonDisplay>{_l('请选择')}</CommonDisplay>;
 }

@@ -1,11 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import cx from 'classnames';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
-import { Icon, Progress, Menu, MenuItem } from 'ming-ui';
-import { handleShare, handleSaveKcCloud, handleDownload, loadImage } from '../utils';
-import ResetNamePopup from '../ResetNamePopup';
-import Trigger from 'rc-trigger';
+import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import { Icon, Menu, MenuItem, Progress } from 'ming-ui';
+import ResetNamePopup from '../ResetNamePopup';
+import { handleDownload, handleShare, loadImage } from '../utils';
 import './index.less';
 
 const ListCard = props => {
@@ -38,7 +39,7 @@ const ListCard = props => {
     if (isPicture) {
       loadImage(previewUrl)
         .then()
-        .catch(error => {
+        .catch(() => {
           setIsPicture(false);
         });
     }
@@ -76,7 +77,7 @@ const ListCard = props => {
       {wpsEditUrl && (
         <MenuItem
           key="onLineEdit"
-          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          icon={<Icon icon="edit" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
             window.open(wpsEditUrl);
@@ -192,7 +193,7 @@ const ListCard = props => {
                 {isDeleteFile && (
                   <Tooltip title={_l('删除')} placement="bottom">
                     <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
-                      <Icon className="Gray_9e Font17" icon="task-new-delete" />
+                      <Icon className="Gray_9e Font17" icon="trash" />
                     </div>
                   </Tooltip>
                 )}
@@ -213,7 +214,7 @@ const ListCard = props => {
                   >
                     <Tooltip title={_l('更多')} placement="bottom">
                       <div className="btnWrap pointer">
-                        <Icon className="Gray_9e Font17" icon="task-point-more" />
+                        <Icon className="Gray_9e Font17" icon="more_horiz" />
                       </div>
                     </Tooltip>
                   </Trigger>
@@ -234,8 +235,8 @@ const NotSaveListCard = props => {
   const previewImageUrl = isKc
     ? data.viewUrl
     : url.indexOf('imageView2') > -1
-    ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
-    : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
+      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+      : url + `${url.includes('?') ? '&' : '?'}imageView2/1/w/200/h/140`;
   const [isEdit, setIsEdit] = useState(false);
 
   const handlePreview = () => {
@@ -289,7 +290,7 @@ const NotSaveListCard = props => {
                 isKc ? onDeleteKCFile(data) : onDeleteFile(data);
               }}
             >
-              <Icon className="Gray_9e Font17" icon="task-new-delete" />
+              <Icon className="Gray_9e Font17" icon="trash" />
             </div>
           </Tooltip>
         </div>
@@ -298,7 +299,7 @@ const NotSaveListCard = props => {
   );
 };
 
-export const ListCardHeader = props => {
+export const ListCardHeader = () => {
   return (
     <div className={cx('attachmentListCard header flexRow alignItemsCenter')}>
       <Icon className="Visibility mRight2" icon="drag" />
@@ -328,7 +329,7 @@ export default props => {
             diameter={47}
             foregroundColor="#BDBDBD"
             backgroundColor="#fff"
-            format={percent => ''}
+            format={() => ''}
             percent={parseInt(progress)}
           />
         </div>

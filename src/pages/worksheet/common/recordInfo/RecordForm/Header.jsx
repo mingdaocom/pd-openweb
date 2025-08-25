@@ -7,7 +7,6 @@ import { Icon, Tooltip } from 'ming-ui';
 import discussionAjax from 'src/api/discussion';
 import favoriteApi from 'src/api/favorite.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import PrintList from 'src/pages/worksheet/common/recordInfo/RecordForm/PrintList';
@@ -57,7 +56,6 @@ export default function InfoHeader(props) {
     onSideIconClick,
     handleAddSheetRow,
     viewId,
-    view,
     from,
     isOpenNewAddedRecord,
     customBtnTriggerCb,
@@ -65,6 +63,8 @@ export default function InfoHeader(props) {
     isDraft,
     updateDiscussCount = _.noop,
     printCharge,
+    isRecordLock,
+    updateRecordLock,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
@@ -87,7 +87,6 @@ export default function InfoHeader(props) {
     _.get(window, 'shareState.isPublicForm') ||
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
     _.get(window, 'shareState.isPublicPrint');
-  const isPublicRecordLand = isPublicShare && notDialog;
   const project = getCurrentProject(projectId);
   const showFav =
     !window.shareState.shareId &&
@@ -143,7 +142,7 @@ export default function InfoHeader(props) {
     };
   }, []);
 
-  let header = renderHeader && renderHeader({ ...recordinfo, isLoading: refreshRotating, onRefresh });
+  let header = renderHeader && renderHeader({ ...recordinfo, isLoading: refreshRotating, onRefresh, isRecordLock });
 
   if (viewId) {
     header = null;
@@ -294,6 +293,7 @@ export default function InfoHeader(props) {
               handleAddSheetRow={handleAddSheetRow}
               customBtnTriggerCb={customBtnTriggerCb}
               isDraft={isDraft}
+              isRecordLock={isRecordLock}
             />
           ) : (
             <div className="flex" />
@@ -316,6 +316,8 @@ export default function InfoHeader(props) {
               hideFav
               recordbase={recordbase}
               recordinfo={recordinfo}
+              isRecordLock={isRecordLock}
+              updateRecordLock={updateRecordLock}
               sheetSwitchPermit={sheetSwitchPermit}
               reloadRecord={reloadRecord}
               onUpdate={onUpdate}

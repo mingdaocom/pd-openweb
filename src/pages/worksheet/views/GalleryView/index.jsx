@@ -6,29 +6,27 @@ import _, { isEmpty } from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import worksheetAjax from 'src/api/worksheet';
-import { RecordInfoModal } from 'mobile/Record';
+import addRecord from 'worksheet/common/newRecord/addRecord';
 import * as actions from 'worksheet/redux/actions/galleryview';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
+import GroupByControl, { getDefaultValue } from 'src/pages/worksheet/components/GroupByControl.jsx';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
-import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
 import { browserIsMobile, emitter } from 'src/utils/common';
-import { getAdvanceSetting, renderText as renderCellText } from 'src/utils/control';
+import { getAdvanceSetting } from 'src/utils/control';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import { getRecordColorConfig } from 'src/utils/record';
-import { getCardWidth } from 'src/utils/worksheet';
 import ViewEmpty from '../components/ViewEmpty';
-import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
+import { getRecordAttachments } from '../util';
 import GalleryItem from './GalleryItem';
+import ViewMore from './More';
+import RecordInfoForGallery from './RecordInfoForGallery';
+import { canEditForGroupControl, getDataWithFormat, getWidth } from './util';
 import './index.less';
 
 const isMobile = browserIsMobile();
-
 const notFetchAttr = [
   'name',
   'worksheetName',
@@ -43,31 +41,53 @@ const notFetchAttr = [
   'advancedSetting.refreshtime',
 ];
 
+// 提取的加载状态组件
+const LoadingIndicator = ({ loading }) =>
+  loading && (
+    <div className="w100">
+      <LoadDiv size="big" className="mTop32" />
+    </div>
+  );
+
+// 提取的空状态组件
+const EmptyState = ({ filters, isFiltered }) => {
+  if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
+    return <ViewEmpty filters={filters} />;
+  }
+  return <NoRecords sheetIsFiltered={isFiltered} />;
+};
+
 @autoSize
 @connect(
-  state => ({ ...state.sheet, chatVisible: state.chat.visible, sheetListVisible: state.sheetList.isUnfold }),
+  state => ({
+    ...state.sheet,
+    chatVisible: state.chat.visible,
+    sheetListVisible: state.sheetList.isUnfold,
+  }),
   dispatch => bindActionCreators(actions, dispatch),
 )
 export default class RecordGallery extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      recordInfoVisible: false,
-      recordId: '',
-      clicksearch: '',
-    };
-  }
+  state = {
+    recordInfoVisible: false,
+    recordId: '',
+    clicksearch: '',
+    opKeys: [], //展开的分组
+    rowKey: '',
+  };
 
   componentDidMount() {
     this.getFetch(this.props);
     window.addEventListener('resize', this.resizeBind);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     window.addEventListener('popstate', this.onQueryChange);
+    setTimeout(() => {
+      this.updateOpenSkeys(this.props);
+    }, 500);
   }
 
   componentWillReceiveProps(nextProps) {
     const {
-      base,
+      base = {},
       chatVisible,
       sheetListVisible, // 左侧打开或关闭
       views,
@@ -79,9 +99,7 @@ export default class RecordGallery extends Component {
     const currentView = views.find(o => o.viewId === viewId) || {};
     const preView = this.props.views.find(o => o.viewId === this.props.base.viewId) || {};
     const { clicksearch } = getAdvanceSetting(currentView);
-    if (clicksearch === '1' && quickFilter.length <= 0) {
-      return;
-    }
+    if (clicksearch === '1' && quickFilter.length <= 0) return;
     const isNoAs =
       !_.isEqual(_.omit(currentView, notFetchAttr), _.omit(preView, notFetchAttr)) ||
       clicksearch !== this.state.clicksearch ||
@@ -102,8 +120,18 @@ export default class RecordGallery extends Component {
         // 修改颜色字段时晚一点取, 不然返回的数据还是不包括新改的字段的值
         _.get(preView, 'advancedSetting.colorid') !== _.get(currentView, 'advancedSetting.colorid') ? 200 : 0,
       );
+      this.props.updateGalleryViewCard({ needUpdate: true });
     }
     this.setState({ clicksearch });
+    if (
+      !_.isEqual(
+        _.get(nextProps, 'galleryview.gallery').map(o => o.key),
+        _.get(this.props, 'galleryview.gallery').map(o => o.key),
+      ) ||
+      _.get(currentView, 'advancedSetting.groupopen') !== _.get(preView, 'advancedSetting.groupopen')
+    ) {
+      this.updateOpenSkeys(nextProps);
+    }
   }
 
   componentWillUnmount() {
@@ -112,118 +140,81 @@ export default class RecordGallery extends Component {
     window.removeEventListener('popstate', this.onQueryChange);
   }
 
-  onQueryChange = () => {
-    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
+  updateOpenSkeys = nextProps => {
+    const { base = {}, views, galleryview = {} } = nextProps;
+    const { viewId } = base;
+    const { gallery = [] } = galleryview;
+    const currentView = views.find(o => o.viewId === viewId) || {};
+    if (!_.get(currentView, 'advancedSetting.groupsetting')) return;
+    const groupopen = _.get(currentView, 'advancedSetting.groupopen') || '2';
+    this.setState({
+      opKeys: !['3', '2'].includes(groupopen)
+        ? [_.get(gallery, '[0].key')]
+        : groupopen === '2'
+          ? gallery.map(o => o.key)
+          : [],
+    });
   };
 
-  updateRecordEvent = ({ worksheetId, recordId }) => {
-    const { base, galleryview } = this.props;
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false, rowKey: '' }));
+  };
+
+  updateRecordEvent = ({ worksheetId, recordId, rowKey }) => {
+    const { base = {}, galleryview } = this.props;
     const { gallery = [] } = galleryview;
-    const { viewId } = base;
     if (worksheetId === this.props.worksheetId && _.find(gallery, r => r.rowid === recordId)) {
       worksheetAjax
         .getRowDetail({
           checkView: true,
           getType: 1,
           rowId: recordId,
-          viewId,
+          viewId: base.viewId,
           worksheetId,
         })
         .then(res => {
           const row = JSON.parse(res.rowData);
           if (res.resultCode === 1 && res.isViewData) {
-            this.props.updateRow(row);
+            this.props.updateRow(row, rowKey);
           } else {
-            this.props.deleteRow(row.rowid);
+            this.props.deleteRow(row.rowid, rowKey);
           }
         });
     }
   };
 
   getFetch = nextProps => {
-    const { base, views } = nextProps;
-    const { viewId } = base;
-    const currentView = views.find(o => o.viewId === viewId) || {};
+    const { base = {}, views } = nextProps;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
     const { clicksearch } = getAdvanceSetting(currentView);
+
     if (clicksearch === '1') {
-      //执行查询后显示数据
-      this.setState({
-        clicksearch,
-      });
+      this.setState({ clicksearch });
       this.props.changeIndex(0);
     } else {
       this.props.fetch(1);
     }
   };
 
-  scrollLoad = (e, o) => {
-    const { maxCount } = this.props.base;
-    if (maxCount) {
-      return;
+  scrollLoad = _.throttle(() => {
+    const { base, views, galleryview } = this.props;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
+
+    if (!base.maxCount && !_.get(currentView, 'advancedSetting.groupsetting')) {
+      const { galleryViewRecordCount, gallery, galleryLoading, galleryIndex } = galleryview;
+      if (gallery.length < galleryViewRecordCount && !galleryLoading) {
+        this.props.fetch(galleryIndex + 1);
+      }
     }
-    const { galleryViewRecordCount, gallery, galleryLoading, galleryIndex } = this.props.galleryview;
-    if (o.maximum - o.position <= 30 && gallery.length < galleryViewRecordCount && !galleryLoading) {
-      const nextPageIndex = galleryIndex + 1;
-      this.props.fetch(nextPageIndex);
-    }
-  };
+  }, 400);
 
   resizeBind = nextProps => {
     $(this.view)
       .find('.galleryItem')
-      .css({
-        width: this.getWidth(nextProps),
-      });
+      .css({ width: getWidth(nextProps) });
   };
 
-  getWidth = (props = this.props) => {
-    let { base = {}, views = [], width } = props;
-    const { viewId = '' } = base;
-    const view = views.find(o => o.viewId === viewId) || {};
-    const { coverPosition = '2' } = getCoverStyle(view);
-    const cardWidth = getCardWidth(view);
-    const isTopCover = coverPosition === '2'; // 封面上
-    width = width - 8 * 2; //padding:8px;
-    const minW = !!cardWidth ? Number(cardWidth) + 16 : !isTopCover ? 336 : 246;
-    let W = minW > width ? minW : Math.floor(Math.floor(width) / Math.floor(Math.floor(width) / minW));
-    return W;
-  };
-
-  formData = row => {
-    const { base, controls, views, sheetSwitchPermit } = this.props;
-    const { viewId } = base;
-    const view = views.find(o => o.viewId === viewId) || {};
-    const { displayControls = [] } = view;
-    const parsedRow = row;
-    const arr = [];
-
-    const titleControl = getTitleControlForCard(view, controls);
-    if (titleControl) {
-      // 标题字段
-      arr.push({ ..._.pick(titleControl, RENDER_RECORD_NECESSARY_ATTR), value: parsedRow[titleControl.controlId] });
-    }
-    const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
-    let displayControlsCopy = !isShowWorkflowSys
-      ? displayControls.filter(
-          it =>
-            !_.includes(
-              ['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfdtime', 'wfcaid', 'wfctime', 'wfcotime'],
-              it,
-            ),
-        )
-      : displayControls;
-    // 配置的显示字段
-    displayControlsCopy.forEach(id => {
-      const currentControl = _.find(controls, ({ controlId }) => controlId === id);
-      if (currentControl) {
-        const value = parsedRow[id];
-        arr.push({ ..._.pick(currentControl, RENDER_RECORD_NECESSARY_ATTR), value });
-      }
-    });
-    return arr;
-  };
-
-  noFilter = function () {
+  noFilter = () => {
     const { searchType, filterControls, isUnRead, sortControls = [] } = this.props.filters;
     return (
       searchType === 1 &&
@@ -233,198 +224,272 @@ export default class RecordGallery extends Component {
     );
   };
 
-  render() {
-    const { base, views, sheetSwitchPermit, galleryview, filters, worksheetInfo, controls, quickFilter } = this.props;
-    const { viewId, appId, worksheetId, groupId } = base;
-    const currentView = views.find(o => o.viewId === viewId) || {};
-    const { gallery = [], galleryViewLoading, galleryLoading, galleryIndex, galleryViewRecordCount } = galleryview;
-    const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
-    const { abstract = '' } = getAdvanceSetting(currentView);
-    const { coverPosition = '2' } = getCoverStyle(currentView);
-    const isTopCover = coverPosition === '2';
-    const { recordInfoVisible, recordId } = this.state;
+  handleRecordClick = (currentView, item, rowKey) => {
+    const {
+      base: { appId, worksheetId, viewId },
+    } = this.props;
 
-    if (galleryViewLoading) {
-      return <LoadDiv size="big" className="mTop32" />;
+    handleRecordClick(currentView, item, () => {
+      if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
+        window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
+        return;
+      }
+      handlePushState('page', 'recordDetail');
+      this.setState({ recordId: item.rowid, recordInfoVisible: true, rowKey: rowKey });
+      addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid });
+    });
+  };
+
+  renderGalleryItem = (item, rowKey) => {
+    const { worksheetInfo, base = {}, views = [], controls = [], galleryview } = this.props;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
+    const { gallery = [], galleryViewCard } = galleryview;
+    const { coverCid } = currentView;
+    const { abstract = '' } = getAdvanceSetting(currentView);
+
+    const formData = controls.map(o => ({ ...o, value: item[o.controlId] }));
+    const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
+    let coverData = { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] };
+
+    if (coverData.type === 45) {
+      const dataSource = transferValue(coverData.value);
+      const urlList = dataSource.map(
+        o =>
+          o.staticValue ||
+          getEmbedValue(
+            {
+              projectId: worksheetInfo.projectId,
+              appId: base.appId,
+              groupId: base.groupId,
+              worksheetId: base.worksheetId,
+              viewId: base.viewId,
+              recordId: item.rowid,
+            },
+            o.cid,
+          ),
+      );
+      coverData = { ...coverData, value: urlList.join('') };
     }
 
-    if (gallery.length <= 0) {
-      if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
-        return <ViewEmpty filters={filters} />;
-      }
+    const abstractData = controls.find(it => it.controlId === abstract) || {};
 
-      return <NoRecords sheetIsFiltered={!this.noFilter()} />;
+    const data = {
+      coverData,
+      coverImage,
+      allAttachments,
+      allowEdit: item.allowedit,
+      allowDelete: item.allowdelete,
+      rawRow: item,
+      recordColorConfig: getRecordColorConfig(currentView),
+      fields: getDataWithFormat(item, this.props),
+      formData,
+      rowId: item.rowid,
+      abstractControl: abstract ? { ...abstractData, value: item[abstract] } : '',
+    };
+
+    const mobileStyle =
+      window.innerWidth > 480 && _.get(currentView, 'advancedSetting.rowcolumns') === '2'
+        ? { width: '50%', padding: '5px' }
+        : { width: '100%', padding: '5px 0px' };
+
+    let groupInfo = {};
+
+    const { groupsetting } = getAdvanceSetting(currentView);
+    if (groupsetting && item.allowedit) {
+      const groupControl = controls.find(o => o.controlId === _.get(safeParse(groupsetting, 'array'), '[0].controlId'));
+      if (groupControl)
+        groupInfo = {
+          allowEditForGroup: true,
+          groups: gallery.filter(o => o.key !== rowKey).map(o => _.omit(o, ['rows'])),
+          groupControl,
+        };
     }
 
     return (
-      <ScrollView className="galleryScrollWrap" updateEvent={_.throttle(this.scrollLoad, 400)}>
+      <div
+        key={item.rowid}
+        className={cx('galleryItem', { mobile: isMobile })}
+        style={isMobile ? mobileStyle : { width: getWidth(this.props) }}
+        onClick={() => this.handleRecordClick(currentView, item, rowKey)}
+      >
+        <GalleryItem
+          key={`galleryItem-${item.rowid}`}
+          {...this.props}
+          data={data}
+          onUpdateFn={(updated, item) => {
+            if (
+              !!item?.group?.key &&
+              _.get(safeParse(groupsetting, 'array'), '[0].controlId') &&
+              item?.group?.key !== rowKey
+            ) {
+              this.props.updateRow(item, item?.group?.key);
+              this.props.deleteRow(item.rowid, rowKey);
+              return;
+            }
+            this.props.updateRow(item, rowKey);
+          }}
+          onDeleteFn={id => this.props.deleteRow(id, rowKey)}
+          onCopySuccess={it => this.props.updateRow(it, rowKey)}
+          onAdd={data => this.props.updateRow(data, rowKey)}
+          {...groupInfo}
+          galleryViewCard={galleryViewCard}
+          updateGalleryViewCard={this.props.updateGalleryViewCard}
+        />
+      </div>
+    );
+  };
+
+  renderAddCard = rowKey => {
+    const { base = {}, views = [], worksheetInfo, isCharge, updateRow, controls = [], galleryview = {} } = this.props;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
+    const { gallery = [] } = galleryview;
+    const { groupsetting } = getAdvanceSetting(currentView);
+
+    const control = controls.find(o => o.controlId === _.get(safeParse(groupsetting, 'array'), '[0].controlId'));
+
+    const addRecordInfo = () => {
+      const { worksheetId } = base;
+      const dataRow = gallery.find(o => o.key === rowKey);
+      addRecord({
+        worksheetId: worksheetId,
+        defaultFormData: getDefaultValue({
+          control,
+          groupKey: rowKey,
+          name: dataRow?.name,
+        }),
+        defaultFormDataEditable: false,
+        directAdd: true,
+        isCharge: isCharge,
+        onAdd: data => {
+          updateRow(data, rowKey);
+        },
+      });
+    };
+    const allowAdd = canEditForGroupControl({
+      allowAdd: worksheetInfo?.allowAdd,
+      control,
+    });
+    if (!allowAdd) {
+      return <div className="Gray_75 Font16 pTop20 pBottom20 TxtCenter">{_l('该分组下无记录')}</div>;
+    }
+
+    return (
+      <div className="galleryItem addNewGallery" style={{ width: getWidth(this.props) }}>
+        <span
+          className="addRow overflow_ellipsis WordBreak flexRow alignItemsCenter TxtCenter Gray_75 hoverText"
+          onClick={() => addRecordInfo()}
+        >
+          <span className="Icon icon icon-plus Font13 mRight5" />
+          <span className="bold">
+            {worksheetInfo?.advancedSetting?.btnname || worksheetInfo?.entityName || _l('记录')}
+          </span>
+        </span>
+      </div>
+    );
+  };
+
+  renderGroupedItems = (data = []) => {
+    const { base = {}, views = [], controls = [], galleryview, fetchMoreByGroup, worksheetInfo } = this.props;
+    const { viewId, appId, worksheetId } = base;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
+    const { groupsetting } = getAdvanceSetting(currentView);
+    const { galleryGroupLoading, gallery } = galleryview;
+    const { opKeys = [] } = this.state;
+    return data.map((row = { totalNum: 0 }) => {
+      const control =
+        controls.find(o => o.controlId === _.get(safeParse(groupsetting, 'array'), '[0].controlId')) || {};
+      const allowAdd = canEditForGroupControl({
+        allowAdd: worksheetInfo?.allowAdd,
+        control,
+      });
+      return (
+        <React.Fragment key={row.key}>
+          <GroupByControl
+            className="groupByControlForGallery"
+            appId={appId}
+            projectId={worksheetInfo.projectId}
+            allowAdd={allowAdd}
+            worksheetId={worksheetId}
+            viewId={viewId}
+            view={currentView}
+            folded={!opKeys.includes(row.key)}
+            allFolded={opKeys.length >= gallery.length}
+            count={row.totalNum}
+            control={control}
+            groupKey={row.key}
+            name={row.name}
+            onFold={() => {
+              this.setState({
+                opKeys: !opKeys.includes(row.key) ? [...opKeys, row.key] : opKeys.filter(o => o !== row.key),
+              });
+            }}
+            onAllFold={value => {
+              this.setState({
+                opKeys: value ? [] : gallery.map(o => o.key),
+              });
+            }}
+            onAdd={data => this.props.updateRow(data, row.key)}
+          />
+          {opKeys.includes(row.key) && (
+            <React.Fragment>
+              {(row.rows || []).length <= 0 && this.renderAddCard(row.key)}
+              {(row.rows || []).map(it => this.renderGalleryItem(safeParse(it), row.key))}
+              {row.totalNum > (row.rows || []).length && (
+                <ViewMore
+                  disabled={galleryGroupLoading}
+                  onClick={() => {
+                    if (galleryGroupLoading) return;
+                    fetchMoreByGroup(Math.floor((row.rows || []).length / 20 + 1), row.key);
+                  }}
+                />
+              )}
+            </React.Fragment>
+          )}
+        </React.Fragment>
+      );
+    });
+  };
+
+  renderContent = () => {
+    const { base, galleryview, views } = this.props;
+    const { gallery = [] } = galleryview;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
+
+    return _.get(currentView, 'advancedSetting.groupsetting')
+      ? this.renderGroupedItems(gallery)
+      : gallery.map(item => this.renderGalleryItem(item));
+  };
+
+  render() {
+    const { base, galleryview, filters, views } = this.props;
+    const { gallery = [], galleryViewLoading, galleryLoading } = galleryview;
+    const { recordInfoVisible } = this.state;
+    const currentView = views.find(o => o.viewId === base.viewId) || {};
+    const { coverPosition = '2' } = getCoverStyle(currentView);
+    const isTopCover = coverPosition === '2';
+
+    if (galleryViewLoading) return <LoadDiv size="big" className="mTop32" />;
+    if (gallery.length <= 0) return <EmptyState filters={filters} isFiltered={!this.noFilter()} />;
+
+    return (
+      <ScrollView className="galleryScrollWrap" onScrollEnd={this.scrollLoad}>
         <div
           className={cx('galleryViewContentWrap', { coverTop: isTopCover })}
           ref={el => {
             this.view = el;
           }}
         >
-          {gallery.map((item, index) => {
-            let formData = controls.map(o => {
-              return { ...o, value: item[o.controlId] };
-            });
-            const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
-            let coverData = { ...(controls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] };
-            if (coverData.type === 45) {
-              //嵌入字段 dataSource需要转换
-              let dataSource = transferValue(coverData.value);
-              let urlList = [];
-              dataSource.map(o => {
-                if (!!o.staticValue) {
-                  urlList.push(o.staticValue);
-                } else {
-                  urlList.push(
-                    getEmbedValue(
-                      {
-                        projectId: worksheetInfo.projectId,
-                        appId,
-                        groupId,
-                        worksheetId,
-                        viewId,
-                        recordId,
-                      },
-                      o.cid,
-                    ),
-                  );
-                }
-              });
-              coverData = { ...coverData, value: urlList.join('') };
-            }
-            let abstractData = controls.find(it => it.controlId === abstract) || {};
-            let data = {
-              coverData,
-              coverImage,
-              allAttachments,
-              allowEdit: item.allowedit,
-              allowDelete: item.allowdelete,
-              rawRow: item,
-              recordColorConfig: getRecordColorConfig(currentView),
-              fields: this.formData(item),
-              formData,
-              rowId: item.rowid,
-              abstractValue: abstract
-                ? renderCellText({
-                    ...abstractData,
-                    value: item[abstract],
-                  })
-                : '',
-            };
-            const getMStyle = () => {
-              const wWidth = window.innerWidth;
-              if (wWidth > 480 && _.get(currentView, 'advancedSetting.rowcolumns') === '2') {
-                return { width: '50%', padding: '5px' };
-              }
-              return { width: '100%', padding: '5px 0px' };
-            };
-            return (
-              <div
-                className={cx('galleryItem', { mobile: isMobile })}
-                style={isMobile ? getMStyle() : { width: this.getWidth() }}
-                onClick={() => {
-                  handleRecordClick(currentView, item, () => {
-                    if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-                      window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
-                      return;
-                    }
-                    handlePushState('page', 'recordDetail');
-                    this.setState({ recordId: item.rowid, recordInfoVisible: true });
-                    addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
-                  });
-                }}
-              >
-                <GalleryItem
-                  {...this.props}
-                  data={data}
-                  onUpdateFn={(updated, item) => {
-                    this.props.updateRow(item);
-                  }}
-                  onDeleteFn={id => {
-                    this.props.deleteRow(id);
-                  }}
-                  onCopySuccess={data => {
-                    this.props.updateRow(data);
-                  }}
-                  onAdd={data => {
-                    this.props.updateRow(data);
-                  }}
-                />
-              </div>
-            );
-          })}
-          {/* 表单信息 */}
-          {recordInfoVisible &&
-            (isMobile ? (
-              <RecordInfoModal
-                className="full"
-                visible
-                appId={appId}
-                worksheetId={worksheetId}
-                enablePayment={worksheetInfo.enablePayment}
-                viewId={viewId}
-                rowId={recordId}
-                canLoadSwitchRecord={true}
-                currentSheetRows={gallery}
-                loadNextPageRecords={() => this.props.fetch(galleryIndex + 1)}
-                loadedRecordsOver={!(gallery.length < galleryViewRecordCount && !galleryLoading)}
-                onClose={() => {
-                  this.setState({ recordInfoVisible: false });
-                }}
-                updateRow={(recordId, data, isViewData) => {
-                  if (isViewData) this.props.updateRow(data);
-                  else this.props.deleteRow(recordId);
-                }}
-                deleteRow={this.props.deleteRow}
-              />
-            ) : (
-              <RecordInfoWrapper
-                enablePayment={worksheetInfo.enablePayment}
-                sheetSwitchPermit={sheetSwitchPermit} // 表单权限
-                allowAdd={worksheetInfo.allowAdd}
-                visible
-                projectId={worksheetInfo.projectId}
-                currentSheetRows={gallery}
-                showPrevNext={true}
-                appId={appId}
-                viewId={viewId}
-                from={1}
-                hideRecordInfo={() => {
-                  this.setState({ recordInfoVisible: false });
-                  emitter.emit('ROWS_UPDATE');
-                }}
-                view={currentView}
-                recordId={recordId}
-                worksheetId={worksheetId}
-                rules={worksheetInfo.rules}
-                updateSuccess={(ids, updated, data) => {
-                  this.props.updateRow(data);
-                }}
-                onDeleteSuccess={() => {
-                  // 删除行数据后重新加载页面
-                  this.props.deleteRow(recordId);
-                  this.setState({ recordInfoVisible: false });
-                }}
-                handleAddSheetRow={data => {
-                  this.props.updateRow(data);
-                  this.setState({ recordInfoVisible: false });
-                }}
-                hideRows={recordIds => {
-                  setTimeout(() => {
-                    recordIds.forEach(this.props.deleteRow);
-                  }, 100);
-                }}
-              />
-            ))}
+          {this.renderContent()}
+          {recordInfoVisible && (
+            <RecordInfoForGallery
+              {...this.props}
+              state={this.state}
+              onChangeState={info => this.setState({ ...info })}
+              updateRecordEvent={this.updateRecordEvent}
+            />
+          )}
         </div>
-        {galleryLoading && (
-          <div className="w100">
-            <LoadDiv size="big" className="mTop32" />
-          </div>
-        )}
+        <LoadingIndicator loading={galleryLoading} />
       </ScrollView>
     );
   }

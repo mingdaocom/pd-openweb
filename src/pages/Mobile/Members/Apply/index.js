@@ -1,13 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import * as actions from './redux/actions';
-import Back from '../../components/Back';
-import { Dialog, SpinLoading, ActionSheet, Input } from 'antd-mobile';
-import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import { Icon } from 'ming-ui';
-import cx from 'classnames';
-import './index.less';
+import { ActionSheet, Dialog, Input, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { WithoutRows } from 'mobile/RecordList/SheetRows';
+import Back from '../../components/Back';
+import * as actions from './redux/actions';
+import './index.less';
 
 class ApplyList extends React.Component {
   constructor(props) {
@@ -26,18 +25,14 @@ class ApplyList extends React.Component {
   }
 
   showActionSheet = id => {
-    const { applyList, roleList } = this.props.applyData;
+    const { roleList } = this.props.applyData;
     const { params } = this.props.match;
     this.actionSheetHandler = ActionSheet.show({
       actions: roleList.map(item => {
         return {
           key: item.roleId,
-          text: (
-            <span className="Bold">
-              {_l('设为%0', item.name)}
-            </span>
-          )
-        }
+          text: <span className="Bold">{_l('设为%0', item.name)}</span>,
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -60,20 +55,20 @@ class ApplyList extends React.Component {
           );
         }
         this.actionSheetHandler.close();
-      }
+      },
     });
   };
 
   render() {
     const { applyData, isApplyLoading } = this.props;
-    const { applyList, roleList } = applyData;
+    const { applyList } = applyData;
     const { params } = this.props.match;
 
     if (isApplyLoading) {
       return (
-      <div className="flexRow justifyContentCenter alignItemsCenter h100">
-        <SpinLoading color='primary' />
-      </div>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color="primary" />
+        </div>
       );
     }
 
@@ -81,7 +76,7 @@ class ApplyList extends React.Component {
       <React.Fragment>
         {applyList.length ? (
           <React.Fragment>
-            {_.map(applyList, (item, i) => {
+            {_.map(applyList, item => {
               return (
                 <React.Fragment key={item.id}>
                   <div className="listApply pTop20 pLeft10 pRight10" key={item.id}>
@@ -96,7 +91,10 @@ class ApplyList extends React.Component {
                               content: (
                                 <div className="TxtCenter">
                                   {_l('请填写拒绝的原因')}
-                                  <Input className="mTop10 pAll5 rejectConfirmInput" style={{ borderRadius: 4, border: '1px solid #ededed', '--font-size': 13 }} />
+                                  <Input
+                                    className="mTop10 pAll5 rejectConfirmInput"
+                                    style={{ borderRadius: 4, border: '1px solid #ededed', '--font-size': 13 }}
+                                  />
                                 </div>
                               ),
                               cancelText: _l('取消'),
@@ -111,7 +109,7 @@ class ApplyList extends React.Component {
                                     remark: el.value,
                                   }),
                                 );
-                              }
+                              },
                             });
                           }}
                         >

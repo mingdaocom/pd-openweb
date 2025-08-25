@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
     cursor: pointer;
     display: none;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

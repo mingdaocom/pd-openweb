@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
+import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { PUSH_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
 import { equalToLocalPushUniqueId } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
@@ -49,6 +51,11 @@ export default () => {
         if (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.DETAIL, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], pushType)) {
           getAppSimpleInfo(worksheetId).then(({ appId, appSectionId }) => {
             const subPath = window.subPath || '';
+
+            if (!(pushType === PUSH_TYPE.CREATE && code === 20037)) {
+              const currentUrl = location.origin + location.pathname;
+              history.replaceState({}, '', currentUrl);
+            }
 
             if (pushType === PUSH_TYPE.CREATE) {
               if (code === 20037) {

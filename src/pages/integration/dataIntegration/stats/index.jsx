@@ -173,7 +173,7 @@ export default function (props) {
       yField: 'value',
       seriesField: 'category',
       smooth: true,
-      color: ['#61DDAA', '#2196F3'],
+      color: ['#61DDAA', '#1677ff'],
       xAxis: {
         label: {
           style: { fill: '#2C3542', opacity: 0.45 },
@@ -216,7 +216,7 @@ export default function (props) {
         formatter: date =>
           moment(date).format(3 === dimension ? 'MM-DD' : 4 === dimension ? 'YYYY-MM' : 'YYYY-MM-DD HH:mm'),
         foregroundStyle: {
-          fill: '#2196F3',
+          fill: '#1677ff',
           opacity: 0.11,
         },
         TrendCfg: {

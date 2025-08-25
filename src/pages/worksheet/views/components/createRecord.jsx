@@ -1,13 +1,13 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Button } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import 'antd/es/input/style/css';
-import SVG from 'svg.js';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import { getPosition } from '../HierarchyView/util';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import SVG from 'svg.js';
+import { Button } from 'ming-ui';
+import { getPosition } from '../HierarchyView/util';
+import 'rc-trigger/assets/index.css';
 
 const CreateRecordWrap = styled.div`
   width: 280px;
@@ -25,14 +25,13 @@ const CreateRecordWrap = styled.div`
     font-size: 16px;
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
 export default function CreateRecord(props) {
   const {
     index,
-    noConnector,
     itemData,
     scale,
     data,
@@ -47,7 +46,6 @@ export default function CreateRecord(props) {
   const { advancedSetting } = view;
 
   // 用来防止触发失焦
-  const [isOutFocus, setOutFocus] = useState(false);
   const [value, setValue] = useState('');
   const $itemWrap = useRef(null);
   const getLinesValue = () => value.trim().split('\n');
@@ -100,7 +98,6 @@ export default function CreateRecord(props) {
   }, [index, lines.length, pid]);
 
   const handleClick = type => {
-    setOutFocus(true);
     createTextTitleRecord(type === 'multi' ? getLinesValue(value) : value.trim());
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
@@ -135,7 +132,6 @@ export default function CreateRecord(props) {
             onPressEnter={() => {
               const _value = value.trim();
               if (_value) {
-                setOutFocus(true);
                 createTextTitleRecord(_value, true);
                 setValue('');
               } else {
@@ -144,7 +140,7 @@ export default function CreateRecord(props) {
             }}
             onChange={e => setValue(e.target.value)}
             value={value}
-            onBlur={e => {
+            onBlur={() => {
               const _value = value.trim();
               if (_value) {
                 createTextTitleRecord(_value);
@@ -158,7 +154,6 @@ export default function CreateRecord(props) {
           <div
             className="switchToCompleteCreate pointer"
             onMouseDown={() => {
-              setOutFocus(true);
               handleAddRecord({ path: itemData.path, pathId: itemData.pathId });
               removeHierarchyTempItem({ rowId, path: data.path });
             }}

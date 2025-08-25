@@ -18,9 +18,12 @@ import SheetRows, { WithoutRows } from '../../SheetRows';
 
 const BatchOptBtn = styled.div`
   display: flex;
+  align-items: center;
   height: 56px;
   justify-content: space-between;
-  padding: 17px 24px;
+  padding: 0 24px;
+  padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
+  padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   font-weight: 700;
   box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.12);
   background-color: #fff;
@@ -194,6 +197,7 @@ class SheetView extends Component {
       quickFilter,
       navGroupFilters,
       currentSheetRows = [],
+      filters = {},
     } = this.props;
     const { appId, worksheetId, viewId } = this.props;
     const { allWorksheetIsSelected } = sheetViewConfig;
@@ -249,7 +253,7 @@ class SheetView extends Component {
             this.props.changeBatchOptData([]);
           }
         })
-        .catch(err => {
+        .catch(() => {
           alert(_l('批量删除失败'), 2);
         });
       this.props.changeBatchOptVisible(false);
@@ -388,11 +392,9 @@ class SheetView extends Component {
       worksheetId,
       viewId,
       changeActionSheetModalIndex,
-      batchCheckAll,
     } = this.props;
 
     let { customBtns = [], showButtons, customButtonLoading, deleteVisible } = this.state;
-    let checkedCount = batchOptCheckedData.length;
     const canDelete =
       isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId) && !_.isEmpty(batchOptCheckedData);
     const showCusTomBtn =
@@ -466,9 +468,9 @@ class SheetView extends Component {
             className="mobileModal topRadius"
             bodyClassName="pTop10 pBottom10 pLeft15 pRight15"
           >
-            <div className="Font16 bold mBottom10">{_l('确认删除记录?')}</div>
+            <div className="Font16 bold mBottom10">{_l('确认删除%0?', worksheetInfo.entityName)}</div>
             <div className="Font13 Gray_9e mBottom10">
-              {_l('60天内可在 回收站 内找回已删除%0，无编辑权限的数据无法删除。', worksheetInfo.entityName)}
+              {_l('60天内可在 回收站 内找回已删除%0，无编辑权限及锁定记录无法删除。', worksheetInfo.entityName)}
             </div>
             <div className="flexRow mBottom10">
               <Btn

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import AppAjax from 'src/api/appManagement';
 
-import cx from 'classnames';
 const CopyDialogWrap = styled.div`
   .title {
     line-height: 36px;

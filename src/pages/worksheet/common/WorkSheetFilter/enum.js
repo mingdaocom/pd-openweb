@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 export const FILTER_TYPE = {
   PERSONAL: 1,
   PUBLIC: 2,
@@ -232,7 +233,7 @@ export function getControlSelectType(control) {
   return { isMultiple, isSingle };
 }
 
-export function getFilterTypeLabel(typeKey, type, control, controlType) {
+export function getFilterTypeLabel(typeKey, type, control) {
   const isNumber = typeKey === 'NUMBER';
   const isDate = typeKey === 'DATE';
   const isCascader = control && control.type === 35;
@@ -402,7 +403,22 @@ export const DEFAULT_COLUMNS = [
   {
     controlId: 'currenttime',
     controlName: _l('此刻'),
+    type: 15,
+  },
+  {
+    controlId: 'currenttime',
+    controlName: _l('此刻'),
     type: 16,
+  },
+  {
+    controlId: 'user-self',
+    controlName: _l('当前用户'),
+    type: 26,
+  },
+  {
+    controlId: 'currenttime',
+    controlName: _l('此刻'),
+    type: 46,
   },
 ];
 
@@ -413,4 +429,9 @@ export const DATE_RANGE_TYPE_OPTIONS = [
   { text: _l('天'), value: DATE_RANGE_TYPE.DAY },
   { text: _l('小时'), value: DATE_RANGE_TYPE.HOUR },
   { text: _l('分'), value: DATE_RANGE_TYPE.MINUTE },
+];
+
+export const CONDITION_OPTIONS = [
+  { value: 1, label: _l('固定值') },
+  { value: 2, label: _l('动态值') },
 ];

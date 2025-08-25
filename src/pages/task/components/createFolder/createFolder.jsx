@@ -1,11 +1,11 @@
-﻿import './less/createFolder.less';
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import ajaxRequest from 'src/api/taskCenter';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
+import _ from 'lodash';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
-import _ from 'lodash';
+import ajaxRequest from 'src/api/taskCenter';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import './less/createFolder.less';
 
 export default class CreateFolder extends Component {
   static defaultProps = {
@@ -34,7 +34,7 @@ export default class CreateFolder extends Component {
     }
 
     // 监测网络是否过期
-    $.map(md.global.Account.projects, (project, i) => {
+    $.map(md.global.Account.projects, project => {
       if (projectId === project.projectId && project.licenseType === 0) {
         projectId = '';
         return;
@@ -46,7 +46,7 @@ export default class CreateFolder extends Component {
       projectId = '';
     }
 
-    $.map(md.global.Account.projects, (project, i) => {
+    $.map(md.global.Account.projects, project => {
       if (project.projectId === projectId) {
         companyName = project.companyName;
         return;
@@ -209,7 +209,7 @@ export default class CreateFolder extends Component {
             <div className="createFolderHead relative Font13">
               {_l('模板预览')}
               <span className="createFolderReturn ThemeColor3" onClick={() => this.props.onClose()}>
-                <i className="mRight5 icon-knowledge-return" />
+                <i className="mRight5 icon-backspace" />
                 {_l('返回')}
               </span>
             </div>
@@ -264,7 +264,7 @@ export default class CreateFolder extends Component {
                         key={i}
                         onClick={() => this.networkSelect(project.projectId, project.companyName)}
                       >
-                        <i className="icon-company" />
+                        <i className="icon-business" />
                         {project.companyName}
                       </li>
                     );

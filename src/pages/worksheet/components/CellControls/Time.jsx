@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -53,9 +54,10 @@ export default class Date extends React.Component {
   };
 
   handleChange = value => {
-    const { cell, updateCell, updateEditingStatus, onValidate } = this.props;
-    const error = !onValidate(value);
-    if (error) {
+    const { ignoreErrorMessage, updateCell, updateEditingStatus, onValidate } = this.props;
+    const validateResult = onValidate(value);
+    const error = validateResult.errorType;
+    if (error && !ignoreErrorMessage) {
       return;
     }
     updateCell({
@@ -87,6 +89,7 @@ export default class Date extends React.Component {
       updateEditingStatus,
       onClick,
       fromEmbed,
+      ignoreErrorMessage,
     } = this.props;
     const { value } = this.state;
     let cellPopupContainer = popupContainer;
@@ -102,7 +105,13 @@ export default class Date extends React.Component {
         <Trigger
           getPopupContainer={cellPopupContainer}
           popupVisible={isediting && !!error}
-          popup={<CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
+          popup={
+            <CellErrorTips
+              color={ignoreErrorMessage ? '#ff933e' : undefined}
+              error={error}
+              pos={rowIndex === 0 ? 'bottom' : 'top'}
+            />
+          }
           destroyPopupOnHide
           zIndex="1051"
           popupAlign={{

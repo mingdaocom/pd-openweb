@@ -38,10 +38,6 @@ export default class FileComponent extends Component {
     };
     this.deleteFn = null;
   }
-  componentDidMount() {
-    let { UploadFile } = this;
-    let { width } = UploadFile.getBoundingClientRect();
-  }
   handleEdit = event => {
     event.stopPropagation();
     let { isEdit } = this.state;
@@ -152,10 +148,7 @@ export default class FileComponent extends Component {
       // params.node = attachment;
 
       share.default(params, {
-        performUpdateItem: visibleType => {
-          if (visibleType) {
-          }
-        },
+        performUpdateItem: () => {},
       });
     });
   };
@@ -240,6 +233,7 @@ export default class FileComponent extends Component {
             _this.props.onReplaceAttachment(data);
           })
           .catch(err => {
+            console.error(err);
             alert(_l('修改失败'), 3);
           });
       },
@@ -295,7 +289,7 @@ export default class FileComponent extends Component {
     );
   }
   renderFileImage(url) {
-    let { imageSrc, imageWidth } = this.state;
+    let { imageSrc } = this.state;
     let _this = this;
     if (!imageSrc) {
       let image = new Image();
@@ -436,7 +430,7 @@ export default class FileComponent extends Component {
                   className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
                   data-tip={_l('删除')}
                 >
-                  <i className="icon-task-new-delete" />
+                  <i className="icon-trash" />
                 </div>
               </div>
             )
@@ -452,7 +446,7 @@ export default class FileComponent extends Component {
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
                 data-tip={_l('删除')}
               >
-                <i className="icon-task-new-delete" />
+                <i className="icon-trash" />
               </div>
               <div
                 onClick={event => {
@@ -595,7 +589,7 @@ export default class FileComponent extends Component {
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
                 data-tip={_l('删除')}
               >
-                <i className="icon-task-new-delete" />
+                <i className="icon-trash" />
               </div>
             </div>
           ) : (
@@ -610,7 +604,7 @@ export default class FileComponent extends Component {
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
                 data-tip={_l('删除')}
               >
-                <i className="icon-task-new-delete" />
+                <i className="icon-trash" />
               </div>
               <div
                 onClick={event => {
@@ -697,7 +691,6 @@ export default class FileComponent extends Component {
     const { hideDownload = false, handleOpenControlAttachmentInNewTab } = this.props;
     let browse = true;
     let { penelVisible, moreVisible, isDelete } = this.state;
-    let { isUpload } = this.props;
     let isKc = !!fileResponse.refId;
     let isPicture =
       RegExpValidator.fileIsPicture(fileResponse.ext) ||
@@ -790,7 +783,7 @@ export default class FileComponent extends Component {
                   className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
                   data-tip={_l('删除')}
                 >
-                  <i className="icon-task-new-delete" />
+                  <i className="icon-trash" />
                 </div>
               )}
             </div>
@@ -818,7 +811,7 @@ export default class FileComponent extends Component {
                       this.handleOpenMenu(event);
                     }}
                   >
-                    <i className={cx('icon-task-point-more', { ThemeColor3: !!moreVisible })} />
+                    <i className={cx('icon-more_horiz', { ThemeColor3: !!moreVisible })} />
                     <div
                       className="UploadFiles-panelBtnMask"
                       data-tip={_l('更多')}
@@ -862,7 +855,7 @@ export default class FileComponent extends Component {
                             this.handleSaveToKc(event, isDownload);
                           }}
                         >
-                          <Icon icon="knowledge-cloud" />
+                          <Icon icon="cloud_upload" />
                           <span className="UploadFiles-menuWrapper-text">{_l('保存到知识')}</span>
                         </MenuItem>
                       )}
@@ -882,7 +875,7 @@ export default class FileComponent extends Component {
     );
   }
   render() {
-    let { data, style, index, isUpload } = this.props;
+    let { data, style, index } = this.props;
     let { progress, base, accountId, sourceID, twice } = data;
 
     return (

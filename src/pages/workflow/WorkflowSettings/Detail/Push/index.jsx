@@ -31,14 +31,14 @@ const MsgTypeBtn = styled.div`
   cursor: pointer;
   &.active {
     position: relative;
-    border-color: #2196f3;
+    border-color: #1677ff;
     &::before {
       position: absolute;
       right: -8px;
       top: -8px;
       border-style: solid;
       border-width: 8px;
-      border-color: #2196f3 transparent transparent transparent;
+      border-color: #1677ff transparent transparent transparent;
       content: '';
       transform: rotateZ(-135deg);
     }
@@ -72,7 +72,7 @@ const BtnContent = styled.div`
     color: #bdbdbd;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .Font13.bold {
@@ -102,7 +102,7 @@ export default class Push extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -436,7 +436,7 @@ export default class Push extends Component {
                 <BtnContent>
                   <div className="workflowMessageTitle">{_l('按钮%0', index + 1)}</div>
                   <i
-                    className="icon-delete2 workflowMessageDelete"
+                    className="icon-trash workflowMessageDelete"
                     onClick={() => {
                       this.updateSource({ buttons: data.buttons.filter((o, i) => i !== index) });
                     }}
@@ -604,10 +604,10 @@ export default class Push extends Component {
   renderMessageType() {
     const { data } = this.state;
     const list = [
-      { text: _l('成功'), value: 1, color: '#4CAF50', icon: 'icon-plus-interest' },
-      { text: _l('失败'), value: 2, color: '#F44336', icon: 'icon-delete_out' },
+      { text: _l('成功'), value: 1, color: '#4CAF50', icon: 'icon-check_circle' },
+      { text: _l('失败'), value: 2, color: '#F44336', icon: 'icon-cancel' },
       { text: _l('警告'), value: 3, color: '#FFBA00', icon: 'icon-error1' },
-      { text: _l('通知'), value: 4, color: '#2196F3', icon: 'icon-info' },
+      { text: _l('通知'), value: 4, color: '#1677ff', icon: 'icon-info' },
     ];
 
     return (
@@ -649,7 +649,7 @@ export default class Push extends Component {
         {...height}
         content={data[key]}
         formulaMap={data.formulaMap}
-        onChange={(err, value, obj) => this.updateSource({ [key]: value })}
+        onChange={(err, value) => this.updateSource({ [key]: value })}
         updateSource={this.updateSource}
       />
     );
@@ -738,7 +738,7 @@ export default class Push extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.pushType === PUSH_TYPE.AUDIO ? (

@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { APP_TYPE, NODE_TYPE, GLOBAL_VARIABLE } from '../../enum';
-import { Tag, SingleControlValue } from '../components';
-import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
-import { Dropdown } from 'ming-ui';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
+import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
+import { APP_TYPE, GLOBAL_VARIABLE, NODE_TYPE } from '../../enum';
 import { handleGlobalVariableName } from '../../utils';
+import { SingleControlValue, Tag } from '../components';
 
 export default props => {
   const { relationId, data, updateSource } = props;

@@ -3,7 +3,7 @@ import { generate } from '@ant-design/colors';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import { bool, func, number, shape, string } from 'prop-types';
 import { Icon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { getThemeColors } from 'src/utils/project';
@@ -11,7 +11,7 @@ import AddColorDialog from './AddColorDialog';
 import IconTabs from './IconTabs';
 import './index.less';
 
-const DEFAULT_COLOR = '#2196f3';
+const DEFAULT_COLOR = '#1677ff';
 const NAME_MAX_LENGTH = 100;
 
 @withClickAway
@@ -242,7 +242,7 @@ class SelectIcon extends Component {
               <Fragment>
                 <div className="bold">{_l('主题色')}</div>
                 <ul className="colorsWrap">
-                  {colorList.map((item, index) => (
+                  {colorList.map(item => (
                     <Tooltip key={item} color="#000" placement="bottom">
                       <li
                         className={cx({ isCurrentColor: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}

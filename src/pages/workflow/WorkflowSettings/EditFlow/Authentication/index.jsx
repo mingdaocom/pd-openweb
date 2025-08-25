@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
 import { APP_TYPE } from '../../enum';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Authentication extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class Authentication extends Component {
     if (item.appId && item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('未获取返回参数')}
         </div>
       );

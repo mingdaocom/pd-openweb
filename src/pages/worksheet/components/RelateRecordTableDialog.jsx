@@ -1,11 +1,10 @@
 import React, { useRef, useState } from 'react';
-
-import { get, includes } from 'lodash';
+import { useKey } from 'react-use';
+import { get } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import PropTypes from 'prop-types';
-import { useKey } from 'react-use';
-import styled from 'styled-components';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 
 const Con = styled.div`
@@ -88,15 +87,19 @@ function Table(props) {
     allowEdit,
     formdata,
     control,
+    isDraft,
+    openFrom,
     onUpdateCount,
     updateWorksheetControls,
   } = props;
   return (
     <RelateRecordTable
       mode="dialog"
+      openFrom={openFrom}
       appId={appId}
       useHeight
       allowEdit={allowEdit}
+      isDraft={isDraft}
       control={{ ...control, addRefreshEvents }}
       recordId={recordId}
       worksheetId={worksheetId}
@@ -127,6 +130,7 @@ export default function RelateRecordTableDialog(props) {
     control,
     formdata,
     allowEdit,
+    isDraft,
     onClose,
     reloadTable = () => {},
     onUpdateCount = () => {},
@@ -214,7 +218,18 @@ export default function RelateRecordTableDialog(props) {
         </Header>
         <Content>
           <Table
-            {...{ appId, worksheetId, recordId, allowEdit, formdata, control, onUpdateCount, updateWorksheetControls }}
+            {...{
+              appId,
+              openFrom,
+              worksheetId,
+              recordId,
+              allowEdit,
+              formdata,
+              isDraft,
+              control,
+              onUpdateCount,
+              updateWorksheetControls,
+            }}
             addRefreshEvents={(name, value) => {
               cache.current[name] = value;
             }}

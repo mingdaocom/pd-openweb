@@ -1,30 +1,28 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
+import { Checkbox, Dropdown, MultipleDropdown, ScrollView } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
-import { errorMessage, setStateToStorage } from '../../utils/utils';
 import config from '../../config/config';
 import {
-  updateStateConfig,
-  updateTaskStatus,
+  updateChargeIds,
+  updateCompleteTime,
+  updateCustomFilter,
   updateFolderRange,
   updateKeyWords,
-  updateCompleteTime,
   updateListSort,
   updateNetwork,
+  updateStateConfig,
   updateTaskAscription,
+  updateTaskStatus,
   updateTaskTags,
-  updateCustomFilter,
-  updateChargeIds,
 } from '../../redux/actions';
-import cx from 'classnames';
-import moment from 'moment';
-import Dropdown from 'ming-ui/components/Dropdown';
-import MultipleDropdown from 'ming-ui/components/MultipleDropdown';
-import ScrollView from 'ming-ui/components/ScrollView';
-import Checkbox from 'ming-ui/components/Checkbox';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import _ from 'lodash';
+import { errorMessage, setStateToStorage } from '../../utils/utils';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class Filter extends Component {
@@ -42,7 +40,7 @@ class Filter extends Component {
   }
 
   componentWillMount() {
-    const { folderId, filterUserId, taskFilter, projectId } = this.props.taskConfig;
+    const { folderId, filterUserId, taskFilter } = this.props.taskConfig;
 
     // 获取标签
     if (taskFilter !== 8) {
@@ -151,16 +149,12 @@ class Filter extends Component {
           <span data-tip={tips} className="mLeft5 Font14">
             <i className="icon-help" />
           </span>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {clearOptionsFun ? (
           <span className="ThemeColor3 filterClear pointer" onClick={clearOptionsFun}>
             {_l('清除条件')}
           </span>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }
@@ -248,21 +242,15 @@ class Filter extends Component {
       { text: _l('今天'), value: moment().format('YYYY-MM-DD') },
       {
         text: _l('昨天'),
-        value: moment()
-          .add(-1, 'd')
-          .format('YYYY-MM-DD'),
+        value: moment().add(-1, 'd').format('YYYY-MM-DD'),
       },
       {
         text: _l('一周'),
-        value: moment()
-          .add(-7, 'd')
-          .format('YYYY-MM-DD'),
+        value: moment().add(-7, 'd').format('YYYY-MM-DD'),
       },
       {
         text: _l('一个月'),
-        value: moment()
-          .add(-30, 'd')
-          .format('YYYY-MM-DD'),
+        value: moment().add(-30, 'd').format('YYYY-MM-DD'),
       },
     ];
 
@@ -637,7 +625,7 @@ class Filter extends Component {
    * 恢复筛选状态到默认值
    */
   reset = () => {
-    const { folderId, taskFilter, filterUserId } = this.props.taskConfig;
+    const { taskFilter, filterUserId } = this.props.taskConfig;
     const newTaskFilter =
       !filterUserId && (taskFilter === 6 || taskFilter === 1 || taskFilter === 2 || taskFilter === 3) ? 6 : taskFilter;
     const newTaskConfig = Object.assign({}, this.props.taskConfig, config.clearFilterSettings, {
@@ -665,7 +653,7 @@ class Filter extends Component {
   render() {
     const { searchKeyWords, folderId, filterSettings, listStatus, taskFilter, filterUserId } = this.props.taskConfig;
     const { folderSearchRange } = filterSettings;
-    const { tags, members, customs, overNotStarted, expiredUnfinished } = this.state;
+    const { customs, overNotStarted, expiredUnfinished } = this.state;
     const taskAscription = [
       { value: _l('我负责'), taskFilter: 2 },
       { value: _l('我参与'), taskFilter: 1 },
@@ -712,10 +700,7 @@ class Filter extends Component {
                 onKeyDown={evt => evt.keyCode === 13 && this.updateKeyWords(evt.currentTarget.value)}
               />
               {searchKeyWords && (
-                <i
-                  className="icon-closeelement-bg-circle filterSearchClear ThemeColor8"
-                  onClick={() => this.updateKeyWords('')}
-                />
+                <i className="icon-cancel filterSearchClear ThemeColor8" onClick={() => this.updateKeyWords('')} />
               )}
             </div>
 
@@ -728,9 +713,7 @@ class Filter extends Component {
                   {_l('仅看与我有关的任务')}
                 </Checkbox>
               </div>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             {this.renderLabel(_l('状态'))}
             <div className="mTop10">

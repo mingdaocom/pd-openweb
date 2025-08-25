@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { createPortal } from 'react-dom';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import '../less/Dialog.less';
 
 const dialogContainerPadding = 32;
@@ -168,7 +168,9 @@ class DialogBase extends Component {
     let zIndex;
     try {
       zIndex = parseInt(window.getComputedStyle(dialog).zIndex, 10) + 100;
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return zIndex;
   }
 
@@ -237,20 +239,7 @@ class DialogBase extends Component {
   };
 
   render() {
-    const {
-      className,
-      autoZIndex,
-      dialogClasses,
-      containerClassName,
-      children,
-      overlay,
-      style,
-      width,
-      size,
-      align,
-      fill,
-      overlayClosable,
-    } = this.props;
+    const { autoZIndex, dialogClasses, containerClassName, style, overlayClosable } = this.props;
     const { dislocateIndex } = this.state;
     const dialogContainerStyle = {};
     if (autoZIndex) {

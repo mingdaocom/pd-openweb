@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export const GLOBAL_SEARCH_TYPE = [
   {
     label: _l('全部'),
@@ -19,7 +17,7 @@ export const GLOBAL_SEARCH_TYPE = [
   {
     label: _l('动态'),
     key: 'post',
-    prefix: 'post'
+    prefix: 'post',
   },
   {
     label: _l('任务'),
@@ -54,8 +52,8 @@ export const USER_LIST_NAME = [
     label: '聊天/群组',
     key: 'name',
     idKey: 'groupId',
-    searchType: 'group'
-  }
+    searchType: 'group',
+  },
 ];
 
 export const GLOBAL_SEARCH_LIST_SETTING = {
@@ -68,7 +66,7 @@ export const GLOBAL_SEARCH_LIST_SETTING = {
     label: _l('应用'),
     key: 'app',
     prefix: '',
-    listKey: 'applicationId'
+    listKey: 'applicationId',
   },
   record: {
     label: _l('记录'),
@@ -80,7 +78,7 @@ export const GLOBAL_SEARCH_LIST_SETTING = {
     label: _l('动态'),
     key: 'post',
     prefix: 'post',
-    listKey: 'postID'
+    listKey: 'postID',
   },
   task: {
     label: _l('任务'),
@@ -98,21 +96,16 @@ export const GLOBAL_SEARCH_LIST_SETTING = {
     descKeys: ['position'],
     listKey: 'nodeId',
   },
-}
+};
 
-export const NEED_ALL_ORG_TAB = ["user", "group", "kcnode", "task"];
+export const NEED_ALL_ORG_TAB = ['user', 'group', 'kcnode', 'task'];
 
 export const SEARCH_APP_SEARCH_TYPE = {
   app: 7,
   record: 8,
   all: 0,
-}
+};
 
-export const SEARCH_APP_ITEM_TYPE = [
-  "工作表",
-  "自定义页面",
-  "分组",
-  "应用",
-]
+export const SEARCH_APP_ITEM_TYPE = ['工作表', '自定义页面', '分组', '应用'];
 
 export const GLOBAL_SEARCH_FEATURE_ID = 25;

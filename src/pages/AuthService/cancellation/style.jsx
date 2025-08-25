@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const Wrap = styled.div`
   background-color: #f2f5f7;
   background-repeat: no-repeat;

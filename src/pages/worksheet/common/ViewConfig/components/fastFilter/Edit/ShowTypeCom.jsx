@@ -1,7 +1,6 @@
 import React from 'react';
-import { MULTI_SELECT_FILTER_TYPE } from '../util';
 import { Radio } from 'antd';
-import _ from 'lodash';
+import { MULTI_SELECT_FILTER_TYPE } from '../util';
 
 export default function ShowTypeCom(props) {
   const { updateViewSet, data = {}, advancedSetting = {}, dataType } = props;

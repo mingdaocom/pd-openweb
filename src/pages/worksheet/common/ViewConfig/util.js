@@ -1,4 +1,5 @@
 import update from 'immutability-helper';
+import _ from 'lodash';
 import { filterOnlyShowField, getIconByType } from 'src/pages/widgetConfig/util';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { getSortData } from 'src/utils/control';
@@ -26,21 +27,24 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
   if (!!navfilters || !['2', '3'].includes(navshow)) {
     return updateAdvancedSetting(view, newValue);
   } else {
-    //显示制定项，人员部门等字段处理
+    const navfiltersData = advancedSetting?.navfilters ? safeParse(advancedSetting?.navfilters, 'array') : [];
+    //显示指定项，人员部门等字段处理
     return updateAdvancedSetting(view, {
       ...newValue,
       navfilters:
         navshow === '3'
-          ? JSON.stringify(safeParse(_.get(advancedSetting, 'navfilters')).map(handleCondition))
+          ? JSON.stringify(navfiltersData.map(handleCondition))
           : JSON.stringify(
-              safeParse(_.get(advancedSetting, 'navfilters')).map(info => {
+              navfiltersData.map(info => {
                 let id = info;
                 let data = null;
                 try {
                   data = JSON.parse(info);
                   id = data.id || data;
                 } catch (error) {
+                  console.log(error);
                   id = info;
+                  console.log(error);
                 }
                 return id + '';
               }),
@@ -51,7 +55,7 @@ export const formatAdvancedSettingByNavfilters = (view, newValue = {}) => {
 
 //格式化带有Navfilters的配置数据
 export const formatObjWithNavfilters = o => {
-  if (!!_.get(o, 'advancedSetting.navfilters')) {
+  if (_.get(o, 'advancedSetting.navfilters')) {
     return {
       ...o,
       advancedSetting: formatAdvancedSettingByNavfilters(o),

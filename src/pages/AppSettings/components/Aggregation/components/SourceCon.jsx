@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
@@ -22,7 +22,7 @@ export default function SourceCon(props) {
     isChange: false,
   });
 
-  const renderSourceItem = (dataInfo = {}, canChange = false, filters = [], index) => {
+  const renderSourceItem = (dataInfo = {}, canChange = false, filters = []) => {
     if (dataInfo.isRelative) {
       return (
         <div className="Dropdown--input Dropdown--border" onClick={e => e.stopPropagation()}>

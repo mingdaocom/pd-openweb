@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { Dialog, Support, Button } from 'ming-ui';
 import styled from 'styled-components';
+import { Button, Dialog, Support } from 'ming-ui';
 import img from '../../image/setAsTitle.png';
 
 const NoTitleControlWrap = styled.div`

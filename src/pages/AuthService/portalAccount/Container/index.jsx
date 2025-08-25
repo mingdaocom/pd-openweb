@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import cx from 'classnames';
-import { Icon, SvgIcon } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import ChangeLang from 'src/components/ChangeLang';
 import { FixedContent } from 'src/pages/AuthService/portalAccount/style';
 import { browserIsMobile } from 'src/utils/common';
@@ -9,17 +9,7 @@ import { statusList } from '../util';
 import LoginContainer from './LoginContainer';
 
 export default function Container(props) {
-  const {
-    logoImageUrl,
-    pageMode = 3,
-    pageTitle = '',
-    status,
-    appColor = '#00bcd4',
-    appLogoUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
-    isErrUrl,
-    noticeScope = {},
-    fixInfo = {},
-  } = props;
+  const { logoImageUrl, pageMode = 3, pageTitle = '', status, isErrUrl, noticeScope = {}, fixInfo = {} } = props;
 
   const getWaring = status => {
     switch (status) {
@@ -82,14 +72,14 @@ export default function Container(props) {
         ) : status === 4 ? (
           <div className="tipConBox" style={tipStyle}>
             <div className="txtIcon">
-              <Icon type="knowledge-message" className="Red" />
+              <Icon type="info" className="Red" />
             </div>
             <p className="txtConsole">{_l('审核未通过')}</p>
           </div>
         ) : [2, 10, 11, 12, 13, 10000, 20000, 40].includes(status) ? (
           <div className="tipConBox" style={tipStyle}>
             <div className="txtIcon">
-              <Icon type="knowledge-message" className="Red" />
+              <Icon type="info" className="Red" />
             </div>
             <p className="txtConsole">{getWaring(status)}</p>
           </div>

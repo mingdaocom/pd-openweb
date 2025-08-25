@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
-import _, { get, isEmpty } from 'lodash';
+import _, { isEmpty } from 'lodash';
 import PropTypes, { bool, func, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
+import Radio from 'src/components/newCustomFields/widgets/Radio';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { isLightColor } from 'src/utils/control';
 import { getSelectedOptions } from 'src/utils/control';
@@ -66,7 +67,9 @@ function OtherOptionTextInput(props) {
       textRef.current.textarea.focus();
       textRef.current.textarea.selectionStart = textRef.current.textarea.selectionEnd =
         textRef.current.textarea.value.length;
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }, []);
   return (
     <OtherOptionTextInputCon className={className}>
@@ -118,6 +121,7 @@ function OtherOption(props) {
   useClickAway(conRef, handleSave);
   return (
     <Trigger
+      zIndex={1000}
       getPopupContainer={getPopupContainer}
       popupVisible
       popup={
@@ -220,6 +224,10 @@ export default class Options extends React.Component {
     return this.props.tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD;
   }
 
+  get ignoreErrorMessage() {
+    return this.props.ignoreErrorMessage || this.state.validateResult?.ignoreErrorMessage;
+  }
+
   con = React.createRef();
   cell = React.createRef();
 
@@ -238,9 +246,11 @@ export default class Options extends React.Component {
       }
       value = JSON.stringify((value || []).sort().reverse());
     }
-    const error = !onValidate(value);
+    const validateResult = onValidate(value);
+    const error = validateResult.errorType;
     this.setState({
       value,
+      validateResult,
       ...(error ? {} : { oldValue: value }),
     });
     if (!isMultiple && isOther && !needUpdateCell) {
@@ -249,7 +259,8 @@ export default class Options extends React.Component {
     if (!isMultiple && noUpdateCell) {
       return;
     }
-    if (error) {
+    const ignoreErrorMessage = this.props.ignoreErrorMessage || validateResult?.ignoreErrorMessage;
+    if (error && !ignoreErrorMessage) {
       return;
     }
     if (isMultiple && this.isSubList) {
@@ -261,6 +272,10 @@ export default class Options extends React.Component {
     updateCell({
       value: formatControlToServer(Object.assign({}, cell, { value })).value,
     });
+    if (ignoreErrorMessage && validateResult?.errorMessage) {
+      alert(validateResult?.errorMessage, 3);
+      return;
+    }
     if (!value || !isMultiple) {
       this.handleExit();
     }
@@ -282,11 +297,11 @@ export default class Options extends React.Component {
     }
   };
 
-  handleExit = target => {
+  handleExit = () => {
     const { cell, error, updateEditingStatus, updateCell } = this.props;
     const { value } = this.state;
     const isMultiple = cell.type === 10;
-    if (!isMultiple || !error) {
+    if (!isMultiple || !error || this.ignoreErrorMessage) {
       updateEditingStatus(false);
     } else if (error) {
       updateEditingStatus(false);
@@ -316,14 +331,13 @@ export default class Options extends React.Component {
 
   render() {
     const {
-      columnStyle,
+      columnStyle = {},
       tableType,
       from,
       className,
       rowIndex,
-      style,
+      style = {},
       error,
-      tableFromModule,
       popupContainer,
       singleLine,
       cell,
@@ -332,12 +346,15 @@ export default class Options extends React.Component {
       updateEditingStatus,
       onClick,
       fromEmbed,
+      ignoreErrorMessage,
     } = this.props;
     const showAsText = columnStyle.showtype === 1;
     const showAsTextWithBg = columnStyle.showtype === 3;
     const { value, verticalPlace } = this.state;
     const selectedOptions = value ? getSelectedOptions(cell.options, value, cell) : [];
     const isMultiple = cell.type === 10;
+    const showAsRadioGroup = columnStyle.showtype === 7 && !isMultiple;
+    const showAsCheckboxGroup = columnStyle.showtype === 7 && isMultiple;
     const isOther = selectedOptions[0] && selectedOptions[0].key === 'other';
     let getPopupContainer =
       this.isSubList || this.isRelateRecord
@@ -348,7 +365,7 @@ export default class Options extends React.Component {
     }
     const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 0;
     let editcontent;
-    if (!isMultiple && isOther) {
+    if (!isMultiple && isOther && !error) {
       editcontent = (
         <OtherOption
           style={style}
@@ -368,6 +385,7 @@ export default class Options extends React.Component {
             'cellControlOptionsPopup',
             {
               error: error,
+              ignoreErrorMessage,
             },
             verticalPlace,
           )}
@@ -441,34 +459,51 @@ export default class Options extends React.Component {
               }}
             />
           )}
-          {error && !showErrorAsPopup && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
+          {error && !showErrorAsPopup && (
+            <CellErrorTips
+              error={error}
+              color={this.ignoreErrorMessage ? '#ff933e' : undefined}
+              pos={rowIndex === 0 ? 'bottom' : 'top'}
+            />
+          )}
         </div>
       );
     }
-
-    return (
-      <React.Fragment>
-        <EditableCellCon
-          hideOutline
-          conRef={this.cell}
-          onClick={onClick}
-          className={cx(className, { canedit: editable, showAsText: showAsText || showAsTextWithBg, showAsTextWithBg })}
-          style={Object.assign(
-            {},
-            style,
-            from !== FROM.CARD ? { padding: '5px 6px' } : {},
-            showAsText || showAsTextWithBg
-              ? {
-                  height: style.height + 'px',
-                  lineHeight: style.height + 'px',
-                }
-              : {},
-            showAsTextWithBg && selectedOptions[0] ? getOptionStyle(selectedOptions[0], cell) : {},
-          )}
-          iconName={'arrow-down-border'}
-          isediting={isediting}
-          onIconClick={() => updateEditingStatus(true)}
-        >
+    let content;
+    if (showAsRadioGroup) {
+      content = (
+        <Radio
+          {...cell}
+          disabled={!editable}
+          value={value}
+          className="cellControlOptionsRadio"
+          onChange={value => {
+            this.handleChange(safeParse(value));
+          }}
+          onConClick={e => {
+            e.stopPropagation();
+          }}
+        />
+      );
+    } else if (showAsCheckboxGroup) {
+      content = (
+        <Checkbox
+          className="cellControlOptionsCheckbox"
+          {...cell}
+          disabled={!editable}
+          advancedSetting={{ ...cell.advancedSetting, checktype: '2' }}
+          value={value}
+          onChange={value => {
+            this.handleChange(safeParse(value));
+          }}
+          onConClick={e => {
+            e.stopPropagation();
+          }}
+        />
+      );
+    } else {
+      content = (
+        <Fragment>
           {!!value && !isEmpty(selectedOptions) && (
             <div className={cx('cellOptions cellControl', { singleLine })}>
               {selectedOptions.map((option, index) => {
@@ -490,12 +525,50 @@ export default class Options extends React.Component {
           {tableType === 'classic' && !isediting && (!value || value === '[]') && cell.hint && (
             <span className="guideText Gray_bd hide mTop2">{cell.hint}</span>
           )}
+        </Fragment>
+      );
+    }
+    return (
+      <React.Fragment>
+        <EditableCellCon
+          hideOutline
+          conRef={this.cell}
+          onClick={onClick}
+          className={cx(className, {
+            canedit: editable && !(showAsCheckboxGroup || showAsRadioGroup),
+            showAsText: showAsText || showAsTextWithBg,
+            showAsTextWithBg,
+          })}
+          style={Object.assign(
+            {},
+            style,
+            from !== FROM.CARD ? { padding: '5px 6px' } : {},
+            showAsText || showAsTextWithBg
+              ? {
+                  height: style.height + 'px',
+                  lineHeight: style.height + 'px',
+                }
+              : {},
+            showAsTextWithBg && selectedOptions[0] ? getOptionStyle(selectedOptions[0], cell) : {},
+          )}
+          iconName={'arrow-down-border'}
+          isediting={isediting}
+          onIconClick={() => updateEditingStatus(true)}
+        >
+          {content}
         </EditableCellCon>
         {showErrorAsPopup && isediting && (
           <Trigger
             getPopupContainer={getPopupContainer}
             popupVisible={!!error}
-            popup={<CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
+            zIndex={1000}
+            popup={
+              <CellErrorTips
+                color={this.ignoreErrorMessage ? '#ff933e' : undefined}
+                error={error}
+                pos={rowIndex === 0 ? 'bottom' : 'top'}
+              />
+            }
             destroyPopupOnHide
             popupAlign={{
               points: ['tl', 'bl'],

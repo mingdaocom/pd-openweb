@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
-import moment from 'moment';
+import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import { Dialog, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
 import account from 'src/api/account';
@@ -17,7 +17,7 @@ import './index.less';
 
 const optionsList = [
   { icon: 'icon-edit_17', label: _l('编辑组织名片'), click: 'handleEdit', key: 'editCard' },
-  { icon: 'icon-enterprise_tool', label: _l('组织管理'), click: 'handleGoAdmin', key: 'manage' },
+  { icon: 'icon-build', label: _l('组织管理'), click: 'handleGoAdmin', key: 'manage' },
   { icon: 'icon-manage', label: _l('我的汇报关系'), click: 'handleRelation', key: 'reportRelation' },
   { icon: 'icon-exit', label: _l('退出组织'), click: 'handleExit', key: 'exit' },
 ];
@@ -383,7 +383,7 @@ export default class EnterpriseCard extends Component {
     const { showItem, userInfo, loading, hasProjectAdminAuth } = this.state;
     const { departmentInfos = [], jobInfos = [] } = userInfo;
     const { card, DragHandle, isClose } = this.props;
-    const { currentLicense = {}, isSuperAdmin, closedOperatorName, closedTime } = card;
+    const { currentLicense = {}, closedOperatorName, closedTime } = card;
     const parmas = this.formatProjectStatus(card);
     //待开通状态
     const isWaitOpen =
@@ -463,7 +463,12 @@ export default class EnterpriseCard extends Component {
                 </div>
               </div>
               <div className="extendItemBox Gray_75">
-                {(isClose ? closeOptionsList : optionsList).map((item, index) => {
+                {(isClose
+                  ? closeOptionsList
+                  : optionsList.filter(
+                      v => !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && v.key === 'exit'),
+                    )
+                ).map((item, index) => {
                   return (
                     <span
                       key={index}

@@ -1,8 +1,10 @@
+import _ from 'lodash';
 import registerApi from 'src/api/register';
 import { AccountNextActions, ActionResult } from 'src/pages/AuthService/config';
 import { getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util';
 import { getRequest } from 'src/utils/common';
 import { encrypt } from 'src/utils/common';
+import { mdAppResponse } from 'src/utils/project';
 import { setPssId } from 'src/utils/pssId';
 import { InviteFromType } from '../config';
 
@@ -112,7 +114,7 @@ export const registerFailCb = ({ actionResult, accountInfo, onChange }) => {
 
 //注册后 创建账号相关处理
 export const doCreateAccount = ({ accountInfo, callback, onChange }) => {
-  const { password, emailOrTel, verifyCode, confirmation, isLink, TPParams = {}, dialCode, nextAction } = accountInfo;
+  const { password, emailOrTel, verifyCode, confirmation, TPParams = {}, dialCode, nextAction } = accountInfo;
   registerApi
     .createAccount({
       account: encrypt(dialCode + emailOrTel),

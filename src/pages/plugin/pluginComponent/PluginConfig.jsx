@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, LoadDiv, TagTextarea, ScrollView, SvgIcon } from 'ming-ui';
-import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
-import { pluginConfigType, viewDetailTabList, pluginApiConfig, PLUGIN_TYPE, API_EXTENDS } from '../config';
-import DebugEnv from './DebugEnv';
-import PublishVersion from './PublishVersion';
-import DetailList from './DetailList';
-import appManagementApi from 'src/api/appManagement';
-import Search from 'src/pages/workflow/components/Search';
-import { navigateToView } from 'src/pages/widgetConfig/util/data';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { getPluginOperateText } from '../util';
-import ImportPlugin from './ImportPlugin';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Input, LoadDiv, ScrollView, SvgIcon, TagTextarea } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import appManagementApi from 'src/api/appManagement';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { navigateToView } from 'src/pages/widgetConfig/util/data';
+import Search from 'src/pages/workflow/components/Search';
+import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, viewDetailTabList } from '../config';
+import { getPluginOperateText } from '../util';
+import DebugEnv from './DebugEnv';
+import DetailList from './DetailList';
+import ImportPlugin from './ImportPlugin';
+import PublishVersion from './PublishVersion';
 
 const ConfigWrapper = styled.div`
   display: flex;
@@ -51,8 +51,8 @@ const ConfigWrapper = styled.div`
         border-bottom: 2px solid rgba(0, 0, 0, 0);
         cursor: pointer;
         &.isCur {
-          color: #2196f3;
-          border-bottom: 2px solid #2196f3;
+          color: #1677ff;
+          border-bottom: 2px solid #1677ff;
         }
       }
     }
@@ -78,7 +78,7 @@ const ConfigWrapper = styled.div`
     font-size: 24px;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 
@@ -128,7 +128,7 @@ const ConfigWrapper = styled.div`
         padding: 0 16px;
         border-radius: 36px;
         background: #e3f2fd;
-        color: #2196f3;
+        color: #1677ff;
         cursor: pointer;
         i {
           margin-right: 6px;
@@ -168,14 +168,14 @@ const ConfigWrapper = styled.div`
         color: #757575;
         border: 1px solid #ebebeb;
         &:hover {
-          color: #2196f3;
-          border: 1px solid #2196f3;
+          color: #1677ff;
+          border: 1px solid #1677ff;
         }
       }
       &.save {
         color: #fff;
-        background: #2196f3;
-        border: 1px solid #2196f3;
+        background: #1677ff;
+        border: 1px solid #1677ff;
         &:hover {
           background: #1764c0;
           border: 1px solid #1764c0;
@@ -265,7 +265,7 @@ function PluginConfig(props) {
               });
             }
           })
-          .catch(error => setFetchListState({ loading: false }));
+          .catch(() => setFetchListState({ loading: false }));
         break;
       case pluginConfigType.publishHistory:
         pluginApi
@@ -278,7 +278,7 @@ function PluginConfig(props) {
               });
             }
           })
-          .catch(error => setFetchListState({ loading: false }));
+          .catch(() => setFetchListState({ loading: false }));
         break;
       case pluginConfigType.usageDetail:
         pluginApi
@@ -291,7 +291,7 @@ function PluginConfig(props) {
               });
             }
           })
-          .catch(error => setFetchListState({ loading: false }));
+          .catch(() => setFetchListState({ loading: false }));
         break;
       case pluginConfigType.debugEnv:
         setDetailData({ debugEnvironments: defaultEnvList });
@@ -307,7 +307,7 @@ function PluginConfig(props) {
               });
             }
           })
-          .catch(error => setFetchListState({ loading: false }));
+          .catch(() => setFetchListState({ loading: false }));
         break;
       default:
         break;
@@ -367,7 +367,7 @@ function PluginConfig(props) {
       });
   };
 
-  const onUpdate = (updateObj = {}, cb = data => {}, errorText) => {
+  const onUpdate = (updateObj = {}, cb = () => {}, errorText) => {
     pluginApi.edit({ projectId, id: pluginId, source, ...updateObj }, API_EXTENDS).then(res => {
       if (res) {
         onUpdateSuccess(pluginId, updateObj);
@@ -661,7 +661,7 @@ function PluginConfig(props) {
 
             {configType !== pluginConfigType.create && (
               <div className="validVersionCard">
-                {!!detailData.currentVersion.versionCode ? (
+                {detailData.currentVersion.versionCode ? (
                   <div className="flex flexRow alignItemsCenter">
                     <span className="Font24 bold">{detailData.currentVersion.versionCode}</span>
                     <span className="Gray_75 mLeft12 flexColumn minWidth0">
@@ -740,8 +740,8 @@ function PluginConfig(props) {
               {pluginType === PLUGIN_TYPE.WORKFLOW
                 ? _l('编辑')
                 : configType === pluginConfigType.create
-                ? _l('创建插件')
-                : _l('更新配置')}
+                  ? _l('创建插件')
+                  : _l('更新配置')}
             </div>
             {currentTab === pluginConfigType.paramSetting && (
               <div

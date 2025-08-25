@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Menu, MenuItem, DatePicker } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import './DateCalcPicker.less';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import { DatePicker, Menu, MenuItem } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import './DateCalcPicker.less';
 
 export default class DateCalcPicker extends Component {
   static propTypes = {

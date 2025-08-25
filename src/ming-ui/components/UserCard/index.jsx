@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -9,8 +9,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
 import GroupController from 'src/api/group';
 import UserController from 'src/api/user';
+import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
+import { maskValue } from 'src/pages/Admin/security/account/utils';
 import * as actions from 'src/pages/chat/redux/actions';
-import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 import { browserIsMobile } from 'src/utils/common';
 import placements from './placements';
 import './css/userCard.less';
@@ -65,13 +66,13 @@ const CardContentBoxWrap = styled.div`
 `;
 
 const BusinessCardWrap = styled.div`
-  display: flex;
-  flex-direction: row;
+  .cardHeader {
+    align-items: center;
+  }
   .imgLink {
-    padding-right: 15px;
     .avatar {
-      width: 47px;
-      height: 47px;
+      width: 44px;
+      height: 44px;
     }
     &:hover {
       text-decoration: none;
@@ -94,59 +95,20 @@ const BusinessCardWrap = styled.div`
     color: rgba(0, 0, 0, 0.32) !important;
   }
 
-  .cardContentDesc {
-    color: #aaa;
-    padding: 7px 0 0 0;
-    word-wrap: break-word;
-    word-break: break-all;
-    .cardContentTag {
-      display: inline-block;
-      min-width: 36px;
-      padding: 0 4px;
-      height: 19px;
-      line-height: 19px;
-      text-align: center;
-      background: #f0f0f0;
-      border-radius: 4px;
-      color: #757575;
-    }
-  }
-
-  .cardContentDesc .contentItem {
-    width: 100%;
+  .cardContentTag {
+    display: inline-block;
+    padding: 0 5px;
     color: #757575;
-    display: block;
-    margin-top: 4px;
-    .label {
-      max-width: 88px;
-      display: inline-block;
-      vertical-align: bottom;
-    }
+    width: unset;
+    height: 19px;
+    line-height: 19px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin-bottom: 8px;
   }
 
   .cardContent-wrapper {
     position: relative;
-  }
-
-  .actionButtons {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    .actionButton {
-      display: inline-block;
-      cursor: pointer;
-      color: #0091ea;
-      font-size: 20px;
-
-      vertical-align: top;
-      text-decoration: none;
-      &:hover {
-        color: #0084e6;
-      }
-    }
   }
 
   .overflow_ellipsis_line2 {
@@ -157,6 +119,19 @@ const BusinessCardWrap = styled.div`
     -webkit-line-clamp: 2;
   }
 `;
+
+const DisplayFieldForNameInfo = {
+  51: 'currentDepartmentName',
+  52: 'currentDepartmentFullName',
+  53: 'currentJobTitleName',
+  54: 'currentJobNumber',
+  55: 'mobilePhone',
+  56: 'mobilePhone',
+  57: 'email',
+  58: 'email',
+  59: 'currentWorkPhone',
+  60: 'currentWorkSiteName',
+};
 
 class UserCard extends React.Component {
   static propTypes = {
@@ -178,7 +153,7 @@ class UserCard extends React.Component {
     this.state = {
       isLoading: false,
       isSourceValid: true,
-      visible: props.visible || false,
+      visible: props.visible,
       data: {},
       appId: props.appId,
       isMobile: browserIsMobile(),
@@ -293,19 +268,16 @@ class UserCard extends React.Component {
   renderInfo(infos) {
     const isPortal = (this.props.sourceId || '').includes('#');
 
+    if (!isPortal) return null;
+
     return infos.map(item => (
-      <span
-        className="overflow_ellipsis_line2 contentItem"
+      <div
+        className="itemInfo flexRow LineHeight30"
         key={`userCard-contentItem-${this.props.sourceId || ''}-${item.value}`}
       >
-        {isPortal ? (
-          <Fragment>
-            <span className="label overflow_ellipsis">{item.key}</span>：{item.value}
-          </Fragment>
-        ) : (
-          item.value
-        )}
-      </span>
+        <div className="Gray_75 mRight8">{item.key}</div>
+        <div className="flex ellipsis mRight5">{item.value}</div>
+      </div>
     ));
   }
 
@@ -326,14 +298,23 @@ class UserCard extends React.Component {
   openChat = () => {
     const { type } = this.props;
     const { data } = this.state;
-    this.setState({ visible: false });
+    const isModal = document.querySelector('.mdModal.workSheetRecordInfo');
 
-    // 用户
     if (type === 1) {
-      data.accountId !== md.global.Account.accountId && store.dispatch(actions.addUserSession(data.accountId));
+      if (isModal) {
+        window.open(`/windowChat?id=${data.accountId}&type=${type}`);
+      } else {
+        store.dispatch(actions.addUserSession(data.accountId));
+      }
     } else if (type === 2) {
-      store.dispatch(actions.addGroupSession(data.groupId));
+      if (isModal) {
+        window.open(`/windowChat?id=${data.groupId}&type=${type}`);
+      } else {
+        store.dispatch(actions.addGroupSession(data.groupId));
+      }
     }
+
+    this.setState({ visible: false });
   };
 
   renderContent() {
@@ -343,8 +324,8 @@ class UserCard extends React.Component {
     const url = this.getUserLink();
     const isSecret = !sourceId && !accountId && !groupId;
     const noInfo = md.global.Account.accountId.includes('#') && !isPortal;
-    const currentProjectId = getCurrentProjectId();
     const notContact = type === 1 && !data.isContact;
+    const isOutsourcing = type === 1 && !noInfo && projectId && !data.currentProjectName && !isPortal; // 外协
 
     if (!isSourceValid) {
       if (![1, 2].includes(type)) return null;
@@ -353,7 +334,7 @@ class UserCard extends React.Component {
     } else {
       if (isSecret) {
         return (
-          <BusinessCardWrap className="cardHeader BusinessCard">
+          <BusinessCardWrap className="cardHeader BusinessCard flexRow">
             <span className="imgLink">
               <img
                 src={`${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/littleSecretary.png`}
@@ -367,76 +348,49 @@ class UserCard extends React.Component {
           </BusinessCardWrap>
         );
       }
-
-      const infos = [
-        {
-          key: _l('组织'),
-          value:
-            projectId && !data.currentProjectName && !isPortal
-              ? data.companyName
-              : currentProjectId === projectId
-                ? ''
-                : data.currentProjectName,
-        },
-        {
-          key: _l('职位'),
-          value: `${data.currentDepartmentName || ''}${data.currentDepartmentName && data.profession ? ' | ' : ''}${
-            data.profession || ''
-          }`,
-        },
-        { key: '', value: data.currentJobNumber },
-        { key: _l('手机'), value: data.mobilePhone },
-        { key: _l('邮箱'), value: data.email },
-      ].filter(l => l.value);
       const portalValues = (data.portalValues || []).filter(l => l.value);
       const flag =
         isPortal || data.status === USER_STATUS.INACTIVE || type !== 1 || md.global.Account.isPortal || notContact;
       const hideChat = md.global.SysSettings.forbidSuites.includes('6');
 
       return (
-        <BusinessCardWrap className="cardHeader BusinessCard">
-          <a href={url} className="imgLink" target="_blank" onClick={e => flag && e.preventDefault()}>
-            <img src={data.avatar} className="circle avatar" />
-          </a>
-
-          <div className="cardContent-wrapper">
-            <a
-              className={cx('name overflow_ellipsis', {
-                ThemeColor3: flag,
-                ThemeHoverColor3: !flag,
-              })}
-              target="_blank"
-              href={url}
-              title={type === 2 ? data.groupName : data.fullname}
-              onClick={e => flag && e.preventDefault()}
-            >
-              {type === 2 ? data.groupName : data.fullname}
-              {data.status === USER_STATUS.INACTIVE && <span className="icon-folder-public smallEarth mLeft8" />}
-              {data.status === USER_STATUS.LOGOFF && <span className="mLeft3">{_l('账号已注销')}</span>}
+        <BusinessCardWrap>
+          <div className="cardHeader flexRow mBottom10">
+            <a href={url} className="imgLink" target="_blank" onClick={e => flag && e.preventDefault()}>
+              <img src={data.avatar} className="circle avatar" />
             </a>
-
-            <div className="cardContentDesc userCard">
-              {type === 1 && !noInfo && (
-                <Fragment>
-                  {projectId && !data.currentProjectName && !isPortal && (
-                    <div className="cardContentTag">{_l('外协')}</div>
-                  )}
-                  {this.renderInfo(infos)}
-                  {this.renderInfo(portalValues)}
-                  {type === 1 && !infos.length && !portalValues.length && isPortal && (
-                    <span className="overflow_ellipsis contentItem Gray_c">{_l('没有可见信息')}</span>
-                  )}
-                </Fragment>
-              )}
-
-              {type === 2 && data.project && (
-                <span>
-                  <span class="icon-company Font18 mRight5"></span>
-                  {data.project.companyName}
-                </span>
+            <div className="flex mLeft12">
+              <a
+                className={cx('name ellipsis bold', {
+                  ThemeColor3: flag,
+                  ThemeHoverColor3: !flag,
+                })}
+                target="_blank"
+                href={url}
+                title={type === 2 ? data.groupName : data.fullname}
+                onClick={e => flag && e.preventDefault()}
+              >
+                {type === 2 ? data.groupName : data.fullname}
+                {data.status === USER_STATUS.INACTIVE && <span className="icon-folder-public smallEarth mLeft8" />}
+                {data.status === USER_STATUS.LOGOFF && <span className="mLeft3">{_l('账号已注销')}</span>}
+              </a>
+              {!isOutsourcing && data.displayFieldForName && data[DisplayFieldForNameInfo[data.displayFieldForName]] ? (
+                <div className="Gray_75">
+                  {_.includes([56, 58], data.displayFieldForName)
+                    ? maskValue(
+                        data[DisplayFieldForNameInfo[data.displayFieldForName]],
+                        DisplayFieldForNameInfo[data.displayFieldForName],
+                      )
+                    : data[DisplayFieldForNameInfo[data.displayFieldForName]]}
+                </div>
+              ) : (!projectId && !isPortal) || isOutsourcing ? (
+                <div className="Gray_75">{data.companyName}</div>
+              ) : (
+                ''
               )}
             </div>
-            <div className="actionButtons">
+
+            <div className="Font20">
               <span
                 className="Hand"
                 data-tip={_l('刷新')}
@@ -455,10 +409,25 @@ class UserCard extends React.Component {
                 chatButton &&
                 !notContact &&
                 !hideChat && (
-                  <span className="Hand" data-tip={_l('发消息')} onClick={this.openChat}>
+                  <span className="Hand mLeft10" data-tip={_l('发消息')} onClick={this.openChat}>
                     <span className="actionButton icon-chat-session ThemeColor3" />
                   </span>
                 )}
+            </div>
+          </div>
+          {isOutsourcing && <div className="cardContentTag">{_l('外协')}</div>}
+          <div className="cardContent-wrapper">
+            <div className="cardContentDesc userCard">
+              <UserBaseProfile
+                className="noBorder pBottom0 mLeft2"
+                infoWrapClassName="flexColumn"
+                isCard={true}
+                projects={[]}
+                currentUserProject={data.project || { projectId }}
+                userInfo={data}
+                updateUserInfo={data => this.setState({ data })}
+              />
+              {this.renderInfo(portalValues)}
             </div>
           </div>
         </BusinessCardWrap>

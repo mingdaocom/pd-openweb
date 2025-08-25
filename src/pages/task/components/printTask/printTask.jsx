@@ -49,13 +49,10 @@ export default class PrintTask extends Component {
       case 28:
       case 10010:
         return 2;
-        break;
       case 22:
         return 3;
-        break;
       default:
         return 1;
-        break;
     }
   }
 
@@ -137,7 +134,6 @@ export default class PrintTask extends Component {
 
   render() {
     const data = this.state.data;
-    const href = location.href;
     const hasQRCode = this.props.options.indexOf('qrCode') >= 0;
     let controls;
 

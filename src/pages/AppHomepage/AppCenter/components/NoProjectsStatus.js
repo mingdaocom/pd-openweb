@@ -32,7 +32,7 @@ const JoinGroupCon = styled.div`
     border-radius: 22px;
     color: #757575;
     span {
-      color: #2196f3;
+      color: #1677ff;
       cursor: pointer;
       &:hover {
         text-decoration: underline;

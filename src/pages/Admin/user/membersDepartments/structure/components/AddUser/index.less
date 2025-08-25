@@ -4,7 +4,9 @@
   bottom: 0;
   right: 0;
   z-index: 100;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.2),
+    0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
   width: 580px;
@@ -41,7 +43,9 @@
       position: relative;
       background-color: #fff;
       border-radius: 3px;
-      box-shadow: 0 4px 20px rgb(0, 0, 0, 0.2), 0 2px 6px rgb(0, 0, 0, 0 15);
+      box-shadow:
+        0 4px 20px rgb(0, 0, 0, 0.2),
+        0 2px 6px rgb(0, 0, 0, 0 15);
       .title {
         padding: 20px 24px 16px;
       }
@@ -88,6 +92,11 @@
     input:focus::-webkit-contacts-auto-fill-button {
       opacity: 0;
     }
+    &.isAllJobs {
+      padding: 12px;
+      border-radius: 4px;
+      background: #f5f5f5;
+    }
   }
   .formLabel {
     margin-bottom: 6px;
@@ -104,7 +113,7 @@
       border-color: #bbb;
     }
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
     &.error {
       border-color: #f00 !important;
@@ -123,7 +132,7 @@
     color: #fff;
     text-align: center;
     &.check {
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
     &.refuse {
       background-color: #f00;
@@ -157,7 +166,8 @@
     margin-right: 66px;
   }
   .itemSpan {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     padding: 0 13px 0 0;
     line-height: 26px;
     border-radius: 18px;
@@ -169,27 +179,13 @@
     .departmentIcon {
       width: 26px;
       height: 26px;
+      min-width: 26px;
       display: inline-block;
       text-align: center;
       line-height: 26px;
       background: #4696ec;
       border-radius: 50%;
       color: #fff;
-    }
-    .isTopIcon {
-      background: #2196f3;
-      color: #fff;
-      font-size: 12px;
-      line-height: 20px;
-      width: 20px;
-      height: 20px;
-      display: inline-block;
-      margin-left: 8px;
-      border-radius: 2px;
-      text-align: center;
-    }
-    .moreOption {
-      display: inline-block;
     }
     &.disabledDepartment {
       background: #f5f5f5;
@@ -206,6 +202,11 @@
   }
   .formInfoWrap .ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border: 1px solid #f5f5f5;
+  }
+  .ThemeHoverColor {
+    &:hover {
+      color: #1677ff !important;
+    }
   }
 }
 .addUserDressbook {
@@ -236,16 +237,16 @@
     background-color: #eaeaea;
   }
   .addContinueBtn {
-    border: 1px solid #2196f3;
-    color: #2196f3;
+    border: 1px solid #1677ff;
+    color: #1677ff;
   }
   .addContinueBtn:hover {
     border: 1px solid #1565c0;
     color: #1565c0;
   }
   .addBtn {
-    border: 1px solid #2196f3;
-    background-color: #2196f3;
+    border: 1px solid #1677ff;
+    background-color: #1677ff;
     color: #fff;
   }
   .addBtn:hover {
@@ -283,8 +284,8 @@
   .normalBtn {
     border: 1px solid #eaeaea;
     &:hover {
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
     }
   }
 }
@@ -307,7 +308,7 @@
       padding: 0 10px;
       box-sizing: border-box;
       &:hover {
-        background: #dddddd;
+        background: #f5f5f5;
         cursor: pointer;
       }
     }

@@ -7,8 +7,6 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
-import { getAdvanceSetting } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 import EditableCard from '../components/EditableCard';
 import { getRecordAttachments, RENDER_RECORD_NECESSARY_ATTR } from '../util';
@@ -31,7 +29,6 @@ export default function DetailItem(props) {
   } = props;
   const currentView = views.find(o => o.viewId === viewId) || {};
   const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
-  let { abstract = '' } = getAdvanceSetting(currentView);
 
   let formData = controls.map(o => {
     return { ...o, value: itemData[o.controlId] };
@@ -43,7 +40,7 @@ export default function DetailItem(props) {
     let dataSource = transferValue(coverData.value);
     let urlList = [];
     dataSource.map(o => {
-      if (!!o.staticValue) {
+      if (o.staticValue) {
         urlList.push(o.staticValue);
       } else {
         urlList.push(
@@ -104,7 +101,6 @@ export default function DetailItem(props) {
       controls: formData,
       row: _.isObject(itemData) ? itemData : safeParse(itemData),
     });
-  let abstractData = controls.find(it => it.controlId === abstract) || {};
   let data = {
     coverData,
     coverImage,
@@ -116,12 +112,6 @@ export default function DetailItem(props) {
     fields: transFieldData(itemData),
     formData,
     rowId: itemData.rowid,
-    abstractValue: abstract
-      ? renderCellText({
-          ...abstractData,
-          value: itemData[abstract],
-        })
-      : '',
   };
 
   const updateTitleData = control => {

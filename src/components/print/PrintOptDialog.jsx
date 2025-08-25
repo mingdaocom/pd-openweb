@@ -26,7 +26,7 @@ export default class PrintOptDialog extends Component {
       const { controls = [], formControls = [] } = reqInfo;
       controls
         .filter(item => !item.printHide)
-        .forEach((item, index) => {
+        .forEach(item => {
           if (item && item.controlId) {
             controlOption.push(item.controlId);
           }
@@ -110,7 +110,7 @@ export default class PrintOptDialog extends Component {
       controlOption.splice(0, controlOption.length);
       this.state.reqInfo.controls
         .filter(item => !item.printHide)
-        .forEach((item, index) => {
+        .forEach(item => {
           if (item && item.controlId) {
             controlOption.push(item.controlId);
           }

@@ -27,7 +27,7 @@ const SignatureBox = styled.div`
     color: #757575;
     line-height: 36px;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -50,7 +50,7 @@ const SignaturePopup = styled.div`
       cursor: pointer;
       color: #757575;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -187,7 +187,7 @@ export default class Signature extends Component {
     }
   };
 
-  clickEvent = e => {
+  clickEvent = () => {
     this.setState({
       popupVisible: false,
       isEdit: false,

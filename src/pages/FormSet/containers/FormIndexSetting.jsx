@@ -20,14 +20,14 @@ const Con = styled.div`
     width: 100%;
     height: 100%;
     overflow: auto;
-    padding: 32px 40px;
+    padding: 35px 40px 32px;
     display: flex;
     flex-direction: column;
     .add {
       padding: 0 16px;
       line-height: 38px;
       height: 38px;
-      background: #2196f3 0% 0% no-repeat padding-box;
+      background: #1677ff 0% 0% no-repeat padding-box;
       border-radius: 32px;
       text-align: center;
       font-size: 13px;
@@ -105,7 +105,7 @@ const Con = styled.div`
             opacity: 0;
           }
           .edit {
-            color: #2196f3;
+            color: #1677ff;
             &:hover {
               opacity: 0.8;
             }
@@ -116,7 +116,7 @@ const Con = styled.div`
 
           & > span {
             display: inline-flex;
-            color: #2196f3;
+            color: #1677ff;
 
             &:hover {
               opacity: 0.8;
@@ -159,7 +159,7 @@ const ArrowUp = styled.span`
   cursor: pointer;
   &:hover,
   &.active {
-    border-color: transparent transparent #2196f3 transparent;
+    border-color: transparent transparent #1677ff transparent;
   }
 `;
 
@@ -171,7 +171,7 @@ const ArrowDown = styled.span`
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #2196f3 transparent transparent transparent;
+    border-color: #1677ff transparent transparent transparent;
   }
 `;
 
@@ -180,7 +180,7 @@ const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49,
 
 function FormIndexSetting(props) {
   const { worksheetInfo } = props;
-  const { worksheetId, appId, template } = worksheetInfo;
+  const { worksheetId, appId } = worksheetInfo;
   const input = React.createRef();
   const [showCreateIndex, setShowCreateIndex] = useState(false);
   const [isRename, setIsRename] = useState(false);
@@ -348,7 +348,7 @@ function FormIndexSetting(props) {
                     <div className="printTemplatesList-tr" key={`formIndexSetting-${item.indexConfigId}`}>
                       <div className="name flex mRight20 valignWrapper overflowHidden">
                         <Icon
-                          icon={type === 0 ? 'db_index' : type === 1 ? 'score' : 'task_custom_text-box'}
+                          icon={type === 0 ? 'db_index' : type === 1 ? 'score' : 'title'}
                           className={cx(
                             'iconTitle Font24 mRight13',
                             type === 0 ? 'Gray_75' : type === 1 ? 'uniqueIndexColor' : 'wildcardIndexColor',
@@ -478,7 +478,7 @@ function FormIndexSetting(props) {
                                 data.isRename && setIsRename(true);
                                 setShowMoreOption(false);
                               }}
-                              deleteFn={data => {
+                              deleteFn={() => {
                                 worksheetAjax
                                   .removeRowIndex({
                                     appId,
@@ -500,7 +500,7 @@ function FormIndexSetting(props) {
                           }
                         >
                           <Icon
-                            icon="task-point-more"
+                            icon="more_horiz"
                             className="moreActive Hand Font18 Gray_9e Hover_21"
                             onClick={() => {
                               setShowMoreOption(true);

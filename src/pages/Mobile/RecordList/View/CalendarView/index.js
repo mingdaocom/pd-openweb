@@ -75,13 +75,22 @@ class MobileCalendarView extends Component {
 
   render() {
     let { scheduleVisible, previewRecordId, Component } = this.state;
-    const { view, currentSheetRows, calendarview = {}, base = {}, sheetSwitchPermit, worksheetInfo = {} } = this.props;
+    const {
+      view,
+      currentSheetRows,
+      calendarview = {},
+      base = {},
+      sheetSwitchPermit,
+      worksheetInfo = {},
+      isCharge,
+    } = this.props;
     const { calendarData = {} } = calendarview;
     const { calendarInfo = [] } = calendarData;
     let { begindate = '', enddate = '', calendarType = '0', calendarcids = '[]' } = getAdvanceSetting(view);
     try {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
+      console.log(error);
       calendarcids = [];
     }
     if (calendarcids.length <= 0) {
@@ -159,6 +168,7 @@ class MobileCalendarView extends Component {
           enablePayment={worksheetInfo.enablePayment}
           viewId={base.viewId}
           rowId={previewRecordId}
+          isCharge={isCharge}
           onClose={() => {
             this.setState({
               previewRecordId: undefined,
@@ -178,6 +188,7 @@ export default connect(
     base: state.sheet.base,
     views: state.sheet.views,
     worksheetInfo: state.mobile.worksheetInfo,
+    isCharge: state.mobile.isCharge,
   }),
   dispatch =>
     bindActionCreators(

@@ -1,20 +1,11 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { byDay, byWeek, byMonth } from './time';
-import TimeHeader from './TimeHeader';
+import React, { Component } from 'react';
+import moment from 'moment';
+import config from './config';
 import GraphBg from './GraphBg';
 import GraphContent from './GraphContent';
-import config from './config';
-import moment from 'moment';
+import { byDay, byMonth, byWeek } from './time';
 import { durDays } from './time';
-
-/**
- * 生成一个 从 1 ~ length+1的长度为length的数组
- * 10 => [1,2,3,4,5,6,7,8,9,10]
- * @param {*} length
- */
-const genRationArr = length => Array.from({ length }, (v, i) => ++i);
+import TimeHeader from './TimeHeader';
 
 const { TYPE_TO_WIDTH } = config;
 export default class ganttContent extends Component {
@@ -25,10 +16,10 @@ export default class ganttContent extends Component {
    */
   componentDidMount() {
     const $taskList = document.querySelector('.taskListWrap');
-    this.graphWrap.addEventListener('scroll', (e) => {
+    this.graphWrap.addEventListener('scroll', e => {
       e.currentTarget.className == config.scrollingEle && ($taskList.scrollTop = e.target.scrollTop);
     });
-    this.graphWrap.addEventListener('mouseover', (e) => {
+    this.graphWrap.addEventListener('mouseover', e => {
       config.scrollingEle = e.currentTarget.className;
     });
 
@@ -38,10 +29,10 @@ export default class ganttContent extends Component {
   /**
    * 获取当前的滚动是在哪一个时间窗口
    */
-  getPosList = (timeBox) => {
+  getPosList = timeBox => {
     this.posList = [];
     this.timeBox = timeBox;
-    this.getIndex = (val) => {
+    this.getIndex = val => {
       if (this.posList.length <= 1) return 0;
       for (let i = 0; i < this.posList.length; i++) {
         if (this.posList[i] <= val && val <= this.posList[i + 1]) {
@@ -51,7 +42,7 @@ export default class ganttContent extends Component {
       return this.posList.length - 1;
     };
 
-    Array.from(timeBox).forEach((ele) => {
+    Array.from(timeBox).forEach(ele => {
       this.posList.push(ele.offsetLeft);
     });
   };
@@ -59,7 +50,7 @@ export default class ganttContent extends Component {
   /**
    * 当甘特图沿x轴滚动时,使上方的时间条有吸附左边缘的效果
    */
-  handleScroll = (el) => {
+  handleScroll = el => {
     const left = el.scrollLeft;
     const index = this.getIndex(left);
     this.timeBox[index].style.paddingLeft = left - this.posList[index] + 15 + 'px';

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { Dropdown, Input, Checkbox, MdAntDateRangePicker } from 'ming-ui';
-import DatePicker from 'src/components/newCustomFields/widgets/Date';
-import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { FILTER_CONDITION_TYPE, DATE_OPTIONS, DATE_RANGE_TYPE, DATE_RANGE_TYPE_OPTIONS } from '../../enum';
+import React, { useEffect, useState } from 'react';
 import _, { find, flatten, get, includes } from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import { Checkbox, Dropdown, MdAntDateRangePicker } from 'ming-ui';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
+import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { DATE_OPTIONS, DATE_RANGE_TYPE, DATE_RANGE_TYPE_OPTIONS, FILTER_CONDITION_TYPE } from '../../enum';
 
 function getPicker(type) {
   return {
@@ -95,7 +95,7 @@ export default function Date(props) {
             showTime={timeFormat ? { format: timeFormat } : false}
             picker={getPicker(showType)}
             format={showValueFormat}
-            onChange={(moments, times) => {
+            onChange={moments => {
               if (!moments || !_.isArray(moments)) {
                 moments = [];
               }
@@ -157,7 +157,7 @@ export default function Date(props) {
                 value={dayNum || ''}
                 placeholder={_l('请输入数字')}
                 disabled={disabled}
-                onBlur={e => {
+                onBlur={() => {
                   let dayNumToChange = dayNum;
                   if (dateRangeType === DATE_RANGE_TYPE.YEAR && Number(dayNum) > 100) {
                     setDayNum(100);
@@ -224,6 +224,12 @@ export default function Date(props) {
                     max: '',
                     showtype: !includes(['5', '4'], showType) ? String(dateRangeType) : showType,
                   },
+                  type: _.includes(
+                    [DATE_RANGE_TYPE.MINUTE, DATE_RANGE_TYPE.HOUR, DATE_RANGE_TYPE.SECOND],
+                    dateRangeType,
+                  )
+                    ? 16
+                    : 15,
                 }}
                 value={value && moment(value)}
                 showTime={showTime}

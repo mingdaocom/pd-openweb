@@ -77,7 +77,7 @@ export default class GunterEnter extends Component {
                     };
                   }
                   let infoData = { ...viewNew, ...viewData };
-                  const { begindate = '', enddate = '' } = getAdvanceSetting(infoData);
+
                   this.props.saveView(data, {
                     ...infoData,
                     displayControls: [],

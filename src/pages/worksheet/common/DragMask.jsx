@@ -15,7 +15,7 @@ const DragH = styled.div`
   cursor: ew-resize;
   width: 2px;
   height: 100%;
-  background-color: #2196f3;
+  background-color: #1677ff;
 `;
 
 const DragV = styled.div`
@@ -23,7 +23,7 @@ const DragV = styled.div`
   cursor: ns-resize;
   width: 100%;
   height: 2px;
-  background-color: #2196f3;
+  background-color: #1677ff;
 `;
 
 export default class DragMast extends React.Component {

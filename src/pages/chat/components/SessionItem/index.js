@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Tooltip from 'ming-ui/components/Tooltip';
-import './index.less';
 import _ from 'lodash';
+import { Tooltip } from 'ming-ui';
+import './index.less';
 
 export default class SessionItem extends Component {
   constructor(props) {
     super(props);
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const next = {
       isActive: nextProps.isActive,
       isHover: nextProps.isHover,
@@ -37,7 +37,7 @@ export default class SessionItem extends Component {
       (showBadge === 2 && item.isSilent)
     ) {
       return <span className="msg-at msg-reply">[{_l('有人回复我')}]</span>;
-      } else if ((item.atlist && item.atlist.length) || (showBadge === 1 && item.isSilent)) {
+    } else if ((item.atlist && item.atlist.length) || (showBadge === 1 && item.isSilent)) {
       return <span className="msg-at">[{_l('有人@我')}]</span>;
     } else if (item.sendMsg && !isActive) {
       return <span className="msg-draft">[{_l('草稿')}]</span>;
@@ -92,19 +92,18 @@ export default class SessionItem extends Component {
       <div
         className={cx('SessionList-item', {
           active: isActive,
-          ThemeBGColor8: isActive,
           ThemeBGColor7: isHover,
-          topBGColor: isTop,
+          topBGColor: visible && isTop,
         })}
         onClick={this.props.onOpenPanel}
         onContextMenu={this.props.onContextMenu}
         data-id={item.value}
       >
-        {visible ? (
+        {/*visible ? (
           <div onClick={this.props.onRemoveSession} title={_l('关闭会话')} className="delete ThemeColor9">
             <i className="icon-delete" />
           </div>
-        ) : undefined}
+        ) : undefined*/}
         <div className="SessionList-avatar">
           {item.count || item.weak_count ? (
             <div
@@ -118,17 +117,17 @@ export default class SessionItem extends Component {
           {visible ? (
             this.renderAvatar(item)
           ) : (
-            <Tooltip popupPlacement="left" text={<span>{item.name}</span>}>
+            <Tooltip popupPlacement="left" text={item.name} offset={[-3, 0]} autoCloseDelay={1000}>
               {this.renderAvatar(item)}
             </Tooltip>
           )}
           {item.sendMsg && !isActive ? (
             <div className="SessionList-draft">
-              <i className="icon-new_mail" />
+              <i className="icon-edit" />
             </div>
           ) : undefined}
         </div>
-        {this.renderListInfo(item)}
+        {visible && this.renderListInfo(item)}
       </div>
     );
   }

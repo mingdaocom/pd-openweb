@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button, Icon, SvgIcon } from 'ming-ui';
-import cx from 'classnames';
-import styled from 'styled-components';
 import { TinyColor } from '@ctrl/tinycolor';
-import { ButtonListWrap, GraphWrap } from './styled';
-import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, SvgIcon } from 'ming-ui';
+import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
+import { ButtonListWrap, GraphWrap } from './styled';
 
 const ButtonDisplayWrap = styled.div`
   display: flex;
@@ -17,7 +17,8 @@ const ButtonDisplayWrap = styled.div`
   background-color: #fff;
   overflow: auto;
   border-radius: 3px;
-  .title, .explain {
+  .title,
+  .explain {
     text-align: center;
     margin-bottom: 12px;
     color: var(--title-color);
@@ -60,7 +61,7 @@ const BtnWrap = styled.div`
       border-radius: 3px;
     }
     &.active {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       border-radius: 3px;
     }
     &.error {
@@ -121,7 +122,7 @@ export default function BtnList({
   title,
   explain,
   activeIndex,
-  onClick
+  onClick,
 }) {
   const { btnType, direction = 1, titleStyles = { ...defaultTitleStyles, textAlign: 'center' } } = config || {};
   const pageTitleStyles = customPageConfig.titleStyles || {};
@@ -137,7 +138,11 @@ export default function BtnList({
       <div className="hint">{_l('选择下方预览卡片中的按钮进行设置')}</div>
       <ButtonDisplayWrap>
         <div className="flexColumn" style={{ alignItems: newTitleStyles.textAlign === 'left' ? 'start' : undefined }}>
-          {title && <div className="title" style={replaceTitleStyle(newTitleStyles, themeColor)}>{title}</div>}
+          {title && (
+            <div className="title" style={replaceTitleStyle(newTitleStyles, themeColor)}>
+              {title}
+            </div>
+          )}
           {explain && <div className="explain">{explain}</div>}
         </div>
         <ButtonListWrap>

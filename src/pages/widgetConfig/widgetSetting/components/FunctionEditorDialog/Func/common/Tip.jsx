@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { functionDetails } from '../enum';
@@ -41,11 +41,6 @@ const Con = styled.div`
   }
 `;
 
-const List = styled.ul`
-  margin: 0;
-  padding-left: 20px;
-`;
-const Item = styled.li``;
 const Des = styled.div`
   margin-top: 4px;
   font-size: 12px;

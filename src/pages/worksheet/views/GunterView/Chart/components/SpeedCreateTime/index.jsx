@@ -1,12 +1,12 @@
-import React, { Fragment, Component } from 'react';
-import styled from 'styled-components';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import { getWorkDays, getDays, getWeeks, getMonths } from 'src/pages/worksheet/views/GunterView/util';
-import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
+import { getDays, getMonths, getWeeks, getWorkDays } from 'src/pages/worksheet/views/GunterView/util';
 
 const SpeedCreateTimeWrapper = styled.div`
   height: 100%;
@@ -22,7 +22,7 @@ const TimeWrapper = styled.div`
   height: 14px;
   margin-top: 9px;
   position: absolute;
-  border: 2px solid #2196f3;
+  border: 2px solid #1677ff;
   border-radius: 2px;
   background-color: #fff;
   cursor: pointer;
@@ -33,7 +33,7 @@ const MilepostTimeWrapper = styled.div`
   top: 0;
   left: 0;
   height: 22px;
-  border-color: #2196f3;
+  border-color: #1677ff;
   cursor: pointer;
   transform: translateY(5px);
   &::before,
@@ -84,7 +84,9 @@ const getDayPeriodList = (periodList, periodType, viewConfig) => {
   if ([PERIOD_TYPE.day].includes(periodType)) {
     return periodList;
   }
-  return onlyWorkDay ? getWorkDays(start.time, end.time).result : getDays(moment(start.time), moment(end.time), null, viewConfig).result;
+  return onlyWorkDay
+    ? getWorkDays(start.time, end.time).result
+    : getDays(moment(start.time), moment(end.time), null, viewConfig).result;
 };
 
 const getWithoutArrangementIndexs = (grouping, milepost) => {
@@ -144,7 +146,7 @@ export default class SpeedCreateTime extends Component {
   }
   componentDidMount() {
     const { gunterView, base } = this.props;
-    const { viewConfig }  = gunterView;
+    const { viewConfig } = gunterView;
     const { startId, endId } = viewConfig;
     this.debounceHandleMouseMove = _.throttle(this.handleMouseMove, 50);
     this.gunterViewEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
@@ -182,7 +184,7 @@ export default class SpeedCreateTime extends Component {
     const record = records[hoverIndex];
 
     if (_.isEmpty(record)) {
-      return
+      return;
     }
 
     if (isMilepost) {

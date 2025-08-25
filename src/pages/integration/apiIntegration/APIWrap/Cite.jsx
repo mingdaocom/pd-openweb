@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+
 const Wrap = styled.div`
   padding: 24px;
   width: 100%;
@@ -30,7 +31,7 @@ const Wrap = styled.div`
       }
       &:hover {
         .name a {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }

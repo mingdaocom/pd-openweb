@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import './index.less';
 import accountAuth from './images/accountAuth.png';
-import queryAgentState from './images/queryAgentState.png';
-import startAgent from './images/startAgent.png';
-import restartDb from './images/restartDb.png';
 import createAdminAccount from './images/createAdminAccount.png';
-import enableCDC from './images/enableCDC.png';
 import enableAuth from './images/enableAuth.png';
+import enableCDC from './images/enableCDC.png';
+import queryAgentState from './images/queryAgentState.png';
+import restartDb from './images/restartDb.png';
+import startAgent from './images/startAgent.png';
+import './index.less';
 
 export default function SqlServerGuide(props) {
   const { type } = props;
@@ -22,6 +22,7 @@ export default function SqlServerGuide(props) {
           <li>{_l('在 SQL Server 数据库上启用CDC')}</li>
           <li>{_l('SQL Server代理任务（CDC Agent）是启动状态')}</li>
           <li>{_l('确保数据库可以与数据集成通信')}</li>
+          <li>{_l('确保连接数据库时的账号具有当前数据库的 db_owner 或以上权限')}</li>
         </ul>
 
         <h5>{_l('查询SQLServer数据库版本')}</h5>
@@ -55,6 +56,20 @@ export default function SqlServerGuide(props) {
         <p>{_l('只有开启数据库CDC才需要sysadmin权限，其余场景下无需sysadmin权限。')}</p>
         <img id="accountAuth" src={accountAuth} onClick={() => setCurrentPic('accountAuth')} />
         <p>TIPS：{_l('如使用数据库读写权限创建同步任务，需在创建数据源的时候必须指定数据库')}</p>
+
+        <h5>{_l('创建专用用户并授权')}</h5>
+        <div className="sqlText">
+          <div>-- {_l('创建用户')}</div>
+          <div>CREATE LOGIN flinkuser WITH PASSWORD = 'Flink@123';</div>
+          <div>CREATE USER flinkuser FOR LOGIN flinkuser;</div>
+          <div>-- {_l('授予数据库访问权限')}</div>
+          <div>ALTER ROLE db_owner ADD MEMBER flinkuser; --{_l('生产环境建议细化权限')}</div>
+          <div>GRANT SELECT ON ALL TABLES IN SCHEMA dbo TO flinkuser;</div>
+          <div>-- {_l('授予CDC相关权限')}</div>
+          <div>GRANT VIEW SERVER STATE TO flinkuser;</div>
+          <div>GRANT SELECT ON sys.change_tables TO flinkuser;</div>
+          <div>GO</div>
+        </div>
 
         <h5>{_l('查询表是否已经启用CDC(变更数据捕获)')}</h5>
         <div>{_l('返回0代表未启用；1代表已启用')}</div>

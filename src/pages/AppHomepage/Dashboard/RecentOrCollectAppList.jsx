@@ -119,7 +119,7 @@ const ListItemSkeleton = styled.div`
   }
 `;
 
-const RecentOrCollectAppList = forwardRef((props, ref) => {
+const RecentOrCollectAppList = forwardRef(props => {
   const {
     apps = [],
     loading,
@@ -139,7 +139,7 @@ const RecentOrCollectAppList = forwardRef((props, ref) => {
   const minWidth = 180;
 
   useEffect(() => {
-    setSortIds(apps.map(item => (!!item.type ? item.itemId : item.id)));
+    setSortIds(apps.map(item => (item.type ? item.itemId : item.id)));
   }, [apps]);
 
   useEffect(() => {
@@ -204,7 +204,7 @@ const RecentOrCollectAppList = forwardRef((props, ref) => {
             //是外部链接应用
             window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.id));
           } else {
-            !!item.type
+            item.type
               ? navigateToAppItem(item.itemId)
               : navigateTo(getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType));
           }
@@ -214,19 +214,19 @@ const RecentOrCollectAppList = forwardRef((props, ref) => {
           <div
             className="appIcon"
             style={{
-              backgroundColor: !!item.type ? getAppOrItemColor(item, true).bg : getAppOrItemColor(item).bg,
+              backgroundColor: item.type ? getAppOrItemColor(item, true).bg : getAppOrItemColor(item).bg,
             }}
           >
             <SvgIcon
-              url={!!item.type ? item.itemUrl : item.iconUrl}
-              fill={!!item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
+              url={item.type ? item.itemUrl : item.iconUrl}
+              fill={item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
               size={20}
             />
             <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} isRecent={true} />
           </div>
           <div className="textContent">
-            <div className="titleName overflow_ellipsis" title={!!item.type ? itemName : appName}>
-              {!!item.type ? itemName : appName}
+            <div className="titleName overflow_ellipsis" title={item.type ? itemName : appName}>
+              {item.type ? itemName : appName}
             </div>
             {!!item.type && (
               <div className="appName overflow_ellipsis" title={appName}>
@@ -268,7 +268,7 @@ const RecentOrCollectAppList = forwardRef((props, ref) => {
               canDrag={draggable}
               items={sortIds
                 .map(id => {
-                  const it = _.find(apps, app => (!!app.type ? app.itemId === id : app.id === id));
+                  const it = _.find(apps, app => (app.type ? app.itemId === id : app.id === id));
 
                   return it ? { ...it, uniqueId: `${it.id}-${it.itemId}` } : undefined;
                 })
@@ -278,7 +278,7 @@ const RecentOrCollectAppList = forwardRef((props, ref) => {
               itemClassName="appItemWrapper"
               helperClass="collectAppDragItem"
               onSortEnd={newItems => {
-                const newSortIds = newItems.map(app => (!!app.type ? app.itemId : app.id));
+                const newSortIds = newItems.map(app => (app.type ? app.itemId : app.id));
                 setSortIds(newSortIds);
                 onAppSorted({ appIds: newSortIds, projectId, sortType: 1 });
               }}

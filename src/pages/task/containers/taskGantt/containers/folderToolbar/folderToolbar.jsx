@@ -1,15 +1,22 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import config from '../../config/config';
-import './folderToolbar.less';
 import cx from 'classnames';
-import utils from '../../utils/utils';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import GanttDialog from '../../component/ganttDialog';
-const ClickAwayable = createDecoratedComponent(withClickAway);
-import { changeTaskStatus, changeView, changeFilterWeekend, changeSubTaskLevel, getTimeAxisSource, updateDataSource } from '../../redux/actions';
 import _ from 'lodash';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import GanttDialog from '../../component/ganttDialog';
+import config from '../../config/config';
+import {
+  changeFilterWeekend,
+  changeSubTaskLevel,
+  changeTaskStatus,
+  changeView,
+  getTimeAxisSource,
+  updateDataSource,
+} from '../../redux/actions';
+import './folderToolbar.less';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class FolderToolbar extends Component {
   constructor(props) {
@@ -123,7 +130,7 @@ class FolderToolbar extends Component {
     const { ganttDialogVisible } = this.state;
     const taskStatusList = [
       { text: _l('进行中'), icon: 'icon-task-have-in', value: config.TASKSTATUS.NO_COMPLETED },
-      { text: _l('已完成'), icon: 'icon-task-complete', value: config.TASKSTATUS.COMPLETED },
+      { text: _l('已完成'), icon: 'icon-done_all', value: config.TASKSTATUS.COMPLETED },
       { text: _l('全部'), icon: 'icon-task-all', value: config.TASKSTATUS.ALL },
     ];
     const viewTypeList = [
@@ -131,7 +138,10 @@ class FolderToolbar extends Component {
       { text: _l('周'), value: config.VIEWTYPE.WEEK },
       { text: _l('月'), value: config.VIEWTYPE.MONTH },
     ];
-    const filterWeekendList = [{ text: _l('仅工作日'), value: true }, { text: _l('显示周末'), value: false }];
+    const filterWeekendList = [
+      { text: _l('仅工作日'), value: true },
+      { text: _l('显示周末'), value: false },
+    ];
     const taskLevelList = [
       { text: _l('展开全部层级'), value: config.SUBTASKLEVEL.ALL },
       { text: _l('展开到%0级任务', 1), value: config.SUBTASKLEVEL.ONE },
@@ -144,7 +154,12 @@ class FolderToolbar extends Component {
     return (
       <div className="folderToolbar">
         <span className="taskStatusBox">
-          <span className="taskStatus pointer" onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })}>
+          <span
+            className="taskStatus pointer"
+            onMouseDown={evt =>
+              this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })
+            }
+          >
             <span>{this.getTaskStatusName()}</span>
             <i className="Font12 icon-arrow-down-border" />
           </span>
@@ -169,14 +184,16 @@ class FolderToolbar extends Component {
               );
             })}
           </ClickAwayable>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
 
         <ul className="folderGanttBtn">
           {viewTypeList.map((item, i) => {
             return (
-              <li key={i} className={cx({ active: stateConfig.currentView === item.value })} onClick={() => this.switchView(item.value)}>
+              <li
+                key={i}
+                className={cx({ active: stateConfig.currentView === item.value })}
+                onClick={() => this.switchView(item.value)}
+              >
                 {item.text}
               </li>
             );
@@ -186,14 +203,22 @@ class FolderToolbar extends Component {
         <ul className="folderGanttBtn folderGanttWeekBtn">
           {filterWeekendList.map((item, i) => {
             return (
-              <li key={i} className={cx({ active: stateConfig.filterWeekend === item.value })} onClick={() => this.filterWeekend(item.value)}>
+              <li
+                key={i}
+                className={cx({ active: stateConfig.filterWeekend === item.value })}
+                onClick={() => this.filterWeekend(item.value)}
+              >
                 {item.text}
               </li>
             );
           })}
         </ul>
 
-        <span className="folderGanttLevelBtn pointer" data-tip={_l('展开层级')} onMouseDown={evt => this.showTaskLevel(evt)}>
+        <span
+          className="folderGanttLevelBtn pointer"
+          data-tip={_l('展开层级')}
+          onMouseDown={evt => this.showTaskLevel(evt)}
+        >
           <i className="icon-task-show-tree Font15" />
         </span>
 
@@ -212,12 +237,13 @@ class FolderToolbar extends Component {
               );
             })}
           </ClickAwayable>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
 
         {this.props.showStaticGantt && (
-          <span className="Right pointer mRight20 folderStaticGantt ThemeColor3" onClick={() => this.switchGanttDialogVisible()}>
+          <span
+            className="Right pointer mRight20 folderStaticGantt ThemeColor3"
+            onClick={() => this.switchGanttDialogVisible()}
+          >
             <i className="Font16 icon-gantt_chart mRight5" />
             {_l('甘特图')}
           </span>
@@ -228,7 +254,7 @@ class FolderToolbar extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { stateConfig, taskConfig } = state.task;
 
   return {

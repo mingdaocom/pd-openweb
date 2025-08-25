@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Popover, Input } from 'antd';
-import { Icon, Dialog, Button } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import styled from 'styled-components';
+import { Input, Popover } from 'antd';
 import { filter, get, pick } from 'lodash';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Icon } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
 
 const ResetContent = styled.div`
   width: 400px;
@@ -39,7 +40,7 @@ const ResetWrap = styled.div`
     }
   }
   .reset {
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
   }
 `;
@@ -112,7 +113,7 @@ export default function ResetAutoNumber(props) {
                             value={initNum}
                             className="flex Gray_9e"
                             onChange={e => setNum(e.target.value.replace(/[^\d]/g, ''))}
-                            onBlur={e => {
+                            onBlur={() => {
                               if (initNum < startNum) {
                                 setNum(startNum);
                               }

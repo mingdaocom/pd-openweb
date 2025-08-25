@@ -1,6 +1,7 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
@@ -81,7 +82,7 @@ const ArrowUp = styled.span`
   cursor: pointer;
   &:hover,
   &.active {
-    border-color: transparent transparent #2196f3 transparent;
+    border-color: transparent transparent #1677ff transparent;
   }
 `;
 
@@ -93,7 +94,7 @@ const ArrowDown = styled.span`
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #2196f3 transparent transparent transparent;
+    border-color: #1677ff transparent transparent transparent;
   }
 `;
 let ajaxPromise = null;
@@ -349,7 +350,7 @@ export default function AggregationTables(props) {
                 : checkCanAdd();
             }}
           />
-          <div className="flex flexColumn aggregationList">{renderContent()}</div>
+          <div className="flex flexColumn aggregationList overflowHidden">{renderContent()}</div>
         </React.Fragment>
       )}
       {showInfo && (

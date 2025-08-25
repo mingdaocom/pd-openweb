@@ -194,7 +194,7 @@ class ImportAndExport extends Component {
         <div className="serialTitle">{_l('1.下载导入模版')}</div>
         <div className="importUploadModule">
           <div className="importUploadText">
-            <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
+            <span className="Font20 mRight10 mBottom2 icon-new_excel color_gr TxtMiddle" />
             <span className="Font17">{_l('导入模板')}</span>
           </div>
           <a className="Font16 downloadBtn" href={userTemplatePaths[getCurrentLangCode()]} target="_blank">
@@ -231,7 +231,7 @@ class ImportAndExport extends Component {
 
     return (
       <div className="importExcelBox">
-        <span className={cx('icon-task_custom_excel_01', fileName ? 'color_gr' : 'color_d')} />
+        <span className={cx('icon-new_excel', fileName ? 'color_gr' : 'color_d')} />
         <span className="Font13 mTop10 color_dd">{fileName ? fileName : _l('支持 excel')}</span>
         <UploadFile
           fileName={fileName}
@@ -249,7 +249,7 @@ class ImportAndExport extends Component {
       <div className="exportContainer">
         <div className="exportHeader">
           <Icon
-            icon="arrow_back"
+            icon="backspace"
             onClick={() => {
               this.props.updateShowExport(false);
             }}

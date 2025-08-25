@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { arrayOf, shape, string, func } from 'prop-types';
+import _, { isEmpty } from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
 import { SortableList } from 'ming-ui';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 import AddAppItem from './AddAppItem';
 import MyAppItem from './MyAppItem';
-import _, { isEmpty } from 'lodash';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 
 const SORT_TYPE = {
   star: 1,
@@ -97,8 +97,9 @@ export default class SortableComponent extends Component {
             .filter(o => o && (!o.pcDisplay || canEditApp(o.permissionType)))}
           renderItem={({ item }) => (
             <MyAppItem
-              {...item}
               {...this.props}
+              {...item}
+              isExternalApp={projectId === 'external'}
               canDrag={canDrag}
               onChangeCanDrag={value => this.setState({ canDrag: value })}
             />

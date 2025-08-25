@@ -1,8 +1,8 @@
-import React, { createRef, useEffect } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
+import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Input } from 'ming-ui';
-import Filter from './Filter';
 
 const Con = styled.div`
   display: flex;
@@ -35,16 +35,6 @@ const QueryCon = styled.div`
     padding-left: 5px !important;
   }
 `;
-const FilterCon = styled.div`
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  width: 36px;
-  height: 36px;
-  margin-left: 10px;
-  line-height: 36px;
-  text-align: center;
-`;
 
 const AddNewRecordBtn = styled(Button)`
   padding: 0 16px 0 12px !important;
@@ -53,33 +43,53 @@ const AddNewRecordBtn = styled(Button)`
   align-items: center;
 `;
 
-function enrichFilters(filters) {
-  return filters.map(f => ({
-    ...f,
-    advancedSetting: { direction: '2', allowitem: '1' },
-  }));
-}
+const FastFiltersExpandBtn = styled.div`
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  margin-left: 10px;
+  line-height: 36px;
+  text-align: center;
+  font-size: 18px;
+  color: ${({ active }) => (active ? '#1677ff' : '#9e9e9e')};
+  &.filtersVisible {
+    color: #9e9e9e;
+    border-color: #e0e0e0;
+    &:hover {
+      color: #1677ff;
+      border-color: #1677ff;
+      background: #fff;
+    }
+  }
+  &:hover {
+    color: #1677ff;
+    border-color: #1677ff;
+    background: #fff;
+  }
+`;
 
 export default function Header(props) {
   const {
-    loading,
     btnName,
     entityName,
     showNewRecord,
-    projectId,
-    appId,
-    worksheetId,
+    showFastFilters,
+    isFiltered,
+    filtersVisible,
+
     control = {},
     controls,
-    quickFilters,
     searchConfig,
-    onFilter,
     onSearch,
     onKeyDown,
     onNewRecord,
+    onExpandFastFilters,
   } = props;
   const inputRef = createRef();
-  const { searchFilters } = searchConfig;
+  const [keyword, setKeyword] = useState('');
   const searchControl = searchConfig.searchControl || _.find(controls, { attribute: 1 }) || {};
   useEffect(() => {
     if (inputRef && inputRef.current) {
@@ -99,23 +109,40 @@ export default function Header(props) {
             placeholder={_l('搜索%0', searchControl.controlName || '')}
             manualRef={inputRef}
             autoFocus
-            onChange={onSearch}
+            value={keyword}
+            onChange={value => {
+              setKeyword(value);
+              onSearch(value);
+            }}
             onKeyDown={onKeyDown}
           />
+          {keyword && (
+            <span
+              className="t-flex t-items-center t-justify-center mLeft5 mRight8"
+              onClick={() => {
+                setKeyword('');
+                onSearch('');
+              }}
+            >
+              <i className="icon icon-cancel Hand Gray_9e Font16"></i>
+            </span>
+          )}
         </QueryCon>
-        {!loading && searchFilters && !!searchFilters.length && (
-          <FilterCon>
-            <Filter
-              projectId={projectId}
-              appId={appId}
-              worksheetId={worksheetId}
-              control={control}
-              controls={controls}
-              quickFilters={quickFilters}
-              searchFilters={enrichFilters(searchFilters)}
-              onFilter={onFilter}
-            />
-          </FilterCon>
+
+        {showFastFilters && (
+          <Tooltip title={!filtersVisible ? _l('快速筛选') : null}>
+            <FastFiltersExpandBtn
+              className={filtersVisible ? 'filtersVisible' : ''}
+              active={isFiltered}
+              onClick={onExpandFastFilters}
+            >
+              {filtersVisible ? (
+                <i className="icon icon-arrow-up-border" />
+              ) : (
+                <i className="icon icon-worksheet_filter" />
+              )}
+            </FastFiltersExpandBtn>
+          </Tooltip>
         )}
         {showNewRecord && (
           <AddNewRecordBtn type="primary" className="mLeft10" onClick={onNewRecord}>

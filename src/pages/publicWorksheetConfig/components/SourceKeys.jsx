@@ -4,8 +4,8 @@ import { Icon } from 'ming-ui';
 import { TextBlock } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import AppearanceConfig from '../common/AppearanceConfig';
-import { getPageConfig } from '../utils';
 import { themes } from '../enum';
+import { getPageConfig } from '../utils';
 
 const Con = styled.div`
   :hover .delete {
@@ -54,7 +54,7 @@ export default function ({
     const { themeBgColor, themeColor } = config;
 
     if (!themeBgColor) {
-      return !themes[themeColor] ? '#2196f3' : (themes[themeColor] || {}).main;
+      return !themes[themeColor] ? '#1677ff' : (themes[themeColor] || {}).main;
     } else {
       return themeBgColor;
     }
@@ -73,7 +73,7 @@ export default function ({
       <Con key={key} className="mBottom6 flexRow">
         <No>
           <span className="index">{index + 1}</span>
-          <i className="icon icon-task-new-delete delete" onClick={() => handleDelete(key, index)}></i>
+          <i className="icon icon-trash delete" onClick={() => handleDelete(key, index)}></i>
         </No>
         <TextBlock className="ellipsis" style={{ width: 104, marginRight: 6 }}>
           {key}

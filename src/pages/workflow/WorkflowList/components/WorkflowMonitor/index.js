@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import flowMonitor from 'src/pages/workflow/api/processVersion.js';
-import { navigateTo } from 'src/router/navigateTo';
-import HistoryChart from './HistoryChart';
-import ExecutionDetails from './ExecutionDetails';
-import RealTimeData from './RealTimeData';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { checkIsAppAdmin } from 'ming-ui/functions';
+import flowMonitor from 'src/pages/workflow/api/processVersion.js';
+import { navigateTo } from 'src/router/navigateTo';
+import ExecutionDetails from './ExecutionDetails';
+import HistoryChart from './HistoryChart';
+import RealTimeData from './RealTimeData';
 import './index.less';
-import _ from 'lodash';
 
 const MonitorWrap = styled.div`
   border-radius: 4px;
@@ -119,7 +119,7 @@ export default class WorkflowMonitor extends Component {
       {
         sorter: {
           fields,
-          isDesc: !isDesc,
+          isDesc: fields === _.get(this.state, 'sorter.fields') ? !isDesc : true,
         },
         pageIndex: 1,
       },

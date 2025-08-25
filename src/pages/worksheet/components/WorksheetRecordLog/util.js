@@ -44,15 +44,15 @@ export function assembleListData(data) {
 export function assembleNewLogListData(data) {
   let _resArr = [];
   // 前后相邻的两条 时间在同一天 且 操作者相同 的 并为一条
-  data.forEach((item, index) => {
+  data.forEach(item => {
     if (
       !_resArr.length ||
       !moment(_resArr[_resArr.length - 1].time).isSame(item.operatContent.createTime, 'day') ||
       _resArr[_resArr.length - 1].accountId !== item.opeartorInfo.accountId ||
       _resArr[_resArr.length - 1].type !== item.operatContent.type ||
       _resArr[[_resArr.length - 1]].requestType !== item.operatContent.requestType ||
-      item.operatContent.requestType === 7 ||
-      item.operatContent.requestType === 2
+      _.includes([2, 7], item.operatContent.requestType) ||
+      _.includes([10, 11, 12], item.operatContent.type)
     ) {
       _resArr.push({
         ...item.opeartorInfo,
@@ -82,7 +82,7 @@ export function getShowWfstatusValue(option) {
   if (_.startsWith(value, '其他')) {
     return value === '其他' ? _l('其他') : _.replace(value, '其他:', '') || _l('其他');
   }
-  if (WF_STATUS.hasOwnProperty(value)) {
+  if (_.has(WF_STATUS, value)) {
     return WF_STATUS[value];
   }
   return WFSTATUS_OPTIONS.find(l => l.key === value) ? WFSTATUS_OPTIONS.find(l => l.key === value).value : value;
@@ -334,6 +334,9 @@ const OPTION_TYPE_TEXT = {
   3: _l('删除了记录'),
   5: _l('导出了记录'),
   6: _l('恢复了记录'),
+  10: _l('触发业务规则锁定了记录'),
+  11: _l('锁定了记录'),
+  12: _l('解锁了记录'),
   default: _l('更新了记录'),
 };
 
@@ -375,7 +378,7 @@ export const renderTitleText = (data, extendParam) => {
 
         content = (
           <span className="mLeft2">
-            {!!editTypeText ? editTypeText : _l('更新%0个字段', count)}
+            {editTypeText ? editTypeText : _l('更新%0个字段', count)}
             {control && <span className="Gray mLeft8">{control.controlName}</span>}
           </span>
         );
@@ -383,6 +386,9 @@ export const renderTitleText = (data, extendParam) => {
       case 3:
       case 5:
       case 6:
+      case 10:
+      case 11:
+      case 12:
         content = <span className="mLeft2">{OPTION_TYPE_TEXT[type]}</span>;
         break;
       case 4:

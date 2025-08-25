@@ -1,11 +1,12 @@
-import React, { useState, Fragment } from 'react';
+import React, { Fragment } from 'react';
+import { Checkbox, Collapse, Input, Switch } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { isNumberControl } from 'statistics/common';
 import { Count, Location } from './Count';
 import PreinstallStyle from './PreinstallStyle';
-import TitleStyle from './TitleStyle';
 import SubLineCount from './SubLineCount';
-import { Collapse, Checkbox, Input, Switch } from 'antd';
-import { isNumberControl } from 'statistics/common';
+import TitleStyle from './TitleStyle';
 
 export default function pivotTableCountPanelGenerator(props) {
   const { currentReport, onChangeStyle, changeCurrentReport, themeColor, customPageConfig, ...collapseProps } = props;
@@ -22,9 +23,9 @@ export default function pivotTableCountPanelGenerator(props) {
           },
         },
       },
-      isRequest
+      isRequest,
     );
-  }
+  };
 
   const handleChangeColumnSummary = (data, isRequest = true) => {
     changeCurrentReport(
@@ -37,33 +38,21 @@ export default function pivotTableCountPanelGenerator(props) {
           },
         },
       },
-      isRequest
+      isRequest,
     );
-  }
+  };
 
   const renderPreinstallStyle = () => {
     return (
-      <Collapse.Panel
-        key="preinstallStyle"
-        header={_l('表')}
-        {...collapseProps}
-      >
-        <PreinstallStyle
-          style={style}
-          customPageConfig={customPageConfig}
-          onChangeStyle={onChangeStyle}
-        />
+      <Collapse.Panel key="preinstallStyle" header={_l('表')} {...collapseProps}>
+        <PreinstallStyle style={style} customPageConfig={customPageConfig} onChangeStyle={onChangeStyle} />
       </Collapse.Panel>
     );
-  }
+  };
 
   const renderCell = () => {
     return (
-      <Collapse.Panel
-        key="cell"
-        header={_l('单元格')}
-        {...collapseProps}
-      >
+      <Collapse.Panel key="cell" header={_l('单元格')} {...collapseProps}>
         <TitleStyle
           type="cell"
           style={style}
@@ -75,15 +64,11 @@ export default function pivotTableCountPanelGenerator(props) {
         />
       </Collapse.Panel>
     );
-  }
+  };
 
   const renderLineTitleStyle = () => {
     return (
-      <Collapse.Panel
-        key="lineTitleStyle"
-        header={_l('行标题')}
-        {...collapseProps}
-      >
+      <Collapse.Panel key="lineTitleStyle" header={_l('行标题')} {...collapseProps}>
         <TitleStyle
           type="line"
           style={style}
@@ -94,15 +79,11 @@ export default function pivotTableCountPanelGenerator(props) {
         />
       </Collapse.Panel>
     );
-  }
+  };
 
   const renderColumnTitleStyle = () => {
     return (
-      <Collapse.Panel
-        key="columnTitleStyle"
-        header={_l('列标题')}
-        {...collapseProps}
-      >
+      <Collapse.Panel key="columnTitleStyle" header={_l('列标题')} {...collapseProps}>
         <TitleStyle
           type="column"
           style={style}
@@ -112,7 +93,7 @@ export default function pivotTableCountPanelGenerator(props) {
         />
       </Collapse.Panel>
     );
-  }
+  };
 
   const renderSubLineCount = () => {
     const { lines } = pivotTable;
@@ -138,8 +119,8 @@ export default function pivotTableCountPanelGenerator(props) {
             onChange={checked => {
               const param = {
                 pivotTable: {
-                  ...currentReport.pivotTable
-                }
+                  ...currentReport.pivotTable,
+                },
               };
               const newLines = lines.map((n, index) => {
                 return index ? { ...n, subTotal: checked } : n;
@@ -148,8 +129,8 @@ export default function pivotTableCountPanelGenerator(props) {
                 param.yaxisList = yaxisList.map(n => {
                   return {
                     ...n,
-                    showPercent: 0
-                  }
+                    showPercent: 0,
+                  };
                 });
               }
               param.pivotTable.lines = newLines;
@@ -158,16 +139,13 @@ export default function pivotTableCountPanelGenerator(props) {
           />
         }
       >
-        <SubLineCount
-          currentReport={currentReport}
-          onChangeCurrentReport={changeCurrentReport}
-        />
+        <SubLineCount currentReport={currentReport} onChangeCurrentReport={changeCurrentReport} />
       </Collapse.Panel>
     );
-  }
+  };
 
   const renderPivotTableLineCount = () => {
-    const { reportType, displaySetup, yaxisList } = currentReport;
+    const { yaxisList } = currentReport;
     const { showLineTotal, lineSummary = {} } = pivotTable;
     const { controlList = [], rename } = lineSummary;
     return (
@@ -188,7 +166,7 @@ export default function pivotTableCountPanelGenerator(props) {
                 {
                   pivotTable: {
                     ...pivotTable,
-                    showLineTotal: checked
+                    showLineTotal: checked,
                   },
                 },
                 true,
@@ -213,95 +191,94 @@ export default function pivotTableCountPanelGenerator(props) {
               }}
             />
           </div>
-          <Location
-            summary={lineSummary}
-            locationType="line"
-            onChangeSummary={handleChangeLineSummary}
-          />
-          {yaxisList.filter(item => isNumberControl(item.controlType) ? true : item.normType !== 7).map(item => (
-            <Count
-              key={item.controlId}
-              yAxis={item}
-              isCollectMode={true}
-              extra={
-                <Checkbox
-                  className="mLeft0 mBottom15"
-                  checked={!!_.find(controlList, { controlId: item.controlId })}
-                  onChange={(event) => {
-                    const id = item.controlId;
-                    if (event.target.checked) {
-                      const data = {
-                        controlId: id,
-                        name: '',
-                        sum: 0,
-                        type: 1
-                      }
-                      changeCurrentReport(
-                        {
-                          pivotTable: {
-                            ...pivotTable,
-                            lineSummary: {
-                              ...lineSummary,
-                              controlList: controlList.concat(data)
-                            }
+          <Location summary={lineSummary} locationType="line" onChangeSummary={handleChangeLineSummary} />
+          {yaxisList
+            .filter(item => (isNumberControl(item.controlType) ? true : item.normType !== 7))
+            .map(item => (
+              <Count
+                key={item.controlId}
+                yAxis={item}
+                isCollectMode={true}
+                isCalculateMode={true}
+                extra={
+                  <Checkbox
+                    className="mLeft0 mBottom15"
+                    checked={!!_.find(controlList, { controlId: item.controlId })}
+                    onChange={event => {
+                      const id = item.controlId;
+                      if (event.target.checked) {
+                        const data = {
+                          controlId: id,
+                          name: '',
+                          sum: 0,
+                          type: 1,
+                        };
+                        changeCurrentReport(
+                          {
+                            pivotTable: {
+                              ...pivotTable,
+                              lineSummary: {
+                                ...lineSummary,
+                                controlList: controlList.concat(data),
+                              },
+                            },
                           },
-                        },
-                        true,
-                      );
+                          true,
+                        );
+                      } else {
+                        changeCurrentReport(
+                          {
+                            pivotTable: {
+                              ...pivotTable,
+                              lineSummary: {
+                                ...lineSummary,
+                                controlList: controlList.filter(item => item.controlId !== id),
+                              },
+                            },
+                          },
+                          true,
+                        );
+                      }
+                    }}
+                  >
+                    {item.controlName}
+                  </Checkbox>
+                }
+                summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
+                onChangeSummary={(data, isRequest = true) => {
+                  const id = item.controlId;
+                  const newControlList = controlList.map(item => {
+                    if (id === item.controlId) {
+                      return {
+                        ...item,
+                        ...data,
+                      };
                     } else {
-                      changeCurrentReport(
-                        {
-                          pivotTable: {
-                            ...pivotTable,
-                            lineSummary: {
-                              ...lineSummary,
-                              controlList: controlList.filter(item => item.controlId !== id)
-                            }
-                          },
+                      return item;
+                    }
+                  });
+                  changeCurrentReport(
+                    {
+                      pivotTable: {
+                        ...pivotTable,
+                        lineSummary: {
+                          ...lineSummary,
+                          controlList: newControlList,
                         },
-                        true,
-                      );
-                    }
-                  }}
-                >
-                  {item.controlName}
-                </Checkbox>
-              }
-              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
-              onChangeSummary={(data, isRequest = true) => {
-                const id = item.controlId;
-                const newControlList = controlList.map(item => {
-                  if (id === item.controlId) {
-                    return {
-                      ...item,
-                      ...data
-                    }
-                  } else {
-                    return item;
-                  }
-                });
-                changeCurrentReport(
-                  {
-                    pivotTable: {
-                      ...pivotTable,
-                      lineSummary: {
-                        ...lineSummary,
-                        controlList: newControlList
-                      }
+                      },
                     },
-                  },
-                  isRequest,
-                );
-              }}
-            />
-          ))}
+                    isRequest,
+                  );
+                }}
+              />
+            ))}
         </Fragment>
       </Collapse.Panel>
     );
-  }
+  };
 
   const renderPivotTableColumnCount = () => {
-    const { reportType, displaySetup, yaxisList } = currentReport;
+    const { yaxisList } = currentReport;
     const { showColumnTotal, columnSummary = {} } = pivotTable;
     const { controlList = [], rename } = columnSummary;
     const onChangeCountVisible = (id, checked, data) => {
@@ -311,16 +288,16 @@ export default function pivotTableCountPanelGenerator(props) {
           name: '',
           sum: 0,
           type: 1,
-          ...data
-        }
+          ...data,
+        };
         changeCurrentReport(
           {
             pivotTable: {
               ...pivotTable,
               columnSummary: {
                 ...columnSummary,
-                controlList: controlList.concat(control)
-              }
+                controlList: controlList.concat(control),
+              },
             },
           },
           true,
@@ -332,39 +309,41 @@ export default function pivotTableCountPanelGenerator(props) {
               ...pivotTable,
               columnSummary: {
                 ...columnSummary,
-                controlList: controlList.filter(item => item.controlId !== id)
-              }
+                controlList: controlList.filter(item => item.controlId !== id),
+              },
             },
           },
           true,
         );
       }
-    }
+    };
     const onChangeSummary = (id, data, isRequest = true) => {
-      const newControlList = controlList.map(item => {
-        if (id === item.controlId) {
-          return {
-            ...item,
-            ...data
+      const newControlList = controlList
+        .map(item => {
+          if (id === item.controlId) {
+            return {
+              ...item,
+              ...data,
+            };
+          } else {
+            return item;
           }
-        } else {
-          return item;
-        }
-      }).filter(item => item.number || item.percent);
+        })
+        .filter(item => item.number || item.percent);
       changeCurrentReport(
         {
           pivotTable: {
             ...pivotTable,
             columnSummary: {
               ...columnSummary,
-              controlList: newControlList
-            }
+              controlList: newControlList,
+            },
           },
         },
         isRequest,
       );
-    }
-    const renderExtra = (item) => {
+    };
+    const renderExtra = item => {
       const control = _.find(controlList, { controlId: item.controlId });
       return (
         <Fragment>
@@ -373,7 +352,7 @@ export default function pivotTableCountPanelGenerator(props) {
             <Checkbox
               className="flex"
               checked={control ? control.number : false}
-              onChange={(event) => {
+              onChange={event => {
                 const { checked } = event.target;
                 const id = item.controlId;
                 if (control) {
@@ -388,7 +367,7 @@ export default function pivotTableCountPanelGenerator(props) {
             <Checkbox
               className="flex"
               checked={control ? control.percent : false}
-              onChange={(event) => {
+              onChange={event => {
                 const { checked } = event.target;
                 const id = item.controlId;
                 if (control) {
@@ -403,7 +382,7 @@ export default function pivotTableCountPanelGenerator(props) {
           </div>
         </Fragment>
       );
-    }
+    };
     return (
       <Collapse.Panel
         key="columnCount"
@@ -421,7 +400,7 @@ export default function pivotTableCountPanelGenerator(props) {
                 {
                   pivotTable: {
                     ...pivotTable,
-                    showColumnTotal: checked
+                    showColumnTotal: checked,
                   },
                 },
                 true,
@@ -446,27 +425,26 @@ export default function pivotTableCountPanelGenerator(props) {
               }}
             />
           </div>
-          <Location
-            summary={columnSummary}
-            locationType="column"
-            onChangeSummary={handleChangeColumnSummary}
-          />
-          {yaxisList.filter(item => isNumberControl(item.controlType) ? true : item.normType !== 7).map(item => (
-            <Count
-              key={item.controlId}
-              yAxis={item}
-              isCollectMode={true}
-              extra={renderExtra(item)}
-              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
-              onChangeSummary={(data, isRequest) => {
-                onChangeSummary(item.controlId, data, isRequest);
-              }}
-            />
-          ))}
+          <Location summary={columnSummary} locationType="column" onChangeSummary={handleChangeColumnSummary} />
+          {yaxisList
+            .filter(item => (isNumberControl(item.controlType) ? true : item.normType !== 7))
+            .map(item => (
+              <Count
+                key={item.controlId}
+                yAxis={item}
+                isCollectMode={true}
+                isCalculateMode={true}
+                extra={renderExtra(item)}
+                summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
+                onChangeSummary={(data, isRequest) => {
+                  onChangeSummary(item.controlId, data, isRequest);
+                }}
+              />
+            ))}
         </Fragment>
       </Collapse.Panel>
     );
-  }
+  };
 
   return (
     <Fragment>

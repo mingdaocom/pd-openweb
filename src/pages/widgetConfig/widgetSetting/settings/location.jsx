@@ -15,7 +15,11 @@ const LOCATION_RANGE_TYPE = [
     value: '1',
     text: _l('获取当前位置经纬度'),
     children: (
-      <Tooltip popupPlacement={'bottom'} text={<span>{_l('通过手机gps获取经纬度获取定位，使用WGS84坐标系')}</span>}>
+      <Tooltip
+        popupPlacement={'bottom'}
+        autoCloseDelay={0}
+        text={<span>{_l('通过手机gps获取经纬度获取定位，使用WGS84坐标系')}</span>}
+      >
         <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
       </Tooltip>
     ),
@@ -57,6 +61,7 @@ export default function Location({ data, onChange }) {
           {md.global.Config.IsLocal && (
             <Tooltip
               popupPlacement={'bottom'}
+              autoCloseDelay={0}
               text={<span>{_l('由于高德定位组件限制，必须使用https协议以获得准确的定位信息')}</span>}
             >
               <i className="icon-help Gray_9e Font16 pointer mLeft6"></i>

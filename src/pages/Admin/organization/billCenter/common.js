@@ -15,7 +15,7 @@ Common.respEnum = {
   reqOpIsNull: 1004, //请求关键字为空
   primaryKeyIsNull: 1005, //必要关键字为空
   servNotSupport: 1006, //请求操作当前服务不支持
-  orderRecordTypeIsNull: 1007 //订单类型为空
+  orderRecordTypeIsNull: 1007, //订单类型为空
 };
 /**
  * [orderRecordType 消费记录类型]
@@ -26,9 +26,9 @@ Common.orderRecordType = {
   ReCharge: 2, // 充值
   Upgrade: 3, // 开通标准版
   MemberPackage: 4, // 购买用户包
-  AppBill: 5,// 应用账单(手动支付)
-  AppBillAutoPay: 6,// 应用账单(自动支付)
-  AppReturnMoney: 7,// 应用账单(归还扣款)
+  AppBill: 5, // 应用账单(手动支付)
+  AppBillAutoPay: 6, // 应用账单(自动支付)
+  AppReturnMoney: 7, // 应用账单(归还扣款)
   DayPackage: 8, // 天数包
   OAPackage: 9, // OA
   UpgradeEnterpriseAndOA: 10, // 升级到标准版+OA
@@ -44,10 +44,7 @@ Common.orderRecordType = {
  * chargeTypes
  * @type {int[]}
  */
-Common.CHARGETPYES = [
-  Common.orderRecordType.ReCharge,
-  Common.orderRecordType.AppReturnMoney,
-];
+Common.CHARGETPYES = [Common.orderRecordType.ReCharge, Common.orderRecordType.AppReturnMoney];
 /**
  * paymentTypes
  * @type {int[]}
@@ -133,9 +130,9 @@ Common.getOrderRecordTypeStr = function (input) {
 };
 
 Common.invoiceStatus = {
-  notApply: 1,//未申请
-  applied: 2,//已申请
-  invoiced: 3,//已开票
+  notApply: 1, //未申请
+  applied: 2, //已申请
+  invoiced: 3, //已开票
 };
 
 Common.getInvoiceStatusStr = function (input) {
@@ -167,7 +164,7 @@ Common.orderRecordStatus = {
   failure: 3, //交易失败
   cancel: 4, //取消订单
   overdue: 5, //订单已取消
-  troubling: 6//质疑中
+  troubling: 6, //质疑中
 };
 Common.getStatusStr = function (input) {
   var result = '';

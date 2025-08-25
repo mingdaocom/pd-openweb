@@ -86,7 +86,7 @@ const GroupFilter = props => {
         value = '[]';
       }
       return { [data.controlId]: value };
-    } else if ([29, 35]) {
+    } else if ([29, 35].includes(data.dataType)) {
       return {
         [data.controlId]: JSON.stringify([
           {
@@ -137,7 +137,7 @@ const GroupFilter = props => {
                 <span className="Font15 flex ellipsis">{currentGroup.txt}</span>
               </div>
             )}
-            {view.viewType === 0 && appnavtype === '1' && (
+            {_.includes([0, 3], view.viewType) && appnavtype === '1' && (
               <QuickFilterSearch
                 isFilter={isFilter}
                 filters={filters}

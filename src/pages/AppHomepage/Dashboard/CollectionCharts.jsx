@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import chartEmptyImg from 'staticfiles/images/chart.png';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SortableList } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import Chart from 'src/pages/Statistics/Card';
 import { CardItem } from './utils';
 import './style.less';
-import chartEmptyImg from 'staticfiles/images/chart.png';
 
 const ChartListWrapper = styled.div`
   min-height: 300px;
@@ -31,7 +31,7 @@ const ChartListWrapper = styled.div`
       color: #9e9e9e;
       cursor: pointer;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &:hover {

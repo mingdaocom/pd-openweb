@@ -26,13 +26,6 @@ const Empty = styled.div`
   color: #bdbdbd;
 `;
 
-const Expand = styled.div`
-  width: 87px;
-  padding: 0 20px 5px 24px;
-  display: flex;
-  align-items: flex-end;
-`;
-
 function isFullLine(filter) {
   return String((filter.advancedSetting || {}).direction) === '1';
 }
@@ -50,6 +43,7 @@ function QuickFilter(props) {
     width,
     view,
     projectId,
+    viewRowsLoading,
     controls = [],
     filters = [],
     navGroupFilters = [],
@@ -101,7 +95,9 @@ function QuickFilter(props) {
       operateIsNewLine =
         _.sum(visibleFilters.slice(lastFullLineIndex + 1).map(f => (isFullLine(f) ? colNum : 1))) % colNum === 0;
     }
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   useEffect(() => {
     filtersLength.current = 0;
     needClickSearch.current = undefined;
@@ -128,6 +124,7 @@ function QuickFilter(props) {
   return (
     <Con isConfigMode={isConfigMode} className="quickFilterWrap">
       <Conditions
+        viewRowsLoading={viewRowsLoading}
         from={from}
         showTextAdvanced={showTextAdvanced}
         isDark={isDark}

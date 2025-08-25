@@ -2,11 +2,12 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import { find, get, isEmpty } from 'lodash';
 import _ from 'lodash';
-import PropTypes, { func } from 'prop-types';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
+import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
@@ -107,7 +108,7 @@ const OpenRecordBtn = styled(FlexCenter)`
   font-size: 16px;
   width: 24px;
   height: 24px;
-  color: #2196f3;
+  color: #1677ff;
   border-radius: 4px;
   &:hover {
     background: rgba(0, 0, 0, 0.05);
@@ -147,6 +148,7 @@ export default function RowHead(props) {
     appId,
     viewId,
     worksheetId,
+    view,
     projectId,
     controls = [],
     data,
@@ -165,27 +167,28 @@ export default function RowHead(props) {
     setHighLight = () => {},
     refreshWorksheetControls = () => {},
     onOpenRecord = () => {},
-    columns,
     printCharge,
   } = props;
   let { className } = props;
   const [selectAllPanelVisible, setSelectAllPanelVisible] = useState();
   const row = data[rowIndex] || {};
+  const groups = data.filter(r => r.rowid === 'groupTitle').map(r => _.omit(r, ['rows']));
   const selected =
     canSelectAll && allWorksheetIsSelected ? !_.includes(selectedIds, row.rowid) : _.includes(selectedIds, row.rowid);
   const recordOperateVisible = showOperate && !readonly && !isTrash && !isDraftTable;
+  const dataLength = data.filter(r => r.rowid !== 'groupTitle').length;
   function handleCheckAll(force) {
     if (canSelectAll && allWorksheetIsSelected) {
       onSelectAllWorksheet(false);
       if (force) {
-        onSelect(data.map(item => item.rowid));
+        onSelect(data.map(item => item.rowid).filter(r => r !== 'groupTitle' && r !== 'loadGroupMore'));
       }
       return;
     }
     if (selectedIds.length > 0 && !force) {
       onSelect([]);
     } else {
-      onSelect(data.map(item => item.rowid));
+      onSelect(data.map(item => item.rowid).filter(r => r !== 'groupTitle' && r !== 'loadGroupMore'));
     }
   }
   if (isEmpty(row) && rowIndex > -1) {
@@ -221,30 +224,68 @@ export default function RowHead(props) {
                 viewId,
                 worksheetId,
                 recordId: row.rowid,
+                groupControl: row.group?.control,
+                currentGroupKey: row.group?.key,
+                groups,
                 projectId,
                 isCharge,
                 isDevAndOps,
                 isDraft,
                 printCharge,
+                view,
               }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
-              shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
+              shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav', 'lock']}
               allowCopy={allowAdd && row.allowedit}
+              allowEdit={row.allowedit}
               allowDelete={row.allowdelete}
               allowRecreate={allowAdd}
+              isAdmin={worksheetInfo.roleType === 2}
+              entityName={worksheetInfo.entityName}
               sheetSwitchPermit={sheetSwitchPermit}
               popupAlign={{
                 offset: [0, 4],
                 points: ['tl', 'bl'],
               }}
-              onUpdate={(rowdata, row, updatedControls) => {
+              isRecordLock={row.sys_lock}
+              updateRecordLock={() => {
+                updateRecordLockStatus(
+                  {
+                    appId,
+                    viewId,
+                    worksheetId,
+                    recordId: row.rowid,
+                    updateType: row.sys_lock ? 42 : 41,
+                  },
+                  (err, resdata) => {
+                    if (resdata.isviewdata) {
+                      updateRows([row.rowid], {
+                        ...resdata,
+                        allowedit: row.allowedit,
+                        allowdelete: row.allowdelete,
+                      });
+                      alert(
+                        resdata.sys_lock
+                          ? _l('%0锁定成功', worksheetInfo.entityName)
+                          : _l('%0已解锁', worksheetInfo.entityName),
+                      );
+                    } else {
+                      hideRows([row.rowid]);
+                    }
+                  },
+                );
+              }}
+              onUpdate={(rowdata, newRow, updatedControls) => {
+                if (!newRow) {
+                  newRow = rowdata;
+                }
                 if (_.find(updatedControls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
                   refreshWorksheetControls();
                 }
                 if (rowdata.isviewdata) {
-                  updateRows([row.rowid], _.omit(rowdata, ['allowedit', 'allowdelete']));
+                  updateRows([newRow.rowid], _.omit(rowdata, ['allowedit', 'allowdelete']));
                 } else {
-                  hideRows([row.rowid]);
+                  hideRows([newRow.rowid]);
                 }
               }}
               onCopySuccess={(...args) => {
@@ -259,7 +300,7 @@ export default function RowHead(props) {
                   setHighLight(tableId, rowIndex);
                 }
               }}
-              onRecreate={() => {
+              onRecreate={({ group } = {}) => {
                 handleRowData({
                   rowId: row.rowid,
                   worksheetId: worksheetId,
@@ -278,7 +319,7 @@ export default function RowHead(props) {
                     isDraft,
                     onAdd: record => {
                       setHighLight(tableId, rowIndex + 1);
-                      handleAddSheetRow({ ...record }, row.rowid);
+                      handleAddSheetRow({ ...record, group }, row.rowid);
                       alert(_l('创建成功'));
                     },
                   });
@@ -290,7 +331,7 @@ export default function RowHead(props) {
           )}
           {(hasBatch || showNumber) && (
             <div className="numberCon" style={{ marginLeft: 10, width: numberWidth }}>
-              {showNumber && <div className="number">{lineNumberBegin + rowIndex + 1}</div>}
+              {showNumber && <div className="number">{lineNumberBegin + (row.rowIndexNumber || rowIndex + 1)}</div>}
               {!readonly && hasBatch && (
                 <div className="checkbox">
                   <Checkbox
@@ -328,12 +369,12 @@ export default function RowHead(props) {
               <div className="checkboxCon mTop3">
                 <Checkbox
                   size="small"
-                  clearselected={!!(data.length && selectedIds.length && selectedIds.length !== data.length)}
-                  disabled={!data.length}
+                  clearselected={!!(dataLength && selectedIds.length && selectedIds.length !== dataLength)}
+                  disabled={!dataLength}
                   checked={
                     canSelectAll && allWorksheetIsSelected
                       ? !selectedIds.length
-                      : !!data.length && selectedIds.length === data.length
+                      : !!dataLength && selectedIds.length === dataLength
                   }
                   onClick={(checked, value, e) => {
                     e.stopPropagation();

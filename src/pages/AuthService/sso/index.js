@@ -22,9 +22,9 @@ function start() {
     // 小程序
     if (checkLogin()) {
       if (checkOriginUrl(url)) {
-        location.href = decodeURIComponent(url);
+        location.replace(decodeURIComponent(url));
       } else {
-        location.href = isMobile ? `/mobile` : `/app`;
+        location.replace(isMobile ? `/mobile` : `/app`);
       }
     } else {
       ajax.post({
@@ -39,9 +39,9 @@ function start() {
           if (accountResult === 1) {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
-              location.href = decodeURIComponent(url);
+              location.replace(decodeURIComponent(url));
             } else {
-              location.href = isMobile ? `/mobile` : `/app`;
+              location.replace(isMobile ? `/mobile` : `/app`);
             }
           } else {
             window.alert('登录失败');
@@ -54,9 +54,9 @@ function start() {
   } else if (t == '1') {
     if (checkLogin()) {
       if (checkOriginUrl(newRet)) {
-        location.href = newRet;
+        location.replace(newRet);
       } else {
-        location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+        location.replace(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
       }
     } else {
       // 企业微信
@@ -69,23 +69,23 @@ function start() {
         success: result => {
           const { corpId, state } = result.data;
           const redirect_uri = encodeURIComponent(`${location.origin}/sso/workweixin?ret=${newRet || ''}&i=${i || ''}`);
-          location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&state=${state}&response_type=code&scope=snsapi_base#wechat_redirect`;
+          location.replace(
+            `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&state=${state}&response_type=code&scope=snsapi_base#wechat_redirect`,
+          );
         },
         error: login,
       });
     }
   } else {
-    const expDate = localStorage.getItem('md_pss_id_exp');
-
     if (checkLogin()) {
       // expDate && checkLogin() && isBefore(expDate)
       if (newRet) {
-        location.href = `/${replenishRet(newRet, pc_slide)}`;
+        location.replace(`/${replenishRet(newRet, pc_slide)}`);
       } else {
         if (i) {
-          location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+          location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
         } else {
-          location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
+          location.replace(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`);
         }
       }
     } else {

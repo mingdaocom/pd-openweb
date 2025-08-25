@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog } from 'ming-ui';
-import { CustomActionWrap } from '../../style';
-import ApiSearchConfig from '../../../ApiSearchConfig';
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import { Dialog } from 'ming-ui';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import { ROW_ID_CONTROL } from '../../../../../config/widget';
+import ApiSearchConfig from '../../../ApiSearchConfig';
+import { CustomActionWrap } from '../../style';
 
 export default function IntegratedApi(props) {
   const { actionData = {}, data, handleOk, fromCustomFilter, allControls = [] } = props;

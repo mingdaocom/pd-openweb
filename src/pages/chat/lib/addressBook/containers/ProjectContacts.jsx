@@ -1,14 +1,12 @@
 import React from 'react';
-import Checkbox from 'ming-ui/components/Checkbox';
-import ListSearchBar from '../components/ListSearchBar';
-import ProjectContactsList from '../components/ProjectContactsList';
+import _ from 'lodash';
+import styled from 'styled-components';
+import departmentController from 'src/api/department';
+import API from '../api';
 import ContactList from '../components/ContactList';
 import DepartmentUsers from '../components/DepartmentUsers';
-import API from '../api';
-import departmentController from 'src/api/department';
-import styled from 'styled-components';
-import { Icon, ScrollView } from 'ming-ui';
-import _ from 'lodash';
+import ListSearchBar from '../components/ListSearchBar';
+import ProjectContactsList from '../components/ProjectContactsList';
 
 const SearchContainer = styled.div`
   width: 100%;
@@ -147,16 +145,16 @@ export default class ProjectContacts extends React.Component {
   }
 
   fetch() {
-    const { isLoading, pageIndex, hasMore, keywords } = this.state;
+    const { isLoading, hasMore, keywords } = this.state;
     if (!keywords || isLoading || !hasMore) return;
     this.setState({
       isLoading: true,
     });
-    this.fetchContacts().then(hasMore => {
+    this.fetchContacts().then(() => {
       this.setState({
         isLoading: false,
         pageIndex: 1,
-        usersLoading: false
+        usersLoading: false,
         // hasMore,
       });
     });
@@ -231,9 +229,6 @@ export default class ProjectContacts extends React.Component {
         return list || [];
       })
       .then(list => {
-        const {
-          departments: { [departmentId]: department },
-        } = this.state;
         this.updateDeptModel(departmentId, {
           list,
           isLoading: false,
@@ -319,16 +314,7 @@ export default class ProjectContacts extends React.Component {
   };
 
   renderList() {
-    const {
-      departments,
-      listData,
-      selectedAccountId,
-      isLoading,
-      keywords,
-      isMore,
-      departmentsList,
-      departmentResult = [],
-    } = this.state;
+    const { departments, listData, selectedAccountId, isLoading, keywords, isMore, departmentsList } = this.state;
     const isSearch = !!keywords;
     if (isSearch) {
       return (
@@ -345,7 +331,7 @@ export default class ProjectContacts extends React.Component {
           {/* <div className="searchUsers flexColumn">
             <div className="userTxt">{_l('成员')}</div>
             <div className="Relative searchResult">
-             
+
             </div>
           </div>
           <div className="searchDepartment flexColumn">

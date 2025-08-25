@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import qs from 'query-string';
 import { getFileExtends } from 'src/components/UploadFiles/utils';
 import { downloadFile } from 'src/utils/common';
@@ -56,10 +57,7 @@ export const handleShare = (data, isDownload) => {
     params.qiniuPath = attachment.path;
     params.isKcFolder = data.attachmentType === 5;
     share.default(params, {
-      performUpdateItem: visibleType => {
-        if (visibleType) {
-        }
-      },
+      performUpdateItem: () => {},
     });
   });
 };
@@ -129,7 +127,7 @@ export const handleDownload = (data, isDownload, logData) => {
 export const loadImage = url => {
   return new Promise((reslove, reject) => {
     const image = new Image();
-    image.onload = data => {
+    image.onload = () => {
       reslove(image);
     };
     image.onerror = error => {

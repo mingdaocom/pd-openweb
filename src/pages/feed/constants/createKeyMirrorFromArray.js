@@ -7,4 +7,4 @@
     obj[arr[i]] = arr[i];
   }
   return obj;
-};
+}

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
-import { Modal, Tooltip } from 'antd';
-import { Button, Icon, SortableList } from 'ming-ui';
+import React, { Fragment, useState } from 'react';
+import { Modal } from 'antd';
 import styled from 'styled-components';
+import { Button, Icon, SortableList } from 'ming-ui';
 
 const SortableBtnIconWrap = styled.div`
   display: flex;
@@ -81,7 +81,7 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
               useDragHandle
               items={buttonList}
               itemKey="id"
-              renderItem={(options) => renderSortableBtn({ ...options })}
+              renderItem={options => renderSortableBtn({ ...options })}
               onSortEnd={newItems => onSortEnd(newItems)}
             />
           </SortableBtnListWrap>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
@@ -228,11 +228,6 @@ function Buttons(props) {
       </MoreBtn>
     );
   }
-  useEffect(() => {
-    return () => {
-      console.log('unmount');
-    };
-  }, []);
   return (
     <Con className={cx('customButtonsCon')}>
       <CustomButtons

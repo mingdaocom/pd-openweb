@@ -217,7 +217,7 @@ export default class KcAppItem extends React.Component {
                 className={cx(
                   'actions pointer',
                   { ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
-                  isRecycle ? 'hide' : 'icon-task-point-more',
+                  isRecycle ? 'hide' : 'icon-more_horiz',
                 )}
                 thisArg={this}
                 hoverStateName="hoverMoreActionsBtn"
@@ -228,7 +228,7 @@ export default class KcAppItem extends React.Component {
             {(item.isAdmin || isCreateUser) && (
               <span data-tip={_l('彻底删除')}>
                 <i
-                  className={cx('download icon-task-new-delete pointer ThemeColor3', { hide: !isRecycle })}
+                  className={cx('download icon-trash pointer ThemeColor3', { hide: !isRecycle })}
                   onClick={() => removeNode(NODE_STATUS.DELETED)}
                 />
               </span>
@@ -336,7 +336,7 @@ export default class KcAppItem extends React.Component {
               <HoverState
                 ref={moreActions => (this.moreActions = moreActions)}
                 component="span"
-                className={cx('actions pointer icon-task-point-more', {
+                className={cx('actions pointer icon-more_horiz', {
                   ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
                 })}
                 thisArg={this}

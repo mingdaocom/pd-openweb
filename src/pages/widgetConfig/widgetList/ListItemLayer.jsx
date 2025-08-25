@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import cx from 'classnames';
-import styled from 'styled-components';
+import React from 'react';
+import { useRef } from 'react';
 import { useDragLayer } from 'react-dnd-latest';
+import cx from 'classnames';
+import { isEmpty } from 'lodash';
+import styled from 'styled-components';
 import { DRAG_ITEMS } from '../config/Drag';
 import { DEFAULT_CONFIG } from '../config/widget';
-import { useRef } from 'react';
-import { isEmpty } from 'lodash';
 
 const ItemLayer = styled.div`
   position: fixed;
@@ -43,8 +43,10 @@ const ItemLayer = styled.div`
   }
 `;
 
-export default function ListItemLayer() {
+export default function ListItemLayer(props) {
+  const { listPanelVisible, setPanelVisible = () => {} } = props;
   const $init = useRef(null);
+  const $layerItem = useRef(null);
   const { isDragging, item, itemType, initialClientOffset, currentOffset } = useDragLayer(monitor => {
     const data = {
       isDragging: monitor.isDragging(),
@@ -75,21 +77,52 @@ export default function ListItemLayer() {
   };
 
   const getItemStyle = () => {
+    const currentX = (currentOffset || {}).x;
+    const $dom = document.querySelector('.WidgetListPanelDraw');
+
+    const resetPanelStatus = () => {
+      if ($dom && $dom.isPanelSet && listPanelVisible) {
+        setPanelVisible({ widgetVisible: false });
+        $dom.isPanelSet = false;
+
+        setTimeout(() => {
+          $dom.style.visibility = 'unset';
+          $dom.style.pointerEvents = 'unset';
+        }, 200);
+      }
+    };
+
+    if (currentX >= 380 && $dom && listPanelVisible && !$dom.isPanelSet) {
+      $dom.style.visibility = 'hidden';
+      $dom.style.pointerEvents = 'none';
+      if ($layerItem.current) $layerItem.current.style.visibility = 'visible';
+      $dom.isPanelSet = true;
+    }
     // 放置成功 layer直接消失
-    if (isDragging && !currentOffset) return { display: 'none' };
+    if (isDragging && !currentOffset) {
+      resetPanelStatus();
+      return { display: 'none' };
+    }
 
     if (!currentOffset) {
       // 未放置成功， layer归位
-      if (!$init.current) return { display: 'none' };
+      if (!$init.current) {
+        resetPanelStatus();
+        return { display: 'none' };
+      }
       const { x = 0, y = 0 } = $init.current.initialClientOffset || {};
+      resetPanelStatus();
       return {
         transform: `translate(${x}px, ${y}px)`,
-        transition: 'all 0.75s',
+        transition: 'all 0.5s',
         width: '120px',
       };
     }
 
-    if (!item) return { display: 'none' };
+    if (!item) {
+      resetPanelStatus();
+      return { display: 'none' };
+    }
 
     const { x, y } = currentOffset;
     // 为了使鼠标在元素中间
@@ -100,7 +133,7 @@ export default function ListItemLayer() {
     };
   };
   return (
-    <ItemLayer>
+    <ItemLayer ref={$layerItem}>
       <div className={cx('itemLayer', { isDragging })} style={getItemStyle()}>
         {renderContent()}
       </div>

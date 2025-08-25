@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Icon, Dialog } from 'ming-ui';
-import { Dropdown, Menu, Select, Tooltip } from 'antd';
+import { Dropdown, Menu, Select } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
-import AddLangModal from './AddLangModal';
-import AppSettingHeader from '../AppSettingHeader';
-import EmptyStatus from '../EmptyStatus';
+import { Dialog, Icon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
-import _ from 'lodash';
+import AppSettingHeader from '../AppSettingHeader';
+import EmptyStatus from '../EmptyStatus';
+import AddLangModal from './AddLangModal';
 
 const Wrap = styled.div`
   .header {
@@ -20,7 +20,7 @@ const Wrap = styled.div`
     border-bottom: 1px solid #f0f0f0;
     &:hover {
       .langName {
-        color: #2196f3;
+        color: #1677ff;
       }
       background-color: #f5f5f5;
     }
@@ -29,7 +29,7 @@ const Wrap = styled.div`
     width: 50px;
   }
   .icon-more_horiz:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
   .ant-select-selector {
     border-radius: 4px !important;
@@ -68,16 +68,18 @@ export default function LingualList(props) {
   };
 
   const handleSetOriginalLang = value => {
-    homeAppApi.editAppOriginalLang({
-      appId: app.id,
-      originalLang: value
-    }).then(data => {
-      if (data) {
-        app.originalLang = value;
-        setOriginalLang(value);
-      }
-    });
-  }
+    homeAppApi
+      .editAppOriginalLang({
+        appId: app.id,
+        originalLang: value,
+      })
+      .then(data => {
+        if (data) {
+          app.originalLang = value;
+          setOriginalLang(value);
+        }
+      });
+  };
 
   const renderLangName = data => {
     const lang = _.find(allLangList, { langCode: data.langCode }) || {};
@@ -105,18 +107,18 @@ export default function LingualList(props) {
         onSave={onGetAppLangs}
         onCancel={() => setVisible(false)}
       />
-      <div className="Font14 bold flexRow alignItemsCenter">
-        {_l('原始语言')}
+      <div className="Font14 bold flexRow alignItemsCenter">{_l('原始语言')}</div>
+      <div className="Gray_75 TxtMiddle pTop10">
+        {_l(
+          '原始语言指搭建应用时使用的语言，eg:搭建应用时的文本语言(字段名称、标题等)为法语，则可以选择法语为您的原始语言。',
+        )}
       </div>
-      <div className="Gray_75 TxtMiddle pTop10">{_l('原始语言指搭建应用时使用的语言，eg:搭建应用时的文本语言(字段名称、标题等)为法语，则可以选择法语为您的原始语言。')}</div>
       <Select
         className="mTop10 mBottom10"
         style={{ width: 'max-content', minWidth: 300 }}
         showSearch={true}
         allowClear={true}
-        notFoundContent={(
-          <div className="valignWrapper">{_l('暂无数据')}</div>
-        )}
+        notFoundContent={<div className="valignWrapper">{_l('暂无数据')}</div>}
         filterOption={(searchValue, option) => {
           const name = renderLangName(_.find(allLangList, { langCode: option.value }));
           return searchValue && name ? name.toLowerCase().includes(searchValue.toLowerCase()) : true;
@@ -143,7 +145,7 @@ export default function LingualList(props) {
           <div className="flex">{_l('最后更新时间')}</div>
           <div className="operate"></div>
         </div>
-        <div className="content Font14 flex">
+        <div className="content Font14 flex mBottom50">
           {langs.length ? (
             langs.map(data => (
               <div className="flexRow item" key={data.id}>

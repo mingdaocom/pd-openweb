@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import moment from 'moment';
 import styled from 'styled-components';
 import { Icon, UserHead } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -12,7 +11,6 @@ import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { getColor, getIcon, getTxtColor } from 'src/pages/Role/AppRoleCon/UserCon/config';
 import Table from 'src/pages/Role/component/Table';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { getCurrentProject } from 'src/utils/project';
 
 const pageSize = 1000;
 const Wrap = styled.div`
@@ -30,7 +28,7 @@ const Wrap = styled.div`
 const WrapBar = styled.div`
   .addUser {
     line-height: 37px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px;
     color: #fff;
     padding: 0 12px;
@@ -97,7 +95,7 @@ function Others(props) {
           </div>
         );
       },
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <div className={cx('name flexRow alignItemsCenter', { pLeft40: !canEdit })}>
             {data.memberType === 5 ? (
@@ -141,7 +139,7 @@ function Others(props) {
       name: _l('角色'),
       minW: 240,
       className: 'nameWrapTr roleTr',
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <div className="flex flexRow">
             <span className="roleName overflow_ellipsis breakAll" title={data.roleName.join('；')}>
@@ -154,7 +152,7 @@ function Others(props) {
     {
       id: 'operater',
       name: _l('操作人'),
-      render: (text, data, index) => {
+      render: (text, data) => {
         return <div className="WordBreak ellipsis">{data.operater}</div>;
       },
     },
@@ -164,7 +162,7 @@ function Others(props) {
       // sorter: true,
       className: 'timeTr',
       minW: 130,
-      render: (text, data, index) => {
+      render: (text, data) => {
         return createTimeSpan(data.operateTime);
       },
     },
@@ -172,7 +170,7 @@ function Others(props) {
       id: 'option',
       name: '',
       className: 'optionWrapTr',
-      render: (text, data, index) => {
+      render: (text, data) => {
         const dataList = [
           {
             value: 0,

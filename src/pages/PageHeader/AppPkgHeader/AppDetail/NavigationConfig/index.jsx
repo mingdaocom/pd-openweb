@@ -1,26 +1,20 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { Tabs, Checkbox, Tooltip } from 'antd';
+import React, { Fragment, useState } from 'react';
+import { Checkbox, Tabs, Tooltip } from 'antd';
+import cx from 'classnames';
 import { Icon, RadioGroup } from 'ming-ui';
-import Navigation from './Navigation';
 import AppNavStyle from '../AppNavStyle';
 import MobileCustomNav from './MobileCustomNav';
-import cx from 'classnames';
+import Navigation from './Navigation';
 import './index.less';
 
 export default function NavigationConfig(props) {
-  const { projectId, appId, visible, onClose } = props;
+  const { onClose } = props;
   const { app, onChangeApp } = props;
-  const [loading, setLoading] = useState(false);
   const [gridDisplayMode, setGridDisplayMode] = useState(app.gridDisplayMode || 0);
   const [appNaviDisplayType, setAppNaviDisplayType] = useState(app.appNaviDisplayType || 0);
   const [expandType, setExpandType] = useState(app.expandType || 0);
   const [displayIcon, setDisplayIcon] = useState(app.displayIcon || '011');
   const [hideFirstSection, setHideFirstSection] = useState(app.hideFirstSection || false);
-
-  useEffect(() => {
-    if (!visible) return;
-    setLoading(true);
-  }, [visible]);
 
   const renderNavStyleConfig = type => {
     return (
@@ -48,7 +42,10 @@ export default function NavigationConfig(props) {
             checked={displayIcon.split('')[index] === '1'}
             onChange={e => {
               const value = e.target.checked ? '1' : '0';
-              const res = displayIcon.split('').map((n, i) => i === index ? value : n).join('');
+              const res = displayIcon
+                .split('')
+                .map((n, i) => (i === index ? value : n))
+                .join('');
               setDisplayIcon(res);
               onChangeApp({ displayIcon: res });
             }}
@@ -79,7 +76,7 @@ export default function NavigationConfig(props) {
                   {
                     text: _l('手风琴'),
                     value: 1,
-                  }
+                  },
                 ]}
                 checkedValue={expandType}
                 onChange={value => {
@@ -91,77 +88,73 @@ export default function NavigationConfig(props) {
           )}
           <div className="flexRow alignItemsCenter mBottom15">
             <div style={{ width: 100 }}>{_l('显示图标')}</div>
-            {app.currentPcNaviStyle === 0 && (
+            {app.currentPcNaviStyle === 0 &&
               renderDisplayIcon([
                 {
                   name: _l('第1级'),
-                  show: true
+                  show: true,
                 },
                 {
                   name: _l('第2级'),
-                  show: true
+                  show: true,
                 },
                 {
                   name: _l('第3级'),
-                  show: true
-                }
-              ])
-            )}
-            {app.currentPcNaviStyle === 1 && (
+                  show: true,
+                },
+              ])}
+            {app.currentPcNaviStyle === 1 &&
               renderDisplayIcon([
                 {
                   name: _l('第1级'),
-                  show: false
+                  show: false,
                 },
                 {
                   name: _l('第2级'),
-                  show: false
+                  show: false,
                 },
                 {
                   name: _l('第3级'),
-                  show: true
-                }
-              ])
-            )}
-            {app.currentPcNaviStyle === 2 && (
+                  show: true,
+                },
+              ])}
+            {app.currentPcNaviStyle === 2 &&
               renderDisplayIcon([
                 {
                   name: _l('第1级'),
-                  show: true
+                  show: true,
                 },
                 {
                   name: _l('第2级'),
-                  show: true
+                  show: true,
                 },
                 {
                   name: _l('第3级'),
-                  show: false
-                }
-              ])
-            )}
-            {app.currentPcNaviStyle === 3 && (
+                  show: false,
+                },
+              ])}
+            {app.currentPcNaviStyle === 3 &&
               renderDisplayIcon([
                 {
                   name: _l('第1级'),
-                  show: false
+                  show: false,
                 },
                 {
                   name: _l('第2级'),
-                  show: true
+                  show: true,
                 },
                 {
                   name: _l('第3级'),
-                  show: true
-                }
-              ])
-            )}
+                  show: true,
+                },
+              ])}
           </div>
           <div className="flexRow">
             <div style={{ width: 100 }}>{_l('其他')}</div>
             <div className="flex">
               <Checkbox
                 checked={app.selectAppItmeType === 2}
-                onChange={e => {
+                onChange={() => {
                   onChangeApp({ selectAppItmeType: app.selectAppItmeType === 2 ? 1 : 2 });
                 }}
               >
@@ -179,9 +172,12 @@ export default function NavigationConfig(props) {
                     <span className="Normal">{_l('隐藏首个分组标题')}</span>
                   </Checkbox>
                   <Tooltip
-                    title={_l('在树形列表中，隐藏第 1 级分组标题，直接显示分组内应用项。通常用于首个分组中的应用项作为应用首页的场景')}
+                    title={_l(
+                      '在树形列表中，隐藏第 1 级分组标题，直接显示分组内应用项。通常用于首个分组中的应用项作为应用首页的场景',
+                    )}
                     arrowPointAtCenter={true}
                     placement="bottom"
+                    autoCloseDelay={0}
                   >
                     <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
                   </Tooltip>
@@ -204,6 +200,7 @@ export default function NavigationConfig(props) {
             title={_l('勾选时，管理员可以在应用中查看隐藏的应用项。取消勾选时，对管理员也同时隐藏')}
             arrowPointAtCenter={true}
             placement="topRight"
+            autoCloseDelay={0}
           >
             <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
           </Tooltip>

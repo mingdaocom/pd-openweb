@@ -1,11 +1,11 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown } from 'ming-ui';
-import { AS_ABSTRACT_CONTROL, filterAndFormatterControls } from 'src/pages/worksheet/views/util';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import cx from 'classnames';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
-import _ from 'lodash';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { AS_ABSTRACT_CONTROL, filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import NumInput from './NumInput';
 
 const MaxLineWrap = styled.div`
@@ -26,7 +26,7 @@ export default class Abstract extends React.Component {
           !SYS.includes(item.controlId) && // 排除系统字段
           !((_.includes([48], item.sourceControlType) || item.strDefault === '10') && item.type === 30), //排除他表字段 组织角色控件
       ),
-      filter: item => _.includes(AS_ABSTRACT_CONTROL, (item.type === 30 ? item.sourceControlType : item.type)),
+      filter: item => _.includes(AS_ABSTRACT_CONTROL, item.type === 30 ? item.sourceControlType : item.type),
     });
     abstractControls = abstractControls.map(it => {
       return {

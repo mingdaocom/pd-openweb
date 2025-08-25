@@ -1,17 +1,33 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Icon, Menu, MenuItem, Tooltip, Dialog, DeleteReconfirm, LoadDiv, Checkbox, Input } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, DeleteReconfirm, Dialog, Icon, Input, LoadDiv, Menu, MenuItem, Tooltip } from 'ming-ui';
 import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
+import homeAppApi from 'src/api/homeApp';
+import sheetApi from 'src/api/worksheet';
 import SelectIcon from 'worksheet/common/SelectIcon/SelectIcon';
 import SheetMove from 'worksheet/common/SheetMove/SheetMove';
 import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
-import Trigger from 'rc-trigger';
-import homeAppApi from 'src/api/homeApp';
-import sheetApi from 'src/api/worksheet';
+import { canEditApp, canEditData } from 'worksheet/redux/actions/util';
+import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
 import CreateNew from './CreateNew';
 import { EditExternalLink } from './ExternalLink';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { canEditApp, canEditData } from 'worksheet/redux/actions/util';
-import WorksheetReference from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
+
+const Operation = styled(Menu)`
+  width: max-content;
+  min-width: 220px;
+  .Item-content {
+    padding: 0 45px !important;
+    .Icon {
+      margin: 0 6px !important;
+    }
+    .text {
+      margin-left: 0 !important;
+    }
+  }
+`;
 
 const CopySheetConfirmDescription = props => {
   const { workSheetId, type, workSheetName } = props;
@@ -307,6 +323,7 @@ export default function MoreOperation(props) {
   const [externalLinkVisible, setExternalLinkVisible] = useState(false);
 
   const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
+  const isEditData = canEditData(appPkg?.permissionType); //运营者
   const isWorksheet = appItem.type === 0;
   const isActive = activeSheetId === appItem.workSheetId;
   const deleteText = {
@@ -349,7 +366,7 @@ export default function MoreOperation(props) {
   const renderMenu = () => {
     if (!(canEditApp(_.get(appPkg, ['permissionType'])) || canEditData(_.get(appPkg, ['permissionType'])))) {
       return (
-        <Menu className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
+        <Operation className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
           <MenuItem
             data-event="collect"
             icon={
@@ -363,21 +380,21 @@ export default function MoreOperation(props) {
           >
             <span className="text">{appItem.isMarked ? _l('取消收藏') : _l('收藏')}</span>
           </MenuItem>
-        </Menu>
+        </Operation>
       );
     }
 
     const showDivider = !isGroup || (isEditApp && appItem.type === 1 && (appItem.urlTemplate ? true : isActive));
 
     return (
-      <Menu className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
+      <Operation className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
         {!isGroup && (
           <MenuItem
             data-event="collect"
             icon={
               <Icon
                 icon={appItem.isMarked ? 'task-star' : 'star-hollow'}
-                className="Font16"
+                className="Font18"
                 style={{ color: appItem.isMarked ? '#ffc402' : '#9e9e9e' }}
               />
             }
@@ -389,7 +406,7 @@ export default function MoreOperation(props) {
         {isEditApp && appItem.type === 1 && (appItem.urlTemplate ? true : isActive) && (
           <MenuItem
             data-event="editExternalLinkCanvas"
-            icon={<Icon icon="settings" className="Font16" />}
+            icon={<Icon icon="settings" className="Font18" />}
             onClick={() => {
               if (appItem.urlTemplate) {
                 setExternalLinkVisible(true);
@@ -402,10 +419,12 @@ export default function MoreOperation(props) {
             <span className="text">{appItem.urlTemplate ? _l('编辑外部链接') : _l('编辑画布')}</span>
           </MenuItem>
         )}
+
         {showDivider && <hr className="splitter" />}
+
         <MenuItem
           data-event="editNameIcon"
-          icon={<Icon icon="edit" className="Font16" />}
+          icon={<Icon icon="edit" className="Font18" />}
           onClick={() => {
             if (onChangeEdit) {
               onChangeEdit(appItem.workSheetId);
@@ -417,12 +436,72 @@ export default function MoreOperation(props) {
         >
           <span className="text">{onChangeEdit ? _l('修改名称') : _l('修改名称和图标%02023')}</span>
         </MenuItem>
+
+        {(isEditApp || isEditData) && isWorksheet && (
+          <Fragment>
+            {isEditApp && (
+              <>
+                <MenuItem
+                  data-event="workflow"
+                  icon={<Icon icon="workflow" className="Font18" />}
+                  onClick={() => {
+                    setPopupVisible(false);
+                    window.open(`/app/${appId}/workflow` + `/${appItem.workSheetId}`, '__blank');
+                  }}
+                >
+                  <span className="text">{_l('查看工作流')}</span>
+                </MenuItem>
+                <MenuItem
+                  data-event="reference"
+                  icon={<Icon icon="db_index" className="Font18" />}
+                  onClick={() => {
+                    setPopupVisible(false);
+                    renderDialog({
+                      globalSheetInfo: { appId, worksheetId: appItem.workSheetId, name: appItem.workSheetName },
+                      type: 2,
+                    });
+                  }}
+                >
+                  <span className="text">{_l('查看引用关系')}</span>
+                </MenuItem>
+              </>
+            )}
+
+            {isEditData && (
+              <MenuItem
+                data-event="logs"
+                icon={<Icon icon="wysiwyg" className="Font18" />}
+                onClick={() => {
+                  setPopupVisible(false);
+                  window.open(`/app/${appId}/logs/${projectId}/${appItem.workSheetId}`, '__blank');
+                }}
+              >
+                <span className="text">{_l('查看日志')}</span>
+              </MenuItem>
+            )}
+
+            <MenuItem
+              data-event="copyID"
+              icon={<Icon icon="ID" className="Font18" />}
+              onClick={() => {
+                setPopupVisible(false);
+                copy(appItem.workSheetId);
+                alert(_l('复制成功'));
+              }}
+            >
+              <span className="text">{_l('复制ID')}</span>
+            </MenuItem>
+
+            {isEditApp && <hr className="splitter" />}
+          </Fragment>
+        )}
+
         {isEditApp && (
           <Fragment>
             {!isGroup && (
               <MenuItem
                 data-event="copy"
-                icon={<Icon icon="content-copy" className="Font16" />}
+                icon={<Icon icon="content-copy" className="Font18" />}
                 onClick={() => {
                   handleCopyWorkSheet(props);
                   setPopupVisible(false);
@@ -493,11 +572,12 @@ export default function MoreOperation(props) {
               }
               popupAlign={{ offset: [0, -20] }}
             >
-              <MenuItem data-event="hideFromNav" icon={<Icon icon="visibility_off" className="Font16" />}>
+              <MenuItem data-event="hideFromNav" icon={<Icon icon="visibility_off" className="Font18" />}>
                 <span className="text flexRow">
                   <span>{_l('从导航中隐藏%02020')}</span>
                   <Tooltip
                     popupPlacement="top"
+                    autoCloseDelay={0}
                     text={
                       <span>
                         {_l(
@@ -552,7 +632,7 @@ export default function MoreOperation(props) {
             <hr className="splitter" />
             <MenuItem
               data-event="delete"
-              icon={<Icon icon="delete2" className="Font16" />}
+              icon={<Icon icon="trash" className="Font18" />}
               className="delete"
               onClick={() => {
                 isGroup ? handleDeleteGroup(props) : handleDeleteWorkSheet(props);
@@ -563,7 +643,7 @@ export default function MoreOperation(props) {
             </MenuItem>
           </Fragment>
         )}
-      </Menu>
+      </Operation>
     );
   };
 

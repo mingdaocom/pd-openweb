@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
 import { ActionSheet, Button, Dialog, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { connect } from 'react-redux';
 import AppManagement from 'src/api/appManagement.js';
 import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import { sysRoleType } from 'src/pages/Role/config.js';
@@ -14,8 +14,8 @@ import SelectJob from '../../components/SelectJob';
 import SelectOrgRole from '../../components/SelectOrgRole';
 import SelectUser from '../../components/SelectUser';
 import noMmberImg from '../img/noMember.png';
-import './index.less';
 import * as actions from './redux/actions';
+import './index.less';
 
 let modal = null;
 class MemberList extends Component {
@@ -49,7 +49,7 @@ class MemberList extends Component {
     this.actionUserHandler && this.actionUserHandler.close();
   }
 
-  showActionSheet = (roleId, userIds, roleType, data) => {
+  showActionSheet = () => {
     const { detail } = this.props.memberList;
     const addUser = { name: _l('添加人员'), icon: 'hr_person_add', iconClass: 'Font20' };
     const BUTTONS = detail.projectId
@@ -100,7 +100,7 @@ class MemberList extends Component {
       },
     });
   };
-  showActionDepartment = (roleId, userIds, roleType, data) => {
+  showActionDepartment = () => {
     const BUTTONS = [
       { name: _l('仅选择当前部门'), selectValue: 'current' },
       { name: _l('选择当前部门下所有子部门'), selectValue: 'all' },
@@ -116,7 +116,7 @@ class MemberList extends Component {
         <div className="flexRow header">
           <span className="Font13">
             <Icon
-              icon="arrow_back"
+              icon="backspace"
               className="mRight10"
               onClick={() => {
                 this.actionDepartmentHandler.close();
@@ -191,10 +191,10 @@ class MemberList extends Component {
       isRoleCharger
         ? { name: _l('取消角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' }
         : { name: _l('设为角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' },
-      { name: _l('移到其他角色'), icon: 'sync', iconClass: 'Gray_9e Font18' },
+      { name: _l('移到其他角色'), icon: 'loop', iconClass: 'Gray_9e Font18' },
       isSysRole && isAdmin && isMe && !((detail.debugRole || {}).canDebug && !_.isEmpty(debugRoles))
-        ? { name: _l('退出'), icon: 'exit_to_app2', iconClass: 'Font20' }
-        : { name: _l('移除'), icon: 'task-new-delete', iconClass: 'Font18' },
+        ? { name: _l('退出'), icon: 'exit_to_app', iconClass: 'Font20' }
+        : { name: _l('移除'), icon: 'trash', iconClass: 'Font18' },
     ];
     const BUTTONS_Owers = [{ name: _l('将应用托付给他人'), icon: 'forward2', iconClass: 'Gray_9e' }];
     const isAllOrganization = departmentId && departmentId.includes('org'); // 全组织不支持设为角色负责人
@@ -213,7 +213,7 @@ class MemberList extends Component {
           text: (
             <div
               className={cx('flexRow alignItemsCenter', {
-                Red: ['exit_to_app2', 'task-new-delete'].includes(item.icon),
+                Red: ['exit_to_app', 'trash'].includes(item.icon),
               })}
             >
               <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
@@ -524,8 +524,6 @@ class MemberList extends Component {
 
   renderList = data => {
     const { detail } = this.props.memberList;
-    const text =
-      data.description || (data.permissionWay === 80 ? _l('可以配置应用，管理应用下所有数据和人员') : _l('自定义权限'));
     let { isOwner, isAdmin } = getUserRole(detail.permissionType);
     isAdmin = isAdmin || isOwner;
 

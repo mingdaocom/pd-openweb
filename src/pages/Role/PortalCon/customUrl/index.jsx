@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Dialog, Tooltip, Checkbox, Dropdown, Input } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, Input, Tooltip } from 'ming-ui';
 import ExternalPortalApi from 'src/api/externalPortal.js';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
@@ -22,7 +22,7 @@ const Wrap = styled.div`
   }
   .setBtn {
     padding: 5px 20px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px 3px 3px 3px;
     color: #fff !important;
   }
@@ -91,7 +91,7 @@ const WrapDetail = styled.div`
     border: 1px solid #ddd;
     padding: 0 12px;
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .setCheckbox {
@@ -117,8 +117,8 @@ const CustomUrlSet = styled.div`
   background: #fff;
   border: 1px solid #ddd;
   &:hover {
-    border-color: #2196f3;
-    color: #2196f3;
+    border-color: #1677ff;
+    color: #1677ff;
   }
 `;
 
@@ -211,7 +211,7 @@ function Setting(props) {
                   <span className="numCon InlineBlock ellipsis WordBreak">
                     <span className="text">{i + 1}</span>
                     <Icon
-                      type="delete1"
+                      type="trash"
                       className="Hand Font18 delete"
                       onClick={() => {
                         Dialog.confirm({
@@ -242,7 +242,7 @@ function Setting(props) {
                         });
                       }}
                     >
-                      <Icon type="settings1" className="Hand" />
+                      <Icon type="settings" className="Hand" />
                     </CustomUrlSet>
                   </Tooltip>
                 </div>
@@ -321,7 +321,7 @@ function Setting(props) {
                     className="mTop16 InlineBlock mRight60 setCheckbox"
                     text={o.txt}
                     checked={editData.registerMode[o.key]}
-                    onClick={checked => {
+                    onClick={() => {
                       editData.registerMode[o.key] = !editData.registerMode[o.key];
                       setState({
                         editData: editData,
@@ -333,7 +333,7 @@ function Setting(props) {
             </div>
             <h6 className={cx('Font13 Gray Bold mBottom0 mTop32')}>{_l('登录方式')}</h6>
             <div className="">
-              {LOGIN_WAY.map((o, i) => {
+              {LOGIN_WAY.map(o => {
                 if (o.key === 'weChat' && md.global.SysSettings.hideWeixin) return;
 
                 return (
@@ -341,7 +341,7 @@ function Setting(props) {
                     className="mTop16 InlineBlock mRight60 setCheckbox"
                     text={o.txt}
                     checked={editData.loginMode[o.key]}
-                    onClick={checked => {
+                    onClick={() => {
                       editData.loginMode[o.key] = !editData.loginMode[o.key];
                       setState({
                         editData: editData,

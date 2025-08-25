@@ -19,7 +19,7 @@ export default function GlobalVarRight(props) {
   const featureType = getFeatureStatus(projectId, VersionProductType.globalVariable);
 
   return (
-    <div className="globalVarRight flexColumn">
+    <div className="globalVarRight flexColumn overflowHidden">
       <div className="rightHeader">
         <Search
           className="varSearch"
@@ -41,7 +41,7 @@ export default function GlobalVarRight(props) {
           {featureType === '2' && <UpgradeIcon />}
         </div>
       </div>
-      <div className="flex mTop8">
+      <div className="flex mTop8 overflowHidden">
         <GlobalVarTable
           data={varList.filter(item => item.name.indexOf(keyWord) > -1)}
           loading={loading}

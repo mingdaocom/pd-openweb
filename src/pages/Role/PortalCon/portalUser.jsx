@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import Api from 'api/homeApp';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import Dialog from 'ming-ui/components/Dialog';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import externalPortalAjax from 'src/api/externalPortal';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
 import { formatDataForPortalControl, formatPortalData } from 'src/pages/Role/PortalCon/tabCon/util.js';
 import { canEditData } from 'src/pages/worksheet/redux/actions/util';
@@ -110,7 +110,7 @@ export default function User(props) {
         appId,
         rowIds: rowIds,
       })
-      .then(res => {
+      .then(() => {
         alert(_l('已拒绝该用户申请'));
         setState({ disable: true });
       });
@@ -157,7 +157,7 @@ export default function User(props) {
             }
           }),
         )}
-        setShow={() => { }}
+        setShow={() => {}}
         onOk={(data, ids) => {
           let newCell = formatDataForPortalControl(
             data.filter(o =>

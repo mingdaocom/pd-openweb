@@ -202,8 +202,8 @@ class AppointDialog extends React.Component {
     let writeControls = [];
     dataControls.map(o => {
       let data = this.state.writeControls.find(it => it.controlId === o.controlId);
-      if (!!data) {
-        if (!!o.sectionId) {
+      if (data) {
+        if (o.sectionId) {
           writeControls.push(dataControls.find(it => it.controlId === o.sectionId));
         }
         writeControls.push(data);
@@ -247,6 +247,7 @@ class AppointDialog extends React.Component {
                     <span className="">{controlName || (type === 22 ? _l('分段') : _l('备注'))}</span>
                     {canNotForWrite && (
                       <Tooltip
+                        autoCloseDelay={0}
                         tooltipClass="pointTooltip"
                         action={['click']}
                         popupPlacement="bottomRight"
@@ -324,7 +325,6 @@ class AppointDialog extends React.Component {
       setValue,
       updateRelationControl,
     } = this.props;
-    const { showChooseWidgetDialog } = this.state;
     const dataCon = this.state.writeObject === 1 ? this.state.widgetList : relationControls;
     return (
       <React.Fragment>

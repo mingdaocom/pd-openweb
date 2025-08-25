@@ -4,6 +4,7 @@ import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, RadioGroup, Switch } from 'ming-ui';
@@ -13,6 +14,7 @@ import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns'
 import { getSortData } from 'src/utils/control';
 import { SUPPORT_RELATE_SEARCH } from '../../config';
 import { WHOLE_SIZE } from '../../config/Drag';
+import { RELATE_SORT_DISPLAY } from '../../config/setting';
 import { useSheetInfo } from '../../hooks';
 import { AnimationWrap, EditInfo, SettingItem } from '../../styled';
 import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, isCustomWidget } from '../../util';
@@ -44,17 +46,11 @@ const DISPLAY_CHOOSE = [
   { text: _l('弹层'), value: '1' },
 ];
 
-const SORT_DISPLAY = [
-  { text: _l('按添加时间排序'), value: '1' },
-  { text: _l('按设置的排序'), value: '2' },
-  { text: _l('按关联视图的排序'), value: '3' },
-];
-
 const RelateSheetWrap = styled.div`
   .filterBtn {
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .emptyRelateView {
@@ -91,7 +87,7 @@ const RelateSheetCover = styled.div`
       color: #9e9e9e;
       line-height: 34px;
       &.active {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -116,8 +112,8 @@ const CoverWrap = styled.div`
     padding: 6px 18px;
     color: #757575;
     &.active {
-      color: #2196f3;
-      border-color: #2196f3;
+      color: #1677ff;
+      border-color: #1677ff;
     }
     &:last-child {
       border-radius: 0px 3px 3px 0px;
@@ -234,11 +230,6 @@ export default function RelateSheet(props) {
     return showControls.filter(i => allControlId.includes(i));
   };
 
-  const getGhostControlId = () => {
-    if (isSheetDisplay() || !titleControl) return [];
-    return [titleControl.controlId];
-  };
-
   // 附加信息 + 显示字段
   const renderExtraInfo = () => {
     return (
@@ -259,6 +250,7 @@ export default function RelateSheet(props) {
           >
             <Tooltip
               className="hoverTip"
+              autoCloseDelay={0}
               title={_l('在选择关联的记录时显示附加的字段值和封面，帮助您快速找到需要关联的记录')}
             >
               <i className="icon pointer icon-help Gray_9e Font16" />
@@ -274,7 +266,6 @@ export default function RelateSheet(props) {
   const renderShowControl = (isExtra, hideTitle) => {
     const coverId = isExtra ? choosecoverid : coverCid;
     const renderCover = () => {
-      const coverKey = isExtra ? 'choosecoverid' : 'coverCid';
       const coverType = isExtra ? choosecovertype : covertype;
       const typeKey = isExtra ? 'choosecovertype' : 'covertype';
       return (
@@ -440,7 +431,7 @@ export default function RelateSheet(props) {
                     nextData = handleAdvancedSettingChange(nextData, { showtype: '1', choosetype: '1' });
                   }
                   // 关联单条不支持一下操作
-                  nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '1' });
+                  nextData = handleAdvancedSettingChange(nextData, { sorts: '', allowcancel: '1', choosesorts: '' });
                   onChange(nextData);
                   return;
                 }
@@ -512,7 +503,10 @@ export default function RelateSheet(props) {
                 nextData = { ...nextData, showControls: getShowControls(nextData.relationControls) };
               } else {
                 // 下拉框清空
-                nextData = { ...handleAdvancedSettingChange(nextData, { searchfilters: '' }), showControls: [] };
+                nextData = {
+                  ...handleAdvancedSettingChange(nextData, { searchfilters: '', choosesorts: '' }),
+                  showControls: [],
+                };
               }
               // 切换为列表 必填置为false,标题样式、动态默认值清空
               if (isSheetDisplay(value)) {
@@ -584,6 +578,7 @@ export default function RelateSheet(props) {
               {_l('排序')}
               <Tooltip
                 placement="bottom"
+                autoCloseDelay={0}
                 title={
                   <span>
                     {_l('当关联记录显示方式为卡片和下拉框时：')}
@@ -617,7 +612,7 @@ export default function RelateSheet(props) {
           <Dropdown
             border
             value={rcsorttype}
-            data={SORT_DISPLAY}
+            data={RELATE_SORT_DISPLAY}
             onChange={value => {
               if (value === rcsorttype) return;
               onChange(handleAdvancedSettingChange(data, { rcsorttype: value, sorts: '', allowdrag: '0' }));

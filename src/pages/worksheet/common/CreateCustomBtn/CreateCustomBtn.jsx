@@ -115,7 +115,7 @@ class CreateCustomBtnCon extends React.Component {
         widgetList: (props.worksheetControls || []).filter(item => !SYS.includes(item.controlId)), //排除系统字段
         isEdit: props.isEdit,
         btnId: props.btnId,
-        color: isEdit ? btnDataInfo.color || COLORS[2] : COLORS[0], //老数据未设置颜色还是走2196f3 新创建的，默认透明色
+        color: isEdit ? btnDataInfo.color || COLORS[2] : COLORS[0], //老数据未设置颜色还是走1677ff 新创建的，默认透明色
         icon: btnDataInfo.icon || ICONS[0],
         iconUrl: btnDataInfo.iconUrl || '',
         desc,
@@ -545,6 +545,7 @@ class CreateCustomBtnCon extends React.Component {
             <span>
               {_l('登录密码验证')}
               <Tooltip
+                autoCloseDelay={0}
                 popupPlacement="bottom"
                 text={<span>{_l('启用后，用户需要输入登录密码通过校验后才可执行自定义按钮')}</span>}
               >
@@ -684,7 +685,7 @@ class CreateCustomBtnCon extends React.Component {
   };
 
   renderIcons = () => {
-    const { icon, color = 'transparent', iconUrl = '', showCustomIcon } = this.state;
+    const { icon, iconUrl = '', showCustomIcon } = this.state;
     return (
       <div className="mTop32 customBtnIconBox">
         <h5 className="Gray Bold">{_l('图标')}</h5>
@@ -702,7 +703,7 @@ class CreateCustomBtnCon extends React.Component {
                   <IconTabs
                     projectId={this.props.projectId}
                     icon={icon.replace(/_svg$/, '')}
-                    iconColor={'#2196f3'}
+                    iconColor={'#1677ff'}
                     handleClick={({ icon, iconUrl }) => {
                       this.setState({
                         icon: `${icon}_svg`,

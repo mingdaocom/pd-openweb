@@ -156,7 +156,7 @@ const ItemWrapper = styled.div`
       }
     }
     &.isActive {
-      border-color: #2196f3;
+      border-color: #1677ff;
       .delIcon {
         display: block;
       }
@@ -268,7 +268,7 @@ export default function BulletinSetting(props) {
   };
 
   const onSave = () => {
-    if (!!bulletins.filter(item => item.link.trim() && !RegExpValidator.isURL(item.link.trim())).length) {
+    if (bulletins.filter(item => item.link.trim() && !RegExpValidator.isURL(item.link.trim())).length) {
       alert(_l('链接格式不正确'), 3);
       return;
     }
@@ -300,7 +300,7 @@ export default function BulletinSetting(props) {
           <div className="flex"></div>
           {bulletins.length > 1 && (
             <Icon
-              icon="delete1"
+              icon="trash"
               className="delIcon"
               onClick={e => {
                 e.stopPropagation();
@@ -363,6 +363,7 @@ export default function BulletinSetting(props) {
             popupAlign={{
               overflow: { adjustX: true, adjustY: true },
             }}
+            autoCloseDelay={0}
             text={
               <React.Fragment>
                 <div className="title">{_l('设计建议')}</div>
@@ -394,13 +395,13 @@ export default function BulletinSetting(props) {
                 type: 4,
                 max_file_size: '2m',
               }}
-              onUploaded={(up, file, response) => {
+              onUploaded={(up, file) => {
                 up.disableBrowse(false);
 
                 onChangeData({ key: file.key, url: file.serverName + file.key });
                 setUploadLoading(false);
               }}
-              onAdd={(up, files) => {
+              onAdd={up => {
                 setUploadLoading(true);
                 up.disableBrowse();
               }}
@@ -450,7 +451,7 @@ export default function BulletinSetting(props) {
         <div className="mTop8 mBottom20">
           <TitleInput
             showCount={true}
-            maxLength={30}
+            maxLength={64}
             value={bulletins[activeIndex].title}
             onChange={e => onChangeData({ title: e.target.value })}
           />

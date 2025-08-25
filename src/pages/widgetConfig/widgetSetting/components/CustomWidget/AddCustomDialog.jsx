@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Dialog, Radio } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { SettingItem } from '../../../styled';
+import _ from 'lodash';
 import styled from 'styled-components';
-import CustomSaveConfig from './CustomSaveConfig';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import functionWrap from 'ming-ui/components/FunctionWrap';
 import { v4 } from 'uuid';
+import { Dialog, Radio } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
+import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { SettingItem } from '../../../styled';
+import CustomSaveConfig from './CustomSaveConfig';
 
 const DISPLAY_OPTIONS = [
   {

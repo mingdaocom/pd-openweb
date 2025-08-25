@@ -1,12 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { Icon, Checkbox, Tooltip } from 'ming-ui';
-import './ActionDropDown.less';
-import { getTextById, getNewDropDownData, getNewIconByType } from '../config';
 import _ from 'lodash';
-import { isSheetDisplay } from '../../../../widgetConfig/util';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import { Checkbox, Icon, Tooltip } from 'ming-ui';
+import {
+  deepSearch,
+  getNewDropDownData,
+  getNewIconByType,
+  getTextById,
+  ruleTable,
+  showArrowSetting,
+  TAB_TYPES,
+} from '../config';
+import openSettingDialog from './SettingDialog';
+import './ActionDropDown.less';
+
 export default class DropDownItem extends Component {
   static propTypes = {
     values: PropTypes.arrayOf(PropTypes.shape({})),
@@ -54,7 +63,7 @@ export default class DropDownItem extends Component {
     const extendId = [];
 
     const filterFn = item =>
-      (item.controlName || '').search(new RegExp(keyword.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
+      (item.controlName || '').search(new RegExp(keyword.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
       -1;
 
     function treeFilter() {
@@ -97,20 +106,50 @@ export default class DropDownItem extends Component {
         : this.state.extendId.concat([item.controlId]),
     });
   }
+
   updateValues(parentId, controlId) {
-    const { values, onChange } = this.props;
+    const { values, onChange, actionType, from } = this.props;
+    const { dropDownData = [] } = this.state;
     let newValues = values.concat([]);
 
     // 更新主字段
     if (!parentId) {
-      newValues = _.find(newValues, val => val.controlId === controlId && _.isEmpty(val.childControlIds))
-        ? newValues.filter(val => !(val.controlId === controlId && _.isEmpty(val.childControlIds)))
-        : newValues.concat([
+      const currentItem = deepSearch(dropDownData, controlId);
+      // 子表可编辑主动全选
+      if (_.includes([1, 2, 3, 4, 5], actionType) && ruleTable(currentItem) && from === 'rule') {
+        if (!_.find(newValues, val => val.controlId === controlId && _.isEmpty(val.childControlIds))) {
+          newValues = newValues.filter(n => !(n.controlId === controlId && !_.isEmpty(n.childControlIds)));
+          newValues = newValues.concat([
             {
-              controlId,
+              controlId: currentItem.controlId,
               childControlIds: [],
+              ...(actionType === 3
+                ? {
+                    permission: currentItem.type === 34 ? ['add', 'delete', 'edit'] : ['add', 'delete'],
+                    isCustom: true,
+                  }
+                : {}),
             },
           ]);
+          if (!_.isEmpty(currentItem.relationControls)) {
+            newValues = newValues.concat({
+              controlId: currentItem.controlId,
+              childControlIds: (currentItem.relationControls || []).map(i => i.controlId),
+            });
+          }
+        } else {
+          newValues = newValues.filter(n => n.controlId !== controlId);
+        }
+      } else {
+        newValues = _.find(newValues, val => val.controlId === controlId && _.isEmpty(val.childControlIds))
+          ? newValues.filter(val => !(val.controlId === controlId && _.isEmpty(val.childControlIds)))
+          : newValues.concat([
+              {
+                controlId,
+                childControlIds: [],
+              },
+            ]);
+      }
     } else {
       const currentValue = _.find(newValues, val => val.controlId === parentId && !_.isEmpty(val.childControlIds));
       if (currentValue) {
@@ -135,9 +174,17 @@ export default class DropDownItem extends Component {
     onChange('controls', newValues);
   }
 
+  hasSet(item) {
+    const { values = [] } = this.props;
+    const settingValues = values.filter(
+      v => v.controlId === item.controlId && (!_.isEmpty(v.childControlIds) || v.isCustom),
+    );
+    return !!settingValues.length;
+  }
+
   getTextByValue() {
-    const { values = [], actionType, dropDownData } = this.props;
-    const currentArr = getTextById(dropDownData, values, actionType) || [];
+    const { values = [], actionType, dropDownData, from, onChange } = this.props;
+    const currentArr = getTextById(dropDownData, values, actionType, from) || [];
     return (
       <Fragment>
         {currentArr.map(item => {
@@ -146,6 +193,23 @@ export default class DropDownItem extends Component {
               <Tooltip disable={!item.isDel} text={<span>{_l('ID: %0', item.controlId)}</span>} popupPlacement="bottom">
                 <span className="ellipsis controlNameBox">{item.name}</span>
               </Tooltip>
+              {item.showSetting && (
+                <div
+                  className={cx('settingIcon', { active: this.hasSet(item) })}
+                  onClick={e => {
+                    e.stopPropagation();
+                    openSettingDialog({
+                      data: this.state.originData,
+                      values,
+                      id: item.controlId,
+                      onChange,
+                      actionType,
+                    });
+                  }}
+                >
+                  <i className="icon-settings" />
+                </div>
+              )}
               <i
                 className="icon-close"
                 onClick={e => {
@@ -164,20 +228,28 @@ export default class DropDownItem extends Component {
     const { values = [], actionType } = this.props;
     const findChildItem = id => _.find(values, v => v.controlId === id && _.isEmpty(v.childControlIds));
 
-    const hasParentControl = isSheetDisplay(parentControl) || _.get(parentControl, 'type') === 34;
+    const hasParentControl = ruleTable(parentControl);
 
-    const checked = !hasParentControl
-      ? findChildItem(item.controlId)
-      : _.includes(
-          _.get(
-            _.find(values, v => v.controlId === parentControl.controlId && !_.isEmpty(v.childControlIds)),
-            'childControlIds',
-          ) || [],
-          item.controlId,
-        );
-    // 关联多条列表必填不能配置
+    const checked =
+      _.includes([2, 4], actionType) &&
+      ((parentControl.type === 52 && findChildItem(parentControl.controlId)) ||
+        (hasParentControl && parentControl.sectionId && findChildItem(parentControl.sectionId)))
+        ? true
+        : !hasParentControl
+          ? findChildItem(item.controlId)
+          : _.includes(
+              _.get(
+                _.find(values, v => v.controlId === parentControl.controlId && !_.isEmpty(v.childControlIds)),
+                'childControlIds',
+              ) || [],
+              item.controlId,
+            );
+    // 必填：标签页本身禁用；只读、隐藏：标签页选中时，其子集选中且禁用
     const disabled =
-      (isSheetDisplay(item) && actionType === 5) || (item.type === 52 && _.includes([3, 4, 5, 6], actionType));
+      (item.type === 52 && _.includes([5, 6], actionType)) ||
+      (_.includes([2, 4], actionType) &&
+        ((parentControl.type === 52 && findChildItem(parentControl.controlId)) ||
+          (hasParentControl && parentControl.sectionId && findChildItem(parentControl.sectionId))));
     return (
       <Checkbox
         checked={!!checked}
@@ -191,11 +263,30 @@ export default class DropDownItem extends Component {
     );
   }
 
+  updateSelectAll(item, isChecked) {
+    const { values, onChange } = this.props;
+    const index = _.findIndex(values, v => v.controlId === item.controlId);
+    const ids = (item.relationControls || []).map(i => i.controlId);
+    let newControls = values.filter(v => !_.includes(ids, v.controlId));
+    const addValues = ids.map(i => ({ controlId: i, childControlIds: [] }));
+    if (isChecked) {
+      if (index > -1) {
+        newControls.splice(index + 1, 0, ...addValues);
+      } else {
+        newControls = newControls.concat(addValues);
+      }
+    }
+
+    onChange('controls', newControls);
+  }
+
   renderItem(item = {}, parentControl = {}, deepIndex) {
+    const { values = [], actionType, from } = this.props;
     const { extendId = [] } = this.state;
-    const showArrow = item.relationControls && item.relationControls.length > 0;
+    // 子表、关联表格可编辑不显示下拉
+    const showArrow = showArrowSetting(item, values, actionType, from);
     // 标签页内字段按普通字段来存，业务规则针对字段本身，不考虑父子，父子关系随时可变
-    const parentId = item.sectionId ? '' : parentControl.controlId;
+    const parentId = item.sectionId && !_.includes([29, 34], parentControl.type) ? '' : parentControl.controlId;
 
     return (
       <div
@@ -212,7 +303,39 @@ export default class DropDownItem extends Component {
       >
         {this.renderChecked(item, parentControl)}
         <Icon icon={getNewIconByType(item)} className="Font14 Gray_9e mRight6" />
-        <span className="ellipsis controlNameBox">{item.controlName}</span>
+        <span className="ellipsis controlNameBox" title={item.controlName}>
+          {item.controlName}
+        </span>
+        {item.type === 52 &&
+          !_.isEmpty(item.relationControls) &&
+          (_.includes([1, 3, 5], actionType) ||
+            (_.includes([2, 4], actionType) && !_.find(values, v => v.controlId === item.controlId))) && (
+            <div className="flexCenter selectAllBox">
+              {_.every(item.relationControls, r =>
+                _.find(values, v => v.controlId === r.controlId && _.isEmpty(v.childControlIds)),
+              ) ? (
+                <span
+                  className="ThemeColor3 mRight10"
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.updateSelectAll(item);
+                  }}
+                >
+                  {_l('取消全选')}
+                </span>
+              ) : (
+                <span
+                  className="ThemeColor3 mRight10"
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.updateSelectAll(item, true);
+                  }}
+                >
+                  {_l('全选')}
+                </span>
+              )}
+            </div>
+          )}
         {showArrow ? (
           <i
             className={cx(
@@ -226,13 +349,16 @@ export default class DropDownItem extends Component {
   }
 
   renderList(dropData, parentControl, deepIndex = 0) {
+    const { values = [], actionType, from } = this.props;
     const { extendId } = this.state;
 
     return dropData.map(item => {
       return (
         <Fragment>
           {this.renderItem(item, parentControl, deepIndex)}
-          {!_.isEmpty(_.get(item, 'relationControls')) && _.includes(extendId, item.controlId)
+          {!_.isEmpty(_.get(item, 'relationControls')) &&
+          _.includes(extendId, item.controlId) &&
+          showArrowSetting(item, values, actionType, from)
             ? this.renderList(item.relationControls, item, deepIndex + 1)
             : null}
         </Fragment>
@@ -246,6 +372,9 @@ export default class DropDownItem extends Component {
         newValue.push({
           controlId: item.controlId,
           childControlIds: [],
+          ...(ruleTable(item) && this.props.actionType === 3
+            ? { isCustom: true, permission: item.type === 34 ? ['add', 'delete', 'edit'] : ['add', 'delete'] }
+            : {}),
         });
       }
       if (item.relationControls && item.relationControls.length > 0) {
@@ -300,7 +429,7 @@ export default class DropDownItem extends Component {
               placeholder={_l('搜索字段')}
               onChange={e => this.setState({ keyword: e.target.value }, this.handleSearch)}
             />
-            <Icon icon="workflow_find" className="search Gray_9e Font16" />
+            <Icon icon="search" className="search Gray_9e Font16" />
             {keyword && (
               <Icon
                 icon="close"
@@ -340,7 +469,9 @@ export default class DropDownItem extends Component {
             {!_.isEmpty(values) ? (
               this.getTextByValue()
             ) : (
-              <span className="Gray_9e LineHeight34">{activeTab === 1 ? _l('对指定字段提示') : _l('选择字段')}</span>
+              <span className="Gray_9e LineHeight34">
+                {activeTab === TAB_TYPES.CHECK_RULE ? _l('对指定字段提示') : _l('选择字段')}
+              </span>
             )}
           </span>
           <span className="iconArrow">

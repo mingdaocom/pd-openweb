@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { string, number, arrayOf, oneOf, shape, func } from 'prop-types';
-import styled from 'styled-components';
-import { RadioGroup, Icon, ScrollView } from 'ming-ui';
-import { FlexCenter, Text, Button, RevertButton } from 'worksheet/styled';
-import ConfigureHierarchyView from './configureHierarchyView';
 import _ from 'lodash';
+import { arrayOf, func, number, oneOf, shape } from 'prop-types';
+import styled from 'styled-components';
+import { Icon, RadioGroup, ScrollView } from 'ming-ui';
+import { Button, FlexCenter, RevertButton, Text } from 'worksheet/styled';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import ConfigureHierarchyView from './configureHierarchyView';
 
 const VIEW_TYPE_INFO = {
   1: {
@@ -159,12 +159,6 @@ export default class SelectField extends Component {
     const $scrollWrap = document.querySelector('.selectFieldWrap');
     if ($scrollWrap) {
       $($scrollWrap).height(Math.min($content.offsetHeight, innerHeight - bottom - 116));
-      if (
-        $content.offsetHeight < innerHeight - bottom - 116 &&
-        !$('.mapViewWrap .selectFieldWrap .nano-pane').attr('style')
-      ) {
-        $('.mapViewWrap .selectFieldWrap .nano-pane').attr('style', 'display: none;');
-      }
     }
   };
   renderContent = () => {

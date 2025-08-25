@@ -156,7 +156,6 @@ export default class VerticalSortableRecordItem extends Component {
       sheetSwitchPermit,
       view,
       worksheetInfo,
-      broCount = 1,
       isNarrow = false,
       uniqId,
     } = this.props;

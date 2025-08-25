@@ -22,7 +22,7 @@ export default function SplitLineSection(props) {
     worksheetId,
   } = props;
   const { enumDefault2 = 0, controlName, controlId } = data;
-  const { theme = '#2196f3', color = '#151515', icon = '', hidetitle } = getAdvanceSetting(data);
+  const { theme = '#1677ff', color = '#151515', icon = '', hidetitle } = getAdvanceSetting(data);
   const isMobile = browserIsMobile();
   const [visible, setVisible] = useState(enumDefault2 !== 2);
   const curControls = fromType === 'display' ? renderData : _.flatten(widgets);
@@ -99,7 +99,7 @@ export default function SplitLineSection(props) {
     if (sectionstyle === '2' && enumDefault2 !== 0) {
       return (
         <span className="headerArrowIcon">
-          <Icon icon="sidebar_video_tutorial" />
+          <Icon icon="play_circle_filled" />
         </span>
       );
     }

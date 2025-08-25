@@ -1,30 +1,41 @@
 {
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    [
+      "import",
+      {
+        "libraryName": "ming-ui/functions",
+        "libraryDirectory": "",
+        "camel2DashComponentName": false
+      },
+      "import-ming-ui-functions"
+    ],
+    [
+      "import",
+      {
+        "libraryName": "ming-ui",
+        "libraryDirectory": "components",
+        "camel2DashComponentName": false
+      },
+      "import-ming-ui"
+    ],
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "libraryDirectory": "es",
+        "style": "css"
+      },
+      "import-antd"
+    ]
+  ],
   "env": {
     "development": {
-      "plugins": [
-        "dynamic-import-node",
-        "transform-runtime",
-        "transform-decorators-legacy",
-        [
-          "import",
-          [
-            {
-              "libraryName": "ming-ui",
-              "libraryDirectory": "components",
-              "camel2DashComponentName": false
-            },
-            { "libraryName": "src", "libraryDirectory": "components", "camel2DashComponentName": false },
-            {
-              "libraryName": "antd",
-              "libraryDirectory": "es",
-              "style": "css"
-            }
-          ]
-        ]
-      ],
+      "plugins": ["babel-plugin-dynamic-import-node"],
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "modules": false,
             "targets": {
@@ -32,38 +43,14 @@
             }
           }
         ],
-        "stage-2",
-        "react"
+        "@babel/preset-react"
       ]
     },
     "production": {
-      "plugins": [
-        "transform-runtime",
-        "transform-decorators-legacy",
-        [
-          "import",
-          [
-            {
-              "libraryName": "ming-ui",
-              "libraryDirectory": "components",
-              "camel2DashComponentName": false
-            },
-            {
-              "libraryName": "src",
-              "libraryDirectory": "components",
-              "camel2DashComponentName": false
-            },
-            {
-              "libraryName": "antd",
-              "libraryDirectory": "es",
-              "style": "css"
-            }
-          ]
-        ]
-      ],
+      "plugins": ["@babel/plugin-syntax-dynamic-import"],
       "presets": [
         [
-          "env",
+          "@babel/preset-env",
           {
             "modules": false,
             "targets": {
@@ -71,8 +58,7 @@
             }
           }
         ],
-        "stage-2",
-        "react"
+        "@babel/preset-react"
       ]
     }
   }

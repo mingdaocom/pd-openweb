@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import _ from 'lodash';
-import { Dialog, ScrollView, LoadDiv, Checkbox, FunctionWrap, SvgIcon, UserHead } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import styled from 'styled-components';
+import { Checkbox, Dialog, FunctionWrap, LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const AppDialog = styled(Dialog)`
   position: relative;
@@ -150,8 +150,8 @@ const SelectApp = props => {
                 checked
                   ? selectedApps.filter(app => app.appId !== item.appId)
                   : unique
-                  ? [item]
-                  : selectedApps.concat([item]),
+                    ? [item]
+                    : selectedApps.concat([item]),
               )
             }
           />

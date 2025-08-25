@@ -7,9 +7,9 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
-import { getAdvanceSetting } from 'src/utils/control';
+import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
+import { getAdvanceSetting, getControlStyles } from 'src/utils/control';
 import { updateRulesData } from '../../../core/formUtils';
-import * as actions from './redux/actions';
 
 const TableWrap = styled(Table)`
   height: 100%;
@@ -104,6 +104,7 @@ const TableWrap = styled(Table)`
       border-radius: 3px;
     }
   }
+  ${({ controlStyles }) => controlStyles || ''}
 `;
 
 const Pagination = styled.div`
@@ -118,7 +119,7 @@ const Pagination = styled.div`
     line-height: 36px;
     color: #fff;
     padding: 0 12px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px;
     &.disabled {
       background: #e0e0e0;
@@ -177,6 +178,7 @@ function TableComponent(props) {
     <Fragment>
       <div className="flex overflowHidden" style={{ marginRight: showExpand ? -20 : 0 }}>
         <TableWrap
+          controlStyles={getControlStyles(columns)}
           tableLayout="fixed"
           rowClassName={lineHeightInfo[h5height]}
           pagination={false}
@@ -185,9 +187,13 @@ function TableComponent(props) {
           rowKey="rowid"
           columns={columns.map(item => ({
             dataIndex: item.controlId,
-            title: item.controlName,
+            title: (
+              <div className={`ellipsis control-head-${item.controlId}`}>
+                <span className="controlName ellipsis">{item.controlName}</span>
+              </div>
+            ),
             align: 'left',
-            className: item.className,
+            className: `${item.className} mobileTableItem control-val-${item.controlId}`,
             textWrap: 'word-break',
             width: item.width || 180,
             onCell: () => {
@@ -211,7 +217,7 @@ function TableComponent(props) {
                       onDelete(record.rowid);
                     }}
                   >
-                    <i className="icon icon-task-new-delete Font16 Red"></i>
+                    <i className="icon icon-trash Font16 Red"></i>
                   </div>
                 ) : null;
               }
@@ -255,7 +261,16 @@ function TableComponent(props) {
                     _.includes([29, 51], item.type)
                       ? {
                           width: 180,
-                          height: h5height === '0' ? 44 : h5height === '1' ? 64 : h5height === '2' ? 88 : 'auto',
+                          height:
+                            h5height === '0'
+                              ? 44
+                              : h5height === '1'
+                                ? 64
+                                : h5height === '2'
+                                  ? 88
+                                  : item.type == 29
+                                    ? ''
+                                    : 'auto',
                         }
                       : {}
                   }
@@ -325,7 +340,7 @@ TableComponent.propTypes = {
   onOpen: PropTypes.func,
 };
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = state => ({
   pagination: state.pagination,
 });
 

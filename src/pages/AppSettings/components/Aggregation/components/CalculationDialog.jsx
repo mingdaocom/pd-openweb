@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Input } from 'ming-ui';
+import { Checkbox, Dialog, Input } from 'ming-ui';
 import 'src/pages/Role/PortalCon/components/AddUserByTelDialog.less';
 import { getVerifyInfo } from 'src/pages/widgetConfig/util/setting.js';
 import FormulaFunc from 'src/pages/widgetConfig/widgetSetting/settings/formula_func.jsx';
@@ -29,7 +30,7 @@ const Wrap = styled.div`
     border-radius: 0 0 3px 0;
     &:hover {
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

@@ -11,7 +11,7 @@ export function calendarLoading(state = false, action) {
 export function calendarIsOver(state = false, action) {
   const { type } = action;
   switch (type) {
-    case 'CHANGE_CALENDAR_ISOVER':
+    case 'CHANGE_CALENDAR_IS_OVER':
       return action.data;
     default:
       return state;
@@ -121,7 +121,7 @@ export const mobileMoreClickVisible = (state = false, action) => {
     default:
       return state;
   }
-}
+};
 
 // 点击日期当天的数据
 export const mobileCurrentCalendatData = (state = [], action) => {
@@ -131,7 +131,7 @@ export const mobileCurrentCalendatData = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 // //点击日期
 export const mobileCurrentDate = (state = '', action) => {
@@ -141,4 +141,4 @@ export const mobileCurrentDate = (state = '', action) => {
     default:
       return state;
   }
-}
+};

@@ -44,6 +44,7 @@ import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/
 import { navigateTo } from 'src/router/navigateTo';
 import { renderText as renderCellText } from 'src/utils/control';
 import { filterHidedControls } from 'src/utils/control';
+import { getGroupControlId } from 'src/utils/worksheet';
 
 const Con = styled.div`
   display: flex;
@@ -80,7 +81,6 @@ function ViewControl(props) {
     sheetViewData,
     sheetFetchParams,
     sheetViewConfig,
-    buttons,
     sheetButtons,
     viewConfigVisible,
     setViewConfigVisible,
@@ -127,7 +127,7 @@ function ViewControl(props) {
     if (['gallery', 'board'].includes(VIEW_DISPLAY_TYPE[props.view.viewType])) {
       const showcount = _.get(props.view, 'advancedSetting.showcount');
       const storageCount = localStorage.getItem('showcount_' + viewId);
-      if (!storageCount || storageCount === 'undefined') {
+      if (!storageCount || storageCount === 'undefined' || !showcount) {
         updateViewShowcount(showcount);
       } else if (storageCount !== props.fieldShowCount) {
         updateViewShowcount(storageCount);
@@ -359,7 +359,7 @@ function ViewControl(props) {
         <div className="detailAllCount">{_l('共') + detailView.detailViewRowsCount + _l('条')}</div>
       )}
 
-      {Number(view && view.viewType) === 0 && (
+      {Number(view && view.viewType) === 0 && !getGroupControlId(view) && (
         <Pagination
           disabled={!!get(base, 'forcePageSize')}
           abnormalMode={pageCountAbnormal}
@@ -514,7 +514,7 @@ function ViewControl(props) {
           worksheetControls={controls}
           onClickAwayExceptions={[
             '.addControlDrop',
-            '.nano',
+            '.scrollViewContainer',
             '.mui-dialog-container',
             '.ant-select-dropdown',
             '.rc-trigger-popup',

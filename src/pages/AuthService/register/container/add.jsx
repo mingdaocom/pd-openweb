@@ -123,7 +123,7 @@ export default function (props) {
               }}
               value={regcode}
             />
-            <div className="title" onClick={e => setState({ focusDiv: 'regcode' })}>
+            <div className="title" onClick={() => setState({ focusDiv: 'regcode' })}>
               {_l('示例：MD1314')}
             </div>
             {renderWarn('regcode')}

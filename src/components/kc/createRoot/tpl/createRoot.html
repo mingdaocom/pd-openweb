@@ -2,7 +2,7 @@
 <div class="folderContent">
     {{? /\/apps\/kc/.test(location.pathname) && it.appName}}
     <div class="relatedToApp">
-        <i class="icon-knowledge-message Font16"></i>
+        <i class="icon-info Font16"></i>
         <span>{{! _l('此共享文件夹已被"%0"应用关联', it.appName) }}</span>
     </div>
     {{?}}
@@ -25,12 +25,12 @@
         <div class="folderMemberBox">
             <div class="addMember addUser">
                 <span class="ThemeColor3 text addFriends">
-                    <i class="icon-addapplication addMemberIcon"></i>
+                    <i class="icon-add_circle addMemberIcon"></i>
                     <span>{{!_l('添加协作者')}}</span>
                 </span>
                 <!--<i class="icon-help Font16"></i>-->
             </div>
-            <div class="nanoCon">
+            <div>
                 <ul class="memberList">
                     {{~it.members:member:index}}
                     <li class="memberItem" {{= member.accountStatus == 3 && !member.accountId ? 'data-account="'+ member.account +'"' : 'data-account-id="'+ member.accountId +'"'}}>

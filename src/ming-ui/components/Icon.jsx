@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 
 function Icon(props) {
   const { icon, className, style, type = 'default', ...otherProps } = props;
@@ -12,7 +12,14 @@ function Icon(props) {
     prefix = fontClass + '-';
   }
 
-  return <i {...otherProps} style={style} className={cx('ming Icon', `icon-${type}`, fontClass, prefix + icon, className)} title={props.hint} />;
+  return (
+    <i
+      {...otherProps}
+      style={style}
+      className={cx('ming Icon', `icon-${type}`, fontClass, prefix + icon, className)}
+      title={props.hint}
+    />
+  );
 }
 Icon.propTypes = {
   icon: PropTypes.string,

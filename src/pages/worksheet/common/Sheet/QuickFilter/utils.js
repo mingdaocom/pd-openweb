@@ -157,6 +157,10 @@ export function handleConditionsDefault(conditions, controls) {
         condition = assign(condition, dynamicResult[0]);
       }
     }
+    const values = condition.values;
+    if (values[0] === 'isEmpty') {
+      condition.filterType = 7;
+    }
     if (control.type === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
       condition.value = 1;
     }

@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import moment from 'moment';
 import classNames from 'classnames';
-import TimePicker from 'ming-ui/components/TimePicker/TimePicker';
+import moment from 'moment';
+import PropTypes from 'prop-types';
 import Dropdown from 'ming-ui/components/Dropdown';
+import TimePicker from 'ming-ui/components/TimePicker/TimePicker';
 
 class RangeFooter extends Component {
   static propTypes = {

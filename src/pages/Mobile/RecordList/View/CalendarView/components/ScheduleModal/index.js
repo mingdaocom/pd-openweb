@@ -106,7 +106,7 @@ class ScheduleModal extends Component {
       <React.Fragment>
         {eventData.map(it => {
           const { extendedProps = {} } = it;
-          const { rowid, wsid, stringColor = '', recordColor } = extendedProps;
+          const { rowid, wsid, recordColor } = extendedProps;
 
           return (
             <div
@@ -149,26 +149,27 @@ class ScheduleModal extends Component {
       </React.Fragment>
     );
   };
-  renderSearchData = seachData => {
+  renderSearchData = searchData => {
     const { getInitType } = this.props;
     const typeEvent = getInitType();
-    if (seachData.length <= 0) {
+    if (searchData.length <= 0) {
       return <div className="noData">{_l('没有搜索结果')}</div>;
     }
     return (
-      <div className="seachData">
-        <div className="text">{_l('%0条%1', seachData.length, (tabList.find(o => o.key === typeEvent) || {}).txt)}</div>
-        {this.renderEventData(seachData)}
+      <div className="searchData">
+        <div className="text">
+          {_l('%0条%1', searchData.length, (tabList.find(o => o.key === typeEvent) || {}).txt)}
+        </div>
+        {this.renderEventData(searchData)}
       </div>
     );
   };
-  handleScroll = (event, values) => {
+  handleScroll = ({ direction }) => {
     const { calendarview, getInitType } = this.props;
     const { calenderEventList } = calendarview;
     const { keyWords } = calenderEventList;
     const typeEvent = getInitType();
-    const { direction, maximum, position } = values;
-    if (direction === 'down' && maximum - position < 20 && !calenderEventList[`${typeEvent}IsAll`]) {
+    if (direction === 'down' && !calenderEventList[`${typeEvent}IsAll`]) {
       this.setState({
         scrollType: 1,
         scrollLoading: true,
@@ -177,7 +178,6 @@ class ScheduleModal extends Component {
       this.props.updateEventList(pageIndx, false);
     } else if (
       direction === 'up' &&
-      position < 20 &&
       typeEvent === eventStr[1] &&
       !calenderEventList[`${typeEvent}UpIsAll`] &&
       !keyWords
@@ -207,7 +207,7 @@ class ScheduleModal extends Component {
     let { isSearch, previewRecordId, wsid } = this.state;
     const { base, visible, showschedule, calendarview = {}, getInitType, worksheetInfo = {} } = this.props;
     const { calenderEventList = {}, calendarLoading = false } = calendarview;
-    const { keyWords, seachData = [] } = calenderEventList;
+    const { keyWords, searchData = [] } = calenderEventList;
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
@@ -215,11 +215,13 @@ class ScheduleModal extends Component {
         <Popup visible={visible} onClose={showschedule} className="mobileSchedulekModal mobileModal minFull topRadius">
           <div className="header">
             {_l('排期')}
-            <Icon icon="close" className="closeIcon" onClick={showschedule} />
+            <div className="closeIcon">
+              <Icon icon="close" onClick={showschedule} />
+            </div>
           </div>
           <div className="content pTop5">
             <ul className="tab">
-              {tabList.map((it, i) => {
+              {tabList.map(it => {
                 return (
                   <li
                     key={it.key}
@@ -234,7 +236,7 @@ class ScheduleModal extends Component {
                 );
               })}
             </ul>
-            {eventData.length || seachData.length ? (
+            {eventData.length || searchData.length ? (
               <div className="searchWrapper">
                 <Icon icon="search" className="searchIcon Font20" />
                 <input
@@ -252,7 +254,7 @@ class ScheduleModal extends Component {
                     if (e.keyCode === 13) {
                       const searchValue = e.target.value;
                       this.props.searchEventArgs(searchValue, 1);
-                      $('.eventListBox .nano-content').scrollTop(0);
+                      $('.eventListBox .scroll-viewport').scrollTop(0);
                       this.setState({ isSearch: !!searchValue });
                     }
                   }}
@@ -262,13 +264,13 @@ class ScheduleModal extends Component {
             ) : null}
             {calendarLoading && <LoadDiv />}
             {!isSearch && !calendarLoading && eventData && eventData.length > 0 && (
-              <ScrollView className="recordListBox" updateEvent={this.handleScroll}>
+              <ScrollView className="recordListBox" onReachVerticalEdge={this.handleScroll}>
                 {this.renderListEvent()}
               </ScrollView>
             )}
             {this.state.isSearch && !calendarLoading && (
               <ScrollView className="recordListBox">
-                <div className="listContainer">{this.renderSearchData(seachData)}</div>
+                <div className="listContainer">{this.renderSearchData(searchData)}</div>
               </ScrollView>
             )}
             {!isSearch && !calendarLoading && (!eventData || eventData.length <= 0) && (

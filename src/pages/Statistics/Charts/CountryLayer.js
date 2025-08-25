@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { formatrChartValue, formatYaxisList, getChartColors, getControlMinAndMax, getStyleColor } from './common';
-import { formatSummaryName } from 'statistics/common';
-import { Dropdown, Menu, Tooltip } from 'antd';
-import { LoadDiv, Icon } from 'ming-ui';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
-import * as actions from 'statistics/redux/actions';
 import { bindActionCreators } from 'redux';
-import reportRequestAjax from '../api/report';
-import { version, fillValueMap } from '../common';
 import { generate } from '@ant-design/colors';
+import { Dropdown, Menu, Tooltip } from 'antd';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import reportRequestAjax from '../api/report';
+import { formatSummaryName } from 'statistics/common';
+import * as actions from 'statistics/redux/actions';
+import { fillValueMap, version } from '../common';
+import { formatrChartValue, formatYaxisList, getChartColors, getControlMinAndMax, getStyleColor } from './common';
 
 const PathWrapper = styled.div`
   font-size: 14px;
@@ -22,7 +22,7 @@ const PathWrapper = styled.div`
   border-radius: 4px;
   background-color: #fff;
   .item {
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
     &:last-child {
       color: #000;
@@ -41,7 +41,7 @@ const ZoomWrapper = styled.div`
   right: 10px;
   z-index: 10;
   .icon:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
 `;
 
@@ -67,15 +67,7 @@ const setColorLavel = data => {
   return res;
 };
 
-let mapbox = null;
-
-@connect(
-  state => ({
-    base: state.statistics.base,
-  }),
-  dispatch => bindActionCreators(actions, dispatch),
-)
-export default class extends Component {
+export class CountryLayer extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -88,164 +80,47 @@ export default class extends Component {
       path: [],
       drillDownLoading: false,
     };
-    this.scene = null;
     this.CountryLayerChart = null;
+    this.DotLayerChart = null;
   }
   componentDidMount() {
-    Promise.all([import('@antv/l7'), import('@antv/l7-maps'), import('@antv/l7-district')]).then(
-      ([l7, l7Maps, l7District]) => {
-        const { Scene } = l7;
-        const { Mapbox } = l7Maps;
-        const { CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer, setDataConfig } = l7District;
-        const url = md.global.Config.WebUrl;
-        setDataConfig({
-          country: {
-            CHN: {
-              1: {
-                fill: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/71ac4de3-bb14-449d-a97d-2b98e25ec8df.bin`,
-                },
-                line: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/70ec087e-c48a-4b76-8825-6452f17bae7a.bin`,
-                },
-                provinceLine: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/0024caaf-86b2-4e75-a3d1-6d2146490b67.bin`,
-                },
-                label: {
-                  type: 'json',
-                  url: `${url}districtDataConfigFile/36832a45-68f8-4b51-b006-9dec71f92a23.json`,
-                },
-              },
-              2: {
-                fill: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/522c6496-c711-4581-88db-c3741cd39abd.bin`,
-                },
-                line: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/f6a4e2b1-359b-43a6-921c-39d2088d1dab.bin`,
-                },
-                cityLine: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/f6a4e2b1-359b-43a6-921c-39d2088d1dab.bin`,
-                },
-                provinceLine: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/0024caaf-86b2-4e75-a3d1-6d2146490b67.bin`,
-                },
-              },
-              3: {
-                fill: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/524f7de2-7d69-4fa7-8da3-7ff42fa69ee4.bin`,
-                },
-                line: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/bc97875a-90f2-42c0-a62c-43d2efd7460d.bin`,
-                },
-                countryLine: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/bc97875a-90f2-42c0-a62c-43d2efd7460d.bin`,
-                },
-                cityLine: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/8bfbfe7e-bd0e-4bbe-84d8-629f4dc7abc4.bin`,
-                },
-                provinceLine: {
-                  type: 'pbf',
-                  url: `${url}districtDataConfigFile/778ad7ba-5a3f-4ed6-a94a-b8ab8acae9d6.bin`,
-                },
-              },
-              nationalBoundaries: {
-                type: 'json',
-                url: `${url}districtDataConfigFile/ee493a41-0558-4c0e-bee6-520276c4f1a8.json`,
-              },
-              nationalBoundaries2: {
-                type: 'json',
-                url: `${url}districtDataConfigFile/f2189cc4-662b-4358-8573-36f0f918b7ca.json`,
-              },
-              island: {
-                type: 'json',
-                url: `${url}districtDataConfigFile/fe49b393-1147-4769-94ed-70471f4ff15d.json`,
-              },
-            },
-          },
+    Promise.all([import('@antv/l7plot')]).then(([l7plot]) => {
+      this.Choropleth = l7plot.Choropleth;
+      this.DotLayer = l7plot.DotLayer;
+      const { reportData, isViewOriginalData, isLinkageData } = this.props;
+      const { style, displaySetup } = reportData;
+      this.renderChart(this.props);
+      this.isViewOriginalData = displaySetup.showRowList && isViewOriginalData;
+      this.isLinkageData =
+        isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+      if (this.chartEl) {
+        this.resizeObserver = new ResizeObserver(() => {
+          const scene = this.CountryLayerChart.getScene();
+          scene.map.resize();
         });
-
-        this.asyncComponents = { Scene, Mapbox, CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer };
-
-        const { isThumbnail, reportData, isViewOriginalData, isLinkageData } = this.props;
-        const { displaySetup, country } = reportData;
-        const style = reportData.style || {};
-        const { scene, config, ChartComponent } = this.getChartConfig(this.props);
-
-        scene.on('loaded', () => {
-          this.isViewOriginalData = displaySetup.showRowList && isViewOriginalData;
-          this.isLinkageData =
-            isLinkageData &&
-            !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
-          this.CountryLayerChart = new ChartComponent(scene, config);
-          if (country.municipality) return;
-          if ((this.isViewOriginalData || this.isLinkageData) && !style.isDrillDownLayer) {
-            this.CountryLayerChart.on('click', this.handleClick);
-          }
-          if ((this.isViewOriginalData || this.isLinkageData) && style.isDrillDownLayer) {
-            if (country.particleSizeType === 1) {
-              this.CountryLayerChart.provinceLayer.on('click', this.handleClick);
-              this.CountryLayerChart.cityLayer.on('click', this.handleClick);
-              if (!isThumbnail) {
-                this.CountryLayerChart.countyLayer.on('click', this.handleClick);
-              }
-            }
-            if (country.particleSizeType === 2) {
-              this.CountryLayerChart.cityLayer.on('click', this.handleClick);
-              if (!isThumbnail) {
-                this.CountryLayerChart.countyLayer.on('click', this.handleClick);
-              }
-            }
-            if (country.particleSizeType === 3) {
-              this.CountryLayerChart.on('click', this.handleClick);
-            }
-          }
-        });
-        if (this.chartEl) {
-          this.resizeObserver = new ResizeObserver(entries => {
-            for (let entry of entries) {
-              this.scene.map.resize();
-            }
-          });
-          this.resizeObserver.observe(this.chartEl); 
-        }
-      },
-    );
+        this.resizeObserver.observe(this.chartEl);
+      }
+    });
   }
   componentWillUnmount() {
     this.CountryLayerChart && this.CountryLayerChart.destroy();
-    this.scene && this.scene.destroy();
     this.resizeObserver && this.resizeObserver.unobserve(this.chartEl);
   }
   componentWillReceiveProps(nextProps) {
-    const { style = {}, displaySetup = {}, map } = nextProps.reportData;
+    const { style = {}, displaySetup = {} } = nextProps.reportData;
     const { style: oldStyle = {}, displaySetup: oldDisplaySetup = {} } = this.props.reportData;
-    const chartColor = _.get(nextProps, 'customPageConfig.chartColor');
-    const oldChartColor = _.get(this.props, 'customPageConfig.chartColor');
     if (
       (!_.isEmpty(displaySetup) && displaySetup.showChartType !== oldDisplaySetup.showChartType) ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      !_.isEqual(chartColor, oldChartColor) ||
       !_.isEqual(style, oldStyle) ||
-      nextProps.themeColor !== this.props.themeColor
+      nextProps.themeColor !== this.props.themeColor ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      )
     ) {
-      this.CountryLayerChart && this.CountryLayerChart.destroy();
-      this.scene && this.scene.destroy();
-      const { scene, config, ChartComponent } = this.getChartConfig(nextProps);
-      scene.on('loaded', () => {
-        this.CountryLayerChart = new ChartComponent(scene, config);
-      });
+      this.resetChart(nextProps);
     }
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
       this.isLinkageData =
@@ -253,29 +128,43 @@ export default class extends Component {
         !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
     }
     if (!nextProps.loading && this.props.loading) {
-      const { map, yaxisList, summary, style, country } = nextProps.reportData;
+      const { map, yaxisList, summary } = nextProps.reportData;
       const data = setColorLavel(map);
-      const { CountryLayerChart } = this;
-      if (CountryLayerChart && typeof CountryLayerChart.updateData === 'function') {
-        this.setCount(formatYaxisList(data, yaxisList), summary);
-        if (_.get(style, 'isDrillDownLayer')) {
-          if (country.particleSizeType === 3) {
-            CountryLayerChart.updateData(data);
-          } else {
-            CountryLayerChart.updateData(CountryLayerChart.drillState, data);
-          }
-        } else {
-          CountryLayerChart.updateData(data);
-        }
-      }
+      this.setCount(formatYaxisList(data, yaxisList), summary);
+      this.colorLavels = this.getColorLavels(nextProps, data);
+      this.CountryLayerChart.changeData(data);
     }
   }
-  handleClick = ({ feature, x, y }) => {
+  renderChart = props => {
+    const config = this.getChartConfig(props);
+    this.CountryLayerChart = new this.Choropleth(this.chartEl, config);
+    this.CountryLayerChart.on('loaded', () => {
+      if (this.isViewOriginalData || this.isLinkageData) {
+        this.CountryLayerChart.on('fillAreaLayer:click', this.handleClick);
+      }
+      const { dotLayerConfig, viewLevel, source } = config;
+      if (dotLayerConfig) {
+        const { locationMap } = props.reportData;
+        const dotLayer = new this.DotLayer(dotLayerConfig);
+        this[`${viewLevel.level}Data`] = { data: source.data, locationMap };
+        this.CountryLayerChart.addLayer(dotLayer);
+        this.DotLayerChart = dotLayer;
+      }
+    });
+  };
+  resetChart = props => {
+    this.CountryLayerChart && this.CountryLayerChart.destroy();
+    this.renderChart(props || this.props);
+    this.setState({ path: [] });
+  };
+  handleClick = data => {
+    const { feature, x, y } = data;
     const { path } = this.state;
-    const { xaxes, country, appId, reportId, name, reportType, style } = this.props.reportData;
-    const { code, value } = feature.properties;
+    const { isThumbnail, reportData } = this.props;
+    const { xaxes, country, appId, reportId, name, reportType, style } = reportData;
+    const { code, value, level } = feature.properties;
 
-    if (!value) return;
+    if (!value || (isThumbnail && level === 'district')) return;
 
     const param = {};
     const linkageMatch = {
@@ -324,7 +213,7 @@ export default class extends Component {
     }, 0);
   };
   handleRequestOriginalData = () => {
-    const { isThumbnail, reportData } = this.props;
+    const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
@@ -345,7 +234,7 @@ export default class extends Component {
     });
   };
   handleDrillDownTriggerData = () => {
-    const { base, reportData } = this.props;
+    const { base = {} } = this.props;
     const { match } = this.state;
     const key = _.findKey(match);
     const code = match[key];
@@ -357,7 +246,7 @@ export default class extends Component {
   };
   requestDrillDownTriggerData = code => {
     const { path } = this.state;
-    const { base, reportData, filtersGroup } = this.props;
+    const { base = {}, reportData, filtersGroup } = this.props;
     const { country, reportId } = reportData;
     const id = reportId || base.report.id;
     const particleSizeType = path.length ? path.length + 1 : country.particleSizeType + 1;
@@ -378,30 +267,40 @@ export default class extends Component {
         version,
         filterCode: code,
         particleSizeType,
-        filters: filtersGroup ? [filtersGroup] : undefined
+        filters: filtersGroup ? [filtersGroup] : undefined,
       })
       .then(result => {
         result = fillValueMap(result);
         this.setState({ drillDownLoading: false, dropdownVisible: false });
+        const { locationMap = {} } = result;
         const data = setColorLavel(result.map);
+        const renderDotLayerChart = level => {
+          if (this.DotLayerChart) {
+            const dotLayerConfig = this.getDotLayerConfig({ data, locationMap });
+            this[`${level}Data`] = { data, locationMap };
+            this.DotLayerChart.changeData(dotLayerConfig.source);
+          }
+        };
 
         if (municipality.includes(code)) {
-          const last = _.find(this.CountryLayerChart.provinceLayer.options.data, { code: code });
+          const last = _.find(this.CountryLayerChart.options.source.data, { code: code });
           this.setState({ path: [_l('全国'), last.name] });
           this.depthColorLavels = this.getColorLavels(this.props, data);
-          this.CountryLayerChart.depth = 3;
-          this.CountryLayerChart.drillState = 'Province';
-          this.CountryLayerChart.drillDown(code, data);
-          this.CountryLayerChart.drillState = 'City';
-          this.CountryLayerChart.drillDown(code, data);
+          this.CountryLayerChart.drillDown(
+            { level: 'province', granularity: 'district', adcode: code },
+            { source: { data } },
+          );
+          renderDotLayerChart('province');
           return;
         }
 
         if (path.length) {
-          const last = _.find(this.CountryLayerChart.cityLayer.options.data, { code: code });
-          const city = last.name.split('/')[1];
+          const last = _.find(this.CountryLayerChart.options.source.data, { code: code });
+          const citys = last.name.split('/');
+          const city = citys[citys.length - 1];
           this.setState({ path: path.concat(city) });
-          this.CountryLayerChart.drillState = 'City';
+          this.CountryLayerChart.drillDown({ level: 'city', adcode: code }, { source: { data } });
+          renderDotLayerChart('city');
         } else {
           const { map } = reportData;
           const newPath = [];
@@ -414,32 +313,40 @@ export default class extends Component {
             newPath.push(...last.name.split('/'));
           }
           if (country.particleSizeType === 1) {
-            this.CountryLayerChart.drillState = 'Province';
+            this.CountryLayerChart.drillDown({ level: 'province', adcode: code }, { source: { data } });
+            renderDotLayerChart('province');
           }
           if (country.particleSizeType === 2) {
-            this.CountryLayerChart.drillState = 'City';
+            this.CountryLayerChart.drillDown({ level: 'city', adcode: code }, { source: { data } });
+            renderDotLayerChart('city');
           }
           this.setState({ path: newPath });
         }
-
-        this.CountryLayerChart.drillDown(code, data);
       });
   };
   handleDrillUpTriggleData = index => {
     const { path } = this.state;
-    const { isThumbnail, reportData, base } = this.props;
+    const { isThumbnail, reportData, base = {} } = this.props;
     const { country } = reportData;
+    const renderDotLayerChart = level => {
+      if (this.DotLayerChart) {
+        const { data, locationMap } = this[`${level}Data`];
+        const dotLayerConfig = this.getDotLayerConfig({ data, locationMap });
+        this.DotLayerChart.changeData(dotLayerConfig.source);
+      }
+    };
 
     if (path.length) {
       if (index) {
         this.props.changeCurrentReport({
           country: {
             ...country,
-            drillFilterCode: this.CountryLayerChart.cityLayer.options.adcode,
+            drillFilterCode: this.CountryLayerChart.options.viewLevel.adcode,
             drillParticleSizeType: 2,
           },
         });
-        this.CountryLayerChart.drillUp('Province');
+        this.CountryLayerChart.drillUp(undefined, 'province');
+        renderDotLayerChart('province');
         path.pop();
         this.setState({ path });
       } else {
@@ -454,8 +361,14 @@ export default class extends Component {
             },
           });
         }
-        this.CountryLayerChart.drillUp('Province');
-        this.CountryLayerChart.drillUp('Country');
+        // 全国
+        if (country.particleSizeType === 1) {
+          this.CountryLayerChart.drillUp(undefined, 'country');
+          renderDotLayerChart('country');
+        } else {
+          this.CountryLayerChart.drillUp(undefined, 'province');
+          renderDotLayerChart('province');
+        }
         this.setState({ path: [] });
         this.depthColorLavels = null;
       }
@@ -468,17 +381,17 @@ export default class extends Component {
             drillParticleSizeType: 1,
           },
         });
-        this.CountryLayerChart.drillUp('Country');
+        this.CountryLayerChart.drillUp(undefined, 'country');
       }
       if (country.particleSizeType === 2) {
         this.props.changeCurrentReport({
           country: {
             ...country,
-            drillFilterCode: this.CountryLayerChart.cityLayer.options.adcode,
+            drillFilterCode: this.CountryLayerChart.cityLayer.viewLevel.adcode,
             drillParticleSizeType: 2,
           },
         });
-        this.CountryLayerChart.drillUp('Province');
+        this.CountryLayerChart.drillUp(undefined, 'province');
       }
       this.setState({ path: [] });
     }
@@ -500,14 +413,17 @@ export default class extends Component {
     const { yaxisList, sorts } = reportData;
     const sort = _.get(sorts[0], yaxisList[0].controlId);
     const maxColorLavel = _.max(data.map(n => n.colorLavel));
-    const generateColors = generate(this.colors[0]).filter((_, index) => [0, 2, 4, 6, 7, 9].includes(index)).filter((_, index) => maxColorLavel > index);
+    const generateColors = generate(this.colors[0])
+      .filter((_, index) => [0, 2, 4, 6, 7, 9].includes(index))
+      .filter((_, index) => maxColorLavel > index);
     return sort === 2 ? generateColors.reverse() : generateColors;
-  }
+  };
   getChartConfig(props) {
-    const { themeColor, projectId, customPageConfig = {}, reportData } = props;
-    const { country, displaySetup, map, yaxisList, summary } = reportData;
+    const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
+    const { country, displaySetup, map, yaxisList, summary, locationMap = {} } = reportData;
     const { colorRules } = displaySetup;
-    const { chartColor, chartColorIndex = 1 } = customPageConfig;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
+    const isDark = pageStyleType === 'dark' && isThumbnail;
     const styleConfig = reportData.style || {};
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
@@ -523,159 +439,171 @@ export default class extends Component {
         )
       : {};
     const newYaxisList = formatYaxisList(data, yaxisList);
-    const { Scene, Mapbox, CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer } = this.asyncComponents;
+    const isBubbleStyle = displaySetup.showChartType === 2;
 
     this.setCount(newYaxisList, summary);
     this.colors = getChartColors(style, themeColor, projectId);
     this.colorLavels = this.getColorLavels(props, data);
 
-    if (!mapbox) {
-      mapbox = new Mapbox({
-        center: [116.2825, 39.9],
-        pitch: 0,
+    const config = {
+      map: {
+        type: 'map',
         style: 'blank',
+        center: [120.19382669582967, 30.258134],
         zoom: 3,
         minZoom: 1,
-        maxZoom: 10,
-      });
-    }
-
-    this.scene = new Scene({
-      id: this.chartEl,
-      logoVisible: false,
-      map: mapbox,
-    });
-
-    const { scene } = this;
-    const config = {
-      data,
-      joinBy: ['adcode', 'code'],
-      cityStrokeWidth: 1,
-      popup: {
-        enable: true,
-        Html: props => {
-          const { yaxisList } = this.props.reportData;
-          if (_.isNull(props.value) || _.isUndefined(props.value)) {
-            return `<span>${props.NAME_CHN}</span>`;
-          } else {
-            return `<span>${props.NAME_CHN}: ${formatrChartValue(props.value, false, newYaxisList)}</span>`;
-          }
+        pitch: 0,
+      },
+      source: {
+        data: data,
+        joinBy: {
+          sourceField: 'code',
+          geoField: 'adcode',
         },
       },
+      autoFit: true,
+      drill: {
+        steps: ['province', 'city'],
+        triggerUp: null,
+        triggerDown: null,
+        onUp: (from, to, callback) => {
+          callback();
+        },
+      },
+      chinaBorder: {
+        national: false,
+        dispute: false,
+        coast: { opacity: 0, width: 0 },
+        hkm: false,
+      },
+      style: {
+        opacity: 1,
+        stroke: '#ccc',
+        lineWidth: 0.6,
+        lineOpacity: 1,
+      },
+      label: {
+        visible: true,
+        field: 'name',
+        style: {
+          fill: '#000',
+          opacity: 0.8,
+          fontSize: 10,
+          stroke: '#fff',
+          strokeWidth: 1,
+          textAllowOverlap: false,
+          padding: [5, 5],
+        },
+      },
+      state: {
+        active: { stroke: isDark ? '#fff' : 'black', lineWidth: 1 },
+      },
+      tooltip: {
+        customTitle: data => {
+          const { name, value } = data;
+          return 'value' in data ? `${name}: ${formatrChartValue(value, false, newYaxisList)}` : name;
+        },
+      },
+      zoom: false,
+      legend: false,
     };
 
-    if (displaySetup.showChartType === 2) {
-      config.provinceStroke = '#ffffffcc';
-      config.cityStroke = '#ffffffcc';
-      config.bubble = {
-        color: this.colors[0],
-        enable: true,
-        size: {
-          field: 'colorLavel',
-          values: value => {
-            return value ? value * 5 : 0;
-          },
-        },
+    if (md.global.Config.IsLocal) {
+      config.geoArea = {
+        url: location.origin + '/staticfiles/choroplethData',
+        type: 'topojson',
       };
+    }
+
+    if (isBubbleStyle) {
+      config.color = isDark ? 'transparent' : '#ccc';
+      config.style.stroke = '#fff';
+      config.dotLayerConfig = this.getDotLayerConfig({ data, locationMap });
     } else {
-      config.provinceStroke = '#BBDEFB';
-      config.cityStroke = '#BBDEFB';
       if (isRuleColor) {
-        config.fill = {
-          color: {
-            field: 'value',
-            values: value => {
-              const color = getStyleColor({
-                value,
-                controlMinAndMax,
-                rule,
-                controlId: yaxisList[0].controlId,
-              });
-              return color;
-            },
+        config.color = {
+          field: 'value',
+          value: data => {
+            const { value } = data;
+            const color = getStyleColor({
+              value,
+              controlMinAndMax,
+              rule,
+              controlId: yaxisList[0].controlId,
+            });
+            return color;
           },
+          scale: { type: 'quantile' },
         };
       } else {
-        config.fill = {
-          color: {
-            field: 'colorLavel',
-            values: value => {
-              if (this.depthColorLavels) {
-                return this.depthColorLavels[value - 1];
-              } else {
-                return this.colorLavels[value - 1];
-              }
-            }
+        config.color = {
+          field: 'colorLavel',
+          value: data => {
+            const { colorLavel } = data;
+            const colorLavels = this.depthColorLavels || this.colorLavels;
+            return colorLavel ? colorLavels[colorLavel - 1] : undefined;
           },
+          scale: { type: 'quantile' },
         };
       }
     }
 
-    // 钻取地图
-    if (style && style.isDrillDownLayer && [1, 2].includes(country.particleSizeType) && !country.municipality) {
-      config.customTrigger = true;
-      config.data = undefined;
-      // 省
-      if (country.particleSizeType === 1) {
-        config.provinceData = data;
-        config.viewStart = 'Country';
-        config.viewEnd = 'County';
-      }
-      // 市
-      if (country.particleSizeType === 2) {
-        config.cityData = data;
-        config.viewStart = 'Province';
-        config.viewEnd = 'County';
-        config.city = {
-          adcode: [country.filterCode],
-        };
-      }
-      return {
-        scene,
-        config,
-        ChartComponent: DrillDownLayer,
-      };
-    }
-
-    // 普通地图
-    if (country.municipality) {
-      config.depth = 3;
-      config.adcode = [country.filterCode];
-      return {
-        scene,
-        config,
-        ChartComponent: ProvinceLayer,
-      };
-    }
-    // 普通地图 / 全国
     if (country.particleSizeType === 1) {
-      config.depth = 1;
-      return {
-        scene,
-        config,
-        ChartComponent: CountryLayer,
+      config.viewLevel = {
+        level: 'country',
+        adcode: 100000,
       };
     }
-    // 普通地图 / 市
+
     if (country.particleSizeType === 2) {
-      config.depth = 2;
-      config.adcode = [country.filterCode];
-      return {
-        scene,
-        config,
-        ChartComponent: ProvinceLayer,
+      config.viewLevel = {
+        level: 'province',
+        adcode: country.filterCode,
       };
     }
-    // 普通地图 / 县
+
     if (country.particleSizeType === 3) {
-      config.depth = 3;
-      config.adcode = [country.filterCode];
-      return {
-        scene,
-        config,
-        ChartComponent: CityLayer,
+      config.viewLevel = {
+        level: 'city',
+        adcode: country.filterCode,
       };
     }
+
+    // 直辖市
+    if (country.municipality) {
+      config.viewLevel = {
+        level: 'province',
+        granularity: 'district',
+        adcode: country.filterCode,
+      };
+    }
+
+    return config;
+  }
+  getDotLayerConfig({ data, locationMap }) {
+    return {
+      zIndex: 0,
+      source: {
+        data: data.map(item => {
+          const [lng, lat] = (locationMap[item.code] || '').split(',');
+          return {
+            name: item.name,
+            value: item.value,
+            colorLavel: item.colorLavel,
+            lng,
+            lat,
+          };
+        }),
+        parser: { type: 'json', x: 'lng', y: 'lat' },
+      },
+      size: {
+        field: 'colorLavel',
+        value: ({ colorLavel }) => {
+          return colorLavel ? colorLavel * 5 : 0;
+        },
+      },
+      color: this.colors[0],
+    };
   }
   setCount(yaxisList, summary) {
     const value = summary.sum;
@@ -688,7 +616,7 @@ export default class extends Component {
   renderOverlay() {
     const { reportData, isThumbnail } = this.props;
     const { path, drillDownLoading } = this.state;
-    const { displaySetup = {}, style, country } = reportData || {};
+    const { style, country } = reportData || {};
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Fragment>
@@ -725,7 +653,8 @@ export default class extends Component {
   }
   render() {
     const { count, originalCount, dropdownVisible, offset, path } = this.state;
-    const { displaySetup = {}, country = {}, summary } = this.props.reportData;
+    const { xaxes = {}, displaySetup = {}, country = {}, summary } = this.props.reportData;
+    const chooserange = _.get(xaxes, 'advancedSetting.chooserange');
     return (
       <div className="flex flexColumn chartWrapper countryLayerChart Relative">
         <Dropdown
@@ -747,7 +676,7 @@ export default class extends Component {
             </span>
           </div>
         ) : null}
-        {country.filterCode == '910000' ? (
+        {country.filterCode == '910000' || (chooserange && chooserange !== 'CN') ? (
           <Fragment>
             <div className="flexRow valignWrapper h100 justifyContent Gray_75 Font16">{_l('海外地区暂不支持')}</div>
             <div className="hide" ref={el => (this.chartEl = el)} />
@@ -755,6 +684,7 @@ export default class extends Component {
         ) : (
           <Fragment>
             <div
+              id="countryLayerChartEl"
               className={displaySetup.showTotal ? 'showTotalHeight Relative' : 'h100'}
               ref={el => (this.chartEl = el)}
             />
@@ -779,17 +709,21 @@ export default class extends Component {
             )}
             <ZoomWrapper className="flexColumn alignItemsCenter justifyContentCenter card">
               <Tooltip title={_l('放大')}>
-                <Icon className="pointer Font20 Gray_75 mTop2" icon="add" onClick={() => this.scene.map.zoomIn()} />
+                <Icon className="pointer Font20 Gray_75" icon="add" onClick={() => this.CountryLayerChart.zoomIn()} />
               </Tooltip>
               <Tooltip title={_l('完整显示')}>
                 <Icon
                   className="pointer Font17 Gray_75 mTop10 mBottom10"
                   icon="gps_fixed"
-                  onClick={() => this.scene.map.zoomTo(2)}
+                  onClick={() => this.resetChart()}
                 />
               </Tooltip>
               <Tooltip title={_l('缩小')}>
-                <Icon className="pointer Font20 Gray_75" icon="minus" onClick={() => this.scene.map.zoomOut()} />
+                <Icon
+                  className="pointer Font20 Gray_75"
+                  icon="minus"
+                  onClick={() => this.CountryLayerChart.zoomOut()}
+                />
               </Tooltip>
             </ZoomWrapper>
           </Fragment>
@@ -798,3 +732,10 @@ export default class extends Component {
     );
   }
 }
+
+export default connect(
+  state => ({
+    base: state.statistics.base,
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
+)(CountryLayer);

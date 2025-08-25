@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, SvgIcon } from 'ming-ui';
+import { LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { browserIsMobile } from 'src/utils/common';
@@ -71,7 +71,7 @@ const Wrap = styled.div`
     }
   }
   .send {
-    background: #2196f3;
+    background: #1677ff;
     height: 40px;
     border-radius: 4px;
     line-height: 40px;
@@ -91,11 +91,9 @@ export default function Info(props) {
     logoImageUrl,
     appId,
     accountId = '',
-    account,
+
     state = '',
     setStatus,
-    appColor = '#00bcd4',
-    appLogoUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
     isAutoLogin,
     autoLogin,
     registerMode = {},
@@ -117,8 +115,9 @@ export default function Info(props) {
             //检查框默认值处理
             let defsource = _.get(o, ['advancedSetting', 'defsource']);
             try {
-              defsource = JSON.parse(defsource)[0];
+              defsource = safeParse(defsource, 'array')[0] || {};
             } catch (error) {
+              console.log(error);
               defsource = {};
             }
             let { staticValue = '' } = defsource;
@@ -155,7 +154,7 @@ export default function Info(props) {
           setSending(false);
           setAutoLoginKey({ ...res, appId });
           // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
-          const { accountResult, sessionId, accountId, projectId } = res;
+          const { accountResult } = res;
           if (statusList.includes(accountResult)) {
             setStatus(accountResult);
           } else if ([20].includes(accountResult)) {

@@ -6,7 +6,7 @@ import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { formatResponseData } from 'src/components/UploadFiles/utils.js';
 import { browserIsMobile } from 'src/utils/common';
-import { getParamsByConfigs, handleUpdateApi } from '../Search/util';
+import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from '../Search/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -181,7 +181,7 @@ export default class Widgets extends Component {
       controlId,
       apkId: appId,
       apiTemplateId: dataSource,
-      authId: authaccount,
+      authId: dealAuthAccount(authaccount, formData),
       pushUniqueId: md.global.Config.pushUniqueId,
     };
 
@@ -310,7 +310,7 @@ export default class Widgets extends Component {
           },
         }}
         onUploaded={this.handleUploaded}
-        onAdd={(up, files) => {
+        onAdd={up => {
           this.setState({ isUploading: true });
           up.disableBrowse();
         }}

@@ -49,6 +49,7 @@ function withClickAway(exceptionList, Component = exceptionList) {
           try {
             return ReactDom.findDOMNode(item);
           } catch (err) {
+            console.error(err);
             return null;
           }
         }),
@@ -76,7 +77,8 @@ function withClickAway(exceptionList, Component = exceptionList) {
       document.removeEventListener('mousedown', this.checkClickAway, true);
     }
     render() {
-      const { onClickAway, onClickAwayExceptions, specialFilter, ignoreOnHide, ...rest } = this.props;
+      const { ...rest } = this.props;
+
       return <Component {...rest} />;
     }
   }

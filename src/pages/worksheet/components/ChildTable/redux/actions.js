@@ -115,9 +115,40 @@ export const updateCellErrors = errors => {
   };
 };
 
-export const clearAndSetRows = rows => {
+function getChangesControlIds(oldRow, newRow, controls) {
+  if (!oldRow || !newRow) {
+    return [];
+  }
+  const ids = oldRow.updatedControlIds || [];
+  controls
+    .map(c => c.controlId)
+    .forEach(key => {
+      if (key.length === 24) {
+        if (oldRow[key] !== newRow[key]) {
+          ids.push(key);
+        }
+      }
+    });
+  return ids;
+}
+
+export const clearAndSetRows = (rows, { isSetValueFromEvent = false, controls = [] } = {}) => {
   return (dispatch, getState) => {
-    dispatch({ type: 'CLEAR_AND_SET_ROWS', rows, deleted: getState().rows.map(r => r.rowid) });
+    const oldRows = getState().rows;
+    let newRows = rows;
+    let deleted = oldRows.map(r => r.rowid);
+    if (isSetValueFromEvent) {
+      deleted = oldRows.filter(oldRow => !find(rows, r => r.rowid === oldRow.rowid)).map(r => r.rowid);
+      newRows = newRows.map(row => ({
+        ...row,
+        updatedControlIds: getChangesControlIds(
+          find(oldRows, r => r.rowid === row.rowid),
+          row,
+          controls,
+        ),
+      }));
+    }
+    dispatch({ type: 'CLEAR_AND_SET_ROWS', isSetValueFromEvent, rows: newRows, deleted });
   };
 };
 
@@ -126,6 +157,7 @@ export const setOriginRows = rows => ({ type: 'LOAD_ROWS', rows });
 export const addRow = (row, insertRowId) => (dispatch, getState) => {
   dispatch({ type: 'ADD_ROW', row: omit(row, 'needShowLoading'), rowid: row.rowid, insertRowId });
   dispatch(updateTreeTableViewData());
+  dispatch(updatePagination({ count: _.get(getState(), 'pagination.count') + 1 }));
 };
 
 export const deleteRow = rowid => (dispatch, getState) => {
@@ -133,6 +165,7 @@ export const deleteRow = rowid => (dispatch, getState) => {
   dispatch({ type: 'UPDATE_CELL_ERRORS', value: _.omitBy(cellErrors, (value, key) => key.includes(rowid)) });
   dispatch({ type: 'DELETE_ROW', rowid });
   dispatch(updateTreeTableViewData());
+  dispatch(updatePagination({ count: _.get(getState(), 'pagination.count') - 1 }));
 };
 
 export const deleteRows =
@@ -203,7 +236,6 @@ async function batchLoadRows(args) {
 export const loadRows = ({
   worksheetId,
   recordId,
-  isCustomButtonFillRecord,
   controlId,
   pageIndex = 1,
   getWorksheet,
@@ -214,7 +246,7 @@ export const loadRows = ({
 }) => {
   return (dispatch, getState) => {
     const { base = {} } = getState();
-    const { instanceId, workId, worksheetInfo } = base;
+    const { instanceId, workId, control } = base;
 
     const isWorkflow = (instanceId && workId) || get(window, 'shareState.isPublicWorkflowRecord');
     const args = {
@@ -227,10 +259,12 @@ export const loadRows = ({
       getType: from === 21 ? from : undefined,
       instanceId,
       workId,
+      discussId: control.discussId,
     };
     batchLoadRows(args)
       .then(batchRes => {
         const { res, rows } = batchRes;
+        dispatch(updatePagination({ count: res.count }));
         dispatch({ type: 'LOAD_ROWS', rows });
         dispatch({ type: 'UPDATE_DATA_LOADING', value: false });
         dispatch(initRows(rows));
@@ -250,17 +284,47 @@ export const loadRows = ({
         }
         callback(res);
       })
-      .catch(err => {
+      .catch(() => {
         callback(null);
       });
   };
 };
 
+// 分页加载数据
+export const loadPageRows =
+  ({ worksheetId, recordId, controlId, getWorksheet, from, callback = () => {} }) =>
+  (dispatch, getState) => {
+    const { base = {}, pagination = {} } = getState();
+    const { instanceId, workId } = base;
+    const { pageIndex, pageSize } = pagination;
+
+    const args = {
+      worksheetId,
+      rowId: recordId,
+      controlId: controlId,
+      getWorksheet,
+      pageIndex,
+      pageSize: pageSize || PAGE_SIZE,
+      getType: from === 21 ? from : undefined,
+      instanceId,
+      workId,
+    };
+
+    // 表格形态手动分页加载
+    worksheetAjax.getRowRelationRows(args).then(res => {
+      dispatch({ type: 'LOAD_ROWS', rows: res.data || [] });
+      dispatch({ type: 'UPDATE_DATA_LOADING', value: false });
+      dispatch(initRows(res.data || []));
+      callback(res);
+    });
+  };
+
 export const addRows =
   (rows, options = {}) =>
-  dispatch => {
+  (dispatch, getState) => {
     dispatch({ type: 'ADD_ROWS', rows: rows.map(row => omit(row, 'needShowLoading')), ...options });
     dispatch(updateTreeTableViewData());
+    dispatch(updatePagination({ count: _.get(getState(), 'pagination.count') + rows.length }));
   };
 
 export const sortRows = ({ control, isAsc }) => {
@@ -306,8 +370,12 @@ export const exportSheet = ({
   };
 };
 
+export const updatePagination = pagination => dispatch => {
+  dispatch({ type: 'UPDATE_PAGINATION', pagination });
+};
+
 class RowData {
-  constructor(args = {}, options = {}) {
+  constructor(args = {}) {
     this.args = args;
     this.init();
   }
@@ -389,9 +457,9 @@ export function setRowsFromStaticRows({
   abortController,
   type,
   allowEdit = true,
-  isCreate,
   isDefaultValue = true,
   isQueryWorksheetFill = true,
+  isSetValueFromEvent = false,
   triggerSubListControlValueChange = () => {},
 } = {}) {
   return (getState, dispatch, DataFormat) => {
@@ -405,6 +473,12 @@ export function setRowsFromStaticRows({
       let tempRowId;
       if (/^public-/.test(staticRow.rowid)) {
         tempRowId = staticRow.rowid.replace('public-', '');
+      } else if (isSetValueFromEvent) {
+        if (!staticRow.rowid) {
+          tempRowId = `temp-${uuidv4()}`;
+        } else {
+          tempRowId = staticRow.rowid;
+        }
       } else {
         tempRowId = !isDefaultValue
           ? `temp-${uuidv4()}`
@@ -416,7 +490,7 @@ export function setRowsFromStaticRows({
       }
       Object.keys(staticRow).forEach(key => {
         if (isString(staticRow[key]) && includes(staticRow[key], '"sid":"temp-')) {
-          staticRow[key] = staticRow[key].replace('"sid":"temp-', `\"sid\":\"default-`);
+          staticRow[key] = staticRow[key].replace('"sid":"temp-', `"sid":"default-`);
         }
       });
       const createRowArgs = {
@@ -433,12 +507,13 @@ export function setRowsFromStaticRows({
         isQueryWorksheetFill,
         allowEdit,
         isCreate:
-          !!recordId ||
-          (!_.isUndefined(staticRow.initRowIsCreate)
-            ? staticRow.initRowIsCreate
-            : !_.isUndefined(initRowIsCreate)
-              ? initRowIsCreate
-              : true),
+          (!!recordId ||
+            (!_.isUndefined(staticRow.initRowIsCreate)
+              ? staticRow.initRowIsCreate
+              : !_.isUndefined(initRowIsCreate)
+                ? initRowIsCreate
+                : true)) &&
+          !isSetValueFromEvent,
         updateRow: row => {
           dispatch({
             type: 'UPDATE_ROW',
@@ -465,7 +540,7 @@ export function setRowsFromStaticRows({
         rows: filterEmptyChildTableRows(getState().rows),
       });
     } else {
-      dispatch(clearAndSetRows(rows));
+      dispatch(clearAndSetRows(rows, { isSetValueFromEvent, controls }));
       triggerSubListControlValueChange({
         action: 'clearAndSet',
         isDefault: true,

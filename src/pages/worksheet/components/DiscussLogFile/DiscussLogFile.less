@@ -79,7 +79,7 @@
               box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
             }
             &.isActive {
-              color: #2196f3;
+              color: #1677ff;
             }
             .searchInput {
               width: 100%;
@@ -91,7 +91,6 @@
             &.searchBtn {
               padding: 8px;
             }
-
           }
         }
         .commentEmpty {
@@ -123,10 +122,15 @@
             vertical-align: middle;
             background: #fff;
             border-color: #ddd;
+            position: relative;
             .mdEmotion {
               .arrow {
                 left: 106px !important;
               }
+            }
+            .mentionsTriggerWrap,
+            .mentionsAutocompleteList {
+              width: 100% !important;
             }
           }
           .commentBox.autoHeight {

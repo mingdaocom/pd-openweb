@@ -72,7 +72,7 @@ class Con extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.appRole.quickTag, nextProps.appRole.quickTag) && !!nextProps.appRole.quickTag.tab) {
       this.setState({
         tab: nextProps.appRole.quickTag.tab || 'user',
@@ -223,6 +223,7 @@ class Con extends React.Component {
               {(canEditApp || canEditUser) && (
                 <div className="flexRow pRight20 actCheckCon">
                   <Tooltip
+                    autoCloseDelay={0}
                     text={
                       <span>
                         {_l('开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。')}
@@ -241,6 +242,7 @@ class Con extends React.Component {
                     </span>
                   </Tooltip>
                   <Tooltip
+                    autoCloseDelay={0}
                     text={
                       <span>
                         {_l('勾选时，普通角色可以查看应用下所有角色和人员。未勾选时，对普通角色直接隐藏用户入口')}
@@ -269,7 +271,7 @@ class Con extends React.Component {
                         text: _l('转交应用'),
                       },
                     ]}
-                    onAction={o => {
+                    onAction={() => {
                       this.transferApp();
                     }}
                     popupAlign={{

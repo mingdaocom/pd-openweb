@@ -55,6 +55,7 @@ export default class Widgets extends Component {
       mobileFiles: [],
       mobileCameraFiles: [],
       mobileCamcorderFiles: [],
+      knowledgeAtts: [],
     };
     this.mobileFileRef = {};
   }
@@ -66,11 +67,12 @@ export default class Widgets extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (this.props.flag !== nextProps.flag) {
+      const initMobileFiles = { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [], knowledgeAtts: [] };
+      this.setState({ value: nextProps.value, ...initMobileFiles });
+    }
+
     if (nextProps.value !== this.props.value) {
-      if (this.props.flag !== nextProps.flag) {
-        const initMobileFiles = { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [] };
-        this.setState({ value: nextProps.value, ...initMobileFiles });
-      }
       if (this.checkFileNeedLoad(nextProps.value)) {
         this.loadAttachments(nextProps);
       } else {
@@ -90,7 +92,9 @@ export default class Widgets extends Component {
       } else {
         return file.fileId && !file.updateTime && !file.createUserName;
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return false;
   }
 
@@ -100,6 +104,7 @@ export default class Widgets extends Component {
     try {
       fileIds = JSON.parse(value).map(f => f.fileId);
     } catch (err) {
+      console.log(err);
       this.setState({ loading: false, value: '' });
     }
     const args = { fileIds, worksheetId, rowId: recordId, controlId };
@@ -119,7 +124,7 @@ export default class Widgets extends Component {
       .then(data => {
         this.setState({ loading: false, value: JSON.stringify(data) });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false, value: '' });
       });
   }
@@ -247,7 +252,7 @@ export default class Widgets extends Component {
   };
 
   mingDaoAppChooseImage = () => {
-    const { mingdaoAppError } = this.state;
+    const { mingdaoAppError, knowledgeAtts } = this.state;
     const { projectId, appId, worksheetId, controlId, formData, advancedSetting } = this.props;
     const control = _.find(formData, { controlId }) || {};
     let h5watermark = '';
@@ -271,7 +276,7 @@ export default class Widgets extends Component {
           }
         : {
             sessionId: this.sessionId,
-            knowledge: false,
+            knowledge: true,
             worksheetId,
             appId,
             projectId,
@@ -282,24 +287,45 @@ export default class Widgets extends Component {
             success: res => {
               // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
               this.sessionId = res.sessionId;
-              const { error, uploading, completed } = res;
+              const { error, uploading, completed = [] } = res;
               // 上传中数量
               this.setState({ mingdaoAppUploading: uploading });
               // 出错数量
               this.setState({ mingdaoAppError: error });
               // 有成功上传的文件就会返回
+
               if (completed) {
-                this.setState(
-                  {
-                    mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
-                  },
-                  () => {
-                    this.handleMobileChangeFiles();
-                  },
-                );
+                const attrs = completed.filter(v => v.refId);
+                const nomalAttrs = completed.filter(v => !v.refId);
+                if (attrs.length) {
+                  const newKnowledgeAtts = _.uniqBy(knowledgeAtts, 'fileID')
+                    .concat(attrs)
+                    .map(item => ({
+                      allowDown: item.allowDown,
+                      fileExt: item.fileExt,
+                      fileID: item.fileID,
+                      fileSize: item.fileSize,
+                      originalFileName: item.originalFileName,
+                      refId: item.refId,
+                      viewUrl: item.viewUrl,
+                    }));
+                  this.setState({ knowledgeAtts: newKnowledgeAtts }, () => {
+                    this.filesChanged(this.state.knowledgeAtts, 'knowledgeAtts');
+                  });
+                }
+                if (nomalAttrs.length) {
+                  this.setState(
+                    {
+                      mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
+                    },
+                    () => {
+                      this.handleMobileChangeFiles();
+                    },
+                  );
+                }
               }
             },
-            cancel: function (res) {},
+            cancel: function () {},
           },
     );
   };

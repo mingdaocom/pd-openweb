@@ -59,7 +59,7 @@ export default class AdminLeftMenu extends Component {
     }
   }
 
-  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false, featureIds }, index) => {
+  renderLinkItem = ({ icon, name, menuPath, routes, featureId, key, hasBeta = false, featureIds }) => {
     const { subListVisible, isExtend } = this.state;
     const {
       location: { pathname },
@@ -109,7 +109,7 @@ export default class AdminLeftMenu extends Component {
     );
 
     const licenseType = (md.global.Account.projects.find(o => o.projectId === projectId) || {}).licenseType;
-    const isFreeUpgrade = licenseType === 0 && _.includes(['groups', 'orgothers'], key);
+    const isFreeUpgrade = licenseType === 0 && _.includes(['groups', 'orgothers', 'loginlog', 'orglog'], key);
 
     return (
       <li key={key} className={cx('item', { active: isActive() && subListVisible })}>

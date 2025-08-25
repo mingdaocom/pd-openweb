@@ -31,7 +31,7 @@ const TileWrap = styled.div`
 
 const CheckboxWidget = props => {
   const { enumDefault2, advancedSetting = {}, value, disabled, options = [], controlName, formDisabled, type } = props;
-  const { checktype, direction, allowadd, showselectall } = advancedSetting;
+  const { checktype, direction, allowadd, showselectall, chooseothertype } = advancedSetting;
   const { checkIds, otherValue } = getCheckAndOther(value);
   const isDropDown = checktype === '1';
 
@@ -66,6 +66,10 @@ const CheckboxWidget = props => {
       props.onChange('');
       return;
     }
+
+    if (chooseothertype === '1') {
+      _.remove(checkIds, item => item.startsWith('other'));
+    }
     const otherIds = options.filter(i => !_.find(checkIds, c => c.includes(i.key))).map(i => i.key);
     onSave(checkIds.concat(otherIds));
   };
@@ -77,6 +81,9 @@ const CheckboxWidget = props => {
       _.remove(checkIds, item => (key === 'other' ? item.startsWith(key) : item === key));
     } else {
       checkIds.push(key);
+      if (chooseothertype === '1') {
+        _.remove(checkIds, item => (key === 'other' ? !item.startsWith('other') : item.startsWith('other')));
+      }
     }
 
     onSave(checkIds);
@@ -84,6 +91,10 @@ const CheckboxWidget = props => {
 
   const renderSelectAll = (checkIds = [], displayOptions = []) => {
     if (disabled || showselectall !== '1') return null;
+
+    if (chooseothertype === '1') {
+      displayOptions = displayOptions.filter(i => i.key !== 'other');
+    }
 
     if (checktype !== '1') {
       const isChecked = _.every(displayOptions, d => _.find(checkIds, c => c.includes(d.key)));
@@ -183,6 +194,7 @@ const CheckboxWidget = props => {
             otherValue={otherValue}
             controlName={controlName}
             showselectall={showselectall}
+            chooseothertype={chooseothertype}
           >
             <CheckboxWrap
               enumDefault2={enumDefault2}

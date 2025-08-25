@@ -1,13 +1,12 @@
-import React, { Fragment, useRef, useEffect, useState, useCallback } from 'react';
-import { useClickAway } from 'react-use';
-import { arrayOf, bool, func, number, string } from 'prop-types';
-import _ from 'lodash';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { LoadDiv, ScrollView, Icon } from 'ming-ui';
-import dialogSelectOrgRole from '../dialogSelectOrgRole';
-import organizeAjax from 'src/api/organize';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { useClickAway } from 'react-use';
+import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, string } from 'prop-types';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import organizeAjax from 'src/api/organize';
 
 const RoleSelectWrap = styled.div`
   overflow: hidden;
@@ -113,7 +112,7 @@ export function RoleSelect(props) {
   const isShowRole =
     !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
 
-  useClickAway(conRef, e => {
+  useClickAway(conRef, () => {
     onSave(selectData);
     onClose(true);
   });
@@ -207,28 +206,12 @@ export function RoleSelect(props) {
         }
         setTreeData(treeList);
       })
-      .catch(error => {
+      .catch(() => {
         setLoading(false);
       });
   };
 
   const searchRequest = _.debounce(fetchData, 200);
-
-  const dialogSelectRole = () => {
-    onClose();
-    dialogSelectOrgRole({
-      ..._.pick(props, [
-        'projectId',
-        'unique',
-        'showCompanyName',
-        'showCurrentOrgRole',
-        'appointedOrganizeIds',
-        'overlayClosable',
-        'onSave',
-        'onClose',
-      ]),
-    });
-  };
 
   const toggle = (item, checked) => {
     let selected = _.cloneDeep(selectData);
@@ -294,7 +277,7 @@ export function RoleSelect(props) {
           <span className={cx('flex overflow_ellipsis', { mLeft16: !keywords && !onlyOneGroup })}>
             {roleItem.organizeName}
           </span>
-          {checked && <Icon icon="done_2" className="ThemeColor" />}
+          {checked && <Icon icon="done" className="ThemeColor" />}
         </div>
       );
     });
@@ -369,9 +352,7 @@ export function RoleSelect(props) {
           placeholder={_l('搜索')}
           onChange={handleSearch}
         />
-        {keywords && (
-          <Icon icon="closeelement-bg-circle" className="Font16 mLeft4 Gray_9e" onClick={() => setKeywords('')} />
-        )}
+        {keywords && <Icon icon="cancel" className="Font16 mLeft4 Gray_9e" onClick={() => setKeywords('')} />}
       </div>
       {isShowRole && showCurrentOrgRole && (
         <Fragment>
@@ -391,12 +372,12 @@ export function RoleSelect(props) {
               <Icon icon="person" className="Font18 TxtMiddle" />
             </span>
             <span className="flex">{_l('当前用户所在的组织角色')}</span>
-            {checkedUserSelf() && <Icon icon="done_2" className="ThemeColor" />}
+            {checkedUserSelf() && <Icon icon="done" className="ThemeColor" />}
           </div>
           <div className="splitLine"></div>
         </Fragment>
       )}
-      <ScrollView style={{ minHeight }} onScrollEnd={onScrollEnd}>
+      <ScrollView style={{ height: minHeight }} onScrollEnd={onScrollEnd}>
         {loading ? <LoadDiv /> : renderContent()}
       </ScrollView>
     </RoleSelectWrap>

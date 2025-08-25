@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
+import { Button, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Tooltip, Button } from 'antd';
+import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
-import { useSetState } from 'react-use';
-import { get, includes, isEmpty } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { canSetAsTitle, isCustomWidget } from '../../util';
-import DeleteConfirm from './DeleteConfirm';
 import { NOT_NEED_DELETE_CONFIRM } from '../../config';
+import { canSetAsTitle, isCustomWidget } from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
 import { openDevelopWithAI } from '../../widgetSetting/components/DevelopWithAI';
+import DeleteConfirm from './DeleteConfirm';
 
 const DeleteBothWayRelateWrap = styled.div`
   display: flex;
@@ -61,7 +60,7 @@ const OperationWrap = styled.div`
       vertical-align: middle;
     }
     &:hover:not(.customIcon) {
-      color: #2196f3;
+      color: #1677ff;
       background-color: #edf7fe;
     }
     &.delWidget {
@@ -140,16 +139,15 @@ export default function WidgetOperation(props) {
 
     const deleteRelateControl = e => {
       e.stopPropagation();
-      worksheetAjax
-        .editWorksheetControls({
-          worksheetId: dataSource,
-          controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
-        })
-        .then(res => {});
+      worksheetAjax.editWorksheetControls({
+        worksheetId: dataSource,
+        controls: [handleAdvancedSettingChange(sourceControl, { hide: '1' })],
+      });
+
       handleDelete();
     };
     // 关联记录类型 且双向关联了其他表  删除需要异化为选择删除单个控件和删除双向控件
-    if (type === 29 && !isEmpty(sourceControl) && dataSource !== globalSheetInfo.worksheetId) {
+    if (type === 29 && (sourceControl || {}).controlId && dataSource !== globalSheetInfo.worksheetId) {
       return (
         <DeleteConfirm
           visible={deleteConfirmVisible}

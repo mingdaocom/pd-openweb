@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, RadioGroup, SvgIcon } from 'ming-ui';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
+import { func, number, string } from 'prop-types';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Modal, RadioGroup, SvgIcon } from 'ming-ui';
 import OrgNameMultipleLanguages from 'src/pages/Admin/components/OrgNameMultipleLanguages.jsx';
-import { string, number, func } from 'prop-types';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 
 const RadioGroupComp = styled(RadioGroup)`
@@ -20,7 +20,7 @@ const IconInputCon = styled.div`
   border: 1px solid #ccc;
   border-radius: 4px;
   &.focus {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
   input {
     flex: 1;

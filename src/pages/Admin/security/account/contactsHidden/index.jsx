@@ -1,10 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
+import { updateProjectId } from './actions/action';
 import ContactsHidden from './container/ContactsHidden';
 import reducer from './reducers/reducer';
-import { updateProjectId } from './actions/action';
 import './index.less';
 
 const store = createStore(reducer, compose(applyMiddleware(thunk)));

@@ -1,29 +1,18 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import config from '../../utils/config';
-import * as utils from '../../utils';
-import * as ajax from '../../utils/ajax';
-import * as socket from '../../utils/socket';
-import Constant from '../../utils/constant';
-import Dropdown from 'ming-ui/components/Dropdown';
-import GroupController from 'src/api/group';
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { formatFeeds, FeesItem } from './index';
 import moment from 'moment';
+import { ScrollView } from 'ming-ui';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import * as ajax from '../../utils/ajax';
+import { FeesItem, formatFeeds } from './index';
 
-const splitFeeds = (list) => {
+const splitFeeds = list => {
   const ranges = {};
   ranges[_l('今天')] = [moment().startOf('day'), moment().endOf('day')];
-  ranges[_l('最近七天')] = [
-    moment()
-      .subtract(6, 'days')
-      .startOf('day'),
-    moment().endOf('day'),
-  ];
+  ranges[_l('最近七天')] = [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')];
   ranges[_l('本月')] = [moment().startOf('month'), moment().endOf('day')];
   const oSplit = {};
-  list.forEach((feed) => {
+  list.forEach(feed => {
     const feedTime = moment(feed.createTime);
     let i;
     let sTime;
@@ -80,7 +69,7 @@ export default class FeedsPanel extends Component {
         pIndex: pageIndex,
         lastPostAutoID: feeds.length ? feeds[feeds.length - 1].autoID : null,
       })
-      .then((result) => {
+      .then(result => {
         const { postList } = result;
         this.setState({
           pageIndex: postList && postList.length >= 10 ? pageIndex + 1 : 0,
@@ -98,11 +87,13 @@ export default class FeedsPanel extends Component {
             <i className="icon-arrow-left-border" />
             {_l('返回')}
           </span>
-          <span className="title">{`${_l('动态')}`}</span>
+          <span className="title">{_l('动态')}</span>
         </div>
         <div className="content">
           <ScrollView onScrollEnd={this.handleScrollEnd.bind(this)} className="flex">
-            {feeds.map(item => <FeesItem item={item} key={item.autoID} />)}
+            {feeds.map(item => (
+              <FeesItem item={item} key={item.autoID} />
+            ))}
             <LoadDiv className={cx({ Hidden: !loading })} size="small" />
           </ScrollView>
         </div>

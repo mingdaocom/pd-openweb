@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, RadioGroup, Input } from 'ming-ui';
-import _ from 'lodash';
 import { Select } from 'antd';
-import { CREATE_TYPE, DATABASE_TYPE, CREATE_TYPE_RADIO_LIST } from '../../../constant';
-import SelectDataObjForm from '../SelectDataObjForm';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Input, RadioGroup } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
+import { CREATE_TYPE, CREATE_TYPE_RADIO_LIST, DATABASE_TYPE } from '../../../constant';
+import SelectDataObjForm from '../SelectDataObjForm';
 
 const SyncWithDealWrapper = styled.div`
   margin: 0 auto;
@@ -15,7 +15,7 @@ const SyncWithDealWrapper = styled.div`
   .arrowIcon {
     margin: 32px 0;
     text-align: center;
-    color: #2196f3;
+    color: #1677ff;
   }
 
   .sheetNameInput {
@@ -32,7 +32,7 @@ const SyncWithDealWrapper = styled.div`
         background: #f2f2f2;
       }
       :focus {
-        border-color: #2196f3 !important;
+        border-color: #1677ff !important;
         background: #fff;
       }
     }

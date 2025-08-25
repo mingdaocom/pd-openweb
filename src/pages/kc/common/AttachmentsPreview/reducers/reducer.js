@@ -1,6 +1,4 @@
 ﻿import { combineReducers } from 'redux';
-import _ from 'lodash';
-import ACTION_TYPES from '../constant/actionTypes';
 
 function attachments(state = [], action) {
   let newAttachments = state.slice(0);

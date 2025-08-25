@@ -73,7 +73,7 @@ function cellErrors(state = {}, action) {
   }
 }
 
-function lastAction(state = null, action) {
+function lastAction(state, action) {
   return action;
 }
 
@@ -158,6 +158,15 @@ function rows(state = [], action) {
   return newState.length < emptyCount && !browserIsMobile() ? fillEmptyRows(newState, emptyCount) : newState;
 }
 
+function pagination(state = { pageIndex: 1, pageSize: 20, count: 0 }, action) {
+  switch (action.type) {
+    case 'UPDATE_PAGINATION':
+      return { ...state, ...action.pagination };
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   cellErrors,
   baseLoading,
@@ -168,4 +177,5 @@ export default combineReducers({
   lastAction,
   rows,
   changes,
+  pagination,
 });

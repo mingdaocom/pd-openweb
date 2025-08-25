@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Icon, Skeleton } from 'ming-ui';
 import filterXSS from 'xss';
+import { Icon, Skeleton } from 'ming-ui';
 import 'src/components/UnusualContent/index.less';
 
 export default class FixedContent extends Component {

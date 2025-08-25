@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { noWriteTypes } from './config';
 
 //根据分段id 处理呈现数据
@@ -35,7 +36,7 @@ export const getSectionId = controls => {
 
 export const getRealData = (control, controls, allControls, isAdd) => {
   //自身是子集
-  if (!!control.sectionId) {
+  if (control.sectionId) {
     //新增
     if (isAdd) {
       let parent = controls.find(o => o.controlId === control.sectionId);
@@ -57,7 +58,7 @@ export const getRealData = (control, controls, allControls, isAdd) => {
     }
   } else {
     //不是子集
-    let childs = allControls.filter(o => (!!o.sectionId ? o.sectionId === control.controlId : false));
+    let childs = allControls.filter(o => (o.sectionId ? o.sectionId === control.controlId : false));
     if (isAdd) {
       return controls.concat([control, ...childs]);
     } else {

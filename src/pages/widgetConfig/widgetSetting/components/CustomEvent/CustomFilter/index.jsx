@@ -1,11 +1,10 @@
-import _ from 'lodash';
 import React from 'react';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import { FILTER_VALUE_ENUM } from '../config';
-import FilterValue from './filterTypes/FilterValue';
 import IntegratedApi from '../CustomAction/actionTypes/IntegratedApi';
+import FilterValue from './filterTypes/FilterValue';
 import FunctionEditor from './filterTypes/FunctionEditor';
 import SearchWorksheet from './filterTypes/SearchWorksheet';
-import functionWrap from 'ming-ui/components/FunctionWrap';
 
 const CustomFilterConfig = props => {
   const { filterData = {} } = props;

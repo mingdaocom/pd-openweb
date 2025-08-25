@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon, ScrollView } from 'ming-ui';
-import { Collapse, Dropdown, Menu } from 'antd';
-import ControlItem from './components/ControlItem';
-import CalculateControlItem from './components/CalculateControlItem';
-import SheetModal from './components/SheetModal';
-import TimeModal from './components/TimeModal';
-import CalculateControlModal from './components/CalculateControlModal';
-import { formatrChartTimeText, isTimeControl, getAlreadySelectControlId } from 'statistics/common';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import * as actions from 'statistics/redux/actions';
-import './index.less';
+import { Collapse, Dropdown, Menu } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import { Icon, ScrollView } from 'ming-ui';
+import { formatrChartTimeText, getAlreadySelectControlId, isTimeControl } from 'statistics/common';
+import * as actions from 'statistics/redux/actions';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import CalculateControlItem from './components/CalculateControlItem';
+import CalculateControlModal from './components/CalculateControlModal';
+import ControlItem from './components/ControlItem';
+import SheetModal from './components/SheetModal';
+import TimeModal from './components/TimeModal';
+import './index.less';
 
 const authList = [
   {
@@ -46,6 +46,7 @@ export default class DataSource extends Component {
       currentAxisControls: this.formatAxisControls(props.axisControls),
       editCalculateControl: null,
     };
+    this.scrollViewRef = React.createRef();
   }
   componentWillReceiveProps(nextProps) {
     const newViewId = _.get(nextProps, ['currentReport', 'filter', 'viewId']);
@@ -59,9 +60,9 @@ export default class DataSource extends Component {
       });
     }
     if (newFormulasLength > _.get(this.props, ['currentReport', 'formulas', 'length'])) {
-      var el = document.querySelector('.chartDataSource .scrollWrapper');
       setTimeout(() => {
-        el.nanoscroller.scrollTop(el.nanoscroller.maxScrollTop);
+        const { maxScrollTop } = this.scrollViewRef?.getScrollInfo() || {};
+        this.scrollViewRef.scrollTo({ top: maxScrollTop });
       }, 0);
     }
   }
@@ -132,7 +133,7 @@ export default class DataSource extends Component {
     }
   }
   renderSheet() {
-    const { worksheetInfo, currentReport, base, sourceType, axisControls, appId, projectId, ownerId } = this.props;
+    const { worksheetInfo, currentReport, base, sourceType, appId, projectId, ownerId } = this.props;
     const { filter = {} } = currentReport;
     const view = _.find(worksheetInfo.views, { viewId: filter.viewId });
     const { appType } = base;
@@ -253,13 +254,18 @@ export default class DataSource extends Component {
     );
   }
   renderPermission() {
-    const { currentReport, changeCurrentReport } = this.props;
+    const { currentReport, changeCurrentReport, permissionType } = this.props;
     const { auth = 0 } = currentReport;
+    const isDeveloper = permissionType === 1;
     const renderOverlay = () => {
       return (
         <Menu className="chartMenu">
           {authList.map(data => (
-            <Menu.Item key={data.value} onClick={() => changeCurrentReport({ auth: data.value }, true)}>
+            <Menu.Item
+              key={data.value}
+              disabled={isDeveloper && data.value === 0}
+              onClick={() => changeCurrentReport({ auth: data.value }, true)}
+            >
               {data.name}
             </Menu.Item>
           ))}
@@ -433,11 +439,11 @@ export default class DataSource extends Component {
     const { dataIsUnfold, ownerId, base } = this.props;
     const { appType } = base;
     return (
-      <div className={cx('chartDataSource flexColumn', { small: !dataIsUnfold })}>
+      <div className={cx('chartDataSource flexColumn minHeight0', { small: !dataIsUnfold })}>
         {dataIsUnfold ? (
           <Fragment>
             {this.renderHeader()}
-            <ScrollView className="flex scrollWrapper">
+            <ScrollView ref={el => (this.scrollViewRef = el)} className="flex scrollWrapper">
               {this.renderSheet()}
               {this.renderTime()}
               {!ownerId && appType !== 2 && this.renderPermission()}

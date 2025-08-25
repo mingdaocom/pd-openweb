@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import { Icon, LoadDiv, Support } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { renderValue } from 'src/pages/integration/apiIntegration/util';
@@ -91,21 +92,17 @@ function AuthParam(props) {
 
   //保存参数
   const update = data => {
-    flowNodeAjax
-      .saveNode(
-        {
-          processId: props.id,
-          nodeId: node.id,
-          flowNodeType: node.typeId,
-          name: node.name,
-          ...cache.current.node,
-          ...data,
-        },
-        { isIntegration: true },
-      )
-      .then(function (result) {
-        // getInfo();
-      });
+    flowNodeAjax.saveNode(
+      {
+        processId: props.id,
+        nodeId: node.id,
+        flowNodeType: node.typeId,
+        name: node.name,
+        ...cache.current.node,
+        ...data,
+      },
+      { isIntegration: true },
+    );
   };
 
   if (!key) {
@@ -174,7 +171,7 @@ function AuthParam(props) {
           {(key === 'refresh_token' && node.expireAfterSeconds && _.get(node, 'webHookNodes[0].url')) ||
           (key === 'authorization_address' && node.sendContent) ||
           (key === 'authorization_code' && _.get(node, 'webHookNodes[0].url')) ? (
-            <Icon icon="check_circle1" className="Green_right tip" />
+            <Icon icon="check_circle" className="Green_right tip" />
           ) : null}
           <Icon icon={info[key].icon} className="iconParam Font24" />
         </div>
@@ -199,11 +196,11 @@ function AuthParam(props) {
             content={_.get(cache, 'current.node.sendContent')}
             formulaMap={_.get(cache, 'current.node.formulaMap')}
             isIntegration={true}
-            onChange={(err, value, obj) => {
+            onChange={(err, value) => {
               cache.current.node = { ...cache.current.node, sendContent: value };
               setNode(cache.current.node);
             }}
-            onBlur={(err, value, obj) => {
+            onBlur={() => {
               update();
             }}
             key={JSON.stringify(_.get(cache, 'current.node.formulaMap'))}
@@ -233,7 +230,7 @@ function AuthParam(props) {
           <div className="urlForCopy flex ellipsis">{node.sendContent}</div>
           <span
             className="copyBtn mLeft8 Hand"
-            onClick={content => {
+            onClick={() => {
               copy(node.sendContent);
               alert(_l('复制成功'));
             }}
@@ -261,7 +258,7 @@ function AuthParam(props) {
             hasAuth={props.hasAuth}
             customNodeName={info[key].name || node.name}
             isIntegration
-            updateNodeData={data => {
+            updateNodeData={() => {
               getInfo();
             }}
           />

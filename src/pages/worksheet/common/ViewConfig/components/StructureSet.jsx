@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -54,7 +54,7 @@ export default function StructureSet(props) {
   });
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
   const isRelateMultiSheetHierarchyView = viewTypeText === 'structure' && String(view.childType) === '2';
-  const topFiltersToDefsource = data => {
+  const topFiltersToDefsource = () => {
     const topFilters = getAdvanceSetting(view, 'topfilters') || [];
     const tempDefSourcce = topFilters.map(def => {
       const item = safeParse(def);

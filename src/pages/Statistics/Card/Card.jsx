@@ -1,4 +1,4 @@
-import React, { Component, forwardRef, Fragment, useImperativeHandle, useMemo } from 'react';
+import React, { Component, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { Popover, Tooltip } from 'antd';
 import cx from 'classnames';
@@ -13,7 +13,6 @@ import { configureStore } from 'src/redux/configureStore';
 import { fillUrl } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import { getAppFeaturesPath } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
 import { getFilledRequestParams } from 'src/utils/common';
 import ChartDialog from '../ChartDialog';
 import charts from '../Charts';
@@ -23,8 +22,6 @@ import { Abnormal, Loading, WithoutData } from '../components/ChartStatus';
 import Sort from '../components/Sort';
 import MoreOverlay from './MoreOverlay';
 import './Card.less';
-
-const isMobile = browserIsMobile();
 
 let isCheckLogin = true;
 
@@ -67,7 +64,7 @@ class Card extends Component {
   };
   initInterval = () => {
     clearInterval(this.timer);
-    const { report, customPageConfig = {} } = this.props;
+    const { customPageConfig = {} } = this.props;
     const { refresh } = customPageConfig;
     if (!refresh) return;
     this.timer = setInterval(() => {
@@ -123,7 +120,7 @@ class Card extends Component {
         });
         this.props.onLoad(result);
       })
-      .catch(error => {
+      .catch(() => {
         if (!window.shareState.id) return;
         const result = {
           reportId: report.id,
@@ -227,7 +224,7 @@ class Card extends Component {
     );
   }
   renderContent() {
-    const { xaxes, reportType, map, contrastMap, contrast, data } = this.state.reportData;
+    const { xaxes, reportType, map, contrastMap, data } = this.state.reportData;
     const isDisplayEmptyData =
       [
         reportTypes.BarChart,
@@ -267,33 +264,13 @@ class Card extends Component {
     }
   }
   renderBody() {
-    const { needRefresh } = this.props;
-    const { loading, reportData, sorts } = this.state;
+    const { loading, reportData } = this.state;
 
-    if (reportData.reportType === reportTypes.CountryLayer && needRefresh && _.isEmpty(sorts)) {
-      return (
-        <div className="content flexColumn">
-          {loading && (
-            <div className="fixedLoading">
-              <Loading />
-            </div>
-          )}
-          {reportData.status > 0 ? this.renderContent() : <Abnormal status={reportData.status} />}
-        </div>
-      );
-    } else {
-      return (
-        <div className="content flexColumn">
-          {loading ? (
-            <Loading />
-          ) : reportData.status > 0 ? (
-            this.renderContent()
-          ) : (
-            <Abnormal status={reportData.status} />
-          )}
-        </div>
-      );
-    }
+    return (
+      <div className="content flexColumn">
+        {loading ? <Loading /> : reportData.status > 0 ? this.renderContent() : <Abnormal status={reportData.status} />}
+      </div>
+    );
   }
   render() {
     const { dialogVisible, reportData, settingVisible, scopeVisible, sheetVisible, activeData, isLinkageFilter } =
@@ -335,7 +312,7 @@ class Card extends Component {
     const translateInfo = getTranslateInfo(appId, null, report.id);
     const getBgColor = () => {
       const hideNumberChartName = [reportTypes.NumberChart].includes(reportType)
-        ? ((yaxisList.length === 1 && !xaxes.controlId) || !showTitle)
+        ? (yaxisList.length === 1 && !xaxes.controlId) || !showTitle
         : !showTitle;
       if (this.state.loading) {
         return {};
@@ -401,7 +378,7 @@ class Card extends Component {
               {translateInfo.name || reportData.name}
             </div>
             {reportData.desc && (
-              <Tooltip title={translateInfo.description || reportData.desc} placement="bottom">
+              <Tooltip title={translateInfo.description || reportData.desc} placement="bottom" autoCloseDelay={0}>
                 <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 reportDesc" />
               </Tooltip>
             )}
@@ -498,7 +475,7 @@ class Card extends Component {
               >
                 <span className="iconItem Gray_9e">
                   <Tooltip title={_l('排序')} placement="bottom">
-                    <Icon icon="swap_vert" className="Font20 Bold" />
+                    <Icon icon="import_export" className="Font20 Bold" />
                   </Tooltip>
                 </span>
               </Sort>
@@ -521,7 +498,7 @@ class Card extends Component {
                     });
                   }}
                 >
-                  <Icon icon="task-new-fullscreen" />
+                  <Icon className="Font20" icon="task-new-fullscreen" />
                 </span>
               </Tooltip>
             )}

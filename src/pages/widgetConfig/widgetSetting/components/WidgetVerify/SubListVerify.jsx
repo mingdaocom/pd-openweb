@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import InputValue from './InputValue';
-import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { NumberRange } from '../../../styled';
+import { Checkbox } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { NumberRange } from '../../../styled';
+import InputValue from './InputValue';
 
 export default function SubListVerify(props) {
   const { data, onChange } = props;

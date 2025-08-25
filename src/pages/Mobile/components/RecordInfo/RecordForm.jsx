@@ -4,14 +4,15 @@ import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon, PullToRefreshWrapper } from 'ming-ui';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils.js';
 import CustomFields from 'src/components/newCustomFields';
-import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
+import RecordPay from 'src/components/RecordPay';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { selectUser } from 'src/pages/Mobile/components/SelectUser';
@@ -19,8 +20,24 @@ import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import { updateRecordOwner } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
 import { getRequest } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
 import { compatibleMDJS, handleReplaceState } from 'src/utils/project';
+
+const LockWrap = styled.div`
+  .lockContent {
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+
+    .lockIcon {
+      font-size: 16px;
+      color: var(--gray-75);
+
+      i {
+        margin-right: 12px;
+      }
+    }
+  }
+`;
 
 @connect(
   state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
@@ -42,7 +59,6 @@ export default class RecordForm extends Component {
   componentDidMount() {
     if (this.isLoadApprove) {
       this.getApproveTodoList();
-      const { recordInfo, recordBase } = this.props;
     }
 
     // 兼容ios返回关闭确认支付弹层
@@ -52,7 +68,7 @@ export default class RecordForm extends Component {
   }
 
   getApproveTodoList() {
-    const { recordInfo, recordBase } = this.props;
+    const { recordBase } = this.props;
     instanceVersion
       .getTodoCount2({
         startAppId: recordBase.worksheetId,
@@ -62,7 +78,7 @@ export default class RecordForm extends Component {
         this.setState({ approveCount: data });
       });
   }
-  handleScroll = event => {
+  handleScroll = () => {
     const {
       isEditRecord,
       recordBase,
@@ -108,7 +124,17 @@ export default class RecordForm extends Component {
   };
 
   renderApprove = () => {
-    const { isEditRecord, externalPortalConfig, recordInfo, recordBase, workflow, formData, payConfig } = this.props;
+    const {
+      isEditRecord,
+      externalPortalConfig,
+      recordInfo,
+      recordBase,
+      workflow,
+      formData,
+      payConfig,
+      updatePayConfig = () => {},
+      isRecordLock,
+    } = this.props;
     const { approveCount } = this.state;
     const allowApprove =
       this.isLoadApprove &&
@@ -128,7 +154,9 @@ export default class RecordForm extends Component {
             tabContentNode: (
               <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
                 <SheetWorkflow
+                  appId={recordBase.appId}
                   isCharge={recordInfo.roleType === 2}
+                  isRecordLock={isRecordLock}
                   projectId={recordInfo.projectId}
                   worksheetId={recordBase.worksheetId}
                   recordId={recordBase.recordId}
@@ -143,7 +171,7 @@ export default class RecordForm extends Component {
       }
     };
     let list = getList();
-    if (payConfig.rowDetailIsShowOrder && !_.get(window, 'shareState.isPublicRecord')) {
+    if (payConfig.rowDetailIsShowOrder && !_.get(window, 'shareState.isPublicRecord') && this.isLoadApprove) {
       list = [
         ...list,
         {
@@ -157,6 +185,7 @@ export default class RecordForm extends Component {
                 rowId={recordBase.recordId}
                 appId={recordBase.appId}
                 viewId={recordBase.viewId}
+                updatePayConfig={updatePayConfig}
               />
             </div>
           ),
@@ -175,12 +204,11 @@ export default class RecordForm extends Component {
       recordBase,
       formData,
       header,
-      controlProps,
-      refreshBtnNeedLoading,
       view = {},
       updateRecordDialogOwner = () => {},
+      isRecordLock,
     } = this.props;
-    const { advancedSetting, formStyleImggeData, ownerAccount, allowEdit, projectId } = recordInfo;
+    const { advancedSetting, formStyleImggeData, ownerAccount, allowEdit, projectId, entityName } = recordInfo;
     const { worksheetId, recordId, appId } = recordBase || {};
     const isPublicShare =
       _.get(window, 'shareState.isPublicRecord') ||
@@ -199,7 +227,6 @@ export default class RecordForm extends Component {
     const ownerEditable =
       ownerControl &&
       allowEdit &&
-      ownerControl &&
       controlState(ownerControl).editable &&
       recordBase.from !== RECORD_INFO_FROM.DRAFT &&
       !window.isPublicApp;
@@ -208,11 +235,6 @@ export default class RecordForm extends Component {
       return;
     }
 
-    const refreshRecordIcon = (
-      <div className={cx('refreshWrap', { isLoading: refreshBtnNeedLoading })} onClick={controlProps.refreshRecord}>
-        <Icon className="Font18" icon="task-later" />
-      </div>
-    );
     const sheetInfo = (
       <Fragment>
         {getDataType === 21 ? (
@@ -244,7 +266,7 @@ export default class RecordForm extends Component {
           <div
             className="owner sheetName bold mLeft6"
             onClick={() => {
-              if (!ownerEditable) return;
+              if (!ownerEditable || isRecordLock) return;
 
               const handleUpdateOwner = async users => {
                 try {
@@ -259,6 +281,11 @@ export default class RecordForm extends Component {
                   updateRecordDialogOwner(account, record);
                   alert(_l('修改成功'));
                 } catch (err) {
+                  if (err && err.resultCode === 72) {
+                    alert(_l('%0已锁定，修改失败', entityName), 3);
+                    return;
+                  }
+                  console.log(err);
                   alert(_l('修改失败'), 2);
                 }
               };
@@ -276,7 +303,7 @@ export default class RecordForm extends Component {
                     }
                     handleUpdateOwner(res.results);
                   },
-                  cancel: function (res) {
+                  cancel: function () {
                     // 用户取消
                   },
                 },
@@ -348,7 +375,6 @@ export default class RecordForm extends Component {
     const {
       customwidget,
       random,
-      isModal,
       isEditRecord,
       recordInfo,
       recordBase,
@@ -384,6 +410,7 @@ export default class RecordForm extends Component {
           isDraft={isDraft || from === RECORD_INFO_FROM.DRAFT}
           flag={random.toString()}
           projectId={recordInfo.projectId}
+          entityName={recordInfo.entityName}
           appId={recordBase.appId}
           worksheetId={recordBase.worksheetId}
           viewId={recordBase.viewId}
@@ -419,25 +446,20 @@ export default class RecordForm extends Component {
     );
   }
 
-  // 支付
-  handlePay = () => {
-    const { recordBase, payConfig = {}, recordInfo, updatePayConfig = () => {} } = this.props;
-    const { worksheetId, recordId } = recordBase;
-
-    if (payConfig.orderId) {
-      location.href = `${md.global.Config.WebUrl}orderpay/${payConfig.orderId}`;
-    } else {
-      handlePrePayOrder({
-        worksheetId,
-        rowId: recordId,
-        paymentModule: md.global.Account.isPortal ? 3 : 2,
-        orderId: payConfig.orderId,
-        projectId: recordInfo.projectId,
-        appId: recordInfo.recordId,
-        payNow: payConfig.isAtOncePayment,
-        onUpdateSuccess: updateObj => updatePayConfig(updateObj),
-      });
-    }
+  renderRecordLock = () => {
+    const { recordInfo, updateRecordLock = () => {} } = this.props;
+    const { ruleItems = [] } = _.find(recordInfo.rules, r => r.type === 2) || {};
+    const message = _.get(ruleItems, '0.message');
+    return (
+      <LockWrap>
+        <div className="lockContent">
+          <span className="lockIcon" onClick={updateRecordLock}>
+            <Icon icon="lock" />
+          </span>
+          {message && <span className="Gray_75">{message}</span>}
+        </div>
+      </LockWrap>
+    );
   };
 
   render() {
@@ -451,10 +473,12 @@ export default class RecordForm extends Component {
       currentTab,
       payConfig = {},
       controlProps,
+      isRecordLock,
+      editLockedUser,
+      updatePayConfig = () => {},
     } = this.props;
-    const { entityName, rules } = recordInfo;
+    const { entityName } = recordInfo;
     const recordTitle = getTitleTextFromControls(formData);
-    const { isShowPay, payDescription, payAmount } = payConfig;
 
     return (
       <Fragment>
@@ -479,15 +503,32 @@ export default class RecordForm extends Component {
             {!isEditRecord && (
               <div className={cx('header', { pTop10: !isModal })}>
                 <div className="title">{recordTitle}</div>
+                {isRecordLock && this.renderRecordLock()}
+                {editLockedUser && (
+                  <div className="flexRow alignItemsCenter mTop16">
+                    <Icon icon="edit" className="Font15 ThemeColor" />
+                    <div className="bold ThemeColor mLeft8">{editLockedUser.fullname + _l('编辑中···')}</div>
+                  </div>
+                )}
               </div>
             )}
-            {!isEditRecord && isShowPay && (
-              <div className="payWrap flexRow alignItemsCenter Bold" onClick={this.handlePay}>
-                <div className="flex ellipsis mRight10 Font15">{payDescription}</div>
-                <div className="Font15 mRight10"> {_l('%0 元', formatNumberThousand(payAmount))}</div>
-                <div className="payBtn Font15">{_l('付款')}</div>
-              </div>
+            {/* 工作流获取支付链接要显示支付入口 */}
+            {(!isEditRecord || _.get(window, 'shareState.isPublicWorkflowRecord')) && (
+              <RecordPay
+                projectId={recordInfo.projectId}
+                appId={recordInfo.appId}
+                worksheetId={recordBase.worksheetId}
+                viewId={recordBase.viewId}
+                rowId={recordBase.recordId}
+                from={recordBase.from}
+                sheetSwitchPermit={recordInfo.sheetSwitchPermit}
+                payConfig={payConfig}
+                isRecordLock={isRecordLock}
+                entityName={recordInfo.entityName}
+                onUpdateSuccess={updatePayConfig}
+              />
             )}
+
             <div className="flex">{this.renderCustomFields()}</div>
             {!_.includes([29, 51], currentTab.type) && workflow && workflow({ formData })}
           </PullToRefreshWrapper>

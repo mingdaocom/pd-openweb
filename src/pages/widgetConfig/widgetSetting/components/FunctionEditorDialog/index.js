@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { func, bool } from 'prop-types';
+import React, { useRef } from 'react';
 import Loadable from 'react-loadable';
-import { Modal, Dialog } from 'ming-ui';
+import { func } from 'prop-types';
+import { Dialog, Modal } from 'ming-ui';
 
 const LoadableFunction = Loadable({
   loader: () => import('./Func'),

@@ -12,7 +12,6 @@ import RadioGroup from 'ming-ui/components/RadioGroup';
 import projectAjax from 'src/api/projectSetting';
 import postAjax from 'src/api/taskCenter';
 import sheetAjax from 'src/api/worksheet';
-import instance from 'src/pages/workflow/api/instanceVersion';
 import { accAdd, accDiv, accMul, htmlDecodeReg } from 'src/utils/common';
 import { formatFormulaDate, renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
@@ -185,7 +184,9 @@ export default class Print extends Component {
           relateRecords: newRelateRecords,
         });
       })
-      .catch(err => {});
+      .catch(err => {
+        console.log(err);
+      });
   };
   loadWorksheetShortUrl(appId, worksheetId, viewId, rowId) {
     sheetAjax
@@ -299,6 +300,7 @@ export default class Print extends Component {
           try {
             return JSON.parse(JSON.parse(value).label).join(' / ') || '';
           } catch (err) {
+            console.log(err);
             return JSON.parse(value).label || '';
           }
         }
@@ -343,6 +345,7 @@ export default class Print extends Component {
                     })
                   : '';
             } catch (error) {
+              console.log(error);
               newValue = value;
             }
           } else {
@@ -375,6 +378,7 @@ export default class Print extends Component {
                     })
                   : '';
             } catch (error) {
+              console.log(error);
               newValue = value;
             }
           } else {
@@ -398,10 +402,6 @@ export default class Print extends Component {
               const leave2 = leave1 % (3600 * 1000);
               // 计算小时数后剩余的毫秒数
               const minutes = Math.floor(leave2 / (60 * 1000));
-              // 计算相差秒数
-              const leave3 = leave2 % (60 * 1000);
-              // 计算分钟数后剩余的毫秒数
-              const seconds = Math.round(leave3 / 1000);
 
               showContent = `    ${_l('时长')}: ${days > 0 ? _l('%0天', days) : ''} ${
                 hours > 0 ? _l('%0小时', hours) : ''
@@ -478,7 +478,9 @@ export default class Print extends Component {
           let records = [];
           try {
             records = JSON.parse(value);
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
           return records
             .map(
               r =>
@@ -508,6 +510,7 @@ export default class Print extends Component {
         try {
           location = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           return '';
         }
         return location.title + ' ' + location.address;
@@ -539,6 +542,7 @@ export default class Print extends Component {
     try {
       attachments = JSON.parse(value);
     } catch (err) {
+      console.log(err);
       return <span className="mBottom5 InlineBlock" dangerouslySetInnerHTML={{ __html: '&nbsp;' }}></span>;
     }
     const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
@@ -714,7 +718,7 @@ export default class Print extends Component {
     if (controlOption.length === 0) {
       this.state.reqInfo.controls
         .filter(item => !item.printHide)
-        .forEach((item, index) => {
+        .forEach(item => {
           if (item && item.controlId) {
             controlOption.push(item.controlId);
           }
@@ -1575,7 +1579,7 @@ export default class Print extends Component {
         <div className="printStartBox clearfix">
           <div className="width1000">
             <span className="contentHide InlineBlock pointer TxtMiddle" onClick={this.showPrintDialog}>
-              <Icon icon="circulated" className="Gray_9e font14 mRight8 InlineBlock TxtMiddle" />
+              <Icon icon="visibility" className="Gray_9e font14 mRight8 InlineBlock TxtMiddle" />
               <span className="TxtMiddle">{_l('设置打印内容显隐')}</span>
             </span>
             {(params.printType === 'hr' || params.printType === 'worksheet') && (

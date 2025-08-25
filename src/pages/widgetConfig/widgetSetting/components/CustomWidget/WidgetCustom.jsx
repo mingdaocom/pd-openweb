@@ -1,15 +1,16 @@
 import React, { Fragment } from 'react';
-import { SettingItem, SetConfig } from '../../../styled';
-import CustomReference from './CustomReference';
-import { enumWidgetType } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget';
+import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { openDevelopWithAI } from '../DevelopWithAI';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
+import { SetConfig, SettingItem } from '../../../styled';
+import { openDevelopWithAI } from '../DevelopWithAI';
+import CustomReference from './CustomReference';
 
 export default function WidgetCustom(props) {
   const { data, globalSheetInfo, onChange, from } = props;
-  const { customtype, custom_js, allowfull, height } = getAdvanceSetting(data);
+  const { customtype, custom_js, height } = getAdvanceSetting(data);
   const reference = getAdvanceSetting(data, 'reference') || [];
   return (
     <Fragment>

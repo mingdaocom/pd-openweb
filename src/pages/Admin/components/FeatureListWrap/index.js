@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, Switch, UpgradeIcon } from 'ming-ui';
@@ -71,7 +72,7 @@ export default function FeatureListWrap(props) {
                 </span>
               )}
               {showSwitch && <Switch checked={switchChecked} onClick={clickSwitch} />}
-              {showSlideIcon && <Icon icon="sidebar-more" className="Font18 Gray_9d Right Hand" />}
+              {showSlideIcon && <Icon icon="arrow-right-border" className="Font18 Gray_9d Right Hand" />}
             </div>
           </ConfigItemWrap>
         );

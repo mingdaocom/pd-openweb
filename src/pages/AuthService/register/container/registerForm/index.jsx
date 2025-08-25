@@ -52,12 +52,11 @@ export default function (props) {
           ? [getAccountTypes(true), !loginForAdd ? 'setPassword' : 'password']
           : [getAccountTypes(location.href.indexOf('linkInvite') < 0), 'code', 'setPassword']
         : [itiType, 'code', 'setPassword']),
-      ,
       isLink && loginForAdd ? '' : 'privacy',
     ]);
   }, [isLink, loginForAdd, itiType]);
 
-  useKey('Enter', e => {
+  useKey('Enter', () => {
     if (!hasCaptcha()) {
       cache.current.onRegister();
     }
@@ -245,7 +244,12 @@ export default function (props) {
             >
               <Checkbox checked={hasCheckPrivacy} className="InlineBlock" />
               {_l('同意')}
-              <a target="_blank" className="terms Hand mLeft3 mRight3"  href={`/legalportal/terms`} onClick={e => e.stopPropagation()}>
+              <a
+                target="_blank"
+                className="terms Hand mLeft3 mRight3"
+                href={`/legalportal/terms`}
+                onClick={e => e.stopPropagation()}
+              >
                 {_l('《使用条款》%14000')}
               </a>
               {_l('和')}

@@ -1,6 +1,9 @@
-export const applyData = (state = {
-  data: [],
-}, action) => {
+export const applyData = (
+  state = {
+    data: [],
+  },
+  action,
+) => {
   switch (action.type) {
     case 'UPDATE_APPLY_LIST':
       return action.data;

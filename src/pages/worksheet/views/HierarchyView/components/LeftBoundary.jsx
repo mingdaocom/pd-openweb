@@ -1,9 +1,9 @@
 import React from 'react';
+import { useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
 import { get } from 'lodash';
-import { useDrop } from 'react-dnd-latest';
-import { AddRecord } from '../styled';
 import { ITEM_TYPE } from '../config';
+import { AddRecord } from '../styled';
 
 export default function LeftBoundary(props) {
   const { becomeTopLevelRecord, showAdd, onClick } = props;

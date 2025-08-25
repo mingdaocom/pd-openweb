@@ -4,7 +4,7 @@ export const Con = styled.div`
   p {
     margin: 0;
   }
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 40px;
   padding-bottom: 100px;
   h5,
@@ -31,7 +31,7 @@ export const Con = styled.div`
       color: #9e9e9e;
     }
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .con {
@@ -48,7 +48,7 @@ export const Con = styled.div`
         padding-left: 0px;
       }
       .currentMenu {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .ming.MenuItem .Item-content:not(.disabled):hover {
@@ -67,7 +67,7 @@ export const Con = styled.div`
         line-height: 32px;
         min-height: 32px;
         padding: 0 20px;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 4px;
         max-width: 155px;
         box-sizing: border-box;
@@ -76,7 +76,7 @@ export const Con = styled.div`
         color: #bdbdbd;
         opacity: 0;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -197,7 +197,7 @@ export const Wrap = styled.div`
     border: 1px solid #dddddd;
     padding: 0 12px;
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
 `;
@@ -254,13 +254,13 @@ export const WrapTxt = styled.div`
       width: 20px;
 
       &:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
 
     .editWorkflow {
       width: auto;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon } from 'ming-ui';
-import { Menu, Dropdown } from 'antd';
+import { Dropdown, Menu } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import GroupWrap from './components/GroupWrap';
-import _ from 'lodash';
 
 const More = styled.div`
   height: 32px;
   padding: 0 15px;
   .ant-dropdown-trigger:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
 `;
 
@@ -21,18 +21,19 @@ export const MenuOverlayWrapper = styled(Menu)`
     padding: 7px 12px;
     transition: none;
   }
-  .ant-dropdown-menu-item:hover, .ant-dropdown-menu-submenu-title:hover {
+  .ant-dropdown-menu-item:hover,
+  .ant-dropdown-menu-submenu-title:hover {
     .icon {
       color: #fff !important;
     }
     color: #fff;
-    background-color: #2196f3
+    background-color: #1677ff;
   }
 `;
 
 @connect(
   state => ({
-    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'withoutArrangementVisible'])
+    ..._.pick(state.sheet.gunterView, ['loading', 'grouping', 'withoutArrangementVisible']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -50,7 +51,10 @@ export default class GunterDirectory extends Component {
             this.props.updateWithoutArrangementVisible(!withoutArrangementVisible);
           }}
         >
-          <Icon className="Font18 mLeft4 mRight12 Gray_9e" icon={withoutArrangementVisible ? 'visibility_off' : 'visibility'} />
+          <Icon
+            className="Font18 mLeft4 mRight12 Gray_9e"
+            icon={withoutArrangementVisible ? 'visibility_off' : 'visibility'}
+          />
           <span className="Font14">{withoutArrangementVisible ? _l('隐藏未排期') : _l('显示未排期')}</span>
         </Menu.Item>
       </MenuOverlayWrapper>
@@ -70,11 +74,7 @@ export default class GunterDirectory extends Component {
     const { width, loading } = this.props;
     return (
       <div className="gunterDirectory flexColumn" style={{ width }}>
-        {!loading && (
-          <div className="gunterDirectoryHeader flexColumn">
-            {this.renderMore()}
-          </div>
-        )}
+        {!loading && <div className="gunterDirectoryHeader flexColumn">{this.renderMore()}</div>}
         <GroupWrap width={width} />
       </div>
     );

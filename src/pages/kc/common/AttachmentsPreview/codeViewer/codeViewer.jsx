@@ -1,9 +1,9 @@
 ﻿import React, { useEffect, useState } from 'react';
+import { any, func, string } from 'prop-types';
 import styled from 'styled-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { func, string, any } from 'prop-types';
-import { renderCode, renderMarkdown, renderTxt } from './core';
 import { PREVIEW_TYPE } from '../constant/enum';
+import { renderCode, renderMarkdown, renderTxt } from './core';
 import TextPreview from './TextPreview';
 import './codeViewer.less';
 

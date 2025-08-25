@@ -11,11 +11,13 @@ import { Dialog, Icon, LoadDiv, Support, SvgIcon, Switch, Tooltip, WaterMark } f
 import AppManagementAjax from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import HomeAjax from 'src/api/homeApp';
+import { checkCertification } from 'src/components/checkCertification';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AppRoleCon from 'src/pages/Role/AppRoleCon';
 import Portal from 'src/pages/Role/PortalCon/index';
 import * as actionsPortal from 'src/pages/Role/PortalCon/redux/actions.js';
 import { canEditApp, canEditData, getUserRole } from 'src/pages/worksheet/redux/actions/util';
+import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
 import { setFavicon } from 'src/utils/app';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
@@ -83,8 +85,8 @@ const Wrap = styled.div`
     border-bottom: 3px solid transparent;
     &.current {
       position: relative;
-      color: #2196f3;
-      border-bottom: 3px solid #2196f3;
+      color: #1677ff;
+      border-bottom: 3px solid #1677ff;
     }
   }
 `;
@@ -94,7 +96,7 @@ const WrapOpenPortalBtn = styled.div`
   height: 34px;
   background: #f3faff;
   border-radius: 18px;
-  color: #2196f3;
+  color: #1677ff;
   font-weight: 500;
   &:hover {
     background: #ebf6fe;
@@ -141,7 +143,7 @@ const WrapPop = styled.div`
     .btn {
       margin-top: 16px;
       line-height: 36px;
-      background: #2196f3;
+      background: #1677ff;
       border-radius: 3px;
       padding: 0 24px;
       color: #fff;
@@ -202,6 +204,7 @@ class AppRole extends Component {
     portalBaseSet: {},
     hasGetIsOpen: false,
     roleDebug: false,
+    externalPortalEnableVisible: false,
   };
 
   componentDidMount() {
@@ -243,7 +246,7 @@ class AppRole extends Component {
     $('html').removeClass('roleBody');
   }
 
-  fetch(props = this.props, withAppDetail = true) {
+  fetch(props = this.props) {
     const {
       match: {
         params: { appId },
@@ -252,25 +255,29 @@ class AppRole extends Component {
 
     HomeAjax.getApp({
       appId,
+      getLang: true,
     }).then(appDetail => {
-      setFavicon(appDetail.iconUrl, appDetail.iconColor);
-      this.setState({ appDetail, loading: false });
-      const {
-        match: {
-          params: { appId, editType },
-        },
-      } = this.props;
-      window[`timeZone_${appId}`] = appDetail.timeZone;
+      getAppLangDetail(appDetail).then(() => {
+        appDetail.name = getTranslateInfo(appDetail.id, null, appDetail.id).name || appDetail.name;
+        setFavicon(appDetail.iconUrl, appDetail.iconColor);
+        this.setState({ appDetail, loading: false });
+        const {
+          match: {
+            params: { appId, editType },
+          },
+        } = this.props;
+        window[`timeZone_${appId}`] = appDetail.timeZone;
 
-      if (
-        editType === 'external' &&
-        !(
-          (canEditApp(appDetail.permissionType, appDetail.isLock) || canEditData(appDetail.permissionType)) &&
-          this.state.isOpenPortal
-        )
-      ) {
-        navigateTo(`/app/${appId}/role`);
-      }
+        if (
+          editType === 'external' &&
+          !(
+            (canEditApp(appDetail.permissionType, appDetail.isLock) || canEditData(appDetail.permissionType)) &&
+            this.state.isOpenPortal
+          )
+        ) {
+          navigateTo(`/app/${appId}/role`);
+        }
+      });
     });
   }
   fetchPortalInfo = (props = this.props) => {
@@ -355,6 +362,7 @@ class AppRole extends Component {
       showPortalRoleSetting,
       isOpenPortal,
       roleDebug,
+      externalPortalEnableVisible,
     } = this.state;
     const { projectId = '' } = appDetail;
     const {
@@ -457,6 +465,15 @@ class AppRole extends Component {
             {editApp && !isOpenPortal && featureType && (
               <Trigger
                 action={['click']}
+                popupVisible={externalPortalEnableVisible}
+                onPopupVisibleChange={visible =>
+                  visible
+                    ? checkCertification({
+                        projectId,
+                        checkSuccess: () => this.setState({ externalPortalEnableVisible: visible }),
+                      })
+                    : this.setState({ externalPortalEnableVisible: visible })
+                }
                 popup={
                   <WrapPop className="openPortalWrap">
                     <img src={openImg} className="Block" />
@@ -482,7 +499,6 @@ class AppRole extends Component {
                           });
                           externalPortalAjax.editExPortalEnable({ appId, isEnable: !this.state.isEnable }).then(res => {
                             if (res) {
-                              // window.appInfo.epEnableStatus = !this.state.isEnable;
                               this.setState({ isOpenPortal: true, editType: 1, openLoading: false }, () => {
                                 navigateTo(`/app/${appId}/role/external`);
                               });
@@ -524,6 +540,7 @@ class AppRole extends Component {
                   {editApp && !isOpenPortal && featureType && <DividerVertical className="mLeft24" />}
                   <Tooltip
                     popupPlacement="bottomLeft"
+                    autoCloseDelay={0}
                     text={
                       <span>
                         {_l('开启后，应用管理员、运营者可以使用不同的角色身份访问应用。开发者暂不支持使用此功能。')}
@@ -588,7 +605,6 @@ class AppRole extends Component {
               closePortal={() => {
                 externalPortalAjax.editExPortalEnable({ appId, isEnable: false }).then(res => {
                   if (res) {
-                    // window.appInfo.epEnableStatus = false;
                     navigateTo(`/app/${appId}/role`);
                     this.setState({ isOpenPortal: false, editType: 0 });
                   } else {

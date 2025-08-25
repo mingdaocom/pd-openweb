@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
+import { useSetState } from 'react-use';
 import { Dropdown, Input, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Checkbox, Dialog, Dropdown as MingDropdown, Support } from 'ming-ui';
+import _ from 'lodash';
 import moment from 'moment';
-import { useSetState } from 'react-use';
 import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown as MingDropdown, Support } from 'ming-ui';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 import { DATE_SHOW_TYPES } from '../../../../config/setting';
 import { DropdownContent, DropdownPlaceholder, EditInfo, SettingItem } from '../../../../styled';
@@ -34,7 +35,7 @@ const ConfigWrap = styled.div`
       cursor: pointer;
       transition: color 0.25s;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -53,17 +54,25 @@ const TimeDynamicWrap = styled.div`
 const CUSTOM_SHOW_FORMAT = [
   'YYYY-MM-DD',
   'YYYY/MM/DD',
-  'YYYYMMDD',
-  'YYMMDD',
   'YYYY年MM月DD日',
   'YYYY年M月D日',
-  'MM-DD-YYYY',
-  'MM/DD/YYYY',
-  'MMM D YYYY',
-  'MMMM D YYYY',
-  'MM/DD/YY',
+  'YYYYMMDD',
+  'YYMMDD',
   'DD-MM-YYYY',
   'DD/MM/YYYY',
+  'DD MMM YYYY',
+  'DD-MMM-YYYY',
+  'DD- MMM-YY ',
+  'MM-DD-YYYY',
+  'MM/DD/YYYY',
+  'MM/DD/YY',
+  'MMM D YYYY',
+  'MMMM D YYYY',
+  'MMM DD YYYY',
+  'ddd，YYYY-MM-DD',
+  'ddd，DD MMM YYYY',
+  'YYYY年MM月DD日，dddd ',
+  'YYYY年M月D日，dddd',
 ];
 
 const ERROR_OPTIONS = [_l('*不支持自定义时间格式！'), _l('*无效的格式化规则')];
@@ -133,10 +142,12 @@ export function ShowFormat(props) {
 
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('显示格式化')}</div>
+      <div className="settingItemTitle">{_l('日期格式')}</div>
       {isCustom ? (
         <EditInfo className="pointer" onClick={() => setVisible(true)}>
-          <div className="overflow_ellipsis Gray">{_l('自定义格式')}</div>
+          <div className="overflow_ellipsis Gray">
+            {_l('自定义')}（{moment().format(showformat)}）
+          </div>
           <div className="flexCenter">
             <div
               className="clearBtn mRight10"
@@ -145,7 +156,7 @@ export function ShowFormat(props) {
                 onChange(handleAdvancedSettingChange(data, { showformat: '0' }));
               }}
             >
-              <i className="icon-closeelement-bg-circle"></i>
+              <i className="icon-cancel"></i>
             </div>
             <div className="edit">
               <i className="icon-edit"></i>
@@ -188,6 +199,25 @@ export function ShowFormat(props) {
         />
       )}
     </SettingItem>
+  );
+}
+
+export function DateHour12(props) {
+  const { data, onChange } = props;
+  const { hour12 = '0' } = getAdvanceSetting(data);
+
+  return (
+    <div className="labelWrap mTop12">
+      <Checkbox
+        size="small"
+        checked={hour12 === '1'}
+        onClick={checked => onChange(handleAdvancedSettingChange(data, { hour12: checked ? '0' : '1' }))}
+      >
+        <span>
+          {_l('12小时制')}（{moment().format('h:mm A')}）
+        </span>
+      </Checkbox>
+    </div>
   );
 }
 
@@ -251,7 +281,7 @@ export default function DateConfig(props) {
   if (type === 15) {
     return (
       <Fragment>
-        <ShowFormat {...props} />
+        {/* <ShowFormat {...props} /> */}
         {!isCustomWidget(data) && <StartEndTime {...props} />}
       </Fragment>
     );
@@ -259,7 +289,7 @@ export default function DateConfig(props) {
   if (type === 16) {
     return (
       <Fragment>
-        <ShowFormat {...props} />
+        {/* <ShowFormat {...props} /> */}
         <div className="labelWrap mTop8">
           <Checkbox
             size="small"
@@ -269,6 +299,7 @@ export default function DateConfig(props) {
             <span>{_l('预设分钟间隔')}</span>
             <Tooltip
               placement={'bottom'}
+              autoCloseDelay={0}
               title={_l('用于控制时间选择器上的分钟按多少间隔显示，但依然可手动输入任意分钟数')}
             >
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>

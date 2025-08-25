@@ -1,24 +1,24 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import './css/taskList.less';
-import _ from 'lodash';
 import { connect } from 'react-redux';
-import ajaxRequest from 'src/api/taskCenter';
 import doT from 'dot';
+import _ from 'lodash';
+import { UserHead } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
 import config from '../../config/config';
+import { updateMyTaskDataSource, updateSearchTaskCount } from '../../redux/actions';
+import { updateTaskCharge } from '../../redux/actions';
 import { listLoadingContent } from '../../utils/taskComm';
-import { formatTaskTime, errorMessage, formatStatus, buildMyTaskIcon, checkIsProject } from '../../utils/utils';
-import nodeCommTr from './tpl/nodeCommTr.html';
+import { buildMyTaskIcon, checkIsProject, errorMessage, formatStatus, formatTaskTime } from '../../utils/utils';
+import TaskDetail from '../taskDetail/taskDetail';
 import folderTask from './tpl/folderTask.html';
+import nodeCommTr from './tpl/nodeCommTr.html';
 import nodeTr from './tpl/nodeTr.html';
+import singleNewTask from './tpl/singleNewTask.html';
 import singleTask from './tpl/singleTask.html';
 import taskClassify from './tpl/taskClassify.html';
-import singleNewTask from './tpl/singleNewTask.html';
-import { updateMyTaskDataSource, updateSearchTaskCount } from '../../redux/actions';
-import TaskDetail from '../taskDetail/taskDetail';
-import { UserHead } from 'ming-ui';
-import { updateTaskCharge } from '../../redux/actions';
-import { dialogSelectUser } from 'ming-ui/functions';
+import './css/taskList.less';
 
 const taskListSettings = {
   pageIndex: 1,
@@ -111,7 +111,7 @@ class TaskList extends Component {
     };
     taskListSettings.typeNum = {};
 
-    const { taskFilter, filterUserId, listSort, listStatus, filterSettings } = this.props.taskConfig;
+    const { taskFilter, filterUserId, listSort, listStatus } = this.props.taskConfig;
     config.isMyTask =
       !filterUserId &&
       listSort === 0 &&
@@ -223,7 +223,6 @@ class TaskList extends Component {
       // 不是多选
       if (!isMuil) {
         config.$prevNode = _this;
-        const $txtName = _this.find('.txtName');
 
         // 项目中分多个table
         $('#taskList table tr').removeClass('selectTask ThemeBGColor6');
@@ -288,7 +287,7 @@ class TaskList extends Component {
 
     // 页面滚动加载更多
     $taskList.on('scroll', function () {
-      const { folderId, taskFilter, listSort } = that.props.taskConfig;
+      const { folderId, taskFilter } = that.props.taskConfig;
       // 阶段视图不分页
       if (folderId || taskFilter === 9) {
         return;
@@ -478,7 +477,7 @@ class TaskList extends Component {
       if (listSort === 4) {
         // 判断有无更多
         let size = 0;
-        $.map(data.data, (folder, i) => {
+        $.map(data.data, folder => {
           size += (folder.tasks || []).length;
         });
         taskListSettings.isMore = size >= config.pageSize;
@@ -823,7 +822,7 @@ class TaskList extends Component {
     config.FilterTaskID = [];
     // 重置pageIndex
     taskListSettings.pageIndex = 0;
-    $types.each(function (i, e) {
+    $types.each(function () {
       const $this = $(this);
       const $tasks = $this.siblings('.listStageTaskContent').find('tr');
       const isClosed = $this.find('.downArrow').length > 0;
@@ -891,7 +890,7 @@ class TaskList extends Component {
         .delay((i + 1) * 30);
     });
 
-    $trs.each(function (i) {
+    $trs.each(function () {
       $(this).animate(
         {
           opacity: 1,
@@ -963,7 +962,7 @@ class TaskList extends Component {
    */
   quickCreateTaskCallback = result => {
     alert(_l('创建成功'));
-    const { lastMyProjectId, projectId, listSort, filterUserId } = this.props.taskConfig;
+    const { lastMyProjectId, listSort, filterUserId } = this.props.taskConfig;
 
     // 不是在所有网络和当前网络下的时候不添加
     if (lastMyProjectId !== 'all' && lastMyProjectId !== result.data.projectId) return;

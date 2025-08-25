@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import './style.less';
-import DateTimeRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range-picker';
-import LibCalender from '../lib/calender';
-import PositionContainer from 'ming-ui/components/PositionContainer';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import DateTimeRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range-picker';
+import PositionContainer from 'ming-ui/components/PositionContainer';
+import LibCalender from '../lib/calender';
+import './style.less';
 
 class DateTimeRange extends Component {
   constructor(props) {
@@ -27,7 +27,6 @@ class DateTimeRange extends Component {
   }
 
   generateState = props => {
-    const empty = !props.selectedValue || (!props.selectedValue[0] && !props.selectedValue[1]);
     const start = !!(props.selectedValue && props.selectedValue[0]);
     const end = !!(props.selectedValue && props.selectedValue[1]);
 
@@ -344,18 +343,10 @@ DateTimeRange.defaultProps = {
     top: 0,
     left: 0,
   },
-  onOk: time => {
-    //
-  },
-  onClear: () => {
-    //
-  },
-  onSelect: time => {
-    //
-  },
-  onVisibleChange: time => {
-    //
-  },
+  onOk: () => {},
+  onClear: () => {},
+  onSelect: () => {},
+  onVisibleChange: () => {},
   autoFillEndTime: 0,
 };
 

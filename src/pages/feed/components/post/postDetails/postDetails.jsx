@@ -71,7 +71,7 @@ class PostDetails extends React.Component {
           <div className="TxtCenter mTop20 Feeddetail">
             <br />
             <div>
-              <i className="icon-task-folder-message Font56 postDetail-errorIcon" />
+              <i className="icon-error1 Font56 postDetail-errorIcon" />
             </div>
             <div className="Font18 mTop20 Gray">{_l('您的权限不足或此动态已被删除，无法查看')}</div>
             <br />

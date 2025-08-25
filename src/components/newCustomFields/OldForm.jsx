@@ -5,7 +5,7 @@ import cx from 'classnames';
 import _, { get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import sheetAjax from 'src/api/worksheet';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
@@ -127,6 +127,7 @@ export default class CustomFields extends Component {
     isCreate: PropTypes.bool, // 是否新建
     widgetStyle: PropTypes.object, // 表单样式配置
     ignoreLock: PropTypes.bool, // 是否忽略锁定记录
+    isRecordLock: PropTypes.bool, // 记录锁定，真锁定
     ignoreHideControl: PropTypes.bool, // 忽略隐藏控件
     verifyAllControls: PropTypes.bool, // 是否校验全部字段
     isWorksheetQuery: PropTypes.bool, // 是否配置工作表查询
@@ -204,8 +205,13 @@ export default class CustomFields extends Component {
     loadSDK();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
-    if (this.props.flag !== nextProps.flag || this.props.data.length !== nextProps.data.length) {
+  componentWillReceiveProps(nextProps) {
+    if (
+      this.props.flag !== nextProps.flag ||
+      this.props.data.length !== nextProps.data.length ||
+      this.props.disabled !== nextProps.disabled ||
+      this.props.isRecordLock !== nextProps.isRecordLock
+    ) {
       this.initSource(nextProps.data, nextProps.disabled, {
         setStateCb: () => {
           this.updateErrorState(false);
@@ -262,7 +268,6 @@ export default class CustomFields extends Component {
       verifyAllControls,
       loadRowsWhenChildTableStoreCreated,
       controlProps = {},
-      mobileApprovalRecordInfo = {},
     } = this.props;
     const { rules = [], searchConfig = [] } = this.state;
     const { instanceId, workId } = this.workflowParams;
@@ -291,16 +296,7 @@ export default class CustomFields extends Component {
       },
       searchConfig: searchConfig.filter(i => i.eventType !== 1),
       loadRowsWhenChildTableStoreCreated,
-      updateLoadingItems: loadingItems => {
-        this.setState({ loadingItems });
-      },
-      updateLoadingItemsWithAutoSubmit: loadingItems => {
-        this.setState({ loadingItems: { ...this.state.loadingItems, ...loadingItems } }, () => {
-          if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
-            this.submitFormData();
-          }
-        });
-      },
+      updateLoadingItems: this.updateLoadingItems,
       activeTrigger: () => {
         if (!this.changeStatus && this.dataFormat) {
           this.props.onChange(this.dataFormat.getDataSource(), this.dataFormat.getUpdateControlIds(), {
@@ -309,7 +305,7 @@ export default class CustomFields extends Component {
           this.changeStatus = true;
         }
       },
-      onAsyncChange: ({ controlId, value }) => {
+      onAsyncChange: ({ controlId }) => {
         this.props.onChange(this.dataFormat.getDataSource(), [controlId], { isAsyncChange: true });
         this.changeStatus = true;
         this.setState(
@@ -338,6 +334,27 @@ export default class CustomFields extends Component {
       },
     );
   }
+
+  /**
+   *
+   * 更新loadingItems
+   * autoSubmit 更新完后是否自动更新
+   */
+  updateLoadingItems = (updateItems, autoSubmit) => {
+    this.setState(
+      prevState => ({
+        loadingItems: {
+          ...prevState.loadingItems,
+          ...updateItems,
+        },
+      }),
+      () => {
+        if (autoSubmit && _.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
+          this.submitFormData();
+        }
+      },
+    );
+  };
 
   /**
    * 获取配置（业务规则 || 查询配置）
@@ -388,13 +405,23 @@ export default class CustomFields extends Component {
       verifyAllControls,
     });
 
-    // 标签页显示，但标签页内没有显示字段，标签页隐藏
     tempRenderData.forEach(item => {
+      // 标签页显示，但标签页内没有显示字段，标签页隐藏
       if (item.type === 52 && controlState(item, from).visible && !item.hidden) {
         const childWidgets = tempRenderData.filter(i => i.sectionId === item.controlId);
         if (_.every(childWidgets, c => !(controlState(c, from).visible && !c.hidden))) {
           item.fieldPermission = replaceStr(item.fieldPermission || '111', 0, '0');
         }
+      }
+      // 标签页字读，所有子集只读
+      if (
+        item.sectionId &&
+        !controlState(
+          _.find(tempRenderData, t => t.controlId === item.sectionId),
+          from,
+        ).editable
+      ) {
+        item.fieldPermission = replaceStr(item.fieldPermission || '111', 1, '0');
       }
     });
     return tempRenderData;
@@ -490,14 +517,7 @@ export default class CustomFields extends Component {
                 ...(item.type === 22 ? { setNavVisible } : {}),
                 setLoadingInfo: (key, status) => {
                   this.dataFormat.loadingInfo[key] = status;
-                  this.setState(
-                    { loadingItems: { ...this.state.loadingItems, ...this.dataFormat.loadingInfo } },
-                    () => {
-                      if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
-                        this.submitFormData();
-                      }
-                    },
-                  );
+                  this.updateLoadingItems(this.dataFormat.loadingInfo, true);
                 },
               }),
             )}
@@ -619,24 +639,18 @@ export default class CustomFields extends Component {
    */
   triggerCustomEvent(props) {
     const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = this.props;
-    const { searchConfig = [], renderData = [], loadingItems } = this.state;
+    const { searchConfig = [], renderData = [] } = this.state;
 
     const customProps = {
       ...props,
-      ..._.pick(this.props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId']),
+      ..._.pick(this.props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId', 'isRecordLock']),
       formData: this.dataFormat.getDataSource().concat(systemControlData || []),
       renderData,
       searchConfig: searchConfig.filter(i => i.eventType === 1),
       checkRuleValidator: (controlId, errorType, errorMessage) => {
         this.dataFormat.setErrorControl(controlId, errorType, errorMessage);
       },
-      checkEventComplete: value => {
-        this.setState({ loadingItems: { ...loadingItems, ...value } }, () => {
-          if (_.every(Object.values(this.state.loadingItems), i => !i) && this.submitBegin) {
-            this.submitFormData();
-          }
-        });
-      },
+      checkEventComplete: eventLoading => this.updateLoadingItems(eventLoading, true),
       setErrorItems: errorInfo => {
         this.setState({ customErrorItems: errorInfo });
       },
@@ -694,6 +708,7 @@ export default class CustomFields extends Component {
       formDidMountFlag,
     } = this.props;
     const { renderData } = this.state;
+    const { instanceId, workId } = this.workflowParams;
     // 字段描述显示方式
     const hintType = _.get(item, 'advancedSetting.hinttype') || '0';
     const hintShowAsText =
@@ -743,8 +758,7 @@ export default class CustomFields extends Component {
     }
 
     const isEditable = controlState(item, from).editable;
-    const maskPermissions =
-      (isCharge || _.get(item, 'advancedSetting.isdecrypt[0]') === '1') && !window.shareState.shareId;
+    const maskPermissions = isCharge || _.get(item, 'advancedSetting.isdecrypt') === '1';
 
     // (禁用或只读) 且 内容不存在
     if (
@@ -820,7 +834,7 @@ export default class CustomFields extends Component {
             }
 
             // 非文本类值改变时触发自定义事件
-            if (isUnTextWidget(item) && item.value !== value && uploadFieldTriggerEvent) {
+            if (isUnTextWidget(item) && item.value !== value && uploadFieldTriggerEvent && item.type !== 34) {
               this.triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
             }
           }}
@@ -966,6 +980,46 @@ export default class CustomFields extends Component {
     }
   }
 
+  // 提示错误二次确认层
+  newErrorDialog(errors, options) {
+    const isAllIgnoreError = errors.every(i => i.ignoreErrorMessage);
+    Dialog.confirm({
+      className: 'newRuleErrorMsgDialog',
+      title: <span className="Bold Font17">{_l('表单存在以下错误，请正确填写')}</span>,
+      okText: _l('前往修改'),
+      cancelText: _l('忽略，继续保存'),
+      description: (
+        <div>
+          {errors.map(item => {
+            return (
+              <div className="errorItem">
+                <Tooltip
+                  text={item.ignoreErrorMessage ? _l('非强制校验，可选择忽略') : _l('必须修改正确后才能保存')}
+                  popupPlacement="bottomLeft"
+                  offset={[-12, 0]}
+                >
+                  <Icon
+                    className="Font16 pointer"
+                    icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
+                    style={{ color: item.ignoreErrorMessage ? '#F8932C' : '#FF0000' }}
+                  />
+                </Tooltip>
+
+                <div className="flex WordBreak Font14 Gray mLeft10">{item.errorMessage}</div>
+              </div>
+            );
+          })}
+        </div>
+      ),
+      removeCancelBtn: !isAllIgnoreError,
+      onlyClose: true,
+      onOk: () => {},
+      onCancel: () => {
+        this.submitFormData({ ...options, ignoreDialog: true });
+      },
+    });
+  }
+
   /**
    * 更新渲染数据
    */
@@ -981,7 +1035,8 @@ export default class CustomFields extends Component {
   /**
    * 获取提交数据
    */
-  getSubmitData({ silent, ignoreAlert, verifyAllControls } = {}) {
+  getSubmitData(options) {
+    const { silent, ignoreAlert, verifyAllControls, ignoreDialog } = options || {};
     const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {}, worksheetId } = this.props;
     const { errorItems, uniqueErrorItems, rules = [], activeRelateRecordControlId } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
@@ -1008,12 +1063,15 @@ export default class CustomFields extends Component {
           .map(it => it.controlId)
       : list
           .filter(item => {
-            // 标签页隐藏，内部字段报错校验过滤
-            if (item.sectionId) {
-              const parentControls = _.find(list, t => t.controlId === item.sectionId);
-              if (parentControls && !(controlState(parentControls, from).visible && !parentControls.hidden)) {
-                return false;
-              }
+            // 标签页隐藏、只读，内部字段报错校验过滤
+            const parentControls = _.find(list, t => t.controlId === item.sectionId);
+            if (
+              parentControls &&
+              (!controlState(parentControls, from).visible ||
+                parentControls.hidden ||
+                !controlState(parentControls, from).editable)
+            ) {
+              return false;
             }
             return controlState(item, from).visible && controlState(item, from).editable && item.type !== 52;
           })
@@ -1028,12 +1086,12 @@ export default class CustomFields extends Component {
     const totalErrors = errorItems
       .concat(uniqueErrorItems)
       .concat(subListErrorControls)
-      .filter(it => _.includes(ids, it.controlId));
+      .filter(it => _.includes(ids, it.controlId) && !it.ignoreErrorMessage);
     const hasError = !!totalErrors.length;
-    const hasRuleError = errors.length;
+    const hasRuleError = (ignoreDialog ? errors.filter(e => !e.ignoreErrorMessage) : errors).length;
 
     // 提交时所有错误showError更新为true
-    this.updateErrorState(hasError);
+    this.updateErrorState(true);
 
     // 标签页内报错，展开标签页
     // 分段内报错，展开分段
@@ -1075,6 +1133,10 @@ export default class CustomFields extends Component {
       }
     }
 
+    if (hasRuleError && !silent && !ignoreDialog) {
+      this.newErrorDialog(errors, options);
+    }
+
     let error;
 
     if (hasError) {
@@ -1090,10 +1152,6 @@ export default class CustomFields extends Component {
       error = true;
     }
 
-    if (!hasError && hasRuleError && !silent) {
-      this.errorDialog(errors);
-    }
-
     return { data: list, fullData: data, updateControlIds, hasError, hasRuleError, error, ids };
   }
 
@@ -1103,7 +1161,7 @@ export default class CustomFields extends Component {
   submitFormData(options) {
     this.submitBegin = true;
     const { loadingItems, rules } = this.state;
-    const { onSave, from } = this.props;
+    const { onSave, from, entityName = _l('记录') } = this.props;
     const { data, updateControlIds, error, ids } = this.getSubmitData(options);
 
     if (!error && _.some(Object.values(loadingItems), i => i)) {
@@ -1113,6 +1171,11 @@ export default class CustomFields extends Component {
     onSave(error, {
       data,
       updateControlIds,
+      alertLockError: () => {
+        const { ruleItems = [] } = _.find(rules, r => r.type === 2) || {};
+        const message = _.get(ruleItems, '0.message');
+        alert(_l('%0已锁定，无法保存%1', entityName, message ? `（${message}）` : ''), 3);
+      },
       handleRuleError: badData => {
         badData.forEach(itemBadData => {
           const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
@@ -1146,18 +1209,16 @@ export default class CustomFields extends Component {
             return total.concat(its.errorInfo);
           }, [])
           .filter(i => _.find(data, d => d.controlId === i.controlId));
-        const hideControlErrors = totalRuleError
-          .filter(
-            i =>
-              !controlState(
-                _.find(data, d => d.controlId === i.controlId),
-                from,
-              ).visible,
-          )
-          .map(i => i.errorMessage);
+        const hideControlErrors = totalRuleError.filter(
+          i =>
+            !controlState(
+              _.find(data, d => d.controlId === i.controlId),
+              from,
+            ).visible,
+        );
         // 后端校验隐藏字段报错
         if (hideControlErrors.length > 0) {
-          this.errorDialog(hideControlErrors);
+          this.newErrorDialog(hideControlErrors, options);
         }
         // 过滤掉子表报错、ids：不需校验的字段合集
         totalRuleError = totalRuleError.filter(it => _.includes(ids, it.controlId));
@@ -1187,7 +1248,7 @@ export default class CustomFields extends Component {
 
   renderTab(commonData, tabControls) {
     const { tabControlProp: { isSplit, splitTabDom } = {}, from, isDraft, mobileApprovalRecordInfo } = this.props;
-    const { activeTabControlId, renderData } = this.state;
+    const { activeTabControlId } = this.state;
     const isMobile = browserIsMobile();
     const sectionProps = {
       ...this.props,

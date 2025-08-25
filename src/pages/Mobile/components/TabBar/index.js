@@ -1,9 +1,9 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import './index.less';
 import 'mobile/MyHome/index.less';
+import './index.less';
 
 @withRouter
 export default class TabBar extends Component {
@@ -30,17 +30,17 @@ export default class TabBar extends Component {
               history.push('/mobile/appBox');
             }}
           >
-          {md.global.Config.IsLocal ? (
-            <Fragment>
-              <Icon icon="application_library" />
-              <span>{_l('应用库')}</span>
-            </Fragment>
-          ) : (
-            <Fragment>
-              <Icon icon="merchant" />
-              <span>{_l('市场')}</span>
-            </Fragment>
-          )}
+            {md.global.Config.IsLocal ? (
+              <Fragment>
+                <Icon icon="application_library" />
+                <span>{_l('应用库')}</span>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <Icon icon="merchant" />
+                <span>{_l('市场')}</span>
+              </Fragment>
+            )}
           </div>
         )}
         <div

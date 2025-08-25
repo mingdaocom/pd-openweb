@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { formatSummaryName, formatterTooltipTitle, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { toFixed } from 'src/utils/control';
@@ -56,7 +57,7 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
   const { value } = data[0];
   value.forEach(item => {
     const name = item.x;
-    data.forEach((element, index) => {
+    data.forEach(element => {
       const target = element.value.filter(n => n.originalX === item.originalX);
       if (target.length) {
         const { rename, emptyShowType } = element.c_id
@@ -157,7 +158,7 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const { BarChartConfig } = this.getComponentConfig(nextProps);
-      this.BarChart.update(BarChartConfig);
+      this.BarChart && this.BarChart.update(BarChartConfig);
     }
     // 切换图表类型 & 堆叠 & 百分比
     if (
@@ -504,7 +505,7 @@ export default class extends Component {
                   : null,
               ],
               content: labelData => {
-                const { value, groupName, controlId, originalId } = labelData;
+                const { value, controlId, originalId } = labelData;
                 const id = split.controlId ? newYaxisList[0].controlId : controlId;
                 const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
                 if (showPercent && !isPerPile) {
@@ -538,7 +539,7 @@ export default class extends Component {
                 }
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : false,
@@ -583,7 +584,7 @@ export default class extends Component {
           ? {
               text: ydisplay.title,
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : null,
@@ -593,7 +594,7 @@ export default class extends Component {
               return value ? formatrChartAxisValue(Number(value), isPerPile, yaxisList) : null;
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined,
+              fill: isDark ? '#ffffffb0' : undefined,
             },
           }
         : null,
@@ -601,7 +602,7 @@ export default class extends Component {
         line: ydisplay.showDial
           ? {
               style: {
-                stroke: isDark ? '#ffffffcc' : undefined,
+                stroke: isDark ? '#ffffff6b' : undefined,
                 lineDash: ydisplay.lineStyle === 1 ? [] : [4, 5],
               },
             }
@@ -617,7 +618,7 @@ export default class extends Component {
           ? {
               text: xdisplay.title,
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : null,
@@ -626,11 +627,11 @@ export default class extends Component {
             autoRotate: fontStyle ? true : false,
             autoHide: true,
             autoEllipsis: true,
-            formatter: (name, item) => {
+            formatter: name => {
               return particleSizeType === 6 && showFormat === '0' ? _l('%0时', name) : name;
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined,
+              fill: isDark ? '#ffffffb0' : undefined,
             },
           }
         : null,

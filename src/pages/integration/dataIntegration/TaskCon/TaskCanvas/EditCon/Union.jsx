@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { WrapL } from './style';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { UNION_TYPE_LIST } from '../config';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { UNION_TYPE_LIST } from '../config';
+import { WrapL } from './style';
+
 const PopupWrap = styled.div`
   border-radius: 6px;
   background: #ffffff;

@@ -1,7 +1,7 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import ChooseControls from './ChooseControls';
 
@@ -20,7 +20,7 @@ const Wrap = styled.div`
     }
     &.hs {
       background: #f5f5f5;
-      color: #2196f3;
+      color: #1677ff;
     }
     svg {
       margin-top: 2px;
@@ -54,14 +54,14 @@ function ChooseWorksheet(props) {
               return (
                 <div
                   className={cx('itemControl flexRow alignItemsCenter', { hs })}
-                  onClick={event => {
+                  onClick={() => {
                     onChange(o.workSheetId);
                   }}
                 >
                   <div className={cx('flex flexRow alignItemsCenter Hand')}>
                     <SvgIcon
                       url={o.iconUrl ? o.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${o.icon}.svg`}
-                      fill={hs ? '#2196f3' : '#757575'}
+                      fill={hs ? '#1677ff' : '#757575'}
                       size={16}
                     />
                     <div className={cx('flex mLeft5 overflow_ellipsis WordBreak Bold', hs ? 'ThemeColor3' : 'Gray')}>

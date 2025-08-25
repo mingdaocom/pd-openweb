@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -23,7 +23,6 @@ export default function HideItem(props) {
   const [visible, setVisible] = useState(false);
   const [edit, setEdit] = useState(false);
   const nameRef = useRef(null);
-  let focusFlag = false;
   const isSimple = type === 'recycle';
 
   const clickEditName = () => {
@@ -65,12 +64,11 @@ export default function HideItem(props) {
     setEdit(false);
   };
 
-  const handleFocus = _.debounce(event => {
-    focusFlag = true;
+  const handleFocus = _.debounce(() => {
     nameRef && nameRef.current && nameRef.current.select();
   }, 500);
 
-  const clickHandle = e => {
+  const clickHandle = () => {
     toView();
   };
 
@@ -86,7 +84,7 @@ export default function HideItem(props) {
       })}
       onClick={clickHandle}
     >
-      {!isSimple && <Icon icon="drag_indicator" className="Font16" style={isCharge ? {} : { opacity: 0 }} />}
+      {!isSimple && <Icon icon="drag" className="Font16" style={isCharge ? {} : { opacity: 0 }} />}
       {isCustomize ? (
         <SvgIcon
           url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}

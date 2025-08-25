@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
-import instance from 'src/pages/workflow/api/instance';
-import worksheetAjax from 'src/api/worksheet';
-import appManagementAjax from 'src/api/appManagement';
-import styled from 'styled-components';
-import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Menu, MenuItem } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import worksheetAjax from 'src/api/worksheet';
+import instance from 'src/pages/workflow/api/instance';
 
 const Box = styled.div`
   width: 100%;
@@ -31,7 +31,7 @@ export default ({
   params = {},
   iconClassName,
   onChange = () => {},
-  customRender
+  customRender,
 }) => {
   const [showList, setShowList] = useState(false);
   const [list, setList] = useState([]);
@@ -102,10 +102,10 @@ export default ({
       type === FROM_TYPE.workflow
         ? instance.getArchivedList()
         : type === FROM_TYPE.worksheet
-        ? worksheetAjax.getWorksheetArchives()
-        : type === FROM_TYPE.log
-        ? appManagementAjax.getArchivedList(params)
-        : null;
+          ? worksheetAjax.getWorksheetArchives()
+          : type === FROM_TYPE.log
+            ? appManagementAjax.getArchivedList(params)
+            : null;
 
     if (promiseFn) {
       promiseFn.then(res => {
@@ -131,11 +131,7 @@ export default ({
           {selectItem.start} {_l('至')} {selectItem.end}
         </div>
         {renderTrigger()}
-        <Icon
-          icon="closeelement-bg-circle"
-          className="Font20 mLeft10 Gray_9e ThemeHoverColor3 pointer"
-          onClick={() => onSelect()}
-        />
+        <Icon icon="cancel" className="Font20 mLeft10 Gray_9e ThemeHoverColor3 pointer" onClick={() => onSelect()} />
       </Box>
     );
   }

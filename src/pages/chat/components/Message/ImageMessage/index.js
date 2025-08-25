@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import Config from 'src/pages/chat/utils/config';
 import * as utils from '../../../utils/';
 import { handleMessageFilePreview } from '../MessageToolbar';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import './index.less';
 
 export default class ImageMessage extends Component {
   constructor(props) {
@@ -15,16 +16,16 @@ export default class ImageMessage extends Component {
     };
   }
   componentDidMount() {
-    const { session, message } = this.props;
+    const { session, message, messageLength } = this.props;
     const { files } = message.msg;
     const bigImg = parseInt(files.size / 1024 / 1024) >= 20;
     const previewUrl = message.kcFile
       ? files.url
       : bigImg
-      ? files.url
-      : `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageView2/2/w/200/q/100`;
+        ? files.url
+        : `${files.url}${files.url.indexOf('?') >= 0 ? '&' : '?'}imageView2/2/w/200/q/100`;
     this._isMounted = true;
-    this.handleLoadImage(previewUrl).then(result => {
+    this.handleLoadImage(previewUrl).then(() => {
       if (!this._isMounted) {
         return;
       }
@@ -34,7 +35,7 @@ export default class ImageMessage extends Component {
           previewUrl,
         },
         () => {
-          utils.scrollEnd(session.id);
+          utils.scrollEnd(session.id, messageLength <= Config.MSG_LENGTH_MORE);
         },
       );
     });
@@ -43,15 +44,18 @@ export default class ImageMessage extends Component {
     this._isMounted = false;
   }
   handleLoadImage(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const image = new Image();
       image.onload = resolve;
       image.src = url;
     });
   }
   handleMessageFilePreview() {
-    const { message } = this.props;
+    const { message, session } = this.props;
     const { files } = message.msg;
+    if (session.accountId && !session.isContact) {
+      return;
+    }
     if (files.isEmotion) {
       return;
     } else if (message.kcFile) {

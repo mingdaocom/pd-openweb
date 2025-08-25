@@ -1,9 +1,9 @@
-import xss from 'xss';
+import Remarkable from 'remarkable';
+import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
-import Remarkable from 'remarkable';
-import { replaceEntities, escapeHtml } from 'remarkable/lib/common/utils';
+import xss from 'xss';
 
 function warpCode(content) {
   return filerXss(`<pre class="mdcode"><code class="language-">${content}</code></pre>`);
@@ -35,7 +35,7 @@ export function renderMarkdown(src, cb = () => {}) {
     .then(text => {
       if (new Blob([text]).size < 100 * 1024) {
         const md = new Remarkable({
-          highlight(str, lang) {
+          highlight(str) {
             return `<div class="mdcode"><code class="language-">${highlight(str, languages.js)}</code></div>`;
           },
         });
@@ -58,7 +58,9 @@ function decode(arrayBuffer) {
       const decoder = new TextDecoder(encoding, { fatal: true });
       const text = decoder.decode(arrayBuffer);
       return { encoding, text };
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
   }
   return null;
 }

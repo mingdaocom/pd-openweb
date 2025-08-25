@@ -11,6 +11,7 @@ import OtherAction from 'src/pages/workflow/components/ExecDialog/components/Oth
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import Steps from 'src/pages/workflow/components/ExecDialog/Steps';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
+import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { dateConvertToUserZone, handlePushState, handleReplaceState } from 'src/utils/project';
 import StepHeader from '../ExecDialog/StepHeader';
@@ -47,13 +48,13 @@ const renderState = data => {
   if (workItem) {
     if (type === 3 || type === 0)
       return (
-        <span className="bold" style={{ color: '#2196F3' }}>
+        <span className="bold" style={{ color: '#1677ff' }}>
           {_l('等我填写...')}
         </span>
       );
     if (type === 4)
       return (
-        <span className="bold" style={{ color: '#2196F3' }}>
+        <span className="bold" style={{ color: '#1677ff' }}>
           {_l('等我审批...')}
         </span>
       );
@@ -153,7 +154,7 @@ function CurrentWorkItems(props) {
               </Fragment>
             </span>
           ))}
-          {allCurrentWorkItems.length !== currentWorkItems.length && (
+          {allCurrentWorkItems.length && allCurrentWorkItems.length !== currentWorkItems.length && (
             <span className="InlineBlock Relative mRight8">
               <div className="flexRow valignWrapper hideAvatar">
                 +{allCurrentWorkItems.length - currentWorkItems.length}
@@ -167,20 +168,9 @@ function CurrentWorkItems(props) {
 }
 
 function WorkflowCard(props) {
-  const { data, currentWorkflow, formWidth, appId, projectId, isCharge } = props;
+  const { data, currentWorkflow, formWidth, appId, projectId, isCharge, isRecordLock } = props;
   const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog, onReset } = props;
-  const {
-    currents,
-    createDate,
-    completeDate,
-    revokeDate,
-    completed,
-    createAccount,
-    flowNode,
-    workItem,
-    process,
-    status,
-  } = data;
+  const { currents, createDate, completeDate, revokeDate, completed, createAccount, workItem, process, status } = data;
   const currentWorkItems = data.currentWorkItems || [];
   const receiveTime = _.get(workItem, 'receiveTime') || _.get(currentWorkItems[0], 'receiveTime');
   const isBranch = !!(currents || []).length;
@@ -288,23 +278,25 @@ function WorkflowCard(props) {
                 <Fragment key={data.workId}>
                   <div className={cx('branchWrap pointer', { hover: !isMobile })}>
                     {renderContent(data)}
-                    <WorkflowAction
-                      className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
-                      appId={appId}
-                      projectId={projectId}
-                      isBranch={isBranch}
-                      isCharge={isCharge}
-                      data={data}
-                      currentWorkflow={currentWorkflow}
-                      {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
-                    />
+                    {!isRecordLock && (
+                      <WorkflowAction
+                        className={cx('mTop20', { mBottom5: index !== currents.length - 1 })}
+                        appId={appId}
+                        projectId={projectId}
+                        isBranch={isBranch}
+                        isCharge={isCharge}
+                        data={data}
+                        currentWorkflow={currentWorkflow}
+                        {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
+                      />
+                    )}
                   </div>
                   {index !== currents.length - 1 && <div className="branchWrapLine" />}
                 </Fragment>
               ))
           : renderContent(data)}
       </div>
-      {!isBranch && !completed && (
+      {!isBranch && !completed && !isRecordLock && (
         <WorkflowAction
           className="mTop20"
           appId={appId}
@@ -323,6 +315,7 @@ function WorkflowCard(props) {
 export default function SheetWorkflow(props) {
   const {
     isCharge,
+    isRecordLock,
     projectId,
     worksheetId,
     recordId,
@@ -342,7 +335,7 @@ export default function SheetWorkflow(props) {
   const [ProcessRecord, setProcessRecord] = useState(null);
 
   const getList = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       setLoading(true);
       const param = {
         startAppId: worksheetId,
@@ -356,11 +349,26 @@ export default function SheetWorkflow(props) {
         }),
       ]).then(result => {
         const [unfinished, completed] = result;
-        const list = unfinished.concat(
-          completed.map(data => {
-            return { ...data, completed: true };
-          }),
-        );
+        const list = unfinished
+          .map(item => {
+            const { process, flowNode } = item;
+            return {
+              ...item,
+              process: {
+                ...process,
+                name: getTranslateInfo(appId, null, process.parentId).name || process.name,
+              },
+              flowNode: {
+                ...flowNode,
+                name: getTranslateInfo(appId, process.parentId, flowNode.id).nodename || flowNode.name,
+              },
+            };
+          })
+          .concat(
+            completed.map(data => {
+              return { ...data, completed: true };
+            }),
+          );
         setList(list);
         setLoading(false);
         if (list.length === 1 && unfinished.length === 1) {
@@ -387,6 +395,22 @@ export default function SheetWorkflow(props) {
       id: data.id,
       workId: data.workId,
     }).then(instance => {
+      instance.processName = getTranslateInfo(appId, null, instance.parentId).name || instance.processName;
+      instance.works = instance.works.map(work => {
+        const { flowNode, explain, explainMap } = work;
+        return {
+          ...work,
+          explain: explainMap ? explainMap[md.global.Account.lang] || explain : explain,
+          flowNode: {
+            ...flowNode,
+            name: getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name,
+          },
+        };
+      });
+      if (_.get(instance.currentWork, 'flowNode.name')) {
+        const { flowNode } = instance.currentWork;
+        flowNode.name = getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name;
+      }
       setCurrentWorkflow({
         ...instance,
         ...param,
@@ -396,7 +420,7 @@ export default function SheetWorkflow(props) {
     });
   };
 
-  const handleAction = ({ action, content, userId, backNodeId, signature, files, nextUserRange }) => {
+  const handleAction = ({ action, content, backNodeId, signature, files, nextUserRange }) => {
     if (_.includes(['pass', 'overrule', 'return', 'submit', 'revoke'], action)) {
       handleRequest(ACTION_TO_METHOD[action === 'return' ? 'overrule' : action], {
         opinion: content,
@@ -405,6 +429,7 @@ export default function SheetWorkflow(props) {
         files,
         nextUserRange,
       }).then(() => {
+        alert(_l('操作成功'));
         setActionVisible(false);
         handleCloseDrawer();
         getList().then(list => {
@@ -426,6 +451,7 @@ export default function SheetWorkflow(props) {
         backNodeId,
         files,
       }).then(() => {
+        alert(_l('操作成功'));
         setActionVisible(false);
         handleCloseDrawer();
         getList();
@@ -671,8 +697,8 @@ export default function SheetWorkflow(props) {
   };
 
   const renderStepItem = () => {
-    const { processId, cardData = {}, processName, works = [], workItem, currentWorkItem, status } = currentWorkflow;
-    const { id, workId, flowNode, completed, parentCurrents = [] } = cardData;
+    const { processId, cardData = {}, processName, works = [], status } = currentWorkflow;
+    const { id, workId, completed, parentCurrents = [] } = cardData;
     const allowTaskRevokeWorks = works.filter((_, index) => index).filter(n => n.allowTaskRevokeBackNodeId && isCharge);
     const currentWork = (function () {
       if (allowTaskRevokeBackNodeId) {
@@ -692,6 +718,7 @@ export default function SheetWorkflow(props) {
     return (
       <div className="h100 flexColumn">
         <StepHeader
+          appId={appId}
           processId={processId}
           instanceId={id}
           processName={processName}
@@ -738,7 +765,7 @@ export default function SheetWorkflow(props) {
             controls={controls}
           />
         </ScrollView>
-        {workId && !completed && (
+        {workId && !completed && !isRecordLock && (
           <div className={cx('workflowStepFooter flexColumn justifyContentCenter', isMobile ? 'pLeft10 pRight10' : '')}>
             <div className="mLeft1 Font13 Gray_75">{_.get(currentWork, 'flowNode.name')}</div>
             {allowTaskRevokeBackNodeId ? (
@@ -786,6 +813,7 @@ export default function SheetWorkflow(props) {
                   projectId={projectId}
                   appId={appId}
                   isCharge={isCharge}
+                  isRecordLock={isRecordLock}
                   formWidth={formWidth}
                   data={data}
                   currentWorkflow={currentWorkflow}
@@ -823,7 +851,8 @@ export default function SheetWorkflow(props) {
       >
         {renderStepItem()}
       </Drawer>
-      {viewWorkflow && ProcessRecord &&
+      {viewWorkflow &&
+        ProcessRecord &&
         (isMobile ? (
           <ProcessRecord.default
             isModal={true}

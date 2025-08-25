@@ -1,11 +1,8 @@
 import React from 'react';
-
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-
-import ListNull from './ListNull';
-import GroupItem from './GroupItem';
 import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import GroupItem from './GroupItem';
+import ListNull from './ListNull';
 
 export default class GroupList extends React.Component {
   constructor() {
@@ -24,10 +21,8 @@ export default class GroupList extends React.Component {
     this.debouncedScroll.cancel();
   }
 
-  scrollEvent(e, { direction, maximum, position }) {
-    if (direction === 'down' && maximum - position < 20) {
-      this.props.fetch();
-    }
+  scrollEvent() {
+    this.props.fetch();
   }
 
   renderSingleList(listProps) {
@@ -37,7 +32,12 @@ export default class GroupList extends React.Component {
         <div className="list-packet list-packet-name Gray_75 Font12">{title}</div>
         <div>
           {_.map(list, item => (
-            <GroupItem {...item} key={item.groupId} itemClickHandler={this.props.itemClickHandler} isSelected={item.groupId === this.props.selectedGroupId} />
+            <GroupItem
+              {...item}
+              key={item.groupId}
+              itemClickHandler={this.props.itemClickHandler}
+              isSelected={item.groupId === this.props.selectedGroupId}
+            />
           ))}
         </div>
       </div>
@@ -51,13 +51,16 @@ export default class GroupList extends React.Component {
       if (!keys.length && isLoading) return <LoadDiv className="mTop10" />;
       return (
         <React.Fragment>
-          {_.map(keys.sort((a, b) => a.localeCompare(b)), (key) => {
-            const props = {
-              list: list[key],
-              title: key,
-            };
-            return this.renderSingleList(props);
-          })}
+          {_.map(
+            keys.sort((a, b) => a.localeCompare(b)),
+            key => {
+              const props = {
+                list: list[key],
+                title: key,
+              };
+              return this.renderSingleList(props);
+            },
+          )}
           {isLoading ? <LoadDiv /> : null}
           {!isLoading && keys && keys.length === 0 ? <ListNull isSearch={isSearch} type={'groups'} /> : null}
         </React.Fragment>
@@ -69,7 +72,12 @@ export default class GroupList extends React.Component {
       return (
         <React.Fragment>
           {_.map(list, item => (
-            <GroupItem {...item} key={item.groupId} itemClickHandler={this.props.itemClickHandler} isSelected={item.groupId === this.props.selectedGroupId} />
+            <GroupItem
+              {...item}
+              key={item.groupId}
+              itemClickHandler={this.props.itemClickHandler}
+              isSelected={item.groupId === this.props.selectedGroupId}
+            />
           ))}
           {isLoading ? <LoadDiv /> : null}
         </React.Fragment>
@@ -78,6 +86,10 @@ export default class GroupList extends React.Component {
   }
 
   render() {
-    return <ScrollView updateEvent={this.debouncedScroll}>{this.renderListContent()}</ScrollView>;
+    return (
+      <ScrollView className="h100" onScrollEnd={this.debouncedScroll}>
+        {this.renderListContent()}
+      </ScrollView>
+    );
   }
 }

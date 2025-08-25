@@ -289,14 +289,14 @@ class GDMap extends Component {
               placeholder={_l('搜索地点')}
               className="MDMapInput Gray"
               onKeyUp={e => e.keyCode === 13 && this.handleChange()}
-              onChange={_.debounce(e => this.handleChange(), 500)}
+              onChange={_.debounce(() => this.handleChange(), 500)}
             />
           </form>
         </div>
         {!!distance && (
           <div className="distanceInfo">
             <div className="Font12" style={{ color: '#4CAF50' }}>
-              <Icon icon="task-setting_promet" className="Font14 mRight5" />
+              <Icon icon="error1" className="Font14 mRight5" />
               {_l('仅能定位周边%0米以内的地点', distance)}
             </div>
           </div>
@@ -442,7 +442,7 @@ export default class MDMap extends Component {
   }
 
   render() {
-    const MapComponent = !!getMapConfig() ? GoogleMap : GDMap;
+    const MapComponent = getMapConfig() ? GoogleMap : GDMap;
     return <MapComponent {...this.props} />;
   }
 }

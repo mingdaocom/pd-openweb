@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
-import { Dialog, ScrollView, LoadDiv, Checkbox, SvgIcon } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import styled from 'styled-components';
+import { Checkbox, Dialog, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const AddAppDialog = styled(Dialog)`
   position: relative;
@@ -57,6 +56,7 @@ const AddAppDialog = styled(Dialog)`
       font-size: 14px;
     }
     .appListWrapper {
+      padding-right: 10px;
       flex: 1;
       .dataItem {
         display: flex;

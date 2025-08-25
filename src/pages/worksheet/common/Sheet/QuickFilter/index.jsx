@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { arrayOf, func, number, shape, string } from 'prop-types';
-import styled from 'styled-components';
-import { bindActionCreators } from 'redux';
+import React from 'react';
 import { connect } from 'react-redux';
-import { refreshSheet, updateQuickFilter, resetQuickFilter } from 'worksheet/redux/actions';
+import { bindActionCreators } from 'redux';
+import { arrayOf, func, number, shape, string } from 'prop-types';
+import { refreshSheet, resetQuickFilter, updateQuickFilter } from 'worksheet/redux/actions';
 import QuickFilter from './QuickFilter';
 
 function Comp(props) {

@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
-import flowNode from '../../../api/flowNode';
-import styled from 'styled-components';
 import cx from 'classnames';
-import CopyNode from './CopyNode';
-import { NODE_TYPE } from '../../enum';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import flowNode from '../../../api/flowNode';
+import { NODE_TYPE } from '../../enum';
+import CopyNode from './CopyNode';
+import 'rc-trigger/assets/index.css';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const Box = styled.span`
   color: ${props => (props.isBranch ? '#757575' : 'rgba(255, 255, 255, 0.8)')};
   &:hover {
-    color: ${props => (props.isBranch ? '#2196f3' : '#fff')};
+    color: ${props => (props.isBranch ? '#1677ff' : '#fff')};
   }
 `;
 
@@ -95,6 +95,7 @@ export default class NodeOperate extends Component {
 
     return (
       <Tooltip
+        autoCloseDelay={0}
         className="workflowNotes"
         placement="bottom"
         arrowPointAtCenter={true}
@@ -106,7 +107,7 @@ export default class NodeOperate extends Component {
         }
       >
         <Box
-          className="Font15 pointer icon-knowledge-message"
+          className="Font15 pointer icon-info"
           isBranch={item.typeId === NODE_TYPE.BRANCH_ITEM}
           onMouseDown={e => {
             e.stopPropagation();
@@ -269,12 +270,12 @@ export default class NodeOperate extends Component {
     let branchItemIndex = 0;
     const list = [
       { text: _l('修改名称'), icon: 'edit', events: () => this.setState({ isEdit: true }) },
-      { text: _l('编辑节点别名和说明'), icon: 'knowledge-message', events: () => this.addNodeDescribe() },
+      { text: _l('编辑节点别名和说明'), icon: 'info', events: () => this.addNodeDescribe() },
       { text: _l('复制'), icon: 'copy', events: () => copyBranchNode(false) },
       { text: _l('复制整个分支'), icon: 'flow', events: () => copyBranchNode(true) },
       {
         text: _l('删除'),
-        icon: 'delete1',
+        icon: 'trash',
         events: () => this.setState({ showDelete: true }),
         className: 'flowNodeDel',
       },

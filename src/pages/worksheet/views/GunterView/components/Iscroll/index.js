@@ -649,8 +649,7 @@ IScroll.prototype = {
       e.preventDefault();
     }
 
-    var point = e.changedTouches ? e.changedTouches[0] : e,
-      momentumX,
+    var momentumX,
       momentumY,
       duration = utils.getTime() - this.startTime,
       newX = Math.round(this.x),
@@ -1545,7 +1544,7 @@ IScroll.prototype = {
     this.goToPage(x, y, time, easing);
   },
 
-  _initKeys: function (e) {
+  _initKeys: function () {
     // default key bindings
     var keys = {
       pageUp: 33,

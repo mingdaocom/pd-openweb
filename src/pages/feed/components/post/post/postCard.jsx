@@ -1,7 +1,7 @@
-﻿import _ from 'lodash';
+﻿import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
 
 /**
  * 动态基础卡片样式

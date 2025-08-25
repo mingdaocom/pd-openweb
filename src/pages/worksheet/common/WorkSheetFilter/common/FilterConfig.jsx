@@ -1,16 +1,16 @@
 import React, { useEffect, useReducer } from 'react';
-import { bool, string, shape, arrayOf, number, func } from 'prop-types';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { createReducer, createActions, initialState, formatForSave } from '../model';
-import { redefineComplexControl, formatOriginFilterGroupValue } from '../util';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import FilterDetail from '../components/FilterDetail';
 import { CONTROL_FILTER_WHITELIST } from '../enum';
-import _ from 'lodash';
+import { createActions, createReducer, formatForSave, initialState } from '../model';
+import { formatOriginFilterGroupValue, redefineComplexControl } from '../util';
 
 const Con = styled.div``;
 
@@ -19,7 +19,6 @@ export default function SingleFilter(props) {
     from,
     version,
     supportGroup,
-    offset,
     appId,
     viewId,
     projectId,
@@ -27,7 +26,6 @@ export default function SingleFilter(props) {
     feOnly,
     sheetSwitchPermit,
     showSystemControls,
-    filterColumnClassName, // 样式类名 待确认
     canEdit,
     conditions,
     onConditionsChange,

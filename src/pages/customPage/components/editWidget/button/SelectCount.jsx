@@ -1,10 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { string } from 'prop-types';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import 'rc-trigger/assets/index.css';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import 'rc-trigger/assets/index.css';
 
 const SelectCountWrap = styled.div`
   display: flex;
@@ -30,7 +29,7 @@ const SelectCountWrap = styled.div`
       justify-content: center;
       align-items: center;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .add {
@@ -66,7 +65,7 @@ const CountList = styled.ul`
     width: 100%;
     &.active,
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
     }
   }

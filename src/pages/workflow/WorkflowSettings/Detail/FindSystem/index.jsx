@@ -1,18 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Checkbox } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SelectFields,
-  TriggerCondition,
-  SelectNodeObject,
-  FindResult,
-} from '../components';
-import { APP_TYPE, ACTION_ID, NODE_TYPE } from '../../enum';
-import { checkConditionsIsNull, getIcons } from '../../utils';
-import cx from 'classnames';
 import _ from 'lodash';
+import { Checkbox, LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
+import { checkConditionsIsNull, getIcons } from '../../utils';
+import {
+  DetailFooter,
+  DetailHeader,
+  FindResult,
+  SelectFields,
+  SelectNodeObject,
+  TriggerCondition,
+} from '../components';
 
 export default class FindSystem extends Component {
   constructor(props) {
@@ -27,7 +26,7 @@ export default class FindSystem extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -372,7 +371,7 @@ export default class FindSystem extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

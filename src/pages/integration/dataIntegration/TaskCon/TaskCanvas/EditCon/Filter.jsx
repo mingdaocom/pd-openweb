@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { WrapL } from './style';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import _ from 'lodash';
 import { formatControls } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util';
+import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { WrapL } from './style';
 
 export default function Filter(props) {
   const { onUpdate } = props;
@@ -16,7 +17,9 @@ export default function Filter(props) {
   useEffect(() => {
     const { list = [], node = {}, currentProjectId: projectId } = props;
     const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
-    let relateControls = formatControls(_.get(preNode, ['nodeConfig', 'fields']) || [] ,preNode.nodeType).filter(o => o.isCheck); //过滤掉未勾选的字段
+    let relateControls = formatControls(_.get(preNode, ['nodeConfig', 'fields']) || [], preNode.nodeType).filter(
+      o => o.isCheck,
+    ); //过滤掉未勾选的字段
     setState({
       relateControls: relateControls,
       filterInfo: {

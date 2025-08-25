@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 
 class EditableBlock extends React.Component {
   static propTypes = {
@@ -84,7 +84,7 @@ class EditableBlock extends React.Component {
               value: e.target.value,
             });
           }}
-          onBlur={this.renameHandle}
+          onBlur={this.renameHandle.bind(this)}
           onKeyDown={evt => {
             if (evt.keyCode === 13) {
               evt.target.blur();

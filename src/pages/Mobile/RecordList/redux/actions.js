@@ -1,12 +1,14 @@
+import update from 'immutability-helper';
 import _, { get, some } from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
+import { sortDataByCustomItems } from 'worksheet/redux/actions/util';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
 import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { canEditApp, sortDataByGroupItems } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
 import { getRequest } from 'src/utils/common';
 import { getFilledRequestParams } from 'src/utils/common';
@@ -18,9 +20,35 @@ import {
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
 } from 'src/utils/translate';
+import { getGroupControlId } from 'src/utils/worksheet';
+import { getFlatSheetRows } from '../util';
+
+const dealBoardViewRecordCount = data => {
+  if (!data || !_.isArray(data)) return {};
+  return data.map(item => ({ [item.key]: item.totalNum })).reduce((p, c) => ({ ...p, ...c }), {});
+};
+
+export function changeBoardViewData(data) {
+  return {
+    type: 'MOBILE_CHANGE_BOARD_VIEW_DATA',
+    data,
+  };
+}
+
+export function initBoardViewRecordCount(data) {
+  return { type: 'MOBILE_INIT_BOARD_VIEW_RECORD_COUNT', data };
+}
+
+export function updateBoardViewRecordCount(data) {
+  return { type: 'MOBILE_UPDATE_BOARD_VIEW_RECORD_COUNT', data };
+}
+
+export function changeBoardViewState(data) {
+  return { type: 'MOBILE_CHANGE_BOARD_VIEW_STATE', data };
+}
 
 function fireWhenViewLoaded(view, { controls = [] } = {}) {
-  return (dispatch, getState) => {
+  return dispatch => {
     if (_.includes([1, 7, 21], view.viewType)) {
       dispatch(PcFireWhenViewLoaded(view, controls));
     }
@@ -52,6 +80,21 @@ function fireWhenViewLoaded(view, { controls = [] } = {}) {
       dispatch(updateQuickFilterWithDefault(view.fastFilters));
     }
   };
+}
+
+// 处理分组数据
+function getGroupData({ data = [], view = {}, controls = [], groupKey, moreRows = [], currentKeyPageIndex = 1 }) {
+  let result = data;
+  const index = _.findIndex(result, v => v.key === groupKey);
+  if (index > -1) {
+    result[index] = {
+      ...result[index],
+      rows: _.get(result, `[${index}].rows`, []).concat(moreRows),
+      pageIndex: currentKeyPageIndex,
+    };
+  }
+  const viewControls = _.find(controls, c => c.controlId === getGroupControlId(view));
+  return viewControls ? sortDataByGroupItems(result, view, controls) : result;
 }
 
 export const updateBase = base => (dispatch, getState) => {
@@ -150,7 +193,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         });
       }
       const sheetTranslateInfo = getTranslateInfo(base.appId, null, base.worksheetId);
-      const { advancedSetting = {}, template = {}, switches = [], views = [] } = workSheetInfo;
+      const { advancedSetting = {}, template = {}, switches = [] } = workSheetInfo;
       workSheetInfo.name = sheetTranslateInfo.name || workSheetInfo.name;
       workSheetInfo.entityName = sheetTranslateInfo.recordName || workSheetInfo.entityName;
       workSheetInfo.advancedSetting = {
@@ -243,7 +286,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     });
 };
 
-export const loadSavedFilters = worksheetId => (dispatch, getState) => {
+export const loadSavedFilters = worksheetId => dispatch => {
   sheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
     let filters = data.map(formatOriginFilterGroupValue);
     if (md.global.Account.isPortal) {
@@ -266,7 +309,6 @@ export const fetchSheetRows =
       quickFilter,
       sheetFiltersGroup,
       mobileNavGroupFilters,
-      sheetRowLoading,
       filterControls = [],
       batchCheckAll,
       batchOptVisible,
@@ -274,8 +316,8 @@ export const fetchSheetRows =
       batchOptCheckedData,
     } = getState().mobile;
 
-    const { appId, worksheetId, viewId, groupId, maxCount, type } = base;
-    let { views = [] } = worksheetInfo;
+    const { appId, worksheetId, viewId, maxCount, type } = base;
+    let { views = [], template = {} } = worksheetInfo;
     views =
       base.type === 'single'
         ? views
@@ -284,7 +326,7 @@ export const fetchSheetRows =
           );
     const view = _.find(views, v => v.viewId === viewId) || views[0];
     let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
-    if (hasGroupFilter && !_.includes([0, 6], view.viewType)) return;
+    if (hasGroupFilter && !_.includes([0, 1, 3, 6], view.viewType)) return;
     const defaultViewId = _.get(views[0], 'viewId');
     const showCurrentView = _.some(views, v => v.viewId === viewId);
     const isMobileSingleView = type === 'single';
@@ -294,9 +336,34 @@ export const fetchSheetRows =
     }
     const { keyWords, requestParams } = filters;
     const { chartId } = getRequest();
-    let pageIndex = param.pageIndex || sheetView.pageIndex;
+    // 看板
+    const isKanban = view.viewType === 1;
+
+    let pageIndex = param.pageIndex || sheetView.pageIndex || param.kanbanIndex;
     let extraParams = param;
     let pageSize = 50;
+
+    // 分组参数
+    let groupControlId = getGroupControlId(view);
+    if (isKanban) groupControlId = view.viewControl;
+    const groupControl = _.find(template.controls, { controlId: groupControlId });
+    if (groupControl) {
+      extraParams.kanbanIndex = 1;
+      extraParams.kanbanSize = 50;
+    }
+    if (!!groupControl && groupControl.type === 29) {
+      extraParams.relationWorksheetId = groupControl.dataSource;
+    }
+    if (groupControlId) {
+      extraParams.pageSize = 10;
+    }
+
+    // 看板分页用特殊字段
+    if (isKanban) {
+      extraParams.kanbanIndex = param.kanbanIndex;
+      extraParams.kanbanSize = param.kanbanSize;
+    }
+
     if (!worksheetId) {
       return;
     }
@@ -341,14 +408,43 @@ export const fetchSheetRows =
       filtersGroup: sheetFiltersGroup,
       fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters: mobileNavGroupFilters,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       requestParams,
       ...extraParams,
     });
+    // 看板分页用特殊字段
+    if (isKanban) {
+      delete params.pageSize;
+      delete params.pageIndex;
+    }
     promiseRequests[requestId] = sheetAjax.getFilterRows(params);
     promiseRequests[requestId].then(sheetRowsAndTem => {
       const newData = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
-      const listData = pageIndex === 1 ? newData : currentSheetRows.concat(newData);
+      let listData = getGroupData({
+        data: pageIndex === 1 ? newData : currentSheetRows.concat(newData),
+        view,
+        controls: template.controls,
+      });
+      if (groupControlId) {
+        const groupopen = _.get(view, 'advancedSetting.groupopen') || '2';
+        dispatch({
+          type: 'UPDATE_GROUP_DATA_INFO',
+          data: {
+            groupData: listData,
+            unfoldedKeys: !['3', '2'].includes(groupopen)
+              ? [_.get(listData, '[0].key')]
+              : groupopen === '2'
+                ? listData.map(o => o.key)
+                : [],
+          },
+        });
+      }
       const isMore = listData.length < sheetRowsAndTem.count;
+      listData = groupControlId
+        ? _.reduce(_.cloneDeep(listData), (result, item) => result.concat(item.rows ? item.rows : []), []).map(v =>
+            JSON.parse(v),
+          )
+        : listData;
       if (batchOptVisible) {
         if (batchCheckAll) {
           dispatch(changeBatchOptData(listData.map(item => item.rowid)));
@@ -365,6 +461,19 @@ export const fetchSheetRows =
         type: 'CHANGE_GALLERY_VIEW_DATA',
         list: listData,
       });
+      // 看板逻辑
+      if (isKanban) {
+        const formatData = sortDataByCustomItems(sheetRowsAndTem.data, view, template.controls);
+        dispatch(changeBoardViewData(formatData));
+        dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(formatData)));
+        dispatch(
+          changeBoardViewState({
+            kanbanIndex: params.kanbanIndex,
+            hasMoreData: !(sheetRowsAndTem.data < params.kanbanSize),
+          }),
+        );
+      }
+
       dispatch(changeSheetControls());
       dispatch({
         type: 'MOBILE_UPDATE_VIEW_CODE',
@@ -383,11 +492,70 @@ export const fetchSheetRows =
     });
   };
 
-export const changeMobileSheetRows = data => (dispatch, getState) => {
+export const loadGroupMore = groupKey => (dispatch, getState) => {
+  dispatch({ type: 'UPDATE_GROUP_DATA_INFO', data: { isGroupLoading: true } });
+
+  const {
+    base,
+    filters,
+    quickFilter,
+    sheetFiltersGroup,
+    mobileNavGroupFilters,
+    groupDataInfo,
+    filterControls = [],
+    worksheetInfo = {},
+  } = getState().mobile;
+  const { appId, worksheetId, viewId } = base;
+  let { views = [], template = {} } = worksheetInfo;
+  const view = _.find(views, v => v.viewId === viewId) || views[0];
+  const { keyWords, requestParams } = filters;
+  const { groupData, currentKeyPageIndex = 1 } = groupDataInfo;
+  const { chartId } = getRequest();
+
+  const params = getFilledRequestParams({
+    worksheetId,
+    appId,
+    searchType: 1,
+    pageSize: 10,
+    pageIndex: currentKeyPageIndex,
+    status: 1,
+    viewId,
+    keyWords,
+    filterControls: filterControls,
+    sortControls: [],
+    reportId: chartId ? chartId : undefined,
+    filtersGroup: sheetFiltersGroup,
+    fastFilters: formatQuickFilter(quickFilter),
+    navGroupFilters: mobileNavGroupFilters,
+    kanbanKey: groupKey,
+    requestParams,
+  });
+
+  sheetAjax.getFilterRows(params).then(({ data = [] }) => {
+    const { rows } = _.find(data, v => v.key === groupKey) || {};
+
+    dispatch({
+      type: 'UPDATE_GROUP_DATA_INFO',
+      data: {
+        isGroupLoading: false,
+        groupData: getGroupData({
+          data: groupData,
+          view,
+          controls: template.controls,
+          groupKey,
+          moreRows: rows,
+          currentKeyPageIndex,
+        }),
+      },
+    });
+  });
+};
+
+export const changeMobileSheetRows = data => dispatch => {
   dispatch({ type: 'MOBILE_CHANGE_SHEET_ROWS', data });
 };
 
-export const unshiftSheetRow = data => (dispatch, getState) => {
+export const unshiftSheetRow = data => dispatch => {
   dispatch({
     type: 'MOBILE_UNSHIFT_SHEET_ROWS',
     data: data,
@@ -419,7 +587,7 @@ export const updateQuickFilter =
 
     if (noLoad) return;
 
-    if (_.includes([1, 7, 21], view.viewType)) {
+    if (_.includes([7, 21], view.viewType)) {
       dispatch({
         type: 'WORKSHEET_UPDATE_QUICK_FILTER',
         filter: filter,
@@ -458,12 +626,12 @@ export const updateFilters = (filters, view) => (dispatch, getState) => {
   }
 };
 
-export const updateActiveSavedFilter = (filter, view) => (dispatch, getState) => {
+export const updateActiveSavedFilter = filter => dispatch => {
   dispatch({ type: 'UPDATE_ACTIVE_SAVED_FILTERS', filter });
   dispatch({ type: 'MOBILE_UPDATE_FILTER_CONTROLS', filterControls: formatForSave(filter) });
 };
 
-export const updateFiltersGroup = filter => (dispatch, getState) => {
+export const updateFiltersGroup = filter => dispatch => {
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS_GROUP',
     filter: filter,
@@ -475,7 +643,7 @@ export const updateFiltersGroup = filter => (dispatch, getState) => {
   dispatch(fetchSheetRows());
 };
 
-export const resetSheetView = () => (dispatch, getState) => {
+export const resetSheetView = () => dispatch => {
   dispatch({
     type: 'MOBILE_UPDATE_SHEET_VIEW',
     sheetView: { pageIndex: 1 },
@@ -487,12 +655,12 @@ export const resetSheetView = () => (dispatch, getState) => {
   dispatch(fetchSheetRows());
 };
 
-export const emptySheetRows = () => (dispatch, getState) => {
+export const emptySheetRows = () => dispatch => {
   changeMobileSheetRows([]);
   dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: {} });
 };
 
-export const emptySheetControls = () => (dispatch, getState) => {
+export const emptySheetControls = () => dispatch => {
   dispatch({ type: 'MOBILE_CHANGE_SHEET_CONTROLS', value: [] });
   dispatch({ type: 'MOBILE_UPDATE_QUICK_FILTER', filter: [] });
   dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
@@ -546,35 +714,42 @@ export const updateCurrentView =
       });
   };
 
-export const changeMobileGroupFilters = data => (dispatch, getState) => {
+export const changeMobileGroupFilters = data => dispatch => {
   dispatch({ type: 'CHANGE_MOBILE_GROUPFILTERS', data });
 };
 
-export const changeMobielSheetLoading = loading => (dispatch, getState) => {
+export const changeMobielSheetLoading = loading => dispatch => {
   dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading });
 };
 
-export const changeBatchOptVisible = flag => (dispatch, getState) => {
+export const changeBatchOptVisible = flag => dispatch => {
   dispatch({ type: 'CHABGE_MOBILE_BATCHOPT_VISIBLE', flag });
   dispatch(updateBatchCheckAll(false));
   dispatch(changeBatchOptData([]));
 };
 
 export const updateBatchCheckAll = isAll => (dispatch, getState) => {
-  const { currentSheetRows } = getState().mobile;
+  const { currentSheetRows, groupDataInfo, base, worksheetInfo } = getState().mobile;
+  const { groupData, unfoldedKeys } = groupDataInfo;
+  const view = _.find(worksheetInfo.views || [], v => v.viewId === base.viewId);
+  const groupControlId = getGroupControlId(view);
+  const groupRows = getFlatSheetRows({ groupData, unfoldedKeys });
   dispatch({ type: 'UPDATE_BATCH_CHECK_ALL', data: isAll });
+  const batchData = groupControlId
+    ? groupRows.map(item => safeParse(item).rowid)
+    : currentSheetRows.map(item => item.rowid);
   if (isAll) {
-    dispatch(changeBatchOptData(currentSheetRows.map(item => item.rowid)));
+    dispatch(changeBatchOptData(batchData));
   } else {
     dispatch(changeBatchOptData([]));
   }
 };
 
-export const changeBatchOptData = data => (dispatch, getState) => {
+export const changeBatchOptData = data => dispatch => {
   dispatch({ type: 'CAHNGE_BATCHOPT_CHECKED', data });
 };
 
-export const updateMobileViewPermission = params => (dispatch, getState) => {
+export const updateMobileViewPermission = params => dispatch => {
   let { viewId, appId, worksheetId } = params;
   sheetAjax.getViewPermission({ viewId, appId, worksheetId }).then(data => {
     if (data.view) {
@@ -583,7 +758,7 @@ export const updateMobileViewPermission = params => (dispatch, getState) => {
   });
 };
 
-export const updateClickChart = flag => (dispatch, getState) => {
+export const updateClickChart = flag => dispatch => {
   dispatch({ type: 'UPDATE_CLICK_CHART', flag });
 };
 
@@ -607,4 +782,176 @@ export const updateRow = (rowId, value, isViewData) => dispatch => {
     rowUpdatedValue: value,
     isViewData,
   });
+};
+
+export const updateGroupDataInfo = data => (dispatch, getState) => {
+  const { batchOptVisible, groupDataInfo, batchOptCheckedData } = getState().mobile;
+  const { groupData } = groupDataInfo;
+  dispatch({
+    type: 'UPDATE_GROUP_DATA_INFO',
+    data,
+  });
+  if (batchOptVisible) {
+    const expandRows = getFlatSheetRows({ groupData, unfoldedKeys: data.unfoldedKeys || groupDataInfo.unfoldedKeys });
+    dispatch({ type: 'UPDATE_BATCH_CHECK_ALL', data: batchOptCheckedData.length === expandRows.length });
+  }
+};
+
+const getBoardViewPara = (sheet = {}) => {
+  const { base, filters, quickFilter, sheetFiltersGroup, mobileNavGroupFilters, filterControls = [] } = sheet;
+  const { appId, worksheetId, viewId } = base;
+  const { keyWords, requestParams } = filters;
+  const { chartId } = getRequest();
+  const params = getFilledRequestParams({
+    worksheetId,
+    appId,
+    searchType: 1,
+    status: 1,
+    viewId,
+    keyWords,
+    kanbanSize: 50,
+    filterControls: filterControls,
+    sortControls: [],
+    reportId: chartId ? chartId : undefined,
+    filtersGroup: sheetFiltersGroup,
+    fastFilters: formatQuickFilter(quickFilter),
+    navGroupFilters: mobileNavGroupFilters,
+    requestParams,
+  });
+
+  return params;
+};
+
+// 获取看板下一页分组
+export const loadBoardViewNextGroup = ({ callback = _.noop }) => {
+  return (dispatch, getState) => {
+    const sheet = getState().mobile;
+    const { boardView } = sheet;
+    const { boardViewState, boardViewRecordCount, boardData } = boardView;
+    const { hasMoreData, kanbanIndex } = boardViewState;
+    const params = getBoardViewPara(sheet);
+
+    if (!hasMoreData || !params) {
+      callback();
+      return;
+    }
+
+    const nextKanbanIndex = kanbanIndex + 1;
+    sheetAjax
+      .getFilterRows({ ...params, kanbanIndex: nextKanbanIndex })
+      .then(({ data = [] }) => {
+        // 将已经存在的看板过滤掉
+        const existedKeys = boardData.map(item => item.key);
+        const filterData = data
+          .filter(item => !_.includes(existedKeys, item.key))
+          .map((item, index) => ({ ...item, sort: existedKeys.length + index + 1 }));
+        dispatch(changeBoardViewData(boardData.concat(filterData)));
+        dispatch(initBoardViewRecordCount({ ...boardViewRecordCount, ...dealBoardViewRecordCount(filterData) }));
+        let nextBoardViewState = { kanbanIndex: nextKanbanIndex, hasMoreData };
+        if (data.length < 50) nextBoardViewState.hasMoreData = false;
+        dispatch(changeBoardViewState(nextBoardViewState));
+      })
+      .finally(() => {
+        callback();
+      });
+  };
+};
+
+// 获取看板单个分组下的数据（滚动加载）
+export const loadBoardViewGroupItemData =
+  ({ pageIndex = 1, kanbanKey }, callback = _.noop) =>
+  (dispatch, getState) => {
+    const sheet = getState().mobile;
+    const { boardView } = sheet;
+    const params = getBoardViewPara(sheet);
+
+    params.pageIndex = pageIndex;
+    params.kanbanKey = kanbanKey;
+
+    sheetAjax
+      .getFilterRows(params)
+      .then(({ data = [] }) => {
+        const { boardData } = boardView;
+        const boardViewIndex = _.findIndex(boardData, item => item.key === kanbanKey);
+        const nextData = _.get(
+          _.find(data, item => item.key === kanbanKey),
+          'rows',
+        );
+        dispatch({
+          type: 'MOBILE_CHANGE_BOARD_VIEW_DATA',
+          data:
+            pageIndex === 1
+              ? data
+              : update(boardData, {
+                  [boardViewIndex]: {
+                    rows: {
+                      $set: [...boardData[boardViewIndex].rows, ...nextData],
+                    },
+                  },
+                }),
+        });
+        dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
+      })
+      .finally(() => {
+        callback();
+      });
+  };
+
+export const initBoardViewData = () => {
+  return dispatch => {
+    dispatch(
+      fetchSheetRows({
+        kanbanIndex: 1,
+        kanbanSize: 50,
+      }),
+    );
+  };
+};
+
+export const getSingleBoardGroup = ({ pageIndex = 1, kanbanKey } = {}, callback) => {
+  return dispatch => {
+    dispatch(
+      loadBoardViewGroupItemData(
+        {
+          pageIndex,
+          kanbanKey,
+        },
+        callback,
+      ),
+    );
+  };
+};
+
+export function updateBoardViewRecord(data) {
+  return dispatch => {
+    dispatch({ type: 'MOBILE_UPDATE_BOARD_VIEW_RECORD', data });
+    if (data.targetKey) {
+      updateBoardViewRecordCount([data.key, -1]);
+      updateBoardViewRecordCount([data.target, 1]);
+    }
+  };
+}
+
+// 更新多选看板
+export const updateMultiSelectBoard = data => ({ type: 'MOBILE_UPDATE_MULTI_SELECT_BOARD', data });
+
+export function addBoardViewRecord(data) {
+  return dispatch => {
+    const { item, key } = data;
+    dispatch({ type: 'MOBILE_ADD_BOARD_VIEW_RECORD', data: { item, key } });
+    dispatch(updateBoardViewRecordCount([key, 1]));
+  };
+}
+
+export function delBoardViewRecord(data) {
+  return dispatch => {
+    dispatch({ type: 'MOBILE_DEL_BOARD_VIEW_RECORD_COUNT', data });
+    dispatch(updateBoardViewRecordCount([data.key, -1]));
+  };
+}
+
+export const updateViewCard = data => {
+  return dispatch => {
+    dispatch({ type: 'MOBILE_UPDATE_VIEW_CARD', data });
+  };
 };

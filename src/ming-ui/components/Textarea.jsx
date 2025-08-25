@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './less/Textarea.less';
 
 class Textarea extends Component {
@@ -37,7 +37,7 @@ class Textarea extends Component {
     const events = this.props.resizeAfterBlur ? 'input keyup blur' : 'input keyup';
     const { chat } = this.props;
     $textarea.height(0).height(this.textarea.scrollHeight - diff);
-    $textarea.on(events, function(event) {
+    $textarea.on(events, function () {
       if (chat) {
         $(this)
           .height(0)
@@ -93,20 +93,7 @@ class Textarea extends Component {
   }
 
   render() {
-    const {
-      minHeight,
-      maxHeight,
-      className,
-      style,
-      isSelect,
-      isFocus,
-      resizeAfterBlur,
-      name,
-      value,
-      defaultValue,
-      manualRef,
-      ...rest
-    } = this.props;
+    const { minHeight, maxHeight, className, style, value, defaultValue, manualRef, ...rest } = this.props;
     const obj = value !== undefined ? { value } : { defaultValue };
 
     return (

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, LoadDiv } from 'ming-ui';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import RecordCard from 'src/components/recordCard';
-import styled from 'styled-components';
-import { useRecords } from './useRecords';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { includes } from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import styled from 'styled-components';
+import { LoadDiv, Modal } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import RecordCard from 'src/components/recordCard';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getFilterRelateControls } from 'src/pages/widgetConfig/util';
+import { useRecords } from './useRecords';
 
 const Title = styled.div`
   font-size: 18px;

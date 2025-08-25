@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import cx from 'classnames';
-import { Icon, ScrollView, QiniuUpload, SvgIcon, Checkbox } from 'ming-ui';
-import ajaxRequest from 'src/api/appManagement';
-import './index.less';
-import _ from 'lodash';
 import { saveAs } from 'file-saver';
+import _ from 'lodash';
+import { Checkbox, Icon, QiniuUpload, ScrollView, SvgIcon } from 'ming-ui';
+import ajaxRequest from 'src/api/appManagement';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
+import './index.less';
 
 export default class CustomIcon extends Component {
   state = {
@@ -92,7 +92,7 @@ export default class CustomIcon extends Component {
   };
 
   render() {
-    const {  projectId } = this.props;
+    const { projectId } = this.props;
     const { selected, data, preserveColor, cacheKey } = this.state;
 
     return (
@@ -101,7 +101,11 @@ export default class CustomIcon extends Component {
 
         <div className="orgManagementHeader flexRow">
           <div className="flexRow alignItemsCenter">
-            <Icon icon="backspace" className="Font22 ThemeHoverColor3 pointer" onClick={() => navigateTo(`/admin/settings/${projectId}`)} />
+            <Icon
+              icon="backspace"
+              className="Font22 ThemeHoverColor3 pointer"
+              onClick={() => navigateTo(`/admin/settings/${projectId}`)}
+            />
             <div className="Font17 bold flex mLeft10">{_l('自定义图标')}</div>
           </div>
           <div className="flexRow alignItemsCenter">
@@ -131,7 +135,7 @@ export default class CustomIcon extends Component {
               onUploadComplete={res => {
                 if (res) {
                   const data = this.cacheData.map(file => ({
-                    fileName: file.fileName.replace(/\.[^\.]*$/, ''),
+                    fileName: file.fileName.replace(/\.[^.]*$/, ''),
                     originalFileName: file.originalFileName,
                     serverName: file.serverName,
                     key: file.key,
@@ -172,14 +176,14 @@ export default class CustomIcon extends Component {
                 SVG
               </span>
               <span className="pointer mLeft20 Gray_75 hoverRed" onClick={this.delete}>
-                <Icon icon="delete2" className="Font16 mRight5" />
+                <Icon icon="trash" className="Font16 mRight5" />
                 {_l('删除')}
               </span>
             </Fragment>
           )}
         </div>
-        <div className="flex appManagementCustom">
-          <ScrollView>
+        <div className="flex appManagementCustom overflowHidden">
+          <ScrollView className="h100">
             {!(data || []).length && (
               <div className="manageListNull flexColumn h100">
                 <div className="iconWrap">

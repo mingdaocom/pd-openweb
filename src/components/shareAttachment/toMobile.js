@@ -1,12 +1,15 @@
-import './style.less';
+import React from 'react';
 import doT from 'dot';
-import mobileDialogHtml from './tpl/mobileDialog.htm';
-var dialogTpl = doT.template(mobileDialogHtml);
-import qs from 'query-string';
-import { ATTACHMENT_TYPE } from './enum';
-import attachmentController from 'src/api/attachment';
 import _ from 'lodash';
+import qs from 'query-string';
 import Dialog from 'ming-ui/components/Dialog';
+import attachmentController from 'src/api/attachment';
+import { ATTACHMENT_TYPE } from './enum';
+import mobileDialogHtml from './tpl/mobileDialog.htm';
+import './style.less';
+
+var dialogTpl = doT.template(mobileDialogHtml);
+
 var ToMobileDialog = function (options) {
   var DEFAULTS = {
     sendToType: 1,
@@ -112,7 +115,7 @@ ToMobileDialog.prototype = {
     var options = TMD.options;
     var file = options.file;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       attachmentController
         .getShareLocalAttachmentUrl({
           filePath: options.file.qiniuPath,

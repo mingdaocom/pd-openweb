@@ -1,19 +1,27 @@
 import React, { Fragment } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Icon, ScrollView, Checkbox } from 'ming-ui';
+import { bindActionCreators } from 'redux';
 import { Select, Tooltip } from 'antd';
-import * as actions from './redux/actions/columnRules';
-import * as columnRules from './redux/actions/columnRules';
-import ActionDropDown from './actionDropdown/ActionDropDown';
-import handleSetMsg from './errorMsgDialog/ErrorMsg';
-import { actionsListData, originActionItem, getActionLabelByType, filterUnAvailable, getErrorControls } from './config';
+import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Checkbox, Icon, RadioGroup, ScrollView } from 'ming-ui';
+import { SYS, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
-import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import _ from 'lodash';
+import ActionDropDown from './actionDropdown/ActionDropDown';
+import {
+  ACTION_DISPLAY,
+  filterUnAvailable,
+  getActionLabelByType,
+  getErrorControls,
+  originActionItem,
+  SUBMIT_DISPLAY,
+  TAB_TYPES,
+} from './config';
+import handleSetMsg from './errorMsgDialog/ErrorMsg';
+import * as actions from './redux/actions/columnRules';
+import * as columnRules from './redux/actions/columnRules';
 
 class EditBox extends React.Component {
   constructor(props) {
@@ -60,19 +68,25 @@ class EditBox extends React.Component {
       ruleError = {},
       appId,
       sheetSwitchPermit,
+      activeTab,
     } = this.props;
-    const filterControls = worksheetControls
+    let filterControls = worksheetControls
       .filter(i => !_.includes(['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'rowid'], i.controlId))
       .map(redefineComplexControl);
+    if (activeTab === TAB_TYPES.LOCK_RULE) {
+      filterControls = filterControls.filter(i => _.includes([9, 10, 11, 36], i.type));
+    }
     return (
       <div className="conditionContainer">
-        <div className="Font14 Bold">{_l('当满足以下条件时')}</div>
+        <div className="Font14 Bold">
+          {activeTab === TAB_TYPES.LOCK_RULE ? _l('当变更为以下条件时，锁定') : _l('当满足以下条件时')}
+        </div>
         <FilterConfig
           canEdit
           feOnly
           isRules={true}
           version={selectRules.ruleId}
-          supportGroup={true}
+          supportGroup={activeTab !== TAB_TYPES.LOCK_RULE}
           projectId={projectId}
           appId={appId}
           from={'rule'}
@@ -107,7 +121,7 @@ class EditBox extends React.Component {
     const { selectRules = {}, updateSelectRule, worksheetControls, ruleError = {}, updateError } = this.props;
     const { visible } = this.state;
     let { ruleItems = [] } = selectRules;
-    let listData = actionsListData.filter(i => i.value !== 6);
+    let listData = ACTION_DISPLAY.filter(i => i.value !== 6);
 
     // 单条业务规则只能配置一个【只读所有字段】，枚举7
     if (ruleItems.some(i => i.type === 7)) {
@@ -142,7 +156,7 @@ class EditBox extends React.Component {
                     currentActionData.message = '';
                   }
                   // 过滤不符合条件的已选字段
-                  if (_.includes([3, 4, 5], type)) {
+                  if (_.includes([1, 2, 3, 4, 5], type)) {
                     currentActionData = filterUnAvailable(currentActionData, worksheetControls, type);
                   }
                   ruleItems.splice(actionIndex, 1, currentActionData);
@@ -173,6 +187,7 @@ class EditBox extends React.Component {
                 <ActionDropDown
                   actionError={actionError}
                   showSelectAll={true}
+                  from="rule"
                   actionType={actionItem.type}
                   values={actionItem.controls}
                   dropDownData={filterControls}
@@ -186,7 +201,7 @@ class EditBox extends React.Component {
                 />
               )}
               <Icon
-                icon="delete1"
+                icon="trash"
                 className="Gray_9e deleteBtn Hand"
                 onClick={() => {
                   ruleItems.splice(actionIndex, 1);
@@ -272,6 +287,7 @@ class EditBox extends React.Component {
           <div className="Font14 mBottom12">{_l('指定字段')}</div>
           <ActionDropDown
             actionType={6}
+            from="rule"
             values={controls}
             activeTab={activeTab}
             dropDownData={dropData}
@@ -282,6 +298,16 @@ class EditBox extends React.Component {
           />
         </div>
         <div className="mTop24">
+          <div className="Font14 Bold mBottom12">{_l('提示错误后')}</div>
+          <RadioGroup
+            size="middle"
+            vertical={true}
+            checkedValue={checkType === 3 ? 3 : 0}
+            data={SUBMIT_DISPLAY}
+            onChange={value => updateSelectRule('checkType', value)}
+          />
+        </div>
+        <div className="mTop24">
           <div className="Font14 Bold mBottom12">{_l('其他')}</div>
           <Checkbox
             text={
@@ -289,6 +315,7 @@ class EditBox extends React.Component {
                 {_l('在字段输入时实时提示')}
                 <Tooltip
                   placement="bottom"
+                  autoCloseDelay={0}
                   title={_l(
                     '勾选后，在条件字段输入和失焦时实时提示错误。取消勾选后，只会在最后点击提交按钮时提示错误。',
                   )}
@@ -303,37 +330,60 @@ class EditBox extends React.Component {
             }}
           />
 
-          <Checkbox
-            className="mTop12"
-            text={
-              <span>
-                {_l('保存数据到服务器时再次校验')}
-                <Tooltip
-                  placement="bottom"
-                  title={
-                    <span>
-                      {_l(
-                        '勾选后，除了对表单已加载数据进行校验外，在数据保存时会再次对服务器中的最新数据进行校验，确保数据严格遵循业务规则约束。',
-                      )}
-                      <br />
-                      {_l(
-                        '如：在出库场景中，由于多人提交，在填写期间实际库存数可能会小于表单显示的库存数时，通过此方式可按照服务器的实际库存数进行校验，确保库存数不会为负。',
-                      )}
-                      <br />
-                      {_l('注意：开启后校验速度会变慢，请根据实际场景合理使用。')}
-                    </span>
-                  }
-                >
-                  <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
-                </Tooltip>
-              </span>
-            }
-            checked={checkType === 1}
-            onClick={checked => {
-              updateSelectRule('checkType', checked ? 0 : 1);
-            }}
-          />
+          {checkType !== 3 && (
+            <Checkbox
+              className="mTop12"
+              text={
+                <span>
+                  {_l('保存数据到服务器时再次校验')}
+                  <Tooltip
+                    placement="bottom"
+                    autoCloseDelay={0}
+                    title={
+                      <span>
+                        {_l(
+                          '勾选后，除了对表单已加载数据进行校验外，在数据保存时会再次对服务器中的最新数据进行校验，确保数据严格遵循业务规则约束。',
+                        )}
+                        <br />
+                        {_l(
+                          '如：在出库场景中，由于多人提交，在填写期间实际库存数可能会小于表单显示的库存数时，通过此方式可按照服务器的实际库存数进行校验，确保库存数不会为负。',
+                        )}
+                        <br />
+                        {_l('注意：开启后校验速度会变慢，请根据实际场景合理使用。')}
+                      </span>
+                    }
+                  >
+                    <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
+                  </Tooltip>
+                </span>
+              }
+              checked={checkType === 1}
+              onClick={checked => {
+                updateSelectRule('checkType', checked ? 0 : 1);
+              }}
+            />
+          )}
         </div>
+      </div>
+    );
+  };
+
+  renderLockDesc = () => {
+    const { selectRules = {}, updateSelectRule } = this.props;
+    const { ruleItems = [] } = selectRules;
+
+    return (
+      <div className="conditionContainer mTop0">
+        <div className="Font14 Bold mBottom20">{_l('锁定说明')}</div>
+        <input
+          className="ruleNameInput"
+          defaultValue={_.get(ruleItems, '0.message')}
+          placeholder={_l('请输入提示文案')}
+          onBlur={e => {
+            const newValue = [{ message: e.target.value }];
+            updateSelectRule('ruleItems', newValue);
+          }}
+        />
       </div>
     );
   };
@@ -342,13 +392,18 @@ class EditBox extends React.Component {
     const { activeTab } = this.props;
 
     // 交互规则
-    if (activeTab === 0) {
+    if (activeTab === TAB_TYPES.NORMAL_RULE) {
       return this.renderAction();
     }
 
     // 验证规则
-    if (activeTab === 1) {
+    if (activeTab === TAB_TYPES.CHECK_RULE) {
       return this.renderPrompt();
+    }
+
+    // 锁定说明
+    if (activeTab === TAB_TYPES.LOCK_RULE) {
+      return this.renderLockDesc();
     }
   };
 
@@ -357,16 +412,21 @@ class EditBox extends React.Component {
     return (
       <ScrollView className="editRuleBox">
         <div className="pTop20 pLeft24 pRight24 pBottom20 box-sizing">
-          <div className="Font14 Bold">{_l('规则名称')}</div>
-          <input
-            className="mTop12 ruleNameInput"
-            value={this.state.name}
-            onChange={e => this.setState({ name: e.target.value })}
-            onBlur={e => {
-              const name = !!e.target.value ? e.target.value : selectRules.name;
-              updateSelectRule('name', name);
-            }}
-          />
+          {selectRules.type !== TAB_TYPES.LOCK_RULE && (
+            <Fragment>
+              <div className="Font14 Bold">{_l('规则名称')}</div>
+              <input
+                className="mTop12 ruleNameInput"
+                value={this.state.name}
+                onChange={e => this.setState({ name: e.target.value })}
+                onBlur={e => {
+                  const name = e.target.value ? e.target.value : selectRules.name;
+                  updateSelectRule('name', name);
+                }}
+              />
+            </Fragment>
+          )}
+
           {this.renderCondition()}
           {this.renderContent()}
         </div>

@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { useSetState } from 'react-use';
-import { Icon } from 'ming-ui';
+import React from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 
 const SwitchStyle = styled.div`
   display: inline-block;
@@ -36,7 +35,7 @@ const Wrap = styled.div`
     }
   }
 `;
-const acitions = [
+const actions = [
   {
     text: _l('编辑'),
     value: 'edit',
@@ -65,7 +64,7 @@ const acitions = [
   {
     text: _l('删除'),
     value: 'delete',
-    icon: 'delete2',
+    icon: 'trash',
   },
 ];
 
@@ -74,7 +73,7 @@ export default function ActionBtn(props) {
     <React.Fragment>
       <p className="Bold Gray_75 Font13 mTop25 mBottom0">{_l('系统操作')}</p>
       <Wrap>
-        {acitions
+        {actions
           .filter(o => (props.isListOption ? !['share'].includes(o.value) : !['edit', 'export'].includes(o.value)))
           .map(o => {
             const data = props.data || [];

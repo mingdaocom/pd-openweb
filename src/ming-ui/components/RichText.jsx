@@ -125,7 +125,7 @@ const Wrapper = styled.div(
       }
       &.ck-focused {
         background: #fff !important;
-        border: 1px solid #2196f3 !important;
+        border: 1px solid #1677ff !important;
       }
       h1 {
         font-size: 2em;
@@ -290,7 +290,7 @@ class MyUploadAdapter {
       this.xhr.addEventListener('load', () => {
         const response = this.xhr.response;
         if (!response || response.error) {
-          return reject(response && response.error ? response.error.message : genericErrorText);
+          return reject(response && response.error ? response.error.message : "Couldn't upload file");
         }
 
         // If the upload is successful, resolve the upload promise with an object containing
@@ -329,7 +329,6 @@ const RichText = forwardRef((props, ref) => {
     clickInit = false,
     autoFocus = false,
     width,
-    handleFocus = () => {},
     onBlur = () => {},
     onFocus = () => {},
   } = props;
@@ -611,11 +610,10 @@ const RichText = forwardRef((props, ref) => {
           }
           onBlur();
         }}
-        onFocus={(event, editor) => {
+        onFocus={() => {
           setTimeout(() => {
             !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
           }, 300);
-          handleFocus();
           onFocus();
         }}
       />

@@ -8,12 +8,11 @@ import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
   const { allowEdit } = rowInfo;
-  const activeSheetIndex = 0;
   const controlPermission = {
     visible: controlState(activeRelateSheetControl, 3).visible,
     editable: controlState(activeRelateSheetControl, 3).editable && allowEdit,
   };
-  const { enumDefault2, strDefault, controlPermissions = '111', advancedSetting } = activeRelateSheetControl;
+  const { enumDefault2, strDefault, advancedSetting } = activeRelateSheetControl;
   const [, , onlyRelateByScanCode] = strDefault.split('').map(b => !!+b);
   const isSubList = activeRelateSheetControl.type === 34;
   const allowRemoveRelation =
@@ -40,7 +39,7 @@ const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   };
 };
 
-export const updateBase = base => (dispatch, getState) => {
+export const updateBase = base => dispatch => {
   dispatch({
     type: 'MOBILE_UPDATE_BASE',
     base,
@@ -58,6 +57,7 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
     params.rowId = rowId;
     params.worksheetId = worksheetId;
     params.getType = getType || 9;
+    params.getTemplate = true;
   } else {
     const { appId, viewId, controlId } = base;
     params.controlId = controlId;
@@ -112,39 +112,34 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     params.viewId = viewId;
   }
 
-  // 关联查询组件逻辑 begin ->
-  if (control.type === 51) {
-    let relationControls = [];
-    let resWorksheetInfo;
-    resWorksheetInfo = await worksheetAjax.getWorksheetInfo({
-      worksheetId: control.dataSource,
-      getTemplate: true,
-      relationWorksheetId: worksheetId,
+  let relationControls = [];
+  let resWorksheetInfo = await worksheetAjax.getWorksheetInfo({
+    worksheetId: control.dataSource,
+    getTemplate: true,
+    relationWorksheetId: worksheetId,
+  });
+  relationControls = _.get(resWorksheetInfo, 'template.controls') || [];
+  const filterControls = getFilter({
+    control: { ...control, relationControls, recordId: rowId },
+    formData: control.formData || rowInfo.templateControls,
+    filterKey: 'resultfilters',
+  });
+  if (!filterControls) {
+    dispatch({
+      type: 'MOBILE_RELATION_ROWS',
+      data: [],
     });
-    relationControls = _.get(resWorksheetInfo, 'template.controls') || [];
-    const filterControls = getFilter({
-      control: { ...control, relationControls, recordId: rowId },
-      formData: control.formData || rowInfo.templateControls,
-      filterKey: 'resultfilters',
+    dispatch({
+      type: 'MOBILE_RELATION_LOAD_PARAMS',
+      data: {
+        pageIndex,
+        loading: false,
+        isMore: false,
+      },
     });
-    if (!filterControls) {
-      dispatch({
-        type: 'MOBILE_RELATION_ROWS',
-        data: [],
-      });
-      dispatch({
-        type: 'MOBILE_RELATION_LOAD_PARAMS',
-        data: {
-          pageIndex,
-          loading: false,
-          isMore: false,
-        },
-      });
-      return;
-    }
-    params.filterControls = filterControls || [];
+    return;
   }
-  // <- end 关联查询组件逻辑
+  params.filterControls = filterControls || [];
 
   sheetAjax
     .getRowRelationRows({
@@ -156,9 +151,6 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     })
     .then(result => {
       if (pageIndex === 1) {
-        const { controls } = result.template;
-        const titleControl = _.find(controls, { attribute: 1 }) || {};
-        const fileControls = controls.filter(item => item.type === 14);
         dispatch({
           type: 'MOBILE_RELATION_ROW',
           data: _.pick(result, ['template', 'worksheet', 'count']),
@@ -170,7 +162,8 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
         dispatch({
           type: 'MOBILE_RELATION_ACTION_PARAMS',
           data: {
-            showControls: control.showControls.filter(item => titleControl.controlId !== item).slice(0, 3),
+            relationControls,
+            showControls: control.showControls,
             coverCid: control.coverCid || null,
           },
         });
@@ -206,7 +199,7 @@ export const updateRelationRows = (data, value) => (dispatch, getState) => {
 
 export const updatePageIndex =
   (index, params = {}) =>
-  (dispatch, getState) => {
+  dispatch => {
     dispatch({
       type: 'MOBILE_RELATION_LOAD_PARAMS',
       data: { pageIndex: index, ...params },
@@ -214,14 +207,14 @@ export const updatePageIndex =
     dispatch(loadRowRelationRows());
   };
 
-export const updateActionParams = data => (dispatch, getState) => {
+export const updateActionParams = data => dispatch => {
   dispatch({
     type: 'MOBILE_RELATION_ACTION_PARAMS',
     data,
   });
 };
 
-export const reset = () => (dispatch, getState) => {
+export const reset = () => dispatch => {
   dispatch({
     type: 'MOBILE_RELATION_LOAD_PARAMS',
     data: {

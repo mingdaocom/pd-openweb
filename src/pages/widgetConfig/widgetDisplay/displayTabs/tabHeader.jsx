@@ -1,15 +1,16 @@
 import React, { useRef, useState } from 'react';
+import { useDrag, useDrop } from 'react-dnd-latest';
+import { Dropdown } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
-import { Dropdown } from 'antd';
-import { useDrag, useDrop } from 'react-dnd-latest';
-import { getAdvanceSetting } from '../../util/setting';
 import { DRAG_ACCEPT, DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
-import { insertNewLine, batchRemoveItems } from '../../util/drag';
-import { putControlByOrder, fixedBottomWidgets } from '../../util';
-import { deleteSection } from '../../util/data';
 import { DropdownOverlay } from '../../styled';
-import cx from 'classnames';
+import { fixedBottomWidgets, putControlByOrder } from '../../util';
+import { deleteSection } from '../../util/data';
+import { batchRemoveItems, insertNewLine } from '../../util/drag';
+import { getAdvanceSetting } from '../../util/setting';
 import WidgetStatus from '../components/WidgetStatus';
 
 const TabHeaderItemWrap = styled.div`
@@ -49,7 +50,7 @@ const DragItemWrap = styled.div`
     border-bottom-color: #cccccc;
   }
   &.isActive {
-    border-bottom-color: #2196f3;
+    border-bottom-color: #1677ff;
   }
 
   .insertPointer {
@@ -57,7 +58,7 @@ const DragItemWrap = styled.div`
     top: 0;
     height: 100%;
     width: 4px;
-    background: #2196f3;
+    background: #1677ff;
     &.left {
       left: -2px;
     }
@@ -120,7 +121,7 @@ export function TabHeaderItem(props) {
                 }}
               >
                 <div className="item delete">
-                  <Icon icon="delete1" />
+                  <Icon icon="trash" />
                   {_l('删除')}
                 </div>
               </div>
@@ -139,11 +140,11 @@ export function TabHeaderItem(props) {
 
 export function DragHeaderItem(props) {
   const { data, path, isActive, isOpen, widgets, setWidgets, setActiveWidget, handleClick } = props;
-  const [row, col] = path;
+  const [row] = path;
   const $ref = useRef(null);
   const [pointerDir, setPointerDir] = useState('');
 
-  const [collectDrag, drag] = useDrag({
+  const [, drag] = useDrag({
     item: {
       type: data.type === 52 ? DRAG_ITEMS.DISPLAY_TAB : DRAG_ITEMS.DISPLAY_LIST_TAB,
       widgetType: data.type,

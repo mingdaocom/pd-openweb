@@ -6,8 +6,8 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
 import CustomFields from 'src/components/newCustomFields';
-import { getAdvanceSetting, isRelateRecordTableControl } from 'src/utils/control';
-import { checkRuleLocked, onValidator, updateRulesData } from '../../../core/formUtils';
+import { getAdvanceSetting, getControlStyles, isRelateRecordTableControl } from 'src/utils/control';
+import { updateRulesData } from '../../../core/formUtils';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
@@ -20,7 +20,7 @@ const MobileTableContent = styled.div`
   }
   .tableIndex {
     width: 32px !important;
-    .icon-task-new-delete {
+    .icon-trash {
       margin-left: -4px;
     }
   }
@@ -45,7 +45,7 @@ const MobileTableContent = styled.div`
     background-color: #00000003;
   }
   .showAll {
-    color: #2196f3;
+    color: #1677ff;
     padding: 10px 0;
     justify-content: center;
   }
@@ -53,6 +53,7 @@ const MobileTableContent = styled.div`
     width: 15px;
     text-align: center;
   }
+  ${({ controlStyles }) => controlStyles || ''}
 `;
 
 const FlattenContent = styled.div`
@@ -80,7 +81,7 @@ const FlattenContent = styled.div`
       color: #f44336;
     }
     .edit {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .mobileChildTableFlatForm {
@@ -97,7 +98,7 @@ const FlattenContent = styled.div`
     }
   }
   .showAll {
-    color: #2196f3;
+    color: #1677ff;
     padding: 10px 0;
     justify-content: center;
   }
@@ -110,7 +111,6 @@ export default function MobileTable(props) {
     rows,
     isEdit,
     allowcancel,
-    allowadd,
     disabled,
     sheetSwitchPermit,
     onDelete,
@@ -128,11 +128,11 @@ export default function MobileTable(props) {
     titleWrap,
     isAddRowByLine,
     from,
-    ignoreLock,
     isDraft,
     useUserPermission,
     recordId,
     showExpand,
+    widgetStyle,
     onSave = () => {},
     submitChildTableCheckData = () => {},
     updateIsAddByLine = () => {},
@@ -183,7 +183,6 @@ export default function MobileTable(props) {
     if (!customWidgetRef) return;
     const updateControlIds = customWidgetRef.dataFormat.getUpdateControlIds();
     const row = [{}, ...data].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-    let errorType = onValidator({ item, data });
     onSave({ ...item, ...row, empty: false }, updateControlIds);
   };
 
@@ -234,7 +233,7 @@ export default function MobileTable(props) {
                   <Fragment>
                     {(allowcancel || /^temp/.test(rowid)) && (
                       <div className="delete pTop3" onClick={() => onDelete(rowid)}>
-                        <i className="icon icon-task-new-delete Red Font18" />
+                        <i className="icon icon-trash Red Font18" />
                       </div>
                     )}
                   </Fragment>
@@ -265,9 +264,11 @@ export default function MobileTable(props) {
                     controlPermissions: isRelateRecordTableControl(c) ? '000' : c.controlPermissions,
                     isSubList: true,
                   }))}
-                  widgetStyle={isEdit && isExpand ? {} : { titlelayout_app: '2', titlewidth_app: '80' }}
+                  widgetStyle={
+                    widgetStyle ? widgetStyle : isEdit && isExpand ? {} : { titlelayout_app: '2', titlewidth_app: '80' }
+                  }
                   disabled={!(isEdit && isExpand) || (!/^temp/.test(rowid) && !allowedit)}
-                  disabledChildTableCheck={!/^temp/.test(rowid) && !allowedit}
+                  disabledChildTableCheck={!(isEdit && isExpand) || (!/^temp/.test(rowid) && !allowedit)}
                   appId={appId}
                   worksheetId={worksheetId}
                   sheetSwitchPermit={sheetSwitchPermit}
@@ -303,7 +304,7 @@ export default function MobileTable(props) {
 
   // 列表
   return (
-    <MobileTableContent>
+    <MobileTableContent controlStyles={getControlStyles(showControls)}>
       <div className="mobileTableHeader flexRow valignWrapper bold">
         {!_.isEmpty(showRows) && isEdit && !disabled && showHeaderDelete && (
           <div className="mobileTableItem tableIndex"></div>
@@ -311,9 +312,11 @@ export default function MobileTable(props) {
         {showControls.map((c, cIndex) => (
           <div
             key={cIndex}
-            className={cx('mobileTableItem flex Font13', { mRight30: cIndex === showControls.length - 1 })}
+            className={cx(`mobileTableItem flex Font13 control-head-${c.controlId}`, {
+              mRight30: cIndex === showControls.length - 1,
+            })}
           >
-            <div className={cx('w100', { overflow_ellipsis: !titleWrap })}>{c.controlName}</div>
+            <div className={cx('w100 controlName', { overflow_ellipsis: !titleWrap })}>{c.controlName}</div>
           </div>
         ))}
       </div>
@@ -326,7 +329,7 @@ export default function MobileTable(props) {
             {isEdit && !disabled && allowDelete && (
               <div className="mobileTableItem tableIndex">
                 <div className="action" onClick={() => onDelete(row.rowid)}>
-                  <i className="icon icon-task-new-delete Font16 Red mRight10"></i>
+                  <i className="icon icon-trash Font16 Red mRight10"></i>
                 </div>
               </div>
             )}
@@ -358,7 +361,7 @@ export default function MobileTable(props) {
               return (
                 <div
                   key={cIndex}
-                  className="mobileTableItem flex"
+                  className={`mobileTableItem flex control-val-${c.controlId}`}
                   onClick={() => {
                     onOpen(i);
                   }}

@@ -1,6 +1,6 @@
 import React from 'react';
-import ErrorPage from 'src/components/errorPage/errorPage';
 import * as Sentry from '@sentry/react';
+import ErrorPage from 'src/components/errorPage/errorPage';
 
 /**
  * 错误组件

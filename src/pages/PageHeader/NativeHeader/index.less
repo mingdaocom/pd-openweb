@@ -1,4 +1,4 @@
-@mainColor: #2196f3;
+@mainColor: #1677ff;
 .flexCenterHeight {
   display: flex;
   height: 100%;
@@ -6,7 +6,7 @@
 }
 
 .nativeHeaderWrap {
-  .flexCenterHeight;
+  .flexCenterHeight();
   height: 50px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   z-index: 15;
@@ -15,7 +15,7 @@
     width: 238px;
     padding-left: 12px;
     box-sizing: initial;
-    .flexCenterHeight;
+    .flexCenterHeight();
     .homepageIcon {
       padding: 8px;
       background-color: rgba(0, 0, 0, 0.04);
@@ -24,10 +24,10 @@
       &:hover {
         background-color: rgba(0, 0, 0, 0.08);
         .icon {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
         .item {
-          background-color: #2196f3;
+          background-color: #1677ff;
         }
       }
       .item {
@@ -44,7 +44,7 @@
     }
   }
   .nativeTabsWrap {
-    .flexCenterHeight;
+    .flexCenterHeight();
     flex: 1;
     li {
       box-sizing: border-box;
@@ -55,6 +55,7 @@
       cursor: pointer;
       color: #757575;
       font-weight: bold;
+      white-space: nowrap;
       &.tab-item:hover {
         background-color: rgba(0, 0, 0, 0.03);
       }

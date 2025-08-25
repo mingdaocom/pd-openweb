@@ -5,24 +5,39 @@ import { Breadcrumb } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, Input, LoadDiv, ScrollView } from 'ming-ui';
+import departmentAjax from 'src/api/department.js';
+import fixedDataController from 'src/api/fixedData';
 import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getSourceControlByNav, sortDataByCustomNavs } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
+import { AREA, TYPES } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants';
+import {
+  formatData,
+  getAllDepartmentIds,
+  getListByNavlayer,
+  getSourceControlByNav,
+  isSourceTree,
+  prepareRequestParams,
+  renderTxt,
+  sortDataByCustomNavs,
+  transformCountsToData,
+} from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
+import { getFilledRequestParams } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import { handlePushState, handleReplaceState } from 'src/utils/project';
-import { TYPES } from './util';
 import './index.less';
 
-let ajaxFn = null;
 let ajaxRequest = null;
+let getNavGroupRequest = null;
+let apiRequest = null;
+let preWorksheetIds = [];
+
 const GroupFilterList = props => {
   const {
     className,
@@ -38,24 +53,26 @@ const GroupFilterList = props => {
     worksheetInfo = {},
     sliderCurrentGroup = {},
     handleClickItem = () => {},
+    updateGroupFilter = () => {},
   } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+  const { navshow, showallitem, allitemname, shownullitem, nullitemname, appnavtype } = getAdvanceSetting(view) || {};
   const navGroup = view.navGroup && view.navGroup.length > 0 ? view.navGroup[0] : {};
-  const { advancedSetting = {} } = view;
-  const { showallitem, allitemname, shownullitem, nullitemname, appnavtype } = advancedSetting;
-  const [navGroupData, setGroupFilterData] = useState([]);
   let [keywords, setKeywords] = useState();
+  const [navGroupData, setGroupFilterData] = useState([]); //当前的列表数据
+  const [rowIdForFilter, setRowIdForFilter] = useState(''); //当前选中的项
+  const [navName, setNavName] = useState(''); //创建新纪录时，需要根据当前选中的项带到的默认值
+  const [source, setSource] = useState(getSourceControlByNav(navGroup, controls) || {}); //筛选字段信息 sourceControlType=>type
+  const [currentGroup, setCurrentGroup] = useState(
+    appnavtype === '3' && showallitem !== '1' ? { txt: _l('全部'), value: '', isLeaf: true } : {},
+  );
   const [currentNodeId, setCurrentNodeId] = useState();
   const [breadNavHeight, setBreadMavHeight] = useState();
   const [loading, setLoading] = useState(true);
   const [searchRecordList, setSearchRecordList] = useState([]);
   const [nextData, setNextData] = useState([]);
   const [previewRecordId, setPreviewRecordId] = useState();
-  const [currentGroup, setCurrentGroup] = useState(
-    appnavtype === '3' && showallitem !== '1' ? { txt: _l('全部'), value: '', isLeaf: true } : {},
-  );
-  let source = getSourceControlByNav(navGroup, controls);
   const keyStr = _.includes([26, 27, 48], source.type) ? TYPES[source.type].name : '';
 
   let isOption = [9, 10, 11].includes(source.type) || [9, 10, 11].includes(source.sourceControlType); //是否选项
@@ -66,7 +83,9 @@ const GroupFilterList = props => {
   };
 
   useEffect(() => {
-    ajaxFn = null;
+    ajaxRequest = null;
+    getNavGroupRequest = null;
+    preWorksheetIds = [];
   }, [viewFlag]);
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
@@ -77,275 +96,330 @@ const GroupFilterList = props => {
       window.removeEventListener('popstate', onQueryChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (props.navGroupFilters && _.isEmpty(props.navGroupFilters)) {
+      setRowIdForFilter('');
+    }
+  }, [props.navGroupFilters]);
+
+  useEffect(() => {
+    setSource(getSourceControlByNav(navGroup, controls) || {});
+  }, [navGroup, controls]);
+
   useEffect(() => {
     fetch();
   }, [keywords]);
+
   useEffect(() => {
-    let { navshow } = getAdvanceSetting(view);
-    if ([29, 26, 27, 48].includes(source.type) && navshow === '1') {
+    if (source.controlId) {
+      setCurrentNodeId();
+      setKeywords();
+      fetch();
+      setRowIdForFilter('');
+      setNavName('');
+      props.getNavGroupCount();
+    }
+  }, [navGroup.controlId, viewId, filters]);
+
+  useEffect(() => {
+    if ([26, 27, 48, 29].includes(source.type) && navshow === '1') {
       fetch();
     }
 
     // 侧滑默认选中第一项(配置显示‘全部’项时，默认选中全部，否则选中第一项)
-    if (
-      view.viewType === 0 &&
-      (appnavtype === '2' || !appnavtype) &&
-      !_.isEmpty(navGroupData) &&
-      _.isEmpty(sliderCurrentGroup)
-    ) {
+    if (view.viewType === 0 && (appnavtype === '2' || !appnavtype) && _.isEmpty(sliderCurrentGroup)) {
       let navData = getNavData(navGroupData);
       const selected = navData[0];
       toList(selected);
     }
   }, [navGroupCounts]);
+
   useEffect(() => {
-    setCurrentNodeId();
-    setKeywords('');
-    fetch();
-    props.getNavGroupCount();
-  }, [navGroup.controlId, viewId, filters]);
+    if (!navGroup.controlId || !rowIdForFilter) {
+      updateGroupFilter([], view);
+    } else {
+      let obj = _.omit(navGroup, ['isAsc']);
+      let filterType = 2; //选项的选中
+      if ([29, 35].includes(source.type)) {
+        if (source.type === 29 && !navGroup.viewId) {
+          //未选择了层级视图 按是筛选
+          filterType = 24;
+        } else {
+          filterType = navGroup.filterType === 11 ? navGroup.filterType : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
+        }
+      }
+      if (rowIdForFilter === 'null') {
+        //为空
+        filterType = FILTER_CONDITION_TYPE.ISNULL;
+      }
+      updateGroupFilter(
+        [
+          {
+            ...obj,
+            values: rowIdForFilter === 'null' ? [] : [rowIdForFilter],
+            navNames: [navName],
+            dataType: source.type,
+            filterType,
+          },
+        ],
+        view,
+      );
+    }
+  }, [rowIdForFilter, navGroup]);
+
   const fetch = () => {
-    const { controlId } = navGroup;
-    if (!controlId) {
+    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+    if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
+      navshow = '0';
+    }
+    if (!navGroup.controlId) {
       setGroupFilterData([]);
       return;
     } else {
-      setLoading(true);
-      setData();
+      try {
+        navfilters = JSON.parse(navfilters);
+      } catch (error) {
+        console.log(error);
+        navfilters = [];
+      }
+      if (navshow === '2' && navfilters.length <= 0) {
+        //设置了显示项=显示指定项 且 未指定 按空处理
+        setLoading(false);
+        setGroupFilterData([]);
+      } else {
+        setLoading(true);
+        setData();
+      }
     }
   };
-  const isSoucreTree = () => {
-    return source.type === 35 || (source.type === 29 && navGroup.viewId);
-  };
+
   const setData = obj => {
     const { rowId, cb, isNext } = obj || {};
-    let key = keywords;
-    let data = [];
-    let { navshow } = getAdvanceSetting(view);
-    //级联选择字段 或 已配置层级展示的关联字段
+    const { navshow, navlayer } = getAdvanceSetting(view);
+
+    const loadFromApi = () =>
+      loadData({
+        worksheetId: source.dataSource,
+        viewId: source.type === 29 ? navGroup.viewId : source.viewId,
+        rowId,
+        cb,
+        isNext,
+      });
+
+    //关联 级联
     if ([29, 35].includes(source.type)) {
-      if (29 === source.type && navshow === '1' && !key) {
-        dataUpdate({
+      if (source.type === 29 && navshow === '1' && !keywords) {
+        //关联 显示有数据的项 直接用后的返回的navGroupCounts
+        updateNavGroupData({
           filterData: navGroupData,
-          data: navGroupCounts
-            .filter(o => !['all', ''].includes(o.key)) //排除全部和空
-            .map(item => {
-              return {
-                value: item.key,
-                txt: item.name, //renderTxt(item, control, viewId),
-                isLeaf: false,
-              };
-            }),
+          data: transformCountsToData(navGroupCounts),
           rowId,
           cb,
         });
       } else {
-        fetchData({
-          worksheetId: source.dataSource,
-          viewId: 29 === source.type ? navGroup.viewId : source.viewId,
-          rowId,
-          cb,
-          isNext,
-        });
+        //级联选择字段 或 已配置层级展示的关联字段
+        loadFromApi();
       }
+    } else if (
+      AREA.includes(source.type) || //地区
+      (source.type === 27 && navshow === '2' && navlayer === '999') //部门 指定项 展示所有层级
+    ) {
+      loadFromApi();
     } else if ([26, 27, 48].includes(source.type) && navshow === '1') {
-      dataUpdate({
+      //人员 部门 组织 显示有数据的项
+      updateNavGroupData({
         filterData: navGroupData,
-        data: navGroupCounts
-          .filter(o => !['all', ''].includes(o.key)) //排除全部和空
-          .map(item => {
-            return {
-              value: item.key,
-              txt: item.name,
-              isLeaf: false,
-            };
-          }),
+        data: transformCountsToData(navGroupCounts),
         rowId,
         cb,
       });
     } else {
-      switch (source.type) {
-        case 9:
-        case 10:
-        case 11:
-          let options = (controls.find(o => o.controlId === _.get(navGroup, 'controlId')) || {}).options || [];
-          data = !navGroup.isAsc ? options.slice().reverse() : options;
-          data = data
-            .filter(o => !o.isDeleted)
-            .map(o => {
-              return {
-                ...o,
-                txt: o.value,
-                value: o.key,
-              };
-            });
-          break;
-        case 28:
-          data = [
-            ...new Array(
-              parseInt(
-                _.get(controls.find(o => o.controlId === _.get(source, 'controlId')) || {}, 'advancedSetting.max') ||
-                  '1',
-                10,
-              ),
-            ),
-          ].map((o, i) => {
-            return {
-              txt: _l('%0 级', parseInt(i + 1, 10)),
-              value: JSON.stringify(i + 1),
-            };
-          });
-          break;
-        case 26:
-        case 27:
-        case 48:
-          let { navfilters = '[]' } = getAdvanceSetting(view);
-          try {
-            navfilters = JSON.parse(navfilters);
-          } catch (error) {
-            navfilters = [];
-          }
-
-          data = navfilters.map(o => {
-            const item = safeParse(o) || {};
-            return {
-              data: item,
-              txt: JSON.stringify({
-                [TYPES[source.type].id]: item.id,
-                [TYPES[source.type].name]: item.name,
-                avatar: item.avatar,
-              }),
-              value: item.id,
-              isLeaf: false,
-            };
-          });
-          break;
-        default:
-          break;
+      let data = formatData(source, navGroup, controls, view);
+      if (keywords) {
+        data = data.filter(o => o.txt.includes(keywords));
       }
-      data = data.filter(o => (key ? o.txt.indexOf(key) >= 0 : true));
+
       setGroupFilterData(data);
       setLoading(false);
     }
   };
 
   const fetchData = ({ worksheetId, viewId, rowId, cb, isNext }) => {
-    ajaxFn && ajaxFn.abort();
-    let param =
-      source.type === 35
-        ? {
-            getType: 10,
-          }
-        : {
-            appId,
-            searchType: 1,
-            getType: !viewId ? 7 : 10,
-            viewId: viewId || source.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
-          };
-    let { navfilters = '[]', navshow } = getAdvanceSetting(view);
-    try {
-      navfilters = JSON.parse(navfilters);
-    } catch (error) {
-      navfilters = [];
+    const requestParams = prepareRequestParams({ worksheetId, viewId, rowId, appId }, view, source, controls, keywords);
+    handleRequestCancellation();
+    if (apiRequest && apiRequest.abort) {
+      apiRequest.abort();
     }
-    if (source.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
-      /// 显示 符合筛选条件的处理
-      let filterControls = navfilters.map(handleCondition);
-      param = { ...param, filterControls };
-    }
-    if (source.type === 29) {
-      if (!!_.get(source, 'advancedSetting.searchcontrol') && keywords) {
-        param.controlId = _.get(source, 'controlId');
-      }
-      if (!!_.get(view, 'advancedSetting.navsearchcontrol') && keywords) {
-        param.keywords = undefined;
-        param.getType = 7;
-        param.navGroupFilters = [
-          {
-            spliceType: 1,
-            isGroup: true,
-            groupFilters: [
-              {
-                dataType: (
-                  ((controls.find(o => o.controlId === _.get(source, 'controlId')) || {}).relationControls || []).find(
-                    o => o.controlId === _.get(view, 'advancedSetting.navsearchcontrol'),
-                  ) || {}
-                ).type,
-                spliceType: 1,
-                dynamicSource: [],
-                controlId: _.get(view, 'advancedSetting.navsearchcontrol'),
-                values: [keywords],
-                filterType: _.get(view, 'advancedSetting.navsearchtype') === '1' ? 2 : 1,
-              },
-            ],
-          },
-        ];
-      }
-      param.relationWorksheetId = view.worksheetId;
-      param.sortControls = safeParse(_.get(view, 'advancedSetting.navsorts'), 'array'); //视图id
-    }
-    ajaxFn = sheetAjax.getFilterRows({
-      worksheetId,
-      viewId,
-      keywords,
-      pageIndex: 1,
-      pageSize: 10000,
-      isGetWorksheet: true,
-      kanbanKey: rowId,
-      ...param,
+    apiRequest = makeApiRequest({ worksheetId, viewId, rowId, params: requestParams });
+    apiRequest.then(result => {
+      cleanupRequest();
+      processApiResponse({ result, worksheetId, viewId, rowId, cb, isNext });
     });
-    ajaxFn.then(result => {
-      if (result.resultCode === 4) {
-        //视图删除的情况下，显示成为选中视图的状态
-        fetchData({ worksheetId, viewId: '', rowId, cb });
-      } else if (result.resultCode === 7) {
-        dataUpdate({
-          filterData: navGroupData,
-          data: [],
-          rowId,
-          cb,
+  };
+
+  //处理请求取消逻辑
+  const handleRequestCancellation = () => {
+    // 如果已有请求且当前工作表在预处理列表中，则取消上一个请求
+    if (
+      getNavGroupRequest &&
+      getNavGroupRequest.abort &&
+      preWorksheetIds.includes(`${base.worksheetId}-${base.viewId}`)
+    ) {
+      getNavGroupRequest.abort();
+    }
+    // 将当前工作表添加到预处理列表
+    preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
+  };
+
+  //发起API请求
+  const makeApiRequest = ({ rowId, params }) => {
+    const isArea = AREA.includes(source.type);
+    const { navshow, navlayer } = getAdvanceSetting(view);
+
+    // 地区字段请求
+    if (isArea) {
+      return fixedDataController.getCitysByParentID({
+        parentId: rowId || _.get(source, 'advancedSetting.chooserange') || '',
+        keywords,
+        layer: source.enumDefault2 || -1,
+        textSplit: '/',
+        isLast: false,
+        projectId: worksheetInfo.projectId,
+        langType: getCurrentLangCode(),
+        isGetCounty: true,
+      });
+    }
+
+    // 部门字段特殊处理
+    if (source.type === 27 && navshow === '2' && navlayer === '999') {
+      const ids = getAllDepartmentIds(view);
+      if (ids.length <= 0) return Promise.resolve([]);
+
+      // 根据是否有rowId决定请求类型
+      return rowId
+        ? departmentAjax.getProjectSubDepartmentByDepartmentId({
+            projectId: worksheetInfo.projectId,
+            departmentId: rowId,
+          })
+        : departmentAjax.appointedDepartment({
+            projectId: worksheetInfo.projectId,
+            rangeTypeId: 20,
+            appointedDepartmentIds: ids,
+            keywords,
+            pageIndex: 1,
+            pageSize: 10000,
+          });
+    }
+
+    params.langType = window.shareState.shareId ? getCurrentLangCode() : undefined;
+
+    // 默认工作表数据请求
+    return sheetAjax.getFilterRows(getFilledRequestParams(params));
+  };
+
+  //处理API响应
+  const processApiResponse = ({ result, worksheetId, viewId, rowId, cb, isNext }) => {
+    const isArea = AREA.includes(source.type);
+    const { navshow, navlayer } = getAdvanceSetting(view);
+    const { navfilters = '[]' } = getAdvanceSetting(view);
+    const filters = safeParse(navfilters, 'array');
+
+    // 处理视图已删除的情况
+    if (result.resultCode === 4) {
+      return fetchData({ worksheetId, viewId: '', rowId, cb });
+    }
+    // 处理无权限情况
+    if (result.resultCode === 7) {
+      return updateNavGroupData({ filterData: navGroupData, data: [], rowId, cb });
+    }
+
+    // 处理成功响应
+    let responseData = [];
+
+    // 处理地区数据
+    if (isArea) {
+      responseData = (result.citys || []).map(item => ({
+        value: item.id,
+        txt: keywords ? item.path : item.name, // 有关键词时显示完整路径
+        isLeaf: item.last, // 是否是最后一级
+        text: JSON.stringify({ code: item.id, name: item.path }),
+      }));
+    }
+    // 处理部门数据
+    else if (source.type === 27 && navshow === '2' && navlayer === '999') {
+      responseData = (result || []).map(item => ({
+        value: item.departmentId,
+        isLeaf: !item.haveSubDepartment, // 没有子部门
+        txt: JSON.stringify({ departmentId: item.departmentId, departmentName: item.departmentName }),
+      }));
+    } // 级联 关联
+    else {
+      let data = result.data || [];
+      const controls = _.get(result, ['template', 'controls']) || [];
+      const control = controls.find(item => item.attribute === 1);
+      if (navlayer && Number(navlayer) > 1 && !rowId) {
+        //配置了默认展开层级 接口一次性的返回对于数据 处理成相关结果
+        responseData = getListByNavlayer(data, Number(navlayer), {
+          source,
+          keywords,
+          control,
+          viewId,
+          navGroup,
         });
       } else {
-        let { data = [] } = result;
-        let newData = data;
-        if (source.type !== 35 && navfilters.length > 0 && navshow === '2') {
-          newData = [];
-          const ids = navfilters.map(value => safeParse(value).id);
-          ids.map(it => {
-            newData = newData.concat(data.find(o => o.rowid === it));
-          });
+        let data = result.data || [];
+        if (source.type !== 35 && filters.length > 0 && navshow === '2') {
+          const ids = filters.map(value => safeParse(value).id);
+          data = ids.map(id => data.find(o => o.rowid === id)).filter(Boolean);
         }
-        newData = newData.filter(o => !!o);
-        const controls = _.get(result, ['template', 'controls']) || [];
-        const control = controls.find(item => item.attribute === 1);
-        ajaxFn = '';
-        if (isNext) {
-          setNextData(
-            newData.map((item = {}) => {
-              return {
-                value: item.rowid,
-                isLeaf: !item.childrenids,
-                text: item[control.controlId],
-                txt: getTitleTextFromControls(controls, item),
-              };
-            }),
-          );
-        }
-        dataUpdate({
-          filterData: navGroupData,
-          data: newData.map((item = {}) => {
-            return {
-              value: item.rowid,
-              isLeaf: !item.childrenids,
-              text: item[control.controlId],
-              txt: getTitleTextFromControls(controls, item),
-            };
-          }),
-          rowId,
-          cb,
-        });
+        responseData = data.map(item => ({
+          value: item.rowid,
+          txt: renderTxt(source, keywords, item, control, viewId, navGroup), // 渲染显示文本
+          isLeaf: !item.childrenids, // 没有子节点时是叶子节点
+          text: item[control.controlId], // 原始文本
+        }));
       }
+    }
+
+    if (isNext) {
+      setNextData(responseData);
+    }
+
+    // 更新导航组数据
+    updateNavGroupData({
+      filterData: navGroupData,
+      data: responseData,
+      rowId,
+      cb,
     });
+  };
+
+  // 清理请求状态
+  const cleanupRequest = () => {
+    getNavGroupRequest = null;
+    preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${base.worksheetId}-${base.viewId}`); // 从预处理列表中移除当前工作表
+  };
+
+  const loadData = obj => fetchData(obj);
+
+  //更新当前的navGroupData
+  const updateNavGroupData = ({ filterData, data, rowId, cb }, notUpdate) => {
+    if (rowId && !keywords) {
+      filterData.forEach(item => {
+        if (item.value === rowId) {
+          item.children = data;
+        } else if (_.isArray(item.children)) {
+          updateNavGroupData({ filterData: item.children, data, rowId }, true);
+        }
+      });
+
+      !notUpdate && setGroupFilterData(filterData);
+    } else {
+      !notUpdate && setGroupFilterData(data);
+    }
+    setLoading(false);
+    cb && cb();
   };
 
   const getNavData = data => {
@@ -387,6 +461,7 @@ const GroupFilterList = props => {
     try {
       navfilters = JSON.parse(navfilters);
     } catch (error) {
+      console.log(error);
       navfilters = [];
     }
     //系统字段关闭，且为状态时，默认显示成 全部
@@ -406,12 +481,15 @@ const GroupFilterList = props => {
       }
     }
 
-    navData = navData.map(item => {
+    navData = navData.filter(_.identity).map(item => {
       return {
         ...item,
         count: Number(
-          (navGroupCounts.find(o => o.key === (!item.value ? 'all' : item.value === 'null' ? '' : item.value)) || {})
-            .count || 0,
+          (
+            (navGroupCounts || []).find(
+              o => o.key === (!item.value ? 'all' : item.value === 'null' ? '' : item.value),
+            ) || {}
+          ).count || 0,
         ),
         txt: keyStr && !['null', ''].includes(item.value) ? safeParse(item.txt)[keyStr] : item.txt || _l('未命名'),
       };
@@ -420,23 +498,6 @@ const GroupFilterList = props => {
     return navData;
   };
 
-  const dataUpdate = ({ filterData, data, rowId, cb }) => {
-    if (rowId && !keywords) {
-      filterData.forEach(item => {
-        if (item.value === rowId) {
-          item.children = data;
-          setGroupFilterData(data);
-        } else if (_.isArray(item.children)) {
-          dataUpdate({ filterData: item.children, data, rowId });
-        }
-      });
-      setGroupFilterData(filterData);
-    } else {
-      setGroupFilterData(data);
-    }
-    setLoading(false);
-    cb && cb();
-  };
   const clickRightArrow = (e, item) => {
     e.stopPropagation();
     setCurrentNodeId(item.value);
@@ -448,7 +509,12 @@ const GroupFilterList = props => {
     }
   };
   const renderBreadcrumb = () => {
-    let breadlist = getParentId(navGroupData, currentNodeId) || [];
+    let breadlist = (getParentId(navGroupData, currentNodeId) || []).map(item => {
+      return {
+        ...item,
+        txt: keyStr && !['null', ''].includes(item.value) ? safeParse(item.txt)[keyStr] : item.txt || _l('未命名'),
+      };
+    });
     breadlist = breadlist.length ? breadlist.concat([{ ...source, txt: source.controlName }]) : [];
     if (breadlist.length) {
       return (
@@ -458,7 +524,7 @@ const GroupFilterList = props => {
               return (
                 <Breadcrumb.Item
                   key={item.value}
-                  onClick={e => {
+                  onClick={() => {
                     if (!item.value && (item.txt === _l('全部') || item.txt === allitemname)) {
                       fetchData({ worksheetId: item.wsid, appId, viewId: navGroup.viewId });
                     } else {
@@ -532,13 +598,18 @@ const GroupFilterList = props => {
       let hasChildren = !item.isLeaf;
       let { navshow } = getAdvanceSetting(view);
 
-      if (isSoucreTree()) {
+      if (isSourceTree(source, navGroup, view)) {
         return (
           <React.Fragment key={item.value}>
             {
               <div className="flexRow" onClick={() => toList(item)}>
-                <div className="mRight16"></div>
-                <div className="groupItem flexRow Font14 borderBottom flex">
+                {/* <div className="mRight16"></div> */}
+                <div
+                  className={cx('groupItem flexRow Font14 borderBottom flex', {
+                    pLeft10: !appnavtype || appnavtype === '2',
+                    pLeft16: _.includes(['1', '3'], appnavtype),
+                  })}
+                >
                   <div className="flex">{item.txt}</div>
                   {count > 0 && appnavtype !== '3' && <div className="count">{count}</div>}
                   {hasChildren && <div className="line"></div>}
@@ -617,7 +688,10 @@ const GroupFilterList = props => {
     let navData = getNavData(navGroupData);
 
     return (
-      <ScrollView style={appnavtype !== '3' ? { maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` } : {}}>
+      <ScrollView
+        className="flex"
+        style={appnavtype !== '3' ? { maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` } : {}}
+      >
         {keywords && <div className="pLeft16 mBottom6 Font13 Bold Gray_75">{_l('分组')}</div>}
         <div className="listBox">{renderContent(navData)}</div>
         {appnavtype === '1' && keywords && (
@@ -666,6 +740,7 @@ const GroupFilterList = props => {
       pageIndex: 1,
       pageSize: 10000,
       isGetWorksheet: true,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       ...param,
     });
     ajaxRequest.then(res => {
@@ -686,8 +761,11 @@ const GroupFilterList = props => {
             onChange={value => {
               let keyWords = value.trim();
               setKeywords(keyWords);
+              setCurrentNodeId();
+              setGroupFilterData([]);
+              setNextData([]);
               if (appnavtype === '1') {
-                getSearchRecordResult(value);
+                _.debounce(() => getSearchRecordResult(keyWords), 500);
               }
             }}
           />

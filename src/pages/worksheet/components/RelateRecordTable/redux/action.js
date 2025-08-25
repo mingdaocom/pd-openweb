@@ -1,4 +1,4 @@
-import {
+import _, {
   assign,
   find,
   get,
@@ -87,22 +87,24 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
   };
 }
 
-export const updateTreeTableViewData = () => (dispatch, getState) => {
-  const { base, changes = {}, records } = getState();
-  const { addedRecords = [] } = changes;
-  if (!base.isTreeTableView) {
-    return;
-  }
-  const allRecords = base.recordId ? records.concat(addedRecords) : records;
-  const { treeMap, maxLevel } = treeDataUpdater(
-    {},
-    { rootRows: allRecords.filter(r => !r.pid), rows: allRecords, levelLimit: 10 },
-  );
-  dispatch({
-    type: 'UPDATE_TREE_TABLE_VIEW_DATA',
-    value: { maxLevel, treeMap },
-  });
-};
+export const updateTreeTableViewData =
+  ({ pageIndexStart = 0 } = {}) =>
+  (dispatch, getState) => {
+    const { base, changes = {}, records } = getState();
+    const { addedRecords = [] } = changes;
+    if (!base.isTreeTableView) {
+      return;
+    }
+    const allRecords = base.recordId ? records.concat(addedRecords) : records;
+    const { treeMap, maxLevel } = treeDataUpdater(
+      {},
+      { rootRows: allRecords.filter(r => !r.pid), rows: allRecords, levelLimit: 10, pageIndexStart },
+    );
+    dispatch({
+      type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+      value: { maxLevel, treeMap },
+    });
+  };
 
 export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksheet } = {}) {
   return async (dispatch, getState) => {
@@ -110,7 +112,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     const { base = {}, tableState = {}, changes = {} } = state;
     const { addedRecords = [], deletedRecordIds = [] } = changes;
     const { filterControls } = tableState;
-    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
+    const { from, worksheetId, control, recordId, instanceId, workId, isDraft } = base;
     pageIndex = pageIndex || tableState.pageIndex;
     pageSize = pageSize || tableState.pageSize;
     keywords = !isUndefined(keywords) ? keywords : tableState.keywords;
@@ -118,6 +120,8 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       type: 'UPDATE_TABLE_STATE',
       value: { tableLoading: true },
     });
+    let args = {};
+    args.discussId = control.discussId;
     const res = await worksheetAjax.getRowRelationRows({
       worksheetId,
       rowId: recordId,
@@ -130,9 +134,10 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       filterControls: filterControls || [],
       sortId: (tableState.sortControl || {}).controlId,
       isAsc: (tableState.sortControl || {}).isAsc,
-      getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
+      getType: from === RECORD_INFO_FROM.DRAFT || isDraft ? 21 : undefined,
       instanceId,
       workId,
+      ...args,
     });
     if (res.resultCode !== 1) {
       dispatch({
@@ -141,12 +146,15 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       });
       return;
     }
-    const records = !base.isTab && recordId ? res.data.filter(r => !includes(deletedRecordIds, r.rowid)) : res.data;
+    const records =
+      !base.isTab && recordId
+        ? res.data.filter(r => !includes(deletedRecordIds.concat(addedRecords), r.rowid))
+        : res.data;
     dispatch({
       type: 'UPDATE_RECORDS',
       records: records || [],
     });
-    dispatch(updateTreeTableViewData());
+    dispatch(updateTreeTableViewData({ pageIndexStart: pageSize * (pageIndex - 1) }));
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { tableLoading: false, pageIndex, pageSize, keywords },
@@ -162,7 +170,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
 }
 
 export function updatePageIndex(pageIndex) {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { pageIndex },
@@ -180,7 +188,7 @@ export function updateRowsWithChanges(rowIds, changes) {
 }
 
 export function updatePageSize(pageSize) {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { pageIndex: 1, pageSize },
@@ -188,13 +196,19 @@ export function updatePageSize(pageSize) {
     dispatch(loadRecords({ pageIndex: 1, pageSize }));
   };
 }
-function getTableConfigFromControl(control, { from, allowEdit, relateWorksheetInfo, recordId } = {}) {
+function getTableConfigFromControl(control, { allowEdit, relateWorksheetInfo, recordId } = {}) {
   const controlPermission = controlState(control, recordId ? 3 : 2);
   const allowRemoveRelation =
     typeof control.advancedSetting.allowcancel === 'undefined' ? true : control.advancedSetting.allowcancel === '1';
   const [isHiddenOtherViewRecord, , onlyRelateByScanCode] = (control.strDefault || '').split('').map(b => !!+b);
   const disabledManualWrite = onlyRelateByScanCode && control.advancedSetting.dismanual === '1';
-  const fixedColumnCount = Number(control.advancedSetting.fixedcolumncount || 0);
+  let fixedColumnCount;
+  if (typeof control.advancedSetting.freezeids !== 'undefined') {
+    fixedColumnCount = Number(safeParse(control.advancedSetting.freezeids, 'array')[0] || '0');
+  } else if (typeof control.advancedSetting.fixedcolumncount !== 'undefined') {
+    fixedColumnCount = Number(control.advancedSetting.fixedcolumncount) || 0;
+  }
+  const showNumber = control.advancedSetting.hidenumber !== '1';
   const editable = !control.disabled && allowEdit && controlPermission.editable;
   const addVisible =
     editable &&
@@ -218,6 +232,7 @@ function getTableConfigFromControl(control, { from, allowEdit, relateWorksheetIn
   const allowExportFromSetting = get(control, 'advancedSetting.allowexport') === '1';
   const searchMaxCount = parseNumber((control.advancedSetting || {}).maxcount || undefined);
   return {
+    showNumber,
     fixedColumnCount,
     controlPermission,
     addVisible,
@@ -236,6 +251,10 @@ export function updateTableConfigByControl(control) {
     const state = getState();
     const { base = {} } = state;
     const { from, allowEdit, relateWorksheetInfo, recordId } = base;
+    if (typeof control === 'undefined') {
+      control = base.control;
+    }
+    if (!control) return;
     const tableConfig = getTableConfigFromControl(control, { from, allowEdit, relateWorksheetInfo, recordId });
     dispatch({
       type: 'UPDATE_BASE',
@@ -261,8 +280,8 @@ export function init() {
     const state = getState();
     if (state.initialized) return;
     const { base = {}, tableState } = state;
-    const { from, mode, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
-    const { pageSize } = tableState;
+    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
+    let { pageSize } = tableState;
     const isNewRecord = !recordId;
     let relateWorksheetInfo;
     if (isNewRecord || control.type === 51) {
@@ -279,6 +298,8 @@ export function init() {
         return;
       }
     } else {
+      let args = {};
+      args.discussId = control.discussId;
       const res = await worksheetAjax
         .getRowRelationRows({
           worksheetId,
@@ -291,8 +312,9 @@ export function init() {
           getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
           instanceId,
           workId,
+          ...args,
         })
-        .catch(err => {
+        .catch(() => {
           dispatch({
             type: 'UPDATE_TABLE_STATE',
             value: { error: _l('没有可查询内容') },
@@ -313,10 +335,15 @@ export function init() {
           type: 'UPDATE_RECORDS',
           records: res.data,
         });
-        if (!!isTreeTableView) {
+        if (isTreeTableView) {
           const { treeMap, maxLevel } = treeDataUpdater(
             {},
-            { rootRows: res.data.filter(r => typeof r.pid !== 'undefined' && !r.pid), rows: res.data, levelLimit: 5 },
+            {
+              rootRows: res.data.filter(r => typeof r.pid !== 'undefined' && !r.pid),
+              rows: res.data,
+              levelLimit: 5,
+              pageIndexStart: 0,
+            },
           );
           dispatch({
             type: 'UPDATE_TREE_TABLE_VIEW_DATA',
@@ -416,7 +443,7 @@ export function refresh({ doNotResetPageIndex, doNotClearKeywords } = {}) {
 }
 
 export function search(keywords) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { keywords, pageIndex: 1 },
@@ -668,7 +695,8 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
       newControl.advancedSetting.widths = newWidths;
     }
     if (!isUndefined(fixedColumnCount)) {
-      newControl.advancedSetting.fixedcolumncount = fixedColumnCount;
+      newControl.advancedSetting.freezeids = JSON.stringify([String(fixedColumnCount)]);
+      delete newControl.advancedSetting['fixedcolumncount'];
     }
     if (!isEmpty(sheetHiddenColumnIds)) {
       newControl.showControls = newControl.showControls.filter(id => !includes(sheetHiddenColumnIds, id));
@@ -685,9 +713,9 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
         worksheetId,
         controls: [{ ...pick(newControl, ['controlId', 'advancedSetting']), editattrs: ['advancedSetting'] }],
       })
-      .then(res => {
+      .then(() => {
         if (isFunction(updateWorksheetControls)) {
-          updateWorksheetControls([newControl]);
+          updateWorksheetControls([omit(newControl, ['value', 'store'])]);
         }
         dispatch(updateTableState({ layoutChanged: false }));
       });
@@ -696,7 +724,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
 
 export function handleRemoveRelation(recordIds) {
   return async (dispatch, getState) => {
-    const { base = {}, tableState = {}, records = [] } = getState();
+    const { base = {}, records = [] } = getState();
     const { from, saveSync, recordId, appId, viewId, worksheetId, control, instanceId, workId } = base;
     if (recordIds && !isArray(recordIds)) {
       recordIds = [recordIds];
@@ -718,6 +746,7 @@ export function handleRemoveRelation(recordIds) {
         dispatch(deleteRecords(recordIds));
         dispatch(refresh({ doNotResetPageIndex: records.length - recordIds.length > 0, doNotClearKeywords: true }));
       } catch (err) {
+        console.log(err);
         alert(_l('取消关联失败！'), 2);
       }
     } else {
@@ -751,7 +780,6 @@ export function handleAddRelation(records) {
           controlId: control.controlId,
           isAdd: true,
           recordIds: records.map(c => c.rowid),
-          updateType: from,
           instanceId,
           workId,
           updateType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
@@ -759,6 +787,7 @@ export function handleAddRelation(records) {
         dispatch(appendRecords(records));
         alert(_l('添加记录成功！'));
       } catch (err) {
+        console.log(err);
         alert(_l('添加记录失败！'), 2);
       }
     } else {
@@ -785,7 +814,7 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
       worksheetId: get(relateWorksheetInfo, 'worksheetId'),
       recordIds: allowDeleteRowIds,
     })
-      .then(res => {
+      .then(() => {
         dispatch(deleteRecords(allowDeleteRowIds));
         if (allowDeleteRowIds.length < recordIds.length) {
           alert(_l('存在无权限删除的记录，有权限的已删除'), 3);
@@ -800,7 +829,7 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
           dispatch(refresh());
         }
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('删除失败！'), 3);
       });
   };

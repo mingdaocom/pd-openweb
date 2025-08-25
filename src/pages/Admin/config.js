@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import AdminController from 'src/api/adminManage';
 import { htmlEncodeReg } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';

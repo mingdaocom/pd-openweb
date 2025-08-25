@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import './style.less';
+import PropTypes from 'prop-types';
+import Calender from 'ming-ui/components/NewDateTimePicker/calender';
 import LibCalender from '../lib/calender';
 import Header from './header';
-import Calender from 'ming-ui/components/NewDateTimePicker/calender';
+import './style.less';
 
 class DatePickerBase extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ class DatePickerBase extends Component {
     this.setState(this.generateState(nextProps));
   }
 
-  generateState = (props) => {
+  generateState = props => {
     const value = props.value || (props.range ? [new Date(), new Date()] : new Date());
     const state = {
       /**
@@ -242,9 +242,7 @@ DatePickerBase.defaultProps = {
   min: null,
   max: null,
   prefix: '',
-  onChange: (event, value) => {
-    //
-  },
+  onChange: () => {},
 };
 
 export default DatePickerBase;

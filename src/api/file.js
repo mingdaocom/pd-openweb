@@ -1,70 +1,70 @@
 export default {
   /**
-  * 文档预览
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   oWA: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'OWA', args, options);
-   },
+   * 文档预览
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  oWA: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'OWA', args, options);
+  },
   /**
-  * 文件预览
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   docView: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'DocView', args, options);
-   },
+   * 文件预览
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  docView: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'DocView', args, options);
+  },
   /**
-  * Chat 文件消息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   downChatFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'DownChatFile', args, options);
-   },
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  downChatFile: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'DownChatFile', args, options);
+  },
   /**
-  * 获取chat 文件链接
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getChatFileUrl: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'GetChatFileUrl', args, options);
-   },
+   * 获取chat 文件链接
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getChatFileUrl: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'GetChatFileUrl', args, options);
+  },
   /**
-  * 下载链接文件
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   downLinkFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'DownLinkFile', args, options);
-   },
+   * 下载链接文件
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  downLinkFile: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'DownLinkFile', args, options);
+  },
   /**
-  * 下载知识中心文件
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   downKcFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'DownKcFile', args, options);
-   },
+   * 下载知识中心文件
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  downKcFile: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'DownKcFile', args, options);
+  },
   /**
   * 批量下载行记录附件
   * @param {Object} args 请求参数
@@ -105,6 +105,7 @@ export default {
   * @param {string} args.reportId 统计图ID
   * @param {boolean} args.notGetTotal 不获取总记录数
   * @param {object} args.requestParams 请求参数
+  * @param {integer} args.langType //语言类型
   * @param {} args.connectorType
   * @param {boolean} args.rowsEstablishRolderType 每行数据创建一个文件夹(0不创建,1创建)
   * @param {array} args.controlIds 附件控件IDs
@@ -115,46 +116,44 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   downloadRowsBatchFile: function (args, options = {}) {
-     
-     return mdyAPI('File', 'DownloadRowsBatchFile', args, options);
-   },
+  downloadRowsBatchFile: function (args, options = {}) {
+    return mdyAPI('File', 'DownloadRowsBatchFile', args, options);
+  },
   /**
-  * 文件下载
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   downDocument: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'DownDocument', args, options);
-   },
+   * 文件下载
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  downDocument: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'DownDocument', args, options);
+  },
   /**
-  * 
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   excelFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
-     return mdyAPI('File', 'ExcelFile', args, options);
-   },
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  excelFile: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('File', 'ExcelFile', args, options);
+  },
   /**
-  * 文件校验
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.url 文件url
-  * @param {} args.source
-  * @param {string} args.password 密码
-  * @param {string} args.pluginId 参数id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   check: function (args, options = {}) {
-     
-     return mdyAPI('File', 'Check', args, options);
-   },
+   * 文件校验
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.url 文件url
+   * @param {} args.source
+   * @param {string} args.password 密码
+   * @param {string} args.pluginId 参数id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  check: function (args, options = {}) {
+    return mdyAPI('File', 'Check', args, options);
+  },
 };

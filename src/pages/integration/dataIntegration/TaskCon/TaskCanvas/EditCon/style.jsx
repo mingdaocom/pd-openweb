@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 export const WrapL = styled.div`
   .itemOpName {
@@ -70,10 +70,10 @@ export const WrapL = styled.div`
     background: #ffffff;
     border: 1px dashed #dddddd;
     border-radius: 4px;
-    color: #2196f3;
+    color: #1677ff;
     line-height: 58px;
     &:hover {
-      border: 1px dashed #2196f3;
+      border: 1px dashed #1677ff;
     }
   }
   .dropWorksheet {
@@ -116,8 +116,8 @@ export const WrapL = styled.div`
       }
       &.isCur {
         background: rgba(33, 150, 243, 0.1);
-        border: 1px solid #2196f3;
-        color: #2196f3;
+        border: 1px solid #1677ff;
+        color: #1677ff;
       }
     }
   }
@@ -125,7 +125,7 @@ export const WrapL = styled.div`
     .icon {
       color: #bdbdbd;
       &:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }

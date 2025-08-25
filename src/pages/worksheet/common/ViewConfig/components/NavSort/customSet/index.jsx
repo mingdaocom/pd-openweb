@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, LoadDiv } from 'ming-ui';
 import { quickSelectDept, quickSelectRole, quickSelectUser } from 'ming-ui/functions';
@@ -26,7 +27,7 @@ const Wrap = styled.div`
     &:hover {
       background: #f8f8f8;
       // background: #f5f5f5;
-      color: #2196f3;
+      color: #1677ff;
       &.clearBtn {
         color: red;
       }
@@ -88,7 +89,7 @@ export default function (props) {
     }
     return data;
   };
-  const [{ setting, list, pageIndex, keyWords, controls, count, loading }, setState] = useSetState({
+  const [{ setting, keyWords, controls, loading }, setState] = useSetState({
     setting: formatSetting(),
     list: [],
     pageIndex: 1,

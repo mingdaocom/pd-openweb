@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useEffect, useState } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
@@ -24,6 +24,7 @@ function getProjectfoldedFromStorage() {
   try {
     result = JSON.parse(storageStr);
   } catch (err) {
+    console.log(err);
     return {};
   }
   return result;
@@ -73,7 +74,7 @@ class WorkSheetLeft extends Component {
     const { data, isCharge, appPkg } = this.props;
     const isOperation = appPkg.permissionType === 2;
     const filterEmptyAppItem =
-      isCharge || isOperation ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
+      isCharge || isOperation ? () => true : item => !(item.type === 2 && _.isEmpty(item.items));
     return (isCharge || isOperation) && appPkg.viewHideNavi
       ? data
       : data.filter(item => [1, 4].includes(item.status) && !item.navigateHide).filter(filterEmptyAppItem);
@@ -107,7 +108,7 @@ class WorkSheetLeft extends Component {
     };
     return (
       <Fragment>
-        <div className="flex flexColumn">
+        <div className="flex flexColumn overflowHidden">
           <Wrap>
             <DndProvider key="navigationList" context={window} backend={HTML5Backend}>
               {data.map((item, index) => this.renderSheetAppItem(item, workSheetItemProps, index))}

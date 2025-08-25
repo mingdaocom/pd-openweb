@@ -1,7 +1,7 @@
-﻿import createShare from 'src/components/createShare/createShare';
+﻿import attachmentAjax from 'src/api/attachment';
 import kc from 'src/api/kc';
+import createShare from 'src/components/createShare/createShare';
 import kcUtil from 'src/pages/kc/util';
-import attachmentAjax from 'src/api/attachment';
 
 var copyNode = kc.copyNode;
 var addNode = kc.addNode;
@@ -24,7 +24,7 @@ var SaveToKnowledge = function (nodeType, sourceData, options) {
 };
 
 SaveToKnowledge.prototype = {
-  save: function (path, callback) {
+  save: function (path) {
     var SK = this;
     var nodeType = SK.nodeType;
     var sourceData = SK.sourceData;
@@ -44,10 +44,10 @@ SaveToKnowledge.prototype = {
             (path.type === 1
               ? 'my'
               : path.type === 2
-              ? path.node.id
-              : path.node.rootId
-              ? path.node.position.slice(1)
-              : path.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
+                ? path.node.id
+                : path.node.rootId
+                  ? path.node.position.slice(1)
+                  : path.node.position.replace(/\/.{8}(-.{4}){3}-.{12}/, 'my')),
           content: _l('保存成功'),
         });
       }

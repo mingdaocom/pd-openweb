@@ -1,18 +1,16 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import config from '../../utils/config';
-import * as utils from '../../utils';
-import * as ajax from '../../utils/ajax';
-import * as socket from '../../utils/socket';
-import Constant from '../../utils/constant';
-import Dropdown from 'ming-ui/components/Dropdown';
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Trigger from 'rc-trigger';
-import { FileItem, splitFiles } from './index';
-import DatePicker from 'ming-ui/components/DatePicker';
-import Tooltip from 'ming-ui/components/Tooltip';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import { ScrollView } from 'ming-ui';
+import DatePicker from 'ming-ui/components/DatePicker';
+import Dropdown from 'ming-ui/components/Dropdown';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import Tooltip from 'ming-ui/components/Tooltip';
+import * as ajax from '../../utils/ajax';
+import config from '../../utils/config';
+import { FileItem, splitFiles } from './index';
+
 const { RangePicker } = DatePicker;
 
 const fileTypeData = [
@@ -41,12 +39,7 @@ const filterDate = [
   },
   {
     text: _l('最近七天'),
-    date: [
-      moment()
-        .subtract(6, 'days')
-        .startOf('day'),
-      moment().endOf('day'),
-    ],
+    date: [moment().subtract(6, 'days').startOf('day'), moment().endOf('day')],
   },
   {
     text: _l('本月'),
@@ -54,14 +47,7 @@ const filterDate = [
   },
   {
     text: _l('上月'),
-    date: [
-      moment()
-        .subtract(1, 'month')
-        .startOf('month'),
-      moment()
-        .subtract(1, 'month')
-        .endOf('month'),
-    ],
+    date: [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
   },
 ];
 
@@ -124,7 +110,7 @@ export default class FilesPanel extends Component {
     this.setState({
       loading: true,
     });
-    ajax.getFileList(param).then((result) => {
+    ajax.getFileList(param).then(result => {
       const { list } = result;
       this.setState({
         pageIndex: list && list.length >= 10 ? pageIndex + 1 : 0,
@@ -143,7 +129,7 @@ export default class FilesPanel extends Component {
       },
       () => {
         this.getFiles();
-      }
+      },
     );
   }
   handleFromUserChange(value) {
@@ -156,7 +142,7 @@ export default class FilesPanel extends Component {
       },
       () => {
         this.getFiles();
-      }
+      },
     );
   }
   handleChange(visible) {
@@ -177,7 +163,7 @@ export default class FilesPanel extends Component {
       },
       () => {
         this.getFiles();
-      }
+      },
     );
     this.handleChange(false);
   }
@@ -193,7 +179,7 @@ export default class FilesPanel extends Component {
       },
       () => {
         this.getFiles();
-      }
+      },
     );
     this.handleChange(false);
   }
@@ -207,14 +193,18 @@ export default class FilesPanel extends Component {
       allowClear: false,
       max: moment(),
       popupParentNode: () => document.querySelector('.ChatPanel-FilesPanel-filterDate'),
-      onOk: (selectValue) => {
+      onOk: selectValue => {
         this.handleDateChange(selectValue, 4);
       },
     };
     return (
       <div className="ChatPanel-addToolbar-menu ChatPanel-FilesPanel-filterDate">
         {filterDate.map((item, index) => (
-          <div className={cx('item', { ThemeBGColor3: index === selectedIndex })} onClick={this.handleDateChange.bind(this, item.date, index)} key={index}>
+          <div
+            className={cx('item', { ThemeBGColor3: index === selectedIndex })}
+            onClick={this.handleDateChange.bind(this, item.date, index)}
+            key={index}
+          >
             {item.text}
           </div>
         ))}
@@ -234,14 +224,20 @@ export default class FilesPanel extends Component {
     return (
       <div className="filter-data">
         {start && end ? (
-          <Tooltip text={<span>{`${startDate.format('YYYY-MM-DD')} ~ ${endDate.format('YYYY-MM-DD')}`}</span>} popupPlacement="top">
+          <Tooltip
+            text={
+              <span>
+                {startDate.format('YYYY-MM-DD')} ~ {endDate.format('YYYY-MM-DD')}
+              </span>
+            }
+            autoCloseDelay={0}
+            popupPlacement="top"
+          >
             <span>
               {startDate.format('MM-DD')}~{endDate.format('MM-DD')}
             </span>
           </Tooltip>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         <Trigger
           popupVisible={visible}
           onPopupVisibleChange={this.handleChange.bind(this)}
@@ -249,7 +245,10 @@ export default class FilesPanel extends Component {
           action={['click']}
           popupPlacement="bottom"
           popup={this.renderToolbar()}
-          popupAlign={{ offset: [0, 10] }}
+          popupAlign={{
+            offset: [0, 10],
+            points: config.builtinPlacements.bottomRight.points,
+          }}
           builtinPlacements={config.builtinPlacements}
         >
           <i className="icon-bellSchedule" />
@@ -262,26 +261,36 @@ export default class FilesPanel extends Component {
     return (
       <div className="ChatPanel-FilesPanel">
         <div className="header">
-          <span className="title">{`${_l('文件')}`}</span>
+          <span className="title">{_l('文件')}</span>
         </div>
         <div className="filter">
-          <Dropdown className="dropdown" value={fileType} data={fileTypeData} onChange={this.handleFileTypeChange.bind(this)} />
-          <Dropdown className="dropdown" value={fromUser} data={this.fromUserData} onChange={this.handleFromUserChange.bind(this)} />
+          <Dropdown
+            className="dropdown"
+            value={fileType}
+            data={fileTypeData}
+            onChange={this.handleFileTypeChange.bind(this)}
+          />
+          <Dropdown
+            className="dropdown"
+            value={fromUser}
+            data={this.fromUserData}
+            onChange={this.handleFromUserChange.bind(this)}
+          />
           {this.renderFilterDate()}
         </div>
         <div className="content">
           <ScrollView onScrollEnd={this.handleScrollEnd.bind(this)}>
             <div className={cx('flex', { 'ChatPanel-Image-list': fileType === 2 })}>
-              {files.map((item, index) => <FileItem item={item} key={item.fileId || index} fileType={fileType} />)}
+              {files.map((item, index) => (
+                <FileItem item={item} key={item.fileId || index} fileType={fileType} />
+              ))}
               <LoadDiv className={cx({ Hidden: !loading })} size="small" />
               {!loading && !files.length ? (
                 <div className="nodata-wrapper">
                   <div className="nodata-img" />
                   <p>{_l('无匹配结果')}</p>
                 </div>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
             </div>
           </ScrollView>
         </div>

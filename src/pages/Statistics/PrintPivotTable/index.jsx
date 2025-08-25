@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Chart from 'statistics/Card';
 import './index.less';
 
-const PrintPivotTable = (props) => {
+const PrintPivotTable = props => {
   const { match = {} } = props;
   const { params } = match;
   const { reportId, themeColor } = params;
@@ -13,12 +13,12 @@ const PrintPivotTable = (props) => {
       needEnlarge={false}
       needTimingRefresh={false}
       needRefresh={false}
-      onLoad={(result) => {
+      onLoad={result => {
         document.title = result.name;
         setTimeout(window.print, 100);
       }}
     />
   );
-}
+};
 
 export default PrintPivotTable;

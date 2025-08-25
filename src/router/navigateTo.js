@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import login from 'src/api/login';
-import project from 'src/api/project';
 import { getSuffix } from 'src/pages/AuthService/portalAccount/util';
 import { getAppFeaturesPath } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
@@ -61,6 +60,9 @@ export function navigateTo(url, isReplace = false, noRedirect = false) {
     }
   }
 
+  if (url === location.href) {
+    return;
+  }
   if (window.reactRouterHistory) {
     if (isReplace) {
       window.reactRouterHistory.replace(String(url));
@@ -92,7 +94,6 @@ let pendingCheckLogin;
 
 export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirectUrl } = {}) {
   const handleNavigate = (newTab = false) => {
-    const host = location.host;
     const link = needReturnUrl ? `?ReturnUrl=${encodeURIComponent(location.href)}` : ``;
     let isSubDomain = true;
 
@@ -121,7 +122,8 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirec
 
       if (!isLogin) {
         const isExecute =
-          browserIsMobile() || _.get(md, 'global.SysSettings.sessionExpireRedirectType') === 2 ||
+          browserIsMobile() ||
+          _.get(md, 'global.SysSettings.sessionExpireRedirectType') === 2 ||
           window.isMDClient ||
           window.isDingTalk ||
           window.isWxWork ||

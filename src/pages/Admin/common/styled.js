@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const BillInfoWrap = styled.div`
   height: 100%;
   box-sizing: border-box;
@@ -11,7 +12,7 @@ export const BillInfoWrap = styled.div`
       font-weight: 600;
     }
     .invoiceSetting {
-      color: #2196f3;
+      color: #1677ff;
       margin: 0 8px;
     }
   }
@@ -20,7 +21,7 @@ export const BillInfoWrap = styled.div`
     align-items: center;
     i,
     .balance {
-      color: #2196f3;
+      color: #1677ff;
       margin: 0 8px;
     }
     .eyeIcon {
@@ -41,7 +42,7 @@ export const BillInfoWrap = styled.div`
       display: inline-block;
       height: 24px;
       line-height: 24px;
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
       font-size: 12px;
       padding: 0 16px;
@@ -52,9 +53,9 @@ export const BillInfoWrap = styled.div`
     }
     .warningBtn {
       background-color: #fff;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       line-height: 22px;
-      color: #2196f3;
+      color: #1677ff;
       &:hover {
         background-color: #fff;
         border: 1px solid #1565c0;
@@ -85,7 +86,7 @@ export const BillInfoWrap = styled.div`
         padding: 6px;
         &.active,
         &:hover {
-          border-bottom-color: #2196f3;
+          border-bottom-color: #1677ff;
         }
       }
     }
@@ -103,7 +104,7 @@ export const BillInfoWrap = styled.div`
       .dateRange {
         margin: 0 8px;
         background: #e2f2fd;
-        color: #2196f3;
+        color: #1677ff;
         padding: 0 12px;
         border-radius: 4px;
         display: inline-block;
@@ -147,12 +148,13 @@ export const BillInfoWrap = styled.div`
       }
     }
     .time {
-      width: 16%;
+      width: 140px;
     }
     .type {
       width: 24%;
     }
     .operation {
+      width: 60px;
       text-align: center;
     }
     .rechargeType {
@@ -165,7 +167,8 @@ export const BillInfoWrap = styled.div`
     li {
       display: flex;
       justify-content: space-between;
-      line-height: 48px;
+      align-items: center;
+      height: 48px;
       cursor: pointer;
       transition: all 0.25s;
       &:hover {
@@ -177,12 +180,16 @@ export const BillInfoWrap = styled.div`
         width: 10%;
       }
       .time {
-        width: 16%;
+        width: 140px;
       }
       .type {
         width: 24%;
+        > span {
+          max-width: 100%;
+        }
       }
       .operation {
+        width: 60px;
         text-align: center;
       }
 
@@ -255,7 +262,7 @@ export const AccountIdOperation = styled.ul`
     line-height: 36px;
     transition: all 0.25s;
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
     }
   }

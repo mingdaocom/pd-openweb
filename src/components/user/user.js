@@ -1,8 +1,6 @@
 import { getRequest } from 'src/utils/common';
 import './user.less';
 
-__webpack_public_path__ = window.__webpack_public_path__;
-
 var common = require('./common');
 var User = {};
 var type = 'acount'; // 账户一览

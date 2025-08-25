@@ -1,30 +1,29 @@
 import React, { Component, Fragment } from 'react';
-import {
-  formatControlInfo,
-  formatrChartValue,
-  formatrChartAxisValue,
-  reportTypes,
-  getLegendType,
-  formatYaxisList,
-  getMinValue,
-  getChartColors,
-  getAuxiliaryLineConfig,
-  getControlMinAndMax,
-  getStyleColor,
-  getEmptyChartData
-} from './common';
-import { Icon } from 'ming-ui';
-import { formatChartData as formatLineChartData } from './LineChart';
-import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
-import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
+import {
+  formatControlInfo,
+  formatrChartAxisValue,
+  formatrChartValue,
+  formatYaxisList,
+  getAuxiliaryLineConfig,
+  getChartColors,
+  getControlMinAndMax,
+  getEmptyChartData,
+  getLegendType,
+  getStyleColor,
+  reportTypes,
+} from './common';
+import { formatChartData as formatLineChartData } from './LineChart';
 
 const getLineChartXAxis = (controlId, data) => {
   if (controlId) {
     const result = [];
-    data.forEach((item, index) => {
+    data.forEach(item => {
       const { id } = formatControlInfo(item.groupName);
       if (id === controlId) {
         result.push(item);
@@ -44,7 +43,7 @@ const filterAuxiliaryLines = (location, auxiliaryLines = [], yaxisList) => {
       return _.find(yaxisList, { controlId: item.controlId }) ? true : false;
     }
   });
-}
+};
 
 export default class extends Component {
   constructor(props) {
@@ -56,7 +55,7 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-    }
+    };
     this.DualAxes = null;
   }
   componentDidMount() {
@@ -69,7 +68,7 @@ export default class extends Component {
     this.DualAxes && this.DualAxes.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { map, displaySetup, rightY, style } = nextProps.reportData;
+    const { displaySetup, rightY, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, rightY: oldRightY, style: oldStyle } = this.props.reportData;
 
     if (_.isEmpty(rightY)) {
@@ -106,7 +105,10 @@ export default class extends Component {
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -132,7 +134,10 @@ export default class extends Component {
     if (this.chartEl) {
       this.DualAxes = new this.DualAxesComponent(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+        (xaxes.controlId || split.controlId);
       if (this.isViewOriginalData || this.isLinkageData) {
         this.DualAxes.on('element:click', this.handleClick);
       }
@@ -145,7 +150,10 @@ export default class extends Component {
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, contrastMap, displaySetup, yaxisList, rightY, yreportType, xaxes, split, sorts } = reportData;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const splitId = split.controlId;
     const xaxesId = xaxes.controlId;
     const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, colorRules } = displaySetup;
@@ -164,13 +172,16 @@ export default class extends Component {
       yreportType === reportTypes.LineChart
         ? formatLineChartData(map, yaxisList, displaySetup, splitId)
         : formatBarChartData(map, yaxisList, splitId, xaxesId);
-    let lineData = _.isEmpty(contrastMap) ? [] : formatLineChartData(contrastMap, rightY.yaxisList, { ...rightY.display }, _.get(rightY, 'split.controlId'));
+    let lineData = _.isEmpty(contrastMap)
+      ? []
+      : formatLineChartData(contrastMap, rightY.yaxisList, { ...rightY.display }, _.get(rightY, 'split.controlId'));
     let names = [];
 
     const newYaxisList = formatYaxisList(data, yaxisList);
     const newRightYaxisList = formatYaxisList(lineData, rightY.yaxisList);
 
-    const countConfig = showPileTotal && isPile && (yaxisList.length > 1 || splitId) ? formatDataCount(data, true, newYaxisList) : [];
+    const countConfig =
+      showPileTotal && isPile && (yaxisList.length > 1 || splitId) ? formatDataCount(data, true, newYaxisList) : [];
 
     if (isLeftSort) {
       names = data.map(item => item.name);
@@ -185,18 +196,24 @@ export default class extends Component {
       sortLineXAxis = getLineChartXAxis(null, data);
     }
     if (sortLineXAxis.length) {
-      data = data.filter(item => {
-        return sortLineXAxis.includes(item.name);
-      }).map(item => {
-        item.sortIndex = names.indexOf(item.name);
-        return item;
-      }).sort((a, b) => a.sortIndex - b.sortIndex);
-      lineData = lineData.filter(item => {
-        return sortLineXAxis.includes(item.name);
-      }).map(item => {
-        item.sortIndex = names.indexOf(item.name);
-        return item;
-      }).sort((a, b) => a.sortIndex - b.sortIndex);
+      data = data
+        .filter(item => {
+          return sortLineXAxis.includes(item.name);
+        })
+        .map(item => {
+          item.sortIndex = names.indexOf(item.name);
+          return item;
+        })
+        .sort((a, b) => a.sortIndex - b.sortIndex);
+      lineData = lineData
+        .filter(item => {
+          return sortLineXAxis.includes(item.name);
+        })
+        .map(item => {
+          item.sortIndex = names.indexOf(item.name);
+          return item;
+        })
+        .sort((a, b) => a.sortIndex - b.sortIndex);
     }
 
     this.setState({ newYaxisList, newRightYaxisList });
@@ -206,7 +223,10 @@ export default class extends Component {
     const leftAuxiliaryLines = filterAuxiliaryLines('left', auxiliaryLines, yaxisList);
     const leftAuxiliaryLineConfig = getAuxiliaryLineConfig(leftAuxiliaryLines, data, { yaxisList, colors });
     const rightAuxiliaryLines = filterAuxiliaryLines('right', auxiliaryLines, rightY.yaxisList);
-    const rightAuxiliaryLineConfig = getAuxiliaryLineConfig(rightAuxiliaryLines, lineData, { yaxisList: rightY.yaxisList, colors: rightYColors });
+    const rightAuxiliaryLineConfig = getAuxiliaryLineConfig(rightAuxiliaryLines, lineData, {
+      yaxisList: rightY.yaxisList,
+      colors: rightYColors,
+    });
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = yaxisList.length === 1 && _.isEmpty(split.controlId) && !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor ? getControlMinAndMax(yaxisList, data) : {};
@@ -216,10 +236,10 @@ export default class extends Component {
         value,
         controlMinAndMax,
         rule,
-        controlId: yaxisList[0].controlId
+        controlId: yaxisList[0].controlId,
       });
       return color || colors[0];
-    }
+    };
 
     const columnConfig = {
       geometry: 'column',
@@ -265,15 +285,15 @@ export default class extends Component {
               displaySetup.isPile ? { type: 'adjust-color' } : null,
               { type: 'limit-in-plot' },
             ],
-            content: ({ value, groupName, controlId }) => {
+            content: ({ value, controlId }) => {
               const id = split.controlId ? newYaxisList[0].controlId : controlId;
               return formatrChartValue(value, false, newYaxisList, value ? undefined : id);
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
+              fill: isDark ? '#ffffffb0' : undefined,
+            },
           }
-        : false
+        : false,
     };
 
     const lineConfig = {
@@ -302,17 +322,16 @@ export default class extends Component {
               return formatrChartValue(contentValue, false, yaxisList, contentValue ? undefined : controlId);
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
+              fill: isDark ? '#ffffff61' : undefined,
+            },
           }
-        : false
+        : false,
     };
 
     lineData.forEach(item => {
       item.rightValue = item.value;
     });
 
-    const rightMinValue = getMinValue(lineData, []);
     const topPadding = position === 'bottom' ? 20 : 15;
 
     const baseConfig = {
@@ -329,14 +348,15 @@ export default class extends Component {
               ? {
                   text: ydisplay.title,
                   style: {
-                    fill: isDark ? '#ffffffcc' : undefined
-                  }
+                    fill: isDark ? '#ffffffb0' : undefined,
+                  },
                 }
               : null,
           grid: {
             line: ydisplay.showDial
               ? {
                   style: {
+                    stroke: isDark ? '#ffffff6b' : undefined,
                     lineDash: ydisplay.lineStyle === 1 ? [] : [4, 5],
                   },
                 }
@@ -348,8 +368,8 @@ export default class extends Component {
                   return value ? formatrChartAxisValue(Number(value), false, newYaxisList) : null;
                 },
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined
-                }
+                  fill: isDark ? '#ffffffb0' : undefined,
+                },
               }
             : null,
         },
@@ -362,8 +382,8 @@ export default class extends Component {
               ? {
                   text: rightYDisplay.title,
                   style: {
-                    fill: isDark ? '#ffffffcc' : undefined
-                  }
+                    fill: isDark ? '#ffffffb0' : undefined,
+                  },
                 }
               : null,
           // grid: {
@@ -379,8 +399,8 @@ export default class extends Component {
                   return value ? formatrChartAxisValue(Number(value), false, newRightYaxisList) : null;
                 },
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined
-                }
+                  fill: isDark ? '#ffffffb0' : undefined,
+                },
               }
             : null,
         },
@@ -389,7 +409,7 @@ export default class extends Component {
         name: {
           type: 'cat',
           ...(sortLineXAxis.length ? { values: sortLineXAxis } : {}),
-          formatter: value => value || _l('空')
+          formatter: value => value || _l('空'),
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
@@ -397,7 +417,7 @@ export default class extends Component {
       },
       tooltip: {
         title: formatterTooltipTitle(xaxes),
-        formatter: (data) => {
+        formatter: data => {
           const { value, rightValue, groupName } = data;
           const { name, id } = formatControlInfo(groupName);
           if (_.isNumber(value)) {
@@ -405,7 +425,11 @@ export default class extends Component {
             const labelValue = formatrChartValue(value, false, newYaxisList, value ? undefined : id);
             return {
               name,
-              value: _.isNumber(value) ? style.tooltipValueType ? labelValue : value.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+              value: _.isNumber(value)
+                ? style.tooltipValueType
+                  ? labelValue
+                  : value.toLocaleString('zh', { minimumFractionDigits: dot })
+                : '--',
             };
           }
           if (_.isNumber(rightValue)) {
@@ -413,25 +437,31 @@ export default class extends Component {
             const labelValue = formatrChartValue(rightValue, false, newRightYaxisList, value ? undefined : id);
             return {
               name,
-              value: _.isNumber(rightValue) ? style.tooltipValueType ? labelValue : rightValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+              value: _.isNumber(rightValue)
+                ? style.tooltipValueType
+                  ? labelValue
+                  : rightValue.toLocaleString('zh', { minimumFractionDigits: dot })
+                : '--',
             };
           }
           const { emptyShowType, dot } = _.find(yaxisList.concat(rightY.yaxisList), { controlId: id }) || {};
           return {
             name,
-            value: emptyShowType === 2 ? '--' : (0).toFixed(dot)
+            value: emptyShowType === 2 ? '--' : (0).toFixed(dot),
           };
         },
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
+            }
+          : undefined,
       },
       xAxis: {
         title:
@@ -439,20 +469,20 @@ export default class extends Component {
             ? {
                 text: xdisplay.title,
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined
-                }
+                  fill: isDark ? '#ffffffb0' : undefined,
+                },
               }
             : null,
         label: xdisplay.showDial
           ? {
               autoRotate: displaySetup.fontStyle ? true : false,
               autoHide: true,
-              formatter: (name, item) => {
+              formatter: name => {
                 return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
+                fill: isDark ? '#ffffffb0' : undefined,
+              },
             }
           : null,
         line: ydisplay.lineStyle === 1 ? {} : null,
@@ -470,18 +500,15 @@ export default class extends Component {
             radio: { style: { r: 6 } },
             itemName: {
               style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
-            }
+                fill: isDark ? '#ffffffb0' : undefined,
+              },
+            },
           }
         : false,
       annotations: {
-        value: [
-          ...countConfig,
-          ...leftAuxiliaryLineConfig
-        ],
-        rightValue: rightAuxiliaryLineConfig
-      }
+        value: [...countConfig, ...leftAuxiliaryLineConfig],
+        rightValue: rightAuxiliaryLineConfig,
+      },
     };
 
     if (yreportType === reportTypes.BarChart) {
@@ -493,7 +520,7 @@ export default class extends Component {
 
     return baseConfig;
   }
-  handleClick = (data) => {
+  handleClick = data => {
     const { xaxes, split, rightY, appId, reportId, name, reportType, style } = this.props.reportData;
     const rightYSplit = rightY.split;
     const event = data.gEvent;
@@ -505,7 +532,7 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -518,7 +545,7 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.data.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (split.controlId && !isRight) {
@@ -534,7 +561,7 @@ export default class extends Component {
         controlName: split.controlName,
         controlValue: formatControlInfo(currentData.data.groupName).name,
         type: split.controlType,
-        control: split
+        control: split,
       });
     }
     if (rightYSplit.controlId && isRight) {
@@ -550,54 +577,60 @@ export default class extends Component {
         controlName: rightYSplit.controlName,
         controlValue: formatControlInfo(currentData.data.groupName).name,
         type: rightYSplit.controlType,
-        control: rightYSplit
+        control: rightYSplit,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: event.x + 20,
-        y: event.y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: event.x + 20,
+          y: event.y,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     this.setState({ dropdownVisible: false });
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const config = this.getComponentConfig(this.props);
-      this.DualAxes.update(config);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const config = this.getComponentConfig(this.props);
+        this.DualAxes.update(config);
+      },
+    );
+  };
   renderOverlay() {
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
@@ -622,18 +655,20 @@ export default class extends Component {
       const originalCount = value.toLocaleString() == count ? 0 : value.toLocaleString();
       return {
         count,
-        originalCount
-      }
-    }
+        originalCount,
+      };
+    };
     const renderItem = data => {
       const { count, originalCount } = get(data.sum);
       return (
         <Fragment>
           <span>{formatSummaryName(data)}: </span>
-          <span data-tip={originalCount ? originalCount : null} className="count Font22">{count || 0}</span>
+          <span data-tip={originalCount ? originalCount : null} className="count Font22">
+            {count || 0}
+          </span>
         </Fragment>
       );
-    }
+    };
 
     if ('all' in summary) {
       const { all, controlList = [] } = summary;
@@ -648,18 +683,14 @@ export default class extends Component {
             <div className="flexRow mRight10" style={{ alignItems: 'baseline' }}>
               {renderItem({
                 ...data,
-                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName')
+                name: data.name || _.get(_.find(yaxisList, { controlId: data.controlId }), 'controlName'),
               })}
             </div>
           ))}
         </div>
       );
     } else {
-      return (
-        <div>
-          {renderItem(summary)}
-        </div>
-      );
+      return <div>{renderItem(summary)}</div>;
     }
   }
   render() {
@@ -670,7 +701,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
@@ -681,16 +712,8 @@ export default class extends Component {
         </Dropdown>
         {dualAxesSwitchChecked && (
           <div className="flexRow spaceBetween summaryWrap pBottom10">
-            {displaySetup.showTotal ? (
-              this.renderCount(summary, newYaxisList)
-            ) : (
-              <div></div>
-            )}
-            {rightY && rightY.summary.showTotal ? (
-              this.renderCount(rightY.summary, newRightYaxisList)
-            ) : (
-              <div></div>
-            )}
+            {displaySetup.showTotal ? this.renderCount(summary, newYaxisList) : <div></div>}
+            {rightY && rightY.summary.showTotal ? this.renderCount(rightY.summary, newRightYaxisList) : <div></div>}
           </div>
         )}
         <div className="h100" ref={el => (this.chartEl = el)}></div>

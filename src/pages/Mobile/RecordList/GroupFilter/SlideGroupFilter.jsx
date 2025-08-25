@@ -16,7 +16,7 @@ const CloseIcon = styled.i`
 
 export default function SlideGroupFilter(props) {
   const { base } = props;
-  const { appId, viewId } = base;
+  const { viewId } = base;
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentGroup, setCurrentGroup] = useState({});
 

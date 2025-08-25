@@ -1,11 +1,10 @@
-
 export const PERIOD_TYPE = {
   day: 0,
   week: 1,
   month: 2,
   quarter: 3,
-  year: 4
-}
+  year: 4,
+};
 
 export const PERIODS = [
   {
@@ -42,7 +41,5 @@ export const PERIODS = [
     periodCount: 20,
     minDayWidth: 0.9,
     defaultMinDayWidth: 0.9,
-  }
+  },
 ];
-
-

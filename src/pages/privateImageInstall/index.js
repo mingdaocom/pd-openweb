@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import { Button, Input, LoadDiv, Textarea } from 'ming-ui';
 import privateGuide from 'src/api/privateGuide';
 import 'src/common/mdcss/Themes/theme.less';
@@ -111,13 +112,13 @@ class PrivateImageInstall extends Component {
         email,
         password: encrypt(password),
       })
-      .then(result => {
+      .then(() => {
         this.setState({
           loading: false,
           stepResult: Object.assign(stepResult, { createdAdmin: true }),
         });
       })
-      .catch(error => {
+      .fail(() => {
         this.setState({ loading: false });
       });
   };
@@ -138,13 +139,13 @@ class PrivateImageInstall extends Component {
       .addProject({
         name: projectName,
       })
-      .then(result => {
+      .then(() => {
         this.setState({
           loading: false,
           stepResult: Object.assign(stepResult, { createdProject: true }),
         });
       })
-      .catch(error => {
+      .fail(() => {
         this.setState({ loading: false });
       });
   };

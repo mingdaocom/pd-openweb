@@ -6,14 +6,14 @@ import moment from 'moment';
 import { Icon, SvgIcon, UserHead } from 'ming-ui';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { dateConvertToUserZone } from 'src/utils/project';
-import { ACTION_TYPES, covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS, TABS, TYPE_TO_STYLE } from '../config';
+import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS, TABS } from '../config';
 import './index.less';
 
 export default class Card extends Component {
   constructor(props) {
     super(props);
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     return (
       !_.isEqual(this.props.item.id, nextProps.item.id) ||
       this.props.approveChecked !== nextProps.approveChecked ||
@@ -23,13 +23,6 @@ export default class Card extends Component {
   renderHeader() {
     const { stateTab, item, showApproveChecked = true } = this.props;
     const { flowNode, workItem, flowNodeType, currentWorkFlowNodes, completeDate, instanceLog, status } = item;
-    const type =
-      ACTION_TYPES[
-        stateTab === TABS.MY_SPONSOR && !_.isEmpty(currentWorkFlowNodes)
-          ? currentWorkFlowNodes[currentWorkFlowNodes.length - 1].type
-          : flowNodeType
-      ];
-
     let RenderState = null;
     let RenderRightHander = null;
     let RenderResultState = null;
@@ -253,6 +246,7 @@ export default class Card extends Component {
 
     return (
       <Tooltip
+        autoCloseDelay={0}
         title={
           autoPass
             ? ''
@@ -267,7 +261,7 @@ export default class Card extends Component {
             color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
           }}
         >
-          <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
+          <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
           {_l('耗时：%0', covertTime(maxTimeConsuming))}
         </span>
       </Tooltip>
@@ -291,7 +285,7 @@ export default class Card extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#2196f3',
+          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#1677ff',
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />

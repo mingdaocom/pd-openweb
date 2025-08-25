@@ -1,34 +1,33 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { Collapse, Checkbox, Switch, Input, Tooltip } from 'antd';
-import { Count } from './components/Count';
-import DataFilter from './components/DataFilter';
-import Label from './components/Label';
-import XAxis from './components/XAxis';
-import yAxisPanelGenerator, { bidirectionalBarChartYAxisPanelGenerator } from './components/YAxis';
-import Quadrant from './components/Quadrant';
-import MeasureAxis from './components/MeasureAxis';
-import unitPanelGenerator from './components/Unit';
-import { gaugeColorPanelGenerator, scalePanelGenerator, indicatorPanelGenerator } from './components/GaugeChartConfig';
-import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
-import pivotTableCountPanelGenerator from './components/PivotTableCount';
-import allCountPanelGenerator from './components/AllCount';
-import Color from './components/Color/index';
-import TitleStyles from './components/TitleStyles';
-import PivotTableFieldColor from './components/PivotTableFieldColor/index';
-import topChartPanelGenerator from './components/TopChartPanel';
-import { reportTypes, LegendTypeData } from 'statistics/Charts/common';
-import { isTimeControl } from 'statistics/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'statistics/redux/actions';
-import './index.less';
+import { Checkbox, Collapse, Input, Switch, Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { LegendTypeData, reportTypes } from 'statistics/Charts/common';
+import * as actions from 'statistics/redux/actions';
+import allCountPanelGenerator from './components/AllCount';
+import Color from './components/Color/index';
+import { Count } from './components/Count';
+import DataFilter from './components/DataFilter';
+import { gaugeColorPanelGenerator, indicatorPanelGenerator, scalePanelGenerator } from './components/GaugeChartConfig';
+import Label from './components/Label';
+import MeasureAxis from './components/MeasureAxis';
+import numberStylePanelGenerator, { numberSummaryPanelGenerator } from './components/NumberStyle';
+import pivotTableCountPanelGenerator from './components/PivotTableCount';
+import PivotTableFieldColor from './components/PivotTableFieldColor/index';
+import Quadrant from './components/Quadrant';
+import TitleStyles from './components/TitleStyles';
+import topChartPanelGenerator from './components/TopChartPanel';
+import unitPanelGenerator from './components/Unit';
+import XAxis from './components/XAxis';
+import yAxisPanelGenerator, { bidirectionalBarChartYAxisPanelGenerator } from './components/YAxis';
+import './index.less';
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'reportData', 'worksheetInfo'])
+    ..._.pick(state.statistics, ['currentReport', 'reportData', 'worksheetInfo']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -37,34 +36,39 @@ export default class ChartStyle extends Component {
     super(props);
   }
   handleChangeDisplaySetup = (data, isRequest = false) => {
-    this.props.changeCurrentReport({
-      displaySetup: data
-    }, isRequest);
-  }
-  handleChangeDisplayValue = (key, value, isRequest) => {
     const { displaySetup } = this.props.currentReport;
+    this.props.changeCurrentReport(
+      {
+        displaySetup: {
+          ...displaySetup,
+          ...data,
+        },
+      },
+      isRequest,
+    );
+  };
+  handleChangeDisplayValue = (key, value, isRequest) => {
     this.handleChangeDisplaySetup(
       {
-        ...displaySetup,
         [key]: value,
       },
       isRequest,
     );
-  }
+  };
   handleChangeStyle = (data, isRequest = false) => {
     const { style } = this.props.currentReport;
     this.props.changeCurrentReport(
       {
         style: {
           ...style,
-          ...data
-        }
+          ...data,
+        },
       },
-      isRequest
+      isRequest,
     );
-  }
+  };
   renderCount() {
-    const { reportType, displaySetup, summary, yaxisList, rightY, pivotTable = {} } = this.props.currentReport;
+    const { reportType, displaySetup, summary, yaxisList, rightY } = this.props.currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
     const dualAxesSwitchChecked = summary.showTotal || (rightY ? rightY.summary.showTotal : null);
@@ -210,13 +214,21 @@ export default class ChartStyle extends Component {
     return numberStylePanelGenerator({
       ...this.props,
       onChangeStyle: this.handleChangeStyle,
-      onChangeDisplayValue: this.handleChangeDisplayValue
+      onChangeDisplayValue: this.handleChangeDisplayValue,
+      handleChangeDisplaySetup: this.handleChangeDisplaySetup,
     });
   }
   renderLegend() {
     const { displaySetup, yaxisList, split, reportType } = this.props.currentReport;
 
-    if ([reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && !(yaxisList.length > 1 || split.controlId || displaySetup.contrastType)) {
+    if (
+      [reportTypes.LineChart, reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) &&
+      !(yaxisList.length > 1 || split.controlId || displaySetup.contrastType)
+    ) {
+      return null;
+    }
+
+    if (reportTypes.ScatterChart === reportType && !split.controlId) {
       return null;
     }
 
@@ -273,7 +285,6 @@ export default class ChartStyle extends Component {
             }}
             onChange={checked => {
               this.handleChangeDisplaySetup({
-                ...currentReport.displaySetup,
                 showNumber: checked,
                 showDimension: checked,
                 showPercent: checked,
@@ -281,8 +292,8 @@ export default class ChartStyle extends Component {
                 hideOverlapText: checked,
                 percent: {
                   ...percent,
-                  enable: checked
-                }
+                  enable: checked,
+                },
               });
             }}
           />
@@ -291,7 +302,7 @@ export default class ChartStyle extends Component {
         <Label
           currentReport={currentReport}
           onChangeDisplayValue={this.handleChangeDisplayValue}
-          onUpdateDisplaySetup={this.handleChangeDisplaySetup}
+          onChangeDisplaySetup={this.handleChangeDisplaySetup}
           onChangeStyle={this.handleChangeStyle}
         />
       </Collapse.Panel>
@@ -301,19 +312,19 @@ export default class ChartStyle extends Component {
     return gaugeColorPanelGenerator({
       ...this.props,
       onChangeStyle: this.handleChangeStyle,
-      onChangeDisplayValue: this.handleChangeDisplayValue
+      onChangeDisplayValue: this.handleChangeDisplayValue,
     });
   }
   renderScale() {
     return scalePanelGenerator({
       ...this.props,
-      onChangeStyle: this.handleChangeStyle
+      onChangeStyle: this.handleChangeStyle,
     });
   }
   renderIndicator() {
     return indicatorPanelGenerator({
       ...this.props,
-      onChangeStyle: this.handleChangeStyle
+      onChangeStyle: this.handleChangeStyle,
     });
   }
   renderLayout() {
@@ -333,10 +344,7 @@ export default class ChartStyle extends Component {
     }, 100);
 
     return (
-      <Collapse.Panel
-        key="layout"
-        header={ _l('布局')}
-      >
+      <Collapse.Panel key="layout" header={_l('布局')}>
         <div>
           <div className="flexRow valignWrapper mBottom12">
             <div style={{ width: 90 }}>{_l('每行显示个数')}</div>
@@ -372,14 +380,14 @@ export default class ChartStyle extends Component {
           <div className="flexRow valignWrapper mTop16 mBottom16">
             <Checkbox
               checked={style.allowScroll}
-              onChange={(e) => {
+              onChange={e => {
                 this.handleChangeStyle({ allowScroll: e.target.checked });
               }}
             >
               {_l('允许容器内滚动')}
             </Checkbox>
             <Tooltip title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')} placement="bottom" arrowPointAtCenter>
-              <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+              <Icon className="Gray_9e Font18 pointer" icon="info" />
             </Tooltip>
           </div>
         </div>
@@ -407,7 +415,6 @@ export default class ChartStyle extends Component {
             }}
             onChange={checked => {
               this.handleChangeDisplaySetup({
-                ...currentReport.displaySetup,
                 fontStyle: checked ? 1 : 0,
                 xdisplay: {
                   ...xdisplay,
@@ -416,7 +423,7 @@ export default class ChartStyle extends Component {
                 },
               });
               this.handleChangeStyle({
-                showXAxisSlider: checked
+                showXAxisSlider: checked,
               });
             }}
           />
@@ -433,7 +440,9 @@ export default class ChartStyle extends Component {
   renderYAxis() {
     const { currentReport } = this.props;
     const isBidirectionalBarChart = currentReport.reportType === reportTypes.BidirectionalBarChart;
-    return isBidirectionalBarChart ? bidirectionalBarChartYAxisPanelGenerator(this.props) : yAxisPanelGenerator(this.props);
+    return isBidirectionalBarChart
+      ? bidirectionalBarChartYAxisPanelGenerator(this.props)
+      : yAxisPanelGenerator(this.props);
   }
   renderQuadrant() {
     const { style } = this.props.currentReport;
@@ -459,15 +468,15 @@ export default class ChartStyle extends Component {
                 topLeftText: _l('左上象限'),
                 bottomLeftBgColor: '#4CAF50',
                 bottomLeftText: _l('左下象限'),
-                bottomRightBgColor: '#2196F3',
+                bottomRightBgColor: '#1677ff',
                 bottomRightText: _l('右下象限'),
-                textColor: '#9e9e9e'
-              }
+                textColor: '#9e9e9e',
+              };
               this.handleChangeStyle({
                 quadrant: {
                   ...(_.isEmpty(quadrant) ? defaultQuadrant : quadrant),
-                  visible: checked
-                }
+                  visible: checked,
+                },
               });
             }}
           />
@@ -475,12 +484,12 @@ export default class ChartStyle extends Component {
       >
         <Quadrant
           quadrant={quadrant}
-          onChangeQuadrant={(data) => {
+          onChangeQuadrant={data => {
             this.handleChangeStyle({
               quadrant: {
                 ...quadrant,
-                ...data
-              }
+                ...data,
+              },
             });
           }}
         />
@@ -490,10 +499,7 @@ export default class ChartStyle extends Component {
   renderMeasureAxis() {
     const { currentReport } = this.props;
     return (
-      <Collapse.Panel
-        key="measureAxis"
-        header={_l('测量轴')}
-      >
+      <Collapse.Panel key="measureAxis" header={_l('测量轴')}>
         <MeasureAxis currentReport={currentReport} onChangeDisplayValue={this.handleChangeDisplayValue} />
       </Collapse.Panel>
     );
@@ -504,10 +510,7 @@ export default class ChartStyle extends Component {
   renderWordCloudFontSize() {
     const { currentReport } = this.props;
     return (
-      <Collapse.Panel
-        key="wordCloudFontSize"
-        header={_l('词大小范围')}
-      >
+      <Collapse.Panel key="wordCloudFontSize" header={_l('词大小范围')}>
         <MeasureAxis currentReport={currentReport} onChangeDisplayValue={this.handleChangeDisplayValue} />
       </Collapse.Panel>
     );
@@ -601,7 +604,7 @@ export default class ChartStyle extends Component {
     );
   }
   renderColor() {
-    const { currentReport, changeCurrentReport, worksheetInfo } = this.props;
+    const { changeCurrentReport } = this.props;
     return (
       <Collapse.Panel header={_l('图形颜色')} key="color">
         <Color
@@ -668,12 +671,12 @@ export default class ChartStyle extends Component {
               const { displaySetup, summary } = data;
               const result = {
                 summary,
-              }
+              };
               if (displaySetup) {
                 result.displaySetup = displaySetup;
               }
               changeCurrentReport(result, isRequest);
-            }
+            },
           })}
           {allCountPanelGenerator({
             ...this.props,
@@ -684,16 +687,19 @@ export default class ChartStyle extends Component {
             changeCurrentReport: (data, isRequest) => {
               const { displaySetup = {}, summary } = data;
               const { showTotal } = displaySetup;
-              changeCurrentReport({
-                rightY: {
-                  ...rightY,
-                  summary: {
-                    ...summary,
-                    showTotal
-                  }
-                }
-              }, isRequest);
-            }
+              changeCurrentReport(
+                {
+                  rightY: {
+                    ...rightY,
+                    summary: {
+                      ...summary,
+                      showTotal,
+                    },
+                  },
+                },
+                isRequest,
+              );
+            },
           })}
         </Fragment>
       );
@@ -711,8 +717,8 @@ export default class ChartStyle extends Component {
   }
   render() {
     const { currentReport, sourceType } = this.props;
-    const { reportType, xaxes } = currentReport;
-    const xAxisisTime = isTimeControl(xaxes.controlType);
+    const { reportType } = currentReport;
+
     return (
       <div className="chartStyle">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>
@@ -720,17 +726,38 @@ export default class ChartStyle extends Component {
           {reportTypes.NumberChart === reportType && this.renderNumberStyle()}
           {sourceType && this.renderTitle()}
           {[reportTypes.WordCloudChart].includes(reportType) && this.renderWordCloudFontSize()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart, reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType) &&
-            this.renderLegend()}
-          {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) &&
-            this.renderXAxis()}
-          {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) &&
-            this.renderYAxis()}
+          {![
+            reportTypes.NumberChart,
+            reportTypes.CountryLayer,
+            reportTypes.PivotTable,
+            reportTypes.WordCloudChart,
+            reportTypes.TopChart,
+            reportTypes.GaugeChart,
+            reportTypes.ProgressChart,
+          ].includes(reportType) && this.renderLegend()}
+          {[
+            reportTypes.LineChart,
+            reportTypes.BarChart,
+            reportTypes.DualAxes,
+            reportTypes.BidirectionalBarChart,
+            reportTypes.ScatterChart,
+          ].includes(reportType) && this.renderXAxis()}
+          {[
+            reportTypes.LineChart,
+            reportTypes.BarChart,
+            reportTypes.DualAxes,
+            reportTypes.BidirectionalBarChart,
+            reportTypes.ScatterChart,
+          ].includes(reportType) && this.renderYAxis()}
           {reportTypes.ScatterChart === reportType && this.renderQuadrant()}
-          {[reportTypes.RadarChart].includes(reportType) &&
-            this.renderMeasureAxis()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.PivotTable, reportTypes.WordCloudChart, reportTypes.TopChart].includes(reportType) &&
-            this.renderLabel()}
+          {[reportTypes.RadarChart].includes(reportType) && this.renderMeasureAxis()}
+          {![
+            reportTypes.NumberChart,
+            reportTypes.CountryLayer,
+            reportTypes.PivotTable,
+            reportTypes.WordCloudChart,
+            reportTypes.TopChart,
+          ].includes(reportType) && this.renderLabel()}
           {reportTypes.GaugeChart === reportType && (
             <Fragment key="gaugeChart">
               {this.renderGaugeColor()}
@@ -738,14 +765,19 @@ export default class ChartStyle extends Component {
               {this.renderIndicator()}
             </Fragment>
           )}
-          {[reportTypes.ProgressChart].includes(reportType) && (
-            this.renderLayout()
-          )}
-          {[reportTypes.TopChart].includes(reportType) &&
-            this.renderTopChart()}
+          {[reportTypes.ProgressChart].includes(reportType) && this.renderLayout()}
+          {[reportTypes.TopChart].includes(reportType) && this.renderTopChart()}
           {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
-          {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart].includes(reportType) &&
-            this.renderDataFilter()}
+          {![
+            reportTypes.NumberChart,
+            reportTypes.CountryLayer,
+            reportTypes.DualAxes,
+            reportTypes.BidirectionalBarChart,
+            reportTypes.WordCloudChart,
+            reportTypes.GaugeChart,
+            reportTypes.ProgressChart,
+            reportTypes.ScatterChart,
+          ].includes(reportType) && this.renderDataFilter()}
           {![reportTypes.NumberChart, reportTypes.PivotTable, reportTypes.GaugeChart].includes(reportType) &&
             this.renderColor()}
           {reportTypes.PivotTable === reportType && this.renderPivotTableFieldColor()}

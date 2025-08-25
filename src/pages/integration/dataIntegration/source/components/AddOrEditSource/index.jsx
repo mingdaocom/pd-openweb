@@ -62,9 +62,9 @@ const HeaderWrapper = styled.div`
           font-weight: 600;
         }
         &.isCur {
-          border-bottom: 3px solid #2196f3;
+          border-bottom: 3px solid #1677ff;
           a {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -131,7 +131,7 @@ export default function AddOrEditSource(props) {
         })
         .then(res => {
           if (res) {
-            if (!!res.errorMsgList) {
+            if (res.errorMsgList) {
               setNoExistSource(true);
               alert(_l('数据源不存在'), 2);
               setTimeout(() => location.assign('/integration/source'), 5000);
@@ -185,7 +185,7 @@ export default function AddOrEditSource(props) {
     <AddOrEditSourceWrapper>
       <HeaderWrapper>
         <div className="headerLeft" onClick={isCreateDialog ? onClose : () => navigateTo('/integration/source')}>
-          <Icon icon="arrow_back" className="Gray_75 Font22 bold" />
+          <Icon icon="backspace" className="Gray_75 Font22 bold" />
           <span className="Gray Font16 bold pLeft10">{isCreateDialog ? _l('创建数据源') : _l('编辑数据源')}</span>
         </div>
 

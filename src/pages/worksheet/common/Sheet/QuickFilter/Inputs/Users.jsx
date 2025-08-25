@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import _, { find, isEqual } from 'lodash';
 import { arrayOf, func, string } from 'prop-types';
+import styled from 'styled-components';
 import { UserHead } from 'ming-ui';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import _, { isEqual } from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -13,7 +13,7 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -104,6 +104,14 @@ export default function Users(props) {
   };
 
   const handleClick = () => {
+    if (
+      tabType === 1 &&
+      md.global.Account.isPortal &&
+      !find(md.global.Account.projects, item => item.projectId === projectId)
+    ) {
+      alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
+      return;
+    }
     const selectIds = values.map(l => l.accountId);
 
     setActive(true);
@@ -156,7 +164,7 @@ export default function Users(props) {
         SelectUserSettings: {
           projectId,
           unique: !isMultiple,
-          filterResigned: false,
+          filterResigned: md.global.Account.isPortal, //外部门户不支持查看已离职
           callback(users) {
             handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
             setActive(false);
@@ -185,24 +193,12 @@ export default function Users(props) {
       <UsersCon ref={conRef}>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
         {!isMultiple && !!values.length ? (
-          <SingleUserItem className="singleUserItem">
-            <UserHead
-              className="userHead"
-              user={{
-                userHead: values[0].avatar || emptyAvatar,
-                accountId: values[0].accountId,
-              }}
-              size={24}
-              appId={appId}
-              projectId={projectId}
-            />
-            {values[0].fullname || _l('为空')}
-          </SingleUserItem>
+          <SingleUserItem className="singleUserItem">{values[0].fullname || nullitemname || _l('为空')}</SingleUserItem>
         ) : (
           values.map(user => {
             if (user.accountId === 'isEmpty' && !user.avatar && !user.fullname) {
               user.avatar = emptyAvatar;
-              user.fullname = _l('为空');
+              user.fullname = nullitemname || _l('为空');
             }
             return (
               <UserItem className="ellipsis">

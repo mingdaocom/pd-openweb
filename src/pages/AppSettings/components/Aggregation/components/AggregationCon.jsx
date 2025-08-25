@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
@@ -148,12 +148,12 @@ function FormatWrap(props) {
               <Checkbox
                 size="small"
                 checked={!!dot}
-                onClick={checked => {
+                onClick={() => {
                   onChangeItems({
                     ...handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
-                      dot: !!dot ? '' : '2',
+                      dot: dot ? '' : '2',
                     }),
-                    dot: Number(!!dot ? '0' : '2'),
+                    dot: Number(dot ? '0' : '2'),
                   });
                 }}
                 text={_l('小数位数')}
@@ -199,6 +199,7 @@ function FormatWrap(props) {
                   title={_l(
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                   )}
+                  autoCloseDelay={0}
                 >
                   <i className="icon-help Gray_bd Font15"></i>
                 </Tooltip>
@@ -219,7 +220,7 @@ export default function AggregationCon(props) {
   const { list, onChange, updateErr, sourceInfos } = props;
 
   const Item = props => {
-    const { item = {}, onUpdate, items, sourceTables, flowData, DragHandle } = props;
+    const { item = {}, onUpdate, items, flowData, DragHandle } = props;
     const { num } = item;
     const [{ showChangeName, showCalculation, popupVisible }, setState] = useSetState({
       showChangeName: false,
@@ -275,6 +276,7 @@ export default function AggregationCon(props) {
           {!item.isCalculateField && (
             <Tooltip
               placement="bottom"
+              autoCloseDelay={0}
               title={
                 <span className="">
                   {_.get(item, 'parentFieldInfo.controlSetting.controlName') && (
@@ -509,7 +511,7 @@ export default function AggregationCon(props) {
           return { ...o, num: i };
         })}
         itemKey="num"
-        onSortEnd={(newItems = [], newIndex) => {
+        onSortEnd={(newItems = []) => {
           onChange(
             newItems.map(o => _.omit(o, 'num')),
             false,

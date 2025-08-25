@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import { find, get, isFunction, omit, uniq } from 'lodash';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Modal } from 'ming-ui';
@@ -69,8 +70,8 @@ const TestCon = styled.div`
       display: flex;
       justify-content: center;
       &:hover {
-        border-color: #2196f3;
-        color: #2196f3;
+        border-color: #1677ff;
+        color: #1677ff;
       }
     }
   }
@@ -94,6 +95,7 @@ const TestCon = styled.div`
     .name {
       font-size: 20px;
       font-weight: bold;
+      flex-shrink: 0;
     }
     .equal {
       font-size: 20px;
@@ -140,7 +142,6 @@ export default function TestFunctionDialog(props) {
     controls,
     renderTag,
     onChange,
-    insertTagToEditor,
     onCancel,
     onUpdate,
   } = props;
@@ -164,7 +165,7 @@ export default function TestFunctionDialog(props) {
     .map(c => ({
       ...c,
       type: changeControlType(c),
-      ...(c.type === 30 ? omit(c.sourceControl || { type: c.sourceControlType }, 'controlId') : {}),
+      ...(c.type === 30 ? omit(c.sourceControl || { type: c.sourceControlType }, ['controlId', 'controlName']) : {}),
       size: 12,
       sectionId: undefined,
       required: false,
@@ -257,7 +258,7 @@ export default function TestFunctionDialog(props) {
             <span className="name ellipsis">{title}</span>
             <span className="equal">=</span>
             {testResultValue && (
-              <span className="resultValue">
+              <span className="resultValue" title={testResultValue}>
                 <div className="ellipsis">{testResultValue}</div>
               </span>
             )}
@@ -271,9 +272,6 @@ export default function TestFunctionDialog(props) {
               recordId="FAKE_RECORD_ID_FROM_BATCH_EDIT"
               disabledFunctions={['controlRefresh']}
               showTitle={false}
-              ref={ref => {
-                // setRef(ref);
-              }}
               data={formData}
               projectId={projectId}
               appId={appId}

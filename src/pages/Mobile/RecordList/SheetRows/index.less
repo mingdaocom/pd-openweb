@@ -1,6 +1,5 @@
-
 .sheetRowsWrapper {
-  background-color: #F2F2F3;
+  background-color: #f2f2f3;
   .am-list {
     width: 100%;
   }
@@ -10,7 +9,8 @@
   .am-list-body {
     background-color: transparent;
     border: none !important;
-    &:before, &:after {
+    &:before,
+    &:after {
       content: none !important;
     }
   }
@@ -25,12 +25,20 @@
       color: #616161;
     }
   }
+  .rowWrap {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    .count {
+      font-size: 0.9em;
+    }
+  }
 }
 
 .withoutRows {
   width: 100%;
   height: 100%;
-  color: #BDBDBD;
+  color: #bdbdbd;
   .img {
     width: 70px;
   }

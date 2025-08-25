@@ -162,7 +162,7 @@ class DialogSelectUser extends Component {
         !_.get(window, 'isPublicApp') &&
         checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) &&
         fromAdmin,
-      callback: data => {
+      callback: () => {
         this.props.onCancel();
       },
     };
@@ -258,7 +258,7 @@ export default function dialogSelectUser(opts) {
       selectedAccountIds: [], // 已选择的用户
       hideOftenUsers: false, // 是否隐藏最常协作
       hideManageOftenUsers: false, // 是否隐藏管理最常协作人员
-      callback: function (data) {},
+      callback: function () {},
     },
   };
 

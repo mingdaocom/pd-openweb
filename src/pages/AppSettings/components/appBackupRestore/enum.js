@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const RegularBackupTabs = [
   { text: _l('每天'), value: 1 },
   { text: _l('每周'), value: 2 },

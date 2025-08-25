@@ -50,4 +50,4 @@ export const WrapNum = styled.div`
       }
     }
   }
-`; 
+`;

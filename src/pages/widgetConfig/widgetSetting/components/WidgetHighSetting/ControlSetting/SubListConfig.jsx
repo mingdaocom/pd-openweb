@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
-import _ from 'lodash';
-import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
+import { Checkbox } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 
 export default function SubListConfig(props) {
@@ -48,6 +47,7 @@ export default function SubListConfig(props) {
           >
             <Tooltip
               popupPlacement="bottom"
+              autoCloseDelay={0}
               title={
                 <span>
                   {_l(

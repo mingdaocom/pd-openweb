@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { connect, Provider } from 'react-redux';
+import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -8,11 +8,36 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Inbox } from '../../components/Inbox';
 import * as actions from '../../redux/actions';
 import * as ajax from '../../utils/ajax';
-import * as socket from '../../utils/socket';
 import ChatPanelSession from '../ChatPanelSession';
 import './index.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
+
+const exceptions = [
+  '.ChatList-wrapper',
+  '.dialogScroll',
+  '.ant-modal',
+  '.mdModal',
+  '.ChatPanel-Trigger',
+  '.attachmentsPreview',
+  '.Tooltip',
+  '.mui-dialog-container',
+  '.confirm',
+  '.PositionContainer-wrapper',
+  '.groupSettingAvatarSelect',
+  '.ui-timepicker-list',
+  '.selectUserBox',
+  '.warpDatePicker',
+  '.dropdownTrigger',
+  '.rc-trigger-popup',
+  '.workflowStepListWrap',
+  '.ant-select-dropdown',
+  '.ant-cascader-menus',
+  '.InboxFilterWrapper',
+  '.ant-picker-dropdown',
+  '.addMembersMoreAction',
+  '.ChatList-ContextMenu',
+];
 
 class ChatPanel extends Component {
   constructor(props) {
@@ -23,7 +48,7 @@ class ChatPanel extends Component {
       error: undefined,
     };
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const { currentSession } = nextProps;
     if ('isRender' in currentSession && !currentSession.isRender) {
       return false;
@@ -32,8 +57,11 @@ class ChatPanel extends Component {
     if ('isContact' in currentSession && !currentSession.isContact) {
       return true;
     }
+    if (!_.isEqual(nextProps.toolbarConfig, this.props.toolbarConfig)) {
+      return true;
+    }
     if (
-      nextProps.visible !== this.props.visible &&
+      nextProps.toolbarConfig.sessionListVisible !== this.props.toolbarConfig.sessionListVisible &&
       (!currentSession.value || currentSession.value !== this.props.currentSession.value)
     ) {
       return false;
@@ -75,51 +103,49 @@ class ChatPanel extends Component {
       this.ajax.abort();
     }
     this.ajax = ajax.chatSessionItem(session);
-    this.ajax.then(result => {
-      this.setState({ loading: false });
-      if (result.groupId) {
-        if (result.groupId && !result.isMember) {
-          alert(_l('已不在该群组中，请联系管理员'), 2);
-          this.handleClosePanel();
-          return;
+    this.ajax
+      .then(result => {
+        this.setState({ loading: false });
+        if (result.groupId) {
+          if (result.groupId && !result.isMember) {
+            alert(_l('已不在该群组中，请联系管理员'), 2);
+            this.handleClosePanel();
+            return;
+          }
+          if (result.groupId && result.status !== 1) {
+            alert(_l('该群组已关闭或删除'), 2);
+            this.handleClosePanel();
+            return;
+          }
+          this.props.dispatch(actions.addCurrentSession(result));
+        } else if (result.accountId) {
+          if (result.accountId === 'file-transfer') {
+            result.isContact = true;
+          }
+          this.props.dispatch(actions.addCurrentSession(result));
+          if (!result.isContact) {
+            this.props.dispatch(
+              actions.updateSessionList({
+                id: session.value,
+                isContact: false,
+              }),
+            );
+          }
         }
-        if (result.groupId && result.status !== 1) {
-          alert(_l('该群组已关闭或删除'), 2);
-          this.handleClosePanel();
-          return;
-        }
-        this.props.dispatch(actions.addCurrentSession(result));
-      } else if (result.accountId) {
-        if (result.accountId === 'file-transfer') {
-          result.isContact = true;
-        }
-        this.props.dispatch(actions.addCurrentSession(result));
-        if (!result.isContact) {
-          this.props.dispatch(
-            actions.updateSessionList({
-              id: session.value,
-              isContact: false,
-            }),
-          );
-        }
-      }
-    }).catch(error => {
-      this.setState({
-        isError: true,
-        error: _.get(error, 'errorMessage'),
+      })
+      .catch(error => {
+        this.setState({
+          isError: true,
+          error: _.get(error, 'errorMessage'),
+        });
       });
-    });
   }
   inboxSessionItem(session) {
     this.setState({ isError: false });
     this.props.dispatch(actions.addCurrentInbox(session));
   }
   handleClosePanel() {
-    const { currentSession } = this.props;
-    if (currentSession.value) {
-      this.props.dispatch(actions.setNewCurrentSession({}));
-      socket.Contact.recordAction({ id: '' });
-    }
+    this.props.dispatch(actions.closeSessionPanel());
   }
   handleClickAway() {
     this.handleClosePanel();
@@ -129,6 +155,23 @@ class ChatPanel extends Component {
     this.setState({ isError: false });
     this.chatSessionItem(currentSession);
   }
+  getRightValue = () => {
+    const { toolbarConfig } = this.props;
+    const rightToolbarWidth = 56;
+    if (toolbarConfig.sessionListVisible) {
+      const drawerWidth = Number(localStorage.getItem(`sessionListDrawerWidth`) || 0) || 250;
+      return drawerWidth + rightToolbarWidth;
+    }
+    if (toolbarConfig.mingoVisible) {
+      const drawerWidth = Number(localStorage.getItem(`mingoDrawerWidth`) || 0) || 400;
+      return drawerWidth + rightToolbarWidth;
+    }
+    if (toolbarConfig.favoriteVisible) {
+      const drawerWidth = Number(localStorage.getItem(`favoriteDrawerWidth`) || 0) || 400;
+      return drawerWidth + rightToolbarWidth;
+    }
+    return undefined;
+  };
   renderInbox(item) {
     const { currentSession = {} } = this.props;
     return (
@@ -148,52 +191,26 @@ class ChatPanel extends Component {
   }
   render() {
     const { loading, isError, error } = this.state;
-    const { currentSession, currentSessionList = [], currentInboxList = [], visible } = this.props;
-    const exceptions = [
-      '.ChatList-wrapper',
-      // '.ChatList-wrapper .SessionList-scrollView',
-      // '.ChatList-wrapper .SessionList-clearAll',
-      '.dialogScroll',
-      '.ant-modal',
-      '.mdModal',
-      '.ChatPanel-Trigger',
-      '.attachmentsPreview',
-      '.Tooltip',
-      '.mui-dialog-container',
-      '.mdAlertDialog',
-      '.confirm',
-      '.PositionContainer-wrapper',
-      '.groupSettingAvatarSelect',
-      '.ui-timepicker-list',
-      '.selectUserBox',
-      '.warpDatePicker',
-      '.dropdownTrigger',
-      '.rc-trigger-popup',
-      '.workflowStepListWrap',
-      '.ant-select-dropdown',
-      '.ant-cascader-menus',
-      '.InboxFilterWrapper',
-      '.ant-picker-dropdown',
-      '.addMembersMoreAction',
-      '.ChatList-ContextMenu',
-    ];
+    const { currentSession, currentSessionList = [], currentInboxList = [], embed = false } = this.props;
     return (
       <ClickAwayable
         component="div"
         onClickAwayExceptions={exceptions}
-        onClickAway={this.handleClickAway.bind(this)}
-        className={cx('ChatPanel-wrapper ChatPanel-position tipBoxShadow', {
+        onClickAway={embed ? _.noop : this.handleClickAway.bind(this)}
+        style={{ right: this.getRightValue() }}
+        className={cx('ChatPanel-wrapper', {
+          'ChatPanel-position': !embed,
+          tipBoxShadow: !embed,
           'ChatPanel-close': _.isEmpty(currentSession),
-          'ChatPanel-up': visible ? false : true,
-          'ChatPanel-small': window.innerHeight < 700,
-          'ChatPanel-big': window.innerHeight > 2000,
+          'ChatPanel-small': embed ? undefined : window.innerHeight < 700,
+          'ChatPanel-big': embed ? undefined : window.innerHeight > 2000,
         })}
       >
         {currentSessionList.map(item => (
           <ChatPanelSession session={item} key={item.id} />
         ))}
         {currentInboxList.map(item => this.renderInbox(item))}
-        {loading ? (
+        {loading && (
           <div className="ChatPanel ChatPanel-loading">
             {isError ? (
               <div className="ChatPanel-error ThemeColor3" onClick={error ? undefined : this.handleReset.bind(this)}>
@@ -203,18 +220,18 @@ class ChatPanel extends Component {
               <LoadDiv size="middle" />
             )}
           </div>
-        ) : undefined}
+        )}
       </ClickAwayable>
     );
   }
 }
 
 export default connect(state => {
-  const { currentSession, currentSessionList, currentInboxList, visible } = state.chat;
+  const { currentSession, currentSessionList, currentInboxList, toolbarConfig } = state.chat;
   return {
     currentSession,
     currentSessionList,
     currentInboxList,
-    visible,
+    toolbarConfig,
   };
 })(ChatPanel);

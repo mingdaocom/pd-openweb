@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { string, arrayOf, shape, func } from 'prop-types';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import { DynamicValueInputWrap } from '../styled';
 import update from 'immutability-helper';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default class DateInput extends Component {
   static propTypes = {

@@ -5,21 +5,15 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ScrollView, Skeleton, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, Skeleton, Tooltip } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
-import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import ViewContext from 'worksheet/views/ViewContext';
 import CustomFields from 'src/components/newCustomFields';
 import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
-import { controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
-import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import { controlState, getControlsByTab, isPublicLink } from 'src/components/newCustomFields/tools/utils';
+import RecordPay from 'src/components/RecordPay';
 import { browserIsMobile } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
-import { formatNumberThousand } from 'src/utils/control';
 import SectionTableNav from '../../../../../components/newCustomFields/components/SectionTableNav';
 import Abnormal from './Abnormal';
 import FormCover from './FormCover';
@@ -92,37 +86,27 @@ const StickyBar = styled.div`
     transform: translateY(0px);
   }
 `;
-const PayWrap = styled.div`
-  padding: 12px 25px;
-  background: #f2fcf2;
-  z-index: 4;
-  position: sticky;
-  top: 0;
-`;
-const PayButton = styled.div`
-  padding: 0 25px;
-  line-height: 32px;
-  border-radius: 3px;
-  color: #fff;
-  background: rgba(76, 175, 80, 0.9);
-  &:hover {
-    background: rgba(76, 175, 80, 1);
+
+const LockWrap = styled.div`
+  padding: 0px 32px 16px 32px;
+  .lockContent {
+    display: flex;
+    align-items: center;
+    border-left: 3px solid #dbdbdb;
+    .lockIcon {
+      font-size: 16px;
+      color: #56799d;
+      &:hover {
+        ${props => (props.isAdmin ? 'cursor: pointer;color:#1677ff;' : '')}
+      }
+      i {
+        margin: 0 12px;
+      }
+    }
   }
 `;
 
-const PayShare = styled.div`
-  width: 32px;
-  height: 32px;
-  background: #f2fcf2;
-  border: 1px solid #4caf50;
-  color: #4caf50;
-  text-align: center;
-  margin-left: 6px;
-  border-radius: 3px;
-  &:hover {
-    background: #e2fce2;
-  }
-`;
+const Div = styled.div``;
 
 function getTopHeight() {
   let height = Number(localStorage.getItem('recordinfoSplitHeight'));
@@ -158,6 +142,7 @@ function RecordForm(props) {
     formWidth,
     iseditting,
     ignoreLock,
+    isRecordLock,
     hideFormHeader,
     type = 'edit',
     loading,
@@ -176,13 +161,11 @@ function RecordForm(props) {
     sheetSwitchPermit,
     mountRef,
     updateRecordDialogOwner,
-    updateRows,
     updateRelateRecordTableCount = () => {},
     onRelateRecordsChange = () => {},
     updateWorksheetControls,
     registerCell = () => {},
     onChange,
-    onCancel,
     onSave,
     saveDraft = () => {},
     onError,
@@ -194,8 +177,9 @@ function RecordForm(props) {
     widgetStyle = {},
     renderAbnormal,
     payConfig = {},
-    onRefresh = () => {},
     onUpdateFormSectionWidth = () => {},
+    updateRecordLock = () => {},
+    onRefresh = () => {},
   } = props;
   let { formdata = [] } = props;
   formdata.forEach(item => {
@@ -213,37 +197,8 @@ function RecordForm(props) {
       };
     });
   });
-  const { isSmall, isSubList, worksheetId, recordId, recordTitle, allowEdit, viewId = '' } = recordbase;
+  const { isSubList, worksheetId, recordId, recordTitle, allowEdit, viewId = '' } = recordbase;
   const viewContext = useContext(ViewContext);
-  if (loading) {
-    return (
-      <div className="contentBox flex flexColumn">
-        <div style={{ padding: 10 }}>
-          <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['30%', '40%', '90%', '60%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-          <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['40%', '55%', '100%', '80%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-          <Skeleton
-            style={{ flex: 2 }}
-            direction="column"
-            widths={['45%', '100%', '100%', '100%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-        </div>
-      </div>
-    );
-  }
   const dealFrom = recordId && from !== 21 ? 3 : 2;
   const getRulesData = updateRulesData({
     from: dealFrom,
@@ -253,7 +208,7 @@ function RecordForm(props) {
   })
     .filter(control => controlState(control, dealFrom).visible)
     .map(c =>
-      Object.assign(!ignoreLock && isLock ? { ...c, disabled: true } : c, {
+      Object.assign((!ignoreLock && isLock) || isRecordLock ? { ...c, disabled: true } : c, {
         isDraft: from === RECORD_INFO_FROM.DRAFT,
       }),
     )
@@ -326,13 +281,6 @@ function RecordForm(props) {
     setNavVisible();
     setSectionFixed(false);
   });
-  useEffect(() => {
-    setTimeout(() => {
-      if (!loading && _.get(scrollRef, 'current.triggerNanoScroller')) {
-        scrollRef.current.triggerNanoScroller();
-      }
-    }, 200);
-  }, [loading]);
 
   function setSplit(value) {
     if (value) {
@@ -349,12 +297,9 @@ function RecordForm(props) {
     if (!tabControls.length || type !== 'edit' || !recordForm.current || !nav.current) {
       return;
     }
-    if (_.get(scrollRef, 'current.triggerNanoScroller')) {
-      scrollRef.current.triggerNanoScroller();
-    }
     const scrollConElement = recordForm.current.querySelector('.recordInfoFormScroll');
     const formElement = recordForm.current.querySelector('.recordInfoFormContent .customFieldsContainer');
-    const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > .nano-content');
+    const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
 
     if (!scrollConElement || !formElement || !scrollContentElement) {
       return;
@@ -366,31 +311,30 @@ function RecordForm(props) {
     nav.current.style.zIndex = visible ? 3 : -1;
   }
   function setStickyBarVisible({ isSplit } = {}) {
-    const scrollContentElement = recordForm.current.querySelector(
-      isSplit ? '.topCon' : '.recordInfoFormScroll > .nano-content',
-    );
+    const scrollContentElement = recordForm.current.querySelector(isSplit ? '.topCon' : '.recordInfoFormScroll > div');
     const stickyBar = recordForm.current.querySelector('.topCon .stickyBar');
     const recordTitle = recordForm.current.querySelector('.topCon .recordTitle');
     const visible = scrollContentElement.scrollTop > (recordTitle || {}).offsetTop + (recordTitle || {}).offsetHeight;
     stickyBar.id = visible || tabHeaderControl ? 'stickyBarActive' : '';
   }
   const Con = type === 'edit' && !isSplit ? ScrollView : React.Fragment;
+  const TopCon = isSplit ? ScrollView : Div;
   function scrollToTable() {
     const $recordInfoFormScroll = $(recordForm.current).find('.recordInfoFormScroll');
     const $relateRecordBlockCon = $(recordForm.current).find('.relateRecordBlockCon');
-    if (isFixed) {
-      $recordInfoFormScroll.nanoScroller({
-        scrollTop: 0,
-      });
+    if (isFixed && scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0 });
       return;
     }
-    $recordInfoFormScroll.nanoScroller({
-      scrollTop: $relateRecordBlockCon[0].offsetTop - $recordInfoFormScroll.height() + 112 + 34 * 11,
-    });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: $relateRecordBlockCon[0].offsetTop - $recordInfoFormScroll.height() + 112 + 34 * 11,
+      });
+    }
   }
   function setSectionFixed(isScroll = true) {
     if (isSplit || isFixedLeft || isFixedRight) return;
-    const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > .nano-content');
+    const scrollContentElement = recordForm.current.querySelector('.recordInfoFormScroll > div');
     const sectionTabBarElement = recordForm.current.querySelector('.relateRecordBlock #widgetSectionTabBar');
     const headerElement = recordForm.current.querySelector('.recordInfoFormHeader');
     if (scrollContentElement && sectionTabBarElement) {
@@ -416,24 +360,6 @@ function RecordForm(props) {
     }
   }
 
-  const handlePayShare = () => {
-    handleShare({
-      width: 640,
-      isPayShare: true,
-      title: _l('发送给其他人付款'),
-      isCharge: get(viewContext, 'isCharge') || recordbase.isCharge,
-      appId: recordinfo.appId,
-      worksheetId,
-      viewId,
-      recordId,
-      privateShare: false,
-      hidePublicShare: false,
-      hidePublicTitle: true,
-      publicShareDesc: _l('获取带付款按钮的记录分享链接，得到此链接的所有人都可以查看记录并进行付款。'),
-      getShareLinkTxt: _l('获取链接'),
-    });
-  };
-
   const isMobile = browserIsMobile();
 
   const renderFormSection = () => {
@@ -450,6 +376,58 @@ function RecordForm(props) {
     );
   };
 
+  const renderRecordLock = () => {
+    const { ruleItems = [] } = _.find(recordinfo.rules, r => r.type === 2) || {};
+    const message = _.get(ruleItems, '0.message');
+    const isAdmin = recordinfo.roleType === 2 && !isPublicLink();
+    return (
+      <LockWrap isAdmin={isAdmin}>
+        <div className="lockContent">
+          <Tooltip
+            autoCloseDelay={0}
+            text={_l('锁定%0不允许编辑和删除。管理员可在应用内解锁。', recordinfo.entityName)}
+            popupPlacement="bottomLeft"
+          >
+            <span className="lockIcon" onClick={() => updateRecordLock()}>
+              <Icon icon="lock" />
+            </span>
+          </Tooltip>
+          {message && <span className="Gray_75">{message}</span>}
+        </div>
+      </LockWrap>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="contentBox flex flexColumn">
+        <div style={{ padding: 10 }}>
+          <Skeleton
+            style={{ flex: 1 }}
+            direction="column"
+            widths={['30%', '40%', '90%', '60%']}
+            active
+            itemStyle={{ marginBottom: '10px' }}
+          />
+          <Skeleton
+            style={{ flex: 1 }}
+            direction="column"
+            widths={['40%', '55%', '100%', '80%']}
+            active
+            itemStyle={{ marginBottom: '10px' }}
+          />
+          <Skeleton
+            style={{ flex: 2 }}
+            direction="column"
+            widths={['45%', '100%', '100%', '100%']}
+            active
+            itemStyle={{ marginBottom: '10px' }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <RecordFormContext.Provider value={{ width, recordbase, iseditting }}>
       {isFixedLeft && renderFormSection()}
@@ -458,7 +436,7 @@ function RecordForm(props) {
           <DocumentTitle title={_l('记录-%0', recordTitle)} />
         )}
         {!abnormal && !!formdata.length && (
-          <div className={cx(isSplit ? 'flexColumn' : 'flex', { isSplit })} ref={sizeRef}>
+          <div className={cx(isSplit ? 'flexColumn' : 'flex', { overflowHidden: !!recordId, isSplit })} ref={sizeRef}>
             {dragVisible && (
               <DragMask
                 value={topHeight}
@@ -477,7 +455,7 @@ function RecordForm(props) {
                 ? {
                     className: 'recordInfoFormScroll Relative flex',
                     ref: scrollRef,
-                    scrollEvent: () => {
+                    onScroll: () => {
                       setNavVisible();
                       setStickyBarVisible();
                       setSectionFixed();
@@ -485,7 +463,7 @@ function RecordForm(props) {
                   }
                 : {})}
             >
-              <div
+              <TopCon
                 className="topCon"
                 style={isSplit ? { height: topHeight || 300 } : {}}
                 onScroll={
@@ -505,47 +483,27 @@ function RecordForm(props) {
                     recordId={recordId}
                   />
                 )}
-                {payConfig.isShowPay && !tabHeaderControl && (
-                  <PayWrap className="flexRow alignItemsCenter">
-                    <div className="flex Bold Font14 ellipsis">{_l('支付内容：%0', payConfig.payDescription)}</div>
-                    <span className="Gray mLeft25 Font17 Bold">
-                      {_l('%0 元', formatNumberThousand(payConfig.payAmount))}
-                    </span>
-                    <PayButton
-                      className="mLeft25 Bold Hand"
-                      onClick={() => {
-                        handlePrePayOrder({
-                          worksheetId,
-                          rowId: recordId,
-                          paymentModule: md.global.Account.isPortal ? 3 : 2,
-                          orderId: payConfig.orderId,
-                          projectId: recordinfo.projectId || props.projectId,
-                          appId: recordinfo.appId,
-                          payNow: payConfig.isAtOncePayment,
-                          onUpdateSuccess: updateObj => {
-                            onRefresh();
-                          },
-                        });
-                      }}
-                    >
-                      {_l('付款')}
-                    </PayButton>
-                    {!_.get(window, 'shareState.isPublicRecord') &&
-                      isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
-                      !md.global.Account.isPortal && (
-                        <Tooltip popupPlacement="bottom" text={_l('发送给其他人付款')}>
-                          <PayShare onClick={handlePayShare}>
-                            <i className="icon icon-Collection LineHeight32 Font20 Hand" />
-                          </PayShare>
-                        </Tooltip>
-                      )}
-                  </PayWrap>
+                {!tabHeaderControl && (
+                  <RecordPay
+                    projectId={recordinfo.projectId || props.projectId}
+                    appId={recordinfo.appId}
+                    worksheetId={worksheetId}
+                    viewId={viewId}
+                    rowId={recordId}
+                    from={from}
+                    isCharge={get(viewContext, 'isCharge') || recordbase.isCharge}
+                    sheetSwitchPermit={sheetSwitchPermit}
+                    payConfig={payConfig}
+                    entityName={recordinfo.entityName}
+                    isRecordLock={isRecordLock}
+                    onUpdateSuccess={onRefresh}
+                  />
                 )}
                 {type === 'edit' && (
                   <StickyBar
                     className="stickyBar"
                     onClick={() => {
-                      recordForm.current.querySelector('.recordInfoFormScroll > .nano-content').scrollTop = 0;
+                      recordForm.current.querySelector('.recordInfoFormScroll > div').scrollTop = 0;
                       // 左右布局时，回到顶部同时，跳转第一个标签页
                       if (tabHeaderControl) {
                         handleSectionClick();
@@ -571,8 +529,10 @@ function RecordForm(props) {
                     sheetSwitchPermit={sheetSwitchPermit}
                     viewId={viewId}
                     from={from}
+                    isRecordLock={isRecordLock}
                   />
                 )}
+                {type === 'edit' && isRecordLock && renderRecordLock()}
                 {type === 'edit' && tabHeaderControl && (
                   <div className={cx(_.get(view, 'advancedSetting.showtitle') === '0' ? 'mTop30' : 'mTop46')}>
                     <div className="recordInfoFormHeader Gray_9 ">
@@ -584,6 +544,7 @@ function RecordForm(props) {
                   <CustomFields
                     isEditing={iseditting}
                     ignoreLock={ignoreLock}
+                    isRecordLock={isRecordLock}
                     forceFull={formWidth < 500 ? 1 : undefined}
                     ref={customwidget}
                     from={from === 21 ? from : recordId ? 3 : isMobile ? 5 : 2}
@@ -600,7 +561,7 @@ function RecordForm(props) {
                     systemControlData={systemControlData}
                     rules={recordinfo.rules}
                     isWorksheetQuery={recordinfo.isWorksheetQuery}
-                    disabled={!allowEdit}
+                    disabled={!allowEdit || isRecordLock}
                     projectId={recordinfo.projectId || props.projectId}
                     groupId={recordinfo.groupId}
                     masterRecordRowId={masterRecordRowId}
@@ -617,6 +578,7 @@ function RecordForm(props) {
                     viewId={viewId}
                     showSplitIcon={type === 'edit' && commonData.length > 0}
                     appId={recordinfo.appId}
+                    entityName={recordinfo.entityName}
                     isCharge={get(viewContext, 'isCharge') || recordbase.isCharge}
                     onFormDataReady={dataFormat => {
                       setNavVisible();
@@ -638,7 +600,10 @@ function RecordForm(props) {
                       scrollToTable,
                       beginDrag: () => setDragVisible(true),
                       updateRelateRecordTableCount,
-                      recordbase: { ...recordbase, allowEdit: isLock ? false : recordbase.allowEdit },
+                      recordbase: {
+                        ...recordbase,
+                        allowEdit: isLock || isRecordLock ? false : recordbase.allowEdit,
+                      },
                       // 新建记录更新
                       relateRecordData,
                       setNavVisible,
@@ -649,7 +614,7 @@ function RecordForm(props) {
                     }}
                   />
                 </div>
-              </div>
+              </TopCon>
               {type === 'edit' && !isSplit && <Bottom />}
             </Con>
             <div id="newCustomTabSectionWrap" className={cx('relateRecordBlockCon', { flex: isSplit })}></div>
@@ -716,7 +681,7 @@ RecordForm.propTypes = {
 };
 
 export default function RecordFormCon(props) {
-  const { loading, formWidth, widgetStyle = {} } = props;
+  const { loading, widgetStyle = {} } = props;
   const isFixedLeft = _.get(widgetStyle, 'tabposition') === '3';
   const isUnfold = getDefaultIsUnfold(undefined, widgetStyle);
   if (loading) {

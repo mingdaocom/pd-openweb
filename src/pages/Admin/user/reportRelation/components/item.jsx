@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import OpList from './opList';
 import User from './user';
@@ -35,7 +34,7 @@ export default class Item extends Component {
         this.setState({ showOpList: false });
       }
     };
-    const { add, replace, remove, status } = this.props;
+    const { add, replace, remove } = this.props;
     const listProps = {
       toggleList: () => {
         toggleList(false);
@@ -60,7 +59,7 @@ export default class Item extends Component {
   }
 
   render() {
-    const { status, isHighLight, auth } = this.props;
+    const { isHighLight, auth } = this.props;
     const { isDisabled } = this.state;
     const itemClassName = cx('node', {
       disabled: isDisabled,

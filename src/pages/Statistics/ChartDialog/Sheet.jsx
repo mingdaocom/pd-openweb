@@ -1,35 +1,36 @@
 import React, { Component, Fragment } from 'react';
-import { reportTypes } from '../Charts/common';
-import cx from 'classnames';
-import { WithoutData } from '../components/ChartStatus';
-import { Icon, LoadDiv } from 'ming-ui';
-import { Tooltip } from 'antd';
-import charts from '../Charts';
-import styled from 'styled-components';
-import SingleView from 'src/pages/worksheet/common/SingleView';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'statistics/redux/actions';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import * as actions from 'statistics/redux/actions';
+import SingleView from 'src/pages/worksheet/common/SingleView';
+import charts from '../Charts';
+import { reportTypes } from '../Charts/common';
+import { WithoutData } from '../components/ChartStatus';
 
 const Con = styled.div`
   padding: 17px 20px;
   .SingleViewHeader {
-    .icon-task-later, .addRecord {
+    .icon-task-later,
+    .addRecord {
       display: none;
     }
   }
   .hoverHighlight {
     &:hover {
-      color: #2196f3 !important;
-      border-color: #2196f3;
+      color: #1677ff !important;
+      border-color: #1677ff;
     }
   }
   .chartSheetHeader + div {
     display: none;
   }
   .chartSheetHeader .dataTitle {
-    border-bottom: 3px solid #2196f3;
+    border-bottom: 3px solid #1677ff;
   }
   .searchInputComp + div {
     display: flex;
@@ -87,7 +88,7 @@ export default class ChartSheet extends Component {
     const { loading } = this.props;
     if (!loading) {
       this.getTableData(this.props);
-    } 
+    }
   }
   getTableData(props) {
     const { base, getTableData } = props;
@@ -146,7 +147,6 @@ export default class ChartSheet extends Component {
     });
   };
   renderHeaderName() {
-    const { reutrnVisible } = this.state;
     const { base, currentReport } = this.props;
     const beforeVisible = ![reportTypes.PivotTable, reportTypes.NumberChart].includes(currentReport.reportType);
     if (base.reportSingleCacheId) {
@@ -162,7 +162,8 @@ export default class ChartSheet extends Component {
             </div>
           )}
           <div className="Font15 Gray bold ellipsis dataTitle">
-            {_l('原始数据')}{title && `：${title}`}
+            {_l('原始数据')}
+            {title && `：${title}`}
           </div>
         </div>
       );
@@ -171,8 +172,7 @@ export default class ChartSheet extends Component {
     }
   }
   renderHeaderAction() {
-    const { base, settingVisible, currentReport, worksheetInfo, direction, onChangeDirection, onClose, isSmall } =
-      this.props;
+    const { base, currentReport, worksheetInfo, onClose } = this.props;
     const viewId = _.get(currentReport, ['filter', 'viewId']);
     const view = _.find(worksheetInfo.views, { viewId });
     return (
@@ -216,7 +216,7 @@ export default class ChartSheet extends Component {
     }
 
     if (base.reportSingleCacheId) {
-      const { filter = {}, displaySetup = {} } = currentReport || {};
+      const { filter = {}, displaySetup = {}, appType = 1 } = currentReport || {};
       return reportSingleCacheLoading ? (
         <LoadDiv />
       ) : (
@@ -224,6 +224,7 @@ export default class ChartSheet extends Component {
           showAsSheetView
           filtersGroup={[]}
           showHeader={true}
+          allowOpenRecord={appType === 1}
           appId={base.apkId}
           worksheetId={worksheetInfo.worksheetId}
           viewId={filter.viewId}

@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import ScrollView from 'ming-ui/components/ScrollView';
-import Message from '../Message';
-import config from '../../utils/config';
-import * as ajax from '../../utils/ajax';
+import _ from 'lodash';
+import { ScrollView } from 'ming-ui';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils';
+import * as ajax from '../../utils/ajax';
+import config from '../../utils/config';
 import Constant from '../../utils/constant';
-import './index.less';
 import { addGroupMembers } from '../../utils/group';
-import _ from 'lodash';
+import Message from '../Message';
+import './index.less';
 
 class MessageView extends Component {
   constructor(props) {
     super(props);
-    this.currentHeight = 0;
+    this.lastScrollHeight = 0;
     this.state = {
       isMore: true,
       loading: true,
@@ -27,9 +27,8 @@ class MessageView extends Component {
       errorParam: false,
     };
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const { session } = this.props;
-    // nextState.isBottom !== this.state.isBottom ||
     if (session.id === nextProps.currentSession.value) {
       return true;
     }
@@ -39,6 +38,7 @@ class MessageView extends Component {
     const { session, sessionList } = this.props;
     const topUnread = sessionList.filter(item => item.value == session.id)[0];
     const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
+    window[`scrollView-${session.id}`] = this.scrollView;
     if (!topUnread) return;
     const unreadCount = topUnread.messageCount || topUnread.count;
     this.getMessage(
@@ -47,8 +47,8 @@ class MessageView extends Component {
         id: session.id,
         num: topUnread ? (unreadCount > config.MSG_LENGTH_MORE ? unreadCount : 0) : 0,
       },
-      'up'
-    ).then((res) => {
+      'up',
+    ).then(res => {
       res = $.isArray(res) ? res.reverse() : [];
       const isAddUnreadLine = topUnread && unreadCount;
       if (isAddUnreadLine && res[res.length - unreadCount]) {
@@ -63,6 +63,10 @@ class MessageView extends Component {
       }
       this.props.dispatch(actions.setMessage(session.id, utils.formatMessages(res)));
     });
+  }
+  componentWillUnmount() {
+    const { session } = this.props;
+    delete window[`scrollView-${session.id}`];
   }
   componentWillReceiveProps(nextProps) {
     const { session, sessionList, currentSession, gotoMessage } = nextProps;
@@ -89,15 +93,7 @@ class MessageView extends Component {
     const prevMessage = messages[id];
     const newMessages = this.props.messages[id];
     const topUnread = sessionList.filter(item => item.value == id)[0] || {};
-    const scrollView = _.get(this.scrollView, 'nanoScroller');
     const { direction, isDownLoadingMessage } = this.state;
-    const $ChatPanel = $(`#ChatPanel-${session.id}`);
-    const isBottom = $ChatPanel.data('isBottom') == undefined ? true : $ChatPanel.data('isBottom');
-    this.scrollViewEl = scrollView;
-    // 如果存在向下滚动的逻辑，新的消息不需要滚动到底部
-    // if (direction === 'down') {
-    //   return;
-    // }
     // 加载完新消息，存在需要查询的消息
     if (this.state.gotoMessageId) {
       this.handleGotoMessage(this.state.gotoMessageId);
@@ -111,7 +107,9 @@ class MessageView extends Component {
     // 加载一页
     if (newMessages.length - prevMessage.length >= config.MSG_LENGTH_MORE && direction == 'up') {
       setTimeout(() => {
-        $(scrollView).nanoScroller({ scrollTop: scrollView.nanoscroller.contentHeight - this.currentHeight });
+        const { scrollTo, getScrollInfo } = this.scrollView;
+        const { scrollHeight } = getScrollInfo();
+        scrollTo({ top: scrollHeight - this.lastScrollHeight });
       }, 0);
       return;
     }
@@ -132,7 +130,12 @@ class MessageView extends Component {
         if (isMine && type === Constant.MSGTYPE_FILE && typeof id === 'number') {
           this.handleScrollEnd();
         }
-        if (isMine && type === Constant.MSGTYPE_CARD && (card.md === 'worksheet' || card.md === 'kcfile') && typeof id === 'number') {
+        if (
+          isMine &&
+          type === Constant.MSGTYPE_CARD &&
+          (card.md === 'worksheet' || card.md === 'kcfile') &&
+          typeof id === 'number'
+        ) {
           this.handleScrollEnd();
         }
       }
@@ -151,18 +154,21 @@ class MessageView extends Component {
       errorParam: false,
       direction,
     });
-    return new Promise((resolve, reject) => {
-      ajax.getMessage(param).then((res) => {
-        this.setState({
-          loading: false,
-          isMore: !(res.length < config.MSG_LENGTH_MORE),
+    return new Promise(resolve => {
+      ajax
+        .getMessage(param)
+        .then(res => {
+          this.setState({
+            loading: false,
+            isMore: !(res.length < config.MSG_LENGTH_MORE),
+          });
+          resolve(res);
+        })
+        .catch(() => {
+          this.setState({
+            errorParam: param,
+          });
         });
-        resolve(res);
-      }).catch(error => {
-        this.setState({
-          errorParam: param,
-        });
-      });
     });
   }
   handleGotoMessage(id) {
@@ -172,17 +178,15 @@ class MessageView extends Component {
     if (message && message.id) {
       const { gotoMessageId } = this.state;
       const messageEl = $(`#Message-${message.id}`);
-      const scrollView = _.get(this.scrollView, 'nanoScroller');
-      const { paneHeight, contentScrollTop } = scrollView.nanoscroller;
+      const { scrollTo, getScrollInfo } = this.scrollView;
+      const { clientHeight, scrollTop } = getScrollInfo();
       if (gotoMessageId) {
         this.setState({ gotoMessageId: '', isDownLoadingMessage: true });
       }
       // 指定的消息在不在可视区
-      $(scrollView)
-        .nanoScroller({ flash: true })
-        .nanoScroller({
-          scrollTop: contentScrollTop + messageEl.position().top - (paneHeight - messageEl.height()) / 2,
-        });
+      scrollTo({
+        top: scrollTop + messageEl.position().top - (clientHeight - messageEl.height()) / 2,
+      });
       utils.highlightMessage(id);
     } else {
       const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
@@ -193,7 +197,7 @@ class MessageView extends Component {
           id: session.id,
           num: config.MSG_LENGTH_MORE,
         })
-        .then((res) => {
+        .then(res => {
           this.props.dispatch(actions.resetMessage(session.id, utils.formatMessages(res)));
           this.setState({
             gotoMessageId: id,
@@ -201,36 +205,37 @@ class MessageView extends Component {
         });
     }
   }
-  handleScroll(event, values) {
+  handleScroll = event => {
+    if (!this.scrollView) return;
+    const { scrollTop } = event;
+    const { getScrollInfo } = this.scrollView;
+    const { clientHeight, maxScrollTop, scrollHeight } = getScrollInfo();
     const { loading, isMore, topUnread, isDownLoadingMessage } = this.state;
     const { session, messages, bottomUnreadMessage } = this.props;
     const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const messageList = messages[session.id] || [];
-    const position = parseInt(values.position);
-    const scrollView = _.get(this.scrollView, 'nanoScroller');
-    const { maxScrollTop, contentScrollTop, paneHeight } = scrollView ? scrollView.nanoscroller : {};
     const $ChatPanel = $(`#ChatPanel-${session.id}`);
     const isBottom = $ChatPanel.data('isBottom') == undefined ? true : $ChatPanel.data('isBottom');
     const bottomUnread = bottomUnreadMessage[session.id] || [];
-    const diff = maxScrollTop - position;
-    if (position === 0 && isMore) {
+    const diff = maxScrollTop - scrollTop;
+    if (scrollTop === 0 && isMore) {
       const { time } = messageList[0] || {};
-      if (loading || !time || !scrollView) {
+      if (loading || !time) {
         return;
       }
-      this.currentHeight = scrollView.nanoscroller.contentHeight;
+      this.lastScrollHeight = scrollHeight;
       this.getMessage(
         {
           sincetime: time,
           type,
           id: session.id,
         },
-        'up'
-      ).then((res) => {
+        'up',
+      ).then(res => {
         res = $.isArray(res) ? res.reverse() : [];
         this.props.dispatch(actions.addPageMessage(session.id, utils.formatMessages(res)));
       });
-    } else if (position === maxScrollTop && isDownLoadingMessage) {
+    } else if (scrollTop === maxScrollTop && isDownLoadingMessage) {
       const { time } = messageList[messageList.length - 1] || {};
       if (loading || !time) {
         return;
@@ -246,7 +251,7 @@ class MessageView extends Component {
           id: session.id,
           direction: 1,
         })
-        .then((res) => {
+        .then(res => {
           this.setState({
             loading: false,
           });
@@ -261,7 +266,7 @@ class MessageView extends Component {
         });
     }
 
-    if (maxScrollTop - contentScrollTop > paneHeight) {
+    if (maxScrollTop - scrollTop > clientHeight) {
       if (topUnread) {
         this.setState({
           topUnread: 0,
@@ -270,7 +275,7 @@ class MessageView extends Component {
           actions.updateSessionList({
             id: session.id,
             messageCount: 0,
-          })
+          }),
         );
       }
       if (isBottom) {
@@ -287,7 +292,7 @@ class MessageView extends Component {
       this.props.dispatch(actions.pushPageMessage(session.id, utils.formatMessages(bottomUnread)));
       this.handleScrollEnd();
     }
-  }
+  };
   handleBottomEnd() {
     const { isDownLoadingMessage } = this.state;
     if (isDownLoadingMessage) {
@@ -300,8 +305,8 @@ class MessageView extends Component {
           type,
           id: session.id,
         },
-        'up'
-      ).then((res) => {
+        'up',
+      ).then(res => {
         res = $.isArray(res) ? res.reverse() : [];
         this.props.dispatch(actions.resetMessage(session.id, utils.formatMessages(res)));
       });
@@ -315,19 +320,19 @@ class MessageView extends Component {
     const messageList = messages[session.id] || [];
     const message = messageList[messageList.length - topUnread] || {};
     const unreadMessage = sessionList.filter(item => item.value == session.id)[0] || {};
-    const atId = unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
+    const atId =
+      unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
     const id = atId || message.id;
     const messageEl = $(`#Message-${id}`);
-    const scrollView = _.get(this.scrollView, 'nanoScroller');
+    const { scrollTo, getScrollInfo } = this.scrollView;
+    const { maxScrollTop } = getScrollInfo();
     const top = messageEl.position() ? messageEl.position().top : 0;
-    const scrollTop = scrollView.nanoscroller.maxScrollTop - Math.abs(top);
+    const scrollTop = maxScrollTop - Math.abs(top);
     // 指定的消息在不在可视区
     if (top + messageEl.height() <= messageEl.height()) {
-      $(scrollView)
-        .nanoScroller({ flash: true })
-        .nanoScroller({
-          scrollTop,
-        });
+      scrollTo({
+        top: scrollTop,
+      });
     }
     this.setState({
       topUnread: 0,
@@ -336,7 +341,7 @@ class MessageView extends Component {
       actions.updateSessionList({
         id: session.id,
         messageCount: 0,
-      })
+      }),
     );
     utils.highlightMessage(id);
   }
@@ -350,7 +355,7 @@ class MessageView extends Component {
       actions.updateSessionList({
         id: session.id,
         messageCount: 0,
-      })
+      }),
     );
   }
   handleBottomUnreadScroll() {
@@ -375,7 +380,7 @@ class MessageView extends Component {
         return false;
       }
     }
-  }
+  };
   renderInviteMessage() {
     const { session } = this.props;
     const targetText = session.isPost ? _l('群组') : _l('聊天');
@@ -414,19 +419,30 @@ class MessageView extends Component {
       });
     } else {
       if (loading) return;
-      this.handleScroll(undefined, {
-        position: 0,
+      this.handleScroll({
+        scrollTop: 0,
       });
     }
   }
   renderTopInfo() {
     const { session } = this.props;
-    return <div>{session.isGroup ? this.renderInviteMessage() : <div className="ChatPanel-messageInfo">{_l('没有更早的历史消息了')}</div>}</div>;
+    return (
+      <div>
+        {session.isGroup ? (
+          this.renderInviteMessage()
+        ) : (
+          <div className="ChatPanel-messageInfo">{_l('没有更早的历史消息了')}</div>
+        )}
+      </div>
+    );
   }
   renderLoading() {
     const { loading, errorParam } = this.state;
     return (
-      <div className="ChatPanel-messageInfo ChatPanel-messageLoading ThemeColor3" onClick={this.handleLoadMore.bind(this)}>
+      <div
+        className="ChatPanel-messageInfo ChatPanel-messageLoading ThemeColor3"
+        onClick={this.handleLoadMore.bind(this)}
+      >
         {loading ? (errorParam ? _l('加载失败，点击重新加载') : _l('加载中...')) : _l('加载更多')}
       </div>
     );
@@ -435,18 +451,20 @@ class MessageView extends Component {
     const { session, sessionList } = this.props;
     const { topUnread } = this.state;
     const unreadMessage = sessionList.filter(item => item.value == session.id)[0] || {};
-    let atId = unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
+    let atId =
+      unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
     const messageEl = $(`#Message-${atId}`);
-    const scrollView = this.scrollViewEl;
-    if (scrollView && scrollView.nanoscroller && messageEl.size()) {
-      // const scrollTop = scrollView.nanoscroller.maxScrollTop - Math.abs(messageEl.position().top);
+    if (messageEl.size()) {
       // at 消息在可视区就清除掉
       if (messageEl.position().top + messageEl.height() >= messageEl.height()) {
         atId = null;
       }
     }
     return (
-      <div className={cx('ChatPanel-unreadTop', { hidden: !topUnread })} onClick={this.handleTopUnreadScroll.bind(this)}>
+      <div
+        className={cx('ChatPanel-unreadTop', { hidden: !topUnread })}
+        onClick={this.handleTopUnreadScroll.bind(this)}
+      >
         <span className="ChatPanel-unreadTop-content ThemeColor3">
           {atId ? _l('有人@了你') : _l('%0条未读消息', topUnread)}
         </span>
@@ -461,11 +479,13 @@ class MessageView extends Component {
     const { sysType } = message;
     return (
       <div className="ChatPanel-unreadBottom ThemeBGColor4" onClick={this.handleBottomUnreadScroll.bind(this)}>
-        {sysType ? (
-          undefined
-        ) : (
+        {sysType ? undefined : (
           <div className="userAvatar">
-            <img src={'logo' in message ? message.logo : `${window.config.AttrPath}default.png?imageView2/1/w/100/h/100/q/100`} />
+            <img
+              src={
+                'logo' in message ? message.logo : `${window.config.AttrPath}default.png?imageView2/1/w/100/h/100/q/100`
+              }
+            />
           </div>
         )}
         <div className="content">{sysType ? message.msg.con : `${message.fromAccount.name}: ${message.msg.con}`}</div>
@@ -474,7 +494,9 @@ class MessageView extends Component {
     );
   }
   renderIconBottom() {
-    return <div className='ChatPanel-iconBottom icon-bottom ThemeColor3 hidden' onClick={this.handleBottomEnd.bind(this)} />;
+    return (
+      <div className="ChatPanel-iconBottom icon-bottom ThemeColor3 hidden" onClick={this.handleBottomEnd.bind(this)} />
+    );
   }
   render() {
     const { isMore, isDownLoadingMessage } = this.state;
@@ -486,14 +508,20 @@ class MessageView extends Component {
       <div className="ChatPanel-sessionList">
         {this.renderTopUnread()}
         <ScrollView
-          updateEvent={this.handleScroll.bind(this)}
-          ref={(scrollView) => {
+          onScroll={this.handleScroll}
+          ref={scrollView => {
             this.scrollView = scrollView;
           }}
         >
           {isMore ? this.renderLoading() : this.renderTopInfo()}
           {messageList.map((item, index) => (
-            <Message key={item.id || item.waitingId} message={item} nextMessage={messageList[index - 1] || {}} session={session} onGotoMessage={this.handleGotoMessage.bind(this)} />
+            <Message
+              key={item.id || item.waitingId}
+              message={item}
+              nextMessage={messageList[index - 1] || {}}
+              session={session}
+              onGotoMessage={this.handleGotoMessage.bind(this)}
+            />
           ))}
           {isMore && isDownLoadingMessage ? this.renderLoading() : undefined}
         </ScrollView>
@@ -504,7 +532,7 @@ class MessageView extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { currentSession, messages, sessionList, gotoMessage, bottomUnreadMessage } = state.chat;
 
   return {

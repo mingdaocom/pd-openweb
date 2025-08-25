@@ -69,9 +69,12 @@ const ViewWrap = styled.div`
     }
   }
   &.hideAddRecord .addRecord,
+  &.hideAddRecord .addGunterRecord,
   &.hideAddRecord .addBoardRecord,
   &.hideAddRecord .addRecordItemWrapper,
   &.hideAddRecord .gunterDirectory .addCoin,
+  &.hideAddRecord .hierarchyViewLeftBoundary > div,
+  &.hideAddRecord .resourceView .groupTableCon .addCoin,
   &.hideSearchRecord .icon-search,
   &.hideSearchRecord .searchWrapper,
   &.hideSearchRecord .mapSearchRecordAutoComplete {
@@ -81,6 +84,7 @@ const ViewWrap = styled.div`
     display: flex !important;
   }
   &.disableSingleView {
+    &.mobile,
     .SingleViewHeader,
     .SingleViewBody .searchWrapper,
     .worksheetSheet .quickFilterWrap,

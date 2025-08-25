@@ -1,6 +1,6 @@
 import React from 'react';
-import './index.less';
 import cx from 'classnames';
+import './index.less';
 
 export default ({ className }) => (
   <div className={cx('coordinationIcon', className)}>

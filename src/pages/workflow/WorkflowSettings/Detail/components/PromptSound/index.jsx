@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Dropdown, Radio, QiniuUpload } from 'ming-ui';
 import cx from 'classnames';
-import CustomTextarea from '../CustomTextarea';
-import { LANGUAGE_BCP47 } from '../../../enum';
-import _ from 'lodash';
 import styled from 'styled-components';
-import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
-import audioGif from './audio.gif';
+import { Dropdown, QiniuUpload, Radio } from 'ming-ui';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
+import { LANGUAGE_BCP47 } from '../../../enum';
+import CustomTextarea from '../CustomTextarea';
+import audioGif from './audio.gif';
 
 const AudioBox = styled.span`
   margin: 10px 10px 0 0;
@@ -23,14 +22,14 @@ const AudioBox = styled.span`
   height: 36px;
   z-index: 1;
   &.active {
-    border-color: #2196f3;
+    border-color: #1677ff;
     &::after {
       position: absolute;
       content: '';
       right: -8px;
       top: -8px;
       border-width: 8px;
-      border-color: #2196f3 transparent transparent transparent;
+      border-color: #1677ff transparent transparent transparent;
       border-style: solid;
       transform: rotate(-135deg);
     }
@@ -230,7 +229,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
                 playAudio(newFile.url);
                 setUploading(false);
               }}
-              onAdd={(up, files) => {
+              onAdd={up => {
                 setUploading(true);
                 up.disableBrowse();
               }}
@@ -282,7 +281,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
             type={2}
             content={promptSound.content}
             formulaMap={formulaMap}
-            onChange={(err, value, obj) => updateSource({ promptSound: { ...promptSound, content: value } })}
+            onChange={(err, value) => updateSource({ promptSound: { ...promptSound, content: value } })}
             updateSource={updateSource}
           />
 

@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
-import styled from 'styled-components';
-import { Icon, ScrollView, LoadDiv, UserHead } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import moment from 'moment';
 import cx from 'classnames';
-import { quickSelectUser } from 'ming-ui/functions';
-import DatePickSelect from 'worksheet/components/DatePickerSelect';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import filterXSS from 'xss';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
 import variableApi from 'src/api/variable';
+import DatePickSelect from 'worksheet/components/DatePickerSelect';
 
 const LogDrawer = styled(Drawer)`
   color: #151515;
@@ -57,7 +57,7 @@ const LogDrawer = styled(Drawer)`
         display: inline-block;
         text-align: center;
       }
-      .icon-cancel1 {
+      .icon-cancel {
         display: none;
       }
 
@@ -74,7 +74,7 @@ const LogDrawer = styled(Drawer)`
         border: 1px solid #f5f5f5;
         &:hover {
           box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
-          .icon-cancel1 {
+          .icon-cancel {
             display: inline-block;
           }
           .icon-arrow-down {
@@ -87,12 +87,12 @@ const LogDrawer = styled(Drawer)`
         color: #9e9e9e;
       }
       .selectLight {
-        color: #2196f3;
+        color: #1677ff;
         .icon {
-          color: #2196f3;
+          color: #1677ff;
         }
         .selectConText {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -226,7 +226,7 @@ export default function VarLog(props) {
                 e.stopPropagation();
                 setFilter({ selectUser: undefined });
               }}
-              icon="cancel1"
+              icon="cancel"
             />
           )}
         </span>
@@ -267,7 +267,7 @@ export default function VarLog(props) {
             {selectDate.range && <Icon icon="arrow-down" />}
             {selectDate.range && (
               <Icon
-                icon="cancel1"
+                icon="cancel"
                 onClick={e => {
                   e.stopPropagation();
                   setFilter({

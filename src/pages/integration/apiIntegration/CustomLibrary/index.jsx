@@ -1,13 +1,14 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import SelectApiPackage from 'src/pages/workflow/components/SelectApiPackage';
-import Apply from './Apply';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import AuthorizationList from './AuthorizationList';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SelectApiPackage from 'src/pages/workflow/components/SelectApiPackage';
+import Apply from './Apply';
+import AuthorizationList from './AuthorizationList';
 
 const minWidth = 325;
 

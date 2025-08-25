@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo, Fragment, useRef } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
-import { string, func, number } from 'prop-types';
-import { Dialog, ScrollView, TagTextarea, Checkbox, Button, Menu, MenuItem, Radio, LoadDiv } from 'ming-ui';
 import _ from 'lodash';
-import styled from 'styled-components';
+import { func, number, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import './index.less';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, LoadDiv, Menu, MenuItem, Radio, ScrollView, TagTextarea } from 'ming-ui';
 import flowNodeAjax from '../../api/flowNode';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import './index.less';
 
 const EditDialogBox = styled(Dialog)`
   .codeSnippetEditLabel {
@@ -21,7 +21,7 @@ const EditDialogBox = styled(Dialog)`
     line-height: 18px;
     border-radius: 3px;
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .mRight90 {
@@ -50,7 +50,7 @@ const DialogBox = styled(Dialog)`
         right: 0;
         content: '';
         height: 3px;
-        background: #2196f3;
+        background: #1677ff;
       }
     }
     .codeSnippetSearch {
@@ -96,7 +96,7 @@ const DialogBox = styled(Dialog)`
         background: #fff;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
         border-radius: 7px;
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     li {
@@ -107,11 +107,11 @@ const DialogBox = styled(Dialog)`
       cursor: pointer;
       &.active {
         background: rgba(33, 150, 243, 0.08);
-        color: #2196f3;
+        color: #1677ff;
         &:after {
           width: 3px;
           height: 18px;
-          background: #2196f3;
+          background: #1677ff;
           border-radius: 4px;
           position: absolute;
           content: '';
@@ -122,7 +122,7 @@ const DialogBox = styled(Dialog)`
       }
       &:hover {
         background: rgba(33, 150, 243, 0.08);
-        color: #2196f3;
+        color: #1677ff;
         .codeSnippetOperator {
           display: flex;
         }
@@ -139,7 +139,7 @@ const DialogBox = styled(Dialog)`
         display: none;
         &:hover {
           background: #fff;
-          color: #2196f3;
+          color: #1677ff;
         }
         &.active {
           display: flex;
@@ -225,7 +225,7 @@ export const CodeSnippetEdit = ({
       </div>
       <div className="flexRow alignItemsCenter mTop30">
         <div className="codeSnippetEditLabel">{_l('保存到')}</div>
-        <div className="flex flexRow">
+        <div className="flex flexRow minHeight0">
           {[
             { text: _l('个人'), value: md.global.Account.accountId },
             {

@@ -1,18 +1,18 @@
 import React from 'react';
-import cx from 'classnames';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/PortalCon/redux/actions';
-import { WrapTableCon, WrapNav, AddWrap } from 'src/pages/Role/style';
-import User from './User';
-import PendingReview from './PendingReview';
+import cx from 'classnames';
 import _ from 'lodash';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { Tooltip, Dialog } from 'ming-ui';
 import { navigateTo } from 'router/navigateTo';
-import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
+import styled from 'styled-components';
+import { Dialog, Tooltip } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
+import * as actions from 'src/pages/Role/PortalCon/redux/actions';
+import { AddWrap, WrapNav, WrapTableCon } from 'src/pages/Role/style';
+import PendingReview from './PendingReview';
+import User from './User';
 
 const Wrap = styled.div`
   height: 100%;
@@ -95,10 +95,10 @@ class Con extends React.Component {
         listType === 'pending'
           ? 'pendingReview'
           : quickTag.roleId
-          ? quickTag.roleId
-          : portal.roleId
-          ? portal.roleId
-          : 'all',
+            ? quickTag.roleId
+            : portal.roleId
+              ? portal.roleId
+              : 'all',
     });
   }
 
@@ -160,6 +160,7 @@ class Con extends React.Component {
                 roleId: 'all',
               });
               setPortalRoleList(list);
+              this.props.setQuickTag({ roleId: 'all', tab: 'user' });
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败，请稍后重试'), 2);
@@ -233,7 +234,7 @@ class Con extends React.Component {
                     type: 'err',
                     text: _l('删除'),
                   },
-                ].filter(o => canEditApp);
+                ].filter(() => canEditApp);
                 if (o.isDefault) {
                   optList = optList.filter(it => it.value !== 2);
                 }

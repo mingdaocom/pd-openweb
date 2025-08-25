@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import * as actions from './redux/actions';
-import { Dialog, SpinLoading, Card, Input } from 'antd-mobile';
+import { Card, Dialog, Input, SpinLoading } from 'antd-mobile';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import Back from '../components/Back';
 import { ROLE_CONFIG, sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import Back from '../components/Back';
+import * as actions from './redux/actions';
 import './index.less';
-import _ from 'lodash';
 
 class Members extends Component {
   constructor(props) {
@@ -62,13 +62,13 @@ class Members extends Component {
         } else {
           alert(_l('应用名称错误'), 2);
         }
-      }
+      },
     });
   };
   renderCard = (data, isAdmin) => {
     const { params } = this.props.match;
 
-    return data.map((item, i) => {
+    return data.map(item => {
       const { users, count } = item;
       const isInCurrentRole = !!_.filter(users, ({ accountId }) => accountId === md.global.Account.accountId).length;
       if (!isAdmin && item.permissionWay != 80 && this.props.memberData.rolesVisibleConfig === ROLE_CONFIG.REFUSE) {
@@ -98,10 +98,10 @@ class Members extends Component {
                 (item.roleType === 100
                   ? _l('可以配置应用，管理应用下所有数据和人员')
                   : item.roleType === 2
-                  ? _l('管理所有数据和人员，不可配置应用')
-                  : item.roleType === 1
-                  ? _l('开发者只能配置应用')
-                  : _l('自定义权限'))}
+                    ? _l('管理所有数据和人员，不可配置应用')
+                    : item.roleType === 1
+                      ? _l('开发者只能配置应用')
+                      : _l('自定义权限'))}
             </div>
           </Card>
         </Fragment>
@@ -168,15 +168,15 @@ class Members extends Component {
   }
   render() {
     const { memberData, isMemberLoading } = this.props;
-    const { params } = this.props.match;
+
     if (isMemberLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     } else {
-      const { detail, rolesVisibleConfig } = this.props.memberData;
+      const { detail } = this.props.memberData;
       const isAdmin =
         detail.permissionType === APP_ROLE_TYPE.POSSESS_ROLE || detail.permissionType === APP_ROLE_TYPE.ADMIN_ROLE;
       return (

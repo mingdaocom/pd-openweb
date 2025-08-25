@@ -187,9 +187,9 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
   transition: all 0.25s;
   color: #bdbdbd;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
     i {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   i {
@@ -340,7 +340,7 @@ export const DynamicInputStyle = styled(FlexCenter)`
     background-color: #fafafa;
     border: 1px solid #d8d8d8;
     .edit {
-      color: #2196f3;
+      color: #1677ff;
     }
     .delete {
       display: block;
@@ -419,7 +419,7 @@ export const SearchWorksheetWrap = styled.div`
     width: fit-content;
   }
   .addFilterIcon span {
-    color: #2196f3;
+    color: #1677ff;
     display: inline-block;
     padding: 8px;
     font-weight: bold;
@@ -538,7 +538,9 @@ export const SearchWorksheetWrap = styled.div`
 
 export const WorksheetListWrap = styled.div`
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   border: 1px solid #eee;
   background-color: #fff;

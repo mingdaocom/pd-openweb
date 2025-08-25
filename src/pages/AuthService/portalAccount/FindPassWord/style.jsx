@@ -25,7 +25,7 @@ export const Wrap = styled.div`
   }
   .btnUseOldAccount {
     font-size: 14px;
-    color: #2196f3;
+    color: #1677ff;
     display: block;
     margin: 20px auto 0;
     text-align: center;
@@ -41,7 +41,7 @@ export const WrapCon = styled.div`
   }
   .back {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   img {
@@ -136,7 +136,7 @@ export const WrapCon = styled.div`
     line-height: 1.5;
   }
   .loginBtn {
-    background: #2196f3;
+    background: #1677ff;
     height: 48px;
     border-radius: 4px;
     line-height: 48px;

@@ -1,21 +1,10 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
 import { Input, Tooltip } from 'antd';
-import { Checkbox, Dropdown } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import { SettingItem } from '../../styled';
 import _ from 'lodash';
-
-const POINTER_TYPES = [
-  {
-    value: '0',
-    text: _l('显示完整位数'),
-  },
-  {
-    value: '1',
-    text: _l('自动'),
-  },
-];
+import styled from 'styled-components';
+import { Checkbox, Dropdown } from 'ming-ui';
+import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const PointerConfigWrap = styled(SettingItem)`
   input {
@@ -131,6 +120,7 @@ export default function PointConfig({ data = {}, onChange }) {
         >
           <span style={{ marginRight: '4px' }}>{_l('省略末尾的 0')}</span>
           <Tooltip
+            autoCloseDelay={0}
             title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
           >
             <i className="icon-help Gray_bd Font15"></i>

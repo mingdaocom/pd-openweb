@@ -1,10 +1,11 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Popup } from 'antd-mobile';
-import { Icon, Input } from 'ming-ui';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import TodoEntrustList from 'src/pages/workflow/MyProcess/TodoEntrust/TodoEntrustList';
 import DelegationConfigModal from './DelegationConfigModal';
-import cx from 'classnames';
 import './index.less';
 
 export default function ProcessDelegation(props) {
@@ -44,7 +45,7 @@ export default function ProcessDelegation(props) {
   };
 
   return (
-    <div className={cx(`card processDelegation ${className}`, { bottom180: topTab.id === 'waitingApproval' })}>
+    <div className={cx(`card processDelegation ${className}`, { bottom124: topTab.id === 'waitingApproval' })}>
       <div className="flexRow alignItemsCenter justifyContentCenter" onClick={handleClickDelegation}>
         <Icon className="Font24 Gray_9e" icon="lift" />
         {!_.isEmpty(delegationList) && <div className="redDot"></div>}
@@ -60,7 +61,7 @@ export default function ProcessDelegation(props) {
           <div className="flexColumn h100">
             <div className="pTop10 pBottom10 pRight16 TxtRight">
               <Icon
-                icon="closeelement-bg-circle"
+                icon="cancel"
                 className="Font22 Gray_9e"
                 onClick={() => {
                   setCardListVisible(false);

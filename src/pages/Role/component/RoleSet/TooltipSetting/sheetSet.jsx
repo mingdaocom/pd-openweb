@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Checkbox, Icon, RadioGroup, Switch, Tooltip } from 'ming-ui';
@@ -93,6 +93,7 @@ function TipsRender(props) {
                   )}
                 </span>
               }
+              autoCloseDelay={0}
               popupPlacement="top"
             >
               <i className="icon-info_outline Font16 mLeft6 Gray_bd TxtMiddle" />

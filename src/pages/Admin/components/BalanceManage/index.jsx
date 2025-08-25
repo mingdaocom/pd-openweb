@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Switch } from 'ming-ui';
 import ProjectAjax from 'src/api/projectSetting';
@@ -107,7 +106,7 @@ export default function BalanceManage(props) {
           <div className="item" key={`balanceManage-item-${item.key}`}>
             <div className="leftCon">
               <div className="Font15 Bold mBottom8 Black ellipsis">{item.title}</div>
-              <div className="Font13 Gray_75 ellipsis">{item.desc}</div>
+              <div className="Font13 Gray_75 mRight5">{item.desc}</div>
             </div>
             {item.hasSwitch && (
               <div className="rightCon">

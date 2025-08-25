@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const routerConfigs = [
   {
     type: 'options',
@@ -68,7 +70,7 @@ export const routerConfigs = [
   },
   {
     type: 'timezone',
-    icon: 'access_time_filled',
+    icon: 'watch_later',
     text: _l('时区'),
     component: () => import('./components/AppTimeZone'),
   },
@@ -81,8 +83,8 @@ export const routerConfigs = [
   },
   {
     type: 'del',
-    icon: 'delete2',
+    icon: 'trash',
     text: _l('删除应用%02037'),
     className: 'delApp',
   },
-].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.type === 'aggregations'));;
+].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.type === 'aggregations'));

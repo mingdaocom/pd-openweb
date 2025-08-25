@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import cx from 'classnames';
-import { arrayOf, func, number, shape, string } from 'prop-types';
+import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
 import OptionsList from './OptionsList';
 import RightSidebar from './RightSidebar';
-import _ from 'lodash';
 
 export const Option = styled.div`
   cursor: pointer;
@@ -16,15 +16,15 @@ export const Option = styled.div`
   border-radius: 28px;
   max-width: 200px;
   user-select: none;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   &.checked {
     color: #fff;
-    border-color: #2196f3;
-    background-color: #2196f3;
+    border-color: #1677ff;
+    background-color: #1677ff;
   }
   &.more {
     padding: 3px 12px;
-    border: 1px solid #EAEAEA;
+    border: 1px solid #eaeaea;
     background-color: #fff;
   }
   .ming.Checkbox {
@@ -37,12 +37,13 @@ function pickOptions(options, navfilters) {
     const pickIds = JSON.parse(navfilters);
     return options.filter(o => _.includes(pickIds, o.key));
   } catch (err) {
+    console.log(err);
     return options;
   }
 }
 export default function Options(props) {
   const { values = [], control, advancedSetting = {}, onChange = () => {} } = props;
-  const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
+  const { allowitem, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
   const multiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
@@ -76,7 +77,9 @@ export default function Options(props) {
       <div className="flexRow valignWrapper mBottom15">
         <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
         {!_.isEmpty(values) && (
-          <div className="selected ellipsis">{multiple ? _l('选择%0项', values.length) : _.get(_.find(options, { key: values[0] }), 'value') }</div>
+          <div className="selected ellipsis">
+            {multiple ? _l('选择%0项', values.length) : _.get(_.find(options, { key: values[0] }), 'value')}
+          </div>
         )}
       </div>
       <div>
@@ -97,13 +100,14 @@ export default function Options(props) {
             {o.value}
           </Option>
         ))}
-        {isMore && <Option className="more" onClick={handleSetMoreVisible}>{_l('更多...')}</Option>}
+        {isMore && (
+          <Option className="more" onClick={handleSetMoreVisible}>
+            {_l('更多...')}
+          </Option>
+        )}
       </div>
       {moreVisible && (
-        <RightSidebar
-          name={control.controlName}
-          onHideSidebar={handleSetMoreVisible}
-        >
+        <RightSidebar name={control.controlName} onHideSidebar={handleSetMoreVisible}>
           <OptionsList
             multiple={multiple}
             selected={values}

@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
-import { LoadDiv, Icon, PopupWrapper } from 'ming-ui';
-import './index.less';
 import _ from 'lodash';
+import { Icon, LoadDiv, PopupWrapper } from 'ming-ui';
+import './index.less';
 
 export default class MobileSearch extends Component {
   constructor(props) {
@@ -32,7 +32,7 @@ export default class MobileSearch extends Component {
 
   render() {
     const { enumDefault, controlName, value, loading, advancedSetting = {}, disabled, hint } = this.props;
-    const { currentChecked = '', visible, mobileSearchResult = [] } = this.state;
+    const { visible, mobileSearchResult = [] } = this.state;
     const { itemtitle = '', clicksearch, searchfirst, min = '0' } = advancedSetting;
     let optionData = (this.props.optionData || []).map((it, index) => ({ ...it, index }));
     let mobileOptionData =
@@ -108,7 +108,7 @@ export default class MobileSearch extends Component {
                   className="cursorText Gray"
                   placeholder={hint || _l('请选择')}
                   ref={node => (this.searchInput = node)}
-                  onChange={e => {
+                  onChange={() => {
                     const value = this.searchInput.value.trim();
                     if (!value) {
                       this.props.clearData();

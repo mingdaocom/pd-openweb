@@ -7,7 +7,6 @@ import { VersionProductType } from 'src/utils/enum';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import EncryptRules from './encryptRules';
-import LimitAttachmentUpload from './LimitAttachmentUpload';
 import LimitFileDownloadSetting from './LimitFileDownloadSetting';
 import WaterMarkSettingDialog from './WaterMarkSettingDialog';
 import WebProxySetting from './WebProxySetting';
@@ -19,7 +18,6 @@ export default class DataCom extends Component {
       watermark: false,
       showWebProxySetting: false,
       showLimitDownload: false,
-      showLimitAttachmentUpload: false,
       enabledWatermarkTxt: undefined,
     };
   }
@@ -127,7 +125,6 @@ export default class DataCom extends Component {
       showLimitDownload,
       limitType,
       whiteList,
-      showLimitAttachmentUpload,
     } = this.state;
     const projectId = Config.projectId;
 
@@ -146,14 +143,6 @@ export default class DataCom extends Component {
           whiteList={whiteList}
           onClose={() => this.setState({ showLimitDownload: false })}
           updateSettingData={this.updateSettingData}
-        />
-      );
-    }
-    if (showLimitAttachmentUpload) {
-      return (
-        <LimitAttachmentUpload
-          projectId={projectId}
-          onClose={() => this.setState({ showLimitAttachmentUpload: false })}
         />
       );
     }
@@ -192,13 +181,6 @@ export default class DataCom extends Component {
                     : _l('已设置：禁止所有Web移动端下载'),
                 clickSwitch: this.setLimitDownloadStatus,
                 clickSetting: () => this.setState({ showLimitDownload: true }),
-              },
-              {
-                key: 'limitFileDownload',
-                title: _l('单附件上传'),
-                description: _l('全局限制应用中工作表、讨论附件中上传的单个文件大小。可设置白名单'),
-                showSlideIcon: true,
-                onClick: () => this.setState({ showLimitAttachmentUpload: true }),
               },
               {
                 key: 'addressVisibleRange',

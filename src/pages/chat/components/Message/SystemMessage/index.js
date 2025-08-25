@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
-import Constant from '../../../utils/constant';
+import _ from 'lodash';
 import { addFriendConfirm } from 'ming-ui/functions';
 import addFriends from 'src/components/addFriends';
+import Constant from '../../../utils/constant';
+import './index.less';
 
 export default class SystemMessage extends Component {
   constructor(props) {
@@ -41,7 +42,7 @@ export default class SystemMessage extends Component {
     setTimeout(() => {
       textarea.focus();
     }, 0);
-  }
+  };
   render() {
     const { message, session } = this.props;
     const isFileTransfer = session.id === 'file-transfer';
@@ -52,7 +53,7 @@ export default class SystemMessage extends Component {
             'Message-sysType-reduceIcon': message.sysType === Constant.MSGTYPE_SYSTEM_ERROR,
           })}
         >
-          <i className="icon-wc-sysmsg" />
+          <i className="icon-error_outline" />
         </div>
         {'isContact' in message ? (
           <div
@@ -71,7 +72,11 @@ export default class SystemMessage extends Component {
             {message.msg.con}
           </div>
         )}
-        {_.get(message.msg, 'oldCon') && message.type === Constant.MSGTYPE_TEXT && !isFileTransfer && <div className="Font13 pointer ThemeColor mLeft8" onClick={this.handleResetEdit}>{_l('重新编辑')}</div>}
+        {_.get(message.msg, 'oldCon') && message.type === Constant.MSGTYPE_TEXT && !isFileTransfer && (
+          <div className="Font13 pointer ThemeColor mLeft8" onClick={this.handleResetEdit}>
+            {_l('重新编辑')}
+          </div>
+        )}
       </div>
     );
   }

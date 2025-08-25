@@ -1,13 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
-import './style.less';
-
+import moment from 'moment';
+import PropTypes from 'prop-types';
 import LibCalender from '../lib/calender';
 import DateTable from './date-table';
 import MonthTable from './month-table';
 import YearTable from './year-table';
-import moment from 'moment';
+import './style.less';
 
 class Calender extends Component {
   constructor(props) {
@@ -539,9 +537,7 @@ Calender.defaultProps = {
   max: null,
   value: new Date(),
   cursor: new Date(),
-  onPick: (event, type, value, time) => {
-    //
-  },
+  onPick: () => {},
 };
 
 export default Calender;

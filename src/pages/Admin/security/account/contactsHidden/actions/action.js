@@ -2,7 +2,7 @@ import projectUserRule from 'src/api/projectUserRule.js';
 
 export const showEditFn =
   (showEdit, editType = '', ruleId = '') =>
-  (dispatch, getState) => {
+  dispatch => {
     dispatch({
       type: 'UPDATE_EDITTYPW',
       showEdit,
@@ -25,14 +25,14 @@ export const showEditFn =
  * action: 设置当前网络id
  * @param projectId
  */
-export const updateProjectId = projectId => (dispatch, getState) => {
+export const updateProjectId = projectId => dispatch => {
   dispatch({
     type: 'UPDATE_PROJECT_ID',
     projectId,
   });
 };
 
-export const getRulesAll = projectId => (dispatch, getState) => {
+export const getRulesAll = projectId => dispatch => {
   dispatch({
     type: 'ACTION_ING',
   });
@@ -52,7 +52,7 @@ export const getRulesAll = projectId => (dispatch, getState) => {
     });
 };
 
-export const deleteRules = (projectId, ruleId) => (dispatch, getState) => {
+export const deleteRules = (projectId, ruleId) => dispatch => {
   dispatch({
     type: 'ACTION_ING',
   });
@@ -99,14 +99,14 @@ export const getRulesByRuleId = ruleId => (dispatch, getState) => {
 };
 
 //update单条规则
-export const updateRulesByRuleId = data => (dispatch, getState) => {
+export const updateRulesByRuleId = data => dispatch => {
   dispatch({
     type: 'UPDATE_RULES_BY_RULEID',
     data,
   });
 };
 
-export const saveFn = (projectId, items, ruleId, ruleType, errorCallback) => (dispatch, getState) => {
+export const saveFn = (projectId, items, ruleId, ruleType, errorCallback) => dispatch => {
   dispatch({
     type: 'ISLOADING',
     isSaveing: true,

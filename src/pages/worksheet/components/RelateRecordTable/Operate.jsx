@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Motion, spring } from 'react-motion';
 import cx from 'classnames';
-import { find, get, isEmpty, isUndefined, last } from 'lodash';
+import _, { find, get, isEmpty, isUndefined } from 'lodash';
 import moment from 'moment';
 import { bool, func, shape, string } from 'prop-types';
 import { arrayOf } from 'prop-types';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Input } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
@@ -30,7 +30,12 @@ const Con = styled.div`
   align-items: center;
   line-height: 36px;
   min-height: 38px;
-  ${({ smallMode }) => smallMode && 'display: block;'}
+  justify-content: space-between;
+  flex-wrap: wrap;
+  .operateButtons {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
   .worksheetFilterTrigger {
     line-height: 1em;
     min-width: 28px;
@@ -84,20 +89,49 @@ const IconBtn = styled.span`
   line-height: 28px;
   padding: 0 4px;
   border-radius: 5px;
+  &.active {
+    background: rgba(33, 150, 243, 0.12);
+  }
   &:hover {
     background: #f7f7f7;
   }
 `;
 
-function AnimatedInput(props) {
-  const { className, control, onSearch } = props;
+const SearchInputCon = styled.div`
+  width: 360px;
+  height: 44px;
+  background: #ffffff;
+  box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.24);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+  input {
+    border: none !important;
+    flex: 1;
+  }
+  .clearIcon {
+    cursor: pointer;
+    font-size: 20px;
+    margin-left: 10px;
+    color: #9e9e9e;
+    &:hover {
+      color: #757575;
+    }
+  }
+`;
+
+export function SearchInput(props) {
+  const { className, onSearch, entityName = '' } = props;
   const inputRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [keywords, setKeywords] = useState(props.keywords);
   useLayoutEffect(() => {
-    if (visible && inputRef.current) {
-      inputRef.current.focus();
-    }
+    setTimeout(() => {
+      if (visible && inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 20);
   }, [visible]);
   useEffect(() => {
     if (keywords && !props.keywords) {
@@ -112,65 +146,63 @@ function AnimatedInput(props) {
       setVisible(false);
     }
   }, [props.control.controlId]);
+
   return (
-    <Motion
-      defaultStyle={{ width: 0, opacity: 0, iconLeft: 0 }}
-      style={{
-        width: spring(visible ? 180 : 0),
-        opacity: spring(visible ? 1 : 0),
-        iconLeft: spring(visible ? 27 : 0),
-      }}
-    >
-      {value =>
-        !visible ? (
-          <span data-tip={_l('搜索')} style={{ height: 28, marginRight: 6 }}>
-            <IconBtn className="Hand ThemeHoverColor3" onClick={() => setVisible(true)}>
-              <i className="icon icon-search"></i>
-            </IconBtn>
-          </span>
-        ) : (
-          <div className={cx('searchIcon flexRow', className)}>
-            <i className="icon icon-search Gray_9e Font20 Hand" style={{ left: value.iconLeft }}></i>
-            <div
-              className="searchInput"
-              style={{ width: value.width, backgroundColor: `rgba(234, 234, 234, ${value.opacity})` }}
-            >
-              <Input
-                manualRef={inputRef}
-                placeholder={_l('搜索') + '"' + control.controlName + '"'}
-                value={keywords}
-                onChange={setKeywords}
-                onBlur={() => {
-                  if (!props.keywords && !keywords && visible) {
-                    setVisible(false);
-                  }
+    <Fragment>
+      <Trigger
+        action={['click']}
+        onPopupVisibleChange={setVisible}
+        popup={
+          <SearchInputCon className={className}>
+            <Input
+              manualRef={inputRef}
+              placeholder={_l('搜索"%0"', entityName || _l('记录'))}
+              value={keywords}
+              onChange={setKeywords}
+              onBlur={() => {
+                if (!props.keywords && !keywords && visible) {
+                  setVisible(false);
+                }
+              }}
+              onKeyDown={e => {
+                if (e.keyCode === 13) {
+                  onSearch(keywords);
+                }
+              }}
+            />
+            {props.keywords && (
+              <i
+                className="icon icon-close clearIcon"
+                onClick={e => {
+                  e.stopPropagation();
+                  setKeywords('');
+                  onSearch('');
+                  setVisible(false);
                 }}
-                onKeyDown={e => {
-                  if (e.keyCode === 13) {
-                    onSearch(keywords);
-                  }
-                }}
-              />
-              {props.keywords && visible && (
-                <i
-                  className="icon icon-cancel Gray_9e Font16 clearKeywords"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setKeywords('');
-                    onSearch('');
-                    setVisible(false);
-                  }}
-                ></i>
-              )}
-            </div>
-          </div>
-        )
-      }
-    </Motion>
+              ></i>
+            )}
+          </SearchInputCon>
+        }
+        popupAlign={{
+          points: ['tl', 'bl'],
+          offset: [0, 8],
+          overflow: {
+            adjustX: 1,
+            adjustY: 1,
+          },
+        }}
+      >
+        <span className="Relative" data-tip={_l('搜索')} style={{ height: 28, marginRight: 6 }}>
+          <IconBtn className={cx('searchIcon Hand ThemeHoverColor3', { active: props.keywords })}>
+            <i className="icon icon-search"></i>
+          </IconBtn>
+        </span>
+      </Trigger>
+    </Fragment>
   );
 }
 
-AnimatedInput.propTypes = {
+SearchInput.propTypes = {
   control: shape({}),
   className: string,
   keywords: string,
@@ -252,6 +284,11 @@ function Operate(props) {
     },
     [selectedRowIds],
   );
+  const entityName =
+    getTranslateInfo(appId, null, control.dataSource).recordName ||
+    relateWorksheetInfo.entityName ||
+    control.sourceEntityName ||
+    '';
   useEffect(() => {
     if (!isEmpty(cacheStore.current.oldFilterControls) && isEmpty(filterControls)) {
       if (worksheetFilterRef.current) {
@@ -281,12 +318,7 @@ function Operate(props) {
           }}
           isBatchEditing={isBatchEditing}
           btnName={_.get(relateWorksheetInfo, 'advancedSetting.btnname')}
-          entityName={
-            getTranslateInfo(appId, null, control.dataSource).recordName ||
-            relateWorksheetInfo.entityName ||
-            control.sourceEntityName ||
-            ''
-          }
+          entityName={entityName}
           addVisible={addVisible}
           selectVisible={selectVisible}
           selectedRowIds={selectedRowIds}
@@ -333,6 +365,8 @@ function Operate(props) {
               parentWorksheetId: worksheetId,
               controlId: control.controlId,
               recordId,
+              projectId: control.projectId || relateWorksheetInfo.projectId,
+              appId: relateWorksheetInfo.appId,
               worksheetId: relateWorksheetInfo.worksheetId,
               isDraft: from === RECORD_INFO_FROM.DRAFT || control.from === RECORD_INFO_FROM.DRAFT,
               filterRowIds: (relateWorksheetInfo.worksheetId === worksheetId ? [recordId] : []).concat(
@@ -424,12 +458,19 @@ function Operate(props) {
           }}
         />
       )}
-      <div className="flex"></div>
       {!isBatchEditing && (
         <div
           className={cx('operateButtons flexRow alignItemsCenter', { isInForm: base.isInForm && mode !== 'dialog' })}
         >
-          {!!recordId && <AnimatedInput className="mRight6" keywords={keywords} control={control} onSearch={search} />}
+          {!!recordId && (
+            <SearchInput
+              className="mRight6"
+              keywords={keywords}
+              control={control}
+              onSearch={search}
+              entityName={entityName}
+            />
+          )}
           {!isTreeTableView &&
             !control.isCustomButtonFillRecord &&
             !get(window, 'shareState.shareId') &&
@@ -453,7 +494,7 @@ function Operate(props) {
                 columns={columns.map(c => ({ ...c, controlPermissions: '111' }))}
                 filterResigned={false}
                 showSavedFilters={false}
-                onChange={({ searchType, filterControls }) => {
+                onChange={({ filterControls }) => {
                   updateTableState({
                     filterControls,
                   });
@@ -517,6 +558,7 @@ function Operate(props) {
                   viewId,
                   worksheetId,
                   recordId,
+                  isDraft,
                   control: { ...control, ...(base.isTab ? { store: undefined } : {}) },
                   allowEdit,
                   formdata: formData,
@@ -544,6 +586,7 @@ function Operate(props) {
               allCount={
                 control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count
               }
+              showCount={!isTreeTableView}
               countForShow={countForShow}
               changePageIndex={value => {
                 updatePageIndex(value);

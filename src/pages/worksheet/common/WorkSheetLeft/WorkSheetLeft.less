@@ -23,7 +23,7 @@
       }
     }
   }
-  .nano-content > div:first-child {
+  .scroll-viewport > div:first-child {
     margin-top: 6px;
   }
   .workSheetItem {
@@ -37,6 +37,9 @@
       flex: 1;
       min-width: 0;
       height: 44px;
+    }
+    .iconWrap > div {
+      pointer-events: none;
     }
     .name {
       display: inline-block;
@@ -147,15 +150,10 @@
   hr.splitter {
     border: none;
     border-top: 1px solid #e9e9e9;
-    margin: 5px 0;
+    margin: 3px 0;
   }
   .Item-content {
     padding-left: 36px;
-    &:hover {
-      .icon {
-        color: #fff !important;
-      }
-    }
   }
   .moveSheetActive {
     color: #fff;
@@ -187,23 +185,14 @@
       .text {
         color: #f44338 !important;
       }
-      &:hover {
-        .Icon,
-        .text {
-          color: #fff !important;
-        }
-      }
     }
   }
   .hideItemOperate {
     .Item-content {
       padding-left: 20px !important;
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
         margin: 0;
-      }
-      &:not(.disabled):hover i.icon {
-        color: #fff !important;
       }
     }
   }
@@ -236,12 +225,6 @@
       overflow: inherit !important;
       .icon {
         color: #9e9e9e;
-      }
-      &:hover {
-        color: #fff;
-        .icon {
-          color: #fff;
-        }
       }
     }
     .icon-arrow-right-tip {

@@ -1,15 +1,15 @@
-import React, { Fragment, Component } from 'react';
-import instance from 'src/pages/workflow/api/instanceVersion';
-import { Icon, Tooltip } from 'ming-ui';
+import React, { Component } from 'react';
 import store from 'redux/configureStore';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Icon, Tooltip } from 'ming-ui';
+import instance from 'src/pages/workflow/api/instanceVersion';
+import './index.less';
 
 let request = null;
 
 export const getTodoCount = (params = {}) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     if (request) {
       request.abort();
     }

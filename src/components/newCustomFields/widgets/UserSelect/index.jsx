@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -10,6 +11,7 @@ import { browserIsMobile } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
 import { FROM } from '../../tools/config';
 import { dealUserRange } from '../../tools/utils';
+import QuickOperate from './QuickOperate';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -26,12 +28,13 @@ export default class Widgets extends Component {
 
   state = {
     showSelectUser: false,
+    showId: '',
   };
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
       !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
-      !_.isEqual(_.pick(nextState, ['showSelectUser']), _.pick(this.state, ['showSelectUser']))
+      !_.isEqual(_.pick(nextState, ['showSelectUser', 'showId']), _.pick(this.state, ['showSelectUser', 'showId']))
     ) {
       return true;
     }
@@ -41,13 +44,12 @@ export default class Widgets extends Component {
   /**
    * 选择用户
    */
-  pickUser = event => {
+  pickUser = replaceItem => {
     const {
       projectId = '',
       enumDefault,
       enumDefault2,
       advancedSetting = {},
-      worksheetId,
       controlId,
       appId,
       formData = [],
@@ -99,7 +101,7 @@ export default class Widgets extends Component {
 
               onChange(JSON.stringify(results));
             },
-            cancel: function (res) {
+            cancel: function () {
               // 用户取消
             },
           },
@@ -112,7 +114,7 @@ export default class Widgets extends Component {
     } else {
       const selectRangeOptions = dealUserRange(this.props, formData);
       const hasUserRange = Object.values(selectRangeOptions).some(i => !_.isEmpty(i));
-      quickSelectUser($(event.target).closest('.addBtn')[0], {
+      quickSelectUser(this.pick, {
         showMoreInvite: false,
         selectRangeOptions,
         tabType: controlId === '_ownerid' ? 3 : tabType,
@@ -143,15 +145,15 @@ export default class Widgets extends Component {
           left: -16,
         },
         zIndex: 10001,
-        isDynamic: enumDefault === 1,
+        isDynamic: enumDefault === 1 && !replaceItem,
         filterOtherProject: enumDefault2 === 2,
         SelectUserSettings: {
-          unique: enumDefault === 0,
+          unique: enumDefault === 0 || replaceItem,
           projectId: projectId,
           selectedAccountIds,
-          callback: that.onSave,
+          callback: users => that.onSave(users, replaceItem),
         },
-        selectCb: that.onSave,
+        selectCb: users => that.onSave(users, replaceItem),
       });
     }
   };
@@ -168,10 +170,17 @@ export default class Widgets extends Component {
     }
   };
 
-  onSave = users => {
+  onSave = (users, replaceItem) => {
     const { enumDefault, onChange } = this.props;
     const value = this.getUserValue();
-    const newAccounts = enumDefault === 0 ? users : _.uniqBy(value.concat(users), 'accountId');
+
+    const newAccounts =
+      enumDefault === 0
+        ? users
+        : _.uniqBy(
+            replaceItem ? value.map(v => (v.accountId === replaceItem.accountId ? users[0] : v)) : value.concat(users),
+            'accountId',
+          );
 
     onChange(JSON.stringify(newAccounts));
   };
@@ -184,38 +193,75 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
-  renderItem({ item, dragging }) {
+  renderItem = ({ item, dragging, isLayer }) => {
     const { projectId, disabled, from, appId, dataSource } = this.props;
     const isMobile = browserIsMobile();
+    const disablePopover = disabled || dragging || isMobile || isLayer;
+    const showMenu = this.state.showId === item.accountId && !disablePopover;
 
     return (
-      <div className={cx('customFormControlTags', { selected: isMobile && !disabled })} key={item.accountId}>
-        {from === FROM.SHARE || from === FROM.WORKFLOW ? (
-          <div class="cursorDefault userHead InlineBlock" style={{ width: 26, height: 26 }}>
-            <img class="circle" width="26" height="26" src={item.avatar} />
-          </div>
-        ) : (
-          <UserHead
-            projectId={projectId}
-            className="userHead InlineBlock"
-            key={`UserHead-${item.accountId}`}
-            appId={dataSource ? undefined : appId}
-            user={{
-              userHead: item.avatar,
-              accountId: item.accountId,
-            }}
-            size={26}
-            disabled={dragging}
-          />
-        )}
-        <span className="ellipsis mLeft8" style={{ maxWidth: 200 }}>
-          {item.name || item.fullname || item.fullName}
-        </span>
+      <Popover
+        title={null}
+        placement="bottomLeft"
+        overlayClassName="quickConfigPopover"
+        trigger={['click', 'contextMenu']}
+        visible={showMenu}
+        onVisibleChange={visible => {
+          if (disablePopover) return;
+          this.setState({ showId: visible ? item.accountId : '' });
+        }}
+        content={
+          disablePopover ? null : (
+            <QuickOperate
+              {...this.props}
+              item={item}
+              showId={this.state.showId}
+              handleRemove={() => this.removeUser(item.accountId)}
+              handlePick={() => this.pickUser(item)}
+              closePopover={() => this.setState({ showId: '' })}
+            />
+          )
+        }
+      >
+        <div
+          className={cx('customFormControlTags', { selected: isMobile && !disabled, clickActive: showMenu })}
+          key={item.accountId}
+        >
+          {from === FROM.SHARE || from === FROM.WORKFLOW ? (
+            <div class="cursorDefault userHead InlineBlock" style={{ width: 26, height: 26 }}>
+              <img class="circle" width="26" height="26" src={item.avatar} />
+            </div>
+          ) : (
+            <UserHead
+              projectId={projectId}
+              className="userHead InlineBlock"
+              key={`UserHead-${item.accountId}`}
+              appId={dataSource ? undefined : appId}
+              user={{
+                userHead: item.avatar,
+                accountId: item.accountId,
+              }}
+              size={26}
+              disabled={dragging}
+            />
+          )}
+          <span className="ellipsis mLeft8" style={{ maxWidth: 200 }}>
+            {item.name || item.fullname || item.fullName}
+          </span>
 
-        {!disabled && <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeUser(item.accountId)} />}
-      </div>
+          {!disabled && (
+            <i
+              className="icon-minus-square Font16 tagDel"
+              onClick={e => {
+                e.stopPropagation();
+                this.removeUser(item.accountId);
+              }}
+            />
+          )}
+        </div>
+      </Popover>
     );
-  }
+  };
 
   render() {
     const { projectId, disabled, enumDefault, formData = [], appId, masterData = {}, onChange } = this.props;
@@ -229,17 +275,21 @@ export default class Widgets extends Component {
           items={value}
           canDrag={!disabled && enumDefault !== 0}
           itemKey="accountId"
-          itemClassName="inlineFlex grab"
+          itemClassName="inlineFlex pointer"
           direction="vertical"
           renderBody
           renderItem={item => this.renderItem(item)}
-          onSortEnd={items => onChange(JSON.stringify(items))}
+          onSortEnd={items => {
+            this.setState({ showId: '' });
+            onChange(JSON.stringify(items));
+          }}
         />
 
         {!disabled && (
           <div
             className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
-            onClick={this.pickUser}
+            ref={con => (this.pick = con)}
+            onClick={() => this.pickUser()}
           >
             <i className={enumDefault === 0 && value.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
           </div>

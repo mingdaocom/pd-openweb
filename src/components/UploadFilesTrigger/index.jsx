@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import Button from 'ming-ui/components/Button';
 import Icon from 'ming-ui/components/Icon';

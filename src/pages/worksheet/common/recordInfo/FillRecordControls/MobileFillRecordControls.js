@@ -29,7 +29,7 @@ const Con = styled.div`
     border-top: 1px solid #f5f5f5;
     background-color: #fff;
     .edit {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -170,7 +170,9 @@ class FillRecordControls extends React.Component {
                       c.storeFromDefault = defaultFormControl.store;
                       this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
                     }
-                  } catch (err) {}
+                  } catch (err) {
+                    console.log(err);
+                  }
                 } else if (c.type === 29) {
                   const defaultRecords = _.filter(
                     safeParse(defaultFormControl.value, 'array'),
@@ -220,6 +222,7 @@ class FillRecordControls extends React.Component {
   cellObjs = {};
   customwidget = React.createRef();
   formcon = React.createRef();
+  needRunFunctionsAfterDataReady = [];
 
   handleAppScan = controls => {
     const { hideDialog = () => {}, worksheetInfo } = this.props;
@@ -267,6 +270,7 @@ class FillRecordControls extends React.Component {
       try {
         await customButtonConfirm();
       } catch (err) {
+        console.log(err);
         this.setState({
           submitLoading: false,
         });
@@ -298,7 +302,8 @@ class FillRecordControls extends React.Component {
     );
   };
   render() {
-    const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill, widgetStyle } = this.props;
+    const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill, widgetStyle, isBatchRecordLock } =
+      this.props;
     const { submitLoading, isSubmitting, formData, showError, formFlag } = this.state;
 
     return (
@@ -313,6 +318,11 @@ class FillRecordControls extends React.Component {
             <div className="title Font18 Gray flex bold leftAlign ellipsis">{title}</div>
             <i className="icon icon-close Gray_9e Font20" onClick={hideDialog}></i>
           </div>
+          {isBatchRecordLock && (
+            <div className="pLeft20 Gray_9e">
+              {_l('未填写时不会清空字段值。一次最多处理1000条未锁定且有编辑权限的记录。')}
+            </div>
+          )}
           <div ref={this.formcon}>
             <CustomFields
               isWorksheetQuery
@@ -334,6 +344,13 @@ class FillRecordControls extends React.Component {
                 });
               }}
               onSave={this.onSave}
+              onFormDataReady={() => {
+                try {
+                  this.needRunFunctionsAfterDataReady.forEach(fn => fn());
+                } catch (err) {
+                  console.log(err);
+                }
+              }}
             />
           </div>
         </div>

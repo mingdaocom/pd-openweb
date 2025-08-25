@@ -15,7 +15,7 @@ import SelectCountry from './SelectCountry';
 import { Wrap, WrapCon, WrapConDp } from './style';
 
 export default function (props) {
-  const { updateCompany = () => { }, onChange = () => { } } = props;
+  const { updateCompany = () => {}, onChange = () => {} } = props;
   const [{ warnList, focusDiv, companyList, show, tpCompanyId, loading, extraList, geoCountryRegionCode }, setState] =
     useSetState({
       warnList: [],
@@ -121,7 +121,7 @@ export default function (props) {
       isRight = false;
     }
 
-    if (!!companyName) {
+    if (companyName) {
       await fixedDataAjax.checkSensitive({ content: companyName }).then(res => {
         if (res) {
           warnList.push({ tipDom: 'companyName', warnTxt: _l('输入内容包含敏感词，请重新填写') });
@@ -176,6 +176,7 @@ export default function (props) {
         } else {
           setCompany(tpCompanyId - 1);
         }
+        break;
       case 40: //KEY.DOWN:
         if (tpCompanyId + 1 > companyList.length - 1) {
           setCompany(0);
@@ -242,8 +243,8 @@ export default function (props) {
               autoFocus
               ref={companyNameRef}
               onKeyDown={onInputBoxKeyDown}
-              onBlur={e => setState({ focusDiv: '' })}
-              onFocus={e => setState({ show: true, focusDiv: 'companyName' })}
+              onBlur={() => setState({ focusDiv: '' })}
+              onFocus={() => setState({ show: true, focusDiv: 'companyName' })}
               onChange={e => {
                 setState({ warnList: _.filter(warnList, it => it.tipDom !== 'companyName') });
                 updateCompany({ companyName: e.target.value });
@@ -270,7 +271,7 @@ export default function (props) {
                 })}
               </WrapCon>
             )}
-            <div className="title" onClick={e => setState({ focusDiv: 'companyName' })}>
+            <div className="title" onClick={() => setState({ focusDiv: 'companyName' })}>
               {_l('组织名称')}
             </div>
           </div>
@@ -293,7 +294,7 @@ export default function (props) {
                 onVisibleChange={show => onVisibleChange(show, 'geoCountryRegionCode', geoCountryRegionCode)}
               />
             </WrapConDp>
-            <div className="title" onClick={e => setState({ focusDiv: 'geoCountryRegionCode' })}>
+            <div className="title" onClick={() => setState({ focusDiv: 'geoCountryRegionCode' })}>
               {_l('国家和地区')}
             </div>
           </div>

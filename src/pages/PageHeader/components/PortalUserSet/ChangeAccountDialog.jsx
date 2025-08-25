@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Button, Dialog } from 'ming-ui';
-import externalPortalAjax from 'src/api/externalPortal';
-import AccountCon from './AccountCon';
+import React, { useState } from 'react';
 import cx from 'classnames';
+import { Button, Dialog } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
 import { ActionResult } from 'src/pages/AuthService/config';
+import AccountCon from './AccountCon';
 
-const AccountDialogWrap = styled.div``;
 export default function TelDialog(props) {
-  const { setShow, show, classNames, appId, onOk, type, baseInfo, isBind } = props;
+  const { setShow, show, classNames, appId, onOk, type, isBind } = props;
   const [hasVerification, setHasVerification] = useState(false);
   const [newAccount, setNewAccount] = useState('');
   const [code, setCode] = useState('');
@@ -57,17 +55,18 @@ export default function TelDialog(props) {
       return alert(_l('请输入验证码'), 3);
     } else {
       let Ajax = null;
+      const account = type === 'phone' && newAccount.indexOf('+') === -1 ? country + newAccount : newAccount;
       if (isBind) {
         Ajax = externalPortalAjax.bindExAccount({
           appId,
           verifyCode: code,
-          account: country + newAccount,
+          account,
         });
       } else {
         Ajax = externalPortalAjax.editExAccount({
           appId,
           verifyCode: code,
-          account: country + newAccount,
+          account,
         });
       }
       Ajax.then(data => {
@@ -96,8 +95,8 @@ export default function TelDialog(props) {
               ? _l('绑定手机号')
               : _l('绑定邮箱')
             : type === 'phone'
-            ? _l('修改手机号')
-            : _l('修改邮箱')}
+              ? _l('修改手机号')
+              : _l('修改邮箱')}
         </span>
       }
       className={cx('userInfoDialog', classNames)}
@@ -139,21 +138,19 @@ export default function TelDialog(props) {
       }}
       visible={show}
     >
-      <AccountDialogWrap>
-        <AccountCon
-          isBind={isBind}
-          inputType={type}
-          code={code}
-          newAccount={newAccount}
-          setCode={data => setCode(data)}
-          setNewAccount={data => setNewAccount(data)}
-          account={hasVerification ? '' : props.account}
-          appId={appId}
-          type={hasVerification ? 3 : 2}
-          setIsValidNumber={setIsValidNumber}
-          setCountry={setCountry}
-        />
-      </AccountDialogWrap>
+      <AccountCon
+        isBind={isBind}
+        inputType={type}
+        code={code}
+        newAccount={newAccount}
+        setCode={data => setCode(data)}
+        setNewAccount={data => setNewAccount(data)}
+        account={hasVerification ? '' : props.account}
+        appId={appId}
+        type={hasVerification ? 3 : 2}
+        setIsValidNumber={setIsValidNumber}
+        setCountry={setCountry}
+      />
     </Dialog>
   );
 }

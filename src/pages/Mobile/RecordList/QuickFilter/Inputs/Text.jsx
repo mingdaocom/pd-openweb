@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
+import TextScanQRCode from './components/TextScanQrCode';
 
 const InputCon = styled.input`
   width: 100%;
@@ -28,7 +30,7 @@ const SearchTypeWrap = styled.div`
       font-weight: 600;
     }
     &.active {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
       .icon {
         color: #fff;
@@ -65,18 +67,30 @@ export default function Text(props) {
     <div className="controlWrapper">
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <div className="flex">
-        <InputCon
-          placeholder={_l('请输入')}
-          value={values.join(' ')}
-          onChange={e => {
-            const value = e.target.value;
-            if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
-              handleChange({ values: value.split(' ') });
-            } else {
-              handleChange({ values: [value] });
-            }
-          }}
-        />
+        <div className="flexRow">
+          <InputCon
+            placeholder={_l('请输入')}
+            value={values.join(' ')}
+            onChange={e => {
+              const value = e.target.value;
+              if (filterType === FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN) {
+                handleChange({ values: value.split(' ') });
+              } else {
+                handleChange({ values: [value] });
+              }
+            }}
+          />
+          {advancedSetting.allowscan === '1' && (
+            <div className="Reative">
+              <TextScanQRCode
+                projectId={props.projectId}
+                scantype="0"
+                control={props.control || {}}
+                onChange={value => handleChange({ values: [value] })}
+              />
+            </div>
+          )}
+        </div>
         <SearchTypeWrap className="flexRow">
           <div
             className={cx('searchType valignWrapper', { active: isExact })}

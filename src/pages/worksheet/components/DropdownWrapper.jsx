@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAwayable = createDecoratedComponent(withClickAway);
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import './DropdownWrapper.less';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class DropdownWrapper extends Component {
   static propTypes = {

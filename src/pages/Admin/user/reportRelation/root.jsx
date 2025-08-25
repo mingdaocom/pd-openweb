@@ -70,6 +70,7 @@ class Root extends Component {
             <div className="Font17 flex Bold">
               {_l('汇报关系')}
               <Tooltip
+                autoCloseDelay={0}
                 text={
                   <span className="White">
                     {_l(

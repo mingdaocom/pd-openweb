@@ -158,7 +158,7 @@ export default class FeiShu extends React.Component {
               </span>
             }
           >
-            <Icon icon="sidebar_help" className="Font18 Gray_9e" />
+            <Icon icon="help" className="Font18 Gray_9e" />
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
@@ -185,7 +185,7 @@ export default class FeiShu extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'circulated'}
+                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'visibility'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -217,7 +217,7 @@ export default class FeiShu extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
             </div>
           ) : (
             <React.Fragment>
@@ -246,7 +246,7 @@ export default class FeiShu extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
             </div>
           )}
           {this.state.isHasInfo && this.state.show2 && (
@@ -278,7 +278,7 @@ export default class FeiShu extends React.Component {
                   <Button
                     type="primary"
                     className="editInfo"
-                    onClick={e => {
+                    onClick={() => {
                       this.setState({
                         canEditInfo: true,
                         isEditing: true,
@@ -292,7 +292,7 @@ export default class FeiShu extends React.Component {
                     type="primary"
                     className="saveInfo"
                     disabled={!AppId || !AppSecret}
-                    onClick={e => {
+                    onClick={() => {
                       checkClearIntergrationData({
                         projectId: this.props.projectId,
                         onSave: this.editInfo,

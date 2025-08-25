@@ -1,9 +1,9 @@
 import React from 'react';
-import { CommonDisplay } from '../../styled';
-import { Slider } from 'ming-ui';
-import { getAdvanceSetting, levelSafeParse } from '../../util';
 import { get, head } from 'lodash';
 import styled from 'styled-components';
+import { Slider } from 'ming-ui';
+import { CommonDisplay } from '../../styled';
+import { getAdvanceSetting, levelSafeParse } from '../../util';
 
 const NumberControlWrap = styled.div`
   display: flex;

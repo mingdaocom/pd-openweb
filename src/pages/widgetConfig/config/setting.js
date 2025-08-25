@@ -67,6 +67,7 @@ export const RELATION_OPTIONS = [
   {
     value: 1,
     text: _l('任务'),
+    isHide: () => !md.global.SysSettings.forbidSuites.includes('2'),
   },
   {
     value: 2,
@@ -75,6 +76,7 @@ export const RELATION_OPTIONS = [
   {
     value: 3,
     text: _l('日程'),
+    isHide: () => !md.global.SysSettings.forbidSuites.includes('3'),
   },
   {
     value: 5,
@@ -256,3 +258,36 @@ export const DISPLAY_RC_TITLE_STYLE = [
   { icon: 'align_vertical_top1', value: '0', text: _l('顶对齐') },
   { icon: 'align_vertical_center', value: '1', text: _l('居中对齐') },
 ];
+
+export const DISPLAY_FROZEN_LIST = [
+  {
+    text: _l('不冻结'),
+    value: '0',
+  },
+  {
+    text: _l('1列'),
+    value: '1',
+  },
+  {
+    text: _l('2列'),
+    value: '2',
+  },
+  {
+    text: _l('3列'),
+    value: '3',
+  },
+];
+
+export const RELATE_SORT_DISPLAY = [
+  { text: _l('按添加时间排序'), value: '1' },
+  { text: _l('按设置的排序'), value: '2' },
+  { text: _l('按关联视图的排序'), value: '3' },
+];
+
+// 1: 设置，2: 样式， 3: 说明， 4:事件
+export const SETTING_MODE_DISPLAY = {
+  SETTING: 1,
+  CONTROL_STYLE: 2,
+  DESC: 3,
+  EVENT: 4,
+};

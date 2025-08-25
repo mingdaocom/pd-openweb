@@ -90,7 +90,7 @@ export const Wrap = styled.div`
     border-radius: 4px 4px 4px 4px;
     border: 1px solid #e0e0e0;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

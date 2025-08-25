@@ -1,9 +1,9 @@
 import React from 'react';
-import RelateOperate from './RelateOperate';
-import SubListOperate from './SubListOperate';
-import RelateSearchOperate from './RelateSearchOperate';
-import EmbedOperate from './EmbedOperate';
 import AttachmentOperate from './AttachmentOperate';
+import EmbedOperate from './EmbedOperate';
+import RelateOperate from './RelateOperate';
+import RelateSearchOperate from './RelateSearchOperate';
+import SubListOperate from './SubListOperate';
 
 // 高级设置
 export default function WidgetOperate(props) {

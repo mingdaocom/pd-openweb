@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Carousel } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
@@ -19,11 +18,9 @@ const imgReg = (data = {}) => {
 const FormCoverWrap = styled.div`
   display: flex;
   .thumbnailBox {
+    padding-right: 10px;
     height: ${props => `${props.height || 600}px`};
     width: ${props => (props.coverType === '1' ? '174px' : '176px')};
-    .nano-content {
-      padding-right: 10px;
-    }
     .thumbnailContainer {
       width: 100%;
       height: 100%;
@@ -44,7 +41,7 @@ const CoverImgWrap = styled.div`
   cursor: pointer;
   box-sizing: border-box;
   ${props => (props.fromThumbnail ? 'border: 3px solid transparent;' : '')}
-  ${props => (props.isActive ? 'border-color: #2196f3;' : '')}
+  ${props => (props.isActive ? 'border-color: #1677ff;' : '')}
   ${({ fromThumbnail, coverType }) => (fromThumbnail && coverType !== '1' ? 'margin: 1px 0' : '')}
   &:first-child {
     margin-top: 0px;
@@ -347,7 +344,7 @@ export default function FormCover(props) {
         {!isCurVideo && <div className="maskDotBg"></div>}
       </CarouseWrap>
       {showthumbnail === '1' && !isMobile && imageData.length > 1 && (
-        <ScrollView className="thumbnailBox">
+        <ScrollView className="thumbnailBox" options={{ scrollbars: { visibility: 'hidden' } }} disableParentScroll>
           <div className="thumbnailContainer">
             {imageData.map((data, index) => renderImage({ data, index, fromThumbnail: true }))}
           </div>

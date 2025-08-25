@@ -46,7 +46,7 @@ class CustomBtnList extends React.Component {
                           className="mRight12 svgIconForBtn"
                           addClassName="TxtMiddle"
                           url={iconUrl}
-                          fill={!color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
+                          fill={!color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
                           size={18}
                         />
                       ) : (
@@ -65,7 +65,7 @@ class CustomBtnList extends React.Component {
                 })}
               </ul>
               <div
-                className="creatBtn Hand"
+                className="createBtn Hand"
                 onClick={() => {
                   this.props.onShowCreateCustomBtn(true, false);
                 }}

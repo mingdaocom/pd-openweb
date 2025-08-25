@@ -1,7 +1,7 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React from 'react';
 import { Divider } from 'antd';
+import cx from 'classnames';
+import styled from 'styled-components';
 import SelectCount from 'src/pages/customPage/components/editWidget/button/SelectCount';
 import Carousel from './Carousel';
 

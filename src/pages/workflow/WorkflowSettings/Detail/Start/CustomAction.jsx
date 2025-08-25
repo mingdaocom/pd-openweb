@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { CUSTOM_ACTION_TEXT, ACTION_ID } from '../../enum';
+import { ACTION_ID, CUSTOM_ACTION_TEXT } from '../../enum';
 
 export default ({ data }) => {
   return (

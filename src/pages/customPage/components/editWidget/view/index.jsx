@@ -1,12 +1,12 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
+import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
-import { Header, EditWidgetContent } from '../../../styled';
+import { EditWidgetContent, Header } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
-import { v4 as uuidv4 } from 'uuid';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   background-color: #eee;
@@ -27,7 +27,6 @@ export default function View(props) {
       return;
     }
     if (_.isEmpty(config.name)) {
-      const { _workSheetName, _viewName } = config;
       config.name = `${config._workSheetName} (${config._viewName})`;
     }
     if (_.isEmpty(config.objectId)) {

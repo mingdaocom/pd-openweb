@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon, Tooltip, SvgIcon } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, ProcessParameters, SelectAuthAccount, FindResult } from '../components';
 import cx from 'classnames';
-import { dialogSelectIntegrationApi } from 'ming-ui/functions';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
+import { Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { dialogSelectIntegrationApi } from 'ming-ui/functions';
+import flowNode from '../../../api/flowNode';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { DetailFooter, DetailHeader, FindResult, ProcessParameters, SelectAuthAccount } from '../components';
 
 export default class Api extends Component {
   constructor(props) {
@@ -20,7 +20,7 @@ export default class Api extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -78,7 +78,7 @@ export default class Api extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, appId, fields, hasAuth, authId, executeType } = data;
+    const { name, appId, fields, hasAuth, authId, executeType, authIdAccounts, authIdKeywords } = data;
     const subProcessVariables = _.cloneDeep(data.subProcessVariables);
     let hasError = 0;
 
@@ -111,7 +111,7 @@ export default class Api extends Component {
       return;
     }
 
-    if (hasAuth && !authId) {
+    if (hasAuth && !authId && !authIdAccounts.length) {
       alert(_l('必须选择一个账户'), 2);
       return;
     }
@@ -126,6 +126,8 @@ export default class Api extends Component {
         fields,
         authId,
         executeType,
+        authIdAccounts,
+        authIdKeywords,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -213,11 +215,21 @@ export default class Api extends Component {
 
         {data.hasAuth && (
           <SelectAuthAccount
-            required
+            {...this.props}
             className="mTop20"
-            authId={data.authId}
+            required
             apiId={data.appId}
-            onChange={authId => this.updateSource({ authId })}
+            authId={data.authId}
+            authIdAccounts={data.authIdAccounts}
+            authIdKeywords={data.authIdKeywords}
+            formulaMap={data.formulaMap}
+            onChange={(obj, callback = () => {}) => {
+              if (_.isObject(obj)) {
+                this.updateSource(obj, callback);
+              } else {
+                this.updateSource({ authId: obj, authIdAccounts: [], authIdKeywords: '' });
+              }
+            }}
           />
         )}
 
@@ -268,7 +280,7 @@ export default class Api extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

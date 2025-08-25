@@ -147,8 +147,8 @@ export default {
     position: 'relative',
   },
   relations_Ul_Li_Current: {
-    border: '0.1px solid #2196f3',
-    color: '#2196f3',
+    border: '0.1px solid #1677ff',
+    color: '#1677ff',
     zIndex: 1,
   },
   relationsList_listCon_h5: {

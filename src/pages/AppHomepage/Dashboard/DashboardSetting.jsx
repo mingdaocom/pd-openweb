@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Drawer, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -185,7 +185,7 @@ const SortItem = styled.div`
   padding: 0 12px;
   cursor: pointer;
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -232,7 +232,6 @@ export default function DashboardSetting(props) {
   const { slogan, bulletinBoards, color, boardSwitch, logoSwitch, logo, logoHeight } = platformSetting;
   const { markedAppDisplay, displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } =
     homeSetting;
-  const [uploadLoading, setUploadLoading] = useState(false);
   const [bulletinSetVisible, setBulletinSetVisible] = useState(false);
   const [enableSlider, setEnableSlider] = useState(false);
   const [sortVisible, setSortVisible] = useState(false);
@@ -242,7 +241,7 @@ export default function DashboardSetting(props) {
 
   const currentColor = _.isEmpty(currentTheme)
     ? !color || !_.includes(themeColors, color)
-      ? '#2196F3'
+      ? '#1677ff'
       : color
     : currentTheme.themeKey;
 
@@ -340,13 +339,11 @@ export default function DashboardSetting(props) {
                           type: 4,
                           max_file_size: '0.5m',
                         }}
-                        onUploaded={(up, file, response) => {
+                        onUploaded={(up, file) => {
                           up.disableBrowse(false);
-                          setUploadLoading(false);
                           updateLogo(file.fileName);
                         }}
-                        onAdd={(up, files) => {
-                          setUploadLoading(true);
+                        onAdd={up => {
                           up.disableBrowse();
                         }}
                         onError={(up, err, errTip) => {

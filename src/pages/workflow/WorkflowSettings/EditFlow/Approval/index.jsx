@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, MembersName, NodeOperate } from '../components';
 import _ from 'lodash';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class Approval extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class Approval extends Component {
     if (!item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );
@@ -56,8 +56,8 @@ export default class Approval extends Component {
             {item.countersignType === 1
               ? _l('需全员通过')
               : item.countersignType === 2
-              ? _l('只需一人通过，需全员否决')
-              : _l('按比例投票通过')}
+                ? _l('只需一人通过，需全员否决')
+                : _l('按比例投票通过')}
           </div>
         )}
         <div className={cx('pLeft8 pRight8 pBottom5', { pTop5: !hasApprovalMethod })}>

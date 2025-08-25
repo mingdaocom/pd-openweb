@@ -1,9 +1,9 @@
 ﻿import React from 'react';
+import { connect } from 'react-redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import postAjax from 'src/api/post';
 import { getPostDetail } from '../../../../redux/postActions';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import VoteItem from './voteItem';
 
 /**
@@ -17,7 +17,10 @@ class VoteList extends React.Component {
   };
 
   state = {
-    checkedOptions: _.map(_.filter(this.props.voteItem.Options, o => _.some(o.member, m => m.aid === md.global.Account.accountId)), 'optionIndex'),
+    checkedOptions: _.map(
+      _.filter(this.props.voteItem.Options, o => _.some(o.member, m => m.aid === md.global.Account.accountId)),
+      'optionIndex',
+    ),
   };
 
   handleVote = () => {
@@ -31,7 +34,7 @@ class VoteList extends React.Component {
         optionIndex,
         postId: this.props.voteItem.postID,
       })
-      .then((success) => {
+      .then(success => {
         if (success) {
           dispatch(getPostDetail(this.props.voteItem.postID));
           this.props.handleShowResult();
@@ -68,7 +71,7 @@ class VoteList extends React.Component {
     return (
       <div>
         <ul>
-          {_(voteItem.Options)
+          {_.chain(voteItem.Options)
             .orderBy([voteItem.isPostVote ? 'count' : undefined, 'optionIndex'], [false, true])
             .map((o, i) => (
               <VoteItem
@@ -90,20 +93,16 @@ class VoteList extends React.Component {
             <a onClick={this.props.handleShowResult} className="btnBootstrap btnBootstrap-small mRight10">
               {_l('取消更改') /* 取消更改*/}
             </a>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           {voteItem.isAuthor && !voteItem.isPostVote ? (
             <a onClick={this.props.handleShowResult} className="btnBootstrap btnBootstrap-small mRight10">
               {_l('查看结果') /* 查看结果*/}
             </a>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
       </div>
     );
   }
 }
 
-export default connect(state => ({}))(VoteList);
+export default connect()(VoteList);

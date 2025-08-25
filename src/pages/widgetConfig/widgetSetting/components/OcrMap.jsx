@@ -1,13 +1,13 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
-import update from 'immutability-helper';
+import React, { Fragment, useState } from 'react';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
+import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
-import { getAdvanceSetting, getIconByType } from '../../util';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 import { COMMON, TEMPLATE_TYPE } from '../../config/ocr';
 import { DropdownPlaceholder, SelectFieldsWrap } from '../../styled';
+import { getAdvanceSetting, getIconByType } from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
 
 const ConfigRelation = styled.div`
@@ -24,7 +24,7 @@ const ConfigRelation = styled.div`
       margin: 0;
     }
     .mapIcon {
-      color: #2196f3;
+      color: #1677ff;
     }
     .Dropdown,
     .ming.Menu {
@@ -175,9 +175,7 @@ function MapItem(props) {
                   {info.controlName}
                 </div>
                 <i
-                  className={cx(
-                    `Font14 icon-${isHover ? 'closeelement-bg-circle Gray_75' : 'arrow-down-border Gray_9e'} `,
-                  )}
+                  className={cx(`Font14 icon-${isHover ? 'cancel Gray_75' : 'arrow-down-border Gray_9e'} `)}
                   onClick={e => {
                     e.stopPropagation();
                     const index = ocrMap.findIndex(item => item.type === value);

@@ -1,12 +1,12 @@
 import React from 'react';
+import { useState } from 'react';
 import { Menu } from 'antd';
-import Trigger from 'rc-trigger';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _, { isUndefined } from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { COVER_DISPLAY_FILL } from 'src/pages/worksheet/common/ViewConfig/config.js';
-import { useState } from 'react';
 
 const WrapMenu = styled(Menu)`
   .splitLine {
@@ -55,7 +55,7 @@ export default function (props) {
     return (
       <WrapMenu className="viewTypeMenuWrap" style={{ borderRadius: 4, ...menuStyle }}>
         {data.map(o => {
-          const { onClick, value, ...rest } = o;
+          const { value } = o;
           return (
             <Menu.Item
               data-event={value}

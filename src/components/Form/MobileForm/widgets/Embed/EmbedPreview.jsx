@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   display: flex;

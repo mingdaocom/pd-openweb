@@ -58,7 +58,7 @@ function Emotion(el, options) {
 
   // 当最近表情为空时，将默认显示默认表情，否则将显示最近表情
   // 有指定的参数传进来时将以传进来的传进来的参数为准，这样用户就能强制性地显示他们想要默认显示的tab
-  options.defaultTab = this.getDefaultTab(options);
+  options.defaultTab = this.getDefaultTab(Emotion.options);
   this.options = $.extend({}, Emotion.options, options);
   this._init();
 }
@@ -69,11 +69,7 @@ function Emotion(el, options) {
  * @returns {number}
  */
 Emotion.prototype.getDefaultTab = function getDefaultTab(options) {
-  var historyKey = '';
-  options = options || {};
-  historyKey = options.historyKey || Emotion.options.historyKey;
-
-  if (!window.localStorage || !window.localStorage[historyKey]) {
+  if (!window.localStorage || !window.localStorage[options.historyKey]) {
     return 1;
   }
   return 0;
@@ -90,7 +86,7 @@ Emotion.options = {
   history: true, // 是否显示历史表情
   historySize: 40,
   autoHide: true,
-  historyKey: `${md.global.Account.accountId || ''}_Emotions`,
+  historyKey: `${md.global.Account.accountId || ''}_emotions`,
   relatedLeftSpace: 0, // 与相对元素的位置
   relatedTopSpace: 0, // 与相对元素的位置
   placement: 'left top', // 表情面板显示的位置，第一个值x轴 left or right，第二个值y轴 top or bottom
@@ -107,13 +103,13 @@ Emotion.prototype._init = function _init() {
   this.$target.on('keyup', $.proxy(this.hide, this));
   if (this.options.divEditor) {
     this.$target
-      .on('keyup', function (e) {
+      .on('keyup', function () {
         // 获取选定对象
         var selection = getSelection();
         // 设置最后光标对象
         window.lastEditRange = selection.getRangeAt(0);
       })
-      .on('click', function (e) {
+      .on('click', function () {
         // 获取选定对象
         var selection = getSelection();
         // 设置最后光标对象
@@ -149,29 +145,13 @@ Emotion.prototype.emotion = function emotion() {
     }
 
     // 设置默认显示
-    tab +=
-      '<span class="tip-top tabItem tab' +
-      (index + 1) +
-      ' ' +
-      (index === _this.options.defaultTab ? ' active' : '') +
-      '" data-emotion-index="' +
-      index +
-      '" data-tip="' +
-      item.tab.name +
-      '">' +
-      '<img src="/staticfiles/emotionimages/' +
-      item.tab.imageName +
-      '.png' +
-      '" class="' +
-      'tabItem-images' +
-      '"/> ' +
-      (item.tab.text || '') +
-      '</span>';
-    content +=
-      '<div class="mdEmotionPanel panel' +
-      (index + 1) +
-      (index === _this.options.defaultTab ? ' active' : '') +
-      '"></div>';
+    tab += `
+      <span class="tip-top tabItem tab${index + 1} ${index === _this.options.defaultTab ? 'active' : ''}" data-emotion-index="${index}" data-tip="${item.tab.name}">
+        <img src="/staticfiles/emotionimages/${item.tab.imageName}.png" class="tabItem-images" />
+        ${item.tab.text || ''}
+      </span>`;
+
+    content += `<div class="mdEmotionPanel panel${index + 1} ${index === _this.options.defaultTab ? 'active' : ''}"></div>`;
   });
 
   $mdEmotion.find('.mdEmotionTab').html(tab).end().find('.mdEmotionWrapper').html(content);
@@ -216,8 +196,6 @@ Emotion.prototype._getPosition = function _getPosition() {
 
     if (position.right - elemWidth < 0) {
       this.options.placement = 'left ' + placements[1];
-    } else {
-      // this.options.placement = 'right';
     }
 
     placements = this.options.placement.split(' ');
@@ -244,18 +222,8 @@ Emotion.prototype._getPosition = function _getPosition() {
 Emotion.prototype._setPosition = function _setPosition(left, top) {
   this.$emotion.removeClass('emotion-top emotion-bottom');
   this.$emotion.addClass('emotion-' + this.options.placement.split(' ')[1]);
-  /*    // 垂直方向
-   if (this.options.placement === 'top' || this.options.placement === 'bottom') { // 水平方向越界
-   //this.arrow().css('left', this.$el.length ? Math.min(this.options.offset, this.$el.innerWidth() / 2) : this.options.offset);
-   this.arrow().css('left', this.options.offset);
-   }
-
-   // 水平方向
-   if (this.options.placement === 'left' || this.options.placement === 'right') { // 垂直方向越界
-   //this.arrow().css('top', this.$el.length ? Math.min(this.options.offset, this.$el.outerHeight() / 2) : this.options.offset);
-   this.arrow().css('left', this.options.offset);
-   }*/
   var axisX = this.options.placement.split(' ')[0];
+
   if (axisX === 'left') {
     this.arrow().css('left', this.options.offset);
   } else if (axisX == 'right') {
@@ -292,7 +260,7 @@ Emotion.prototype.select = function select(event) {
       if (typeof this.options.onMDBearSelect === 'function') {
         this.options.onMDBearSelect.call(
           this,
-          event.currentTarget.getAttribute('title'),
+          $currentTarget.attr('code'),
           targetEmotionSrc.replace(this.options.imgPath, '').replace('/staticfiles/images/emotion/', ''),
           targetEmotionSrc,
         );
@@ -304,23 +272,24 @@ Emotion.prototype.select = function select(event) {
       if (typeof this.options.onMDBearSelect === 'function') {
         this.options.onMDBearSelect.call(
           this,
-          event.currentTarget.getAttribute('title'),
+          $currentTarget.attr('code'),
           targetEmotionSrc.replace(this.options.imgPath, ''),
           targetEmotionSrc,
         );
       }
     } else if ($currentTarget.hasClass('emoji')) {
       this._storeHistory(targetEmotion);
-      _val = $currentTarget.attr('title');
+      _val = $currentTarget.attr('code');
+
       if (typeof this.options.onSelect === 'function') {
-        this.options.onSelect.call(this, event.currentTarget.getAttribute('title'), targetEmotionSrc);
+        this.options.onSelect.call(this, _val, targetEmotionSrc);
       }
     } else {
       this._storeHistory(targetEmotion);
-      _val = '[' + event.currentTarget.getAttribute('title') + ']';
+      _val = `[${$currentTarget.attr('code')}]`;
 
       if (typeof this.options.onSelect === 'function') {
-        this.options.onSelect.call(this, event.currentTarget.getAttribute('title'), targetEmotionSrc, _val);
+        this.options.onSelect.call(this, $currentTarget.attr('code'), targetEmotionSrc, _val);
       }
     }
     // 重新设置光标位置
@@ -330,8 +299,10 @@ Emotion.prototype.select = function select(event) {
       var _currentPos = getCaretPosition(target);
       this.$target.val(oldVal.slice(0, _currentPos) + _val + oldVal.slice(_currentPos));
       var newPos = _currentPos + _val.length;
+
       setCaretPosition(target, newPos);
       this.$target.focus();
+      target.updateValue && target.updateValue();
     }
   } else {
     if ($currentTarget.hasClass('emotionItemBear')) {
@@ -343,17 +314,17 @@ Emotion.prototype.select = function select(event) {
       if (typeof this.options.onMDBearSelect === 'function') {
         this.options.onMDBearSelect.call(
           this,
-          event.currentTarget.getAttribute('title'),
+          $currentTarget.attr('code'),
           targetEmotionSrc.replace(this.options.imgPath, ''),
           targetEmotionSrc,
         );
       }
     } else if ($currentTarget.hasClass('emoji')) {
-      _val = $currentTarget.attr('title');
+      _val = $currentTarget.attr('code');
       insertImageToEditor(this.$target.get(0), this.parse(_val));
       this._storeHistory(targetEmotion);
     } else {
-      _val = '[' + $currentTarget.attr('title') + ']';
+      _val = '[' + $currentTarget.attr('code') + ']';
       insertImageToEditor(this.$target.get(0), this.parse(_val));
       this._storeHistory(targetEmotion);
     }
@@ -449,7 +420,7 @@ Emotion.prototype.show = function show(left, top) {
  * @param index
  */
 Emotion.prototype.load = function (index) {
-  var $targetEmotion = this.emotion().find('.panel' + (index + 1));
+  var $targetEmotion = this.emotion().find(`.panel${index + 1}`);
   var _this = this;
   var content = '';
 
@@ -465,55 +436,26 @@ Emotion.prototype.load = function (index) {
     });
     $targetEmotion.html(content);
   }
+
   if (!$targetEmotion.data('loaded')) {
-    if (emotionData[index].tab.type === 'emoji') {
-      $.each(emotionData[index].content, function (i, item) {
-        content +=
-          '<a class="emotionItem ' +
-          emotionData[index].tab.type +
-          '" title="' +
-          item +
-          '">' +
-          twemoji.parse(item) +
-          '</a>';
+    const tabObj = emotionData[index].tab;
+    const contentObj = emotionData[index].content;
+
+    if (tabObj.type === 'emoji') {
+      $.each(contentObj, function (i, item) {
+        content += `<a class="emotionItem emoji" code="${item}">${twemoji.parse(item)}</a>`;
       });
     } else {
-      $.each(emotionData[index].content, function (i, item) {
-        var extraClassName = '';
-        if (emotionData[index].tab.name === _l('笨笨熊')) {
-          extraClassName = 'emotionItemBear';
-        } else if (emotionData[index].tab.name === 'Aru') {
-          extraClassName = 'emotionItemAru';
-        } else {
-          extraClassName = '';
-        }
-        if (emotionData[index].tab.name === 'Aru') {
-          content +=
-            '<a class="emotionItem ' +
-            extraClassName +
-            '">' +
-            '<img src="' +
-            _this.options.imgPath +
-            emotionData[index].tab.path +
-            (isRetina && emotionData[index].tab.showRetina ? 'retina/' : '') +
-            item.img +
-            '">' +
-            ' </a>';
-        } else {
-          content +=
-            '<a class="emotionItem ' +
-            extraClassName +
-            '" title="' +
-            item.key +
-            '">' +
-            '<img src="' +
-            _this.options.imgPath +
-            emotionData[index].tab.path +
-            (isRetina && emotionData[index].tab.showRetina ? 'retina/' : '') +
-            item.img +
-            '">' +
-            ' </a>';
-        }
+      $.each(contentObj, function (i, item) {
+        const extraClassName =
+          tabObj.name === 'Aru' ? 'emotionItemAru' : tabObj.name === _l('笨笨熊') ? 'emotionItemBear' : '';
+        const imgPath =
+          _this.options.imgPath + tabObj.path + (isRetina && tabObj.showRetina ? 'retina/' : '') + item.img;
+
+        content += `
+            <a class="emotionItem ${extraClassName}" code="${item.key}">
+              <img src="${imgPath}" />
+            </a>`;
       });
     }
     $targetEmotion.html(content).data('loaded', true);
@@ -533,11 +475,7 @@ Emotion.prototype.hide = function () {
  * @returns {boolean}
  */
 Emotion.prototype.toggle = function () {
-  if (!this.isOpen) {
-    this.show();
-  } else {
-    this.hide();
-  }
+  this.isOpen ? this.hide() : this.show();
 };
 
 /**
@@ -545,36 +483,52 @@ Emotion.prototype.toggle = function () {
  * @param str
  */
 Emotion.prototype.parse = function (str) {
+  let reg;
   str = str || '';
-  // str = str.replace(/\[失望\]/ig, '[难过]');
+
   emotionData.forEach(function (item, index) {
-    item.content.forEach(function (emotion, index2) {
-      var reg = new RegExp('\\[' + emotion.key + '\\]', 'gi');
-      if (emotion.key && str.search(reg) > -1) {
+    item.content.forEach(function (emotion) {
+      if (!emotion.key) return;
+
+      let isCurrentEmotion = false;
+
+      if (emotion.originalKey) {
+        let cnReg = new RegExp('\\[' + emotion.originalKey['zh-Hans'] + '\\]', 'gi');
+        let enReg = new RegExp('\\[' + emotion.originalKey['en'] + '\\]', 'gi');
+
+        if (str.search(cnReg) > -1) {
+          reg = cnReg;
+          isCurrentEmotion = true;
+        }
+
+        if (str.search(enReg) > -1) {
+          reg = enReg;
+          isCurrentEmotion = true;
+        }
+      } else {
+        reg = new RegExp('\\[' + emotion.key + '\\]', 'gi');
+        isCurrentEmotion = str.search(reg) > -1;
+      }
+
+      if (isCurrentEmotion) {
         // 对于熊表情，将静态的转化成动态的
         if (emotionData[index].tab.name === _l('笨笨熊')) {
           emotion.img = emotion.img.replace('.png', '.gif');
         }
-        var src =
+        const src =
           Emotion.options.imgPath +
           emotionData[index].tab.path +
           (isRetina && emotionData[index].tab.showRetina ? 'retina/' : '') +
           emotion.img;
+
         str = str.replace(
           reg,
-          '<img alt="[' +
-            emotion.key +
-            ']" src="' +
-            src +
-            '" class="' +
-            emotionData[index].itemClassName +
-            '" height=' +
-            item.tab.size +
-            ' />',
+          `<img src="${src}" class="${emotionData[index].itemClassName}" height="${item.tab.size}" />`,
         );
       }
     });
   });
+
   return twemoji.parse(str);
 };
 

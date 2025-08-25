@@ -1,5 +1,4 @@
 import { Base64 } from 'js-base64';
-
 import exec from './exec';
 
 function runWithParams(control, formData) {
@@ -8,7 +7,9 @@ function runWithParams(control, formData) {
       control.advancedSetting = {
         defaultfunc: JSON.stringify({ expression: control.expression }),
       };
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
   const result = exec(control, formData, { type: 'lib' });
   if (!result.error) {

@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { FROM } from '../../tools/config';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import { Icon } from 'ming-ui';
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { FROM } from '../../tools/config';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -84,7 +84,12 @@ export default class Widgets extends Component {
             {durationText && <span className="mLeft5">{durationText}</span>}
           </span>
 
-          {!disabled && <Icon icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'bellSchedule'} className="Font16 Gray_bd" />}
+          {!disabled && (
+            <Icon
+              icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'bellSchedule'}
+              className="Font16 Gray_bd"
+            />
+          )}
         </div>
       </DateTimeRange>
     );

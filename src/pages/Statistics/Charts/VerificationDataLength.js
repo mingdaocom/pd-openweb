@@ -1,9 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 import { Overload } from 'statistics/components/ChartStatus';
 import { reportTypes } from '../Charts/common';
-import _ from 'lodash';
 
-const verificationDataLength = (Component) => {
+const verificationDataLength = Component => {
   class VerificationDataLength extends React.Component {
     get isOverload() {
       const { reportData } = this.props;
@@ -37,19 +37,13 @@ const verificationDataLength = (Component) => {
       return false;
     }
     render() {
-      return (
-        this.isOverload ? (
-          <Overload />
-        ) : (
-          <Component {...this.props} />
-        )
-      );
+      return this.isOverload ? <Overload /> : <Component {...this.props} />;
     }
   }
 
   return VerificationDataLength;
-}
+};
 
 export default Component => {
   return verificationDataLength(Component);
-}
+};

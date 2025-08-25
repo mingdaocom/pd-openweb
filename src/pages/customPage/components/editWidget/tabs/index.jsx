@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import GridLayout from 'react-grid-layout';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { updateComponents, updatePageInfo } from 'src/pages/customPage/redux/action';
@@ -18,8 +19,6 @@ const ContentWrap = styled.div`
     .tabsHeader {
       position: relative;
       top: -1px;
-      overflow-x: auto;
-      overflow-y: hidden;
       &::after {
         content: '';
         position: absolute;
@@ -50,12 +49,14 @@ const ContentWrap = styled.div`
     }
   }
   &.activeWrap {
-    border-color: #2196f3;
+    border-color: #1677ff;
     // overflow: hidden;
   }
   .tabsHeader {
     padding: 0 12px 0;
     margin: 0 0 5px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
     .tab {
       color: var(--widget-title-color);
       padding: 12px 10px 6px;
@@ -223,7 +224,7 @@ export const Tabs = props => {
         if (isTabs) {
           return 3;
         } else {
-          return showName ? 3 : 1;
+          return showName ? 2.5 : 1;
         }
       } else {
         return 1.5;

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, Icon, SortableList, Tooltip, UserHead } from 'ming-ui';
 import departmentAjax from 'src/api/department';
 import { List, Wrap } from './style';

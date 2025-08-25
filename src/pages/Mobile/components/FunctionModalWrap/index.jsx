@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Popup, Button } from 'antd-mobile';
+import { Button, Popup } from 'antd-mobile';
 
 class ModalWrap extends Component {
   constructor(props) {

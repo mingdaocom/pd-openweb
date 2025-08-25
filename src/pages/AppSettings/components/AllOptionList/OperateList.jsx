@@ -1,11 +1,12 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { Icon, Menu, MenuItem, Dialog, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
+import React, { Fragment, useState } from 'react';
 import update from 'immutability-helper';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import DeleteOptionList from './DeleteOptionList';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import DeleteOptionList from './DeleteOptionList';
 
 const OperateWrap = styled(Menu)`
   &.optWrap {
@@ -160,6 +161,7 @@ export default function OperateList(props) {
               {_l('移动至其他应用')}
             </MenuItem>
             <Tooltip
+              autoCloseDelay={0}
               text={
                 status === 9 ? _l('启用后支持被新字段引用') : _l('停用不影响已引用字段的使用，但是新字段无法再引用')
               }

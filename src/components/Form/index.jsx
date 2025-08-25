@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useImperativeHandle, useReducer, useRef, useState } from 'react';
-import { LoadDiv } from 'ming-ui';
+import { useSetState } from 'react-use';
+import _ from 'lodash';
+import { Dialog, Icon, LoadDiv, MobileConfirmPopup, Tooltip } from 'ming-ui';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/utils/common';
 import { isRelateRecordTableControl } from 'src/utils/control';
@@ -29,6 +31,7 @@ import {
   updateUniqueErrorItemsAction,
 } from './store/actions';
 import { initialState, reducer } from './store/reducers';
+import './index.less';
 
 export const EntranceContext = createContext();
 
@@ -61,6 +64,12 @@ const Entrance = React.forwardRef((props, ref) => {
     searchConfig: props.searchConfig || [],
   });
   const [Component, setComponent] = useState(null);
+  const [{ errors, submitOptions, mobilePopupVisible, isAllIgnoreError }, setState] = useSetState({
+    errors: [],
+    submitOptions: {},
+    mobilePopupVisible: false,
+    isAllIgnoreError: false,
+  });
 
   /**
    * 规则筛选数据
@@ -92,6 +101,7 @@ const Entrance = React.forwardRef((props, ref) => {
       dataFormat.current,
       () => submitBegin.current,
       () => controlRefs.current,
+      newErrorDialog,
     );
   };
 
@@ -108,6 +118,7 @@ const Entrance = React.forwardRef((props, ref) => {
       bool => (submitBegin.current = bool),
       () => submitBegin.current,
       () => controlRefs.current,
+      newErrorDialog,
     );
   };
 
@@ -126,6 +137,7 @@ const Entrance = React.forwardRef((props, ref) => {
       bool => {
         changeStatus.current = bool;
       },
+      onChangeEnhance,
       searchByChange,
     );
   };
@@ -198,10 +210,14 @@ const Entrance = React.forwardRef((props, ref) => {
     return { instanceId, workId };
   };
 
+  const onChangeEnhance = (dataSource, controlIds, obj) => {
+    props.onChange(dataSource, controlIds, obj);
+  };
+
   /**
    * 初始化数据
    */
-  const initSourceAction = (data, disabled, needSetStateCb = false) => {
+  const initSourceAction = (data, disabled, reInit = false) => {
     const {
       appId,
       isCharge,
@@ -246,33 +262,35 @@ const Entrance = React.forwardRef((props, ref) => {
       },
       searchConfig: searchConfig.filter(i => i.eventType !== 1),
       loadRowsWhenChildTableStoreCreated,
-      updateLoadingItems: items => {
-        updateLoadingItems(items);
+      updateLoadingItems: loadingItems => {
+        updateLoadingItems({ ...loadingItems });
+      },
+      updateLoadingItemsWithAutoSubmit: loadingItems => {
+        updateLoadingItems({ ...loadingItems });
       },
       activeTrigger: () => {
         if (!changeStatus.current && dataFormat.current) {
-          props.onChange(dataFormat.current.getDataSource(), dataFormat.current.getUpdateControlIds(), {
+          onChangeEnhance(dataFormat.current.getDataSource(), dataFormat.current.getUpdateControlIds(), {
             noSaveTemp: true,
           });
           changeStatus.current = true;
         }
       },
-      onAsyncChange: ({ controlId, value }) => {
-        props.onChange(dataFormat.current.getDataSource(), [controlId], { isAsyncChange: true });
+      onAsyncChange: ({ controlId }) => {
+        onChangeEnhance(dataFormat.current.getDataSource(), [controlId], { isAsyncChange: true });
         changeStatus.current = true;
         getFilterDataByRule();
         updateErrorItems(dataFormat.current.getErrorControls());
-        updateLoadingItems({ ...state.loadingItems });
+        // updateLoadingItems({ ...state.loadingItems });
       },
     });
     getFilterDataByRule(true);
-    updateErrorItems(dataFormat.current.getErrorControls());
+    updateErrorItems(
+      dataFormat.current.getErrorControls().map(item => ({ ...item, showError: reInit ? false : item.reInit })),
+    );
     updateUniqueErrorItems([]);
     updateRulesLoading(false);
-    if (needSetStateCb) {
-      updateErrorState(false);
-      changeStatus.current = false;
-    }
+    changeStatus.current = !reInit;
     onFormDataReady(dataFormat.current);
   };
 
@@ -327,6 +345,7 @@ const Entrance = React.forwardRef((props, ref) => {
       onBlur = () => {},
     } = props;
     const { renderData } = state;
+    const { instanceId, workId } = getWorkflowParams();
     // 字段描述显示方式
     const hintType = _.get(item, 'advancedSetting.hinttype') || '0';
     const hintShowAsText =
@@ -376,8 +395,7 @@ const Entrance = React.forwardRef((props, ref) => {
     }
 
     const isEditable = controlState(item, from).editable;
-    const maskPermissions =
-      (isCharge || _.get(item, 'advancedSetting.isdecrypt[0]') === '1') && !window.shareState.shareId;
+    const maskPermissions = isCharge || _.get(item, 'advancedSetting.isdecrypt') === '1';
 
     // (禁用或只读) 且 内容不存在
     if (
@@ -447,18 +465,19 @@ const Entrance = React.forwardRef((props, ref) => {
             }
 
             // h5附件上传完成后才能触发自定义事件
-            let uploadFieldTriggerEvent = true;
-            if (browserIsMobile() && item.type === 14) {
-              uploadFieldTriggerEvent = !_.isEqual(item.value, value);
+            if (
+              browserIsMobile() &&
+              item.type === 14 &&
+              item.value !== value &&
+              !$('.customMobileFormContainer').find('.fileUpdateLoading').length
+            ) {
               item.value = value;
-              if (isUnTextWidget(item) && uploadFieldTriggerEvent) {
-                triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
-              }
+              triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
               return;
             }
 
             // 非文本类值改变时触发自定义事件
-            if (isUnTextWidget(item) && item.value !== value && uploadFieldTriggerEvent) {
+            if (isUnTextWidget(item) && item.value !== value) {
               triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
             }
           }}
@@ -497,6 +516,60 @@ const Entrance = React.forwardRef((props, ref) => {
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
       </FormWidget>
     );
+  };
+
+  // 提示错误二次确认层
+  const newErrorDialog = (errors, options) => {
+    const isAllIgnoreError = errors.every(i => i.ignoreErrorMessage);
+    if (isMobile) {
+      setState({
+        errors,
+        submitOptions: options,
+        mobilePopupVisible: true,
+        isAllIgnoreError,
+      });
+    } else {
+      Dialog.confirm({
+        className: 'newRuleErrorMsgDialog',
+        title: <span className="Bold Font17">{_l('表单存在以下错误，请正确填写')}</span>,
+        okText: _l('前往修改'),
+        cancelText: _l('忽略，继续保存'),
+        description: (
+          <div>
+            {errors.map(item => {
+              return (
+                <div className="errorItem">
+                  <Tooltip
+                    text={item.ignoreErrorMessage ? _l('非强制校验，可选择忽略') : _l('必须修改正确后才能保存')}
+                    popupPlacement="bottomLeft"
+                    offset={[-12, 0]}
+                  >
+                    <Icon
+                      className="Font16 pointer"
+                      icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
+                      style={{ color: item.ignoreErrorMessage ? '#F8932C' : '#FF0000' }}
+                    />
+                  </Tooltip>
+
+                  <div className="flex WordBreak Font14 Gray">{item.errorMessage}</div>
+                </div>
+              );
+            })}
+          </div>
+        ),
+        removeCancelBtn: !isAllIgnoreError,
+        onlyClose: true,
+        onOk: () => {},
+        onCancel: () => {
+          submitFormData({ ...options, ignoreDialog: true });
+        },
+      });
+    }
+  };
+
+  const setLoadingInfo = (key, status) => {
+    dataFormat.current.loadingInfo[key] = status;
+    updateLoadingItems({ ...dataFormat.current.loadingInfo });
   };
 
   // 初始化数据
@@ -550,7 +623,7 @@ const Entrance = React.forwardRef((props, ref) => {
     if (Object.values(state.loadingItems).every(i => !i) && submitBegin.current) {
       submitFormData();
     }
-  }, [state.loadingItems]);
+  }, [state.loadingItems, state.renderData]);
 
   // 监听 flag 和 data.length
   useEffect(() => {
@@ -587,6 +660,7 @@ const Entrance = React.forwardRef((props, ref) => {
     handleChange,
     getFilterDataByRule,
     dataFormat: dataFormat.current,
+    state,
   }));
 
   if (!Component) {
@@ -605,7 +679,51 @@ const Entrance = React.forwardRef((props, ref) => {
           updateErrorState={updateErrorState}
           handleChange={handleChange}
           triggerCustomEvent={triggerCustomEvent}
+          setLoadingInfo={setLoadingInfo}
         />
+        {isMobile && (
+          <MobileConfirmPopup
+            title={_l('表单存在以下错误，请正确填写')}
+            visible={mobilePopupVisible}
+            cancelText={_l('忽略，继续保存')}
+            confirmText={_l('前往修改')}
+            removeCancelBtn={!isAllIgnoreError}
+            onConfirm={() => {
+              setState({
+                mobilePopupVisible: false,
+              });
+            }}
+            onCancel={() => {
+              setState({
+                mobilePopupVisible: false,
+              });
+              // 新建子表保存
+              if (props.continueSubmit) {
+                props.continueSubmit({ ignoreDialog: true });
+              } else {
+                submitFormData({ ...submitOptions, ignoreDialog: true });
+              }
+            }}
+          >
+            <div className="mobileConfirmContent">
+              {errors.map(item => {
+                return (
+                  <div className="errorItem">
+                    <div className="errorIcon">
+                      <Icon
+                        className="Font16 mRight10"
+                        icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
+                        style={{ color: item.ignoreErrorMessage ? '#F8932C' : '#FF0000' }}
+                      />
+                    </div>
+
+                    <div className="flex WordBreak Font14 Gray">{item.errorMessage}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </MobileConfirmPopup>
+        )}
       </div>
     </EntranceContext.Provider>
   );

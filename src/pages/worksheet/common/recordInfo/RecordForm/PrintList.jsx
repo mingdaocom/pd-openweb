@@ -20,14 +20,6 @@ import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import IconBtn from './IconBtn';
 
 const MenuItemWrap = styled(MenuItem)`
-  &.active,
-  &.hover {
-    background-color: #1e88e5 !important;
-    .Item-content,
-    .Icon {
-      color: #fff !important;
-    }
-  }
   &.printItem.Item {
     .Item-content {
       padding-left: 32px;
@@ -44,16 +36,6 @@ const MenuItemWrap = styled(MenuItem)`
           display: inline-block;
           text-align: center;
           line-height: 28px;
-        }
-      }
-      &:hover {
-        background-color: #f8f8f8 !important;
-        color: revert !important;
-        .Icon {
-          color: #9e9e9e !important;
-        }
-        .downloadIcon {
-          background: #fff;
         }
       }
     }
@@ -95,6 +77,8 @@ export async function handleTemplateRecordPrint({
   projectId,
   template,
   attriData,
+  workId,
+  instanceId,
 }) {
   const it = template;
 
@@ -138,6 +122,8 @@ export async function handleTemplateRecordPrint({
       fileTypeNum: it.type,
       allowDownloadPermission: it.allowDownloadPermission,
       allowEditAfterPrint: it.allowEditAfterPrint,
+      workId,
+      id: instanceId,
     };
     let printKey = Math.random().toString(36).substring(2);
     webCacheAjax.add({
@@ -193,7 +179,7 @@ export default class PrintList extends Component {
         })
         .then(tempList => {
           let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;
-          const values = _.values(PRINT_TYPE);
+
           this.setState({
             tempList: list
               .filter(l => !l.disabled)
@@ -266,6 +252,8 @@ export default class PrintList extends Component {
       type = 0,
       showDownload = true,
       onItemClick = () => {},
+      workId,
+      instanceId,
     } = this.props;
     const { tempList, showPrintGroup } = this.state;
     let attriData = controls.filter(it => it.attribute === 1);
@@ -342,6 +330,8 @@ export default class PrintList extends Component {
                             projectId,
                             template: it,
                             attriData,
+                            workId,
+                            instanceId,
                           });
                         }}
                       >
@@ -353,7 +343,7 @@ export default class PrintList extends Component {
                         ) : (isCharge || !it.allowDownloadPermission) && showDownload ? (
                           <span className="detail" onClick={e => this.getDownload(it, e)}>
                             <Tooltip text={_l('导出')} popupPlacement="bottom">
-                              <Icon icon="file_download" className="Font16 downloadIcon" />
+                              <Icon icon="download" className="Font16 downloadIcon" />
                             </Tooltip>
                           </span>
                         ) : null}

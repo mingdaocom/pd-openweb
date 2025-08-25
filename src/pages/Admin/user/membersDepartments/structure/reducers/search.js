@@ -26,7 +26,6 @@ export default (state = initialState, action) => {
         result: response,
         isSearching: false,
       };
-      break;
     case ACTIONS.CLEAR_KEYWORDS:
       return {
         ...state,

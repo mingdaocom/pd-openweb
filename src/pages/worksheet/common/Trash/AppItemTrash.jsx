@@ -10,6 +10,7 @@ import { dateConvertToUserZone } from 'src/utils/project';
 
 const Content = styled.div`
   height: calc(100% - 53px);
+  min-height: 0;
 `;
 
 const TableRow = styled.div`
@@ -93,7 +94,7 @@ const columns = [
 ];
 
 export default function AppItemTrash(props) {
-  const { appId, projectId, onCancel } = props;
+  const { appId, projectId } = props;
   const cache = useRef({});
   const [loading, setLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(1);
@@ -109,7 +110,7 @@ export default function AppItemTrash(props) {
             ? appItem.iconUrl
             : `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${appItem.iconUrl}.svg`
         }
-        fill="#2196f3"
+        fill="#1677ff"
         size={34}
         className="InlineBlock"
       />,
@@ -192,7 +193,7 @@ export default function AppItemTrash(props) {
           return Promise.reject();
         }
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('恢复失败'), 3);
         setPendingCache(appItem.id, false);
       });
@@ -222,7 +223,7 @@ export default function AppItemTrash(props) {
               return Promise.reject();
             }
           })
-          .catch(err => {
+          .catch(() => {
             alert(_l('彻底删除失败'), 3);
           });
       },
@@ -260,7 +261,7 @@ export default function AppItemTrash(props) {
       {!loading && !data.length && (
         <EmptyCon>
           <div className="emptyIcon">
-            <i className="icon icon-custom_-page_delete"></i>
+            <i className="icon icon-recycle"></i>
           </div>
           <div className="Font17 Gray_9e mTop16">{keyword ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}</div>
         </EmptyCon>

@@ -50,7 +50,7 @@ export default class CalendarCommenter extends Component {
         {this.state.showCount ? (
           <div className="Right TxtCenter" style={{ width: '40px' }} onClick={() => {}}>
             <span className="calendarTopicCount ThemeHoverColor3">
-              <Icon icon={'ic_textsms_black'} className="Font20 TxtMiddle Hand" />
+              <Icon icon="textsms" className="Font20 TxtMiddle Hand" />
             </span>
           </div>
         ) : null}

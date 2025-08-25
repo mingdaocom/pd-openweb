@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Button, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import share from 'src/api/share';
 import { PreviewWraper } from 'src/pages/customPage/components/previewContent';
-import { genUrl } from 'src/pages/customPage/util';
+// import { genUrl } from 'src/pages/customPage/util';
 import { getIconNameByExt } from 'src/utils/common';
 
 const PreviewContentWrapper = styled.div`
@@ -54,21 +55,20 @@ function KcShareFolderPreviewContent(props) {
   const { value } = props;
   const [loading, setLoading] = useState(false);
   const [node, setNode] = useState(null);
-  let shareId = null;
-  try {
-    shareId = value.match(/\/apps\/kcshareFolder\/(\w+)/)[1];
-  } catch (err) {}
-  if (shareId) {
-    useEffect(() => {
+  const shareId = value ? _.get(value.match(/\/apps\/kcshareFolder\/(\w+)/), [1]) : '';
+
+  useEffect(() => {
+    if (shareId) {
       setLoading(true);
       share
-        .getShareFolder({ shareId: shareId })
+        .getShareFolder({ shareId })
         .then(({ node }) => {
           setNode(node);
         })
         .finally(() => setLoading(false));
-    }, [shareId]);
-  }
+    }
+  }, [shareId]);
+
   return (
     <PreviewContentWrapper>
       {loading ? (
@@ -90,7 +90,7 @@ function KcShareFolderPreviewContent(props) {
           </Button>
         </div>
       ) : (
-        <ErrorInfo icon="shared_folder" text={_l('知识中心文件不存在或您没有查看权限')} />
+        <ErrorInfo icon="tokc" text={_l('知识中心文件不存在或您没有查看权限')} />
       )}
     </PreviewContentWrapper>
   );
@@ -101,21 +101,20 @@ function KcShareNodePreviewContent(props) {
   const [loading, setLoading] = useState(false);
   const [node, setNode] = useState(null);
   const isUrl = node && node.ext === 'url';
-  let shareId = null;
-  try {
-    shareId = value.match(/\/apps\/kcshare\/(\w+)/)[1];
-  } catch (err) {}
-  if (shareId) {
-    useEffect(() => {
+  const shareId = value ? _.get(value.match(/\/apps\/kcshare\/(\w+)/), [1]) : '';
+
+  useEffect(() => {
+    if (shareId) {
       setLoading(true);
       share
-        .getShareNode({ shareId: shareId })
+        .getShareNode({ shareId })
         .then(({ node }) => {
           setNode(node);
         })
         .finally(() => setLoading(false));
-    }, [shareId]);
-  }
+    }
+  }, [shareId]);
+
   return (
     <PreviewContentWrapper>
       {loading ? (
@@ -137,17 +136,17 @@ function KcShareNodePreviewContent(props) {
           </Button>
         </div>
       ) : (
-        <ErrorInfo icon="shared_folder" text={_l('知识中心文件不存在或您没有查看权限')} />
+        <ErrorInfo icon="tokc" text={_l('知识中心文件不存在或您没有查看权限')} />
       )}
     </PreviewContentWrapper>
   );
 }
 
-function parseLink(link, param) {
-  const url = genUrl(link, param);
-  if (!/^https?:\/\//.test(url)) return `https://${url}`;
-  return url;
-}
+// function parseLink(link, param) {
+//   const url = genUrl(link, param);
+//   if (!/^https?:\/\//.test(url)) return `https://${url}`;
+//   return url;
+// }
 
 function PreviewContentWrap(props) {
   let { value, param, config = {}, info = {} } = props;

@@ -32,7 +32,7 @@ const Wrap = styled.div`
       height: 32px;
       line-height: 32px;
     }
-    .icon-new_mail {
+    .icon-edit {
       line-height: 32px !important;
     }
     .copy {
@@ -50,7 +50,7 @@ const Wrap = styled.div`
     margin-left: 6px;
     line-height: 32px;
     padding: 0 20px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px;
     text-align: center;
     color: #fff;
@@ -94,13 +94,13 @@ class PortalCon extends React.Component {
     setDefaultFastFilters();
   }
   componentDidMount() {
-    const { getControls, appId, projectId } = this.props;
+    const { appId, projectId } = this.props;
     this.props.getControls(appId, projectId);
     this.props.getPortalRoleList(appId);
     this.fetchPorBaseInfo();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     const { canEditApp, canEditUser } = nextProps;
     const tab = canEditUser ? 'user' : canEditApp ? 'roleSet' : '';
     if (!_.isEqual(this.props.portal.quickTag, nextProps.portal.quickTag) && !!nextProps.portal.quickTag.tab) {
@@ -158,7 +158,7 @@ class PortalCon extends React.Component {
     }
   };
   render() {
-    const { appDetail, appId, closePortal, isAdmin, canEditApp, canEditUser, portal, setQuickTag } = this.props;
+    const { appDetail, appId, closePortal, canEditApp, canEditUser, portal, setQuickTag } = this.props;
     const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab, showCustomUrlSet } = this.state;
     let tablist = conList;
     if (!canEditApp) {
@@ -241,7 +241,7 @@ class PortalCon extends React.Component {
                   style: divStyle,
                 }}
               />
-              
+
               {canEditApp && (
                 <span
                   className="setBtn Hand flexRow alignItemsCenter"

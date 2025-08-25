@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Dropdown from 'ming-ui/components/Dropdown';
-import MenuItem from 'ming-ui/components/MenuItem';
 import Icon from 'ming-ui/components/Icon';
-
-import { SEARCH_GROUP_TYPES, GROUP_STATUS } from '../constants';
+import MenuItem from 'ming-ui/components/MenuItem';
+import { GROUP_STATUS, SEARCH_GROUP_TYPES } from '../constants';
 
 function GroupFilter(props) {
   const { changeGroupFilter, changeGroupStatus, searchGroupType, groupStatus, isProject } = props;
@@ -41,7 +40,9 @@ function GroupFilter(props) {
         <div className="ming Dividor" />
         {React.cloneElement(
           item,
-          groupStatus === GROUP_STATUS.ALL ? { icon: <Icon icon="hr_ok" />, iconAtEnd: true, className: 'ThemeColor3' } : { className: 'Gray_9' }
+          groupStatus === GROUP_STATUS.ALL
+            ? { icon: <Icon icon="hr_ok" />, iconAtEnd: true, className: 'ThemeColor3' }
+            : { className: 'Gray_9' },
         )}
       </Dropdown>
     </div>

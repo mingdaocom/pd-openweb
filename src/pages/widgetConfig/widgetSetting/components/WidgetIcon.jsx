@@ -1,11 +1,11 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
-import { SettingItem } from '../../styled';
-import { DISPLAY_ICON } from '../../config/score';
-import DropdownWrapper from 'worksheet/components/DropdownWrapper';
-import { handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import DropdownWrapper from 'worksheet/components/DropdownWrapper';
+import { DISPLAY_ICON } from '../../config/score';
+import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const WidgetIconStyle = styled.div`
   display: flex;

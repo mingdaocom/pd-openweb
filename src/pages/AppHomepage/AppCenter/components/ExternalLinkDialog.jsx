@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { generate } from '@ant-design/colors';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Icon, Input, TagTextarea, Tooltip } from 'ming-ui';
@@ -92,7 +93,7 @@ const LinkIcon = styled.div`
   }
   &:hover {
     i {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -119,7 +120,7 @@ const PopupWrapper = styled.div`
     cursor: pointer;
     &:hover {
       color: #fff;
-      background: #2196f3;
+      background: #1677ff;
     }
   }
   .divider {

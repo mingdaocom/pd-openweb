@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -43,7 +43,7 @@ export default function SideNav(props) {
     btnList = [],
   } = props;
   const { filters = [], controls = [], moreSort = [], fastFilters = [] } = view;
-  const { icon, text } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
+  const { icon } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
   const columnsList = formatColumnsListForControlsWithoutHide(columns);
   const controlsList = formatColumnsListForControlsWithoutHide(controls);
@@ -87,7 +87,7 @@ export default function SideNav(props) {
     if (type === 'Filter') {
       let data = [];
       da = (da || []).map(o => {
-        if (!!o.isGroup) {
+        if (o.isGroup) {
           data = [...data, ...o.groupFilters];
         } else {
           data = [...data, o];
@@ -132,7 +132,7 @@ export default function SideNav(props) {
     <div className="viewBtns pTop7">
       {viewTypeGroup
         .filter(l => !isManageView || l.name !== 'other')
-        .map((it, i) => {
+        .map(it => {
           let actionList = it.list;
           const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
 

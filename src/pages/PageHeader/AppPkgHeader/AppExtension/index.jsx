@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { MdLink, VCenterIconText, Icon, Tooltip } from 'ming-ui';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
-import appManagementApi from 'src/api/appManagement';
-import styled from 'styled-components';
-import cx from 'classnames';
 import { TinyColor } from '@ctrl/tinycolor';
+import cx from 'classnames';
 import localForage from 'localforage';
+import styled from 'styled-components';
+import { Icon, MdLink, Tooltip } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import LanguageList from 'src/pages/PageHeader/components/LanguageList';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 
 const RoleDebugSelectWrap = styled.div(
   ({ navColor, borderColor }) => `
@@ -43,17 +43,9 @@ const RoleDebugSelectWrap = styled.div(
 `,
 );
 
-export default (props) => {
-  const {
-    appId,
-    permissionType,
-    isLock,
-    showRoleDebug,
-    roleSelectValue = [],
-    otherAllShow = true,
-    appPkg
-  } = props;
-  const { projectId, navColor, iconColor, debugRole = { canDebug: false }, sourceType } = appPkg;
+export default props => {
+  const { appId, permissionType, isLock, showRoleDebug, roleSelectValue = [], otherAllShow = true, appPkg } = props;
+  const { navColor, iconColor, debugRole = { canDebug: false }, sourceType } = appPkg;
   const [roleEntryVisible, setRoleEntryVisible] = useState(true);
   const [loading, setLoading] = useState(false);
   const canDebug = (debugRole || {}).canDebug || false;
@@ -109,12 +101,12 @@ export default (props) => {
             {roleSelectValue.length === 0
               ? _l('选择角色')
               : roleSelectValue.length === 1
-              ? roleSelectValue[0].name
-              : _l('%0个角色', roleSelectValue.length)}
+                ? roleSelectValue[0].name
+                : _l('%0个角色', roleSelectValue.length)}
           </span>
           <Tooltip disable={!roleSelectValue.length} placement="bottom" text={_l('清空调试')}>
             <Icon
-              icon={!!roleSelectValue.length ? 'cancel' : 'expand_more'}
+              icon={roleSelectValue.length ? 'cancel' : 'expand_more'}
               className="Font16 mRight12 iconHover"
               onClick={e => {
                 !!roleSelectValue.length && e.stopPropagation();

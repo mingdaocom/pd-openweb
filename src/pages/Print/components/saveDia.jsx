@@ -4,8 +4,8 @@ import _ from 'lodash';
 import { Dialog, Icon } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
-import { typeForCon } from '../config';
 import { getShowViews } from 'src/pages/worksheet/views/util';
+import { typeForCon } from '../config';
 import './saveDia.less';
 
 export default class SaveDia extends React.Component {

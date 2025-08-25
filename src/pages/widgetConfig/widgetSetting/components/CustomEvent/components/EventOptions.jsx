@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import { Menu, MenuItem, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import update from 'immutability-helper';
-import { FILTER_VALUE_TYPE, getActionDisplay, SPLICE_TYPE_ENUM } from '../config';
-import { IconWrap, AddEventWrap } from '../style';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, Menu, MenuItem } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { FILTER_VALUE_TYPE, getActionDisplay, SPLICE_TYPE_ENUM } from '../config';
 import renderCustomAction from '../CustomAction';
 import renderCustomFilter from '../CustomFilter';
+import { AddEventWrap, IconWrap } from '../style';
 
 export default function EventOptions(props) {
   const { data, eventKey, eventId, index, childIndex, onChange, isItemOptions = false } = props;
@@ -85,7 +86,7 @@ export default function EventOptions(props) {
         </Tooltip>
         <Tooltip title={_l('删除')} placement="bottom">
           <IconWrap
-            className="icon-delete1"
+            className="icon-trash"
             type="danger"
             onClick={e => {
               e.stopPropagation();

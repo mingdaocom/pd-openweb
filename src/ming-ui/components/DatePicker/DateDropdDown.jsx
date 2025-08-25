@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import CalendarRange from './CalendarRange';
-import PositionContainer from 'ming-ui/components/PositionContainer';
-import MenuItem from 'ming-ui/components/MenuItem';
+import PropTypes from 'prop-types';
 import Menu from 'ming-ui/components/Menu';
+import MenuItem from 'ming-ui/components/MenuItem';
+import PositionContainer from 'ming-ui/components/PositionContainer';
+import CalendarRange from './CalendarRange';
 import locale from './locale/zh_CN';
 import '../less/DateDropdDown.less';
 
@@ -31,7 +31,7 @@ class DateDropdDown extends Component {
          * 点击清除触发的回调
          */
         timePicker: PropTypes.bool,
-      })
+      }),
     ),
     /**
      * 默认激活项
@@ -66,7 +66,7 @@ class DateDropdDown extends Component {
          * 是否禁用
          */
         disabled: PropTypes.bool,
-      })
+      }),
     ),
     /**
      * 回调，参数为选中item的value值
@@ -115,7 +115,7 @@ class DateDropdDown extends Component {
           key={index}
           className={cls}
           data-value={item.value}
-          onClick={this.handleChange.bind(this, item.value)} // eslint-disable-line react/jsx-no-bind
+          onClick={this.handleChange.bind(this, item.value)}
         >
           <div>{item.text}</div>
         </MenuItem>
@@ -123,9 +123,14 @@ class DateDropdDown extends Component {
     });
 
     menuItems.push(
-      <MenuItem key="customDate" data-value="customDate" onClick={this.handleSelectRange} className={classNames({ active: state.activeKey === 'customDate' })}>
+      <MenuItem
+        key="customDate"
+        data-value="customDate"
+        onClick={this.handleSelectRange}
+        className={classNames({ active: state.activeKey === 'customDate' })}
+      >
         自定义日期
-      </MenuItem>
+      </MenuItem>,
     );
 
     return (
@@ -153,7 +158,7 @@ class DateDropdDown extends Component {
     );
   };
 
-  handleChange = (value) => {
+  handleChange = value => {
     this.setState({
       activeKey: value,
       visibleMenu: false,
@@ -201,7 +206,7 @@ class DateDropdDown extends Component {
     this.handleCloseRange();
   };
 
-  handleCalendarSelect = (dateValue, cause = {}) => {
+  handleCalendarSelect = dateValue => {
     this.setState({ dateValue, visibleRange: true });
     const calendarProps = this.props.calendarProps;
     if (calendarProps && calendarProps.onSelect) {

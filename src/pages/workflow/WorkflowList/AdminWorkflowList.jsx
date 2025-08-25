@@ -11,7 +11,6 @@ import processVersion from '../api/processVersion';
 import appManagement from 'src/api/appManagement';
 import projectSetting from 'src/api/projectSetting';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import Config from 'src/pages/Admin/config';
 import { navigateTo } from 'src/router/navigateTo';
@@ -84,7 +83,7 @@ export default class AdminWorkflowList extends Component {
     this.getAutoOrderStatus(projectId);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps, this.props)) {
       this.setState(
         Object.assign({
@@ -115,7 +114,7 @@ export default class AdminWorkflowList extends Component {
    * 获取list
    */
   getList() {
-    const { list, apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId, userInfo } = this.state;
+    const { apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId, userInfo } = this.state;
     const { projectId } = this.props.match.params;
 
     this.setState({ loading: true });
@@ -160,7 +159,7 @@ export default class AdminWorkflowList extends Component {
    */
   getAppList(projectId) {
     const { appList } = this.state;
-    const { appPageIndex = 1, isMoreApp, loadingApp } = this.state;
+    const { appPageIndex = 1, isMoreApp, loadingApp, keyword = '' } = this.state;
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
@@ -174,7 +173,7 @@ export default class AdminWorkflowList extends Component {
         order: 3,
         pageIndex: appPageIndex,
         pageSize: 50,
-        keyword: '',
+        keyword: keyword.trim(),
       })
       .then(({ apps }) => {
         const newAppList = apps.map(item => {
@@ -234,7 +233,7 @@ export default class AdminWorkflowList extends Component {
    * 渲染列表
    */
   renderList() {
-    const { list, pageIndex, loading } = this.state;
+    const { list, loading } = this.state;
 
     if (list === null) return;
 
@@ -387,7 +386,6 @@ export default class AdminWorkflowList extends Component {
   render() {
     const { params } = this.props.match;
     const {
-      loading,
       pageIndex,
       enabled,
       processListType,
@@ -442,7 +440,7 @@ export default class AdminWorkflowList extends Component {
                 className="pointer ThemeHoverColor3 Gray_75 Font13 Normal mLeft24"
                 onClick={() => this.setState({ msgVisible: true })}
               >
-                <Icon icon="workflow_sms" />
+                <Icon icon="forum" />
                 <span className="mLeft5">{_l('短信模版')}</span>
               </div>
             )}
@@ -497,6 +495,7 @@ export default class AdminWorkflowList extends Component {
                     onClick={() => this.setState({ autoOrderVisible: true })}
                   />
                   <Tooltip
+                    autoCloseDelay={0}
                     popupPlacement="bottom"
                     text={<span>{_l('本月剩余执行额度到达2%时，自动购买100元/1万次的单月包，从账户余额中扣款')}</span>}
                   >
@@ -520,6 +519,10 @@ export default class AdminWorkflowList extends Component {
                 }
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
                 notFoundContent={<span className="Gray_75">{_l('无搜索结果')}</span>}
+                onSearch={_.debounce(
+                  val => this.setState({ keyword: val, appPageIndex: 1 }, () => this.getAppList(params.projectId)),
+                  500,
+                )}
                 onChange={value => this.updateState({ apkId: value })}
                 onPopupScroll={e => {
                   e.persist();
@@ -593,7 +596,7 @@ export default class AdminWorkflowList extends Component {
               <div className="columnWidth">{_l('创建人')}</div>
               <div className="w20 mRight20" />
             </div>
-            <div className="flex flexColumn mTop16">{this.renderList()}</div>
+            <div className="flex flexColumn mTop16 overflowHidden">{this.renderList()}</div>
             <PaginationWrap
               total={count}
               pageIndex={pageIndex}

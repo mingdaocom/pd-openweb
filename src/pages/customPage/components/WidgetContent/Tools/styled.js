@@ -14,7 +14,7 @@ export const TabsSettingPopover = styled.div`
     width: max-content;
     padding: 3px;
     background-color: #eff0f0;
-    >div {
+    > div {
       height: 25px;
       line-height: 25px;
       padding: 0 15px;
@@ -23,13 +23,13 @@ export const TabsSettingPopover = styled.div`
       justify-content: center;
     }
     .active {
-      color: #2196F3 !important;
+      color: #1677ff !important;
       border-radius: 3px;
       font-weight: bold;
       background-color: #fff;
     }
   }
-  .icon-delete2:hover {
+  .icon-trash:hover {
     color: #f44336 !important;
   }
 `;

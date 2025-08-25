@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './RadioBlockGroup.less';
 
 export default class RadioBlockGroup extends Component {

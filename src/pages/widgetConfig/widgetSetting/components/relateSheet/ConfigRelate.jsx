@@ -177,9 +177,7 @@ export default function ConfigRelate(props) {
                   setSearchValue(e.target.value);
                 }}
               />
-              {searchValue && (
-                <i className="icon-cancel1 Gray_9e Font16 pointer" onClick={() => setSearchValue('')}></i>
-              )}
+              {searchValue && <i className="icon-cancel Gray_9e Font16 pointer" onClick={() => setSearchValue('')}></i>}
             </InputWrap>
 
             {_.isEmpty(filterData) ? (

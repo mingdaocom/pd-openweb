@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import { fillRecordTimeBlockColor, formatRecordTime } from 'src/pages/worksheet/views/GunterView/util';
 import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
@@ -32,8 +31,7 @@ export default class RecordInfo extends Component {
     return rows;
   }
   render() {
-    const { row, isCharge, base, controls, worksheetInfo, sheetSwitchPermit, viewConfig, hideRecord, onClose } =
-      this.props;
+    const { row, isCharge, base, worksheetInfo, sheetSwitchPermit, hideRecord, onClose } = this.props;
     if (isMobile) {
       return (
         <RecordInfoModal

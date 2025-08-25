@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
@@ -22,7 +22,7 @@ class MobileGunterView extends Component {
 
   render() {
     const { Component } = this.state;
-    const { currentSheetRows = [], view = {}, controls = [] } = this.props;
+    const { view = {}, controls = [] } = this.props;
     const { begindate = '', enddate = '' } = getAdvanceSetting(view);
     const timeControls = controls.filter(
       item =>

@@ -1,22 +1,22 @@
-import React, { useEffect, useState, Fragment, useRef } from 'react';
-import { useDeepCompareEffect } from 'react-use';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from './redux/actions';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { useDeepCompareEffect } from 'react-use';
 import { Popup, SpinLoading } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import report from 'statistics/api/report';
+import { reportTypes } from 'statistics/Charts/common';
+import { fillValueMap, version } from 'statistics/common';
+import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import { formatLinkageFiltersGroup } from 'src/pages/customPage/util';
+import { getFilledRequestParams } from 'src/utils/common';
 import Chart from '../components/Chart';
 import ChartFilter from '../components/Chart/Filter';
 import ChartSort from '../components/Chart/Sort';
-import { fillValueMap, version } from 'statistics/common';
-import { reportTypes } from 'statistics/Charts/common';
-import { connect } from 'react-redux';
-import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
-import { updateLinkageFiltersGroup } from 'src/pages/customPage/redux/action.js';
-import { formatLinkageFiltersGroup } from 'src/pages/customPage/util';
-import _ from 'lodash';
+import * as actions from './redux/actions';
 
 const ModalContent = styled.div`
   background-color: #fff;
@@ -56,8 +56,17 @@ const HorizontalChartContent = styled.div`
     color: #151515;
     font-weight: 500;
     font-size: 20px;
-    font-family: system-ui, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif, apple color emoji,
-      segoe ui emoji, segoe ui symbol;
+    font-family:
+      system-ui,
+      BlinkMacSystemFont,
+      segoe ui,
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif,
+      apple color emoji,
+      segoe ui emoji,
+      segoe ui symbol;
   }
   .allow {
     border-radius: 50%;
@@ -112,6 +121,7 @@ function ChartComponent(props) {
         filtersGroup.length ? filtersGroup : undefined,
         linkageFiltersGroup.length ? linkageFiltersGroup : undefined,
       ].filter(_ => _),
+      ...getFilledRequestParams({}),
     };
     if (param) {
       Object.assign(
@@ -187,7 +197,7 @@ function ChartComponent(props) {
       <Fragment>
         <div className="titleWrapper flexRow valignWrapper pAll15">
           <div className="Font13 Gray_9e flex Bold">{_l('筛选与排序')}</div>
-          <Icon className="Font20" icon="closeelement-bg-circle" onClick={handleOpenFilterModal} />
+          <Icon className="Font20" icon="cancel" onClick={handleOpenFilterModal} />
         </div>
         <div className="flex scrollView">
           {data.appType === 1 && (
@@ -231,7 +241,7 @@ function ChartComponent(props) {
     loading,
     pageConfig: {
       ...pageConfig,
-      pageStyleType: 'light'
+      pageStyleType: 'light',
     },
     themeColor,
     mobileFontSize,
@@ -241,7 +251,13 @@ function ChartComponent(props) {
 
   return (
     <Fragment>
-      <Chart data={data} widget={widget} mobileCount={mobileCount} onOpenFilterModal={handleOpenFilterModal} {...chartProps} />
+      <Chart
+        data={data}
+        widget={widget}
+        mobileCount={mobileCount}
+        onOpenFilterModal={handleOpenFilterModal}
+        {...chartProps}
+      />
       <Popup
         style={{ height: isMobileChartPage ? '80%' : null }}
         visible={filterVisible}

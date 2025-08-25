@@ -61,7 +61,7 @@ class App extends Component {
     }
   }
   switchPath(url) {
-    const { hash, pathname } = url;
+    const { hash } = url;
     if (hash.includes('noredirect')) {
       sessionStorage.setItem('noredirect', true);
       return;

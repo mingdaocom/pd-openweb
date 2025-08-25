@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Dialog, Icon, UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import SelectUser from 'mobile/components/SelectUser';
+import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
@@ -323,7 +324,7 @@ function MobileUpdateUserDialog(props) {
                     <img src={data.avatar} />
                     <span className="Font13">{data.fullname}</span>
                     <Icon
-                      icon="remove_circle"
+                      icon="minus-square"
                       className="delete Gray_bd"
                       onClick={() => {
                         setNewAccounts(newAccounts.filter(a => a.accountId !== data.accountId));
@@ -392,7 +393,7 @@ export default function WorkflowAction(props) {
   const { className, isBranch, hasMore, isCharge, appId, projectId, data, currentWorkflow } = props;
   const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog, onReset } = props;
   const { workId, status, allowRevoke, allowUrge, flowNode, workItem, createAccount } = data;
-  const { type, fastApprove, btnMap = {}, callBackType } = flowNode || {};
+  const { type, fastApprove, btnMap = {}, callBackType, id: flowNodeId } = flowNode || {};
   const allowBatch = type === 4 && fastApprove;
   const allowApproval = allowBatch && workItem;
   const allOverrule = '5' in btnMap && fastApprove && workItem;
@@ -401,6 +402,7 @@ export default function WorkflowAction(props) {
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
   const urgeDisable = window[`urgeDisable-workId-${workId}`] || data.urgeDisable || false;
   const allowReset = status === 6 && (isCharge || createAccount.accountId === md.global.Account.accountId);
+  const translateInfo = getTranslateInfo(appId, data.parentId, flowNodeId);
 
   const handleSkip = () => {
     const description =
@@ -524,7 +526,7 @@ export default function WorkflowAction(props) {
           </div>
         </div>
       ),
-      onAction: (action, index) => {
+      onAction: () => {
         actionHandler.close();
       },
     });
@@ -584,20 +586,20 @@ export default function WorkflowAction(props) {
         {allowApproval && (
           <div className="btn pass" onClick={() => onAction(data, 'pass')}>
             <Icon icon="done" className="Font17 mRight3" />
-            <span className="ellipsis">{btnMap[4] || _l('同意')}</span>
+            <span className="ellipsis">{translateInfo[`btnmap_4`] || btnMap[4] || _l('同意')}</span>
           </div>
         )}
         {allOverrule && (
           <div className="btn overrule" onClick={() => onAction(data, 'overrule')}>
             <Icon icon="clear" className="Font17 mRight3" />
-            <span className="ellipsis">{btnMap[5] || _l('拒绝')}</span>
+            <span className="ellipsis">{translateInfo[`btnmap_5`] || btnMap[5] || _l('拒绝')}</span>
           </div>
         )}
       </Fragment>
       {allowCallBack && (
         <div className="btn return" onClick={() => onAction(data, 'return')}>
           <Icon icon="repeal-o" className="Font17 mRight3" />
-          <span className="ellipsis">{btnMap[17] || _l('退回')}</span>
+          <span className="ellipsis">{translateInfo[`btnmap_17`] || btnMap[17] || _l('退回')}</span>
         </div>
       )}
       {workItem && (type === 3 || type === 0) && !allowReset && (
@@ -640,7 +642,7 @@ export default function WorkflowAction(props) {
           </div>
         ) : (
           <Dropdown trigger={['click']} placement="topRight" overlay={renderDropdownOverlay({ width: 200 })}>
-            <Icon className="Font20 pointer Gray_75" icon="task-point-more" />
+            <Icon className="Font20 pointer Gray_75" icon="more_horiz" />
           </Dropdown>
         ))}
       {renderUpdateUserDialog()}

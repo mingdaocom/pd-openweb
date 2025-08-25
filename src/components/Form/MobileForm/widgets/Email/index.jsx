@@ -4,6 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { addBehaviorLog } from 'src/utils/project.js';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 
 const Email = props => {
@@ -87,7 +88,13 @@ const Email = props => {
         <span
           className={cx({ overflowEllipsis: !currentValue })}
           onClick={() => {
-            if (disabled && isMask) setMaskStatus(false);
+            if (disabled && isMask) {
+              addBehaviorLog('worksheetDecode', props.worksheetId, {
+                rowId: props.recordId,
+                controlId: props.controlId,
+              });
+              setMaskStatus(false);
+            }
           }}
         >
           {getShowValue()}

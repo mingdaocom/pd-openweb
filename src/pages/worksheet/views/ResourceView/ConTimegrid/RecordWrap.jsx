@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -43,7 +43,7 @@ export default function RecordWrap(props) {
     setData(_.get(props, 'resourceview.resourceDataByKey'));
   }, [_.get(props, 'resourceview.resourceDataByKey')]);
   const bodyScroll = () => {
-    const { view, viewId } = props;
+    const { viewId } = props;
     const scrollTop = tbodyContainer.current && tbodyContainer.current.scrollTop;
     document.getElementById(`leftCon_${viewId}`).scrollTop = scrollTop;
     document.getElementById(`scrollDiv_${viewId}`).scrollTop = scrollTop;

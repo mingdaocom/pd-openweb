@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { Icon, Tooltip, SortableList } from 'ming-ui';
-import _ from 'lodash';
+import React, { useRef } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, SortableList, Tooltip } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
 export default function SortableColumn(props) {
@@ -34,24 +34,9 @@ export default function SortableColumn(props) {
   }
 
   const listRef = useRef(null);
-  const scrollTopRef = useRef(null);
-
-  useEffect(() => {
-    if (scrollTopRef && !scrollTopRef.current) return;
-
-    setTimeout(() => {
-      listRef.current.scrollTop = scrollTopRef.current;
-      scrollTopRef.current = undefined;
-    }, 0);
-  }, [items]);
 
   const onItemClick = item => {
-    const scrollTop = listRef.current.scrollTop;
     handleItemClick(item, !canDrag && !search);
-
-    if (!sortAutoChange || !isShowColumns) return;
-
-    scrollTopRef.current = scrollTop;
   };
 
   const renderSortCon = item => {
@@ -120,7 +105,7 @@ export default function SortableColumn(props) {
           )}
         </div>
         {!canDrag && tabColumns && !isRetract && !search && (
-          <div className="subColumns">{tabColumns.map((l, i) => renderItem({ ...options, item: l }))}</div>
+          <div className="subColumns">{tabColumns.map(l => renderItem({ ...options, item: l }))}</div>
         )}
       </div>
     );

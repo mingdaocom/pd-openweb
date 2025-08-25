@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Modal } from 'ming-ui';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';

@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { getControlTypeName } from '../../utils';
-import { TriggerCondition, TimeSelect } from '../components';
-import { Dropdown } from 'ming-ui';
-import Time from 'ming-ui/components/NewTimePicker';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
+import Time from 'ming-ui/components/NewTimePicker';
+import { getControlTypeName } from '../../utils';
+import { TimeSelect, TriggerCondition } from '../components';
 
 export default ({
   data,
@@ -62,7 +62,7 @@ export default ({
     <Fragment>
       <div className="flowDetailStartHeader flexColumn BGBlue">
         <div className="flowDetailStartIcon flexRow">
-          <i className="icon-hr_time Font40 blue" />
+          <i className="icon-task_custom_today Font40 blue" />
         </div>
         <div className="Font16 mTop10">{_l('日期字段')}</div>
       </div>

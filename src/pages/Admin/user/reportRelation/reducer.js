@@ -9,7 +9,7 @@ const updateSingleEntity = (user, action) => {
     case ACTIONS.SUBORDINATES_REQUEST:
       return { ...user };
     case ACTIONS.UPDATE_ENTITY_CHILDS:
-      const { source, id, moreLoading, pageIndex, totalCount } = payload;
+      const { source, moreLoading, pageIndex, totalCount } = payload;
       const result = source.map(({ accountId }) => accountId);
 
       return {
@@ -20,7 +20,6 @@ const updateSingleEntity = (user, action) => {
         subTotalCount: totalCount || user.subTotalCount || 0,
         sourceData: (user.sourceData || []).concat(source),
       };
-      break;
     case ACTIONS.OPEN_COLLAPSE:
     case ACTIONS.CLOSE_COLLAPSE:
       return {
@@ -69,7 +68,6 @@ export default (state = initialState, action) => {
   if (ACTIONS[type] === undefined) return state;
   const users = state.entities.users;
   const highLightId = state.highLightId;
-  const highLightRootId = state.highLightRootId;
   let id, user;
 
   switch (type) {

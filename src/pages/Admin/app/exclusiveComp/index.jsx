@@ -68,7 +68,7 @@ export default class ExclusiveComp extends Component {
   };
 
   render() {
-    const { refresh, activeKey, baseList } = this.state;
+    const { refresh, activeKey } = this.state;
     const projectId = _.get(this.props, 'match.params.projectId');
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;

@@ -1,10 +1,9 @@
-﻿import './index.less';
-import React, { Component } from 'react';
-
-import TaskDetail from '../containers/taskDetail/taskDetail';
-import UniformRoute from 'src/router/withTitle';
+﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import UniformRoute from 'src/router/withTitle';
+import TaskDetail from '../containers/taskDetail/taskDetail';
+import './index.less';
 
 class TaskDetailEntrypoint extends Component {
   componentDidMount() {

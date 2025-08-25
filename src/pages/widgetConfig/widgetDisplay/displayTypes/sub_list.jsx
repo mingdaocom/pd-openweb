@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import { EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
-import { getAdvanceSetting, getShowControls } from '../../util/setting';
+import _, { isEmpty } from 'lodash';
 import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { isEmpty } from 'lodash';
+import { EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
 import { isSheetDisplay } from '../../util';
+import { getAdvanceSetting, getShowControls } from '../../util/setting';
 
 export default function SubList({ data }) {
   const { relationControls = [], desc = '' } = data;
@@ -16,7 +16,7 @@ export default function SubList({ data }) {
 
   const getWidths = () => {
     const widths = getAdvanceSetting(data, 'widths') || [];
-    if (isEmpty(widths)) return showControls.map(item => 160);
+    if (isEmpty(widths)) return showControls.map(() => 160);
     if (widths.length === showControls.length) return widths;
     return showControls.map((v, i) => widths[i] || 160);
   };
@@ -54,7 +54,7 @@ export default function SubList({ data }) {
                   <tr>
                     {showControls.map((controlId, index) => {
                       const currentControl = _.find(relationControls, item => item.controlId === controlId) || {};
-                      const { enumDefault, type, advancedSetting = {} } = currentControl;
+                      const { type } = currentControl;
                       return (
                         <td key={controlId} style={{ width: `${widths[index]}px` }}>
                           {type === 34 ||

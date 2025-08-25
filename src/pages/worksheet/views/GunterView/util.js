@@ -10,7 +10,7 @@ import { PERIOD_TYPE, PERIODS } from './config';
  */
 export const changeViewConfig = (value, viewConfig) => {
   const periodType = value || PERIOD_TYPE.day;
-  const { minDayWidth, defaultMinDayWidth } = _.find(PERIODS, { value: periodType });
+  const { minDayWidth } = _.find(PERIODS, { value: periodType });
   const count = getPeriodCount(periodType, minDayWidth, viewConfig);
   return Object.assign(viewConfig, {
     periodCount: count,
@@ -144,7 +144,6 @@ export const getDays = (start, end, center, viewConfig) => {
 
   for (let i = 0; i < diff; i++) {
     const momentObj = moment(startTime).add(i, 'd');
-    const day = momentObj.day();
     const d = momentObj.format('YYYY-MM-DD');
     const m = momentObj.format('YYYY-MM');
     const isToday = d === moment().format('YYYY-MM-DD');
@@ -565,7 +564,7 @@ export const fillRecordsTimeBlockColor = (grouping, colorControl) => {
 
 export const fillRecordTimeBlockColor = (record, colorControl = {}) => {
   const { controlId, options } = colorControl;
-  const defaultColor = '#2196F3';
+  const defaultColor = '#1677ff';
   if (record[controlId] && colorControl.enumDefault2 === 1) {
     const value = JSON.parse(record[controlId]);
     const colorId = _.isArray(value) ? value[0] : null;
@@ -644,7 +643,7 @@ export const sortGrouping = (grouping, view = {}, controls = []) => {
  * 把一个日期时间的小时转成一个宽度占比
  */
 export const timeToPercentage = (time, width) => {
-  const [date, hours] = time.split(' ');
+  const [, hours] = time.split(' ');
   if (hours) {
     const maxTime = 2359;
     const value = Number(hours.slice(0, 5).replace(/:/, ''));

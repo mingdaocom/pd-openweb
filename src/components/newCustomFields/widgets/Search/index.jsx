@@ -9,7 +9,7 @@ import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { browserIsMobile } from 'src/utils/common';
 import { checkValueByFilterRegex } from '../../tools/formUtils';
 import MobileSearch from './MobileSearch';
-import { clearValue, getParamsByConfigs, getShowValue, handleUpdateApi } from './util';
+import { clearValue, dealAuthAccount, getParamsByConfigs, getShowValue, handleUpdateApi } from './util';
 import './index.less';
 
 const SearchBtn = styled.div`
@@ -107,7 +107,7 @@ export default class Widgets extends Component {
       controlId,
       apkId: appId,
       apiTemplateId: dataSource,
-      authId: authaccount,
+      authId: dealAuthAccount(authaccount, formData),
       actionType: enumDefault2 === 1 ? 13 : 8,
       pushUniqueId: md.global.Config.pushUniqueId,
     };
@@ -216,7 +216,7 @@ export default class Widgets extends Component {
     const canClick = _.get(this.state, 'keywords.length') >= parseInt(min);
     if (enumDefault === 2) {
       if (clicksearch === '1') {
-        return <Icon icon="search1 Font14" />;
+        return <Icon icon="search Font14" />;
       }
       return (
         <div
@@ -227,7 +227,7 @@ export default class Widgets extends Component {
             this.handleSearch();
           }}
         >
-          <i className="icon-search1 pointer Font18"></i>
+          <i className="icon-search pointer Font18"></i>
         </div>
       );
     }

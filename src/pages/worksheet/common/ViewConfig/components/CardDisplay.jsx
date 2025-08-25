@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import TitleControl from './TitleControl';
 import Abstract from './Abstract';
 import CoverSetting from './CoverSettingCon';
 import DisplayControl from './DisplayControl';
-import _ from 'lodash';
+import TitleControl from './TitleControl';
 
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
-  const [visible, editable, canAdd] = fieldPermission.split('');
+  const [visible] = fieldPermission.split('');
   if (visible === '0') {
     return false;
   }
@@ -17,18 +17,17 @@ const isVisible = control => {
 
 export default function CardDisplay(props) {
   const { visible, worksheetId, showControls, handleDisplayChange, advancedSetting } = props;
-  if (!visible) return null;
-  const [{ controls, availableControls, coverColumns }, setInfo] = useState({
+  const [{ controls, coverColumns }, setInfo] = useState({
     controls: [],
     availableControls: [],
     coverColumns: [],
   });
-
   const excludeTitleControls = controls => controls.filter(item => item.attribute !== 1);
   // 默认取标题控件 和 前三个控件
   const getDefaultShowControls = controls => {
     return controls.slice(0, 2).map(({ controlId }) => controlId);
   };
+
   useEffect(() => {
     if (!worksheetId) return;
     worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true }).then(data => {
@@ -46,6 +45,9 @@ export default function CardDisplay(props) {
       });
     });
   }, [worksheetId]);
+
+  if (!visible) return null;
+
   return (
     <React.Fragment>
       <TitleControl

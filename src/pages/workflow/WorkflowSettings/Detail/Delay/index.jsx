@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, TimeSelect, SpecificFieldsValue } from '../components';
-import { TIME_TYPE } from '../../enum';
 import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { TIME_TYPE } from '../../enum';
+import { DetailFooter, DetailHeader, SpecificFieldsValue, TimeSelect } from '../components';
 
 export default class Delay extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ export default class Delay extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -192,7 +192,7 @@ export default class Delay extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.actionId === '300' ? this.renderDelayTo() : this.renderDelayFor()}

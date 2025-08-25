@@ -88,7 +88,7 @@ export default class Widgets extends Component {
   };
 
   renderValue = (showformat, value) => {
-    const { disabled, from, type, notConvertZone, advancedSetting, hint = '' } = this.props;
+    const { disabled, type, notConvertZone, advancedSetting, hint = '' } = this.props;
     const dateTime = type === 15 || notConvertZone ? value : dateConvertToUserZone(value);
 
     return (
@@ -131,7 +131,6 @@ export default class Widgets extends Component {
     const allowweek = advancedSetting.allowweek || '1234567';
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeInterval = parseInt(advancedSetting.timeinterval || '1');
-    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     const currentMinute = moment().minute();
     const defaultValue =
       timeInterval === 1 ? new Date() : moment().minute(currentMinute - (currentMinute % timeInterval));
@@ -198,10 +197,6 @@ export default class Widgets extends Component {
       );
     }
 
-    // 特殊处理，中文环境下聚焦始终以控件基础格式显示
-    const isLocalFormat = _.includes(['zh-Hans', 'zh-Hant'], lang) && showDatePicker;
-    const focusFormat = isLocalFormat ? _.get(getDatePickerConfigs(this.props), 'formatMode') : showformat;
-
     let showTime;
     const timeArr = allowtime.split('-');
     if (type === 16 && this.props.showTime !== false) {
@@ -224,7 +219,7 @@ export default class Widgets extends Component {
             value={value ? moment(dateTime) : ''}
             picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
             showTime={showTime || false}
-            format={focusFormat}
+            format={showformat}
             open={true}
             placeholder={showformat}
             autoFocus

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Icon, Radio, ScrollView, Support, SvgIcon, Tooltip } from 'ming-ui';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import pluginAPI from '../../../api/Plugin';
+import { checkCertification } from 'src/components/checkCertification';
 import { checkPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -34,7 +35,7 @@ export default class CreateNodeDialog extends Component {
               appType: 1,
               actionId: '1',
               iconColor: '#FFA340',
-              iconName: 'icon-workflow_new',
+              iconName: 'icon-playlist_add',
               describe: _l('向工作表新增一条或多条记录'),
             },
             {
@@ -189,7 +190,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1,
               name: _l('分支%03033'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-workflow_branch',
               describe: _l('向流程中添加分支，按不同条件分别处理'),
             },
@@ -232,7 +233,7 @@ export default class CreateNodeDialog extends Component {
               type: 7,
               name: _l('汇总'),
               iconColor: '#01CA83',
-              iconName: 'icon-sigma',
+              iconName: 'icon-task_functions',
               describe: _l('对符合条件的工作表进行列汇总计算或条数统计'),
               typeText: _l('汇总方式'),
               secondList: [
@@ -366,8 +367,8 @@ export default class CreateNodeDialog extends Component {
             {
               type: 5,
               name: _l('抄送%03026'),
-              iconColor: '#2196f3',
-              iconName: 'icon-workflow_notice',
+              iconColor: '#1677ff',
+              iconName: 'icon-send',
               describe: _l('向用户发送通知消息并附带指定的记录链接'),
             },
           ],
@@ -379,15 +380,15 @@ export default class CreateNodeDialog extends Component {
             {
               type: 27,
               name: _l('发送站内通知%03028'),
-              iconColor: '#2196f3',
-              iconName: 'icon-hr_message_reminder',
+              iconColor: '#1677ff',
+              iconName: 'icon-notifications',
               describe: _l('向用户发送指定内容的系统“工作流”通知消息'),
             },
             {
               type: 10,
               name: _l('发送短信%03029'),
-              iconColor: '#2196f3',
-              iconName: 'icon-workflow_sms',
+              iconColor: '#1677ff',
+              iconName: 'icon-forum',
               describe: _l('向指定手机号发送经过审核的手机短信（收费）'),
             },
             {
@@ -395,7 +396,7 @@ export default class CreateNodeDialog extends Component {
               name: _l('发送邮件%03030'),
               appType: 3,
               actionId: '202',
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-workflow_email',
               describe: _l('由 HAP 向指定邮箱代发自定义内容的邮件（收费）'),
             },
@@ -404,7 +405,7 @@ export default class CreateNodeDialog extends Component {
               name: _l('发送服务号信息%03031'),
               appType: 22,
               actionId: '203',
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-wechat',
               describe: _l('向已关注微信服务号的微信用户发送模版消息'),
             },
@@ -412,7 +413,7 @@ export default class CreateNodeDialog extends Component {
               type: 17,
               featureId: VersionProductType.interfacePush,
               name: _l('界面推送'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-interface_push',
               describe: _l('向当前用户弹窗推送提示、卡片、视图、记录或链接'),
             },
@@ -421,7 +422,7 @@ export default class CreateNodeDialog extends Component {
               featureId: VersionProductType.interfacePush,
               pushType: 8,
               name: _l('声音播报'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-volume_up',
               describe: _l('向当前用户播放指定音效或语音播报指定文本内容'),
             },
@@ -570,6 +571,16 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-global_variable',
               describe: _l('在流程中修改应用下或组织下的全局变量值'),
             },
+            {
+              type: 15,
+              featureId: VersionProductType.PAY,
+              name: _l('获取支付链接'),
+              appType: 13,
+              actionId: '416',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-Collection',
+              describe: _l('获取流程单条记录对象的对外支付链接'),
+            },
           ],
         },
         {
@@ -654,7 +665,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1000,
               name: _l('获取单条人员'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-person_search',
               describe: _l('从成员字段或组织中获取单个成员信息'),
               isGroupList: true,
@@ -685,8 +696,8 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1001,
               name: _l('获取多条人员'),
-              iconColor: '#2196f3',
-              iconName: 'icon-group-members',
+              iconColor: '#1677ff',
+              iconName: 'icon-group',
               describe: _l('从成员字段或组织中获取多个成员信息'),
               isGroupList: true,
               secondList: [
@@ -716,7 +727,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1000,
               name: _l('获取单条部门'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-individual_department',
               describe: _l('从部门字段或组织中获取单个部门信息'),
               isGroupList: true,
@@ -745,7 +756,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1001,
               name: _l('获取多条部门'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-department',
               describe: _l('从部门字段或组织中获取多个部门信息'),
               isGroupList: true,
@@ -774,7 +785,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1000,
               name: _l('获取单条组织角色'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-user',
               describe: _l('从组织角色字段或组织中获取单个组织角色信息'),
               isGroupList: true,
@@ -803,7 +814,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1001,
               name: _l('获取多条组织角色'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-multiple_user',
               describe: _l('从组织角色字段或组织中获取多个组织角色信息'),
               isGroupList: true,
@@ -842,7 +853,7 @@ export default class CreateNodeDialog extends Component {
               appType: 2,
               actionId: '1',
               iconColor: '#01CA83',
-              iconName: 'icon-custom_assignment',
+              iconName: 'icon-assignment',
               describe: _l('在协作套件中创建一个新任务'),
             },
             {
@@ -888,7 +899,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1000,
               name: _l('获取单条外部人员'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-external_users',
               describe: _l('从外部成员字段或外部门户中获取单个用户信息'),
               typeText: _l('获取方式'),
@@ -912,7 +923,7 @@ export default class CreateNodeDialog extends Component {
             {
               type: 1001,
               name: _l('获取多条外部人员'),
-              iconColor: '#2196f3',
+              iconColor: '#1677ff',
               iconName: 'icon-folder-public',
               describe: _l('从外部成员字段或外部门户中获取多个用户信息'),
               typeText: _l('获取方式'),
@@ -1020,7 +1031,7 @@ export default class CreateNodeDialog extends Component {
       );
     });
 
-    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环、支付
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
       { featureId: VersionProductType.codeBlockNode, type: [NODE_TYPE.CODE] },
@@ -1028,11 +1039,14 @@ export default class CreateNodeDialog extends Component {
       { featureId: VersionProductType.interfacePush, type: [NODE_TYPE.PUSH] },
       { featureId: VersionProductType.globalVariable, type: [NODE_TYPE.ACTION], appType: APP_TYPE.GLOBAL_VARIABLE },
       { featureId: VersionProductType.WFLP, type: [NODE_TYPE.LOOP] },
+      { featureId: VersionProductType.PAY, type: [NODE_TYPE.LINK], actionId: ACTION_ID.RECORD_LINK_PAY },
     ].forEach(obj => {
       if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
         this.state.list.forEach(o => {
           if (obj.appType) {
             _.remove(o.items, item => _.includes(obj.type, item.type) && obj.appType === item.appType);
+          } else if (obj.actionId) {
+            _.remove(o.items, item => _.includes(obj.type, item.type) && obj.actionId === item.actionId);
           } else {
             _.remove(o.items, item => _.includes(obj.type, item.type));
           }
@@ -1080,7 +1094,7 @@ export default class CreateNodeDialog extends Component {
   // 缓存滚动条位置
   cacheScrollTop = 0;
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     const featureType = getFeatureStatus(nextProps.flowInfo.companyId, VersionProductType.flowPlugin);
 
     if (nextProps.nodeId && nextProps.nodeId !== this.props.nodeId) {
@@ -1151,7 +1165,7 @@ export default class CreateNodeDialog extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (!prevProps.nodeId && this.props.nodeId) {
       setTimeout(() => {
         this.keywordsInput && this.keywordsInput.focus();
@@ -1171,7 +1185,7 @@ export default class CreateNodeDialog extends Component {
           type: 32,
           name: o.name,
           appId: `${o.id}_${o.source}`,
-          iconColor: o.iconColor || '#2196f3',
+          iconColor: o.iconColor || '#1677ff',
           iconUrl: o.iconUrl,
           iconName: 'icon-workflow',
           isMyCreate: o.source === 0,
@@ -1227,7 +1241,7 @@ export default class CreateNodeDialog extends Component {
         return;
       }
 
-      this.cacheScrollTop = this.contentScroll.content.scrollTop;
+      this.cacheScrollTop = this.contentScroll.getScrollInfo().scrollTop;
       this.setState({ selectItem: item, selectSecond: true });
       return;
     }
@@ -1275,6 +1289,13 @@ export default class CreateNodeDialog extends Component {
         pushType: item.pushType,
       });
     }
+  }
+
+  onCreateNode(item) {
+    const { flowInfo } = this.props;
+    item.type === NODE_TYPE.LINK
+      ? checkCertification({ projectId: flowInfo.companyId, checkSuccess: () => this.createNodeClick(item) })
+      : this.createNodeClick(item);
   }
 
   /**
@@ -1329,7 +1350,7 @@ export default class CreateNodeDialog extends Component {
               className="icon-backspace Font20 pointer"
               onClick={() =>
                 this.setState({ selectItem: null, selectSecond: false }, () => {
-                  this.contentScroll.content.scrollTop = this.cacheScrollTop;
+                  this.contentScroll.scrollTo({ top: this.cacheScrollTop });
                 })
               }
             />
@@ -1339,7 +1360,7 @@ export default class CreateNodeDialog extends Component {
           <i className="icon-delete Font18 mLeft5" onClick={() => selectAddNodeId('')} />
         </div>
 
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="pTop20 pBottom15 pLeft20 pRight20">
               {selectItem.typeText && <div className="bold pLeft12 Font14">{selectItem.typeText}</div>}
@@ -1372,7 +1393,7 @@ export default class CreateNodeDialog extends Component {
                                 return;
                               }
 
-                              this.createNodeClick(
+                              this.onCreateNode(
                                 _.includes([6, 7, 13], o.type) ? o : Object.assign({}, o, { name: item.typeText }),
                               );
                             }}
@@ -1389,7 +1410,7 @@ export default class CreateNodeDialog extends Component {
                 <ul className="secondNodeList">
                   {(selectItem.secondList || []).map((item, i) => {
                     return (
-                      <li key={i} onClick={() => this.createNodeClick(item)}>
+                      <li key={i} onClick={() => this.onCreateNode(item)}>
                         <Radio className="Font15" text={item.name} disabled />
                         <div className="Gray_75 mLeft30 mTop5">{item.describe}</div>
                       </li>
@@ -1489,7 +1510,7 @@ export default class CreateNodeDialog extends Component {
     source = source.filter(o => !!o.items.length);
 
     return (
-      <div className="flexRow flex">
+      <div className="flexRow flex overflowHidden">
         <div className="createNodeDialogNav flexColumn">
           <div className="Font17 bold flexRow alignItemsCenter mLeft16">
             {_l('添加动作')}
@@ -1504,7 +1525,7 @@ export default class CreateNodeDialog extends Component {
           <ScrollView className="flex mTop20">
             <ul className="createNodeDialogNavList">
               {LIST.map((o, index) => (
-                <Fragment>
+                <Fragment key={index}>
                   <li
                     key={o.key}
                     data-type={o.key}
@@ -1601,7 +1622,7 @@ export default class CreateNodeDialog extends Component {
           <ScrollView
             className="flex mTop20"
             ref={contentScroll => (this.contentScroll = contentScroll)}
-            scrollEvent={this.onScroll}
+            onScrollEnd={this.onScroll}
           >
             {source.map(data => {
               return (
@@ -1610,7 +1631,7 @@ export default class CreateNodeDialog extends Component {
                   <ul className="clearfix nodeList">
                     {data.items.map((item, i) => {
                       return (
-                        <li key={i} className={cx({ w100: mode === 1 })} onClick={() => this.createNodeClick(item)}>
+                        <li key={i} className={cx({ w100: mode === 1 })} onClick={() => this.onCreateNode(item)}>
                           <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
                             {item.iconUrl ? (
                               <SvgIcon url={item.iconUrl} fill="#fff" size={22} />
@@ -1624,6 +1645,7 @@ export default class CreateNodeDialog extends Component {
                               <div className="Font14 bold">{item.name}</div>
                               {item.type === NODE_TYPE.APPROVAL && (
                                 <Tooltip
+                                  autoCloseDelay={0}
                                   popupPlacement="bottom"
                                   text={_l(
                                     '使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。',

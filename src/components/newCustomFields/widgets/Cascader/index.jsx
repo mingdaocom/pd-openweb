@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Cascader, TreeSelect } from 'antd';
-import { List, Popup } from 'antd-mobile';
+import { List } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import nzh from 'nzh';
@@ -24,7 +24,7 @@ const getItem = value => {
 };
 
 const inputValueReg = (inputValue, regType) => {
-  return new RegExp(inputValue.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), regType || 'i');
+  return new RegExp(inputValue.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), regType || 'i');
 };
 
 export default class Widgets extends Component {
@@ -261,7 +261,7 @@ export default class Widgets extends Component {
       return path.map((text = '', i) => {
         const isLast = i === path.length - 1;
 
-        if (text.search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1) {
+        if (text.search(new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1) {
           return (
             <Fragment key={i}>
               <span className="ThemeColor3">{text}</span>
@@ -818,7 +818,7 @@ export default class Widgets extends Component {
           visible && this.loadData();
           onPopupVisibleChange(visible);
         }}
-        clearIcon={<Icon icon="closeelement-bg-circle Font14 customCascaderDel"></Icon>}
+        clearIcon={<Icon icon="cancel Font14 customCascaderDel"></Icon>}
       ></Cascader>
     );
   }

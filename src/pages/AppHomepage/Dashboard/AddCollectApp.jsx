@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Icon, Checkbox, SvgIcon, FunctionWrap } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
-import { getAppOrItemColor } from './utils';
-import { getFilterApps } from '../AppCenter/utils';
+import styled from 'styled-components';
+import { Checkbox, Dialog, FunctionWrap, Icon, SvgIcon } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import { getFilterApps } from '../AppCenter/utils';
+import { getAppOrItemColor } from './utils';
 
 const ContentWrapper = styled.div`
   height: 100%;
@@ -79,7 +79,7 @@ const Item = styled.div`
     color: #9d9d9d;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .ming.Checkbox {
@@ -153,10 +153,10 @@ function AddCollectApp(props) {
 
   const onAddMarkedApps = () => {
     const addedItems = _.differenceWith(selectedItems, markedApps, (s, m) =>
-      !!s.type ? s.itemId === m.itemId : s.appId === m.id && s.itemId === m.itemId,
+      s.type ? s.itemId === m.itemId : s.appId === m.id && s.itemId === m.itemId,
     );
     const delItems = _.differenceWith(markedApps, selectedItems, (m, s) =>
-      !!m.type ? s.itemId === m.itemId : s.appId === m.id && s.itemId === m.itemId,
+      m.type ? s.itemId === m.itemId : s.appId === m.id && s.itemId === m.itemId,
     ).map(item => ({ appId: item.id, itemId: item.itemId, type: item.type, isMark: false }));
 
     if (!addedItems.length && !delItems.length) {
@@ -212,7 +212,8 @@ function AddCollectApp(props) {
                 (items[app.id] || []).map(item => {
                   const isItemChecked = !!_.find(selectedItems, i => i.itemId === item.workSheetId);
                   const itemType = item.type === 0 ? 2 : item.type; // 转换类型--0传2(工作表),1传1(自定义页面)
-                  const workSheetName = _.get(_.find(appLang, { key: item.workSheetId }), 'value') || item.workSheetName;
+                  const workSheetName =
+                    _.get(_.find(appLang, { key: item.workSheetId }), 'value') || item.workSheetName;
                   return (
                     <Item
                       className="isItem"

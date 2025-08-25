@@ -1,8 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, Radio, Checkbox } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, Radio } from 'ming-ui';
 import { getShowViews } from 'src/pages/worksheet/views/util';
 
 const Wrap = styled.div`
@@ -35,7 +35,7 @@ const HeaderRange = styled.div`
     float: right;
   }
   .ming.icon-close:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
 `;
 export default function BtnRangeDrop(props) {
@@ -68,8 +68,6 @@ export default function BtnRangeDrop(props) {
         viewSheetIds.filter(o => safeParse(_.get(data, 'advancedSetting.listviews'), 'array').includes(o)).length > 0,
     });
   }, [props]);
-
-  const getViews = (list = []) => list.filter(l => l.viewId !== l.worksheetId);
 
   return (
     <Wrap className="">

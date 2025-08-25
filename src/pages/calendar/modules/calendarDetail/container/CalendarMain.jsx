@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import * as components from '../components';
 
@@ -40,7 +39,7 @@ export default class CalendarMain extends Component {
         calendarId: id,
         recurTime,
         isRecur,
-        isChildCalendar
+        isChildCalendar,
       },
     };
     const summaryProps = {

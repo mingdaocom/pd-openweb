@@ -6,7 +6,7 @@ export default class HeaderDisplaySetup extends Component {
   constructor(props) {
     super(props);
   }
-  setDefaultValue = (reportType) => {
+  setDefaultValue = reportType => {
     const { displaySetup } = this.props;
     let newData = null;
     if (reportType === reportTypes.BarChart) {
@@ -14,7 +14,7 @@ export default class HeaderDisplaySetup extends Component {
         ...displaySetup,
         isPile: false,
         isPerPile: false,
-      }
+      };
     }
     if (reportType === reportTypes.LineChart) {
       newData = {
@@ -22,16 +22,16 @@ export default class HeaderDisplaySetup extends Component {
         isPile: false,
         isAccumulate: false,
         isPerPile: false,
-      }
+      };
     }
     if (reportType === reportTypes.FunnelChart) {
       newData = {
         ...displaySetup,
         isAccumulate: false,
-      }
+      };
     }
     this.props.onUpdateDisplaySetup(newData, 'default');
-  }
+  };
   getDefaultValue(reportType) {
     const { displaySetup } = this.props;
     if (reportType === reportTypes.BarChart) {
@@ -62,49 +62,61 @@ export default class HeaderDisplaySetup extends Component {
     if (name === 'isPile' || name === 'isPerPile') {
       newData = {
         ...displaySetup,
-        isPile: name === 'isPile' ? (!checked) : false,
-        isPerPile: name === 'isPerPile' ? (!checked) : false,
-      }
+        isPile: name === 'isPile' ? !checked : false,
+        isPerPile: name === 'isPerPile' ? !checked : false,
+      };
     } else {
       newData = {
         ...displaySetup,
-        [name]: !checked
-      }
+        [name]: !checked,
+      };
     }
     this.props.onUpdateDisplaySetup(newData, name);
   }
   render() {
     const { displaySetup, xAxisisTime, mapKeys, reportType, chartType, title } = this.props;
     const isPile = [reportTypes.LineChart, reportTypes.BarChart].includes(reportType) && mapKeys.length >= 2;
-    const isPerPile = (reportType === reportTypes.BarChart || (reportType === reportTypes.LineChart && displaySetup.showChartType === 2)) && mapKeys.length >= 2;
+    const isPerPile =
+      (reportType === reportTypes.BarChart ||
+        (reportType === reportTypes.LineChart && displaySetup.showChartType === 2)) &&
+      mapKeys.length >= 2;
     const isAccumulate = reportTypes.LineChart === reportType && xAxisisTime;
     const isHide = !isPile && !isPerPile && !isAccumulate;
     return (
       <Fragment>
-        {(title && !isHide) && <div className="mRight10">{title}</div>}
+        {title && !isHide && <div className="mRight10">{title}</div>}
         <div className={cx('displaySetup flexRow valignWrapper', { hide: isHide })}>
-          {
-            !isHide && (
-              <div
-                className={cx('item', {active: this.getDefaultValue(reportType)})}
-                onClick={() => { this.setDefaultValue(reportType) }}
-              >
-                {_l('默认')}
-              </div>
-            )
-          }
+          {!isHide && (
+            <div
+              className={cx('item', { active: this.getDefaultValue(reportType) })}
+              onClick={() => {
+                this.setDefaultValue(reportType);
+              }}
+            >
+              {_l('默认')}
+            </div>
+          )}
           {isPile && (
-            <div className={cx('item', {active: displaySetup.isPile})} onClick={this.handleCheck.bind(this, 'isPile', displaySetup.isPile)}>
+            <div
+              className={cx('item', { active: displaySetup.isPile })}
+              onClick={this.handleCheck.bind(this, 'isPile', displaySetup.isPile)}
+            >
               {_l('堆叠')}
             </div>
           )}
-          {isPerPile && (reportTypes.DualAxes !== chartType) && (
-            <div className={cx('item', {active: displaySetup.isPerPile})} onClick={this.handleCheck.bind(this, 'isPerPile', displaySetup.isPerPile)}>
+          {isPerPile && reportTypes.DualAxes !== chartType && (
+            <div
+              className={cx('item', { active: displaySetup.isPerPile })}
+              onClick={this.handleCheck.bind(this, 'isPerPile', displaySetup.isPerPile)}
+            >
               {_l('百分比')}
             </div>
           )}
           {isAccumulate && (
-            <div className={cx('item', {active: displaySetup.isAccumulate})} onClick={this.handleCheck.bind(this, 'isAccumulate', displaySetup.isAccumulate)}>
+            <div
+              className={cx('item', { active: displaySetup.isAccumulate })}
+              onClick={this.handleCheck.bind(this, 'isAccumulate', displaySetup.isAccumulate)}
+            >
               {_l('累计')}
             </div>
           )}

@@ -1,0 +1,22 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- 第一个竖条：对称波动 -->
+    <rect x="20" y="40" width="10" height="20" fill="#6E09F9">
+        <animate attributeName="height" values="20;60;20" keyTimes="0;0.5;1" dur="0.8s" repeatCount="indefinite" />
+        <animate attributeName="y" values="40;20;40" keyTimes="0;0.5;1" dur="0.8s" repeatCount="indefinite" />
+    </rect>
+    <!-- 第二个竖条：对称波动 -->
+    <rect x="40" y="35" width="10" height="30" fill="#6E09F9">
+        <animate attributeName="height" values="30;70;30" keyTimes="0;0.5;1" dur="0.6s" repeatCount="indefinite" />
+        <animate attributeName="y" values="35;15;35" keyTimes="0;0.5;1" dur="0.6s" repeatCount="indefinite" />
+    </rect>
+    <!-- 中间主竖条：最大幅度对称波动 -->
+    <rect x="60" y="30" width="10" height="40" fill="#6E09F9">
+        <animate attributeName="height" values="40;80;40" keyTimes="0;0.5;1" dur="0.5s" repeatCount="indefinite" />
+        <animate attributeName="y" values="30;10;30" keyTimes="0;0.5;1" dur="0.5s" repeatCount="indefinite" />
+    </rect>
+    <!-- 第四个竖条：对称波动 -->
+    <rect x="80" y="35" width="10" height="30" fill="#6E09F9">
+        <animate attributeName="height" values="30;70;30" keyTimes="0;0.5;1" dur="0.7s" repeatCount="indefinite" />
+        <animate attributeName="y" values="35;15;35" keyTimes="0;0.5;1" dur="0.7s" repeatCount="indefinite" />
+    </rect>
+</svg>

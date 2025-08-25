@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import moment from 'moment';
-import './style.less';
+import PropTypes from 'prop-types';
+import Button from 'ming-ui/components/Button';
 import DatePickerBase from 'ming-ui/components/NewDateTimePicker/date-picker-base';
 import Time from 'ming-ui/components/NewTimePicker';
 import LibCalender from '../lib/calender';
-import Button from 'ming-ui/components/Button';
+import './style.less';
 
 class DateTimePicker extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class DateTimePicker extends Component {
           second: value.getSeconds(),
         },
         props,
-        value
+        value,
       ),
     };
   }
@@ -44,7 +44,7 @@ class DateTimePicker extends Component {
             second: value.getSeconds(),
           },
           nextProps,
-          value
+          value,
         ),
       });
     }
@@ -92,7 +92,11 @@ class DateTimePicker extends Component {
     // check is time in range
     if (this.props.type === 'datetime') {
       // check min
-      if (timeData.min && LibCalender.isSameDate(newValue, this.props.min) && LibCalender.isTimeEarly(time, timeData.min)) {
+      if (
+        timeData.min &&
+        LibCalender.isSameDate(newValue, this.props.min) &&
+        LibCalender.isTimeEarly(time, timeData.min)
+      ) {
         newValue.setHours(timeData.min.hour);
         newValue.setMinutes(timeData.min.minute);
         newValue.setSeconds(timeData.min.second);
@@ -100,7 +104,11 @@ class DateTimePicker extends Component {
         timeData.value = timeData.min;
       }
       // check max
-      if (timeData.max && LibCalender.isSameDate(newValue, this.props.max) && LibCalender.isTimeLater(time, timeData.max)) {
+      if (
+        timeData.max &&
+        LibCalender.isSameDate(newValue, this.props.max) &&
+        LibCalender.isTimeLater(time, timeData.max)
+      ) {
         newValue.setHours(timeData.max.hour);
         newValue.setMinutes(timeData.max.minute);
         newValue.setSeconds(timeData.max.second);
@@ -118,7 +126,7 @@ class DateTimePicker extends Component {
         if (this.props.onSelect) {
           this.props.onSelect(moment(newValue));
         }
-      }
+      },
     );
   };
 
@@ -138,7 +146,7 @@ class DateTimePicker extends Component {
         if (this.props.onSelect) {
           this.props.onSelect(moment(newValue));
         }
-      }
+      },
     );
   };
 
@@ -190,7 +198,7 @@ class DateTimePicker extends Component {
         <Button
           type="link"
           size="small"
-          onClick={(event) => {
+          onClick={event => {
             this.buttonOnClick(event, 'clear');
           }}
         >
@@ -219,7 +227,7 @@ class DateTimePicker extends Component {
           <Button
             type="primary"
             size="small"
-            onClick={(event) => {
+            onClick={event => {
               this.buttonOnClick(event, 'ok');
             }}
           >
@@ -308,18 +316,10 @@ DateTimePicker.defaultProps = {
   value: new Date(),
   min: null,
   max: null,
-  onChange: (event, time) => {
-    //
-  },
-  onOk: (time) => {
-    //
-  },
-  onClear: () => {
-    //
-  },
-  onSelect: (time) => {
-    //
-  },
+  onChange: () => {},
+  onOk: () => {},
+  onClear: () => {},
+  onSelect: () => {},
 };
 
 export default DateTimePicker;

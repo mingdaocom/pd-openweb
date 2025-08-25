@@ -1,7 +1,7 @@
 import React from 'react';
+import _ from 'lodash';
 import { MSGTYPES } from '../constants';
 import * as Components from './wrappedComp';
-import _ from 'lodash';
 
 const { SystemMessage, PostReply, PostMention, CommonTopic } = Components;
 
@@ -41,15 +41,12 @@ export default function InboxMessage(_props) {
     case MSGTYPES.TaskComment:
     case MSGTYPES.TaskReply:
     case MSGTYPES.TaskMentioned:
-    // 项目提到我的讨论 或 回复我的讨论
     case MSGTYPES.FolderComment:
     case MSGTYPES.FolderReply:
     case MSGTYPES.FolderMentioned:
-    // 日程普通讨论 或 回复我的讨论 或 提到我的评论
     case MSGTYPES.CalendarComment:
     case MSGTYPES.CalendarReply:
     case MSGTYPES.CalendarMentioned:
-    // 工作表回复我的讨论 或 提到我的讨论
     case MSGTYPES.WorkSheetComment:
     case MSGTYPES.WorkSheetMentioned:
     case MSGTYPES.WorkSheetReply:
@@ -59,6 +56,5 @@ export default function InboxMessage(_props) {
       return <CommonTopic {...props} />;
     default:
       return null;
-      break;
   }
 }

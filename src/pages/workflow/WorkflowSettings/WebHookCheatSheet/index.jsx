@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
 import JsonView from 'react-json-view';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
-import ErrorState from 'src/components/errorPage/errorState';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import api from '../../api/flowNode';
+import ErrorState from 'src/components/errorPage/errorState';
 import './index.less';
 
 export default class WebHookCheatSheet extends Component {

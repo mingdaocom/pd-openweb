@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { string, bool, oneOf, arrayOf, object } from 'prop-types';
 import cx from 'classnames';
+import { arrayOf, bool, object, oneOf, string } from 'prop-types';
 import './index.less';
 
 export default class Skeleton extends Component {

@@ -84,19 +84,20 @@ export default class RelateRecord extends React.Component {
     return (_.get(data, '0.deletedIds') || []).filter(id => !_.find(data, r => r.sid === id));
   }
 
-  parseValue(value) {
-    if (!value) {
+  parseValue(value = '') {
+    if (!value || value[0] !== '[') {
       return [];
     }
     try {
-      return JSON.parse(value).map(r => JSON.parse(r.sourcevalue));
+      return safeParse(value, 'array').map(r => safeParse(r.sourcevalue, 'array'));
     } catch (err) {
+      console.log(err);
       return [];
     }
   }
 
   handleTableKeyDown = e => {
-    const { tableId, count = 0, recordId, cell, isediting, updateCell, updateEditingStatus } = this.props;
+    const { tableId, count = 0, recordId, cell, isediting, updateEditingStatus } = this.props;
     const { records } = this.state;
     const canAdd = cell.enumDefault === 2 ? count < 50 : records.length === 0;
     switch (e.key) {
@@ -138,7 +139,9 @@ export default class RelateRecord extends React.Component {
     if (/^\[(.*)\]$/.test(value)) {
       try {
         length = JSON.parse(value).length;
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     } else {
       length = parseInt(value, 10);
     }
@@ -166,7 +169,9 @@ export default class RelateRecord extends React.Component {
     } else {
       try {
         records = JSON.parse(cell.value);
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
       return records.map((record, index) => {
         let controlValue = record.name;
         if (record.sourcevalue) {
@@ -213,7 +218,7 @@ export default class RelateRecord extends React.Component {
     updateEditingStatus(visible);
   };
 
-  handleRelateRecordTagChange = ({ changed, addedIds, deletedIds, records = [], count } = {}) => {
+  handleRelateRecordTagChange = ({ changed, addedIds, deletedIds, records = [] } = {}) => {
     const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
     if (!changed) {
       updateEditingStatus(false);
@@ -376,9 +381,11 @@ export default class RelateRecord extends React.Component {
           onClick={onClick}
           iconName={'arrow-down-border'}
           isediting={isediting}
+          onClickAwayExceptions={['.selectRecordsDialog', '.mdModalWrap']}
           onIconClick={() => updateEditingStatus(true)}
         >
           <RelateRecordDropdown
+            appId={appId}
             ref={this.dropdownRef}
             insheet
             disabled={!editable}
@@ -418,6 +425,9 @@ export default class RelateRecord extends React.Component {
               this.changed = true;
               // this.setState({ records: newRecords, changed: true });
             }}
+            onClose={() => {
+              updateEditingStatus(false);
+            }}
           />
         </EditableCellCon>
       );
@@ -438,6 +448,7 @@ export default class RelateRecord extends React.Component {
             <RelateRecordTags
               from={from}
               appId={appId}
+              projectId={projectId}
               isDraft={isDraft}
               disabled
               count={count}
@@ -460,6 +471,7 @@ export default class RelateRecord extends React.Component {
               <RelateRecordTags
                 from={from}
                 appId={appId}
+                projectId={projectId}
                 isDraft={isDraft}
                 rowIndex={rowIndex}
                 ref={this.relateRecordTagsPopup}

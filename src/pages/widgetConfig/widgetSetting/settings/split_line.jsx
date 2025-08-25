@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { SettingItem } from '../../styled';
-import { SectionItem } from '../components/SplitLineConfig/style';
 import ColorSetting from '../components/SplitLineConfig/ColorSetting';
 import IconSetting from '../components/SplitLineConfig/IconSetting';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { SectionItem } from '../components/SplitLineConfig/style';
 
 const FOLD_DISPLAY = [
   { text: _l('展开'), value: 1 },
@@ -15,7 +16,7 @@ const FOLD_DISPLAY = [
 export default function SplitLine(props) {
   const { data, globalSheetInfo, styleInfo: { info = {} } = {}, onChange } = props;
   const { enumDefault2 = 1 } = data;
-  const { theme = '#2196f3', color = '#151515', icon = '' } = getAdvanceSetting(data);
+  const { theme = '#1677ff', color = '#151515', icon = '' } = getAdvanceSetting(data);
 
   return (
     <Fragment>
@@ -45,7 +46,7 @@ export default function SplitLine(props) {
         <SectionItem>
           <div className="label">{_l('颜色')}</div>
           <ColorSetting
-            defaultValue="#2196f3"
+            defaultValue="#1677ff"
             value={theme}
             onChange={value => {
               onChange(handleAdvancedSettingChange(data, { theme: value }));

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Icon, Dialog, FunctionWrap, Input, LoadDiv, Textarea } from 'ming-ui';
-import langConfig from 'src/common/langConfig';
-import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Dialog, FunctionWrap, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import langConfig from 'src/common/langConfig';
 
 const InputWrap = styled(Input)`
   &:disabled {

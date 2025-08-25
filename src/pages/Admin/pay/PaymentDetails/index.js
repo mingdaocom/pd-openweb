@@ -1,10 +1,9 @@
-import React, { Component, Fragment } from 'react';
-import { UserHead, UserName } from 'ming-ui';
-import PageTableCon from 'src/pages/Admin/components/PageTableCon';
-import paymentAjax from 'src/api/payment';
-import { PAY_STATUS } from '../config';
-import styled from 'styled-components';
+import React, { Component } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import paymentAjax from 'src/api/payment';
+import PageTableCon from 'src/pages/Admin/components/PageTableCon';
+import { PAY_STATUS } from '../config';
 
 const TableWrap = styled(PageTableCon)`
   .ant-table-body {
@@ -92,7 +91,7 @@ export default class PaymentDetails extends Component {
     this.getList();
   }
 
-  getList = ({ pageIndex = 1, ...rest } = {}) => {
+  getList = () => {
     this.setState({ loading: true });
     const { orderInfo, projectId } = this.props;
     paymentAjax
@@ -103,7 +102,7 @@ export default class PaymentDetails extends Component {
       .then(({ payOrderDetails = [], dataCount }) => {
         this.setState({ loading: false, list: payOrderDetails, count: dataCount });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };

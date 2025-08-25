@@ -8,6 +8,6 @@ const Con = styled.div`
   padding: 16px;
 `;
 
-export default function RecordCard(props) {
+export default function RecordCard() {
   return <Con>1123</Con>;
 }

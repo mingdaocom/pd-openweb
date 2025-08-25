@@ -1,6 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
+import _ from 'lodash';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { EditInfo, SettingItem } from 'src/pages/widgetConfig/styled/index.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
@@ -30,7 +30,7 @@ export default function (props) {
             }, '')
           ) : (
             <span className="Gray_75">
-              {!!viewControlData.viewId ? _l('按关联视图的配置') : _l('未设置（按添加时间顺序）')}
+              {viewControlData.viewId ? _l('按关联视图的配置') : _l('未设置（按添加时间顺序）')}
             </span>
           )}
         </div>
@@ -42,7 +42,7 @@ export default function (props) {
               e.stopPropagation();
             }}
           >
-            <i className="icon-cancel1 Hand"></i>
+            <i className="icon-cancel Hand"></i>
           </div>
         )}
         <div className="edit">
@@ -55,7 +55,7 @@ export default function (props) {
           data={view}
           advancedSettingKey={advancedSettingKey}
           fromRelate
-          controls={relationControls}
+          controls={relationControls.filter(o => o?.advancedSetting?.hide !== '1')} //排除隐藏的字段
           onChange={data => {
             onChange(data);
           }}

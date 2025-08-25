@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
-import { Icon, ColorPicker } from 'ming-ui';
-import styled from 'styled-components';
-import cx from 'classnames';
 import { Checkbox, Select, Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { ColorPicker, Icon } from 'ming-ui';
 import { replaceColor } from 'statistics/Charts/PivotTable';
 import { defaultPivotTableStyle } from '../../../enum';
 
@@ -49,7 +50,7 @@ const alignTypes = [
 ];
 
 const TitleStyle = props => {
-  const { name, type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
+  const { type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
   const { currentReport = {}, changeCurrentReport } = props;
   const { displaySetup = {}, yaxisList = [] } = currentReport;
   const pivotTableStyle = replaceColor({
@@ -169,8 +170,8 @@ const TitleStyle = props => {
                     ...displaySetup,
                     mergeCell: e.target.checked,
                   },
-                  pivotTable
-                }
+                  pivotTable,
+                };
                 if (!e.target.checked) {
                   const { lines = [] } = pivotTable;
                   const newLines = lines.map((n, index) => {
@@ -178,7 +179,7 @@ const TitleStyle = props => {
                   });
                   if (!newLines.filter(n => n.subTotal).length) {
                     param.yaxisList = yaxisList.map(n => {
-                      return { ...n, showPercent: 0 }
+                      return { ...n, showPercent: 0 };
                     });
                   }
                   param.pivotTable.lines = newLines;
@@ -320,7 +321,7 @@ const TitleStyle = props => {
                   placement="bottomRight"
                   arrowPointAtCenter
                 >
-                  <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                  <Icon className="Gray_9e Font18 pointer" icon="info" />
                 </Tooltip>
               </div>
             </div>
@@ -356,7 +357,7 @@ const TitleStyle = props => {
                   placement="bottomRight"
                   arrowPointAtCenter
                 >
-                  <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                  <Icon className="Gray_9e Font18 pointer" icon="info" />
                 </Tooltip>
               </div>
             </div>

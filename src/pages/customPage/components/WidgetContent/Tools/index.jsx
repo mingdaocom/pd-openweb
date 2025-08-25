@@ -19,19 +19,19 @@ import 'rc-trigger/assets/index.css';
 
 const WEB_CONTENT_TOOLS = [
   { type: 'setting', icon: 'settings', tip: _l('设置') },
-  { type: 'insertTitle', icon: 'task_custom_text-box', tip: _l('插入标题行') },
+  { type: 'insertTitle', icon: 'title', tip: _l('插入标题行') },
   { type: 'copy', icon: 'copy_custom', tip: _l('复制') },
   { type: 'move', icon: 'swap_horiz', tip: _l('移动') },
-  { type: 'del', icon: 'custom_-page_delete', tip: _l('删除') },
+  { type: 'del', icon: 'recycle', tip: _l('删除') },
 ];
 
 const MOBILE_CONTENT_TOOLS = [
-  { type: 'insertTitle', icon: 'task_custom_text-box', tip: _l('插入标题行') },
+  { type: 'insertTitle', icon: 'title', tip: _l('插入标题行') },
   { type: 'hideMobile', icon: 'visibility_off', tip: _l('隐藏组件') },
 ];
 
 const MOBILE_BUTTON_TOOLS = [
-  { type: 'insertTitle', icon: 'task_custom_text-box', tip: _l('插入标题行') },
+  { type: 'insertTitle', icon: 'title', tip: _l('插入标题行') },
   { type: 'switchButtonDisplay', icon: 'looks_one', tip: _l('一行一个') },
   { type: 'changeFontSize', icon: 'text_bold2' },
   { type: 'hideMobile', icon: 'visibility_off', tip: _l('隐藏组件') },
@@ -60,6 +60,7 @@ const ToolsWrap = styled.ul`
   &.richText {
     left: auto;
     right: 0px;
+    top: 1px;
     transform: none;
   }
   li {
@@ -68,13 +69,13 @@ const ToolsWrap = styled.ul`
     cursor: pointer;
     color: #757575;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
     &.del:hover {
       color: #f44336;
     }
     &.highlight {
-      color: #2196f3;
+      color: #1677ff;
       &.del {
         color: #f44336;
       }
@@ -323,7 +324,7 @@ export default function Tools({
             <li
               className={cx(type, { highlight: isHighlight(type) })}
               key={type}
-              onClick={e => {
+              onClick={() => {
                 toggle(true);
                 handleDeleteConfirm();
               }}
@@ -369,7 +370,7 @@ export default function Tools({
               <li
                 className={cx(type, { highlight: isHighlight(type) })}
                 key={type}
-                onClick={e => {
+                onClick={() => {
                   toggle(true);
                 }}
               >
@@ -433,7 +434,7 @@ export default function Tools({
           <li
             className={cx(type, { highlight: isHighlight(type) })}
             key={type}
-            onClick={e => {
+            onClick={() => {
               toggle(true);
             }}
           >
@@ -531,7 +532,7 @@ export default function Tools({
             />
             {tabs.length > 1 && (
               <Icon
-                icon="delete2"
+                icon="trash"
                 className="Gray_bd Font20 pointer"
                 onClick={() => {
                   handleDeleteConfirm(item);
@@ -789,7 +790,7 @@ export default function Tools({
         <li
           className={cx(type, { highlight: isHighlight(type), switchButton: isSwitchButton(type) })}
           key={type}
-          onClick={e => {
+          onClick={() => {
             handleToolClick(type);
           }}
         >

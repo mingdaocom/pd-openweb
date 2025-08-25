@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import _, { filter, flatten, get, isEmpty, isFunction } from 'lodash';
+import _, { get, isEmpty, isFunction } from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import { getFilledRequestParams } from 'src/utils/common';
 import { formatQuickFilter } from 'src/utils/filter';
@@ -27,7 +27,7 @@ const getTotalDataIds = (hierarchyViewData = {}, total = 0) => {
 // 展开多级数据
 export function expandedMultiLevelHierarchyData(args, changeFilters) {
   return (dispatch, getState) => {
-    const { sheet, mobile } = getState();
+    const { sheet } = getState();
     const { quickFilter, navGroupFilters } = sheet;
     const { searchType, ...rest } = sheet.filters || {};
     const params = getParaIds(sheet);
@@ -53,6 +53,7 @@ export function expandedMultiLevelHierarchyData(args, changeFilters) {
         searchType: searchType || 1,
         fastFilters: formatQuickFilter(quickFilter),
         navGroupFilters,
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       }),
     );
 
@@ -127,6 +128,7 @@ function getHierarchyDataRecursion({ worksheet, records, kanbanKey, index, para 
         controlId,
         kanbanKey,
         pageSize: MULTI_RELATE_MAX_PAGE_SIZE,
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       }),
     )
     .then(({ data }) => {
@@ -163,6 +165,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
           viewId,
           pageSize: 50,
           ...filters,
+          langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
         }),
       )
       .then(({ data, count }) => {
@@ -171,7 +174,7 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
           type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
           count: count,
         });
-        dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { pageIndex: 1 } });
+        dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: false, pageIndex: 1 } });
         if (!kanbanKey || level <= 1) {
           const treeData = dealData(data);
           dispatch({
@@ -232,6 +235,7 @@ export function addHierarchyChildrenRecord(data) {
 }
 export const getTopLevelHierarchyData = args => dispatch => {
   dispatch({ type: 'CHANGE_HIERARCHY_DATA_STATUS', data: { loading: true } });
+  args.langType = window.shareState.shareId ? getCurrentLangCode() : undefined;
   sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
     if (resultCode === 1) {
       const treeData = dealData(data);
@@ -333,7 +337,7 @@ export function updateMovedRecord(args) {
         ...getParaIds(sheet),
         ...rest,
       })
-      .then(data => {
+      .then(() => {
         // 如果拖拽的是顶级记录则重新拉取所有记录
         if (src.path.length === 1) {
           dispatch(expandedMultiLevelHierarchyData({ layer: 3 }));
@@ -392,6 +396,14 @@ export function moveMultiSheetRecord(args) {
     const { hierarchyView } = sheet;
     const { pid: fromRowId, controls } = get(hierarchyView, ['hierarchyViewData', [src.rowId]]);
     const { viewId } = _.find(controls, item => item.controlId === controlId) || {};
+
+    const targetControl = _.find(sheet.controls || [], item => item.controlId === controlId) || {};
+    const targetRowData = _.find(hierarchyView.hierarchyViewState || [], { rowId: target.rowId }) || {};
+    // 如果是单条且已有值，则返回
+    if (targetControl.enumDefault === 1 && targetRowData.children?.length) {
+      alert(_l('已存在一条关联记录，修改失败！'), 2);
+      return;
+    }
 
     sheetAjax
       .replaceRowRelationRows({
@@ -475,9 +487,10 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
       ...args,
       fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
 
-    sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
+    sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode }) => {
       if (resultCode !== 1) {
         return;
       }
@@ -627,6 +640,7 @@ export function getHierarchyRecord(args, cb) {
       ...getParaIds(sheet),
       ...sheet.filters,
       ...args,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
     sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
       if (isFunction(cb)) {
@@ -744,5 +758,19 @@ export const updateHierarchySearchRecord = record => {
       //打开记录详情
       dispatch({ type: 'CHANGE_HIERARCHY_RECORD_INFO_ID', data: record ? record.rowid : null });
     }
+  };
+};
+
+export const resetHierarchyViewData = () => {
+  return dispatch => {
+    dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: [] });
+    dispatch({
+      type: 'CHANGE_HIERARCHY_DATA_STATUS',
+      data: { loading: true, hasMoreData: true, pageIndex: 1, pageSize: 50 },
+    });
+    dispatch({
+      type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
+      count: 0,
+    });
   };
 };

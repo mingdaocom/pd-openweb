@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd-latest';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { DRAG_ACCEPT, DRAG_MODE } from '../../config/Drag';
 
 const DragPointer = styled.div`
@@ -15,7 +15,7 @@ const DragPointer = styled.div`
   }
   &.isOver {
     .line {
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
   }
 `;

@@ -183,7 +183,7 @@ export default class UploadFiles extends Component {
 
   componentDidMount() {
     const { temporaryData, kcAttachmentData } = this.state;
-    const { isInitCall, isUpload } = this.props;
+    const { isInitCall } = this.props;
 
     if (isInitCall) {
       this.props.onTemporaryDataUpdate(temporaryData);
@@ -316,7 +316,7 @@ export default class UploadFiles extends Component {
       },
     );
   };
-  openLinkDialog(item) {
+  openLinkDialog() {
     const _this = this;
 
     addLinkFile({
@@ -365,7 +365,7 @@ export default class UploadFiles extends Component {
           undefined,
           attachment.originalFilename + attachment.ext,
         )
-        .then(result => {
+        .then(() => {
           alert(_l('删除成功'));
         })
         .catch(() => {
@@ -403,7 +403,7 @@ export default class UploadFiles extends Component {
     const { checkValueByFilterRegex } = this.props;
     newName = newName.trim();
 
-    if (/[\/\\:\*\?"<>\|]/g.test(newName)) {
+    if (/[/\\:*?"<>|]/g.test(newName)) {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return;
     }
@@ -528,7 +528,6 @@ export default class UploadFiles extends Component {
       previewAttachments(
         {
           attachments: quData.map(item => {
-            const twice = item.twice || {};
             const result = {
               name: `${item.originalFileName || '未命名'}${item.fileExt}`,
               path: item.previewUrl
@@ -555,7 +554,7 @@ export default class UploadFiles extends Component {
       );
     }
   }
-  onKcPreview(id, index) {
+  onKcPreview(id) {
     const { kcAttachmentData } = this.state;
     let res = kcAttachmentData.filter(item => item.node);
     previewAttachments(
@@ -570,7 +569,7 @@ export default class UploadFiles extends Component {
       },
     );
   }
-  onKcTwicePreview(id, index, event) {
+  onKcTwicePreview(id) {
     let { kcAttachmentData } = this.state;
     let attachments = kcAttachmentData.filter(item => !!(item.twice && item.twice.attachmentType !== 5));
     let preview = attachments.map(item => item.twice);
@@ -682,13 +681,14 @@ export default class UploadFiles extends Component {
 
             //判断应用上传量是否达到上限
             if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
-              const params = { projectId, fromType: 9 };
+              const params = { projectId, appId, fromType: 9 };
               checkAccountUploadLimit(filesSize, params).then(available => {
                 if (!available) {
                   upgradeVersionDialog({
                     projectId,
                     isFree: licenseType === 0,
                     hint: _l('应用附件上传量已到最大值'),
+                    removeFooter: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal, // 私有部署&非平台版隐藏购买扩展包入口
                     okText: _l('购买上传量扩展包'),
                     onOk: () => window.open(`/admin/expansionservice/${projectId}/storage`),
                   });
@@ -839,16 +839,11 @@ export default class UploadFiles extends Component {
               temporaryData: newTemporaryData,
             });
 
-            // 分片上传顺序有问题， onUploaded 早于 onUploadComplete ，这里代替 onUploadComplete
-            if (!newTemporaryData.filter(n => n.progress).length) {
-              _this.props.onTemporaryDataUpdate(newTemporaryData);
-              setTimeout(() => {
-                _this.props.onUploadComplete(true);
-              }, 200);
-            }
+            _this.props.onTemporaryDataUpdate(newTemporaryData);
           }}
-          onUploadComplete={(up, files) => {
+          onUploadComplete={() => {
             _this._uploading = false;
+            _this.props.onUploadComplete(true);
           }}
           onError={(uploader, error) => {
             _this.onRemoveAll(uploader);
@@ -880,7 +875,7 @@ export default class UploadFiles extends Component {
               this.nativeFile = nativeFile;
             }}
           >
-            <i className="icon icon-knowledge-upload Gray_9e Font19" />
+            <i className="icon icon-file_upload Gray_9e Font19" />
             <span>{_l('本地')}</span>
           </div>
         </QiniuUpload>

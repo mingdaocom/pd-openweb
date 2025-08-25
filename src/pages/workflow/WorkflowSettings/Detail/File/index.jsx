@@ -18,7 +18,7 @@ export default class File extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -164,7 +164,7 @@ export default class File extends Component {
           height={0}
           content={data.fileName}
           formulaMap={data.formulaMap}
-          onChange={(err, value, obj) => this.updateSource({ fileName: value })}
+          onChange={(err, value) => this.updateSource({ fileName: value })}
           updateSource={this.updateSource}
         />
 
@@ -215,7 +215,7 @@ export default class File extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

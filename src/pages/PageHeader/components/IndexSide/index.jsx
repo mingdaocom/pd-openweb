@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import { bool, number } from 'prop-types';

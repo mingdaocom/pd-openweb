@@ -68,7 +68,6 @@ export default option => {
       const div = document.createElement('div');
       const all = div.getElementsByTagName('i');
       while (((div.innerHTML = '<!--[if gt IE ' + v + ']><i></i><![endif]-->'), all[0])) {
-        // eslint-disable-line no-cond-assign
         v++;
       }
       return v > 4 ? v : false;
@@ -437,36 +436,38 @@ export default option => {
     } else {
       let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
       let isPic = RegExpValidator.fileIsPicture(fileExt);
-      (option.getToken || getToken)(
+
+      const res = (option.getToken || getToken)(
         [{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }],
         option.type,
         option.getTokenParam,
-      ).then(res => {
-        $.ajax({
-          url: option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(res[0].key),
-          type: 'POST',
-          beforeSend: request => {
-            request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-            request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
-          },
-          data: file.ctx,
-          processData: false,
-        }).then(response => {
-          if (typeof response === 'string') {
-            response = JSON.parse(response);
-          }
+        { ajaxOptions: { sync: true } },
+      );
+      $.ajax({
+        url: option.url.replace(/(\/)$/, '') + '/mkfile/' + (file.size ? file.size : 0) + '/key/' + btoa(res[0].key),
+        type: 'POST',
+        beforeSend: request => {
+          request.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
+          request.setRequestHeader('Authorization', 'UpToken ' + res[0].uptoken);
+        },
+        data: file.ctx,
+        processData: false,
+        async: false,
+      }).then(response => {
+        if (typeof response === 'string') {
+          response = JSON.parse(response);
+        }
 
-          response.fileExt = fileExt;
-          response.fileName = RegExpValidator.getNameOfFileName(res[0].fileName);
-          response.filePath = file.key.replace(new RegExp(file.fileName), '');
-          response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
-          response.serverName = file.serverName;
-          file.url = res[0].url;
+        response.fileExt = fileExt;
+        response.fileName = RegExpValidator.getNameOfFileName(res[0].fileName);
+        response.filePath = file.key.replace(new RegExp(file.fileName), '');
+        response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
+        response.serverName = file.serverName;
+        file.url = res[0].url;
 
-          if (initFunc.FileUploaded) {
-            initFunc.FileUploaded(up, file, { response });
-          }
-        });
+        if (initFunc.FileUploaded) {
+          initFunc.FileUploaded(up, file, { response });
+        }
       });
     }
   });

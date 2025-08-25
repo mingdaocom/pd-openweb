@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import '../less/Progress.less';
 
 class CircleProgress extends Component {
@@ -69,7 +69,7 @@ class CircleProgress extends Component {
       const { diameter, percent } = this.props;
       const len = Math.PI * diameter;
       if (this._circlePath && this._circlePath.style) {
-        this._circlePath.style.strokeDashoffset = `${len - percent / 100 * len}px`;
+        this._circlePath.style.strokeDashoffset = `${len - (percent / 100) * len}px`;
       }
     }, 1000);
   }
@@ -85,7 +85,18 @@ class CircleProgress extends Component {
   };
 
   render() {
-    const { className, diameter, theme, percent, format, strokeWidth, foregroundColor, backgroundColor, isRound, isAnimation, ...other } = this.props;
+    const {
+      className,
+      diameter,
+      theme,
+      percent,
+      format,
+      strokeWidth,
+      foregroundColor,
+      backgroundColor,
+      isRound,
+      ...other
+    } = this.props;
 
     const isTheme = foregroundColor && backgroundColor ? 0 : 1;
 
@@ -96,7 +107,7 @@ class CircleProgress extends Component {
         'Progress--circle-zero': percent === 0,
         [`Progress--${theme}`]: !!isTheme,
       },
-      className
+      className,
     );
 
     const fontSize = `${parseInt(diameter * 0.16, 10)}px`;

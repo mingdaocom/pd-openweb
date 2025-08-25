@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect } from 'react';
+import _ from 'lodash';
 import { RadioGroup } from 'ming-ui';
+import { DISPLAY_USER_TYPE_OPTIONS } from '../../config/setting';
 import { SettingItem } from '../../styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import WidgetUserPermission from '../components/WidgetUserPermission';
-import _ from 'lodash';
 import UserConfig from '../components/WidgetHighSetting/ControlSetting/UserConfig';
-import { DISPLAY_USER_TYPE_OPTIONS } from '../../config/setting';
+import WidgetUserPermission from '../components/WidgetUserPermission';
 
 const DISPLAY_OPTIONS = [
   {

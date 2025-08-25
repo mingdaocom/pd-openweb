@@ -23,7 +23,7 @@ export const Con = styled.div(
         }
       }
       &:hover{
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     input {

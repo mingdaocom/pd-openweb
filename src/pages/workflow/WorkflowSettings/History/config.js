@@ -204,8 +204,8 @@ export const NODE_ICON = {
   start: {
     icon: {
       1: 'table',
-      5: 'hr_surplus',
-      6: 'hr_time',
+      5: 'access_alarm',
+      6: 'task_custom_today',
       7: 'workflow_webhook',
       8: 'custom_actions',
       9: 'approval',
@@ -234,8 +234,8 @@ export const NODE_ICON = {
     },
     bgColor: {
       1: '#ffa340',
-      5: '#2196f3',
-      6: '#2196f3',
+      5: '#1677ff',
+      6: '#1677ff',
       7: '#4C7D9E',
       8: '#4C7D9E',
       9: '#4158DB',
@@ -245,13 +245,13 @@ export const NODE_ICON = {
       23: '#01ca83',
       25: '#4C7D9E',
       45: '#4C7D9E',
-      106: '#2196f3',
+      106: '#1677ff',
     },
   },
   gateway: {
     icon: 'workflow_branch',
     text: _l('分支'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   write: {
     icon: 'workflow_write',
@@ -264,13 +264,13 @@ export const NODE_ICON = {
     bgColor: '#7e57c2',
   },
   cc: {
-    icon: 'workflow_notice',
+    icon: 'send',
     text: _l('抄送'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   action: {
     icon: {
-      1: 'workflow_new',
+      1: 'playlist_add',
       2: 'workflow_update',
       3: 'hr_delete',
       20: 'workflow_search',
@@ -299,14 +299,14 @@ export const NODE_ICON = {
     bgColor: '#01CA83',
   },
   msg: {
-    icon: 'workflow_sms',
+    icon: 'forum',
     text: _l('短信'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   email: {
     icon: 'email',
     text: _l('邮件'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   delay: {
     icon: 'workflow_delayed',
@@ -336,7 +336,7 @@ export const NODE_ICON = {
   push: {
     icon: 'interface_push',
     text: _l('界面推送'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   file: {
     icon: 'print',
@@ -346,7 +346,7 @@ export const NODE_ICON = {
   template: {
     icon: 'wechat',
     text: _l('发送服务号消息'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   pbc: {
     icon: 'pbc',
@@ -384,9 +384,9 @@ export const NODE_ICON = {
     bgColor: '#4158DB',
   },
   notice: {
-    icon: 'hr_message_reminder',
+    icon: 'notifications',
     text: _l('站内通知'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   snapshot: {
     icon: 'camera_alt',
@@ -417,7 +417,7 @@ export const NODE_ICON = {
   plugin: {
     icon: 'workflow',
     text: _l('插件'),
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   singleInfo: {
     icon: {
@@ -432,11 +432,11 @@ export const NODE_ICON = {
       23: _l('获取单条外部用户'),
       24: _l('获取单条组织角色'),
     },
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
   moreInfo: {
     icon: {
-      20: 'group-members',
+      20: 'group',
       21: 'department',
       23: 'folder-public',
       24: 'multiple_user',
@@ -447,6 +447,6 @@ export const NODE_ICON = {
       23: _l('获取多条外部用户'),
       24: _l('获取多条组织角色'),
     },
-    bgColor: '#2196f3',
+    bgColor: '#1677ff',
   },
 };

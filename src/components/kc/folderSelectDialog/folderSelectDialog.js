@@ -235,21 +235,20 @@ $.extend(FolderSelect.prototype, {
           //无选择项时 是否要返回当前路径
           var $lastNode = $folderContent.find('.folderUrl .levelName:last');
           var appointRootId = settings.appointRoot ? settings.appointRoot.id : '';
-          var lastNodeId = $lastNode.data('root') ? $lastNode.data('root').id : '';
 
           if (
             settings.isFolderNode == SELECT_TYPE.FOLDER &&
             ((!$lastNode.hasClass('startTag') && !settings.appointRoot) || (settings.appointRoot && appointRootId))
           ) {
             if ($lastNode.hasClass('childNode')) {
-              var currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
+              let currentRoot = $folderContent.find('.folderUrl .shareRoot, .folderUrl .myRoot').data('root');
               resultType = PICK_TYPE.CHILDNODE;
               getNodeAjax = true;
               var nodeData = await ajax.getNodeDetail({ path: $lastNode.data('path') });
               if (!nodeData) {
                 return Promise.reject();
               }
-              var resObj = { type: parseInt(resultType), node: nodeData };
+              let resObj = { type: parseInt(resultType), node: nodeData };
               if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
                 resObj = $.extend(resObj, {
                   rootName: currentRoot.name,
@@ -268,8 +267,8 @@ $.extend(FolderSelect.prototype, {
               return false;
             }
           } else {
-            var num = 0;
-            var setTime = setInterval(function () {
+            let num = 0;
+            let setTime = setInterval(function () {
               $folderContent.find('.folderNode').toggleClass('noItemBox');
               if (num++ > 3) {
                 $folderContent.find('.folderNode').removeClass('noItemBox');
@@ -320,7 +319,7 @@ $.extend(FolderSelect.prototype, {
           folderSelect.getRootList();
         }
       } else if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
-        var lastPos = localStorage.getItem('last_select_folder_pos_' + md.global.Account.accountId);
+        let lastPos = localStorage.getItem('last_select_folder_pos_' + md.global.Account.accountId);
         var defaultData = lastPos ? JSON.parse(lastPos) : settings.appointFolder;
         if (defaultData && !_.includes(settings.selectedItems, defaultData.node.id)) {
           settings.rootType = defaultData.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
@@ -429,12 +428,7 @@ $.extend(FolderSelect.prototype, {
                     .find('.statusIcon i')
                     .removeClass()
                     .addClass(
-                      'Font20 ' +
-                        (visibleId === 1
-                          ? 'icon-task-new-locked'
-                          : visibleId === 4
-                            ? 'icon-global'
-                            : 'icon-group-members'),
+                      'Font20 ' + (visibleId === 1 ? 'icon-lock' : visibleId === 4 ? 'icon-global' : 'icon-group'),
                     );
                   $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
                 })
@@ -544,7 +538,7 @@ $.extend(FolderSelect.prototype, {
         callback && callback();
       })
       .catch(function () {
-        $folderContent.find('.folderNode').html($rootHtml);
+        $folderContent.find('.folderNode').html('');
         folderSelect.bindNodeEvent(true);
       });
   },
@@ -712,8 +706,6 @@ $.extend(FolderSelect.prototype, {
             var $li = null;
             var visibleTypeName = null;
             var parentNameList = [];
-            var firstParentName = null;
-            var lastParentName = null;
             // 获取搜索状态下 父节点名称
             if (settings.keywords) {
               var parentPosition = item.position.replace(currentPath, '').split('/');
@@ -737,10 +729,10 @@ $.extend(FolderSelect.prototype, {
               statusIconName:
                 item.type == NODE_TYPE.FILE
                   ? item.visibleType === 1
-                    ? 'icon-task-new-locked'
+                    ? 'icon-lock'
                     : item.visibleType === 4
                       ? 'icon-global'
-                      : 'icon-group-members'
+                      : 'icon-group'
                   : '',
             });
             $li = $(liHtml);
@@ -845,7 +837,7 @@ $.extend(FolderSelect.prototype, {
                   ')' +
                   originalName;
               }
-              var $pathHtml = $(pathTmp(rootFolder));
+              let $pathHtml = $(pathTmp(rootFolder));
               $pathHtml
                 .filter('.levelName')
                 .addClass(rootFolder.id ? 'shareRoot' : 'myRoot')
@@ -880,7 +872,7 @@ $.extend(FolderSelect.prototype, {
           $folderPath.find('.startTag').removeClass('ThemeColor3');
         }
       })
-      .catch(function (err) {
+      .catch(function () {
         localStorage.removeItem('last_select_folder_pos_' + md.global.Account.accountId);
         localStorage.removeItem('last_select_pos_' + md.global.Account.accountId);
         if (settings.appointFolder) {
@@ -1055,7 +1047,7 @@ $.extend(FolderSelect.prototype, {
               $this.select();
               return false;
             }
-            var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g,
+            var illegalChars = /[/\\:*?"<>|]/g,
               valid = illegalChars.test(name);
             if (valid) {
               alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
@@ -1087,7 +1079,6 @@ $.extend(FolderSelect.prototype, {
       .off()
       .on({
         click: function () {
-          var $this = $(this);
           var $folderNode = $folderContent.find('.folderNode');
           var $addNewFolder = $(
             '<li class="addNewFolder" ><div class="leftContent"><span class="nodeType fileIcon-folder" ></span><span class="nodeName ellipsis Hidden" ></span><input class="editBox" placeholder="请输入文件夹名称"/></div></li>',
@@ -1246,7 +1237,6 @@ $.extend(FolderSelect.prototype, {
   },
   // 渲染修改类型
   renderNodeVisibleType: function (node, $node) {
-    var folderSelect = this;
     var $folderNode = $node.closest('.folderNode');
     var currentProjectId = $folderNode.find('span.homeNetWork').attr('projectid');
     var isBelongAccount = !currentProjectId;
@@ -1257,10 +1247,10 @@ $.extend(FolderSelect.prototype, {
       '"><i class="icon ' +
       (node.type == NODE_TYPE.FILE
         ? node.visibleType === 1
-          ? 'icon-task-new-locked'
+          ? 'icon-lock'
           : node.visibleType === 4
             ? 'icon-global'
-            : 'icon-group-members'
+            : 'icon-group'
         : '') +
       '"></i></span>';
     shareHtml +=
@@ -1274,19 +1264,17 @@ $.extend(FolderSelect.prototype, {
         '<a class="updateTypeBtn ThemeColor3">' + (node.visibleType === 1 ? _l('开启') : _l('更改')) + '</a>';
       shareHtml += this.renderSharePermisionItem(node.visibleType, isBelongAccount);
     }
-    var $node = $('<div>' + shareHtml + '</div>');
-    $node.find('.updateTypeBtn').data('node', node);
-    return $node;
+    let $el = $('<div>' + shareHtml + '</div>');
+    $el.find('.updateTypeBtn').data('node', node);
+    return $el;
   },
   getNodeVisibleTypeText: function (node, isAccount) {
     var folderSelect = this;
     switch (node.visibleType) {
       case 1:
         return '文件未开启分享，他人无法查看';
-        break;
       case 4:
         return '任何人可查看';
-        break;
       default:
         return isAccount
           ? _l('%0的联系人可预览', folderSelect.settings.currentRoot.value)

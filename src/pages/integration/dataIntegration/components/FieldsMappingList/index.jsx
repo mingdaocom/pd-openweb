@@ -1,16 +1,16 @@
 import React, { useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Checkbox, Input, Support } from 'ming-ui';
+import { useState } from 'react';
 import { Select, Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { getIconByType, canSetAsTitle } from 'src/pages/widgetConfig/util';
+import styled from 'styled-components';
+import { Checkbox, Icon, Input, Support } from 'ming-ui';
+import { ALL_OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
+import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
+import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
+import { isNotSupportField } from '../../utils';
 import SelectType from './SelectType';
 import SetComment from './SetComment';
-import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
-import { ALL_OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
-import { useState } from 'react';
-import { isNotSupportField } from '../../utils';
 
 const Wrapper = styled.div`
   .headTr,
@@ -41,7 +41,7 @@ const Wrapper = styled.div`
       width: 20px;
       height: 20px;
       transform: rotate(-90deg);
-      color: #2196f3;
+      color: #1677ff;
     }
     .numberTips {
       width: 20px;
@@ -68,7 +68,7 @@ const Wrapper = styled.div`
         display: block;
         i {
           &:hover {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -128,9 +128,9 @@ const Wrapper = styled.div`
         margin-left: 8px;
       }
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         i {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -266,7 +266,7 @@ export default function FieldMappingList(props) {
         <div className="numberTips">
           {!sourceData.isDbType && !destData.isDbType && destField.mdType === 6 && (
             <Tooltip title={_l('数值最大支持16位数字')} placement="top">
-              <Icon icon="info1" className="Gray_bd mLeft5" />
+              <Icon icon="info" className="Gray_bd mLeft5" />
             </Tooltip>
           )}
         </div>
@@ -441,7 +441,7 @@ export default function FieldMappingList(props) {
         <div className="numberTips">
           {!destData.isDbType && destField.mdType === 6 && (
             <Tooltip title={_l('数值最大支持16位数字')} placement="top" autoAdjustOverflow={true}>
-              <Icon icon="info1" className="Gray_bd mLeft5" />
+              <Icon icon="info" className="Gray_bd mLeft5" />
             </Tooltip>
           )}
         </div>
@@ -486,12 +486,12 @@ export default function FieldMappingList(props) {
                 )}
                 {sourceField.isDelete && (
                   <div data-tip={_l('字段已删除')} className="tip-top">
-                    <Icon icon="info1" className="Red mLeft5" />
+                    <Icon icon="info" className="Red mLeft5" />
                   </div>
                 )}
                 {isNotSupport && (
                   <div data-tip={_l('暂不支持同步')} className="tip-top">
-                    <Icon icon="info1" className="Gray_bd mLeft5" />
+                    <Icon icon="info" className="Gray_bd mLeft5" />
                   </div>
                 )}
               </div>
@@ -562,7 +562,7 @@ export default function FieldMappingList(props) {
                 )}
                 {sourceField.isDelete && (
                   <div data-tip={_l('字段已删除')} className="tip-top">
-                    <Icon icon="info1" className="Red mLeft5" />
+                    <Icon icon="info" className="Red mLeft5" />
                   </div>
                 )}
                 {isNotSupport && (
@@ -626,7 +626,7 @@ export default function FieldMappingList(props) {
               const item = data.destField || {};
               return (
                 <div className={cx('isOperateCommonIcon', { isActive: !!item.comment })}>
-                  <div className="tip-left" data-tip={!!item.comment ? item.comment : _l('设置字段注释')}>
+                  <div className="tip-left" data-tip={item.comment ? item.comment : _l('设置字段注释')}>
                     <SetComment itemData={data} updateFieldsMapping={updateFieldsMapping} />
                   </div>
                 </div>
@@ -835,7 +835,7 @@ export default function FieldMappingList(props) {
                 {sourceField.isDelete && (
                   <Icon
                     className="deleteIcon"
-                    icon="delete1"
+                    icon="trash"
                     onClick={() => {
                       const newFieldsMapping = fieldsMapping.filter(item => item.sourceField.id !== sourceField.id);
                       setFieldsMapping(newFieldsMapping);

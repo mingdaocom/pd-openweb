@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { CustomScore } from 'ming-ui';
 import _ from 'lodash';
+import { CustomScore } from 'ming-ui';
 
 export default function ScoreDisplay({ data }) {
   let score = 0;

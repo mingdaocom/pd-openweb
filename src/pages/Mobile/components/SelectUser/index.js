@@ -74,13 +74,7 @@ export default class SelectUser extends Component {
       );
     }
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    if (this.state.selectedUsers.length !== nextState.selectedUsers.length) {
-      const { maxScrollTop } = this.selectedScrollViewEl.nanoScroller.nanoscroller;
-      $(this.selectedScrollViewEl.nanoScroller).nanoScroller({ scrollTop: maxScrollTop });
-    }
-    return true;
-  }
+
   requestContactUserList = () => {
     const { loading, isMore, users, searchValue, selectedUsers, portalUserVisible } = this.state;
     const {
@@ -148,7 +142,7 @@ export default class SelectUser extends Component {
           includeUndefinedAndMySelf,
           pageIndex,
           pageSize,
-          dataRange: 2,
+          dataRange: projectId ? 2 : 0,
           filterProjectId: '',
           includeSystemField: false,
           filterAccountIds,
@@ -187,16 +181,7 @@ export default class SelectUser extends Component {
     }
   };
   requestContactProjectDepartments = () => {
-    const {
-      loading,
-      depPageIndex,
-      pageSize,
-      departments,
-      isMoreDep,
-      onlyJoinDepartmentChecked = false,
-      department,
-      searchValue,
-    } = this.state;
+    const { depPageIndex, onlyJoinDepartmentChecked = false, department } = this.state;
     const { projectId, departrangetype = '0', filterAccountIds } = this.props;
 
     if (!onlyJoinDepartmentChecked && departrangetype !== '0') {
@@ -285,7 +270,7 @@ export default class SelectUser extends Component {
   handleSelectSubDepartment = (department, index) => {
     const { departmentId } = department;
     const { projectId, selectDepartmentType, allPath } = this.props;
-    const { departmentPath, loading, selectedUsers, rootData = [], treeData = [] } = this.state;
+    const { departmentPath, selectedUsers, rootData = [], treeData = [] } = this.state;
     const copyDepartmentPath =
       index || index === 0 ? departmentPath.slice(0, index + 1) : departmentPath.concat(department);
     if (index || index === 0) {
@@ -526,30 +511,31 @@ export default class SelectUser extends Component {
   // 已选择项
   renderSelected() {
     const { selectedUsers } = this.state;
+    if (_.isEmpty(selectedUsers)) return null;
+
     const { type, selectDepartmentType } = this.props;
     const name = type === 'user' ? 'fullname' : 'departmentName';
     const id = type === 'user' ? 'accountId' : 'departmentId';
+
     return (
-      <div className={cx('selectedWrapper', { hide: _.isEmpty(selectedUsers) })}>
-        <ScrollView style={{ maxHeight: 92, minHeight: 46 }} ref={el => (this.selectedScrollViewEl = el)}>
-          {selectedUsers.map(item => (
-            <span className="selectedItem" key={item[id]}>
-              <span className="ellipsis curSelected">{item[name]}</span>
-              {selectDepartmentType === 'all' && <Icon icon="workflow" className="Gray_9e mLeft5" />}
-              <Icon
-                icon="close"
-                className="Gray_9e Font15"
-                onClick={() => {
-                  const { selectedUsers } = this.state;
-                  this.setState({
-                    selectedUsers: selectedUsers.filter(user => user[id] !== item[id]),
-                  });
-                }}
-              />
-            </span>
-          ))}
-        </ScrollView>
-      </div>
+      <ScrollView className="selectedWrapper">
+        {selectedUsers.map(item => (
+          <span className="selectedItem" key={item[id]}>
+            <span className="ellipsis curSelected">{item[name]}</span>
+            {selectDepartmentType === 'all' && <Icon icon="workflow" className="Gray_9e mLeft5" />}
+            <Icon
+              icon="close"
+              className="Gray_9e Font15"
+              onClick={() => {
+                const { selectedUsers } = this.state;
+                this.setState({
+                  selectedUsers: selectedUsers.filter(user => user[id] !== item[id]),
+                });
+              }}
+            />
+          </span>
+        ))}
+      </ScrollView>
     );
   }
 
@@ -626,15 +612,14 @@ export default class SelectUser extends Component {
       onlyJoinDepartmentChecked,
       selectedAllUsers = [],
       selectUserDepPath,
-      oftenUsers,
       prefixUsers = [],
     } = this.state;
-    const { type, filterAccountIds = [], includeUndefinedAndMySelf, userType } = this.props;
+    const { projectId, type, filterAccountIds = [], includeUndefinedAndMySelf, userType } = this.props;
 
     if (departmentVisible) {
       return (
         <List
-          className="departmentWrapper flex flexColumn leftAlign"
+          className="departmentWrapper flex flexColumn leftAlign overflowHidden"
           header={
             type === 'user' ? (
               <div className="Font15">
@@ -723,7 +708,7 @@ export default class SelectUser extends Component {
                 <LoadDiv size="middle" />
               </div>
             ) : (
-              <ScrollView className="flex">
+              <ScrollView className="h100">
                 {departmentUsers.map(item =>
                   item.isDep ? this.renderSelectUserWithDepartmentItem(item) : this.renderSelectUserItem(item),
                 )}
@@ -733,7 +718,7 @@ export default class SelectUser extends Component {
               </ScrollView>
             )
           ) : (
-            <ScrollView className="flex">
+            <ScrollView className="h100">
               <div className="flexRow onlyShowJoinDepartment" onMouseDown={e => e.preventDefault()}>
                 <span className="onlySelf">{_l('只看我加入的部门')}</span>
                 <Switch checked={onlyJoinDepartmentChecked} onClick={this.onlyShowJoinDepartment} />
@@ -756,17 +741,19 @@ export default class SelectUser extends Component {
       <Fragment>
         <div className="conditionSelectBox">
           <List>
-            <List.Item
-              key="departmentSelect"
-              prefix={<Icon icon="department" className="selectIconBox TxtMiddle Font18 White" />}
-              arrowIcon={<Icon icon="arrow-right-border" className="Font18 Gray_75" />}
-              onClick={() => {
-                this.requestContactProjectDepartments();
-                this.setState({ departmentVisible: true });
-              }}
-            >
-              <div className="conditionSelectInfo">{_l('按部门选择')}</div>
-            </List.Item>
+            {projectId && (
+              <List.Item
+                key="departmentSelect"
+                prefix={<Icon icon="department" className="selectIconBox TxtMiddle Font18 White" />}
+                arrowIcon={<Icon icon="arrow-right-border" className="Font18 Gray_75" />}
+                onClick={() => {
+                  this.requestContactProjectDepartments();
+                  this.setState({ departmentVisible: true });
+                }}
+              >
+                <div className="conditionSelectInfo">{_l('按部门选择')}</div>
+              </List.Item>
+            )}
             {userType === 3 && (
               <List.Item
                 key="portalSelect"
@@ -808,71 +795,68 @@ export default class SelectUser extends Component {
       !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
 
     return (
-      <div className="flex">
-        <ScrollView onScrollEnd={this.requestContactUserList}>
-          {!isStatic && !selectRangeOptions && (userType === 1 || userType === 3) && this.renderDepartment()}
-          {/* 参与者 */}
-          {!_.trim(searchValue) && !!recordPartner.length && (
+      <ScrollView className="flex" onScrollEnd={this.requestContactUserList}>
+        {!isStatic && !selectRangeOptions && (userType === 1 || userType === 3) && this.renderDepartment()}
+        {/* 参与者 */}
+        {!_.trim(searchValue) && !!recordPartner.length && (
+          <Fragment>
+            <div
+              className="sortTitle oftenUserHeader"
+              onClick={() => {
+                this.setState({ isPartnerShow: !isPartnerShow });
+              }}
+            >
+              <span>{_l('参与者')}</span>
+              <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isPartnerShow ? 'rotatable' : ''}`} />
+            </div>
+            {isPartnerShow && <div>{recordPartner.map(item => this.renderSelectUserItem(item, 'partner'))}</div>}
+          </Fragment>
+        )}
+        {/* 最常协作 */}
+        {!_.trim(searchValue) && oftenUsers && oftenUsers.length > 0 && (
+          <Fragment>
+            <div
+              className="sortTitle oftenUserHeader"
+              onClick={() => {
+                this.setState({ isOftenUsersShow: !isOftenUsersShow });
+              }}
+            >
+              <span>{_l('最常协作')}</span>
+              <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isOftenUsersShow ? 'rotatable' : ''}`} />
+            </div>
+            {isOftenUsersShow && <div>{oftenUsers.map(item => this.renderSelectUserItem(item, 'often'))}</div>}
+          </Fragment>
+        )}
+        {isStatic || selectRangeOptions || userType === 2 ? null : <div className="sortTitle">A-Z</div>}
+        <div>
+          {loading && pageIndex === 1 ? (
+            <div className="pTop30 pBottom30">
+              <LoadDiv size="middle" />
+            </div>
+          ) : (
             <Fragment>
-              <div
-                className="sortTitle oftenUserHeader"
-                onClick={() => {
-                  this.setState({ isPartnerShow: !isPartnerShow });
-                }}
-              >
-                <span>{_l('参与者')}</span>
-                <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isPartnerShow ? 'rotatable' : ''}`} />
-              </div>
-              {isPartnerShow && <div>{recordPartner.map(item => this.renderSelectUserItem(item, 'partner'))}</div>}
+              {users.map(item => this.renderSelectUserItem(item, 'common'))}
+              {loading ? (
+                <div className="pTop10 pBottom10">
+                  <LoadDiv size="middle" />
+                </div>
+              ) : null}
+              {_.isEmpty(users) ? (
+                <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+              ) : null}
             </Fragment>
           )}
-          {/* 最常协作 */}
-          {!_.trim(searchValue) && oftenUsers && oftenUsers.length > 0 && (
-            <Fragment>
-              <div
-                className="sortTitle oftenUserHeader"
-                onClick={() => {
-                  this.setState({ isOftenUsersShow: !isOftenUsersShow });
-                }}
-              >
-                <span>{_l('最常协作')}</span>
-                <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isOftenUsersShow ? 'rotatable' : ''}`} />
-              </div>
-              {isOftenUsersShow && <div>{oftenUsers.map(item => this.renderSelectUserItem(item, 'often'))}</div>}
-            </Fragment>
-          )}
-          {isStatic || selectRangeOptions || userType === 2 ? null : <div className="sortTitle">A-Z</div>}
-          <div>
-            {loading && pageIndex === 1 ? (
-              <div className="pTop30 pBottom30">
-                <LoadDiv size="middle" />
-              </div>
-            ) : (
-              <Fragment>
-                {users.map(item => this.renderSelectUserItem(item, 'common'))}
-                {loading ? (
-                  <div className="pTop10 pBottom10">
-                    <LoadDiv size="middle" />
-                  </div>
-                ) : null}
-                {_.isEmpty(users) ? (
-                  <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
-                ) : null}
-              </Fragment>
-            )}
-          </div>
-        </ScrollView>
-      </div>
+        </div>
+      </ScrollView>
     );
   }
 
   renderPortalUsers = () => {
     const { loading, pageIndex, users = [] } = this.state;
-    const {} = this.props;
 
     return (
       <List
-        className="departmentWrapper flex flexColumn leftAlign"
+        className="departmentWrapper flex flexColumn leftAlign overflowHidden"
         header={
           <div className="Font15">
             <span
@@ -893,7 +877,7 @@ export default class SelectUser extends Component {
           </div>
         }
       >
-        <ScrollView onScrollEnd={this.requestContactUserList}>
+        <ScrollView className="h100" onScrollEnd={this.requestContactUserList}>
           <List>
             {loading && pageIndex === 1 ? (
               <div className="pTop30 pBottom30">
@@ -922,7 +906,7 @@ export default class SelectUser extends Component {
     const { departmentVisible, portalUserVisible } = this.state;
     const { userType = 1, type } = this.props;
     return (
-      <div className="flex flexColumn">
+      <div className="flexColumn h100">
         {((type === 'user' && !departmentVisible && !portalUserVisible) || type === 'department') &&
           this.renderSearch()}
         {this.renderSelected()}

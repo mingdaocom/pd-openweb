@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Button, ConfigProvider, Modal, Select, Tabs } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
@@ -195,9 +196,9 @@ export default class SheetModal extends Component {
     }
   };
   renderWorkSheetItem(sheet) {
-    const { newWorksheetId, viewId, viewsData } = this.state;
-    const { views = [], show } = viewsData[sheet.workSheetId] || {};
+    const { newWorksheetId } = this.state;
     const isActive = newWorksheetId === sheet.workSheetId;
+
     return (
       <Fragment key={sheet.workSheetId}>
         <div
@@ -215,7 +216,7 @@ export default class SheetModal extends Component {
             );
           }}
         >
-          <SvgIcon className="svgIconWrap" url={sheet.iconUrl} fill={isActive ? '#2196f3' : '#9e9e9e'} size={18} />
+          <SvgIcon className="svgIconWrap" url={sheet.iconUrl} fill={isActive ? '#1677ff' : '#9e9e9e'} size={18} />
           <span className={cx('bold mLeft8 ellipsis', { ThemeColor: isActive })}>{sheet.workSheetName}</span>
         </div>
       </Fragment>
@@ -271,7 +272,6 @@ export default class SheetModal extends Component {
       viewId,
       aggregationSheets,
       aggregationSheetsLoading,
-      appType,
       activeKey,
     } = this.state;
     return (
@@ -399,7 +399,7 @@ export default class SheetModal extends Component {
   renderFooter() {
     const { appId, sourceType, projectId } = this.props;
     const { newWorksheetId, sheets, viewId, viewsData, activeKey } = this.state;
-    const { views = [], show, loading } = viewsData[newWorksheetId] || {};
+    const { views = [], loading } = viewsData[newWorksheetId] || {};
     return (
       <div className="mTop20 mBottom10 pLeft8 pRight8 flexRow">
         <div className="flexRow flex alignItemsCenter">

@@ -41,7 +41,6 @@ class VersionList extends React.Component {
   };
 
   changeVersion = version => {
-    const versionId = version.versionId ? version.versionId : '';
     if (version.versionId === this.state.activeVersionId) {
       return;
     }

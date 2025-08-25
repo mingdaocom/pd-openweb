@@ -7,12 +7,12 @@ const isMobile = browserIsMobile();
 
 if (checkLogin()) {
   if (ret) {
-    location.href = `/${replenishRet(ret, pc_slide)}`;
+    location.replace(`/${replenishRet(ret, pc_slide)}`);
   } else {
     if (i) {
-      location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+      location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
     } else {
-      location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
+      location.replace(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`);
     }
   }
 } else {
@@ -30,15 +30,15 @@ if (checkLogin()) {
         getGlobalMeta().then(() => {
           setPssId(sessionId);
           if (ret) {
-            location.href = `/${replenishRet(ret, pc_slide)}`;
+            location.replace(`/${replenishRet(ret, pc_slide)}`);
           } else {
             if (i) {
-              location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+              location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
             } else {
               if (i) {
-                location.href = isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+                location.replace(isMobile || isPcSlide ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
               } else {
-                location.href = isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`;
+                location.replace(isMobile || isPcSlide ? `/mobile/dashboard` : `/dashboard`);
               }
             }
           }

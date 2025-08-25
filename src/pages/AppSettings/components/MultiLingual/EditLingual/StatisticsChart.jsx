@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import report from 'statistics/api/report';
@@ -20,9 +21,6 @@ const Wrap = styled.div`
         background-color: #f5f5f5;
       }
     }
-  }
-  .reportContent {
-    flex: 1;
   }
   .reportWrap {
     .reportName {
@@ -78,7 +76,9 @@ export default function StatisticsChart(props) {
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
         $(this).removeClass(className);
       });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
   };
 
   const renderReportNav = item => {
@@ -154,15 +154,13 @@ export default function StatisticsChart(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
         </div>
-        <ScrollView className="flex">
+        <ScrollView className="h100">
           {reportList.filter(report => report.name.includes(searchValue)).map(report => renderReportNav(report))}
         </ScrollView>
       </div>
-      <ScrollView className="reportContent" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">{reportList.map(report => renderReportContent(report))}</div>
       </ScrollView>
     </Wrap>

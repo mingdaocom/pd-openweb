@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { CARD_TYE_LIST } from 'src/pages/integration/config';
 import ConnectAvator from '../../components/ConnectAvator';
 import Card from './Card';
 import Item from './Item';
-import { CARD_TYE_LIST } from 'src/pages/integration/config';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   padding: 0 24px 24px;
@@ -31,8 +30,8 @@ const Wrap = styled.div`
     padding: 3px 19px;
     border-radius: 28px;
     &:hover {
-      color: #2196f3;
-      border: 1px solid #2196f3;
+      color: #1677ff;
+      border: 1px solid #1677ff;
     }
   }
 `;
@@ -61,7 +60,7 @@ export default function Set(props) {
     const getList = startEventId => {
       let data = flowNodeMap[startEventId];
       l.push(data);
-      if (!!flowNodeMap[data.nextId]) {
+      if (flowNodeMap[data.nextId]) {
         getList(data.nextId);
       }
     };

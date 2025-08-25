@@ -1,8 +1,8 @@
-import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
-import { SYST_PRINT, FILTER_SYS } from './config';
 import _ from 'lodash';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import appManagementAjax from 'src/api/appManagement';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
+import { FILTER_SYS, SYST_PRINT } from './config';
 
 export const isVisible = (control, useControlPermissions = false) => {
   const fieldPermission = control.fieldPermission || '111';
@@ -22,7 +22,7 @@ export const getShowControl = (controls = []) => {
   }
   let list = controls.map(control => {
     let { fieldPermission = '111' } = control;
-    const [visible, editable, canAdd] = fieldPermission.split('');
+    const [visible] = fieldPermission.split('');
     if (visible === '0') {
       return {
         ...control,

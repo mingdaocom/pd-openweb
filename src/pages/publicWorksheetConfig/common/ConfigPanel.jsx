@@ -25,7 +25,7 @@ const BackBtn = styled.span`
   width: 74px;
   text-align: center;
   line-height: 32px;
-  color: #2196f3;
+  color: #1677ff;
   background: #e3f2ff;
   border-radius: 32px;
   &:hover {
@@ -70,7 +70,7 @@ const PayButton = styled.div`
   line-height: 36px;
   margin-left: 10px;
   border-radius: 3px;
-  color: #2196f3;
+  color: #1677ff;
   background: #e3f2ff;
   font-weight: 700;
   cursor: pointer;
@@ -220,7 +220,7 @@ class ConfigPanel extends React.Component {
           {/* {!hidedControls.length && !disabledControls.length && (
             <TipBlock> {_l('点击右侧表单中字段上的隐藏按钮，被隐藏的字段将放置在这里')} </TipBlock>
           )} */}
-          <div className="flex" style={{ margin: '0 -20px', padding: '0 0 32px' }}>
+          <div className="flex minHeight0" style={{ margin: '0 -20px', padding: '0 0 32px' }}>
             <ScrollView>
               {loading && (
                 <div>

@@ -28,7 +28,6 @@ import FillSettings from './FillSettings';
 import ReceiptSettings from './ReceiptSettings';
 import SectionTitle from './SectionTitle';
 import WeChatEnhance from './WeChatEnhance';
-import WeChatSettings from './WeChatSettings';
 
 const NewDropdown = styled(Dropdown)`
   width: 250px;
@@ -514,7 +513,15 @@ class PublicConfig extends React.Component {
   }
 
   render() {
-    const { onClose, shareUrl, originalControls = [], addWorksheetControl, controls, worksheetSettings } = this.props;
+    const {
+      onClose,
+      shareUrl,
+      originalControls = [],
+      addWorksheetControl,
+      controls,
+      worksheetSettings,
+      worksheetInfo,
+    } = this.props;
     const {
       addControlVisible,
       activeTab,
@@ -619,6 +626,7 @@ class PublicConfig extends React.Component {
                   controls,
                 }}
                 setState={this.handleLinkSettingChange}
+                projectId={worksheetInfo.projectId}
               />
 
               {!md.global.SysSettings.hideWeixin && (
@@ -647,7 +655,7 @@ class PublicConfig extends React.Component {
           )}
           {activeTab === 2 && (
             <WeChatEnhance
-              worksheetInfo={this.props.worksheetInfo}
+              worksheetInfo={worksheetInfo}
               data={{
                 weChatSetting,
                 originalControls,
@@ -718,7 +726,7 @@ class PublicConfig extends React.Component {
                 { name: _l('浏览器'), key: 'browserControlId' },
                 { name: _l('设备'), key: 'deviceControlId' },
                 { name: _l('系统'), key: 'systemControlId' },
-              ].map((item, i) => (
+              ].map(item => (
                 <React.Fragment>
                   <div className="mBottom8">{item.name}</div>
                   <NewDropdown

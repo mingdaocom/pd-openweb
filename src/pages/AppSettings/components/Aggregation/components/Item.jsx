@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Switch } from 'antd';
 import cx from 'classnames';
@@ -30,7 +30,7 @@ const Wrap = styled.div`
     min-width: 0;
     background: #bdbdbd;
     &.isRun {
-      background: #2196f3;
+      background: #1677ff;
     }
     .iconTitle {
       color: #fff;
@@ -202,7 +202,7 @@ export default function ItemCard(props) {
         name: `${item.name}-${_l('复制')}`,
       },
       { isAggTable: true },
-    ).then(res => {
+    ).then(() => {
       onRefresh();
     });
   };
@@ -363,6 +363,7 @@ export default function ItemCard(props) {
       </div>
       <div className="flex mRight20 alignItemsCenter WordBreak minWidth100">
         <Tooltip
+          autoCloseDelay={0}
           text={
             <span className="InlineBlock WordBreak">
               {(item.datasources || []).map((o, i) => {
@@ -403,7 +404,7 @@ export default function ItemCard(props) {
             unCheckedChildren={_l('关闭%01019')}
             className="TxtMiddle tableSwitch mRight10"
             checked={item.taskStatus === TASK_STATUS_TYPE.RUNNING}
-            onChange={e => {
+            onChange={() => {
               if (!canEdit) return;
               changeTask(item.taskStatus);
             }}
@@ -417,6 +418,7 @@ export default function ItemCard(props) {
                 maxHeight: 300,
                 overflow: 'auto',
               }}
+              autoCloseDelay={0}
               text={<span className="InlineBlock WordBreak">{item.errorInfo}</span>}
             >
               <Icon type={'error'} className="Red Font16 TxtMiddle InlineBlock" />
@@ -512,7 +514,7 @@ export default function ItemCard(props) {
                 )}
                 {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
                   <MenuItem
-                    icon={<Icon icon={'delete1'} className="Red Font16" />}
+                    icon={<Icon icon={'trash'} className="Red Font16" />}
                     className="Red"
                     onClick={event => {
                       event.stopPropagation();
@@ -544,7 +546,7 @@ export default function ItemCard(props) {
             }}
           >
             <Icon
-              icon="task-point-more"
+              icon="more_horiz"
               className={cx(
                 'moreActive Hand Font20 mLeft6 Gray_9e ThemeHoverColor3',
                 showMoreOption && 'show ThemeColor3',

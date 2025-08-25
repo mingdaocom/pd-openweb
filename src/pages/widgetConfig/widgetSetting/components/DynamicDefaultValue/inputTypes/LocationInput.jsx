@@ -49,7 +49,7 @@ export default class LocationInput extends Component {
                     y: lat,
                     address,
                     title: name,
-                    coordinate: !!getMapConfig() ? 'wgs84' : null,
+                    coordinate: getMapConfig() ? 'wgs84' : null,
                   }),
                 },
               ]);

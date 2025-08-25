@@ -66,7 +66,7 @@ const ImportWrap = styled.div`
         color: #f51744;
       }
       .color_blue {
-        color: #2196f3;
+        color: #1677ff;
       }
       .importUploadModule {
         display: flex;
@@ -103,7 +103,7 @@ const ImportWrap = styled.div`
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        .icon-task_custom_excel_01 {
+        .icon-new_excel {
           font-size: 50px;
         }
         .uploadBtnStyle {
@@ -111,9 +111,9 @@ const ImportWrap = styled.div`
           width: 108px;
           height: 32px;
           border-radius: 32px;
-          border: 1px solid #2196f3;
+          border: 1px solid #1677ff;
           background-color: #ffffff;
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       .importBtn {
@@ -192,7 +192,7 @@ const ListErrorInfo = styled.div`
       color: #898989;
     }
     .primaryColor {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .errorList {
@@ -310,7 +310,7 @@ export default class ImportDeptAndRole extends Component {
     let { fileName } = this.state;
     return (
       <div className="importExcelBox" id="importExcelBox">
-        <span className={cx('icon-task_custom_excel_01', fileName ? 'color_gr' : 'color_d')} />
+        <span className={cx('icon-new_excel', fileName ? 'color_gr' : 'color_d')} />
         <span className="Font13 mTop10 color_dd">{fileName ? fileName : _l('支持 excel')}</span>
         <UploadFile
           fileName={fileName}
@@ -324,6 +324,7 @@ export default class ImportDeptAndRole extends Component {
   // 导入
   importAction = () => {
     const { importType } = this.props;
+    const { fileName } = this.state;
     this.setState({ importFileLoading: true });
     const _this = this;
     const callback = rsp => {
@@ -334,6 +335,7 @@ export default class ImportDeptAndRole extends Component {
         ticket: rsp.ticket,
         randstr: rsp.randstr,
         captchaType: md.global.getCaptchaType(),
+        originalFileName: fileName,
       };
       let promiseRequest =
         importType === 'position'
@@ -371,7 +373,7 @@ export default class ImportDeptAndRole extends Component {
             });
           }
         })
-        .catch(res => {
+        .catch(() => {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };
@@ -390,7 +392,7 @@ export default class ImportDeptAndRole extends Component {
         <div className="serialTitle mTop32">{_l('1.下载导入模版')}</div>
         <div className="importUploadModule">
           <div className="importUploadText">
-            <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
+            <span className="Font20 mRight10 mBottom2 icon-new_excel color_gr TxtMiddle" />
             <span className="Font17">{_l('导入%0模板', txt)}</span>
           </div>
           <a className="Font16 downloadBtn" href={downLoadUrl} target="_blank">
@@ -410,7 +412,7 @@ export default class ImportDeptAndRole extends Component {
   renderImportResult = () => {
     let { actionResultStatus, columns, resultDetail = {} } = this.state;
     const { failes = [], successCount } = resultDetail;
-    const { importExportType } = this.props;
+
     if (actionResultStatus === 1) {
       return (
         <SuccessInfo>
@@ -427,7 +429,7 @@ export default class ImportDeptAndRole extends Component {
       return (
         <ColErrorInfo>
           <div className="colErrorInfo">
-            <Icon icon="delete_out" className="errorIcon" />
+            <Icon icon="cancel" className="errorIcon" />
             <span>{_l('超出导入数量限制,单次导入上限1000行记录！')}</span>
           </div>
           <div className="backAct Hand" onClick={this.backAct}>
@@ -439,7 +441,7 @@ export default class ImportDeptAndRole extends Component {
       return (
         <ColErrorInfo>
           <div className="colErrorInfo">
-            <Icon icon="delete_out" className="errorIcon" />
+            <Icon icon="cancel" className="errorIcon" />
             <span>{_l('导入文件列名有误，请检查，或从导入模版中重新下载！')}</span>
           </div>
           <div className="backAct Hand" onClick={this.backAct}>
@@ -451,7 +453,7 @@ export default class ImportDeptAndRole extends Component {
       return (
         <ListErrorInfo>
           <div className="listErrorInfo">
-            <Icon icon="delete_out" className="errorIcon" />
+            <Icon icon="cancel" className="errorIcon" />
             <div>
               <div>{_l('导入错误，请检查！')}</div>
               <div className="Gray_89 Font14">
@@ -474,7 +476,7 @@ export default class ImportDeptAndRole extends Component {
     return (
       <ImportWrap>
         <div className="exportHeader">
-          <Icon icon="arrow_back" onClick={clickBackList} />
+          <Icon icon="backspace" onClick={clickBackList} />
           {_l('导入%0', txt)}
         </div>
         <div className="importContent">

@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Dialog, LoadDiv } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
 import attachmentAjax from 'src/api/attachment';
 import homeAppApi from 'src/api/homeApp';
@@ -16,6 +16,7 @@ import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
 import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
@@ -277,6 +278,10 @@ class PrintForm extends React.Component {
         });
         let _approval = [];
         list.forEach(item => {
+          item.processInfo.works.forEach(work => {
+            work.flowNode.name =
+              getTranslateInfo(appId, item.process.parentId, work.flowNode.id).nodename || work.flowNode.name;
+          });
           if (_approval.find(l => l.processId === item.process.parentId)) {
             let _index = _approval.findIndex(m => m.processId === item.process.parentId);
             _approval[_index].child.push({
@@ -459,7 +464,7 @@ class PrintForm extends React.Component {
       });
       receiveControls = replaceControlsTranslateInfo(appId, worksheetId, receiveControls);
 
-      let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type)); //去除 文本识别 43 接口查询按钮
+      let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type) && o.controlId !== 'wfcotime'); //去除 文本识别 43 接口查询按钮
       let attribute = dat.find(it => it.attribute === 1);
       let attributeName = !attribute ? _l('未命名') : renderCellText(attribute) || _l('未命名');
 
@@ -562,7 +567,7 @@ class PrintForm extends React.Component {
   };
 
   initWorkflow = () => {
-    const { params } = this.state;
+    const { appId, params } = this.state;
     const { id, workId } = params;
 
     document.title = _l('工作流打印');
@@ -589,9 +594,11 @@ class PrintForm extends React.Component {
                   ...this.state.printData,
                   workflow: result.works.map(item => {
                     item.checked = true;
+                    item.flowNode.name =
+                      getTranslateInfo(appId, result.parentId, item.flowNode.id).nodename || item.flowNode.name;
                     return item;
                   }),
-                  processName: result.processName,
+                  processName: getTranslateInfo(appId, null, result.parentId).name || result.processName,
                 },
               });
             });
@@ -710,7 +717,7 @@ class PrintForm extends React.Component {
         },
         saveControls: controls,
       })
-      .then(res => {
+      .then(() => {
         alert('保存成功');
         this.setState(
           {
@@ -742,7 +749,7 @@ class PrintForm extends React.Component {
           },
         );
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ saveLoading: false });
       });
   };
@@ -802,7 +809,7 @@ class PrintForm extends React.Component {
 
   renderShowPdf = () => {
     const { params, printData, showHeader, useWps, isHaveCharge, info, editLoading } = this.state;
-    const { fileTypeNum, allowDownloadPermission, from, projectId, worksheetId, allowEditAfterPrint, isBatch } = params;
+    const { fileTypeNum, allowDownloadPermission, from, projectId, allowEditAfterPrint, isBatch } = params;
     const allowDown = isHaveCharge || !allowDownloadPermission;
     const canEditFile =
       (from === fromType.FORM_SET ? _.get(info, 'roleType') === 2 && fileTypeNum !== 5 : allowEditAfterPrint) &&
@@ -868,7 +875,7 @@ class PrintForm extends React.Component {
         description: _l('当前有尚未保存的修改，你在离开页面前是否需要保存这些修改？'),
         cancelText: _l('否，放弃保存'),
         okText: _l('是，保存修改'),
-        onCancel: evt => {
+        onCancel: () => {
           !this.state.showSaveDia && this.props.onBack && this.props.onBack();
         },
         onOk: () => {
@@ -948,7 +955,6 @@ class PrintForm extends React.Component {
     const {
       params,
       printData,
-      isChange,
       showSaveDia,
       isLoading,
       error,
@@ -991,7 +997,7 @@ class PrintForm extends React.Component {
       handChange: this.handChange,
       params,
       systemControl,
-      controls: visibleControls.filter(control => control.type !== 42), // 除去 签名
+      controls: visibleControls.filter(control => control.type !== 42 && control.controlId !== 'wfcotime'), // 除去 签名
       signature: visibleControls.filter(control => control.type === 42), // 签名
       onCloseFn: this.onCloseFn,
       printData: {
@@ -1006,12 +1012,13 @@ class PrintForm extends React.Component {
       isUserAdmin: isUserAdmin,
       isHaveCharge: isHaveCharge,
     };
+    const isMobile = browserIsMobile();
 
     return (
       <div className="printTem">
         {showHeader && <Header {...data} />}
         {isDefault ? ( // 系统模板
-          <div className="printTemCon">
+          <div className={cx('printTemCon', { mobilePrintCon: isMobile })}>
             {type !== typeForCon.PREVIEW && <SideNav {...data} />}
             <Con {...data} />
             {showSaveDia && (

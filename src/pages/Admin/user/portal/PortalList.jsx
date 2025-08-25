@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import './index.less';
-import { LoadDiv, DatePicker, Icon, ScrollView, Dialog, Checkbox, Button, Dropdown, UserHead } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
+import { Button, Checkbox, DatePicker, Dialog, Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import ajaxRequest from 'src/api/externalPortal';
+import projectAjax from 'src/api/project';
 import Search from 'src/pages/workflow/components/Search';
 import PaginationWrap from '../../components/PaginationWrap';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
-import ajaxRequest from 'src/api/externalPortal';
-import projectAjax from 'src/api/project';
-import _ from 'lodash';
-import moment from 'moment';
+import './index.less';
 
 const DATE_TYPE = [
   { key: ['lastTimeStart', 'lastTimeTimeEnd'], text: _l('最近登录时间'), id: 'last' },
@@ -154,7 +154,7 @@ export default class PortalList extends Component {
    * 渲染列表
    */
   renderList() {
-    const { list, pageIndex, loading } = this.state;
+    const { list, loading } = this.state;
 
     if (list === null) return;
 
@@ -170,7 +170,7 @@ export default class PortalList extends Component {
     }
 
     return (
-      <ScrollView className="flex">
+      <ScrollView className="h100">
         {loading ? <LoadDiv className="mTop15" size="small" /> : list.map(item => this.renderListItem(item))}
       </ScrollView>
     );
@@ -269,7 +269,6 @@ export default class PortalList extends Component {
       list,
       selectedColumnIds,
       allowUpgradeExternalPortal,
-      expireDays,
       limitExternalUserCount,
       apps,
       appId,
@@ -392,7 +391,7 @@ export default class PortalList extends Component {
                       </span>
                       <span className="icon-arrow-down-border icon Gray_9e" id={`dateArrowIcon_${item.id}`} />
                       <span
-                        className="icon-delete_out icon Gray_9e Hidden"
+                        className="icon-cancel icon Gray_9e Hidden"
                         id={`dateDeleteIcon_${item.id}`}
                         onClick={e => {
                           e.stopPropagation();
@@ -436,7 +435,7 @@ export default class PortalList extends Component {
             <div
               className="pointer ThemeHoverColor3 pRight12"
               style={{ zIndex: 1 }}
-              onClick={() => this.updateState({ sortType: sortType === 10 ? 11 : 10 })}
+              onClick={() => this.updateState({ sortType: sortType === 11 ? 10 : 11 })}
             >
               {_l('注册时间')}
             </div>
@@ -449,7 +448,7 @@ export default class PortalList extends Component {
             <div
               className="pointer ThemeHoverColor3 pRight12"
               style={{ zIndex: 1 }}
-              onClick={() => this.updateState({ sortType: sortType === 20 ? 21 : 20 })}
+              onClick={() => this.updateState({ sortType: sortType === 21 ? 20 : 21 })}
             >
               {_l('最近登录时间')}
             </div>
@@ -461,7 +460,9 @@ export default class PortalList extends Component {
           <div className="w60 mRight20">{_l('操作')}</div>
         </div>
 
-        <div className="flex flexColumn mTop16">{loading ? <LoadDiv className="mTop15" /> : this.renderList()}</div>
+        <div className="flex flexColumn mTop16 overflowHidden">
+          {loading ? <LoadDiv className="mTop15" /> : this.renderList()}
+        </div>
         <PaginationWrap total={total} pageIndex={pageIndex} pageSize={this.state.pageSize} onChange={this.changPage} />
       </div>
     );

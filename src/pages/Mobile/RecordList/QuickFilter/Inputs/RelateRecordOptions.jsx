@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import worksheetAjax from 'src/api/worksheet';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { arrayOf, bool, func, shape } from 'prop-types';
-import { Option } from './Options';
 import _ from 'lodash';
+import { arrayOf, bool, func, shape } from 'prop-types';
+import worksheetAjax from 'src/api/worksheet';
+import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
+import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { Option } from './Options';
 
 const useCompare = value => {
   const ref = useRef(null);
@@ -22,7 +21,7 @@ const MAX_COUNT = 20;
 export default function RelateRecordOptions(props) {
   const {
     selected,
-    control,
+    control = {},
     multiple,
     onChange,
     onSetMoreVisible,
@@ -30,10 +29,10 @@ export default function RelateRecordOptions(props) {
     prefixRecords = [],
     staticRecords = [],
     formData,
+    parentWorksheetId,
   } = props;
   const { navshow } = advancedSetting;
   const [records, setRecords] = useState(staticRecords);
-  const [loading, setLoading] = useState(true);
   const newRecords = records.slice(0, 10);
   const isMore = records.length > newRecords.length;
 
@@ -45,7 +44,7 @@ export default function RelateRecordOptions(props) {
     if (control && control.advancedSetting.filters) {
       filterControls = getFilter({ control, formData });
     }
-    setLoading(true);
+
     const args = {
       worksheetId: control.dataSource,
       viewId: control.viewId,
@@ -54,13 +53,18 @@ export default function RelateRecordOptions(props) {
       pageIndex: 1,
       status: 1,
       isGetWorksheet: true,
-      getType: 7,
+      getType: 32,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
     if (navshow === '3') {
       args.filterControls = filterControls || [];
     }
+    if (parentWorksheetId && control.controlId && _.get(parentWorksheetId, 'length') === 24) {
+      args.relationWorksheetId = parentWorksheetId;
+      args.controlId = control.controlId;
+    }
     const res = await worksheetAjax.getFilterRows(args);
-    setLoading(false);
+
     setRecords(res.data);
   }
   useEffect(() => {

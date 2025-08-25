@@ -25,7 +25,7 @@ import {
   getCurrentValue,
   getDynamicValue,
 } from './formUtils.js';
-import { getParamsByConfigs, handleUpdateApi } from './searchUtils';
+import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from './searchUtils';
 import { formatControlToServer } from './utils.js';
 
 // 显隐、只读编辑等处理
@@ -135,6 +135,7 @@ const getSearchWorksheetData = async props => {
       id,
       getAllControls: true,
       sortControls: moreSort,
+      ...(_.get(window, 'shareState.shareId') ? { relationWorksheetId: queryConfig.worksheetId } : {}),
     };
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
@@ -205,7 +206,7 @@ const getRelateSearchResult = (control, searchResult, isMix) => {
 };
 
 // 查询工作表赋值
-const handleUpdateSearchResult = props => {
+const handleUpdateSearchResult = async props => {
   const { handleChange, queryConfig = {}, searchResult = [], formData = [], isMix, control } = props;
   const { configs = [], templates = {} } = queryConfig;
   const controls = _.get(templates[0] || {}, 'controls') || [];
@@ -213,90 +214,102 @@ const handleUpdateSearchResult = props => {
   if (control && _.includes([29, 35], control.type)) {
     const newVal = getRelateSearchResult(control, searchResult);
     handleChange(newVal, control.controlId, false);
-  } else {
-    configs.map(async item => {
-      const { pid, cid, subCid } = item;
-      const currentControl = control || _.find(formData, i => i.controlId === cid);
-      if (!pid && currentControl) {
-        // 关联记录赋值
-        if (_.includes([29, 35], currentControl.type)) {
-          const newVal = getRelateSearchResult(currentControl, safeParse(_.get(searchResult[0], [cid]) || '[]'), isMix);
-          handleChange(newVal, currentControl.controlId, false);
-          // 子表赋值
-        } else if (currentControl.type === 34) {
-          const subMapConfigs = isMix
-            ? configs.filter(i => i.cid === currentControl.controlId || i.pid === currentControl.controlId)
-            : configs;
-          const subResult = isMix
-            ? await getSubListData({
-                rowId: _.get(searchResult, '0.rowid'),
-                worksheetId: _.get(searchResult, '0.wsid'),
-                controlId: subCid,
-                pageSize: (searchResult[0] || {}).subCid,
-              })
-            : searchResult;
+    return true;
+  }
+  try {
+    await Promise.all(
+      configs.map(async item => {
+        const { pid, cid, subCid } = item;
+        const currentControl = control || _.find(formData, i => i.controlId === cid);
+        if (!pid && currentControl) {
+          // 关联记录赋值
+          if (_.includes([29, 35], currentControl.type)) {
+            const newVal = getRelateSearchResult(
+              currentControl,
+              safeParse(_.get(searchResult[0], [cid]) || '[]'),
+              isMix,
+            );
+            handleChange(newVal, currentControl.controlId, false);
+            // 子表赋值
+          } else if (currentControl.type === 34) {
+            const subMapConfigs = isMix
+              ? configs.filter(i => i.cid === currentControl.controlId || i.pid === currentControl.controlId)
+              : configs;
+            const subResult = isMix
+              ? await getSubListData({
+                  rowId: _.get(searchResult, '0.rowid'),
+                  worksheetId: _.get(searchResult, '0.wsid'),
+                  controlId: subCid,
+                  pageSize: (searchResult[0] || {}).subCid,
+                })
+              : searchResult;
 
-          const newValue = [];
-          if (subResult.length) {
-            subResult.forEach(item => {
-              let row = {};
-              subMapConfigs.map(({ cid = '', subCid = '' }) => {
-                const subItemControl = _.find(currentControl.relationControls || [], re => re.controlId === cid);
-                if (subItemControl) {
-                  if (subCid === 'rowid') {
-                    row[cid] =
-                      subItemControl.type === 29
-                        ? JSON.stringify([
-                            {
-                              sourcevalue: JSON.stringify(item),
-                              row: item,
-                              type: 8,
-                              sid: item.rowid,
-                            },
-                          ])
-                        : item.rowid;
-                    return;
+            const newValue = [];
+            if (subResult.length) {
+              subResult.forEach(item => {
+                let row = {};
+                subMapConfigs.map(({ cid = '', subCid = '' }) => {
+                  const subItemControl = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+                  if (subItemControl) {
+                    if (subCid === 'rowid') {
+                      row[cid] =
+                        subItemControl.type === 29
+                          ? JSON.stringify([
+                              {
+                                sourcevalue: JSON.stringify(item),
+                                row: item,
+                                type: 8,
+                                sid: item.rowid,
+                              },
+                            ])
+                          : item.rowid;
+                    } else {
+                      row[cid] = formatSearchResultValue({
+                        targetControl: _.find(controls, s => s.controlId === subCid),
+                        currentControl: subItemControl,
+                        controls,
+                        searchResult: item[subCid] || '',
+                      });
+                    }
                   }
-                  row[cid] = formatSearchResultValue({
-                    targetControl: _.find(controls, s => s.controlId === subCid),
-                    currentControl: subItemControl,
-                    controls,
-                    searchResult: item[subCid] || '',
+                });
+                //映射明细所有字段值不为空
+                if (_.some(Object.values(row), i => !_.isUndefined(i))) {
+                  newValue.push({
+                    ...row,
+                    rowid: `temprowid-${uuidv4()}`,
+                    allowedit: true,
+                    addTime: new Date().getTime(),
                   });
                 }
               });
-              //映射明细所有字段值不为空
-              if (_.some(Object.values(row), i => !_.isUndefined(i))) {
-                newValue.push({
-                  ...row,
-                  rowid: `temprowid-${uuidv4()}`,
-                  allowedit: true,
-                  addTime: new Date().getTime(),
-                });
-              }
+            }
+            handleChange(
+              {
+                action: 'clearAndSet',
+                isDefault: true,
+                rows: newValue,
+                fireWhenLoaded: true,
+              },
+              currentControl.controlId,
+              false,
+            );
+          } else {
+            const itemVal = formatSearchResultValue({
+              targetControl: _.find(controls, c => c.controlId === subCid),
+              currentControl: currentControl,
+              controls,
+              searchResult: (searchResult[0] || {})[subCid],
             });
+            handleChange(itemVal, currentControl.controlId, false);
           }
-          handleChange(
-            {
-              action: 'clearAndSet',
-              isDefault: true,
-              rows: newValue,
-              fireWhenLoaded: true,
-            },
-            currentControl.controlId,
-            false,
-          );
-        } else {
-          const itemVal = formatSearchResultValue({
-            targetControl: _.find(controls, c => c.controlId === subCid),
-            currentControl: currentControl,
-            controls,
-            searchResult: (searchResult[0] || {})[subCid],
-          });
-          handleChange(itemVal, currentControl.controlId, false);
         }
-      }
-    });
+      }),
+    );
+    return true;
+  } catch (error) {
+    console.log(error);
+    return true;
   }
 };
 
@@ -329,6 +342,7 @@ const getSearchWorksheetResult = async props => {
       id,
       getAllControls: true,
       sortControls: moreSort,
+      ...(_.get(window, 'shareState.shareId') ? { relationWorksheetId: currentSearchConfig.worksheetId } : {}),
     };
     if (window.isPublicWorksheet) {
       params.formId = window.publicWorksheetShareId;
@@ -418,7 +432,7 @@ const handleSearchApi = async props => {
     apkId: appId,
     apiTemplateId: dataSource,
     apiEventId: advancedSetting.apiEventId,
-    authId: advancedSetting.authaccount,
+    authId: dealAuthAccount(advancedSetting.authaccount, apiFormData),
     pushUniqueId: md.global.Config.pushUniqueId,
     actionType,
   };
@@ -457,7 +471,7 @@ const checkFiltersAvailable = async props => {
   const currentSpliceType = _.get(filters, [0, 'spliceType']);
 
   for (const f of filters) {
-    const { valueType, filterItems = [], advancedSetting = {}, dataSource } = f;
+    const { valueType, filterItems = [], advancedSetting = {} } = f;
 
     switch (valueType) {
       // 字段值
@@ -515,10 +529,9 @@ const triggerCustomActions = async props => {
     const { actionType, actionItems = [], message = '', advancedSetting = {}, dataSource } = a;
 
     switch (actionType) {
-      // 显示、隐藏
+      // 显示、隐藏、可编辑、只读
       case ACTION_VALUE_ENUM.SHOW:
       case ACTION_VALUE_ENUM.HIDE:
-      // 可编辑、只读
       case ACTION_VALUE_ENUM.EDIT:
       case ACTION_VALUE_ENUM.READONLY:
         const newRenderData = dealDataPermission({ ...props, actionItems, actionType });
@@ -545,96 +558,100 @@ const triggerCustomActions = async props => {
         break;
       // 设置字段值
       case ACTION_VALUE_ENUM.SET_VALUE:
-        let setCount = 0;
-        actionItems.forEach(async item => {
-          const control = _.find(formData, f => f.controlId === item.controlId);
-          if (control) {
-            // 已有记录关联列表不变更
-            const canNotSet =
-              control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
-            // 查询工作表单独更新
-            if (item.type === '2') {
-              const queryId = _.get(safeParse(item.value || '{}'), 'id');
-              const queryConfig = _.find(searchConfig, q => q.id === queryId);
-              const searchResult = await getSearchWorksheetData({ ...props, queryConfig, control });
-              if (!(searchResult === false || canNotSet || props.disabled)) {
-                handleUpdateSearchResult({ ...props, searchResult, queryConfig, control });
-              }
-              setCount += 1;
-            } else {
-              let value = getDynamicData(props, {
-                ...control,
-                advancedSetting: {
-                  // 当前人员需要
-                  ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
-                  [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
-                  defaulttype: item.type,
-                },
-              });
-              if (value !== control.value && !props.disabled && !canNotSet) {
-                if (control.type === 29) {
-                  try {
-                    const records = safeParse(value || '[]');
-                    if (_.isEmpty(records)) {
-                      value = 'deleteRowIds: all';
-                    } else {
-                      value = JSON.stringify(
-                        records.map(record => ({
-                          ...record,
-                          count: records.length,
-                        })),
-                      );
+        try {
+          await Promise.all(
+            actionItems.map(async item => {
+              const control = _.find(formData, f => f.controlId === item.controlId);
+              if (control) {
+                // 已有记录关联列表不变更
+                const canNotSet =
+                  control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
+                // 查询工作表单独更新
+                if (item.type === '2') {
+                  const queryId = _.get(safeParse(item.value || '{}'), 'id');
+                  const queryConfig = _.find(searchConfig, q => q.id === queryId);
+                  const searchResult = await getSearchWorksheetData({ ...props, queryConfig, control });
+                  if (!(searchResult === false || canNotSet || props.disabled)) {
+                    handleUpdateSearchResult({ ...props, searchResult, queryConfig, control });
+                  }
+                } else {
+                  let value = getDynamicData(props, {
+                    ...control,
+                    advancedSetting: {
+                      // 当前人员需要
+                      ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
+                      [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
+                      defaulttype: item.type,
+                    },
+                  });
+                  if (value !== control.value && !canNotSet) {
+                    if (control.type === 29) {
+                      try {
+                        const records = safeParse(value || '[]');
+                        if (_.isEmpty(records)) {
+                          value = 'deleteRowIds: all';
+                        } else {
+                          value = JSON.stringify(
+                            records.map(record => ({
+                              ...record,
+                              count: records.length,
+                            })),
+                          );
+                        }
+                      } catch (err) {
+                        console.log(err);
+                      }
                     }
-                  } catch (err) {
-                    console.log(err);
+                    if (control.type === 34) {
+                      try {
+                        const records = safeParse(value || '[]');
+                        value = {
+                          action: 'clearAndSet',
+                          isDefault: true,
+                          rows: records,
+                          fireWhenLoaded: true,
+                          isSetValueFromEvent: true,
+                        };
+                      } catch (err) {
+                        console.log(err);
+                      }
+                    }
+                    handleChange(value, item.controlId, control, false);
                   }
                 }
-                if (control.type === 34) {
-                  try {
-                    const records = safeParse(value || '[]');
-                    value = {
-                      action: 'clearAndSet',
-                      isDefault: true,
-                      rows: records,
-                      fireWhenLoaded: true,
-                    };
-                  } catch (err) {
-                    console.log(err);
-                  }
-                }
-                handleChange(value, item.controlId, control, false);
               }
-              setCount += 1;
-            }
-          } else {
-            setCount += 1;
-          }
-
-          if (setCount === actionItems.length) completeActionsCount += 1;
-        });
+            }),
+          );
+          completeActionsCount += 1;
+        } catch (error) {
+          console.log(error);
+          completeActionsCount += 1;
+        }
         break;
       // 刷新字段值
       case ACTION_VALUE_ENUM.REFRESH_VALUE:
-        if (!recordId) {
-          completeActionsCount += 1;
-          return;
-        }
-        let refreshCount = 0;
-        actionItems.forEach(async item => {
-          const control = _.find(formData, f => f.controlId === item.controlId);
-          if (control) {
-            const refreshResult = await sheetAjax.refreshSummary({
-              worksheetId,
-              rowId: recordId,
-              controlId: item.controlId,
-            });
-            handleChange(refreshResult, item.controlId, control, false);
-            refreshCount += 1;
-          } else {
-            refreshCount += 1;
+        try {
+          if (recordId && _.get(md, 'global.Account.accountId')) {
+            await Promise.all(
+              actionItems.map(async item => {
+                const control = _.find(formData, f => f.controlId === item.controlId);
+                if (control) {
+                  const refreshResult = await sheetAjax.refreshSummary({
+                    worksheetId,
+                    rowId: recordId,
+                    controlId: item.controlId,
+                  });
+                  handleChange(refreshResult, item.controlId, control, false);
+                }
+              }),
+            );
           }
-          if (refreshCount === actionItems.length) completeActionsCount += 1;
-        });
+
+          completeActionsCount += 1;
+        } catch (error) {
+          console.log(error);
+          completeActionsCount += 1;
+        }
         break;
       // 调用api、事件封装流程
       case ACTION_VALUE_ENUM.OPERATION_FLOW:
@@ -737,9 +754,11 @@ const triggerCustomActions = async props => {
         const queryConfig = _.find(searchConfig, q => q.id === queryId);
         const searchResult = await getSearchWorksheetData({ ...props, queryConfig });
         if (searchResult !== false) {
-          handleUpdateSearchResult({ ...props, searchResult, queryConfig, isMix: true });
+          const isComplete = await handleUpdateSearchResult({ ...props, searchResult, queryConfig, isMix: true });
+          if (isComplete) completeActionsCount += 1;
+        } else {
+          completeActionsCount += 1;
         }
-        completeActionsCount += 1;
         break;
     }
   }
@@ -752,7 +771,7 @@ const triggerCustomActions = async props => {
  * triggerType: 当前触发执行的事件类型
  */
 export const dealCustomEvent = props => {
-  const { triggerType, renderData = [], checkEventComplete } = props;
+  const { triggerType, renderData = [], checkEventComplete, isRecordLock } = props;
   const customEvent = safeParse(_.get(props, 'advancedSetting.custom_event'), 'array');
 
   // 以下情况不生效
@@ -761,7 +780,8 @@ export const dealCustomEvent = props => {
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicPage') ||
     _.get(window, 'shareState.isPublicQuery') ||
-    _.get(window, 'shareState.isPublicPrint')
+    _.get(window, 'shareState.isPublicPrint') ||
+    isRecordLock
   )
     return;
 
@@ -792,7 +812,10 @@ export const dealCustomEvent = props => {
           const completeActionsCount = await triggerCustomActions({ ...props, actions });
           // 执行完成
           if (completeActionsCount === actions.length && isBlurEvent) {
-            checkEventComplete({ [eventId]: false });
+            const eventTimer = setTimeout(() => {
+              checkEventComplete({ [eventId]: false });
+              clearTimeout(eventTimer);
+            }, 0);
           }
           return;
         }

@@ -1,6 +1,9 @@
-export const roleList = (state = {
-  data: [],
-}, action) => {
+export const roleList = (
+  state = {
+    data: [],
+  },
+  action,
+) => {
   switch (action.type) {
     case 'UPDATE_ROLE_LIST':
       return action.data;

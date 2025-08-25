@@ -1,15 +1,16 @@
 ﻿import React from 'react';
-import createTask from 'src/components/createTask/createTask';
-import createCalendar from 'src/components/createCalendar/createCalendar';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAway = createDecoratedComponent(withClickAway);
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import createCalendar from 'src/components/createCalendar/createCalendar';
+import createTask from 'src/components/createTask/createTask';
 import './postOperateList.css';
-import _ from 'lodash';
-import cx from 'classnames';
+
+const ClickAway = createDecoratedComponent(withClickAway);
 
 class FastCreateTaskSchedule extends React.Component {
   static propTypes = {
@@ -32,7 +33,7 @@ class FastCreateTaskSchedule extends React.Component {
     if (this.props.handFastCreate) {
       this.props.handFastCreate();
     }
-  }
+  };
 
   toggleCreateNewTask = () => {
     const selectText = _.clone(this.props.selectText);
@@ -44,7 +45,7 @@ class FastCreateTaskSchedule extends React.Component {
     if (this.props.handFastCreate) {
       this.props.handFastCreate();
     }
-  }
+  };
 
   render() {
     return (

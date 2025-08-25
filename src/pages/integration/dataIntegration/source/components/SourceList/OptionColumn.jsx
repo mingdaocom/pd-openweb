@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
 import dataSourceApi from '../../../../api/datasource';
 import { navigateTo } from 'src/router/navigateTo';
 
@@ -17,7 +17,7 @@ const Wrapper = styled.div`
     background-color: #fff;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background-color: #f5f5f5;
     }
   }
@@ -80,7 +80,7 @@ export default function OptionColumn(props) {
         }
       >
         <div className="optionIcon">
-          <Icon icon="task-point-more" className="Font18 pointer" />
+          <Icon icon="more_horiz" className="Font18 pointer" />
         </div>
       </Trigger>
 

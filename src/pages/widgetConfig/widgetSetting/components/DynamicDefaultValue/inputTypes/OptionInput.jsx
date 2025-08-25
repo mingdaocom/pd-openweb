@@ -1,14 +1,15 @@
-import React, { useState, useEffect, createRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { createRef, useEffect, useState } from 'react';
 import { Dropdown } from 'antd';
+import cx from 'classnames';
 import update from 'immutability-helper';
-import { DropdownContent, SettingItem } from '../../../../styled';
 import { find, head, includes, isEmpty } from 'lodash';
-import { SelectOtherField, OtherField, DynamicInput } from '../components';
-import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
-import { OptionControl } from '../styled';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { DropdownContent, SettingItem } from '../../../../styled';
+import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
+import { DynamicInput, OtherField, SelectOtherField } from '../components';
+import { OptionControl } from '../styled';
 
 export const DefaultOptionSetting = styled(SettingItem)`
   .holder {
@@ -66,7 +67,7 @@ export const DefaultOptionsMenu = styled(DropdownContent)`
     }
     i {
       font-size: 18px;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .colorWrap {
@@ -79,7 +80,7 @@ export const DefaultOptionsMenu = styled(DropdownContent)`
 
 export default function DefaultOptions(props) {
   const { data, dynamicValue, onDynamicValueChange, onChange, defaultType, from } = props;
-  const { type, default: defaultValue, enumDefault2, controlId, dataSource } = data;
+  const { type, default: defaultValue, enumDefault2, controlId } = data;
   const [visible, setVisible] = useState(false);
   const checkedValue = dynamicValue.map(item => item.staticValue);
   const colorful = enumDefault2 === 1;

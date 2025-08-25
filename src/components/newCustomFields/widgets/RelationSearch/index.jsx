@@ -1,7 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { useMeasure, useSetState } from 'react-use';
+import { useMeasure } from 'react-use';
 import cx from 'classnames';
-import _, { get, identity } from 'lodash';
+import _, { identity } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -81,7 +81,7 @@ const RecordTextAdd = styled(FlexCenter)`
   background: #f7f6f8;
   color: #9d9d9d;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -147,7 +147,9 @@ function getCoverUrl(coverId, record, controls) {
     return previewUrl.indexOf('imageView2') > -1
       ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
       : `${previewUrl}&imageView2/1/w/200/h/140`;
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   return;
 }
 
@@ -342,7 +344,6 @@ function RelationSearch(props) {
   const {
     isDialog,
     from,
-    flag,
     disabled,
     projectId,
     recordId,
@@ -352,7 +353,6 @@ function RelationSearch(props) {
     advancedSetting,
     enumDefault,
     enumDefault2,
-    isDraft,
   } = props;
 
   const control = { ...props };

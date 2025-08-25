@@ -1,9 +1,9 @@
-import ajaxRequest from 'src/api/appManagement';
-import homeAppAjax from 'src/api/homeApp';
 import { Dialog } from 'antd-mobile';
 import _ from 'lodash';
+import ajaxRequest from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
 
-export const getMembersList = (appId, roleId) => (dispatch, getState) => {
+export const getMembersList = appId => dispatch => {
   dispatch({ type: 'MOBILE_LIST_FETCH_START' });
   Promise.all([
     homeAppAjax.getApp({ appId }).then(),
@@ -77,7 +77,7 @@ export const exitRole =
           }
         } else {
           Dialog.alert({
-            content: _l('退出失败')
+            content: _l('退出失败'),
           });
         }
       });
@@ -116,7 +116,7 @@ export const addRoleMembers =
           dispatch(getMembersList(appId));
         } else {
           Dialog.alert({
-            content: _l('添加失败')
+            content: _l('添加失败'),
           });
         }
       });
@@ -140,7 +140,7 @@ export const transferApp =
           dispatch(getMembersList(appId));
         } else {
           Dialog.alert({
-            content: _l('托付失败')
+            content: _l('托付失败'),
           });
         }
       });

@@ -129,7 +129,7 @@ const VarNumberContainer = styled.div`
       }
       &:hover {
         i {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -197,7 +197,7 @@ const AppListContainer = styled.div`
         color: #bdbdbd;
         cursor: pointer;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -403,10 +403,10 @@ export default function VarAddOrEditModal(props) {
   };
 
   const drawerTitle = isEdit
-    ? !!appId
+    ? appId
       ? _l('编辑应用变量')
       : _l('编辑组织变量')
-    : !!appId
+    : appId
       ? _l('添加应用变量')
       : _l('添加组织变量');
 
@@ -430,6 +430,7 @@ export default function VarAddOrEditModal(props) {
               title={_l(
                 '仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。',
               )}
+              autoCloseDelay={0}
               placement="top"
             >
               <Icon icon="info_outline" className="Gray_bd mLeft8 pointer" />
@@ -466,9 +467,13 @@ export default function VarAddOrEditModal(props) {
                   size="small"
                   text={_l('掩码显示')}
                   checked={!!formData.maskType}
-                  onClick={() => setFormData({ maskType: !!formData.maskType ? 0 : 1 })}
+                  onClick={() => setFormData({ maskType: formData.maskType ? 0 : 1 })}
                 />
-                <Tooltip title={_l('在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看')} placement="topRight">
+                <Tooltip
+                  title={_l('在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看')}
+                  placement="topRight"
+                  autoCloseDelay={0}
+                >
                   <Icon icon="info_outline" className="Gray_bd mLeft4 pointer" />
                 </Tooltip>
               </div>

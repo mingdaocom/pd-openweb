@@ -104,7 +104,7 @@ export const chartNav = [
  * 处理 reportConfig.getReportConfigDetail 接口返回的数据
  */
 export function initConfigDetail(id, data, currentReport, customPageConfig) {
-  const { account, createdDate, controls, ...result } = data;
+  const { controls, ...result } = data;
   const { xaxes, displaySetup, summary, yaxisList, rightY, reportType, formulas } = result;
 
   // 图表 axis 需要的 controls
@@ -301,9 +301,6 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       result.summary.all = false;
     }
   }
-  if (data.appType === 2) {
-    result.displaySetup.showRowList = false;
-  }
 
   if (summary && _.isEmpty(summary.name)) {
     summary.name = _.find(normTypes, { value: summary.type }).text;
@@ -319,7 +316,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     }
   }
 
-  if (!_.isEmpty(currentReport)) {
+  if (!_.isEmpty(_.omit(currentReport, ['country']))) {
     result.name = currentReport.name;
     result.filter = currentReport.filter;
     result.formulas = currentReport.formulas;
@@ -357,6 +354,10 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       };
     }
     if (reportTypes.ScatterChart === reportType) {
+      result.displaySetup.showNumber = false;
+      result.displaySetup.showPileTotal = false;
+      result.displaySetup.hideOverlapText = false;
+      result.displaySetup.showDimension = false;
       result.yaxisList = currentReport.yaxisList.filter((n, index) => index < 3);
     }
     if (reportTypes.DualAxes === reportType) {
@@ -457,7 +458,7 @@ export const version = '6.5';
 export const getNewReport = ({ currentReport, worksheetInfo, base }) => {
   const { isPublic, sourceType, report = {} } = base;
   const newCurrentReport = _.cloneDeep(currentReport);
-  const { yaxisList, displaySetup, rightY, xaxes, pivotTable } = newCurrentReport;
+  const { rightY } = newCurrentReport;
 
   if (newCurrentReport.summary && _.isEmpty(newCurrentReport.summary.name)) {
     newCurrentReport.summary.name = _.find(normTypes, { value: newCurrentReport.summary.type }).text;
@@ -700,7 +701,7 @@ export const defaultDropdownScopeData = 18;
 /**
  * 处理数值图数据对比的周期文案
  */
-export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
+export const formatContrastTypes = ({ rangeType, today }) => {
   let base = [];
   switch (rangeType) {
     case 1:
@@ -718,7 +719,9 @@ export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
         base.push({ text: _l('上周'), value: 3, ignoreToday: true });
         base.push({ text: _l('上周同期'), value: 3 });
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+        base.push({ text: _l('去年同期'), value: 2 });
       }
+      break;
     case 5:
     case 6:
       base.push({ text: _l('去年同期'), value: 2 });
@@ -729,7 +732,9 @@ export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
         base.push({ text: _l('上月'), value: 4, ignoreToday: true });
         base.push({ text: _l('上月同期'), value: 4 });
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+        base.push({ text: _l('去年同期'), value: 2 });
       }
+      break;
     case 9:
     case 10:
       base.push({ text: _l('去年同期'), value: 2 });
@@ -740,7 +745,9 @@ export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
         base.push({ text: _l('上一季度'), value: 6, ignoreToday: true });
         base.push({ text: _l('与上一季度同期'), value: 6 });
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
+        base.push({ text: _l('去年同期'), value: 2 });
       }
+      break;
     case 12:
     case 13:
       base.push({ text: _l('去年同期'), value: 2 });
@@ -750,6 +757,7 @@ export const formatContrastTypes = ({ rangeType, rangeValue, today }) => {
       if (today) {
         base.push({ text: _l('去年'), value: 2, ignoreToday: true });
       }
+      break;
     case 16:
     case 17:
       base.push({ text: _l('去年同期'), value: 2 });
@@ -1520,7 +1528,7 @@ const fillTranslate = (result, pageId) => {
     } else {
       return result.appId;
     }
-  }
+  };
   const translateValueMap = (dataSource, controlId) => {
     const valueMapTranslateInfo = getTranslateInfo(appId, null, dataSource);
     if (!_.isEmpty(valueMapTranslateInfo)) {
@@ -1598,7 +1606,7 @@ const fillTranslate = (result, pageId) => {
   }
   if (result.valueMap) {
     for (let controlId in result.valueMap) {
-      const valueMapTranslateInfo = getTranslateInfo(appId, parentId, controlId);
+      const valueMapTranslateInfo = getTranslateInfo(appId, result.appId, controlId);
       if (!_.isEmpty(valueMapTranslateInfo)) {
         const map = result.valueMap[controlId];
         for (let key in map) {
@@ -1616,7 +1624,7 @@ const fillTranslate = (result, pageId) => {
  * 配置掩码
  */
 const fillDealMaskValueMap = result => {
-  const { xaxes, reportType } = result;
+  const { xaxes } = result;
   const advancedSetting = xaxes.advancedSetting || {};
 
   if (advancedSetting.datamask === '1') {
@@ -1681,16 +1689,7 @@ export const mergeReportData = (currentReport, result, id) => {
  * 根据配置信息获取已经选择的控件id
  */
 export const getAlreadySelectControlId = currentReport => {
-  const {
-    reportType,
-    xaxes = {},
-    yaxisList = [],
-    split = {},
-    config = {},
-    pivotTable,
-    rightY,
-    formulas,
-  } = currentReport;
+  const { reportType, xaxes = {}, yaxisList = [], split = {}, config = {}, pivotTable, rightY } = currentReport;
   const rightYaxisList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
   const rightSplitId = rightY ? rightY.split.controlId : null;
   let alreadySelectControlId = yaxisList.map(item => item.controlId);
@@ -1847,7 +1846,7 @@ export const timeDataParticle = [
       return moment().format('YYYY/MM');
     },
   },
-  { text: _l('周'), value: 2, getTime: showFormat => moment().format('YYYY[W]WW') },
+  { text: _l('周'), value: 2, getTime: () => moment().format('YYYY[W]WW') },
   {
     text: _l('日'),
     value: 1,
@@ -1973,10 +1972,26 @@ export const filterTimeParticleSizeDropdownData = (showtype, controlType) => {
  * 地区控件的粒度
  */
 export const areaParticleSizeDropdownData = [
+  { text: _l('国家'), value: 4 },
   { text: _l('省'), value: 1 },
   { text: _l('市'), value: 2 },
   { text: _l('区/县'), value: 3 },
 ];
+
+export const filterAreaParticleSizeDropdownData = axis => {
+  const { type, advancedSetting } = axis;
+  const chooserange = _.get(advancedSetting, 'chooserange');
+  if (type === 19) {
+    return areaParticleSizeDropdownData.filter(a => ![2, 3, 4].includes(a.value));
+  }
+  if (type === 23 || (chooserange && chooserange !== 'CN')) {
+    return areaParticleSizeDropdownData.filter(a => ![3, 4].includes(a.value));
+  }
+  if (chooserange === '') {
+    return areaParticleSizeDropdownData.filter(a => ![3].includes(a.value));
+  }
+  return areaParticleSizeDropdownData.filter(a => ![4].includes(a.value));
+};
 
 /**
  * 地区控件的粒度
@@ -1995,7 +2010,7 @@ export const cascadeParticleSizeDropdownData = [
 export const filterDisableParticleSizeTypes = (targetId, array) => {
   return array
     .filter(item => {
-      const [id, type] = item.split('-');
+      const [id] = item.split('-');
       return id === targetId;
     })
     .map(item => Number(item.split('-')[1]));
@@ -2111,7 +2126,7 @@ export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter, tod
     const endUnitText = [5, 6].includes(endType) ? `${endCount}${_.find(unitTypes, { value: endUnit }).name}` : '';
     return _l('%0至%1', start + startUnitText, end + endUnitText);
   } else if (rangeType === 24) {
-    const [year, month] = rangeValue.split(':');
+    const [year] = rangeValue.split(':');
     return _.find(fiscalYearData, { value: Number(year) }).text;
   } else {
     return [4, 8, 11, 15, 18, 19].includes(rangeType) && today ? `${text}${_l('至今天')}` : text;

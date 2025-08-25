@@ -83,7 +83,6 @@ export default ({
   item,
   errorItems,
   uniqueErrorItems,
-  customErrorItems = [],
   loadingItems,
   widgetStyle = {},
   disabled,
@@ -167,13 +166,14 @@ export default ({
             action={['click']}
             popupPlacement={'topLeft'}
             offset={[-12, 0]}
+            autoCloseDelay={0}
           >
-            <i className="icon-workflow_error pointer Font16 Gray_9e mBottom10" />
+            <i className="icon-info_outline pointer Font16 Gray_9e mBottom10" />
           </Tooltip>
         )}
 
         {!item.showTitle && errorMessage && (
-          <div className="customFormErrorMessage">
+          <div className={cx('customFormErrorMessage', { ignoreErrorMessage: currentErrorItem.ignoreErrorMessage })}>
             <span>
               {errorMessage}
               <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
@@ -188,7 +188,12 @@ export default ({
   return (
     <Fragment>
       {errorMessage && (
-        <div className={cx('customFormErrorMessage', { isChildTable: item.type === 34 })}>
+        <div
+          className={cx('customFormErrorMessage', {
+            isChildTable: item.type === 34,
+            ignoreErrorMessage: currentErrorItem.ignoreErrorMessage,
+          })}
+        >
           <span>
             {errorMessage}
             <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />

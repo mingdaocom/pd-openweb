@@ -1,14 +1,16 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './CheckBlock.less';
 
 export default class CheckBlock extends React.Component {
   static propTypes = {
-    data: PropTypes.arrayOf(PropTypes.shape({
-      text: PropTypes.string,
-      value: PropTypes.number,
-    })),
+    data: PropTypes.arrayOf(
+      PropTypes.shape({
+        text: PropTypes.string,
+        value: PropTypes.number,
+      }),
+    ),
     value: PropTypes.number,
     onChange: PropTypes.func,
   };
@@ -19,15 +21,14 @@ export default class CheckBlock extends React.Component {
 
   render() {
     const { data, value, onChange } = this.props;
-    return <div className="checkBlock">
-      {
-        data.map(item => <div
-          className={cx('block', { active: item.value === value })}
-          onClick={() => (onChange(item.value))}
-        >
-          { item.text }
-        </div>)
-      }
-    </div>;
+    return (
+      <div className="checkBlock">
+        {data.map(item => (
+          <div className={cx('block', { active: item.value === value })} onClick={() => onChange(item.value)}>
+            {item.text}
+          </div>
+        ))}
+      </div>
+    );
   }
 }

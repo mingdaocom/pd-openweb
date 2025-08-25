@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import registerAjax from 'src/api/register';
 
@@ -26,9 +26,7 @@ export default function createPermissionCheckWrapper(Comp) {
         if (able) {
           setLoading(false);
         } else {
-          setError(
-            _l('抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！'),
-          );
+          setError(_l('抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！'));
           setLoading(false);
         }
       });
@@ -41,7 +39,7 @@ export default function createPermissionCheckWrapper(Comp) {
     if (error) {
       return (
         <Abnormal>
-          <i className="icon-task-folder-message"></i>
+          <i className="icon-error1"></i>
           <div className="mTop10">{error}</div>
         </Abnormal>
       );

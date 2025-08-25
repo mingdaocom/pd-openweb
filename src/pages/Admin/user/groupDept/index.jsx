@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import Config from '../../config';
-import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import Config from '../../config';
 import GroupsList from './GroupList';
 import MemberList from './MemberList';
 import './index.less';

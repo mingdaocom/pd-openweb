@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import ProcessBar from './ProcessBar';
 import cx from 'classnames';
-import config from './config';
-import { durDays, parseTime } from './time';
 import moment from 'moment';
+import ProcessBar from './ProcessBar';
+import { durDays, parseTime } from './time';
 
 /**
  * 根据最早开始时间和实际起止时间计算时间跨度
@@ -89,7 +87,7 @@ export default class GraphContent extends Component {
             className={cx('processBox flexRow')}
             onClick={() => this.props.showDetail(item.taskID)}
             onMouseOver={e => handleTaskItemHover(true, e)}
-            onMouseOut={e => handleTaskItemHover(false)}
+            onMouseOut={() => handleTaskItemHover(false)}
           >
             <div>
               {!!expectWidth && (
@@ -100,13 +98,21 @@ export default class GraphContent extends Component {
 
               {!!actualWidth && (
                 <div className="actualProcess">
-                  <ProcessBar width={actualWidth} left={actualLeft} className="actualBar" state={actualState} status={status} />
+                  <ProcessBar
+                    width={actualWidth}
+                    left={actualLeft}
+                    className="actualBar"
+                    state={actualState}
+                    status={status}
+                  />
                 </div>
               )}
             </div>
             <div className="taskName ellipsis">{item.taskName}</div>
           </div>
-          {item.child && item.childrenVisible && <div className="childrenProcess">{this.renderProcess(item.child)}</div>}
+          {item.child && item.childrenVisible && (
+            <div className="childrenProcess">{this.renderProcess(item.child)}</div>
+          )}
         </div>
       );
     });

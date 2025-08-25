@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { WidgetContent } from '../components';
-import { replaceColor, isLightColor, getIconByType, getComponentTitleText } from '../util';
+import { getComponentTitleText, getIconByType, isLightColor, replaceColor } from '../util';
 
 const MobileList = styled.div`
   box-sizing: border-box;
@@ -89,7 +89,6 @@ const dealComponents = (components = []) => {
   const visibleComponents = [];
   components.forEach(item => {
     const { mobile = {} } = item;
-    // eslint-disable-next-line no-unused-expressions
     mobile.visible ? visibleComponents.push(item) : hidedComponents.push(item);
   });
   return { hidedComponents, visibleComponents };
@@ -100,7 +99,8 @@ export default function MobileLayout(props) {
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || apk.iconColor);
   const bgIsDark = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
   const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
-  const backgroundColor = appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
+  const backgroundColor =
+    appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
 
   return (
     <Fragment>
@@ -109,14 +109,14 @@ export default function MobileLayout(props) {
         {hidedComponents.length > 0 ? (
           <ul>
             {hidedComponents.map(
-              (item, index) =>
+              item =>
                 !item.mobile.visible && (
                   <li onClick={() => updateWidgetVisible({ widget: item, layoutType: 'mobile' })}>
                     <i className={`icon-${getIconByType(item.type)} Gray_75`}></i>
                     <div className="name overflow_ellipsis">{getComponentTitleText(item)}</div>
                     <i className="icon-add add"></i>
                   </li>
-                )
+                ),
             )}
           </ul>
         ) : (
@@ -137,17 +137,12 @@ export default function MobileLayout(props) {
             '--widget-color': pageConfig.widgetBgColor,
             '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
             '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
-            '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#2196f3',
+            '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#1677ff',
           }}
         >
           <div className="mobileBox Relative">
             <div className="mobileContent">
-              <WidgetContent
-                {...props}
-                layoutType="mobile"
-                components={visibleComponents}
-                config={pageConfig}
-              />
+              <WidgetContent {...props} layoutType="mobile" components={visibleComponents} config={pageConfig} />
             </div>
           </div>
         </div>

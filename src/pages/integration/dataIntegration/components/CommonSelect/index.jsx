@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
-import styled from 'styled-components';
 import { Select } from 'antd';
-import _ from 'lodash';
+import styled from 'styled-components';
 
 const SelectWrapper = styled.div`
   .selectItem {

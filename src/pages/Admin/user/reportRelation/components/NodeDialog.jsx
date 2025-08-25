@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import StructureController from 'src/api/structure';
@@ -99,7 +100,6 @@ function NodeDialogWrap(props) {
   const { user, handleClose, auth, selectSearchUser, id } = props;
 
   const [data, setData] = useState([]);
-  const [fIds, setFids] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -113,7 +113,6 @@ function NodeDialogWrap(props) {
       accountId: user.accountId,
     }).then(res => {
       setLoading(false);
-      setFids(res.map(l => l.accountId));
       if (res.length === 0) {
         setData([]);
         return;
@@ -159,7 +158,7 @@ function NodeDialogWrap(props) {
       parentId: id || '',
     }).then(({ pagedDatas }) => {
       let newUsers = {};
-      pagedDatas.forEach((l, index) => {
+      pagedDatas.forEach(l => {
         newUsers[l.accountId] = {
           ...l,
           id: l.accountId,

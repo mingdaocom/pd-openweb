@@ -319,9 +319,12 @@ export const getAdvanceSetting = (data, key) => {
   if (!key) return setting;
   let value = get(setting, key);
   if (isArray(value) || isObject(value)) return value;
+  if (!value) return '';
+
   try {
     return JSON.parse(value);
   } catch (error) {
+    console.log(error);
     return '';
   }
 };
@@ -463,7 +466,7 @@ export const getSectionWidgets = widgets => {
 
 // 搜索忽略大小写
 export function SearchFn(keywords = '', value = '') {
-  return value.search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1;
+  return value.search(new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1;
 }
 
 // 汇总是否显示单位及小数点配置
@@ -495,6 +498,7 @@ export const supportSettingCollapse = (props, key) => {
     enumDefault,
     enumDefault2,
     globalSheetInfo = {},
+    sourceControl = {},
   } = data;
 
   // 回收站只显示基础设置
@@ -534,7 +538,7 @@ export const supportSettingCollapse = (props, key) => {
         case 51:
           return enumDefault === 2 && advancedSetting.querytype !== '1';
         case 53:
-          return _.includes([2, 6, 15, 16], enumDefault2);
+          return _.includes([2, 6], enumDefault2);
         default:
           if (_.includes([2, 6, 46, 10], type) && isCustom) return false;
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
@@ -547,11 +551,7 @@ export const supportSettingCollapse = (props, key) => {
         (type === 6 && advancedSetting.showtype !== '2')
       );
     case 'relate':
-      return (
-        from !== 'subList' &&
-        globalSheetInfo.worksheetId !== dataSource &&
-        (type === 29 || (type === 34 && !dataSource.includes('-') && advancedSetting.detailworksheettype !== '2'))
-      );
+      return from !== 'subList' && globalSheetInfo.worksheetId !== dataSource && type === 29 && sourceControl.controlId;
     case 'permission':
       return true;
     case 'mobile':
@@ -568,11 +568,11 @@ export const supportSettingCollapse = (props, key) => {
 // 设置、样式、说明、事件
 export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle = false) => {
   // 回收站不显示样式、说明
-  if (isRecycle && _.includes([2, 3, 4], introType)) return false;
+  if (isRecycle) return false;
   // 分段、他表、标签页
   if (_.includes([22, 30, 52], data.type) && introType === 2) return false;
-  // 子表不支持事件
-  if ((from === 'subList' || data.type === 34) && introType === 4) return false;
+  // 子表内不支持事件
+  if (from === 'subList' && introType === 4) return false;
 
   return true;
 };

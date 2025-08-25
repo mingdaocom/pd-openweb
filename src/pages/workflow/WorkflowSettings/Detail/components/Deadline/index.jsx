@@ -1,9 +1,8 @@
 import React, { Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
-import { TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
 import Time from 'ming-ui/components/NewTimePicker';
+import { TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
 import SpecificFieldsValue from '../SpecificFieldsValue';
-import _ from 'lodash';
 
 export default ({ projectId, processId, relationId, selectNodeId, data, text, minDate, onChange }) => {
   const UNIT_List = [

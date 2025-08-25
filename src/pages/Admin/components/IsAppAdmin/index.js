@@ -1,9 +1,9 @@
 import React from 'react';
-import { Icon, SvgIcon } from 'ming-ui';
-import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { checkIsAppAdmin } from 'ming-ui/functions';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
+import { checkIsAppAdmin } from 'ming-ui/functions';
+import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 
 const Wrap = styled.div`
   .iconWrap {

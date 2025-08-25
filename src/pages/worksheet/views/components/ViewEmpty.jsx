@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/utils/common';
@@ -10,7 +10,7 @@ const ViewEmptyWrap = styled.div`
   justify-content: center;
   &.empty {
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .iconCon {

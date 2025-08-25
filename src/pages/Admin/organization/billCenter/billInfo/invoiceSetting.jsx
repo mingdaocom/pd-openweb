@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import cx from 'classnames';
-import { Dialog, Input, RadioGroup, Button } from 'ming-ui';
-import projectAjax from 'src/api/project';
 import { useSetState } from 'react-use';
-import { invoiceConfig, newInvoiceConfig } from './config';
+import cx from 'classnames';
 import styled from 'styled-components';
-import { find, get } from 'lodash';
+import { Button, Dialog, Input, RadioGroup } from 'ming-ui';
+import projectAjax from 'src/api/project';
+import { invoiceConfig, newInvoiceConfig } from './config';
 
 const InvoiceSettingWrap = styled.ul`
   display: flex;
@@ -43,8 +42,6 @@ const InvoiceContentWrap = styled.div`
 const SaveInvoice = styled.div`
   text-align: right;
 `;
-
-const commonRequire = ['address', 'contactPhone', 'email'];
 
 export default function InvoiceSetting(props) {
   const { projectId, onClose } = props;

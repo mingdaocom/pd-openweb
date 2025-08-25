@@ -1,18 +1,18 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-import _ from 'lodash';
-import cx from 'classnames';
-import { UserHead } from 'ming-ui';
-import postEnum from '../../../constants/postEnum';
-import { addFavorite, removeFavorite, addLike, removeLike } from '../../../redux/postActions';
 import { connect } from 'react-redux';
-import PostUsernameGroup from './postUsernameGroup';
-import PostMain from './postMain';
-import PostFooter from './postFooter';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { UserHead } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
+import postEnum from '../../../constants/postEnum';
+import { addFavorite, addLike, removeFavorite, removeLike } from '../../../redux/postActions';
 import PostCommentList from '../comment/postCommentList';
+import PostFooter from './postFooter';
+import PostMain from './postMain';
 import PostOperator from './postOperator';
+import PostUsernameGroup from './postUsernameGroup';
 
 /**
  * 动态卡片内部内容, 包括动态、相应类型动态的附加信息、操作项、回复/标签等
@@ -269,4 +269,4 @@ class PostBody extends React.Component {
     );
   }
 }
-export default connect(state => ({}))(PostBody);
+export default connect()(PostBody);

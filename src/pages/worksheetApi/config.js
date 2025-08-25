@@ -137,7 +137,7 @@ export const DATA_RELATIONS_SUCCESS_DATA = {
   error_code: 1,
 };
 
-export const DATA_PIPELINE_MENUS = ['Table', 'List', 'GetDetail', 'GetDetailPost', 'TotalNum'];
+export const DATA_PIPELINE_MENUS = ['FieldTable', 'ViewTable', 'List', 'GetDetail', 'GetDetailPost', 'TotalNum'];
 export const DATA_PIPELINE_FILTERS = {
   List: ['viewId', 'listType'],
   TotalNum: ['viewId'],
@@ -145,8 +145,28 @@ export const DATA_PIPELINE_FILTERS = {
 
 export const MENU_LIST = [
   {
-    id: 'Table',
+    id: 'FieldTable',
     title: _l('字段对照表'),
+    btnText: _l('设置字段别名'),
+    type: 'control',
+    fields: [
+      { key: 'controlId', text: _l('字段ID'), className: 'w22' },
+      { key: 'controlName', text: _l('字段名称'), className: 'w18 mLeft30' },
+      { key: 'type', text: _l('类型'), className: 'w14 mLeft30' },
+      { key: 'numberType', text: _l('控件类型编号'), className: 'w14 mLeft30' },
+      { key: 'desc', text: _l('说明'), className: 'w32 mLeft30' },
+    ],
+  },
+  {
+    id: 'ViewTable',
+    title: _l('视图对照表'),
+    btnText: _l('设置视图别名'),
+    type: 'view',
+    fields: [
+      { key: 'viewId', text: _l('视图ID'), className: 'w46' },
+      { key: 'name', text: _l('视图名称'), className: 'w32 mLeft30' },
+      { key: 'viewType', text: _l('类型'), className: 'w22 mLeft30' },
+    ],
   },
   {
     id: 'List',
@@ -171,13 +191,19 @@ export const MENU_LIST = [
         name: 'pageSize',
         required: _l('是'),
         type: 'number',
-        desc: _l('行数'),
+        desc: _l('行数，最大为1000'),
       },
       {
         name: 'pageIndex',
         required: _l('是'),
         type: 'number',
         desc: _l('页码'),
+      },
+      {
+        name: 'keyWords',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('关键字模糊搜索'),
       },
       {
         name: 'sortId',
@@ -227,6 +253,7 @@ export const MENU_LIST = [
       viewId: _l('视图ID,可为空'),
       pageSize: 50,
       pageIndex: 1,
+      keyWords: '',
       listType: 0,
       controls: [],
     },
@@ -272,9 +299,16 @@ export const MENU_LIST = [
         type: 'boolean',
         desc: _l('是否触发工作流(默认: true)'),
       },
+      {
+        name: 'returnRowIds',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('true：返回批量增加的rowIds，false返回时成功的条数'),
+      },
     ]),
     requestData: {
       triggerWorkflow: true,
+      returnRowIds: false,
     },
     successData: NUMBER_SUCCESS_DATA,
   },
@@ -282,6 +316,7 @@ export const MENU_LIST = [
     id: 'GetDetail',
     title: _l('获取行记录详情 GET'),
     apiName: 'worksheet/getRowById',
+    isGet: true,
     data: sameParameters.concat([
       {
         name: 'rowId',
@@ -400,10 +435,19 @@ export const MENU_LIST = [
         type: 'boolean',
         desc: _l('是否触发工作流(默认: true)'),
       },
+      {
+        name: 'thoroughDelete',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l(
+          '是否物理删除(true：物理删除，false：逻辑删除，默认为false)，物理删除后数据不进入回收站，且不可恢复，请谨慎操作！',
+        ),
+      },
     ]),
     requestData: {
       rowId: _l('行记录ID，多个用逗号(,)隔开'),
       triggerWorkflow: true,
+      thoroughDelete: false,
     },
     successData: appRoleSuccessData2,
   },
@@ -428,7 +472,7 @@ export const MENU_LIST = [
         name: 'pageSize',
         required: _l('是'),
         type: 'number',
-        desc: _l('行数'),
+        desc: _l('行数，最大为1000'),
       },
       {
         name: 'pageIndex',
@@ -444,7 +488,7 @@ export const MENU_LIST = [
       },
     ]),
     requestData: {
-      pageSize: _l('行数'),
+      pageSize: _l('行数，最大为1000'),
       pageIndex: _l('页码'),
     },
     successData: DATA_RELATIONS_SUCCESS_DATA,
@@ -549,6 +593,90 @@ export const MENU_LIST = [
       ],
     },
     successData: NUMBER_SUCCESS_DATA,
+  },
+  {
+    id: 'getWorksheetDiscussions',
+    title: _l('获取行记录讨论 POST'),
+    apiName: 'worksheet/getWorksheetDiscussions',
+    data: sameParameters.concat([
+      {
+        name: 'rowId',
+        required: _l('是'),
+        type: 'string',
+        desc: _l('行记录ID'),
+      },
+      {
+        name: 'pageSize',
+        required: _l('是'),
+        type: 'number',
+        desc: _l('行数，最大为1000'),
+      },
+      {
+        name: 'pageIndex',
+        required: _l('是'),
+        type: 'number',
+        desc: _l('页码'),
+      },
+      {
+        name: 'keywords',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('关键字模糊搜索'),
+      },
+      {
+        name: 'containAttachment',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否只返回包含附件的讨论'),
+      },
+    ]),
+    requestData: {
+      pageSize: '20',
+      pageIndex: 1,
+    },
+    successData: {
+      code: 1,
+      data: [
+        {
+          discussionId: _l('讨论 id'),
+          message: _l('讨论内容'),
+          createTime: _l('创建时间'),
+          createAccount: {
+            accountId: _l('创建者信息'),
+            fullname: _l('名称'),
+            avatar: _l('头像地址'),
+            isPortal: false,
+            status: 1,
+          },
+          replyAccount: {
+            accountId: _l('回复者信息'),
+            fullname: _l('名称'),
+            avatar: _l('头像地址'),
+            isPortal: false,
+            status: 1,
+          },
+          replyId: _l('回复的讨论 id'),
+          projectId: _l('组织 id'),
+          accountsInMessage: [
+            {
+              accountId: _l('@的人信息'),
+              fullname: _l('名称'),
+              avatar: _l('头像地址'),
+              isPortal: false,
+              status: 1,
+            },
+          ],
+          attachments: [
+            {
+              originalFilename: _l('文件名称'),
+              ext: _l('文件类型'),
+              filesize: _l('文件大小'),
+              downloadUrl: _l('下载地址'),
+            },
+          ],
+        },
+      ],
+    },
   },
   {
     id: 'getWorksheetOperationLogs',

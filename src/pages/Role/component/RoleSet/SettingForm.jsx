@@ -11,6 +11,7 @@ import BatchDialog from './batch';
 import SheetTable, { changeSheetModel } from './SheetTable';
 
 const WrapCon = styled.div`
+  min-height: 0;
   .optionTxt {
     font-size: 12px;
     color: #919191;
@@ -18,7 +19,7 @@ const WrapCon = styled.div`
   .toUser {
     color: #5a5a5a;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .ming.Input {
@@ -254,7 +255,7 @@ export default class extends PureComponent {
                         text={<span>{_l('在本应用【用户-扩展】中管理用户的权限标签')} </span>}
                         popupPlacement="top"
                       >
-                        <Icon icon="workflow_error" className="Font16 Gray_9e mLeft3 TxtMiddle" />
+                        <Icon icon="info_outline" className="Font16 Gray_9e mLeft3 TxtMiddle" />
                       </Tooltip>
                     )}
                   </span>
@@ -315,7 +316,7 @@ export default class extends PureComponent {
                               : roleDetail[o.key].enable
                           }
                           size="small"
-                          onClick={checked => {
+                          onClick={() => {
                             onChange({
                               [o.key]: {
                                 enable: !roleDetail[o.key].enable,
@@ -467,7 +468,7 @@ export default class extends PureComponent {
                       ...(_.get(this.props, 'roleDetail') || {}),
                       sheets: sheets.map(o => {
                         const info = data.find(it => it.sheetId === o.sheetId);
-                        if (!!info) {
+                        if (info) {
                           return { ...o, ...info };
                         } else {
                           return o;
@@ -505,7 +506,7 @@ export default class extends PureComponent {
             })
           ) : (
             <div className={'emptyContent'}>
-              {keyWord ? _('没有搜索到工作表或自定义页面') : _l('还没有创建工作表或自定义页面')}
+              {keyWord ? _l('没有搜索到工作表或自定义页面') : _l('还没有创建工作表或自定义页面')}
             </div>
           )}
         </div>
@@ -636,6 +637,7 @@ export default class extends PureComponent {
                           )}
                         </span>
                       }
+                      autoCloseDelay={0}
                       popupPlacement="top"
                     >
                       <i className="icon-info_outline Font16 Gray_bd mLeft7" />

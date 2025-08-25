@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Col, Row } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
+import _ from 'lodash';
 import { browserIsMobile } from 'src/utils/common';
 import { formatrChartValue, getChartColors, getStyleColor } from './common';
 
@@ -153,10 +154,10 @@ class ProgressChart extends Component {
         autoFit: false,
         percent: percentValue,
         outline: {
-          border: 4,
-          distance: 4,
+          border: 1,
+          distance: 0,
           style: {
-            stroke: '#ddd',
+            stroke: color || '#f1f1f1',
           },
         },
         theme: {

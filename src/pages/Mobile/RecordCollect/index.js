@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import favoriteAjax from 'src/api/favorite';
@@ -84,7 +85,7 @@ export default class RecordCollect extends Component {
         }, []);
         this.setState({ collectRecords: res, loading: false, apps });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ collectRecords: [], loading: false });
       });
   };
@@ -100,7 +101,7 @@ export default class RecordCollect extends Component {
     if (appId) {
       searchRecords = _.filter(collectRecords, item => item.appId === appId);
     }
-    if (!!searchVal) {
+    if (searchVal) {
       searchRecords = searchRecords.filter(item => new RegExp(searchVal.toUpperCase()).test(item.title));
     }
     this.setState({ selectAppId: appId, searchValue: searchVal, searchRecords, loading: false });
@@ -126,7 +127,7 @@ export default class RecordCollect extends Component {
             <SearchResultEmpty />
           ) : (
             list.map(item => {
-              const { favoriteId, title, appIcon, appColor, appIconUrl, worksheetId, rowId, createTime } = item;
+              const { favoriteId, title, appIcon, appColor, appIconUrl, worksheetId, rowId } = item;
               return (
                 <div
                   key={favoriteId}

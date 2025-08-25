@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Button from 'ming-ui/components/Button';
 
 class ConfirmButton extends Component {
@@ -35,6 +35,7 @@ class ConfirmButton extends Component {
         };
         promise.then(stopLoading, stopLoading);
       } else {
+        if (promise === false) return;
         onClose();
       }
     } else {

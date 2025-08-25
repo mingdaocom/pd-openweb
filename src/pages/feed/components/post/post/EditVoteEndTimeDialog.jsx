@@ -1,10 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import PropTypes from 'prop-types';
 import moment from 'moment';
-import Dialog from 'ming-ui/components/Dialog';
+import PropTypes from 'prop-types';
 import Button from 'ming-ui/components/Button';
 import DatePicker from 'ming-ui/components/DatePicker';
+import Dialog from 'ming-ui/components/Dialog';
 import Input from 'ming-ui/components/Input';
 import postAjax from 'src/api/post';
 

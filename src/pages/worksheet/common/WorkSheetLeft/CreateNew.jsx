@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from 'react';
-import { string, func } from 'prop-types';
-import { Dialog, Input } from 'ming-ui';
-import styled from 'styled-components';
-import ExternalLink from './ExternalLink';
+import React, { Component } from 'react';
 import _ from 'lodash';
+import { func, string } from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, Input } from 'ming-ui';
+import ExternalLink from './ExternalLink';
 
 const CreateNewContent = styled.div``;
 
@@ -29,7 +29,7 @@ export default class CreateNew extends Component {
   };
   state = {
     value: '',
-    customPageArgs: {}
+    customPageArgs: {},
   };
   render() {
     const { type, onCreate, onCancel } = this.props;
@@ -73,7 +73,7 @@ export default class CreateNew extends Component {
           </div>
           {type === 'customPage' && (
             <ExternalLink
-              onChange={(data) => {
+              onChange={data => {
                 if (data.configuration.customPageType === '2') {
                   this.setState({ customPageArgs: data });
                 } else {

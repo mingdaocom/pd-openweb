@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 
 const SkeletonWrap = styled.div`
   flex: 1;

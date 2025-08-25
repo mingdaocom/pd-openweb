@@ -1,13 +1,13 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
 import { Slider } from 'ming-ui';
-import cx from 'classnames';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { FROM } from './enum';
-import _ from 'lodash';
 
 const ClickAway = createDecoratedComponent(withClickAway);
 

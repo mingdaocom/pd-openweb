@@ -43,7 +43,7 @@ class AppList extends Component {
       <div className="myAppItemWrap InlineBlock" key={`${data.id}-${generateRandomPassword(10)}`}>
         <div
           className="myAppItem mTop24"
-          onClick={e => {
+          onClick={() => {
             localStorage.removeItem('currentNavWorksheetId');
             data.onClick ? data.onClick() : window.mobileNavigateTo(`/mobile/app/${data.id}`);
           }}
@@ -85,7 +85,11 @@ class AppList extends Component {
           </Fragment>
         ),
       },
-    ];
+    ].filter(
+      v =>
+        (md.global.SysSettings.hideTemplateLibrary && v.key !== 'application') ||
+        !md.global.SysSettings.hideTemplateLibrary,
+    );
     this.actionSheetHandler = ActionSheet.show({
       actions: BUTTONS,
       extra: (
@@ -96,7 +100,7 @@ class AppList extends Component {
           </div>
         </div>
       ),
-      onAction: (action, index) => {
+      onAction: action => {
         if (action.key === 'application') {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
@@ -126,7 +130,7 @@ class AppList extends Component {
       <div className="appList">
         <DocumentTitle title={groupInfo.name} />
         <div className="appCon flexRow alignItemsCenter">
-          {_.map(currentGroupList || [], (item, i) => {
+          {_.map(currentGroupList || [], item => {
             return this.renderItem(item);
           })}
           {!(_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp &&

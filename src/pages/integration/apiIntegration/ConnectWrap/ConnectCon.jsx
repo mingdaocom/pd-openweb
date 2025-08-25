@@ -1,24 +1,24 @@
 import React, { useEffect, useRef } from 'react';
-import cx from 'classnames';
-import { Icon, Menu, LoadDiv, Dialog, ScrollView } from 'ming-ui';
+import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
-import ConnectDesDia from '../../components/connectDesDialog';
-import Trigger from 'rc-trigger';
-import PublishDialog from '../../components/PublishDialog';
-import { RedMenuItemWrap, MenuItemWrap, ActWrap } from '../style';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import flowNodeAjax from 'src/pages/workflow/api/flowNode';
-import processAjax from 'src/pages/workflow/api/process';
+import cx from 'classnames';
 import _ from 'lodash';
-import ConnectAvator from '../../components/ConnectAvator';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, LoadDiv, Menu, ScrollView } from 'ming-ui';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import processAjax from 'src/pages/workflow/api/process';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { getNodeList } from './util';
-import Upgrade from './content/Upgrade';
+import ConnectAvator from '../../components/ConnectAvator';
+import ConnectDesDia from '../../components/connectDesDialog';
+import PublishDialog from '../../components/PublishDialog';
+import { ActWrap, MenuItemWrap, RedMenuItemWrap } from '../style';
 import Info from './content';
-import { ConnetWrap, UpgradeContentWrap } from './style';
 import ExportDialog from './content/Export';
-import DocumentTitle from 'react-document-title';
+import Upgrade from './content/Upgrade';
+import { ConnetWrap, UpgradeContentWrap } from './style';
+import { getNodeList } from './util';
 
 const TABLIST = [
   { tab: 0, txt: _l('连接设置') },
@@ -298,7 +298,7 @@ function ConnectCon(props) {
       <DocumentTitle title={props.forPage ? `${_l('集成')}-${connectData.name || _l('未命名连接')}` : ''} />
 
       <ScrollView
-        scrollEvent={() => {
+        onScroll={() => {
           if (!WrapRef.current) return;
           let toFix = $(WrapRef.current).offset().top <= 50;
           if (toFix !== cache.current.isFix) {
@@ -322,7 +322,7 @@ function ConnectCon(props) {
                   }
                 }}
               >
-                <Icon icon="knowledge-return" className="Font16" />
+                <Icon icon="backspace" className="Font16" />
               </ActWrap>
               <div className="Hand connectDes flexRow flex" onClick={() => {}}>
                 <ConnectAvator {...connectData} width={isFix ? 32 : 64} size={isFix ? 22 : 50} />
@@ -462,7 +462,7 @@ function ConnectCon(props) {
                               </React.Fragment>
                               {/* 可以「删除」已添加的自定义连接；删除前需要后端判断是否有API被引用，被引用则不能删除； */}
                               <RedMenuItemWrap
-                                icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
+                                icon={<Icon icon="trash" className="Font17 mLeft5" />}
                                 onClick={() => {
                                   const isAuth = !isConnectOwner && connectData.hasAuth;
                                   setState({ showMenu: false });
@@ -502,7 +502,7 @@ function ConnectCon(props) {
                           });
                         }}
                       >
-                        <i className={'icon-more_vert Font22 TxtMiddle'} />
+                        <i className={'icon-moreop Font22 TxtMiddle'} />
                       </ActWrap>
                     </Trigger>
                   )}

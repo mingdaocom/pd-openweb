@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
 import emptyPng from './empty.png';
 import SelectControls from './SelectControls';
 
@@ -17,7 +16,7 @@ const Con = styled.div`
   .addFilter {
     border-radius: 36px !important;
     padding: 0 16px !important;
-    background-color: #2196f3;
+    background-color: #1677ff;
     &:hover {
       background-color: #1565c0;
     }

@@ -1,12 +1,12 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import store from 'redux/configureStore';
 import { Popover } from 'antd';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import update from 'immutability-helper';
 import { pick } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
-import { string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Icon, LoadDiv, RichText, SvgIcon, Tooltip } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
@@ -38,7 +38,6 @@ export default function CustomPageHeader(props) {
     updatePageInfo,
     deleteLinkageFiltersGroup,
     ids = {},
-    updateSheetListIsUnfold,
     copyCustomPage,
     toggle,
     resetPage,
@@ -130,7 +129,7 @@ export default function CustomPageHeader(props) {
         type: 1,
         ...data,
       })
-      .then(result => {
+      .then(() => {
         if ([1, 3].includes(currentPcNaviStyle)) {
           const singleRef = getAppSectionRef(groupId);
           singleRef.dispatch(updateSheetListAppItem(pageId, data));
@@ -254,7 +253,7 @@ export default function CustomPageHeader(props) {
                     <div className="flex ellipsis bold">{item.reportName}</div>
                     <Icon
                       className="Font17 Gray_9e pointer"
-                      icon="delete2"
+                      icon="trash"
                       onClick={() => deleteLinkageFiltersGroup({ value: item.key })}
                     />
                   </div>
@@ -315,7 +314,7 @@ export default function CustomPageHeader(props) {
           zIndex: pageConfig.pageBgImage ? 0 : 2,
           '--title-color': isDarkTheme ? '#ffffffcc' : '#333',
           '--icon-color': isDarkTheme ? '#ffffffcc' : '#757575a1',
-          '--icon-hover-color': isDarkTheme ? '#ffffff' : '#2196f3',
+          '--icon-hover-color': isDarkTheme ? '#ffffff' : '#1677ff',
           backgroundColor: backgroundColor,
         }}
       >
@@ -400,7 +399,7 @@ export default function CustomPageHeader(props) {
             >
               <div className="iconWrap valignWrapper mRight5">
                 <Icon
-                  icon="knowledge-message Font18"
+                  icon="info Font18"
                   className="Hand customPageDesc"
                   onClick={() => {
                     setDescIsEditing(false);
@@ -485,7 +484,7 @@ export default function CustomPageHeader(props) {
               ) : (
                 <Tooltip text={<span>{_l('保存图片')}</span>} popupPlacement="bottom">
                   <div data-event="savePic" className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
-                    <Icon className="Font20 pointer" icon="file_download" />
+                    <Icon className="Font20 pointer" icon="download" />
                   </div>
                 </Tooltip>
               ))}

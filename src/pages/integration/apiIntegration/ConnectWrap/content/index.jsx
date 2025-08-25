@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import ConnectSet from './ConnectSet';
-import APIList from './APIList';
-import AccountList from './AccountList';
-import AuthorizeToApp from './AuthorizeToApp';
-import { TYPELIST } from 'src/pages/integration/config.js';
-import { Radio } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Radio } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import { TYPELIST } from 'src/pages/integration/config.js';
+import AccountList from './AccountList';
+import APIList from './APIList';
+import AuthorizeToApp from './AuthorizeToApp';
+import ConnectSet from './ConnectSet';
 
 const Wrap = styled.div``;
 export default function Info(props) {
@@ -170,9 +170,6 @@ export default function Info(props) {
             updateList={apiList => {
               onChangeSate({ apiCount: apiList.length, apiList: apiList });
             }}
-            getApiListFetch={data => {
-              getApiListFetch(data);
-            }}
             apkCount={props.apkCount}
             hasManageAuth={hasManageAuth}
           />
@@ -225,7 +222,7 @@ export default function Info(props) {
           </ul>
           <div
             className={cx('btn Bold', { disabled: !authType })}
-            onClick={e => {
+            onClick={() => {
               if (!authType) {
                 return;
               }

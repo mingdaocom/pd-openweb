@@ -1,20 +1,20 @@
-import React, { Fragment } from 'react';
-import cx from 'classnames';
-import styled from 'styled-components';
+import React from 'react';
+import { useSetState } from 'react-use';
 import { Menu } from 'antd';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import VerifyDel from 'src/pages/worksheet/views/components/VerifyDel';
-import { useSetState } from 'react-use';
-import update from 'immutability-helper';
-import TitleControl from './TitleControl';
+import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import Abstract from './Abstract';
+import CardDisplay from './CardDisplay';
 import CoverSetting from './CoverSettingCon';
 import DisplayControl from './DisplayControl';
-import CardDisplay from './CardDisplay';
-import _ from 'lodash';
-import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import TitleControl from './TitleControl';
 
 const EmptyHint = styled.div`
   margin: -6px 0 0 20px;
@@ -86,7 +86,7 @@ const HierarchyViewSettingWrap = styled.div(
           padding-left: 20px;
           color: #757575;
           &:hover {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
         .delete {
@@ -168,7 +168,7 @@ const HierarchyViewSettingWrap = styled.div(
     }
   }
   .addRelate {
-    color: #2196f3;
+    color: #1677ff;
     font-weight: bold;
     cursor: pointer;
     margin-top: 18px;
@@ -180,7 +180,7 @@ const HierarchyViewSettingWrap = styled.div(
 );
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
-  const [visible, editable, canAdd] = fieldPermission.split('');
+  const [visible] = fieldPermission.split('');
   if (visible === '0') {
     return false;
   }

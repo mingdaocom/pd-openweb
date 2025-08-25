@@ -77,7 +77,7 @@ export default class AddEditRulesDialog extends Component {
       this.setState(
         {
           [form]: value,
-          key: !!this.state.key ? this.state.key.slice(0, length) : this.state.key,
+          key: this.state.key ? this.state.key.slice(0, length) : this.state.key,
           padding: value === 50 ? 2 : undefined,
           encodeMode: form === 'encryptWay' && value === 50 ? 20 : undefined,
         },

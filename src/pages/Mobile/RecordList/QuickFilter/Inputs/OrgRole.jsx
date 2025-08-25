@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const OrgRoleCon = styled.div`
   position: relative;
@@ -48,7 +48,7 @@ const OrgRoleItem = styled.span`
 `;
 
 export default function OrgRole(props) {
-  const { control, values = [], onChange = () => {}, projectId, appId, isMultiple } = props;
+  const { control, values = [], onChange = () => {}, projectId, isMultiple } = props;
   const [showSelectOrgRole, setShowSelectOrgRole] = useState(false);
 
   const onSave = data => {
@@ -57,7 +57,7 @@ export default function OrgRole(props) {
   const deleteCurrentRoles = item => {
     onChange({ values: values.filter(v => v.organizeId !== item.organizeId) });
   };
-  
+
   return (
     <div className="controlWrapper">
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>

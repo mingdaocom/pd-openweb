@@ -1,4 +1,10 @@
-import { timeParticleSizeDropdownData, areaParticleSizeDropdownData, isTimeControl, isAreaControl } from 'statistics/common';
+import _ from 'lodash';
+import {
+  areaParticleSizeDropdownData,
+  isAreaControl,
+  isTimeControl,
+  timeParticleSizeDropdownData,
+} from 'statistics/common';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 
 /**
@@ -6,8 +12,8 @@ import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/W
  */
 export const uniqMerge = (data, config) => {
   const { pageSize, defaultEmpty, mergeCell = true } = config;
-  data = data.map((item, index) => item || defaultEmpty);
-  for(let i = data.length - 1; i >= 0; i--) {
+  data = data.map(item => item || defaultEmpty);
+  for (let i = data.length - 1; i >= 0; i--) {
     let current = data[i];
     let last = data[i - 1];
     if (mergeCell && current == last && (pageSize ? i % pageSize : true)) {
@@ -15,18 +21,18 @@ export const uniqMerge = (data, config) => {
       data[i - 1] = {
         value: last,
         length: 2,
-      }
+      };
     }
     if (_.isObject(current) && mergeCell && current.value === last && (pageSize ? i % pageSize : true)) {
       data[i - 1] = {
         value: last,
         length: current.length + 1,
-      }
+      };
       data[i] = null;
     }
   }
   return data;
-}
+};
 
 /**
  * 多维度单元格合并
@@ -56,27 +62,29 @@ export const mergeTableCell = (list, pageSize, mergeCell) => {
     return item;
   });
   return list;
-}
+};
 
 /**
  * 合并列
  */
-export const mergeColumnsCell = (data, columns, yaxisList) => {
+export const mergeColumnsCell = (data, columns) => {
   data = _.cloneDeep(data);
   const length = _.get(_.find(data, { summary_col: false }), ['y', 'length']) || 0;
   const result = [];
 
-  for(let i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     result.push({
       index: i,
       xaxisEmptyType: columns[i].xaxisEmptyType,
       data: [],
     });
-    data.filter(item => !item.summary_col).forEach(item => {
-      if (item.y && item.y.length) {
-        result[i].data.push(item.y[i]);
-      }
-    });
+    data
+      .filter(item => !item.summary_col)
+      .forEach(item => {
+        if (item.y && item.y.length) {
+          result[i].data.push(item.y[i]);
+        }
+      });
   }
 
   mergeTableCell(result).forEach((item, index) => {
@@ -86,18 +94,20 @@ export const mergeColumnsCell = (data, columns, yaxisList) => {
   });
 
   return data;
-}
+};
 
 export const renderValue = (value, advancedSetting) => dealMaskValue({ value, advancedSetting });
 
 const getTotalCount = (data, index) => {
-  return data.map((item) => {
-    const key = Object.keys(item)[0];
-    const res = item[key];
-    const value = res[index];
-    return value.includes('subTotal') ? value : null;
-  }).filter(_ => _);
-}
+  return data
+    .map(item => {
+      const key = Object.keys(item)[0];
+      const res = item[key];
+      const value = res[index];
+      return value.includes('subTotal') ? value : null;
+    })
+    .filter(_ => _);
+};
 
 /**
  * 合并行
@@ -107,61 +117,69 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
   const fIndex = freezeIndex + 1;
   const isFreeze = freeze && _.isNumber(freezeIndex);
 
-  const result = mergeTableCell(data.map((item, index) => {
-    const key = Object.keys(item)[0];
-    const res = item[key].map((value, valueIndex) => {
-      if (value.includes('subTotal')) {
-        const freezeData = isFreeze && freezeIndex ? data.slice(0, index <= freezeIndex ? fIndex : index) : data;
-        const rightLength = getTotalCount(freezeData.slice(index + 1, freezeData.length), valueIndex).length + 1;
-        const leftLength = getTotalCount(freezeData.slice(0, index), valueIndex).length;
-        if (!leftLength && rightLength) {
-          const showLine = data[data.length - rightLength];
-          const showId = Object.keys(showLine)[0];
-          return {
-            value,
-            length: rightLength,
-            sum: true,
-            subTotalName: _.get(_.find(lines, { cid: showId }), 'subTotalName') || _l('总计')
-          };
-        } else {
-          if (isFreeze && freezeIndex) {
-            return index <= freezeIndex ? `subTotalEmpty-${valueIndex}` : `subTotalFreezeEmpty-${valueIndex}`;
+  const result = mergeTableCell(
+    data.map((item, index) => {
+      const key = Object.keys(item)[0];
+      const res = item[key].map((value, valueIndex) => {
+        if (value.includes('subTotal')) {
+          const freezeData = isFreeze && freezeIndex ? data.slice(0, index <= freezeIndex ? fIndex : index) : data;
+          const rightLength = getTotalCount(freezeData.slice(index + 1, freezeData.length), valueIndex).length + 1;
+          const leftLength = getTotalCount(freezeData.slice(0, index), valueIndex).length;
+          if (!leftLength && rightLength) {
+            const showLine = data[data.length - rightLength];
+            const showId = Object.keys(showLine)[0];
+            return {
+              value,
+              length: rightLength,
+              sum: true,
+              subTotalName: _.get(_.find(lines, { cid: showId }), 'subTotalName') || _l('总计'),
+            };
+          } else {
+            if (isFreeze && freezeIndex) {
+              return index <= freezeIndex ? `subTotalEmpty-${valueIndex}` : `subTotalFreezeEmpty-${valueIndex}`;
+            }
+            return `subTotalEmpty-${valueIndex}`;
           }
-          return `subTotalEmpty-${valueIndex}`;
         }
+        return value;
+      });
+      const target = _.find(lines, { cid: key }) || {};
+      const isTime = isTimeControl(target.controlType);
+      const isArea = isAreaControl(target.controlType);
+      const name = target.rename || target.controlName;
+      const { xaxisEmptyType } = target;
+      if (isTime) {
+        return {
+          key,
+          xaxisEmptyType,
+          name: target.particleSizeType
+            ? `${name}(${_.find(timeParticleSizeDropdownData, { value: target.particleSizeType }).text})`
+            : name,
+          data: res,
+        };
       }
-      return value;
-    });
-    const target = _.find(lines, { cid: key }) || {};
-    const isTime = isTimeControl(target.controlType);
-    const isArea = isAreaControl(target.controlType);
-    const name = target.rename || target.controlName;
-    const { xaxisEmptyType } = target;
-    if (isTime) {
+      if (isArea) {
+        return {
+          key,
+          xaxisEmptyType,
+          name: target.particleSizeType
+            ? `${name}(${_.find(areaParticleSizeDropdownData, { value: target.particleSizeType }).text})`
+            : name,
+          data: res,
+        };
+      }
       return {
         key,
         xaxisEmptyType,
-        name: target.particleSizeType ? `${name}(${ _.find(timeParticleSizeDropdownData, { value: target.particleSizeType }).text })` : name,
+        name,
         data: res,
-      }
-    }
-    if (isArea) {
-      return {
-        key,
-        xaxisEmptyType,
-        name: target.particleSizeType ? `${name}(${ _.find(areaParticleSizeDropdownData, { value: target.particleSizeType }).text })` : name,
-        data: res,
-      }
-    }
-    return {
-      key,
-      xaxisEmptyType,
-      name,
-      data: res,
-    }
-  }), pageSize, mergeCell);
+      };
+    }),
+    pageSize,
+    mergeCell,
+  );
 
-  const parse = (value) => {
+  const parse = value => {
     let result = value;
     try {
       let res = JSON.parse(value);
@@ -171,11 +189,13 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         });
       }
       result = res;
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return result;
-  }
+  };
 
-  result.forEach((item) => {
+  result.forEach(item => {
     const control = _.find(lines, { cid: item.key }) || {};
     const advancedSetting = control.advancedSetting || {};
     const defaultEmpty = item.xaxisEmptyType ? '--' : ' ';
@@ -186,11 +206,19 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         const defaultValue = n.value.includes('subTotal') ? n.value : defaultEmpty;
         return {
           ...n,
-          value: valueKey ? (valueKey[n.value] ? renderValue(valueKey[n.value], advancedSetting) : defaultValue) : renderValue(n.value, advancedSetting)
-        }
+          value: valueKey
+            ? valueKey[n.value]
+              ? renderValue(valueKey[n.value], advancedSetting)
+              : defaultValue
+            : renderValue(n.value, advancedSetting),
+        };
       } else {
         const defaultValue = n.includes('subTotal') ? n : defaultEmpty;
-        return valueKey ? (valueKey[n] ? renderValue(valueKey[n], advancedSetting) : defaultValue) : renderValue(n, advancedSetting);
+        return valueKey
+          ? valueKey[n]
+            ? renderValue(valueKey[n], advancedSetting)
+            : defaultValue
+          : renderValue(n, advancedSetting);
       }
     });
     if (control.controlType === 29) {
@@ -198,8 +226,8 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         if (_.isObject(item)) {
           return {
             ...item,
-            value: parse(item.value)
-          }
+            value: parse(item.value),
+          };
         } else {
           return parse(item);
         }
@@ -208,26 +236,30 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
   });
 
   return result;
-}
+};
 
-export const getColumnName = (column) => {
+export const getColumnName = column => {
   const { rename, controlName, controlType, particleSizeType } = column;
   const name = rename || controlName;
   const isTime = isTimeControl(controlType);
   const isArea = isAreaControl(controlType);
   if (isTime) {
-    return particleSizeType ? `${name}(${ _.find(timeParticleSizeDropdownData, { value: particleSizeType }).text })` : name;
+    return particleSizeType
+      ? `${name}(${_.find(timeParticleSizeDropdownData, { value: particleSizeType }).text})`
+      : name;
   }
   if (isArea) {
-    return particleSizeType ? `${name}(${ _.find(areaParticleSizeDropdownData, { value: particleSizeType }).text })` : name;
+    return particleSizeType
+      ? `${name}(${_.find(areaParticleSizeDropdownData, { value: particleSizeType }).text})`
+      : name;
   }
   return name;
-}
+};
 
 export const getControlMinAndMax = (yaxisList, data) => {
   const result = {};
 
-  const get = (id) => {
+  const get = id => {
     let values = [];
     for (let i = 0; i < data.length; i++) {
       if (data[i].t_id === id && !data[i].summary_col) {
@@ -241,16 +273,16 @@ export const getControlMinAndMax = (yaxisList, data) => {
     return {
       min,
       max,
-      center
-    }
-  }
+      center,
+    };
+  };
 
   yaxisList.forEach(item => {
     result[item.controlId] = get(item.controlId);
   });
 
   return result;
-}
+};
 
 export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
   const { min = 0, max, direction, negativeNumberColor, positiveNumberColor } = rule;
@@ -263,7 +295,7 @@ export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
   if (direction === 2) {
     barStyle.right = 0;
   }
-  let percent = parseInt((value - minValue) / (maxValue - minValue) * 100);
+  let percent = parseInt(((value - minValue) / (maxValue - minValue)) * 100);
   if (percent >= 100) {
     percent = 100;
   }
@@ -276,15 +308,15 @@ export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
   barStyle.width = `${percent}%`;
   barStyle.backgroundColor = value >= 0 ? positiveNumberColor : negativeNumberColor;
   return barStyle;
-}
+};
 
 export const getLineSubTotal = (data = [], index) => {
   let count = '';
-  for(let i = index; i < data.length; i++) {
+  for (let i = index; i < data.length; i++) {
     if (data[i] && _.isString(data[i]) && data[i].includes('subTotal')) {
       count = data[i];
       break;
     }
   }
   return count;
-}
+};

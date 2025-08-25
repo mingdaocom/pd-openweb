@@ -66,8 +66,8 @@ export const hasRangeList = [
   52,
 ]; //有作用范围
 
-export const helfList = [10, 22, 23, 33, 32, 40, 37]; //有帮助提示
-
+export const helpList = [10, 22, 23, 33, 32, 40, 37]; //有帮助提示
+export const hideList = [20, 30]; //视图和记录的分享在分享设置中处理
 export const worksheetSwitch = [10, 11, 13, 14, 500, 50, 51]; //工作表相关
 export const viewSwitch = [20, 38, 21, 22, 25, 24, 26, 23, 27, 28, 29]; //视图相关
 export const recordSwitch = [30, 52, 36, 39, 37, 35, 32, 33, 34]; //记录相关
@@ -109,5 +109,5 @@ export const tipStr = {
       {_l('子表中的关联记录最多复制5条。')}
     </div>
   ),
-  40: _l('在视图上呈现流程名称、状态、节点负责人、节点开始、剩余时间、发起人、发起时间'),
+  40: _l('在视图上呈现流程名称、状态、审批完成时间、节点负责人、节点开始、剩余时间、发起人、发起时间'),
 };

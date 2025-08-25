@@ -1,11 +1,12 @@
 ﻿// ajax controllers
+import _ from 'lodash';
 import departmentController from 'src/api/department';
 import importUserController from 'src/api/importUser';
-import userController from 'src/api/user';
 import projectController from 'src/api/project';
-import { ACTIONS } from '../constant';
+import userController from 'src/api/user';
 import Config from '../../../../config';
-import _ from 'lodash';
+import { ACTIONS } from '../constant';
+
 let promise = null;
 let prePromiseType = null;
 const promiseList = [
@@ -41,7 +42,7 @@ const getApiByRequestType = (type, { departmentId, isGetAll }) => {
 export const CALL_API = Symbol('CALL_API');
 
 // define and export middleware
-export default store => next => action => {
+export default () => next => action => {
   const callAPI = action[CALL_API];
 
   if (typeof callAPI === 'undefined') {

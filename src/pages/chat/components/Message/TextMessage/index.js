@@ -8,6 +8,11 @@ export default class TextMessage extends Component {
   }
   render() {
     const { message } = this.props;
-    return <span className="Message-text" dangerouslySetInnerHTML={{ __html: utils.messageContentParser(message.msg.con) }} />;
+    return (
+      <span
+        className="Message-text"
+        dangerouslySetInnerHTML={{ __html: utils.messageContentParser(message.msg.con) }}
+      />
+    );
   }
 }

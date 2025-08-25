@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../redux/actions';
-import { Icon, Dialog, Checkbox, Radio, Dropdown } from 'ming-ui';
 import cx from 'classnames';
-import externalPortalAjax from 'src/api/externalPortal';
-import Tel from './Tel';
-import EmailInput from './Email';
-import './AddUserByTelDialog.less';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, Radio } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import * as actions from '../redux/actions';
+import EmailInput from './Email';
+import Tel from './Tel';
+import './AddUserByTelDialog.less';
 
 const Wrap = styled.div`
   .ming.Radio .Radio-box {
@@ -29,9 +29,9 @@ const Wrap = styled.div`
     line-height: 36px;
     background: #f8f8f8;
     border-radius: 3px;
-    color: #2196f3;
+    color: #1677ff;
     i {
-      color: #2196f3;
+      color: #1677ff;
       line-height: 36px;
     }
     &:hover {
@@ -206,7 +206,7 @@ function AddUserByTelDialog(props) {
                         }),
                       );
                     }}
-                    clickCallback={e => {
+                    clickCallback={() => {
                       if (
                         i === list.length - 1 && //点击最后一行
                         list.filter(o => !o.phone).length < 3 //最多三个未填
@@ -230,7 +230,7 @@ function AddUserByTelDialog(props) {
                         }),
                       );
                     }}
-                    clickCallback={e => {
+                    clickCallback={() => {
                       if (
                         i === list.length - 1 && //点击最后一行
                         list.filter(o => !o.phone).length < 3 //最多三个未填
@@ -302,7 +302,7 @@ function AddUserByTelDialog(props) {
           className="TxtCenter InlineBlock Hand Gray_75 sendMes"
           text={type === 0 ? _l('发送短信通知') : _l('发送邮件通知')}
           checked={isSendMsgs}
-          onClick={checked => {
+          onClick={() => {
             setIsSend(!isSendMsgs);
           }}
         />

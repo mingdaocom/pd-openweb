@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Radio, Input } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Input, Radio } from 'ming-ui';
+import { ALLOW_EDIT_TYPES } from '../../enum';
+import CommonFieldDropdown from './CommonFieldDropdown';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
-import CommonFieldDropdown from './CommonFieldDropdown';
-import { ALLOW_EDIT_TYPES } from '../../enum';
 
 const CustomTimeInput = styled(Input)`
   width: 50px;

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import cx from 'classnames';
 import './index.less';
 
 const SORT_TYPE = [
@@ -18,7 +18,7 @@ const SORT_TYPE = [
   {
     label: '更新时间',
     key: 2,
-    icon: 'score-up'
+    icon: 'score-up',
   },
   {
     label: '创建时间',
@@ -28,20 +28,19 @@ const SORT_TYPE = [
   {
     label: '创建时间',
     key: 4,
-    icon: 'score-up'
+    icon: 'score-up',
   },
-]
+];
 
 export default function SelectSort(props) {
-
-  const { value=0, onChange, className = '' } = props;
+  const { value = 0, onChange, className = '' } = props;
 
   const [visible, setVisible] = useState(false);
 
-  const onChangeValue = (value) => {
+  const onChangeValue = value => {
     onChange(value);
     setVisible(false);
-  }
+  };
 
   return (
     <Trigger
@@ -53,28 +52,28 @@ export default function SelectSort(props) {
       popup={
         <div className="SelectSortDrowCon">
           <div className="title">{_l('按更新时间')}</div>
-          <div className={cx("item valignWrapper", {lighthigh: value===1})} onClick={() => onChangeValue(1)}>
+          <div className={cx('item valignWrapper', { lighthigh: value === 1 })} onClick={() => onChangeValue(1)}>
             {_l('降序')}
             <Icon icon="score-down" className="Font16 mLeft4" />
           </div>
-          <div className={cx("item valignWrapper", {lighthigh: value===2})} onClick={() => onChangeValue(2)}>
+          <div className={cx('item valignWrapper', { lighthigh: value === 2 })} onClick={() => onChangeValue(2)}>
             {_l('升序')}
             <Icon icon="score-up" className="Font16 mLeft4" />
           </div>
           <div className="title">{_l('按创建时间')}</div>
-          <div className={cx("item valignWrapper", {lighthigh: value===3})} onClick={() => onChangeValue(3)}>
+          <div className={cx('item valignWrapper', { lighthigh: value === 3 })} onClick={() => onChangeValue(3)}>
             {_l('降序')}
             <Icon icon="score-down" className="Font16 mLeft4" />
           </div>
-          <div className={cx("item valignWrapper", {lighthigh: value===4})} onClick={() => onChangeValue(4)}>
+          <div className={cx('item valignWrapper', { lighthigh: value === 4 })} onClick={() => onChangeValue(4)}>
             {_l('升序')}
             <Icon icon="score-up" className="Font16 mLeft4" />
           </div>
         </div>
       }
     >
-      <span className={`selectSort Gray_9e ${className} ${value===0 ? '' : 'lighthigh'}`}>
-        {value===0 ? _l('更新时间') : SORT_TYPE[value].label}
+      <span className={`selectSort Gray_9e ${className} ${value === 0 ? '' : 'lighthigh'}`}>
+        {value === 0 ? _l('更新时间') : SORT_TYPE[value].label}
         <Icon icon={SORT_TYPE[value].icon} className="Gray_9e" />
       </span>
     </Trigger>

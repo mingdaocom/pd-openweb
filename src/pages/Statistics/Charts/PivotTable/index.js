@@ -25,11 +25,11 @@ import {
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
 
-export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch = {} }) => {
+export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType }) => {
   const data = _.clone(pivotTableStyle);
   const { columnBgColor, lineBgColor } = data;
   const { pivoTableColor, pivoTableColorIndex = 1, pageStyleType, widgetBgColor } = customPageConfig || {};
-  const { lineValue, columnValue } = linkageMatch;
+
   if (pivoTableColor && pivoTableColorIndex >= (data.pivoTableColorIndex || 0)) {
     const isLight = isLightColor(pivoTableColor);
     data.columnBgColor = pivoTableColor;
@@ -148,6 +148,7 @@ export default class extends Component {
     if (pivotTableLineFreeze) {
       return this.$ref.current.querySelector('.ant-table-content');
     }
+    return null;
   }
   handleMouseDown = (event, index) => {
     const { target } = event;
@@ -180,7 +181,7 @@ export default class extends Component {
     };
   };
   getColumnWidthConfig = () => {
-    const { settingVisible, reportData } = this.props;
+    const { reportData } = this.props;
     const { reportId, style } = reportData;
     const { pivotTableColumnWidthConfig = {} } = style || {};
     const key = `pivotTableColumnWidthConfig-${reportId}`;
@@ -211,7 +212,7 @@ export default class extends Component {
     sessionStorage.setItem(key, JSON.stringify(config));
   };
   getColumnWidth = index => {
-    const { data, lines, reportId, style } = this.props.reportData;
+    const { data, lines, style } = this.props.reportData;
     const config = this.getColumnWidthConfig();
     const width = config[index];
     const {
@@ -504,8 +505,8 @@ export default class extends Component {
   }
   getColumnsContent(result) {
     const { reportData, isViewOriginalData } = this.props;
-    const { columns, lines, valueMap, yvalueMap, yaxisList, pivotTable, data, displaySetup } = reportData;
-    const { columnSummary = {}, showColumnTotal } = pivotTable || reportData;
+    const { columns, lines, valueMap, yvalueMap, yaxisList, pivotTable, displaySetup } = reportData;
+    const { columnSummary = {} } = pivotTable || reportData;
     const dataList = [];
     const controlMinAndMax = getControlMinAndMax(yaxisList, result);
     const isHideHeaderLastTr = columns.length && !lines.length && yaxisList.length === 1;
@@ -653,7 +654,6 @@ export default class extends Component {
 
     let index = 0;
 
-    const children = [];
     const childrenYaxisList = [];
     const sumData = columnSummary.controlList.length === 1 ? columnSummary.controlList[0] : {};
 
@@ -691,12 +691,7 @@ export default class extends Component {
 
     result.forEach((item, index) => {
       if (item.summary_col) {
-        const {
-          rename,
-          controlName,
-          showNumber = true,
-          percent = {},
-        } = _.find(yaxisList, { controlId: item.t_id }) || {};
+        const { rename, controlName, showNumber = true } = _.find(yaxisList, { controlId: item.t_id }) || {};
         const name = rename || controlName;
         const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
         childrenYaxisList.push({
@@ -960,19 +955,31 @@ export default class extends Component {
       );
     }
 
+    if (_.isArray(relevanceData)) {
+      return (
+        <div className="relevanceContent" key={control.controlId}>
+          {relevanceData.join('、')}
+        </div>
+      );
+    }
+
+    if (_.isObject(relevanceData)) {
+      return (
+        <div className="relevanceContent" key={control.controlId}>
+          {JSON.stringify(relevanceData)}
+        </div>
+      );
+    }
+
     return (
       <div className="relevanceContent" key={control.controlId}>
-        {_.isArray(relevanceData) ? (
-          relevanceData.join('、')
-        ) : (
-          <span className={cx({ ellipsis: pivotTableUnilineShow })}>{relevanceData || '--'}</span>
-        )}
+        <span className={cx({ ellipsis: pivotTableUnilineShow })}>{relevanceData || '--'}</span>
       </div>
     );
   }
   renderLineTd(data, row, index, control, diffWidth) {
     const { style } = this.props.reportData;
-    const { pivotTableUnilineShow, pivotTableLineFreeze } = style ? style : {};
+    const { pivotTableUnilineShow } = style ? style : {};
     const { controlType, fields } = control;
 
     if (data === null) {
@@ -1166,7 +1173,7 @@ export default class extends Component {
   render() {
     const { dragValue, pageSize, dropdownVisible, offset, pageIndex } = this.state;
     const { themeColor, customPageConfig, reportData, linkageMatch = {}, sourceType } = this.props;
-    const { reportId, data, yaxisList, columns, lines, valueMap, style, pivotTable } = reportData;
+    const { reportId, yaxisList, columns, lines, style, pivotTable } = reportData;
     const showLineTotal = pivotTable ? pivotTable.showLineTotal : reportData.showLineTotal;
     const lineSummary = pivotTable ? pivotTable.lineSummary : reportData.lineSummary;
     const {
@@ -1220,7 +1227,7 @@ export default class extends Component {
             bordered
             size="small"
             tableLayout={widthConfig ? 'fixed' : undefined}
-            rowClassName={(record, index) => {
+            rowClassName={record => {
               return record.key === 'sum' || record.isSubTotal ? 'sum-content' : undefined;
             }}
             pagination={

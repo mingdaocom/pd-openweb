@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import privateLinkAjax from 'src/api/privateLink.js';
-import _ from 'lodash';
-import cx from 'classnames';
+
+// 私有部署环境放开
+// (async () => {
+//   try {
+//     const module = await import('src/api/privateLink.js');
+//     privateLinkAjax = module.default || module;
+//   } catch (e) {
+//     console.warn(e);
+//   }
+// })();
 
 const Wrap = styled.div`
   width: 100%;
@@ -44,7 +54,7 @@ const Wrap = styled.div`
     }
   }
 `;
-export default function Footer(props) {
+export default function Footer() {
   const [links, setState] = useState([]);
 
   useEffect(() => {
@@ -84,7 +94,7 @@ export default function Footer(props) {
                         ? 'Gray_bd HoverWhite'
                         : 'Gray_75 ThemeHoverColor3',
                     )}
-                    onClick={e => window.open(o.href)}
+                    onClick={() => window.open(o.href)}
                   >
                     {o.name}
                   </span>

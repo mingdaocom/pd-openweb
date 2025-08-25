@@ -6,20 +6,20 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import sheetAjax from 'src/api/worksheet';
+import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
 import { completeControls } from 'src/utils/control';
-import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getCoverUrl } from '../../tools/utils';
 import SearchInput from '../ChildTable/SearchInput';
 import RelateScanQRCode from '../RelateScanQRCode';
 import RecordCoverCard from './RecordCoverCard';
@@ -48,10 +48,10 @@ export const LoadingButton = styled.div`
 
 const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
   &.lineWrap {
-    color: #2196f3;
+    color: #1677ff;
     width: 100%;
     .scanIcon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
       margin-right: 5px;
     }
     .scanButton {
@@ -263,9 +263,9 @@ class RelateRecordCards extends Component {
 
   get showAddAsDropdown() {
     const { control = {} } = this.props;
-    const { choosetype = '2' } = control.advancedSetting || {};
+    const { showtype } = control.advancedSetting || {};
     const { enumDefault2 } = control;
-    return choosetype === '1' && enumDefault2 !== 10 && enumDefault2 !== 11;
+    return showtype === '3' && enumDefault2 !== 10 && enumDefault2 !== 11;
   }
 
   get mobileShowAddAsDropdown() {
@@ -336,22 +336,6 @@ class RelateRecordCards extends Component {
     }
   };
 
-  getCoverUrl(coverId, record) {
-    const { controls } = this.state;
-    const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
-    if (!coverControl) {
-      return;
-    }
-    try {
-      const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
-      const { previewUrl = '' } = coverFile;
-      return previewUrl.indexOf('imageView2') > -1
-        ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/200')
-        : `${previewUrl}&imageView2/2/w/200`;
-    } catch (err) {}
-    return;
-  }
-
   hasRelateControl(relationControls, showControls) {
     return !!_.find(
       relationControls.filter(rc => _.find(showControls, scid => scid === rc.controlId)),
@@ -373,8 +357,10 @@ class RelateRecordCards extends Component {
   }
 
   loadMoreRecords = (pageIndex = 2, nextProps) => {
-    const { from, controlId, recordId, worksheetId, advancedSetting, instanceId, workId } = (nextProps || this.props)
-      .control;
+    const { formDisabled } = this.props;
+    const { from, controlId, recordId, worksheetId, advancedSetting, instanceId, workId, disabled } = (
+      nextProps || this.props
+    ).control;
     const { keywords } = this.state;
     this.setState({
       isLoadingMore: true,
@@ -394,7 +380,9 @@ class RelateRecordCards extends Component {
       .then(res => {
         this.setState(state => {
           const data = _.get(res, 'data') || [];
-          const newRecords = pageIndex === 1 ? data : _.uniqBy([...state.records, ...data], 'rowid');
+          const shouldReset = disabled && formDisabled && pageIndex === 1;
+          const newRecords = shouldReset ? data : _.uniqBy([...state.records, ...data], 'rowid');
+
           const newState = {
             records: newRecords,
             pageIndex,
@@ -521,7 +509,7 @@ class RelateRecordCards extends Component {
       if (item.rowid === targetRowId) {
         const newItem = { ...item };
         Object.keys(newItem).forEach(key => {
-          if (key !== 'rowid' && valueObj.hasOwnProperty(key)) {
+          if (key !== 'rowid' && _.has(valueObj, key)) {
             newItem[key] = valueObj[key];
           }
         });
@@ -570,6 +558,7 @@ class RelateRecordCards extends Component {
           const cellData = JSON.parse(titleControl.value);
           defaultRelatedSheetValue.name = cellData[0].name;
         } catch (err) {
+          console.log(err);
           defaultRelatedSheetValue.name = '';
         }
       }
@@ -579,11 +568,12 @@ class RelateRecordCards extends Component {
         value: defaultRelatedSheetValue,
       };
     } catch (err) {
+      console.log(err);
       return;
     }
   }
 
-  handleClick = evt => {
+  handleClick = () => {
     const { control } = this.props;
     const { records } = this.state;
     const { enumDefault2, controlId } = control;
@@ -642,7 +632,6 @@ class RelateRecordCards extends Component {
       showControls: showControls,
       appId: appId,
       viewId: viewId,
-      isCharge: isCharge,
       masterRecordRowId: recordId,
       relateSheetId: dataSource,
       parentWorksheetId: worksheetId,
@@ -665,13 +654,12 @@ class RelateRecordCards extends Component {
   }
 
   renderRecordsCon() {
-    const { width, control, allowOpenRecord, hideTitle, cardClassName } = this.props;
+    const { control, allowOpenRecord, hideTitle, cardClassName, projectId } = this.props;
     const {
       appId,
       viewId,
       from,
       recordId,
-      projectId,
       dataSource,
       disabled,
       enumDefault,
@@ -697,7 +685,7 @@ class RelateRecordCards extends Component {
                   hideTitle={hideTitle || (this.mobileShowAddAsDropdown && !disabled)}
                   showAddAsDropdown={this.showAddAsDropdown}
                   from={from}
-                  projectId={projectId}
+                  projectId={projectId || control.projectId}
                   viewId={viewId}
                   allowReplaceRecord={allowReplaceRecord}
                   disabled={disabled || (!allowRemove && !record.isNewAdd)}
@@ -706,7 +694,7 @@ class RelateRecordCards extends Component {
                   controls={this.controls}
                   sheetSwitchPermit={sheetSwitchPermit}
                   data={record}
-                  cover={this.getCoverUrl(coverCid, record)}
+                  cover={getCoverUrl(coverCid, record, this.state.controls)}
                   allowlink={allowlink}
                   parentControl={control}
                   sourceEntityName={sourceEntityName}
@@ -819,15 +807,8 @@ class RelateRecordCards extends Component {
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { records, previewRecord, showNewRecord, sheetTemplateLoading, keywords, isMobileSearchFocus } = this.state;
-    const {
-      onlyRelateByScanCode,
-      disabledManualWrite,
-      addRelationButtonVisible,
-      isCard,
-      allowNewRecord,
-      showAddAsDropdown,
-      mobileShowAddAsDropdown,
-    } = this;
+    const { onlyRelateByScanCode, disabledManualWrite, addRelationButtonVisible, isCard, mobileShowAddAsDropdown } =
+      this;
     const isScanQR = getIsScanQR();
     const multiple = enumDefault === 2;
     if (sheetTemplateLoading) {

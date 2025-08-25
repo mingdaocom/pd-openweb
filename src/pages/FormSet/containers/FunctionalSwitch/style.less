@@ -1,5 +1,5 @@
 .switchBox {
-  margin-left: 40px;
+  margin: 0 40px;
   background: #fff;
   padding-bottom: 32px;
   position: relative;
@@ -12,7 +12,7 @@
   }
   div {
     h5 {
-      margin-top: 32px;
+      margin-top: 35px;
       text-align: left;
       font-weight: 500;
       font-size: 17px;
@@ -26,11 +26,8 @@
     }
     ul {
       display: block;
-      width: 640px;
-      // height: 189px;
+      max-width: 1000px;
       background: #ffffff 0% 0% no-repeat padding-box;
-      // border: 1px solid #eaeaea;
-      // border-radius: 5px;
       li {
         display: flex;
         align-items: center;
@@ -41,8 +38,8 @@
         border-right: 1px solid #eaeaea;
         border-left: 1px solid #eaeaea;
         &.current {
-          background: #2196f30d !important;
-          border: 1px solid #2196f3 !important;
+          background: #1677ff0d !important;
+          border: 1px solid #1677ff !important;
           z-index: 1;
           position: relative;
           .con {
@@ -70,8 +67,8 @@
             padding-left: 44px;
             flex: 1;
           }
-          .dele {
-            color: #2196f3;
+          .delBtn {
+            color: #1677ff;
           }
         }
         .con {
@@ -87,7 +84,7 @@
           }
         }
         .batchIsOpen {
-          color: #2196f3;
+          color: #1677ff;
         }
         .ming.Switch,
         .nullBox {

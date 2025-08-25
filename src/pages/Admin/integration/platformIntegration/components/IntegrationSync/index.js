@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Button, Dialog } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { INTEGRATION_INFO } from '../../config';
@@ -71,7 +72,7 @@ export default class IntegrationSync extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -138,7 +139,7 @@ export default class IntegrationSync extends Component {
             type="primary"
             disabled={loading}
             className={cx('syncBtn', { isNO: syncDisabled || showSyncDiaLog })}
-            onClick={e => {
+            onClick={() => {
               if (featureType === '2') {
                 buriedUpgradeVersionDialog(projectId, featureId);
                 return;

@@ -15,9 +15,9 @@ const isMobile = browserIsMobile();
 
 if (checkLogin()) {
   if (checkOriginUrl(url)) {
-    location.href = decodeURIComponent(url);
+    location.replace(decodeURIComponent(url));
   } else {
-    location.href = isMobile ? `/mobile` : `/app`;
+    location.replace(isMobile ? `/mobile` : `/app`);
   }
 } else {
   const hosts = location.host.split('.');
@@ -38,9 +38,9 @@ if (checkLogin()) {
               getGlobalMeta().then(() => {
                 setPssId(sessionId);
                 if (checkOriginUrl(url)) {
-                  location.href = decodeURIComponent(url);
+                  location.replace(decodeURIComponent(url));
                 } else {
-                  location.href = isMobile ? `/mobile` : `/app`;
+                  location.replace(isMobile ? `/mobile` : `/app`);
                 }
               });
             }

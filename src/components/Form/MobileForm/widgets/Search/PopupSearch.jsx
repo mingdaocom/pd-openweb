@@ -127,7 +127,7 @@ const MobileSearch = props => {
                 className="cursorText Gray"
                 placeholder={hint || _l('请选择')}
                 ref={searchInput}
-                onChange={e => {
+                onChange={() => {
                   const value = searchInput.current.value.trim();
                   // if (!value) {
                   //   props.clearData();

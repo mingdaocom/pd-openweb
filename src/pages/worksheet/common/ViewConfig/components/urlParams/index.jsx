@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Icon, Input, Support } from 'ming-ui';
-import styled from 'styled-components';
+import { Tooltip } from 'antd';
 import _ from 'lodash';
-import { updateViewAdvancedSetting } from '../../util';
-import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import styled from 'styled-components';
+import { Icon, Input, Support } from 'ming-ui';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { Tooltip } from 'antd';
+import { openShareDialog } from 'src/pages/worksheet/components/Share';
 
 const ParamsWrapper = styled.div`
   margin-top: 20px;
 
-  .icon-delete1 {
+  .icon-trash {
     font-size: 16px;
     color: #9e9e9e;
     margin-left: 16px;
@@ -34,7 +33,7 @@ const ParamsWrapper = styled.div`
     color: #9e9e9e;
   }
   .ming.Input:focus {
-    border-color: #2196f3 !important;
+    border-color: #1677ff !important;
   }
   .repeatItem {
     border-color: red !important;
@@ -57,7 +56,7 @@ const AddParamsBtn = styled.div`
   }
 
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -71,7 +70,7 @@ const LinkText = styled.span`
 
 export default function UrlParams(props) {
   const { view = {}, updateCurrentView, appId, worksheetId, currentSheetInfo, sheetSwitchPermit, hasCharge } = props;
-  const [params, setParams] = useState(JSON.parse((view.advancedSetting || {}).urlparams || '[]'));
+  const [params, setParams] = useState(safeParse(view?.advancedSetting?.urlparams, 'array'));
   const [flag, setFlag] = useState(false);
   const paramsRef = useRef();
 
@@ -165,7 +164,7 @@ export default function UrlParams(props) {
                 />
                 <Tooltip title={_l('删除')} placement="top">
                   <Icon
-                    icon="delete1"
+                    icon="trash"
                     onMouseDown={e => e.preventDefault()}
                     onClick={() => {
                       const newParams = params.filter((_, i) => i !== index);

@@ -1,22 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import config from '../../config/config';
-import utils from '../../utils/utils';
-import './timeBarContainer.less';
-import {
-  getTimeAxisSource,
-  showOrHideTask,
-  ganttDragRecordId,
-  ganttDragRecordIndex,
-  updateStartTimeAndEndTime,
-  updateUserStatus,
-} from '../../redux/actions';
-import TimeBarFences from '../../component/timeBarFences/timeBarFences';
-import TaskTimeBar from '../../component/taskTimeBar/taskTimeBar';
+import moment from 'moment';
 import ajaxRequest from 'src/api/taskCenter';
 import { updateTimeError, updateTimeErrorDialog } from '../../../../components/updateTimeError/updateTimeError';
 import TaskDetail from '../../../taskDetail/taskDetail';
-import moment from 'moment';
+import TaskTimeBar from '../../component/taskTimeBar/taskTimeBar';
+import TimeBarFences from '../../component/timeBarFences/timeBarFences';
+import config from '../../config/config';
+import {
+  ganttDragRecordId,
+  ganttDragRecordIndex,
+  getTimeAxisSource,
+  showOrHideTask,
+  updateStartTimeAndEndTime,
+  updateUserStatus,
+} from '../../redux/actions';
+import utils from '../../utils/utils';
+import './timeBarContainer.less';
 
 class TimeBarContainer extends Component {
   constructor(props) {
@@ -43,9 +43,15 @@ class TimeBarContainer extends Component {
         $('.timeBars.noDateList').css('padding-left', $('.timeBarContainer').scrollLeft() + 20);
 
         // 左侧接近触边加载数据 不是拖拽的时候加载
-        if (!config.folderId && $(this).scrollLeft() < 50 && config.isReady && !config.isSingleDrag && !$('#ganttDragPreview').length) {
+        if (
+          !config.folderId &&
+          $(this).scrollLeft() < 50 &&
+          config.isReady &&
+          !config.isSingleDrag &&
+          !$('#ganttDragPreview').length
+        ) {
           const accountIds = [];
-          that.props.accountTasksKV.forEach((item) => {
+          that.props.accountTasksKV.forEach(item => {
             if (!item.account.hidden) {
               accountIds.push(item.account.accountId);
             }
@@ -53,17 +59,11 @@ class TimeBarContainer extends Component {
           // 最小时间
           let startTime = '';
           if (that.props.stateConfig.currentView === config.VIEWTYPE.DAY) {
-            startTime = moment(config.minStartTime)
-              .add(-6, 'w')
-              .format('YYYY-MM-DD HH:00');
+            startTime = moment(config.minStartTime).add(-6, 'w').format('YYYY-MM-DD HH:00');
           } else if (that.props.stateConfig.currentView === config.VIEWTYPE.WEEK) {
-            startTime = moment(config.minStartTime)
-              .add(-12, 'w')
-              .format('YYYY-MM-DD HH:00');
+            startTime = moment(config.minStartTime).add(-12, 'w').format('YYYY-MM-DD HH:00');
           } else if (that.props.stateConfig.currentView === config.VIEWTYPE.MONTH) {
-            startTime = moment(config.minStartTime)
-              .add(-24, 'w')
-              .format('YYYY-MM-DD HH:00');
+            startTime = moment(config.minStartTime).add(-24, 'w').format('YYYY-MM-DD HH:00');
           }
           const endTime = config.minStartTime;
 
@@ -76,7 +76,7 @@ class TimeBarContainer extends Component {
     });
 
     // 记录鼠标按下的位置
-    $(document).on('mousedown.ganttDrag', '.timeBars .timeBar', (event) => {
+    $(document).on('mousedown.ganttDrag', '.timeBars .timeBar', event => {
       config.mouseOffset = {
         left: event.clientX,
         top: event.clientY,
@@ -130,7 +130,14 @@ class TimeBarContainer extends Component {
       chargeAccountId = this.props.accountTasksKV[this.props.stateConfig.dragHoverIndex].account.accountId;
     }
 
-    this.updateTaskStartTimeAndDeadline(this.props.stateConfig.dragTaskId, timeLock, config.newStartTime, config.newEndTime, 0, chargeAccountId);
+    this.updateTaskStartTimeAndDeadline(
+      this.props.stateConfig.dragTaskId,
+      timeLock,
+      config.newStartTime,
+      config.newEndTime,
+      0,
+      chargeAccountId,
+    );
     this.ganttBeginDrag('');
     this.ganttDragHover(-1);
   }
@@ -154,7 +161,7 @@ class TimeBarContainer extends Component {
         chargeAccountId,
         updateType,
       })
-      .then((source) => {
+      .then(source => {
         config.isEndDrag = false;
         if (source.status) {
           // 是否更新时间轴视图
@@ -176,7 +183,7 @@ class TimeBarContainer extends Component {
 
           // 二次确认层
           if (source.data.updateTypes) {
-            const callback = (updateType) => {
+            const callback = updateType => {
               this.updateTaskStartTimeAndDeadline(taskId, source.data.timeLock, startTime, endTime, updateType);
             };
             updateTimeErrorDialog(source, startTime, callback);
@@ -218,7 +225,11 @@ class TimeBarContainer extends Component {
    * 无下属和关注的同事上边距高度
    */
   taskTimeBarBoxStyle() {
-    if (this.props.accountTasksKV.length === 2 && this.props.accountTasksKV[0].account.hidden && this.props.accountTasksKV[1].account.hidden) {
+    if (
+      this.props.accountTasksKV.length === 2 &&
+      this.props.accountTasksKV[0].account.hidden &&
+      this.props.accountTasksKV[1].account.hidden
+    ) {
       return {
         paddingTop: $(document).height() - 338,
       };
@@ -230,7 +241,7 @@ class TimeBarContainer extends Component {
   /**
    * 打开任务详情
    */
-  openTaskDetail = (taskId) => {
+  openTaskDetail = taskId => {
     this.setState({ openTaskDetail: true, taskId });
   };
 
@@ -248,11 +259,14 @@ class TimeBarContainer extends Component {
       <div className="flex relative">
         <div
           className="timeBarContainer"
-          ref={(timeBarContainer) => {
+          ref={timeBarContainer => {
             this.timeBarContainer = timeBarContainer;
           }}
         >
-          <div className="timeBarBox" style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend) }}>
+          <div
+            className="timeBarBox"
+            style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend) }}
+          >
             <TimeBarFences viewType={currentView} timeAxisSource={timeAxisSource} filterWeekend={filterWeekend} />
             <div className="taskTimeBarBox" style={this.taskTimeBarBoxStyle()}>
               {accountTasksKV.map((item, i) => {
@@ -293,7 +307,7 @@ class TimeBarContainer extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { accountTasksKV, stateConfig, timeAxisSource } = state.task;
 
   return {

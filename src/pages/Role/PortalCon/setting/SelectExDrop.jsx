@@ -54,7 +54,7 @@ const CheckboxOption = styled.div`
 `;
 
 export default function CheckboxSelect(props) {
-  const { disabled, controls, onChange } = props;
+  const { disabled, controls, onChange, max = 3 } = props;
   const [selectedValues, setSelectedValues] = useState(props.values);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function CheckboxSelect(props) {
   };
 
   return (
-    <StyledSelectContainer>
+    <StyledSelectContainer className={props.className}>
       <Select
         mode="multiple"
         placeholder={_l('请选择')}
@@ -77,7 +77,7 @@ export default function CheckboxSelect(props) {
         value={selectedValues}
         onChange={handleChange}
         style={{ width: '100%' }}
-        maxTagCount={3}
+        maxTagCount={max}
         dropdownRender={menu => <StyledDropdown>{menu}</StyledDropdown>}
         tagRender={props => (
           <StyledTag className="ant-select-selection-item alignItemsCenter">
@@ -89,7 +89,7 @@ export default function CheckboxSelect(props) {
             <Icon icon="close" className="Font14 inlineFlexRow Hand Gray_75 ThemeHoverColor3" onClick={props.onClose} />
           </StyledTag>
         )}
-        notFoundContent={<span className="Gray_9e">{_l('暂无相关字段')}</span>}
+        notFoundContent={<span className="Gray_9e">{props.noTxt || _l('暂无相关字段')}</span>}
         optionLabelProp="label"
         dropdownStyle={{ padding: 0 }}
         // 添加以下属性确保箭头显示
@@ -98,19 +98,19 @@ export default function CheckboxSelect(props) {
       >
         {controls
           .map(o => {
-            return { value: o.controlId, label: o.controlName };
+            return { value: o[props.keyId || 'controlId'], label: o[props.name || 'controlName'] };
           })
-          .map((option, index) => (
+          .map(option => (
             <React.Fragment key={option.value}>
               <Option
                 value={option.value}
                 label={option.label}
-                disabled={selectedValues.length >= 3 && !selectedValues.includes(option.value)}
+                disabled={selectedValues.length >= max && !selectedValues.includes(option.value)}
               >
                 <CheckboxOption>
                   <Checkbox
                     checked={selectedValues.includes(option.value)}
-                    disabled={selectedValues.length >= 3 && !selectedValues.includes(option.value)}
+                    disabled={selectedValues.length >= max && !selectedValues.includes(option.value)}
                   />
                   <span style={{ marginLeft: 8 }}>{option.label}</span>
                 </CheckboxOption>

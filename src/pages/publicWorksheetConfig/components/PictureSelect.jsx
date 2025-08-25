@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const PicList = styled.div`
@@ -89,7 +89,9 @@ export default class extends React.Component {
               style={{ background: `url(${md.global.FileStoreConfig.pubHost + url}?imageView2/1/w/160)` }}
             >
               <PicMask
-                className={cx('picMask', { active: md.global.FileStoreConfig.pubHost + url === coverUrl.split('?')[0] })}
+                className={cx('picMask', {
+                  active: md.global.FileStoreConfig.pubHost + url === coverUrl.split('?')[0],
+                })}
               >
                 <i className="icon icon-hr_ok"></i>
               </PicMask>

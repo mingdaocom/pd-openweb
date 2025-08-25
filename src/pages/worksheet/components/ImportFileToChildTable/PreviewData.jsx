@@ -104,7 +104,6 @@ export default function PreviewData(props) {
     controls,
     setStep,
     onClose,
-    onAddRows,
   } = props;
   const [mapByExcel, setMapByExcel] = useState(dataFrom === 'excel');
   const [tableLoading, setTableLoading] = useState(false);

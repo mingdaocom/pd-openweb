@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { APP_TYPE, TRIGGER_ID } from '../../enum';
-import { TriggerCondition, SelectFields } from '../components';
-import { Dropdown, Radio } from 'ming-ui';
 import cx from 'classnames';
+import { Dropdown, Radio } from 'ming-ui';
+import { APP_TYPE, TRIGGER_ID } from '../../enum';
+import { SelectFields, TriggerCondition } from '../components';
 
 export default ({
   data,

@@ -1,38 +1,16 @@
-/**
- * Dropdown 组件，支持
- * 1 单选/多选
- * 2 多级数据
- */
-/**
- * Dropdown 组件，支持
- * 1 单选/多选
- * 2 多级数据
- */
-/**
- * Dropdown 组件，支持
- * 1 单选/多选
- * 2 多级数据
- */
-/**
- * Dropdown 组件，支持
- * 1 单选/多选
- * 2 多级数据
- */
-import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
-import '../less/multidropdown.less';
-import '../less/multidropdownmenu.less';
-import '../less/multidropdownpills.less';
 
 /**
  * 菜单组件
  */
 import MultipleDropdownMenu from './menu';
+import '../less/multidropdown.less';
+import '../less/multidropdownmenu.less';
+import '../less/multidropdownpills.less';
 
 class MultipleDropdown extends Component {
   constructor(props) {
@@ -60,7 +38,7 @@ class MultipleDropdown extends Component {
    * window click listener
    * 点击外部区域时，隐藏当前菜单
    */
-  clickListener = (e) => {
+  clickListener = e => {
     const node = ReactDOM.findDOMNode(this);
     if ((node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
       this.hideMenu();
@@ -71,7 +49,7 @@ class MultipleDropdown extends Component {
    * window keydown listener
    * 点击 ESC 键时，隐藏当前菜单
    */
-  keyDownListener = (e) => {
+  keyDownListener = e => {
     if (
       e.keyCode === 27 && // ESC
       this.state.menuOpened
@@ -177,7 +155,7 @@ class MultipleDropdown extends Component {
     return (
       <div className={cx(classNames, this.props.className || '')}>
         <button
-          ref={(button) => {
+          ref={button => {
             this.button = button;
           }}
           type="button"
@@ -225,7 +203,7 @@ MultipleDropdown.propTypes = {
         'divider', // 分隔线
       ]),
       items: PropTypes.any,
-    })
+    }),
   ),
   /**
    * 数据为空时的提示文字
@@ -269,7 +247,7 @@ MultipleDropdown.defaultProp = {
   filter: false,
   filterHint: '',
   multipleHideDropdownNav: false,
-  onChange: (event, value, label, autoHide) => {},
+  onChange: () => {},
 };
 
 export default MultipleDropdown;

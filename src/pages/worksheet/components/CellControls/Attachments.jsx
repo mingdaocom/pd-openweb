@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import cx from 'classnames';
-import _, { get } from 'lodash';
+import _, { get, isFunction } from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -240,7 +240,7 @@ function addAttachmentIndex(submitData, enumDefault) {
   return submitData;
 }
 
-function parseValue(valueStr, errCb) {
+function parseValue(valueStr = '[]') {
   let value = [];
   try {
     value = JSON.parse(valueStr);
@@ -271,6 +271,7 @@ function parseValue(valueStr, errCb) {
       return newAttachment;
     });
   } catch (err) {
+    console.log(err);
     return [];
   }
   return value;
@@ -357,7 +358,7 @@ function previewAttachment({
   );
 }
 
-function HoverPreviewPanel(props, cb = () => {}) {
+function HoverPreviewPanel(props) {
   const {
     isPicture,
     isSubList,
@@ -626,7 +627,7 @@ function Attachment(props) {
   );
 }
 
-function cellAttachments(props, sourceRef) {
+function CellAttachments(props, sourceRef) {
   const {
     isTrash,
     isSubList,
@@ -640,7 +641,6 @@ function cellAttachments(props, sourceRef) {
     viewId,
     sheetSwitchPermit,
     isediting,
-    error,
     columnStyle,
     cell = {},
     rowHeight = 34,
@@ -738,7 +738,9 @@ function cellAttachments(props, sourceRef) {
           let parsedValue = [];
           try {
             parsedValue = JSON.parse(data[cell.controlId]);
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
           setAttachments(
             parsedValue.map(file => ({
               ext: file.ext,
@@ -822,7 +824,7 @@ function cellAttachments(props, sourceRef) {
           handleChange();
         }}
         checkValueByFilterRegex={name => {
-          const formData = props.rowFormData();
+          const formData = isFunction(props.rowFormData) ? props.rowFormData() : props.rowFormData;
           return checkValueByFilterRegex(
             { advancedSetting },
             RegExpValidator.getNameOfFileName(name),
@@ -884,7 +886,7 @@ function cellAttachments(props, sourceRef) {
   );
 }
 
-cellAttachments.propTypes = {
+CellAttachments.propTypes = {
   className: string,
   style: string,
   isediting: bool,
@@ -896,4 +898,4 @@ cellAttachments.propTypes = {
   updateEditingStatus: func,
 };
 
-export default forwardRef(cellAttachments);
+export default forwardRef(CellAttachments);

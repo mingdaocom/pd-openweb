@@ -44,7 +44,6 @@ export const FILEDS_TYPE_INFO = {
   29: { mapField: 'RELATE_SHEET' },
   30: { mapField: 'SHEET_FIELD' },
   31: { mapField: 'FORMULA_NUMBER' },
-  31: { mapField: 'FORMULA_NUMBER' },
   32: { mapField: 'CONCATENATE' },
   33: { mapField: 'AUTO_ID' },
   34: { mapField: 'SUB_LIST' },

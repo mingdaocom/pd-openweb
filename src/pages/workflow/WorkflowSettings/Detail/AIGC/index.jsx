@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
-import 'prismjs/components/prism-clike';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-javascript';
 import Remarkable from 'remarkable';
 import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import filterXss from 'xss';
@@ -73,7 +73,7 @@ export default class AIGC extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -356,7 +356,7 @@ export default class AIGC extends Component {
           height={0}
           content={data[key]}
           formulaMap={data.formulaMap}
-          onChange={(err, value, obj) => this.updateSource({ [key]: value })}
+          onChange={(err, value) => this.updateSource({ [key]: value })}
           updateSource={this.updateSource}
         />
       </Fragment>
@@ -449,7 +449,7 @@ export default class AIGC extends Component {
    */
   renderMarkdownContent = text => {
     const md = new Remarkable({
-      highlight(str, lang) {
+      highlight(str) {
         return highlight(str, languages.js);
       },
     });
@@ -479,7 +479,7 @@ export default class AIGC extends Component {
           bg="BGRed"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

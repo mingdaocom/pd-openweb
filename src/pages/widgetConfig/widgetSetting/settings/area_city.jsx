@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
 import fixedDataController from 'src/api/fixedData';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
@@ -69,7 +70,11 @@ export default function Area(props) {
       },
       { ajaxOptions: { sync: true } },
     );
-    return citys.map(i => ({ ...i, text: i.name, value: i.id }));
+    let list = citys.map(i => ({ ...i, text: i.name, value: i.id }));
+    if (!enumDefault) {
+      list = list.filter(l => !l.last);
+    }
+    return list;
   };
 
   const handleSearch = _.debounce(value => {
@@ -155,12 +160,13 @@ export default function Area(props) {
                   ) || ''
                 );
               }}
-              onChange={value =>
+              onChange={value => {
                 onChange({
                   ...handleAdvancedSettingChange(data, { chooserange: value }),
                   enumDefault2: getEnum2(value),
-                })
-              }
+                });
+                setSearchData(originData);
+              }}
             />
           </SettingItem>
           {isChinaArea() && (

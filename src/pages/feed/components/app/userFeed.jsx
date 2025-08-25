@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
 import store from 'redux/configureStore';
-import { changeListType, changeTitle } from '../../redux/postActions';
+import PropTypes from 'prop-types';
 import postEnum from '../../constants/postEnum';
+import { changeListType, changeTitle } from '../../redux/postActions';
 import { PostList } from '../post';
 import './feed.css';
 import './style.css';
@@ -20,7 +20,7 @@ class UserFeed extends React.Component {
       changeListType({
         listType: postEnum.LIST_TYPE.user,
         accountId: this.props.accountId,
-      })
+      }),
     );
     store.dispatch(changeTitle(this.props.title));
   }
@@ -31,7 +31,7 @@ class UserFeed extends React.Component {
         changeListType({
           listType: postEnum.LIST_TYPE.user,
           accountId: nextProps.accountId,
-        })
+        }),
       );
       store.dispatch(changeTitle(nextProps.title));
     }

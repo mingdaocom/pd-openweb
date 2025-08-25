@@ -1,12 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
 import Trigger from 'rc-trigger';
-import { Button, Icon, Tooltip, LoadDiv, Dialog } from 'ming-ui';
+import styled from 'styled-components';
+import { Button, Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import projectAjax from 'src/api/project';
-import DataBaseImg from '../images/database.png';
 import ConnectDataBase from '../component/ConnectDataBase';
-import { navigateTo } from 'router/navigateTo';
+import DataBaseImg from '../images/database.png';
 import './DataBase.less';
 
 const MoreOperateMenu = styled.ul`
@@ -26,7 +25,7 @@ const MoreOperateMenu = styled.ul`
       transition: none !important;
     }
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
       a {
         color: #fff;
@@ -179,7 +178,7 @@ function DataBase(props) {
             <li key={`database-${item.id}`}>
               <div className="header">
                 <div className="left">
-                  <span className='valignWrapper' onClick={() => toManage(item)}>
+                  <span className="valignWrapper" onClick={() => toManage(item)}>
                     <span className="imgCon mRight8 Hand">
                       <img src={DataBaseImg} />
                     </span>
@@ -215,7 +214,7 @@ function DataBase(props) {
                   return (
                     <div>
                       <div className="label Gray_9e mBottom8">{l.label}</div>
-                      <div className="value">{!!l.format ? l.format(itemValue) : itemValue}</div>
+                      <div className="value">{l.format ? l.format(itemValue) : itemValue}</div>
                     </div>
                   );
                 })}

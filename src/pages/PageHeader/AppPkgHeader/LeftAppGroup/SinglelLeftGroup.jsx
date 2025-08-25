@@ -1,20 +1,10 @@
-import React, { useEffect, useImperativeHandle, forwardRef, useMemo } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
-import { updateBase } from 'worksheet/redux/actions';
 import WorkSheetLeft from 'worksheet/common/WorkSheetLeft/WorkSheetLeft';
+import { configureStore } from 'src/redux/configureStore';
 
 function SinglelLeftGroup(props, ref) {
-  const {
-    appId,
-    projectId,
-    groupId,
-    worksheetId,
-    isCharge,
-    appPkg,
-    groupData,
-    firstGroupIndex
-  } = props;
+  const { appId, projectId, groupId, worksheetId, isCharge, appPkg, groupData, firstGroupIndex } = props;
 
   const store = useMemo(configureStore, []);
 
@@ -22,8 +12,6 @@ function SinglelLeftGroup(props, ref) {
     dispatch: store.dispatch,
     getState: store.getState,
   }));
-
-  const { sheetList } = store.getState();
 
   return (
     <Provider store={store}>

@@ -53,7 +53,7 @@ const DragItem = props => {
         return;
       }
 
-      if (!!direction) {
+      if (direction) {
         const hoverBoundingRect = ref.current.getBoundingClientRect();
         const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
         const clientOffset = monitor.getClientOffset();
@@ -75,7 +75,7 @@ const DragItem = props => {
 
   const [{ isDragging }, drag, dragPreview] = useDrag({
     item: { type: dragType, index, item: item },
-    canDrag: item.hasOwnProperty('canDrag') ? item.canDrag : canDrag,
+    canDrag: _.has(item, 'canDrag') ? item.canDrag : canDrag,
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),

@@ -1,7 +1,7 @@
-import React, { useRef, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import domtoimage from 'dom-to-image';
+import React, { useEffect, useRef, useState } from 'react';
 import { Drawer } from 'antd';
+import domtoimage from 'dom-to-image';
+import styled from 'styled-components';
 
 const thumbnailWidth = 240;
 const thumbnailHeight = 240;
@@ -26,7 +26,7 @@ const Box = styled.div`
 `;
 
 const Frame = styled.div`
-  border: 1px solid #2196f3;
+  border: 1px solid #1677ff;
   border-radius: 3px;
   position: absolute;
 `;

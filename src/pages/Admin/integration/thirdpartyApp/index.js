@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Button, Dialog, Icon, Input, LoadDiv } from 'ming-ui';
@@ -7,8 +8,8 @@ import application from 'src/api/application';
 import { getToken } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import Config from '../../config';
-import './index.less';
 import 'rc-trigger/assets/index.css';
+import './index.less';
 
 const UploadContent = styled.div`
   align-items: flex-end;
@@ -138,7 +139,7 @@ class Upload extends Component {
           up.settings.multipart_params.key = file.key;
           up.settings.multipart_params['x:serverName'] = file.serverName;
           up.settings.multipart_params['x:filePath'] = file.key.replace(file.fileName, '');
-          up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^\.]*$/, '');
+          up.settings.multipart_params['x:fileName'] = file.fileName.replace(/\.[^.]*$/, '');
           up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
             file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
           );

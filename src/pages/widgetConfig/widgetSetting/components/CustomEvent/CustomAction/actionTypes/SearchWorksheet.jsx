@@ -1,26 +1,26 @@
 import React, { Component, Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
 import update from 'immutability-helper';
-import { Dialog, Dropdown, Menu, MenuItem, LoadDiv, Tooltip, RadioGroup } from 'ming-ui';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { SearchWorksheetWrap, WorksheetListWrap } from '../../../DynamicDefaultValue/styled';
-import { SettingItem } from 'src/pages/widgetConfig/styled';
-import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import SelectWorksheet from '../../../SearchWorksheet/SelectWorksheet';
+import { Dialog, Dropdown, LoadDiv, Menu, MenuItem, RadioGroup, Tooltip } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import SelectControl from '../../../SelectControl';
-import { getControls } from '../../../DynamicDefaultValue/util';
-import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
+import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget.js';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
 import 'src/pages/widgetConfig/styled/style.less';
-import cx from 'classnames';
-import _ from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
+import { SearchWorksheetWrap, WorksheetListWrap } from '../../../DynamicDefaultValue/styled';
+import { getControls } from '../../../DynamicDefaultValue/util';
 import EmptyRuleConfig from '../../../EmptyRuleConfig';
+import SelectWorksheet from '../../../SearchWorksheet/SelectWorksheet';
+import SelectControl from '../../../SelectControl';
 
 const RadioDisplay = [
   {
@@ -351,7 +351,7 @@ class SearchWorksheetActionDialog extends Component {
               });
             }}
           >
-            <i className="icon-delete1 Font17 Gray_9d ThemeHoverColor3"></i>
+            <i className="icon-trash Font17 Gray_9d ThemeHoverColor3"></i>
           </span>
         </div>
         {showSelect && (

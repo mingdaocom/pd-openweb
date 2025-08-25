@@ -25,7 +25,7 @@ const Con = styled.div`
 
 export default function SelectedInfo({ selectedRowIds = [], summaryControls = [], records = [] }) {
   const selectedRecords = useMemo(() => {
-    return records.filter(record => selectedRowIds.includes(record.rowid));
+    return records.filter(record => record && selectedRowIds.includes(record.rowid));
   }, [records, selectedRowIds]);
   return (
     <Con>

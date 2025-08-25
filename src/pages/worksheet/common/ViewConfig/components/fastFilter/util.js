@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { DATE_RANGE_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { DATE_TYPE, DATE_TYPE_ALL, DATE_TYPE_M, DATE_TYPE_Y, DATE_TYPE_D, DATE_TYPE_H, DATE_TYPE_H_M, DATE_SHOW_TYPE } from './config';
-import { DATE_RANGE_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js'
+import { DATE_SHOW_TYPE, DATE_TYPE, DATE_TYPE_ALL, DATE_TYPE_D, DATE_TYPE_H, DATE_TYPE_M, DATE_TYPE_Y } from './config';
 
 // 文本筛选方式
 const TEXT_TYPE = [
@@ -184,10 +184,10 @@ export const NAV_SHOW_TYPE = {
 const DATE_GRANULARITY_TYPE_ENUM = [
   { text: _l('年'), value: DATE_RANGE_TYPE.YEAR }, //showtype 5
   // { text: _l('季'), value: DATE_RANGE_TYPE.QUARTER },//showtype 11
-  { text: _l('月'), value: DATE_RANGE_TYPE.MONTH },// showtype 4
-  { text: _l('日'), value: DATE_RANGE_TYPE.DAY },//showtype3
-  { text: _l('时'), value: DATE_RANGE_TYPE.HOUR },//showtype 2
-  { text: _l('分'), value: DATE_RANGE_TYPE.MINUTE },//showtype 1
+  { text: _l('月'), value: DATE_RANGE_TYPE.MONTH }, // showtype 4
+  { text: _l('日'), value: DATE_RANGE_TYPE.DAY }, //showtype3
+  { text: _l('时'), value: DATE_RANGE_TYPE.HOUR }, //showtype 2
+  { text: _l('分'), value: DATE_RANGE_TYPE.MINUTE }, //showtype 1
   // { text: _l('秒'), value: DATE_RANGE_TYPE.SECOND }, //showtype 6
 ];
 // 颗粒度
@@ -354,43 +354,64 @@ export const getDefaultDateRangeType = (control = {}) => {
 };
 
 //返回对应showtype
-export const getShowtypeByDateRangeType = (dateRangeType) => {
+export const getShowtypeByDateRangeType = dateRangeType => {
   switch (dateRangeType) {
     case DATE_RANGE_TYPE.YEAR:
-      return DATE_SHOW_TYPE.YEAR
+      return DATE_SHOW_TYPE.YEAR;
     case DATE_RANGE_TYPE.QUARTER:
-      return DATE_SHOW_TYPE.QUARTER
+      return DATE_SHOW_TYPE.QUARTER;
     case DATE_RANGE_TYPE.MONTH:
-      return DATE_SHOW_TYPE.MONTH
+      return DATE_SHOW_TYPE.MONTH;
     case DATE_RANGE_TYPE.DAY:
-      return DATE_SHOW_TYPE.DAY
+      return DATE_SHOW_TYPE.DAY;
     case DATE_RANGE_TYPE.HOUR:
-      return DATE_SHOW_TYPE.HOUR
+      return DATE_SHOW_TYPE.HOUR;
     case DATE_RANGE_TYPE.MINUTE:
-      return DATE_SHOW_TYPE.MINUTE
+      return DATE_SHOW_TYPE.MINUTE;
     case DATE_RANGE_TYPE.SECOND:
-      return DATE_SHOW_TYPE.SECOND
+      return DATE_SHOW_TYPE.SECOND;
   }
-}
+};
 
-export const getDateRangeTypeListByShowtype = (showtype) => {
+export const getDateRangeTypeListByShowtype = showtype => {
   switch (showtype) {
     case DATE_SHOW_TYPE.YEAR:
-      return DATE_GRANULARITY_TYPE_ENUM.filter(o => o.value === DATE_RANGE_TYPE.YEAR)
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => o.value === DATE_RANGE_TYPE.YEAR);
     case DATE_SHOW_TYPE.QUARTER:
-      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER].includes(o.value))
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER].includes(o.value));
     case DATE_SHOW_TYPE.MONTH:
-      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH].includes(o.value))
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o =>
+        [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH].includes(o.value),
+      );
     case DATE_SHOW_TYPE.DAY:
-      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY].includes(o.value))
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o =>
+        [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY].includes(o.value),
+      );
     case DATE_SHOW_TYPE.HOUR:
-      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY, DATE_RANGE_TYPE.HOUR].includes(o.value))
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o =>
+        [
+          DATE_RANGE_TYPE.YEAR,
+          DATE_RANGE_TYPE.QUARTER,
+          DATE_RANGE_TYPE.MONTH,
+          DATE_RANGE_TYPE.DAY,
+          DATE_RANGE_TYPE.HOUR,
+        ].includes(o.value),
+      );
     case DATE_SHOW_TYPE.MINUTE:
-      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY, DATE_RANGE_TYPE.HOUR, DATE_RANGE_TYPE.MINUTE].includes(o.value))
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o =>
+        [
+          DATE_RANGE_TYPE.YEAR,
+          DATE_RANGE_TYPE.QUARTER,
+          DATE_RANGE_TYPE.MONTH,
+          DATE_RANGE_TYPE.DAY,
+          DATE_RANGE_TYPE.HOUR,
+          DATE_RANGE_TYPE.MINUTE,
+        ].includes(o.value),
+      );
     default:
-      return DATE_GRANULARITY_TYPE_ENUM
+      return DATE_GRANULARITY_TYPE_ENUM;
   }
-}
+};
 
 export const getSetDefault = (control = {}) => {
   let type = getControlFormatType(control);
@@ -426,13 +447,17 @@ export const getSetDefault = (control = {}) => {
     }
   });
   //设置了加密
-  if (!!control.encryId) {
+  if (control.encryId) {
     fastFilterSet = { ...fastFilterSet, filterType: FILTER_CONDITION_TYPE.EQ };
   }
-  if (!!_.get(control, 'advancedSetting.searchcontrol')) {
+  //检查框 默认不勾选
+  if (fastFilterSet.dataType === 36) {
+    fastFilterSet.filterType = FILTER_CONDITION_TYPE.NE;
+  }
+  if (_.get(control, 'advancedSetting.searchcontrol')) {
     fastFilterSet.advancedSetting.searchcontrol = _.get(control, 'advancedSetting.searchcontrol');
   }
-  if (!!_.get(control, 'advancedSetting.searchtype')) {
+  if (_.get(control, 'advancedSetting.searchtype')) {
     fastFilterSet.advancedSetting.searchtype = _.get(control, 'advancedSetting.searchtype');
   }
   return fastFilterSet;
@@ -464,8 +489,9 @@ export const formatFastFilterData = info => {
 export const getDaterange = advancedSetting => {
   let daterange = advancedSetting.daterange;
   try {
-    daterange = JSON.parse(daterange);
+    daterange = safeParse(daterange, 'array');
   } catch (error) {
+    console.log(error);
     daterange = [];
   }
   return daterange;

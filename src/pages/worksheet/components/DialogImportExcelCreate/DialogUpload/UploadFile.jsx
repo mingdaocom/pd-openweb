@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Progress } from 'antd';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import createUploader from 'src/library/plupload/createUploader';
 import { formatFileSize } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -13,9 +13,9 @@ const UploadWrap = styled.div`
     color: #bdbdbd;
   }
   &:hover {
-    border: 1px dashed #2196f3;
+    border: 1px dashed #1677ff;
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -55,7 +55,7 @@ export default class UploadFile extends Component {
       },
       type: 8,
       init: {
-        Error: (up, err, errTip) => {
+        Error: (up, err) => {
           const {
             file: { name },
             code,
@@ -97,7 +97,7 @@ export default class UploadFile extends Component {
         <Progress
           style={{ width: 196, marginLeft: '36px' }}
           trailColor="#eaeaea"
-          strokeColor="#2196f3"
+          strokeColor="#1677ff"
           strokeWidth={8}
           percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
         />

@@ -1,20 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useSetState, useKey } from 'react-use';
-import { Dialog, Checkbox } from 'ming-ui';
-import styled from 'styled-components';
-import { getDefaultDateRange, getShowtypeByDateRangeType } from '../util';
-import {
-  DATE_TYPE,
-  DATE_TYPE_PASS,
-  DATE_TYPE_FUTURE,
-  DATE_TYPE_M,
-  DATE_TYPE_Y,
-  DATE_TYPE_D,
-  DATE_TYPE_H,
-  DATE_TYPE_H_M,
-  DATE_TYPE_ALL,
-} from '../config';
+import React, { useState } from 'react';
+import { useKey, useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog } from 'ming-ui';
+import { DATE_TYPE, DATE_TYPE_ALL, DATE_TYPE_FUTURE, DATE_TYPE_PASS } from '../config';
+import { getDefaultDateRange, getShowtypeByDateRangeType } from '../util';
 
 const Wrap = styled.div``;
 export default function (props) {

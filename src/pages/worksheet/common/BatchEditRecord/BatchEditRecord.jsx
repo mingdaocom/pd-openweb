@@ -10,6 +10,7 @@ import { formatControlToServer } from 'src/components/newCustomFields/tools/util
 import { controlBatchCanEdit } from 'src/utils/control';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { getGroupControlId } from 'src/utils/worksheet';
 import { getEditType, handleBatchUpdateRecords } from './controller';
 import EditControlItem from './EditControlItem';
 
@@ -48,7 +49,7 @@ const SelectControlButton = styled.div`
   background-color: #f8f8f8;
   padding: 0 16px;
   font-size: 13px;
-  color: #2196f3;
+  color: #1677ff;
   &:hover {
     background-color: #f5f5f5;
   }
@@ -96,7 +97,7 @@ export default function BatchEditRecord(props) {
   const editConRef = useRef(null);
   const addRef = useRef(null);
   const refCache = useRef({});
-  const [loading, error, worksheetInfo] = useApi(
+  const [loading, , worksheetInfo] = useApi(
     worksheetApi.getWorksheetInfo,
     {
       appId,
@@ -127,7 +128,9 @@ export default function BatchEditRecord(props) {
             }).error,
         ),
     );
-    const hasAuthRowIds = selectedRows.filter(row => row.allowedit || row.allowEdit).map(row => row.rowid);
+    const hasAuthRowIds = selectedRows
+      .filter(row => (row.allowedit || row.allowEdit) && !row.sys_lock)
+      .map(row => row.rowid);
     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
       alert(_l('无权限修改选择的%0', worksheetInfo.entityName), 2);
       return false;
@@ -207,6 +210,10 @@ export default function BatchEditRecord(props) {
       selectedControls,
       onClose,
       onUpdate: () => {
+        const groupControlId = getGroupControlId(view);
+        if (groupControlId && get(needUpdateControls, '0.controlId') === groupControlId) {
+          reloadWorksheet();
+        }
         onUpdate({ needUpdateControls });
       },
       setIsUpdating,
@@ -238,8 +245,10 @@ export default function BatchEditRecord(props) {
       onCancel={onClose}
     >
       <Con>
-        <Title>{_l('批量编辑')}</Title>
-        <Description>{_l('通过批量编辑，您可以快速统一修改相同字段的数据内容。')}</Description>
+        <Title>{_l('批量编辑%0', worksheetInfo?.entityName)}</Title>
+        <Description>
+          {_l('批量编辑可以统一将字段值改为相同内容。一次最多修改前1000条未锁定且有编辑权限的记录。')}
+        </Description>
         <EditCon className="mTop12" ref={editConRef} maxHeight={window.innerHeight - 32 * 2 - 86 - 80 - 52}>
           {selectedControls.map(item => (
             <EditControlItem

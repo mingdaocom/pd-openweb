@@ -1,10 +1,11 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React from 'react';
 import { isEmpty } from 'lodash';
-import { CommonDisplay, EditModelWrap, EmptySheetPlaceHolder } from '../../styled';
-import { getAdvanceSetting, getShowControls } from '../../util/setting';
+import _ from 'lodash';
 import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { SYSTEM_CONTROL } from '../../config/widget';
+import { CommonDisplay, EditModelWrap } from '../../styled';
 import { isSheetDisplay } from '../../util';
+import { getAdvanceSetting, getShowControls } from '../../util/setting';
 
 export default function RelateSheet({ data = {}, isTab }) {
   const { enumDefault, hint = '', relationControls = [] } = data;
@@ -19,7 +20,7 @@ export default function RelateSheet({ data = {}, isTab }) {
 
   const getWidths = () => {
     const widths = getAdvanceSetting(data, 'widths') || [];
-    if (isEmpty(widths)) return showControls.map(item => 160);
+    if (isEmpty(widths)) return showControls.map(() => 160);
     if (widths.length === showControls.length) return widths;
     return showControls.map((v, i) => widths[i] || 160);
   };

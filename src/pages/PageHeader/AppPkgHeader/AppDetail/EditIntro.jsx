@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { string, func, bool } from 'prop-types';
-import Editor from './EditorDiaLogContent';
-import { compareProps } from '../../util';
 import _ from 'lodash';
+import { bool, func, string } from 'prop-types';
+import { compareProps } from '../../util';
+import Editor from './EditorDiaLogContent';
 import './index.less';
 
 export default class AppIntro extends Component {

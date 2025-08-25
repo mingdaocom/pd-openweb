@@ -86,7 +86,7 @@ class Detail extends React.Component {
     }
     if (newState) {
       this.setState(newState);
-      if (newState.hasOwnProperty('readablePosition')) {
+      if (_.has(newState, 'readablePosition')) {
         service
           .getReadablePosition(this.props.data.position)
           .then(readablePosition => this._isMounted && this.setState({ readablePosition }))
@@ -113,7 +113,7 @@ class Detail extends React.Component {
       service
         .getNodeById(this.props.data.id)
         .then(node => this._isMounted && this.setState({ shareUrl: node.shareUrl }))
-        .catch(err => {
+        .catch(() => {
           alert('获取分享链接失败');
         });
     }
@@ -264,7 +264,7 @@ class Detail extends React.Component {
                           log.type === LOG_TYPE.DELETED ||
                           log.type === LOG_TYPE.CHILDRECYCLED ||
                           log.type === LOG_TYPE.CHILDDELETED
-                        ? 'icon-task-new-delete'
+                        ? 'icon-trash'
                         : 'icon-edit',
                   )}
                 />
@@ -406,7 +406,6 @@ class Detail extends React.Component {
   };
 
   genPreviewLink = (name, versionId, nodeId) => {
-    const comp = this;
     let isOldest;
     if (versionId === 'oldest') {
       isOldest = true;

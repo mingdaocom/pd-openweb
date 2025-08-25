@@ -1,9 +1,9 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Dialog } from 'ming-ui';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
-import WidgetColor from './WidgetColor';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
+import WidgetColor from './WidgetColor';
 
 const DynamicColorWrap = styled.div`
   display: flex;
@@ -36,7 +36,7 @@ const DynamicColorWrap = styled.div`
   }
 `;
 
-const defaultColor = '#2196f3';
+const defaultColor = '#1677ff';
 
 export default function NumberDynamicColor(props) {
   const { colors = [], max, handleChange, onClose } = props;
@@ -93,7 +93,7 @@ export default function NumberDynamicColor(props) {
               <span className="mLeft12 mRight12">{_l('颜色为')}</span>
               <WidgetColor color={item.value} handleChange={color => onChange({ value: color }, index)} />
               <span
-                className={cx('icon-remove_circle_outline1 iconOp mLeft20', { disabled: deleteDisabled })}
+                className={cx('icon-remove_circle_outline iconOp mLeft20', { disabled: deleteDisabled })}
                 onClick={() => {
                   if (deleteDisabled) return;
                   setDynamicColor(dynamicColor.filter((i, dx) => dx !== index));

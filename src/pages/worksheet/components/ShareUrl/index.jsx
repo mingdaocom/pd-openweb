@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import copy from 'copy-to-clipboard';
 import { saveAs } from 'file-saver';
-import { Tooltip, Dialog } from 'ming-ui';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, Tooltip } from 'ming-ui';
 import { TextBlock } from 'worksheet/components/Basics';
 import SendToChat from './SendToChat';
 import './ShareUrl.less';
-import _ from 'lodash';
 
 const Url = styled(TextBlock)`
   overflow: hidden;
@@ -22,7 +22,7 @@ const Url = styled(TextBlock)`
   }
   .icon-refresh {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -36,7 +36,7 @@ const Icon = styled(TextBlock)`
   text-align: center;
   margin-left: 6px;
   :hover {
-    color: #2196f3;
+    color: #1677ff;
   }
   ${({ theme }) =>
     theme === 'light' &&
@@ -44,7 +44,7 @@ const Icon = styled(TextBlock)`
     background: #fff;
     border: 1px solid #ddd;
     :hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   `}
 `;
@@ -55,7 +55,7 @@ const InputIcon = styled.span`
   font-size: 14px;
   margin-left: 6px;
   :hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -69,7 +69,7 @@ const TextIcon = styled(TextBlock)`
   font-weight: 500;
   margin-left: 6px;
   :hover {
-    color: #2196f3;
+    color: #1677ff;
   }
   ${({ theme }) =>
     theme === 'light' &&
@@ -77,7 +77,7 @@ const TextIcon = styled(TextBlock)`
     background: #fff;
     border: 1px solid #ddd;
     :hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   `}
 `;
@@ -99,9 +99,9 @@ const SeparateDisplayButton = styled(TextBlock)`
   }
 
   :hover {
-    color: #2196f3;
+    color: #1677ff;
     i {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   ${({ theme }) =>
@@ -110,7 +110,7 @@ const SeparateDisplayButton = styled(TextBlock)`
     background: #fff;
     border: 1px solid #ddd;
     :hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   `}
 `;
@@ -197,7 +197,7 @@ export default class ShareUrl extends React.Component {
           <span>{btn.text}</span>
         </SeparateDisplayButton>
       ) : (
-        <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
+        <Tooltip key={index} autoCloseDelay={0} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
           <Icon style={btn.style} theme={theme} className={btn.className} onClick={btn.onClick}>
             <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
           </Icon>
@@ -215,7 +215,7 @@ export default class ShareUrl extends React.Component {
       return !copyTip ? (
         renderCopyDom()
       ) : (
-        <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
+        <Tooltip popupPlacement="bottom" autoCloseDelay={0} text={<span>{copyTip}</span>}>
           {renderCopyDom()}
         </Tooltip>
       );
@@ -256,9 +256,9 @@ export default class ShareUrl extends React.Component {
                   </Tooltip>
                 )}
                 {editUrl && (
-                  <Tooltip popupPlacement="bottom" text={<span>{editTip}</span>}>
+                  <Tooltip autoCloseDelay={0} popupPlacement="bottom" text={<span>{editTip}</span>}>
                     <i
-                      className="icon-new_mail Font18 InlineBlock Hand Gray_9e LineHeight36"
+                      className="icon-edit Font18 InlineBlock Hand Gray_9e LineHeight36"
                       onClick={e => {
                         e.stopPropagation();
                         editUrl();
@@ -269,7 +269,7 @@ export default class ShareUrl extends React.Component {
               </React.Fragment>
             )}
             {inputBtns.map((btn, index) => (
-              <Tooltip key={index} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
+              <Tooltip key={index} autoCloseDelay={0} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
                 <InputIcon theme={theme} onClick={btn.onClick}>
                   <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
                 </InputIcon>
@@ -301,6 +301,7 @@ export default class ShareUrl extends React.Component {
             )}
             {qrVisible && (
               <Tooltip
+                autoCloseDelay={0}
                 themeColor="white"
                 tooltipClass="qrHoverPanel"
                 popupPlacement="bottomRight"
@@ -338,14 +339,14 @@ export default class ShareUrl extends React.Component {
             {allowSendToChat && !md.global.SysSettings.forbidSuites.includes('6') && (
               <Tooltip popupPlacement="bottom" text={<span>{_l('发消息')}</span>}>
                 <Icon
-                  style={chatVisible ? { borderColor: '#2196f3' } : {}}
+                  style={chatVisible ? { borderColor: '#1677ff' } : {}}
                   theme={theme}
                   onClick={() => {
                     this.setState({ chatVisible: !chatVisible });
                   }}
                 >
                   <i
-                    style={chatVisible ? { color: '#2196f3' } : { color: '#F79104' }}
+                    style={chatVisible ? { color: '#1677ff' } : { color: '#F79104' }}
                     className={`icon-${chatVisible ? 'arrow-up-border' : 'replyto'}`}
                   ></i>
                 </Icon>

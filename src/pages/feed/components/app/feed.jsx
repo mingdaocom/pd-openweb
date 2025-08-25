@@ -1,11 +1,10 @@
 ﻿import React from 'react';
-import ScrollView from 'ming-ui/components/ScrollView';
 import PropTypes from 'prop-types';
+import { ScrollView } from 'ming-ui';
+import FeedLeftNav from '../feed/feedLeftNav';
 import { PostList } from '../post';
 import { TopPostList } from '../post/topPostList';
 import { Updater } from '../updater';
-import FeedLeftNav from '../feed/feedLeftNav';
-
 import './feed.css';
 import './style.css';
 

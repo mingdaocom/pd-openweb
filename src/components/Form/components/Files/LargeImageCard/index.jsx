@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
-import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
 import RegExpValidator from 'src/utils/expression';
 import { loadImage } from '../utils';
@@ -13,7 +12,7 @@ const LargeImageCard = props => {
 
   useEffect(() => {
     loadImage(previewUrl)
-      .then(img => {
+      .then(() => {
         setLoading(false);
       })
       .catch(() => {

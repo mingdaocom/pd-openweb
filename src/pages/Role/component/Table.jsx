@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { Checkbox, LoadDiv, Icon } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
 import url from 'src/pages/worksheet/assets/record.png';
+
 const Wrap = styled.div`
   .opacity0 {
     opacity: 0 !important;
@@ -39,7 +40,7 @@ const Wrap = styled.div`
     }
     &.isSort {
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -119,7 +120,7 @@ const WrapLi = styled.div`
     .optionWrapTr {
       .moreop {
         &:hover {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
       }
     }
@@ -151,7 +152,7 @@ const WrapSort = styled.div`
     display: none;
   }
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
   &:hover,
   &.isCue {
@@ -323,7 +324,7 @@ export default function PorTalTable(props) {
                     <Checkbox
                       className="TxtMiddle InlineBlock mRight0 checked_selected checkBox mLeft4"
                       checked={isChecked}
-                      onClick={(checked, id) => {
+                      onClick={() => {
                         if (props.ownerNoOption && item.isOwner) {
                           return;
                         }

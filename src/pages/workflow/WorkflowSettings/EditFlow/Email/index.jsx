@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, MembersName, NodeOperate } from '../components';
 import { replaceField } from '../../utils';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class Email extends Component {
   /**
@@ -17,7 +17,7 @@ export default class Email extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('未完成邮件设置')}
         </div>
       );

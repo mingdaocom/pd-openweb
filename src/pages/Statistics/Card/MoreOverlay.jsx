@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { Divider, Dropdown, Menu } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, Icon } from 'ming-ui';
 import reportConfig from '../api/reportConfig';
@@ -10,7 +9,6 @@ import reportApi from 'statistics/api/report';
 import Share from 'src/pages/worksheet/components/Share';
 import { getFilledRequestParams } from 'src/utils/common';
 import { reportTypes } from '../Charts/common';
-import { exportExcel } from '../common';
 import PageMove from '../components/PageMove';
 
 const confirm = Dialog.confirm;
@@ -56,7 +54,7 @@ export default class MoreOverlay extends Component {
         filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n)),
         ...getFilledRequestParams({}),
       })
-      .then(result => {})
+      .then(() => {})
       .catch(error => {
         alert(error, 2);
       });
@@ -72,7 +70,7 @@ export default class MoreOverlay extends Component {
           .deleteReport({
             reportId: id,
           })
-          .then(result => {
+          .then(() => {
             this.props.onRemove(id);
             if (filter.filterId) {
               sheetApi
@@ -158,13 +156,15 @@ export default class MoreOverlay extends Component {
     const card = document.querySelector(`.statisticsCard-${report.id}`);
     if (dropdownVisible) {
       const container = document.querySelector('#componentsWrap');
-      const elementRect = card.querySelector('.chartCardMoreIcon').getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      const elementBottomToContainerTop = elementRect.bottom - containerRect.top;
-      const containerVisibleHeight = container.clientHeight;
-      this.setState({
-        placement: containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight',
-      });
+      if (container) {
+        const elementRect = card.querySelector('.chartCardMoreIcon').getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const elementBottomToContainerTop = elementRect.bottom - containerRect.top;
+        const containerVisibleHeight = container.clientHeight;
+        this.setState({
+          placement: containerVisibleHeight - elementBottomToContainerTop < 200 ? 'topRight' : 'bottomRight',
+        });
+      }
     }
     if (dropdownVisible) {
       card.classList.add('active');
@@ -181,7 +181,6 @@ export default class MoreOverlay extends Component {
       ownerId,
       reportStatus,
       isMove,
-      isCharge,
       permissionType,
       projectId,
       customPageConfig = {},
@@ -190,7 +189,6 @@ export default class MoreOverlay extends Component {
       onRemove,
     } = this.props;
     const { favorite } = this.state;
-    const isSheetView = ![reportTypes.PivotTable].includes(reportType);
     const { chartShare = true, chartExportExcel = true } = customPageConfig;
     const isEmbedPage = location.href.includes('embed/page');
     const isEmbedChart = location.href.includes('embed/chart');
@@ -275,7 +273,7 @@ export default class MoreOverlay extends Component {
             data-event="export"
             popupClassName="chartMenu chartSubOperate_export"
             title={_l('导出Excel%06002')}
-            icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
+            icon={<Icon className="Gray_9e Font18 mRight5" icon="download" />}
             popupOffset={[0, 0]}
           >
             <Menu.Item
@@ -358,7 +356,7 @@ export default class MoreOverlay extends Component {
             <Divider className="mTop5 mBottom5" />
             <Menu.Item data-event="delete" className="pLeft10" onClick={this.handleDelete}>
               <div className="flexRow valignWrapper">
-                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="task-new-delete" />
+                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="trash" />
                 <span>{_l('删除')}</span>
               </div>
             </Menu.Item>
@@ -405,7 +403,9 @@ export default class MoreOverlay extends Component {
             onVisibleChange={this.handleUpdateDropdownVisible}
             overlay={this.renderOverlay()}
           >
-            <Icon className={cx(className, 'chartCardMoreIcon')} icon="more_horiz" />
+            <span className={className}>
+              <Icon className="chartCardMoreIcon" icon="more_horiz" />
+            </span>
           </Dropdown>
         )}
         {shareVisible && (

@@ -107,7 +107,7 @@ class Node extends Component {
   }
 
   renderToggleButton() {
-    const { collapsed, id, hasSub, dataFromProps, onChangeData, data, subordinates } = this.props;
+    const { collapsed, id, hasSub, dataFromProps, onChangeData, subordinates } = this.props;
     if (hasSub || (subordinates && subordinates.length)) {
       const font = collapsed ? 'plus' : 'minus';
       return (
@@ -216,7 +216,7 @@ class Node extends Component {
       return (
         <div className="rootNodeItem">
           <div className="Font24 pLeft8">
-            <Icon icon="company" className="TxtMiddle Gray_9e" />
+            <Icon icon="business" className="TxtMiddle Gray_9e" />
             <span className="Font16 TxtMiddle mLeft10 mRight10">{this.props.fullname}</span>
             {auth ? (
               <span className="Hand Font14 TxtMiddle Gray_9e" onClick={this.add.bind(this)}>
@@ -267,6 +267,7 @@ const ConnectedNode = connect((state, ownProps) => {
     isHighLight: highLightId === ownProps.id,
     isLoading,
     firstLevelLoading: ownProps.dataFromProps ? ownProps.firstLevelLoading : firstLevelLoading,
+    projectId: ownProps.projectId,
   };
 })(Node);
 

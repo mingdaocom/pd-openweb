@@ -1,15 +1,15 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import _ from 'lodash';
 import { Dropdown, LoadDiv } from 'ming-ui';
-import ProcessInput from './ProcessInput';
-import SelectOtherPBCDialog from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectOtherPBCDialog';
+import homeAppApi from 'src/api/homeApp';
 import processApi from 'src/pages/workflow/api/process';
 import processVersionApi from 'src/pages/workflow/api/processVersion';
-import homeAppApi from 'src/api/homeApp';
 import customApi from 'statistics/api/custom';
-import _ from 'lodash';
+import SelectOtherPBCDialog from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectOtherPBCDialog';
+import ProcessInput from './ProcessInput';
 
 export default function SelectProcess(props) {
-  const { appId, projectId, btnSetting, setDataSource, setBtnSetting } = props;
+  const { appId, projectId, btnSetting, setBtnSetting } = props;
   const { processId, config = {} } = btnSetting;
 
   const [processList, setProcessList] = useState([]);
@@ -19,19 +19,23 @@ export default function SelectProcess(props) {
   const [processLoading, setProcessLoading] = useState(true);
 
   const getList = () => {
-    processVersionApi.list({
-      relationId: appId,
-      processListType: 10,
-    }).then(data => {
-      const { processList = [], groupName } = data[0] || {};
-      setProcessList(processList.map(item => {
-        return {
-          text: item.name,
-          value: item.id
-        }
-      }));
-    });
-  }
+    processVersionApi
+      .list({
+        relationId: appId,
+        processListType: 10,
+      })
+      .then(data => {
+        const { processList = [] } = data[0] || {};
+        setProcessList(
+          processList.map(item => {
+            return {
+              text: item.name,
+              value: item.id,
+            };
+          }),
+        );
+      });
+  };
 
   useEffect(() => {
     setInputList([]);
@@ -56,73 +60,82 @@ export default function SelectProcess(props) {
       setProcessLoading(true);
 
       const getProcessApiInfo = () => {
-        processApi.getProcessApiInfo({
-          processId: btnSetting.processId
-        }).then(data => {
-          data.inputs = data.inputs.filter(item => [2, 6, 9, 16, 26, 27, 36, 48].includes(item.type) && !item.dataSource);
-          if (data.relationId !== appId) {
-            homeAppApi.getApp({
-              appId: data.relationId
-            }).then(app => {
-              setOtherAppProcess({
-                appName: app.name,
-                processName: data.name,
-              });
-            });
-          }
-          setInputList(data.inputs.map(item => {
-            return {
-              text: item.controlName,
-              value: item.controlId,
-              required: item.required
+        processApi
+          .getProcessApiInfo({
+            processId: btnSetting.processId,
+          })
+          .then(data => {
+            data.inputs = data.inputs.filter(
+              item => [2, 6, 9, 16, 26, 27, 36, 48].includes(item.type) && !item.dataSource,
+            );
+            if (data.relationId !== appId) {
+              homeAppApi
+                .getApp({
+                  appId: data.relationId,
+                })
+                .then(app => {
+                  setOtherAppProcess({
+                    appName: app.name,
+                    processName: data.name,
+                  });
+                });
             }
-          }));
-          setBtnSetting({
-            ...btnSetting,
-            config: {
-              ...config,
-              inputsIsEdit: true,
-              inputs: data.inputs.map(item => {
-                const input = _.find(inputs, { controlId: item.controlId });
+            setInputList(
+              data.inputs.map(item => {
                 return {
-                  ...item,
-                  value: input ? input.value : []
-                }
-              })
-            }
+                  text: item.controlName,
+                  value: item.controlId,
+                  required: item.required,
+                };
+              }),
+            );
+            setBtnSetting({
+              ...btnSetting,
+              config: {
+                ...config,
+                inputsIsEdit: true,
+                inputs: data.inputs.map(item => {
+                  const input = _.find(inputs, { controlId: item.controlId });
+                  return {
+                    ...item,
+                    value: input ? input.value : [],
+                  };
+                }),
+              },
+            });
+            setProcessLoading(false);
           });
-          setProcessLoading(false);
-        });
-      }
+      };
 
       if (inputsIsEdit) {
         getProcessApiInfo();
       } else {
-        customApi.transformControlValue({
-          companyId: projectId,
-          controls: inputs,
-        }).then(data => {
-          inputs = data;
-          getProcessApiInfo();
-        });
+        customApi
+          .transformControlValue({
+            companyId: projectId,
+            controls: inputs,
+          })
+          .then(data => {
+            inputs = data;
+            getProcessApiInfo();
+          });
       }
-
     } else {
       setProcessLoading(false);
     }
   }, [btnSetting.id, btnSetting.processId]);
 
-  const changeProcessId = (value) => {
+  const changeProcessId = value => {
     setOtherAppProcess(null);
     setBtnSetting({
       ...btnSetting,
       processId: value,
       config: {
         ...config,
-        inputs: []
-      }
+        inputs: [],
+      },
     });
-  }
+  };
 
   const otherPBC = [
     {
@@ -141,12 +154,16 @@ export default function SelectProcess(props) {
           openSearch
           value={processId}
           data={[processList, otherPBC]}
-          renderTitle={otherAppProcess ? () => (
-            <Fragment>
-              <span>{otherAppProcess.processName}</span>
-              <span className="Gray_75 mLeft5">{`(${otherAppProcess.appName})`}</span>
-            </Fragment>
-          ) : undefined}
+          renderTitle={
+            otherAppProcess
+              ? () => (
+                  <Fragment>
+                    <span>{otherAppProcess.processName}</span>
+                    <span className="Gray_75 mLeft5">{`(${otherAppProcess.appName})`}</span>
+                  </Fragment>
+                )
+              : undefined
+          }
           onChange={value => {
             if (value === processId) return;
             if (value === 'other') {
@@ -171,11 +188,11 @@ export default function SelectProcess(props) {
             item={item}
             action={btnSetting.action}
             inputData={_.find(_.get(btnSetting, ['config', 'inputs']) || [], { controlId: item.value }) || []}
-            onChange={(value) => {
+            onChange={value => {
               const inputs = _.get(btnSetting, ['config', 'inputs']) || [];
-              const newInputs = inputs.map((input) => {
+              const newInputs = inputs.map(input => {
                 if (input.controlId === item.value) {
-                  return { ...input, value }
+                  return { ...input, value };
                 } else {
                   return input;
                 }
@@ -185,8 +202,8 @@ export default function SelectProcess(props) {
                 config: {
                   ...config,
                   inputsIsEdit: true,
-                  inputs: newInputs
-                }
+                  inputs: newInputs,
+                },
               });
             }}
           />
@@ -196,7 +213,7 @@ export default function SelectProcess(props) {
         <SelectOtherPBCDialog
           appId={appId}
           companyId={projectId}
-          onOk={(data) => {
+          onOk={data => {
             changeProcessId(data.selectPBCId);
           }}
           onCancel={() => {

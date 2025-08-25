@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import PostCard from '../post/postCard';
+import PropTypes from 'prop-types';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import PostCard from '../post/postCard';
 
 /**
  * 动态列表的加载更多

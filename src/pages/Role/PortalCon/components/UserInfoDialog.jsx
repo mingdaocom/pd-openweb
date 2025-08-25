@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import CustomFields from 'src/components/newCustomFields';
 
 const UserInfoDialogWrap = styled.div`
@@ -16,9 +16,8 @@ const UserInfoDialogWrap = styled.div`
   }
 `;
 export default function UserInfoDialog(props) {
-  const { setShow, show, onChange, title, currentId, classNames, exAccountId } = props;
+  const { setShow, show, title, classNames, currentData = [] } = props;
   const customwidget = useRef(null);
-  const [currentData, setCurrentData] = useState(props.currentData || []);
   const [ids, setIds] = useState([]);
 
   return (

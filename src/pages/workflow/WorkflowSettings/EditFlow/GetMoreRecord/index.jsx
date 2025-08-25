@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import _ from 'lodash';
 import { ACTION_ID } from '../../enum';
 import { getIcons } from '../../utils';
-import _ from 'lodash';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -38,7 +38,7 @@ export default class GetMoreRecord extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('未配置有效参数')}
         </div>
       );

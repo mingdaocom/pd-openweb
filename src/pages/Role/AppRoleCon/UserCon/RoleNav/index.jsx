@@ -1,13 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
-import { WrapNav, AddWrap } from 'src/pages/Role/style';
-import _ from 'lodash';
 import styled from 'styled-components';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import { navigateTo } from 'src/router/navigateTo';
-import { sysRoleType } from 'src/pages/Role/config.js';
-import ItemCon from './ItemCon';
 import { Icon } from 'ming-ui';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { sysRoleType } from 'src/pages/Role/config.js';
+import { AddWrap, WrapNav } from 'src/pages/Role/style';
+import { navigateTo } from 'src/router/navigateTo';
+import ItemCon from './ItemCon';
 
 const WrapL = styled.div`
   .roleSearch {

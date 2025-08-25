@@ -35,9 +35,9 @@ export const Wrap = styled.div`
           transition: all 0.3s;
         }
         &.active {
-          border: 2px solid #2196f3 !important;
+          border: 2px solid #1677ff !important;
           .title {
-            color: #2196f3 !important;
+            color: #1677ff !important;
             top: -9;
           }
           .Dropdown--placeholder {
@@ -81,7 +81,7 @@ export const WrapCon = styled.div`
     padding: 6px 8px;
     &:hover,
     &.isCur {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
       .ThemeColor3 {
         color: #fff !important;
@@ -91,55 +91,55 @@ export const WrapCon = styled.div`
 `;
 
 export const WrapConDp = styled.div`
-.controlDropdown {
-  height: auto;
-  .itemT {
-    background: #f5f5f5;
-    border-radius: 4px 4px 4px 4px;
-    padding: 3px 8px 3px 10px;
-    border: 1px solid #e0e0e0;
-    line-height: 20px;
-    i {
-      color: #9e9e9e;
-      &:hover {
-        color: #757575;
+  .controlDropdown {
+    height: auto;
+    .itemT {
+      background: #f5f5f5;
+      border-radius: 4px 4px 4px 4px;
+      padding: 3px 8px 3px 10px;
+      border: 1px solid #e0e0e0;
+      line-height: 20px;
+      i {
+        color: #9e9e9e;
+        &:hover {
+          color: #757575;
+        }
       }
     }
-  }
-  span.itemSpan {
-    color: #151515 !important;
-    font-size: 15px;
-  }
-  .ming.Item .Item-content:not(.disabled):hover {
     span.itemSpan {
-      color: white !important;
+      color: #151515 !important;
       font-size: 15px;
     }
-  }
-  .Dropdown--border,
-  .dropdownTrigger .Dropdown--border {
-    height: auto !important;
-  }
-  .Dropdown--input {
-    height: auto !important;
-    min-height: 40px;
-    padding: 4px !important;
-    .Dropdown--placeholder {
-      line-height: 42px !important;
+    .ming.Item .Item-content:not(.disabled):hover {
+      span.itemSpan {
+        color: white !important;
+        font-size: 15px;
+      }
     }
-    .icon-arrow-down-border {
-      line-height: 52px !important;
+    .Dropdown--border,
+    .dropdownTrigger .Dropdown--border {
+      height: auto !important;
     }
-    .value {
-      line-height: 42px !important;
-      display: flex !important;
-      & > div {
-        flex: 1 !important;
+    .Dropdown--input {
+      height: auto !important;
+      min-height: 40px;
+      padding: 4px !important;
+      .Dropdown--placeholder {
+        line-height: 42px !important;
+      }
+      .icon-arrow-down-border {
+        line-height: 52px !important;
+      }
+      .value {
+        line-height: 42px !important;
         display: flex !important;
-        flex-flow: row wrap !important;
-        gap: 5px;
+        & > div {
+          flex: 1 !important;
+          display: flex !important;
+          flex-flow: row wrap !important;
+          gap: 5px;
+        }
       }
     }
   }
-}
 `;

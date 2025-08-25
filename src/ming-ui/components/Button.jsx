@@ -1,7 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Icon from './Icon';
+import './less/Button.less';
 
 export const BUTTON_TYPE_LIST = [
   'primary',
@@ -14,7 +15,6 @@ export const BUTTON_TYPE_LIST = [
   'danger-gray',
 ];
 export const BUTTON_SIZE_LIST = ['tiny', 'small', 'medium', 'large', 'mdnormal', 'mdbig']; // 'mini', 'huge', 'massive'
-import './less/Button.less';
 
 export default class Button extends Component {
   static propTypes = {
@@ -101,7 +101,7 @@ export default class Button extends Component {
   computeWidth() {
     // loading 的时候保持宽度不变
     if (!(this.button instanceof Element)) return;
-    const style = window.getComputedStyle(this.button, null); // eslint-disable-line
+
     this.width = this.button.getBoundingClientRect().width;
   }
 
@@ -116,7 +116,7 @@ export default class Button extends Component {
         };
         this.promise && this.promise.then(stopLoading, stopLoading);
       } catch (e) {
-        console.error(e); // eslint-disable-line
+        console.error(e);
       }
     }
     if (onClick) onClick.apply(this, args);
@@ -134,7 +134,6 @@ export default class Button extends Component {
       children,
       className,
       style,
-      action,
       loadingClassName,
       ...otherProps
     } = this.props;

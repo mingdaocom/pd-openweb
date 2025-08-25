@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import CustomFields from 'src/components/newCustomFields';
 import { getDisabledTabs } from './controller';
-import { includes } from 'lodash';
+
 const TabContainer = styled.div`
   height: 36px;
   display: flex;
@@ -148,7 +148,7 @@ export default function EditControlItem(props) {
           )}
         </div>
         <div className="mLeft12">
-          <DeleteIcon className="delete icon icon-task-new-delete Font18 Hand" onClick={onDelete} />
+          <DeleteIcon className="delete icon icon-trash Font18 Hand" onClick={onDelete} />
         </div>
       </div>
     </Con>

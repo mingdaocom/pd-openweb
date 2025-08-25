@@ -8,10 +8,14 @@
   .controlName {
     font-weight: bold;
     font-size: 13px;
-    color: #757575;
+    color: #151515;
     line-height: 34px;
     .textCon {
       display: inline-block;
+    }
+    .text {
+      display: inline-block;
+      max-width: 100%;
     }
   }
   .maskData,
@@ -59,7 +63,7 @@
     &:hover {
       &::after {
         width: 2px;
-        background-color: #2196f3 !important;
+        background-color: #1677ff !important;
       }
     }
   }
@@ -67,6 +71,10 @@
     .dropIcon {
       visibility: visible;
     }
+    .controlName {
+      width: auto !important;
+    }
+    padding-right: 17px;
   }
   &.wrapControlName {
     .textCon {

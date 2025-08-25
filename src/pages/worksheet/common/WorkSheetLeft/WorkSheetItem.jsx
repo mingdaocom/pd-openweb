@@ -52,7 +52,7 @@ export default class WorkSheetItem extends Component {
     }
   }
   getNavigateUrl(isActive) {
-    const { appId, groupId, activeSheetId, appItem } = this.props;
+    const { appId, groupId, appItem } = this.props;
     const { workSheetId } = appItem;
     const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
     const viewId =
@@ -77,20 +77,10 @@ export default class WorkSheetItem extends Component {
       sheetListVisible,
       disableTooltip,
     } = this.props;
-    const {
-      workSheetId,
-      icon,
-      iconUrl,
-      status,
-      parentStatus,
-      type,
-      configuration = {},
-      urlTemplate,
-      layerIndex,
-    } = appItem;
+    const { workSheetId, iconUrl, status, parentStatus, type, configuration = {}, urlTemplate, layerIndex } = appItem;
     const workSheetName = getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName;
     const isActive = activeSheetId === workSheetId;
-    const { iconColor, currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
+    const { currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
     const showIcon =
       currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0
         ? true
@@ -102,7 +92,7 @@ export default class WorkSheetItem extends Component {
       const dataSource = transferValue(urlTemplate);
       const urlList = [];
       dataSource.map(o => {
-        if (!!o.staticValue) {
+        if (o.staticValue) {
           urlList.push(o.staticValue);
         } else {
           urlList.push(
@@ -132,6 +122,7 @@ export default class WorkSheetItem extends Component {
         ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
           <Tooltip
             popupPlacement="right"
+            autoCloseDelay={0}
             text={<span>{_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}</span>}
           >
             <Icon
@@ -171,6 +162,7 @@ export default class WorkSheetItem extends Component {
     return (
       <Drag appItem={appItem} appPkg={appPkg} isCharge={isCharge}>
         <Tooltip
+          autoCloseDelay={0}
           popupAlign={{ offset: [-10, 0] }}
           disable={_.isUndefined(disableTooltip) ? sheetListVisible : disableTooltip}
           popupPlacement="right"

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import Overview from '../Overview';
-import ByUser from '../ByUser';
-import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
-import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
+import ByUser from '../ByUser';
+import Overview from '../Overview';
 import './index.less';
 
 const NoAuthorWrap = styled.div`
@@ -58,7 +59,7 @@ export default class AppAnalytics extends Component {
 
   getData = () => {
     if (this.analysisEle) {
-      this.analysisEle.getAuthor().then(res => {
+      this.analysisEle.getAppAnalysisData().then(res => {
         const [data1, data2] = res;
         const { list } = data1;
         const { workflow = {}, record = {}, app = {}, attachment = {} } = data2;

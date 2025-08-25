@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import { Tooltip } from 'antd';
-import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
@@ -126,9 +125,9 @@ const ListWrapper = styled.div`
       align-items: center;
       cursor: pointer;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         i {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
       }
     }
@@ -490,7 +489,6 @@ export default function DetailList(props) {
             },
           }),
       },
-      ,
       { dataIndex: 'createUser', title: _l('创建者'), render: item => <div>{(item.creator || {}).fullname}</div> },
       {
         dataIndex: 'createTime',

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import store from 'redux/configureStore';
 import { Popup } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import accountSettingApi from 'src/api/accountSetting';
@@ -56,7 +56,6 @@ export default function MoreAction(props) {
     detail = {},
     onClose = () => {},
     dealMarked = () => {},
-    navigateTo = () => {},
     dealViewHideNavi = () => {},
   } = props;
   const [roleEntryVisible, setRoleEntryVisible] = useState(true);
@@ -69,7 +68,7 @@ export default function MoreAction(props) {
     setLanguageVisible(false);
   };
 
-  const loadLangList = (_appLangs, _originalLang) => {
+  const loadLangList = _appLangs => {
     if (!_.isEmpty(langList)) return;
     fixedDataApi
       .loadLangList({

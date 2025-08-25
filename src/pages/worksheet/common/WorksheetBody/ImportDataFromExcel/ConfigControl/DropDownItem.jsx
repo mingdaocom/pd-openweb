@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { Dropdown, Menu } from 'antd';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
+
 export default class DropDownItem extends Component {
   static propTypes = {
     value: PropTypes.any,

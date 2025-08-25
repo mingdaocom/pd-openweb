@@ -1,7 +1,6 @@
 import _, { assign, get, includes } from 'lodash';
 import moment from 'moment';
 import { ROW_ID_CONTROL, SYSTEM_DATE_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
@@ -93,7 +92,9 @@ export function formatValues(controlType, filterType, values = []) {
     if (_.includes([26, 27, 19, 23, 24, 29, 35, 48], controlType)) {
       return values.map(value => safeParse(value).id).filter(_.identity);
     }
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   return values;
 }
 
@@ -327,9 +328,11 @@ export function getConditionOverrideValue(type, condition, valueType, from) {
       if (_.includes([101, 102], dateRange)) {
         newDateRangeType = DATE_RANGE_TYPE.DAY;
       } else if (!includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type)) {
-        newDateRangeType = get(condition, 'control.advancedSetting.showtype')
-          ? Number(get(condition, 'control.advancedSetting.showtype'))
-          : DATE_RANGE_TYPE.DAY;
+        let showType = get(condition, 'control.advancedSetting.showtype');
+        if (SYSTEM_DATE_CONTROL.map(c => c.controlId).includes(condition.controlId)) {
+          showType = DATE_RANGE_TYPE.SECOND;
+        }
+        newDateRangeType = showType ? Number(showType) : DATE_RANGE_TYPE.DAY;
       } else if (!includes([DATE_RANGE_TYPE.HOUR, DATE_RANGE_TYPE.MINUTE], newDateRangeType)) {
         newDateRangeType = DATE_RANGE_TYPE.DAY;
       }
@@ -993,6 +996,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters', ignor
   try {
     conditions = JSON.parse(control.advancedSetting[filterKey]);
   } catch (err) {
+    console.log(err);
     return [];
   }
   const abortFilterWhenEmpty =
@@ -1155,6 +1159,7 @@ export function fillConditionValue({
         }
       }
     } catch (err) {
+      console.log(err);
       condition.values = [];
     }
     if (_.isEmpty(condition.values)) {
@@ -1243,6 +1248,7 @@ export function fillConditionValue({
         .map(r => r.sid || r.rowid)
         .filter(_.identity);
     } catch (err) {
+      console.log(err);
       condition.values = [];
     }
     if (_.isEmpty(condition.values)) {
@@ -1253,6 +1259,7 @@ export function fillConditionValue({
       const users = JSON.parse(value);
       condition.values = users.map(user => user.accountId).filter(_.identity);
     } catch (err) {
+      console.log(err);
       condition.values = [];
     }
     if (_.isEmpty(condition.values)) {
@@ -1263,6 +1270,7 @@ export function fillConditionValue({
       const groups = JSON.parse(value);
       condition.values = groups.map(group => group.departmentId);
     } catch (err) {
+      console.log(err);
       condition.values = [];
     }
   } else if (dataType === 48) {
@@ -1270,6 +1278,7 @@ export function fillConditionValue({
       const groups = JSON.parse(value);
       condition.values = groups.map(group => group.organizeId);
     } catch (err) {
+      console.log(err);
       condition.values = [];
     }
   } else if (
@@ -1303,7 +1312,7 @@ export function formatDateValue({ type, value }) {
 
 export const getTabTypeBySelectUser = (control = {}) => {
   const { advancedSetting = {}, sourceControl = {}, controlId } = control;
-  return _.includes(['caid', 'ownerid', 'daid'], controlId)
+  return _.includes(['caid', 'ownerid', 'daid', 'uaid'], controlId)
     ? 3
     : (advancedSetting.usertype || _.get(sourceControl.advancedSetting || {}, 'usertype')) === '2'
       ? 2

@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Steps } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon, LoadDiv, QiniuUpload, Support, Tooltip } from 'ming-ui';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
@@ -53,7 +54,7 @@ const Wrap = styled.div`
       background: #e5f4fe;
     }
     .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
-      color: #2196f3;
+      color: #1677ff;
     }
     .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
       color: #757575;
@@ -116,7 +117,7 @@ const Wrap = styled.div`
     .passwordInputBox {
       width: 250px;
       line-height: 34px;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       border-radius: 3px;
       padding: 0 12px;
       box-sizing: border-box;
@@ -201,7 +202,7 @@ export default function Upgrade(props) {
           });
         }
       })
-      .catch(err => {
+      .catch(() => {
         setState({ compareLoading: false, analyzeLoading: false });
       });
   };
@@ -233,7 +234,7 @@ export default function Upgrade(props) {
                 <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
                 {errTip && (
                   <div className="mTop15 errTip Font14">
-                    <span className="icon-closeelement-bg-circle Font15 mRight6"></span>
+                    <span className="icon-cancel Font15 mRight6"></span>
                     <span>{_l(errTip)}</span>
                   </div>
                 )}
@@ -262,7 +263,7 @@ export default function Upgrade(props) {
                   mime_types: [{ extensions: 'mdy' }],
                 },
               }}
-              onAdd={(up, files) => {
+              onAdd={() => {
                 setState({ errTip: '' });
               }}
               onBeforeUpload={(up, file) => {
@@ -320,7 +321,7 @@ export default function Upgrade(props) {
         id: upgradeId,
       },
       { isIntegration: true },
-    ).then(res => {});
+    );
     onUpgrade();
   };
   const renderFooter = () => {

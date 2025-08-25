@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -87,7 +87,7 @@ export default class AddOrEditItem extends React.Component {
     const { type } = this.props;
     if (!baseInfo.title) {
       return type === 1 ? _l('请输入职位') : _l('请输入专业和学历');
-    } else if (!/^[A-Za-z0-9\u0391-\uFFE5 \.,()，。（）\-]+$/.exec($.trim(baseInfo.title))) {
+    } else if (!/^[A-Za-z0-9\u0391-\uFFE5 .,()，。（）-]+$/.exec($.trim(baseInfo.title))) {
       return type === 1 ? _l('职位名称不能含特殊字符') : _l('专业和学历不能含特殊字符');
     }
   }
@@ -137,7 +137,7 @@ export default class AddOrEditItem extends React.Component {
   }
 
   render() {
-    const { baseInfo, errorList, errorSentry = {} } = this.state;
+    const { baseInfo, errorList } = this.state;
     const { type } = this.props;
     return (
       <div className="baseInfoEditContent Gray">

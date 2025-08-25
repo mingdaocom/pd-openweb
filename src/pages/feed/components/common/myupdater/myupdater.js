@@ -1,11 +1,11 @@
-﻿import 'src/components/autoTextarea/autoTextarea';
-import 'src/components/mentioninput/mentionsInput';
-import LinkView from '../../linkView/linkView';
-import VoteUpdater from '../../voteUpdater/voteUpdater';
+﻿import React from 'react';
+import { Dialog } from 'ming-ui';
 import kcAjax from 'src/api/kc';
 import postAjax from 'src/api/post';
-import { Dialog } from 'ming-ui';
-import React from 'react';
+import 'src/components/autoTextarea/autoTextarea';
+import MentionsInput from 'src/components/MentionsInput';
+import LinkView from '../../linkView/linkView';
+import VoteUpdater from '../../voteUpdater/voteUpdater';
 
 var langUploadFiles = _l('上传附件') + '...';
 var langShareLink = _l('分享网站') + '...';
@@ -172,7 +172,7 @@ var MyUpdater = {
       },
     });
     var $textareaUpdater = $('#textarea_Updater');
-    var $myUpdateItemContent = $textareaUpdater.closest('.myUpdateItem_Content');
+    var textareaUpdaterEl = $textareaUpdater.get(0);
 
     // 支持高度自适应
     $textareaUpdater
@@ -209,24 +209,29 @@ var MyUpdater = {
         // });
       })
       .blur(function () {
-        $textareaUpdater.mentionsInput('store');
+        textareaUpdaterEl.store();
         if (!$.trim($(this).val())) {
           $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
         }
       });
 
-    $textareaUpdater.mentionsInput({
+    MentionsInput({
+      input: textareaUpdaterEl,
+      getPopupContainer: () => textareaUpdaterEl.parentNode,
+      popupAlignOffset: [0, -10],
       submitBtn: 'button_Share',
       showCategory: true,
       cacheKey: 'updatertext',
-    });
-    $textareaUpdater.mentionsInput('restore', function (success) {
-      if (success) {
-        $textareaUpdater.removeClass('Gray_a');
-        $('#myupdaterOP').show();
-      } else {
-        $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
-      }
+      initCallback: () => {
+        textareaUpdaterEl.restore(success => {
+          if (success) {
+            $textareaUpdater.removeClass('Gray_a');
+            $('#myupdaterOP').show();
+          } else {
+            $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+          }
+        });
+      },
     });
 
     $(document).click(function (event) {
@@ -234,7 +239,7 @@ var MyUpdater = {
         var text;
         MyUpdater.options.updaterInputAreaFocus = !(
           !$(event.target).closest(
-            '.myUpdateItem,.myUpdateType,.mentions-autocomplete-list,.faceDiv,.plupload,.focusUpdaterCon',
+            '.myUpdateItem,.myUpdateType,.mentionsAutocompleteList,.faceDiv,.plupload,.focusUpdaterCon',
           ).length &&
           /* 非引导点击*/
           !$(event.target).hasClass('guideTry') &&
@@ -380,8 +385,8 @@ var MyUpdater = {
       },
     });
   },
-  PostUpdater: function (result, obj, successCallback, isPost, isEnableReward, rewardMark) {
-    $('#textarea_Updater').mentionsInput('val', function (data) {
+  PostUpdater: function (result, obj, successCallback, isPost) {
+    document.querySelector('#textarea_Updater').val(data => {
       var postMsg = data;
       if (
         !postMsg ||
@@ -401,14 +406,11 @@ var MyUpdater = {
       var postType = $('#hidden_UpdaterType').val();
 
       // 验证链接是否有效
-      var linkUrl = $('#text_LinkUrl').val();
       if (postType == '1' && !MyUpdater.options.linkViewData) {
         alert(_l('请输入链接'), 3);
         return false;
       }
       // 验证是否有附件
-      var filePath = $('#hidden_FilePath').val();
-      var fileName = $('#hidden_FileName').val();
       if (postType == '9' && MyUpdater != 'undefined') {
         if (typeof result.isUploadComplete !== 'undefined' && !result.isUploadComplete) {
           alert(_l('文件上传中，请稍等'), 3);
@@ -436,9 +438,6 @@ var MyUpdater = {
         rData.voteAnonymous = voteData.voteAnonymous;
         rData.voteVisble = voteData.voteVisble;
       }
-
-      var knowledgeID = '';
-      knowledgeID = $('#txtKnowledge').val();
 
       if (result) {
         if (result.scope) {
@@ -485,7 +484,7 @@ var MyUpdater = {
 
       // 当前动态是不是以问号结尾 “是”则提示加入问答中心
       if (!isPost && postType == 0) {
-        var reg = /.*[\?|？|吗](\s*@[^\s]+)*\s*$/;
+        var reg = /.*[?？吗](\s*@[^\s]+)*\s*$/;
         if (reg.test(postMsg)) {
           MyUpdater.PostToReward(obj, successCallback);
           return;
@@ -548,7 +547,8 @@ var MyUpdater = {
               alert(_l('发布成功'));
 
               $('#textarea_Updater').val('');
-              $('#textarea_Updater').mentionsInput('reset').mentionsInput('clearStore');
+              $('#textarea_Updater').get(0).reset();
+              $('#textarea_Updater').get(0).clearStore();
 
               if (typeof MyUpdater !== 'undefined') MyUpdater.ResetUpdaterDiv();
 

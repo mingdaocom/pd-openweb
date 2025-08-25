@@ -51,24 +51,6 @@ const mergeData = (data, contrastData) => {
   return notFindData.concat(result);
 };
 
-const formatPerPileChartData = result => {
-  const groupResult = _.groupBy(result, 'name');
-  const perPileResult = [];
-
-  for (let key in groupResult) {
-    const current = groupResult[key];
-    const count = current.reduce((count, item) => {
-      return count + item.value;
-    }, 0);
-    current.map(item => {
-      item.value = ((item.value || 0) / count) * 1;
-      return item;
-    });
-    perPileResult.push(...current);
-  }
-  return perPileResult;
-};
-
 export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, splitControlId) => {
   if (_.isEmpty(data)) return [];
   const result = [];
@@ -189,8 +171,10 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const { LineChartConfig } = this.getComponentConfig(nextProps);
-      this.LineChart.update(LineChartConfig);
-      this.LineChart.render();
+      if (this.LineChart) {
+        this.LineChart.update(LineChartConfig);
+        this.LineChart.render();
+      }
     }
     // 切换图表类型 & 堆叠 & 累计 & 百分比
     if (
@@ -200,7 +184,7 @@ export default class extends Component {
       displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
       nextProps.isLinkageData !== this.props.isLinkageData
     ) {
-      this.LineChart.destroy();
+      this.LineChart && this.LineChart.destroy();
       this.renderLineChart(nextProps);
     }
   }
@@ -397,7 +381,7 @@ export default class extends Component {
               radio: { style: { r: 6 } },
               itemName: {
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined,
+                  fill: isDark ? '#ffffffb0' : undefined,
                 },
               },
             }
@@ -410,17 +394,17 @@ export default class extends Component {
             ? {
                 text: ydisplay.title,
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined,
+                  fill: isDark ? '#ffffffb0' : undefined,
                 },
               }
             : null,
         label: ydisplay.showDial
           ? {
-              formatter: (value, obj) => {
+              formatter: value => {
                 return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : null,
@@ -428,7 +412,7 @@ export default class extends Component {
           line: ydisplay.showDial
             ? {
                 style: {
-                  stroke: isDark ? '#ffffffcc' : undefined,
+                  stroke: isDark ? '#ffffff6b' : undefined,
                   lineDash: ydisplay.lineStyle === 1 ? [] : [4, 5],
                 },
               }
@@ -441,7 +425,7 @@ export default class extends Component {
             ? {
                 text: xdisplay.title,
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined,
+                  fill: isDark ? '#ffffffb0' : undefined,
                 },
               }
             : null,
@@ -449,11 +433,11 @@ export default class extends Component {
           ? {
               autoRotate: displaySetup.fontStyle ? true : false,
               autoHide: true,
-              formatter: (name, item) => {
+              formatter: name => {
                 return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : null,
@@ -510,7 +494,7 @@ export default class extends Component {
                 ? { type: 'limit-in-plot' }
                 : null,
             ],
-            content: ({ value, groupName, controlId }) => {
+            content: ({ value, controlId }) => {
               const render = () => {
                 const id = split.controlId ? newYaxisList[0].controlId : controlId;
                 return formatrChartValue(value, isPercentStackedArea, newYaxisList, value ? undefined : id);
@@ -524,7 +508,7 @@ export default class extends Component {
               return render();
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined,
+              fill: isDark ? '#ffffffb0' : undefined,
             },
           }
         : false,
@@ -667,8 +651,8 @@ export default class extends Component {
     }
   }
   render() {
-    const { count, originalCount, dropdownVisible, offset } = this.state;
-    const { summary, displaySetup = {} } = this.props.reportData;
+    const { dropdownVisible, offset } = this.state;
+    const { displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
         <Dropdown

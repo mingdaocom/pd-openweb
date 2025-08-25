@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Dropdown, Checkbox, Tooltip, Icon, Dialog } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  SelectNodeObject,
-  DetailHeader,
-  DetailFooter,
-  CustomTextarea,
-  ParameterList,
-  KeyPairs,
-  TestParameter,
-  SpecificFieldsValue,
-  FindResult,
-} from '../components';
-import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, Radio, ScrollView, Tooltip } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { checkJSON, formatTestParameters } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  FindResult,
+  KeyPairs,
+  ParameterList,
+  SelectNodeObject,
+  SpecificFieldsValue,
+  TestParameter,
+} from '../components';
 
 const GenerateJSONBox = styled.textarea`
   padding: 12px;
@@ -26,7 +26,7 @@ const GenerateJSONBox = styled.textarea`
   border: 1px solid #ddd;
   resize: none;
   &:focus {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -48,7 +48,7 @@ export default class WebHook extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -250,7 +250,7 @@ export default class WebHook extends Component {
         {this.renderHeaders()}
 
         <div className="Gray_75 mTop15 flexRow alignItemsCenter">
-          <i className="icon-workflow_error mRight5 Font16" />
+          <i className="icon-info_outline mRight5 Font16" />
           {_l('查看发送数据的')}
           <a className="mLeft5" onClick={this.openChecksheet}>
             {_l('字段对照表')}
@@ -330,6 +330,7 @@ export default class WebHook extends Component {
             authId={data.authId}
             connectId={connectId}
             hasAuth={hasAuth}
+            hasMore={false}
           />
         )}
       </Fragment>
@@ -428,7 +429,7 @@ export default class WebHook extends Component {
             type={2}
             content={data.body}
             formulaMap={data.formulaMap}
-            onChange={(err, value, obj) => this.updateSource({ body: value })}
+            onChange={(err, value) => this.updateSource({ body: value })}
             updateSource={this.updateSource}
           />
         )}
@@ -455,7 +456,7 @@ export default class WebHook extends Component {
               this.updateSource({ settings: Object.assign({}, data.settings, { useProxy: !checked }) })
             }
           />
-          <Tooltip text={<span>{_l('需要管理员在「组织管理-安全-数据」中配置}')}</span>}>
+          <Tooltip autoCloseDelay={0} text={<span>{_l('需要管理员在「组织管理-安全-数据」中配置}')}</span>}>
             <Icon icon="info_outline" className="Gray_75 mTop3 mLeft10 mRight20" />
           </Tooltip>
           <Checkbox
@@ -489,7 +490,7 @@ export default class WebHook extends Component {
               height={0}
               content={data.sendContent}
               formulaMap={data.formulaMap}
-              onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
+              onChange={(err, value) => this.updateSource({ sendContent: value })}
               updateSource={this.updateSource}
             />
           </div>
@@ -704,7 +705,7 @@ export default class WebHook extends Component {
               />
 
               <i
-                className="icon-delete2 Font16 ThemeHoverColor3 pointer Gray_bd mLeft8"
+                className="icon-trash Font16 ThemeHoverColor3 pointer Gray_bd mLeft8"
                 onClick={() => this.deleteErrorMsg(i)}
               />
             </div>
@@ -826,7 +827,7 @@ export default class WebHook extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {_.includes(

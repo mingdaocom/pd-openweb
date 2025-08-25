@@ -20,7 +20,6 @@ export default class MessageRetry extends Component {
     const { message } = this.props;
     if (message.waitingId) {
       this.loadingTime = setTimeout(() => {
-        const { status } = this.state;
         this.setState({
           status: 'loading',
         });
@@ -44,7 +43,7 @@ export default class MessageRetry extends Component {
     return (
       <div
         className="Message-retry-wrapper"
-        ref={(retry) => {
+        ref={retry => {
           this.retry = retry;
         }}
       >
@@ -52,16 +51,12 @@ export default class MessageRetry extends Component {
           <div onClick={this.handleRetry.bind(this)} className="Message-retry-btn">
             !
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {status === 'loading' ? (
           <div className="Message-retry-loading">
             <LoadDiv size="small" />
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }

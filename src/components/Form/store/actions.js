@@ -83,15 +83,26 @@ export const getFilterDataByRuleAction = (dispatch, props, dataFormat, rules = [
     verifyAllControls,
   });
 
-  // 标签页显示，但标签页内没有显示字段，标签页隐藏
   tempRenderData.forEach(item => {
+    // 标签页显示，但标签页内没有显示字段，标签页隐藏
     if (item.type === 52 && controlState(item, from).visible && !item.hidden) {
       const childWidgets = tempRenderData.filter(i => i.sectionId === item.controlId);
       if (_.every(childWidgets, c => !(controlState(c, from).visible && !c.hidden))) {
         item.fieldPermission = replaceStr(item.fieldPermission || '111', 0, '0');
       }
     }
+    // 标签页字读，所有子集只读
+    if (
+      item.sectionId &&
+      !controlState(
+        _.find(tempRenderData, t => t.controlId === item.sectionId),
+        from,
+      ).editable
+    ) {
+      item.fieldPermission = replaceStr(item.fieldPermission || '111', 1, '0');
+    }
   });
+
   dispatch({
     type: 'SET_RENDER_DATA',
     payload: tempRenderData,
@@ -197,13 +208,15 @@ export const getSubmitDataAction = (
   dispatch,
   props,
   state,
-  { silent, ignoreAlert, verifyAllControls } = {},
+  options,
   dataFormat,
   getSubmitBegin,
   getControlRefs,
+  newErrorDialog,
 ) => {
   const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {}, worksheetId } = props;
   const { rules, activeTabControlId, errorItems, uniqueErrorItems } = state;
+  const { silent, ignoreAlert, verifyAllControls, ignoreDialog } = options || {};
   const updateControlIds = dataFormat.getUpdateControlIds();
   const data = dataFormat.getDataSource();
   const submitBegin = getSubmitBegin();
@@ -228,12 +241,15 @@ export const getSubmitDataAction = (
         .map(it => it.controlId)
     : list
         .filter(item => {
-          // 标签页隐藏，内部字段报错校验过滤
-          if (item.sectionId) {
-            const parentControls = _.find(list, t => t.controlId === item.sectionId);
-            if (parentControls && !(controlState(parentControls, from).visible && !parentControls.hidden)) {
-              return false;
-            }
+          // 标签页隐藏、只读，内部字段报错校验过滤
+          const parentControls = _.find(list, t => t.controlId === item.sectionId);
+          if (
+            parentControls &&
+            (!controlState(parentControls, from).visible ||
+              parentControls.hidden ||
+              !controlState(parentControls, from).editable)
+          ) {
+            return false;
           }
           return controlState(item, from).visible && controlState(item, from).editable && item.type !== 52;
         })
@@ -248,12 +264,12 @@ export const getSubmitDataAction = (
   const totalErrors = errorItems
     .concat(uniqueErrorItems)
     .concat(subListErrorControls)
-    .filter(it => _.includes(ids, it.controlId));
+    .filter(it => _.includes(ids, it.controlId) && !it.ignoreErrorMessage);
   const hasError = !!totalErrors.length;
-  const hasRuleError = errors.length;
+  const hasRuleError = (ignoreDialog ? errors.filter(e => !e.ignoreErrorMessage) : errors).length;
 
   // 提交时所有错误showError更新为true
-  updateErrorStateAction(dispatch, state, { isShow: hasError });
+  updateErrorStateAction(dispatch, state, { isShow: true });
 
   // 标签页内报错，展开标签页
   // 分段内报错，展开分段
@@ -296,6 +312,10 @@ export const getSubmitDataAction = (
     }
   }
 
+  if (hasRuleError && !silent && !ignoreDialog) {
+    newErrorDialog(errors, options);
+  }
+
   let error;
 
   if (hasError) {
@@ -306,10 +326,6 @@ export const getSubmitDataAction = (
     error = true;
   } else if (hasRuleError) {
     error = true;
-  }
-
-  if (!hasError && hasRuleError && !silent) {
-    errorDialog(errors);
   }
 
   return { data: list, fullData: data, updateControlIds, hasError, hasRuleError, error, ids };
@@ -327,11 +343,12 @@ export const submitFormDataAction = (
   updateSubmitBegin,
   getSubmitBegin,
   getControlRefs,
+  newErrorDialog,
 ) => {
   const { loadingItems } = state;
   updateSubmitBegin(true);
   const { rules } = state;
-  const { onSave, from } = props;
+  const { onSave, from, entityName = _l('记录') } = props;
   const { data, updateControlIds, error, ids } = getSubmitDataAction(
     dispatch,
     props,
@@ -340,6 +357,7 @@ export const submitFormDataAction = (
     dataFormat,
     getSubmitBegin,
     getControlRefs,
+    newErrorDialog,
   );
 
   if (!error && _.some(Object.values(loadingItems), i => i)) {
@@ -349,6 +367,11 @@ export const submitFormDataAction = (
   onSave(error, {
     data,
     updateControlIds,
+    alertLockError: () => {
+      const { ruleItems = [] } = _.find(rules, r => r.type === 2) || {};
+      const message = _.get(ruleItems, '0.message');
+      alert(_l('%0已锁定，无法保存%1', entityName, message ? `（${message}）` : ''), 3);
+    },
     handleRuleError: badData => {
       badData.forEach(itemBadData => {
         const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
@@ -382,18 +405,17 @@ export const submitFormDataAction = (
           return total.concat(its.errorInfo);
         }, [])
         .filter(i => _.find(data, d => d.controlId === i.controlId));
-      const hideControlErrors = totalRuleError
-        .filter(
-          i =>
-            !controlState(
-              _.find(data, d => d.controlId === i.controlId),
-              from,
-            ).visible,
-        )
-        .map(i => i.errorMessage);
+      const hideControlErrors = totalRuleError.filter(
+        i =>
+          !controlState(
+            _.find(data, d => d.controlId === i.controlId),
+            from,
+          ).visible,
+      );
+
       // 后端校验隐藏字段报错
       if (hideControlErrors.length > 0) {
-        errorDialog(hideControlErrors);
+        newErrorDialog(hideControlErrors, options);
       }
       // 过滤掉子表报错、ids：不需校验的字段合集
       totalRuleError = totalRuleError.filter(it => _.includes(ids, it.controlId));
@@ -426,6 +448,7 @@ export const handleChangeAction = (
   cid,
   item,
   updateChangeStatus,
+  onChangeEnhance,
   searchByChange = true,
 ) => {
   const { uniqueErrorItems, rules } = state;
@@ -466,7 +489,7 @@ export const handleChangeAction = (
 
     const ids = dataFormat.getUpdateControlIds();
     if (ids.length) {
-      props.onChange(dataFormat.getDataSource(), ids, { controlId: cid });
+      onChangeEnhance(dataFormat.getDataSource(), ids, { controlId: cid });
       updateChangeStatus(true);
     }
   }
@@ -485,21 +508,21 @@ export const triggerCustomEventAction = (
   handleChange,
 ) => {
   const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = props;
-  const { searchConfig = [], renderData = [], loadingItems } = state;
+  const { searchConfig = [], renderData = [] } = state;
 
   const customProps = {
     ...params,
-    ..._.pick(props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId']),
+    ..._.pick(props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId', 'isRecordLock']),
     formData: dataFormat.getDataSource().concat(systemControlData || []),
     renderData,
     searchConfig: searchConfig.filter(i => i.eventType === 1),
     checkRuleValidator: (controlId, errorType, errorMessage) => {
       dataFormat.setErrorControl(controlId, errorType, errorMessage);
     },
-    checkEventComplete: value => {
-      updateLoadingItemsAction(dispatch, { ...loadingItems, ...value });
+    checkEventComplete: eventLoading => {
+      updateLoadingItemsAction(dispatch, { ...eventLoading });
     },
-    setErrorItems: errorInfo => {},
+    setErrorItems: () => {},
     setRenderData: () => {
       updateRenderData();
       handleEventPermission();
@@ -528,7 +551,7 @@ export const triggerCustomEventAction = (
  * 验证唯一值
  */
 export const checkControlUniqueAction = (dispatch, props, state, controlId, controlType, controlValue) => {
-  const { uniqueErrorItems, loadingItems } = state;
+  const { uniqueErrorItems } = state;
   const { worksheetId, recordId, checkCellUnique, onError = () => {} } = props;
 
   if (_.isFunction(checkCellUnique)) {
@@ -545,7 +568,7 @@ export const checkControlUniqueAction = (dispatch, props, state, controlId, cont
     return;
   }
 
-  updateLoadingItemsAction(dispatch, { ...loadingItems, [controlId]: true });
+  updateLoadingItemsAction(dispatch, { [controlId]: true });
 
   sheetAjax
     .checkFieldUnique({
@@ -568,6 +591,6 @@ export const checkControlUniqueAction = (dispatch, props, state, controlId, cont
       }
 
       updateUniqueErrorItemsAction(dispatch, uniqueErrorItems);
-      updateLoadingItemsAction(dispatch, { ...loadingItems, [controlId]: false });
+      updateLoadingItemsAction(dispatch, { [controlId]: false });
     });
 };

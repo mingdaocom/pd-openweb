@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import filterXSS from 'xss';
-import { renderText as renderCellText } from 'src/utils/control';
+import { checkCellIsEmpty, renderText as renderCellText } from 'src/utils/control';
 import { getDatePickerConfigs } from '../../../../util/setting';
 import { DynamicTextWrap, FieldInfo, OptionControl, RelateControl } from '../styled';
 import { getControlType, getDateType, getTypeList } from '../util';
@@ -26,7 +26,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
   return (
     <DynamicTextWrap>
       {dynamicValue.map(item => {
-        if (item.staticValue) {
+        if (!checkCellIsEmpty(item.staticValue)) {
           const type = getControlType(data);
           try {
             const value = getValue(item, type);
@@ -64,7 +64,7 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
               return (
                 <FieldInfo key={departmentId} title={departmentName}>
                   <div className="departWrap">
-                    <i className="icon-department1"></i>
+                    <i className="icon-department"></i>
                   </div>
                   <div className="name">{departmentName}</div>
                 </FieldInfo>

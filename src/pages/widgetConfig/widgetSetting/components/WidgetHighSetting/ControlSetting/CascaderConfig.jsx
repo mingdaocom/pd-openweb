@@ -1,11 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { SettingItem, SheetViewWrap, EditInfo } from '../../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import _ from 'lodash';
-import { FilterItemTexts, FilterDialog } from '../../../components/FilterData';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Checkbox, Dropdown } from 'ming-ui';
+import { EditInfo, SettingItem, SheetViewWrap } from '../../../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { FilterDialog, FilterItemTexts } from '../../../components/FilterData';
 import DynamicDefaultValue from '../../DynamicDefaultValue';
 import SearchConfig from '../../relateSheet/SearchConfig';
 
@@ -246,6 +246,7 @@ export default function CascaderConfig(props) {
             <span>{_l('选择结果显示层级路径')}</span>
             <Tooltip
               placement="bottom"
+              autoCloseDelay={0}
               title={_l(
                 '勾选后，将完整展示选项的层级路径，如：上海市/徐汇区/漕河泾。注意，当数据源表记录数大于10000条时，不显示路径。',
               )}
@@ -263,6 +264,7 @@ export default function CascaderConfig(props) {
             <span>{_l('存储层级路径')}</span>
             <Tooltip
               placement="bottom"
+              autoCloseDelay={0}
               title={_l(
                 '选中后，将存储选项被选中当下的层级路径，后续不会自动同步路径的变更。若需要获取最新的层级路径，可对该字段进行校准。存储路径后，支持在统计中按层级进行归组统计。',
               )}
@@ -288,7 +290,11 @@ export default function CascaderConfig(props) {
             }}
           >
             <span>{_l('搜索设置')}</span>
-            <Tooltip placement="bottom" title={_l('设置按数据源表中记录的具体字段进行搜索。未设置时，按记录搜索。')}>
+            <Tooltip
+              placement="bottom"
+              autoCloseDelay={0}
+              title={_l('设置按数据源表中记录的具体字段进行搜索。未设置时，按记录搜索。')}
+            >
               <i className="icon-help Gray_9e Font16"></i>
             </Tooltip>
           </Checkbox>

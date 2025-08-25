@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const Con = styled.div`
   position: absolute;
-  z-index: 1051;
+  z-index: 1002;
   ${({ pos }) => `${pos === 'top' ? 'top' : 'bottom'}: -26px;`}
   left: 0;
   white-space: nowrap;
@@ -13,7 +13,7 @@ const Con = styled.div`
   line-height: 26px;
   font-size: 12px;
   color: #fff;
-  background-color: #f44336;
+  background-color: ${({ color }) => color || '#f44336'};
   .delIcon {
     cursor: pointer;
     color: rgba(0, 0, 0, 0.24);
@@ -29,12 +29,13 @@ const Angle = styled.div`
   ${({ pos }) => `${pos === 'top' ? 'bottom' : 'top'}: -6px;`}
   left: 0;
   border: 3px solid transparent;
-  border-left-color: #f44336;
-  ${({ pos }) => (pos === 'top' ? 'border-top-color: #f44336;' : 'border-bottom-color: #f44336;')}
+  border-left-color: ${({ color }) => color || '#f44336'};
+  ${({ pos, color }) =>
+    pos === 'top' ? `border-top-color: ${color || '#f44336'};` : `border-bottom-color: ${color || '#f44336'};`}
 `;
 
 export default function CellErrorTip(props) {
-  const { pos = 'top', error } = props;
+  const { pos = 'top', error, color } = props;
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -44,8 +45,8 @@ export default function CellErrorTip(props) {
   if (!show) return null;
 
   return (
-    <Con pos={pos}>
-      <Angle pos={pos} />
+    <Con pos={pos} color={color}>
+      <Angle color={color} pos={pos} />
       {error}
       <i className="icon-close mLeft8 delIcon" onClick={() => setShow(false)} />
     </Con>

@@ -4,16 +4,16 @@ export const getIcon = data => {
   return [0].includes(data.memberType)
     ? 'business'
     : [1, 2].includes(data.memberType)
-    ? 'department1'
-    : [4].includes(data.memberType)
-    ? 'limit-principal'
-    : [3].includes(data.memberType)
-    ? 'user'
-    : '';
+      ? 'department'
+      : [4].includes(data.memberType)
+        ? 'limit-principal'
+        : [3].includes(data.memberType)
+          ? 'user'
+          : '';
 };
 
 export const getColor = data => {
-  return [0, 1].includes(data.memberType) ? '#2196f3' : [3].includes(data.memberType) ? '#ffad00' : '#eaeaea';
+  return [0, 1].includes(data.memberType) ? '#1677ff' : [3].includes(data.memberType) ? '#ffad00' : '#eaeaea';
 };
 
 export const getTxtColor = data => {

@@ -1,7 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 
 function SiderTabItem(props) {

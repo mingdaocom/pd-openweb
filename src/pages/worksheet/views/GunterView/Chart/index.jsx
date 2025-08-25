@@ -1,18 +1,18 @@
-import React, { Component, Fragment, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Icon, Skeleton } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, Skeleton } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import Header from './components/Header';
-import ToolBar from './components/ToolBar';
+import SpeedCreateTime from './components/SpeedCreateTime';
 import TimeBlock from './components/TimeBlock';
 import TimeCanvas from './components/TimeCanvas';
 import TimeDot from './components/TimeDot';
-import SpeedCreateTime from './components/SpeedCreateTime';
-import IScroll from 'worksheet/views/GunterView/components/Iscroll';
-import * as actions from 'worksheet/redux/actions/gunterview';
+import ToolBar from './components/ToolBar';
 import './index.less';
-import _ from 'lodash';
 
 const isGunterExport = location.href.includes('gunterExport');
 
@@ -114,8 +114,8 @@ export default class GunterChart extends Component {
     const { chartScroll } = this.props.gunterView;
     chartScroll.scrollTo(chartScroll.x + value, chartScroll.y);
     chartScroll._execEvent('scroll');
-  }
-  handleScroll = event => {
+  };
+  handleScroll = () => {
     const { chartScroll, viewConfig } = this.props.gunterView;
     const { loading } = this.state;
     const { periodCount } = viewConfig;
@@ -178,7 +178,7 @@ export default class GunterChart extends Component {
     }
     this.headerEl && (this.headerEl.style.transform = `translateX(${chartScroll.x}px)`);
     this.timeDotWrapperEl && (this.timeDotWrapperEl.style.transform = `translateY(${chartScroll.y}px)`);
-  }
+  };
   linkageScroll = () => {
     const { groupingScroll, chartScroll } = this.props.gunterView;
     if (window.groupingScrollLock) {
@@ -188,10 +188,10 @@ export default class GunterChart extends Component {
       groupingScroll.scrollTo(groupingScroll.x, chartScroll.y);
       groupingScroll._execEvent('scroll');
     }
-  }
+  };
   handleUpdateGroupingVisible = () => {
     this.props.updateGroupingVisible();
-  }
+  };
   handleWheel = e => {
     const { chartScroll } = this.props.gunterView;
     if (e.shiftKey) {
@@ -201,10 +201,10 @@ export default class GunterChart extends Component {
         chartScroll.scrollTo(chartScroll.x + 30, chartScroll.y);
       }
     }
-  }
+  };
   renderContent() {
     const { gunterView } = this.props;
-    const { grouping, withoutArrangementVisible } = gunterView;
+    const { withoutArrangementVisible } = gunterView;
     return (
       <div className="Relative">
         <TimeCanvas />
@@ -242,7 +242,7 @@ export default class GunterChart extends Component {
   }
   render() {
     const { base, gunterView, isMobile } = this.props;
-    const { loading, grouping, groupingVisible, chartScroll, groupingScroll } = gunterView;
+    const { loading, groupingVisible } = gunterView;
     return (
       <div className="gunterChart flexColumn flex">
         <Header />
@@ -263,7 +263,7 @@ export default class GunterChart extends Component {
               onClick={this.handleUpdateGroupingVisible}
               onMouseOver={() => {
                 if (!groupingVisible) return;
-                document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`).style.borderColor = '#2196f3';
+                document.querySelector(`.gunterView-${base.viewId} .gunterDirectory`).style.borderColor = '#1677ff';
               }}
               onMouseOut={() => {
                 if (!groupingVisible) return;

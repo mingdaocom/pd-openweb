@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import { ScrollView } from 'ming-ui';
 import Announcement from '../../components/Announcement';
-import Members from '../../components/Members';
-import MembersPanel from '../../components/Members/Panel';
+import DiscussionAnnouncement from '../../components/DiscussionAnnouncement';
 import Feeds from '../../components/Feeds';
 import FeedsPanel from '../../components/Feeds/Panel';
-import Files from '../../components/Files';
 import FilesPanel from '../../components/Files/Panel';
+import Members from '../../components/Members';
+import MembersPanel from '../../components/Members/Panel';
 import SearchPanel from '../../components/SearchPanel';
-import ScrollView from 'ming-ui/components/ScrollView';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils';
 
@@ -100,10 +100,32 @@ class ChatPanelSessionInfo extends Component {
     return (
       <div className={cx('ChatPanel-sessionInfo', { hidden: !infoVisible })}>
         <ScrollView className="flex">
-          {session.isPost && this.first ? <Announcement session={session} updateGroupAbout={value => { this.props.dispatch(actions.updateGroupAbout(session.groupId, value)); }} /> : undefined}
-          {session.isGroup && this.first ? <Members session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'members')} /> : undefined}
-          {session.isPost && this.first ? <Feeds session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} /> : undefined}
-          {/* { this.first && <Files session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'files')}/> } */}
+          {session.isPost && this.first && (
+            <Announcement
+              session={session}
+              updateGroupAbout={value => {
+                this.props.dispatch(actions.updateGroupAbout(session.groupId, value));
+              }}
+            />
+          )}
+
+          {session.isGroup && this.first && (
+            <Members session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'members')} />
+          )}
+
+          {session.isPost && this.first && (
+            <Feeds session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} />
+          )}
+
+          {!session.isPost && this.first && (
+            <DiscussionAnnouncement
+              session={session}
+              onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')}
+              onChangeIsPost={projectId => {
+                this.props.dispatch(actions.resetGroupIsPost(session.groupId, projectId));
+              }}
+            />
+          )}
         </ScrollView>
         <div className={cx('ChatPanel-sessionInfoPanel', { hidden: !panelVisible })}>
           {panelType === 'members' ? (
@@ -112,10 +134,10 @@ class ChatPanelSessionInfo extends Component {
               session={session}
               onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'members')}
             />
-          ) : (
-            undefined
-          )}
-          {panelType === 'feeds' ? <FeedsPanel session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} /> : undefined}
+          ) : undefined}
+          {panelType === 'feeds' ? (
+            <FeedsPanel session={session} onSetPanelVisible={this.handleSetPanelVisible.bind(this, 'feeds')} />
+          ) : undefined}
           {panelType === 'files' ? <FilesPanel session={session} /> : undefined}
           {panelType === 'search' ? (
             <SearchPanel
@@ -125,16 +147,14 @@ class ChatPanelSessionInfo extends Component {
               onGotoMessage={this.handleGotoMessage.bind(this)}
               searchText={searchText}
             />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
       </div>
     );
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { currentSession, currentSessionList, isWindow } = state.chat;
 
   return {

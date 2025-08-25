@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
 import * as utils from '../../../utils/';
 import { handleMessageFilePreview } from '../MessageToolbar';
 import './index.less';
-import constant from '../../../utils/constant';
 
 const formatTime = (seconds = 0) => {
   let minute = parseInt((seconds / 60) % 60);
@@ -20,23 +18,26 @@ export default class VideoMessage extends Component {
     super(props);
     this.state = {
       loading: false,
-    }
+    };
   }
   componentDidMount() {
     const { loading } = this.state;
     const { session, message } = this.props;
-    const { url, video_pic } = message.msg.files;
+    const { video_pic } = message.msg.files;
     if (video_pic && !loading) {
       this._isMounted = true;
       this.handleLoadImage(video_pic).then(() => {
         if (!this._isMounted) {
           return;
         }
-        this.setState({
-          loading: true,
-        }, () => {
-          utils.scrollEnd(session.id, message.waitingId ? true : false);
-        });
+        this.setState(
+          {
+            loading: true,
+          },
+          () => {
+            utils.scrollEnd(session.id, message.waitingId ? true : false);
+          },
+        );
       });
     }
   }
@@ -44,7 +45,7 @@ export default class VideoMessage extends Component {
     handleMessageFilePreview.call(this);
   }
   handleLoadImage(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const image = new Image();
       image.onload = resolve;
       image.src = url;

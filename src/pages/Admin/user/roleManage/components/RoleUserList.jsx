@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Tooltip, Icon, UserHead } from 'ming-ui';
-import EmptyStatus from './EmptyStatus';
 import cx from 'classnames';
 import _ from 'lodash';
-import { dialogSelectDept } from 'ming-ui/functions';
-import OrganizeAjax from 'src/api/organize';
 import styled from 'styled-components';
+import { Checkbox, Icon, Tooltip, UserHead } from 'ming-ui';
+import { dialogSelectDept } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
+import OrganizeAjax from 'src/api/organize';
+import EmptyStatus from './EmptyStatus';
 
 const Departments = styled.div`
   width: fit-content;
@@ -111,6 +111,7 @@ class RoleUserList extends Component {
                 )}
               </div>
             }
+            autoCloseDelay={0}
             popupPlacement="top"
             mouseEnterDelay={0.5}
             disable={!orgRoleChargeDepartments || orgRoleChargeDepartments.length === 0}
@@ -157,6 +158,7 @@ class RoleUserList extends Component {
           <th className="departmentRangeCol">
             {_l('分管部门')}
             <Tooltip
+              autoCloseDelay={0}
               popupPlacement="bottom"
               text={
                 <span>

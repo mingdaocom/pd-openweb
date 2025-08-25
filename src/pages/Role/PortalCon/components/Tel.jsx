@@ -29,7 +29,7 @@ export default class Tel extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (
       (nextProps.data || {}).value !== (this.props.data || {}).value &&
       (nextProps.value || (this.props.data || {}).value !== undefined) &&

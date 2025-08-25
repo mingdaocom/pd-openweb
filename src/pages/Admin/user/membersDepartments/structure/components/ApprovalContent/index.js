@@ -1,5 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { antNotification, Dialog, LoadDiv } from 'ming-ui';
 import userAjax from 'src/api/user';
@@ -16,7 +17,7 @@ const TabWrap = styled.div`
     padding: 10px 0;
     margin-right: 30px;
     &.active {
-      border-bottom: 2px solid #2196f3;
+      border-bottom: 2px solid #1677ff;
     }
   }
 `;

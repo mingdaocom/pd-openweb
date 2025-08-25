@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Icon } from 'ming-ui';
-import { CustomActionWrap } from '../../style';
 import cx from 'classnames';
-import { enumWidgetType } from '../../../../../util';
-import { DEFAULT_CONFIG } from '../../../../../config/widget';
-import DynamicDefaultValue from '../../../DynamicDefaultValue';
-import { HAS_DYNAMIC_TYPE } from '../../config';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
-import AddFields from '../AddFields';
-import SelectSheetFromApp from '../../../SelectSheetFromApp';
+import _ from 'lodash';
+import { Dialog, Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { DEFAULT_CONFIG } from '../../../../../config/widget';
+import { enumWidgetType } from '../../../../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
+import DynamicDefaultValue from '../../../DynamicDefaultValue';
+import SelectSheetFromApp from '../../../SelectSheetFromApp';
+import { HAS_DYNAMIC_TYPE } from '../../config';
+import { CustomActionWrap } from '../../style';
+import AddFields from '../AddFields';
 
 const getDefaultInfo = (globalSheetInfo = {}) => {
   return {
@@ -22,7 +23,7 @@ const getDefaultInfo = (globalSheetInfo = {}) => {
 };
 
 export default function CreateRecord(props) {
-  const { actionData = {}, handleOk, allControls = [], globalSheetInfo = {} } = props;
+  const { actionData = {}, handleOk, globalSheetInfo = {} } = props;
   const defaultData = getDefaultInfo(globalSheetInfo);
   const [{ advancedSetting, actionItems, controls, visible }, setState] = useSetState({
     actionItems: actionData.actionItems || [],
@@ -121,7 +122,7 @@ export default function CreateRecord(props) {
                     />
                   </div>
                   <Icon
-                    icon="delete1"
+                    icon="trash"
                     className="Font16 deleteBtn"
                     onClick={() => {
                       setState({ actionItems: actionItems.filter((i, idx) => idx !== index) });

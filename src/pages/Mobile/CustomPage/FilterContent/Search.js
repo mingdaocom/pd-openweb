@@ -1,12 +1,9 @@
-import React, { Fragment, Component } from 'react';
-import { connect } from 'react-redux';
-import * as actions from 'mobile/RecordList/redux/actions';
-import { bindActionCreators } from 'redux';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
-import { Icon } from 'ming-ui';
-import { validate, conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/utils';
+import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { conditionAdapter, formatQuickFilter, validate } from 'mobile/RecordList/QuickFilter/utils';
 
 const SearchRowsWrapper = styled.div`
   background-color: #fff;
@@ -58,7 +55,7 @@ class Search extends Component {
     const { textFilters, updateQuickFilter } = this.props;
     // 快速搜索
     const quickFilter = [textFilters[filterIndex]]
-      .map((filter, i) => ({
+      .map(filter => ({
         ...filter,
         filterType: filter.filterType || 1,
         spliceType: filter.spliceType || 1,
@@ -79,7 +76,7 @@ class Search extends Component {
             {textFilters.map((item, index) => (
               <div
                 key={item.control.controlId}
-                style={{ color: index === filterIndex ? '#2196F3' : null }}
+                style={{ color: index === filterIndex ? '#1677ff' : null }}
                 className="pTop5 pBottom5 Font14 ellipsis"
                 onClick={() => {
                   this.setState({

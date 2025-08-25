@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Input } from 'antd';
-import styled from 'styled-components';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 
 const ResetNameWrap = styled.div`
   width: 230px;
@@ -11,16 +12,16 @@ const ResetNameWrap = styled.div`
   }
 `;
 
-export default (props) => {
+export default props => {
   const { originalFileName, isEdit, setIsEdit, onSave } = props;
   const [fileName, setFileName] = useState(originalFileName);
   const ref = useRef(null);
 
-  const handleFocus = (e) => {
+  const handleFocus = () => {
     setTimeout(() => {
       ref && ref.current && ref.current.resizableTextArea.textArea.select();
     }, 0);
-  }
+  };
 
   useEffect(() => {
     if (isEdit) {
@@ -31,7 +32,7 @@ export default (props) => {
   return (
     <Trigger
       action={['click']}
-      popup={(
+      popup={
         <ResetNameWrap className="card pAll10">
           <Input.TextArea
             ref={ref}
@@ -40,15 +41,12 @@ export default (props) => {
             value={fileName}
             rows={4}
             style={{ resize: 'none' }}
-            onChange={(event) => {
+            onChange={event => {
               setFileName(event.target.value.trim());
             }}
           />
           <div className="flexRow alignItemsCenter mTop10 btns">
-            <Button
-              type="text"
-              onClick={() => setIsEdit(false)}
-            >
+            <Button type="text" onClick={() => setIsEdit(false)}>
               {_l('取消')}
             </Button>
             <Button
@@ -57,16 +55,16 @@ export default (props) => {
                 if (_.isEmpty(fileName)) {
                   alert(_l('名称不能为空'), 2);
                   return;
-                } 
+                }
                 onSave(fileName);
-                setIsEdit(false)
+                setIsEdit(false);
               }}
             >
               {_l('保存')}
             </Button>
           </div>
         </ResetNameWrap>
-      )}
+      }
       popupVisible={isEdit}
       onPopupVisibleChange={visible => setIsEdit(visible)}
       popupAlign={{
@@ -79,4 +77,4 @@ export default (props) => {
       {props.children}
     </Trigger>
   );
-}
+};

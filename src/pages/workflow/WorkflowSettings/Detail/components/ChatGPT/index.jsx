@@ -1,15 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import cx from 'classnames';
-import { createParser } from 'eventsource-parser';
-import 'prismjs/components/prism-clike';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-javascript';
 import Remarkable from 'remarkable';
 import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-javascript';
+import cx from 'classnames';
+import { createParser } from 'eventsource-parser';
+import _ from 'lodash';
 import styled from 'styled-components';
 import filterXss from 'xss';
 import { Checkbox, Dialog, ScrollView, Textarea } from 'ming-ui';
 import codeAjax from 'src/api/code';
+import sseAjax from 'src/api/sse';
 import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
 
 const Null = styled.div`
@@ -48,7 +50,7 @@ const Footer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #2196f3;
+    background: #1677ff;
     font-size: 26px;
     color: #fff;
   }
@@ -66,13 +68,13 @@ const Footer = styled.div`
     font-size: 20px;
     &.active {
       .icon-airplane {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &:hover {
       background: #f5f5f5;
       .icon-airplane {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .icon-airplane {
@@ -95,8 +97,8 @@ const Footer = styled.div`
     padding: 0 16px;
     color: #757575;
     &:hover {
-      border-color: #2196f3;
-      color: #2196f3;
+      border-color: #1677ff;
+      color: #1677ff;
     }
   }
 `;
@@ -233,7 +235,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
         if (source.choices && source.choices.length) {
           gptResponseContent += source.choices[0].delta.content || '';
           $('.chatGPTElement:last .markdown-body').html(getMarkdownContent(gptResponseContent));
-          $('.chatGPTDialog .nano-content').scrollTop(10000000);
+          $('.chatGPTDialog .scroll-viewport').scrollTop(10000000);
         }
       }
     });
@@ -252,7 +254,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
       }),
     };
 
-    const resp = await codeAjax.generateCodeBlock(requestData, {
+    const resp = await sseAjax.generateCodeBlock(requestData, {
       abortController: controller,
       isReadableStream: true,
     });
@@ -281,7 +283,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
   };
   const getMarkdownContent = text => {
     const md = new Remarkable({
-      highlight(str, lang) {
+      highlight(str) {
         return highlight(str, languages.js);
       },
     });

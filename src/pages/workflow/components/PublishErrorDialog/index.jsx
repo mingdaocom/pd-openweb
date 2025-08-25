@@ -1,9 +1,9 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
 import Icon from 'ming-ui/components/Icon';
 import './index.less';
-import _ from 'lodash';
 
 const warnTypes = {
   99: _l('你的流程中未包含可执行操作的节点,请至少添加一个'),
@@ -35,7 +35,7 @@ export default ({ onOk, onCancel, info, isPlugin }) => {
           return (
             <li className="errorItem" key={item.warningType}>
               <span className={cx('iconBox', { warn: item.yellow })}>
-                <Icon className={cx('Font20', item.yellow ? 'icon-wc-sysmsg' : 'icon-workflow_info')} />
+                <Icon className={cx('Font20', item.yellow ? 'icon-error_outline' : 'icon-report')} />
               </span>
               <span className="detail">{`${warnNum}${warnTypes[item.warningType]}`}</span>
             </li>

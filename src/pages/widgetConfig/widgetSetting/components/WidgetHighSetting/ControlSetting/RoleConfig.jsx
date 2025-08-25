@@ -1,15 +1,15 @@
-/* eslint-disable no-new */
 import React, { Fragment } from 'react';
-import { Dropdown } from 'ming-ui';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import cx from 'classnames';
 import update from 'immutability-helper';
+import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
 import { dialogSelectOrgRole } from 'ming-ui/functions';
-import { SelectOtherField, OtherField } from '../../DynamicDefaultValue/components';
+import { SettingItem } from '../../../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { OtherField, SelectOtherField } from '../../DynamicDefaultValue/components';
+import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
-import { SettingItem } from '../../../../styled';
-import cx from 'classnames';
-import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 
 const ROLE_RANGE = [
   { value: 0, text: _l('全部') },

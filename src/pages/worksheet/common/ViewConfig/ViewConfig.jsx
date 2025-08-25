@@ -11,6 +11,7 @@ import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConf
 import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import { filterHidedControls } from 'src/utils/control';
+import { getGroupControlId } from 'src/utils/worksheet';
 import { formatValuesOfOriginConditions } from '../../common/WorkSheetFilter/util';
 import CardAppearance from './CardAppearance';
 import {
@@ -21,7 +22,9 @@ import {
   Controls,
   DebugConfig,
   DetailSet,
+  EnvParams,
   FastFilter,
+  GroupSet,
   GunterSet,
   HierarchyViewSetting,
   MapSetting,
@@ -35,7 +38,6 @@ import {
   Show,
   SideNav,
   Sort,
-  SortConditions,
   StructureSet,
   SubmitConfig,
   TableSet,
@@ -64,11 +66,11 @@ export default class ViewConfigCon extends Component {
     if (nextProps.viewId !== this.props.viewId) {
       const { view = {}, viewConfigTab, setViewConfigTab } = nextProps;
       const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
-      if (!!viewConfigTab) {
+      if (viewConfigTab) {
         setViewConfigTab('');
       }
       this.setState({
-        viewSetting: !!viewConfigTab
+        viewSetting: viewConfigTab
           ? viewConfigTab
           : VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView
             ? 'PluginSettings'
@@ -325,7 +327,6 @@ export default class ViewConfigCon extends Component {
       viewId,
       sheetSwitchPermit,
       worksheetControls,
-      updateCurrentView,
     } = this.props;
 
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
@@ -399,6 +400,19 @@ export default class ViewConfigCon extends Component {
             <TableSet {..._.pick(this.props, ['appId', 'view', 'updateCurrentView'])} />
           </div>
         );
+      case 'GroupSet':
+        const groupControlId = getGroupControlId(view);
+        const groupControl = _.find(columns, { controlId: groupControlId });
+
+        return (
+          <GroupSet
+            {...this.props}
+            forBoard={VIEW_DISPLAY_TYPE[view.viewType] === 'board'}
+            hideSort={VIEW_DISPLAY_TYPE[view.viewType] === 'board' && ![9, 10, 11, 28].includes(groupControl?.type)}
+          />
+        );
+      case 'EnvParams':
+        return <EnvParams {...this.props} />;
       default:
         const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
         if (VIEW_DISPLAY_TYPE[view.viewType] === 'customize' && isDevCustomView) {
@@ -410,15 +424,22 @@ export default class ViewConfigCon extends Component {
 
   render() {
     const { viewSetting, showBatch } = this.state;
-    const data = viewTypeConfig.find((item, i) => item.type === viewSetting) || {};
+    const data = viewTypeConfig.find(item => item.type === viewSetting) || {};
     const conRender = () => {
       const { view } = this.props;
       const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
       return (
         <div className={cx('viewContentCon', { H100: ['Submit', 'Filter'].includes(data.type) })}>
-          {!['MobileSet', 'FastFilter', 'NavGroup', 'RecordColor', 'ActionSet', 'Submit', 'Filter'].includes(
-            data.type,
-          ) && (
+          {![
+            'MobileSet',
+            'FastFilter',
+            'NavGroup',
+            'RecordColor',
+            'ActionSet',
+            'Submit',
+            'Filter',
+            'GroupSet',
+          ].includes(data.type) && (
             <div className="viewSetTitle flexRow">
               <div className="flex">
                 {data.type === 'Setting'

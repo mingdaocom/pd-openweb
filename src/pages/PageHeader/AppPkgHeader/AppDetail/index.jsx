@@ -23,7 +23,13 @@ import { unlockAppLockPassword } from 'src/pages/AppSettings/components/LockApp/
 import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet';
-import { changeAppColor, changeNavColor, setAppStatus, syncAppDetail } from 'src/pages/PageHeader/redux/action';
+import {
+  changeAppColor,
+  changeNavColor,
+  clearAppDetail,
+  setAppStatus,
+  syncAppDetail,
+} from 'src/pages/PageHeader/redux/action';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
 import { navigateTo } from 'src/router/navigateTo';
@@ -71,10 +77,12 @@ const mapDispatchToProps = dispatch => ({
   updateNavColor: color => dispatch(changeNavColor(color)),
   setAppStatus: data => dispatch(setAppStatus(data)),
   refreshSheetList: () => dispatch(refreshSheetList()),
+  clearAppDetail: () => dispatch(clearAppDetail()),
 });
 const rowInfoReg = /\/app\/(.*)\/(.*)(\/(.*))?\/row\/(.*)|\/app\/(.*)\/newrecord\/(.*)\/(.*)/;
 const workflowDetailReg = /\/app\/(.*)\/workflowdetail\/record\/(.*)\/(.*)/;
 const checkRecordInfo = url => rowInfoReg.test(url) || workflowDetailReg.test(url);
+const appCacheList = ['icon', 'iconUrl', 'iconColor', 'navColor', 'name', 'pcNaviStyle', 'currentPcNaviStyle'];
 
 let mousePosition = { x: 139, y: 23 };
 @connect(mapStateToProps, mapDispatchToProps)
@@ -96,16 +104,18 @@ export default class AppInfo extends Component {
     super(props);
     const { appId } = getIds(props);
     const openedApps = safeParse(localStorage.getItem('openedApps'), 'array');
+    const isRowInfo = checkRecordInfo(props.location.pathname);
+    const appCacheData = localStorage.getItem(`appCache-${appId}`);
     this.state = {
       indexSideVisible: false,
       appConfigVisible: false,
       modifyAppIconAndNameVisible: false,
       editAppIntroVisible: false,
       isEditing: false,
-      isShowAppIntroFirst: !_.includes(openedApps, appId),
+      isShowAppIntroFirst: !_.includes(openedApps, appId) && !isRowInfo,
       navigationConfigVisible: false,
       copyAppVisible: false,
-      data: {},
+      data: appCacheData ? window.safeParse(appCacheData) : {},
       hasChange: false,
       noUseBackupRestore: false,
       appAnalyticsVisible: false,
@@ -115,6 +125,11 @@ export default class AppInfo extends Component {
       navWidth: Number(localStorage.getItem(`appNavWidth-${appId}`)) || 240,
       dragMaskVisible: false,
     };
+    appCacheData &&
+      this.props.syncAppDetail({
+        ..._.pick(this.state.data, ['currentPcNaviStyle']),
+      });
+    this.checkNavigationStyle(_.get(this.state.data, 'currentPcNaviStyle'));
   }
 
   componentDidMount() {
@@ -161,6 +176,7 @@ export default class AppInfo extends Component {
     clearTimeout(this.clickTimer);
     $('[rel="icon"]').attr('href', '/file/mdpic/ProjectLogo/favicon.png?t=' + Date.now());
     document.querySelector('body').classList.remove('leftNavigationStyleWrap');
+    this.props.clearAppDetail();
     delete window.updateAppGroups;
   }
 
@@ -267,7 +283,8 @@ export default class AppInfo extends Component {
       document.querySelector('#wrapper').classList.remove('fullWrapper');
     }
     window.appInfo = data;
-    this.dataCache = _.pick(data, ['icon', 'iconColor', 'name']);
+    this.dataCache = _.pick(data, appCacheList);
+    safeLocalStorageSetItem(`appCache-${data.id}`, JSON.stringify(this.dataCache));
     setFavicon(data.iconUrl, data.iconColor);
   };
 
@@ -298,7 +315,8 @@ export default class AppInfo extends Component {
     if (!obj.name) obj = _.omit(obj, 'name');
     const para = { ...current, ...obj };
     api.editAppInfo({ appId, ...para }).then(({ data }) => {
-      this.dataCache = _.pick(para, ['icon', 'iconColor', 'navColor', 'name']);
+      this.dataCache = _.pick(para, appCacheList);
+      safeLocalStorageSetItem(`appCache-${appId}`, JSON.stringify(this.dataCache));
       if (data) this.updateData(obj);
       if ('pcNaviStyle' in obj && obj.pcNaviStyle !== this.state.data.currentPcNaviStyle) {
         if (obj.pcNaviStyle === 2) {
@@ -316,7 +334,6 @@ export default class AppInfo extends Component {
   };
 
   handleModify = obj => {
-    const { data } = this.state;
     if (obj.name === '') {
       obj = { ...obj, name: this.dataCache.name };
     }
@@ -381,7 +398,7 @@ export default class AppInfo extends Component {
     if (_.includes(['appAnalytics', 'copy', 'worksheetapi', 'modifyAppLockPassword'], type)) {
       return (
         <React.Fragment>
-          <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
+          <div style={{ width: '100%', margin: '3px 0', borderTop: '1px solid #EAEAEA' }} />
           {this.renderMenuHtml({ type, icon, text, action, ...rest })}
         </React.Fragment>
       );
@@ -396,26 +413,6 @@ export default class AppInfo extends Component {
     }
 
     return this.renderMenuHtml({ type, icon, text, action, ...rest });
-  };
-
-  toSetEnterpirse = () => {
-    const { projectId } = this.state.data;
-    navigateTo(`/admin/workwxapp/${projectId}`);
-    this.setState({ noIntegratedWechat: false });
-  };
-  submitApply = () => {
-    const { projectId, appId } = this.state.data;
-    editWorkWXAlternativeAppStatus({
-      projectId,
-      appId,
-    }).then(res => {
-      if (res) {
-        alert(_l('提交申请成功'));
-      } else {
-        alert(_l('提交申请失败'), 2);
-      }
-    });
-    this.setState({ integratedWechat: false });
   };
 
   renderMenuHtml = ({ type, icon, text, action, ...rest }) => {
@@ -486,7 +483,7 @@ export default class AppInfo extends Component {
       >
         <span>{text}</span>
         {_.includes(['appAnalytics', 'appLogs'], type) && featureType === '2' && <UpgradeIcon />}
-        {type === 'worksheetapi' && <Icon icon="external_collaboration" className="mLeft10 worksheetapiIcon" />}
+        {type === 'worksheetapi' && <Icon icon="launch" className="mLeft10 worksheetapiIcon" />}
         {type === 'appLicense' && (
           <Icon icon="arrow-right-tip" className="mLeft10" style={{ right: 10, left: 'auto' }} />
         )}
@@ -502,7 +499,6 @@ export default class AppInfo extends Component {
   };
 
   closeNavigationConfigVisible = () => {
-    const { data } = this.state;
     this.switchVisible({ navigationConfigVisible: false });
     window.updateAppGroups && window.updateAppGroups();
     this.props.refreshSheetList();
@@ -517,12 +513,10 @@ export default class AppInfo extends Component {
   };
 
   renderAppInfoWrap = showName => {
-    const { appStatus, ...props } = this.props;
+    const { appStatus } = this.props;
     const { appConfigVisible, modifyAppIconAndNameVisible, data } = this.state;
     const {
-      id: appId,
       iconUrl,
-      navColor,
       iconColor,
       description,
       permissionType,
@@ -534,7 +528,6 @@ export default class AppInfo extends Component {
       currentPcNaviStyle,
       themeType,
       sourceType,
-      license = {},
       ssoAddress,
     } = data;
     const isUpgrade = _.includes([10, 11], appStatus);
@@ -825,6 +818,7 @@ export default class AppInfo extends Component {
             )}
             <Drag
               left={navWidth}
+              className="appNavWidthDrag"
               onMouseDown={() => {
                 this.setState({ dragMaskVisible: true });
               }}
@@ -985,7 +979,7 @@ export default class AppInfo extends Component {
                 currentPcNaviStyle={currentPcNaviStyle}
               />
             ) : [1, 3].includes(currentPcNaviStyle) ? (
-              <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
+              data.id && <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
             ) : (
               <CommonUserHandle type="appPkg" {...props} />
             )}
@@ -999,24 +993,28 @@ export default class AppInfo extends Component {
               }}
             />
           )}
-          <Motion style={{ x: spring(roleDebugVisible ? 0 : 400) }}>
-            {({ x }) => (
-              <RoleSelect
-                {..._.pick(data, ['permissionType', 'id'])}
-                visible={roleDebugVisible}
-                roleSelectValue={_.get(debugRole, 'selectedRoles') || []}
-                posX={x}
-                appId={appId}
-                handleClose={() => this.setState({ roleDebugVisible: false })}
-                onClickAway={e => {
-                  if (!roleDebugVisible) return;
-                  const parent = document.querySelector('.roleSelectCon');
-                  if (parent && parent.contains(e)) return;
-                  this.setState({ roleDebugVisible: false });
-                }}
-              />
-            )}
-          </Motion>
+          <Drawer
+            title={null}
+            visible={roleDebugVisible}
+            destroyOnClose={true}
+            closeIcon={null}
+            onClose={() => this.setState({ roleDebugVisible: false })}
+            placement="right"
+          >
+            <RoleSelect
+              {..._.pick(data, ['permissionType', 'id'])}
+              visible={roleDebugVisible}
+              roleSelectValue={_.get(debugRole, 'selectedRoles') || []}
+              appId={appId}
+              handleClose={() => this.setState({ roleDebugVisible: false })}
+              onClickAway={e => {
+                if (!roleDebugVisible) return;
+                const parent = document.querySelector('.roleSelectCon');
+                if (parent && parent.contains(e)) return;
+                this.setState({ roleDebugVisible: false });
+              }}
+            />
+          </Drawer>
         </div>
       </Fragment>
     );

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { RadioGroup } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
@@ -13,7 +14,7 @@ import * as viewAction from 'src/pages/worksheet/redux/actions/resourceview.js';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import SelectField from 'src/pages/worksheet/views/components/SelectField.jsx';
 import { isRelateRecordTableControl } from 'src/utils/control';
-import Rescource from './Rescource.jsx';
+import Resource from './Resource.jsx';
 
 const Wrap = styled.div`
   width: 100%;
@@ -31,28 +32,26 @@ const Wrap = styled.div`
   }
 `;
 const BtnForSure = styled.div`
-   {
-    padding: 0 32px;
-    line-height: 36px;
-    height: 36px;
-    color: #fff;
-    background-color: #2196f3;
-    border-radius: 4px;
-    outline: none;
-    cursor: pointer;
-    border: 1px solid transparent;
-    margin-top: 32px;
-    box-sizing: border-box;
-    display: inline-block;
-    &.isUnAb {
-      background-color: #8fcaf9;
-      cursor: not-allowed;
-    }
+  padding: 0 32px;
+  line-height: 36px;
+  height: 36px;
+  color: #fff;
+  background-color: #1677ff;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  margin-top: 32px;
+  box-sizing: border-box;
+  display: inline-block;
+  &.isUnAb {
+    background-color: #8fcaf9;
+    cursor: not-allowed;
   }
 `;
 
 function ResourceView(props) {
-  const { appId, view, saveView, controls = [], isCharge, sheetSwitchPermit, viewId, initData } = props;
+  const { view, saveView, controls = [], isCharge, sheetSwitchPermit, viewId, initData } = props;
 
   const [{ viewControlInfo, viewControl }, setState] = useSetState({
     viewControlInfo: {},
@@ -151,7 +150,7 @@ function ResourceView(props) {
           />
         </div>
       ) : (
-        <Rescource key={`resource_view_${viewId}`} {...props} />
+        <Resource key={`resource_view_${viewId}`} {...props} />
       )}
     </Wrap>
   );

@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import Config from '../../../config';
-import { Checkbox } from 'ming-ui';
 import { Input } from 'antd';
 import cx from 'classnames';
-import messageController from 'src/api/message';
-import { dialogSelectUser } from 'ming-ui/functions';
 import styled from 'styled-components';
+import { Checkbox } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import messageController from 'src/api/message';
 import Attachment from 'src/components/newCustomFields/widgets/Attachment';
+import Config from '../../../config';
 
 const { TextArea } = Input;
 
@@ -346,7 +346,7 @@ export default class Announce extends Component {
                       {item.avatar && <img src={item.avatar} className="circle avatar" />}
                       <span className="announceLabelName">{item.name}</span>
                       <span
-                        className="mLeft5 icon-closeelement-bg-circle Font14 removeBtn"
+                        className="mLeft5 icon-cancel Font14 removeBtn"
                         onClick={() => this.handleRemove('groups', 'groupId', item.groupId)}
                       />
                     </span>
@@ -371,7 +371,7 @@ export default class Announce extends Component {
                       {item.avatar && <img src={item.avatar} className="circle avatar" />}
                       <span className="announceLabelName">{item.fullname}</span>
                       <span
-                        className="mLeft5 icon-closeelement-bg-circle Font14 removeBtn"
+                        className="mLeft5 icon-cancel Font14 removeBtn"
                         onClick={() => this.handleRemove('users', 'accountId', item.accountId)}
                       />
                     </span>

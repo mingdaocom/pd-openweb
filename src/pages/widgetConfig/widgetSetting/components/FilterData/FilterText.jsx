@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
-import { getAdvanceSetting } from '../../../util/setting';
 import { getControlByControlId } from '../../../util';
+import { getAdvanceSetting } from '../../../util/setting';
 
 const FilterTextWrap = styled.div`
   display: flex;
@@ -19,7 +18,7 @@ const FilterTextWrap = styled.div`
   }
 `;
 
-export default function FilterText({ data, onChange, onEdit, allControls }) {
+export default function FilterText({ data, allControls }) {
   const filters = getAdvanceSetting(data, 'filters');
   return (
     <FilterTextWrap>

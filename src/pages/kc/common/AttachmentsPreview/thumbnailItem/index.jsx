@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { getFileIconNameByExt } from '../../../utils';
 import { PREVIEW_TYPE } from '../constant/enum';
 

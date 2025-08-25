@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useRef } from 'react';
-import { Textarea, Dropdown, Menu, MenuItem, Checkbox } from 'ming-ui';
-import CustomTextarea from '../CustomTextarea';
-import Tag from '../Tag';
-import SelectOtherFields from '../SelectOtherFields';
+import React, { Fragment, useRef, useState } from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import cx from 'classnames';
+import { Checkbox, Dropdown, Menu, MenuItem, Textarea } from 'ming-ui';
 import { getIcons, handleGlobalVariableName } from '../../../utils';
+import CustomTextarea from '../CustomTextarea';
+import SelectOtherFields from '../SelectOtherFields';
+import Tag from '../Tag';
 
 const NodeListIcon = styled.div`
   width: 34px;
@@ -186,15 +186,12 @@ export default ({
               <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
               {isPlugin ? null : item.appId && item.appName ? (
                 <Fragment>
-                  <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
-                  <span
-                    className="Font14 mLeft5 bold flowDropdownGray ellipsis"
-                    style={{ maxWidth: 150 }}
-                  >{`“${item.appName}”`}</span>
+                  <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
+                  <span className="Font14 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
                 </Fragment>
               ) : (
                 <span className="Font14 mLeft5 Gray_75">
-                  <i className="icon-workflow_error Font14 mRight5" />
+                  <i className="icon-info_outline Font14 mRight5" />
                   {_l('设置此节点后才能选择')}
                 </span>
               )}
@@ -284,7 +281,7 @@ export default ({
                   height={0}
                   content={item.value}
                   formulaMap={formulaMap}
-                  onChange={(err, value, obj) => updateKeyValues({ key: pairsName, value, i })}
+                  onChange={(err, value) => updateKeyValues({ key: pairsName, value, i })}
                   updateSource={updateSource}
                 />
               )}
@@ -299,10 +296,7 @@ export default ({
               {renderNodeListTag(item)}
             </div>
             {!onlyFile && (
-              <i
-                className="icon-delete2 Font16 mTop20 ThemeHoverColor3 pointer Gray_bd"
-                onClick={() => deleteKeys(i)}
-              />
+              <i className="icon-trash Font16 mTop20 ThemeHoverColor3 pointer Gray_bd" onClick={() => deleteKeys(i)} />
             )}
           </div>
         );

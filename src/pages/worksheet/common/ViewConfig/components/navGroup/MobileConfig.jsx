@@ -1,13 +1,14 @@
 import React, { Fragment, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
+import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
+import column from './img/column.png';
+import columnActive from './img/columnActive.png';
 import nav from './img/nav.png';
 import navActive from './img/navActive.png';
 import sideSlip from './img/sideSlip.png';
 import sideSlipActive from './img/sideSlipActive.png';
-import column from './img/column.png';
-import columnActive from './img/columnActive.png';
-import _ from 'lodash';
 
 const MobileConfigWrap = styled.div`
   line-height: normal;
@@ -24,7 +25,9 @@ const MobileConfigWrap = styled.div`
     background-size: cover !important;
     transition: box-shadow 0.3s;
     &:hover {
-      box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+      box-shadow:
+        0 4px 20px #00000021,
+        0 2px 6px #0000001a;
     }
   }
   .iconWrap {
@@ -39,7 +42,7 @@ const MobileConfigWrap = styled.div`
     height: 18px;
     border-radius: 50%;
     border: 2px solid #ffffff;
-    background-color: #2196f3;
+    background-color: #1677ff;
   }
   .ming.Radio .Radio-box {
     margin-right: 6px !important;
@@ -104,7 +107,7 @@ export default function MobileConfig(props) {
       <h6 className="Font13 Bold mBottom20">{_l('移动端显示')}</h6>
       <div className="flexRow valignWrapper">
         {dataList
-          .filter(v => (_.includes([29, 35], filterData.type) ? v.value !== '3' : true))
+          .filter(v => (_.includes([...AREA, 29, 35], filterData.type) ? v.value !== '3' : true))
           .map(item => {
             return (
               <div

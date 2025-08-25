@@ -1,6 +1,7 @@
 export const viewTypeConfig = [
   { type: 'Setting', name: _l('视图设置'), icon: 'view_eye' }, // 设置
   { type: 'Show', name: _l('显示列'), icon: 'tune_new' }, // 显示列
+  { type: 'GroupSet', name: _l('分组'), icon: 'group_segment' }, // 显示列
   { type: 'Filter', name: _l('过滤'), icon: 'worksheet_filter' }, // 筛选
   { type: 'Sort', name: _l('排序%05028'), icon: 'folder-sort' }, // 排序
   { type: 'Controls', name: _l('字段'), icon: 'visibility' }, // 字段
@@ -16,24 +17,25 @@ export const viewTypeConfig = [
   { type: 'Submit', name: _l('提交%05036'), icon: 'airplane' },
   { type: 'CardSet', name: _l('卡片设置'), icon: 'card' },
   { type: 'TableSet', name: _l('表格设置'), icon: 'table' },
+  { type: 'EnvParams', name: _l('环境参数'), icon: 'table' },
 ];
 export const viewTypeCustomList = ['PluginSettings', 'DebugConfig', 'ParameterSet', 'Submit'];
 export const viewTypeGroup = [
-  { name: 'base', list: ['Setting', 'Show'] },
+  { name: 'base', list: ['Setting', 'Show', 'GroupSet'] },
   { name: 'set', list: ['Filter', 'Sort', 'RecordColor', 'Controls'] },
   { name: 'action', list: ['ActionSet', 'FastFilter', 'NavGroup'] },
   { name: 'other', list: ['MobileSet', 'urlParams'] },
 ];
 export const baseSetList = {
-  sheet: ['Setting', 'Show'],
-  board: ['Setting', 'CardSet'],
+  sheet: ['Setting', 'Show', 'GroupSet'],
+  board: ['Setting', 'CardSet', 'GroupSet'],
   calendar: ['Setting', 'CardSet'],
-  gallery: ['Setting'],
+  gallery: ['Setting', 'GroupSet'],
   structure: ['Setting', 'TableSet', 'Show', 'CardSet'],
   gunter: ['Setting', 'CardSet'],
   detail: ['Setting', 'CardSet'],
   resource: ['Setting'],
-  customize: ['Setting'],
+  customize: ['Setting', 'EnvParams'],
   map: ['Setting', 'CardSet'],
 };
 export const setList = [

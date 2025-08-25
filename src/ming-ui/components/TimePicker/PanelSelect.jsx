@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import SelectItem from './SelectItem';
 import { scrollTo } from './utils';
 
@@ -32,7 +32,13 @@ class PanelSelect extends Component {
       <div className="TimePicker-panel-item">
         <ul ref={select => (this._select = select)} className="TimePicker-select">
           {options.map((option, index) => (
-            <SelectItem key={option} value={index} active={selectedIndex === index} onClick={this.handleClick} disabled={disabledSelect.indexOf(index) !== -1}>
+            <SelectItem
+              key={option}
+              value={index}
+              active={selectedIndex === index}
+              onClick={this.handleClick}
+              disabled={disabledSelect.indexOf(index) !== -1}
+            >
               {option}
             </SelectItem>
           ))}

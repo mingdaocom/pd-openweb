@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { Popup, Button } from 'antd-mobile';
-import { Input, FunctionWrap } from 'ming-ui';
-import styled from 'styled-components';
+import React, { useRef, useState } from 'react';
+import { Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { FunctionWrap, Input } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 
 const Wrap = styled(Popup)`
@@ -153,7 +154,7 @@ function RefundConfirm(props) {
           placeholder={isFocus ? undefined : _l('最多可退款%0元', max)}
           onChange={onChange}
           onBlur={onBlur}
-          onFocus={e => setIsFocus(true)}
+          onFocus={() => setIsFocus(true)}
         />
         <div className="Hand ThemeColor Hover_51 Font14" onClick={() => setAmount(max > 0 ? max : 0)}>
           {_l('全部退款')}

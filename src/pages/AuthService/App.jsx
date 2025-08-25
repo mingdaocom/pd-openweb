@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
-import preall from 'src/common/preall';
 import { Route, Switch } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
+import preall from 'src/common/preall';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
-import Login from './login';
 import FindPassword from './findPassword';
+import Login from './login';
 import Register from './register';
-import Twofactor from './twofactor';
 import ResetPassword from './resetPassword';
+import Twofactor from './twofactor';
 
 function LoginContain(props) {
   useEffect(() => {

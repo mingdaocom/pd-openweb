@@ -5,6 +5,12 @@ export const PARAM_TYPES = [
     paramName: _l('字段选择器'),
   },
   {
+    fieldId: 'relationfield',
+    type: 200,
+    sourceControlType: 29,
+    paramName: _l('关联字段选择器'),
+  },
+  {
     fieldId: 'text',
     type: 2,
     paramName: _l('字符串'),
@@ -43,6 +49,7 @@ export const controlKeyNames = {
   des: _l('内容'),
   allowitem: _l('允许选择数量'),
   controls: _l('允许选择的字段类型'),
+  showControls: _l('允许选择的字段类型'),
   max: _l('最大数量'),
   // norange: _l('不限'),
   defsource: _l('默认值'),
@@ -55,6 +62,7 @@ export const controlKeyNames = {
 };
 export const controlKeys = {
   field: ['controlName', 'fieldId', 'desc', 'allowitem', 'controls', 'max'], //字段选择器
+  relationfield: ['controlName', 'fieldId', 'desc', 'allowitem', 'controls', 'showControls', 'max'], //关联字段选择器
   text: ['controlName', 'fieldId', 'desc', 'defsource'], //字符串
   numeric: ['controlName', 'fieldId', 'desc', 'suffix', 'dot', 'defsource'], //数值
   enum: ['controlName', 'fieldId', 'desc', 'checktype', 'direction', 'options'], //枚举值
@@ -71,6 +79,10 @@ export const defaultData = (type, info) => {
           allowitem: '0',
         },
       };
+      if (info.sourceControlType === 29) {
+        data.sourceControlType = info.sourceControlType;
+        data.controls = ['29'];
+      }
       break;
     case 22:
       data = {

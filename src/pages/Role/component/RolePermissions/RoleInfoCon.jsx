@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { WrapTableCon } from 'src/pages/Role/style';
-import _ from 'lodash';
-import RoleSet from '../RoleSet';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { sysRoleType, sysRoleList } from 'src/pages/Role/config.js';
+import { sysRoleList, sysRoleType } from 'src/pages/Role/config.js';
+import { WrapTableCon } from 'src/pages/Role/style';
 import { WrapFooter } from 'src/pages/Role/style.jsx';
+import RoleSet from '../RoleSet';
+
 const WrapSys = styled.div`
    {
     padding: 25px 48px 30px;
@@ -35,7 +35,7 @@ const WrapSys = styled.div`
     .toUser {
       color: #5a5a5a;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

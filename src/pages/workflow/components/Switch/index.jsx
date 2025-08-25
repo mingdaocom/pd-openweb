@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { string, bool, func } from 'prop-types';
 import cx from 'classnames';
+import { bool, func, string } from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import './index.less';
 
@@ -45,7 +45,7 @@ export default class Switch extends Component {
     disabled: false,
   };
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!nextProps.pending && this.props.pending) {
       this.setState({ disabled: false });
     }

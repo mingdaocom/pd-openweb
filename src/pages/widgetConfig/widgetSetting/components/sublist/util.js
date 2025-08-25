@@ -1,5 +1,5 @@
 import update from 'immutability-helper';
-import { includes } from 'lodash';
+import _ from 'lodash';
 
 export const dealControlPos = controls => {
   const sortableControls = controls.reduce((p, c) => {

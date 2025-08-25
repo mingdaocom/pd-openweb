@@ -65,11 +65,11 @@ export const ReferenceWrap = styled.div`
         cursor: pointer;
         border-bottom: 3px solid transparent;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
         &.active {
-          color: #2196f3;
-          border-bottom-color: #2196f3;
+          color: #1677ff;
+          border-bottom-color: #1677ff;
         }
       }
     }
@@ -78,9 +78,7 @@ export const ReferenceWrap = styled.div`
       min-height: 0;
       display: flex;
       flex-direction: column;
-      .nano-content {
-        padding: 0 20px;
-      }
+      padding: 0 20px;
       .emptyContent {
         height: 100%;
         width: 100%;
@@ -105,9 +103,9 @@ export const ReferenceWrap = styled.div`
             color: #757575;
           }
           &:not(.isPassive):hover {
-            color: #2196f3 !important;
+            color: #1677ff !important;
             i {
-              color: #2196f3 !important;
+              color: #1677ff !important;
             }
           }
         }
@@ -146,7 +144,7 @@ export const ExtraTime = styled.span`
   color: #9e9e9e;
   .getBtn {
     ${props =>
-      props.isLoading ? 'display:inline-block;animation: rotate 2s linear infinite;color: #2196f3;' : 'display:none;'}
+      props.isLoading ? 'display:inline-block;animation: rotate 2s linear infinite;color: #1677ff;' : 'display:none;'}
   }
   .time {
     ${props => (props.isLoading ? 'display: none;' : 'display: block;')}

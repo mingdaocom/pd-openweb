@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import _ from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default function FormWidget(props) {

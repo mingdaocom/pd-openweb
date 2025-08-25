@@ -93,14 +93,13 @@
   }
 
   .commonControlStyle {
-    color: var(--color-secondary);
     background: var(--color-third);
     border: 1px solid var(--gray-e0);
     border-radius: 3px;
   }
 
   .customFormControlBox {
-    .commonControlStyle;
+    .commonControlStyle();
     box-sizing: border-box;
     min-height: 36px;
     padding: 6px 12px;
@@ -418,7 +417,7 @@
   position: absolute;
   bottom: 100%;
   transform: translateY(-5px);
-  z-index: 1;
+  z-index: 3;
   left: 0;
   color: var(--color-third);
   padding: 3px 8px;
@@ -454,8 +453,15 @@
 .mobileCheckboxDialog {
   .Checkbox-text {
     font-size: 15px !important;
+    span {
+      text-decoration: none !important;
+    }
+  }
+  .radioText {
+    text-decoration: none !important;
   }
   .adm-list-item {
     padding-left: 12px !important;
+    text-decoration: none !important;
   }
 }

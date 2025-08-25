@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { Icon, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
-import _ from 'lodash';
 import cx from 'classnames';
-import { USER_TYPE } from '../../../enum';
+import _ from 'lodash';
+import { Dropdown, Icon } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
+import { USER_TYPE } from '../../../enum';
 import Member from '../Member';
 
 export default ({
@@ -81,6 +81,7 @@ export default ({
             {USER_TASK_NULL_TYPE.find(o => o.value === userTaskNullType).text}
             {userTaskNullType === 2 && (
               <Tooltip
+                autoCloseDelay={0}
                 title={_l(
                   '流程的拥有者默认为流程创建者，在流程配置中可修改流程拥有者。（当没有流程拥有者时，由应用拥有者代理）',
                 )}

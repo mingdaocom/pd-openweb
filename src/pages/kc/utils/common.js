@@ -1,4 +1,5 @@
 import { debounce } from 'lodash';
+import _ from 'lodash';
 import qs from 'query-string';
 import { addLinkFile } from 'ming-ui/functions';
 import kcService from '../api/service';
@@ -289,7 +290,6 @@ export function handleRemoveNode(args) {
     nodeStatus,
     selectedItems,
     selectAll,
-    totalCount,
     keywords,
     clearSelect,
     root,
@@ -333,7 +333,6 @@ export function handleRemoveNode(args) {
   confirm('', confirmMessage, false, '', '', confirmTitle).then(() => {
     let message = '';
     const ids = selectedItems.map(item => item.id).toArray();
-    const idsLength = selectAll ? totalCount : ids.length;
     let ajax;
 
     switch (nodeStatus) {
@@ -521,7 +520,6 @@ export function handleMoveOrCopy(options) {
   });
   ajax
     .then(data => {
-      const successIds = data[EXECUTE_RESULT.SUCCESS];
       const noRightIds = data[EXECUTE_RESULT.NO_RIGHT];
 
       /* 操作提示*/
@@ -531,10 +529,6 @@ export function handleMoveOrCopy(options) {
       if (ids.length === noRightIds.length) {
         alert(_l('操作成功（部分文件您无权操作）'), 3);
       } else if (operationTips.type === EXECUTE_RESULT.SUCCESS || operationTips.type === EXECUTE_RESULT.NO_RIGHT) {
-        setTimeout(() => {
-          console.log($('.mdAlertDialog .mdClose'));
-          $('.mdAlertDialog .mdClose').click();
-        }, 1000);
         createShare({
           linkURL:
             md.global.Config.WebUrl +

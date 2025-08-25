@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID } from '../../enum';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class LoopProcess extends Component {
   constructor(props) {

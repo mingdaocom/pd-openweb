@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Icon, ScrollView, LoadDiv, Support, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
-import '../index.less';
 import _ from 'lodash';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { Icon, LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import '../index.less';
 
 export default function GlobalVarLeft(props) {
   const { projectId, activeItem, onSelect } = props;
@@ -56,12 +56,12 @@ export default function GlobalVarLeft(props) {
         <Support text={_l('帮助')} type={2} href="https://help.mingdao.com/workflow/node-update-global-variables" />
       </div>
       <div className={cx('listItem', { isActive: activeItem === 'project' })} onClick={() => onSelect('project')}>
-        <Icon icon="company" />
+        <Icon icon="business" />
         {_l('组织')}
       </div>
       <SearchInput className="searchCon mLeft18" placeholder={_l('搜索应用')} onChange={onSearch} />
       <div className="Gray_9e mBottom8 pLeft30">{_l('按应用')}</div>
-      <ScrollView onScrollEnd={onScrollEnd}>
+      <ScrollView className="flex" onScrollEnd={onScrollEnd}>
         {fetchState.pageIndex === 1 && fetchState.loading ? (
           <LoadDiv className="mTop10" />
         ) : (

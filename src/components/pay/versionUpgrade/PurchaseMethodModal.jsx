@@ -1,7 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import styled from 'styled-components';
 
 const DialogWrap = styled(Dialog)`
   .promptTitle {
@@ -67,7 +67,7 @@ const mathods = [
   {
     type: 'consultant',
     icon: 'icon-history_edu',
-    iconColor: '#2196F3',
+    iconColor: '#1677ff',
     title: _l('联系顾问购买'),
     description: _l('适合具备自主搭建应用能力的客户'),
   },

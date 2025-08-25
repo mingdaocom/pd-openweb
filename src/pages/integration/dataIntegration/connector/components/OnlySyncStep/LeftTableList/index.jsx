@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Modal, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Modal, Tooltip } from 'ming-ui';
+import homeAppApi from 'src/api/homeApp';
 import { DATABASE_TYPE, isValidName } from '../../../../constant';
 import SelectDataObjForm from '../../SelectDataObjForm';
-import homeAppApi from 'src/api/homeApp';
 
 const LeftListWrapper = styled.div`
   width: 200px;
@@ -48,7 +48,7 @@ const LeftListWrapper = styled.div`
           margin-right: 10px;
           color: #bdbdbd;
           &:hover {
-            color: #2196f3;
+            color: #1677ff;
           }
           &.isActive {
             display: block;
@@ -66,9 +66,9 @@ const LeftListWrapper = styled.div`
       &.isCur {
         background: #edf7fe;
         .listItem {
-          border-left: 3px solid #2196f3;
+          border-left: 3px solid #1677ff;
           span {
-            color: #2196f3;
+            color: #1677ff;
             font-weight: 600;
           }
         }
@@ -85,7 +85,7 @@ const AddDataObjButton = styled.div`
   padding-left: 12px;
   border: 0;
   border-radius: 4px;
-  color: #2196f3;
+  color: #1677ff;
   cursor: pointer;
 `;
 
@@ -141,7 +141,7 @@ export default function LeftTableList(props) {
                   <React.Fragment>
                     {item.workSheetName}
                     <Tooltip text={_l('名称包含特殊字符，无法同步')}>
-                      <Icon icon="info1" className="Gray_bd mLeft5 pointer" />
+                      <Icon icon="info" className="Gray_bd mLeft5 pointer" />
                     </Tooltip>
                   </React.Fragment>
                 ) : (
@@ -296,12 +296,12 @@ export default function LeftTableList(props) {
                         <div className="flexRow">
                           {isRepeatDestName && (
                             <Tooltip text={_l('目的地表名重复')}>
-                              <Icon icon="info1" className="repeatIcon" />
+                              <Icon icon="info" className="repeatIcon" />
                             </Tooltip>
                           )}
                           {source.type !== DATABASE_TYPE.KAFKA && (
                             <Icon
-                              icon="delete1"
+                              icon="trash"
                               className={cx('deleteIcon', {
                                 isActive: isSourceAppType
                                   ? table.id === currentTab.table

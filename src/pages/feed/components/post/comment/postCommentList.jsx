@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import { connect } from 'react-redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { LoadDiv, UserName } from 'ming-ui';
 import postAjax from 'src/api/post';
 import { loadMoreComments } from '../../../redux/postActions';
-import { connect } from 'react-redux';
 import PostComment from './postComment';
 import PostCommentInput from './postCommentInput';
 
@@ -69,8 +69,6 @@ class PostCommentList extends React.Component {
   };
 
   toggleViewAll = () => {
-    let isExpand = this.state.isExpand;
-    isExpand = !isExpand;
     this.setState({ loading: true });
     this.props.dispatch(loadMoreComments(this.props.postItem.postID));
   };
@@ -83,7 +81,7 @@ class PostCommentList extends React.Component {
       this.state.isExpand || !this.props.defaultCount
         ? comments.length
         : _.min([this.props.defaultCount, comments.length]);
-    const commentElements = _(comments)
+    const commentElements = _.chain(comments)
       .slice(0, count)
       .map((c, i) => (
         <PostComment
@@ -105,7 +103,7 @@ class PostCommentList extends React.Component {
                 {i === this.state.likedUsers.length - 1 ? undefined : '、'}
               </span>
             ))}
-            <span>{_l('赞了此条')}</span>
+            <span className="mLeft3">{_l('赞了此条')}</span>
           </div>
         ) : undefined}
         <PostCommentInput
@@ -135,4 +133,4 @@ class PostCommentList extends React.Component {
   }
 }
 
-export default connect(state => ({}))(PostCommentList);
+export default connect()(PostCommentList);

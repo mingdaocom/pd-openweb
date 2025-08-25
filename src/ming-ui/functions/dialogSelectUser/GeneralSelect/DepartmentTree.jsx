@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import User from './User';
 import cx from 'classnames';
-import NoData from './NoData';
-import { Icon, Checkbox, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
-import departmentController from 'src/api/department';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import departmentController from 'src/api/department';
+import NoData from './NoData';
+import User from './User';
 
 const DepartmentTreeWrapper = styled.div`
   overflow: auto;
@@ -34,7 +34,7 @@ const Department = styled.div`
     background-color: #d6ecfe;
     .icon,
     div {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
     .icon:hover {
       background-color: #f5f5f5 !important;
@@ -295,7 +295,7 @@ export default class DepartmentTree extends Component {
   renderDepartmentTree() {
     const { department = [], departmentLoading, onlyJoinDepartmentChecked } = this.state;
     return (
-      <DepartmentTreeWrapper className="flexColumn flex">
+      <DepartmentTreeWrapper className="flexColumn flex h100">
         <Checkbox
           className="mBottom10 pLeft7 mTop10"
           checked={onlyJoinDepartmentChecked}
@@ -303,12 +303,12 @@ export default class DepartmentTree extends Component {
         >
           {_l('只看我加入的部门')}
         </Checkbox>
-        <div className="flex">
+        <div className="flex overflowHidden">
           {!departmentLoading && _.isEmpty(department) ? (
             <NoData>{_l('无结果')}</NoData>
           ) : (
             <ScrollView
-              className="flex asdsad"
+              className="h100"
               onScrollEnd={() => {
                 const { isMoreDepartment } = this.state;
                 if (!departmentLoading && isMoreDepartment && department.length >= this.state.pagedDepartmentSize) {
@@ -332,8 +332,7 @@ export default class DepartmentTree extends Component {
   }
 
   renderUsers() {
-    const { pageIndex } = this.props;
-    const { groupId, loading, groupList, isMore } = this.state;
+    const { groupId, loading, groupList } = this.state;
 
     if (loading && !groupList.length) {
       return (

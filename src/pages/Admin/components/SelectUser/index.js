@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Icon } from 'ming-ui';
 import { Select } from 'antd';
+import { Icon } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 
 export default function SelectUser(props) {
-  const { projectId, changeData = () => {}, className, unique = false, placeholder, isAdmin = false } = props;
+  const {
+    projectId,
+    changeData = () => {},
+    className,
+    unique = false,
+    placeholder,
+    isAdmin = false,
+    maxCount,
+    style = {},
+  } = props;
   const [userInfo, setUserInfo] = useState(props.userInfo);
 
   useEffect(() => {
@@ -23,7 +32,12 @@ export default function SelectUser(props) {
         filterOtherProject: true,
         filterResigned: false,
         unique: unique,
+        selectedAccountIds: userInfo.map(item => item.accountId),
         callback: data => {
+          if (maxCount && data.length > maxCount) {
+            alert(_l('超过最大选择人数'), 2);
+            return;
+          }
           setUserInfo(data);
           changeData(data);
         },
@@ -38,6 +52,7 @@ export default function SelectUser(props) {
       dropdownRender={null}
       allowClear
       open={false}
+      style={style}
       onFocus={handleSelectUser}
       suffixIcon={<Icon icon="person" className="Font16" />}
       onChange={() => {

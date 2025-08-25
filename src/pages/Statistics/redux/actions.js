@@ -12,8 +12,8 @@ import { getAppFeaturesPath } from 'src/utils/app';
 import { getFilledRequestParams } from 'src/utils/common';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import {
-  areaParticleSizeDropdownData,
   fillValueMap,
+  filterAreaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
   filterTimeParticleSizeDropdownData,
   getNewReport,
@@ -26,7 +26,7 @@ import {
 } from '../common';
 
 export const changeBase = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'CHANGE_STATISTICS_BASE',
       data: data,
@@ -38,7 +38,6 @@ let reportConfigDetailRequest = null;
 export const getReportConfigDetail = (data, callBack) => {
   return (dispatch, getState) => {
     const { reportId, reportType, appId, customPageConfig = {} } = data;
-    const appPkg = getState().appPkg;
     const { currentReport: oldReport, base } = getState().statistics;
     const { viewId, permissions, pageId, appType } = base;
     const isPublicShare = _.get(window, 'shareState.shareId') || window.shareAuthor;
@@ -255,7 +254,7 @@ export const getReportData = ({ reload = false } = {}) => {
 export const getTableData = () => {
   return (dispatch, getState) => {
     const { base, reportData } = getState().statistics;
-    const { report, pageId, match, settingVisible, activeData, filters, filtersGroup, linkageFiltersGroup } = base;
+    const { report, pageId, settingVisible, filters, filtersGroup, linkageFiltersGroup } = base;
     const data = getNewReport(getState().statistics);
 
     dispatch({
@@ -291,7 +290,7 @@ export const getTableData = () => {
         });
       });
     } else {
-      const { filter = {}, sorts, version, country, reportType } = data;
+      const { filter = {}, sorts, country, reportType } = data;
       const { particleSizeType } = data.xaxes || {};
       const params = {
         reportId: report.id,
@@ -412,7 +411,7 @@ export const getReportSingleCacheId = data => {
 
 export const requestOriginalData = data => {
   return (dispatch, getState) => {
-    const { base, worksheetInfo, currentReport } = getState().statistics;
+    const { worksheetInfo, currentReport } = getState().statistics;
     const { filter = {} } = currentReport;
     const style = currentReport.style || {};
     const viewDataType = style.viewDataType || 1;
@@ -515,7 +514,7 @@ export const getWorksheetInfo = worksheetId => {
 };
 
 export const changeFilterItem = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'CHANGE_STATISTICS_FILTER_ITEM',
       data,
@@ -540,7 +539,7 @@ export const changeCurrentReport = (data, isRequest) => {
 };
 
 export const closeCurrentReport = () => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'CHANGE_STATISTICS_CURRENT_REPORT',
       data: {},
@@ -549,8 +548,7 @@ export const closeCurrentReport = () => {
 };
 
 export const changeSheetId = activeSheetId => {
-  return (dispatch, getState) => {
-    const { currentReport, base } = getState().statistics;
+  return dispatch => {
     dispatch({
       type: 'CHANGE_STATISTICS_DETAIL_LOADING',
       data: true,
@@ -898,7 +896,15 @@ export const addXaxes = (control, isRequest = true) => {
         controlId: control.controlId,
         controlName: control.controlName,
         controlType: control.type,
-        particleSizeType: isTime || isArea ? 1 : 0,
+        particleSizeType: (function () {
+          if (isTime) {
+            return 1;
+          }
+          if (isArea) {
+            return control.enumDefault === 1 ? 4 : 1;
+          }
+          return 0;
+        })(),
         emptyType: 0,
         showFormat: isTime ? '0' : undefined,
         xaxisEmpty: false,
@@ -1010,7 +1016,7 @@ export const addTargetValueAxis = (index, control) => {
   };
 };
 
-export const removeTargetValueAxis = (index, control) => {
+export const removeTargetValueAxis = index => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { targetList = [] } = currentReport.config || {};
@@ -1157,7 +1163,7 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
 export const changeYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { reportType, displaySetup } = currentReport;
+    const { reportType, displaySetup, split = {} } = currentReport;
     const { yaxisList = [], sorts = [] } = data;
     const title = yaxisList.length ? _.get(yaxisList[0], 'controlName') : null;
     if (reportType === reportTypes.TopChart) {
@@ -1174,8 +1180,8 @@ export const changeYaxisList = (data, isRequest = true) => {
               ...displaySetup.ydisplay,
               title: reportType === reportTypes.ScatterChart ? displaySetup.ydisplay.title : title,
             },
-            isPerPile: yaxisList.length <= 1 ? false : displaySetup.isPerPile,
-            isPile: yaxisList.length <= 1 ? false : displaySetup.isPile,
+            isPerPile: yaxisList.length > 1 || split.controlId ? displaySetup.isPerPile : false,
+            isPile: yaxisList.length > 1 || split.controlId ? displaySetup.isPile : false,
           },
         },
         isRequest,
@@ -1242,7 +1248,6 @@ export const changeSplit = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
     const { sorts, split } = currentReport;
-    const showtype = _.get(split, 'advancedSetting.showtype');
     const deleteId = split.controlId
       ? split.particleSizeType
         ? `${split.controlId}-${split.particleSizeType}`
@@ -1269,7 +1274,7 @@ export const changeSplit = (data, isRequest = true) => {
         }
       }
       if (isArea) {
-        param.split.particleSizeType = 1;
+        param.split.particleSizeType = data.enumDefault === 1 ? 4 : 1;
       }
     }
     if (deleteId) {
@@ -1417,7 +1422,7 @@ export const addLines = (data, isRequest = true) => {
         .map(item => `${item.controlId}-${item.particleSizeType}`);
       const dropdownData = isTime
         ? filterTimeParticleSizeDropdownData(showtype, data.type)
-        : areaParticleSizeDropdownData;
+        : filterAreaParticleSizeDropdownData(data);
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
       const allowTypes = dropdownData
         .map(item => item.value)
@@ -1490,7 +1495,7 @@ export const addColumns = (data, isRequest = true) => {
         .map(item => `${item.controlId}-${item.particleSizeType}`);
       const dropdownData = isTime
         ? filterTimeParticleSizeDropdownData(showtype, data.type)
-        : areaParticleSizeDropdownData;
+        : filterAreaParticleSizeDropdownData(data);
       const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(data.controlId, disableParticleSizeTypes);
       const allowTypes = dropdownData
         .map(item => item.value)
@@ -1576,7 +1581,7 @@ export const destroy = () => {
   if (worksheetFilterByIdRequest) {
     worksheetFilterByIdRequest.abort();
   }
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'CHANGE_STATISTICS_RESET',
       data: null,

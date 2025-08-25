@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import JobController from 'src/api/job';
-import { Dialog, LoadDiv, Checkbox, ScrollView, FunctionWrap } from 'ming-ui';
 import cx from 'classnames';
-import './style.less';
 import _ from 'lodash';
+import { Checkbox, Dialog, FunctionWrap, LoadDiv, ScrollView } from 'ming-ui';
+import JobController from 'src/api/job';
+import './style.less';
 
 class DialogSelectJob extends Component {
   static defaultProps = {
@@ -41,7 +41,7 @@ class DialogSelectJob extends Component {
         let list = pageIndex > 1 ? data.concat(result.list) : result.list;
         this.setState({ data: list, loading: false, isMore: result.list && result.list.length >= 10 });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   }
@@ -85,7 +85,7 @@ class DialogSelectJob extends Component {
       );
     }
     return (
-      <ScrollView onScrollEnd={this.onScrollEnd}>
+      <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
         {data.map((item, i) => {
           return (
             <Checkbox
@@ -157,7 +157,7 @@ class DialogSelectJob extends Component {
               }}
             />
             <span
-              className={cx('searchClose icon-closeelement-bg-circle', { Block: !!keywords.trim() })}
+              className={cx('searchClose icon-cancel', { Block: !!keywords.trim() })}
               onClick={() => this.setState({ keywords: '' })}
             />
           </div>

@@ -19,7 +19,7 @@ const HomeEntry = styled.div`
   cursor: pointer;
   &:hover {
     border-color: #ddd;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -34,7 +34,7 @@ const MODULE_TO_TEXT = {
 };
 
 const PAGE_HEADER_ROUTE = {
-  systemSetting: ['/privateDeployment/:routeType?', '/appInstallSetting'],
+  systemSetting: ['/appInstallSetting'],
   account: ['/personal'],
   admin: ['/admin/:roleType/:projectId'],
   group: ['/group/groupValidate'],

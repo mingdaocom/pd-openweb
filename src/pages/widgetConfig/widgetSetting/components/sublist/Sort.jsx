@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
+import { UN_SORT_WIDGET } from '../../../config';
 import { getAdvanceSetting } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 
@@ -40,7 +42,7 @@ export default function SubListSort(props) {
     >
       <SortConditions
         className="subListSortCondition"
-        columns={controls.filter(o => ![43, 49, 51].includes(o.type))}
+        columns={controls.filter(o => !_.includes(UN_SORT_WIDGET, o.type))}
         sortConditions={sorts}
         showSystemControls
         onChange={setSorts}

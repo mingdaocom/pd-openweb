@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import { highlight, languages } from 'prismjs/components/prism-core';
 import Remarkable from 'remarkable';
 import { escapeHtml, replaceEntities } from 'remarkable/lib/common/utils';
+import { highlight, languages } from 'prismjs/components/prism-core';
+import _ from 'lodash';
 import filterXss from 'xss';
 
 export const SORT_TYPE = {
@@ -11,7 +11,7 @@ export const SORT_TYPE = {
 
 export const getMarkdownContent = text => {
   const md = new Remarkable({
-    highlight(str, lang) {
+    highlight(str) {
       return highlight(str, languages.js);
     },
   });
@@ -35,10 +35,9 @@ export const getPluginOperateText = (recentOperation = {}) => {
       break;
     case 3:
       operateText = _l('导入于');
+      break;
     case 4:
       operateText = _l('安装于');
-      break;
-    default:
       break;
   }
   return [_.get(recentOperation, 'account.fullname'), operateText, createTimeSpan(recentOperation.time)].join(' ');

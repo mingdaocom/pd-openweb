@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -36,7 +35,7 @@ const Wrap = styled.div`
       color: #757575;
     }
     &:hover {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
       .Icon {
         color: #fff;

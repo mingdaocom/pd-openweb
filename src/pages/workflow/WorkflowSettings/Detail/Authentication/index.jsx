@@ -53,7 +53,7 @@ export default class Authentication extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -77,23 +77,27 @@ export default class Authentication extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId }, { isIntegration })
       .then(result => {
-        if (result.appType === APP_TYPE.OAUTH2 && !result.webHookNodes.length) {
-          result.webHookNodes = [
-            {
-              method: 1,
-              url: '',
-              params: [
-                { name: 'app_id', value: '' },
-                { name: 'app_secret', value: '' },
-              ],
-              headers: [],
-              contentType: 1,
-              formControls: [],
-              body: '',
-              testMap: {},
-              retryControls: [],
-            },
-          ];
+        if (!(result.webHookNodes || []).length) {
+          if (result.appType === APP_TYPE.BASIC_AUTH) {
+            result.webHookNodes = [{ testMap: {} }];
+          } else {
+            result.webHookNodes = [
+              {
+                method: 1,
+                url: '',
+                params: [
+                  { name: 'app_id', value: '' },
+                  { name: 'app_secret', value: '' },
+                ],
+                headers: [],
+                contentType: 1,
+                formControls: [],
+                body: '',
+                testMap: {},
+                retryControls: [],
+              },
+            ];
+          }
         }
 
         this.setState({ data: result });
@@ -213,6 +217,7 @@ export default class Authentication extends Component {
    */
   renderBasicAuthContent() {
     const { data } = this.state;
+    const basicAuth = _.get(data.webHookNodes, '[0].testMap.basicAuth');
 
     return (
       <Fragment>
@@ -241,6 +246,17 @@ export default class Authentication extends Component {
             </div>
           );
         })}
+
+        <div className="mTop25 webhookBtn InlineBlock" onClick={this.test}>
+          {_l('测试')}
+        </div>
+
+        {basicAuth && (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('返回参数')}</div>
+            <ParameterList controls={[{ controlName: 'Authorization', type: 2, value: basicAuth }]} />
+          </Fragment>
+        )}
       </Fragment>
     );
   }
@@ -250,7 +266,7 @@ export default class Authentication extends Component {
    */
   renderOAuth2Content() {
     const { isIntegration, hasAuth } = this.props;
-    const { data, showParameterList, tab, showTestDialog, testArray } = this.state;
+    const { data, showParameterList, tab } = this.state;
     const TABS = {
       1: {
         text: 'Params',
@@ -317,7 +333,7 @@ export default class Authentication extends Component {
                     height={0}
                     content={item.url}
                     formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) => this.updateAjaxParameter({ url: value }, i)}
+                    onChange={(err, value) => this.updateAjaxParameter({ url: value }, i)}
                     updateSource={this.updateSource}
                   />
                 </div>
@@ -411,7 +427,7 @@ export default class Authentication extends Component {
                         type={2}
                         content={item.body}
                         formulaMap={data.formulaMap}
-                        onChange={(err, value, obj) => this.updateAjaxParameter({ body: value }, i)}
+                        onChange={(err, value) => this.updateAjaxParameter({ body: value }, i)}
                         updateSource={this.updateSource}
                       />
                     </div>
@@ -472,17 +488,6 @@ export default class Authentication extends Component {
             {isIntegration && data.appType === APP_TYPE.OAUTH2 && this.renderTokenRefreshCondition()}
           </Fragment>
         )}
-
-        {showTestDialog && (
-          <TestParameter
-            title={_l('编辑 Access Token 测试数据')}
-            onOk={this.send}
-            onClose={() => this.setState({ showTestDialog: false })}
-            testArray={testArray}
-            formulaMap={data.formulaMap}
-            testMap={data.webHookNodes[this.testIndex].testMap}
-          />
-        )}
       </Fragment>
     );
   }
@@ -527,20 +532,32 @@ export default class Authentication extends Component {
    */
   test = () => {
     const { data } = this.state;
-    const { url, params, headers, formControls, body } = data.webHookNodes[this.testIndex];
-    const testArray = _.uniq(
-      (url + JSON.stringify(params) + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(
-        /\$[^ \r\n]+?\$/g,
-      ) || [],
-    );
+    let testArray = [];
+
+    if (data.appType === APP_TYPE.BASIC_AUTH) {
+      const userName = _.find(data.fields, { fieldId: 'userName' });
+      const password = _.find(data.fields, { fieldId: 'password' });
+
+      if (!userName.fieldValue || (userName.fieldValue.match(/\$[^ \r\n]+?\$/g) || []).length) {
+        testArray.push('userName');
+      }
+
+      if (!password.fieldValue || (password.fieldValue.match(/\$[^ \r\n]+?\$/g) || []).length) {
+        testArray.push('password');
+      }
+    } else {
+      const { url, params, headers, formControls, body } = data.webHookNodes[this.testIndex];
+      testArray = _.uniq(
+        (url + JSON.stringify(params) + JSON.stringify(headers) + JSON.stringify(formControls) + body).match(
+          /\$[^ \r\n]+?\$/g,
+        ) || [],
+      );
+    }
 
     if (!testArray.length) {
       this.send();
     } else {
-      this.setState({
-        showTestDialog: true,
-        testArray,
-      });
+      this.setState({ showTestDialog: true, testArray });
     }
   };
 
@@ -550,48 +567,65 @@ export default class Authentication extends Component {
   send = (testMap = {}) => {
     const { processId, selectNodeId } = this.props;
     const { data, sendRequest } = this.state;
-    const { method, url, params, headers, body, formControls, contentType } = data.webHookNodes[this.testIndex];
 
     this.setState({ showTestDialog: false });
-
-    if (!url) {
-      alert(_l('Access Token URL'), 2);
-      return;
-    }
 
     if (sendRequest) {
       return;
     }
 
-    flowNode
-      .webHookTestRequest(
-        {
-          processId,
-          nodeId: selectNodeId,
-          method,
-          url: formatTestParameters(url, testMap).trim(),
-          params: JSON.parse(formatTestParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
-          headers: JSON.parse(formatTestParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
-          body: formatTestParameters(body, testMap),
-          formControls: JSON.parse(
-            formatTestParameters(JSON.stringify(formControls.filter(item => item.name)), testMap),
-          ),
-          contentType,
-        },
-        { isIntegration: this.props.isIntegration },
-      )
-      .then(result => {
-        if (result.status === 1) {
-          this.updateSource({ controls: result.data.controls }, () => {
-            this.updateAjaxParameter({ testMap }, this.testIndex);
-          });
-        } else {
-          this.updateAjaxParameter({ testMap }, this.testIndex);
-          alert(result.msg || _l('请求异常'), 2);
-        }
+    if (data.appType === APP_TYPE.BASIC_AUTH) {
+      flowNode
+        .basicAuthTest(
+          {
+            processId,
+            userName: testMap.userName || _.find(data.fields, { fieldId: 'userName' }).fieldValue || '',
+            password: testMap.password || _.find(data.fields, { fieldId: 'password' }).fieldValue || '',
+          },
+          { isIntegration: this.props.isIntegration },
+        )
+        .then(res => {
+          this.updateAjaxParameter({ testMap: { ...testMap, basicAuth: res.data } }, this.testIndex);
+          this.setState({ sendRequest: false });
+        });
+    } else {
+      const { method, url, params, headers, body, formControls, contentType } = data.webHookNodes[this.testIndex];
 
-        this.setState({ sendRequest: false });
-      });
+      if (!url) {
+        alert(_l('Access Token URL'), 2);
+        return;
+      }
+
+      flowNode
+        .webHookTestRequest(
+          {
+            processId,
+            nodeId: selectNodeId,
+            method,
+            url: formatTestParameters(url, testMap).trim(),
+            params: JSON.parse(formatTestParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
+            headers: JSON.parse(formatTestParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
+            body: formatTestParameters(body, testMap),
+            formControls: JSON.parse(
+              formatTestParameters(JSON.stringify(formControls.filter(item => item.name)), testMap),
+            ),
+            contentType,
+          },
+          { isIntegration: this.props.isIntegration },
+        )
+        .then(result => {
+          if (result.status === 1) {
+            this.updateSource({ controls: result.data.controls }, () => {
+              this.updateAjaxParameter({ testMap }, this.testIndex);
+            });
+          } else {
+            this.updateAjaxParameter({ testMap }, this.testIndex);
+            alert(result.msg || _l('请求异常'), 2);
+          }
+
+          this.setState({ sendRequest: false });
+        });
+    }
 
     this.setState({ sendRequest: true });
   };
@@ -706,7 +740,7 @@ export default class Authentication extends Component {
   };
 
   render() {
-    const { data } = this.state;
+    const { data, showTestDialog, testArray } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -721,7 +755,7 @@ export default class Authentication extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.appType === APP_TYPE.BASIC_AUTH && this.renderBasicAuthContent()}
@@ -730,6 +764,24 @@ export default class Authentication extends Component {
           </ScrollView>
         </div>
         <DetailFooter {...this.props} isCorrect onSave={this.onSave} />
+
+        {showTestDialog && (
+          <TestParameter
+            title={
+              data.appType === APP_TYPE.BASIC_AUTH ? _l('编辑 Basic Auth 测试数据') : _l('编辑 Access Token 测试数据')
+            }
+            onOk={this.send}
+            onClose={() => this.setState({ showTestDialog: false })}
+            testArray={testArray}
+            formulaMap={
+              data.appType === APP_TYPE.BASIC_AUTH
+                ? { userName: { name: _l('用户名') }, password: { name: _l('密码') } }
+                : data.formulaMap
+            }
+            testMap={data.webHookNodes[this.testIndex].testMap}
+            isSingleKey={data.appType === APP_TYPE.BASIC_AUTH}
+          />
+        )}
       </Fragment>
     );
   }

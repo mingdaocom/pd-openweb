@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
-import _, { isEqual } from 'lodash';
+import _, { get, isEqual } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
@@ -15,6 +15,7 @@ import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
 import View from 'worksheet/views';
 import { defaultNavCloseW, defaultNavOpenW, MaxNavW, MinNavW } from 'src/pages/worksheet/common/ViewConfig/config.js';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import GroupFilter from './GroupFilter';
 import QuickFilter from './QuickFilter';
@@ -71,7 +72,7 @@ const Drag = styled.div(
   cursor: ew-resize;
   border-left: 1px solid #e0e0e0;
   &:hover{
-    border-left: 1px solid #2196f3;
+    border-left: 1px solid #1677ff;
   }
 `,
 );
@@ -135,6 +136,7 @@ function Sheet(props) {
     sheetButtons,
     printList,
     sheetSwitchPermit,
+    viewRowsLoading,
   } = props;
   const isDevAndOps = canEditApp(appPkg.permissionType) || canEditData(appPkg.permissionType);
   const cache = useRef({});
@@ -183,7 +185,7 @@ function Sheet(props) {
     !_.get(view, 'navGroup[0].viewId');
   const basePara = {
     type,
-    loading,
+    loading: loading || (type === 'common' && views.length && _.isEmpty(view)),
     error,
     appPkg,
     appId,
@@ -209,6 +211,9 @@ function Sheet(props) {
     controls,
     refreshSheet,
     printCharge: config.printCharge,
+    allowOpenRecord: config.allowOpenRecord,
+    allowAddNewRecord: config.isAddRecord,
+    viewRowsLoading,
   };
   const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),
@@ -251,6 +256,19 @@ function Sheet(props) {
   useEffect(() => {
     updateGroupFilter([], view);
   }, [view.viewId, worksheetId]);
+  useEffect(() => {
+    if (
+      type === 'common' &&
+      views.length &&
+      _.isEmpty(view) &&
+      props.appId &&
+      props.groupId &&
+      props.worksheetId &&
+      !loading
+    ) {
+      navigateTo(`/app/${props.appId}/${props.groupId}/${props.worksheetId}`, true);
+    }
+  }, [view, views, loading]);
   useEffect(() => {
     if (_.get(cache, 'current.prevFastFilters.length') > 0 && _.get(view, 'fastFilters.length') === 0) {
       updateQuickFilter([], view);
@@ -419,6 +437,7 @@ export default connect(
     sheetSwitchPermit: state.sheet.sheetSwitchPermit,
     sheetButtons: state.sheet.sheetButtons,
     printList: state.sheet.printList,
+    viewRowsLoading: get(state, 'sheet.viewRowsLoading', false),
   }),
   dispatch =>
     bindActionCreators(

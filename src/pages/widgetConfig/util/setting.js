@@ -1,21 +1,25 @@
 import { checkOptionsRepeat, getControlByControlId } from '.';
 import { Parser } from 'hot-formula-parser';
 import update from 'immutability-helper';
-import _, { find, get, head, includes, isArray, isEmpty, isString } from 'lodash';
+import _, { find, get, head, includes, isArray, isEmpty } from 'lodash';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { HAVE_VALUE_STYLE_WIDGET, MAX_CONTROLS_COUNT, NO_CONTENT_CONTROL, NOT_HAVE_WIDTH_CONFIG } from '../config';
-import { DATE_SHOW_TYPES, DISPLAY_TYPE, TITLE_STYLE_OPTIONS } from '../config/setting';
+import { DATE_SHOW_TYPES, DISPLAY_TYPE } from '../config/setting';
 import { getRowById, isFullLineControl } from './widgets';
 
 export const getAdvanceSetting = (data, key) => {
   const setting = get(data, ['advancedSetting']) || {};
   if (!key) return setting;
   let value = get(setting, key);
+
+  if (!value) return '';
+
   try {
     return JSON.parse(value);
   } catch (error) {
+    console.log(error);
     return '';
   }
 };
@@ -35,6 +39,7 @@ export const getControlsSorts = (data, controls, key = 'controlssorts') => {
     if (_.isEmpty(parsedSorts)) return defaultSorts;
     return parsedSorts;
   } catch (error) {
+    console.log(error);
     return defaultSorts;
   }
 };
@@ -197,7 +202,10 @@ export const getVerifyInfo = (data, { controls }) => {
     if (!dataSource) {
       return { isValid: false, text: _l('没有选择查询模版') };
     }
-    if (type === 50 && (!advancedSetting.itemsource || !advancedSetting.itemtitle)) {
+    if (
+      (data.hasAuth && !advancedSetting.authaccount) ||
+      (type === 50 && (!advancedSetting.itemsource || !advancedSetting.itemtitle))
+    ) {
       return { isValid: false, text: _l('有必填项未配置') };
     }
   }
@@ -273,6 +281,7 @@ export const parseOptionValue = value => {
     }
     return [];
   } catch (error) {
+    console.log(error);
     return [];
   }
 };
@@ -286,7 +295,7 @@ export const getDatePickerConfigs = (data = {}) => {
   let showType = getAdvanceSetting(data, 'showtype');
 
   if (data.originType === 38 || data.type === 38) {
-    showType = data.unit;
+    showType = data.unit ? parseFloat(data.unit) : '';
   }
 
   switch (showType) {
@@ -351,7 +360,7 @@ export const getDatePickerConfigs = (data = {}) => {
 
 export const getShowFormat = data => {
   const { formatMode, mode } = getDatePickerConfigs(data);
-  const { advancedSetting: { showformat = '0' } = {}, type } = data;
+  const { advancedSetting: { showformat = '0', hour12 } = {}, type } = data;
   const isCustomFormat = _.isNaN(Number(showformat));
   const showType = isCustomFormat
     ? showformat.replace(/#EN#$/g, '')
@@ -360,7 +369,7 @@ export const getShowFormat = data => {
         'format',
       );
   if (mode === 'year') {
-    const yearShowType = _.get(showType.match(/(\y|Y)+[年]{0,1}/), '0');
+    const yearShowType = _.get(showType.match(/(y|Y)+[年]{0,1}/), '0');
     return showformat === '1' ? _l('YYYY年') : yearShowType || formatMode;
   }
   // 年月需要特殊处理
@@ -368,15 +377,16 @@ export const getShowFormat = data => {
     if (showformat === '1') return _l('YYYY年M月');
     if (_.includes(['2', '3'], showformat)) return 'M/YYYY';
     if (showformat === '4') return 'YYYY/M';
-    const yearMonthShowType = _.get(
-      showType.match(/((\y|Y|M)+(\-|\.|年|月|年\-|月\-){0,1}(M|\y|Y)+(年|月){0,1})/),
-      '0',
-    );
+    const yearMonthShowType = _.get(showType.match(/((y|Y|M)+(-|\.|年|月|年-|月-){0,1}(M|y|Y)+(年|月){0,1})/), '0');
     return yearMonthShowType || formatMode;
   }
-  const hasTime = /[H|h|m|s|S|Z]/.test(showType);
+  if (type === 16) {
+    const hasTime = /[H|h|m|s|S|Z]/.test(showType);
+    const newShowType = isCustomFormat && hasTime ? showType : formatMode.replace('YYYY-MM-DD', showType);
+    return hour12 === '1' ? `${newShowType.replace(/H/g, 'h')} A` : newShowType;
+  }
 
-  return type === 16 && isCustomFormat && hasTime ? showType : formatMode.replace('YYYY-MM-DD', showType);
+  return formatMode.replace('YYYY-MM-DD', showType);
 };
 
 // 日期控件自定义格式语言环境处理
@@ -439,7 +449,7 @@ export const getTitleStyle = (titleStyle = '0000') => {
 // 不允许重复的控件
 export const canAsUniqueWidget = item => {
   return (
-    _.includes([3, 4, 5, 7], item.type) ||
+    _.includes([3, 4, 5, 7, 9, 11], item.type) ||
     (item.type === 2 && item.enumDefault !== 3) ||
     (item.type === 29 && item.enumDefault === 1) ||
     (_.includes([26, 27, 48], item.type) && item.enumDefault === 0)
@@ -448,7 +458,7 @@ export const canAsUniqueWidget = item => {
 
 // 有字段值样式设置的控件
 export const canSetWidgetStyle = (item = {}) => {
-  const { type, enumDefault, showControls } = item;
+  const { type, enumDefault, showControls = [] } = item;
   const { showtype } = getAdvanceSetting(item);
   return (
     _.includes(HAVE_VALUE_STYLE_WIDGET, type) ||

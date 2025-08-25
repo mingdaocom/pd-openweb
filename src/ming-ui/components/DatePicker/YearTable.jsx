@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 class YearTable extends Component {
   /**
@@ -27,12 +27,12 @@ class YearTable extends Component {
         <li
           className={className}
           key={item}
-          onClick={(event) => {
+          onClick={event => {
             this.itemOnClick(event, item);
           }}
         >
           {item}
-        </li>
+        </li>,
       );
     }
 
@@ -80,9 +80,7 @@ YearTable.propTypes = {
 YearTable.defaultProps = {
   value: null,
   page: null,
-  onChange: (event, value, data) => {
-    //
-  },
+  onChange: () => {},
 };
 
 export default YearTable;

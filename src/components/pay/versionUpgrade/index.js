@@ -318,7 +318,7 @@ export default class VersionUpgrade extends Component {
                           <span>{item.name}</span>
                           {!!item.dataTip && (
                             <Tooltip popupPlacement="bottom" text={<span>{item.dataTip}</span>}>
-                              <Icon className="icon icon-workflow_help Gray_bd Font16 mLeft3" />
+                              <Icon className="icon icon-help Gray_bd Font16 mLeft3" />
                             </Tooltip>
                           )}
                         </Fragment>
@@ -375,7 +375,7 @@ export default class VersionUpgrade extends Component {
     return (
       <div className="versionUpgrade">
         <PayHeader />
-        {!!orderId ? (
+        {orderId ? (
           this.renderExistOrder()
         ) : (
           <Fragment>

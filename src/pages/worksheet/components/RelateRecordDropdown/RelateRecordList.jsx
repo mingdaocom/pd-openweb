@@ -6,6 +6,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
+import { selectRecords } from 'src/components/SelectRecords';
 import { getTranslateInfo } from 'src/utils/app';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import ReacordItem from './RecordItem';
@@ -41,6 +42,7 @@ export default class RelateRecordList extends React.PureComponent {
       ignoreAllFilters: false,
     };
     this.handleSearch = _.debounce(this.handleSearch, 500);
+    this.scrollViewRef = React.createRef();
   }
 
   con = React.createRef();
@@ -100,14 +102,16 @@ export default class RelateRecordList extends React.PureComponent {
     let itemHeight = 34;
     try {
       itemHeight = this.con.current.querySelector(`.RelateRecordListItem:nth-child(${newIndex})`).offsetHeight;
-    } catch (err) {}
-    const scrollContent = this.con.current.querySelector('.nano-content');
-    const height = scrollContent.clientHeight;
-    const scrollTop = scrollContent.scrollTop;
+    } catch (err) {
+      console.log(err);
+    }
+    const scrollInfo = this.scrollViewRef.getScrollInfo() || {};
+    const height = scrollInfo.clientHeight;
+    const scrollTop = scrollInfo.scrollTop;
     if (itemHeight * newIndex - scrollTop > height - 20) {
-      scrollContent.scrollTop = itemHeight * newIndex - height + itemHeight;
+      this.scrollViewRef.scrollTo({ top: itemHeight * newIndex - height + itemHeight });
     } else if (itemHeight * newIndex < scrollTop) {
-      scrollContent.scrollTop = itemHeight * newIndex;
+      this.scrollViewRef.scrollTo({ top: itemHeight * newIndex });
     }
   }
 
@@ -135,7 +139,6 @@ export default class RelateRecordList extends React.PureComponent {
 
   loadRecord() {
     const {
-      from,
       isSubList,
       isDraft,
       isQuickFilter,
@@ -143,12 +146,10 @@ export default class RelateRecordList extends React.PureComponent {
       formData,
       viewId,
       dataSource,
-      selectedIds,
       parentWorksheetId,
       recordId,
       controlId,
       searchControl,
-      multiple,
       staticRecords,
       getFilterRowsGetType,
       fastSearchControlArgs,
@@ -315,6 +316,10 @@ export default class RelateRecordList extends React.PureComponent {
     const {
       appId,
       style,
+      isDraft,
+      parentWorksheetId,
+      viewId,
+      formData,
       entityName,
       maxHeight,
       isCharge,
@@ -332,9 +337,16 @@ export default class RelateRecordList extends React.PureComponent {
       onItemClick,
       allowNewRecord,
       onNewRecord,
+      onChange,
+      focusInput = () => {},
     } = this.props;
+    const showDialogSelect = get(control, 'advancedSetting.openfastfilters') === '1';
     const allowShowIgnoreAllFilters = isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
     const { error, loading, worksheet = {}, keyWords, controls, loadouted, allowAdd, activeId } = this.state;
+    const showCreateRecord =
+      allowNewRecord &&
+      allowAdd &&
+      !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm'));
     let records = (loading ? [] : prefixRecords).concat(this.state.records);
     if (!_.isEmpty(staticRecords) && keyWords) {
       records = _.filter(staticRecords, row => new RegExp(keyWords, 'i').test(row.name));
@@ -349,6 +361,8 @@ export default class RelateRecordList extends React.PureComponent {
     if (maxHeight) {
       recordListHeight = maxHeight - 48 - 10;
     }
+    const hasFilter =
+      _.get(control, 'advancedSetting.searchfilters') || _.get(control, 'advancedSetting.fastfiltersview');
     return (
       <div
         className="RelateRecordList flexColumn"
@@ -369,8 +383,9 @@ export default class RelateRecordList extends React.PureComponent {
             height: recordListHeight > 323 ? 323 : recordListHeight,
           }}
         >
-          <div className="flex flexColumn listCon" onClick={e => e.stopPropagation()}>
+          <div className="flex flexColumn listCon minHeight0" onClick={e => e.stopPropagation()}>
             <ScrollView
+              ref={el => (this.scrollViewRef = el)}
               className="flex"
               onScrollEnd={() => {
                 if (!loading && !loadouted && _.isEmpty(staticRecords)) {
@@ -396,7 +411,10 @@ export default class RelateRecordList extends React.PureComponent {
                     {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
                       <div
                         className="mTop10 ThemeColor3 TxtCenter Hand"
-                        onClick={() => this.setState({ ignoreAllFilters: true }, this.loadRecord)}
+                        onClick={() => {
+                          this.setState({ ignoreAllFilters: true }, this.loadRecord);
+                          focusInput();
+                        }}
                       >
                         {_l('查看全部记录')}
                       </div>
@@ -434,26 +452,58 @@ export default class RelateRecordList extends React.PureComponent {
           </div>
         </div>
         <div style={{ borderTop: '1px solid #ddd' }} />
-        {allowNewRecord &&
-          allowAdd &&
-          !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')) &&
-          (!error || error === 'notCorrectCondition') && (
-            <div
-              className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}
-              onClick={e => {
-                e.stopPropagation();
-                this.setState({ activeId: undefined });
-                onNewRecord(e);
-              }}
-            >
-              <i className="icon icon-plus"></i>
-              {createRecordName ||
-                (control && control.sourceBtnName) ||
-                entityName ||
-                worksheet.entityName ||
-                (control && control.sourceEntityName)}
-            </div>
-          )}
+        {(!error || error === 'notCorrectCondition') && (showCreateRecord || showDialogSelect) && (
+          <div className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}>
+            {showCreateRecord && (
+              <div
+                onClick={e => {
+                  e.stopPropagation();
+                  this.setState({ activeId: undefined });
+                  onNewRecord(e);
+                }}
+              >
+                <i className="icon icon-plus mRight5"></i>
+                {createRecordName ||
+                  (control && control.sourceBtnName) ||
+                  entityName ||
+                  worksheet.entityName ||
+                  (control && control.sourceEntityName)}
+              </div>
+            )}
+
+            {showDialogSelect && (
+              <i
+                className={`icon icon-${hasFilter ? 'worksheet_filter' : 'worksheet_enlarge'} Font20 Gray_9e Hand ThemeHoverColor3`}
+                onClick={() => {
+                  selectRecords({
+                    projectId: worksheet?.projectId,
+                    control,
+                    controlId: control.controlId,
+                    recordId,
+                    isCharge,
+                    multiple,
+                    allowNewRecord:
+                      allowNewRecord &&
+                      allowAdd &&
+                      !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')),
+                    coverCid,
+                    appId,
+                    viewId,
+                    formData,
+                    relateSheetId: control.dataSource,
+                    parentWorksheetId: parentWorksheetId,
+                    showControls: showControls,
+                    filterRowIds: selectedIds,
+                    onOk: records => {
+                      onChange(records);
+                    },
+                    isDraft,
+                  });
+                }}
+              ></i>
+            )}
+          </div>
+        )}
       </div>
     );
   }

@@ -1,48 +1,48 @@
 import React, { Component, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import './taskNavigation.less';
-import ajaxRequest from 'src/api/taskCenter';
-import {
-  errorMessage,
-  getTaskStorage,
-  setTaskStorage,
-  checkIsProject,
-  getTaskState,
-  getFolderState,
-  setStateToStorage,
-} from '../../utils/utils';
+import { renderToString } from 'react-dom/server';
 import { connect } from 'react-redux';
-import doT from 'dot';
-import singleFolderComm from './tpl/singleFolderComm.html';
-import singleFolder from './tpl/singleFolder.html';
-import topFolder from './tpl/topFolder.html';
-import networkList from './tpl/networkList.html';
-import projectFolder from './tpl/projectFolder.html';
-import FolderTemplate from '../../components/folderTemplate/folderTemplate';
-import {
-  updateStateConfig,
-  updateFolderTopState,
-  updateFolderArchivedState,
-  updateTopFolderList,
-} from '../../redux/actions';
-import config from '../../config/config';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import CopyFolder from '../../components/copyFolder/copyFolder';
 import cx from 'classnames';
-import {
-  createFolder,
-  updateFolderTop,
-  deleteFolder,
-  exitFolder,
-  updateFolderArchived,
-  getLeftMenuCount,
-} from '../../utils/taskComm';
-import { navigateTo } from 'src/router/navigateTo';
+import doT from 'dot';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { LoadDiv, UserHead } from 'ming-ui';
 import styled from 'styled-components';
-import { renderToString } from 'react-dom/server';
+import { LoadDiv, UserHead } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { navigateTo } from 'src/router/navigateTo';
+import CopyFolder from '../../components/copyFolder/copyFolder';
+import FolderTemplate from '../../components/folderTemplate/folderTemplate';
+import config from '../../config/config';
+import {
+  updateFolderArchivedState,
+  updateFolderTopState,
+  updateStateConfig,
+  updateTopFolderList,
+} from '../../redux/actions';
+import {
+  createFolder,
+  deleteFolder,
+  exitFolder,
+  getLeftMenuCount,
+  updateFolderArchived,
+  updateFolderTop,
+} from '../../utils/taskComm';
+import {
+  checkIsProject,
+  errorMessage,
+  getFolderState,
+  getTaskState,
+  getTaskStorage,
+  setStateToStorage,
+  setTaskStorage,
+} from '../../utils/utils';
+import networkList from './tpl/networkList.html';
+import projectFolder from './tpl/projectFolder.html';
+import singleFolder from './tpl/singleFolder.html';
+import singleFolderComm from './tpl/singleFolderComm.html';
+import topFolder from './tpl/topFolder.html';
+import './taskNavigation.less';
 
 const loading = renderToString(<LoadDiv />);
 
@@ -58,8 +58,12 @@ const taskNavigationSettings = {
 const SearchFolderCon = styled.ul`
   width: 360px;
   max-height: 400px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   background: #fff;
   padding: 6px 0;
   overflow-y: scroll;
@@ -87,7 +91,6 @@ const SearchFolderCon = styled.ul`
 
 function SearchFolder(props) {
   const { onSelect, filterUserId } = props;
-  const [options, setOptions] = useState([]);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState({ folders: [], labels: [] });
@@ -254,7 +257,7 @@ function SearchFolder(props) {
                   data-id={label.categoryID}
                   onClick={() => {
                     onSelect({
-                      ...folder,
+                      ...label,
                       type: 'category',
                       text: label.categoryName,
                       searchText: search,
@@ -266,7 +269,7 @@ function SearchFolder(props) {
                     setHighlight({
                       id: label.categoryID,
                       data: {
-                        ...folder,
+                        ...label,
                         type: 'category',
                         text: label.categoryName,
                         searchText: search,
@@ -404,7 +407,7 @@ class TaskNavigation extends Component {
     }
 
     // 多个网络获取项目数据
-    $.map(networks, (projectId, i) => {
+    $.map(networks, projectId => {
       if (projectId) {
         $('.networkFolderList[data-projectid=' + projectId + ']')
           .find('.clipLoader')
@@ -561,14 +564,12 @@ class TaskNavigation extends Component {
           $('#taskNavigator .folderUnfinished.folderIcon').removeClass('Hidden');
 
           const _this = $(this);
-          let isNovice = false;
           const projectId =
             _this.attr('data-projectid') || _this.closest('.networkFolderList').attr('data-projectid') || '';
           const folderId = _this.data('id');
 
           // 点击内置项目
           if (_this.hasClass('novice')) {
-            isNovice = true;
             _this.removeClass();
             $('#noviceMain').remove();
             $('#noviceShadow,#folderNoviceShadow')
@@ -675,7 +676,6 @@ class TaskNavigation extends Component {
     $taskNavigator.on(
       {
         click(event) {
-          const $folderList = $('#taskNavigator .folderList');
           const $folderSettingBox = $('.folderSettingsList');
 
           event.stopPropagation();
@@ -702,7 +702,6 @@ class TaskNavigation extends Component {
           const projectId = $li.data('projectid');
           const $projectFolder = $li.closest('.projectFolder');
           const folderId = $li.data('id');
-          const auth = $li.data('auth') !== config.auth.FolderCharger && $li.data('auth') !== config.auth.FolderAdmin;
 
           if ($projectFolder.length > 0) {
             $folderSettingBox.data('fileid', $projectFolder.data('fileid'));
@@ -813,7 +812,7 @@ class TaskNavigation extends Component {
             $folderSettingBox.find('.dividerLine').hide();
           }
         },
-        mousedown(event) {
+        mousedown() {
           $('.projectFolderOp').addClass('Hidden');
         },
       },
@@ -883,7 +882,7 @@ class TaskNavigation extends Component {
               break;
           }
         },
-        'mouseover.task': function (event) {
+        'mouseover.task': function () {
           const $this = $(this);
           const $ul = $this.find('.fileFolders');
           let projectId = $('.folderSettingsList').data('projectid');
@@ -998,7 +997,7 @@ class TaskNavigation extends Component {
     );
 
     // 项目文件夹操作
-    $('body').on('click.task', '.fileFoldersBox li', function (event) {
+    $('body').on('click.task', '.fileFoldersBox li', function () {
       // 移动 或者新增文件夹
       let projectId = $('.folderSettingsList').data('projectid');
       const folderId = $('.folderSettingsList').data('folderid');
@@ -1132,7 +1131,7 @@ class TaskNavigation extends Component {
       '.txtProjectNameEdit',
     );
 
-    $('#taskNavigator .navContent').on('scroll', event => {
+    $('#taskNavigator .navContent').on('scroll', () => {
       $('.folderSettingsList').hide();
       $('.folderList li .sinSettings').addClass('Hidden');
       $('.projectFolderOp').addClass('Hidden');
@@ -1214,7 +1213,7 @@ class TaskNavigation extends Component {
   getProjectsFolderNotice() {
     ajaxRequest.getProjectsFolderNotice().then(source => {
       if (source.status) {
-        $.map(source.data, (network, i) => {
+        $.map(source.data, network => {
           const { projectID, noticeCount } = network;
           if (noticeCount && projectID) {
             $('.networkFolderList[data-projectid=' + projectID + ']')
@@ -1278,12 +1277,12 @@ class TaskNavigation extends Component {
     this.buildFolders(data, singleFolderTpl, projectId);
     // 处理小红点
     let count = 0;
-    $.map(data.folderFileList || [], (folder, i) => {
+    $.map(data.folderFileList || [], folder => {
       if (folder.isNotice) {
         count++;
       }
     });
-    $.map(data.folderList || [], (list, i) => {
+    $.map(data.folderList || [], list => {
       if (list.isNotice) {
         count++;
       }
@@ -2074,7 +2073,7 @@ class TaskNavigation extends Component {
             data-type="participate"
           >
             <span className="tip-bottom-right" data-tip={_l('他仅作为任务参与者的任务')}>
-              <i className="icon-task-participate typeIcon typeIconParticipate ThemeColor9" />
+              <i className="icon-double-loop typeIcon typeIconParticipate ThemeColor9" />
             </span>
             <span className="typeName ThemeColor10">{_l('他参与的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
@@ -2194,7 +2193,7 @@ class TaskNavigation extends Component {
 
         <ul className="folderSettingsList boderRadAll_3 boxShadow5 Hidden">
           <li data-type="popTop" className="ThemeBGColor3 importantProject">
-            <i className="icon-folder-top" />
+            <i className="icon-set_top" />
             <span>{_l('置顶')}</span>
           </li>
           <li data-type="addfile" className="ThemeBGColor3 addFileBox">
@@ -2226,11 +2225,11 @@ class TaskNavigation extends Component {
             <span>{_l('归档项目')}</span>
           </li>
           <li data-type="del" className="ThemeBGColor3 chargeAuth">
-            <i className="icon-task-new-delete" />
+            <i className="icon-trash" />
             {_l('删除项目')}
           </li>
           <li data-type="exit" className="ThemeBGColor3 Hidden exitFolder">
-            <i className="icon-task-new-exit" />
+            <i className="icon-groupExit" />
             {_l('退出项目')}
           </li>
         </ul>

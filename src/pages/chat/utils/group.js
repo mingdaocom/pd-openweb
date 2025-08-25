@@ -24,7 +24,6 @@ const showInviteBox = options => {
 export const addGroupMembers = session => {
   const current = md.global.Account;
   const { id, type } = session;
-  const userArr = [];
 
   const callback = userlist => {
     const accountIds = [];
@@ -58,13 +57,12 @@ export const addGroupMembers = session => {
           existAccountHint(data);
         });
     } else if (type === Constant.SESSIONTYPE_USER) {
-      accountIds.push(sessionTarget.id); // 将当前聊天人加入群组会话
       ajax
         .createGroup({
           groupname: '',
           accountIds,
         })
-        .then(group => {
+        .then(() => {
           // console.log('createGroup', group);
           // // 聊天不添加到群组列表
           // ChatPubSubHelper.publish(ACTIONS.OPEN_CHAT_WINDOW, {
@@ -112,7 +110,7 @@ export const createDiscussion = (accountid, cb) => {
         return false;
       }
       const accountIds = [];
-      accounts.map((account, i) => {
+      accounts.map(account => {
         if (account.accountId !== md.global.Account.accountId || account.accountId !== accountid) {
           accountIds.push(account.accountId);
         }

@@ -1,11 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
-import { func, string } from 'prop-types';
 import { Collapse } from 'antd';
-import { functionTypes, functionDetails } from '../enum';
-import { SearchFn } from 'src/pages/widgetConfig/util';
 import 'antd/lib/collapse/style/index.css';
 import _ from 'lodash';
+import { func, string } from 'prop-types';
+import styled from 'styled-components';
+import { SearchFn } from 'src/pages/widgetConfig/util';
+import { functionDetails, functionTypes } from '../enum';
 
 const ExpandIcon = styled.i`
   display: inline-block;

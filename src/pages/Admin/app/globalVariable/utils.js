@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const formatVarList = list => {
   let resultList = [];
   list.forEach(el => {

@@ -1,7 +1,7 @@
-﻿import * as ACTIONS from '../actions/current';
+﻿import _ from 'lodash';
 import Config from '../../../../config';
+import * as ACTIONS from '../actions/current';
 import { COMPANY_DEPARMENTID } from '../constant';
-import _ from 'lodash';
 
 const initialState = () => {
   let typeCursor = 0;
@@ -56,7 +56,6 @@ export default (state = initialState(), action) => {
     selectedAccountIds,
     userStatus,
     noDepartmentUsers,
-    fullDepartmentInfo = {},
   } = action;
   switch (type) {
     case 'PROJECT_ID_CHANGED':
@@ -114,14 +113,12 @@ export default (state = initialState(), action) => {
         ...state,
         approveNumber: state.userStatus === 3 ? action.response : state.approveNumber,
       };
-      break;
     case ACTIONS.INACTIVE_SUCCESS:
       return {
         ...state,
         // inActiveNumber: action.response.allCount,
         inActiveNumber: action.response,
       };
-      break;
     case 'UPDATE_AUTO_SHOW':
       return {
         ...state,

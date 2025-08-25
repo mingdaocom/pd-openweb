@@ -1,13 +1,13 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
 import { Button, Divider } from 'antd';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { defaultFilterData } from './enum';
+import { Icon, LoadDiv } from 'ming-ui';
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
+import { defaultFilterData } from './enum';
 import { formatFilters } from './util';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   display: flex;
@@ -55,18 +55,18 @@ const Wrap = styled.div`
         border: 1px solid #efefef;
       }
       .active {
-        border-color: #2196F3;
+        border-color: #1677ff;
       }
     }
   }
 
   .quickFilterWrap {
     padding-top: 0;
-    >div {
+    > div {
       padding: 0;
     }
     .disable {
-      .content>div {
+      .content > div {
         background-color: #f5f5f5;
       }
     }
@@ -83,10 +83,7 @@ const Wrap = styled.div`
 
 export default function Preview(props) {
   const { loading, activeId, setActiveId, filters, setFilters } = props;
-  const { filter, setFilter } = props;
-  const { advancedSetting = {} } = filter;
-  const { ids = {}, setting } = props;
-  const { appId } = ids;
+  const { filter } = props;
 
   const add = () => {
     const filterId = uuidv4();
@@ -94,20 +91,20 @@ export default function Preview(props) {
     const data = {
       ...defaultFilterData,
       filterId,
-      global: filter.global
+      global: filter.global,
     };
     if (filter.global) {
       data.objectControls = filter.objectControls.map(c => {
         return {
           ...c,
           controlId: '',
-          control: undefined
-        }
+          control: undefined,
+        };
       });
-    };
+    }
     setActiveId(filterId);
     setFilters(filters.concat(data));
-  }
+  };
 
   return (
     <Wrap className="flexColumn">
@@ -132,7 +129,7 @@ export default function Preview(props) {
                 enableBtn={filter.enableBtn}
                 filters={formatFilters(filters)}
                 activeFilterId={activeId}
-                onFilterClick={(id, item) => {
+                onFilterClick={id => {
                   setActiveId(id);
                 }}
               />

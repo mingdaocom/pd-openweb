@@ -4,7 +4,6 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 
 const Con = styled.div`
   background: #f5f5f9;
@@ -48,7 +47,7 @@ const Con = styled.div`
       margin-top: 24px;
       height: 36px;
       opacity: 1;
-      background: #2196f3;
+      background: #1677ff;
       border-radius: 3px;
       font-size: 13px;
       font-weight: 700;
@@ -70,7 +69,7 @@ const Con = styled.div`
       a {
         color: #757575;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -141,7 +140,7 @@ class Publicquery extends React.Component {
         <DocumentTitle title={title || _l('公开查询')} />
         <div className="queryBox">
           <h3>{title || _l('公开查询')}</h3>
-          {!!errCode ? (
+          {errCode ? (
             this.renderErr(errCode)
           ) : !Components ? null : (
             <Components.default

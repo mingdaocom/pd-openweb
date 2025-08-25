@@ -1,8 +1,8 @@
 import React from 'react';
-import { Dialog, LoadDiv, Icon } from 'ming-ui';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import userController from 'src/api/user';
-import styled from 'styled-components';
 
 const DialogWrap = styled(Dialog)`
   .test-textarea {
@@ -53,7 +53,7 @@ class RefuseUserJoinDia extends React.Component {
         }
         onCancel();
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('拒绝失败'), 2);
         callback();
       });

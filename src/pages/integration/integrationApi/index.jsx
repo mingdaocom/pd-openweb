@@ -1,10 +1,11 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
-import APIWrap from 'src/pages/integration/apiIntegration/APIWrap/index.jsx';
 import styled from 'styled-components';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { Dialog, Icon } from 'ming-ui';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import APIWrap from 'src/pages/integration/apiIntegration/APIWrap/index.jsx';
 import { navigateTo } from 'src/router/navigateTo';
+
 const Wrap = styled.div`
   .apiCont {
     width: 100% !important;

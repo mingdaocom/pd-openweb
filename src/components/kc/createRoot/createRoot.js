@@ -1,9 +1,8 @@
 ﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '@mdfe/nanoscroller';
 import doT from 'dot';
 import _ from 'lodash';
-import { Dialog, UserHead } from 'ming-ui';
+import { Dialog, ScrollView, UserHead } from 'ming-ui';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import kcAjax from 'src/api/kc';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
@@ -52,8 +51,7 @@ $.extend(RootSettings.prototype, {
   init: function () {
     var _this = this,
       isEdit = _this.settings.isEdit,
-      rootId = _this.settings.id,
-      originalName = _this.settings.name;
+      rootId = _this.settings.id;
     var rootPromise;
     if (isEdit) {
       rootPromise = kcAjax.getRootDetail({ id: rootId });
@@ -113,11 +111,13 @@ $.extend(RootSettings.prototype, {
         width: 520,
         title: isEdit ? _l('编辑文件夹') : _l('创建文件夹'),
         children: (
-          <div
-            dangerouslySetInnerHTML={{
-              __html: doT.template(htmlTpl)($.extend({}, root, defaultProject ? { project: defaultProject } : null)),
-            }}
-          ></div>
+          <ScrollView class="rootScrollView scrollViewContainer os-scrollbar-scale os-theme-common">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: doT.template(htmlTpl)($.extend({}, root, defaultProject ? { project: defaultProject } : null)),
+              }}
+            ></div>
+          </ScrollView>
         ),
         okText: _l('创建'),
         cancelText: _l('取消'),
@@ -187,7 +187,6 @@ $.extend(RootSettings.prototype, {
           $updatePermission = $('#updatePermission'),
           myPermis = root.permission;
         $createFolderBox.find('.folderName .txtFolderName').val(root.name);
-        _this.nanoScroller();
         _this.bindInitEvent(root);
 
         //创建root时 不允许托付文件夹
@@ -251,8 +250,7 @@ $.extend(RootSettings.prototype, {
     var $createFolderBox = $('.createFolderBox'),
       $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
       $updatePermission = $('#updatePermission'),
-      $checkInviter = $('#checkInviter'),
-      myPermis = root.permission;
+      $checkInviter = $('#checkInviter');
     //添加为成员
     $folderMemberBox
       .find('.addMember')
@@ -304,7 +302,6 @@ $.extend(RootSettings.prototype, {
           var $memberItem = $this.closest('li.memberItem');
           var $permission = $this.closest('.permission');
           var accountId = $memberItem.data('accountId');
-          var accountStatus = $permission.find('.pointer i').data('accountStatus');
           var memberStatus = $permission.find('.pointer i').data('memberStatus');
           var apkName = $permission.data('apkname');
           var memberPermis = $permission.data('permission');
@@ -450,7 +447,7 @@ $.extend(RootSettings.prototype, {
             evt.stopPropagation();
           },
         },
-        '.itemLi .icon-task-folder-message',
+        '.itemLi .icon-error1',
       );
 
     //审批邀请账户
@@ -499,7 +496,6 @@ $.extend(RootSettings.prototype, {
                 if (data && data.result) {
                   $checkMemberLi.slideUp(function () {
                     $(this).remove();
-                    _this.nanoScroller();
                   });
                   var newMembers = root.members.filter(function (m) {
                     return m.accountId !== memberId.toLowerCase();
@@ -644,7 +640,7 @@ $.extend(RootSettings.prototype, {
           .then(function () {
             $createFolderBox.find('.folderContent .dropBox .seleted').html(selectName).data('projectId', selectId);
             $attributeList.fadeOut();
-            var membersLi = $createFolderBox.find('.folderMembers .memberList .memberItem').filter(function (index) {
+            var membersLi = $createFolderBox.find('.folderMembers .memberList .memberItem').filter(function () {
               return ($(this).data('accountId') || $(this).data('account')) !== md.global.Account.accountId;
             });
 
@@ -656,7 +652,6 @@ $.extend(RootSettings.prototype, {
                 onOk: () => {
                   membersLi.slideUp(function () {
                     $(this).remove();
-                    _this.nanoScroller();
                   });
                 },
                 cancelText: _l('保留'),
@@ -731,7 +726,6 @@ $.extend(RootSettings.prototype, {
                       $('.createFolderBox').parent().remove();
                     } else {
                       $this.closest('.memberItem').slideUp(function () {
-                        _this.nanoScroller();
                         $(this).remove();
                       });
 
@@ -752,13 +746,11 @@ $.extend(RootSettings.prototype, {
           });
         } else {
           $this.closest('.memberItem').slideUp(function () {
-            _this.nanoScroller();
             $(this).remove();
           });
         }
       })
       .on('click', '.memberItem .rootTrust', function () {
-        var $this = $(this);
         dialogSelectUser({
           title: _l('请选择同事'),
           showMoreInvite: false,
@@ -899,7 +891,7 @@ $.extend(RootSettings.prototype, {
             );
           });
 
-        $('.folderMembers .folderMemberBox ul li.Hidden').slideDown(_this.nanoScroller);
+        $('.folderMembers .folderMemberBox ul li.Hidden').slideDown();
         if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
           callbackInviteResult({ status: 1 });
         }
@@ -969,7 +961,7 @@ $.extend(RootSettings.prototype, {
                   );
                 });
 
-              $('.folderMembers .folderMemberBox ul li.Hidden').slideDown(_this.nanoScroller);
+              $('.folderMembers .folderMemberBox ul li.Hidden').slideDown();
 
               _this.settings.resolve($.extend({}, root, { members: root.members }));
             }
@@ -1018,7 +1010,7 @@ $.extend(RootSettings.prototype, {
         alert('文件名称过长,请保持名称在255个字符以内', 3, 3000);
         return false;
       }
-      var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g,
+      var illegalChars = /[/\\:*?"<>|]/g,
         valid = illegalChars.test(name);
       if (valid) {
         alert('名称不能包含以下字符：\\ / : * ? " < > | #', 3);
@@ -1029,16 +1021,6 @@ $.extend(RootSettings.prototype, {
     }
 
     return true;
-  },
-  nanoScroller: function () {
-    var $folderMemberBox = $('.folderMembers .folderMemberBox');
-    var $memberListItem = $folderMemberBox.find('.memberList .memberItem');
-    if ($memberListItem.height() * $memberListItem.length >= 300) {
-      $folderMemberBox.find('.nanoCon').addClass('nano').find('.memberList').addClass('nano-content');
-      $folderMemberBox.find('.nanoCon').nanoScroller();
-    } else {
-      $folderMemberBox.find('.nanoCon').removeClass('nano').find('.memberList').removeClass('nano-content');
-    }
   },
 });
 

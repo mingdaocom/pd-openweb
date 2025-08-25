@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import variableApi from 'src/api/variable';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import GlobalVarTable from 'src/pages/Admin/app/globalVariable/components/GlobalVarTable';

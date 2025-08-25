@@ -1,18 +1,19 @@
 import React, { Fragment, useState } from 'react';
-import Trigger from 'rc-trigger';
-import { Menu, MenuItem, Icon, Dropdown, Checkbox, Dialog } from 'ming-ui';
-import { Tooltip } from 'antd';
-import { EVENT_MORE_OPTIONS, FILTER_VALUE_ENUM, getEventDisplay, dealEventDisplay, ACTION_VALUE_ENUM } from '../config';
-import { IconWrap } from '../style';
 import { useSetState } from 'react-use';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
-import '../../../../styled/style.less';
-import { SettingItem } from 'src/pages/widgetConfig/styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { filterSysControls } from 'src/pages/widgetConfig/util';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
+import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem } from 'ming-ui';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
+import { filterSysControls } from 'src/pages/widgetConfig/util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { getPathById } from '../../../../util/widgets';
+import { ACTION_VALUE_ENUM, dealEventDisplay, EVENT_MORE_OPTIONS, FILTER_VALUE_ENUM, getEventDisplay } from '../config';
+import { IconWrap } from '../style';
+import '../../../../styled/style.less';
 
 // 查询工作表不支持复制
 const dealEventActions = eventActions => {
@@ -37,9 +38,7 @@ function CopyCustomEvent(props) {
     copyAction: false,
   });
 
-  const filterControls = filterSysControls(allControls)
-    .filter(i => !_.includes([34], i.type))
-    .map(i => ({ value: i.controlId, text: i.controlName }));
+  const filterControls = filterSysControls(allControls).map(i => ({ value: i.controlId, text: i.controlName }));
 
   const currentControl = _.find(allControls, a => a.controlId === copyId);
   const customEvent = getAdvanceSetting(data, 'custom_event') || [];

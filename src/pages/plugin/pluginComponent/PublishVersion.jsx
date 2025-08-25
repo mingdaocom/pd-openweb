@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Dialog, Input, TagTextarea } from 'ming-ui';
 import { Select } from 'antd';
 import _ from 'lodash';
-import { pluginApiConfig, PLUGIN_TYPE, pluginConstants, API_EXTENDS } from '../config';
+import styled from 'styled-components';
+import { Dialog, Input, TagTextarea } from 'ming-ui';
+import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConstants } from '../config';
 
 const PublishDialog = styled(Dialog)`
   .mui-dialog-desc {
@@ -73,7 +73,7 @@ export default function PublishVersion(props) {
 
   useEffect(() => {
     //设置版本号默认值
-    if (!!latestVersion) {
+    if (latestVersion) {
       const versionArr = latestVersion.split('.');
       setFormData({
         v1: parseInt(versionArr[0]),

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Dialog, Button, Dropdown } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Dialog, Dropdown } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import './SelectOtherWorksheetDialog.less';
-import _ from 'lodash';
 
 export default class extends Component {
   static propTypes = {
@@ -76,7 +76,7 @@ export default class extends Component {
         className={cx('selectWorksheetDialog')}
         visible={visible}
         anim={false}
-        title={title || _l('选择其他应用下的%0', worksheetTypeName) }
+        title={title || _l('选择其他应用下的%0', worksheetTypeName)}
         description={description}
         footer={null}
         width={480}

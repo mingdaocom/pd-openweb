@@ -154,13 +154,12 @@ export default class Date extends React.Component {
       cell,
       editable,
       isediting,
-      tableFromModule,
       updateEditingStatus,
       updateCell,
       onClick,
       projectId,
     } = this.props;
-    const { tempValue, value, search, keywords } = this.state;
+    const { tempValue, search, keywords } = this.state;
     const isMobile = browserIsMobile();
     const anylevel = _.get(cell, 'advancedSetting.anylevel');
     const chooserange = _.get(cell, 'advancedSetting.chooserange');
@@ -220,7 +219,7 @@ export default class Date extends React.Component {
           className={cx(className, 'cellControlArea', { canedit: editable, focusInput: editable })}
           style={style}
           iconRef={this.editIcon}
-          iconName="text_map"
+          iconName="map"
           iconClassName="dateEditIcon"
           isediting={isediting}
           onIconClick={() => updateEditingStatus(true)}
@@ -229,15 +228,15 @@ export default class Date extends React.Component {
             {isediting ? (
               <InputWrap
                 className="CityPicker-input-textCon"
-                placeholder={!!tempValue ? renderText({ ...cell, value: tempValue }) : ''}
-                value={isediting ? search || '' : !!tempValue ? renderText({ ...cell, value: tempValue }) : ''}
+                placeholder={tempValue ? renderText({ ...cell, value: tempValue }) : ''}
+                value={isediting ? search || '' : tempValue ? renderText({ ...cell, value: tempValue }) : ''}
                 onChange={value => {
                   this.setState({ search: value });
                   this.onFetchData(value);
                 }}
                 onClick={e => e.stopPropagation()}
               />
-            ) : !!tempValue ? (
+            ) : tempValue ? (
               renderText({ ...cell, value: tempValue })
             ) : null}
             {isediting && !cell.required && (

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import { UserCard } from 'ming-ui';
-import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 import AudioMessage from '../../components/Message/AudioMessage';
 import CardMessage from '../../components/Message/CardMessage';
 import FileMessage from '../../components/Message/FileMessage';
@@ -28,7 +28,7 @@ class Message extends Component {
       moreVisible: false,
     };
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const { currentSession } = this.props;
     if (currentSession.value == nextProps.currentSession.value) {
       return true;
@@ -50,9 +50,8 @@ class Message extends Component {
   }
   handleWithdrawMessage() {
     const { session, message } = this.props;
-    const { to, from } = message;
+    const { to } = message;
     const { isAdmin } = session;
-    const isSelf = from === md.global.Account.accountId;
     const param = {
       messageId: message.id,
       [session.isGroup ? 'groupid' : 'touser']: message.to,
@@ -83,7 +82,6 @@ class Message extends Component {
     const messageType = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const { sendMsg } = message;
     socket.Message.send(messageType, sendMsg).then(result => {
-      const { socket: message } = result;
       const { atParam } = sendMsg;
       this.props.dispatch(
         actions.updateMessage({
@@ -103,13 +101,15 @@ class Message extends Component {
     });
   }
   renderMessageContent() {
-    const { message, session } = this.props;
+    const { message, session, messages } = this.props;
 
     switch (message.type) {
       case Constant.MSGTYPE_TEXT:
         return <TextMessage message={message} />;
       case Constant.MSGTYPE_PIC:
-        return <ImageMessage message={message} session={session} />;
+        return (
+          <ImageMessage message={message} session={session} messageLength={_.get(messages[session.id], 'length')} />
+        );
       case Constant.MSGTYPE_FILE:
         return <FileMessage message={message} session={session} />;
       case Constant.MSGTYPE_CARD:
@@ -169,7 +169,11 @@ class Message extends Component {
           />
           {!isDuplicated ? (
             <div className="Message-from">
-              <UserCard sourceId={fromAccount.id} disabled={!fromAccount} projectId={_.get(session, 'project.projectId')}>
+              <UserCard
+                sourceId={fromAccount.id}
+                disabled={!fromAccount}
+                projectId={_.get(session, 'project.projectId')}
+              >
                 <img
                   ref={avatar => {
                     this.avatar = avatar;

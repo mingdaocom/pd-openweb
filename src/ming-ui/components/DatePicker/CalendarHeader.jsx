@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 
 function formatMonth(month) {
@@ -15,7 +14,7 @@ class CalendarHeader extends Component {
   /**
    * 后退
    */
-  goBack = (event) => {
+  goBack = event => {
     if (this.props.goBack) {
       this.props.goBack(event);
     }
@@ -24,7 +23,7 @@ class CalendarHeader extends Component {
   /**
    * 前进
    */
-  goForward = (event) => {
+  goForward = event => {
     if (this.props.goForward) {
       this.props.goForward(event);
     }
@@ -47,7 +46,7 @@ class CalendarHeader extends Component {
     const year = (
       <span
         className={yearClassList.join(' ')}
-        onClick={(event) => {
+        onClick={() => {
           this.props.openView('year');
         }}
       >{`${this.props.value.year()}年`}</span>
@@ -63,7 +62,7 @@ class CalendarHeader extends Component {
       month = (
         <span
           className={monthClassList.join(' ')}
-          onClick={(event) => {
+          onClick={() => {
             this.props.openView('month');
           }}
         >
@@ -77,7 +76,7 @@ class CalendarHeader extends Component {
         <Icon
           icon="arrow-left-border"
           className={`${this.props.prefixCls}-prev-month-btn`}
-          onClick={(event) => {
+          onClick={() => {
             this.goBack();
           }}
         />
@@ -91,7 +90,7 @@ class CalendarHeader extends Component {
         <Icon
           icon="arrow-right-border"
           className={`${this.props.prefixCls}-next-month-btn`}
-          onClick={(event) => {
+          onClick={() => {
             this.goForward();
           }}
         />

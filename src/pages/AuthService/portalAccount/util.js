@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import externalPortalAjax from 'src/api/externalPortal';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
@@ -56,11 +57,11 @@ export const toApp = appId => {
 export const getCurrentId = cb => {
   const request = getRequest();
   const { ReturnUrl = '', mdAppId = '' } = request;
-  if (!!mdAppId) {
+  if (mdAppId) {
     cb(mdAppId);
     return;
   }
-  let href = decodeURIComponent(!!ReturnUrl ? ReturnUrl : location.href);
+  let href = decodeURIComponent(ReturnUrl ? ReturnUrl : location.href);
   let currentAppId = '';
   urlList.map(o => {
     if (href.indexOf(o) >= 0) {
@@ -80,24 +81,30 @@ export const getCurrentId = cb => {
 export const resetPortalUrl = () => {
   window.localStorage.removeItem(`${md.global.Account.appId}_portalCustomLink`);
   const customLink = getCurrentExt(md.global.Account.appId, md.global.Account.addressSuffix);
-  if (!customLink) {
-    return;
-  }
-  const hasCustomLink = location.pathname.indexOf(`/${customLink}`) >= 0;
+  const hasCustomLink = location.href.indexOf(`/${customLink}`) >= 0;
+  const getLink = () => {
+    return location.href.replace(
+      `${window.subPath || ''}/${md.global.Account.addressSuffix}`,
+      `${window.subPath || ''}/app/${md.global.Account.appId}`,
+    );
+  };
+
   if (hasCustomLink) {
     window.isWaiting = true;
-    location.href = location.href.replace(`/${customLink}`, '');
-    return;
+    location.href = (browserIsMobile() ? getLink() : location.href).replace(`/${customLink}`, '');
+  } else if (getSuffix(location.href) === md.global.Account.addressSuffix && browserIsMobile()) {
+    window.isWaiting = true;
+    location.href = getLink();
   }
 };
 
 export const getCurrentExt = (appId, suffix) => {
   const request = getRequest();
   const { ReturnUrl = '', customLink } = request;
-  if (!!customLink) {
+  if (customLink) {
     return customLink;
   }
-  const urlPathname = new URL(decodeURIComponent(!!ReturnUrl ? ReturnUrl : location.href));
+  const urlPathname = new URL(decodeURIComponent(ReturnUrl ? ReturnUrl : location.href));
   const pathname = urlPathname.pathname;
   let prefix;
   if (appId) {
@@ -130,7 +137,7 @@ export const goApp = (sessionId, appId, customLink) => {
   let { ReturnUrl = '' } = request;
   if (ReturnUrl) {
     if (ReturnUrl.indexOf(`/${customLink}`) >= 0 && customLink) {
-      const regex = new RegExp(`\/${customLink}(.*)$`, 'g');
+      const regex = new RegExp(`/${customLink}(.*)$`, 'g');
       window.location.replace(ReturnUrl.replace(regex, ''));
     } else {
       window.location.replace(ReturnUrl);

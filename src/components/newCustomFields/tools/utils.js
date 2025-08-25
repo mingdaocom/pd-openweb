@@ -6,6 +6,7 @@ import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } fro
 import { browserIsMobile } from 'src/utils/common';
 import { getStringBytes } from 'src/utils/common';
 import {
+  checkCellIsEmpty,
   controlState,
   getTitleTextFromControls,
   getTitleTextFromRelateControl,
@@ -15,7 +16,7 @@ import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFro
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
 
 export function validate(id = '') {
-  return /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(id.toLowerCase());
+  return !/^(temp|default|public-temp|deleterowids)/.test(id.toLowerCase());
 }
 
 export const convertControl = type => {
@@ -221,7 +222,7 @@ export function formatControlToServer(
       options.forEach((item, i) => {
         if ((item || '').indexOf('add_') > -1) {
           options[i] = JSON.stringify({
-            color: '#2196f3',
+            color: '#1677ff',
             value: item.split('add_')[1],
           });
         }
@@ -267,7 +268,9 @@ export function formatControlToServer(
       try {
         parsedValue = JSON.parse(control.value);
         result.value = parsedValue.code;
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
       break;
     case 29:
       if (control.editType) {
@@ -363,6 +366,7 @@ export function formatControlToServer(
           try {
             deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
           } catch (err) {
+            console.log(err);
             result.value = undefined;
           }
           result.editType = 9;
@@ -489,7 +493,9 @@ export function formatControlToServer(
                 Object.keys(row).map(key => ({ controlId: key, value: row[key] })),
               ),
             );
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
         }
       }
       break;
@@ -545,7 +551,7 @@ export const getBarCodeValue = ({ data, control, codeInfo }) => {
   const selectControl = _.find(data, i => i.controlId === dataSource);
   if (!(selectControl || {}).value) return '';
   if (enumDefault === 1) {
-    const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!\/\^\*\(\)\+\[\]\{\}\|\.\s]/g, '');
+    const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!/^*()+[\]{}|.\s]/g, '');
     return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
   }
   return String(selectControl.value).substr(0, 300);
@@ -627,7 +633,9 @@ export const renderCount = item => {
       } else if (item.store) {
         try {
           count = filterEmptyChildTableRows(item.store.getState().rows).length;
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
       }
       if (count > 1000) {
         count = 1000;
@@ -956,5 +964,51 @@ export const getServiceError = (badData = [], data, from) => {
   });
   return { serviceError, hideControlErrors };
 };
+
+// 计算汇总去重、单个去重计数
+export function calcSubTotalCount(values = [], control = {}, currentItem = {}) {
+  const unique = currentItem.enumDefault === 21;
+  const filterValues = values.filter(c => {
+    if (control.type === 36) {
+      return c === '1';
+    } else if (_.includes([29, 34], control.type) && _.isNumber(c)) {
+      return !!c;
+    } else {
+      return !checkCellIsEmpty(c);
+    }
+  });
+
+  let formatValues = filterValues.map(f => {
+    if (_.includes([9, 10, 11, 26, 27, 29, 35, 48], control.type)) {
+      const safeValue = safeParse(f || '[]');
+      if (_.isEmpty(safeValue)) return [];
+
+      if (_.includes([9, 10, 11], control.type)) {
+        return safeValue.map(i => (i.indexOf('other') > -1 ? 'other' : i));
+      }
+
+      const value = safeValue.map(i => i[WIDGET_VALUE_ID[control.type]]);
+      return unique ? value.sort() : value;
+    }
+
+    return f;
+  });
+
+  const containsEmptyValues =
+    _.get(currentItem, 'advancedSetting.reportempty') === '1' && values.length !== filterValues.length ? 1 : 0;
+
+  if (unique) return _.uniqWith(formatValues, _.isEqual).length + containsEmptyValues;
+
+  const totalValues = _.reduce(
+    formatValues,
+    (total, v) => {
+      const itemValues = _.isArray(v) ? v : [v];
+      return total.concat(itemValues);
+    },
+    [],
+  );
+
+  return _.uniq(totalValues).length + containsEmptyValues;
+}
 
 export { controlState, getValueStyle, getTitleTextFromControls, getTitleTextFromRelateControl };

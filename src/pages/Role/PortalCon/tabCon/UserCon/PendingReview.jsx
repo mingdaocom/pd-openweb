@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -43,7 +44,7 @@ const Wrap = styled.div`
     .pass {
       &.isAct {
         background: #f3faff;
-        color: #2196f3;
+        color: #1677ff;
         &:hover {
           background: #ebf6fe;
         }
@@ -60,7 +61,7 @@ const Wrap = styled.div`
     }
     .setList {
       height: 32px;
-      color: #2196f3;
+      color: #1677ff;
       vertical-align: middle;
       line-height: 32px;
       padding: 0 12px;
@@ -71,7 +72,7 @@ const Wrap = styled.div`
       }
       &.isOpen {
         background: #ffffff;
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
       }
     }
   }
@@ -96,7 +97,6 @@ function PendingReview(props) {
     setSortControls,
     handleChangeSort,
     setTelFilters,
-    appDetail,
   } = props;
   const { roleList = [], controls = [], unApproveCount, pageIndex, keyWords, filters = [], telFilters } = portal;
   const [show, setShow] = useState(false);
@@ -123,10 +123,18 @@ function PendingReview(props) {
     setKeyWords('');
     setSortControls([]);
     setTelFilters('');
+    fetch();
   }, []);
+
+  const prevValuesRef = useRef({ keyWords, filters, telFilters });
+
   //筛选
   useEffect(() => {
-    fetch();
+    const prevValues = prevValuesRef.current;
+    if (prevValues && !_.isEqual(prevValues, { keyWords, filters, telFilters })) {
+      prevValuesRef.current = { keyWords, filters, telFilters };
+      fetch();
+    }
   }, [keyWords, filters, telFilters]);
   const fetch = () => {
     changePageIndex(1);
@@ -177,7 +185,7 @@ function PendingReview(props) {
             ...o,
             id: o.controlId,
             name: _l('邮箱'),
-            render: (text, data, index) => {
+            render: (text, data) => {
               return (
                 <div className="flex overflowHidden">
                   <div className="overflow_ellipsis Block breakAll" title={data['portal_email']}>
@@ -209,7 +217,7 @@ function PendingReview(props) {
       id: 'action',
       name: _l('操作'),
       fixed: 'right',
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <React.Fragment>
             <div
@@ -245,7 +253,7 @@ function PendingReview(props) {
         appId,
         rowIds: rowIds,
       })
-      .then(res => {
+      .then(() => {
         getCount(appId); //重新获取总计数
         fetch();
       });
@@ -298,7 +306,7 @@ function PendingReview(props) {
           <PortalBar
             keys={['search', 'refresh', 'filter']}
             columns={columns}
-            onChange={data => { }}
+            onChange={() => {}}
             appId={appId}
             comp={() => {
               return (
@@ -333,8 +341,8 @@ function PendingReview(props) {
           pageIndex <= 1 && props.portal.loading
             ? []
             : props.portal.list.map(o => {
-              return { ...o, id: o.rowid };
-            })
+                return { ...o, id: o.rowid };
+              })
         }
         pageIndex={pageIndex}
         total={unApproveCount}

@@ -8,6 +8,7 @@ function getErrorStr(errorData) {
 ${errorData.error.message}
 ${errorData.error.stack}`;
   } catch (err) {
+    console.log(err);
     return 'parse error fail!';
   }
 }
@@ -17,7 +18,7 @@ export default ({ isSeriousError, errorData = {} }) => {
   if (isSeriousError === false) {
     return (
       <div className="programErrorMinBox flexColumn ThemeBGColor9 flex">
-        <i className="icon-task-setting_promet Font56" />
+        <i className="icon-error1 Font56" />
         <div className="Font14 mTop20">{_l('程序错误，请刷新页面重试')}</div>
         {errorVisible && (
           <div className="errorPageErrorLog">

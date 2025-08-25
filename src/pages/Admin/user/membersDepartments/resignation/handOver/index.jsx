@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Dialog, LoadDiv, UserCard, UserHead } from 'ming-ui';
 import transferController from 'src/api/transfer';
-import { LoadDiv, Dialog, UserHead, UserCard } from 'ming-ui';
 import Empty from '../../../../common/TableEmpty';
 import PaginationWrap from '../../../../components/PaginationWrap';
 import SearchInput from '../SearchInput';
 import Detail from './detail';
-import _ from 'lodash';
 import './style.less';
 
 export default class HandOver extends React.Component {
@@ -136,7 +136,7 @@ export default class HandOver extends React.Component {
     }
     if (!list || !(list && list.length)) {
       const detail = {
-        icon: 'icon-sp_assignment_turned_in_white',
+        icon: 'icon-verify',
         desc: _l('无数据'),
       };
       return <Empty detail={detail} />;
@@ -243,7 +243,7 @@ export default class HandOver extends React.Component {
             <div className="flexRow">
               <div className="flex bold Font17">
                 <i
-                  className="icon icon-arrow_back mRight10 Hand"
+                  className="icon icon-backspace mRight10 Hand"
                   onClick={() => this.setState({ selectAccount: null })}
                 />
                 {_l('交接协作相关数据:%0', (selectAccount || {}).fullname)}

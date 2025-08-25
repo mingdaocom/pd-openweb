@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Textarea, UserHead } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement.js';
@@ -71,7 +70,7 @@ function Apply(props) {
       name: _l('申请人'),
       className: 'nameWrapTr',
       minW: 240,
-      render: (text, data, index) => {
+      render: (text, data) => {
         const user = data.accountInfo;
         return (
           <div className={cx('name flexRow alignItemsCenter')}>
@@ -98,7 +97,7 @@ function Apply(props) {
     {
       id: 'remark',
       name: _l('申请说明'),
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <div className="overflow_ellipsis breakAll" title={data.remark}>
             {data.remark}
@@ -112,7 +111,7 @@ function Apply(props) {
       sorter: true,
       className: 'timeTr',
       minW: 130,
-      render: (text, data, index) => {
+      render: (text, data) => {
         return createTimeSpan(data.createTime);
       },
     },
@@ -120,7 +119,7 @@ function Apply(props) {
       id: 'option',
       name: '',
       className: 'optionWrapTr',
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <div className="">
             {renderAction({
@@ -196,7 +195,7 @@ function Apply(props) {
             status: 3,
             remark,
           })
-          .then(res => {
+          .then(() => {
             setSelectedIds([]);
             getApplyList({ appId }, true);
           });

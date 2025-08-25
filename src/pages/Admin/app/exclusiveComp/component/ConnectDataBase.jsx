@@ -25,7 +25,7 @@ const DialogContentWrap = styled.div`
 `;
 
 function ConnectDataBase(props) {
-  const { id, info, projectId, numberOfApp = 0, onClose, onOk } = props;
+  const { id, info, projectId, onClose, onOk } = props;
 
   const [data, setData] = useState({
     name: undefined,
@@ -213,7 +213,7 @@ function ConnectDataBase(props) {
         />
         <div className="Font14 mBottom4 valignWrapper">
           {_l('新增应用')}
-          <Tooltip text={_l('开启时，允许拥有“应用服务和资源”的管理员，新增应用到这个数据库')}>
+          <Tooltip text={_l('开启时，允许拥有“应用服务和资源”的管理员，新增应用到这个数据库')} autoCloseDelay={0}>
             <Icon icon="info_outline" className="Font16 Gray_bd mLeft8" />
           </Tooltip>
         </div>

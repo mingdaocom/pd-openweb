@@ -5,7 +5,7 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import systemIcon from 'staticfiles/svg/system.svg';
-import { Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Dropdown, Icon, LoadDiv, ScrollView, Tooltip, UserHead } from 'ming-ui';
 import applicationAjax from 'src/api/application';
 import orderAjax from 'src/api/order';
 import projectAjax from 'src/api/project';
@@ -47,7 +47,7 @@ export default function BillInfo({ match }) {
   });
   const [loading, setLoading] = useState(false);
   const [displayRecordType, setType] = useState('paid');
-  const { balance, list = [], allCount, invoiceType } = data;
+  const { balance, list = [], allCount } = data;
   const { pageIndex, status, pageSize, startDate, endDate } = paras;
   const { companyName, licenseType } = getCurrentProject(projectId, true);
   const isPaid = licenseType === 1;
@@ -125,41 +125,12 @@ export default function BillInfo({ match }) {
       location.href = `/admin/valueaddservice/${projectId}`;
     }
   };
-  const renderPay = ({ status, payAccountInfo = {}, orderId, recordType }) => {
-    const { accountId, avatar, fullname } = payAccountInfo;
-    if (status === 1) {
-      return (
-        <div
-          className="goToPay"
-          onClick={() =>
-            (location.href = _.includes([5, 6], recordType)
-              ? `/admin/appBillDetail/${projectId}/2/${orderId}`
-              : `/admin/waitingpay/${projectId}/${orderId}`)
-          }
-        >
-          {_l('立即支付')}
-        </div>
-      );
-    }
-    if (_.includes([3, 4, 5], status)) return null;
-    return accountId ? (
-      <Fragment>
-        <UserHead className="billOwner" size={24} user={{ accountId, userHead: avatar }} projectId={projectId} />
-        <span>{fullname}</span>
-      </Fragment>
-    ) : (
-      <Fragment>
-        <img src={systemIcon} alt={_l('系统')} />
-        <span>{_l('系统')}</span>
-      </Fragment>
-    );
-  };
 
   const renderRecordList = () => {
     if (loading) return <LoadDiv />;
     if (!list.length) return <div className="emptyList">{_l('无相应订单数据')}</div>;
     return (
-      <ScrollView>
+      <ScrollView className="h100">
         <ul className="recordList">
           {list.map(
             (
@@ -167,22 +138,30 @@ export default function BillInfo({ match }) {
                 recordId,
                 orderId,
                 createTime,
-                updateTime,
                 recordType,
                 price,
                 status,
-                remark,
                 invoiceStatus,
                 createAccountInfo,
-                payAccountInfo,
                 recordTypeTitle,
               },
               index,
             ) => (
               <li key={orderId || recordId} className="recordItem">
                 <div className="time overflow_ellipsis item Font14 Gray_75">{createTime}</div>
-                <div className={cx('type overflow_ellipsis item', { rechargeType: displayRecordType === 'recharge' })}>
-                  {orderTypeText[orderRecordType[recordType]] + (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
+                <div className={cx('type item', { rechargeType: displayRecordType === 'recharge' })}>
+                  <Tooltip
+                    popupPlacement="bottom"
+                    text={
+                      orderTypeText[orderRecordType[recordType]] +
+                      (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')
+                    }
+                  >
+                    <span className="InlineBlock overflow_ellipsis">
+                      {orderTypeText[orderRecordType[recordType]] +
+                        (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
+                    </span>
+                  </Tooltip>
                 </div>
                 <div className={cx('amount item', { isPositive: price > 0 })}>{formatNumberThousand(price)}</div>
                 {isRechargeType ? (
@@ -389,7 +368,7 @@ export default function BillInfo({ match }) {
             </Fragment>
           )}
         </div>
-        <div className="flex">{renderRecordList()}</div>
+        <div className="flex overflowHidden">{renderRecordList()}</div>
         <PaginationWrap
           total={allCount}
           pageIndex={pageIndex}

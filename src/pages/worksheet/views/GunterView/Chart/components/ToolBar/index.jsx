@@ -5,7 +5,7 @@ import { Select } from 'antd';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIODS } from 'worksheet/views/GunterView/config';
@@ -28,7 +28,7 @@ const ToolBarWrap = styled.div(
   z-index: 10;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
   .icon-download:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
   .line{
     height: 20px;
@@ -55,7 +55,7 @@ const SelectWrap = styled(Select)`
   }
   &:hover {
     .icon-arrow-down {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   &.mobile {

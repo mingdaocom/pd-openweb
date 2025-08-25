@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
+import ClipboardButton from 'react-clipboard.js';
 import _ from 'lodash';
 import { Dropdown, Icon, LoadDiv } from 'ming-ui';
-import ClipboardButton from 'react-clipboard.js';
-import ShareUrl from 'worksheet/components/ShareUrl';
 import InviteController from 'src/api/invitation';
 import projectSettingController from 'src/api/projectSetting';
+import ShareUrl from 'worksheet/components/ShareUrl';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 import { DETAIL_MODE, FROM_TYPE } from './enum';
 
@@ -134,7 +134,7 @@ export default class PublicLink extends Component {
             {!isFriend && (
               <div className="addBox recordIcon">
                 <span onClick={() => setDetailMode(DETAIL_MODE.LINK)}>
-                  <Icon icon="overdue_network" />
+                  <Icon icon="access_time" />
                   {_l('查看使用中的链接')}
                 </span>
               </div>

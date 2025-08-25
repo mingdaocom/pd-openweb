@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Checkbox, Icon, Dialog, Button, Input, Textarea, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
-import copy from 'copy-to-clipboard';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Icon, Input, Textarea, Tooltip } from 'ming-ui';
 import sshConfigApi from 'src/pages/integration/api/sshConfig';
 
 const SSHCheckbox = styled(Checkbox)`
@@ -66,7 +66,7 @@ const Wrapper = styled.div`
       cursor: pointer;
       color: rgba(0, 0, 0, 0.85);
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .ant-select-item-empty {
@@ -85,7 +85,7 @@ const Wrapper = styled.div`
       cursor: pointer;
 
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &.isHide {
@@ -103,7 +103,7 @@ const OptionItem = styled.div`
     width: calc(100% - 60px);
   }
 
-  .icon-delete1 {
+  .icon-trash {
     display: none;
     color: #757575;
     font-size: 16px;
@@ -114,7 +114,7 @@ const OptionItem = styled.div`
   }
 
   &:hover {
-    .icon-delete1 {
+    .icon-trash {
       display: block;
     }
   }
@@ -134,7 +134,7 @@ const DialogWrapper = styled.div`
   }
 
   .copyButton {
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
     margin-right: 8px;
     &.isHide {
@@ -252,7 +252,7 @@ export default function SSHConnect(props) {
             {option.remark && <div className="Gray_9e overflow_ellipsis">{option.remark}</div>}
           </div>
           <Tooltip text={_l('删除')}>
-            <Icon icon="delete1" onClick={e => onDelete(e, option)} />
+            <Icon icon="trash" onClick={e => onDelete(e, option)} />
           </Tooltip>
         </OptionItem>
       </Select.Option>
@@ -266,7 +266,7 @@ export default function SSHConnect(props) {
         disabled={disabled}
         checked={!!data.enableSsh}
         onClick={() => {
-          if (!!data.enableSsh) {
+          if (data.enableSsh) {
             onChange({ enableSsh: 0, sshConfigId: null });
           } else {
             onChange({ enableSsh: 1 });

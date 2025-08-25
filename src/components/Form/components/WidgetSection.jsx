@@ -99,9 +99,6 @@ export default function WidgetSection(props) {
   const activeControl = _.find(tabControls, i => i.controlId === activeTabControlId) || tabControls[0];
   const [version, setVersion] = useState(Math.random());
   const $sectionControls = useRef([]);
-  if (!activeControl) {
-    return null;
-  }
 
   // 上下布局时只有一个标签页时隐藏，左右布局直接隐藏
   const hideTab =
@@ -185,6 +182,10 @@ export default function WidgetSection(props) {
       );
     }
   };
+
+  if (!activeControl) {
+    return null;
+  }
 
   return (
     <Con

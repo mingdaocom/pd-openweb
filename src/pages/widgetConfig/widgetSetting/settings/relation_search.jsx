@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dropdown, Icon, RadioGroup } from 'ming-ui';
@@ -34,7 +35,7 @@ const RelateSheetWrap = styled.div`
   .filterBtn {
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -61,7 +62,7 @@ const RelateSheetCover = styled.div`
       color: #9e9e9e;
       line-height: 34px;
       &.active {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -86,8 +87,8 @@ const CoverWrap = styled.div`
     padding: 6px 18px;
     color: #757575;
     &.active {
-      color: #2196f3;
-      border-color: #2196f3;
+      color: #1677ff;
+      border-color: #1677ff;
     }
     &:last-child {
       border-radius: 0px 3px 3px 0px;
@@ -146,7 +147,6 @@ export default function RelationSearch(props) {
   const isDeleteWorksheet = !loading && !_.isEmpty(worksheetInfo) && _.isEmpty(controls);
 
   const filterControls = getFilterRelateControls(relationControls);
-  const titleControl = _.find(filterControls, item => item.attribute === 1);
   const isSheetDisplay = value => {
     return _.includes(['2', '5', '6'], value || showtype);
   };

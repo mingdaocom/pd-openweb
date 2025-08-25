@@ -144,6 +144,7 @@ class TaskBasic extends Component {
         ) : (
           <Fragment>
             <Tooltip
+              autoCloseDelay={0}
               title={_l(
                 '所属组织：%0',
                 (this.props.taskDetails[this.props.taskId] || { data: {} }).data.projectName || _l('个人'),
@@ -224,7 +225,7 @@ class TaskBasic extends Component {
           className="Font16 overflow_ellipsis ThemeColor3 ThemeBorderColor3 pointer"
           onClick={() => this.props.switchTaskDetail(item.taskID)}
         >
-          {item.taskName} >
+          {item.taskName}
         </div>
         <div className="flex" />
         {showBtn && (
@@ -589,7 +590,7 @@ class TaskBasic extends Component {
   };
 
   render() {
-    const { taskName, showTags, showAttachment, attachmentData, kcAttachmentData, isEditing } = this.state;
+    const { taskName, showTags, attachmentData, kcAttachmentData, isEditing } = this.state;
     const { taskId, addTags, closeAddTags } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const hasAuth = data.auth === config.auth.Charger || data.auth === config.auth.Member;
@@ -660,7 +661,7 @@ class TaskBasic extends Component {
                   minHeight={40}
                   maxHeight={500}
                   placeholder={hasAuth ? _l('添加描述') : _l('未添加描述')}
-                  onClickNull={e => {
+                  onClickNull={() => {
                     if (hasAuth) {
                       this.cacheSummary = data.summary || '';
                       this.setState({ isEditing: true });
@@ -712,7 +713,7 @@ class TaskBasic extends Component {
                     kcAttachmentData={kcAttachmentData}
                     onTemporaryDataUpdate={res => this.setState({ attachmentData: res })}
                     onKcAttachmentDataUpdate={res => this.setState({ kcAttachmentData: res })}
-                    getPopupContainer={() => document.querySelector('.taskDetailContent .nano-content')}
+                    getPopupContainer={() => document.querySelector('.taskDetailContent .scroll-viewport')}
                     onCancel={this.cancelAttachment}
                     onOk={this.addTaskAttachments}
                   >

@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Picker from './Picker';
+import PropTypes from 'prop-types';
 import Calendar from './Calendar';
 import locale from './locale/zh_CN';
+import Picker from './Picker';
 
 class DatePicker extends Component {
   static propTypes = {

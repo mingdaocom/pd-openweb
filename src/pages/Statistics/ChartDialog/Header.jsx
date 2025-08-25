@@ -26,7 +26,7 @@ export default class Header extends Component {
           reportId: report.id,
           name,
         })
-        .then(result => {});
+        .then(() => {});
     }
     this.setState({ isEdit: false });
     this.props.changeCurrentReport({ name });

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import { Button, Checkbox, Popup } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
-import { Popup, Button, Checkbox } from 'antd-mobile';
 import jobAjax from 'src/api/job.js';
 import './index.less';
-import _ from 'lodash';
 
 export default class SelectJob extends Component {
   constructor(props) {
@@ -21,19 +21,21 @@ export default class SelectJob extends Component {
   getData = () => {
     const { projectId } = this.props;
     let { keywords, pageIndex = 1, jobList = [] } = this.state;
-    jobAjax.getJobs({
-      projectId,
-      keywords,
-      pageIndex,
-      pageSize: 20,
-    }).then(res => {
-      this.setState({
-        jobList: pageIndex === 1 ? res.list : jobList.concat(res.list),
-        pageIndex: pageIndex + 1,
-        isMore: res.list.length >= 20 ? true : false,
-        isLoading: false,
+    jobAjax
+      .getJobs({
+        projectId,
+        keywords,
+        pageIndex,
+        pageSize: 20,
+      })
+      .then(res => {
+        this.setState({
+          jobList: pageIndex === 1 ? res.list : jobList.concat(res.list),
+          pageIndex: pageIndex + 1,
+          isMore: res.list.length >= 20 ? true : false,
+          isLoading: false,
+        });
       });
-    });
   };
   handleSearch = () => {
     this.setState(
@@ -135,7 +137,6 @@ export default class SelectJob extends Component {
     }
   };
   renderList = () => {
-    const { unique } = this.props;
     const { jobList = [], selectJobs = [] } = this.state;
     const selectJobsIds = selectJobs.map(item => item.jobId);
     return (
@@ -155,7 +156,7 @@ export default class SelectJob extends Component {
   };
   renderContent = () => {
     return (
-      <div className="flex flexColumn">
+      <div className="flex flexColumn overflowHidden">
         {this.renderSearch()}
         {this.renderSelected()}
         {this.renderList()}

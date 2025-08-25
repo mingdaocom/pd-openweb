@@ -1,21 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet';
-import { ScrollView } from 'ming-ui';
-import SheetModal from 'statistics/components/DataSource/components/SheetModal';
+import React from 'react';
 import _ from 'lodash';
+import SheetModal from 'statistics/components/DataSource/components/SheetModal';
 
 function CreateAnalysis(props) {
-  const {
-    ids = {},
-    projectId,
-    dataSource,
-    setDataSource,
-    onClose = _.noop,
-    onCreate = _.noop,
-  } = props;
+  const { ids = {}, projectId, dataSource, setDataSource, onClose = _.noop, onCreate = _.noop } = props;
   const { appId } = ids;
-  const { worksheetId, views } = dataSource;
 
   return (
     <SheetModal

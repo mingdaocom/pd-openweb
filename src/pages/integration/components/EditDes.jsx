@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon, RichText } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon, RichText } from 'ming-ui';
 
 const Wrap = styled.div`
   .ck .ck-content {
@@ -14,7 +14,7 @@ const Wrap = styled.div`
     opacity: 0;
     &:hover {
       .Icon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -67,7 +67,7 @@ export default class EditDes extends Component {
   };
 
   render() {
-    const { canEditing, className, onCancel, summary, title, changeSetting, maxHeight, minHeight } = this.props;
+    const { canEditing, className, summary, title, maxHeight, minHeight } = this.props;
     const { isEditing } = this.state;
     const clientHeight = document.body.clientHeight;
     const distance = isEditing ? 198 : 135;
@@ -87,7 +87,7 @@ export default class EditDes extends Component {
                   });
                 }}
               >
-                <Icon icon="edit" className='Font18 Hand' />
+                <Icon icon="edit" className="Font18 Hand" />
               </div>
             )}
           </header>

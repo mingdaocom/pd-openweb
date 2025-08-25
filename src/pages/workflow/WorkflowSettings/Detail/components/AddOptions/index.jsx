@@ -22,7 +22,7 @@ export default ({ checked, fields, index, updateSource }) => {
         className="mLeft5 Gray_75 workflowDetailTipsWidth tip-bottom-left"
         data-tip={_l('勾选后，如果流程节点对象的值不在备选项中，可以将其自动添加至选项列表')}
       >
-        <Icon icon="workflow_help" className="Font16 Gray_9e" style={{ verticalAlign: 'text-top' }} />
+        <Icon icon="help" className="Font16 Gray_9e" style={{ verticalAlign: 'text-top' }} />
       </span>
     </Fragment>
   );

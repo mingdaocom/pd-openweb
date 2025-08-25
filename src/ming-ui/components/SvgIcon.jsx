@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReactSVG } from 'react-svg';
 
-export default ({ url = '', size = 24, fill = '#2196f3', className, addClassName = '' }) => {
+export default ({ url = '', size = 24, fill = '#1677ff', className, addClassName = '' }) => {
   return (
     <ReactSVG
       className={className}
@@ -34,7 +34,9 @@ export default ({ url = '', size = 24, fill = '#2196f3', className, addClassName
         if (el) {
           try {
             svg.removeChild(el);
-          } catch (error) {}
+          } catch (error) {
+            console.error(error);
+          }
         }
 
         if (
@@ -45,7 +47,9 @@ export default ({ url = '', size = 24, fill = '#2196f3', className, addClassName
         ) {
           try {
             svg.querySelectorAll('*').forEach(item => item.removeAttribute('fill'));
-          } catch (error) {}
+          } catch (error) {
+            console.error(error);
+          }
         }
       }}
     />

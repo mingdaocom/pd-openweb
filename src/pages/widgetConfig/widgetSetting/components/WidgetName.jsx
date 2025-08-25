@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Input, Tooltip } from 'antd';
+import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import _ from 'lodash';
 import { isSheetDisplay } from '../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 export default function WidgetName(props) {
   const { title = _l('字段名称'), data = {}, onChange, isRecycle } = props;

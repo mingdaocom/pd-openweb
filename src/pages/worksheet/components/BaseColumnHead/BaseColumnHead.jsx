@@ -5,9 +5,10 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Tooltip } from 'ming-ui';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
 import { fieldCanSort } from 'src/utils/control';
-import { checkIsTextControl } from 'src/utils/control';
+import getTableColumnWidth from './getTableColumnWidth';
 import './style.less';
 
 export default class BaseColumnHead extends React.Component {
@@ -49,34 +50,17 @@ export default class BaseColumnHead extends React.Component {
   }
 
   handleMouseDown = e => {
-    const { control, columnIndex, updateSheetColumnWidths } = this.props;
+    const { worksheetId, control, columnStyle, updateSheetColumnWidths, rows = [] } = this.props;
     e.preventDefault();
-
-    function getColumnTextMaxWidth() {
-      const texts = [...document.querySelectorAll('.col-' + columnIndex)].slice(1).map(a => a.innerText);
-      const con = document.createElement('div');
-      con.style.fontSize = '13px';
-      con.style.display = 'inline-block';
-      con.innerHTML = texts.map(text => `<div>${text}</div>`);
-      document.body.append(con);
-      const result = con.clientWidth;
-      document.body.removeChild(con);
-      return result + 14;
-    }
     if (window.dragclicktimer) {
       clearTimeout(window.dragclicktimer);
       window.dragclicktimer = undefined;
-      if (!checkIsTextControl(control.type)) {
+      const tableDom = document.querySelector('.sheetViewTable');
+      if (!tableDom) {
         return;
       }
-      let width = getColumnTextMaxWidth();
-      if (width < 60) {
-        width = 60;
-      }
-      if (width > 600) {
-        width = 600;
-      }
-      updateSheetColumnWidths({ controlId: control.controlId, value: width });
+      const result = getTableColumnWidth(tableDom, rows, control, columnStyle, worksheetId);
+      updateSheetColumnWidths({ controlId: control.controlId, value: result });
     } else {
       if (window.isFirefox) {
         this.resizeColumn(e);
@@ -157,7 +141,7 @@ export default class BaseColumnHead extends React.Component {
     const { listVisible } = this.state;
     const control = redefineComplexControl(this.props.control);
     const controlType = control.sourceControlType || control.type;
-    const canSort = !disableSort && !disabled && fieldCanSort(controlType);
+    const canSort = !disableSort && !disabled && fieldCanSort(controlType) && !isOtherShowFeild(control);
     const maskData = _.get(control, 'advancedSetting.datamask') === '1';
     let sustractWidth = 0;
     if (showRequired) {
@@ -191,7 +175,11 @@ export default class BaseColumnHead extends React.Component {
             </span>
             {canSort && typeof isAsc !== 'undefined' && <span className="sortIcon">{this.getSortIcon()}</span>}
             {control.desc && (
-              <Tooltip popupPlacement="bottom" text={<span className="preWrap">{control.desc}</span>}>
+              <Tooltip
+                popupPlacement="bottom"
+                autoCloseDelay={0}
+                text={<span className="preWrap">{control.desc}</span>}
+              >
                 <i className="icon-info descIcon"></i>
               </Tooltip>
             )}

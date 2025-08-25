@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
@@ -46,7 +47,7 @@ const ListWrap = styled.div`
       border-radius: 6px;
       text-align: center;
       &.active {
-        color: #2196f3;
+        color: #1677ff;
         background: #ffffff;
         box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
       }
@@ -140,7 +141,7 @@ export default function Process(props) {
     });
   };
 
-  const handleApproveDone = ({ id, workId }) => {
+  const handleApproveDone = ({ workId }) => {
     const countDataState = { ...countData };
 
     if (currentTab === 'waitingApproval') {
@@ -169,10 +170,10 @@ export default function Process(props) {
             className="flexRow alignItemsCenter"
             onClick={() => {
               if (currentTab === 'unread') {
-                window.mobileNavigateTo(`/mobile/processInform?tab=${currentTab}`);
+                window.mobileNavigateTo(`/mobile/processInform/${currentTab}`);
                 return;
               }
-              window.mobileNavigateTo(`/mobile/processMatters?tab=${currentTab}`);
+              window.mobileNavigateTo(`/mobile/processMatters/${currentTab}`);
             }}
           >
             <span className="Gray_75 mRight2 Font15 bold500">{_l('全部')}</span>
@@ -189,7 +190,7 @@ export default function Process(props) {
                 onClick={() => setData({ currentTab: item.tab })}
               >
                 <div className="Font18 bold">
-                  {!!countData[item.key] ? (countData[item.key] > 99 ? '99+' : countData[item.key]) : 0}
+                  {countData[item.key] ? (countData[item.key] > 99 ? '99+' : countData[item.key]) : 0}
                 </div>
                 <div className="bold Font12 mTop4">{item.text}</div>
               </div>
@@ -243,7 +244,7 @@ export default function Process(props) {
         <div
           className="flexRow alignItemsCenter"
           onClick={() => {
-            window.mobileNavigateTo('/mobile/processMatters?tab=processed');
+            window.mobileNavigateTo('/mobile/processMatters/processed');
           }}
         >
           <span className="Gray_75 Font15 bold500">{_l('已完成')}</span>
@@ -257,14 +258,14 @@ export default function Process(props) {
               className="processItem flexColumn flex alignItemsCenter mTop10"
               onClick={() => {
                 if (item.key === 'waitingExamine') {
-                  window.mobileNavigateTo(`/mobile/processInform?tab=${item.tab}`);
+                  window.mobileNavigateTo(`/mobile/processInform/${item.tab}`);
                   return;
                 }
-                window.mobileNavigateTo(`/mobile/processMatters?tab=${item.tab}`);
+                window.mobileNavigateTo(`/mobile/processMatters/${item.tab}`);
               }}
             >
               <div className="bold Font24 mBottom4">
-                {!!countData[item.key] ? (countData[item.key] > 99 ? '99+' : countData[item.key]) : 0}
+                {countData[item.key] ? (countData[item.key] > 99 ? '99+' : countData[item.key]) : 0}
               </div>
               <div className="bold500 Font13">{item.text}</div>
             </div>

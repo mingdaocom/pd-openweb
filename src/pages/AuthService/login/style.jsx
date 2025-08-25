@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import unCheckedIcon from './img/unCheckedIcon.png';
 import checkedIcon from './img/checkedIcon.png';
-import weixinIcon from './img/weixinIcon.png';
-import personalQQIcon from './img/personalQQIcon.png';
-import workWeixinIcon from './img/workWeixinIcon.png';
 import dingIcon from './img/ding.png';
 import feishuIcon from './img/feishu.png';
+import personalQQIcon from './img/personalQQIcon.png';
 import ssoIcon from './img/ssoIcon.png';
+import unCheckedIcon from './img/unCheckedIcon.png';
+import weixinIcon from './img/weixinIcon.png';
+import workWeixinIcon from './img/workWeixinIcon.png';
 
 export const Wrap = styled.div`
   min-height: 400px;
@@ -24,7 +24,7 @@ export const Wrap = styled.div`
     text-align: center;
     .changeBtn {
       font-size: 14px;
-      color: #2196f3;
+      color: #1677ff;
       font-weight: bold;
       &:hover {
         color: #1182dd;

@@ -1,5 +1,4 @@
 import React from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { func, number, string } from 'prop-types';
 import styled from 'styled-components';
@@ -25,7 +24,7 @@ const InputCon = styled(Input)`
     border-color: #ccc !important;
   }
   &:focus {
-    border-color: #2196f3 !important;
+    border-color: #1677ff !important;
   }
   &::placeholder {
     color: #bdbdbd;
@@ -41,7 +40,7 @@ const RangeInputCon = styled.div`
     border-color: #ccc !important;
   }
   &:focus {
-    border-color: #2196f3 !important;
+    border-color: #1677ff !important;
   }
   &::placeholder {
     color: #bdbdbd;

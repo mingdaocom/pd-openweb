@@ -77,7 +77,6 @@ const ScanQrUploadFile = () => {
   const [type, setType] = useState(UPLOAD_TYPE.SIGNATURE);
   const [loading, setLoading] = useState(true);
   const [scanInfo, setScanInfo] = useState({});
-  const [defaultAttachments, setDefaultAttachments] = useState([]);
   const checkStatus = useCallback(() => {
     attachmentAjax.getScanAttachments({ scanId }).then(res => {
       setStatus(res.status === 1 ? STATUS.ONLINE : STATUS.OFFLINE);
@@ -133,7 +132,7 @@ const ScanQrUploadFile = () => {
   if (status === STATUS.SUCCESS) {
     return (
       <Con className="center">
-        <i className="successIcon icon-plus-interest"></i>
+        <i className="successIcon icon-check_circle"></i>
         <div className="error">{_l('签名已经上传成功')}</div>
       </Con>
     );
@@ -148,7 +147,7 @@ const ScanQrUploadFile = () => {
   return (
     <Con>
       <StatusBar className={status === STATUS.OFFLINE ? 'offline' : ''}>
-        <i className={`icon icon-${status === STATUS.OFFLINE ? 'network_disconnection' : 'Finish'}`}></i>
+        <i className={`icon icon-${status === STATUS.OFFLINE ? 'network_disconnection' : 'check_circle'}`}></i>
         <span>{status === STATUS.OFFLINE ? _l('已断开') : _l('已连接')}</span>
       </StatusBar>
       <Content>
@@ -156,7 +155,7 @@ const ScanQrUploadFile = () => {
           <Attachments
             scanId={scanId}
             scanInfo={scanInfo}
-            defaultAttachments={defaultAttachments}
+            defaultAttachments={[]}
             disabled={status === STATUS.OFFLINE}
           />
         )}

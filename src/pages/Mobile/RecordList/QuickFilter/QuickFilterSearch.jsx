@@ -1,11 +1,12 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Popup } from 'antd-mobile';
-import { Icon } from 'ming-ui';
-import Search from './Search';
-import QuickFilter from './';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { getGroupControlId } from 'src/utils/worksheet';
+import QuickFilter from './';
+import Search from './Search';
 
 const SearchWrapper = styled.div`
   background-color: #f2f2f3;
@@ -74,6 +75,7 @@ export default function QuickFilterSearch(props) {
       control: _.find(sheetControls, c => c.controlId === filter.controlId),
     }))
     .filter(c => c.control);
+  const groupControlId = getGroupControlId(view) || view.viewControl;
 
   const handleOpenDrawer = () => {
     updateFilters({ visible: !filters.visible }, view);
@@ -85,11 +87,13 @@ export default function QuickFilterSearch(props) {
         projectId={worksheetInfo.projectId}
         appId={worksheetInfo.appId}
         worksheetId={worksheetInfo.worksheetId}
+        worksheetInfo={worksheetInfo}
         view={view}
         filters={filtersControl}
         controls={sheetControls}
         savedFilters={savedFilters}
         activeSavedFilter={activeSavedFilter}
+        filterControls={props.filterControls}
         onHideSidebar={handleOpenDrawer}
         updateActiveSavedFilter={updateActiveSavedFilter}
       />
@@ -98,12 +102,17 @@ export default function QuickFilterSearch(props) {
 
   return (
     <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft10 pRight10 pTop10 pBottom10 ${className}`}>
-      {showSearch && <Search textFilters={[]} viewType={view.viewType} />}
-      {(!_.isEmpty(filtersControl) || (showSavedFilter && !_.isEmpty(savedFilters))) && (
+      {showSearch && (
+        <Search inputPlaceholder={groupControlId ? _l('搜索') : ''} textFilters={[]} viewType={view.viewType} />
+      )}
+      {(window.isMingDaoApp || !_.isEmpty(filtersControl) || (showSavedFilter && !_.isEmpty(savedFilters))) && (
         <FilterWrapper>
           <Icon
             icon="filter"
-            className={cx('Font20 Gray_9e', { active: isFilter || !_.isEmpty(activeSavedFilter) })}
+            className={cx('Font20 Gray_9e', {
+              active:
+                isFilter || !_.isEmpty(activeSavedFilter) || (window.isMingDaoApp && !_.isEmpty(props.filterControls)),
+            })}
             onClick={handleOpenDrawer}
           />
         </FilterWrapper>

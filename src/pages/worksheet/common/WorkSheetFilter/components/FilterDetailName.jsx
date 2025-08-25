@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { bool, func, string } from 'prop-types';
 import cx from 'classnames';
+import { bool, func, string } from 'prop-types';
 import styled from 'styled-components';
 
 const Con = styled.div`

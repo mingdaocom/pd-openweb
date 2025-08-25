@@ -41,8 +41,6 @@ const EmbedWrap = styled.div`
     }
 
     .SingleViewHeader {
-      ${props => (_.includes([VIEW_DISPLAY_TYPE.calendar], props.viewType) ? { display: 'none;' } : {})}
-
       .searchInputComp {
         ${props =>
           _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.viewType)
@@ -187,7 +185,7 @@ export default class Widgets extends Component {
     const { resultData, needUpdate, ChartComponents, viewType } = this.state;
     const { height, rownum = '10' } = advancedSetting;
     const isMobile = browserIsMobile();
-    const { appid, reportid, wsid, type } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
+    const { appid, reportid, wsid } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
 
     const getContent = () => {
       const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;

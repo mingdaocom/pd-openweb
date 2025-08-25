@@ -1,5 +1,5 @@
-import styled from 'styled-components';
 import { TinyColor } from '@ctrl/tinycolor';
+import styled from 'styled-components';
 
 export const ButtonListWrap = styled.div`
   flex: 1;
@@ -75,12 +75,12 @@ export const GraphWrap = styled.div`
     border-radius: ${props => props.radius};
     justify-content: center;
     background-color: ${props => props.color};
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0.2s;
+    transition:
+      color ease-in 0.2s,
+      border-color ease-in 0.2s,
+      background-color ease-in 0.2s;
     &:hover {
-      background-color: ${props =>
-        new TinyColor(props.color)
-          .darken(20)
-          .toString()};
+      background-color: ${props => new TinyColor(props.color).darken(20).toString()};
     }
     div {
       display: flex;

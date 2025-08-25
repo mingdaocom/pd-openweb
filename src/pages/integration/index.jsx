@@ -168,7 +168,7 @@ export default class HubContainer extends React.Component {
       <div className="flexRow h100">
         <DocumentTitle title={!info.txt ? _l('集成') : `${_l('集成')}-${info.txt}`} />
         <Sidenav {...param} menuAuth={menuAuth} />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ErrorBoundary>
             <Switch>
               {getRoutes(param)}

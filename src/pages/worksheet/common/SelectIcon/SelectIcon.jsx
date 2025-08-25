@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
+import store from 'redux/configureStore';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import store from 'redux/configureStore';
 import { updateAppItemInfo, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 
 export default class extends Component {
@@ -17,31 +17,36 @@ export default class extends Component {
   onChange(newName, newIcon) {
     const { appItem, workSheetId, appId, groupId, icon } = this.props;
     if (appItem.type === 2) {
-      homeAppApi.updateAppSection({
-        appId,
-        appSectionId: workSheetId,
-        appSectionName: newName,
-        icon: newIcon || icon,
-      }).then(data => {
-        this.updateName(newName);
-        this.updateIcon({ icon: newIcon || icon });
-      }).catch(err => {
-        alert(_l('修改分组名称失败'), 2);
-      });
+      homeAppApi
+        .updateAppSection({
+          appId,
+          appSectionId: workSheetId,
+          appSectionName: newName,
+          icon: newIcon || icon,
+        })
+        .then(() => {
+          this.updateName(newName);
+          this.updateIcon({ icon: newIcon || icon });
+        })
+        .catch(() => {
+          alert(_l('修改分组名称失败'), 2);
+        });
     } else {
-      const { currentPcNaviStyle } = store.getState().appPkg;
-      appManagementApi.editWorkSheetInfoForApp({
-        appId,
-        appSectionId: appItem.parentGroupId || groupId,
-        workSheetId,
-        workSheetName: newName,
-        icon: newIcon || icon,
-      }).then(data => {
-        this.updateName(newName);
-        this.updateIcon({ icon: newIcon || icon });
-      }).catch(err => {
-        alert(_l('修改工作表名称失败'), 2);
-      });
+      appManagementApi
+        .editWorkSheetInfoForApp({
+          appId,
+          appSectionId: appItem.parentGroupId || groupId,
+          workSheetId,
+          workSheetName: newName,
+          icon: newIcon || icon,
+        })
+        .then(() => {
+          this.updateName(newName);
+          this.updateIcon({ icon: newIcon || icon });
+        })
+        .catch(() => {
+          alert(_l('修改工作表名称失败'), 2);
+        });
     }
   }
   updateName(newName) {
@@ -52,9 +57,11 @@ export default class extends Component {
     isActive && store.dispatch(updateAppItemInfo(workSheetId, appItem.type, name));
     if ([1, 3].includes(currentPcNaviStyle)) {
       const singleRef = getAppSectionRef(groupId);
-      singleRef.dispatch(updateSheetListAppItem(workSheetId, {
-        workSheetName: newName,
-      }));
+      singleRef.dispatch(
+        updateSheetListAppItem(workSheetId, {
+          workSheetName: newName,
+        }),
+      );
     } else {
       this.props.updateSheetListAppItem(workSheetId, {
         workSheetName: newName,
@@ -62,8 +69,7 @@ export default class extends Component {
     }
   }
   updateIcon(args) {
-    const { originalIcon } = this.state;
-    const { workSheetId, appItem, groupId } = this.props;
+    const { workSheetId, groupId } = this.props;
     const { currentPcNaviStyle } = store.getState().appPkg;
     if ([1, 3].includes(currentPcNaviStyle)) {
       const singleRef = getAppSectionRef(groupId);
@@ -73,7 +79,7 @@ export default class extends Component {
     }
   }
   render() {
-    const { className, onCancel, icon, workSheetId, ...rest } = this.props;
+    const { className, onCancel, icon, ...rest } = this.props;
     const { originalName, originalIcon } = this.state;
     const { iconColor } = store.getState().appPkg;
     return (

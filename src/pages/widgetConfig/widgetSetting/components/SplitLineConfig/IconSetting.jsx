@@ -1,8 +1,9 @@
 import React from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { SvgIcon } from 'ming-ui';
-import cx from 'classnames';
 import IconTabs from 'src/pages/AppHomepage/components/SelectIcon/IconTabs';
 
 const ColorBox = styled.div`

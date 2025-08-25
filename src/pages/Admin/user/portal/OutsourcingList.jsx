@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Table, Spin, ConfigProvider } from 'antd';
-import { LoadDiv } from 'ming-ui';
+import { ConfigProvider, Input, Spin, Table } from 'antd';
 import cx from 'classnames';
-import './index.less';
+import { LoadDiv } from 'ming-ui';
+import Confirm from 'ming-ui/components/Dialog/Confirm';
 import transferController from 'src/api/transfer';
-import Config from '../../config';
-import DetailDialog from '../groupDept/DetailDialog';
 import Empty from '../../common/TableEmpty';
 import PaginationWrap from '../../components/PaginationWrap';
-import Confirm from 'ming-ui/components/Dialog/Confirm';
+import Config from '../../config';
+import DetailDialog from '../groupDept/DetailDialog';
+import './index.less';
 
 const { Search } = Input;
 

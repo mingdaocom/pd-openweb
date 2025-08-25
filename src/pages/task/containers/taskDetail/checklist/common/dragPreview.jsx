@@ -6,6 +6,12 @@ export default class DragPreview extends Component {
   }
 
   render() {
-    return <div className="taskDetailDragPreview" dangerouslySetInnerHTML={{ __html: this.props.preview }} style={{ width: this.props.width }} />;
+    return (
+      <div
+        className="taskDetailDragPreview"
+        dangerouslySetInnerHTML={{ __html: this.props.preview }}
+        style={{ width: this.props.width }}
+      />
+    );
   }
 }

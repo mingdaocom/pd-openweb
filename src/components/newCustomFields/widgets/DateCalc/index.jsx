@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import _, { includes } from 'lodash';
+import { includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';

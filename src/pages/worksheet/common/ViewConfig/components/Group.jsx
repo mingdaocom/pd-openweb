@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import DropDownSet from './DropDownSet';
+import React from 'react';
 import _ from 'lodash';
+import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import DropDownSet from './DropDownSet';
 
 export default function Group(props) {
-  const { appId, view, updateCurrentView, worksheetControls = [], columns, currentSheetInfo } = props;
+  const { appId, view, updateCurrentView, worksheetControls = [], currentSheetInfo } = props;
   const { viewControl = '' } = view;
 
   const getViewControlType = value => {

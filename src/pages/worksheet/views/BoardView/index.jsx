@@ -1,166 +1,54 @@
-﻿import React, { Fragment, useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import { DndProvider, useDrop } from 'react-dnd-latest';
-import cx from 'classnames';
-import { every, isEmpty } from 'lodash';
-import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { DndProvider } from 'react-dnd-latest';
+import _ from 'lodash';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as boardActions from 'src/pages/worksheet/redux/actions/boardView';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { browserIsMobile } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util';
 import { getAdvanceSetting } from 'src/utils/control';
-import SelectField from '../components/SelectField';
-import ViewEmpty from '../components/ViewEmpty';
-import { filterAndFormatterControls } from '../util';
-import { ITEM_TYPE } from './config';
-import Board from './RecordList';
-import { dealBoardViewData } from './util';
-import './index.less';
+import CommonBoard from './CommonBoard';
+import GroupBoard from './GroupBoard';
+import { getViewSelectFields, hasSecondGroupControl } from './util';
 
-export const RecordBoardWrap = styled.div`
-  height: 100%;
-  padding-right: 14px;
-  display: flex;
-  .boardFixedWrap {
-    margin-left: 14px;
-    position: relative;
-    display: flex;
-    &::before {
-      position: absolute;
-      top: -20px;
-      right: 0;
-      width: 1px;
-      bottom: 0;
-      content: '';
-      background: #ddd;
-    }
-  }
-  .boardListWrap {
-    flex: 1;
-    overflow-x: auto;
-    display: flex;
-    flex-wrap: nowrap;
-    padding: 0 14px;
-  }
-`;
-
-function BoardView(props) {
+const BoardView = props => {
   const {
-    worksheetId,
-    controls,
-    getBoardViewPageData,
-    isCharge,
     viewId,
     view,
-    boardView,
-    toCustomWidget,
-    saveView,
-    sortBoardRecord,
     initBoardViewData,
-    clearBoardView,
-    setViewConfigVisible,
-    filters,
-    addRecord,
-    updateMultiSelectBoard,
-    refreshSheet,
     navGroupFilters,
-    ...rest
+    controls,
+    worksheetInfo,
+    updateBoardViewSortedOptionKeys,
+    sheetSwitchPermit,
   } = props;
-
-  const [collect, drop] = useDrop({
-    accept: ITEM_TYPE.RECORD,
-    hover(props, monitor) {
-      function scroll() {
-        const $wrap = document.querySelector('.boardListWrap');
-        const pos = $wrap.getBoundingClientRect();
-        const offset = monitor.getClientOffset();
-        if (offset.x < pos.x + 40) {
-          $wrap.scrollLeft -= 20;
-        }
-        if (offset.x + 40 > pos.x + pos.width) {
-          $wrap.scrollLeft += 20;
-        }
-      }
-      _.throttle(scroll)();
-    },
-  });
-
+  const { viewControl } = view;
+  const { groupsetting } = getAdvanceSetting(view);
+  // 一级分组有字段，且未被删除
+  const isFirstGroupValidField =
+    viewControl &&
+    _.find(setSysWorkflowTimeControlFormat(controls, sheetSwitchPermit), item => item.controlId === viewControl);
+  // 二级分组字段id
+  const controlId = useMemo(() => {
+    return (safeParse(groupsetting)[0] || {}).controlId;
+  }, [JSON.stringify(view.advancedSetting.groupsetting)]);
+  // 二级分组的字段
+  const control = _.find(controls, item => item.controlId === controlId) || {};
   const cache = useRef({});
-  const $listWrapRef = useRef(null);
-  const flagRef = useRef({ preScrollLeft: 0, pending: false });
+  // 二级分组字段是否有效
+  const isValidField = !!control && getViewSelectFields(controls, worksheetInfo, view).find(o => o.value === controlId);
+  // 是否有二级分组
+  const hasSecondGroup = groupsetting && viewControl && isValidField && hasSecondGroupControl(groupsetting, controls);
+  const [viewCardUpdateMap, setViewCardHeightMap] = useState({});
 
-  const setFlagRef = obj => {
-    const { current: flag } = flagRef;
-    flagRef.current = { ...flag, ...obj };
+  const updateBoardViewCard = (rowid, height) => {
+    if (viewCardUpdateMap[rowid] === height) return;
+    setViewCardHeightMap(prev => ({
+      ...prev,
+      [rowid]: height,
+    }));
   };
-
-  const scrollLoad = () => {
-    const $listWrap = _.get($listWrapRef, 'current');
-    const { current: flag } = flagRef;
-    const { preScrollLeft, pending } = flag;
-    const { scrollLeft, scrollWidth, offsetWidth } = $listWrap;
-    if (pending) return;
-    setFlagRef({ preScrollLeft: scrollLeft });
-    // 距离右侧边界还有两个看板的距离 且是在向右滚动  加载下一页看板
-    if (scrollLeft + offsetWidth > scrollWidth - 560 && scrollLeft > preScrollLeft) {
-      setFlagRef({ pending: true });
-      getBoardViewPageData({
-        alwaysCallback: () => {
-          setFlagRef({ pending: false });
-        },
-      });
-    }
-  };
-
-  const scrollHorizontal = e => {
-    const $tar = e.target;
-    const $listWrap = _.get($listWrapRef, 'current');
-    if (!$listWrap) return;
-    if (
-      (_.includes($tar.className, 'boardViewRecordListWrap') || _.includes($tar.className, 'boardTitleWrap')) &&
-      !!e.deltaY
-    ) {
-      $listWrap.scrollLeft = e.deltaY * 10 + $listWrap.scrollLeft;
-    }
-  };
-  const refresh = useCallback(({ worksheetId }) => {
-    if (worksheetId === props.worksheetId && !document.querySelector('.workSheetRecordInfo')) {
-      refreshSheet(view);
-    }
-  });
-  const bindEvent = () => {
-    const scrollEvent = _.throttle(scrollHorizontal);
-    const scrollLoadEvent = _.throttle(scrollLoad);
-    const $listWrap = _.get($listWrapRef, 'current');
-    document.body.addEventListener('mousewheel', scrollEvent);
-    window.addEventListener('resize', scrollEvent);
-    if ($listWrap) {
-      $listWrap.addEventListener('scroll', scrollLoadEvent);
-    }
-    emitter.addListener('RELOAD_RECORD_INFO', refresh);
-    return () => {
-      document.body.removeEventListener('mousewheel', scrollEvent);
-      emitter.removeListener('RELOAD_RECORD_INFO', refresh);
-      window.removeEventListener('resize', scrollEvent);
-      if ($listWrap) {
-        $listWrap.removeEventListener('scroll', scrollLoadEvent);
-      }
-    };
-  };
-
-  useEffect(() => {
-    const unBindEvent = bindEvent();
-    return () => {
-      clearBoardView();
-      unBindEvent();
-    };
-  }, []);
 
   useEffect(() => {
     if (
@@ -170,12 +58,14 @@ function BoardView(props) {
     ) {
       // 修改颜色字段时晚一点取, 不然返回的数据还是不包括新改的字段的值
       setTimeout(() => {
-        initBoardViewData();
+        initBoardViewData(view, hasSecondGroup);
       }, 200);
     } else {
-      initBoardViewData();
+      initBoardViewData(view, hasSecondGroup);
     }
     cache.current.prevColorId = view.advancedSetting.colorid;
+    setViewCardHeightMap({});
+    updateBoardViewSortedOptionKeys([]);
   }, [
     viewId,
     view.viewControl,
@@ -190,171 +80,26 @@ function BoardView(props) {
     view.advancedSetting.navsorts,
     view.advancedSetting.customitems,
     view.advancedSetting.viewtitle,
+    JSON.stringify(view.advancedSetting.groupsetting),
   ]);
 
-  const handleSelectField = obj => {
-    if (!isCharge) return;
-    const nextView = { ...view, ...obj };
-    const advancedSetting = _.omit(nextView.advancedSetting || {}, [
-      'navfilters',
-      'topfilters',
-      'topshow',
-      'customitems',
-      'customnavs',
-    ]);
-    if (advancedSetting.navshow && _.get(nextView, 'viewControl')) {
-      let control = controls.find(o => o.controlId === _.get(nextView, 'viewControl'));
-      let type = control.type;
-      if (type === 30) {
-        type = control.sourceControlType;
-      }
-      advancedSetting.navshow = [26, 27, 48].includes(type) ? '1' : '0';
-    }
-    nextView.advancedSetting = advancedSetting;
-    setViewConfigVisible(true);
-    saveView(viewId, nextView, () => {
-      initBoardViewData(nextView);
-    });
-  };
-
-  const selectControl = () => {
-    const { viewControl } = view;
-    return _.find(controls, item => item.controlId === viewControl);
-  };
-
-  // 记录排序
-  const sortRecord = obj => {
-    const { rowId, value, rawRow } = obj;
-    const { viewControl } = view;
-    const para = {
-      rowId,
-      ..._.pick(props, ['appId', 'worksheetId', 'viewId', 'projectId']),
-      newOldControl: [{ ..._.pick(selectControl(), ['controlId', 'type', 'controlName', 'dot']), value }],
-    };
-    if (Reflect.has(obj, 'rawRow')) {
-      const originData = JSON.parse(rawRow) || {};
-      worksheetAjax.updateWorksheetRow(para).then(res => {
-        if (!isEmpty(res.data)) {
-          // 后端更新后返回的权限不准 使用获取时候的权限
-          const originAuth = _.pick(originData, ['allowedit', 'allowdelete']);
-          updateMultiSelectBoard({
-            rowId,
-            item: { ...res.data, ...originAuth },
-            prevValue: originData[viewControl],
-            currentValue: value,
-          });
-        } else {
-          alert(_l('拖拽更新失败!'), 2);
-        }
-      });
-      return;
-    }
-    sortBoardRecord({
-      ...obj,
-      ...para,
-    });
-  };
-
-  const renderContent = () => {
-    const { boardViewLoading = true, boardData } = boardView;
-    const { sheetSwitchPermit } = props;
-    const { viewControl } = view;
-    const viewData = dealBoardViewData({ view, controls, data: boardData });
-    const { navshow, freezenav } = getAdvanceSetting(view);
-    // 选择了控件作为看板且控件没有被删除
-    const isHaveSelectControl =
-      viewControl &&
-      _.find(setSysWorkflowTimeControlFormat(controls, sheetSwitchPermit), item => item.controlId === viewControl);
-    if (!isHaveSelectControl) {
-      return (
-        <SelectField
-          sheetSwitchPermit={sheetSwitchPermit}
-          isCharge={isCharge}
-          fields={filterAndFormatterControls({
-            controls: controls,
-            formatter: ({ controlName, controlId, type }) => ({
-              text: controlName,
-              value: controlId,
-              icon: getIconByType(type),
-            }),
-          })}
-          handleSelect={handleSelectField}
-          toCustomWidget={toCustomWidget}
-        />
-      );
-    }
-
-    const renderBoard = (fixFirst = false) => {
-      // 显示指定项、显示全部 不做空数据的判断
-      if (
-        every(viewData, item => isEmpty(item.rows)) &&
-        !_.includes(['0', '2'], view.advancedSetting.navshow) &&
-        !fixFirst
-      ) {
-        return <ViewEmpty filters={filters} viewFilter={view.filters || []} />;
-      }
-
-      return (
-        !browserIsMobile()
-          ? (viewData || []).slice(freezenav === '1' && !fixFirst ? 1 : 0, fixFirst ? 1 : undefined)
-          : viewData || []
-      ).map((board, index) => {
-        if (!(_.get(board, 'rows') || []).length && !fixFirst) {
-          // 看板无数据时 当配置隐藏无数据看板或看板本身是未分类时 看板不显示
-          if (board.noGroup || navshow === '1') return null;
-        }
-
-        return (
-          <Board
-            {...boardView}
-            key={index}
-            index={index}
-            list={board}
-            viewData={viewData}
-            view={view}
-            worksheetId={worksheetId}
-            viewControl={viewControl}
-            sortRecord={sortRecord}
-            selectControl={selectControl()}
-            addRecord={addRecord}
-            {..._.pick(props, [
-              'appId',
-              'viewId',
-              'searchRow',
-              'updateBoardViewData',
-              'isCharge',
-              'sheetSwitchPermit',
-              'fieldShowCount',
-            ])}
-            {...rest}
-          />
-        );
-      });
-    };
-
-    return (
-      <Fragment>
-        {!boardViewLoading && freezenav === '1' && !browserIsMobile() && (
-          <div className="boardFixedWrap">{renderBoard(true)}</div>
-        )}
-
-        <div
-          className={cx('boardListWrap', { pLeft0: browserIsMobile() })}
-          ref={$listWrapRef}
-          style={{ paddingLeft: freezenav === '1' ? 0 : 14 }}
-        >
-          {boardViewLoading ? <LoadDiv /> : renderBoard()}
-        </div>
-      </Fragment>
-    );
-  };
-
-  return (
-    <div className={cx('worksheetBoardViewWrap', { mobileWorksheetBoardViewWrap: browserIsMobile() })} ref={drop}>
-      <RecordBoardWrap>{renderContent()}</RecordBoardWrap>
-    </div>
+  return isFirstGroupValidField && hasSecondGroup ? (
+    <GroupBoard
+      {...props}
+      controlId={controlId}
+      control={control}
+      viewCardUpdateMap={viewCardUpdateMap}
+      updateBoardViewCard={updateBoardViewCard}
+    />
+  ) : (
+    <CommonBoard
+      {...props}
+      isFirstGroupValidField={isFirstGroupValidField}
+      viewCardUpdateMap={viewCardUpdateMap}
+      updateBoardViewCard={updateBoardViewCard}
+    />
   );
-}
+};
 
 const ConnectedBoardView = connect(
   state =>
@@ -367,6 +112,7 @@ const ConnectedBoardView = connect(
       'sheetButtons',
       'navGroupFilters',
       'fieldShowCount',
+      'updateBoardViewSortedOptionKeys',
     ]),
   dispatch => bindActionCreators({ ...boardActions, ...baseAction }, dispatch),
 )(BoardView);

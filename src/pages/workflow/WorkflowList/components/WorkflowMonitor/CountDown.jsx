@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
+
 let intervall = null;
 export default class CountDown extends Component {
   constructor(props) {

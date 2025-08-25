@@ -1,8 +1,8 @@
 import React, { Fragment, useRef, useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Button, SvgIcon, QiniuUpload, LoadDiv } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Icon, LoadDiv, QiniuUpload, SvgIcon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 
 const FileListWrap = styled.div`
@@ -67,7 +67,7 @@ const FileItemWrap = styled.div`
   .passwordInputBox {
     width: 248px;
     line-height: 40px;
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
     border-radius: 3px;
     padding: 0 12px;
     box-sizing: border-box;
@@ -210,7 +210,7 @@ export default function UpgradeFileList(props) {
                 {_l('移除')}
               </span>
             </div>
-            <Icon icon="check_circle1" className={cx('mRight16 Font20', item.code === 0 ? 'greenColor' : 'Gray_bd')} />
+            <Icon icon="check_circle" className={cx('mRight16 Font20', item.code === 0 ? 'greenColor' : 'Gray_bd')} />
             {renderItemStatus(item)}
           </FileItemWrap>
         );

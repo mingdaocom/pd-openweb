@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -8,6 +8,7 @@ import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { accAdd, accDiv, accMul, accSub, browserIsMobile } from 'src/utils/common';
 import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project.js';
 
 const NumWrap = styled.span`
   ${props => (props.isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
@@ -27,7 +28,7 @@ const MobileAction = styled.div`
   margin-left: ${props => (props.type === 'add' ? 6 : 0)}px;
   border: 1px solid #e0e0e0;
   .icon {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -181,7 +182,17 @@ export default class Widgets extends Component {
 
   render() {
     let { value } = this.props;
-    const { type, disabled, hint, dot, unit, enumDefault, advancedSetting = {}, maskPermissions } = this.props;
+    const {
+      type,
+      disabled,
+      hint,
+      dot,
+      unit,
+      enumDefault,
+      advancedSetting = {},
+      maskPermissions,
+      otherSheetControlType,
+    } = this.props;
     const { isEditing, maskStatus } = this.state;
     const { thousandth, numshow, showtype, showformat, currency } = advancedSetting;
     let { prefix, suffix = unit } = advancedSetting;
@@ -207,7 +218,11 @@ export default class Widgets extends Component {
         value = dealMaskValue({ ...this.props, value });
       } else {
         // 数值兼容老的千分位配置enumDefault
-        if (type !== 6 || _.isUndefined(thousandth) ? enumDefault !== 1 : thousandth !== '1') {
+        if (
+          type === 6 && _.isUndefined(thousandth) && otherSheetControlType !== 30
+            ? enumDefault !== 1
+            : thousandth !== '1'
+        ) {
           value = formatNumberThousand(value);
         }
       }
@@ -234,7 +249,13 @@ export default class Widgets extends Component {
                 Gray_bd: !value,
               })}
               onClick={() => {
-                if (disabled && isMask) this.setState({ maskStatus: false });
+                if (disabled && isMask) {
+                  addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+                    rowId: this.props.recordId,
+                    controlId: this.props.controlId,
+                  });
+                  this.setState({ maskStatus: false });
+                }
               }}
             >
               {value && prefix ? `${prefix} ` : ''}

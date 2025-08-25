@@ -5,11 +5,12 @@ import cx from 'classnames';
 import _, { get, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
+import { Dialog, Icon, Input, Menu, MenuItem } from 'ming-ui';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
+import getTableColumnWidth from 'worksheet/components/BaseColumnHead/getTableColumnWidth';
 import { CONTROL_EDITABLE_WHITELIST, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
 import {
   clearHiddenColumn,
@@ -25,10 +26,23 @@ import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { showTypeData } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
 import { COVER_DISPLAY_FILL } from 'src/pages/worksheet/common/ViewConfig/config.js';
 import { emitter } from 'src/utils/common';
-import { getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'src/utils/common';
+import { saveLRUWorksheetConfig } from 'src/utils/common';
 import { checkIsTextControl, controlIsNumber, fieldCanSort, getSortData } from 'src/utils/control';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../../../widgetConfig/config/widget';
 import './ColumnHead.less';
+
+function getShowTypeData(control) {
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT) {
+    return showTypeData.filter(a => [4, 5, 6].includes(a.value));
+  } else if (
+    control.type === WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU ||
+    control.type === WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN
+  ) {
+    return showTypeData.filter(a => [0, 1, 2, 3, 7].includes(a.value));
+  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT) {
+    return showTypeData.filter(a => [0, 7].includes(a.value));
+  }
+}
 
 class ColumnHead extends Component {
   static contextType = SheetContext;
@@ -84,11 +98,10 @@ class ColumnHead extends Component {
   }
 
   handleColumnWidthLRUSave(controlId, value) {
-    const { readonly, viewId, saveColumnStylesToLocal, updateColumnStyles } = this.props;
-    try {
-      columnWidth = JSON.parse(getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_WIDTH', viewId));
-    } catch (err) {}
+    const { readonly, saveColumnStylesToLocal, updateColumnStyles } = this.props;
+
     if (readonly) return;
+
     saveColumnStylesToLocal({ [controlId]: { width: value } });
     updateColumnStyles({ [controlId]: { width: value } });
   }
@@ -146,8 +159,8 @@ class ColumnHead extends Component {
       clearHiddenColumn,
       onBatchEdit,
       canBatchEdit = true,
-      worksheetInfo,
       columnStyles = {},
+      rows = [],
       onShowFullValue = () => {},
       onBatchSetColumns = () => {},
     } = this.props;
@@ -185,6 +198,8 @@ class ColumnHead extends Component {
     const allowSetAlign = WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(control.type);
     return (
       <BaseColumnHead
+        rows={rows}
+        worksheetId={worksheetId}
         disabled={disabled}
         columnIndex={columnIndex}
         className={className}
@@ -193,6 +208,7 @@ class ColumnHead extends Component {
         showDropdown
         isLast={isLast}
         isAsc={this.isAsc}
+        columnStyle={columnStyle}
         changeSort={this.changeSort}
         updateSheetColumnWidths={this.updateColumnWidth}
         renderPopup={({ closeMenu }) => (
@@ -298,7 +314,7 @@ class ColumnHead extends Component {
                   closeMenu();
                 }}
               >
-                <i className="icon icon-task-new-locked"></i>
+                <i className="icon icon-lock"></i>
                 {_l('冻结')}
               </MenuItem>
             )}
@@ -323,7 +339,7 @@ class ColumnHead extends Component {
                 popupAlign={{
                   points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
                   offset: [0, -6],
-                  // overflow: { adjustX: true, adjustY: true },
+                  overflow: { adjustX: true, adjustY: true },
                 }}
                 popup={
                   <Menu className="columnHeadChangeAlign">
@@ -394,6 +410,7 @@ class ColumnHead extends Component {
               [
                 WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
                 WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
+                WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
                 WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT,
               ].includes(control.type) && (
                 <Trigger
@@ -404,30 +421,25 @@ class ColumnHead extends Component {
                   popupAlign={{
                     points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
                     offset: [0, -6],
+                    overflow: { adjustX: true, adjustY: true },
                   }}
                   popup={
-                    <Menu className="columnHeadChangeAlign">
-                      {showTypeData
-                        .filter(a =>
-                          control.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
-                            ? [4, 5, 6].includes(a.value)
-                            : ![4, 5, 6].includes(a.value),
-                        )
-                        .map(({ value, text }, index) => (
-                          <MenuItem
-                            key={index}
-                            className={cx({ active: showtype === value })}
-                            onClick={() => {
-                              this.updateColumnStyle({ controlId: control.controlId, key: 'showtype', value });
-                              closeMenu();
-                            }}
-                          >
-                            <div className="flexRow">
-                              {text}
-                              {showtype === value && <Icon icon="done" className="mRight12 Relative" />}
-                            </div>
-                          </MenuItem>
-                        ))}
+                    <Menu className="columnHeadChangeAlign Relative">
+                      {getShowTypeData(control).map(({ value, text }, index) => (
+                        <MenuItem
+                          key={index}
+                          className={cx({ active: showtype === value })}
+                          onClick={() => {
+                            this.updateColumnStyle({ controlId: control.controlId, key: 'showtype', value });
+                            closeMenu();
+                          }}
+                        >
+                          <div className="flexRow">
+                            <div className="flex">{text}</div>
+                            {showtype === value && <Icon icon="done" className="mRight12 Relative" />}
+                          </div>
+                        </MenuItem>
+                      ))}
                       {control.type === 14 && showtype !== 6 && (
                         <Trigger
                           getPopupContainer={() => this.conRef.current}
@@ -437,9 +449,10 @@ class ColumnHead extends Component {
                           popupAlign={{
                             points: isLast ? ['tr', 'tl'] : ['tl', 'tr'],
                             offset: [0, -6],
+                            overflow: { adjustX: true, adjustY: true },
                           }}
                           popup={
-                            <Menu className="columnHeadChangeAlign">
+                            <Menu className="columnHeadChangeAlign" style={{ width: 220 }}>
                               {COVER_DISPLAY_FILL.map(({ text, value }, index) => (
                                 <MenuItem
                                   key={index}
@@ -454,7 +467,7 @@ class ColumnHead extends Component {
                                   }}
                                 >
                                   <div className="flexRow">
-                                    {text}
+                                    <div className="flex">{text}</div>
                                     {coverFillType === value && <Icon icon="done" className="mRight12 Relative" />}
                                   </div>
                                 </MenuItem>
@@ -500,39 +513,86 @@ class ColumnHead extends Component {
                   </MenuItem>
                 </Trigger>
               )}
-
-            {checkIsTextControl(control.type) && (
-              <MenuItem
-                onClick={() => {
-                  function getColumnTextMaxWidth() {
-                    const texts = [...document.querySelectorAll('.col-' + columnIndex)].slice(1).map(a => a.innerText);
-                    const con = document.createElement('div');
-                    con.style.fontSize = '13px';
-                    con.style.display = 'inline-block';
-                    con.innerHTML = texts.map(text => `<div>${text}</div>`);
-                    document.body.append(con);
-                    const result = con.clientWidth;
-                    document.body.removeChild(con);
-                    return result + 14;
-                  }
-                  if (!checkIsTextControl(control.type)) {
-                    return;
-                  }
-                  let width = getColumnTextMaxWidth();
-                  if (width < 60) {
-                    width = 60;
-                  }
-                  if (width > 600) {
-                    width = 600;
-                  }
-                  this.updateColumnWidth({ controlId: control.controlId, value: width });
-                  closeMenu();
-                }}
-              >
+            <Trigger
+              getPopupContainer={() => this.conRef.current}
+              popupClassName="Relative"
+              action={['hover']}
+              popupPlacement="bottom"
+              popupAlign={{
+                points: ['tl', 'tr'],
+                offset: [0, -6],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              destroyPopupOnHide={true}
+              popup={
+                <div className="changeColumnWidthPanel">
+                  <Input
+                    className="w100"
+                    defaultValue={style.width}
+                    onBlur={e => {
+                      let newWidth = Number(e.target.value);
+                      if (isNaN(newWidth)) {
+                        return;
+                      }
+                      if (newWidth < 60) {
+                        newWidth = 60;
+                      }
+                      if (newWidth > 600) {
+                        newWidth = 600;
+                      }
+                      this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
+                      closeMenu();
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        let newWidth = Number(e.target.value);
+                        if (isNaN(newWidth)) {
+                          return;
+                        }
+                        if (newWidth < 60) {
+                          newWidth = 60;
+                        }
+                        if (newWidth > 600) {
+                          newWidth = 600;
+                        }
+                        this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
+                        closeMenu();
+                      }
+                    }}
+                  />
+                  <div className="px">px</div>
+                  <div
+                    className="resize"
+                    onClick={() => {
+                      const width = getTableColumnWidth(
+                        document.querySelector('.sheetViewTable'),
+                        rows,
+                        control,
+                        columnStyle,
+                        worksheetId,
+                      );
+                      this.updateColumnWidth({ controlId: control.controlId, value: width });
+                      closeMenu();
+                    }}
+                  >
+                    {_l('列宽适合内容')}
+                  </div>
+                </div>
+              }
+            >
+              <MenuItem>
                 <i className="icon icon-sheets_rtl"></i>
                 {_l('列宽适合内容')}
+                <i
+                  className="icon icon-arrow-right-tip Right"
+                  style={{
+                    fontSize: 12,
+                    marginTop: 12,
+                    marginRight: -8,
+                  }}
+                ></i>
               </MenuItem>
-            )}
+            </Trigger>
             {isCharge && (
               <MenuItem
                 onClick={() => {
@@ -557,6 +617,7 @@ const mapStateToProps = state => ({
   allWorksheetIsSelected: state.sheet.sheetview.sheetViewConfig.allWorksheetIsSelected,
   sheetSelectedRows: state.sheet.sheetview.sheetViewConfig.sheetSelectedRows,
   columnStyles: state.sheet.sheetview.sheetViewConfig.columnStyles,
+  rows: state.sheet.sheetview.sheetViewData.rows,
   worksheetInfo: state.sheet.worksheetInfo,
 });
 

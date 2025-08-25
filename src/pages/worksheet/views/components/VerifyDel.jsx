@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
-import styled from 'styled-components';
+import React from 'react';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import 'rc-trigger/assets/index.css';
 
 const DelVerify = styled.div`
@@ -45,7 +44,17 @@ const DelVerify = styled.div`
     }
   }
 `;
-export default function VerifyDel({ title, visible, onVisibleChange, onCancel, onDel, children, cancelText = _l('取消'), delText = _l('删除'), popupAlign }) {
+export default function VerifyDel({
+  title,
+  visible,
+  onVisibleChange,
+  onCancel,
+  onDel,
+  children,
+  cancelText = _l('取消'),
+  delText = _l('删除'),
+  popupAlign,
+}) {
   return (
     <Trigger
       popupVisible={visible}

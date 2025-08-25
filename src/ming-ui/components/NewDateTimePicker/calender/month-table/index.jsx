@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 class MonthTable extends Component {
   itemOnClick = (event, item) => {
@@ -14,8 +14,8 @@ class MonthTable extends Component {
   };
 
   renderBodyList = () => {
-    const trList = this.props.bodyData.map((row, i, rowList) => {
-      const tdList = row.map((item, j, items) => {
+    const trList = this.props.bodyData.map((row, i) => {
+      const tdList = row.map((item, j) => {
         const classList = [];
         if (item.disabled) {
           classList.push('disabled');
@@ -38,7 +38,7 @@ class MonthTable extends Component {
           <td
             key={j}
             className={classNames}
-            onClick={(event) => {
+            onClick={event => {
               event.nativeEvent.stopImmediatePropagation();
               this.itemOnClick(event, item);
             }}
@@ -81,9 +81,7 @@ MonthTable.propTypes = {
 
 MonthTable.defaultProps = {
   bodyData: [],
-  onPick: (event, value, time) => {
-    //
-  },
+  onPick: () => {},
 };
 
 export default MonthTable;

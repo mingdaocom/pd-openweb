@@ -23,7 +23,7 @@ const Wrap = styled.div(
   .toRole {
     color: #5a5a5a;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   padding: 16px 10px 0 10px;
@@ -75,8 +75,8 @@ const Wrap = styled.div(
       line-height: 32px;
       display: inline-block;
       &:hover {
-        border: 1px solid #2196f3;
-        color: #2196f3;
+        border: 1px solid #1677ff;
+        color: #1677ff;
       }
     }
     .addUser {
@@ -86,7 +86,7 @@ const Wrap = styled.div(
       line-height: 32px;
       border-radius: 3px;
       color: #fff;
-      background: #2196f3;
+      background: #1677ff;
       i::before {
         line-height: 32px;
         color: #fff;
@@ -105,7 +105,7 @@ const Wrap = styled.div(
         cursor: pointer;
         height: 32px;
         display: inline-block;
-        background: #2196f3;
+        background: #1677ff;
         &:hover {
           background: #1e88e5;
         }
@@ -120,7 +120,7 @@ const Wrap = styled.div(
       line-height: 32px;
       text-align: center;
       background: #f3faff;
-      color: #2196f3;
+      color: #1677ff;
       &:hover {
         background: #ebf6fe;
       }
@@ -134,7 +134,7 @@ const Wrap = styled.div(
     }
   }
   .isCurmemberType {
-    color: #2196f3;
+    color: #1677ff;
   }
   .topActDrop .Dropdown--input {
     display: flex;
@@ -191,10 +191,9 @@ const userStatusList = [
 function User(props) {
   const {
     portal = {},
-    setList,
     setControls,
     updateListByStatus,
-    setCount,
+    activatExAccounts,
     appId,
     changePageIndex,
     getList,
@@ -229,7 +228,6 @@ function User(props) {
   const { isSendMsgs } = baseInfo;
   const [popupVisible, setPopupVisible] = useState(false);
   const [changeRoleDialog, setChangeRoleDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [showUserInfoDialog, setShowUserInfoDialog] = useState(false);
   const [addUserDialog, setAddUserDialog] = useState(false);
   const [addUserByTelDialog, setAddUserByTelDialog] = useState(false); //单个邀请
@@ -286,11 +284,8 @@ function User(props) {
       });
   };
   const getUserList = () => {
-    setLoading(true);
     getCount(appId); //重新获取总计数
-    getList(0, () => {
-      setLoading(false);
-    });
+    getList(0, () => {});
   };
 
   useEffect(() => {
@@ -315,7 +310,7 @@ function User(props) {
             className: 'nameWrapTr',
             name: _l('用户'),
             minW: 240,
-            render: (text, data, index) => {
+            render: (text, data) => {
               return (
                 <div className="userImgBox Hand flex overflowHidden">
                   <span className="name overflow_ellipsis Block TxtLeft breakAll">{data['portal_name']}</span>
@@ -334,7 +329,7 @@ function User(props) {
             ...o,
             id: o.controlId,
             name: _l('邮箱'),
-            render: (text, data, index) => {
+            render: (text, data) => {
               return (
                 <div className="flex overflowHidden">
                   <div className="overflow_ellipsis Block breakAll" title={data['portal_email']}>
@@ -349,12 +344,13 @@ function User(props) {
             ...o,
             id: o.controlId,
             name: _l('角色'),
-            render: (text, data, index) => {
+            render: (text, data) => {
               let role = '';
               try {
                 let d = safeParse(data['portal_role'], 'array');
                 role = d[0] || '';
               } catch (error) {
+                console.log(error);
                 role = '';
               }
               return (roleList.find(o => o.roleId === role) || {}).name;
@@ -391,7 +387,7 @@ function User(props) {
                 </React.Fragment>
               );
             },
-            render: (text, data, index) => {
+            render: (text, data) => {
               let portal_status = safeParse(data.portal_status, 'array')[0];
               //正常、未激活（添加用户后用户未注册）停用
               if (portal_status === '5') {
@@ -409,7 +405,7 @@ function User(props) {
             name: o.controlName,
             className: [15, 16].includes(o.type) ? 'timeTr' : '',
             sorter: [15, 16].includes(o.type),
-            render: (text, data, index) => {
+            render: (text, data) => {
               return <div className="ellipsis TxtMiddle">{renderText({ ...o, value: data[o.controlId] })}</div>;
             },
           });
@@ -428,7 +424,7 @@ function User(props) {
           id: 'option',
           className: 'optionWrapTr',
           name: '',
-          render: (text, data, index) => {
+          render: (text, data) => {
             let dataList = [];
             let portal_status = safeParse(data.portal_status, 'array')[0];
             //正常、未激活（添加用户后用户未注册）停用
@@ -443,6 +439,9 @@ function User(props) {
                   text: _l('取消邀请并移除'),
                 },
               ];
+              if (md.global.Config.IsLocal) {
+                dataList = [{ value: '1', text: _l('激活') }, ...dataList];
+              }
             } else {
               dataList = [
                 {
@@ -469,6 +468,7 @@ function User(props) {
               <DropOption
                 dataList={dataList}
                 onAction={o => {
+                  if (!data.rowid) return;
                   if (portal_status === '5') {
                     if (o.value === '7') {
                       externalPortalAjax
@@ -476,10 +476,12 @@ function User(props) {
                           appId,
                           rowIds: [data.rowid],
                         })
-                        .then(res => {
+                        .then(() => {
                           setSelectedIds([]); //清除选择
                           getList(); //重新获取当前页面数据
                         });
+                    } else if (o.value === '1') {
+                      updateActivationStatus([data.rowid]);
                     } else {
                       externalPortalAjax
                         .reinviteExAccount({
@@ -516,7 +518,7 @@ function User(props) {
           },
         }),
     );
-  }, [columns, showPortalControlIds]);
+  }, [columns, showPortalControlIds, list]);
 
   const delOne = id => {
     Dialog.confirm({
@@ -530,7 +532,7 @@ function User(props) {
             appId,
             rowIds: [id],
           })
-          .then(res => {
+          .then(() => {
             setSelectedIds([]); //清除选择
             getCount(appId); //重新获取总计数
             getList(); //重新获取当前页面数据
@@ -579,7 +581,7 @@ function User(props) {
         appId,
         rowIds: selectedIds,
       })
-      .then(res => {
+      .then(() => {
         setSelectedIds([]); //清除选择
         getCount(appId); //重新获取总计数
         getList(); //重新获取当前页面数据
@@ -594,6 +596,15 @@ function User(props) {
       onOk: () => {
         deleteRows();
       },
+    });
+  };
+  //激活
+  const updateActivationStatus = selectedIds => {
+    activatExAccounts({
+      rowIds: list
+        .filter(o => safeParse(o.portal_status, 'array')[0] === '5' && selectedIds.includes(o.rowid))
+        .map(o => o.rowid),
+      cb: () => setSelectedIds([]),
     });
   };
   return (
@@ -622,6 +633,14 @@ function User(props) {
             >
               {_l('导出')}
             </span>
+            {md.global.Config.IsLocal && !!list.find(o => safeParse(o.portal_status, 'array')[0] === '5') && (
+              <span
+                className={cx('download InlineBlock Hand mLeft10')}
+                onClick={() => updateActivationStatus(selectedIds)}
+              >
+                {_l('激活')}
+              </span>
+            )}
             <span
               className={cx('download InlineBlock Hand mLeft10')}
               onClick={() => {
@@ -683,7 +702,7 @@ function User(props) {
           <div className="InlineFlex flex-shrink-0">
             <PortalBar
               keys={['search', 'refresh', 'columns', 'filter', 'down']}
-              onChange={data => { }}
+              onChange={() => {}}
               down={down}
               appId={appId}
               comp={() => {
@@ -719,7 +738,7 @@ function User(props) {
                           <WrapPop className="Hand InlineBlock mTop6 uploadUser">
                             <MenuItem
                               className=""
-                              onClick={evt => {
+                              onClick={() => {
                                 setAddUserDialog(true);
                                 setPopupVisible(false);
                               }}
@@ -846,7 +865,7 @@ function User(props) {
                 rowId: currentId,
                 newCell,
               })
-              .then(res => {
+              .then(() => {
                 getUserList();
                 getCount(appId);
                 setCurrentData([]);

@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from 'antd';
+import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
 import { getTranslateInfo } from 'src/utils/app';

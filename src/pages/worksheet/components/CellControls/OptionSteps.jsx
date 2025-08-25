@@ -64,7 +64,6 @@ function OptionsSteps(props, ref) {
     isediting,
     editable,
     onClick,
-    popupContainer,
     updateEditingStatus,
     updateCell,
   } = props;

@@ -1,33 +1,13 @@
 import React from 'react';
 import cx from 'classnames';
-import { get, head } from 'lodash';
-import styled from 'styled-components';
+import _, { head } from 'lodash';
 import { Steps } from 'ming-ui';
 import { isLightColor } from 'src/utils/control';
 import { CommonDisplay, OptionWrap } from '../../styled';
 import { getAdvanceSetting, getOptions, parseOptionValue } from '../../util/setting';
 
-const ScalePoint = styled.span`
-  cursor: pointer;
-  position: absolute;
-  background: #fff;
-  top: -1px;
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 8px;
-  border: 2px solid #2196f3;
-  > span {
-    user-select: none;
-    white-space: nowrap;
-    transform: translateX(calc(-50% + 2px));
-    margin-top: 10px;
-    display: inline-block;
-  }
-`;
-
 export default function Dropdown({ data }) {
-  const { enumDefault2, options = [], hint } = data;
+  const { enumDefault2, hint } = data;
   const checkedValue = parseOptionValue(data.default);
   const { value, color, key: checkedKey } = _.find(getOptions(data), item => item.key === head(checkedValue)) || {};
   const { direction, showtype } = getAdvanceSetting(data);

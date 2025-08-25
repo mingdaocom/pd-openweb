@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate, MembersName } from '../components';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class Template extends Component {
   constructor(props) {
@@ -20,7 +20,7 @@ export default class Template extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('未完成服务号消息设置')}
         </div>
       );

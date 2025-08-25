@@ -1,10 +1,10 @@
 import React from 'react';
-import { Icon, Dropdown } from 'ming-ui';
-import './index.less';
-import { v4 as uuidv4, validate } from 'uuid';
-import { FIELD_TYPE_LIST } from '../../../enum';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
+import { v4 as uuidv4, validate } from 'uuid';
+import { Dropdown, Icon } from 'ming-ui';
+import { FIELD_TYPE_LIST } from '../../../enum';
+import './index.less';
 
 const getDefaultParameters = () => {
   return {
@@ -89,7 +89,7 @@ export default props => {
       </div>
 
       {list.map((item, index) => {
-        if (item.dataSource && _.find(list, o => o.controlId === item.dataSource).type === 10000007) {
+        if (item.dataSource && (_.find(list, o => o.controlId === item.dataSource) || {}).type === 10000007) {
           return null;
         }
 
@@ -134,7 +134,7 @@ export default props => {
             />
 
             <Icon
-              icon="task-new-delete"
+              icon="trash"
               className="Font16 mLeft10 Gray_75 processConfigDel"
               onClick={() => {
                 let objArrayIds = [];

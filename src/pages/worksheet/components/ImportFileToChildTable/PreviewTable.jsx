@@ -1,13 +1,13 @@
-import React, { useRef, useEffect, Fragment } from 'react';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
-import { FixedTable } from 'ming-ui';
+import React, { Fragment, useEffect, useRef } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
-import autoSize from 'ming-ui/decorators/autoSize';
-import Trigger from 'rc-trigger';
 import _ from 'lodash';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { FixedTable } from 'ming-ui';
+import autoSize from 'ming-ui/decorators/autoSize';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getIndex } from '../WorksheetTable/components/Cell';
 
 const StyledFixedTable = styled(FixedTable)`
@@ -174,7 +174,9 @@ function PreviewTable(props) {
   useEffect(() => {
     try {
       tableRef.current.forceUpdate();
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }, [columnCount]);
   const cellWidth = getCellWidth(width, columnCount, showNumber);
   const fullTableCount = Math.ceil(height / 34);
@@ -273,7 +275,7 @@ function PreviewTable(props) {
             style={Object.assign(
               {},
               style,
-              index === activeIndex ? { boxShadow: 'inset 0px 0px 0px 1px #2196f3' } : {},
+              index === activeIndex ? { boxShadow: 'inset 0px 0px 0px 1px #1677ff' } : {},
             )}
             className={cx('cell', {
               active: index === activeIndex,

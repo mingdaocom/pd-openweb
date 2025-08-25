@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import RecordInfo from './RecordInfoWrapper';
+
 export default class Record extends React.Component {
   shouldComponentUpdate(nextProps) {
     return this.props.recordId !== nextProps.recordId;

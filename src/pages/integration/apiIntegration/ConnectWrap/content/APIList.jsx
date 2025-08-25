@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import loadScript from 'load-script';
-import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, SortableList } from 'ming-ui';
@@ -30,7 +29,7 @@ const Wrap = styled.div`
   }
   .addApi {
     padding: 8px 24px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 21px;
     color: #fff;
     display: inline-block;
@@ -331,7 +330,7 @@ function APIList(props) {
             </div>
           )}
           <div className="con mTop25">
-            {(!!keywords ? listSearch.length <= 0 : list.length <= 0) && pageIndex === 1 ? (
+            {(keywords ? listSearch.length <= 0 : list.length <= 0) && pageIndex === 1 ? (
               noDataRender()
             ) : loading && pageIndex === 1 ? (
               <LoadDiv />

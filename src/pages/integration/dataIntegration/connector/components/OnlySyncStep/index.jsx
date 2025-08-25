@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, RadioGroup, Input, Tooltip, Checkbox, Dialog, LoadDiv } from 'ming-ui';
 import { Select } from 'antd';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon, Input, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
+import dataSourceApi from '../../../../api/datasource';
+import worksheetApi from 'src/api/worksheet';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import FieldMappingList from '../../../components/FieldsMappingList/index';
+import SelectTables from '../../../components/SelectTables';
+import TimingSetting from '../../../components/TimingSetting';
 import {
-  CREATE_TYPE_RADIO_LIST,
   CREATE_TYPE,
+  CREATE_TYPE_RADIO_LIST,
   DATABASE_TYPE,
   namePattern,
   TRIGGER_WORKFLOW_CHECKBOX_OPTIONS,
 } from '../../../constant';
-import FieldMappingList from '../../../components/FieldsMappingList/index';
-import LeftTableList from './LeftTableList';
-import dataSourceApi from '../../../../api/datasource';
-import worksheetApi from 'src/api/worksheet';
-import SheetGroupSelect from './SheetGroupSelect';
 import {
-  getInitFieldsMapping,
-  getInitWorkSheetFields,
   getDefaultData,
   getDuplicateFieldsRenamedList,
+  getInitFieldsMapping,
+  getInitWorkSheetFields,
   isNotSupportField,
 } from '../../../utils';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import SelectTables from '../../../components/SelectTables';
-import TimingSetting from '../../../components/TimingSetting';
+import LeftTableList from './LeftTableList';
+import SheetGroupSelect from './SheetGroupSelect';
 
 const OnlySyncWrapper = styled.div`
   padding: 16px 24px;
@@ -39,7 +39,7 @@ const OnlySyncWrapper = styled.div`
     width: 64px;
     min-width: 64px;
     height: 56px;
-    color: #2196f3;
+    color: #1677ff;
   }
   .dbItem {
     display: flex;
@@ -66,7 +66,7 @@ const OnlySyncWrapper = styled.div`
     width: fit-content;
     margin-top: 20px;
     cursor: pointer;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1565c0;
       i {
@@ -243,8 +243,8 @@ export default function OnlySyncStep(props) {
                       : null,
                   }
                 : item.destField.isCheck
-                ? item
-                : { ...item, destField: null };
+                  ? item
+                  : { ...item, destField: null };
             }
           });
           const sourceFields = destFieldsMapping.map(item => item.sourceField);
@@ -411,7 +411,7 @@ export default function OnlySyncStep(props) {
     if (!_.isEmpty(sheetData)) {
       for (let dbItem in sheetData) {
         for (let tableItem in sheetData[dbItem]) {
-          if (!!sheetData[dbItem][tableItem].dbName) {
+          if (sheetData[dbItem][tableItem].dbName) {
             hasSetData = {
               ..._.pick(sheetData[dbItem][tableItem], ['dbName', 'schemaName']),
               ..._.pick(optionList[dbItem][tableItem], ['schemaOptionList', 'sheetOptionList']),
@@ -689,7 +689,6 @@ export default function OnlySyncStep(props) {
     const onChangePk = id => {
       const newFieldsMapping = currentMapping.map(item => {
         const sourceField = item.sourceField || {};
-        const destField = item.destField || {};
         const isPk = sourceField.id === id;
 
         return {
@@ -738,6 +737,7 @@ export default function OnlySyncStep(props) {
           </div>
           <span className="nowrap">{_l('为主键')}</span>
           <Tooltip
+            autoCloseDelay={0}
             text={
               !isSourceAppType
                 ? _l('只可以选非空字段。仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')

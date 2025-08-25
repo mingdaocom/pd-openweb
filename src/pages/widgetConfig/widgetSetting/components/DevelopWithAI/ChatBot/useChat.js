@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import codeAjax from 'src/api/code';
-import { MESSAGE_TYPE } from './enum';
-import { find, findLast, get, omit } from 'lodash';
+import { useEffect, useRef, useState } from 'react';
 import { createParser } from 'eventsource-parser';
+import { find, findLast, get, omit } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import sseAjax from 'src/api/sse';
+import { MESSAGE_TYPE } from './enum';
 
 // 在文件顶部添加 ChunkLoader 类
 class ChunkLoader {
@@ -143,7 +143,7 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
         return result;
       }
 
-      const response = await codeAjax.setupCustomField(
+      const response = await sseAjax.setupCustomField(
         {
           codeType: 3,
           params,

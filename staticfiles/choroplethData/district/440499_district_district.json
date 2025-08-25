@@ -1,0 +1,3 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[113.551625,22.117658],[113.55244,22.133188],[113.545246,22.132497],[113.551625,22.117658]]]},"properties":{"adcode":440499,"level":"district","name":"澳门大学横琴校区(由澳门实施管辖)","pinyin":"aomendaxuehengqinxiaoqu(youaomenshishiguanxia)","parent":{"adcode":440400},"childrenNum":0,"center":[113.548956,22.126197],"centroid":[113.548956,22.126197]}}
+]}

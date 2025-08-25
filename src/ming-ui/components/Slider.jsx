@@ -147,12 +147,12 @@ const Input = styled.input`
   background: #f7f7f7;
   ${({ showAsPercent }) => (showAsPercent ? 'padding-right: 28px;' : '')}
   &:active {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
   ${({ active }) =>
     active
       ? `
-  border-color: #2196f3;
+  border-color: #1677ff;
   background: #fff;
   `
       : `
@@ -169,7 +169,7 @@ function getColor(config, value, showAsPercent) {
   if (config.type === 1) {
     return config.color;
   } else if (config.type === 2) {
-    let result = '#2196f3';
+    let result = '#1677ff';
     const colors = config.colors
       .map(c => ({ value: Number(c.key * (showAsPercent ? 100 : 1)), color: c.value }))
       .filter(c => _.isNumber(c.value) && !_.isNaN(value))
@@ -181,7 +181,7 @@ function getColor(config, value, showAsPercent) {
     });
     return result;
   } else {
-    return '#2196f3';
+    return '#1677ff';
   }
 }
 
@@ -207,7 +207,7 @@ function fixedByStep(num, step) {
   return num.toFixed(((String(step).match(/\.(\d+)/) || '')[1] || '').length);
 }
 
-function formatByMinMax(value, min, max, step) {
+function formatByMinMax(value, min, max) {
   if (value < min) {
     value = min;
   }
@@ -229,13 +229,11 @@ function getNumberMaxWidth(max, step = 1, isPercent) {
 }
 export default function Slider(props) {
   const {
-    from,
     className,
     style,
     readonly,
-    itemcolor = { type: 1, color: '#2196f3' },
+    itemcolor = { type: 1, color: '#1677ff' },
     itemnames = [],
-    valueTextStyle = {},
     numStyle = {},
     barStyle = {},
     showScale = true,
@@ -329,7 +327,7 @@ export default function Slider(props) {
     let newValue = min + ((max - min) * newPercent) / 100;
     updateValue(formatByStep(newValue, step, min), false, true);
   }, []);
-  const handleMouseUp = useCallback(e => {
+  const handleMouseUp = useCallback(() => {
     if (!cache.current.active) {
       return;
     }
@@ -439,7 +437,7 @@ export default function Slider(props) {
             ))}
         {showScale && showScaleText && (
           <ScaleTextWrap total={(100 / (scalePointsLength - 1)) * scalePointsLength}>
-            {data.map((scale, i) => (
+            {data.map(scale => (
               <div className="contentItem">
                 <span className="scaleText" style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#151515' }}>
                   {scale.text}
@@ -492,7 +490,7 @@ export default function Slider(props) {
                 ? valueForInput + '%'
                 : valueForInput
             }
-            onFocus={e => {
+            onFocus={() => {
               setNumberIsFocusing(true);
             }}
             onBlur={e => {

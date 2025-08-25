@@ -1,6 +1,5 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Button, Checkbox, ConfigProvider, Dropdown, Form, Input, Menu, Modal, Select } from 'antd';
-import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,7 +9,7 @@ import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetC
 import { formatNumberFromInput } from 'src/utils/control';
 
 const AddLine = styled.div`
-  color: #2196f3;
+  color: #1677ff;
   &:hover {
     color: #0484fb;
   }
@@ -308,7 +307,7 @@ class LineConfigModal extends Component {
               <Checkbox
                 className="mRight10"
                 checked={lineConfig.showName}
-                onChange={e => {
+                onChange={() => {
                   this.handleChangeConfig({ showName: event.target.checked });
                 }}
               >
@@ -316,7 +315,7 @@ class LineConfigModal extends Component {
               </Checkbox>
               <Checkbox
                 checked={lineConfig.showValue}
-                onChange={e => {
+                onChange={() => {
                   this.handleChangeConfig({ showValue: event.target.checked });
                 }}
               >
@@ -374,7 +373,7 @@ export default class AuxiliaryLine extends Component {
     const { isPile, isPerPile, isAccumulate } = displaySetup;
     const defaultConfig = {
       controlId: (yaxisList[0] || {}).controlId,
-      color: '#2196F3',
+      color: '#1677ff',
       style: 1,
       showName: false,
       value: undefined,
@@ -436,7 +435,7 @@ export default class AuxiliaryLine extends Component {
             <DeleteWrap data-tip={_l('删除')}>
               <Icon
                 className="Gray_9e pointer Font19"
-                icon="task-new-delete"
+                icon="trash"
                 onClick={() => {
                   this.handleRemoveLine(item.id);
                 }}

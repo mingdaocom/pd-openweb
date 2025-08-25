@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { formatFileSize } from 'src/utils/common';
 
 const subTypeNames = {
@@ -10,11 +11,12 @@ const subTypeNames = {
 };
 
 export const selectDateList = [
-  { value: 0, label: _l('最近7天') },
-  { value: 1, label: _l('最近30天') },
-  { value: 2, label: _l('最近90天') },
-  { value: 3, label: _l('最近半年') },
-  { value: 4, label: _l('最近1年') },
+  { dayRange: 5, value: 1, label: _l('昨天') },
+  { dayRange: 0, value: 6, label: _l('最近7天') },
+  { dayRange: 1, value: 7, label: _l('最近30天') },
+  { dayRange: 2, value: 9, label: _l('最近90天') },
+  { dayRange: 3, value: 8, label: _l('最近半年') },
+  { dayRange: 4, value: 10, label: _l('最近1年') },
 ];
 
 export const dateDimension = [
@@ -35,7 +37,7 @@ export const formatChartData = (type, initData = [], isFilterByDepartment) => {
       }
       _.forEach(initData, item => {
         const temp = [];
-        _.forEach(isFilterByDepartment ? [1] : [1, 2, 3, 4, 5, 6], (v, index) => {
+        _.forEach(isFilterByDepartment ? [1] : [1, 2, 3, 4, 5, 6], v => {
           const currentTypeValue = _.find(item.value || [], s => s.subType === v);
           if (!currentTypeValue) {
             temp.push({ value: 0, subType: v, date: item.date, category: subTypeNames[v] });

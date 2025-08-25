@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Dialog from './Dialog';
 import ConfirmButton from './ConfirmButton';
+import Dialog from './Dialog';
 import '../less/Dialog.less';
 
 export default function promise(props) {

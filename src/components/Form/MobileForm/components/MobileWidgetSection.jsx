@@ -6,10 +6,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import RelationList from 'mobile/RelationRow/RelationList';
-import RelationSearch from 'src/components/Form/MobileForm/widgets/RelationSearch';
-import { FROM } from '../../core/config';
 import { ADD_EVENT_ENUM } from '../../core/enum';
 import RelateRecord from '../widgets/RelateRecord';
+import RelationSearch from '../widgets/RelationSearch';
 
 const TabCon = styled.div`
   .md-adm-tabs {
@@ -130,6 +129,7 @@ function MobileWidgetSection(props) {
     tabControlProp,
     recordId,
     viewId,
+    projectId,
     worksheetId,
     appId,
     widgetStyle,
@@ -258,14 +258,15 @@ function MobileWidgetSection(props) {
       return (
         <div className="flexColumn h100">
           <RelationList
-            rowId={recordId}
             worksheetId={worksheetId}
             appId={appId}
+            from={from === 3 ? 1 : from}
+            recordId={recordId}
+            widgetStyle={widgetStyle}
+            formData={data}
             viewId={viewId}
             controlId={activeControl.controlId}
             control={activeControl}
-            getType={from}
-            data={data}
             workId={mobileApprovalRecordInfo.workId}
             instanceId={mobileApprovalRecordInfo.instanceId}
           />
@@ -281,6 +282,7 @@ function MobileWidgetSection(props) {
         <RelateTabCon className="customMobileFormContainer pTop10">
           <RelateRecord
             {...c}
+            projectId={projectId}
             worksheetId={worksheetId}
             appId={appId}
             from={from}
@@ -305,7 +307,6 @@ function MobileWidgetSection(props) {
         <div className="customMobileFormContainer pTop10 mLeft0 mRight0">
           <RelationSearch
             {...activeControl}
-            viewId={viewId}
             worksheetId={worksheetId}
             appId={appId}
             from={from}

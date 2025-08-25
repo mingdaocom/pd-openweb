@@ -27,7 +27,7 @@ export const getCurrentProject = (id, isExternalProject) => {
  * 调用 app 内的方式
  */
 export function mdAppResponse(param) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     // 注册监听
     window.MD_APP_RESPONSE = base64 => {
       const decodedData = window.atob(base64);
@@ -84,7 +84,7 @@ export function getFeatureStatus(projectId, featureId) {
 /**
  * 添加行为日志。
  * @param {string} type - 日志类型，可选值为 'app', 'worksheet', 'customPage', 'worksheetRecord', 'printRecord',
- * 'printWord', 'pintTemplate', 'printQRCode', 'printBarCode', 'batchPrintWord', 'previewFile'。
+ * 'printWord', 'pintTemplate', 'printQRCode', 'printBarCode', 'batchPrintWord', 'previewFile', 'decode'。
  * @param {string} entityId - 实体 ID。(根据访问类型不同， 传不同模块id：浏览应用，entityId =应用id，
  * 浏览自定义页面，entityId = 页面id。其他的浏览行为 =worksheetId）
  * @param {Object} params - 额外的参数，用于记录日志的详细信息。
@@ -105,7 +105,11 @@ export const addBehaviorLog = (type, entityId, params = {}, isLinkVisited) => {
     printBarCode: 9, // 打印了条形码
     batchPrintWord: 10, // 批量word打印
     previewFile: 11, // 文件预览
+    worksheetDecode: 12, // 工作表解码(字段只读状态下记日志，包含H5记录呈现态)
+    worksheetBatchDecode: 13, // 工作表批量解码
   };
+
+  if (type === 'worksheetDecode' && !params.rowId) return;
 
   const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
     ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
@@ -125,7 +129,7 @@ export const addBehaviorLog = (type, entityId, params = {}, isLinkVisited) => {
         sessionStorage.removeItem('addBehaviorLogInfo');
       }
     })
-    .catch(err => {
+    .catch(() => {
       sessionStorage.removeItem('addBehaviorLogInfo');
     });
 };

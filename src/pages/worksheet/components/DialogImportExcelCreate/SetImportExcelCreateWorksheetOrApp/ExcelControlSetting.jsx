@@ -92,7 +92,6 @@ export default class ExcelControlSetting extends Component {
   };
 
   handleChange = obj => {
-    const extra = _.includes([15, 16], obj.type);
     const newObj = !obj.type
       ? obj
       : _.includes([10, 11], obj.type)

@@ -1,11 +1,12 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import { getTranslateInfo } from 'src/utils/app';
-import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, isUnique } from '../config';
+import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, GROUPMAXBYREL, isUnique } from '../config';
 import {
   getGroupFields,
   getGroupInfo,
@@ -63,7 +64,7 @@ export default function (props) {
                     .map(o => {
                       if (o.relationControls) {
                         o.relationControls = o.relationControls.map(o => {
-                          if (limitNum >= 3 && GROUPLIMITTYPES.includes(o.type)) {
+                          if (limitNum >= GROUPMAXBYREL && GROUPLIMITTYPES.includes(o.type)) {
                             o.isLimit = true;
                           } else {
                             o = _.omit(o, ['isLimit']);
@@ -79,15 +80,15 @@ export default function (props) {
               onChange={data => {
                 const { control, childrenControl } = data;
                 const workSheetId = ((_.get(sourceDt, 'nodeConfig.config.sourceTables') || [])[0] || {}).workSheetId;
-                const controlData = !!childrenControl ? childrenControl : control;
-                const name = !!childrenControl
+                const controlData = childrenControl ? childrenControl : control;
+                const name = childrenControl
                   ? `${control.controlName}-${controlData.controlName}`
                   : controlData.controlName;
                 let newDt = {
                   alias: getRuleAlias(name, flowData),
                   controlSetting: controlData,
                   isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
-                  parentFieldInfo: !!childrenControl
+                  parentFieldInfo: childrenControl
                     ? {
                         controlSetting: control,
                         oid: `${workSheetId}_${control.controlId}`,
@@ -97,7 +98,7 @@ export default function (props) {
                   isTitle: controlData.attribute === 1, //是否是标题，只有是工作表字段才有值
                   mdType: controlData.type,
                   name: name,
-                  oid: `${!!childrenControl ? control.dataSource : workSheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
+                  oid: `${childrenControl ? control.dataSource : workSheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
                   precision: 0,
                   scale: 0,
                 };

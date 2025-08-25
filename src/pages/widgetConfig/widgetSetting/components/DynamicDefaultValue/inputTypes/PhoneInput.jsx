@@ -1,8 +1,9 @@
-import React, { useState, useEffect, createRef } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { DynamicValueInputWrap } from '../styled';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
+import _ from 'lodash';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DYNAMIC_FROM_MODE } from '../config';
+import { DynamicValueInputWrap } from '../styled';
 
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType, from } = props;

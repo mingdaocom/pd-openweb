@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   display: flex;
@@ -14,7 +13,7 @@ const Wrap = styled.div`
     .icon-search,
     .icon-task-later {
       &:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }

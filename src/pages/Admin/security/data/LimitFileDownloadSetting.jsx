@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Icon, RadioGroup, UserHead } from 'ming-ui';
-import MoreActionDia from '../account/contactsHidden/modules/moreActionDia';
-import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
-import dataLimitAjax from 'src/api/dataLimit';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, RadioGroup, UserHead } from 'ming-ui';
+import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
+import dataLimitAjax from 'src/api/dataLimit';
+import MoreActionDia from '../account/contactsHidden/modules/moreActionDia';
 
 const Wrap = styled.div`
   box-sizing: border-box;
@@ -63,7 +63,7 @@ const Wrap = styled.div`
       display: inline-block;
       vertical-align: middle;
       background: #eaeaea;
-      color: #2196f3;
+      color: #1677ff;
       font-size: 12px;
       line-height: 24px;
       text-align: center;
@@ -115,7 +115,10 @@ const Footer = styled.div`
     border-radius: 4px;
     font-size: 14px;
     cursor: pointer;
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    transition:
+      color ease-in 0.2s,
+      border-color ease-in 0.2s,
+      background-color ease-in 0;
   }
 
   .saveBtn {
@@ -233,8 +236,8 @@ export default class LimitFileDownloadSetting extends Component {
             dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType }),
           ]
         : !_.isEqual(whiteList, initialWhiteList)
-        ? [dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList })]
-        : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType })];
+          ? [dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList })]
+          : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType })];
 
     Promise.all(requestArr).then(resArr => {
       if (resArr.every(v => v === true)) {
@@ -246,6 +249,7 @@ export default class LimitFileDownloadSetting extends Component {
   };
 
   renderContent = () => {
+    const { projectId } = this.props;
     const { showMoreActionSelf, whiteList = [] } = this.state;
     return (
       <Wrap className="listCon">
@@ -271,6 +275,7 @@ export default class LimitFileDownloadSetting extends Component {
                   <UserHead
                     className="InlineBlock"
                     accountId={id}
+                    projectId={projectId}
                     user={{ userHead: avatar, accountId: id }}
                     size={24}
                   />
@@ -282,7 +287,7 @@ export default class LimitFileDownloadSetting extends Component {
         </div>
         <span
           className="ThemeColor Font13 Hand mLeft15 Relative"
-          onClick={e => this.setState({ showMoreActionSelf: true })}
+          onClick={() => this.setState({ showMoreActionSelf: true })}
         >
           <Icon className="Font16 mRight5" icon="add" />
           {_l('添加')}

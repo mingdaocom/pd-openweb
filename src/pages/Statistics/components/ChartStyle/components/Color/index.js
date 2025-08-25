@@ -1,12 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Icon, Tooltip } from 'ming-ui';
-import { colorGroup, reportTypes, getPorjectChartColors } from 'statistics/Charts/common';
-import { getIsAlienationColor } from 'statistics/common';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon, Tooltip } from 'ming-ui';
+import { colorGroup, getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
+import { getIsAlienationColor } from 'statistics/common';
 import BaseColor from './BaseColor';
 import RuleColor from './RuleColor';
-import _ from 'lodash';
 
 const EntranceWrapper = styled.div`
   border: 1px solid #d9d9d9;
@@ -28,8 +27,8 @@ export default class ColorEntrance extends Component {
     super(props);
     this.state = {
       baseColorModalVisible: false,
-      ruleColorModalVisible: false
-    }
+      ruleColorModalVisible: false,
+    };
   }
   getRuleVisible() {
     const { currentReport } = this.props;
@@ -53,7 +52,8 @@ export default class ColorEntrance extends Component {
     const { style = {}, reportType, split } = this.props.currentReport;
     const isBarChart = reportType === reportTypes.BarChart;
     const defaultColorName = `${colorGroup[0].name}${_l('配色')}`;
-    const isAlienationColor = getIsAlienationColor(this.props.currentReport) || (isBarChart && _.get(split, 'options.length'));
+    const isAlienationColor =
+      getIsAlienationColor(this.props.currentReport) || (isBarChart && _.get(split, 'options.length'));
     if (_.isUndefined(style.colorType)) {
       return defaultColorName;
     } else {
@@ -84,8 +84,7 @@ export default class ColorEntrance extends Component {
     }
   }
   renderBaseColorModal() {
-    const { worksheetInfo, currentReport, onChangeCurrentReport, themeColor, customPageConfig } = this.props;
-    const { style } = currentReport;
+    const { worksheetInfo, currentReport, onChangeCurrentReport, customPageConfig } = this.props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { baseColorModalVisible } = this.state;
     // const newStyle = chartColorIndex >= (style.chartColorIndex || 0) ? { ...style, ...chartColor } : style;
@@ -98,13 +97,13 @@ export default class ColorEntrance extends Component {
         //   ...currentReport,
         //   style: newStyle,
         // }}
-        onChange={(data) => {
+        onChange={data => {
           if (chartColor) {
             data.style.chartColorIndex = chartColorIndex + 1;
           }
           onChangeCurrentReport(data, true);
           this.setState({
-            baseColorModalVisible: false
+            baseColorModalVisible: false,
           });
         }}
         onCancel={() => {
@@ -123,18 +122,18 @@ export default class ColorEntrance extends Component {
       this.setState({
         ruleColorModalVisible: false,
       });
-    }
+    };
     return (
       <RuleColor
         visible={ruleColorModalVisible}
         yaxisList={currentReport.yaxisList}
         reportType={currentReport.reportType}
         colorRule={colorRules.length ? _.get(colorRules[0], 'dataBarRule') || {} : {}}
-        onSave={(data) => {
+        onSave={data => {
           const rule = {
             controlId: '',
-            dataBarRule: data
-          }
+            dataBarRule: data,
+          };
           onChangeDisplayValue('colorRules', [rule]);
           onCancel();
         }}
@@ -169,27 +168,28 @@ export default class ColorEntrance extends Component {
             <span>{name}</span>
           )}
         </EntranceWrapper>
-        {ruleVisible && (
-          colorRules.length ? (
+        {ruleVisible &&
+          (colorRules.length ? (
             <EntranceWrapper
               className="ruleIcon flexRow valignWrapper pointer"
               onClick={() => {
                 this.props.onChangeDisplayValue('colorRules', []);
               }}
             >
-              <Icon className="Font16 Gray_9e" icon="delete2" />
+              <Icon className="Font16 Gray_9e" icon="trash" />
             </EntranceWrapper>
           ) : (
             <Tooltip text={<span>{_l('颜色规则')}</span>}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
-                onClick={() => { this.setState({ ruleColorModalVisible: true }); }}
+                onClick={() => {
+                  this.setState({ ruleColorModalVisible: true });
+                }}
               >
                 <Icon className="Font16 Gray_9e" icon="formula" />
               </EntranceWrapper>
             </Tooltip>
-          )
-        )}
+          ))}
         {this.renderBaseColorModal()}
         {this.renderRuleColorModal()}
       </div>

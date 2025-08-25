@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Button } from 'ming-ui';
 import styled from 'styled-components';
+import { Button } from 'ming-ui';
 
 const Angle = styled.div(
   ({ left }) => `

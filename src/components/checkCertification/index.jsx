@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import certImg from 'staticfiles/images/cert.png';
 import { Dialog } from 'ming-ui';
 import certificationApi from 'src/api/certification';

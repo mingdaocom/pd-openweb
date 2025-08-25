@@ -1,5 +1,5 @@
-﻿import PropTypes from 'prop-types';
-import React from 'react';
+﻿import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * 动态带的徽章
@@ -15,13 +15,16 @@ function MedalContent(props) {
         <tbody>
           <tr>
             <td>
-              <img src={medalPath} placeholder="/staticfiles/images/blank.gif"/>
+              <img src={medalPath} placeholder="/staticfiles/images/blank.gif" />
             </td>
             <td>
               <p className="ThemeColor3 mTop20" style={{ fontSize: '12px', lineHeight: '20px' }}>
                 {medalName}
               </p>
-              <p style={{ color: '#777', fontSize: '12px', lineHeight: '20px' }} dangerouslySetInnerHTML={{ __html: description }} />
+              <p
+                style={{ color: '#777', fontSize: '12px', lineHeight: '20px' }}
+                dangerouslySetInnerHTML={{ __html: description }}
+              />
             </td>
           </tr>
         </tbody>

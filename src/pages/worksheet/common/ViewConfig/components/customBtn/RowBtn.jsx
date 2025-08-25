@@ -4,8 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SortableList, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { PRINT_TEMP, PRINT_TYPE } from 'src/pages/Print/config.js';
-import { BTN_LIST, SYS_BTN_LIST } from './config';
+import { PRINT_TEMP } from 'src/pages/Print/config.js';
+import { SYS_BTN_LIST } from './config';
 import RowBtnList from './RowBtnList.jsx';
 import './CustomBtn.less';
 
@@ -25,7 +25,7 @@ const Item = ({ onDelete, DragHandle, item }) => {
               className="mRight12 svgIconForBtn InlineFlex"
               addClassName="TxtMiddle"
               url={iconUrl}
-              fill={!color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
+              fill={!color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
               size={18}
             />
           ) : (
@@ -55,7 +55,7 @@ const Item = ({ onDelete, DragHandle, item }) => {
           <span className={cx('flex overflow_ellipsis')}>{item.name || _l('已删除')}</span>
         </span>
       </span>
-      <Icon className="Font16 Hand mLeft15 mRight15" icon="delete2" onClick={() => onDelete(item.id)} />
+      <Icon className="Font16 Hand mLeft15 mRight15" icon="trash" onClick={() => onDelete(item.id)} />
     </React.Fragment>
   );
 };

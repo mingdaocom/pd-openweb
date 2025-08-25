@@ -36,7 +36,7 @@ export default class Widgets extends Component {
     };
   }
 
-  onChange = (data, panelIndex) => {
+  onChange = data => {
     const { advancedSetting = {}, enumDefault, enumDefault2 } = this.props;
     const { anylevel } = advancedSetting;
     const last = _.last(data);
@@ -59,7 +59,6 @@ export default class Widgets extends Component {
   render() {
     const {
       disabled,
-      type,
       from,
       value,
       onChange,
@@ -76,7 +75,9 @@ export default class Widgets extends Component {
     let city;
     try {
       city = JSON.parse(value);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
 
     const isMobile = browserIsMobile();
 
@@ -144,7 +145,7 @@ export default class Widgets extends Component {
                 />
               )}
               <Icon
-                icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'text_map'}
+                icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'map'}
                 className="Font16 Gray_bd"
               />
             </Fragment>

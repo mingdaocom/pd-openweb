@@ -4,19 +4,18 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import {
-  LoadDiv,
   Button,
   Dialog,
   Dropdown,
   Icon,
   Input,
+  LoadDiv,
   ScrollView,
   Switch,
   Textarea,
   UserHead,
   VerifyPasswordConfirm,
 } from 'ming-ui';
-import QrPopup from './QrPopup';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import groupAjax from 'src/api/group';
@@ -28,6 +27,7 @@ import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { existAccountHint } from 'src/utils/common';
 import SelectAvatarTrigger from '../createGroup/SelectAvatarTrigger';
 import { BUTTONS, GROUP_INFOS, USER_ACTION_AJAX, USER_ACTION_MAP, USER_ACTIONS, USER_ACTIONS_MAP } from './config';
+import QrPopup from './QrPopup';
 
 const ActionResult = {
   MissParams: -2,
@@ -157,15 +157,6 @@ const ContentWrap = styled.div`
   }
 `;
 
-const QrcodeTooltip = styled.div`
-  text-align: center;
-  img {
-    width: 167px;
-    height: 167px;
-    display: block;
-  }
-`;
-
 const AboutTextarea = styled(Textarea)`
   background: #fff !important;
   border-radius: 6px !important;
@@ -222,7 +213,7 @@ const UserDialogContent = styled.div`
 `;
 
 function SettingGroup(props) {
-  const { visible, groupID, isApprove = false, isChat, onClose, success = () => { } } = props;
+  const { visible, groupID, isApprove = false, onClose, success = () => {} } = props;
 
   let moreUserLoading = false;
   const [groupInfo, setState] = useSetState({
@@ -237,7 +228,7 @@ function SettingGroup(props) {
     chatOrgId: undefined,
     covertVisible: false,
     covertOkDisabled: false,
-    qrLoading: true
+    qrLoading: true,
   });
 
   const debouncedSearch = useCallback(
@@ -299,14 +290,13 @@ function SettingGroup(props) {
   };
 
   const getQrCode = () =>
-    invitationController
-      .getQRCodeInviteLink({
-        sourceId: groupID,
-        fromType: 1,
-        linkFromType: 4,
-        width: 100,
-        height: 100,
-      });
+    invitationController.getQRCodeInviteLink({
+      sourceId: groupID,
+      fromType: 1,
+      linkFromType: 4,
+      width: 100,
+      height: 100,
+    });
 
   const addMembers = userArray => {
     invitationController
@@ -482,14 +472,23 @@ function SettingGroup(props) {
 
   const onClickDepartment = () => {
     const projectId = _.get(groupInfo, 'project.projectId');
+    const mapDepartmentName = _.get(groupInfo, 'mapDepartmentName');
 
     if (!projectId || !groupInfo.isAdmin) return;
 
     dialogSelectDept({
       projectId: projectId,
       unique: true,
+      onClose: isSelect => {
+        if (!isSelect) {
+          setState({ isVerified: !!mapDepartmentName || false });
+        }
+      },
       selectFn: data => {
-        if (!_.get(data, '[0].departmentName')) return;
+        if (!_.get(data, '[0].departmentName')) {
+          setState({ isVerified: false });
+          return;
+        }
 
         updateGroup(
           {
@@ -536,8 +535,8 @@ function SettingGroup(props) {
             groupUsers:
               value !== 3
                 ? groupInfo.users.groupUsers.map(l =>
-                  l.accountId === user.accountId ? { ...l, groupUserRole: value } : l,
-                )
+                    l.accountId === user.accountId ? { ...l, groupUserRole: value } : l,
+                  )
                 : groupInfo.users.groupUsers.filter(l => l.accountId !== user.accountId),
           },
         });
@@ -547,35 +546,39 @@ function SettingGroup(props) {
 
   const onApplyUser = (value, user) => {
     if (value) {
-      groupAjax.passJoinGroup({
-        groupId: groupID,
-        accountIds: [user.accountId]
-      }).then(data => {
-        if (data) {
-          alert(_l('操作成功'));
-          getGroupInfo();
-          getGroupUsers();
-          setState({
-            userDialogVisible: false,
-          });
-        }
-      });
+      groupAjax
+        .passJoinGroup({
+          groupId: groupID,
+          accountIds: [user.accountId],
+        })
+        .then(data => {
+          if (data) {
+            alert(_l('操作成功'));
+            getGroupInfo();
+            getGroupUsers();
+            setState({
+              userDialogVisible: false,
+            });
+          }
+        });
     } else {
-      groupAjax.refuseUser({
-        groupId: groupID,
-        accountId: user.accountId
-      }).then(data => {
-        if (data) {
-          alert(_l('操作成功'));
-          getGroupInfo();
-          getGroupUsers();
-          setState({
-            userDialogVisible: false
-          });
-        }
-      });
+      groupAjax
+        .refuseUser({
+          groupId: groupID,
+          accountId: user.accountId,
+        })
+        .then(data => {
+          if (data) {
+            alert(_l('操作成功'));
+            getGroupInfo();
+            getGroupUsers();
+            setState({
+              userDialogVisible: false,
+            });
+          }
+        });
     }
-  }
+  };
 
   const openCovertPost = () => setState({ covertVisible: true });
 
@@ -595,6 +598,7 @@ function SettingGroup(props) {
   const handleVerified = () => {
     if (!groupInfo.mapDepartmentName && !groupInfo.isVerified) {
       setState({ isVerified: !groupInfo.isVerified });
+      onClickDepartment();
       return;
     }
 
@@ -694,9 +698,7 @@ function SettingGroup(props) {
             className="group-card valignWrapper justifyContentBetween Hand"
             onClick={() => setState({ aboutDialogVisible: true })}
           >
-            <span
-              className={cx('flex ellipsis', { Gray_9e: !_.get(groupInfo, 'about') })}
-            >
+            <span className={cx('flex ellipsis', { Gray_9e: !_.get(groupInfo, 'about') })}>
               {_.get(groupInfo, 'about')}
             </span>
             <Icon icon="arrow-right-border" className="Font16 mLeft20 Gray_9f" />
@@ -738,23 +740,26 @@ function SettingGroup(props) {
                   <span>{_l('仅允许群主及管理员邀请新成员')}</span>
                 </div>
                 {!_.isEmpty(groupInfo.project) && (
-                  <div className="switch-other-item">
-                    <Switch
-                      size="small"
-                      className="mRight8"
-                      disabled={!groupInfo.isAdmin}
-                      checked={groupInfo.isVerified}
-                      onClick={handleVerified}
-                    />
-                    <span className="mRight8">{_l('设为官方群组')}</span>
-                    {groupInfo.isVerified && (
-                      <span className="ThemeColor3 Hand" onClick={onClickDepartment}>
-                        {groupInfo.mapDepartmentName
-                          ? _l('关联部门：%0', groupInfo.mapDepartmentName)
-                          : _l('选择关联部门')}
-                      </span>
-                    )}
-                  </div>
+                  <Fragment>
+                    <div className="switch-other-item" style={{ border: 'none' }}>
+                      <Switch
+                        size="small"
+                        className="mRight8"
+                        disabled={!groupInfo.isAdmin}
+                        checked={groupInfo.isVerified}
+                        onClick={handleVerified}
+                      />
+                      <span className="mRight8">{_l('关联部门')}</span>
+                      {groupInfo.isVerified && groupInfo.mapDepartmentName && (
+                        <span className="ThemeColor3 Hand bold" onClick={onClickDepartment}>
+                          {groupInfo.mapDepartmentName}
+                        </span>
+                      )}
+                    </div>
+                    <span className="Gray_75 mLeft42 mBottom10" style={{ marginTop: -6 }}>
+                      {_l('新成员加入部门后自动加入群组')}
+                    </span>
+                  </Fragment>
                 )}
               </div>
             )}
@@ -818,6 +823,9 @@ function SettingGroup(props) {
                 {item.key === 'users' && _l('（%0人）', _.get(groupInfo, 'groupMemberCount'))}
               </div>
               <div className="content">{renderContentItem(item)}</div>
+              {item.key === 'project.companyName' && (
+                <div className="mTop8 Gray_75">{_l('组织成员离职后自动退出群组')}</div>
+              )}
             </div>
           );
         })}
@@ -841,14 +849,8 @@ function SettingGroup(props) {
             const desc = groupInfo.isPost ? l.desc : l.chatDesc;
 
             return (
-              <div
-                className={cx({ mBottom20: !l.splintLine })}
-                key={`setting-group-bottom-${l.key}`}
-              >
-                <div
-                  className={cx('group-card button-card Hand', { red: l.red })}
-                  onClick={() => onClickButton(l)}
-                >
+              <div className={cx({ mBottom20: !l.splintLine })} key={`setting-group-bottom-${l.key}`}>
+                <div className={cx('group-card button-card Hand', { red: l.red })} onClick={() => onClickButton(l)}>
                   {groupInfo.isPost ? l.label : l.chatLabel}
                 </div>
                 {!!desc && <div className="Font13 Gray_9e mTop6 mLeft16 mBottom20">{desc}</div>}
@@ -897,8 +899,8 @@ function SettingGroup(props) {
           },
           {
             text: _l('拒绝'),
-            value: 0
-          }
+            value: 0,
+          },
         ]}
         onChange={value => onApplyUser(value, user)}
         renderPointer={() => (
@@ -919,13 +921,13 @@ function SettingGroup(props) {
       if (groupInfo.isPost) {
         return DropdownCon;
       } else {
-        return (
+        return groupInfo.isAdmin ? (
           <span className="ThemeColor action Hand" onClick={() => onClickUserAction(3, user)}>
             {_l('移出')}
           </span>
-        );
+        ) : null;
       }
-    }
+    };
     return (
       <div className="userItem valignWrapper">
         <UserHead
@@ -967,7 +969,7 @@ function SettingGroup(props) {
     );
   };
 
-  const renderUserDialog = users => {
+  const renderUserDialog = () => {
     const userList = _.get(groupInfo, 'users.groupUsers', []);
     const loading = groupInfo.loading && groupInfo.userLoading;
     return (
@@ -978,7 +980,7 @@ function SettingGroup(props) {
         title={
           <span className="valignWrapper">
             <Icon
-              icon="arrow_back"
+              icon="backspace"
               className="Font20 Bold mRight8 Hand"
               onClick={() => setState({ userDialogVisible: false })}
             />
@@ -1003,7 +1005,7 @@ function SettingGroup(props) {
                 </Button>
               </div>
             )}
-            <div className="selectUsers">
+            <div className="selectUsers minHeight0">
               <div className="searchWrap">
                 <Icon icon="search" className="mRight5 Gray_75" />
                 <Input
@@ -1016,7 +1018,7 @@ function SettingGroup(props) {
                   }}
                 />
               </div>
-              <div className="userList">
+              <div className="userList minHeight0">
                 {_.isEmpty(userList) ? (
                   <div className="Gray_bd Font13 mTop32 TxtCenter">{_l('无匹配结果')}</div>
                 ) : (
@@ -1038,7 +1040,7 @@ function SettingGroup(props) {
         type="fixed"
         title={
           <span className="valignWrapper">
-            <Icon icon="arrow_back" className="Font20 Bold mRight8" onClick={onCloseAbout} />
+            <Icon icon="backspace" className="Font20 Bold mRight8" onClick={onCloseAbout} />
             {_l('群公告')}
           </span>
         }

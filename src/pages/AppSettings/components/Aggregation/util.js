@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'react';
 import _ from 'lodash';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import {
-  OPERATION_TYPE_DATA,
-  TIME_DATA_PARTICLE,
-} from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import {
   isFormulaResultAsDate,
@@ -89,8 +86,6 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
           ) //聚合不支持数值之外的
         ),
     );
-    const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
-    const aggregateFields = _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [];
     const onFilter = it => {
       return (
         ![34, 35, 29].includes(it.type) &&
@@ -326,7 +321,7 @@ export const getControls = (data, controls = []) => {
           !([9, 10, 11].includes(o.type) && !o.dataSource) && //选项集的选项
           ![25, 37, 42, 40].includes(o.type), //大写金额、汇总、签名、定位
       )
-      .filter(o => (!!data ? canSelectTypes(_.get(data, 'controlSetting'), o) : true))
+      .filter(o => (data ? canSelectTypes(_.get(data, 'controlSetting'), o) : true))
   );
 };
 
@@ -675,7 +670,7 @@ export const getGroupInfo = (data, flowData) => {
     isDateTimeGroup(data) //|| isTimeGroup(data)
   ) {
     const aggFuncTypeList = getDefaultOperationForGroup(data);
-    newDt.aggFuncType = !!aggFuncTypeList.find(o => o.value === 'TODAY') ? 'TODAY' : aggFuncTypeList[0].value;
+    newDt.aggFuncType = aggFuncTypeList.find(o => o.value === 'TODAY') ? 'TODAY' : aggFuncTypeList[0].value;
     const text = aggFuncTypeList.find(o => o.value === newDt.aggFuncType).text;
     newDt.alias = getRuleAlias(`${_.get(data, 'fields[0].alias') || _.get(data, 'fields[0].name')}-${text}`, flowData);
     if (_.get(newDt, 'controlSetting.advancedSetting.showformat')) {

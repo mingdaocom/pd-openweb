@@ -2,7 +2,7 @@ import React, { createRef, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
-import { find, get, isEmpty } from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { Dialog, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
@@ -80,7 +80,7 @@ export default function SheetField(props) {
 
   const {
     loading,
-    data: { info, controls },
+    data: { controls },
   } = useSheetInfo({ worksheetId, relationWorksheetId: globalSheetInfo.worksheetId });
 
   const fields = getFieldsByControls(controls);

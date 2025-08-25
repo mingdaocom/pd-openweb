@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
 import CustomFields from 'src/components/newCustomFields';
-import { onValidator, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { getAdvanceSetting } from 'src/utils/control';
 import { isRelateRecordTableControl } from 'src/utils/control';
 
@@ -17,7 +17,7 @@ const MobileTableContent = styled.div`
   }
   .tableIndex {
     width: 32px !important;
-    .icon-task-new-delete {
+    .icon-trash {
       margin-left: -4px;
     }
   }
@@ -37,7 +37,7 @@ const MobileTableContent = styled.div`
     background-color: #00000003;
   }
   .showAll {
-    color: #2196f3;
+    color: #1677ff;
     padding: 10px 0;
     justify-content: center;
   }
@@ -69,7 +69,7 @@ const FlattenContent = styled.div`
       color: #f44336;
     }
     .edit {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .mobileChildTableFlatForm {
@@ -86,7 +86,7 @@ const FlattenContent = styled.div`
     }
   }
   .showAll {
-    color: #2196f3;
+    color: #1677ff;
     padding: 10px 0;
     justify-content: center;
   }
@@ -99,7 +99,6 @@ export default function MobileTable(props) {
     rows,
     isEdit,
     allowcancel,
-    allowadd,
     disabled,
     sheetSwitchPermit,
     onDelete,
@@ -116,7 +115,6 @@ export default function MobileTable(props) {
     allowedit,
     isAddRowByLine,
     from,
-    ignoreLock,
     isDraft,
     useUserPermission,
     recordId,
@@ -196,7 +194,7 @@ export default function MobileTable(props) {
     if (!customWidgetRef) return;
     const updateControlIds = customWidgetRef.dataFormat.getUpdateControlIds();
     const row = [{}, ...data].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-    let errorType = onValidator({ item, data });
+
     onSave({ ...item, ...row, empty: false }, updateControlIds);
   };
 
@@ -253,7 +251,7 @@ export default function MobileTable(props) {
                   <Fragment>
                     {(allowcancel || /^temp/.test(rowid)) && (
                       <div className="delete pTop3" onClick={() => deleteRecord(rowid)}>
-                        <i className="icon icon-task-new-delete Red Font18" />
+                        <i className="icon icon-trash Red Font18" />
                       </div>
                     )}
                   </Fragment>
@@ -328,13 +326,13 @@ export default function MobileTable(props) {
             <div className="mobileTableItem tableIndex">
               {isEdit && !disabled && allowDelete && showNumber ? (
                 <div className="action" onClick={() => deleteRecord(row.rowid)}>
-                  <i className="icon icon-task-new-delete Font16 Red mRight10" style={{ marginLeft: -20 }}></i>
+                  <i className="icon icon-trash Font16 Red mRight10" style={{ marginLeft: -20 }}></i>
                   <span className={cx({ Red: _.some(controls, v => cellErrors[row.rowid + '-' + v.controlId]) })}>
                     {i + 1}
                   </span>
                 </div>
               ) : isEdit && !disabled && allowDelete ? (
-                <i className="icon icon-task-new-delete Font16 Red" onClick={() => deleteRecord(row.rowid)}></i>
+                <i className="icon icon-trash Font16 Red" onClick={() => deleteRecord(row.rowid)}></i>
               ) : showNumber ? (
                 i + 1
               ) : (

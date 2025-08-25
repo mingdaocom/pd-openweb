@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { isFunction } from 'lodash';
+import PropTypes from 'prop-types';
 
 export default function Abnormal(props) {
   const { resultCode, entityName, empty, renderAbnormal } = props;
@@ -9,7 +9,7 @@ export default function Abnormal(props) {
   }
   return (
     <div className="abnormalCon flexColumn">
-      <span className="statusIcon Icon icon icon-task-folder-message" />
+      <span className="statusIcon Icon icon icon-error1" />
       <p className="mTop5">
         {(() => {
           if (resultCode === 7) {

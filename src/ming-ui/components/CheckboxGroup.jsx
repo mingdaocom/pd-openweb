@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { default as Checkbox, SIZE_LIST } from './Checkbox';
 import './less/CheckboxGroup.less';
-import _ from 'lodash';
 
 class CheckboxGroup extends Component {
   static propTypes = {

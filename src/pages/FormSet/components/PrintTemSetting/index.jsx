@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect } from 'react';
-import _, { keysIn } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Checkbox, Input, Radio } from 'ming-ui';
@@ -106,7 +106,7 @@ function PrintTemSetting(props) {
         const value = _.get(exampleData, key);
         const control = controls.find(l => l.controlId === key);
 
-        if (!!value) return renderCellText({ ...control, value: value });
+        if (value) return renderCellText({ ...control, value: value });
 
         return 'undefined';
     }
@@ -115,7 +115,7 @@ function PrintTemSetting(props) {
   const getPreviewText = () => {
     const text = type === '0' ? getDefaultExportName() : exportName;
 
-    return !!text ? text.replace(/\$(.*?)\$/g, (_, key) => getValue(key)) : '';
+    return text ? text.replace(/\$(.*?)\$/g, (_, key) => getValue(key)) : '';
   };
 
   const onChangeExportName = newData => {

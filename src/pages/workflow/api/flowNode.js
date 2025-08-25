@@ -239,7 +239,7 @@ var flowNode = {
    * @param {SaveTimerNode} {actionId:默认执行的动作  300： 延时到指定日期   301：延时一段时间(string),executeTimeType:执行时间的类型 0:按以上日期 1：之前 2：之后(integer),fieldControlId:日期字段控件ID(string),fieldNodeId:输入日期字段节点ID(string),fieldValue:输入日期的值(string),flowNodeType:节点类型(integer),hour:小时(integer),hourFieldValue:动态小时的值(ref),minute:分钟(integer),minuteFieldValue:动态分钟的值(ref),name:节点名称(string),nodeId:节点ID(string),number:设置的时间(integer),numberFieldValue:动态天的值(ref),processId:流程ID(string),secondFieldValue:动态秒的值(ref),selectNodeId:选中的节点ID(string),time:时间(string),unit:单位：1 : 分，2 ：小时 3:天(integer),}*延时
    * @param {SaveMultipleNode} {actionId:获取方式  400: 从工作表获取多条记录 , 401: 从一条记录获得多条关联记录, 402 :从新增节点获取多条记录，403:从数组获取多条数据(string),appId:选择其他对象时，选中的对象ID(string),destroy:彻底删除(boolean),execute:是否立即执行(boolean),fields:配置的字段信息(array),filters:新的筛选组(array),flowNodeType:节点类型(integer),name:节点名称(string),nodeId:节点ID(string),numberFieldValue:最多获取条数(ref),operateCondition:筛选条件(array),processId:流程ID(string),random:是否随机(boolean),relation:是否需要汇报关系(boolean),selectNodeId:选中的节点ID(string),sorts:查排序规则(array),}*批量
    * @param {SaveCodeNode} {actionId:动作id 102:Javascript，103:Python(string),code:代码块(string),flowNodeType:节点类型(integer),inputDatas:input输入 map(array),maxRetries:重试次数(integer),name:节点名称(string),nodeId:节点ID(string),processId:流程ID(string),selectNodeId:选中的节点ID(string),testMap:测试值(object),version:运行版本(string),}*代码块
-   * @param {SaveLinkNode} {addNotAllowView:新增不允许查看,true代表不允许查看，老的默认是可以查看(boolean),flowNodeType:节点类型(integer),formProperties:表单字段属性  3填写(array),linkName:提交按钮名称(string),linkType:链接类型 1:分享链接 2:填写链接(integer),modifyTime:修改的失效时间(integer),name:节点名称(string),nodeId:节点ID(string),password:密码(string),processId:流程ID(string),selectNodeId:选中的节点ID(string),submitButtonName:提交按钮名称(string),submitType:提交后是否运行查看：1:仅查看，2：允许修改(integer),time:失效时间配置(ref),}*获取记录链接
+   * @param {SaveLinkNode} {actionId:区分是否是获取支付链接节点(string),addNotAllowView:新增不允许查看,true代表不允许查看，老的默认是可以查看(boolean),flowNodeType:节点类型(integer),formProperties:表单字段属性  3填写(array),linkName:提交按钮名称(string),linkType:链接类型 1:分享链接 2:填写链接(integer),modifyTime:修改的失效时间(integer),name:节点名称(string),nodeId:节点ID(string),password:密码(string),processId:流程ID(string),selectNodeId:选中的节点ID(string),submitButtonName:提交按钮名称(string),submitType:提交后是否运行查看：1:仅查看，2：允许修改(integer),time:失效时间配置(ref),}*获取记录链接
    * @param {SaveSubProcessNode} {executeAll:执行是否全量(boolean),executeAllCount:全量条数限制(integer),executeType:执行方式: 1 并行，2：逐条执行(integer),fields:配置的字段信息(array),flowNodeType:节点类型(integer),fromTrigger:沿用触发器(boolean),name:节点名称(string),nextExecute:子流程执行完成后，执行下一个节点(boolean),nodeId:节点ID(string),processId:流程ID(string),selectNodeId:选中的节点ID(string),subProcessId:执行子流程id(string),}*子流程
    * @param {SavePushNode} {accounts:推送卡片类型 指定推送人(array),actionId:默认执行的动作  5： 新增草稿(string),appId:工作表id(string),buttons:按钮配置(array),content:提示内容  或者 链接url(string),duration:自动消失：0代表永不关闭需要手动关闭；默认5s(integer),fields:配置的字段信息(array),flowNodeType:节点类型(integer),name:节点名称(string),nodeId:节点ID(string),openMode:打开方式：1:当前页面 2:新页面,3:弹层 4:模态窗口(integer),processId:流程ID(string),promptSound:声音节点配置(ref),promptType:1:成功，2：失败，3：警告，4：通知(integer),pushType:推送内容类型 1:弹出提示,2:创建记录,3:打开记录详情,4:打开视图,5:打开自定义页面,6:打开链接(integer),selectNodeId:选中的节点ID(string),title:标题(string),viewId:视图id(string),}*推送
    * @param {SavePrintNode} {appId:打印模板id(string),fileName:文件名(string),flowNodeType:节点类型(integer),name:节点名称(string),nodeId:节点ID(string),pdf:是否勾选pdf(boolean),processId:流程ID(string),selectNodeId:选中的节点ID(string),}*获取记录打印文件
@@ -278,6 +278,19 @@ var flowNode = {
     base.ajaxOptions.url = base.server(options) + '/flowNode/aigcTest';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'flowNodeaigcTest', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * basicAuth测试
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {BasicAuthTestRequest} {password:null(string),processId:null(string),userName:null(string),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  basicAuthTest: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/flowNode/basicAuthTest';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'flowNodebasicAuthTest', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * code测试

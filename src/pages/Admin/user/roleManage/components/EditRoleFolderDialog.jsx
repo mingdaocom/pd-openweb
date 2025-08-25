@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import organizeAjax from 'src/api/organize.js';

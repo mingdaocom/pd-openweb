@@ -1,25 +1,25 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import './css/taskStage.less';
 import { connect } from 'react-redux';
 import doT from 'dot';
+import _ from 'lodash';
+import { Dialog, Score, UserHead } from 'ming-ui';
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
-import { listLoadingContent } from '../../utils/taskComm';
-import { formatTaskTime, errorMessage, formatStatus, checkIsProject, returnCustonValue } from '../../utils/utils';
-import config from '../../config/config';
 import 'src/components/autoTextarea/autoTextarea';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import nodeLiComm from './tpl/nodeLiComm.html';
-import stageList from './tpl/stageList.html';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import config from '../../config/config';
+import { updateTaskCharge } from '../../redux/actions';
+import { listLoadingContent } from '../../utils/taskComm';
+import { checkIsProject, errorMessage, formatStatus, formatTaskTime, returnCustonValue } from '../../utils/utils';
+import TaskDetail from '../taskDetail/taskDetail';
 import addList from './tpl/addList.html';
 import addNewStage from './tpl/addNewStage.html';
 import addNewStageTask from './tpl/addNewStageTask.html';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import TaskDetail from '../taskDetail/taskDetail';
-import _ from 'lodash';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
-import { updateTaskCharge } from '../../redux/actions';
-import { Dialog, Score, UserHead } from 'ming-ui';
+import nodeLiComm from './tpl/nodeLiComm.html';
+import stageList from './tpl/stageList.html';
+import './css/taskStage.less';
 
 const taskStageSettings = {
   timer: null, // 计时器
@@ -219,7 +219,7 @@ class TaskStage extends Component {
     const $taskList = $('#taskList');
 
     // 阶段负责人头像点击
-    $taskList.on('click', '.singleStage .stageChargeAvatar', function (event) {
+    $taskList.on('click', '.singleStage .stageChargeAvatar', function () {
       const $this = $(this);
       const isEdit = $this.closest('.singleStage').data('edit');
 
@@ -229,7 +229,7 @@ class TaskStage extends Component {
     });
 
     // 滚轮滚动
-    $taskList.on('mousewheel DOMMouseScroll', function (event) {
+    $taskList.on('wheel', function (event) {
       // 非列表滚动
       if (!$(event.target).closest('.listStageContent').length) {
         const $ul = $(this).children('ul');
@@ -240,15 +240,11 @@ class TaskStage extends Component {
 
         event.preventDefault();
 
-        const delta = parseInt(event.originalEvent.wheelDelta || -event.originalEvent.detail, 10);
-        const isMac = /mac/i.test(navigator.platform);
-        if (isMac && Math.abs(delta) < 50) {
-          return;
-        }
+        const delta = event.originalEvent.deltaY;
         // up
-        if (delta > 0) {
+        if (delta < 0) {
           $ul.scrollLeft(scrollLeft - wheelDelta > 0 ? scrollLeft - wheelDelta : 0);
-        } else if (delta < 0) {
+        } else if (delta > 0) {
           // down
           $ul.scrollLeft(
             scrollLeft + wheelDelta + ulWidth > scrollWidth ? scrollWidth - ulWidth : scrollLeft + wheelDelta,
@@ -486,7 +482,6 @@ class TaskStage extends Component {
           taskStageSettings.timer = null;
 
           const $this = $(this);
-          const $singleStage = $this.closest('li.singleStage');
           const $listStageName = $this.find('.listStageName');
 
           if ($(event.target).is($listStageName)) {
@@ -944,7 +939,6 @@ class TaskStage extends Component {
       $stageContentBox.height() +
       parseInt($stageContentBox.css('border-top-width'), 10) +
       parseInt($stageContentBox.css('border-bottom-width'), 10);
-    const scrollTop = 0;
 
     // 是否存在
     if ($('#insertVirtualStage').length > 0) {
@@ -1007,10 +1001,8 @@ class TaskStage extends Component {
     const $singleStages = $('#taskList .singleStage');
     // 阶段box 位置
     const listStageOffset = $('#taskList .listStage').offset();
-    const $selSingleStage = null;
     let Offset;
     let _this;
-    let $singleTask;
     let singleHeight = 0;
     let $stageContentBox;
 
@@ -1363,9 +1355,6 @@ class TaskStage extends Component {
     const $singleStages = $('#taskList .singleStage');
     // 阶段离顶部距离
     const singleStageTop = ($singleStages.first() || {}).top || 0;
-    const offsetLeft = 0;
-    const offsetRight = 0;
-    const $selSingleStage = null;
     let Offset;
     let _this;
     let $singleTask;
@@ -1373,10 +1362,6 @@ class TaskStage extends Component {
     let singleHeight = 0;
     let $stageContentBox;
     let isBreak = false;
-    const scrollTop = 0;
-    const nScrollHight = 0;
-    const nScrollTop = 0;
-    const nDivHight = 0;
 
     // 头部大于阶段头部
     if (eventY > singleStageTop) {

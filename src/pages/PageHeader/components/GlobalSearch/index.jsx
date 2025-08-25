@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import { func } from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import { func } from 'prop-types';
+import { navigateTo } from 'router/navigateTo';
 import Icon from 'ming-ui/components/Icon';
 import GlobalSearchAllContent from 'src/pages/globalSearch/containers/GlobalSearchAllContent';
-import { navigateTo } from 'router/navigateTo';
 import './index.less';
-import _ from 'lodash';
 
 class GlobalSearch extends Component {
   static propTypes = {
@@ -23,6 +23,8 @@ class GlobalSearch extends Component {
       searchVal: '',
     };
   }
+
+  isOnComposition = false;
 
   componentDidMount() {
     this.removeEscEvent = this.bindEscEvent();
@@ -43,14 +45,6 @@ class GlobalSearch extends Component {
     }
   };
 
-  handleChange = val => {
-    if (val && val.length > 32) {
-      alert(_l('最多可输入32个字符'), 3);
-      return;
-    }
-    this.setState({ searchVal: val });
-  };
-
   handleMaskClick = e => {
     const { classList } = e.target;
     if (classList.contains('globalSearchWrap')) {
@@ -59,13 +53,15 @@ class GlobalSearch extends Component {
   };
 
   handleInputKeyDown = e => {
-    e.stopPropagation();
-    const { searchVal } = this.state;
-    if (!searchVal) return;
-    if (e.key === 'Enter') {
+    const searchVal = e.target.value;
+
+    if (e.key === 'Enter' && !this.isOnComposition && searchVal.trim()) {
       navigateTo(`/search?search_key=${encodeURIComponent(searchVal.trim())}`);
       this.props.onClose();
+      return;
     }
+
+    !this.isOnComposition && this.setState({ searchVal });
   };
 
   render() {
@@ -79,15 +75,23 @@ class GlobalSearch extends Component {
             <input
               type="text"
               autoFocus
-              onKeyDown={this.handleInputKeyDown}
+              onKeyUp={this.handleInputKeyDown}
               placeholder={_l('超级搜索(F)...')}
-              value={searchVal}
-              onChange={e => this.handleChange(e.target.value)}
               autoComplete="off"
+              onCompositionStart={() => (this.isOnComposition = true)}
+              onCompositionEnd={e => {
+                if (e.type === 'compositionend') {
+                  this.isOnComposition = false;
+                }
+
+                if (window.isChrome) {
+                  this.handleInputKeyDown(e);
+                }
+              }}
             />
           </form>
           <Icon
-            icon="external_collaboration"
+            icon="launch"
             className="hrefIcon Font16"
             onClick={() => {
               navigateTo(`/search?search_key=${searchVal}`);
@@ -126,7 +130,7 @@ export default function (props) {
     <GlobalSearch
       {...props}
       onClose={() => {
-        props.onClose();
+        _.isFunction(props.onClose) && props.onClose();
         destory();
       }}
     />,

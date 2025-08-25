@@ -1,7 +1,7 @@
 import React from 'react';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
-import cx from 'classnames';
 import { UPLOAD_STATUS } from 'src/pages/kc/constant/enum';
 
 export default class UploadProgress extends React.Component {

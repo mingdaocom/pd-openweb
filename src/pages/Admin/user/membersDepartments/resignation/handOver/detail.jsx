@@ -530,7 +530,7 @@ export default class Detail extends React.Component {
     }
     if (!isLoading && !list.length) {
       const detail = {
-        icon: 'icon-sp_assignment_turned_in_white',
+        icon: 'icon-verify',
         desc: _l('无数据'),
       };
       return (
@@ -551,7 +551,7 @@ export default class Detail extends React.Component {
                   onClick={checked => {
                     this.setState(prevState => {
                       if (checked) {
-                        const { [item.sourceId]: noop, ...others } = prevState.selectItems;
+                        const { [item.sourceId]: others } = prevState.selectItems;
                         return {
                           selectItems: others,
                         };
@@ -648,7 +648,7 @@ export default class Detail extends React.Component {
                       _.each(list, item => {
                         this.setState(prevState => {
                           if (checked) {
-                            const { [item.sourceId]: noop, ...others } = prevState.selectItems;
+                            const { [item.sourceId]: others } = prevState.selectItems;
                             return {
                               selectItems: others,
                             };

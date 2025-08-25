@@ -1,8 +1,8 @@
 import React from 'react';
-import './index.less';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import { getIcons } from '../../../utils';
-import { Tooltip } from 'antd';
+import './index.less';
 
 export default ({
   flowNodeType,

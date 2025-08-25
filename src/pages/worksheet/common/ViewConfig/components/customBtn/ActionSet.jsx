@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import { Popover } from 'antd';
 import cx from 'classnames';
@@ -39,9 +39,9 @@ const AnimationWrap = styled.div`
       margin-left: 0;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     i {
@@ -49,9 +49,9 @@ const AnimationWrap = styled.div`
     }
     &.active {
       background: #ffffff;
-      color: #2196f3;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &.disabled {
@@ -130,15 +130,7 @@ export default function ActionSet(props) {
     );
   };
 
-  const {
-    detaildisable,
-    listdisable,
-    hidebtn,
-    clicktype = '0',
-    clickcid,
-    listbtns,
-    detailbtns,
-  } = _.get(view, 'advancedSetting') || {};
+  const { hidebtn, clicktype = '0', clickcid, listbtns, detailbtns } = _.get(view, 'advancedSetting') || {};
   const acstyle = safeParse(_.get(view, 'advancedSetting.acstyle'));
   const getBtnBySort = (list, ids) => {
     let dataList = [];
@@ -163,7 +155,7 @@ export default function ActionSet(props) {
     safeParse(detailbtns, 'array'),
   );
 
-  const showClickDetial = !['6'].includes(_.get(view, 'viewType') + '');
+  const showClickDetail = !['6'].includes(_.get(view, 'viewType') + '');
 
   const onChangeAcStyle = data => {
     updateCurrentView({
@@ -178,7 +170,8 @@ export default function ActionSet(props) {
 
   return (
     <Wrap>
-      {showClickDetial && (
+      <div className="viewSetTitle">{_l('记录操作')}</div>
+      {showClickDetail && (
         <div
           className="headerCon mTop24 Hand"
           onClick={() => {
@@ -193,7 +186,7 @@ export default function ActionSet(props) {
           <span className="Font15 Bold mLeft10">{_l('点击记录时')}</span>
         </div>
       )}
-      {openList.includes('clickAction') && showClickDetial && (
+      {openList.includes('clickAction') && showClickDetail && (
         <React.Fragment>
           <Dropdown
             value={clicktype}
@@ -235,7 +228,7 @@ export default function ActionSet(props) {
           )}
         </React.Fragment>
       )}
-      {showClickDetial && <div className="line"></div>}
+      {showClickDetail && <div className="line"></div>}
       <div
         className="headerCon mTop24 Hand"
         onClick={() => {
@@ -480,7 +473,7 @@ export default function ActionSet(props) {
                             <span className="mLeft2 Bold">{_l('打印')}</span>
                           </div>
                           <div className="btn mLeft8">
-                            <Icon type="task-new-delete" className="del" />
+                            <Icon type="trash" className="del" />
                             <span className="mLeft2 Bold">{_l('删除')}</span>
                           </div>
                         </div>

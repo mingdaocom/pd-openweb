@@ -1,8 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
-import { SettingItem } from '../../../../styled';
-import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
 import ActionDropDown from 'src/pages/FormSet/components/columnRules/actionDropdown/ActionDropDown.jsx';
+import { SYS, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
+import { SettingItem } from '../../../../styled';
 import { ACTION_VALUE_ENUM } from '../config';
 
 export default function SelectFields(props) {

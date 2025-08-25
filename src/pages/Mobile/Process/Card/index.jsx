@@ -12,13 +12,6 @@ import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from 'src/pages
 import { processInformTabs } from '../enum';
 import './index.less';
 
-const TABS = {
-  WAITING_DISPOSE: 1, // 待处理
-  WAITING_EXAMINE: 2, // 待查看
-  MY_SPONSOR: 3, // 我发起
-  COMPLETE: 4, // 已完成
-};
-
 export default class Card extends Component {
   constructor(props) {
     super(props);
@@ -45,7 +38,7 @@ export default class Card extends Component {
         });
       });
   };
-  handleAction = ({ action, content, forwardAccountId, backNodeId, signature, files }) => {
+  handleAction = ({ action, content, backNodeId, signature, files }) => {
     this.setState({ submitLoading: true, otherActionVisible: false });
     if (_.includes(['pass', 'overrule'], action)) {
       const { item, onApproveDone } = this.props;
@@ -64,7 +57,7 @@ export default class Card extends Component {
             type: action === 'pass' ? 1 : 2,
             enterType: 1,
             result: data,
-            workData: this.props.item
+            workData: this.props.item,
           });
         }
       });
@@ -112,7 +105,7 @@ export default class Card extends Component {
           color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
         }}
       >
-        <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
+        <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
         <div className="overflow_ellipsis">{_l('耗时：%0', covertTime(maxTimeConsuming))}</div>
       </span>
     );
@@ -135,7 +128,7 @@ export default class Card extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#2196f3',
+          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#1677ff',
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
@@ -164,8 +157,8 @@ export default class Card extends Component {
     return <div className="Gray_9e ellipsis time">{this.props.time}</div>;
   }
   renderHeader() {
-    const { currentTab, item, time } = this.props;
-    const { flowNode, workItem, flowNodeType, currentWorkFlowNodes, completeDate, instanceLog, status } = item;
+    const { currentTab, item } = this.props;
+    const { flowNode } = item;
 
     let RenderState = null;
 
@@ -263,7 +256,7 @@ export default class Card extends Component {
   }
   renderInstanceStatu() {
     const { item } = this.props;
-    const { workItem, instanceLog, status } = item;
+    const { instanceLog, status } = item;
     const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
     const { text, bg, shallowBg, icon } = INSTANCELOG_STATUS[instanceStatus];
     return (

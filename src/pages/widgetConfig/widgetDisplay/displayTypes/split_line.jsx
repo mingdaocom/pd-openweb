@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { head } from 'lodash';
-import SplitLineSection from '../../widgetSetting/components/SplitLineConfig/SplitLineSection';
+import React, { useEffect, useState } from 'react';
+import _, { head } from 'lodash';
 import { genWidgetRowAndCol } from '../../util';
+import SplitLineSection from '../../widgetSetting/components/SplitLineConfig/SplitLineSection';
 
 export default function SplitLine(props) {
   const { data, styleInfo, path = [], widgets = [], activeWidget } = props;

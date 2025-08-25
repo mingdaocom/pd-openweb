@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import PortalList from './PortalList.jsx';
-import OutsourcingList from './OutsourcingList.jsx';
 import cx from 'classnames';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import OutsourcingList from './OutsourcingList.jsx';
+import PortalList from './PortalList.jsx';
 
 const routeList = [
   {
@@ -28,7 +28,7 @@ export default class Portal extends Component {
 
     return (
       <div className="orgManagementWrap">
-         <AdminTitle prefix={_l('外部门户')} />
+        <AdminTitle prefix={_l('外部门户')} />
         <div className="orgManagementHeader">
           <div className="tabBox">
             {routeList.map(item => (

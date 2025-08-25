@@ -1,45 +1,42 @@
 export default {
   /**
-  * 根据账号查找用户
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.account 邮箱或手机号
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAccountByAccount: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'GetAccountByAccount', args, options);
-   },
+   * 根据账号查找用户
+   * @param {Object} args 请求参数
+   * @param {string} args.ticket 验证码返票据
+   * @param {string} args.randStr 票据随机字符串
+   * @param {} args.captchaType
+   * @param {string} args.account 邮箱或手机号
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAccountByAccount: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'GetAccountByAccount', args, options);
+  },
   /**
-  * 获取加我为好友，我还没有同意的人的列表
-  * @param {Object} args 请求参数
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 每页多少个
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getNewFriends: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'GetNewFriends', args, options);
-   },
+   * 获取加我为好友，我还没有同意的人的列表
+   * @param {Object} args 请求参数
+   * @param {integer} args.pageIndex 页码
+   * @param {integer} args.pageSize 每页多少个
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getNewFriends: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'GetNewFriends', args, options);
+  },
   /**
-  * 获取根据手机通讯录推荐的明道云联系人
-  * @param {Object} args 请求参数
-  * @param {integer} args.pageIndex 页码
-  * @param {integer} args.pageSize 页大小
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMobileAddressRecommend: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'GetMobileAddressRecommend', args, options);
-   },
+   * 获取根据手机通讯录推荐的明道云联系人
+   * @param {Object} args 请求参数
+   * @param {integer} args.pageIndex 页码
+   * @param {integer} args.pageSize 页大小
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getMobileAddressRecommend: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'GetMobileAddressRecommend', args, options);
+  },
   /**
   * 获取我的所有联系人
 通讯录（所有联系人/好友/其它协作对象）
@@ -55,10 +52,9 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getAllAddressbook: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'GetAllAddressbook', args, options);
-   },
+  getAllAddressbook: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'GetAllAddressbook', args, options);
+  },
   /**
   * 查询通讯录联系人以及部门
 通讯录（所有联系人/好友/其它协作对象）
@@ -74,10 +70,9 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   searchAddressbookAndDepartment: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'SearchAddressbookAndDepartment', args, options);
-   },
+  searchAddressbookAndDepartment: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'SearchAddressbookAndDepartment', args, options);
+  },
   /**
   * 搜索聊天联系人以及群组，需要过滤自己
 聊天右侧/右上角Smart快速搜索
@@ -88,10 +83,9 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getAllChatAddressbookByKeywords: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'GetAllChatAddressbookByKeywords', args, options);
-   },
+  getAllChatAddressbookByKeywords: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'GetAllChatAddressbookByKeywords', args, options);
+  },
   /**
   * 关键词搜索通讯录（任务 协作用户快速搜索）
   * @param {Object} args 请求参数
@@ -107,85 +101,78 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getUserAddressbookByKeywords: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'GetUserAddressbookByKeywords', args, options);
-   },
+  getUserAddressbookByKeywords: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'GetUserAddressbookByKeywords', args, options);
+  },
   /**
-  * 忽略推荐好友
-  * @param {Object} args 请求参数
-  * @param {string} args.recomendId 忽略者的accountId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addIgnoreMobileAddress: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'AddIgnoreMobileAddress', args, options);
-   },
+   * 忽略推荐好友
+   * @param {Object} args 请求参数
+   * @param {string} args.recomendId 忽略者的accountId
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  addIgnoreMobileAddress: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'AddIgnoreMobileAddress', args, options);
+  },
   /**
-  * 请求添加好友
-  * @param {Object} args 请求参数
-  * @param {string} args.accountId 要添加的人
-  * @param {string} args.message 备注信息
-  * @param {string} args.companyName 个人的公司名称
-  * @param {string} args.profession 个人的职位
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addFriend: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'AddFriend', args, options);
-   },
+   * 请求添加好友
+   * @param {Object} args 请求参数
+   * @param {string} args.accountId 要添加的人
+   * @param {string} args.message 备注信息
+   * @param {string} args.companyName 个人的公司名称
+   * @param {string} args.profession 个人的职位
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  addFriend: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'AddFriend', args, options);
+  },
   /**
-  * 移除好友
-  * @param {Object} args 请求参数
-  * @param {string} args.accountId 要移除的人
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeFriend: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'RemoveFriend', args, options);
-   },
+   * 移除好友
+   * @param {Object} args 请求参数
+   * @param {string} args.accountId 要移除的人
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  removeFriend: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'RemoveFriend', args, options);
+  },
   /**
-  * 同意请求添加好友
-  * @param {Object} args 请求参数
-  * @param {string} args.accountId 请求加我为好友的人
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editAgreeFriend: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'EditAgreeFriend', args, options);
-   },
+   * 同意请求添加好友
+   * @param {Object} args 请求参数
+   * @param {string} args.accountId 请求加我为好友的人
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editAgreeFriend: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'EditAgreeFriend', args, options);
+  },
   /**
-  * 拒绝请求添加好友
-  * @param {Object} args 请求参数
-  * @param {string} args.accountId 请求加我为好友的人
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editRefuseFriend: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'EditRefuseFriend', args, options);
-   },
+   * 拒绝请求添加好友
+   * @param {Object} args 请求参数
+   * @param {string} args.accountId 请求加我为好友的人
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editRefuseFriend: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'EditRefuseFriend', args, options);
+  },
   /**
-  * 忽略请求加为好友
-  * @param {Object} args 请求参数
-  * @param {string} args.accountId 请求加我为好友的人
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editIgnoreFriend: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'EditIgnoreFriend', args, options);
-   },
+   * 忽略请求加为好友
+   * @param {Object} args 请求参数
+   * @param {string} args.accountId 请求加我为好友的人
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editIgnoreFriend: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'EditIgnoreFriend', args, options);
+  },
   /**
   * 管理用户的最常协作联系人
   * @param {Object} args 请求参数
@@ -195,8 +182,7 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   editAddressBookOftenMetioned: function (args, options = {}) {
-     
-     return mdyAPI('AddressBook', 'EditAddressBookOftenMetioned', args, options);
-   },
+  editAddressBookOftenMetioned: function (args, options = {}) {
+    return mdyAPI('AddressBook', 'EditAddressBookOftenMetioned', args, options);
+  },
 };

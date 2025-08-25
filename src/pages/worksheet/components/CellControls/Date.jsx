@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -53,9 +54,10 @@ export default class Date extends React.Component {
   };
 
   handleChange = value => {
-    const { tableFromModule, updateCell, updateEditingStatus, onValidate } = this.props;
-    const error = !onValidate(value);
-    if (error) {
+    const { ignoreErrorMessage, tableFromModule, updateCell, updateEditingStatus, onValidate } = this.props;
+    const validateResult = onValidate(value);
+    const error = validateResult.errorType;
+    if (error && !ignoreErrorMessage) {
       if (tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
         this.setState({
           value,
@@ -94,6 +96,7 @@ export default class Date extends React.Component {
       updateCell,
       onClick,
       fromEmbed,
+      ignoreErrorMessage,
     } = this.props;
     const { value } = this.state;
     let cellPopupContainer = popupContainer;
@@ -136,7 +139,13 @@ export default class Date extends React.Component {
                 {renderText({ ...cell, value })}
               </div>
             )}
-            {isediting && error && <CellErrorTips error={error} pos={rowIndex === 0 ? 'bottom' : 'top'} />}
+            {isediting && error && (
+              <CellErrorTips
+                error={error}
+                color={ignoreErrorMessage ? '#ff933e' : undefined}
+                pos={rowIndex === 0 ? 'bottom' : 'top'}
+              />
+            )}
           </EditableCellCon>
         </Trigger>
         {isediting && (

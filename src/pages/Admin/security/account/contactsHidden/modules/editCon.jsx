@@ -1,13 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import '../container/index.less';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import PeopleAvatar from './peopleAvatar';
-import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
-import MoreActionDia from './moreActionDia';
-import { updateRulesByRuleId } from '../actions/action';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
+import { updateRulesByRuleId } from '../actions/action';
+import MoreActionDia from './moreActionDia';
+import PeopleAvatar from './peopleAvatar';
+import '../container/index.less';
 
 const targetType = {
   user: 10, // 10=人员、20=部门
@@ -91,16 +91,16 @@ class EditCon extends React.Component {
           tTData === targetType.dept
             ? user.departmentId
             : tTData === targetType.orgRole
-            ? user.organizeId
-            : user.accountId,
+              ? user.organizeId
+              : user.accountId,
         targetType: tTData,
         ruleItemType: type,
         targetName:
           tTData === targetType.dept
             ? user.departmentName
             : tTData === targetType.orgRole
-            ? user.organizeName
-            : user.fullname,
+              ? user.organizeName
+              : user.fullname,
         peopleAvatar: tTData === targetType.user ? user.avatar : '',
       };
       if (
@@ -119,7 +119,7 @@ class EditCon extends React.Component {
   };
 
   renderRuleItem = (list, type) => {
-    const { dataByRuleId, errorIds } = this.props;
+    const { dataByRuleId, errorIds, projectId } = this.props;
     return (
       <div className={cx({ mBottom15: list.length })}>
         {_.map(list, user => {
@@ -148,7 +148,7 @@ class EditCon extends React.Component {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <PeopleAvatar user={user} />
+                  <PeopleAvatar user={user} projectId={projectId} />
                   <span className="fullname">{user.targetName}</span>
                 </React.Fragment>
               )}
@@ -173,7 +173,7 @@ class EditCon extends React.Component {
         {this.renderRuleItem(list, type)}
         <span
           className="addBtn Font13 Hand mLeft15"
-          onClick={e => {
+          onClick={() => {
             if (currentEditRule.type === 'hideForAllUser') {
               this.addUser(
                 list.filter(it => it.targetType === targetType.user),
@@ -226,7 +226,7 @@ class EditCon extends React.Component {
             {this.renderRuleItem(whiteDataList, ruleItemType.whiteList)}
             <span
               className="addBtn Font13 Hand"
-              onClick={e => {
+              onClick={() => {
                 this.setState({ showMoreActionWhiteList: true });
               }}
             >
@@ -263,7 +263,7 @@ class EditCon extends React.Component {
   };
 
   extraCon = extra => {
-    const { editType, dispatch, currentEditRule } = this.props;
+    const { currentEditRule } = this.props;
     return (
       <div>
         <p className="Font13">{currentEditRule.extraTxt}</p>
@@ -273,7 +273,7 @@ class EditCon extends React.Component {
   };
 
   render() {
-    const { editType, dispatch, dataByRuleId = [], currentEditRule = {} } = this.props;
+    const { dataByRuleId = [], currentEditRule = {} } = this.props;
     let hiddenList = dataByRuleId.filter(
       it => it.ruleItemType === ruleItemType.self || it.ruleItemType === ruleItemType.whiteList,
     ); // 只查看本部+白名单

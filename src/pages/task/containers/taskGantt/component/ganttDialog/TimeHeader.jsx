@@ -1,16 +1,17 @@
-import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
+import React, { Component } from 'react';
 import cx from 'classnames';
-import config from './config';
 import _ from 'lodash';
+import moment from 'moment';
+import config from './config';
+
 const { TYPE_TO_WIDTH } = config;
 
 /**
  * 获取总共的天数
  * @param {*} data
  */
-const getDays = data => data.sub.reduce((prev, curr) => prev + moment(`${data.pub}${curr}`, 'YYYYM月').daysInMonth(), 0);
+const getDays = data =>
+  data.sub.reduce((prev, curr) => prev + moment(`${data.pub}${curr}`, 'YYYYM月').daysInMonth(), 0);
 
 export default class TimeHeader extends Component {
   componentDidMount() {

@@ -1,7 +1,19 @@
 import _ from 'lodash';
-import config from '../config/config';
 import moment from 'moment';
-const { workingTimes, workingSumHours, filterWeekendDay, VIEWTYPE, GRANULARITY, TASKSTATUS, SUBTASKLEVEL, TASK_NAME_SIZE, SINGLE_TIME, ARROW_STATUS } = config;
+import config from '../config/config';
+
+const {
+  workingTimes,
+  workingSumHours,
+  filterWeekendDay,
+  VIEWTYPE,
+  GRANULARITY,
+  TASKSTATUS,
+  SUBTASKLEVEL,
+  TASK_NAME_SIZE,
+  SINGLE_TIME,
+  ARROW_STATUS,
+} = config;
 
 /**
  * 返回有效时长
@@ -72,9 +84,7 @@ const getValidHours = (startTime, endTime, filterWeekend) => {
 
     // 统计周末总天数
     for (let i = 0; i < timeDiff; i++) {
-      const day = moment(startTime.split(' ')[0])
-        .add(i, 'd')
-        .day();
+      const day = moment(startTime.split(' ')[0]).add(i, 'd').day();
       if (_.includes(filterWeekendDay, day)) {
         weekendCount++;
       }
@@ -155,12 +165,7 @@ const checkTime = (startTime, endTime, filterWeekend) => {
         addStartDay--;
       }
 
-      startTime =
-        moment(startTime.split(' ')[0])
-          .add(addStartDay, 'd')
-          .format('YYYY-MM-DD') +
-        ' ' +
-        startHours;
+      startTime = moment(startTime.split(' ')[0]).add(addStartDay, 'd').format('YYYY-MM-DD') + ' ' + startHours;
     } else {
       // 处理开始时间
       updateStartTime();
@@ -218,12 +223,7 @@ const checkTime = (startTime, endTime, filterWeekend) => {
         }
       }
 
-      endTime =
-        moment(endTime.split(' ')[0])
-          .add(addEndDay, 'd')
-          .format('YYYY-MM-DD') +
-        ' ' +
-        endHours;
+      endTime = moment(endTime.split(' ')[0]).add(addEndDay, 'd').format('YYYY-MM-DD') + ' ' + endHours;
     } else {
       // 处理结束时间
       updateEndTime();
@@ -263,13 +263,13 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
     taskNameTime = TASK_NAME_SIZE / GRANULARITY.MONTH;
   }
 
-  source.forEach((data) => {
+  source.forEach(data => {
     let taskListArry = _.cloneDeep(data.tasks);
     const taskTimeBarArry = [];
     const lastTaskTimeBars = [];
 
     // 循环出无展示开始时间 或 无展示结束时间的数据
-    taskListArry.forEach((task) => {
+    taskListArry.forEach(task => {
       if (task.showStartTime === '' && task.showEndTime === '' && task.isShow) {
         lastTaskTimeBars.push([task]);
       }
@@ -286,16 +286,16 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
      * @param  {string} taskId
      * @return {boolean}
      */
-    const checkIsContain = (taskId) => {
+    const checkIsContain = taskId => {
       // 是否包含
       let isContain = false;
       // 检查数组中是否已经包含了该项
       taskTimeBarArry.forEach(timeBars =>
-        timeBars.forEach((item) => {
+        timeBars.forEach(item => {
           if (item.taskId === taskId) {
             isContain = true;
           }
-        })
+        }),
       );
 
       return isContain;
@@ -306,7 +306,7 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
      * @param  {object} item
      * @return {string}
      */
-    const getMaxEndTime = (item) => {
+    const getMaxEndTime = item => {
       let maxEndTime = item.showEndTime;
       // 已完成
       if (item.status && moment(maxEndTime) < moment(item.completeTime)) {
@@ -319,7 +319,7 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
     };
 
     // 获取真实展示截止时间
-    const getFactEndTime = (item) => {
+    const getFactEndTime = item => {
       const factEndTime = moment(getMaxEndTime(item));
       const offsetTimes = getDays(taskNameTime);
       // 用小时 计算出天偏差和时间
@@ -329,7 +329,7 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
     };
 
     // 获取带子任务的最小开始时间
-    const getMinStartTime = (item) => {
+    const getMinStartTime = item => {
       // 最小展示开始时间
       let minShowStartTime = item.showStartTime;
 
@@ -366,7 +366,7 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
 
     // 是否已插入拖拽项
     let isInsert = false;
-    taskListArry.forEach((task, i) => {
+    taskListArry.forEach(task => {
       // 不存在添加
       if (!checkIsContain(task.taskId)) {
         // 拖拽项占一行
@@ -384,9 +384,14 @@ const taskTimeBars = (source, viewType, filterWeekend) => {
       if (task.deadline) {
         // 加上任务名称真实的展示结束时间
         let factEndTime = moment(getFactEndTime(task));
-        taskListArry.forEach((item) => {
+        taskListArry.forEach(item => {
           // 展示开始时间 大于当前 展示结束时间  并且 不存在  且 非拖拽项
-          if (item.startTime && moment(getMinStartTime(item)) >= factEndTime && !checkIsContain(item.taskId) && item.taskId !== config.singleDragTaskId) {
+          if (
+            item.startTime &&
+            moment(getMinStartTime(item)) >= factEndTime &&
+            !checkIsContain(item.taskId) &&
+            item.taskId !== config.singleDragTaskId
+          ) {
             factEndTime = moment(getFactEndTime(item));
             taskTimeBarArry[taskTimeBarArry.length - 1].push(item);
           }
@@ -426,7 +431,7 @@ const singleTaskSourceUpdate = (tasks, task, status, filterWeekend, level) => {
 
   // 母任务是否展开状态
   let isOpen = false;
-  tasks.forEach((item) => {
+  tasks.forEach(item => {
     if (item.taskId === task.parentId && item.arrowStatus === ARROW_STATUS.OPEN) {
       isOpen = true;
     }
@@ -439,17 +444,13 @@ const singleTaskSourceUpdate = (tasks, task, status, filterWeekend, level) => {
 
   // 处理只有单侧的开始时间
   if (task.startTime && !task.deadline) {
-    endTime = moment(task.startTime)
-      .add(1, 'd')
-      .format('YYYY-MM-DD HH:mm:ss');
+    endTime = moment(task.startTime).add(1, 'd').format('YYYY-MM-DD HH:mm:ss');
     task.singleTime = SINGLE_TIME.START;
   }
 
   // 处理只有单侧的结束时间
   if (!task.startTime && task.deadline) {
-    startTime = moment(task.deadline)
-      .add(-1, 'd')
-      .format('YYYY-MM-DD HH:mm:ss');
+    startTime = moment(task.deadline).add(-1, 'd').format('YYYY-MM-DD HH:mm:ss');
     task.singleTime = SINGLE_TIME.END;
   }
 
@@ -458,33 +459,23 @@ const singleTaskSourceUpdate = (tasks, task, status, filterWeekend, level) => {
     if (task.startTime || task.deadline) {
       // 结束时间存在 且 完成时间小于结束时间  有效时长用完成时间  提前完成
       if (task.deadline && moment(task.completeTime) < moment(task.deadline)) {
-        endTime = moment(task.completeTime)
-          .add(1, 'h')
-          .format('YYYY-MM-DD HH:00:00');
+        endTime = moment(task.completeTime).add(1, 'h').format('YYYY-MM-DD HH:00:00');
       }
 
       // 结束时间不存在
       if (!task.deadline) {
-        endTime = moment(task.completeTime)
-          .add(1, 'h')
-          .format('YYYY-MM-DD HH:00:00');
+        endTime = moment(task.completeTime).add(1, 'h').format('YYYY-MM-DD HH:00:00');
         task.singleTime = '';
       }
 
       // 开始不存在 或 开始时间大于结束时间
       if (!task.startTime || moment(task.startTime) >= moment(endTime)) {
-        startTime = moment(endTime)
-          .add(-1, 'd')
-          .format('YYYY-MM-DD HH:00:00');
+        startTime = moment(endTime).add(-1, 'd').format('YYYY-MM-DD HH:00:00');
       }
     } else {
       // 无起止时间的任务
-      endTime = moment(task.completeTime)
-        .add(1, 'h')
-        .format('YYYY-MM-DD HH:00:00');
-      startTime = moment(endTime)
-        .add(-1, 'd')
-        .format('YYYY-MM-DD HH:00:00');
+      endTime = moment(task.completeTime).add(1, 'h').format('YYYY-MM-DD HH:00:00');
+      startTime = moment(endTime).add(-1, 'd').format('YYYY-MM-DD HH:00:00');
       task.singleTime = SINGLE_TIME.END;
     }
   }
@@ -507,7 +498,7 @@ const singleTaskArrow = (tasks, task, level) => {
     task.arrowStatus = ARROW_STATUS.NULL;
   } else {
     let isExist = false;
-    tasks.forEach((item) => {
+    tasks.forEach(item => {
       if (_.includes(task.subTaskIds, item.taskId)) {
         isExist = true;
       }
@@ -536,12 +527,12 @@ const singleTaskArrow = (tasks, task, level) => {
  * @return {[]}  数据源
  */
 const updateTasksDataSource = (source, status, viewType, filterWeekend, level) => {
-  source.forEach((data) => {
+  source.forEach(data => {
     // 循环处理任务箭头的问题
-    data.tasks.forEach((task) => {
+    data.tasks.forEach(task => {
       singleTaskArrow(data.tasks, task, level);
     });
-    data.tasks.forEach((task) => {
+    data.tasks.forEach(task => {
       singleTaskSourceUpdate(data.tasks, task, status, filterWeekend, level);
     });
   });
@@ -554,15 +545,11 @@ const updateTasksDataSource = (source, status, viewType, filterWeekend, level) =
  * @param  {boolean} filterWeekend  是否过滤周末
  * @return {[]}
  */
-const getDaysTime = (filterWeekend) => {
+const getDaysTime = filterWeekend => {
   const startTime = config.folderId
-    ? moment(config.minStartTime)
-        .subtract(7, 'd')
-        .format('YYYY-MM-DD')
+    ? moment(config.minStartTime).subtract(7, 'd').format('YYYY-MM-DD')
     : moment(config.minStartTime).format('YYYY-MM-DD');
-  const endTime = moment(config.maxEndTime)
-    .add(28, 'd')
-    .format('YYYY-MM-DD');
+  const endTime = moment(config.maxEndTime).add(28, 'd').format('YYYY-MM-DD');
   const timeDiff = (moment(endTime) - moment(startTime)) / 24 / 60 / 60 / 1000;
   const result = {};
 
@@ -582,7 +569,7 @@ const getDaysTime = (filterWeekend) => {
     }
   }
 
-  return Object.keys(result).map((item) => {
+  return Object.keys(result).map(item => {
     return {
       month: item,
       dateList: result[item],
@@ -595,7 +582,7 @@ const getDaysTime = (filterWeekend) => {
  * @param  {boolean} filterWeekend  是否过滤周末
  * @return {[]}
  */
-const getWeeksTime = (filterWeekend) => {
+const getWeeksTime = filterWeekend => {
   const startGapDay = moment(config.minStartTime).day();
   const endGapDay = moment(config.maxEndTime).day();
   const startWssk = moment(config.minStartTime).subtract((startGapDay === 0 ? 7 : startGapDay) - 1, 'd');
@@ -636,7 +623,7 @@ const getWeeksTime = (filterWeekend) => {
     return obj;
   }, {});
 
-  return Object.keys(result).map((item) => {
+  return Object.keys(result).map(item => {
     return {
       month: item,
       dateList: result[item],
@@ -656,7 +643,6 @@ const getMonthsTime = () => {
 
   for (let i = 0; i <= timeDiff; i++) {
     const momentObj = moment(startTime).add(i, 'M');
-    const month = momentObj.month() + 1;
     const year = momentObj.year();
     const key = `${year}`;
 
@@ -667,7 +653,7 @@ const getMonthsTime = () => {
     }
   }
 
-  return Object.keys(result).map((item) => {
+  return Object.keys(result).map(item => {
     return {
       year: item,
       dateList: result[item],
@@ -700,7 +686,7 @@ const getTimeAxisSource = (viewType, filterWeekend) => {
  * @param  {number} viewType  当前视图
  * @return {number}
  */
-const getOneHourWidth = (viewType) => {
+const getOneHourWidth = viewType => {
   if (viewType === VIEWTYPE.DAY) {
     return GRANULARITY.DAY;
   }
@@ -719,7 +705,7 @@ const getOneHourWidth = (viewType) => {
  * @param  {number} viewType  当前视图
  * @return {number}
  */
-const singleDayWidth = (viewType) => {
+const singleDayWidth = viewType => {
   if (viewType === VIEWTYPE.DAY) {
     return workingSumHours * GRANULARITY.DAY;
   }
@@ -781,22 +767,22 @@ const getViewSumWidth = (viewType, timeAxisSource, filterWeekend) => {
   let days = 0;
 
   if (viewType === VIEWTYPE.DAY) {
-    timeAxisSource.forEach((item) => {
+    timeAxisSource.forEach(item => {
       days += item.dateList.length;
     });
   }
 
   if (viewType === VIEWTYPE.WEEK) {
-    timeAxisSource.forEach((items) => {
-      items.dateList.forEach((item) => {
+    timeAxisSource.forEach(items => {
+      items.dateList.forEach(item => {
         days += item.length;
       });
     });
   }
 
   if (viewType === VIEWTYPE.MONTH) {
-    timeAxisSource.forEach((items) => {
-      items.dateList.forEach((item) => {
+    timeAxisSource.forEach(items => {
+      items.dateList.forEach(item => {
         const timeDiff = (moment(item).add(1, 'M') - moment(item)) / 24 / 60 / 60 / 1000;
         const startTime = item + '-01';
 
@@ -914,7 +900,7 @@ const getTimePosition = (minStartTime, time, viewType, filterWeekend) => {
  * @param  {string} hour 小时
  * @return {object}
  */
-const getDays = (hour) => {
+const getDays = hour => {
   return {
     day: parseInt(hour / workingSumHours),
     hour: hour % workingSumHours,
@@ -1114,11 +1100,7 @@ const offsetTime = (start, end, filterWeekend, offsetTime, minStartTime, maxEndT
   // 月视图
   if (viewType === VIEWTYPE.MONTH) {
     minStartTime = minStartTime + '-01 ' + workingStart;
-    maxEndTime =
-      moment(maxEndTime)
-        .add(1, 'M')
-        .add(-1, 'd')
-        .format('YYYY-MM-DD ') + workingEnd;
+    maxEndTime = moment(maxEndTime).add(1, 'M').add(-1, 'd').format('YYYY-MM-DD ') + workingEnd;
   }
 
   if (start) {

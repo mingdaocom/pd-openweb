@@ -1,15 +1,17 @@
-var Calendar = {};
-
-import Comm from '../comm/comm';
-Calendar.Comm = Comm;
+import moment from 'moment';
+import calendarAjax from 'src/api/calendar';
+import createCalendar from 'src/components/createCalendar/createCalendar';
 import calendarEdit from '../calendarDetail';
 import afterRefreshOp from '../calendarDetail/lib/afterRefreshOp';
 import recurCalendarUpdate from '../calendarDetail/lib/recurCalendarUpdateDialog';
-import './calendar.less';
-import createCalendar from 'src/components/createCalendar/createCalendar';
+import Comm from '../comm/comm';
 import listHtml from './tpl/list.html';
-import calendarAjax from 'src/api/calendar';
-import moment from 'moment';
+import './calendar.less';
+
+var Calendar = {};
+
+Calendar.Comm = Comm;
+
 var CurrentDate;
 
 const eventLimitNum = () => {
@@ -91,7 +93,7 @@ Calendar.Method = {
         },
       },
       timeFormat: 'H:mm', // 事件日期格式
-      eventClick: function (events, jsEvent, view) {
+      eventClick: function (events, jsEvent) {
         // 点击 日程时 事件
         if (events.isTask) {
           $('.calendarEdit,.showActiveTitleMessage').remove();
@@ -109,9 +111,6 @@ Calendar.Method = {
           }
 
           var pageX = jsEvent.clientX;
-          var pageY = window.isChrome
-            ? jsEvent.clientY + document.body.scrollTop
-            : jsEvent.clientY + document.documentElement.scrollTop;
           var gapRight = $(window).width() - pageX; // 离右边距离
           var calhoverWidth = 360;
 
@@ -131,7 +130,7 @@ Calendar.Method = {
           $(this).addClass('hoverContentColor');
         }
       },
-      eventAfterRender: function (event, element, view) {
+      eventAfterRender: function (event, element) {
         // 事件呈现后触发,可用来做头像显示
         var $fcTitle = $(element).find('.fc-title');
         if (!event.isTask) {
@@ -147,7 +146,6 @@ Calendar.Method = {
             );
           }
         } else {
-          var taskID = event.eventID;
           $fcTitle.prepend(
             '<span class="icon-calendartask" data-endtime="' +
               moment(event.end._i).format('HH:mm') +
@@ -156,7 +154,7 @@ Calendar.Method = {
           $(element).find('.fc-resizer').remove();
         }
       },
-      loading: function (isLoading, view) {
+      loading: function (isLoading) {
         if (isLoading) {
           $('#calendarLoading').show();
           $('#calInvite').removeClass('ThemeBGColor3');
@@ -168,7 +166,7 @@ Calendar.Method = {
           Calendar.Method.editViewStyle();
         }
       },
-      select: function (start, end, jsEvent, view) {
+      select: function (start, end) {
         // 执行 添加
         var multiSelect = '';
         var multiSelectDay = '';
@@ -206,10 +204,10 @@ Calendar.Method = {
           createCalendar(settings);
         }
       },
-      eventMouseover: function (event, jsEvent, view) {
+      eventMouseover: function (event, jsEvent) {
         Calendar.Method.changeEventColor(event, jsEvent, 0);
       },
-      eventMouseout: function (event, jsEvent, view) {
+      eventMouseout: function (event, jsEvent) {
         Calendar.Method.changeEventColor(event, jsEvent, 1);
       },
       // 新方法  需要修改参数
@@ -222,7 +220,7 @@ Calendar.Method = {
         Calendar.settings.isResize = true;
         Calendar.Method.dropResize(event, delta, revertFunc, jsEvent, ui, view);
       },
-      dayClick: function (date, jsEvent, view) {
+      dayClick: function (date) {
         // 操作方法
         var calendarClickFun = function () {
           if (Calendar.settings.isRange >= 2) {
@@ -959,9 +957,6 @@ Calendar.Event = function () {
     .on('click', '.calendarListModel li', function (event) {
       var $el = $(this);
       var pageX = event.clientX;
-      var pageY = window.isChrome
-        ? event.clientY + document.body.scrollTop
-        : event.clientY + document.documentElement.scrollTop;
       var gapRight = $(window).width() - pageX; // 离右边距离
       var calhoverWidth = 360;
       var isTask = $el.data('istask');

@@ -1,14 +1,14 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import './index.less';
-import flowNode from '../../../../api/flowNode';
-import ActionFields from '../ActionFields';
-import { APP_TYPE, NODE_TYPE, GLOBAL_VARIABLE } from '../../../enum';
-import { getControlTypeName } from '../../../utils';
-import { MenuItem } from 'ming-ui';
-import _ from 'lodash';
-import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { MenuItem } from 'ming-ui';
+import flowNode from '../../../../api/flowNode';
+import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
+import { APP_TYPE, GLOBAL_VARIABLE, NODE_TYPE } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
+import ActionFields from '../ActionFields';
+import './index.less';
 
 export default class SelectOtherFields extends Component {
   static propTypes = {
@@ -57,7 +57,7 @@ export default class SelectOtherFields extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.item, this.props.item) || nextProps.sourceAppId !== this.props.sourceAppId) {
       this.setState({ fieldsData: null });
     }

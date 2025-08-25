@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import intlTelInput from 'ming-ui/components/intlTelInput';
@@ -75,13 +75,13 @@ const AccountWrap = styled.div`
     .btnSendVerifyCode {
       width: 130px;
       height: 36px;
-      background: #2196f3;
+      background: #1677ff;
       opacity: 1;
       border-radius: 3px;
       border: 0;
       color: #fff;
       &.btnEnabled {
-        background-color: #2196f3;
+        background-color: #1677ff;
         cursor: pointer;
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
@@ -141,9 +141,6 @@ class TelCon extends React.Component {
     if (this.mobile) {
       this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.mobile, {
-        customPlaceholder: () => {
-          return emailOrTel;
-        },
         separateDialCode: false,
       });
       $(this.mobile).on('onBlur', e => this.onChangeAccount(e));
@@ -160,13 +157,13 @@ class TelCon extends React.Component {
   // 验证input内容 手机
   isValid = () => {
     const { account, newAccount } = this.props;
-    if (!!account) {
+    if (account) {
       //老手机号 不需要验证
       return true;
     }
     let isRight = true;
     if (this.props.inputType === 'phone') {
-      if (!!this.iti.getNumber().replace(/\s*/g, '')) {
+      if (this.iti.getNumber().replace(/\s*/g, '')) {
         // 手机号
         if (!this.iti.isValidNumber()) {
           // 手机号格式错误
@@ -285,22 +282,22 @@ class TelCon extends React.Component {
     const isPhone = inputType === 'phone';
     if ((isPhone ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim()).length < e.target.value.length) {
       setNewAccount(isPhone ? e.target.value.replace(/[^\d]/g, '') : e.target.value.trim());
-      isPhone && this.iti.setNumber(`${e.target.value.replace(/[^\d]/g, '')}`);
+      isPhone && this.iti && this.iti.setNumber(`${e.target.value.replace(/[^\d]/g, '')}`);
     } else {
-      setNewAccount(isPhone ? this.iti.getNumber() : e.target.value.trim());
+      setNewAccount(isPhone && this.iti ? this.iti.getNumber() : e.target.value.trim());
     }
-    setCountry(isPhone ? `+${this.iti.getSelectedCountryData().dialCode}` : '');
-    setIsValidNumber(isPhone ? this.iti.isValidNumber() : this.isValidEmail(e.target.value.trim()));
+    setCountry(isPhone && this.iti ? `+${this.iti.getSelectedCountryData().dialCode}` : '');
+    setIsValidNumber(isPhone && this.iti ? this.iti.isValidNumber() : this.isValidEmail(e.target.value.trim()));
   };
 
   render() {
-    const { account, setCode, setNewAccount, setIsValidNumber, inputType } = this.props;
+    const { account, setCode, inputType, hidTel } = this.props;
     const { verifyCodeLoading, verifyCodeText } = this.state;
     return (
       <AccountWrap>
         <div className={cx('mesDiv', { hidInput: !!account, isMobile: browserIsMobile() })}>
           <span className="title">
-            {!!account
+            {account
               ? this.isValidEmail(account)
                 ? _l('邮箱')
                 : _l('手机号')
@@ -308,7 +305,7 @@ class TelCon extends React.Component {
                 ? _l('新手机号')
                 : _l('新邮箱')}
           </span>
-          <span className={cx('telBox', { hid: !account })}>{account}</span>
+          <span className={cx('telBox', { hid: !account || hidTel })}>{account}</span>
           <input
             type="text"
             className={cx('telInput')}
@@ -344,7 +341,7 @@ class TelCon extends React.Component {
               })}
               id="btnSendVerifyCode"
               value={verifyCodeText || (verifyCodeLoading ? _l('发送中...') : _l('获取验证码'))}
-              onClick={e => {
+              onClick={() => {
                 this.handleSendVerifyCode(CodeTypeEnum.message);
               }}
             />

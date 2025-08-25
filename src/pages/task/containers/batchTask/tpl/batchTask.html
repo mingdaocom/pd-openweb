@@ -12,13 +12,13 @@
                 data-tip="{{= it.isLocked ? _l('批量锁定任务') : _l('批量解锁任务') }}"
                 class="batchIcon iconTaskNewLocked ThemeColor3"
             >
-                <i class="{{=it.isLocked ? 'icon-task-new-locked' : 'icon-task-new-no-locked'}}"></i>
+                <i class="{{=it.isLocked ? 'icon-lock' : 'icon-task-new-no-locked'}}"></i>
             </li>
             <li data-tip="{{= _l('更多')}}" class="batchIcon batchMore ThemeColor3">
                 <i class="icon-arrow-down-border"></i>
             </li>
             <ul class="batchOperator boderRadAll_3 boxShadow5 Hidden">
-                <li id="batchDelTask"><i class="icon-task-new-delete"></i>{{= _l('批量删除任务') }}</li>
+                <li id="batchDelTask"><i class="icon-trash"></i>{{= _l('批量删除任务') }}</li>
                 <li class="iconTaskLabel"><i class="icon-task-label"></i>{{= _l('设置标签') }}</li>
             </ul>
         </ul>

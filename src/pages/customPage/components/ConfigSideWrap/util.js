@@ -6,8 +6,8 @@ export const defaultTitleStyles = {
   fontBold: true,
   fontItalic: false,
   textAlign: 'left',
-  index: 0
-}
+  index: 0,
+};
 
 export const replaceTitleColor = (data, themeColor) => {
   data = { ...data };
@@ -18,7 +18,7 @@ export const replaceTitleColor = (data, themeColor) => {
     data.color = generate(themeColor)[0];
   }
   return data;
-}
+};
 
 export const replaceTitleStyle = (data, themeColor) => {
   const { color } = replaceTitleColor(data, themeColor);
@@ -26,7 +26,7 @@ export const replaceTitleStyle = (data, themeColor) => {
     fontSize: data.fontSize,
     fontWeight: data.fontBold ? 'bold' : undefined,
     fontStyle: data.fontItalic ? 'italic' : undefined,
-    color
+    color,
   };
   return style;
-}
+};

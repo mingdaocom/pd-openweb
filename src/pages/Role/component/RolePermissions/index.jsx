@@ -1,9 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
-import RoleInfoCon from './RoleInfoCon';
-import 'src/pages/Role/style.less';
+import styled from 'styled-components';
 import RoleNav from 'src/pages/Role/component/RolePermissions/RoleNav.jsx';
+import 'src/pages/Role/style.less';
+import RoleInfoCon from './RoleInfoCon';
 
 const Wrap = styled.div`
   height: 100%;

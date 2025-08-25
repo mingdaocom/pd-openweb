@@ -1,9 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import DisplayTile from './displayTile';
-import DisplayCollapse from './displayCollapse';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { AnimationWrap } from '../../styled';
+import DisplayCollapse from './displayCollapse';
+import DisplayTile from './displayTile';
 
 const TAB_DISPLAY_TYPE = [
   { text: _l('平铺'), value: '1' },

@@ -5,9 +5,7 @@ import _ from 'lodash';
 import { Icon, Input, intlTelInput, LoadDiv } from 'ming-ui';
 import fixedDataAjax from 'src/api/fixedData.js';
 import userController from 'src/api/user';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
-import { getCurrentProject } from 'src/utils/project';
 import { checkForm } from '../../constant';
 import BaseFormInfo from '../BaseFormInfo';
 import DrawerFooterOption from '../DrawerFooterOption';
@@ -52,7 +50,7 @@ export default class EditUser extends Component {
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.typeCursor !== 0 && !_.isEqual(this.props.editCurrentUser, nextProps.editCurrentUser)) {
-      const { fullname, mobilePhone, email, department, job, worksite, jobNumber, contactPhone } = nextProps;
+      const { fullname, mobilePhone, email, jobNumber, contactPhone } = nextProps;
       this.setState({ userName: fullname, mobile: mobilePhone, email, jobNumber, contactPhone, mobilePhone });
     }
   }
@@ -102,6 +100,8 @@ export default class EditUser extends Component {
             jobList: jobs,
             worksiteList: workSites,
             orgRoles: user.orgRoles || [],
+            useMultiJobs: user.useMultiJobs,
+            departmentJobInfos: user.departmentJobInfos || [],
           },
         });
       });
@@ -135,8 +135,15 @@ export default class EditUser extends Component {
       workSiteId,
       contactPhone,
       orgRoles = [],
+      useMultiJobs,
+      departmentJobInfos = [],
     } = this.baseFormInfo.state;
     if (this.state.agreeLoading) return;
+
+    if (useMultiJobs && !!departmentJobInfos.filter(item => !item.departmentId).length) {
+      alert(_l('多任职信息中部门不能为空'), 3);
+      return;
+    }
 
     this.setState({ agreeLoading: true });
 
@@ -150,6 +157,11 @@ export default class EditUser extends Component {
         jobNumber,
         contactPhone,
         orgRoleIds: orgRoles.map(l => l.id),
+        useMultiJobs,
+        departmentJobIdMaps: departmentJobInfos.map(item => ({
+          departmentId: item.departmentId,
+          jobIds: item.jobIds,
+        })),
       })
       .then(result => {
         if (result === 1) {
@@ -158,7 +170,7 @@ export default class EditUser extends Component {
           this.props.fetchApproval();
           this.props.clickSave();
         } else if (result === 4) {
-            alert(_l('当前用户数已超出人数限制'), 3);
+          alert(_l('当前用户数已超出人数限制'), 3);
         } else {
           alert(_l('操作失败'), 2);
         }
@@ -178,7 +190,14 @@ export default class EditUser extends Component {
       workSiteId,
       contactPhone,
       orgRoles,
+      useMultiJobs,
+      departmentJobInfos = [],
     } = this.baseFormInfo.state;
+
+    if (useMultiJobs && !!departmentJobInfos.filter(item => !item.departmentId).length) {
+      alert(_l('多任职信息中部门不能为空'), 3);
+      return;
+    }
 
     if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) {
       userController
@@ -191,6 +210,11 @@ export default class EditUser extends Component {
           contactPhone,
           workSiteId,
           orgRoleIds: orgRoles.map(l => l.id),
+          useMultiJobs,
+          departmentJobIdMaps: departmentJobInfos.map(item => ({
+            departmentId: item.departmentId,
+            jobIds: item.jobIds,
+          })),
         })
         .then(
           result => {
@@ -207,7 +231,7 @@ export default class EditUser extends Component {
           },
         );
     } else {
-      const { userName, email, mobilePhone, companyName } = this.state;
+      const { userName, email, mobilePhone } = this.state;
       const errors = {
         ...this.state.errors,
         userName: !!checkForm['userName'](userName),
@@ -236,12 +260,15 @@ export default class EditUser extends Component {
         workSiteId,
         contactPhone,
         orgRoleIds: orgRoles.map(l => l.id),
+        useMultiJobs,
+        departmentJobIdMaps: departmentJobInfos.map(item => ({
+          departmentId: item.departmentId,
+          jobIds: item.jobIds,
+        })),
       };
 
       this.setState({ isUploading: true });
-      Promise.all([
-        fixedDataAjax.checkSensitive({ content: jobNumber }),
-      ]).then(results => {
+      Promise.all([fixedDataAjax.checkSensitive({ content: jobNumber })]).then(results => {
         if (!results.find(result => result)) {
           userController
             .updateUser(params)
@@ -254,7 +281,7 @@ export default class EditUser extends Component {
               }
               this.setState({ isUploading: false });
             })
-            .catch(err => {
+            .catch(() => {
               this.setState({ isUploading: false });
               this.itiFn();
             });
@@ -267,7 +294,7 @@ export default class EditUser extends Component {
   };
   renderBaseUserInfo = () => {
     const { typeCursor } = this.props;
-    const { userName, mobile, email, companyName, mobilePhone, errors = {}, status } = this.state;
+    const { userName, mobile, email, mobilePhone, errors = {}, status } = this.state;
     if (md.global.Config.IsLocal) {
       return (
         <Fragment>

@@ -1,9 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 
-const chooseDisplayType = [{ type: 'day', text: '按天' }, { type: 'week', text: '按周' }, { type: 'month', text: '按月' }];
+const chooseDisplayType = [
+  { type: 'day', text: '按天' },
+  { type: 'week', text: '按周' },
+  { type: 'month', text: '按月' },
+];
 
 export default class GanttHeader extends Component {
   constructor(props) {
@@ -23,7 +26,11 @@ export default class GanttHeader extends Component {
               </div>
               <div className="chooseDisplayType ">
                 {chooseDisplayType.map(item => (
-                  <span onClick={() => switchDisplayType(item.type)} className={cx(item.type, { active: item.type === type })} key={item.type}>
+                  <span
+                    onClick={() => switchDisplayType(item.type)}
+                    className={cx(item.type, { active: item.type === type })}
+                    key={item.type}
+                  >
                     {item.text}
                   </span>
                 ))}

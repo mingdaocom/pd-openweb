@@ -50,7 +50,7 @@ export default class QiniuUpload extends React.Component {
                 up.settings.multipart_params.key = file.key;
                 up.settings.multipart_params['x:serverName'] = file.serverName;
                 up.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
-                up.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
+                up.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^.]*$/, '');
                 up.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
                   file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
                 );

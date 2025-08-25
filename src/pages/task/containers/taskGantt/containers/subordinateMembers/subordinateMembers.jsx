@@ -1,18 +1,19 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import './subordinateMembers.less';
 import cx from 'classnames';
-import config from '../../config/config';
-import { dialogSelectUser } from 'ming-ui/functions';
-import { removeFollowMembers, updateUserStatus, addFollowMembers } from '../../redux/actions';
-import ajaxRequest from 'src/api/taskCenter';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { Tooltip, UserHead } from 'ming-ui';
 import Trigger from 'rc-trigger';
-import { updateStateConfig } from '../../../../redux/actions';
-import { navigateTo } from 'src/router/navigateTo';
+import { Tooltip, UserHead } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { dialogSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
+import { navigateTo } from 'src/router/navigateTo';
+import { updateStateConfig } from '../../../../redux/actions';
+import config from '../../config/config';
+import { addFollowMembers, removeFollowMembers, updateUserStatus } from '../../redux/actions';
+import './subordinateMembers.less';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class SubordinateMembers extends Component {
@@ -137,9 +138,8 @@ class SubordinateMembers extends Component {
 
   /**
    * 添加关注的同事
-   * @param {object} evt
    */
-  addFollowMembers(evt) {
+  addFollowMembers() {
     const selectedAccountIds = this.props.accountTasksKV.map(item => item.account.accountId);
 
     dialogSelectUser({
@@ -214,7 +214,7 @@ class SubordinateMembers extends Component {
         </li>
         {account.type === 4 ? (
           <li className="ThemeColor3 ThemeBGColor3" onClick={() => this.removeMembers(account.accountId)}>
-            <i className="icon-task-new-delete" />
+            <i className="icon-trash" />
             {_l('移除')}
           </li>
         ) : undefined}
@@ -292,7 +292,7 @@ class SubordinateMembers extends Component {
                       className="overflow_ellipsis ThemeColor3 ThemeBGColor3"
                       onClick={() => this.switchNetwork(project.projectId)}
                     >
-                      <i className="icon-company" />
+                      <i className="icon-business" />
                       {project.companyName}
                     </li>
                   );
@@ -323,7 +323,7 @@ class SubordinateMembers extends Component {
               </div>
             ) : undefined}
 
-            {accountTasksKV.map((item, i) => {
+            {accountTasksKV.map(item => {
               return (
                 <li
                   key={item.account.accountId}
@@ -375,8 +375,8 @@ class SubordinateMembers extends Component {
           <div className="ganttSubordinate ThemeColor3" onClick={evt => this.addFollowMembers(evt)}>
             <i className="icon-hr_person_add Font18 mRight5" />
             {_l('添加同事')}
-            <Tooltip popupPlacement="top" text={this.tooltip()}>
-              <i className="icon-knowledge-message Font14 mLeft5" />
+            <Tooltip popupPlacement="top" text={this.tooltip()} autoCloseDelay={0}>
+              <i className="icon-info Font14 mLeft5" />
             </Tooltip>
           </div>
         </div>

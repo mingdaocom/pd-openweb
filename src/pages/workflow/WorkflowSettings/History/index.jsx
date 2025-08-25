@@ -202,7 +202,7 @@ class History extends Component {
                     );
                   } else {
                     this.setState({ selectActionId: '' }, () => {
-                      this.contentScroll.content.scrollTop = scrollTop;
+                      this.contentScroll.scrollTo({ top: scrollTop });
                     });
                   }
                 }}
@@ -303,7 +303,7 @@ class History extends Component {
             requestPending={requestPending}
             batchIds={batchIds}
             onClick={selectActionId =>
-              this.setState({ selectActionId, scrollTop: this.contentScroll.content.scrollTop })
+              this.setState({ selectActionId, scrollTop: this.contentScroll.getScrollInfo().scrollTop })
             }
             onRecovery={this.onRecovery}
             onRefreshAccumulation={() => this.getProcessAccumulation()}

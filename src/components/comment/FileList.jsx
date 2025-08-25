@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import UploadFiles from 'src/components/UploadFiles';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Button from 'ming-ui/components/Button';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Button from 'ming-ui/components/Button';
+import LoadDiv from 'ming-ui/components/LoadDiv';
 import AjaxRequest from 'src/api/discussion';
+import UploadFiles from 'src/components/UploadFiles';
 import { SOURCE_TYPE } from './config';
 
 export default class FileList extends Component {
@@ -76,7 +76,7 @@ export default class FileList extends Component {
   }
 
   getFiles() {
-    const { sourceId, sourceType, updateFiles } = this.props;
+    const { sourceId, sourceType } = this.props;
 
     this.setState({
       isLoading: true,
@@ -116,8 +116,11 @@ export default class FileList extends Component {
   renderList() {
     const { files } = this.state;
 
-    return files.length ? <UploadFiles column={3} isUpload={false} attachmentData={files} /> :
-      <div className="Gray_c pTop10 pBottom10 noneContent">{_l('暂无文件')}</div>;
+    return files.length ? (
+      <UploadFiles column={3} isUpload={false} attachmentData={files} />
+    ) : (
+      <div className="Gray_c pTop10 pBottom10 noneContent">{_l('暂无文件')}</div>
+    );
   }
 
   render() {

@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useDrag, useDrop } from 'react-dnd-latest';
+import { useInView } from 'react-intersection-observer';
+import { Skeleton } from 'antd';
 import cx from 'classnames';
 import { noop, pick } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { FlexCenter } from 'worksheet/styled';
 import { browserIsMobile } from 'src/utils/common';
@@ -70,6 +73,7 @@ export default function DraggableRecord(props) {
     onClick,
     stateTree,
     width,
+    hierarchyTopLevelDataCount = 0,
   } = props;
   const { rowId, visible, path = [], pathId = [], children = [] } = data;
   const recordData = dealHierarchyData(treeData[rowId], {
@@ -81,6 +85,7 @@ export default function DraggableRecord(props) {
   const hasExpanded = _.some(children, child => typeof child === 'object');
   const normalDisplayedRecord = hasExpanded ? _.filter(children, child => !!child && !!child.display) : children;
   const isMultiRelate = String(view.childType) === '2';
+  const skeletonHeight = recordData.fields?.length * 30 || 200;
 
   const $ref = useRef(null);
   const $dragDropRef = useRef(null);
@@ -102,13 +107,13 @@ export default function DraggableRecord(props) {
       return { isOver: monitor.isOver(), canDrop: monitor.canDrop() };
     },
   });
-  const [{ isDragging }, drag, connectDragPreview] = useDrag({
+  const [, drag, connectDragPreview] = useDrag({
     item: { type: ITEM_TYPE.ITEM },
-    canDrag(props) {
+    canDrag() {
       const { allowedit } = treeData[data.rowId];
       return allowedit;
     },
-    begin(props) {
+    begin() {
       safeLocalStorageSetItem('draggingHierarchyItem', JSON.stringify(data));
       // 拖拽时折叠所有子记录
       toggleChildren({ visible: false, ..._.pick(data, ['path', 'pathId', 'rowId']) });
@@ -135,6 +140,26 @@ export default function DraggableRecord(props) {
   });
 
   const [isEditTitle, setEditTitle] = useState(false);
+  const [realCardHeight, setRealCardHeight] = useState(skeletonHeight);
+  const [skeletonRows, setSkeletonRows] = useState(Math.floor(skeletonHeight / 40));
+
+  // TODO 发布前调整为200
+  const shouldSkip = hierarchyTopLevelDataCount < 200;
+  const { ref, inView: inViewRaw } = useInView({
+    root: null,
+    rootMargin: '100px',
+    threshold: 0,
+    skip: shouldSkip,
+  });
+  const inView = shouldSkip ? true : inViewRaw;
+
+  useEffect(() => {
+    if (inView && $ref.current && !shouldSkip) {
+      const height = $ref.current.getBoundingClientRect().height;
+      setRealCardHeight(height);
+      setSkeletonRows(Math.floor(height / 50));
+    }
+  }, [inView]);
 
   useEffect(() => {
     if (connectDragPreview) {
@@ -178,7 +203,7 @@ export default function DraggableRecord(props) {
       maxWidth: 240,
     };
   }
-  if (!!width) {
+  if (width) {
     STYLE = {
       minWidth: Number(width),
       maxWidth: Number(width),
@@ -187,6 +212,7 @@ export default function DraggableRecord(props) {
 
   return (
     <div
+      ref={ref}
       className={cx('recordItemWrap', {
         normalOver: isOver && canDrop,
         directParentOver: isOver && !canDrop,
@@ -203,24 +229,31 @@ export default function DraggableRecord(props) {
         className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}
         style={STYLE}
       >
-        <EditableCard
-          {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
-          data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
-          stateData={data}
-          ref={$ref}
-          currentView={{
-            ...view,
-            projectId: worksheetInfo.projectId,
-            appId,
-          }}
-          isCharge={isCharge}
-          editTitle={() => setEditTitle(true)}
-          onCopySuccess={data => {
-            onCopySuccess({ path, pathId, item: data });
-          }}
-          updateTitleData={updateTitleData}
-          showNull={true}
-        />
+        {inView ? (
+          <EditableCard
+            {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
+            data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
+            stateData={data}
+            ref={$ref}
+            currentView={{
+              ...view,
+              projectId: worksheetInfo.projectId,
+              appId,
+            }}
+            isCharge={isCharge}
+            {..._.pick(worksheetInfo, ['entityName', 'roleType'])}
+            editTitle={() => setEditTitle(true)}
+            onCopySuccess={data => {
+              onCopySuccess({ path, pathId, item: data });
+            }}
+            updateTitleData={updateTitleData}
+            showNull={true}
+          />
+        ) : (
+          <div className="skeletonBox" style={{ height: realCardHeight }}>
+            <Skeleton paragraph={{ rows: skeletonRows }} />
+          </div>
+        )}
       </div>
       {isEditTitle && (
         <RecordPortal closeEdit={closeEdit}>

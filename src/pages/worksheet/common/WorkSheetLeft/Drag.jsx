@@ -1,29 +1,16 @@
-import React, { Fragment, useState, useEffect, useCallback, useRef } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { useRef, useState } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import configureStore from 'redux/configureStore';
-import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
-import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
-import homeAppApi from 'src/api/homeApp';
-import appManagementApi from 'src/api/appManagement';
-import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { useDrag, useDrop } from 'react-dnd-latest';
 import { TinyColor } from '@ctrl/tinycolor';
-import cx from 'classnames';
+import _ from 'lodash';
+import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
 
 const dndAccept = 'navigationListGroup';
-
-const updateTarget = (groups, targetId, data) => {
-  return groups.map(item => {
-    if (item.workSheetId === targetId) {
-      return { ...item, ...data }
-    } else {
-      return {
-        ...item,
-        items: updateTarget(item.items || [], targetId, data)
-      };
-    }
-  });
-}
 
 const removeTarget = (groups, data) => {
   return groups.filter(item => {
@@ -34,7 +21,7 @@ const removeTarget = (groups, data) => {
     item.items = removeTarget(items, data);
     return true;
   });
-}
+};
 
 const spliceTarget = (groups, target, data) => {
   const index = _.findIndex(groups, { workSheetId: target.workSheetId });
@@ -43,8 +30,8 @@ const spliceTarget = (groups, target, data) => {
       const { items = [] } = item;
       return {
         ...item,
-        items: spliceTarget(items, target, data)
-      }
+        items: spliceTarget(items, target, data),
+      };
     });
   } else {
     if (!target.parentId) {
@@ -53,7 +40,7 @@ const spliceTarget = (groups, target, data) => {
     groups.splice(data.first ? index : index + 1, 0, data);
     return groups;
   }
-}
+};
 
 const pushTarget = (groups, target, data) => {
   return groups.map(item => {
@@ -63,16 +50,16 @@ const pushTarget = (groups, target, data) => {
       data.parentGroupId = item.workSheetId;
       return {
         ...item,
-        items: items.concat(data)
-      }
+        items: items.concat(data),
+      };
     } else {
       return {
         ...item,
-        items: pushTarget(item.items || [], target, data)
-      }
+        items: pushTarget(item.items || [], target, data),
+      };
     }
   });
-}
+};
 
 const Drag = props => {
   const { appPkg, isCharge, appItem, className, children, onHover = _.noop, onDragEnd = _.noop } = props;
@@ -84,7 +71,7 @@ const Drag = props => {
   const dropColor = [1, 3].includes(currentPcNaviStyle) && themeType === 'theme' ? '#00000052' : iconColor;
   const [collectProps, drop] = useDrop({
     accept: dndAccept,
-    drop(item, monitor) {
+    drop(item) {
       const current = item.appItem;
       const target = appItem;
       if (current.workSheetId === target.workSheetId) {
@@ -98,7 +85,7 @@ const Drag = props => {
     },
     hover(item, monitor) {
       if (!ref.current) {
-        return
+        return;
       }
 
       const current = item.appItem;
@@ -115,15 +102,14 @@ const Drag = props => {
       }
 
       if (collectProps.isOver) {
-
         // 判断能否移动到组内
         const getIsPushGroup = () => {
           const clientOffset = monitor.getClientOffset();
           const hoverBoundingRect = ref.current.getBoundingClientRect();
           const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
           const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-          return hoverClientY <= hoverMiddleY && hoverClientY >= 10;;
-        }
+          return hoverClientY <= hoverMiddleY && hoverClientY >= 10;
+        };
         // 判断是否是第一个项
         if (target.index === 0) {
           const clientOffset = monitor.getClientOffset();
@@ -168,47 +154,53 @@ const Drag = props => {
       return {
         handlerId: monitor.getHandlerId(),
         isOver: monitor.isOver({ shallow: true }),
-      }
-    }
+      };
+    },
   });
-  const [{ isDragging }, drag, dragPreview] = useDrag({
+  const [{ isDragging }, drag] = useDrag({
     item: { type: dndAccept, appItem },
     canDrag: isCharge,
     end: onDragEnd,
-    collect: (monitor) => ({
+    collect: monitor => ({
       isDragging: monitor.isDragging(),
-    })
+    }),
   });
   drag(drop(ref));
 
   const onMoveGroup = (dragData, targetData, pushGroup) => {
-    const sheetList = [1, 3].includes(currentPcNaviStyle) ? props.appSectionDetail.map(data => {
-      return {
-        ...data,
-        items: getAppSectionData(data.workSheetId)
-      }
-    }) : props.sheetList;
+    const sheetList = [1, 3].includes(currentPcNaviStyle)
+      ? props.appSectionDetail.map(data => {
+          return {
+            ...data,
+            items: getAppSectionData(data.workSheetId),
+          };
+        })
+      : props.sheetList;
     const groups = removeTarget(_.cloneDeep(sheetList), dragData);
     if (pushGroup) {
-      appManagementApi.removeWorkSheetAscription({
-        sourceAppId: appPkg.id,
-        resultAppId: appPkg.id,
-        sourceAppSectionId: dragData.parentId,
-        ResultAppSectionId: targetData.workSheetId,
-        workSheetsInfo: [{
-          workSheetId: dragData.workSheetId,
-          type: dragData.type,
-          icon: dragData.icon,
-          iconColor: appPkg.iconColor,
-          iconUrl: dragData.iconUrl,
-          workSheetName: dragData.workSheetName,
-          createType: dragData.createType,
-        }]
-      }).then(result => {
-        if (!result) {
-          alert(_l(_l('移动失败')), 2);
-        }
-      });
+      appManagementApi
+        .removeWorkSheetAscription({
+          sourceAppId: appPkg.id,
+          resultAppId: appPkg.id,
+          sourceAppSectionId: dragData.parentId,
+          ResultAppSectionId: targetData.workSheetId,
+          workSheetsInfo: [
+            {
+              workSheetId: dragData.workSheetId,
+              type: dragData.type,
+              icon: dragData.icon,
+              iconColor: appPkg.iconColor,
+              iconUrl: dragData.iconUrl,
+              workSheetName: dragData.workSheetName,
+              createType: dragData.createType,
+            },
+          ],
+        })
+        .then(result => {
+          if (!result) {
+            alert(_l(_l('移动失败')), 2);
+          }
+        });
       const res = pushTarget(groups, targetData, dragData);
       if ([1, 3].includes(currentPcNaviStyle)) {
         configureStore.dispatch(sheetListActions.updateALLSheetList(res));
@@ -226,61 +218,67 @@ const Drag = props => {
       }
       // 移动
       if (dragDataParentId !== targetDataParentId) {
-        appManagementApi.removeWorkSheetAscription({
-          sourceAppId: appPkg.id,
-          resultAppId: appPkg.id,
-          sourceAppSectionId: dragDataParentId,
-          ResultAppSectionId: targetDataParentId,
-          workSheetsInfo: [{
-            workSheetId: dragData.workSheetId,
-            type: dragData.type,
-            icon: dragData.icon,
-            iconColor: appPkg.iconColor,
-            iconUrl: dragData.iconUrl,
-            workSheetName: dragData.workSheetName,
-            createType: dragData.createType,
-          }]
-        }).then(result => {
-          if (result) {
-            if (targetData.layerIndex === 0) {
-              homeAppApi.updateAppSectionSort({
-                appId: appPkg.id,
-                appSectionIds: res.map(data => data.workSheetId)
-              }).then(data => {});
+        appManagementApi
+          .removeWorkSheetAscription({
+            sourceAppId: appPkg.id,
+            resultAppId: appPkg.id,
+            sourceAppSectionId: dragDataParentId,
+            ResultAppSectionId: targetDataParentId,
+            workSheetsInfo: [
+              {
+                workSheetId: dragData.workSheetId,
+                type: dragData.type,
+                icon: dragData.icon,
+                iconColor: appPkg.iconColor,
+                iconUrl: dragData.iconUrl,
+                workSheetName: dragData.workSheetName,
+                createType: dragData.createType,
+              },
+            ],
+          })
+          .then(result => {
+            if (result) {
+              if (targetData.layerIndex === 0) {
+                homeAppApi.updateAppSectionSort({
+                  appId: appPkg.id,
+                  appSectionIds: res.map(data => data.workSheetId),
+                });
+              }
+              if (targetData.layerIndex === 1) {
+                const workSheetIds = res.map(data => data.workSheetId);
+                homeAppApi.updateSectionChildSort({
+                  appId: appPkg.id,
+                  appSectionId: targetDataParentId,
+                  workSheetIds,
+                });
+              }
+              if (targetData.layerIndex === 2) {
+                const data = _.find(res, { workSheetId: targetDataParentId }) || { items: [] };
+                const workSheetIds = data.items.map(data => data.workSheetId);
+                homeAppApi.updateSectionChildSort({
+                  appId: appPkg.id,
+                  appSectionId: targetDataParentId,
+                  workSheetIds,
+                });
+              }
+            } else {
+              alert(_l(_l('移动失败')), 2);
             }
-            if (targetData.layerIndex === 1) {
-              const workSheetIds = res.map(data => data.workSheetId);
-              homeAppApi.updateSectionChildSort({
-                appId: appPkg.id,
-                appSectionId: targetDataParentId,
-                workSheetIds
-              }).then(data => {});
-            }
-            if (targetData.layerIndex === 2) {
-              const data = _.find(res, { workSheetId: targetDataParentId }) || { items: [] };
-              const workSheetIds = data.items.map(data => data.workSheetId);
-              homeAppApi.updateSectionChildSort({
-                appId: appPkg.id,
-                appSectionId: targetDataParentId,
-                workSheetIds
-              }).then(data => {});
-            }
-          } else {
-            alert(_l(_l('移动失败')), 2);
-          }
-        });
+          });
         return;
       }
       // 一级分组排序
       if (dragData.layerIndex === 0 && dragData.parentId === targetData.parentId) {
-        homeAppApi.updateAppSectionSort({
-          appId: appPkg.id,
-          appSectionIds: res.map(data => data.workSheetId)
-        }).then(data => {
-          if (data.code !== 1) {
-            alert(_l('排序失败'), 2);
-          }
-        });
+        homeAppApi
+          .updateAppSectionSort({
+            appId: appPkg.id,
+            appSectionIds: res.map(data => data.workSheetId),
+          })
+          .then(data => {
+            if (data.code !== 1) {
+              alert(_l('排序失败'), 2);
+            }
+          });
       }
       // 二级分组排序
       if (dragData.layerIndex === 1 && dragData.parentId === targetData.parentId) {
@@ -291,47 +289,57 @@ const Drag = props => {
         } else {
           workSheetIds = res.map(data => data.workSheetId);
         }
-        homeAppApi.updateSectionChildSort({
-          appId: appPkg.id,
-          appSectionId: dragData.parentId,
-          workSheetIds
-        }).then(data => {
-          if (data.code !== 1) {
-            alert(_l('排序失败'), 2);
-          }
-        });
+        homeAppApi
+          .updateSectionChildSort({
+            appId: appPkg.id,
+            appSectionId: dragData.parentId,
+            workSheetIds,
+          })
+          .then(data => {
+            if (data.code !== 1) {
+              alert(_l('排序失败'), 2);
+            }
+          });
       }
       // 三级排序
       if (dragData.layerIndex === 2 && dragData.parentId === targetData.parentId) {
         let workSheetIds = [];
         if ([1, 3].includes(currentPcNaviStyle)) {
           const childrenRes = res.filter(data => _.find(data.items, { workSheetId: dragData.parentId }))[0];
-          workSheetIds = _.find(childrenRes.items, { workSheetId: dragData.parentId }).items.map(data => data.workSheetId);
+          workSheetIds = _.find(childrenRes.items, { workSheetId: dragData.parentId }).items.map(
+            data => data.workSheetId,
+          );
         } else {
           workSheetIds = _.find(res, { workSheetId: dragData.parentId }).items.map(data => data.workSheetId);
         }
-        homeAppApi.updateSectionChildSort({
-          appId: appPkg.id,
-          appSectionId: dragData.parentId,
-          workSheetIds
-        }).then(data => {
-          if (data.code !== 1) {
-            alert(_l('排序失败'), 2);
-          }
-        });
+        homeAppApi
+          .updateSectionChildSort({
+            appId: appPkg.id,
+            appSectionId: dragData.parentId,
+            workSheetIds,
+          })
+          .then(data => {
+            if (data.code !== 1) {
+              alert(_l('排序失败'), 2);
+            }
+          });
       }
     }
-  }
+  };
 
   return (
     <div
       ref={ref}
       data-handler-id={collectProps.handlerId}
       className={className}
-      onMouseDown={(e) => {
+      onMouseDown={e => {
         const { parentElement } = e.target;
-        if (props.onlyIconDrag &&
-          (parentElement.classList.contains('groupHeader') || e.target.classList.contains('groupHeader') || e.target.classList.contains('groupContent') || e.target.dataset.handlerId) &&
+        if (
+          props.onlyIconDrag &&
+          (parentElement.classList.contains('groupHeader') ||
+            e.target.classList.contains('groupHeader') ||
+            e.target.classList.contains('groupContent') ||
+            e.target.dataset.handlerId) &&
           !e.target.classList.contains('dragIcon')
         ) {
           e.preventDefault();
@@ -339,15 +347,21 @@ const Drag = props => {
       }}
       style={{
         opacity: isDragging ? 0 : 1,
-        [currentPcNaviStyle === 2 && appItem.type !== 2 ? activeFirst ? 'borderLeft' : 'borderRight' : activeFirst ? 'borderTop' : 'borderBottom']: collectProps.isOver && active && !activeGroup ? `1px solid ${dropColor}` : undefined,
+        [currentPcNaviStyle === 2 && appItem.type !== 2
+          ? activeFirst
+            ? 'borderLeft'
+            : 'borderRight'
+          : activeFirst
+            ? 'borderTop'
+            : 'borderBottom']: collectProps.isOver && active && !activeGroup ? `1px solid ${dropColor}` : undefined,
         backgroundColor: collectProps.isOver && activeGroup ? new TinyColor(dropColor).setAlpha(0.2) : undefined,
-        transform: 'translate(0px, 0px)'
+        transform: 'translate(0px, 0px)',
       }}
     >
       {children}
     </div>
   );
-}
+};
 
 const mapDispatchToProps = dispatch => ({
   updateSheetList: bindActionCreators(sheetListActions.updateSheetList, dispatch),

@@ -1,22 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { getEmailOrTel, getDefaultCountry, getDialCode, isTel } from 'src/pages/AuthService/util.js';
-import _ from 'lodash';
+import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import intlTelInput from 'ming-ui/components/intlTelInput';
+import { getDefaultCountry, getDialCode, getEmailOrTel, isTel } from 'src/pages/AuthService/util.js';
 
 // 'inputAccount',//手机邮箱输入框
 export default function (props) {
-  const {
-    keys,
-    onlyRead,
-    type,
-    emailOrTel,
-    dialCode,
-    onChange = () => {},
-    canChangeEmailOrTel,
-    focusDiv,
-    warnList,
-  } = props;
+  const { keys, onlyRead, type, emailOrTel, onChange = () => {}, canChangeEmailOrTel, focusDiv, warnList } = props;
 
   const cache = useRef({});
   const mobile = useRef();
@@ -46,7 +36,7 @@ export default function (props) {
         showSelectedDialCode: true,
       });
       emailOrTel && setInputValue(emailOrTel);
-      $(mobile.current).on('close:countrydropdown keyup', e => {
+      $(mobile.current).on('close:countrydropdown keyup', () => {
         cache.current.emailOrTel && setInputValue(cache.current.emailOrTel);
         safeLocalStorageSetItem('DefaultCountry', window.initIntlTelInput.getSelectedCountryData().iso2);
       });
@@ -115,7 +105,7 @@ export default function (props) {
           }}
         />
       )}
-      <div className="title" onClick={e => onChange({ focusDiv: 'inputAccount' })}>
+      <div className="title" onClick={() => onChange({ focusDiv: 'inputAccount' })}>
         {keys.includes('tel') ? _l('手机号') : keys.includes('email') ? _l('邮箱') : _l('手机号或邮箱')}
       </div>
       {warn && <div className={cx('warnTips')}>{warn.warnTxt}</div>}

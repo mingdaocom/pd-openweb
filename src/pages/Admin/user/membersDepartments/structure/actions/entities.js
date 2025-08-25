@@ -1,5 +1,4 @@
-﻿import _ from 'lodash';
-import { getCurrentProject } from 'src/utils/project';
+﻿import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../../config';
 import { COMPANY_DEPARMENTID, PAGE_SIZE } from '../constant';
 import { CALL_API } from '../middleware/api';

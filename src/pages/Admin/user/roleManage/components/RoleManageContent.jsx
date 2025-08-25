@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { LoadDiv } from 'ming-ui';
-import PaginationWrap from '../../../components/PaginationWrap';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as actions from '../../../redux/roleManage/action';
-import RoleUserList from './RoleUserList';
-import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
-import { dialogSelectUser } from 'ming-ui/functions';
-import organizeAjax from 'src/api/organize.js';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import organizeAjax from 'src/api/organize.js';
+import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
+import PaginationWrap from '../../../components/PaginationWrap';
+import * as actions from '../../../redux/roleManage/action';
+import RoleUserList from './RoleUserList';
 
 const PAGE_SIZE = 50;
 
@@ -21,7 +21,7 @@ class RoleManageContent extends Component {
   componentDidMount() {}
   // 添加成员
   addUser = () => {
-    const { projectId, currentRole = {}, selectUserIds = [] } = this.props;
+    const { projectId, currentRole = {} } = this.props;
     const SelectUserSettingsForAdd = {
       unique: false,
       projectId: projectId,
@@ -121,7 +121,7 @@ class RoleManageContent extends Component {
               userList={userList}
               selectUserIds={selectUserIds}
               updateSelectUserIds={this.props.updateSelectUserIds}
-              updateUerList={() =>  this.props.getUserList({ pageIndex: userPageIndex, roleId: currentRole.organizeId })}
+              updateUerList={() => this.props.getUserList({ pageIndex: userPageIndex, roleId: currentRole.organizeId })}
             />
           )}
         </div>

@@ -215,11 +215,11 @@ var staticLanguages = {
     'zh-Hans': '微信授权',
     'zh-Hant': '微信授權',
   },
-  填写链接: {
-    en: 'Fill in Link',
-    ja: 'リンクを記入',
-    'zh-Hans': '填写链接',
-    'zh-Hant': '填寫鏈接',
+  流程链接: {
+    en: 'Process Link',
+    ja: 'プロセスリンク',
+    'zh-Hans': '流程链接',
+    'zh-Hant': '流程鏈接',
   },
   API文档: {
     en: 'API Documentation',

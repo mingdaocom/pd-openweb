@@ -13,9 +13,9 @@ export function checkRulesErrorOfRow({ from, rules, controls, control, row }) {
     data: controls.map(c => ({ ...c, value: row[c.controlId] })),
     updateControlIds: control ? [control.controlId] : [],
     checkAllUpdate: !control,
-    checkRuleValidator: (controlId, errorType, errorMessage) => {
+    checkRuleValidator: (controlId, errorType, errorMessage, rule = {}) => {
       if (errorMessage) {
-        errors.push({ controlId, errorType, errorMessage });
+        errors.push({ controlId, errorType, errorMessage, ignoreErrorMessage: rule.checkType === 3 });
       }
     },
   });

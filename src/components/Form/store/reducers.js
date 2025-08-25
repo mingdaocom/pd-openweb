@@ -29,7 +29,7 @@ export const reducer = (state, action) => {
     case 'SET_SEARCH_CONFIG':
       return { ...state, searchConfig: action.payload };
     case 'SET_LOADING_ITEMS':
-      return { ...state, loadingItems: action.payload };
+      return { ...state, loadingItems: { ...state.loadingItems, ...action.payload } };
     case 'SET_VERIFY_CODE':
       return { ...state, verifyCode: action.payload };
     case 'SET_ACTIVE_TAB_CONTROL_ID':

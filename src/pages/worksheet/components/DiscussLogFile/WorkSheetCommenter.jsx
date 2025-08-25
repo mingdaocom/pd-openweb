@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { UserHead } from 'ming-ui';
 import Commenter from 'src/components/comment/commenter';
-import { getCurrentProject } from 'src/utils/project';
 
 export default class WorkSheetCommenter extends Component {
+  commentRef = React.createRef();
   render() {
     const {
       worksheet: { worksheetId, rowId, title, appId, name, appSectionId, viewId },
@@ -18,6 +18,8 @@ export default class WorkSheetCommenter extends Component {
       atData,
       instanceId,
       workId,
+      autoFocus,
+      isHide,
     } = this.props;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
     const props = {
@@ -42,7 +44,7 @@ export default class WorkSheetCommenter extends Component {
         title: typeof title === 'string' ? title : '',
       }),
       relatedLeftSpace: -60,
-      mentionsOptions: { position: 'top', isAtAll: !!rowId },
+      mentionsOptions: { isAtAll: !!rowId, getPopupMaxHeight: () => _.get(this.commentRef, 'current.offsetTop') || 0 },
       selectGroupOptions: { position: 'top' },
       storageId: id,
       extendsId: `${appId || ''}|${viewId || ''}`,
@@ -55,9 +57,11 @@ export default class WorkSheetCommenter extends Component {
         });
         addCallback(discussion);
       },
+      autoFocus,
+      isHide,
     };
     return (
-      <div className="comment">
+      <div className="comment" ref={this.commentRef}>
         <UserHead
           className="createHeadImg TxtMiddle InlineBlock mRight8 mTop3"
           user={{

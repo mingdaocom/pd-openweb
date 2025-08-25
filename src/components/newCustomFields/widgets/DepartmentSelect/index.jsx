@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -10,6 +11,7 @@ import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilt
 import { browserIsMobile } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import { dealRenderValue, dealUserRange } from '../../tools/utils';
+import QuickOperate from '../UserSelect/QuickOperate';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -22,12 +24,16 @@ export default class Widgets extends Component {
 
   state = {
     showSelectDepartment: false,
+    showId: '',
   };
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
       !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
-      !_.isEqual(_.pick(nextState, ['showSelectDepartment']), _.pick(this.state, ['showSelectDepartment']))
+      !_.isEqual(
+        _.pick(nextState, ['showSelectDepartment', 'showId']),
+        _.pick(this.state, ['showSelectDepartment', 'showId']),
+      )
     ) {
       return true;
     }
@@ -37,8 +43,8 @@ export default class Widgets extends Component {
   /**
    * 选择部门
    */
-  pickDepartment = e => {
-    const { projectId, enumDefault, advancedSetting = {}, formData, enumDefault2, value } = this.props;
+  pickDepartment = replaceItem => {
+    const { projectId, enumDefault, advancedSetting = {}, formData, value } = this.props;
     const that = this;
 
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
@@ -50,22 +56,22 @@ export default class Widgets extends Component {
     } else {
       const deptRange = dealUserRange(this.props, formData);
 
-      quickSelectDept(e.target, {
+      quickSelectDept(this.pick, {
         projectId,
         isIncludeRoot: false,
-        unique: enumDefault === 0,
+        unique: enumDefault === 0 || !!replaceItem,
         showCreateBtn: false,
         allPath: advancedSetting.allpath === '1',
         departrangetype: advancedSetting.departrangetype,
         appointedDepartmentIds: _.get(deptRange, 'appointedDepartmentIds') || [],
         appointedUserIds: _.get(deptRange, 'appointedAccountIds') || [],
         selectedDepartment: JSON.parse(value || '[]'),
-        selectFn: that.onSave,
+        selectFn: (departs, isCancel) => that.onSave(departs, isCancel, replaceItem),
       });
     }
   };
 
-  onSave = (data, isCancel = false) => {
+  onSave = (data, isCancel = false, replaceItem) => {
     const { enumDefault, onChange, value } = this.props;
     const valueArr = JSON.parse(value || '[]');
     const lastIds = _.sortedUniq(valueArr.map(l => l.departmentId));
@@ -78,7 +84,12 @@ export default class Widgets extends Component {
         ? data
         : isCancel
           ? valueArr.filter(l => l.departmentId !== data[0].departmentId)
-          : _.uniqBy(valueArr.concat(data), 'departmentId');
+          : _.uniqBy(
+              replaceItem
+                ? valueArr.map(v => (v.departmentId === replaceItem.departmentId ? data[0] : v))
+                : valueArr.concat(data),
+              'departmentId',
+            );
 
     onChange(JSON.stringify(newData));
   };
@@ -95,67 +106,95 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
-  renderItem({ item, items = [], dragging }) {
+  renderItem({ item, items = [], dragging, isLayer }) {
     const { projectId, disabled, enumDefault, advancedSetting = {} } = this.props;
     const { allpath } = advancedSetting;
+    const isMobile = browserIsMobile();
+    const disablePopover = disabled || dragging || isMobile || isLayer || item.isDelete;
+    const showMenu = this.state.showId === item.departmentId && !disablePopover;
 
     return (
-      <Tooltip
-        key={item.departmentId}
-        mouseEnterDelay={0.6}
-        disable={!projectId || dragging}
-        text={
-          !_.get(window, 'shareState.shareId')
-            ? () =>
-                new Promise((resolve, reject) => {
-                  if (!projectId) {
-                    return reject();
-                  }
-
-                  if (item.isDelete) {
-                    resolve(_l('%0部门已被删除', item.deleteCount > 1 ? `${item.deleteCount}个` : ''));
-                    return;
-                  }
-
-                  if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
-                    return resolve(item.departmentName);
-                  }
-
-                  departmentAjax
-                    .getDepartmentFullNameByIds({
-                      projectId,
-                      departmentIds: [item.departmentId],
-                    })
-                    .then(res => {
-                      resolve(_.get(res, '0.name'));
-                    });
-                })
-            : null
+      <Popover
+        title={null}
+        placement="bottomLeft"
+        overlayClassName="quickConfigPopover"
+        trigger={['click', 'contextMenu']}
+        visible={showMenu}
+        onVisibleChange={visible => {
+          if (disablePopover) return;
+          this.setState({ showId: visible ? item.departmentId : '' });
+        }}
+        content={
+          disablePopover ? null : (
+            <QuickOperate
+              {...this.props}
+              item={item}
+              handleRemove={() => this.removeDepartment(item.departmentId)}
+              handlePick={() => this.pickDepartment(item)}
+              closePopover={() => this.setState({ showId: '' })}
+            />
+          )
         }
       >
-        <div
-          className={cx('customFormControlTags pLeft10', {
-            selected: browserIsMobile() && !disabled,
-            isDelete: item.isDelete,
-          })}
+        <Tooltip
           key={item.departmentId}
-        >
-          <span
-            className="ellipsis"
-            style={{
-              maxWidth: 200,
-              ...(allpath === '1' && !item.isDelete ? { direction: 'rtl', unicodeBidi: 'normal' } : {}),
-            }}
-          >
-            {item.departmentName}
-            {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
-          </span>
+          mouseEnterDelay={0.6}
+          disable={!projectId || dragging}
+          autoCloseDelay={0}
+          text={
+            !_.get(window, 'shareState.shareId')
+              ? () =>
+                  new Promise((resolve, reject) => {
+                    if (!projectId) {
+                      return reject();
+                    }
 
-          {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
-            <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeDepartment(item.departmentId)} />
-          )}
-        </div>
-      </Tooltip>
+                    if (item.isDelete) {
+                      resolve(_l('%0部门已被删除', item.deleteCount > 1 ? `${item.deleteCount}个` : ''));
+                      return;
+                    }
+
+                    if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
+                      return resolve(item.departmentName);
+                    }
+
+                    departmentAjax
+                      .getDepartmentFullNameByIds({
+                        projectId,
+                        departmentIds: [item.departmentId],
+                      })
+                      .then(res => {
+                        resolve(_.get(res, '0.name'));
+                      });
+                  })
+              : null
+          }
+        >
+          <div
+            className={cx('customFormControlTags pLeft10', {
+              selected: browserIsMobile() && !disabled,
+              isDelete: item.isDelete,
+              clickActive: showMenu,
+            })}
+            key={item.departmentId}
+          >
+            <span
+              className="ellipsis"
+              style={{
+                ...(enumDefault === 1 ? { maxWidth: 200 } : {}),
+                ...(allpath === '1' && !item.isDelete ? { direction: 'rtl', unicodeBidi: 'normal' } : {}),
+              }}
+            >
+              {item.departmentName}
+              {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
+            </span>
+
+            {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
+              <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeDepartment(item.departmentId)} />
+            )}
+          </div>
+        </Tooltip>
+      </Popover>
     );
   }
 
@@ -189,17 +228,21 @@ export default class Widgets extends Component {
           items={value.map(l => ({ ...l, canDrag: !!l.departmentId }))}
           canDrag={!disabled && enumDefault !== 0}
           itemKey="departmentId"
-          itemClassName="inlineFlex grab"
+          itemClassName={cx('inlineFlex grab', { wMax100: enumDefault !== 1 })}
           direction="vertical"
           renderBody
           renderItem={item => this.renderItem(item)}
-          onSortEnd={this.handleSort}
+          onSortEnd={items => {
+            this.setState({ showId: '' });
+            this.handleSort(items);
+          }}
         />
 
         {!disabled && (
           <div
             className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
-            onClick={this.pickDepartment}
+            onClick={() => this.pickDepartment()}
+            ref={con => (this.pick = con)}
           >
             <i className={enumDefault === 0 && value.length ? 'icon-swap_horiz Font16' : 'icon-plus Font14'} />
           </div>

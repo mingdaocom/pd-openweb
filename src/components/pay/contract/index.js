@@ -125,6 +125,7 @@ class ContractCom extends Component {
         });
       });
     } catch (error) {
+      console.log(error);
       $('.printMt200,.printMt').css({ marginTop: 0 });
       alert(_l('生成失败'), 3);
     }
@@ -162,7 +163,7 @@ class ContractCom extends Component {
               {_l('联系人信息')} <span className="mLeft5 mRight5">CONTACT</span> INFORMATION
             </div>
             <table cellpadding="0" cellspacing="0" className="contactTable LineHeight30">
-              {contactInfo.map((item, index) => {
+              {contactInfo.map(item => {
                 return (
                   <tr>
                     {item.map(v => {

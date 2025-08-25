@@ -1,46 +1,44 @@
 import React, { Component, Fragment } from 'react';
 import { Dropdown, Menu } from 'antd';
-import { ScrollView, Icon } from 'ming-ui';
-import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
-import styled from 'styled-components';
-import cx from 'classnames';
 import { TinyColor } from '@ctrl/tinycolor';
-import gold_medal from 'statistics/assets/topChart/gold_medal.png';
-import silver_medal from 'statistics/assets/topChart/silver_medal.png';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
+import copper_crown from 'statistics/assets/topChart/copper_crown.png';
 import copper_medal from 'statistics/assets/topChart/copper_medal.png';
 import gold_crown from 'statistics/assets/topChart/gold_crown.png';
-import silver_crown from 'statistics/assets/topChart/silver_crown.png';
-import copper_crown from 'statistics/assets/topChart/copper_crown.png';
+import gold_medal from 'statistics/assets/topChart/gold_medal.png';
 import one from 'statistics/assets/topChart/one.png';
-import two from 'statistics/assets/topChart/two.png';
+import silver_crown from 'statistics/assets/topChart/silver_crown.png';
+import silver_medal from 'statistics/assets/topChart/silver_medal.png';
 import there from 'statistics/assets/topChart/there.png';
+import two from 'statistics/assets/topChart/two.png';
+import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 
-const formatTopChartData = (map) => {
+const formatTopChartData = map => {
   const data = _.get(map[0], 'value') || [];
   const result = [];
-  const getValues = (index) => {
+  const getValues = index => {
     const obj = {};
     map.forEach(data => {
       obj[data.c_id] = data.value[index].v;
     });
     return obj;
-  }
-  for(let i = 0; i < data.length; i++) {
+  };
+  for (let i = 0; i < data.length; i++) {
     const { x, originalX } = data[i];
     result.push({
       name: x,
       originalX,
-      ...getValues(i)
+      ...getValues(i),
     });
   }
   return result;
-}
+};
 
 const TopChartContent = styled.div`
-  .nano-content {
-    background-color: transparent !important;
-  }
   .item {
     padding: 6px 12px 6px 0;
     border-radius: 4px;
@@ -55,7 +53,7 @@ const TopChartContent = styled.div`
   .valueProgressWrap {
     flex: 1;
     height: 12px;
-    background-color: ${props => props.isDark ? '#ffffff99' : '#efedee'}
+    background-color: ${props => (props.isDark ? '#ffffff99' : '#efedee')}
     border-radius: 2px;
     overflow: hidden;
     .progress {
@@ -64,7 +62,7 @@ const TopChartContent = styled.div`
     }
   }
   .item:hover {
-    background-color: ${props => props.isDark ? '#ffffff1a' : '#f7f7f7'}
+    background-color: ${props => (props.isDark ? '#ffffff1a' : '#f7f7f7')}
   }
   .top {
     width: 20px;
@@ -118,8 +116,8 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-      newYaxisList: []
-    }
+      newYaxisList: [],
+    };
   }
   componentDidMount() {
     this.setCount(this.props);
@@ -138,18 +136,18 @@ export default class extends Component {
     this.setState({
       newYaxisList,
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
   handleClick = (event, data) => {
-    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
     const param = {};
     const linkageMatch = {
       sheetId: appId,
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -162,7 +160,7 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: data.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
@@ -170,49 +168,55 @@ export default class extends Component {
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
     const { left, top } = this.chartWrapEl.getBoundingClientRect();
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: event.clientX - left,
-        y: event.clientY - top
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: event.clientX - left,
+          y: event.clientY - top,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     this.setState({ dropdownVisible: false });
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState({
       dropdownVisible: false,
     });
-  }
-  getBgColor = (data) => {
+  };
+  getBgColor = data => {
     const { themeColor, projectId, reportData, linkageMatch, customPageConfig = {} } = this.props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const colors = getChartColors(style, themeColor, projectId);
     let color = colors[0];
     if (!_.isEmpty(linkageMatch)) {
@@ -223,7 +227,7 @@ export default class extends Component {
       }
     }
     return color;
-  }
+  };
   renderIndex(index) {
     const { style } = this.props.reportData;
     const { topStyle } = style;
@@ -256,7 +260,9 @@ export default class extends Component {
     return (
       <div className={cx('flexRow valignWrapper item', isDark ? 'White' : 'Gray_9e')}>
         <div className="index alignItemsCenter justifyContentCenter flexRow">{_l('排行')}</div>
-        <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}>{xaxes.rename || xaxes.controlName}</div>
+        <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}>
+          {xaxes.rename || xaxes.controlName}
+        </div>
         {valueProgressVisible && <div className="valueProgressWrap Visibility" />}
         <div className="flexRow valignWrapper flex">
           {yaxisList.map(item => (
@@ -277,23 +283,33 @@ export default class extends Component {
       <div
         className="flexRow valignWrapper item"
         key={index}
-        onClick={(event) => {
+        onClick={event => {
           this.isViewOriginalData = displaySetup.showRowList && isViewOriginalData;
-          this.isLinkageData = isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+          this.isLinkageData =
+            isLinkageData &&
+            !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
           if (this.isViewOriginalData || this.isLinkageData) {
             this.handleClick(event, data);
           }
         }}
       >
-        <div className={cx('index alignItemsCenter justifyContentCenter flexRow', isDark ? 'White' : 'Gray_75')}>{this.renderIndex(index + 1)}</div>
-        <div className={cx('name ellipsis mRight8', isDark ? 'White' : 'Gray')} style={valueProgressVisible ? { width: '20%' } : { flex: 1 }} title={data.name}>{data.name}</div>
+        <div className={cx('index alignItemsCenter justifyContentCenter flexRow', isDark ? 'White' : 'Gray_75')}>
+          {this.renderIndex(index + 1)}
+        </div>
+        <div
+          className={cx('name ellipsis mRight8', isDark ? 'White' : 'Gray')}
+          style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}
+          title={data.name}
+        >
+          {data.name}
+        </div>
         {valueProgressVisible && (
           <div className="valueProgressWrap">
             <div
               className="progress"
               style={{
-                width: `${data[_.find(yaxisList, { controlId: sortId }) ? sortId : _.get(yaxisList[0], 'controlId')] / maxValue * 100}%`,
-                backgroundColor: this.getBgColor(data)
+                width: `${(data[_.find(yaxisList, { controlId: sortId }) ? sortId : _.get(yaxisList[0], 'controlId')] / maxValue) * 100}%`,
+                backgroundColor: this.getBgColor(data),
               }}
             />
           </div>
@@ -314,11 +330,9 @@ export default class extends Component {
   }
   renderTopChart() {
     const { customPageConfig = {}, reportData, isThumbnail } = this.props;
-    const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
+    const { pageStyleType = 'light' } = customPageConfig;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, yaxisList } = reportData;
-    const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
     return (
@@ -326,9 +340,7 @@ export default class extends Component {
         <ScrollView>
           <Fragment>
             {yaxisList.length > 1 && this.renderHeader(isDark)}
-            {data.map((data, index) => (
-              this.renderItem(data, index, maxValue || 0, isDark)
-            ))}
+            {data.map((data, index) => this.renderItem(data, index, maxValue || 0, isDark))}
           </Fragment>
         </ScrollView>
       </TopChartContent>
@@ -341,7 +353,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper topChart Relative" ref={el => (this.chartWrapEl = el)}>
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
@@ -353,7 +365,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
+            <span data-tip={originalCount ? originalCount : null} className="count">
+              {count}
+            </span>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'}>{this.renderTopChart()}</div>

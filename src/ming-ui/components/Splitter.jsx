@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './less/Splitter.less';
 
 function Splitter(props) {

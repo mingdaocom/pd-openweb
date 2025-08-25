@@ -1,8 +1,8 @@
-﻿import doT from 'dot';
-import inviteSingleTpl from './tpl/refuserDialogHtml.html';
-import calendarController from 'src/api/calendar';
+﻿import React from 'react';
+import doT from 'dot';
 import Dialog from 'ming-ui/components/Dialog';
-import React from 'react';
+import calendarController from 'src/api/calendar';
+import inviteSingleTpl from './tpl/refuserDialogHtml.html';
 
 // 页面 初始化
 // 公用配置
@@ -43,7 +43,7 @@ Comm.inviteCalendar = {
     // 确认参加
     Comm.confirmOrUnconfirmInviteMe(calendarId, 1, '', recurTime, catID);
   },
-  refuse: function (calendarId, recurTime, catID) {
+  refuse: function (calendarId, recurTime) {
     Dialog.confirm({
       dialogClasses: 'inviteDirectMessages',
       width: 488,

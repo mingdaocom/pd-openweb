@@ -42,8 +42,6 @@ const EmbedWrap = styled.div`
     }
 
     .SingleViewHeader {
-      ${props => (_.includes([VIEW_DISPLAY_TYPE.calendar], props.viewType) ? { display: 'none;' } : {})}
-
       .searchInputComp {
         ${props =>
           _.includes([VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.resource], props.viewType)
@@ -72,7 +70,8 @@ const Embed = props => {
   const iframeRef = useRef(null);
   const embedWatch = useRef(null);
   const latestResultData = useRef('');
-  const { appid, reportid, wsid, type } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
+  const latestProps = useRef(props);
+  const { appid, reportid, wsid } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
   const { height, rownum = '10' } = advancedSetting;
   const [{ resultData, needUpdate, ChartComponents, viewType, controls }, setState] = useSetState({
     resultData: '',
@@ -125,8 +124,8 @@ const Embed = props => {
     }
   };
 
-  const setValue = obj => {
-    const { enumDefault, value, formData, recordId } = obj || props;
+  const setValue = () => {
+    const { enumDefault, value, formData, recordId } = latestProps.current;
     const _resultData = latestResultData.current;
     if (enumDefault === 1) {
       if (value && value !== _resultData) {
@@ -150,11 +149,15 @@ const Embed = props => {
     return () => {
       clearInterval(embedWatch.current);
     };
-  }, []);
+  }, [controls]);
 
   useEffect(() => {
     latestResultData.current = resultData;
   }, [resultData]);
+
+  useEffect(() => {
+    latestProps.current = props;
+  }, [props]);
 
   const getContent = () => {
     const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;

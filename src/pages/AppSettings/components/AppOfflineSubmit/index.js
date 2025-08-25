@@ -33,7 +33,7 @@ export default function AppOfflineSubmit(props) {
         setOfflineItems(res);
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setOfflineItems([]);
         setLoading(false);
       });
@@ -94,7 +94,7 @@ export default function AppOfflineSubmit(props) {
           />
         </div>
         <Menu className="worksheetListMenu w100">
-          {(!!keyword ? searchData : sheetData).map(item => {
+          {(keyword ? searchData : sheetData).map(item => {
             return (
               <MenuItem iconAtEnd key={item.workSheetId} onClick={() => addOfflineItem(item.workSheetId)}>
                 <span className="flex ellipsis Block">{item.workSheetName}</span>
@@ -167,38 +167,36 @@ export default function AppOfflineSubmit(props) {
             <div className="status">{_l('状态')}</div>
             <div className="action"></div>
           </div>
-          <div className="flex">
-            <ScrollView>
-              {offlineItems.map(item => {
-                const { worksheetId, name, iconUrl, iconColor, status, createTime, operator = {} } = item;
-                return (
-                  <div key={worksheetId} className="row flexRow alignItemsCenter">
-                    <div className="name flex pLeft8 flexRow">
-                      <SvgIcon addClassName="mTop3" url={iconUrl} fill={iconColor} size={20} />
-                      <span className="Font14 mLeft12 flex ellipsis pRight10">{name}</span>
-                    </div>
-                    <div className="operator ellipsis pRight10">{operator.fullname}</div>
-                    <div className="status">
-                      <Switch checked={status === 1} onClick={() => editOfflineItemStatus(worksheetId, status)} />
-                    </div>
-                    <div className="action">
-                      <i
-                        className="icon icon-delete2 Hand Font20"
-                        onClick={() => {
-                          Dialog.confirm({
-                            className: 'deleteOfflineItemDialog',
-                            title: _l('是否确认删除？'),
-                            okText: _l('删除'),
-                            onOk: () => editOfflineItemStatus(worksheetId, 2),
-                          });
-                        }}
-                      />
-                    </div>
+          <ScrollView className="flex">
+            {offlineItems.map(item => {
+              const { worksheetId, name, iconUrl, iconColor, status, operator = {} } = item;
+              return (
+                <div key={worksheetId} className="row flexRow alignItemsCenter">
+                  <div className="name flex pLeft8 flexRow">
+                    <SvgIcon addClassName="mTop3" url={iconUrl} fill={iconColor} size={20} />
+                    <span className="Font14 mLeft12 flex ellipsis pRight10">{name}</span>
                   </div>
-                );
-              })}
-            </ScrollView>
-          </div>
+                  <div className="operator ellipsis pRight10">{operator.fullname}</div>
+                  <div className="status">
+                    <Switch checked={status === 1} onClick={() => editOfflineItemStatus(worksheetId, status)} />
+                  </div>
+                  <div className="action">
+                    <i
+                      className="icon icon-trash Hand Font20"
+                      onClick={() => {
+                        Dialog.confirm({
+                          className: 'deleteOfflineItemDialog',
+                          title: _l('是否确认删除？'),
+                          okText: _l('删除'),
+                          onOk: () => editOfflineItemStatus(worksheetId, 2),
+                        });
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </ScrollView>
         </div>
       )}
     </div>

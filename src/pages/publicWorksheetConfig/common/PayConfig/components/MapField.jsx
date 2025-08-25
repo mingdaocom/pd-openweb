@@ -102,6 +102,7 @@ export default class MapField extends Component {
           {_.includes(['payStatus', 'settleFee', 'tradeFee', 'tradeFeeRate'], item.controlId) && (
             <Tooltip
               text={<span>{item.desc}</span>}
+              autoCloseDelay={0}
               popupAlign={{
                 points: ['tl', 'bl'],
                 offset: [-15, 0],

@@ -242,7 +242,7 @@ export default class UpdateFields extends Component {
                   i={i}
                   moreNodesMenuStyle={{ marginLeft: item.nodeId ? 0 : -556, width: 701 }}
                 />
-                <i className="icon-delete2 Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
+                <i className="icon-trash Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
               </div>
               {!!item.desc && <div className="Gray_75 mTop5">{item.desc}</div>}
               {i !== fields.length - 1 && <div className="actionFieldsSplit" />}

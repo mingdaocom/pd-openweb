@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -9,6 +10,7 @@ import { emitter } from 'src/utils/common';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { formatNumberFromInput } from 'src/utils/control';
 import { renderText } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
@@ -44,6 +46,7 @@ export default class MobilePhone extends React.Component {
     try {
       return this.editRef.current.iti;
     } catch (err) {
+      console.log(err);
       return undefined;
     }
   }
@@ -81,10 +84,10 @@ export default class MobilePhone extends React.Component {
     }
   };
 
-  handleBlur = target => {
-    const { error, updateCell, updateEditingStatus } = this.props;
+  handleBlur = () => {
+    const { error, ignoreErrorMessage, updateCell, updateEditingStatus } = this.props;
     const { tempValue, value } = this.state;
-    if (error) {
+    if (error && !ignoreErrorMessage) {
       this.handleExit();
       return;
     }
@@ -104,7 +107,15 @@ export default class MobilePhone extends React.Component {
 
   get masked() {
     const { cell, isCharge } = this.props;
-    return this.state.value && (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1');
+    return (
+      this.state.value &&
+      (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1') &&
+      !(
+        _.get(window, 'shareState.isPublicView') ||
+        _.get(window, 'shareState.isPublicPage') ||
+        _.get(window, 'shareState.isPublicRecord')
+      )
+    );
   }
 
   focus(time) {
@@ -116,7 +127,7 @@ export default class MobilePhone extends React.Component {
   }
 
   handleChange = async value => {
-    const { cell, onValidate } = this.props;
+    const { onValidate } = this.props;
     onValidate(value);
     this.setState({
       tempValue: value,
@@ -193,6 +204,10 @@ export default class MobilePhone extends React.Component {
       return;
     }
     e.stopPropagation();
+    addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+      rowId: this.props.recordId,
+      controlId: _.get(this.props, 'cell.controlId'),
+    });
     this.setState({ forceShowFullValue: true });
   };
 
@@ -210,6 +225,7 @@ export default class MobilePhone extends React.Component {
       editable,
       isediting,
       onClick,
+      ignoreErrorMessage,
     } = this.props;
     const { value, forceShowFullValue } = this.state;
     const isCard = from === FROM.CARD;
@@ -245,6 +261,7 @@ export default class MobilePhone extends React.Component {
         />
         {error && (
           <CellErrorTips
+            color={ignoreErrorMessage ? '#ff933e' : undefined}
             error={typeof error === 'string' ? error : _l('不是有效的电话号码')}
             pos={rowIndex === 0 ? 'bottom' : 'top'}
           />
@@ -260,6 +277,7 @@ export default class MobilePhone extends React.Component {
         popupClassName={cx('filterTrigger cellControlMobilePhoneEdit scrollInTable', {
           cellControlEdittingStatus: tableType !== 'classic',
           cellControlErrorStatus: error,
+          ignoreErrorMessage,
         })}
         popupVisible={isediting}
         popupAlign={{

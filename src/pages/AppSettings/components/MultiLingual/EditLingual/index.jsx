@@ -1,12 +1,13 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Popover, Select } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Button, RadioGroup, LoadDiv } from 'ming-ui';
-import { Select, Popover } from 'antd';
-import DragMask from 'worksheet/common/DragMask';
-import Nav from './Nav';
-import Content from './Content';
-import langConfig from 'src/common/langConfig';
+import { Button, Icon, LoadDiv, RadioGroup } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import DragMask from 'worksheet/common/DragMask';
+import langConfig from 'src/common/langConfig';
+import Content from './Content';
+import Nav from './Nav';
 import './index.less';
 
 const PopoverWrap = styled.div`
@@ -109,7 +110,7 @@ export default function Edit(props) {
 
   const handleRunTranslation = () => {
     if (machineTranslationLoading) {
-      return
+      return;
     }
     setMachineTranslationLoading(true);
     appManagementApi
@@ -123,7 +124,8 @@ export default function Edit(props) {
         if (data.message) {
           alert(data.message, 3);
         }
-      }).finally(() => {
+      })
+      .finally(() => {
         setMachineTranslationLoading(false);
       });
     document.querySelector('.translateWrap').click();
@@ -149,10 +151,7 @@ export default function Edit(props) {
           <span className="bold mRight5 pointer ThemeColor backHome" onClick={onBack}>
             {_l('语言')}
           </span>
-          /
-          <span className="bold mLeft5">
-            {langInfoText}
-          </span>
+          /<span className="bold mLeft5">{langInfoText}</span>
         </div>
         <div className="flexRow alignItemsCenter">
           {!md.global.SysSettings.hideAIBasicFun && (
@@ -164,9 +163,7 @@ export default function Edit(props) {
                 <PopoverWrap>
                   <div className="flexRow alignItemsCenter">
                     <Icon className="Font26 ThemeColor mRight5" icon="translate_language" />
-                    <div className="Font17 bold">
-                      {_l('将本应用的%0翻译为 %1', original, langInfoText)}
-                    </div>
+                    <div className="Font17 bold">{_l('将本应用的%0翻译为 %1', original, langInfoText)}</div>
                   </div>
                   <div className="mTop40 mBottom40">
                     <div className="mBottom10">{_l('译文填充方式')}</div>
@@ -219,8 +216,8 @@ export default function Edit(props) {
               .filter(data => data.langCode !== langInfo.langCode)
               .map(data => (
                 <Select.Option key={data.id} value={data.id}>
-                  {_.find(allLangList, { langCode: data.langCode })[currentLangKey]} 
-                  ({_.find(allLangList, { langCode: data.langCode }).localLang})
+                  {_.find(allLangList, { langCode: data.langCode })[currentLangKey]}(
+                  {_.find(allLangList, { langCode: data.langCode }).localLang})
                 </Select.Option>
               ))}
           </Select>

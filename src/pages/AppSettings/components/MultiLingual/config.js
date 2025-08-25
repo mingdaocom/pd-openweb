@@ -1,4 +1,3 @@
-
 export const LANG_DATA_TYPE = {
   app: 0,
   section: 1,
@@ -14,4 +13,6 @@ export const LANG_DATA_TYPE = {
   customePageFilter: 10,
   customePageButton: 11,
   customePageStatistics: 12,
+  workflow: 14,
+  workflowNode: 15,
 };

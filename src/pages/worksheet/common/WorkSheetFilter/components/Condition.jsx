@@ -4,9 +4,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dropdown, Icon, Input } from 'ming-ui';
-import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { API_ENUM_TO_TYPE, CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE, FILTER_RELATION_TYPE } from '../enum';
+import {
+  API_ENUM_TO_TYPE,
+  CONDITION_OPTIONS,
+  CONTROL_FILTER_WHITELIST,
+  FILTER_CONDITION_TYPE,
+  FILTER_RELATION_TYPE,
+} from '../enum';
 import { getConditionOverrideValue, getFilterTypes } from '../util';
 import renderConditionValue from './contents';
 
@@ -108,25 +113,7 @@ export default class Condition extends Component {
   };
 
   renderOption = () => {
-    const {
-      isRules,
-      projectId,
-      canEdit,
-      index,
-      control,
-      conditionGroupType,
-      relationType,
-      condition,
-      conditionsLength,
-      onChange,
-      onDelete,
-      onUpdateFilter,
-      from,
-      currentColumns,
-      columns,
-      relateSheetList,
-      sourceControlId = '',
-    } = this.props;
+    const { canEdit, index, relationType, onUpdateFilter } = this.props;
     return (
       <React.Fragment>
         {index === 0 ? (
@@ -159,12 +146,10 @@ export default class Condition extends Component {
       index,
       control,
       conditionGroupType,
-      relationType,
       condition,
       conditionsLength,
       onChange,
       onDelete,
-      onUpdateFilter,
       from,
       currentColumns,
       columns,
@@ -173,21 +158,12 @@ export default class Condition extends Component {
       filterDept,
       isSheetFieldError,
       filterResigned = true,
-      conditionItemForDynamicStyle,
     } = this.props;
     let conditionFilterTypes = getFilterTypes(control, condition.type, from);
     // 单选下拉menu隐藏【等于】、【不等于】
     const hiddenValue =
       control && _.includes([9, 11], control.type) ? [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE] : [];
     if (isRules && control) {
-      if (control.type === 29 && control.enumDefault === 2) {
-        conditionFilterTypes = conditionFilterTypes.filter(
-          type => !_.includes([FILTER_CONDITION_TYPE.RCEQ, FILTER_CONDITION_TYPE.RCNE], type.value),
-        );
-        if (!_.find(conditionFilterTypes, type => type.value === condition.type)) {
-          this.changeConditionType(conditionFilterTypes[0].value);
-        }
-      }
       if (control.type === 35 || control.type === 27) {
         conditionFilterTypes = conditionFilterTypes.filter(
           type => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], type.value),
@@ -282,7 +258,7 @@ export default class Condition extends Component {
               disabled={!isDynamicValue}
               dropdownClassName="dynamicSelectDropdown"
               value={this.state.isDynamicsource ? 2 : 1}
-              options={isDynamicValue ? conditionTypeListData : conditionTypeListData.filter(o => o.value === 1)}
+              options={isDynamicValue ? CONDITION_OPTIONS : CONDITION_OPTIONS.filter(o => o.value === 1)}
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
               onChange={value => {
                 this.setState(

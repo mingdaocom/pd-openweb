@@ -1,5 +1,5 @@
 import React from 'react';
-import { Popup, Button } from 'antd-mobile';
+import { Button, Popup } from 'antd-mobile';
 import styled from 'styled-components';
 
 const BtnsWrap = styled.div`

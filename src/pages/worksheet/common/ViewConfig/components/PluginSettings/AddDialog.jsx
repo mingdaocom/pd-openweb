@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, Textarea } from 'ming-ui';
-import cx from 'classnames';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Dialog, Textarea } from 'ming-ui';
 
 const AddContent = styled.div`
   .textareaWrap {

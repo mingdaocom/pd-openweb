@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -17,8 +17,8 @@ const Wrap = styled.div`
       padding-bottom: 8px;
       border-bottom: 1px solid #fff;
       &.isCur {
-        color: #2196f3;
-        border-bottom: 1px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 1px solid #1677ff;
       }
     }
   }

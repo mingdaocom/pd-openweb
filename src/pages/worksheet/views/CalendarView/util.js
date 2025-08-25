@@ -22,18 +22,18 @@ export const getHoverColor = color => {
   return OPTION_COLORS_LIST_HOVER[OPTION_COLORS_LIST.indexOf(color.toUpperCase())];
 };
 export const isEmojiCharacter = substring => {
-  for (var i = 0; i < substring.length; i++) {
-    var hs = substring.charCodeAt(i);
+  for (let i = 0; i < substring.length; i++) {
+    const hs = substring.charCodeAt(i);
     if (0xd800 <= hs && hs <= 0xdbff) {
       if (substring.length > 1) {
-        var ls = substring.charCodeAt(i + 1);
-        var uc = (hs - 0xd800) * 0x400 + (ls - 0xdc00) + 0x10000;
+        const ls = substring.charCodeAt(i + 1);
+        const uc = (hs - 0xd800) * 0x400 + (ls - 0xdc00) + 0x10000;
         if (0x1d000 <= uc && uc <= 0x1f77f) {
           return true;
         }
       }
     } else if (substring.length > 1) {
-      var ls = substring.charCodeAt(i + 1);
+      const ls = substring.charCodeAt(i + 1);
       if (ls == 0x20e3) {
         return true;
       }
@@ -60,6 +60,8 @@ export const isEmojiCharacter = substring => {
       }
     }
   }
+
+  return false;
 };
 const getAllDay = (data, o) => {
   return data[o.begin] && data[o.end] && getIsOverOneDay(data, o) && moment(data[o.begin]).isBefore(data[o.end]);
@@ -101,7 +103,7 @@ export const setDataFormat = pram => {
   if (byRowId) {
     return setDataFormatByRowId(pram);
   }
-  const { hiddenDays = [], colorOptions = [], btnList, initialView, calendarInfo = [] } = calendarData;
+  const { calendarInfo = [] } = calendarData;
   //无选项且无默认值，才用默认颜色
   let stringColor = getStringColor(calendarData, data, currentView);
   const recordColorConfig = getRecordColorConfig(currentView);
@@ -127,7 +129,7 @@ export const setDataFormat = pram => {
       [o.end]: data[o.end] ? dateConvertToUserZone(moment(data[o.end])) : data[o.end],
     };
     let editable = controlState(o.startData).editable;
-    if (!!dataInfo[o.begin]) {
+    if (dataInfo[o.begin]) {
       let start = getStart(dataInfo, o);
       let allDay = getAllDay(dataInfo, o);
       // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
@@ -180,7 +182,7 @@ const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
 //格式events数据//未排期 以及全部 一条数据卡片显示多个时间信息
 export const setDataFormatByRowId = pram => {
   const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
-  const { colorOptions = [], calendarInfo = [] } = calendarData;
+  const { calendarInfo = [] } = calendarData;
   //无选项且无默认值，才用默认颜色
   let stringColor = getStringColor(calendarData, data, currentView);
   const recordColorConfig = getRecordColorConfig(currentView);
@@ -275,6 +277,7 @@ export const getShowExternalData = () => {
     showExternalData = JSON.parse(window.localStorage.getItem('CalendarShowExternal')) || [];
   } catch (error) {
     showExternalData = [];
+    console.log(error);
   }
   //老数据兼容
   if (!_.isArray(showExternalData)) {
@@ -294,9 +297,10 @@ export const getCalendartypeData = () => {
   }
   let CalendartypeData = {};
   try {
-    CalendartypeData = JSON.parse(window.localStorage.getItem('CalendarViewType')) || {};
+    CalendartypeData = safeParse(window.localStorage.getItem('CalendarViewType'));
   } catch (error) {
     CalendartypeData = {};
+    console.log(error);
   }
   return CalendartypeData;
 };
@@ -325,18 +329,6 @@ export const setSysWorkflowTimeControlFormat = (controls = [], sheetSwitchPermit
       return true;
     }
   });
-};
-
-export const formatEventTime = (time, hour24) => {
-  if (hour24 === '0') {
-    //12小时
-    let hour = new Date(time.replace(/\-/g, '/')).getHours();
-    let mm = new Date(time.replace(/\-/g, '/')).getMinutes();
-    let h = hour % 12 <= 0 ? 12 : hour % 12;
-    return `${h}:${mm < 10 ? '0' + mm : mm}${hour >= 12 ? 'p' : 'a'}`;
-  }
-  //24小时
-  return moment(time).format('HH:mm');
 };
 
 export const getCurrentView = props => {
@@ -405,4 +397,42 @@ export const getRows = (start, end, calendarview) => {
     }
   });
   return rows;
+};
+
+//兼容自定义页面拖动事件定位问题
+export const resetFcEventDraggingPoint = () => {
+  if (document.querySelector('.CustomPageContentWrap')) {
+    setTimeout(() => {
+      const draggingElement = document.querySelector('.fc-event-dragging');
+      if (draggingElement) {
+        const worksheetBox = draggingElement.closest('#worksheetRightContentBox');
+        if (worksheetBox) {
+          const rect = worksheetBox.getBoundingClientRect();
+          const customPageHeader = document.querySelector('.customPageHeader');
+          const headerHeight = customPageHeader ? customPageHeader.offsetHeight : 0;
+          draggingElement.style.transform = `translate(${-rect.left}px, ${-rect.top + headerHeight}px)`;
+        }
+      }
+    }, 0);
+  }
+};
+
+export const setShowTip = (event, flag, canNew) => {
+  const myTips = document.getElementById('mytips');
+  if (!myTips || document.querySelector('.customPageContent')) return;
+  if (!flag || !canNew) return (myTips.style.opacity = 0);
+  const calendarBox = event.target.closest('.boxCalendar');
+  if (!calendarBox) return;
+  const { left: minLeft, right: maxRight, top: minTop, bottom: maxBottom } = calendarBox.getBoundingClientRect();
+  const { clientX, clientY } = event;
+  const { offsetWidth: tipWidth, offsetHeight: tipHeight } = myTips;
+  let left = Math.min(clientX + 10, maxRight - tipWidth);
+  let top = Math.min(clientY + 10, maxBottom - tipHeight);
+  left = Math.max(minLeft, left < minLeft ? clientX - tipWidth - 10 : left);
+  top = Math.max(minTop, top < minTop ? clientY - tipHeight - 10 : top);
+  Object.assign(myTips.style, {
+    left: `${left - (window.pageXOffset || document.documentElement.scrollLeft)}px`,
+    top: `${top - (window.pageYOffset || document.documentElement.scrollTop)}px`,
+    opacity: 1,
+  });
 };

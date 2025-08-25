@@ -76,7 +76,7 @@ export default class TriggerCondition extends Component {
     this.cityPickerSearchRef = React.createRef();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps.controls, this.props.controls)) {
       this.setState({ controlsData: this.getFieldData(nextProps.controls || []) });
     }
@@ -382,7 +382,7 @@ export default class TriggerCondition extends Component {
             onChange={filedId => this.switchField({ i, j, filedId })}
           />
         )}
-        <i className="icon-delete2 Font16 ThemeColor3 triggerTipIcon" onClick={() => this.deleteCondition(i, j)} />
+        <i className="icon-trash Font16 ThemeColor3 triggerTipIcon" onClick={() => this.deleteCondition(i, j)} />
 
         {showControlsIndex === `${i}-${j}` && (
           <ActionFields

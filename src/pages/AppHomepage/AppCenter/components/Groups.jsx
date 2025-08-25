@@ -53,6 +53,7 @@ const PaddingCon = styled.div`
 
 const GroupsCon = styled.div`
   flex: 1;
+  overflow: hidden;
 `;
 const BaseBtnCon = styled(FlexCenter)`
   cursor: pointer;
@@ -74,7 +75,6 @@ export default function Groups(props) {
     loading,
     activeGroupId,
     projectId,
-    currentProject,
     markedGroup,
     activeGroup,
     groups = [],
@@ -88,7 +88,6 @@ export default function Groups(props) {
   const [editingGroupId, setIsEditingGroupId] = useState();
   const [addGroupVisible, setAddGroupVisible] = useState();
   const [trashVisible, setTrashVisible] = useState();
-  const isFree = currentProject.licenseType === 0;
   const editingGroup = _.find(groups, { id: editingGroupId });
   const list = [
     { name: _l('星标'), type: 'star', groups: markedGroup },
@@ -117,7 +116,7 @@ export default function Groups(props) {
     },
     {
       key: 'myApps',
-      fontIcon: 'person1',
+      fontIcon: 'person',
       name: _l('我拥有的'),
       to: '/app/my/owned',
       active: !isAllActive && !activeGroupId,
@@ -258,7 +257,7 @@ export default function Groups(props) {
             </VerticalMiddle>
           </PaddingCon>
           <GroupsCon>
-            <ScrollView>
+            <ScrollView className="h100">
               <PaddingCon className="pBottom25">
                 {list
                   .filter(listItem => listItem.groups && listItem.groups.length)
@@ -315,7 +314,7 @@ export default function Groups(props) {
                 icon,
                 groupType,
                 langData,
-                cb: (status, id) => {
+                cb: status => {
                   if (status === 1) {
                     setAddGroupVisible(false);
                     alert(_l('新建分组成功'));

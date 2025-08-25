@@ -176,7 +176,7 @@ class WorkSheet extends Component {
     };
   }
   componentDidMount() {
-    const { appPkg, match, updateBase } = this.props;
+    const { match, updateBase } = this.props;
     $(document.body).addClass('fixedScreen');
     if (window.isPublicApp) {
       $(document.body).addClass('isPublicApp');
@@ -199,7 +199,7 @@ class WorkSheet extends Component {
     document.body.style.overscrollBehaviorX = 'none';
   }
   componentWillReceiveProps(nextProps) {
-    const { updateBase, worksheetId, updateWorksheetLoading, updateSheetListLoading, views } = nextProps;
+    const { updateBase, worksheetId, updateWorksheetLoading, views } = nextProps;
     if (/\/app\/[\w-]+$/.test(location.pathname)) {
       return;
     }
@@ -381,6 +381,7 @@ class WorkSheet extends Component {
               {sheetListIsUnfold && (
                 <Drag
                   left={navWidth}
+                  className="appNavWidthDrag"
                   onMouseDown={() => {
                     this.setState({ dragMaskVisible: true });
                   }}

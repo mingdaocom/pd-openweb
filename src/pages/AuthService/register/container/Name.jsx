@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import _ from 'lodash';
 import styled from 'styled-components';
 import fixedDataAjax from 'src/api/fixedData.js';
 import RegisterController from 'src/api/register';
@@ -139,7 +138,7 @@ export default function (props) {
             autoFocus
             value={fullName}
           />
-          <div className="title" onClick={e => setState({ focusDiv: 'fullName' })}>
+          <div className="title" onClick={() => setState({ focusDiv: 'fullName' })}>
             {_l('姓名')}
           </div>
           {renderWarn('fullName')}
@@ -159,7 +158,7 @@ export default function (props) {
               onChange={e => onChange({ email: e.target.value })}
               value={email}
             />
-            <div className="title" onClick={e => setState({ focusDiv: 'email' })}>
+            <div className="title" onClick={() => setState({ focusDiv: 'email' })}>
               {_l('邮箱(选填)')}
             </div>
             {renderWarn('email')}

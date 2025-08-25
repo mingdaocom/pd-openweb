@@ -38,13 +38,13 @@ const succeed = () => {
       if (entry === 'group_chat_tools') {
         getCurExternalChat().then(chatId => {
           const targetUrl = addOtherParam(url, `chat_id=${chatId}&pc_slide=true`);
-          location.href = targetUrl;
+          location.replace(targetUrl);
         });
       }
       if (entry === 'contact_profile' || entry === 'single_chat_tools') {
         getCurExternalContact().then(userId => {
           const targetUrl = addOtherParam(url, `external_userid=${userId}&pc_slide=true`);
-          location.href = targetUrl;
+          location.replace(targetUrl);
         });
       }
     } else {
@@ -71,7 +71,7 @@ const agentConfigInit = () => {
         nonceStr: data.nonceStr,
         signature: data.signature,
         jsApiList: ['getContext', 'getCurExternalContact', 'getCurExternalChat'],
-        success: res => {
+        success: () => {
           succeed();
         },
         fail: res => {

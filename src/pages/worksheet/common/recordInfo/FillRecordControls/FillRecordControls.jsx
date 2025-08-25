@@ -166,7 +166,9 @@ class FillRecordControls extends React.Component {
                       c.storeFromDefault = defaultFormControl.store;
                       this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
                     }
-                  } catch (err) {}
+                  } catch (err) {
+                    console.log(err);
+                  }
                 } else if (c.type === 29) {
                   const defaultRecords = _.filter(
                     safeParse(defaultFormControl.value, 'array'),
@@ -248,6 +250,7 @@ class FillRecordControls extends React.Component {
       try {
         await customButtonConfirm();
       } catch (err) {
+        console.log(err);
         this.setState({
           submitLoading: false,
         });
@@ -303,6 +306,7 @@ class FillRecordControls extends React.Component {
       viewId,
       sheetSwitchPermit,
       isDraft,
+      isBatchRecordLock,
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
 
@@ -320,6 +324,11 @@ class FillRecordControls extends React.Component {
         visible={visible}
       >
         <div className="newRecordTitle ellipsis Font19 mBottom10">{title}</div>
+        {isBatchRecordLock && (
+          <div className="Gray_9e mBottom10">
+            {_l('未填写时不会清空字段值。一次最多处理1000条未锁定且有编辑权限的记录。')}
+          </div>
+        )}
         {submitLoading && (
           <LoadMask style={continueFill ? { zIndex: 10 } : {}}>
             <LoadDiv />

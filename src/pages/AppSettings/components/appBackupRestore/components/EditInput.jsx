@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from 'antd';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
-import styled from 'styled-components';
 
 const EditInputCon = styled.div`
   display: flex;
@@ -13,7 +13,7 @@ const EditInputCon = styled.div`
   }
   .input {
     border: none;
-    border-bottom: 2px solid #2196f3;
+    border-bottom: 2px solid #1677ff;
     padding: 4px 0;
   }
   .ant-input:focus,

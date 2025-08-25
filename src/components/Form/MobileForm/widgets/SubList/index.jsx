@@ -73,7 +73,9 @@ export default function SubList(props) {
         try {
           deleted = value.deleted || lastAction.deleted || [];
           updated = value.updated || lastAction.updated || [];
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         if (lastAction.type === 'DELETE_ROW') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'ADD_ROW' || (lastAction.type === 'UPDATE_ROW' && !lastAction.noRealUpdate)) {

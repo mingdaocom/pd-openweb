@@ -1,27 +1,20 @@
 import React, { Fragment } from 'react';
-import copy from 'copy-to-clipboard';
-import './style.less';
-import Ajax from 'src/api/workWeiXin';
-import projectAjax from 'src/api/project';
 import Api from 'api/homeApp';
-import { Icon, LoadDiv, Button, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import html2canvas from 'html2canvas';
-import { navigateTo } from '../../../../../../router/navigateTo';
+import moment from 'moment';
 import { compareProps } from 'pages/PageHeader/util.js';
-import CreateLinkDialog from './CreateLinkDialog';
+import { Button, Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import projectAjax from 'src/api/project';
+import Ajax from 'src/api/workWeiXin';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
-import wx1Png from './img/wx/1.png';
-import wx2Png from './img/wx/2.png';
-import wx3Png from './img/wx/3.png';
-import wx4Png from './img/wx/4.png';
-import wx5Png from './img/wx/5.png';
-import wx6Png from './img/wx/6.png';
-import wx7Png from './img/wx/7.png';
-import wx8Png from './img/wx/8.png';
+import { navigateTo } from '../../../../../../router/navigateTo';
+import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
+import CreateLinkDialog from './CreateLinkDialog';
 import imgPng1 from './img/1.png';
-import imgPng2 from './img/2.png';
 import imgPng2_1 from './img/2-1.png';
+import imgPng2 from './img/2.png';
 import imgPng3 from './img/3.png';
 import imgPng4_1 from './img/4-1.png';
 import imgPng4_2 from './img/4-2.png';
@@ -30,13 +23,19 @@ import imgPng4_4 from './img/4-4.png';
 import imgPng5 from './img/5.png';
 import imgPng6 from './img/6.png';
 import imgPng7 from './img/7.png';
-import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
 import scan2 from './img/scan2.png';
-import scan3 from '../../workwx/workwxSyncCourse/img/scan3.png';
 import scan4 from './img/scan4.png';
 import scan5 from './img/scan5.png';
 import wechat_workPng from './img/wechat_work.png';
-import moment from 'moment';
+import wx1Png from './img/wx/1.png';
+import wx2Png from './img/wx/2.png';
+import wx3Png from './img/wx/3.png';
+import wx4Png from './img/wx/4.png';
+import wx5Png from './img/wx/5.png';
+import wx6Png from './img/wx/6.png';
+import wx7Png from './img/wx/7.png';
+import wx8Png from './img/wx/8.png';
+import './style.less';
 
 const passApplyConfig = {
   1: 'dingAppCourse',
@@ -166,7 +165,7 @@ export default class DingSyncCourse extends React.Component {
     }
   };
 
-  getDetail = (appId, callback) => {
+  getDetail = appId => {
     Api.getApp({ appId: appId }, { silent: true }).then(data => {
       this.setState({
         loading: false,
@@ -460,7 +459,7 @@ export default class DingSyncCourse extends React.Component {
     if (!this.state.isPassApply) {
       return (
         <div className="courseBox card TxtCenter">
-          <Icon icon="closeelement-bg-circle" className="Red iconReject" />
+          <Icon icon="cancel" className="Red iconReject" />
           <div className="TxtCenter mTop30">
             <h2 className="Font20 Gray">
               {this.state.isWX
@@ -473,7 +472,7 @@ export default class DingSyncCourse extends React.Component {
             <Button
               type="primary"
               className="goDingSetting"
-              onClick={e => {
+              onClick={() => {
                 if (this.state.isWX) {
                   navigateTo(`/admin/workwxapp/${this.state.projectId}`);
                 } else {
@@ -502,7 +501,7 @@ export default class DingSyncCourse extends React.Component {
             <Button
               type="primary"
               className="goDingSetting"
-              onClick={e => {
+              onClick={() => {
                 window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open();
               }}
             >
@@ -519,8 +518,8 @@ export default class DingSyncCourse extends React.Component {
             {this.state.addApp
               ? _l('将此应用安装到钉钉工作台')
               : this.state.isWX
-              ? _l('将此应用安装到企业微信')
-              : _l('获取对接信息')}
+                ? _l('将此应用安装到企业微信')
+                : _l('获取对接信息')}
           </h1>
           {this.state.isWX ? this.renderWX() : this.renderDing()}
           {(this.state.addApp || this.state.isWX) && (

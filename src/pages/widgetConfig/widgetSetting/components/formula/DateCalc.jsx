@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
-import { Dropdown, TagTextarea, Button } from 'ming-ui';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Dropdown, TagTextarea } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { createWorksheetColumnTag, formatColumnToText, getFormulaControls } from '../../../util/data';
 import ColumnListDropdown from '../ColumnListDropdown';
 import DateCalcPicker from './DateCalcPicker';
-import { getFormulaControls, createWorksheetColumnTag, formatColumnToText } from '../../../util/data';
 import ToTodaySetting from './toTodaySetting';
-import { Tooltip } from 'antd';
-import _ from 'lodash';
 
 export default class DateCalc extends Component {
   static propTypes = {
@@ -103,7 +103,14 @@ export default class DateCalc extends Component {
   };
 
   render() {
-    const { widget, editWidgets, worksheetData, onDataChange, onFormulaEditStatusChange } = this.props;
+    const {
+      widget,
+      editWidgets,
+      worksheetData,
+      onDataChange,
+      onFormulaEditStatusChange,
+      allControls = [],
+    } = this.props;
     const { formulaColumnSelectVisible, formulaStr, changed } = this.state;
     const { data } = widget;
     const { enumDefault, unit, strDefault, sourceControlId = '', dataSource = '' } = data;
@@ -204,6 +211,7 @@ export default class DateCalc extends Component {
             <p className="Font12 Gray_9e">
               {_l('输入你想要 添加/减去 的时间。如：+8h+1m，-1d+8h。当使用数值类型的字段运算时，请不要忘记输入单位。')}
               <Tooltip
+                autoCloseDelay={0}
                 title={
                   <Fragment>
                     <div>{_l('年：Y（大写')}</div>
@@ -240,7 +248,7 @@ export default class DateCalc extends Component {
               )
             }
             onAddClick={() => this.setState({ formulaColumnSelectVisible: true })}
-            onChange={(err, value, obj) => {
+            onChange={(err, value) => {
               onFormulaEditStatusChange(true);
               this.setState({
                 formulaStr: value,
@@ -271,7 +279,7 @@ export default class DateCalc extends Component {
                   </span>
                 </span>
               ),
-              onClick: (id, i) => {
+              onClick: id => {
                 this.tagtextarea.insertColumnTag(id);
               },
             }))}

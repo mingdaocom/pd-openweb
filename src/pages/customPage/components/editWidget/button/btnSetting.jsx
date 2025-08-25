@@ -40,8 +40,8 @@ const BtnSettingWrap = styled.div`
       transition: all 0.25s;
       cursor: pointer;
       &.active {
-        color: #2196f3;
-        border-bottom-color: #2196f3;
+        color: #1677ff;
+        border-bottom-color: #1677ff;
       }
     }
   }
@@ -109,7 +109,7 @@ const BtnSettingWrap = styled.div`
         justify-content: center;
       }
       .active {
-        color: #2196f3 !important;
+        color: #1677ff !important;
         border-radius: 3px;
         padding: 3px 0;
         font-weight: bold;
@@ -506,7 +506,7 @@ function BtnSetting(props) {
     }
     // 扫码
     if (action === 5) {
-      const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, placeholder, isFilter } = _.isObject(config)
+      const { qrCodeIsOpen, barCodeIsOpen, recordLink, otherLink, text, placeholder } = _.isObject(config)
         ? config
         : {};
       return (

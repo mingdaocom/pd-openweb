@@ -1,8 +1,8 @@
 import React from 'react';
-import { arrayOf, bool, func, number, string, shape } from 'prop-types';
+import { find, get, identity } from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import RecordCoverCard from '../RelateRecordCards/RecordCoverCard';
-import { get, find, identity } from 'lodash';
 
 const Con = styled.div`
   padding: 10px 0;

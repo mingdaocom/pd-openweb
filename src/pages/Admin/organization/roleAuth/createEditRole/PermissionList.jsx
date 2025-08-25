@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -75,7 +76,7 @@ export default function PermissionList(props) {
       // 商户服务功能授权
       const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
       if (!featureType && item.permissionId === 16000) return null;
-      
+
       // 私有部署非平台版无账务
       if (item.permissionId === 13300 && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) return null;
 

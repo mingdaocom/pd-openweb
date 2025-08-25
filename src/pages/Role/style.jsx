@@ -21,8 +21,8 @@ export const WrapHeader = styled.div`
       border-bottom: 3px solid transparent;
       border-top: 3px solid transparent;
       &.cur {
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -34,7 +34,7 @@ export const WrapHeader = styled.div`
   .moreop {
     color: #bdbdbd;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -56,8 +56,8 @@ export const WrapNav = styled.div`
     border-radius: 24px;
     border: 1px solid #dddddd;
     &:hover {
-      color: #2196f3;
-      border: 1px solid #2196f3;
+      color: #1677ff;
+      border: 1px solid #1677ff;
     }
   }
   .search {
@@ -72,7 +72,7 @@ export const WrapNav = styled.div`
       .moreop {
         color: #bdbdbd;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       cursor: pointer;
@@ -82,19 +82,19 @@ export const WrapNav = styled.div`
         color: #9e9e9e;
       }
       &.cur {
-        color: #2196f3;
+        color: #1677ff;
         background: #f3faff !important;
         border-radius: 3px 3px 3px 3px;
         font-weight: bold !important;
         position: relative;
         .Icon {
-          color: #2196f3;
+          color: #1677ff;
         }
         &::before {
           content: ' ';
           width: 3px;
           height: 14px;
-          background: #2196f3;
+          background: #1677ff;
           display: inline-block;
           position: absolute;
           left: 0;
@@ -129,7 +129,7 @@ export const WrapNav = styled.div`
         }
         .tag {
           padding: 0 6px;
-          color: #2196f3;
+          color: #1677ff;
           background: rgba(33, 150, 243, 0.1);
           border-radius: 11px;
           line-height: 22px;
@@ -140,30 +140,30 @@ export const WrapNav = styled.div`
           background: #fafafa;
         }
         &.cur {
-          color: #2196f3 !important;
+          color: #1677ff !important;
           .roleIcon {
-            color: #2196f3;
+            color: #1677ff;
           }
-          .icon-drag_indicator {
+          .icon-drag {
             color: #9e9e9e !important;
             &:hover {
-              color: #2196f3 !important;
+              color: #1677ff !important;
             }
           }
           font-weight: bold !important;
         }
         .icon-drag,
-        .icon-drag_indicator,
+        .icon-drag,
         .moreop {
           opacity: 0;
         }
         &:hover {
           .icon-drag,
-          .icon-drag_indicator,
+          .icon-drag,
           .moreop {
             opacity: 1;
             &:hover {
-              color: #2196f3;
+              color: #1677ff;
             }
           }
         }
@@ -178,7 +178,7 @@ export const WrapTableCon = styled.div`
     .toOthers,
     .del {
       font-weight: 400;
-      color: #2196f3;
+      color: #1677ff;
       line-height: 37px;
       height: 37px;
       background: #f3faff;
@@ -200,7 +200,10 @@ export const WrapFooter = styled.div`
     border-radius: 4px 4px 4px 4px;
     font-size: 14px;
     font-weight: 400;
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    transition:
+      color ease-in 0.2s,
+      border-color ease-in 0.2s,
+      background-color ease-in 0;
     background: #1e88e5;
     &:hover {
       background: #1565c0;
@@ -224,7 +227,10 @@ export const WrapFooter = styled.div`
     border: 1px solid #eaeaea;
     margin-left: 23px;
     font-weight: 400;
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    transition:
+      color ease-in 0.2s,
+      border-color ease-in 0.2s,
+      background-color ease-in 0;
     &:hover {
       border: 1px solid #ccc;
     }
@@ -246,10 +252,13 @@ export const WrapFooter = styled.div`
     opacity: 1;
     border: 1px solid #eaeaea;
     font-weight: 400;
-    transition: color ease-in 0.2s, border-color ease-in 0.2s, background-color ease-in 0;
+    transition:
+      color ease-in 0.2s,
+      border-color ease-in 0.2s,
+      background-color ease-in 0;
     &:hover {
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
     }
   }
   .line {

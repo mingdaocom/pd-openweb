@@ -1,9 +1,10 @@
-import { isEmpty, reject } from 'lodash';
+import { isEmpty } from 'lodash';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import actionLogAjax from 'src/api/actionLog';
 import appManagementAjax from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
 import homeAppAjax from 'src/api/homeApp';
+import pluginAjax from 'src/api/plugin';
 import qiniuAjax from 'src/api/qiniu';
 import worksheetAjax from 'src/api/worksheet';
 import delegationAjax from 'src/pages/workflow/api/delegation';
@@ -11,13 +12,13 @@ import instanceAjax from 'src/pages/workflow/api/instance';
 import instanceVersionAjax from 'src/pages/workflow/api/instanceVersion';
 import processAjax from 'src/pages/workflow/api/process';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { selectOrgRole as mobileSelectOrgRole } from 'mobile/components/SelectOrgRole';
 import { selectUser } from 'mobile/components/SelectUser';
 import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { selectRecords } from 'src/components/SelectRecords';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
@@ -84,6 +85,10 @@ function getMainWebApi() {
       controller: 'attachment',
       ajax: attachmentAjax,
     },
+    {
+      controller: 'plugin',
+      ajax: pluginAjax,
+    },
   ].forEach(item => {
     mainWebApi[item.controller] = item.ajax;
   });
@@ -126,7 +131,7 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       (isMobile ? openMobileRecordInfo : openRecordInfo)({
         projectId: args.projectId,
         allowAdd: args.worksheetInfo && args.worksheetInfo.allowAdd,
@@ -167,14 +172,14 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       (isMobile ? mobileAddRecord : addRecord)({
         ...args,
         onAdd: resolve,
       });
     });
   },
-  selectUsers: ({ unique, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
+  selectUsers: ({ unique, ...rest } = {}) => {
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -199,7 +204,7 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       function handleSelect(users) {
         emitWidgetAction('select-users', users);
         resolve(users);
@@ -223,7 +228,7 @@ export const utils = {
       }
     });
   },
-  selectDepartments: ({ unique, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
+  selectDepartments: ({ unique, ...rest } = {}) => {
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -247,7 +252,7 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       function handleSelect(departments) {
         emitWidgetAction('select-departments', departments);
         resolve(departments);
@@ -274,7 +279,7 @@ export const utils = {
       }
     });
   },
-  selectOrgRole: ({ unique, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
+  selectOrgRole: ({ unique, ...rest } = {}) => {
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -298,7 +303,7 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       function handleSelect(orgs) {
         emitWidgetAction('select-org-roles', orgs);
         resolve(orgs);
@@ -320,7 +325,7 @@ export const utils = {
       }
     });
   },
-  selectRecord: ({ relateSheetId, multiple, onClose = () => {}, onSelect = () => {}, ...rest } = {}) => {
+  selectRecord: ({ relateSheetId, multiple, ...rest } = {}) => {
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -342,7 +347,7 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       (isMobile ? mobileSelectRecord : selectRecords)({
         projectId: rest.projectId,
         canSelectAll: false,
@@ -360,7 +365,7 @@ export const utils = {
     });
   },
   selectLocation: (options = {}) => {
-    const { distance, onClose = () => {}, onSelect = () => {} } = options;
+    const { distance } = options;
     if (window.isMingDaoApp) {
       const sessionId = Math.random().toString(32).slice(2);
       return mdAppResponse({
@@ -388,7 +393,7 @@ export const utils = {
         }
       });
     }
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       selectLocation({
         ...options,
         onSelect: location => {

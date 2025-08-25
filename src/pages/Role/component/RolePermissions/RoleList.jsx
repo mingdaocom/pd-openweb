@@ -1,9 +1,9 @@
 import React from 'react';
-import _ from 'lodash';
+import styled from 'styled-components';
 import { SortableList } from 'ming-ui';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import ItemCon from './ItemCon';
-import styled from 'styled-components';
+
 const Wrap = styled.p`
   font-size: 12px;
   font-weight: bold;

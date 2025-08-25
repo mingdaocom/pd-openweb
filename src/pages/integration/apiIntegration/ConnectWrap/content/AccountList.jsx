@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
 import Oauth2Ajax from 'src/pages/workflow/api/oauth2';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import moment from 'moment';
 import ChangeName from 'src/pages/integration/components/ChangeName';
-import Trigger from 'rc-trigger';
-import { LoadDiv, Icon } from 'ming-ui';
-import { MoreOperate, MenuWrap, RedMenuItemWrap, MenuItemWrap } from '../../style';
+import { MenuItemWrap, MenuWrap, MoreOperate, RedMenuItemWrap } from '../../style';
 import TokenLog from './TokenLog/index';
 
 const Wrap = styled.div`
@@ -24,7 +25,7 @@ const Wrap = styled.div`
   }
   .addAccount {
     padding: 8px 24px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 21px;
     color: #fff;
     display: inline-block;
@@ -139,7 +140,7 @@ function Option(props) {
             </MenuItemWrap>
 
             <RedMenuItemWrap
-              icon={<Icon icon="delete1" className="Font17 mLeft5" />}
+              icon={<Icon icon="trash" className="Font17 mLeft5" />}
               onClick={e => {
                 e.stopPropagation();
                 setState({ popupVisible: false });
@@ -158,7 +159,7 @@ function Option(props) {
             e.stopPropagation();
           }}
         >
-          <i className="icon icon-task-point-more"></i>
+          <i className="icon icon-more_horiz"></i>
         </MoreOperate>
       </Trigger>
     </React.Fragment>

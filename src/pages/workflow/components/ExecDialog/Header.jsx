@@ -9,6 +9,7 @@ import verifyPassword from 'src/components/verifyPassword';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { FLOW_NODE_TYPE_STATUS } from 'src/pages/workflow/MyProcess/config';
+import { getTranslateInfo } from 'src/utils/app';
 import AddApproveWay from './components/AddApproveWay';
 import OtherAction from './components/OtherAction';
 import PrintList from './components/PrintList';
@@ -240,7 +241,13 @@ export default class Header extends Component {
     if (noSave) {
       saveFunction({});
     } else {
-      onSubmit({ callback: saveFunction, ignoreError: isStash, ignoreAlert: isStash, silent: isStash });
+      onSubmit({
+        callback: saveFunction,
+        ignoreError: isStash,
+        ignoreAlert: isStash,
+        silent: isStash,
+        ignoreDialog: action !== 'submit',
+      });
     }
   };
 
@@ -336,13 +343,14 @@ export default class Header extends Component {
     } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
     const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
+    const translateInfo = getTranslateInfo(app.id, data.parentId, flowNode.id);
 
     if (errorMsg) {
       return (
         <header className="flexRow workflowStepHeader">
           {this.renderRefreshBtn()}
           <div className="stepTitle flexRow errorHeader Gray_75">
-            <Icon icon="Import-failure" className="Font18" />
+            <Icon icon="error1" className="Font18" />
             <span className="Font14 ellipsis mLeft6">{errorMsg || 'text'}</span>
           </div>
         </header>
@@ -394,14 +402,19 @@ export default class Header extends Component {
                   <div className="operation flexRow">
                     {operationTypeList[0]
                       .map(key => {
-                        return Object.assign({}, ACTION_LIST[key], { key });
+                        const action = ACTION_LIST[key];
+                        return {
+                          ...action,
+                          text: translateInfo[`btnmap_${key}`] || btnMap[key] || action.text,
+                          key,
+                        };
                       })
                       .sort((a, b) => a.sort - b.sort)
                       .map(item => {
-                        let { id, text, icon, key } = item;
+                        let { id, text, icon } = item;
                         return (
                           <Button
-                            disabled={(isRequest && id === action) || (isUrged && id === 'urge')}
+                            disabled={isRequest || (isUrged && id === 'urge')}
                             key={id}
                             size={'tiny'}
                             onClick={() => this.handleClick(id)}
@@ -412,7 +425,7 @@ export default class Header extends Component {
                               ? _l('处理中...')
                               : isUrged && id === 'urge'
                                 ? _l('已催办')
-                                : btnMap[key] || text}
+                                : text}
                           </Button>
                         );
                       })}

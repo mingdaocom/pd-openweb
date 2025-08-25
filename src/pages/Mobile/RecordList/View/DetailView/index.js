@@ -1,13 +1,13 @@
-import React, { Fragment, Component } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
 import SheetRows, { WithoutRows } from '../../SheetRows/';
-import { RecordInfoModal } from 'mobile/Record';
-import { LoadDiv } from 'ming-ui';
-import cx from 'classnames';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const DetailViewWrap = styled.div`
   &.hideFormHeader {
@@ -72,6 +72,7 @@ class DetailView extends Component {
       appNaviStyle,
       worksheetInfo = {},
       sheetRowLoading,
+      isCharge,
     } = this.props;
     const { loading } = this.state;
 
@@ -96,6 +97,7 @@ class DetailView extends Component {
               sheetSwitchPermit={sheetSwitchPermit}
               view={view}
               chartEntryStyle={appNaviStyle === 2 ? { bottom: 100 } : {}}
+              isCharge={isCharge}
             />
           )
         ) : (
@@ -117,6 +119,7 @@ export default connect(
       'sheetSwitchPermit',
       'activeSavedFilter',
       'sheetRowLoading',
+      'isCharge',
     ]),
   }),
   dispatch =>

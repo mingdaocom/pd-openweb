@@ -85,6 +85,7 @@ export default class Widgets extends Component {
             action={action}
             popupPlacement={'top'}
             offset={[0, 0]}
+            autoCloseDelay={0}
           >
             <i className="icon-info_outline Font16 mLeft5" />
           </Tooltip>

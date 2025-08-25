@@ -1,13 +1,14 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
-import config from '../../utils/config';
-import * as cardSender from '../../utils/cardSender';
-import Constant from '../../utils/constant';
-import Trigger from 'rc-trigger';
-import taskCenter from 'src/api/taskCenter';
-import calendar from 'src/api/calendar';
+import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import calendar from 'src/api/calendar';
+import taskCenter from 'src/api/taskCenter';
+import * as cardSender from '../../utils/cardSender';
+import config from '../../utils/config';
+import Constant from '../../utils/constant';
+import './index.less';
 
 const items = [
   {
@@ -71,7 +72,7 @@ export default class CardToolbar extends Component {
     });
   }
   onSelectTask() {
-    cardSender.selectTask(this.acceptor).then((result) => {
+    cardSender.selectTask(this.acceptor).then(result => {
       if (!this.props.session.isGroup) {
         taskCenter
           .batchAddTaskMember({
@@ -88,7 +89,7 @@ export default class CardToolbar extends Component {
     });
   }
   onSelectSchedule() {
-    cardSender.selectSchedule(this.acceptor).then((result) => {
+    cardSender.selectSchedule(this.acceptor).then(result => {
       if (!this.props.session.isGroup) {
         const calendarOpts = result.card.entityid.split('_');
         calendar
@@ -112,7 +113,7 @@ export default class CardToolbar extends Component {
       .newVote(this.acceptor, {
         showSuccessTip: false,
       })
-      .then((result) => {
+      .then(result => {
         this.props.onSendCardMsg(result);
       });
   }
@@ -121,7 +122,7 @@ export default class CardToolbar extends Component {
       .newFeed(this.acceptor, {
         showSuccessTip: false,
       })
-      .then((result) => {
+      .then(result => {
         this.props.onSendCardMsg(result);
       });
   }
@@ -136,7 +137,11 @@ export default class CardToolbar extends Component {
         {this.toolItems.map((item, index) => (
           <div
             key={index}
-            className={cx('menuItem ThemeBGColor3')}
+            className={cx('menuItem ThemeBGColor3', {
+              hide:
+                (item.icon === 'icon-chat-inputer-post' || item.icon === 'icon-votenobg') &&
+                !this.props.session.isGroup,
+            })}
             onClick={this.handleOpen.bind(this, item)}
           >
             <i className={item.icon} />
@@ -148,11 +153,9 @@ export default class CardToolbar extends Component {
   }
   render() {
     const { visible } = this.state;
-    
+
     if (!this.toolItems.length) {
-      return (
-        <div className="ChatPanel-addToolbar noTool" />
-      );
+      return <div className="ChatPanel-addToolbar noTool" />;
     }
 
     return (

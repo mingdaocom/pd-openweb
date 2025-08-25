@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import Trigger from 'rc-trigger';
 import { NODE_STATUS, PICK_TYPE } from '../constant/enum';
-import _ from 'lodash';
 
 const HoverState = createDecoratedComponent(withHoverState);
 
@@ -77,7 +77,6 @@ export default class KcListHeader extends Component {
       rootNameAndLink,
       startGlobalSearch,
       loadRecycleBin,
-      editRoot,
       changeKcView,
       toggleDetailAndTogglePin,
       openUploadAssistant,
@@ -164,22 +163,14 @@ export default class KcListHeader extends Component {
         <div className="kcRightHeadOperate boxSizing">
           <span className="tip-con" data-tip={_l('文件详情')}>
             <i
-              className={cx(
-                'icon-knowledge-message showDetail ThemeHoverColor3',
-                { ThemeColor3: isPinDetail },
-                { hide: isRecycle },
-              )}
+              className={cx('icon-info showDetail ThemeHoverColor3', { ThemeColor3: isPinDetail }, { hide: isRecycle })}
               ref="toggleDetailAndTogglePinBtn"
               onClick={toggleDetailAndTogglePin}
             />
           </span>
           <span className="tip-con" data-tip={isList ? _l('切换为缩略图') : _l('切换为列表')}>
             <i
-              className={cx(
-                'ThemeHoverColor3',
-                { hide: isRecycle },
-                isList ? 'icon-home-navigation' : 'icon-task-list',
-              )}
+              className={cx('ThemeHoverColor3', { hide: isRecycle }, isList ? 'icon-home-navigation' : 'icon-list')}
               onClick={changeKcView}
             />
           </span>

@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useRef, useState, useContext } from 'react';
-import { arrayOf, bool, func, number, shape, string } from 'prop-types';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
-import { get, isEqual, isFunction } from 'lodash';
 import cx from 'classnames';
+import { get, isEqual, isFunction } from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import RelateRecordTable from './RelateRecordTable';
-import generateStore from './redux/store';
-import { updateFilter } from './redux/action';
+import { updateFilter, updateTableConfigByControl } from './redux/action';
 import { initialChanges } from './redux/reducer';
+import generateStore from './redux/store';
+import RelateRecordTable from './RelateRecordTable';
 
 const Con = styled.div`
   position: relative;
@@ -28,9 +28,11 @@ export default function RelateRecordTableIndex(props) {
     pageSize,
     worksheetId,
     recordId,
+    openFrom,
     formData = [],
     sheetSwitchPermit,
     onCountChange,
+    isDraft,
   } = props;
   const { recordbase = {} } = useContext(RecordFormContext) || {};
   const { instanceId, workId } = recordbase;
@@ -56,6 +58,8 @@ export default function RelateRecordTableIndex(props) {
         appId,
         instanceId,
         workId,
+        isDraft,
+        openFrom,
       })
     );
   }, [control.controlId, get(control, 'store.version')]);
@@ -69,7 +73,7 @@ export default function RelateRecordTableIndex(props) {
         !state.base.saveSync && typeof state.tableState.countForShow !== 'undefined'
           ? state.tableState.countForShow
           : state.tableState.count;
-      if ((cache.current.count !== newCount || !recordId) && isFunction(onCountChange)) {
+      if ((cache.current.count !== newCount || !recordId) && isFunction(onCountChange) && !state.loading) {
         onCountChange(newCount, get(state, 'base.isTab') ? get(state, 'changes.changed') : changed);
       }
       cache.current.count = newCount;
@@ -102,6 +106,15 @@ export default function RelateRecordTableIndex(props) {
       store.dispatch(updateFilter());
     }
   }, [filters]);
+  useEffect(() => {
+    if (typeof allowEdit !== 'undefined') {
+      store.dispatch({
+        type: 'UPDATE_BASE',
+        value: { allowEdit },
+      });
+      store.dispatch(updateTableConfigByControl());
+    }
+  }, [allowEdit]);
   useEffect(() => {
     store.init();
   }, [store.version]);

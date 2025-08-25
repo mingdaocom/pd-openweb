@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
 import { TimePicker } from 'antd';
-import cx from 'classnames';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import localeEn from 'antd/es/date-picker/locale/en_US';
+import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
+import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
+import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import cx from 'classnames';
 import dayjs from 'dayjs';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 
 const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
@@ -20,7 +19,7 @@ const Wrap = styled.div`
     padding: 0 16px;
     background: #f8f8f8;
     border-radius: 3px;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       background: #f5f5f5;
     }
@@ -121,7 +120,7 @@ export default function (props) {
                   });
                 }}
               >
-                <i className="icon icon-delete1 Font16"></i>
+                <i className="icon icon-trash Font16"></i>
               </span>
             </div>
           );

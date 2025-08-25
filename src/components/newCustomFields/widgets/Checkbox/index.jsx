@@ -79,13 +79,17 @@ class Widgets extends Component {
   };
 
   onChange = (checked, key) => {
-    const { value } = this.props;
+    const { value, advancedSetting } = this.props;
+    const { chooseothertype } = advancedSetting || {};
     const checkIds = JSON.parse(value || '[]');
 
     if (checked) {
       _.remove(checkIds, item => (key === 'other' ? item.startsWith(key) : item === key));
     } else {
       checkIds.push(key);
+      if (chooseothertype === '1') {
+        _.remove(checkIds, item => (key === 'other' ? !item.startsWith('other') : item.startsWith('other')));
+      }
     }
 
     this.onSave(checkIds);
@@ -96,17 +100,16 @@ class Widgets extends Component {
   };
 
   handleSelectAll = (options = [], isChecked) => {
-    const { value, onChange, advancedSetting = {}, type } = this.props;
+    const { onChange, advancedSetting = {}, type } = this.props;
     const { checktype } = advancedSetting;
-    const checkIds = safeParse(value, 'array');
 
     // 多选平铺, 多选选中则清空
     if (type === 10 && checktype !== '1' && isChecked) {
       onChange('');
       return;
     }
-    const otherIds = options.filter(i => !_.find(checkIds, c => c.includes(i.key))).map(i => i.key);
-    onChange(JSON.stringify(checkIds.concat(otherIds)));
+    const otherIds = options.map(i => i.key);
+    onChange(JSON.stringify(otherIds));
   };
 
   getItemWidth(displayOptions) {
@@ -123,9 +126,13 @@ class Widgets extends Component {
 
   renderSelectAll = (checkIds = [], displayOptions = []) => {
     const { advancedSetting = {}, disabled } = this.props;
-    const { showselectall, checktype } = advancedSetting;
+    const { showselectall, checktype, chooseothertype } = advancedSetting;
 
     if (disabled || showselectall !== '1') return null;
+
+    if (chooseothertype === '1') {
+      displayOptions = displayOptions.filter(i => i.key !== 'other');
+    }
 
     if (checktype !== '1') {
       const isChecked = _.every(displayOptions, d => _.find(checkIds, c => c.includes(d.key)));
@@ -155,7 +162,7 @@ class Widgets extends Component {
   };
 
   pcContent(checkIds) {
-    const { disabled, options, value, advancedSetting } = this.props;
+    const { disabled, options, advancedSetting } = this.props;
     const { direction = '2', width = '200', readonlyshowall } = advancedSetting || {};
     const readOnlyShow = !browserIsMobile() && readonlyshowall === '1' && disabled ? true : !disabled;
     const displayOptions = options.filter(
@@ -187,30 +194,35 @@ class Widgets extends Component {
           }
 
           return (
-            <div
-              className="flexColumn"
-              style={direction === '0' && !browserIsMobile() ? { width: this.getItemWidth(displayOptions) } : {}}
-            >
+            <Fragment>
               <div
                 className="flexColumn"
-                style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
+                style={direction === '0' && !browserIsMobile() ? { width: this.getItemWidth(displayOptions) } : {}}
               >
-                <Checkbox
-                  className={cx('w100', {
-                    flexWidth: noMaxWidth,
-                    'customRadioItem showRadioTxtAll borderRadiusNone ': browserIsMobile() && disabled,
-                  })}
-                  key={item.key}
-                  disabled={disabled}
-                  title={item.value}
-                  text={this.renderList(item, noMaxWidth)}
-                  value={item.key}
-                  checked={_.includes(checkIds, item.key)}
-                  onClick={this.onChange}
-                />
-                {item.key === 'other' && <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />}
+                <div
+                  className="flexColumn"
+                  style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
+                >
+                  <Checkbox
+                    className={cx('w100', {
+                      flexWidth: noMaxWidth,
+                      'customRadioItem showRadioTxtAll borderRadiusNone ': browserIsMobile() && disabled,
+                    })}
+                    key={item.key}
+                    disabled={disabled}
+                    title={item.value}
+                    text={this.renderList(item, noMaxWidth)}
+                    value={item.key}
+                    checked={_.includes(checkIds, item.key)}
+                    onClick={this.onChange}
+                  />
+                  {/* {item.key === 'other' && <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />} */}
+                </div>
               </div>
-            </div>
+              {item.key === 'other' && (
+                <OtherInput className="w100 pLeft0" {...this.props} isSelect={browserIsMobile() ? true : false} />
+              )}
+            </Fragment>
           );
         })}
       </Fragment>
@@ -218,13 +230,12 @@ class Widgets extends Component {
   }
 
   wxContent(checkIds) {
-    const { options, disabled, value } = this.props;
-    const { otherValue } = getCheckAndOther(value);
+    const { options, disabled } = this.props;
     let sources = [];
 
     checkIds.forEach(item => {
       if ((item || '').toString().indexOf('add_') > -1) {
-        sources.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
+        sources.push({ key: item, color: '#1677ff', value: item.split('add_')[1] });
       } else {
         sources.push(options.find(o => o.key === item && !o.isDeleted));
       }
@@ -259,8 +270,6 @@ class Widgets extends Component {
       advancedSetting = {},
       selectProps,
       onChange,
-      from,
-      flag,
     } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
     const canAddOption = noDelOptions.length < MAX_OPTIONS_COUNT;
@@ -268,7 +277,7 @@ class Widgets extends Component {
 
     checkIds.forEach(item => {
       if ((item || '').toString().indexOf('add_') > -1) {
-        noDelOptions.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
+        noDelOptions.push({ key: item, color: '#1677ff', value: item.split('add_')[1] });
       }
     });
 
@@ -277,7 +286,7 @@ class Widgets extends Component {
       noDelOptions = noDelOptions.filter(
         item =>
           `${item.value || ''}|${item.pinYin || ''}`.search(
-            new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+            new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
           ) !== -1,
       );
     }
@@ -321,9 +330,15 @@ class Widgets extends Component {
             }
             // 全选
             if (value.indexOf('select-all') > -1) {
-              this.handleSelectAll(noDelOptions);
+              const canSelectOptions =
+                advancedSetting.chooseothertype === '1' ? noDelOptions.filter(c => c.key !== 'other') : noDelOptions;
+              this.handleSelectAll(canSelectOptions);
               this.select.blur();
               return;
+            }
+            if (advancedSetting.chooseothertype === '1') {
+              const newKey = _.last(value);
+              _.remove(value, item => (newKey === 'other' ? !item.startsWith('other') : item.startsWith('other')));
             }
             onChange(JSON.stringify(value));
             this.setState({ keywords: '' });
@@ -367,7 +382,7 @@ class Widgets extends Component {
     const { enumDefault2, options } = this.props;
     const { isFocus } = this.state;
     const { checkIds } = getCheckAndOther(this.props.value);
-    const currentItem = options.find(o => o.key === value) || { color: '#2196f3' };
+    const currentItem = options.find(o => o.key === value) || { color: '#1677ff' };
     const label = (value || '').toString().indexOf('add_') > -1 ? value.split('add_')[1] : currentItem.value;
 
     return (
@@ -402,7 +417,7 @@ class Widgets extends Component {
   };
 
   render() {
-    const { isSheet, disabled, options, advancedSetting, value, controlName } = this.props;
+    const { className, isSheet, disabled, options, advancedSetting, value, controlName, onConClick } = this.props;
     const { checkIds, otherValue } = getCheckAndOther(value);
     const { checktype, direction, allowadd, readonlyshowall, showselectall } = advancedSetting || {};
     const isMobile = checktype === '1' && browserIsMobile();
@@ -433,8 +448,10 @@ class Widgets extends Component {
               { formBoxNoBorder: !isMobile, customFormControlDropDown: isMobile },
               { controlDisabled: disabled },
               { readOnlyDisabled: !isMobile && readonlyshowall === '1' && disabled },
+              className,
             )}
             style={{ height: 'auto' }}
+            onClick={onConClick}
           >
             <div
               className={cx('ming CheckboxGroup', {

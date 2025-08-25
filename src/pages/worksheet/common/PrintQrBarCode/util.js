@@ -100,7 +100,7 @@ function sliceByByteLength(str = '', length = 0) {
   return result;
 }
 
-export function getCodeTexts({ showTexts, firstIsBold, showControlName, controls, emptySetAsSample } = {}, data = {}) {
+export function getCodeTexts({ showTexts, firstIsBold, showControlName, controls } = {}, data = {}) {
   return (
     showTexts
       .map((item, i) => {

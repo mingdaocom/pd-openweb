@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { bool, func, number, string } from 'prop-types';
 import { Dialog, VerifyPasswordInput } from 'ming-ui';
-import verifyPassword from 'src/components/verifyPassword';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { func, number, string, bool } from 'prop-types';
+import verifyPassword from 'src/components/verifyPassword';
 
 export default function VerifyPasswordConfirm(props) {
   const {

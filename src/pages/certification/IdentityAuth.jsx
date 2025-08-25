@@ -29,7 +29,7 @@ const Wrapper = styled.div`
     margin-bottom: 10px;
     margin-top: 24px;
   }
-  .icon-check_circle1 {
+  .icon-check_circle {
     color: #1eaf08;
   }
   .icon-info {
@@ -192,7 +192,7 @@ function IdentityAuth() {
         <LoadDiv />
       ) : (
         <React.Fragment>
-          <Icon icon={status === VERIFY_STATUS.SUCCESS ? 'check_circle1' : 'info'} className="Font64" />
+          <Icon icon={status === VERIFY_STATUS.SUCCESS ? 'check_circle' : 'info'} className="Font64" />
           <div className="mTop32 Font20 bold">
             {status === VERIFY_STATUS.SUCCESS ? _l('个人认证已通过') : _l('二维码已失效，请刷新后重新扫码')}
           </div>

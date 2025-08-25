@@ -1,29 +1,29 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import styled from 'styled-components';
+import { Dropdown, Menu } from 'antd';
 import cx from 'classnames';
-import Record from '../Record';
-import { Menu, Dropdown } from 'antd';
-import { Icon } from 'ming-ui';
-import { MenuOverlayWrapper } from 'worksheet/views/GunterView/Directory';
-import GroupContent from 'worksheet/views/GunterView/components/GroupContent';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
+import GroupContent from 'worksheet/views/GunterView/components/GroupContent';
+import { MenuOverlayWrapper } from 'worksheet/views/GunterView/Directory';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import Record from '../Record';
 
 const GroupingItem = styled.div`
   width: 100%;
   height: 32px;
   padding: 0 20px 0 12px;
   .addCoin {
-    color: #2196f3;
+    color: #1677ff;
     display: none;
     transform: translateX(5px);
   }
-  &.addRecord:hover {
-    color: #2196f3 !important;
+  &.addGunterRecord:hover {
+    color: #1677ff !important;
   }
   &.allowAdd:hover {
     .addCoin {
@@ -55,19 +55,19 @@ export default class GroupItem extends Component {
     this.state = {
       createRecordVisible: false,
       defaultFormData: {},
-      NewRecordComponent: null
+      NewRecordComponent: null,
     };
   }
   componentDidMount() {
     import('worksheet/common/newRecord/NewRecord').then(component => {
       this.setState({
-        NewRecordComponent: component.default
+        NewRecordComponent: component.default,
       });
     });
   }
   handleChangeSubVisible = id => {
     this.props.updateGroupSubVisible(id);
-  }
+  };
   handleCreateRecord = (groupId, isMilepost) => {
     const { base, grouping, controls, viewConfig, sheetSwitchPermit } = this.props;
     const { viewControl, milepost } = viewConfig;
@@ -97,7 +97,7 @@ export default class GroupItem extends Component {
       }
       this.setState({ createRecordVisible: true, defaultFormData });
     }
-  }
+  };
   renderOverlay({ key, subVisible }) {
     const { worksheetInfo, viewConfig } = this.props;
     const { milepost } = viewConfig;
@@ -133,10 +133,14 @@ export default class GroupItem extends Component {
     );
   }
   renderContent() {
-    const { width, viewConfig, widthConfig, group, worksheetInfo, sheetSwitchPermit, withoutArrangementVisible } = this.props;
+    const { width, viewConfig, widthConfig, group, worksheetInfo, sheetSwitchPermit, withoutArrangementVisible } =
+      this.props;
     const { viewControl } = viewConfig;
     const rows = group.rows.filter(item => (withoutArrangementVisible ? true : item.diff > 0));
-    const allowAdd = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd && viewControl !== 'wfstatus';
+    const allowAdd =
+      isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+      worksheetInfo.allowAdd &&
+      viewControl !== 'wfstatus';
     return (
       <Fragment>
         {!group.hide && (
@@ -144,14 +148,14 @@ export default class GroupItem extends Component {
             <Icon
               className="Font12 Gray_9e mRight8"
               icon={group.subVisible ? 'arrow-down' : 'arrow-right-tip'}
-              onClick={(event) => {
+              onClick={() => {
                 this.handleChangeSubVisible(group.key);
               }}
             />
             <div className="valignWrapper h100" style={{ width: width - 50 }}>
               <div
                 className="Gray_75 h100 valignWrapper flex overflow_ellipsis"
-                onClick={(event) => {
+                onClick={() => {
                   this.handleChangeSubVisible(group.key);
                 }}
               >
@@ -166,10 +170,11 @@ export default class GroupItem extends Component {
             </div>
           </GroupingItem>
         )}
-        {group.subVisible && rows.map(row => <Record key={row.rowid} groupKey={group.key} row={row} widthConfig={widthConfig} />)}
+        {group.subVisible &&
+          rows.map(row => <Record key={row.rowid} groupKey={group.key} row={row} widthConfig={widthConfig} />)}
         {_.isEmpty(viewControl) && allowAdd && (
           <GroupingItem
-            className="valignWrapper addRecord Gray_9e pointer"
+            className="valignWrapper addGunterRecord Gray_9e pointer"
             onClick={() => {
               this.handleCreateRecord(group.key);
             }}

@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Button, Dropdown } from 'ming-ui';
-import styled from 'styled-components';
-import homeAppAjax from 'src/api/homeApp';
-import appManagementAjax from 'src/api/appManagement';
 import update from 'immutability-helper';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Dropdown } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
 
 const Config = [
   {

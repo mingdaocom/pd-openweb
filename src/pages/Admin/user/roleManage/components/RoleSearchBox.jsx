@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Icon } from 'ming-ui';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
 
 export default class RoleSearchBox extends Component {
   constructor(props) {
@@ -19,7 +19,7 @@ export default class RoleSearchBox extends Component {
       this.handleClear();
     } else {
       this.props.updateIsRequestList(true);
-      this.props.handleSearch(value)
+      this.props.handleSearch(value);
     }
   }, 500);
   handleClear = () => {
@@ -55,7 +55,7 @@ export default class RoleSearchBox extends Component {
         />
         {searchValue !== '' ? (
           <span
-            className="Font14 icon-closeelement-bg-circle Gray_c Hand Absolute"
+            className="Font14 icon-cancel Gray_c Hand Absolute"
             style={{
               top: '8px',
               right: '8px',

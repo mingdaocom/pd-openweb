@@ -1,6 +1,7 @@
 import store from 'redux/configureStore';
 import update from 'immutability-helper';
 import { pick } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
@@ -40,7 +41,9 @@ export function getSheetList(args) {
     if (getAppSectionDetailRequest) {
       try {
         getAppSectionDetailRequest.abort();
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }
     getAppSectionDetailRequest = homeAppApi.getAppSectionDetail(args);
     getAppSectionDetailRequest.then(data => {
@@ -104,7 +107,7 @@ export function refreshSheetList() {
 }
 
 export function getAllAppSectionDetail(appId, callBack) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     homeAppApi
       .getApp({
         appId,
@@ -226,7 +229,7 @@ export function updateSheetIconColor(iconColor) {
 }
 
 export function updateSheetListIsUnfold(visible) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     if (visible) {
       dispatch({ type: 'SHEET_LIST_UPDATE_IS_UNFOLD', isUnfold: true });
     } else {
@@ -236,7 +239,7 @@ export function updateSheetListIsUnfold(visible) {
 }
 
 export function updateAppItemInfo(id, type, name) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     if (type) {
       dispatch(updatePageInfo({ pageName: name }));
     } else {
@@ -415,31 +418,28 @@ export function deleteSheet({ appId, groupId, worksheetId, projectId, type, pare
 }
 
 export function sortSheetList(appId, appSectionId, sheetList) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     dispatch({ type: 'SHEET_LIST', data: sheetList });
-    homeAppApi
-      .updateSectionChildSort({
-        appId,
-        appSectionId,
-        workSheetIds: sheetList.filter(_.identity).map(item => item.workSheetId),
-      })
-      .then(result => {});
+    homeAppApi.updateSectionChildSort({
+      appId,
+      appSectionId,
+      workSheetIds: sheetList.filter(_.identity).map(item => item.workSheetId),
+    });
   };
 }
 
 export function updateGuidanceVisible(visible) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     const key = `${md.global.Account.accountId}-guidanceHide`;
     if (_.isBoolean(visible)) {
-      webCache
-        .add(
-          {
-            key,
-            value: 'true',
-          },
-          { silent: true },
-        )
-        .then(result => {});
+      webCache.add(
+        {
+          key,
+          value: 'true',
+        },
+        { silent: true },
+      );
+
       dispatch({
         type: 'GUIDANCE_VISIBLE',
         value: visible,
@@ -462,7 +462,7 @@ export function updateGuidanceVisible(visible) {
 }
 
 export function addWorkSheet(args, cb) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     const { appId, appSectionId, firstGroupId, name, projectId, type } = args;
     appManagementApi
       .addWorkSheet({
@@ -513,14 +513,14 @@ export function addWorkSheet(args, cb) {
           cb && cb(result);
         }
       })
-      .catch(result => {
+      .catch(() => {
         cb && cb();
       });
   };
 }
 
-export function addAppSection(args, cb) {
-  return function (dispatch, getState) {
+export function addAppSection(args) {
+  return function (dispatch) {
     const { appId, groupId } = args;
     const name = _l('未命名分组');
     const icon = '8_4_folder';
@@ -554,9 +554,8 @@ export function addAppSection(args, cb) {
   };
 }
 
-let pending = false;
 export function createAppItem(args) {
-  return function (dispatch, getState) {
+  return function (dispatch) {
     let { appId, firstGroupId, groupId, type, name, configuration, urlTemplate } = args;
 
     if (md.global.Account.isPortal) {
@@ -582,7 +581,6 @@ export function createAppItem(args) {
       createType: enumType === 1 ? (urlTemplate ? 1 : 0) : undefined,
     };
     const callBack = res => {
-      pending = false;
       const { pageId } = res || {};
       if (type === 'customPage' && pageId) {
         navigateTo(`/app/${appId}/${firstGroupId || groupId}/${pageId}`);
@@ -592,15 +590,14 @@ export function createAppItem(args) {
         }
       }
     };
-    pending = true;
+
     dispatch(addWorkSheet(createArgs, callBack));
   };
 }
 
 // 复制自定义页面
 export function copyCustomPage(para, externalLink) {
-  return function (dispatch, getState) {
-    const { sheetList } = getState();
+  return function (dispatch) {
     const { parentGroupId } = para;
     if (parentGroupId) {
       para.appSectionId = parentGroupId;

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { Dialog, Dropdown } from 'ming-ui';
@@ -77,7 +77,7 @@ export default class SetInfoDialog extends Component {
 
       this.setState({
         country: !keywords ? data : this.state.country,
-        searchResultCountry: !!keywords ? data : [],
+        searchResultCountry: keywords ? data : [],
       });
     });
   }
@@ -220,7 +220,7 @@ export default class SetInfoDialog extends Component {
             if (data == 0) {
               alert(_l('保存失败'), 2);
             } else if (data == 1) {
-              const timeZoneName = (_.find(timeZones, v => v.value === timeZone) || {}).text;
+              const timeZoneName = (_.find(timeZones, v => v.value === +timeZone) || {}).text;
               const geoCountryRegionName = (_.find(country, v => v.value === geoCountryRegionCode) || {}).text;
 
               this.props.updateValue({
@@ -275,11 +275,11 @@ export default class SetInfoDialog extends Component {
             className="w100"
             border
             value={geoCountryRegionCode}
-            data={!!keywords ? searchResultCountry : country}
+            data={keywords ? searchResultCountry : country}
             openSearch
             showItemTitle
             isAppendToBody
-            renderTitle={(selectedData = {}) => <span title={currentCountry.text}>{currentCountry.text}</span>}
+            renderTitle={() => <span title={currentCountry.text}>{currentCountry.text}</span>}
             onSearch={keywords => this.setState({ keywords }, this.onSearch)}
             onChange={this.onChangRegionCode}
             noData={!!keywords && _.isEmpty(searchResultCountry) ? _l('暂无搜索结果') : _l('无数据')}

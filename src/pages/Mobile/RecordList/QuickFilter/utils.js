@@ -1,9 +1,10 @@
-import { assign, find, get, includes, isEmpty, isUndefined } from 'lodash';
+import { assign, find, get, includes, isEmpty } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { browserIsMobile, getRequest } from 'src/utils/common';
+import { getRequest } from 'src/utils/common';
 
 export const formatQuickFilter = filter => {
   return filter.map(c => {
@@ -200,6 +201,14 @@ function parseDynamicSource({ dynamicSource, control, filterType } = {}) {
 export function handleConditionsDefault(conditions, controls) {
   return conditions.map(condition => {
     condition = { ...condition };
+    if (
+      condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN &&
+      condition.dateRange !== 18 &&
+      get(condition, 'advancedSetting.daterange') !== '[]'
+    ) {
+      condition.originalFilterType = condition.filterType;
+      condition.filterType = FILTER_CONDITION_TYPE.DATEENUM;
+    }
     const control = find(controls, { controlId: condition.controlId });
     if (!control) return condition;
     if (!isEmpty(condition.dynamicSource)) {
@@ -207,10 +216,15 @@ export function handleConditionsDefault(conditions, controls) {
         dynamicSource: condition.dynamicSource,
         control,
         filterType: condition.filterType,
+        dateRangeType: condition.dateRangeType,
       });
       if (dynamicResult && dynamicResult[0]) {
         condition = assign(condition, dynamicResult[0]);
       }
+    }
+    const values = condition.values;
+    if (values[0] === 'isEmpty') {
+      condition.filterType = 7;
     }
     return condition;
   });

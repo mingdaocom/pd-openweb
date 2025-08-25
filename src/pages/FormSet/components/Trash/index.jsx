@@ -1,13 +1,15 @@
-import React, { useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm, UserHead, SvgIcon } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { DeleteReconfirm, Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip, UserHead } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
 
 const WrapHeader = styled.div`
+  flex-shrink: 0;
   height: 53px;
   padding: 0 68px 0 26px;
   .trashSearch {
@@ -23,9 +25,11 @@ const WrapHeader = styled.div`
   }
 `;
 const Wrap = styled.div`
+  height: 650px;
+  overflow: hidden;
   .table {
-    height: 600px;
-    min-height: 600px;
+    flex: 1;
+    overflow: hidden;
     border-top: 1px solid rgba(0, 0, 0, 0.16);
     .nameWrapTr,
     .rageWrapTr {
@@ -80,7 +84,7 @@ const Wrap = styled.div`
       border-bottom: 1px solid #e0e0e0;
       background: #fff;
       .icon-reply1,
-      .icon-delete1 {
+      .icon-trash {
         color: #9d9d9d;
         cursor: pointer;
         opacity: 0;
@@ -89,15 +93,15 @@ const Wrap = styled.div`
       &:hover {
         background: #f5f5f5;
         .icon-reply1,
-        .icon-delete1 {
+        .icon-trash {
           opacity: 1;
         }
         .icon-reply1 {
           &:hover {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
-        .icon-delete1 {
+        .icon-trash {
           &:hover {
             color: #f32121;
           }
@@ -212,7 +216,7 @@ export default function TrashDialog(props) {
       id: 'name',
       className: 'nameWrapTr',
       name: _l('动作名称'),
-      render: (data, index) => {
+      render: data => {
         return (
           <div className="flexRow flex alignItemsCenter">
             <div
@@ -248,7 +252,7 @@ export default function TrashDialog(props) {
       name: _l('使用范围'),
       className: 'rageWrapTr',
       sorter: true,
-      render: (it, index) => {
+      render: it => {
         return (
           <div className="view flex overflow_ellipsis">
             {it.isAllView === 1 ? (
@@ -271,7 +275,7 @@ export default function TrashDialog(props) {
     {
       id: 'updateAccount',
       name: _l('删除者'),
-      render: (data, index) => {
+      render: data => {
         return (
           <div className="flexRow alignItemsCenter">
             <UserHead
@@ -291,7 +295,7 @@ export default function TrashDialog(props) {
       id: 'updateTime',
       name: _l('删除时间'),
       sorter: true,
-      render: (data, index) => {
+      render: data => {
         return data.updateTime;
       },
     },
@@ -299,7 +303,7 @@ export default function TrashDialog(props) {
       id: 'option',
       className: 'optionWrapTr',
       name: '',
-      render: (data, index) => {
+      render: data => {
         return (
           <div className="flex">
             <Tooltip text={<span>{_l('恢复')}</span>} popupPlacement="bottom">
@@ -312,7 +316,7 @@ export default function TrashDialog(props) {
             </Tooltip>
             <Tooltip text={<span>{_l('彻底删除')}</span>} popupPlacement="bottom">
               <i
-                className="icon icon-delete1 mLeft25"
+                className="icon icon-trash mLeft25"
                 onClick={() => {
                   DeleteReconfirm({
                     title: _l('将彻底删除动作“%0”', data.name),
@@ -389,7 +393,7 @@ export default function TrashDialog(props) {
           ) : list.length <= 0 ? (
             <div className="nullData TxtCenter flex">
               <div className="emptyIcon">
-                <i className="icon icon-custom_-page_delete"></i>
+                <i className="icon icon-recycle"></i>
               </div>
               <p className="TxtCenter Gray_9e Font17 mTop10">
                 {keyWords ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}

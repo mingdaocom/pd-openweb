@@ -20,7 +20,7 @@ export default class SubProcess extends Component {
     if (item.selectNodeId && !item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );

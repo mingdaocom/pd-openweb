@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import TriggerCondition from '../TriggerCondition';
-import Sort from '../Sort';
 import { Checkbox } from 'ming-ui';
 import { switchFilterConditions } from '../../../utils';
+import Sort from '../Sort';
+import TriggerCondition from '../TriggerCondition';
 
 export default ({
   companyId,

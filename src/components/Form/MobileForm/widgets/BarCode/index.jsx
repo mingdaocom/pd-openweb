@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef, memo } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { BarCode, Qr } from 'ming-ui';
-import { getBarCodeValue } from '../../../core/utils';
-import { FROM } from '../../../core/config';
-import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { parseDataSource } from '../../tools/utils';
 import styled from 'styled-components';
+import { BarCode, Qr } from 'ming-ui';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
+import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
+import { FROM } from '../../../core/config';
+import { getBarCodeValue } from '../../../core/utils';
+import { parseDataSource } from '../../tools/utils';
 
 const QRErrorCorrectLevel = {
   '7%': 1,

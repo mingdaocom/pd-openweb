@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
-import styled, { css } from 'styled-components';
-import { Input, Checkbox, Icon, Tooltip } from 'ming-ui';
+import React from 'react';
+import { Select } from 'antd';
 import cx from 'classnames';
-import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import _ from 'lodash';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import styled from 'styled-components';
+import { Checkbox, Icon, Input, Tooltip } from 'ming-ui';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import {
   ACTION_LIST,
   ALL_OPERATION_TYPE_DATA,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import DestEdit from './Dest';
-import { Select } from 'antd';
 
 const WrapCon = styled.div`
   .setSheetName,
@@ -162,7 +162,7 @@ export default function SlideLayerTem(props) {
               {item.isErr && (
                 <Icon
                   className="deleteIcon"
-                  icon="delete1"
+                  icon="trash"
                   onClick={() => {
                     cb({
                       fields: fields.filter(o => o.id !== item.id),
@@ -208,7 +208,7 @@ export default function SlideLayerTem(props) {
                 )}
                 {item.isErr && (
                   <div data-tip={_l('字段已删除')} className="tip-top">
-                    <Icon icon="info1" className="Red mLeft5 isNoMatchOption" />
+                    <Icon icon="info" className="Red mLeft5 isNoMatchOption" />
                   </div>
                 )}
                 {item.isTitle && isAppWorksheet && <Icon icon="ic_title" className="Gray_bd mLeft5" />}
@@ -401,7 +401,7 @@ export default function SlideLayerTem(props) {
                     />
                   </div>
                   <span className="nowrap">{_l('为主键')}</span>
-                  <Tooltip text={_l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')}>
+                  <Tooltip text={_l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')} autoCloseDelay={0}>
                     <Icon icon="info_outline" className="Font16 Gray_bd pointer mLeft12" />
                   </Tooltip>
                 </div>

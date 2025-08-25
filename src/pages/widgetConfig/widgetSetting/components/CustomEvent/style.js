@@ -9,14 +9,14 @@ export const AddEventWrap = styled.div`
       ? 'width: fit-content;'
       : 'width: 100%; height: 36px;justify-content: center; border: 1px dashed #dddddd;margin-top: 20px;border-radius: 4px;'}
   cursor: pointer;
-  color: #2196f3;
+  color: #1677ff;
   ${props =>
     props.disabled
       ? 'background: #f5f5f5;border-color: #f5f5f5;color: #9e9e9e !important;cursor: not-allowed !important;'
       : ''}
   i {
     margin-right: 4px;
-    color: #2196f3;
+    color: #1677ff;
     font-size: 16px;
     ${props => (props.disabled ? 'color: #9e9e9e !important;' : '')}
   }
@@ -33,7 +33,7 @@ export const IconWrap = styled.span`
   cursor: pointer;
   font-size: 16px;
   &:hover {
-    color: ${props => (props.type === 'danger' ? '#F44336' : '#2196f3')};
+    color: ${props => (props.type === 'danger' ? '#F44336' : '#1677ff')};
   }
 `;
 
@@ -110,7 +110,7 @@ export const CustomActionWrap = styled.div`
     cursor: pointer;
     border: 1px solid #dddddd;
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
       .deleteBtn {
         display: block;
       }
@@ -119,7 +119,7 @@ export const CustomActionWrap = styled.div`
       display: none;
     }
     &.active {
-      border-color: #2196f3;
+      border-color: #1677ff;
       position: relative;
       &::after {
         content: '';
@@ -128,7 +128,7 @@ export const CustomActionWrap = styled.div`
         top: 0;
         width: 0;
         height: 0;
-        border: 7px solid #2196f3;
+        border: 7px solid #1677ff;
         border-bottom-color: transparent;
         border-left-color: transparent;
       }
@@ -190,11 +190,11 @@ export const DynamicBtn = styled.div`
   justify-content: center;
   background: #fafafa;
   border-radius: 4px;
-  color: #2196f3;
+  color: #1677ff;
   cursor: pointer;
   font-weight: 600;
   i {
-    color: #2196f3;
+    color: #1677ff;
     margin-right: 4px;
     font-size: 15px;
   }

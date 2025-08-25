@@ -1,8 +1,8 @@
-import React, { useState, useEffect, createRef } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { DynamicValueInputWrap } from '../styled';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import filterXSS from 'xss';
+import { whiteList } from 'xss/lib/default';
 import { UserCard } from 'ming-ui';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import DiscussionController from 'src/api/discussion';
@@ -35,7 +36,7 @@ const removeTopicConfirm = props => {
 };
 
 const removeTopic = function (props) {
-  const { sourceType, sourceId, discussionId, isDeleteAttachment } = props;
+  const { sourceType, sourceId, discussionId } = props;
 
   if (sourceType === SOURCE_TYPE.POST) {
     postAjax
@@ -54,7 +55,7 @@ const removeTopic = function (props) {
         }
       });
   } else {
-    const { discussionId, isDeleteAttachment } = props;
+    const { discussionId } = props;
     var params = {
       discussionId,
       sourceType,
@@ -77,7 +78,7 @@ const removeTopic = function (props) {
 
 const getComponentProps = function (props) {
   const {
-    params: { sourceType, discussionId, extendsId, name, projectId, createAccount, appId },
+    params: { sourceType, discussionId, extendsId, name, projectId, createAccount },
   } = props;
   var commonProps = {
     placeholder: _l('请输入回复内容'),
@@ -158,7 +159,7 @@ const getComponentProps = function (props) {
 
 class CommentItem extends React.Component {
   constructor(props) {
-    super();
+    super(props);
     this.state = {
       showCommenter: false,
     };
@@ -189,13 +190,18 @@ class CommentItem extends React.Component {
     return (
       <span
         dangerouslySetInnerHTML={{
-          __html: createLinksForMessage({
-            message: filterXSS(message.replace(/\n/g, ' <br>')),
-            rUserList: accountsInMessage,
-            rGroupList: groupsInMessage,
-            categories,
-            sourceType,
-          }),
+          __html: filterXSS(
+            createLinksForMessage({
+              message: message,
+              rUserList: accountsInMessage,
+              rGroupList: groupsInMessage,
+              categories,
+              sourceType,
+            }),
+            {
+              whiteList: Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] }),
+            },
+          ).replace(/\n/g, ' <br>'),
         }}
       />
     );
@@ -240,7 +246,6 @@ class CommentItem extends React.Component {
 
   renderBottomBar() {
     const { canDelete, sourceId, sourceType } = this.props;
-    const { showCommenter } = this.state;
     const createTime = dateConvertToUserZone(this.props.createTime);
     const buildLink = () => {
       switch (sourceType) {
@@ -440,7 +445,7 @@ export default class CommentArea extends React.Component {
       autoFocus: this.state.commenterIsFocus,
       onSubmit: this.addCommentCallback,
     };
-    return <Commenter {...props} mentionsOptions={{ minHeight: 300 }} />;
+    return <Commenter {...props} mentionsOptions={{ getPopupContainer: () => document.body }} />;
   }
 
   renderComments() {

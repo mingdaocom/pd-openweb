@@ -1,16 +1,18 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Dialog, Button, Dropdown } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Switch, Menu } from 'antd';
-const { SubMenu, Divider } = Menu;
-import cx from 'classnames';
-import styled from 'styled-components';
-import homeApp from 'src/api/homeApp';
-import { moveSheet } from 'src/pages/worksheet/redux/actions/sheetList';
 import { bindActionCreators } from 'redux';
-import './index.less';
-import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import { Menu, Switch } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Dropdown } from 'ming-ui';
+import homeApp from 'src/api/homeApp';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { moveSheet } from 'src/pages/worksheet/redux/actions/sheetList';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import './index.less';
+
+const { SubMenu, Divider } = Menu;
 
 const AdjustScreenWrap = styled.div`
   width: 360px;
@@ -69,7 +71,7 @@ const CONFIG = [
   {
     type: 'delete',
     text: _l('删除页面%07000'),
-    icon: 'delete2',
+    icon: 'trash',
     className: 'delete',
   },
 ];

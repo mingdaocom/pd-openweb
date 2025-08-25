@@ -298,7 +298,7 @@ export default class CardMessage extends Component {
         </div>
         {commentCount ? (
           <div className="Message-cardHeader-icon">
-            <i className="icon-ic_textsms_black" />
+            <i className="icon-textsms" />
             <span>{commentCount}</span>
           </div>
         ) : undefined}

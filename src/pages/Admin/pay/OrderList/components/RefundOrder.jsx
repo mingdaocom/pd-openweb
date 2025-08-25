@@ -75,7 +75,7 @@ export default class RefundOrder extends Component {
         title: _l('交易金额'),
         dataIndex: 'payAmount',
         width: 170,
-        render: (text, record) => {
+        render: text => {
           return text <= 0 ? 0 : text;
         },
       },
@@ -83,7 +83,7 @@ export default class RefundOrder extends Component {
         title: _l('退款金额'),
         dataIndex: 'amount',
         width: 150,
-        render: (text, record) => {
+        render: text => {
           return <div className="color_47">{text}</div>;
         },
       },
@@ -91,7 +91,7 @@ export default class RefundOrder extends Component {
         title: _l('申请时间'),
         dataIndex: 'createTime',
         width: 220,
-        render: (text, record) => moment(text).format('YYYY-MM-DD HH:mm:ss'),
+        render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
       },
       {
         title: _l('退款时间'),
@@ -124,6 +124,7 @@ export default class RefundOrder extends Component {
               ) : (
                 <UserName
                   className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  projectId={props.projectId}
                   user={{
                     userName: fullname,
                     accountId: accountId,
@@ -203,6 +204,7 @@ export default class RefundOrder extends Component {
               ) : (
                 <UserName
                   className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  projectId={props.projectId}
                   user={{
                     userName: fullname,
                     accountId: accountId,
@@ -289,7 +291,7 @@ export default class RefundOrder extends Component {
           pageIndex,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -339,11 +341,11 @@ export default class RefundOrder extends Component {
           pageSize: 50, //每页条数
         },
       })
-      .then(res => {
+      .then(() => {
         this.setState({ isExport: false });
         this.props.updateDisabledExportBtn(false);
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ isExport: false });
         this.props.updateDisabledExportBtn(false);
       });
@@ -384,7 +386,7 @@ export default class RefundOrder extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingApp: false });
       });
   };
@@ -408,7 +410,7 @@ export default class RefundOrder extends Component {
           merchantListLoading: false,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ merchantListLoading: false });
       });
   };

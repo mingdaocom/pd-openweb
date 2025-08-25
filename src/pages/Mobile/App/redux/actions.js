@@ -24,7 +24,7 @@ export const getAppDetail =
           dispatch({ type: 'MOBILE_FETCH_SUCCESS' });
         }
       })
-      .catch(err => {
+      .catch(() => {
         dispatch({ type: 'MOBILE_FETCH_SUCCESS' });
       });
   };
@@ -65,7 +65,7 @@ const getApp = (appId, cb) => dispatch => {
         data: (detail.debugRole || {}).selectedRoles || [],
       });
     })
-    .catch(err => {
+    .catch(() => {
       dispatch({
         type: 'UPDATE_APP_DETAIL',
         data: {
@@ -90,8 +90,8 @@ const getTodoCount = appId => dispatch => {
 };
 
 export const addAppApply =
-  ({ appId, projectId }) =>
-  (dispatch, getState) => {
+  ({ appId }) =>
+  dispatch => {
     dispatch({
       type: 'MOBILE_ACTION_ING',
     });

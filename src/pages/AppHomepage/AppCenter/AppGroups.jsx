@@ -1,15 +1,15 @@
-import React, { useMemo, useReducer, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useReducer, useRef } from 'react';
 import { withRouter } from 'react-router-dom';
-import { string, shape } from 'prop-types';
-import styled from 'styled-components';
+import _ from 'lodash';
+import { shape, string } from 'prop-types';
 import { navigateTo } from 'router/navigateTo';
+import styled from 'styled-components';
+import { CreateActions, initialState, reducer } from './appHomeReducer';
+import AppGrid from './components/AppGrid';
 import CreateFirstApp from './components/CreateFirstApp';
 import Groups from './components/Groups';
-import AppGrid from './components/AppGrid';
-import './AppGroups.less';
-import { initialState, reducer, CreateActions } from './appHomeReducer';
-import _ from 'lodash';
 import { getFilterApps } from './utils';
+import './AppGroups.less';
 
 const Con = styled.div`
   display: flex;

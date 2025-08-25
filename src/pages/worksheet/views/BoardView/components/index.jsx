@@ -1,8 +1,7 @@
 import React from 'react';
-import { string } from 'prop-types';
 import styled from 'styled-components';
-import { FlexCenter, Fixed, Text } from 'worksheet/styled';
 import { Icon } from 'ming-ui';
+import { FlexCenter, Text } from 'worksheet/styled';
 
 const BoardIconWrap = styled(FlexCenter)`
   flex-basis: auto;
@@ -55,7 +54,7 @@ const AddWrap = styled(FlexCenter)`
   color: #9d9d9d;
   &:hover {
     background-color: rgba(3, 3, 3, 0.1);
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 

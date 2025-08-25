@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdMarkdown } from 'ming-ui';
 import MarkdownDialog from 'src/ming-ui/components/MdMarkdown/MarkdownDialog.js';
@@ -19,7 +20,7 @@ const TextMarkdownWrap = styled.div`
       background: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#fff' : '#f7f7f7')} !important;
       padding: ${props => (props.disabled && !props.isCreate ? '6px 0' : '6px 15px 6px 12px')} !important;
     }
-    border-color: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#2196f3' : '#f7f7f7')} !important;
+    border-color: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#1677ff' : '#f7f7f7')} !important;
   }
 
   .iconFullScreen {
@@ -31,7 +32,7 @@ const TextMarkdownWrap = styled.div`
     color: #757575;
     z-index: 2;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

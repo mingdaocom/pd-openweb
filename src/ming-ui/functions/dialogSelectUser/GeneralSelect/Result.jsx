@@ -1,5 +1,5 @@
-import './css/result.less';
 import React from 'react';
+import './css/result.less';
 
 export default function (props) {
   const { id, avatar, name, deleteFn } = props;

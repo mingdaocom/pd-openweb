@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
 import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, PopupWrapper, ScrollView } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import organizeAjax from 'src/api/organize.js';
 import './index.less';
@@ -20,9 +20,7 @@ export default class SelectOrgRole extends Component {
       pageIndex: 1,
       selectedOrgRole: props.selectOrgRoles || [],
     };
-    this.debounceSearch = _.debounce(() => {
-      this.handleSearch();
-    }, 500);
+    this.searchRef = createRef();
   }
   componentDidMount() {
     this.init();
@@ -30,6 +28,9 @@ export default class SelectOrgRole extends Component {
 
   init() {
     const { projectId, appointedOrganizeIds } = this.props;
+    this.setState({
+      isLoading: true,
+    });
     organizeAjax
       .getOrgRoleGroupsByProjectId({
         projectId,
@@ -54,9 +55,14 @@ export default class SelectOrgRole extends Component {
       });
   }
 
+  getKeywords = () => {
+    return this.searchRef.current && this.searchRef.current.keywords ? this.searchRef.current.keywords.trim() : '';
+  };
+
   getData = (groups, orgRoleGroupId, index) => {
     const { projectId, appointedOrganizeIds = [] } = this.props;
-    let { keywords, pageIndex = 1, treeData, searchList } = this.state;
+    let { pageIndex = 1, treeData, searchList } = this.state;
+    let keywords = this.getKeywords();
     let treeList = groups || treeData;
     const fetchPageIndex = index || pageIndex;
 
@@ -75,7 +81,7 @@ export default class SelectOrgRole extends Component {
           this.setState({
             searchList: list,
             isMore: result.allCount > list.length,
-            loading: false,
+            isLoading: false,
           });
           return;
         }
@@ -105,13 +111,13 @@ export default class SelectOrgRole extends Component {
   };
 
   handleSearch = () => {
-    if (!this.state.keywords) {
+    if (!this.getKeywords()) {
       this.setState({ searchList: [], pageIndex: 1 });
       return;
     }
-
     this.setState(
       {
+        isLoading: true,
         pageIndex: 1,
       },
       () => {
@@ -131,51 +137,9 @@ export default class SelectOrgRole extends Component {
     this.props.onClose();
   };
 
-  renderSearch() {
-    const { keywords } = this.state;
-    return (
-      <div className="searchWrapper">
-        <Icon icon="h5_search" />
-        <form
-          action="#"
-          className="flex"
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-        >
-          <input
-            type="search"
-            placeholder={_l('搜索组织角色')}
-            className="Font14"
-            value={keywords}
-            onChange={e => {
-              this.setState({ keywords: e.target.value }, this.debounceSearch);
-            }}
-            onKeyDown={event => {
-              event.which === 13 && this.handleSearch();
-            }}
-            onBlur={this.handleSearch}
-          />
-        </form>
-        {keywords ? (
-          <Icon
-            icon="workflow_cancel"
-            onClick={() => {
-              this.setState(
-                {
-                  keywords: '',
-                },
-                this.handleSearch,
-              );
-            }}
-          />
-        ) : null}
-      </div>
-    );
-  }
-
   onScrollEnd = () => {
-    const { isMore, isLoading, keywords, pageIndex } = this.state;
+    const { isMore, isLoading, pageIndex } = this.state;
+    let keywords = this.getKeywords();
 
     if (!keywords || isLoading || !isMore) return;
 
@@ -186,26 +150,26 @@ export default class SelectOrgRole extends Component {
 
   renderSelected() {
     const { selectedOrgRole = [] } = this.state;
+    if (_.isEmpty(selectedOrgRole)) return null;
+
     return (
-      <div className={cx('selectedWrapper', { hide: _.isEmpty(selectedOrgRole) })}>
-        <ScrollView style={{ maxHeight: 92, minHeight: 46 }}>
-          {selectedOrgRole.map(item => (
-            <span className="selectedItem" key={item.organizeId}>
-              <span className="ellipsis curSelected">{item.organizeName}</span>
-              <Icon
-                icon="close"
-                className="Gray_9e Font15"
-                onClick={() => {
-                  const { selectedOrgRole } = this.state;
-                  this.setState({
-                    selectedOrgRole: selectedOrgRole.filter(it => it.organizeId !== item.organizeId),
-                  });
-                }}
-              />
-            </span>
-          ))}
-        </ScrollView>
-      </div>
+      <ScrollView className="selectedWrapper">
+        {selectedOrgRole.map(item => (
+          <span className="selectedItem" key={item.organizeId}>
+            <span className="ellipsis curSelected">{item.organizeName}</span>
+            <Icon
+              icon="close"
+              className="Gray_9e Font15"
+              onClick={() => {
+                const { selectedOrgRole } = this.state;
+                this.setState({
+                  selectedOrgRole: selectedOrgRole.filter(it => it.organizeId !== item.organizeId),
+                });
+              }}
+            />
+          </span>
+        ))}
+      </ScrollView>
     );
   }
 
@@ -248,7 +212,7 @@ export default class SelectOrgRole extends Component {
 
   renderChildren = groupItem => {
     const { unique } = this.props;
-    const { expendTreeNodeKey, selectedOrgRole, keywords, searchList } = this.state;
+    const { expendTreeNodeKey, selectedOrgRole, searchList } = this.state;
     const selectedOrgRoleIds = selectedOrgRole.map(item => item.organizeId);
 
     if (groupItem && !expendTreeNodeKey.includes(groupItem.orgRoleGroupId)) return;
@@ -270,7 +234,8 @@ export default class SelectOrgRole extends Component {
   };
 
   renderParent = () => {
-    const { isLoading, keywords, treeData, expendTreeNodeKey, searchList } = this.state;
+    const { isLoading, treeData, expendTreeNodeKey, searchList } = this.state;
+    let keywords = this.getKeywords();
     if (isLoading) {
       return <LoadDiv />;
     }
@@ -337,8 +302,8 @@ export default class SelectOrgRole extends Component {
 
   renderContent = () => {
     return (
-      <div className="flex flexColumn">
-        {this.renderSearch()}
+      <div className="h100 flexColumn">
+        <MobileSearch ref={this.searchRef} placeholder={_l('搜索组织角色')} onSearch={this.handleSearch} />
         {this.renderSelected()}
         {this.renderParent()}
       </div>

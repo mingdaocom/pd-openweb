@@ -171,7 +171,7 @@ export default class FindPassword extends React.Component {
             {_l('确认')}
           </span>
         </React.Fragment>
-        {!isMingDaoApp ? (
+        {!window.isMingDaoApp ? (
           <React.Fragment>
             <div className="flexRow alignItemsCenter justifyContentCenter footerCon" style={{ marginTop: '125px' }}>
               <span

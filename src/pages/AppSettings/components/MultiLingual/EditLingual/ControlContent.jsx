@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Dialog, Icon } from 'ming-ui';
 import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from 'src/pages/widgetConfig/config/index';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -19,7 +20,7 @@ export default function ControlContent(props) {
   const data = _.find(translateData, { correlationId: control.controlId, parentId: selectNode.workSheetId }) || {};
   const translateInfo = data.data || {};
   const comparisonLangInfo = getTranslateInfo(app.id, selectNode.workSheetId, control.controlId, comparisonLangData);
-  const { type, dataSource, advancedSetting: { showtype = '0', checktype, hinttype = '0', itemnames } = {} } = control;
+  const { type, dataSource, advancedSetting: { showtype = '0', checktype, itemnames } = {} } = control;
   const options = (_.get(control, 'options') || []).filter(n => !n.isDeleted);
   const itemNames = itemnames && JSON.parse(itemnames);
   const [optionsEditDialogVisible, setOptionsEditDialogVisible] = useState('');
@@ -114,8 +115,8 @@ export default function ControlContent(props) {
                     },
                   });
                   setTimeout(() => {
-                    const el = document.querySelector('.navScroll');
-                    el.nanoscroller.scrollBottom(0);
+                    const el = document.querySelector('.navScroll .scroll-viewport');
+                    el.scrollTo({ top: 1000000 });
                   }, 0);
                 }}
               >

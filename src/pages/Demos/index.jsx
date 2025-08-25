@@ -17,7 +17,7 @@ const RecordsCon = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
 `;
 
-export default function Demo(props) {
+export default function Demo() {
   const records = [1, 2, 3, 4, 5];
   return (
     <Con>

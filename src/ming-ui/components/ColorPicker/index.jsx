@@ -26,7 +26,7 @@ const DEFAULT_COLORS_ROW_1 = [
 ];
 
 const DEFAULT_COLORS_ROW_2 = [
-  '#2196f3ff',
+  '#1677ffff',
   '#08c9c9ff',
   '#00c345ff',
   '#fad714ff',
@@ -52,7 +52,7 @@ const DEFAULT_COLORS_ROW_3 = [
 const DEFAULT_COLORS2 = [
   '#151515ff',
   '#757575ff',
-  '#2196f3ff',
+  '#1677ffff',
   '#08c9c9ff',
   '#00c345ff',
   '#fad714ff',
@@ -100,6 +100,7 @@ const isColorString = value => {
 class ColorPicker extends Component {
   static propTypes = {
     visible: PropTypes.bool,
+    notTrigger: PropTypes.bool,
     children: PropTypes.node,
     className: PropTypes.string,
     value: PropTypes.string, // 颜色值
@@ -115,7 +116,8 @@ class ColorPicker extends Component {
 
   static defaultProps = {
     visible: false,
-    value: '#2196f3',
+    notTrigger: false,
+    value: '#1677ff',
     isPopupBody: false,
     sysColor: false,
     themeColor: '',
@@ -239,6 +241,7 @@ class ColorPicker extends Component {
     const {
       children,
       className,
+      notTrigger,
       sysColor,
       themeColor,
       fromWidget,
@@ -253,17 +256,118 @@ class ColorPicker extends Component {
       ? DEFAULT_COLORS_ROW_3.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_1)
       : DEFAULT_COLORS_ROW_1.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_3);
 
-    let content = (
-      <COLOR_BOX background={this.getStringColor(color)}>
-        <span className="color_box_content"></span>
-      </COLOR_BOX>
-    );
-    if (children) {
-      content = children;
-    }
+    const Comp = TYPE_COMP[type];
+    const triggerClass = sysColor ? 'ColorPickerPanelTriggerMax' : 'ColorPickerPanelTriggerMin';
 
-    let Comp = TYPE_COMP[type];
-    let triggerClass = sysColor ? 'ColorPickerPanelTriggerMax' : 'ColorPickerPanelTriggerMin';
+    const popup = (
+      <div className="colorPickerCon">
+        {sysColor && (
+          <div className="commonColorPickerWrap">
+            {themeColor && (
+              <React.Fragment>
+                <div className="title" onClick={() => this.setState({ themeExpand: !themeExpand })}>
+                  <span className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !themeExpand })}></span>
+                  <span className="mLeft4">{_l('主题')}</span>
+                </div>
+                {this.renderSysColors(themeExpand, themeColors, true)}
+              </React.Fragment>
+            )}
+            <div className="title" onClick={() => this.setState({ defaultExpand: !defaultExpand })}>
+              <span className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !defaultExpand })}></span>
+              <span className="mLeft4">{_l('常用')}</span>
+            </div>
+            {this.renderSysColors(defaultExpand, fromWidget ? DEFAULT_COLORS2 : defaultColors || DEFAULT_COLORS)}
+            <div className="title" onClick={() => this.setState({ recentExpand: !recentExpand })}>
+              <span className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !recentExpand })}></span>
+              <span className="mLeft4">{_l('最近使用')}</span>
+            </div>
+            {this.renderSysColors(recentExpand, recentColors)}
+          </div>
+        )}
+        <div className="colorPickerWrap" onClick={e => e.stopPropagation()}>
+          <Comp color={type === 'HEX' ? color.toHex8String() : color.toRgb()} onChange={this.handleChangeColor} />
+          <div className="inputOptionWrap">
+            <Dropdown
+              className="selectType"
+              value={type}
+              isAppendToBody={true}
+              menuStyle={{
+                width: 180,
+              }}
+              data={TYPES.map(l => ({ text: l, value: l }))}
+              onChange={value => {
+                if (value === type) return;
+
+                this.setState({ type: value });
+              }}
+            />
+            <div className="colorInputWrap">
+              {type === 'HEX' ? (
+                <div className="hexColorInputWrap">
+                  <span className="prefix">#</span>
+                  <HexColorInput
+                    className="hexColorInput"
+                    color={color.toHex8String()}
+                    onChange={value => {
+                      if (value.length !== 7) return;
+
+                      this.setColor({ color: new TinyColor(value) });
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="rgbInputWrap">
+                  {['r', 'g', 'b'].map(key => (
+                    <InputNumber
+                      className="rgbInput"
+                      size="small"
+                      step="1"
+                      controls={false}
+                      value={color[key]}
+                      min={0}
+                      max={255}
+                      onChange={value => {
+                        if (value === null) return;
+
+                        this.setColor({
+                          color: new TinyColor({
+                            ...color.toRgb(),
+                            [key]: value,
+                          }),
+                        });
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <InputNumber
+              className="alphaInput"
+              size="small"
+              step="1"
+              value={color.toRgb().a}
+              min={0}
+              max={1}
+              controls={false}
+              formatter={value => `${_.round(value * 100)}%`}
+              parser={value => _.round(value.replace('%', '') / 100, 2)}
+              onChange={value => {
+                if (value === null) return;
+
+                const _tcolor = color.setAlpha(value);
+                this.setColor({ color: new TinyColor(_tcolor) });
+              }}
+            />
+          </div>
+          <div className="colorValue" style={{ background: this.getStringColor(color) }}></div>
+        </div>
+      </div>
+    );
+
+    if (notTrigger) {
+      return <div className="ColorPickerPanelTrigger">{popup}</div>;
+    }
 
     return (
       <span className={cx('ColorPickerPanel ming ColorPicker-wrapper', className)} onClick={e => e.stopPropagation()}>
@@ -292,116 +396,18 @@ class ColorPicker extends Component {
             overflow: { adjustX: true, adjustY: true },
           }}
           getPopupContainer={this.getPopupContainer}
-          popup={
-            <div className="colorPickerCon">
-              {sysColor && (
-                <div className="commonColorPickerWrap">
-                  {themeColor && (
-                    <React.Fragment>
-                      <div className="title" onClick={() => this.setState({ themeExpand: !themeExpand })}>
-                        <span
-                          className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !themeExpand })}
-                        ></span>
-                        <span className="mLeft4">{_l('主题')}</span>
-                      </div>
-                      {this.renderSysColors(themeExpand, themeColors, true)}
-                    </React.Fragment>
-                  )}
-                  <div className="title" onClick={() => this.setState({ defaultExpand: !defaultExpand })}>
-                    <span
-                      className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !defaultExpand })}
-                    ></span>
-                    <span className="mLeft4">{_l('常用')}</span>
-                  </div>
-                  {this.renderSysColors(defaultExpand, fromWidget ? DEFAULT_COLORS2 : defaultColors || DEFAULT_COLORS)}
-                  <div className="title" onClick={() => this.setState({ recentExpand: !recentExpand })}>
-                    <span
-                      className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !recentExpand })}
-                    ></span>
-                    <span className="mLeft4">{_l('最近使用')}</span>
-                  </div>
-                  {this.renderSysColors(recentExpand, recentColors)}
-                </div>
-              )}
-              <div className="colorPickerWrap" onClick={e => e.stopPropagation()}>
-                <Comp color={type === 'HEX' ? color.toHex8String() : color.toRgb()} onChange={this.handleChangeColor} />
-                <div className="inputOptionWrap">
-                  <Dropdown
-                    className="selectType"
-                    value={type}
-                    data={TYPES.map(l => ({ text: l, value: l }))}
-                    onChange={value => {
-                      if (value === type) return;
-
-                      this.setState({ type: value });
-                    }}
-                  />
-                  <div className="colorInputWrap">
-                    {type === 'HEX' ? (
-                      <div className="hexColorInputWrap">
-                        <span className="prefix">#</span>
-                        <HexColorInput
-                          className="hexColorInput"
-                          color={color.toHex8String()}
-                          onChange={value => {
-                            if (value.length !== 7) return;
-
-                            this.setColor({ color: new TinyColor(value) });
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="rgbInputWrap">
-                        {['r', 'g', 'b'].map(key => (
-                          <InputNumber
-                            className="rgbInput"
-                            size="small"
-                            step="1"
-                            controls={false}
-                            value={color[key]}
-                            min={0}
-                            max={255}
-                            onChange={value => {
-                              if (value === null) return;
-
-                              this.setColor({
-                                color: new TinyColor({
-                                  ...color.toRgb(),
-                                  [key]: value,
-                                }),
-                              });
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <InputNumber
-                    className="alphaInput"
-                    size="small"
-                    step="1"
-                    value={color.toRgb().a}
-                    min={0}
-                    max={1}
-                    controls={false}
-                    formatter={value => `${_.round(value * 100)}%`}
-                    parser={value => _.round(value.replace('%', '') / 100, 2)}
-                    onChange={value => {
-                      if (value === null) return;
-
-                      const _tcolor = color.setAlpha(value);
-                      this.setColor({ color: new TinyColor(_tcolor) });
-                    }}
-                  />
-                </div>
-                <div className="colorValue" style={{ background: this.getStringColor(color) }}></div>
-              </div>
-            </div>
-          }
+          popup={popup}
         >
           <span className="ColorPicker-input-container" ref={trigger => (this.trigger = trigger)}>
-            {cloneElement(content)}
+            {cloneElement(
+              children ? (
+                children
+              ) : (
+                <COLOR_BOX background={this.getStringColor(color)}>
+                  <span className="color_box_content"></span>
+                </COLOR_BOX>
+              ),
+            )}
           </span>
         </Trigger>
       </span>

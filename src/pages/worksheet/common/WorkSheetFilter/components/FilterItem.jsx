@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Input } from 'ming-ui';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import { CONTROL_FILTER_WHITELIST, FILTER_TYPE } from '../enum';
+import { checkConditionAvailable, getDefaultCondition, getTypeKey } from '../util';
 import AddCondition from './AddCondition';
 import Condition from './Condition';
 import wrapDisableClick from './wrapDisableClick';
-import { FILTER_TYPE, CONTROL_FILTER_WHITELIST } from '../enum';
-import { getTypeKey, checkConditionAvailable, getDefaultCondition } from '../util';
-import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
 
 const NewMenuItem = wrapDisableClick(MenuItem);
 
@@ -137,7 +137,7 @@ export default class FilterItem extends Component {
             <NewMenuItem
               className="operateBtn"
               disabled={!canSave}
-              onClick={e => {
+              onClick={() => {
                 if (!canSave) {
                   return;
                 }
@@ -153,7 +153,7 @@ export default class FilterItem extends Component {
             {unsaved && (
               <NewMenuItem
                 className="operateBtn"
-                onClick={e => {
+                onClick={() => {
                   onSaveAs(filter);
                   this.setState({
                     operateVisible: false,
@@ -167,7 +167,7 @@ export default class FilterItem extends Component {
             {!unsaved && (
               <NewMenuItem
                 className="operateBtn"
-                onClick={e => {
+                onClick={() => {
                   onCopy(filter);
                   this.setState({
                     operateVisible: false,
@@ -202,14 +202,14 @@ export default class FilterItem extends Component {
             <NewMenuItem
               className="operateBtn"
               disabled={!isCharge}
-              onClick={e => {
+              onClick={() => {
                 onUpdateFilterType(filter.type === FILTER_TYPE.PUBLIC ? FILTER_TYPE.PERSONAL : FILTER_TYPE.PUBLIC);
                 this.setState({
                   operateVisible: false,
                 });
               }}
             >
-              <i className={cx('icon', filter.type === FILTER_TYPE.PUBLIC ? 'icon-person' : 'icon-group-members')}></i>
+              <i className={cx('icon', filter.type === FILTER_TYPE.PUBLIC ? 'icon-person' : 'icon-group')}></i>
               {filter.type === FILTER_TYPE.PUBLIC ? _l('设为个人筛选') : _l('设为公共筛选')}
             </NewMenuItem>
             <hr />

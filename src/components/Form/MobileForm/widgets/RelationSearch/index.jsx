@@ -48,7 +48,6 @@ export default function RelationSearch(props) {
   const [recordInfoVisible, setRecordInfoVisible] = useState(false);
   const [worksheetAllowAdd, setWorksheetAllowAdd] = useState(true);
   const [openRecordId, setOpenRecordId] = useState('');
-  const [isSearchFocus, setIsSearchFocus] = useState(false);
   const {
     loading = true,
     entityName,
@@ -234,11 +233,8 @@ export default function RelationSearch(props) {
                 searchIcon={<i className="icon icon-search" />}
                 onOk={value => loadRecords(1, value)}
                 onClear={() => {
-                  setIsSearchFocus(false);
                   loadRecords(1, '');
                 }}
-                onFocus={() => setIsSearchFocus(true)}
-                onBlur={() => setIsSearchFocus(false)}
               />
             </OperateWrap>
           )}

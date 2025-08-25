@@ -67,7 +67,7 @@ export const updateNetwork = lastMyProjectId => {
 };
 
 // 切换任务状态
-export const updateTaskStatus = (listStatus, listSort) => (dispatch, getState) => {
+export const updateTaskStatus = (listStatus, listSort) => dispatch => {
   dispatch({
     type: 'UPDATE_LIST_SORT',
     listSort,
@@ -156,7 +156,7 @@ export const attachmentSwitch = attachmentViewType => {
 };
 
 // 获取项目信息
-export const getFolderSettings = folderId => (dispatch, getState) => {
+export const getFolderSettings = folderId => dispatch => {
   ajaxRequest.getFolderSettingsForCurrentUser({ folderID: folderId }).then(result => {
     if (result.status) {
       dispatch({
@@ -182,7 +182,7 @@ export const clearFolderSettings = () => {
 // 更新项目名称
 export const updateFolderName =
   (folderId, folderName, callback = () => {}) =>
-  (dispatch, getState) => {
+  dispatch => {
     ajaxRequest.updateFolderName({ folderID: folderId, folderName }).then(result => {
       if (result.status) {
         dispatch({
@@ -212,7 +212,7 @@ export const updateFolderTopState = isTop => {
 };
 
 // 修改项目提醒
-export const updateFolderNotice = (folderID, unNotice) => (dispatch, getState) => {
+export const updateFolderNotice = (folderID, unNotice) => dispatch => {
   ajaxRequest
     .updateFolderMemberNotice({
       folderId: folderID,
@@ -225,7 +225,7 @@ export const updateFolderNotice = (folderID, unNotice) => (dispatch, getState) =
           folderNotice: unNotice,
         });
       } else {
-        errorMessage(result.error);
+        errorMessage(source.error);
       }
     });
 };
@@ -778,7 +778,7 @@ export const addSubTask =
 // 获取检查清单
 export const getCheckListsWithItemsInTask =
   (taskId, addPostSuccessCount = () => {}) =>
-  (dispatch, getState) => {
+  dispatch => {
     ajaxRequest.getCheckListsWithItemsInTask({ taskId }).then(result => {
       if (result.status) {
         dispatch({
@@ -794,7 +794,7 @@ export const getCheckListsWithItemsInTask =
   };
 
 // 添加清单
-export const addCheckList = (taskId, value) => (dispatch, getState) => {
+export const addCheckList = (taskId, value) => dispatch => {
   ajaxRequest.addCheckList({ taskId, name: value }).then(result => {
     if (result.status) {
       if (result.data.overflow) {
@@ -1031,7 +1031,7 @@ export const updateItemStatus = (taskId, itemId, status) => (dispatch, getState)
 // 自定义字段
 export const getTaskControls =
   (taskId, addPostSuccessCount = () => {}) =>
-  (dispatch, getState) => {
+  dispatch => {
     ajaxRequest.getTaskControls({ taskID: taskId }).then(result => {
       if (result.status) {
         dispatch({

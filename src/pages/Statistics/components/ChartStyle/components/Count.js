@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
+import { Input, Select, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Select, Input, Tooltip } from 'antd';
 import { normTypes } from '../../../enum';
 
 export class Count extends Component {
@@ -53,6 +54,7 @@ export class Count extends Component {
               <div>{_l('汇总方式')}</div>
               {isCollectMode && summary.type === 5 && (
                 <Tooltip
+                  autoCloseDelay={0}
                   placement="bottom"
                   title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}
                 >
@@ -69,13 +71,13 @@ export class Count extends Component {
                 if (isCollectMode) {
                   onChangeSummary({
                     type: item.value,
-                    name: item.value === 1 ? '' : item.text,
+                    name: item.value === 1 ? '' : item.value === 5 ? _l('计算') : item.text,
                   });
                 } else {
                   const isDefault = normTypes.map(item => item.text).includes(summary.name);
                   onChangeSummary({
                     type: item.value,
-                    name: isDefault ? item.text : summary.name,
+                    name: isDefault ? (item.value === 5 ? _l('计算') : item.text) : summary.name,
                   });
                 }
               }}

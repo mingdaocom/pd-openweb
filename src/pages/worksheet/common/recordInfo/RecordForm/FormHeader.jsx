@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { UserHead } from 'ming-ui';
+import { Icon, Tooltip, UserHead, UserName } from 'ming-ui';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -23,8 +23,9 @@ export default function FormHeader(props) {
     viewId,
     maskinfo = {},
     from,
+    isRecordLock,
   } = props;
-  const { isCharge, worksheetId, recordId, recordTitle, isSmall } = recordbase;
+  const { worksheetId, recordId, recordTitle, isSmall, editLockedUser } = recordbase;
   const {
     allowEdit,
     projectId,
@@ -36,12 +37,13 @@ export default function FormHeader(props) {
     editAccount = {},
     formData,
     appId,
+    entityName,
   } = recordinfo;
   const isPublicShare =
     _.get(window, 'shareState.isPublicRecord') ||
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicPage');
-  const { forceShowFullValue, maskPermissions, handleUnMask } = maskinfo;
+  const { maskPermissions, handleUnMask } = maskinfo;
   const ownerRef = useRef();
   const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
   const showOwner =
@@ -49,14 +51,20 @@ export default function FormHeader(props) {
     !_.isEmpty(ownerAccount) &&
     !_.find(view.controls, controlId => controlId === 'ownerid') &&
     (controlState(ownerControl).visible || ownerControl.controlId === 'ownerid');
-  const ownerEditable =
-    ownerControl &&
-    allowEdit &&
-    ownerControl &&
-    controlState(ownerControl).editable &&
-    !isLock &&
-    from !== RECORD_INFO_FROM.DRAFT &&
-    !window.isPublicApp;
+  const ownerEditable = useMemo(
+    () =>
+      ownerControl &&
+      allowEdit &&
+      controlState(ownerControl).editable &&
+      !isLock &&
+      !isRecordLock &&
+      !recordinfo.isLock &&
+      from !== RECORD_INFO_FROM.DRAFT &&
+      !window.isPublicApp &&
+      !editLockedUser,
+    [allowEdit, isLock, isRecordLock, recordinfo.isLock, editLockedUser],
+  );
+
   let isOpenLogs = true;
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
     isOpenLogs = false;
@@ -109,6 +117,11 @@ export default function FormHeader(props) {
                             updateRecordDialogOwner(account, record);
                             alert(_l('修改成功'));
                           } catch (err) {
+                            if (err && err.resultCode === 72) {
+                              alert(_l('%0已锁定，修改失败', entityName), 3);
+                              return;
+                            }
+                            console.log(err);
                             alert(_l('修改失败'), 2);
                           }
                         },
@@ -155,6 +168,22 @@ export default function FormHeader(props) {
           )}
         </span>
       </div>
+
+      {editLockedUser && (
+        <div className="lockedUserInfo">
+          <div className="lineTag" />
+          <Tooltip autoCloseDelay={0} text={_l('当前记录不允许多人同时编辑。请稍后重试')} popupPlacement="bottom">
+            <Icon icon="workflow_write" className="Font16 ThemeColor mLeft5 mRight5" />
+          </Tooltip>
+          <UserName
+            user={{ userName: editLockedUser.fullname, accountId: editLockedUser.accountId }}
+            projectId={projectId}
+            appId={appId}
+            className="userName"
+          />
+          <div className="mLeft5 Gray_75">{_l('编辑中···')}</div>
+        </div>
+      )}
     </div>
   );
 }

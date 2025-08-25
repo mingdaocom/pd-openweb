@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
+import PropTypes from 'prop-types';
 import './mdLeftNavSearch.css';
 
 class MDLeftNavSearch extends React.Component {
@@ -11,26 +11,22 @@ class MDLeftNavSearch extends React.Component {
     onChange: PropTypes.func,
   };
 
-  handleKeyUp = (evt) => {
+  handleKeyUp = evt => {
     if (evt.which === 13 && this.props.onSearch) {
       this.props.onSearch(evt.target.value);
     }
   };
 
   handleFocus = () => {
-    $(ReactDom.findDOMNode(this))
-      .addClass('ThemeBorderColor3')
-      .removeClass('ThemeBorderColor8');
+    $(ReactDom.findDOMNode(this)).addClass('ThemeBorderColor3').removeClass('ThemeBorderColor8');
   };
 
   handleBlur = () => {
-    $(ReactDom.findDOMNode(this))
-      .removeClass('ThemeBorderColor3')
-      .addClass('ThemeBorderColor8');
+    $(ReactDom.findDOMNode(this)).removeClass('ThemeBorderColor3').addClass('ThemeBorderColor8');
   };
 
   render() {
-    const { onSearch, value, ...props } = this.props;
+    const { value, ...props } = this.props;
 
     return (
       <div className="mdLeftNavSearch ThemeBorderColor8">

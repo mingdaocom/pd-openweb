@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
-import { Icon, ScrollView } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
 import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
@@ -122,7 +122,7 @@ export default function DraftList(props) {
           );
         })}
         <div className="deleteRecord">
-          <Icon icon="delete2" onClick={e => handleDelete(e, data)} />
+          <Icon icon="trash" onClick={e => handleDelete(e, data)} />
         </div>
 
         {!!currentRowId && (
@@ -157,7 +157,7 @@ export default function DraftList(props) {
           <div className="text">{_l('暂无记录')}</div>
         </div>
       ) : (
-        <ScrollView scrollContentClassName="pTop20 pBottom20">
+        <ScrollView className="flex" onScrollEnd={() => {}}>
           {draftData.map(item => renderRecordItem(item))}
         </ScrollView>
       )}

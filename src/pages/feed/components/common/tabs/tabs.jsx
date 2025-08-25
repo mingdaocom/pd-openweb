@@ -1,7 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-
+import PropTypes from 'prop-types';
 import './tabs.css';
 
 export { default as Tab } from './tab';

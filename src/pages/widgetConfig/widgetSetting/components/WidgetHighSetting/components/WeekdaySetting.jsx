@@ -1,11 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, ClickAway } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import PointerConfig from '../../PointerConfig';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, ClickAway } from 'ming-ui';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 
 const WeekdayWrap = styled.ul`
    {
@@ -29,14 +28,13 @@ const WeekdayWrap = styled.ul`
       &.active {
         background-color: #e6f4ff;
         .icon-done {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
   }
 `;
 
-const pointerStr = '2345';
 const weekdayStr = '123';
 const WEEKDAY_TYPE = [
   { text: _l('周一'), value: '1' },
@@ -50,7 +48,7 @@ const WEEKDAY_TYPE = [
 
 export default function WeekdaySetting({ data, onChange }) {
   const { unit, enumDefault } = data;
-  const { weekday = '', autocarry = '0', hideneg = '0' } = getAdvanceSetting(data);
+  const { weekday = '', hideneg = '0' } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
   const weekdayArr = weekday.split('');
 

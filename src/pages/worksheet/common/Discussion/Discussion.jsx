@@ -12,7 +12,9 @@ const clickAwayExceptions = [
   '.addLinkFileDialog',
   '#attachemntsPreviewContainer',
   '.mdEmotion',
-  '.discussionFilterCon > .List'
+  '.discussionFilterCon > .List',
+  '.mui-dialog-container',
+  '.mentionsAutocompleteList',
 ];
 
 export default class Discussion extends Component {

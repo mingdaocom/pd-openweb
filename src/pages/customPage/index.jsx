@@ -1,24 +1,24 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { LoadDiv } from 'ming-ui';
-import customApi from 'statistics/api/custom.js';
-import sheetApi from 'src/api/worksheet';
+import { bindActionCreators } from 'redux';
 import update from 'immutability-helper';
-import ConfigHeader from './ConfigHeader';
-import WebLayout from './webLayout';
-import * as actions from './redux/action';
-import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
-import { enumWidgetType, reorderComponents, fillObjectId, formatNavfilters, updateLayout } from './util';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import sheetApi from 'src/api/worksheet';
+import customApi from 'statistics/api/custom.js';
 import { reportTypes } from 'statistics/Charts/common';
-import MobileLayout from './mobileLayout';
-import { formatControlsData } from 'src/pages/widgetConfig/util/data';
-import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
+import { formatControlsData } from 'src/pages/widgetConfig/util/data';
+import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
+import ConfigHeader from './ConfigHeader';
+import MobileLayout from './mobileLayout';
+import * as actions from './redux/action';
+import { enumWidgetType, fillObjectId, formatNavfilters, reorderComponents, updateLayout } from './util';
+import WebLayout from './webLayout';
 import './index.less';
-import _ from 'lodash';
 
 const TYPE_TO_COMP = {
   web: WebLayout,
@@ -158,7 +158,7 @@ export default class CustomPage extends Component {
         viewId: '',
       });
     });
-    Promise.all(removeBtnRequest).then(data => {});
+    Promise.all(removeBtnRequest).then(() => {});
   };
 
   getAlreadyDeleteFilterBtn = components => {
@@ -188,12 +188,12 @@ export default class CustomPage extends Component {
         filterId: item.filterId,
       });
     });
-    Promise.all(removeBtnRequest).then(data => {});
+    Promise.all(removeBtnRequest).then(() => {});
   };
 
   // 找到设置默认值的创建记录按钮，调用 saveWorksheetBtn 接口并保存 btnId
   fillBtnData = components => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const createRecordBtns = this.getCreateRecordBtns(components);
       if (createRecordBtns.length) {
         // 找到创建按钮
@@ -281,7 +281,7 @@ export default class CustomPage extends Component {
   // 找到设置筛选条件的按钮，调用 saveWorksheetFilter 接口并保存 filterId
   fillFilterData = components => {
     const { ids } = this.props;
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const filterBtns = this.getFilterBtns(components);
       if (filterBtns.length) {
         const filterBtnRequest = filterBtns.map(item => {
@@ -343,7 +343,7 @@ export default class CustomPage extends Component {
   };
   // 保存筛选组件
   fillFilterComponent = components => {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       const { ids } = this.props;
       const filterComponent = components.filter(c => c.type === enumWidgetType.filter).filter(c => c.filter);
       if (filterComponent.length) {
@@ -374,7 +374,7 @@ export default class CustomPage extends Component {
                     ...object,
                     control: undefined,
                   };
-                })
+                }),
               };
             }),
           });
@@ -408,7 +408,6 @@ export default class CustomPage extends Component {
   // 删除筛选组件
   removeFiltersGroup = () => {
     const { ids, components } = this.props;
-    const filters = this.$originComponents.filter(c => c.type === enumWidgetType.filter && c.value);
     const getFilter = components => {
       return components.filter(c => c.type === enumWidgetType.filter && c.value);
     };
@@ -421,7 +420,7 @@ export default class CustomPage extends Component {
         filtersGroupIds: [item.value],
       });
     });
-    Promise.all(removeFilterRequest).then(data => {});
+    Promise.all(removeFilterRequest).then(() => {});
   };
 
   // 保存前处理数据，title处理掉空白字符，type转换为后端需要的数字

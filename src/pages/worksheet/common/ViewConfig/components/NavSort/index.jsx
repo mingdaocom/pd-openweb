@@ -1,11 +1,12 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
-import SortInput from './SortInput';
-import SortCustom from './customSet';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
-import cx from 'classnames';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import SortCustom from './customSet';
+import SortInput from './SortInput';
 
 const Wrap = styled.div`
   .sortInput {
@@ -24,10 +25,10 @@ const Wrap = styled.div`
     }
     &:hover,
     &.has {
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -36,12 +37,12 @@ const Wrap = styled.div`
 export default function (props) {
   const {
     view,
-    controls,
     onChange,
     projectId,
     navsortsKey = 'navsorts',
     customitemsKey = 'customitems',
     viewControlData = {},
+    hideSort,
   } = props;
   const [showCustom, setShow] = useState(false);
   const canCustom = true;
@@ -52,6 +53,7 @@ export default function (props) {
       <Wrap className="flexRow alignItemsCenter mTop10">
         {/* 人员不支持字段排序 */}
         {canSort &&
+          !hideSort &&
           (isSameType([29], viewControlData) ? (
             <SortInput
               className="flex mTop0 sortInput mRight10"

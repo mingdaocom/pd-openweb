@@ -58,7 +58,7 @@ const getLangKey = function (done) {
           matchs.forEach(function (item) {
             let groups = reg1.exec(item);
             if (groups) {
-              key = groups[2] || groups[5] || groups[6] || groups[7];
+              let key = groups[2] || groups[5] || groups[6] || groups[7];
               if (key != 'undefined' && langKeys.indexOf(key) === -1) {
                 langKeys.push(key);
               }
@@ -107,7 +107,7 @@ const buildNewPo = function (done) {
 
       console.log(`${item.key} mdTranslation po 构建成功`);
     } catch (err) {
-      console.log(`${item.key} mdTranslation po 构建失败`);
+      console.log(`${item.key} mdTranslation po 构建失败`, err);
     }
   });
 
@@ -166,7 +166,7 @@ const clearPoLangKey = function (done) {
 
       console.log(`${item.key} mdTranslation po 清理成功`);
     } catch (err) {
-      console.log(`${item.key} mdTranslation po 清理失败`);
+      console.log(`${item.key} mdTranslation po 清理失败`, err);
     }
   });
 

@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, Input } from 'ming-ui';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   input {

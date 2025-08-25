@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 import './style.less';
 
 class List extends Component {
@@ -34,7 +33,7 @@ class List extends Component {
   };
 
   render() {
-    const items = this.props.data.map((item, i, list) => {
+    const items = this.props.data.map(item => {
       const classList = [];
       if (item.disabled) {
         classList.push('disabled');
@@ -49,7 +48,7 @@ class List extends Component {
         <li
           key={item.value}
           className={classNames}
-          onClick={(event) => {
+          onClick={event => {
             this.itemOnClick(event, item);
           }}
         >
@@ -80,9 +79,7 @@ List.propTypes = {
 
 List.defaultProps = {
   data: [],
-  onPick: (event, value) => {
-    //
-  },
+  onPick: () => {},
 };
 
 export default List;

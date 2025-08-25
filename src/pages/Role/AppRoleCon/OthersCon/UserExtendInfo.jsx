@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Support, Icon, Tooltip, Dropdown, SvgIcon, Menu, MenuItem } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
+import styled from 'styled-components';
+import { Dropdown, Icon, Menu, MenuItem, Support, SvgIcon, Tooltip } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import worksheetAjax from 'src/api/worksheet';
 
 const OPTIONS = [
   { text: _l('或'), value: 0 },
@@ -45,7 +46,7 @@ const UserInfoCon = styled.div`
     border-radius: 3px;
     width: fit-content;
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .tagList {
@@ -73,7 +74,7 @@ const UserInfoCon = styled.div`
         border-radius: 3px;
         border: 1px solid #ddd;
         &:hover {
-          border-color: #2196f3;
+          border-color: #1677ff;
         }
       }
     }
@@ -119,7 +120,7 @@ export default function UserExtendInfo(props) {
         status: status,
         ...param,
       })
-      .then(res => {})
+      .then(() => {})
       .catch(err => alert(err));
   };
 
@@ -161,7 +162,7 @@ export default function UserExtendInfo(props) {
         popup={() => {
           return (
             <Menu style={{ left: 'initial', right: 0, width: 287, position: 'relative' }}>
-              {optionsControls.map((item, index) => (
+              {optionsControls.map(item => (
                 <Item
                   key={`select-option-${item.id}`}
                   disabled={checked.includes(item.id)}
@@ -207,7 +208,7 @@ export default function UserExtendInfo(props) {
                 onChange={value => handleChange(item.id, value, isAnd)}
               />
               <span className="removeBtn Hand" onClick={() => onRemove(item.id, isAnd)}>
-                <Icon icon="delete1" className="Gray_9d" />
+                <Icon icon="trash" className="Gray_9d" />
               </span>
             </li>
           );
@@ -249,11 +250,12 @@ export default function UserExtendInfo(props) {
           <div className="Font13 Gray mBottom15 mTop32 valignWrapper">
             {_l('必须同时匹配标签时才能拥有权限')}
             <Tooltip
+              autoCloseDelay={0}
               text={_l(
                 '以下权限标签与其他权限的叠加方式为且。如设置权限标签【密级】，则表示必须密级同时也满足时才能拥有权限。当密级不匹配时，即使加入记录或满足其他标签时也没有权限。',
               )}
             >
-              <Icon icon="info1" className="Gray_bd mLeft5 Font14" />
+              <Icon icon="info" className="Gray_bd mLeft5 Font14" />
             </Tooltip>
           </div>
         )}

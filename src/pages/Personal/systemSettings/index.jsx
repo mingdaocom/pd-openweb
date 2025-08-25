@@ -129,7 +129,7 @@ export default class AccountChart extends React.Component {
                         window.location.reload();
                       }
                     })
-                    .catch(err => {
+                    .catch(() => {
                       this.setState({ disabledSetLanguage: false });
                     });
                 } else {

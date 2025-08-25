@@ -1,11 +1,10 @@
-import React, { useState, useRef } from 'react';
-import cx from 'classnames';
-import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
+import React, { useRef, useState } from 'react';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
+import 'rc-trigger/assets/index.css';
 
 const Box = styled.div`
   min-width: 160px;
@@ -22,7 +21,9 @@ const Box = styled.div`
     opacity: 0.5 !important;
   }
   &.errorShadow {
-    box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1), 0 1px 4px rgba(0, 0, 0, 0.16);
+    box-shadow:
+      0 0 1px 1px rgba(244, 67, 54, 1),
+      0 1px 4px rgba(0, 0, 0, 0.16);
   }
   .approvalIcon {
     width: 30px;
@@ -38,7 +39,7 @@ const Box = styled.div`
   .workflowOperate {
     color: #757575;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .workflowNodeName {
@@ -80,7 +81,7 @@ export default props => {
     },
     {
       text: _l('删除'),
-      icon: 'delete1',
+      icon: 'trash',
       events: () => {
         Dialog.confirm({
           className: 'deleteApprovalProcessDialog',
@@ -141,7 +142,7 @@ export default props => {
         )}
       </div>
       {info && (
-        <Tooltip title={info}>
+        <Tooltip title={info} autoCloseDelay={0}>
           <Icon type="info_outline" className="Font14 Gray_75 mLeft5" />
         </Tooltip>
       )}

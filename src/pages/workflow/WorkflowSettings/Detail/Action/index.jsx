@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import { APP_TYPE, ACTION_ID } from '../../enum';
+import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter } from '../components';
-import UpdateSheetRecord from './UpdateSheetRecord';
+import { ACTION_ID, APP_TYPE } from '../../enum';
+import { checkConditionsIsNull, getIcons } from '../../utils';
+import { DetailFooter, DetailHeader } from '../components';
+import CreateCalendar from './CreateCalendar';
 import CreateRecordAndTask from './CreateRecordAndTask';
 import DeleteNodeObj from './DeleteNodeObj';
+import RefreshData from './RefreshData';
 import RelationFields from './RelationFields';
 import UpdateGlobalVariable from './UpdateGlobalVariable';
-import CreateCalendar from './CreateCalendar';
-import RefreshData from './RefreshData';
-import { checkConditionsIsNull, getIcons } from '../../utils';
-import _ from 'lodash';
+import UpdateSheetRecord from './UpdateSheetRecord';
 
 export default class Action extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ export default class Action extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -369,10 +369,10 @@ export default class Action extends Component {
     const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType)
       ? 'BGBlueAsh'
       : data.appType === APP_TYPE.TASK || data.actionId === ACTION_ID.REFRESH_SINGLE_DATA
-      ? 'BGGreen'
-      : data.appType === APP_TYPE.CALENDAR
-      ? 'BGRed'
-      : 'BGYellow';
+        ? 'BGGreen'
+        : data.appType === APP_TYPE.CALENDAR
+          ? 'BGRed'
+          : 'BGYellow';
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -387,7 +387,7 @@ export default class Action extends Component {
           bg={bgClassName}
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {this.renderContent()}
@@ -404,7 +404,7 @@ export default class Action extends Component {
                   !_.includes([APP_TYPE.EXTERNAL_USER, APP_TYPE.CALENDAR], data.appType) &&
                   ((data.appId && !_.find(data.appList, item => item.id === data.appId)) || !data.appId))) && (
                 <div className="Gray_75 Font13 flexRow flowDetailTips">
-                  <i className="icon-task-setting_promet Font16 Gray_9e" />
+                  <i className="icon-error1 Font16 Gray_9e" />
                   <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置可执行的动作')}</div>
                 </div>
               )}
@@ -414,7 +414,7 @@ export default class Action extends Component {
                 data.selectNodeObj.nodeName &&
                 !data.selectNodeObj.appName && (
                   <div className="Gray_75 Font13 flexRow flowDetailTips">
-                    <i className="icon-task-setting_promet Font16 Gray_9e" />
+                    <i className="icon-error1 Font16 Gray_9e" />
                     <div
                       className="flex mLeft10"
                       dangerouslySetInnerHTML={{

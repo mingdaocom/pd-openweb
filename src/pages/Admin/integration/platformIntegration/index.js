@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import _ from 'lodash';
 import { LoadDiv, UpgradeIcon } from 'ming-ui';
 import roleAjax from 'src/api/role';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -80,7 +81,7 @@ export default class PlatformIntegration extends Component {
           this.setState({ loading: false, projectIntergrationType: 0 });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   }

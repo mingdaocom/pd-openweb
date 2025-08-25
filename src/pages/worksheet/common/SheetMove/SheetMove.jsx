@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import { Dialog, Dropdown, Menu, MenuItem, Button, Icon, ScrollView, SvgIcon } from 'ming-ui';
-import { APP_ROLE_TYPE } from '../../constants/enum';
-import homeApp from 'src/api/homeApp';
 import store from 'redux/configureStore';
-import './SheetMove.less';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Dialog, Dropdown, Icon, ScrollView, SvgIcon } from 'ming-ui';
+import homeApp from 'src/api/homeApp';
 import { canEditApp } from 'worksheet/redux/actions/util';
+import './SheetMove.less';
 
 const formatApps = function (validProject, projectId) {
   const appList = [];
@@ -147,7 +147,7 @@ export default class SheetMove extends Component {
   }
   render() {
     const { appItem } = this.props;
-    const { appList, appValue, grouping, groupingValue, searchValue } = this.state;
+    const { appList, appValue, grouping, searchValue } = this.state;
     const { workSheetName, iconUrl, type } = appItem;
     return (
       <Dialog

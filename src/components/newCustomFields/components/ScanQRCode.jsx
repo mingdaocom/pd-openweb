@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Popup } from 'antd-mobile';
+import { Dialog, Popup, Toast } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -162,6 +162,9 @@ export default class Widgets extends Component {
       {
         control,
         keepScan: control.enumDefault === 2,
+        scanType: this.getScanType(), // 可选, 默认为["barCode", "qrCode"]
+        albumEnabled: control.strDefault === '10' ? 0 : 1, // 可选, 默认为1:开启相册, 0:禁用相册
+        manualInput: _.get(control, ' advancedSetting.dismanual') === '1' ? 0 : 1, // 可选, 默认为1:允许手动输入, 0:禁止手动输入
         success: res => {
           this.props.onScanQRCodeResult(res.resultStr);
         },
@@ -215,7 +218,7 @@ export default class Widgets extends Component {
               const { content } = data;
               this.props.onScanQRCodeResult(content);
             })
-            .catch(error => {
+            .catch(() => {
               alert(_l('扫码异常'), 3);
             });
           return;
@@ -274,7 +277,7 @@ export default class Widgets extends Component {
       },
     );
   };
-  handleScanSuccess = (decodedText, decodedResult) => {
+  handleScanSuccess = decodedText => {
     if (decodedText) {
       this.handleClose();
       this.props.onScanQRCodeResult(decodedText);
@@ -299,7 +302,7 @@ export default class Widgets extends Component {
         cameraId: nextCameraId,
       },
       () => {
-        this.html5QrCode.stop().then(ignore => {
+        this.html5QrCode.stop().then(() => {
           this.startQrcode();
           this.setState({ resetCameraLoading: false });
           const currentCamera = _.find(devices, { id: nextCameraId });
@@ -321,7 +324,7 @@ export default class Widgets extends Component {
         scanShape: scanShape === 'square' ? 'rectangle' : 'square',
       },
       () => {
-        this.html5QrCode.stop().then(ignore => {
+        this.html5QrCode.stop().then(() => {
           this.startQrcode();
           this.setState({ resetCameraLoading: false });
         });
@@ -335,11 +338,11 @@ export default class Widgets extends Component {
 
     this.html5QrCode
       .stop()
-      .then(ignore => {
+      .then(() => {
         this.html5QrCode.clear();
         this.setState({ uploadFile: true });
       })
-      .catch(err => {});
+      .catch(() => {});
   };
   handleScanFile = e => {
     if (e.target.files.length == 0) {
@@ -349,13 +352,13 @@ export default class Widgets extends Component {
     this.html5QrCode
       .scanFile(imageFile, true)
       .then(this.handleScanSuccess)
-      .catch(err => {
+      .catch(() => {
         alert(_l('未解析到二维码'), 3);
       });
   };
   getCameras() {
     const { Html5Qrcode } = this.qrCodeComponent;
-    return new Promise((reslove, reject) => {
+    return new Promise(reslove => {
       Html5Qrcode.getCameras().then(devices => {
         if (devices && devices.length) {
           this.setState({ devices }, reslove);
@@ -397,7 +400,7 @@ export default class Widgets extends Component {
       deviceId: { exact: cameraId },
     };
     const cameraConfig = cameraId ? selectCameraConfig : defaultCameraConfig;
-    this.html5QrCode.start(cameraConfig, config, this.handleScanSuccess).catch(eror => {
+    this.html5QrCode.start(cameraConfig, config, this.handleScanSuccess).catch(() => {
       this.setState({
         isError: true,
       });
@@ -412,18 +415,18 @@ export default class Widgets extends Component {
       } else {
         this.html5QrCode
           .stop()
-          .then(ignore => {
+          .then(() => {
             this.html5QrCode.clear();
             this.html5QrCode = null;
           })
-          .catch(err => {});
+          .catch(() => {});
       }
       this.setState({ cameraId: null });
     }
     this.setState({ isError: false, uploadFile: false });
   }
   render() {
-    const { visible, isError, devices, scanShape, uploadFile } = this.state;
+    const { visible, isError, scanShape, uploadFile } = this.state;
     const { className, disablePhoto, children } = this.props;
     return (
       <Fragment>
@@ -462,7 +465,7 @@ export default class Widgets extends Component {
                 </Fragment>
               )}
               <div className="Absolute" style={{ right: '5%', top: '5%' }} onClick={this.handleClose}>
-                <Icon className={cx('Font28', isError ? 'Gray_9e' : 'White')} icon="closeelement-bg-circle" />
+                <Icon className={cx('Font28', isError ? 'Gray_9e' : 'White')} icon="cancel" />
               </div>
               {uploadFile && (
                 <QrInputWrap className="valignWrapper justifyContentCenter Relative">

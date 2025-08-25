@@ -1,22 +1,22 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import { useSetState } from 'react-use';
-import { Icon, Tooltip, LoadDiv } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
-import Pagination from 'worksheet/components/Pagination';
-import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
-import emptyImg from './img/null.png';
-import _ from 'lodash';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import SearchInput from 'worksheet/components/SearchInput';
-import { FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { FlexCenter } from 'worksheet/components/Basics';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
-import homeAppApi from 'api/homeApp';
-import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 import DocumentTitle from 'react-document-title';
+import { useSetState } from 'react-use';
+import homeAppApi from 'api/homeApp';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { FlexCenter } from 'worksheet/components/Basics';
+import Pagination from 'worksheet/components/Pagination';
+import SearchInput from 'worksheet/components/SearchInput';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
+import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import emptyImg from './img/null.png';
 
 const Wrap = styled.div`
   .header {
@@ -146,7 +146,9 @@ export default function PreviewData(props) {
         let data = {};
         try {
           data = await getAppInfo(res.appId);
-        } catch (error) {}
+        } catch (error) {
+          console.log(error);
+        }
         const hasAppResourceAuth = checkPermission(res.projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
         const canView = hasAppResourceAuth || canEditData(data.permissionType) || canEditApp(data.permissionType);
         if (!canView) {
@@ -261,7 +263,7 @@ export default function PreviewData(props) {
   let filteredText;
   let countFilter = [];
   (filters || []).map(o => {
-    if (!!o.isGroup) {
+    if (o.isGroup) {
       countFilter = [...countFilter, ...o.groupFilters];
     } else {
       countFilter = [...countFilter, o];
@@ -376,11 +378,7 @@ export default function PreviewData(props) {
           <React.Fragment>
             {!worksheetId || noRole ? (
               <div className="flexColumn flex alignItemsCenter justifyContentCenter">
-                {noRole ? (
-                  <span className="statusIcon Icon icon icon-task-folder-message" />
-                ) : (
-                  <img src={emptyImg} height={130} />
-                )}
+                {noRole ? <span className="statusIcon Icon icon icon-error1" /> : <img src={emptyImg} height={130} />}
                 <div className="Gray_9e Font17 mTop24">{noRole ? _l('无权限查看') : _l('暂无数据')}</div>
                 {!noRole && <div className="Gray_9e Font14 mTop16">{_l('未完成数据源、字段的配置或预览结果')}</div>}
               </div>

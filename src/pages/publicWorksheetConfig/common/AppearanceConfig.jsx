@@ -255,7 +255,7 @@ class AppearanceConfig extends React.Component {
       <LayoutSettingWrap>
         <H3 className="mBottom16">{_l('布局方式')}</H3>
         <div className="flexRow">
-          {LAYOUT_OPTIONS.map((l, i) => {
+          {LAYOUT_OPTIONS.map(l => {
             const checked = config.layout === l.value;
 
             return (
@@ -304,7 +304,7 @@ class AppearanceConfig extends React.Component {
           }}
           bucket={4}
           onUploaded={this.handleUploaded}
-          onAdd={(up, files) => {
+          onAdd={up => {
             this.setState({ isUploading: true });
             up.disableBrowse();
           }}
@@ -334,7 +334,7 @@ class AppearanceConfig extends React.Component {
             <div className="fileImage" style={{ backgroundImage: `url(${cover}&imageView2/1/w/160)` }} />
             <div className="mask">
               <div className="deleteBtn Hand" onClick={() => this.handleChangePageConfig({ cover: '' })}>
-                <Icon icon="task-new-delete" className="Gray_9e Font17" />
+                <Icon icon="trash" className="Gray_9e Font17" />
               </div>
             </div>
           </div>
@@ -361,7 +361,7 @@ class AppearanceConfig extends React.Component {
             <H1>{_l('设置封面')}</H1>
             <H3>{_l('主题颜色')}</H3>
             <ThemeColorWrapper>
-              {COLORS.map((item, index) => (
+              {COLORS.map(item => (
                 <Tooltip key={item} color="#000" placement="bottom">
                   <li
                     className={cx({ isCurrentColor: item.toLocaleUpperCase() === theme.toLocaleUpperCase() })}

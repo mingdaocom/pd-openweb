@@ -1,8 +1,3 @@
-.halfCircle(@len) {
-  width: @len;
-  height: @len / 2;
-  border-radius: @len @len 0 0;
-}
 .coordinationIcon {
   position: relative;
   width: 22px;
@@ -10,12 +5,14 @@
   display: flex;
   flex-wrap: wrap;
   border-radius: 4px;
-  background-color: #2196f3;
+  background-color: #1677ff;
   .halfCircleItem {
     position: absolute;
     top: 7px;
     right: 3px;
-    .halfCircle(8px);
+    width: 8px;
+    height: 4px;
+    border-radius: 8px 8px 0 0;
     background-color: #fff;
     transform-origin: left bottom;
     &:nth-child(6) {

@@ -1,8 +1,8 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
-import { Header, EditWidgetContent } from '../../../styled';
+import React, { useState } from 'react';
+import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { EditWidgetContent, Header } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';
 
@@ -31,7 +31,7 @@ const Wrap = styled.div`
         border: none;
       }
       &.active {
-        color: #2196f3;
+        color: #1677ff;
         font-weight: bold;
         border-radius: 3px;
         background-color: #fff;
@@ -55,7 +55,7 @@ const defaultConfig = {
 };
 
 export default function Carousel(props) {
-  const { ids, widget, onEdit, onClose } = props;
+  const { widget, onEdit, onClose } = props;
 
   const [componentConfig, setComponentConfig] = useState(widget.componentConfig || defaultComponentConfig);
   const [config, setConfig] = useState(widget.config || defaultConfig);

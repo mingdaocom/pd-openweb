@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import _ from 'lodash';
 
-const Con = styled.span``;
 const Input = styled.input`
   border: none;
   padding: 0;

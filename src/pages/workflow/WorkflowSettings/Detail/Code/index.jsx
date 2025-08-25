@@ -44,7 +44,7 @@ export default class Code extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -298,7 +298,7 @@ export default class Code extends Component {
         }}
         lineNumbers
         maxHeight={10000000}
-        onChange={(err, value, obj) => {
+        onChange={(err, value) => {
           this.updateSource({ code: value });
         }}
       />
@@ -348,7 +348,7 @@ export default class Code extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font14 Gray_75 workflowDetailDesc flexRow alignItemsCenter">

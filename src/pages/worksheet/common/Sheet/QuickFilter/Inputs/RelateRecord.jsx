@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMeasure } from 'react-use';
 import cx from 'classnames';
 import _, { find } from 'lodash';
-import { arrayOf, func, shape, string } from 'prop-types';
+import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
@@ -15,8 +15,10 @@ const Con = styled.div`
   line-height: 32px;
   .RelateRecordDropdown-selected {
     border-color: var(--border-color);
+    max-height: 102px;
+    overflow-y: auto;
     &.active {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   &:hover {
@@ -61,7 +63,6 @@ const SelectedTags = styled.div`
   .item {
     position: relative;
     display: inline-block;
-    max-width: calc(100% - 30px);
     margin: 0 0 5px 6px;
     line-height: 24px;
     padding: 0 24px 0 10px;
@@ -89,7 +90,7 @@ const SelectedTags = styled.div`
 `;
 
 export default function RelateRecord(props) {
-  const { from, isDark, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {} } = props;
+  const { isDark, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {} } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
@@ -97,8 +98,7 @@ export default function RelateRecord(props) {
     },
   });
   const { relationControls = [] } = control;
-  const { showtype, navshow, allowlink, ddset, allowitem, navfilters, direction, shownullitem, nullitemname } =
-    advancedSetting || {};
+  const { navshow, allowitem, navfilters, direction, shownullitem, nullitemname } = advancedSetting || {};
   let staticRecords;
   if (navshow === '3') {
     control.advancedSetting.filters = navfilters;
@@ -152,7 +152,14 @@ export default function RelateRecord(props) {
         return (
           <SelectedTags>
             {selected.map((record, i) => (
-              <div className="item" key={i} style={i === 0 ? { marginTop: 6 } : {}}>
+              <div
+                className="item"
+                key={i}
+                style={{
+                  ...(i === 0 ? { marginTop: 6 } : {}),
+                  ...(selected.length > 1 ? { maxWidth: 'calc(100% - 30px)' } : {}),
+                }}
+              >
                 <span className="name InlineBlock ellipsis">{getTitleTextFromRelateControl(control, record)}</span>
                 <i
                   className="icon icon-close"
@@ -213,7 +220,7 @@ export default function RelateRecord(props) {
           isQuickFilter
           control={control}
           {...control}
-          selectedStyle={{ width }}
+          selectedStyle={{ width, maxHeight: 102, overflowY: 'auto' }}
           popupOffset={[0, -16]}
           formData={filtersData}
           advancedSetting={{}}

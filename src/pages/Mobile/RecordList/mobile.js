@@ -89,7 +89,6 @@ class RecordList extends Component {
     if (now) {
       this.props.updateBase({ viewId: view.viewId });
       this.props.resetSheetView();
-    } else {
     }
   };
   renderContent() {
@@ -109,6 +108,7 @@ class RecordList extends Component {
     try {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
+      console.log(error);
       calendarcids = [];
     }
     if (calendarcids.length <= 0) {
@@ -132,7 +132,7 @@ class RecordList extends Component {
           })}
         >
           <View view={view} key={worksheetInfo.worksheetId} routerParams={params} />
-          {!isMingDaoApp &&
+          {!window.isMingDaoApp &&
             !_.get(window, 'shareState.shareId') &&
             (canDelete || showCusTomBtn) &&
             view.viewType === 0 &&
@@ -144,7 +144,7 @@ class RecordList extends Component {
                 })}
                 onClick={() => this.props.changeBatchOptVisible(true)}
               >
-                <Icon icon={'task-complete'} className="Font24" />
+                <Icon icon={'done_all'} className="Font24" />
               </div>
             )}
         </div>
@@ -152,7 +152,7 @@ class RecordList extends Component {
     );
   }
   render() {
-    const { base, worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
+    const { worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { detail = {}, appName } = appDetail;
     const { webMobileDisplay } = detail;
 

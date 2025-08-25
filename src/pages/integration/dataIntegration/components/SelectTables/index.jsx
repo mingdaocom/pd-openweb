@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Select } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, Tooltip } from 'ming-ui';
 import datasourceApi from '../../../api/datasource';
 import homeAppApi from 'src/api/homeApp';
 import { isValidName } from '../../constant';
-import _ from 'lodash';
 
 const NewItem = styled.div`
   padding: 5px 12px;
-  color: #2196f3;
+  color: #1677ff;
   cursor: pointer;
 `;
 
@@ -61,7 +61,7 @@ export default function SelectTables(props) {
                     <div className="flexRow alignItemsCenter">
                       <span className="Gray_9e">{item.workSheetName}</span>
                       <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
-                        <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
+                        <Icon icon="info" className="Gray_bd mLeft24 pointer" />
                       </Tooltip>
                     </div>
                   ) : (
@@ -118,11 +118,11 @@ export default function SelectTables(props) {
                         isSameTable
                           ? _l('不可选与数据源相同的表')
                           : !pgSqlValid
-                          ? _l('名称包含中文，无法同步')
-                          : _l('名称包含特殊字符，无法同步')
+                            ? _l('名称包含中文，无法同步')
+                            : _l('名称包含特殊字符，无法同步')
                       }
                     >
-                      <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
+                      <Icon icon="info" className="Gray_bd mLeft24 pointer" />
                     </Tooltip>
                   </div>
                 ) : (

@@ -1,34 +1,36 @@
 import React, { useState } from 'react';
-import { Icon } from 'ming-ui';
-import { ConfigProvider, Form, Input, Button } from 'antd';
-import styled from 'styled-components';
-import { captcha } from 'ming-ui/functions';
+import { Button, ConfigProvider, Form, Input } from 'antd';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { captcha } from 'ming-ui/functions';
 
 const VerificationPassWrap = styled.div`
   .ant-form {
     width: 240px;
   }
-  .ant-input, .ant-btn {
+  .ant-input,
+  .ant-btn {
     height: 36px;
     border-radius: 4px;
   }
-  .ant-input:focus, .ant-input-focused {
+  .ant-input:focus,
+  .ant-input-focused {
     box-shadow: none;
   }
   .ant-btn-primary[disabled],
   .ant-btn-primary[disabled]:hover,
   .ant-btn-primary[disabled]:focus,
   .ant-btn-primary[disabled]:active {
-    background-color: #E0E0E0;
+    background-color: #e0e0e0;
     border: none;
   }
   .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input,
   .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input:hover {
-    border-color: #F44336;
+    border-color: #f44336;
   }
   .ant-form-item-explain-error {
-    color: #F44336;
+    color: #f44336;
     font-size: 12px;
   }
 `;
@@ -40,21 +42,21 @@ export const SHARE_STATE = {
   14: _l('图形验证验证错误'),
   17: _l('链接已失效'),
   18: _l('需要密码'),
-  19: _l('密码错误')
-}
+  19: _l('密码错误'),
+};
 
 export const ShareState = props => {
   const { code } = props;
   return (
     <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter WhiteBG">
-      <Icon className="mBottom20" icon="Import-failure" style={{ color: '#ddd', fontSize: 70 }} />
+      <Icon className="mBottom20" icon="error1" style={{ color: '#ddd', fontSize: 70 }} />
       <div className="Font17 Gray_9e">{SHARE_STATE[code]}</div>
     </div>
   );
-}
+};
 
 export const VerificationPass = props => {
-  const { onFinish, validatorPassPromise } = props;
+  const { validatorPassPromise } = props;
   const [loading, setLoading] = useState(false);
   const [fromFields, setFromFields] = useState([]);
   const [form] = Form.useForm();
@@ -79,7 +81,7 @@ export const VerificationPass = props => {
             onFinishFailed={() => {
               setLoading(false);
             }}
-            onFieldsChange={(changedFields) => {
+            onFieldsChange={changedFields => {
               setFromFields(changedFields);
             }}
             autoComplete="off"
@@ -101,20 +103,26 @@ export const VerificationPass = props => {
                           const captchaResult = {
                             randStr: data.randstr,
                             ticket: data.ticket,
-                            captchaType: md.global.getCaptchaType()
-                          }
+                            captchaType: md.global.getCaptchaType(),
+                          };
                           resolve(validatorPassPromise(value, captchaResult));
                         } else {
                           reject(_l('图形验证失败'));
                         }
-                      }
+                      };
                       new captcha(callback);
                     });
-                  }
-                })
+                  },
+                }),
               ]}
             >
-              <Input.Password className="Font13" autoComplete="off" placeholder={_l('请输入密码')} visibilityToggle={false} size="large" />
+              <Input.Password
+                className="Font13"
+                autoComplete="off"
+                placeholder={_l('请输入密码')}
+                visibilityToggle={false}
+                size="large"
+              />
             </Form.Item>
             <Form.Item>
               <Button
@@ -122,7 +130,7 @@ export const VerificationPass = props => {
                 type="primary"
                 htmlType="submit"
                 loading={loading}
-                disabled={passwordField ? (passwordField.value.length < 4 || passwordField.value.length > 8) : true}
+                disabled={passwordField ? passwordField.value.length < 4 || passwordField.value.length > 8 : true}
               >
                 {_l('确定')}
               </Button>
@@ -132,5 +140,4 @@ export const VerificationPass = props => {
       </VerificationPassWrap>
     </ConfigProvider>
   );
-}
-
+};

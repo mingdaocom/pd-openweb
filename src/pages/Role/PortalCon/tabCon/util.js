@@ -2,9 +2,9 @@ import React from 'react';
 import _ from 'lodash';
 import { Checkbox, Radio, Switch } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
+import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { getSwitchItemNames, renderText as renderCellText } from 'src/utils/control';
 import { portalBaseControl } from './config';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 
 export const pageSize = 20;
 export const COLORS = [
@@ -22,7 +22,7 @@ export const COLORS = [
   '#FF9800',
   '#4CAF50',
   '#00BCD4',
-  '#2196F3',
+  '#1677ff',
   '#9C26AF',
   '#3F51B5',
   '#455A64', //
@@ -94,12 +94,13 @@ export const formatPortalData = currentData => {
     });
 };
 
-export const formatDataForPortalControl = (data) => {
-  return data.map(c => formatControlToServer(c, { isNewRecord: true }))
+export const formatDataForPortalControl = data => {
+  return data
+    .map(c => formatControlToServer(c, { isNewRecord: true }))
     .map(o => {
       if (o.type == 29 && o.editType === 9) {
-        return { ...o, editType: 0, value: "[]" };
+        return { ...o, editType: 0, value: '[]' };
       }
       return o;
     });
-}
+};

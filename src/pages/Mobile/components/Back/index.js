@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 
 const Content = styled.div`
   display: flex;
-  color: #2196f3;
+  color: #1677ff;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -23,8 +23,8 @@ const Content = styled.div`
     margin-top: -2px;
   }
   &.backBtn {
-    padding-bottom: calc('constant(safe-area-inset-bottom) - 20px') !important;
-    padding-bottom: calc('env(safe-area-inset-bottom) - 20px') !important;
+    padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
+    padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   }
 `;
 
@@ -34,6 +34,7 @@ export default class Back extends Component {
   }
   renderContent() {
     const { onClick, className, style, icon } = this.props;
+
     return (
       <Content
         className={cx('flexRow alignItemsCenter justifyContentCenter card', className)}
@@ -45,6 +46,8 @@ export default class Back extends Component {
     );
   }
   render() {
-    return (window.isWxWork && !this.props.filterWxWork) || window.isMingDaoApp ? null : this.renderContent();
+    return null;
+
+    // return (window.isWxWork && !this.props.filterWxWork) || window.isMingDaoApp ? null : this.renderContent();
   }
 }

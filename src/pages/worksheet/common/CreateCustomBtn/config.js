@@ -1,7 +1,7 @@
 export const COLORS = [
   'transparent',
   '#60292A',
-  '#2196F3',
+  '#1677ff',
   '#00BCD4',
   '#4CAF50',
   '#F7D100',
@@ -102,5 +102,5 @@ export const noWriteTypes = [
   51, //查询记录
   52, //分段
   53, //函数公式
-  54 //自定义字段
+  54, //自定义字段
 ];

@@ -54,7 +54,6 @@ export async function downloadAttachmentById({
 }
 
 export function getFormDataForNewRecord({
-  isCustomButton,
   worksheetInfo,
   defaultRelatedSheet = {},
   defaultFormData = {},
@@ -92,7 +91,9 @@ export function getFormDataForNewRecord({
                 } else {
                   control.fieldPermission = '101';
                 }
-              } catch (err) {}
+              } catch (err) {
+                console.log(err);
+              }
             }
             if (defaultFormData[control.controlId]) {
               control.value = defaultFormData[control.controlId];
@@ -138,7 +139,9 @@ export function getFormDataForNewRecord({
                   if (sourceControlValueRecord) {
                     control.value = sourceControlValueRecord.name;
                   }
-                } catch (err) {}
+                } catch (err) {
+                  console.log(err);
+                }
               } else {
                 control.value = JSON.parse(parentSheetRelateRecord.sourcevalue)[control.sourceControlId];
               }
@@ -168,7 +171,7 @@ export function getFormDataForNewRecord({
               defaultFormData[control.controlId] = JSON.stringify(value);
               handle();
             })
-            .catch(err => {
+            .catch(() => {
               handle();
             });
           return;
@@ -183,7 +186,6 @@ export function submitNewRecord(props) {
   const {
     appId,
     projectId,
-    addType,
     viewId,
     worksheetId,
     masterRecord,
@@ -198,6 +200,7 @@ export function submitNewRecord(props) {
     setSubListUniqueError,
     setRuleError,
     setServiceError,
+    alertLockError,
   } = props;
   const receiveControls = formdata
     .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 51)
@@ -262,6 +265,8 @@ export function submitNewRecord(props) {
         setServiceError(res.badData);
       } else if (res.resultCode === 32) {
         setRuleError(res.badData);
+      } else if (res.resultCode === 72) {
+        alertLockError();
       } else {
         handleRecordError(res.resultCode, undefined, true);
       }
@@ -319,7 +324,8 @@ export async function openControlAttachmentInNewTab({
   worksheetId,
   getType,
   openAsPopup,
-  popupArgs = {},
+  instanceId,
+  workId,
 }) {
   if (!controlId || !fileId || !recordId || !worksheetId) {
     console.error('参数不全');
@@ -333,6 +339,8 @@ export async function openControlAttachmentInNewTab({
     viewId,
     worksheetId,
     getType,
+    instanceId,
+    workId,
   });
   if (shareId) {
     const url = `${window.subPath ? window.subPath : ''}/rowfile/${shareId}/${getType || ''}`;

@@ -1,4 +1,5 @@
 import { get, pick } from 'lodash';
+import _ from 'lodash';
 import codeAjax from 'src/api/code';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
 import { Date, MultipleSelect, Number, RelateRecord, SingleSelect, Text, Time } from './examples';

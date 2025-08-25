@@ -1,7 +1,7 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import { Popup } from 'antd-mobile';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 
 const SearchCom = styled.div`
   display: flex;

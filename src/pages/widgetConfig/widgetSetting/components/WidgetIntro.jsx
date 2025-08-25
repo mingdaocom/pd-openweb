@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from 'react';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import { v4 as uuidv4 } from 'uuid';
 import { Dialog, Icon } from 'ming-ui';
-import { WidgetIntroWrap, IntroMenu } from '../../styled';
+import appManagementAjax from 'src/api/appManagement';
+import { WHOLE_SIZE } from '../../config/Drag';
+import { SETTING_MODE_DISPLAY } from '../../config/setting';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../../config/widget';
+import { IntroMenu, WidgetIntroWrap } from '../../styled';
 import {
+  canSetAsTitle,
+  checkWidgetMaxNumErr,
   enumWidgetType,
   getWidgetInfo,
-  canSetAsTitle,
-  supportWidgetIntroOptions,
-  checkWidgetMaxNumErr,
   isCustomWidget,
+  supportWidgetIntroOptions,
 } from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import { WHOLE_SIZE } from '../../config/Drag';
-import { Tooltip } from 'antd';
+import { FixedIcon } from '../../widgetDisplay/components/WidgetStyle';
 import NoTitleControlDialog from './NoTitleControlDialog';
-import appManagementAjax from 'src/api/appManagement';
-import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 
 const DISPLAY_OPTIONS = [
   {
@@ -75,7 +77,16 @@ const SWITCH_ENUM = {
 };
 
 export default function WidgetIntro(props) {
-  const { data = {}, from, onChange, mode, setMode, globalSheetInfo = {}, isRecycle, allControls } = props;
+  const {
+    data = {},
+    from,
+    onChange,
+    settingMode,
+    setSettingMode,
+    globalSheetInfo = {},
+    isRecycle,
+    allControls,
+  } = props;
   const {
     type,
     controlId,
@@ -85,7 +96,7 @@ export default function WidgetIntro(props) {
     relationControls = [],
     advancedSetting,
   } = data;
-  const { icon, widgetName, intro, moreIntroLink } = getWidgetInfo(type);
+  const { icon, widgetName } = getWidgetInfo(type);
   const [visible, setVisible] = useState(false);
   const [switchList, setSwitchList] = useState([]);
   const [titleVisible, setTitleVisible] = useState(false);
@@ -95,8 +106,6 @@ export default function WidgetIntro(props) {
       i => i,
     );
     newList = newList.map(i => {
-      if (i === 'SHEET') {
-      }
       return i === 'SHEET' ? { type: 'SHEET', widgetName: _l('转为工作表') } : { ...DEFAULT_CONFIG[i], type: i };
     });
     setSwitchList(newList);
@@ -153,6 +162,10 @@ export default function WidgetIntro(props) {
       newData = handleAdvancedSettingChange(newData, { required: '1' });
     }
 
+    if (type === 32 && info.type === 'TEXT') {
+      newData.dataSource = '';
+    }
+
     // 保存自定义事件
     if (_.get(advancedSetting, 'custom_event')) {
       const newCustomEvent = safeParse(_.get(advancedSetting, 'custom_event') || '[]').map(i => {
@@ -192,7 +205,7 @@ export default function WidgetIntro(props) {
     }
 
     if (type === 9) {
-      onChange({ type: newData.type });
+      onChange({ ...handleAdvancedSettingChange(data, { chooseothertype: '0' }), type: newData.type });
       return;
     }
     // 多选转单选 需要将默认选中设为一个
@@ -205,7 +218,7 @@ export default function WidgetIntro(props) {
     }
     // 下拉转多选需要设置排列方式
     if (type === 11) {
-      onChange({ type: 10, advancedSetting: { direction: '0' } });
+      onChange({ type: 10, advancedSetting: { direction: '0', chooseothertype: '0' } });
       return;
     }
 
@@ -231,8 +244,8 @@ export default function WidgetIntro(props) {
               allowexport: '1',
             },
           });
-          if (mode === 4) {
-            setMode(1);
+          if (settingMode === SETTING_MODE_DISPLAY.EVENT) {
+            setSettingMode(SETTING_MODE_DISPLAY.SETTING);
           }
         },
       });
@@ -295,7 +308,12 @@ export default function WidgetIntro(props) {
             controls: _.get(sheetInfo, 'template.controls'),
           };
           onChange({
-            ...handleAdvancedSettingChange(newData, { searchrange: '1', dynamicsrc: '', defaulttype: '' }),
+            ...handleAdvancedSettingChange(newData, {
+              searchrange: '1',
+              showtype: '5',
+              dynamicsrc: '',
+              defaulttype: '',
+            }),
             ..._.pick(data, ['showControls']),
             type: 29,
             enumDefault: 2,
@@ -364,6 +382,7 @@ export default function WidgetIntro(props) {
             {isAllowSwitch() && <Icon icon="task_custom_btn_unfold" className="mLeft6 Gray_75" />}
           </div>
         </Trigger>
+        {from !== 'subList' && !isRecycle && <FixedIcon {...props} />}
       </div>
 
       <div className="introOptions">
@@ -371,8 +390,11 @@ export default function WidgetIntro(props) {
           if (!supportWidgetIntroOptions(data, item.value, from, isRecycle)) return null;
 
           return (
-            <Tooltip title={item.text} placement="bottom">
-              <div className={cx('optionIcon', { active: mode === item.value })} onClick={() => setMode(item.value)}>
+            <Tooltip title={item.text} autoCloseDelay={0} placement="bottom">
+              <div
+                className={cx('optionIcon', { active: settingMode === item.value })}
+                onClick={() => setSettingMode(item.value)}
+              >
                 <Icon icon={item.icon} className="Font18" />
               </div>
             </Tooltip>

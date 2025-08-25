@@ -177,7 +177,7 @@ export const VIEW_TYPE_ICON = [
   { icon: 'kanban', color: '#00BCD4', text: _l('看板%05016'), id: 'board', txt: _l('看板视图') },
   { icon: 'event', color: '#00C345', text: _l('日历%05015'), id: 'calendar', txt: _l('日历视图') },
   { icon: 'gallery_view', color: '#F5BF00', text: _l('画廊%05014'), id: 'gallery', txt: _l('画廊视图') },
-  { icon: 'reader', color: '#FF9300', text: _l('详情'), id: 'detail', txt: _l('详情视图') },
+  { icon: 'custom_chrome_reader_mode', color: '#FF9300', text: _l('详情'), id: 'detail', txt: _l('详情视图') },
   { icon: 'hierarchy', color: '#FF3D3D', text: _l('层级%05013'), id: 'structure', txt: _l('层级视图') },
   { icon: 'location_map', color: '#EB2F96', text: _l('地图'), id: 'map', txt: _l('地图视图') },
   { icon: 'gantt', color: '#8A2AEB', text: _l('甘特图%05012'), id: 'gunter', txt: _l('甘特视图') },

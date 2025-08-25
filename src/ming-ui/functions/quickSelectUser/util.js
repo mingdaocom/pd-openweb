@@ -1,8 +1,8 @@
-import userController from 'src/api/user';
-import externalPortalCotroller from 'src/api/externalPortal';
-import addressBookController from 'src/api/addressBook';
-import { wrapAjax } from 'worksheet/redux/actions/util';
 import _ from 'lodash';
+import addressBookController from 'src/api/addressBook';
+import externalPortalCotroller from 'src/api/externalPortal';
+import userController from 'src/api/user';
+import { wrapAjax } from 'worksheet/redux/actions/util';
 
 const getUsersByApp = wrapAjax(externalPortalCotroller.getUsersByApp);
 const getProjectContactUserListByApp = wrapAjax(userController.getProjectContactUserListByApp);

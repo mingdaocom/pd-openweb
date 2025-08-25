@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel/Carousel';
 import Image from 'src/pages/customPage/components/editWidget/Image';
@@ -45,6 +46,9 @@ const WidgetContent = styled.div`
   &.mobileFilter .name {
     color: var(--widget-title-color);
   }
+  &.mobileAnalysis .numberChart {
+    border-radius: 20px;
+  }
   img {
     max-width: 100%;
   }
@@ -56,8 +60,8 @@ const WidgetContent = styled.div`
 const fistLetterUpper = str => str.charAt(0).toUpperCase() + str.slice(1);
 
 function WidgetDisplay(props) {
-  const { ids, widget, apk, pageComponents, pageConfig, themeColor, componentType } = props;
-  const { type, value, name, button, param = [], config = {} } = widget;
+  const { ids, widget, apk, pageComponents, pageConfig, componentType } = props;
+  const { value, name, button, param = [], config = {} } = widget;
 
   const renderContent = () => {
     if (componentType === 'embedUrl') {
@@ -93,7 +97,7 @@ function WidgetDisplay(props) {
             itemId: ids.worksheetId,
           }}
           layoutType="mobile"
-          addRecord={data => {}}
+          addRecord={() => {}}
         />
       );
     if (componentType === 'analysis') {

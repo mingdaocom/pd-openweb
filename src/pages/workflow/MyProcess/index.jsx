@@ -196,7 +196,7 @@ export default class MyProcess extends Component {
       archivedItem: {},
       approveLoading: false,
       rejectLoading: false,
-      allReadLoading: false
+      allReadLoading: false,
     };
   }
   componentDidMount() {
@@ -210,11 +210,27 @@ export default class MyProcess extends Component {
     this.removeEscEvent();
   }
   updateCountData(countData) {
-    const { visible } = this.state;
+    const { visible, stateTab } = this.state;
     const { updateCountData } = this.props;
 
     this.setState({ countData });
     updateCountData(countData);
+
+    const tabCountMap = {
+      [TABS.WAITING_APPROVE]: countData.waitingApproval,
+      [TABS.WAITING_FILL]: countData.waitingWrite,
+      [TABS.WAITING_EXAMINE]: countData.waitingExamine,
+      [TABS.MY_SPONSOR]: countData.mySponsor,
+    };
+    const count = tabCountMap[stateTab];
+
+    if (visible && count <= 0) {
+      this.setState({
+        visible: false,
+      });
+      return;
+    }
+
     if (visible && this.filterEl) {
       this.filterEl.getTodoListFilter();
     }
@@ -290,7 +306,11 @@ export default class MyProcess extends Component {
         pageIndex: 1,
         isMore: true,
         list: [],
-        filter: _.isEmpty(archivedItem) ? (isSame ? filter : null) : { startDate: filter.startDate, endDate: filter.endDate },
+        filter: _.isEmpty(archivedItem)
+          ? isSame
+            ? filter
+            : null
+          : { startDate: filter.startDate, endDate: filter.endDate },
       },
       this.getTodoList,
     );
@@ -300,12 +320,8 @@ export default class MyProcess extends Component {
       this.updateCountData(countData);
     });
   };
-  handleScroll = (e, values) => {
-    const { position, maximum } = values;
-    const value = maximum - position;
-    if (value <= 20) {
-      this.getTodoList();
-    }
+  handleScroll = () => {
+    this.getTodoList();
   };
   handleAlreadyRead = item => {
     instanceVersion
@@ -336,7 +352,7 @@ export default class MyProcess extends Component {
           isMore: false,
           isResetFilter: true,
           visible: false,
-          allReadLoading: false
+          allReadLoading: false,
         });
         getTodoCount().then(countData => {
           this.updateCountData(countData);
@@ -410,7 +426,7 @@ export default class MyProcess extends Component {
           this.setState({
             approveCards: [],
             approveLoading: false,
-            rejectLoading: false
+            rejectLoading: false,
           });
           this.handleChangeTab(TABS.WAITING_APPROVE);
           getTodoCount().then(countData => {
@@ -651,6 +667,7 @@ export default class MyProcess extends Component {
                 </div>
               </div>
               <Tooltip
+                autoCloseDelay={0}
                 overlayClassName="myProcessApproveOverlay"
                 overlayStyle={{ width: 320, maxWidth: 320 }}
                 align={{ offset: [40, -5] }}
@@ -950,7 +967,7 @@ export default class MyProcess extends Component {
     }
 
     return (
-      <ScrollView updateEvent={this.handleScroll} className="flex">
+      <ScrollView onScrollEnd={this.handleScroll} className="flex">
         <div className="content">
           {list.map(item => (
             <Card

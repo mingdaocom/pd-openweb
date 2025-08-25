@@ -1,9 +1,21 @@
 import React from 'react';
 import Clipboard from 'react-clipboard.js';
-import Ajax from 'src/api/workWeiXin';
-import { LoadDiv } from 'ming-ui';
+import moment from 'moment';
 import { compareProps } from 'pages/PageHeader/util.js';
+import { LoadDiv } from 'ming-ui';
+import Ajax from 'src/api/workWeiXin';
+import wxPng1 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/1.png';
+import wxPng2 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/2.png';
+import wxPng3 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/3.png';
+import wxPng4 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/4.png';
+import wxPng5 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/5.png';
+import wxPng6 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/6.png';
+import wxPng7 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/7.png';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
+import workwxPng1 from './img/1.png';
+import workwxPng2 from './img/2.png';
+import workwxPng3 from './img/3.png';
+import workwxPng4 from './img/4.png';
 import scan1 from './img/scan1.png';
 import scan2 from './img/scan2.png';
 import scan3 from './img/scan3.png';
@@ -14,20 +26,7 @@ import syncField2 from './img/syncField2.png';
 import syncField3 from './img/syncField3.png';
 import syncField4 from './img/syncField4.png';
 import syncField5 from './img/syncField5.png';
-import wxPng1 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/1.png';
-import wxPng2 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/2.png';
-import wxPng3 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/3.png';
-import wxPng4 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/4.png';
-import wxPng5 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/5.png';
-import wxPng6 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/6.png';
-import wxPng7 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/7.png';
-import workwxPng1 from './img/1.png';
-import workwxPng2 from './img/2.png';
-import workwxPng3 from './img/3.png';
-import workwxPng4 from './img/4.png';
-
 import './style.less';
-import moment from 'moment';
 
 export default class WorkwxSyncCourse extends React.Component {
   constructor(props) {

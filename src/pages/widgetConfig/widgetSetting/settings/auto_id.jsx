@@ -3,6 +3,7 @@ import { useSetState } from 'react-use';
 import { Dropdown } from 'antd';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Menu, MenuItem, SortableList } from 'ming-ui';
 import AutoIcon from '../../components/Icon';
@@ -104,7 +105,7 @@ const RuleInfo = styled.li`
 
 const RuleList = styled.ul`
   .addRule {
-    color: #2196f3;
+    color: #1677ff;
     margin: 12px 0 0 20px;
     cursor: pointer;
     i {
@@ -153,7 +154,7 @@ const TIME_MODE = [
 
 const DEFAULT_PARA = { 4: { format: 'YYYYMMDD', type: 4 } };
 
-function SortableItem({ index, data, rule, allControls, deleteRule, updateRule, renderDragHandle, ...rest }) {
+function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderDragHandle, ...rest }) {
   const [{ numberConfigVisible, timeFormatVisible }, setVisible] = useSetState({
     numberConfigVisible: false,
     timeFormatVisible: false,
@@ -376,7 +377,7 @@ export default function AutoId({ data, onChange, ...rest }) {
 
   const updateRule = (index, obj) => {
     const nextRules = update(rules, { [index]: { $apply: item => ({ ...item, ...obj }) } });
-    handleRulesChange(nextRules);
+    handleRulesChange(nextRules.filter(r => r.type));
   };
 
   return (

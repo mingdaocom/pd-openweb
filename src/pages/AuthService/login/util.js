@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import moment from 'moment';
 import loginController from 'src/api/login';
 import workWeiXinController from 'src/api/workWeiXin';
@@ -47,6 +46,7 @@ export const loginCallback = ({ data, onChange }) => {
           account,
           projectId,
           time: new Date(),
+          ua: window.navigator.userAgent,
         }),
       );
     }
@@ -202,13 +202,13 @@ export const loginCallback = ({ data, onChange }) => {
 export const ssoLogin = (returnUrl = '') => {
   const getAppId = pathname => {
     if (pathname.includes('mobile')) {
-      const match = pathname.match(/\/mobile\/([^\/]+)\/([^\/]+)/);
+      const match = pathname.match(/\/mobile\/([^/]+)\/([^/]+)/);
       return match && match[2];
     } else if (pathname.includes('embed/view')) {
-      const match = pathname.match(/\/embed\/view\/([^\/]+)/);
+      const match = pathname.match(/\/embed\/view\/([^/]+)/);
       return match && match[1];
     } else {
-      const match = pathname.match(/\/app\/([^\/]+)/);
+      const match = pathname.match(/\/app\/([^/]+)/);
       return match && match[1];
     }
   };

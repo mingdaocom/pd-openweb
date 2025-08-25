@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useCallback, Fragment } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import OptionColumn from './OptionColumn';
-import { ROLE_TYPE, ROLE_TYPE_TAB_LIST, FROM_TYPE_TAB_LIST, DATABASE_TYPE, SORT_TYPE } from '../../../constant';
-import { formatDate } from '../../../../config';
-import dataSourceApi from '../../../../api/datasource';
 import ToolTip from 'ming-ui/components/Tooltip';
+import dataSourceApi from '../../../../api/datasource';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { navigateTo } from 'src/router/navigateTo';
+import { formatDate } from '../../../../config';
+import { DATABASE_TYPE, FROM_TYPE_TAB_LIST, ROLE_TYPE, ROLE_TYPE_TAB_LIST, SORT_TYPE } from '../../../constant';
+import OptionColumn from './OptionColumn';
 
 const FilterContent = styled.div`
   margin-top: 16px;
@@ -32,11 +32,11 @@ const FilterContent = styled.div`
     cursor: pointer;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #f5f5f5;
     }
     &.isActive {
-      color: #2196f3;
+      color: #1677ff;
       background: rgba(33, 150, 243, 0.07);
     }
   }
@@ -88,7 +88,7 @@ const FilterItem = styled.div`
 
       &.isActive {
         font-weight: 600;
-        color: #2196f3;
+        color: #1677ff;
       }
       &:hover {
         border-color: #ccc;
@@ -118,7 +118,7 @@ const FilterItem = styled.div`
     cursor: pointer;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #f5f5f5;
     }
   }
@@ -137,7 +137,7 @@ const SourceListBox = styled.div`
       height: 8px;
 
       &.selected {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -158,7 +158,7 @@ const SourceListBox = styled.div`
     &:hover {
       background: rgba(247, 247, 247, 1);
       .titleText {
-        color: #2196f3;
+        color: #1677ff;
       }
       .optionIcon {
         background: rgba(247, 247, 247, 1);
@@ -193,7 +193,7 @@ const SourceListBox = styled.div`
     background: #fff;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #fff !important;
     }
   }
@@ -259,7 +259,7 @@ export default function SourceList(props) {
   ];
   const sortTypes = [null, SORT_TYPE.ASC, SORT_TYPE.DESC];
 
-  useEffect(() => {
+  const getTypes = () => {
     //获取数据源类型列表
     const getTypeParams = {
       projectId: props.currentProjectId,
@@ -276,11 +276,12 @@ export default function SourceList(props) {
         setDsTabList([{ key: 'ALL', text: _l('全部') }, ...list]);
       }
     });
-  }, []);
+  };
 
   //获取数据源列表
   const onFetch = () => {
     if (!fetchState.loading) return;
+    if (ajaxPromise) ajaxPromise.abort();
     //数据源列表请求参数
     const params = {
       projectId: props.currentProjectId,
@@ -506,7 +507,10 @@ export default function SourceList(props) {
             <Icon
               icon="filter"
               className={cx('filterIcon', { isActive: showFilter })}
-              onClick={() => setShowFilter(!showFilter)}
+              onClick={() => {
+                setShowFilter(!showFilter);
+                !showFilter && !dsTabList.length && getTypes();
+              }}
             />
             {!showFilter &&
               [fetchState.roleType, fetchState.fromType, fetchState.dsType].filter(item => item === 'ALL').length !==
@@ -516,33 +520,37 @@ export default function SourceList(props) {
 
         {showFilter && (
           <div className="mTop16">
-            {FILTER_TYPES.map((list, i) => {
-              return (
-                <FilterItem key={i} className={cx({ isExpand: list.hasExpand && isFilterExpand })}>
-                  <div className="itemText">{list.title}</div>
-                  <ul>
-                    {list.data.map((item, index) => (
-                      <li
-                        key={index}
-                        title={item.text}
-                        className={cx({ isActive: item.key === fetchState[list.key] })}
-                        onClick={() => setFetchState({ loading: true, pageNo: 0, [list.key]: item.key })}
-                      >
-                        {item.text}
-                      </li>
-                    ))}
+            {!dsTabList.length ? (
+              <LoadDiv />
+            ) : (
+              FILTER_TYPES.map((list, i) => {
+                return (
+                  <FilterItem key={i} className={cx({ isExpand: list.hasExpand && isFilterExpand })}>
+                    <div className="itemText">{list.title}</div>
+                    <ul>
+                      {list.data.map((item, index) => (
+                        <li
+                          key={index}
+                          title={item.text}
+                          className={cx({ isActive: item.key === fetchState[list.key] })}
+                          onClick={() => setFetchState({ loading: true, pageNo: 0, [list.key]: item.key })}
+                        >
+                          {item.text}
+                        </li>
+                      ))}
 
-                    {list.hasExpand && (
-                      <Icon
-                        icon={isFilterExpand ? 'arrow-up' : 'arrow-down'}
-                        className="expandIcon"
-                        onClick={() => setIsFilterExpand(!isFilterExpand)}
-                      />
-                    )}
-                  </ul>
-                </FilterItem>
-              );
-            })}
+                      {list.hasExpand && (
+                        <Icon
+                          icon={isFilterExpand ? 'arrow-up' : 'arrow-down'}
+                          className="expandIcon"
+                          onClick={() => setIsFilterExpand(!isFilterExpand)}
+                        />
+                      )}
+                    </ul>
+                  </FilterItem>
+                );
+              })
+            )}
           </div>
         )}
       </FilterContent>

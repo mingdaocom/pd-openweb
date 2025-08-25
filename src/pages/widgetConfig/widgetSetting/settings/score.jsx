@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import WidgetIcon from '../components/WidgetIcon';
+import _ from 'lodash';
+import { Dialog, Dropdown } from 'ming-ui';
+import 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/index.less';
+import { getColor, getDefaultData, getDynamicColors } from '../../config/score';
+import { SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import AttachmentConfig from '../components/AttachmentConfig';
 import WidgetColor from '../components/WidgetColor';
-import { Dropdown, Dialog } from 'ming-ui';
-import { SettingItem } from '../../styled';
-import { getDefaultData, getColor, getDynamicColors } from '../../config/score';
-import { handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
-import 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/index.less';
-import _ from 'lodash';
+import WidgetIcon from '../components/WidgetIcon';
 
 const SCORE_COLOR_TYPE = [
   { text: _l('固定'), value: 1 },

@@ -47,7 +47,7 @@ export default class ProjectGroups extends React.Component {
   };
 
   constructor(props) {
-    super();
+    super(props);
 
     this.state = defaultState;
 
@@ -62,7 +62,7 @@ export default class ProjectGroups extends React.Component {
     this.updateGroupModel = this.updateGroupModel.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps() {
     this.setState(defaultState, this.fetch.bind(this));
   }
 
@@ -259,7 +259,7 @@ export default class ProjectGroups extends React.Component {
     if (selectedGroupId && selectedGroup && !selectedGroup.isMember) {
       return <JoinGroup groupId={selectedGroupId} />;
     }
-    return <GroupDetail group={selectedGroup}  groupStatus={groupStatus} updateGroupModel={this.updateGroupModel} />;
+    return <GroupDetail group={selectedGroup} groupStatus={groupStatus} updateGroupModel={this.updateGroupModel} />;
   }
 
   render() {

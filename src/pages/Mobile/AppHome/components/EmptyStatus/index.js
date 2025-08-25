@@ -1,7 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
 import processTodoEmpty from '../../img/processTodoEmpty.png';
 import recentEmpty from '../../img/recentEmpty.png';
-import styled from 'styled-components';
 
 const Wrap = styled.div`
   img {

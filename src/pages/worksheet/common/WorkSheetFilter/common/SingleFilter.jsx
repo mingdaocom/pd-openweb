@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
+import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import AddCondition from '../components/AddCondition';
 import Condition from '../components/Condition';
 import { CONTROL_FILTER_WHITELIST } from '../enum';
 import {
-  getTypeKey,
-  getDefaultCondition,
   checkConditionAvailable,
   formatOriginFilterValue,
+  getDefaultCondition,
+  getTypeKey,
   redefineComplexControl,
 } from '../util';
-import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
 
 // setting编辑字段，关联他表筛选/汇总 rule字段显示规则=> 不需要验证的from
 const noCheckConditionAvailable = ['relateSheet', 'rule', 'subTotal', 'custombutton'];

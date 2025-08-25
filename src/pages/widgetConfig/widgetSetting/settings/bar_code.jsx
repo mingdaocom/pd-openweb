@@ -1,12 +1,12 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Dropdown, RadioGroup, Tooltip } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { SettingItem } from '../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import { getIconByType, parseDataSource } from '../../util';
-import WidgetDropdown from '../../components/Dropdown';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Dropdown, RadioGroup, Tooltip } from 'ming-ui';
+import WidgetDropdown from '../../components/Dropdown';
+import { SettingItem } from '../../styled';
+import { getIconByType, parseDataSource } from '../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const CODE_DISPLAY_OPTION = [
   {
@@ -16,6 +16,7 @@ const CODE_DISPLAY_OPTION = [
   { value: 2, text: _l('二维码') },
 ];
 
+// 游离子表不支持内部访问链接
 const CODE_DATA_OPTION = [
   {
     value: 1,
@@ -28,7 +29,7 @@ const CODE_FAULTRATE_OPTION = ['7%', '15%', '25%', '30%'];
 
 const CAN_AS_DATA_SOURCE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 
-export default function BarCode({ data, onChange, allControls }) {
+export default function BarCode({ data, onChange, allControls, from, subListData }) {
   const { enumDefault, enumDefault2, dataSource, controlId } = data;
   const { width, faultrate } = getAdvanceSetting(data);
   const [tempWidth, setTempWidth] = useState(width);
@@ -77,7 +78,11 @@ export default function BarCode({ data, onChange, allControls }) {
         {enumDefault === 2 && (
           <Dropdown
             border
-            data={CODE_DATA_OPTION}
+            data={
+              from === 'subList' && _.get(subListData, 'advancedSetting.detailworksheettype') === '2'
+                ? CODE_DATA_OPTION.filter(c => c.value !== 1)
+                : CODE_DATA_OPTION
+            }
             value={enumDefault2 || undefined}
             onChange={value => onChange({ enumDefault2: value, dataSource: value === 1 ? '' : dataSource })}
           />
@@ -86,7 +91,7 @@ export default function BarCode({ data, onChange, allControls }) {
           <WidgetDropdown
             border
             searchable
-            data={[{ value: 'rowid', text: _l('记录ID'), icon: 'letter_a' }].concat(filterControls)}
+            data={[{ value: 'rowid', text: _l('记录ID'), icon: 'text_bold2' }].concat(filterControls)}
             value={parseDataSource(dataSource)}
             placeholder={_l('请选择字段')}
             renderDisplay={value => {
@@ -106,6 +111,7 @@ export default function BarCode({ data, onChange, allControls }) {
             {_l('容错率')}
             <Tooltip
               popupPlacement={'bottom'}
+              autoCloseDelay={0}
               text={
                 <span>
                   {_l(

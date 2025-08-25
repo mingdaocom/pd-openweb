@@ -6,17 +6,6 @@
       .icon-info {
         color: #9d9d9d;
       }
-      li:hover {
-        .Item-content:not(.disabled) {
-          span,
-          .icon-info {
-            color: #fff !important;
-          }
-          .flowDropdownGray {
-            color: rgba(255, 255, 255, 0.6) !important;
-          }
-        }
-      }
     }
   }
   .actionCustomBoxError {
@@ -28,14 +17,9 @@
     overflow-y: auto;
     .Item-content {
       padding-left: 36px !important;
-      &:not(.disabled):hover {
-        .icon {
-          color: #fff !important;
-        }
-      }
     }
     .icon-new_word {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
     .icon-new_excel {
       color: #4caf50 !important;
@@ -50,7 +34,9 @@
   .workflowDetail {
     width: 800px;
     background: #fff;
-    box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+    box-shadow:
+      0 10px 23px 2px rgba(0, 0, 0, 0.2),
+      0 3px 6px rgba(0, 0, 0, 0.15);
     ::-webkit-input-placeholder {
       color: #bdbdbd;
     }
@@ -68,7 +54,7 @@
       .workflowDetailBox {
         pointer-events: none;
       }
-      .workflowDetailHeader .icon-delete2 {
+      .workflowDetailHeader .icon-trash {
         display: none;
       }
       .tagInputareaIuput {
@@ -113,7 +99,7 @@
         background: #4c7d9e;
       }
       &.BGBlue {
-        background: #2196f3;
+        background: #1677ff;
       }
       &.BGSkyBlue {
         background: #00bcd4;
@@ -125,7 +111,7 @@
         background: #4158db;
       }
       &.BGRed {
-        background: #F15B75;
+        background: #f15b75;
       }
       input {
         height: 34px;
@@ -161,7 +147,7 @@
         background: #ffa340;
       }
       &.BGBlue {
-        background: #2196f3;
+        background: #1677ff;
       }
       &.BGBlueAsh {
         background: #4c7d9e;
@@ -181,7 +167,7 @@
         justify-content: center;
         i {
           &.blue {
-            color: #2196f3;
+            color: #1677ff;
           }
           &.yellow {
             color: #ffa340;
@@ -270,17 +256,6 @@
         .ming.Menu {
           width: 100%;
           li {
-            &:hover {
-              .Item-content:not(.disabled) {
-                span {
-                  color: #fff !important;
-                }
-                .flowDropdownGray {
-                  color: rgba(255, 255, 255, 0.6) !important;
-                }
-              }
-            }
-
             .field {
               margin-right: 5px;
               color: #8f8f8f;
@@ -392,11 +367,6 @@
         top: -5px;
         .ming.List {
           width: 480px !important;
-          li:hover {
-            .Gray_75 {
-              color: #fff !important;
-            }
-          }
         }
       }
       .actionItem {
@@ -442,13 +412,6 @@
         .nodeListMenu {
           right: 36px !important;
           width: auto !important;
-          .Item-content {
-            &:hover {
-              .Gray_75 {
-                color: #fff !important;
-              }
-            }
-          }
         }
       }
     }
@@ -501,11 +464,11 @@
       &.actionControlBoxClear {
         position: relative;
         &:hover {
-          .icon-cancel1 {
+          .icon-cancel {
             display: block;
           }
         }
-        .icon-cancel1 {
+        .icon-cancel {
           display: none;
           cursor: pointer;
         }
@@ -593,7 +556,7 @@
         line-height: 20px;
       }
       .flowDetailTipsColor {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .actionFieldsSplit {
@@ -982,9 +945,9 @@
       cursor: not-allowed;
     }
     &:not(.disabled):hover {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .webhookBox {
@@ -1097,7 +1060,7 @@
     &:hover {
       .Dropdown--placeholder,
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     .Dropdown--input {
@@ -1119,7 +1082,7 @@
   .workflowDialogSupport {
     color: #9e9e9e !important;
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .addConditionBtn {
@@ -1208,6 +1171,24 @@
   .workflowDetail {
     box-shadow: none;
   }
+  .tagInputarea {
+    &.smallPadding {
+      .tagInputareaIuput {
+        .CodeMirror-lines {
+          padding: 1px 0;
+        }
+      }
+    }
+    .tagInputareaIuput {
+      border-color: #ddd !important;
+      border-radius: 4px 0 0 4px;
+      box-sizing: border-box;
+      min-height: 36px;
+      &:not(.active) {
+        border-color: #ddd !important;
+      }
+    }
+  }
 }
 
 .workfowFullCode {
@@ -1257,4 +1238,3 @@
     border-radius: 0 0 3px 3px;
   }
 }
-

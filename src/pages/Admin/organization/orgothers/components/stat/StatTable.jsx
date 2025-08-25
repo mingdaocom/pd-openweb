@@ -1,9 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Icon, LoadDiv, UserName } from 'ming-ui';
 import statisticController from 'src/api/statistic';
 import PaginationWrap from '../../../../components/PaginationWrap';
-import { LoadDiv, Icon, UserName } from 'ming-ui';
-import _ from 'lodash';
 
 const PAGE_SIZES = {
   NORMAL: 20,
@@ -332,7 +332,7 @@ export default class StatTable extends React.Component {
           const widthProps = field.width ? { width: field.width } : {};
           const icon = field.sortField === sortField && sortType === SORT_TYPES.DESC ? 'arrow-up' : 'arrow-down';
           if (field.sortField) {
-            const clickHander = e => {
+            const clickHander = () => {
               if (field.sortField === sortField) {
                 this.setState({
                   sortType: sortType === SORT_TYPES.DESC ? SORT_TYPES.ASC : SORT_TYPES.DESC,
@@ -367,14 +367,14 @@ export default class StatTable extends React.Component {
   }
 
   renderTds(item, index) {
-    const { reportType } = this.props;
+    const { reportType, projectId } = this.props;
     const { user: { accountId, fullname, department, userId } = {} } = item;
     if (reportType === REPOREPORT_TYPES.USER) {
       return (
         <React.Fragment>
           <td className="pLeft10">{index + 1}</td>
           <td className="overflow_ellipsis wMax100">
-            <UserName user={{ accountId, userName: fullname }} />
+            <UserName projectId={projectId} user={{ accountId, userName: fullname }} />
           </td>
           <td>
             <div>{department}</div>
@@ -393,7 +393,7 @@ export default class StatTable extends React.Component {
         <React.Fragment>
           <td className="pLeft10">{index + 1}</td>
           <td className="overflow_ellipsis wMax100">
-            <UserName user={{ accountId, userName: fullname }} />
+            <UserName projectId={projectId} user={{ accountId, userName: fullname }} />
           </td>
           <td>{department}</td>
           <td className="overflow_ellipsis wMax100">
@@ -415,7 +415,7 @@ export default class StatTable extends React.Component {
             </a>
           </td>
           <td className="overflow_ellipsis wMax100">
-            <UserName user={{ accountId: createUser.accountId, userName: createUser.fullname }} />
+            <UserName projectId={projectId} user={{ accountId: createUser.accountId, userName: createUser.fullname }} />
           </td>
           <td className="TxtCenter">{item.numFollower}</td>
           <td className="TxtCenter">{item.postCount}</td>
@@ -427,7 +427,7 @@ export default class StatTable extends React.Component {
       return (
         <React.Fragment>
           <td className="pLeft10">{index + 1}</td>
-          <td>{!userId ? fullname : <UserName user={{ accountId, userName: fullname }} />}</td>
+          <td>{!userId ? fullname : <UserName projectId={projectId} user={{ accountId, userName: fullname }} />}</td>
           <td>{department}</td>
           <td>
             <a

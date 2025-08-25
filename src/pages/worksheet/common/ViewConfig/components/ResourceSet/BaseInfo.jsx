@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -14,7 +14,6 @@ import { isRelateRecordTableControl } from 'src/utils/control';
 import DisplayControl from '../DisplayControl';
 import DropDownSet from '../DropDownSet';
 import { SwitchStyle } from '../style';
-
 
 const WrapNullTxt = styled.div`
   font-weight: 400;

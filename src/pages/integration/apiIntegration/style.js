@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { MenuItem, Menu } from 'ming-ui';
+import { Menu, MenuItem } from 'ming-ui';
 
 export const TableWrap = styled.div`
   .ant-table-thead > tr > th {
@@ -58,7 +58,7 @@ export const ActWrap = styled.div`
   margin-left: 8px;
 `;
 export const BtnWrap = styled.div`
-  background: #2196f3;
+  background: #1677ff;
   &:hover {
     background: #1764c0;
   }
@@ -76,16 +76,11 @@ export const RedMenuItemWrap = styled(MenuItemWrap)`
       color: #f44336 !important;
     }
   }
-  &:not(.disabled):hover {
-    .Icon {
-      color: #fff !important;
-    }
-  }
 `;
 export const WrapFooter = styled.div`
   .btn {
     padding: 0 32px;
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
     line-height: 36px;
     border-radius: 3px;
@@ -100,7 +95,7 @@ export const WrapFooter = styled.div`
     color: #757575;
     margin-right: 52px;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
     padding: 8px 32px;
   }
@@ -121,9 +116,9 @@ export const CardTopWrap = styled.div`
       }
       &.isEdit {
         .iconParam {
-          color: #2196f3;
+          color: #1677ff;
         }
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
       }
       .tip {
         position: absolute;
@@ -136,8 +131,8 @@ export const CardTopWrap = styled.div`
       padding: 0 20px;
       margin-right: 12px;
       line-height: 26px;
-      color: #2196f3;
-      border: 1px solid #2196f3;
+      color: #1677ff;
+      border: 1px solid #1677ff;
       border-radius: 26px;
       height: 28px;
       &:hover {
@@ -154,13 +149,13 @@ export const WrapBtn = styled.div`
   padding: 8px 12px;
   margin: 0 auto;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
   &.btnToAccount {
     background: #fff;
     border-radius: 4px 4px 4px 4px;
-    border: 1px solid #2196f3;
-    color: #2196f3;
+    border: 1px solid #1677ff;
+    color: #1677ff;
     &.disable {
       border: 1px solid #e0e0e0;
       color: #151515;
@@ -180,7 +175,7 @@ export const MoreOperate = styled.span`
   color: #9e9e9e;
   font-size: 18px;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 

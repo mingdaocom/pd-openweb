@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DatePicker } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
@@ -48,9 +48,9 @@ const FormItem = styled.div`
       color: #757575;
     }
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
       .addOrTransferIcon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -114,7 +114,7 @@ const AppListContainer = styled.div`
         color: #bdbdbd;
         cursor: pointer;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -302,7 +302,7 @@ export default function TodoEntrustModal(props) {
     const isTrustee = userType === 'trustee';
 
     return (
-      <div className={cx('w100', { selectUserItem: type === 2 })}>
+      <div className={cx({ selectUserItem: type === 2 })}>
         <div className="flexRow valignWrapper">
           <span className="bold">{isTrustee ? _l('受托人') : _l('委托人')}</span>
           <span className="Red bold mLeft4">*</span>
@@ -313,11 +313,9 @@ export default function TodoEntrustModal(props) {
             <div className="userItemWrapper">
               <UserHead
                 className="circle"
-                user={{
-                  userHead: formData[userType].avatar,
-                  accountId: formData[userType].accountId,
-                }}
+                user={{ userHead: formData[userType].avatar, accountId: formData[userType].accountId }}
                 size={26}
+                projectId={formData.companyId}
               />
               <UserName
                 className="Gray Font13 pLeft5 pRight10 pTop2 overflow_ellipsis userName"
@@ -325,6 +323,7 @@ export default function TodoEntrustModal(props) {
                   userName: formData[userType].fullName || formData[userType].fullname,
                   accountId: formData[userType].accountId,
                 }}
+                projectId={formData.companyId}
               />
             </div>
           )}

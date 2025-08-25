@@ -11,7 +11,7 @@ import { equalToLocalPushUniqueId } from 'src/utils/common';
 import { PUSH_TYPE } from '../WorkflowSettings/enum';
 
 const getWorksheetInfo = worksheetId => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     sheetAjax.getWorksheetInfo({ worksheetId }).then(result => {
       if (result.resultCode === 1) {
         resolve(result);
@@ -23,7 +23,7 @@ const getWorksheetInfo = worksheetId => {
 };
 
 const getAppSimpleInfo = workSheetId => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     homeAppAjax.getAppSimpleInfo({ workSheetId }, { silent: true }).then(result => {
       resolve(result);
     });

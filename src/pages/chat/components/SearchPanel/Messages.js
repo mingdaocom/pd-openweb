@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import { ScrollView } from 'ming-ui';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
 import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
 import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
@@ -86,7 +86,7 @@ export default class Messages extends Component {
     this.updateMessages(searchText);
   }
   renderMessage(message) {
-    const { id, fromAccount, msg, time, content } = message;
+    const { id, fromAccount, time, content } = message;
     return (
       <div className="search-message" key={id} onClick={this.props.onGotoMessage.bind(this, message)}>
         <div className="search-message-info">

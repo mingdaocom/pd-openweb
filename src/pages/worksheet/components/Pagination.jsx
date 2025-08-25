@@ -99,6 +99,7 @@ export default class Pagination extends React.Component {
     pageIndex: PropTypes.number,
     pageSize: PropTypes.number,
     allCount: PropTypes.number,
+    showCount: PropTypes.bool,
     countForShow: PropTypes.number,
     onPrev: PropTypes.func,
     onNext: PropTypes.func,
@@ -111,6 +112,7 @@ export default class Pagination extends React.Component {
     allowChangePageSize: true,
     pageIndex: 0,
     pageSize: 0,
+    showCount: true,
     allCount: 0,
     onPrev: () => {},
     onNext: () => {},
@@ -238,6 +240,7 @@ export default class Pagination extends React.Component {
       maxCount,
       allCount,
       appendToBody,
+      showCount,
       countForShow,
       onPrev,
       onNext,
@@ -277,12 +280,14 @@ export default class Pagination extends React.Component {
           <PageNum className={cx({ abnormalMode })}>
             {abnormalMode
               ? _l('第%0页', pageIndex)
-              : _l(
-                  '共%0行，%1/%2页',
-                  typeof countForShow !== 'undefined' ? countForShow : allCount,
-                  pageIndex,
-                  this.pageNum,
-                )}
+              : !showCount
+                ? _l('%0/%1页', pageIndex, this.pageNum)
+                : _l(
+                    '共%0行，%1/%2页',
+                    typeof countForShow !== 'undefined' ? countForShow : allCount,
+                    pageIndex,
+                    this.pageNum,
+                  )}
           </PageNum>
         </Trigger>
         <Btn className={pageIndex === 1 && 'disabled'} onClick={pageIndex === 1 ? () => {} : onPrev}>

@@ -1,26 +1,26 @@
-import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import dataSourceApi from 'src/pages/integration/api/datasource.js';
-import worksheetApi from 'src/api/worksheet';
 import _ from 'lodash';
-import { getDefaultData, getInitWorkSheetFields } from '../../utils';
+import worksheetApi from 'src/api/worksheet';
+import dataSourceApi from 'src/pages/integration/api/datasource.js';
+import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import {
-  PERSONNEL_FIELDS,
-  DEPT_FIELDS,
-  RELATED_RECORD_FIELDS,
   DATABASE_TYPE,
+  DEPT_FIELDS,
+  PERSONNEL_FIELDS,
+  RELATED_RECORD_FIELDS,
 } from 'src/pages/integration/dataIntegration/constant.js';
 import {
-  NODE_TYPE_LIST,
-  OPERATION_TYPE_DATA,
-  TIME_DATA_PARTICLE,
-  DATE_TIME_DATA_PARTICLE,
-  ONLY_TIME_DATA_PARTICLE,
-  TIME_GATHER_PARTICLE,
-  text_jdbcTypeIds,
-  num_jdbcTypeIds,
-  time_jdbcTypeIds,
   ALL_OPERATION_TYPE_DATA,
+  DATE_TIME_DATA_PARTICLE,
+  NODE_TYPE_LIST,
+  num_jdbcTypeIds,
+  ONLY_TIME_DATA_PARTICLE,
+  OPERATION_TYPE_DATA,
+  text_jdbcTypeIds,
+  TIME_DATA_PARTICLE,
+  TIME_GATHER_PARTICLE,
+  time_jdbcTypeIds,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import { getDefaultData, getInitWorkSheetFields } from '../../utils';
 
 export const formatTaskNodeData = (dataList = [], firstId) => {
   // const firstId = "source1";
@@ -165,16 +165,6 @@ export const formatDataWithLine = dataList => {
     }
   });
   return l;
-};
-
-//预览节点数据
-export const getNodeData = (nodeId, list) => {
-  if (!nodeId) {
-    return [];
-  }
-  const data = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId);
-  const d = data.find(o => o.nodeId === nodeId) || {};
-  return d;
 };
 
 //通过中间类型转换成筛选组件使用的type
@@ -400,7 +390,7 @@ export const getUnionFeids = (defaultFields = [], list, node) => {
   let othersFields = rightFields;
   const fields = leftFields.map(o => {
     let rightField = rightFields.find(it => it.alias === o.alias && it.jdbcTypeId === o.jdbcTypeId);
-    if (!!rightField) {
+    if (rightField) {
       othersFields = othersFields.filter(it => it.id !== rightField.id);
     }
     return { leftField: o, rightField: rightField, resultField: o };
@@ -447,7 +437,7 @@ export const setAllUnionFieldsCheck = (fieldList, setCheck) => {
 export const setFeildAlias = fields => {
   let newFeilds = [];
   let result = _.groupBy(fields, 'alias');
-  _.forEach(result, (a, k) => {
+  _.forEach(result, a => {
     if (a.length > 1) {
       a.map((it, i) => {
         newFeilds = newFeilds.concat({ ...it, alias: `${it.alias || _l('未命名')}${i > 0 ? i : ''}` });
@@ -519,11 +509,11 @@ export const getAggregateData = (jdbcTypeId, isRowsCount) => {
     isRowsCount
       ? it.value === 'COUNT'
       : text_jdbcTypeIds.includes(jdbcTypeId)
-      ? ['MAX', 'MIN'].includes(it.value) //文本类型=>最大值|最小值
-      : time_jdbcTypeIds.includes(jdbcTypeId)
-      ? ['COUNT', 'DISTINCT_COUNT'].includes(it.value)
-      : num_jdbcTypeIds.includes(jdbcTypeId)
-      ? ['SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'DISTINCT_COUNT'].includes(it.value) //数值类型=>求和|平均值|最大值|最小值,计数，去重计数
-      : !['COUNT', 'DISTINCT_COUNT'].includes(it.value),
+        ? ['MAX', 'MIN'].includes(it.value) //文本类型=>最大值|最小值
+        : time_jdbcTypeIds.includes(jdbcTypeId)
+          ? ['COUNT', 'DISTINCT_COUNT'].includes(it.value)
+          : num_jdbcTypeIds.includes(jdbcTypeId)
+            ? ['SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'DISTINCT_COUNT'].includes(it.value) //数值类型=>求和|平均值|最大值|最小值,计数，去重计数
+            : !['COUNT', 'DISTINCT_COUNT'].includes(it.value),
   );
 };

@@ -1,16 +1,16 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import SideWrap from '../../SideWrap';
+import React, { useEffect, useState } from 'react';
+import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { ConfigProvider, Button, Tooltip, Modal } from 'antd';
-import { Header, EditWidgetContent } from '../../../styled';
 import worksheetApi from 'src/api/worksheet';
+import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { EditWidgetContent, Header } from '../../../styled';
+import SideWrap from '../../SideWrap';
+import { defaultFilterData } from './enum';
 import Preview from './Preview';
 import Setting from './Setting';
 import './index.less';
-import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
-import { defaultFilterData } from './enum';
-import _ from 'lodash';
 
 const DefaultItem = styled.div`
   display: flex;
@@ -48,7 +48,7 @@ const defaultData = {
 
 export default function Filter(props) {
   const { ids, widget, onEdit, onClose } = props;
-  const { id, value, filter: filtersGroup } = widget;
+  const { value, filter: filtersGroup } = widget;
 
   const [filter, setFilter] = useState(defaultData);
   const [activeId, setActiveId] = useState(_.get(filter, 'filters[0].filterId'));
@@ -124,6 +124,7 @@ export default function Filter(props) {
     }
   }, [value]);
 
+  // eslint-disable-next-line no-constant-condition
   return false ? (
     <SideWrap headerText={_l('选择筛选方式')} onClose={onClose}>
       <div className="flexRow valignWrapper mTop20">

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { Button, ConfigProvider, Dropdown, Input, Menu, Modal } from 'antd';
 import cx from 'classnames';
-import { ConfigProvider, Input, Modal, Button, Dropdown, Menu } from 'antd';
-import { TagTextarea, Icon } from 'ming-ui';
-import { isNumberControl, textNormTypes } from 'statistics/common';
-import { normTypes } from '../../../enum';
-import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import _ from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import { Icon, TagTextarea } from 'ming-ui';
+import { isNumberControl, textNormTypes } from 'statistics/common';
+import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
+import { normTypes } from '../../../enum';
 
 const ControlTag = styled.div`
   line-height: 24px;
@@ -138,7 +138,7 @@ class CalculateControl extends Component {
         {(isNumber ? calculateControlNormTypes : textControlNormTypes).map(item => (
           <Menu.Item
             key={item.value}
-            style={{ color: norm.value === item.value ? '#2196f3' : null }}
+            style={{ color: norm.value === item.value ? '#1677ff' : null }}
             onClick={() => {
               const newFormulaStr = this.state.formulaStr.replace(
                 new RegExp(`${controlId}-${norm.value || '\\d'}`),
@@ -176,7 +176,6 @@ class CalculateControl extends Component {
   renderDropdown() {
     const { showDropdownId, showDropdownStyle } = this.state;
     const control = _.find(this.props.axisControls, { controlId: showDropdownId.replace(/-\w/, '') }) || {};
-    const invalid = _.isEmpty(control);
     const type = showDropdownId.replace(/\w+-/, '');
     const isNumber = isNumberControl(control.type) || control.enumDefault === 1;
     const norm = _.find(isNumber ? calculateControlNormTypes : textControlNormTypes, { value: Number(type) }) || {};
@@ -235,7 +234,7 @@ class CalculateControl extends Component {
   };
   render() {
     const { axisControls } = this.props;
-    const { controlName, showInSideFormulaSelect, formulaStr, dot, dropdownVisible } = this.state;
+    const { controlName, formulaStr, dot, dropdownVisible } = this.state;
     return (
       <div>
         <div className="mBottom10">{_l('名称')}</div>
@@ -264,7 +263,7 @@ class CalculateControl extends Component {
               },
             }}
           >
-            <div className="flexRow valignWrapper pointer" style={{ color: '#2196F3' }}>
+            <div className="flexRow valignWrapper pointer" style={{ color: '#1677ff' }}>
               <Icon className="Font20" icon="add" />
               <span className="Font13">{_l('选择字段')}</span>
             </div>
@@ -278,7 +277,7 @@ class CalculateControl extends Component {
             getRef={tagtextarea => {
               this.tagtextarea = tagtextarea;
             }}
-            renderTag={(id, options) => this.genControlTag(axisControls, id)}
+            renderTag={id => this.genControlTag(axisControls, id)}
             onChange={this.handleChange}
           />
           {this.renderDropdown()}

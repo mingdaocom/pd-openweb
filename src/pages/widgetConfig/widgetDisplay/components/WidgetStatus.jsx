@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import styled from 'styled-components';
 
 const StatusWrap = styled.div`
@@ -11,7 +10,7 @@ const StatusWrap = styled.div`
     //   margin-left: ${props => (props.showTitle ? '3px' : '0px')};
     // }
     &.title {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -19,7 +18,7 @@ const StatusWrap = styled.div`
 export default function WidgetStatus({ data, showTitle, style }) {
   let { fieldPermission } = data;
   fieldPermission = fieldPermission || '111';
-  const [visible, editable, canAdd] = fieldPermission.split('');
+  const [visible, , canAdd] = fieldPermission.split('');
   return (
     <StatusWrap showTitle={showTitle} style={style}>
       {data.attribute === 1 && <i className="title icon-ic_title"></i>}

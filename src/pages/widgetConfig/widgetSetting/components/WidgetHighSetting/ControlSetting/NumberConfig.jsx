@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
+import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
 import { EditInfo } from '../../../../styled';
-import SliderScaleConfig from '../components/SliderScaleConfig';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import _ from 'lodash';
+import SliderScaleConfig from '../components/SliderScaleConfig';
 
 export default function NumberConfig(props) {
   const { data, onChange } = props;

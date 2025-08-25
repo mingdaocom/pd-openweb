@@ -1,6 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { Tooltip } from 'ming-ui';
 
 export default function SwitchRecord(props) {
@@ -21,11 +21,7 @@ export default function SwitchRecord(props) {
       >
         <Tooltip
           offset={[-18, 0]}
-          text={
-            <span>
-              {window.isMacOs ? _l('上一条（⌘ + ⇧ + ,）') : _l('上一条（Ctrl + Shift + ,）')}
-            </span>
-          }
+          text={<span>{window.isMacOs ? _l('上一条（⌘ + ⇧ + ,）') : _l('上一条（Ctrl + Shift + ,）')}</span>}
         >
           <i className="icon icon-arrow-up-border" />
         </Tooltip>
@@ -40,13 +36,7 @@ export default function SwitchRecord(props) {
             : () => {}
         }
       >
-        <Tooltip
-          text={
-            <span>
-              {window.isMacOs ? _l('下一条（⌘ + ⇧ + .）') : _l('下一条（Ctrl + Shift + .）')}
-            </span>
-          }
-        >
+        <Tooltip text={<span>{window.isMacOs ? _l('下一条（⌘ + ⇧ + .）') : _l('下一条（Ctrl + Shift + .）')}</span>}>
           <i className="icon icon-arrow-down-border" />
         </Tooltip>
       </span>

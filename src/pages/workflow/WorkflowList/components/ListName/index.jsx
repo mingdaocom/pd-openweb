@@ -1,6 +1,6 @@
 import React from 'react';
-import { MdLink } from 'ming-ui';
 import cx from 'classnames';
+import { MdLink } from 'ming-ui';
 
 export default ({ item, type }) => {
   const typeArgs = type ? `#type=${type}` : '';

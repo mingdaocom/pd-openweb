@@ -1,7 +1,7 @@
 import React from 'react';
-import { Icon, Dropdown } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Dropdown, Icon } from 'ming-ui';
 
 const Box = styled.div`
   .Dropdown--input {
@@ -16,12 +16,12 @@ const Box = styled.div`
   }
   &:hover {
     .iconCon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
     .Dropdown--input {
       .txt,
       .icon-arrow-down-border {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }

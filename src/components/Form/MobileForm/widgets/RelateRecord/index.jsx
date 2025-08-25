@@ -58,7 +58,9 @@ export default class Widgets extends Component {
         const newRecords = nextData.map(item => JSON.parse(item.sourcevalue));
         this.cardsComp.current.table.clearAndAdd(newRecords);
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -74,12 +76,13 @@ export default class Widgets extends Component {
       typeof value === 'string' &&
       value.indexOf('deleteRowIds') > -1
     ) {
-      return;
+      return [];
     }
     let data = [];
     try {
       data = JSON.parse(value);
     } catch (err) {
+      console.log(err);
       return [];
     }
     if (!_.isObject(data)) {
@@ -94,7 +97,9 @@ export default class Widgets extends Component {
     let data = [];
     try {
       data = value.map(r => (r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name }));
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return data;
   }
 
@@ -124,7 +129,8 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { appId, flag, from, recordId, enumDefault, advancedSetting, formDisabled, instanceId, workId } = this.props;
+    const { appId, flag, from, recordId, enumDefault, advancedSetting, formDisabled, instanceId, workId, projectId } =
+      this.props;
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = advancedSetting; // 1 卡片 2 列表 3 下拉
     showtype = parseInt(showtype, 10);
     const controlPermission = controlState({ ...this.props }, from);
@@ -139,6 +145,7 @@ export default class Widgets extends Component {
         recordId={recordId}
         allowOpenRecord={advancedSetting.allowlink === '1'}
         editable={controlPermission.editable}
+        projectId={projectId}
         control={{ ...this.props }}
         count={this.count || 0}
         records={

@@ -15,19 +15,34 @@
     &.workflowReleaseHeader {
       background: #313131;
       color: #fff;
-      .workflowReturn:not(:hover),
       .workflowHeaderDesc div,
-      .workflowHeaderTab:not(:hover):not(.active) {
+      .workflowHeaderTab:not(.active),
+      .workflowReleaseBox {
+        color: rgba(255, 255, 255, 0.7) !important;
+      }
+      .workflowHeaderTab.active,
+      .icon-restore2:hover {
         color: #fff !important;
+      }
+      .workflowReturn {
+        color: #fff;
+        &:hover {
+          background: rgba(0, 0, 0, 0.24);
+        }
       }
     }
     .workflowReturn {
       cursor: pointer;
-      margin-right: 15px;
-      width: 20px;
-      display: block;
-      &:not(:hover) {
-        color: #757575 !important;
+      margin-right: 10px;
+      font-size: 20px;
+      padding: 4px;
+      color: #757575;
+      border-radius: 50%;
+      height: 28px;
+      width: 28px;
+      display: flex;
+      &:hover {
+        background: #f8f8f8;
       }
     }
     .workflowHeaderDesc {
@@ -53,20 +68,6 @@
         border-bottom-color: transparent !important;
       }
     }
-    .workflowReleaseBtnBox {
-      display: flex;
-      justify-content: flex-end;
-      .workflowReleaseBtn {
-        display: inline-flex;
-        align-items: center;
-        height: 36px;
-        color: #fff;
-        font-size: 14px;
-        padding: 0 16px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.1);
-      }
-    }
     .workflowSettingsHeaderUpdateBtn {
       height: 22px;
       background: #151515;
@@ -76,6 +77,18 @@
       align-items: center;
       justify-content: center;
       padding: 0 9px;
+    }
+    .iconWrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .icon {
+        font-size: 24px;
+        color: #fff;
+      }
     }
   }
   .flowEmptyWrap {
@@ -159,8 +172,8 @@
       color: #151515;
       border: 1px solid #d0d0d0;
       &:hover {
-        color: #2196f3;
-        border-color: #2196f3;
+        color: #1677ff;
+        border-color: #1677ff;
       }
     }
   }

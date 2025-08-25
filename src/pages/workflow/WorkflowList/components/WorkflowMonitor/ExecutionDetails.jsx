@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Dropdown, Button } from 'antd';
-import { Icon, LoadDiv, Checkbox, Tooltip } from 'ming-ui';
-import flowMonitor from 'src/pages/workflow/api/processVersion.js';
-import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
-import CountDown from './CountDown';
-import PauseTimeList from '../PauseTimeList';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { runDateList, justifyInfoData, formatter } from './enum';
+import { Button, Dropdown, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import flowMonitor from 'src/pages/workflow/api/processVersion.js';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
+import PauseTimeList from '../PauseTimeList';
+import CountDown from './CountDown';
+import { formatter, justifyInfoData, runDateList } from './enum';
 
 export default class ExecutionDetails extends Component {
   constructor(props) {
@@ -99,7 +99,7 @@ export default class ExecutionDetails extends Component {
       })
       .then(res => {
         if (res) {
-          let copyDetailList = this.props.detailList.map((it, i) => {
+          let copyDetailList = this.props.detailList.map(it => {
             if (item.id === it.id) {
               return { ...it, waiting: false };
             } else {
@@ -137,7 +137,7 @@ export default class ExecutionDetails extends Component {
     }
     flowMonitor.updateRouterIndex(params).then(res => {
       if (res) {
-        let copyDetailList = this.props.detailList.map((it, i) => {
+        let copyDetailList = this.props.detailList.map(it => {
           if ((isSingle && item.id === it.id) || (!isSingle && _.includes(checkedIds, it.id))) {
             return {
               ...it,
@@ -166,7 +166,7 @@ export default class ExecutionDetails extends Component {
       })
       .then(res => {
         if (res) {
-          let copyDetailList = this.props.detailList.map((it, i) => {
+          let copyDetailList = this.props.detailList.map(it => {
             if (item.id === it.id) {
               return {
                 ...it,
@@ -213,6 +213,7 @@ export default class ExecutionDetails extends Component {
         )}
         {type === 'routerIndex' && (
           <Tooltip
+            autoCloseDelay={0}
             popupClassName="passageTooltip Tooltip-black"
             popupAlign={{
               points: ['tc', 'bc'],
@@ -374,7 +375,7 @@ export default class ExecutionDetails extends Component {
                     <span
                       className="dot"
                       style={
-                        _.isUndefined(routerIndex) ? {} : { background: routerIndex === -1 ? '#2196F3' : '#FFC37C' }
+                        _.isUndefined(routerIndex) ? {} : { background: routerIndex === -1 ? '#1677ff' : '#FFC37C' }
                       }
                     ></span>
                     <span className="mLeft5">{routerName || ''}</span>
@@ -398,7 +399,9 @@ export default class ExecutionDetails extends Component {
                     getPopupContainer={() => this.props.monitorContainer}
                   >
                     <span className="Hand Hover_1f">
-                      <span style={{ color: waiting ? '#F44336' : '#151515' }}>{!waiting ? _l('正常') : _l('暂停')}</span>
+                      <span style={{ color: waiting ? '#F44336' : '#151515' }}>
+                        {!waiting ? _l('正常') : _l('暂停')}
+                      </span>
                       <Icon icon="arrow-down" className="Gray_75 mLeft5" />
                     </span>
                   </PauseTimeList>
@@ -488,6 +491,7 @@ export default class ExecutionDetails extends Component {
               <Button type="ghostgray" className="mRight10" onClick={this.resetQueue}>
                 {_l('重置排队计数')}
                 <Tooltip
+                  autoCloseDelay={0}
                   text={
                     <span>
                       {_l('将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0')}
@@ -535,8 +539,8 @@ export default class ExecutionDetails extends Component {
                 showHistoryDetail
                   ? !_.includes(['routerIndex', 'waiting'], it.type)
                   : md.global.Config.IsLocal
-                  ? true
-                  : it.type !== 'routerIndex',
+                    ? true
+                    : it.type !== 'routerIndex',
               )
               .map(item => this.renderTableSorterHeader(item))}
             <div className="headerItem columnWidth150"></div>

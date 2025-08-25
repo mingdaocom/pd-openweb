@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import accountApi from 'src/api/account';
 import registerApi from 'src/api/register';
@@ -8,7 +9,7 @@ import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
 import { AccountNextActions, ActionResult, InviteFromType } from 'src/pages/AuthService/config.js';
 import { getDes, getTitle } from 'src/pages/AuthService/register/util.js';
-import { getDialCode, isTel } from 'src/pages/AuthService/util.js';
+import { getDialCode, getEmailOrTel, isTel } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { htmlEncodeReg } from 'src/utils/common';
 import { getRequest } from 'src/utils/sso';
@@ -30,7 +31,7 @@ const defaultNextAction = () => {
     : AccountNextActions.createProject;
 };
 
-export default function (props) {
+export default function () {
   const request = getRequest();
   const [state, setState] = useSetState({
     // modeType: 1, // 1:手机号邮箱 2:用户名登录 其他:不使用账户登录方式

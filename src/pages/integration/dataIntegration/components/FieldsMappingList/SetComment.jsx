@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Textarea, Icon } from 'ming-ui';
+import { Icon, Textarea } from 'ming-ui';
 
 const Wrapper = styled.div`
   width: 310px;

@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import Config from '../../config';
 import AdminCommon from 'src/pages/Admin/common/common';
-import ExportDialog from './components/ExportDialog';
+import Config from '../../config';
 import Announce from './components/Announce';
+import ExportDialog from './components/ExportDialog';
 import Stat from './components/stat';
 import './index.less';
 

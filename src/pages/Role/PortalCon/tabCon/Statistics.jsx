@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../redux/actions';
-import { Dialog, Dropdown } from 'ming-ui';
 import cx from 'classnames';
-import LoginInfoDialog from 'src/pages/Role/PortalCon/components/LoginInfo';
-import externalPortalAjax from 'src/api/externalPortal';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Dropdown } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import LoginInfoDialog from 'src/pages/Role/PortalCon/components/LoginInfo';
+import * as actions from '../redux/actions';
 
 const Wrap = styled.div`
   padding: 16px 32px 40px;
@@ -36,7 +36,7 @@ const Wrap = styled.div`
   }
   .loginConsole {
     height: 32px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px;
     line-height: 32px;
     color: #fff;
@@ -135,7 +135,7 @@ function Statistics(props) {
         });
         setData(dataVisits);
         let dataRegister = [];
-        for (var key in registerData) {
+        for (let key in registerData) {
           dataRegister.push({
             date: key,
             value: registerData[key],

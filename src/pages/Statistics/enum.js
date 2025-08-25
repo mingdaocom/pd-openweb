@@ -34,13 +34,14 @@ export const defaultNumberChartStyle = {
   columnCount: 4,
   fontSize: 28,
   fontColor: '#151515',
+  titleColor: '#151515',
   contrastColor: 0,
   contrastValueDot: 2,
   lastContrastText: _l('环比'),
   contrastText: _l('同比'),
   shape: 'square',
   iconVisible: false,
-  iconColor: '#2196F3',
+  iconColor: '#1677ff',
   icon: '3_1_coins',
 };
 

@@ -63,10 +63,6 @@ export const PAGE_HEADER_ROUTE_CONFIG = {
     path: '/personal',
     component: () => import('src/pages/PageHeader/NetManageHeader'),
   },
-  privateDeployment: {
-    path: '/privateDeployment/:routeType?',
-    component: () => import('src/pages/PageHeader/NetManageHeader'),
-  },
   appInstallSetting: {
     path: '/appInstallSetting',
     component: () => import('src/pages/PageHeader/NetManageHeader'),

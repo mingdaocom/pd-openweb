@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { func } from 'prop-types';
-import { Dialog, ScrollView, Checkbox, Icon } from 'ming-ui';
-import StatusIcon from '../../components/StatusIcon';
-import EmptyStatus from '../../components/Empty';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { func } from 'prop-types';
+import { Checkbox, Dialog, Icon, ScrollView } from 'ming-ui';
+import EmptyStatus from '../../components/Empty';
+import './index.less';
+
 export default class MsgTemplate extends Component {
   static propTypes = {
     closeLayer: func,
@@ -53,9 +53,9 @@ export default class MsgTemplate extends Component {
   /**
    * 滚动加载数据
    */
-  handleScroll = (e, o) => {
+  handleScroll = () => {
     const { haveMoreData } = this.state;
-    if (o.maximum - o.position <= 30 && haveMoreData) {
+    if (haveMoreData) {
       this.getData();
       this.pending = true;
     }
@@ -138,7 +138,6 @@ export default class MsgTemplate extends Component {
               <li className="header">
                 <div className="content flex">{_l('短信内容')}</div>
                 <div className="type">{_l('类型')}</div>
-                <div className="status">{_l('审核状态')}</div>
                 <div
                   className={cx('msgTemplateCreateTime', { theneColor: !_.isUndefined(isAsc) })}
                   onClick={() => {
@@ -158,7 +157,7 @@ export default class MsgTemplate extends Component {
                   )}
                 </div>
               </li>
-              <ScrollView className="workflowMsgTemplateScrollView" updateEvent={this.handleScroll}>
+              <ScrollView className="workflowMsgTemplateScrollView" onScrollEnd={this.handleScroll}>
                 {data.map((template, index) => {
                   const { companySignature, messageContent, status, createDate, type } = template;
                   return (
@@ -182,9 +181,6 @@ export default class MsgTemplate extends Component {
                       <div className="type">
                         {type === 2 ? _l('营销推广') : type === 3 ? _l('金融交易') : _l('行业通知')}
                       </div>
-                      <div className="status">
-                        <StatusIcon status={status} />
-                      </div>
                       <div className="msgTemplateCreateTime">{createDate}</div>
                     </li>
                   );
@@ -192,7 +188,7 @@ export default class MsgTemplate extends Component {
               </ScrollView>
             </ul>
           ) : (
-            <EmptyStatus icon="workflow_sms" explain={_l('还没有短信模版')} className="workflowMsgTemplateEmpty">
+            <EmptyStatus icon="forum" explain={_l('还没有短信模版')} className="workflowMsgTemplateEmpty">
               <div className="moreTips Gray_75 mTop12">{_l('短信模版可在编辑短信节点时创建')}</div>
             </EmptyStatus>
           )}

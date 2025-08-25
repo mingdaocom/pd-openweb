@@ -329,7 +329,7 @@ export default class extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.startCount}
-                onChange={e => {
+                onChange={() => {
                   const value = event.target.value;
                   changeDynamicFilter({ startCount: formatNumberFromInput(value).replace('-', '') });
                 }}
@@ -375,7 +375,7 @@ export default class extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.endCount}
-                onChange={e => {
+                onChange={() => {
                   const value = event.target.value;
                   changeDynamicFilter({ endCount: formatNumberFromInput(value).replace('-', '') });
                 }}
@@ -386,7 +386,6 @@ export default class extends Component {
                 suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
                 onChange={value => {
                   changeDynamicFilter({
-                    endUnit: value,
                     endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit,
                   });
                 }}
@@ -474,6 +473,7 @@ export default class extends Component {
     const filterWhiteKeys = _.flatten(
       Object.keys(CONTROL_FILTER_WHITELIST).map(key => CONTROL_FILTER_WHITELIST[key].keys),
     );
+    // eslint-disable-next-line no-unused-vars
     const controls = (worksheetInfo.columns || [])
       .filter(c => (c.controlPermissions || '111')[0] === '1')
       .map(redefineComplexControl)

@@ -1,10 +1,10 @@
-import React, { useState, Fragment } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Dropdown, Button, RadioGroup, Checkbox } from 'ming-ui';
-import AutoIcon from '../../../components/Icon';
 import { Input, Tooltip } from 'antd';
 import { parseInt } from 'lodash';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Dropdown, RadioGroup } from 'ming-ui';
+import AutoIcon from '../../../components/Icon';
 import { SettingItem } from '../../../styled';
 
 const NumberConfigWrap = styled.div`
@@ -46,7 +46,7 @@ const NumberConfigWrap = styled.div`
     font-size: 13px;
   }
   .clickable {
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
   }
   .footerBtn {
@@ -156,6 +156,7 @@ export default function AutoNumberConfig(props) {
             <div className="hint">
               <Tooltip
                 trigger={['hover']}
+                autoCloseDelay={0}
                 title={_l(
                   '取消勾选后，则编号不允许超出指定的位数，到达最大后将从0开始重新计数。如果位数设置不足会导致编号重复',
                 )}
@@ -171,6 +172,7 @@ export default function AutoNumberConfig(props) {
                     <span>{_l('编号超出位数后继续递增')}</span>
                     <Tooltip
                       trigger={['hover']}
+                      autoCloseDelay={0}
                       title={_l('勾选时，超出位数继续递增； 取消勾选时，超出位数后从0开始编号')}
                     >
                       <AutoIcon style={{ marginLeft: '6px' }} icon="help" />
@@ -186,6 +188,7 @@ export default function AutoNumberConfig(props) {
             {_l('开始值')}
             <Tooltip
               trigger={['hover']}
+              autoCloseDelay={0}
               title={_l(
                 '编号=开始值+创建记录数-1。若修改开始值，则之后的编号将根据新的开始值计算。例如，原来的开始值为1，已创建记录数为10，则当前最后一条编号为no.10；若此时将开始值修改为10，则下一条记录的编号为no.20。',
               )}
@@ -224,6 +227,7 @@ export default function AutoNumberConfig(props) {
               <span>{_l('下一条记录以修改后的开始值编号')}</span>
               <Tooltip
                 trigger={['hover']}
+                autoCloseDelay={0}
                 title={_l(
                   '勾选时，新的开始值保存后，下一条记录将直接以新开始值作为编号（例如，表中已编号至no.100，修改开始值为5并勾选此配置项，则下一条记录直接以no.5编号）',
                 )}

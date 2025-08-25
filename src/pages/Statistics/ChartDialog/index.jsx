@@ -175,7 +175,7 @@ export default class ChartDialog extends Component {
       });
   };
   handleVerifySave = () => {
-    const { xaxes, yaxisList, reportType, pivotTable } = this.props.currentReport;
+    const { yaxisList, reportType } = this.props.currentReport;
     if (!reportType) {
       alert(_l('请选择图表类型'), 2);
       return;
@@ -199,7 +199,6 @@ export default class ChartDialog extends Component {
       }
       return;
     }
-    this.handleSaveFilter();
   };
   handleSaveFilter = () => {
     const { filterItem, currentReport, worksheetInfo } = this.props;
@@ -516,7 +515,7 @@ export default class ChartDialog extends Component {
   };
   renderContent() {
     const { settingVisible, dataIsUnfold, reportId, scopeVisible } = this.state;
-    const { permissions, appId, projectId, sourceType, ownerId, currentReport } = this.props;
+    const { permissions, permissionType, appId, projectId, sourceType, ownerId, currentReport } = this.props;
 
     return (
       <ErrorBoundary>
@@ -526,6 +525,7 @@ export default class ChartDialog extends Component {
             <DndProvider key="statistics" context={window} backend={HTML5Backend}>
               <DataSource
                 dataIsUnfold={dataIsUnfold}
+                permissionType={permissionType}
                 ownerId={ownerId}
                 appId={appId}
                 projectId={projectId}
@@ -536,7 +536,6 @@ export default class ChartDialog extends Component {
                   });
                 }}
                 onChangeSheetId={worksheetId => {
-                  const { reportType } = this.props.reportData;
                   this.props.changeSheetId(worksheetId);
                   this.props.changeBase({ sheetId: worksheetId });
                   this.setState({ worksheetId, reportId: null });
@@ -555,7 +554,7 @@ export default class ChartDialog extends Component {
     );
   }
   render() {
-    const { nodialog, reportData, detailLoading, className } = this.props;
+    const { nodialog, detailLoading, className } = this.props;
 
     const content = detailLoading ? <Loading /> : this.renderContent();
 

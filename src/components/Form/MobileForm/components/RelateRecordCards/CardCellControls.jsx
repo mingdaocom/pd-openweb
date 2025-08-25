@@ -98,6 +98,10 @@ const Control = styled.div`
     }
     .customFormNull {
       margin: unset;
+      width: 22px;
+      height: 6px;
+      background: var(--gray-e0);
+      border-radius: 3px;
     }
     ${({ contentStyle }) => contentStyle}
   }

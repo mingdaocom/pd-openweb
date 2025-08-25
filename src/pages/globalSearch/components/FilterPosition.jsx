@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import { useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
 import smartSearchAjax from 'src/api/smartSearch';
@@ -128,7 +129,7 @@ export default function FilterPosition(props) {
     const { itemId } = item;
 
     smartSearchAjax.removeFilter({ itemId }).then(res => {
-      if (!!res) {
+      if (res) {
         alert(_l('成功'));
         getFilterList();
         const _count = filterCount - 1;

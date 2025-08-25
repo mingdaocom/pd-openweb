@@ -6,6 +6,7 @@ rewrite ^/staticfiles/(.*) /staticfiles/$1 break;
 rewrite ^/src/common/mdcss/(.*) /staticfiles/mdcss/$1 break;
 rewrite ^/src/common/mdjs/(.*) /staticfiles/mdjs/$1 break;
 rewrite ^/districtDataConfigFile/(.*) /staticfiles/districtDataConfigFile/$1 break;
+rewrite ^/choroplethData/(.*) /staticfiles/choroplethData/$1 break;
 
 # 纯静态页面
 rewrite (?i)^/qrcode /staticfiles/html/account-login-qrCode.html break;
@@ -38,6 +39,7 @@ rewrite (?i)^/public/page /custompageshare.html break;
 rewrite (?i)^/embed/page /custompageembed.html break;
 rewrite (?i)^/embed/chart /chartembed.html break;
 rewrite (?i)^/embed/view /viewembed.html break;
+rewrite (?i)^/windowChat /windowChat.html break;
 rewrite (?i)^/public/print /recordshare.html break;
 rewrite (?i)^/public/form/ /publicworksheet.html break;
 rewrite (?i)^/weixinAuth /weixinAuth.html break;
@@ -46,6 +48,7 @@ rewrite (?i)^/public/apidoc /worksheetapi.html break;
 rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
+rewrite (?i)^/mingo /mingo-land.html break;
 
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;
@@ -92,7 +95,6 @@ rewrite (?i)^/custom /index.html break;
 rewrite (?i)^/app /index.html break;
 rewrite (?i)^/feed /index.html break;
 rewrite (?i)^/personal /index.html break;
-rewrite (?i)^/privateDeployment /index.html break;
 rewrite (?i)^/admin /index.html break;
 rewrite (?i)^/user_ /index.html break;
 rewrite (?i)^/group/groupValidate /index.html break;

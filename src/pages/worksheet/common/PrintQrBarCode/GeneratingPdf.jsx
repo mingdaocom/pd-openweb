@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
-import worksheetAjax from 'src/api/worksheet';
-import GeneratingPopup from './GeneratingPopup';
-import { generateLabelPdf } from './vectorLabel';
-import { getCodeTexts, getCodeContent } from './util';
-import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
-import { QrPdf } from './print';
+import React, { useEffect, useRef, useState } from 'react';
 import _, { includes } from 'lodash';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import worksheetAjax from 'src/api/worksheet';
+import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
+import GeneratingPopup from './GeneratingPopup';
+import { QrPdf } from './print';
+import { getCodeContent, getCodeTexts } from './util';
+import { generateLabelPdf } from './vectorLabel';
 
 const PAGE_SIZE = 200;
 

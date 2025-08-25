@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import { useSetState } from 'react-use';
-import RangeDialog from './RangeDialog';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { DATE_TYPE } from '../config';
+import RangeDialog from './RangeDialog';
 
 const Wrap = styled.div`
   margin-top: 10px;

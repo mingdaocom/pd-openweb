@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
@@ -80,19 +81,36 @@ export default class extends React.Component {
   };
 
   render() {
-    const { style, control, summaryType, summaryValue, rowHeadOnlyNum, rows, selectedIds, allWorksheetIsSelected } =
-      this.props;
+    const {
+      className,
+      isGroupTitle,
+      control,
+      summaryType,
+      summaryValue,
+      rowHeadOnlyNum,
+      rows,
+      selectedIds,
+      allWorksheetIsSelected,
+    } = this.props;
+    const style = { ...(this.props.style || {}) };
+    if (!isGroupTitle) {
+      style.height = 28 + 'px';
+      style.lineHeight = 28 + 'px';
+    }
     const { menuVisible } = this.state;
     if (!control) {
-      return <div style={style} />;
+      return <div style={style} className={className} />;
     }
     let type = control.sourceControlType || control.type;
     if (_.includes([10010, 33, 45, 47], type) || (control.type === 30 && control.strDefault === '10')) {
-      return <div className="sheetSummaryInfo disabled" style={style} />;
+      return <div className={cx('sheetSummaryInfo disabled', className)} style={style} />;
     }
     if (type === 'summaryhead') {
       return (
-        <div className="summaryCellHead" style={{ ...style, padding: rowHeadOnlyNum ? '0 12px' : '0 24px 0 40px' }}>
+        <div
+          className={cx('summaryCellHead', className)}
+          style={{ ...style, padding: rowHeadOnlyNum ? '0 12px' : '0 24px 0 40px' }}
+        >
           =
         </div>
       );
@@ -103,7 +121,10 @@ export default class extends React.Component {
     }
     return (
       <ClickAwayable
-        className="sheetSummaryInfo ellipsis"
+        className={cx('sheetSummaryInfo ellipsis', className, {
+          withBackground: !isGroupTitle,
+          'cell groupTitleSummary': isGroupTitle,
+        })}
         onClickAwayExceptions={['.summaryCellMenu']}
         style={style}
         onClick={() => {
@@ -120,6 +141,10 @@ export default class extends React.Component {
           popupAlign={{
             points: ['bl', 'tl'],
             offset: [0, 0],
+            overflow: {
+              adjustX: true,
+              adjustY: true,
+            },
           }}
           onPopupVisibleChange={newVisible => {
             if (newVisible) {

@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import './less/PositionContainer.less';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import './less/PositionContainer.less';
 
 class PositionContainer extends Component {
   static propTypes = {
@@ -120,6 +120,7 @@ class PositionContainer extends Component {
         try {
           return ReactDom.findDOMNode(item);
         } catch (err) {
+          console.error(err);
           return null;
         }
       }),
@@ -189,7 +190,7 @@ class PositionContainer extends Component {
     return result;
   }
   getVerticalSpace(bounding, popupBounding) {
-    let { clientWidth, clientHeight } = document.body;
+    let { clientHeight } = document.body;
 
     let isTop = bounding.top - popupBounding.height >= 0 ? true : false;
     let isBottom = clientHeight - bounding.top - bounding.height - popupBounding.height >= 0 ? true : false;
@@ -223,7 +224,7 @@ class PositionContainer extends Component {
     };
   }
   getHorizontalSpace(bounding, popupBounding) {
-    let { clientWidth, clientHeight } = document.body;
+    let { clientWidth } = document.body;
 
     let left = bounding.left - popupBounding.width;
     let right = clientWidth - bounding.left - bounding.width - popupBounding.width;

@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import { RadioGroup, Dialog, Checkbox, Button } from 'ming-ui';
-import './less/DeleteReconfirm.less';
 import _ from 'lodash';
+import { Button, Checkbox, Dialog, RadioGroup } from 'ming-ui';
+import './less/DeleteReconfirm.less';
 
 const noop = () => {};
 

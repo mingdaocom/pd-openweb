@@ -29,7 +29,7 @@ const SelectDialog = styled(Dialog)`
     }
     &.isActive {
       background: rgba(33, 150, 243, 0.05);
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .divider {
@@ -47,14 +47,14 @@ const SelectDialog = styled(Dialog)`
 `;
 
 function SelectCertification(props) {
-  const { onClose, certList = [], projectId, onUpdateCertStatus = () => {} } = props;
+  const { onClose, certList = [], projectId, onUpdateCertStatus = () => {}, isUpgrade } = props;
   const [current, setCurrent] = useState({});
 
   const onOk = () => {
     const params =
       current.authType === 1
         ? { certSource: 1, projectId }
-        : { certSource: 1, mapProjectId: current.entityId, entityId: projectId };
+        : { certSource: 1, mapProjectId: current.entityId, entityId: projectId, isUpgrade };
     (current.authType === 1 ? certificationApi.personalCertification : certificationApi.enterpriseCertification)(
       params,
     ).then(data => {

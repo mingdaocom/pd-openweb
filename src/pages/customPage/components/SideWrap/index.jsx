@@ -1,5 +1,4 @@
 import React from 'react';
-import { string } from 'prop-types';
 import styled from 'styled-components';
 
 const SideWrap = styled.div`
@@ -29,7 +28,7 @@ const SideWrap = styled.div`
       .icon-close {
         color: #9e9e9e;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -40,6 +39,9 @@ const SideWrap = styled.div`
     height: calc(100% - 56px);
     overflow: auto;
     padding: 0 24px;
+    .buttonDisplayWrap {
+      padding: 20px 0;
+    }
   }
   header {
     padding: 0 24px;

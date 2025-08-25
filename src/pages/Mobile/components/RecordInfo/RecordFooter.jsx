@@ -6,9 +6,10 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import worksheetApi from 'src/api/worksheet';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { compatibleMDJS, getCurrentProject } from 'src/utils/project';
+import { compatibleMDJS } from 'src/utils/project';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
 import CustomButtons from './RecordAction/CustomButtons';
 
@@ -59,55 +60,6 @@ const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
     });
 };
 
-const onDeleteRecord = ({ isSubList, recordBase, handleDeleteSuccess = () => {} }) => {
-  const ok = () => {
-    const { appId, worksheetId, viewId, recordId } = recordBase;
-    worksheetApi
-      .deleteWorksheetRows({
-        worksheetId,
-        viewId,
-        appId,
-        rowIds: [recordId],
-      })
-      .then(({ isSuccess }) => {
-        if (isSuccess) {
-          alert(_l('删除成功'));
-          handleDeleteSuccess(recordId);
-        } else {
-          alert(_l('删除失败'), 2);
-        }
-      });
-  };
-
-  let actionDeleteHandler = ActionSheet.show({
-    popupClassName: 'md-adm-actionSheet',
-    actions: [],
-    extra: (
-      <div className="flexColumn w100">
-        <div className="bold Gray Font17 pTop10">{isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?')}</div>
-        <div className="valignWrapper flexRow mTop24">
-          <Button
-            className="flex mRight6 bold Gray_75 flex ellipsis Font13"
-            onClick={() => actionDeleteHandler.close()}
-          >
-            {_l('取消')}
-          </Button>
-          <Button
-            className="flex mLeft6 bold ellipsis Font13"
-            color="danger"
-            onClick={() => {
-              actionDeleteHandler.close();
-              ok();
-            }}
-          >
-            {_l('确认')}
-          </Button>
-        </div>
-      </div>
-    ),
-  });
-};
-
 export default class RecordFooter extends Component {
   constructor(props) {
     super(props);
@@ -117,7 +69,7 @@ export default class RecordFooter extends Component {
       customBtns: [],
       btnDisable: {},
       isFavorite: false,
-      RecordAction: null
+      RecordAction: null,
     };
   }
   recordRef = React.createRef();
@@ -165,65 +117,8 @@ export default class RecordFooter extends Component {
       });
   };
 
-  handleMoreOperation = ({ allowDelete, allowShare }) => {
-    const { isSubList, recordBase, recordInfo = {}, handleDeleteSuccess = () => {} } = this.props;
-    const { isFavorite } = this.state;
-    const isExternal = _.isEmpty(getCurrentProject(recordInfo.projectId));
-
-    const BUTTONS = [
-      allowShare ? { name: _l('分享'), icon: 'share', iconClass: 'Font20 Gray_9e', fn: this.handleShare } : null,
-      window.isMingDaoApp
-        ? { name: _l('打印'), icon: 'install', iconClass: 'Font24 Gray_9e', fn: this.handlePrint }
-        : null,
-      !window.shareState.shareId && !md.global.Account.isPortal && !isExternal
-        ? {
-            name: isFavorite ? _l('取消收藏') : _l('收藏记录'),
-            icon: 'star_3',
-            iconClass: `Font20 Gray_9e ${isFavorite ? 'activeStar' : ''}`,
-            fn: this.handleCollectRecord,
-          }
-        : null,
-      allowDelete
-        ? {
-            name: _l('删除'),
-            icon: 'delete2',
-            iconClass: 'Font22 Red',
-            class: 'Red',
-            fn: () => onDeleteRecord({ isSubList, recordBase, handleDeleteSuccess }),
-          }
-        : null,
-    ].filter(_ => _);
-    this.actionSheetHandler = ActionSheet.show({
-      actions: BUTTONS.map(item => {
-        return {
-          key: item.icon,
-          text: (
-            <div
-              className={cx('flexRow valignWrapper w100', item.class)}
-              onClick={item.fn}
-              style={{ marginLeft: item.icon === 'install' ? -2 : 0 }}
-            >
-              <Icon className={cx('mRight20', item.iconClass)} icon={item.icon} />
-              <span className="Bold">{item.name}</span>
-            </div>
-          ),
-        };
-      }),
-      extra: (
-        <div className="flexRow header">
-          <span className="Font13">{_l('更多操作')}</span>
-          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
-            <Icon icon="close" />
-          </div>
-        </div>
-      ),
-      onAction: (action, index) => {
-        this.actionSheetHandler.close();
-      },
-    });
-  };
   handleShare = () => {
-    const { recordInfo, recordBase } = this.props;
+    const { recordInfo, recordBase, formData } = this.props;
     const publicShare = isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId);
     const innerShare = isOpenPermit(permitList.embeddedLink, recordInfo.switchPermit, recordBase.viewId);
 
@@ -241,7 +136,7 @@ export default class RecordFooter extends Component {
         key: 'publicShare',
         name: _l('对外公开分享'),
         info: _l('获得链接的所有人都可以查看'),
-        icon: 'delete2',
+        icon: 'trash',
         iconClass: 'Font22 Red',
         fn: () => getWorksheetShareUrl(recordBase),
       },
@@ -254,6 +149,8 @@ export default class RecordFooter extends Component {
             ? v.key === 'innerShare'
             : false,
     );
+
+    const recordTitle = getTitleTextFromControls(formData);
 
     this.shareSheetHandler = ActionSheet.show({
       actions: BUTTONS.map(item => {
@@ -272,23 +169,23 @@ export default class RecordFooter extends Component {
       }),
       extra: (
         <div className="flexRow header">
-          <span className="Font13">{_l('分享')}</span>
+          <span className="Font13">{recordTitle || _l('分享')}</span>
           <div className="closeIcon" onClick={() => this.shareSheetHandler.close()}>
             <Icon icon="close" />
           </div>
         </div>
       ),
-      onAction: (action, index) => {
+      onAction: () => {
         this.shareSheetHandler.close();
       },
     });
   };
 
-  // js sdk 对接原生打印
   handlePrint = () => {
     const { instanceId, workId, recordBase, recordInfo } = this.props;
     const { projectId } = recordInfo;
     const { worksheetId, recordId, viewId, appId } = recordBase;
+    // js sdk 对接原生打印
     compatibleMDJS(
       'showPrintList',
       {
@@ -302,15 +199,6 @@ export default class RecordFooter extends Component {
         // workflow
         workId,
         instanceId,
-        success: function (res) {
-          // 当前版本H5无需处理! App会处理日志
-          // 返回成功打印的模板信息, 备用, 可能需要上传日志
-          let templatedId = res.templateId;
-          let templateName = res.templateName;
-        },
-        cancel: function (res) {
-          // 用户取消
-        },
       },
       () => {},
     );
@@ -356,7 +244,6 @@ export default class RecordFooter extends Component {
   };
   renderContent() {
     const {
-      formChanged,
       editable,
       isSubList,
       getDataType,
@@ -365,8 +252,10 @@ export default class RecordFooter extends Component {
       recordBase,
       recordInfo,
       isDraft,
+      editLockedUser,
+      isRecordLock,
     } = this.props;
-    const { onEditRecord, onSubmitRecord, onSaveRecord } = this.props;
+    const { onEditRecord, onSubmitRecord } = this.props;
     const { loading, customBtns } = this.state;
     const allowEdit = recordInfo.allowEdit || editable;
     const allowDelete =
@@ -378,14 +267,15 @@ export default class RecordFooter extends Component {
       !md.global.Account.isPortal;
     return (
       <Fragment>
-        {(allowEdit || isDraft) && (
+        {(allowEdit || isDraft) && !isRecordLock && (
           <Button
             className={cx('mRight6 Font13', { flex: !customBtns.length })}
             style={{ width: customBtns.length ? 100 : 'unset' }}
             onClick={onEditRecord}
+            disabled={!!editLockedUser}
           >
-            <Icon icon="edit" className="Font15 mRight6 ThemeColor" />
-            <span className="ThemeColor bold">{_l('编辑')}</span>
+            <Icon icon="edit" className={`Font15 mRight6 ${!editLockedUser ? 'ThemeColor' : 'Gray_9e'}`} />
+            <span className={`bold ${!editLockedUser ? 'ThemeColor' : 'Gray_9e'}`}>{_l('编辑')}</span>
           </Button>
         )}
         {isDraft && (
@@ -400,6 +290,9 @@ export default class RecordFooter extends Component {
               customBtns={customBtns}
               isSlice
               btnDisable={this.state.btnDisable}
+              isEditLock={!!editLockedUser}
+              isRecordLock={isRecordLock}
+              entityName={recordInfo.entityName}
               handleClick={btn => {
                 if (this.recordRef.current) {
                   this.recordRef.current.handleTriggerCustomBtn(btn);
@@ -413,7 +306,7 @@ export default class RecordFooter extends Component {
                 <Button
                   className="flex mLeft6 Font13"
                   color="primary"
-                  onClick={() => this.handleMoreOperation({ allowDelete, allowShare })}
+                  onClick={() => this.setState({ recordActionVisible: true })}
                 >
                   <span className="bold">{_l('更多操作')}</span>
                 </Button>
@@ -442,7 +335,15 @@ export default class RecordFooter extends Component {
     );
   }
   renderRecordAction() {
-    const { recordInfo, recordBase, loadRecord, handleDeleteSuccess = () => {} } = this.props;
+    const {
+      recordInfo,
+      recordBase,
+      loadRecord,
+      handleDeleteSuccess = () => {},
+      isRecordLock,
+      updateRecordLock,
+      editLockedUser,
+    } = this.props;
     const { recordActionVisible, customBtns, isFavorite, RecordAction } = this.state;
 
     if (!RecordAction) return null;
@@ -471,6 +372,9 @@ export default class RecordFooter extends Component {
           this.setState({ btnDisable: val });
         }}
         handleCollectRecord={this.handleCollectRecord}
+        isRecordLock={isRecordLock}
+        updateRecordLock={updateRecordLock}
+        isEditLock={!!editLockedUser}
       />
     );
   }

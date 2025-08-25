@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef, Fragment } from 'react';
-import { bool, func, number, string } from 'prop-types';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import _ from 'lodash';
-import cx from 'classnames';
-import styled from 'styled-components';
 import { useClickAway } from 'react-use';
+import cx from 'classnames';
+import _ from 'lodash';
+import { bool, func, number, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import { ScrollView, Icon, LoadDiv } from 'ming-ui';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import groupAjax from 'src/api/group';
 
 const SelectGroupWrap = styled.div(
@@ -43,7 +43,6 @@ const SelectGroupWrap = styled.div(
     }
     .split {
       margin: 5px 8px;
-      width: 100%;
       height: 1px;
       background: #f0f0f0;
     }
@@ -101,7 +100,7 @@ export function SelectGroup(props) {
     }
   }, [value]);
 
-  useClickAway(conRef, e => {
+  useClickAway(conRef, () => {
     onSave();
     onClose(true);
   });
@@ -274,17 +273,15 @@ export function SelectGroup(props) {
   };
 
   return (
-    <SelectGroupWrap className='quickSelectGroup' ref={conRef} style={{ minHeight }} showType={showType}>
+    <SelectGroupWrap className="quickSelectGroup" ref={conRef} style={{ height: minHeight }} showType={showType}>
       {loading ? (
         <LoadDiv />
       ) : (
-        <div>
-          <ScrollView className="flex" style={{ minHeight }}>
-            {!commonList.length && !projects.length && <p className="item Gray_9e">{_l('暂无群组')}</p>}
-            {renderCommonList()}
-            {projectId === undefined && renderGroupList()}
-          </ScrollView>
-        </div>
+        <ScrollView className="flex h100">
+          {!commonList.length && !projects.length && <p className="item Gray_9e">{_l('暂无群组')}</p>}
+          {renderCommonList()}
+          {projectId === undefined && renderGroupList()}
+        </ScrollView>
       )}
     </SelectGroupWrap>
   );

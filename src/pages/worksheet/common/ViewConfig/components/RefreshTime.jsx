@@ -1,6 +1,6 @@
 import React from 'react';
-import { Dropdown } from 'ming-ui';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
 
 export default function RefreshTime(props) {
   const { appId, view, updateCurrentView } = props;

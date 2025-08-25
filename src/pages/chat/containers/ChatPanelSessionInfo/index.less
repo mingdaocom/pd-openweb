@@ -1,18 +1,16 @@
 &-sessionInfo {
   display: flex;
   width: 270px;
-  transition: 0.3s;
   flex-direction: column;
   position: relative;
   overflow: hidden;
 
   > div {
-    width: 270px;
+    width: 100%;
   }
 
   &.hidden {
-    width: 0;
-    opacity: 0;
+    width: 0 !important;
   }
 
   &-item {
@@ -47,10 +45,8 @@
     display: flex;
     flex-direction: column;
     background-color: #fff;
-    transition: 0.3s;
     &.hidden {
       right: -100%;
-      opacity: 0;
     }
     .header {
       padding: 10px 17px 10px 10px;

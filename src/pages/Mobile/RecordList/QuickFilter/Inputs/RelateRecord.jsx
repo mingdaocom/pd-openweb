@@ -1,11 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
-import { arrayOf, func, shape, string } from 'prop-types';
-import styled from 'styled-components';
-import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { arrayOf, func, shape } from 'prop-types';
+import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
 import RelateRecordOptions from './RelateRecordOptions';
 
 export default function RelateRecord(props) {
@@ -14,20 +11,12 @@ export default function RelateRecord(props) {
   const control = _.assign({}, props.control, {
     advancedSetting: {
       searchcontrol: controlAdvancedSetting.searchcontrol,
+      scanlink: controlAdvancedSetting.scanlink,
+      scancontrol: controlAdvancedSetting.scancontrol,
     },
   });
-  const {
-    enumDefault,
-    relationControls = [],
-    controlId,
-    coverCid,
-    showControls,
-    dataSource,
-    formData,
-    viewId,
-  } = control;
-  const { showtype, allowlink, ddset, allowitem, direction, nullitemname, shownullitem, navshow, navfilters } =
-    advancedSetting;
+  const { controlId, coverCid, showControls, dataSource, viewId } = control;
+  const { allowitem, nullitemname, shownullitem, navshow, navfilters } = advancedSetting;
   const isMultiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
   let staticRecords;
@@ -76,6 +65,7 @@ export default function RelateRecord(props) {
           const cellData = JSON.parse(titleControl.value);
           defaultRelatedSheetValue.name = cellData[0].name;
         } catch (err) {
+          console.log(err);
           defaultRelatedSheetValue.name = '';
         }
       }
@@ -85,6 +75,7 @@ export default function RelateRecord(props) {
         value: defaultRelatedSheetValue,
       };
     } catch (err) {
+      console.log(err);
       return;
     }
   };
@@ -111,6 +102,7 @@ export default function RelateRecord(props) {
         advancedSetting={advancedSetting}
         prefixRecords={prefixRecords}
         staticRecords={staticRecords}
+        parentWorksheetId={worksheetId}
         onSetMoreVisible={handleSetMoreVisible}
         onChange={newRecords => {
           handleChange({ values: newRecords });
@@ -118,6 +110,7 @@ export default function RelateRecord(props) {
       />
       {moreVisible && (
         <MobileRecordCardListDialog
+          getFilterRowsGetType={32}
           maxCount={50}
           selectedCount={values.length}
           from={5}

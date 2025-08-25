@@ -1,17 +1,16 @@
-import React, { Component, Fragment } from 'react';
-import { Checkbox, Radio, Space, Modal, ConfigProvider, Button } from 'antd';
-import { Icon } from 'ming-ui';
-import cx from 'classnames';
-import styled from 'styled-components';
-import SortColumns from 'src/pages/worksheet/components/SortColumns';
-import { isOptionControl } from 'statistics/common';
+import React, { Component } from 'react';
+import { Button, Checkbox, ConfigProvider, Modal, Radio, Space } from 'antd';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { isOptionControl } from 'statistics/common';
+import SortColumns from 'src/pages/worksheet/components/SortColumns';
 
 const ShowControlIdWrapper = styled.div`
   border-radius: 4px;
   padding: 5px 9px;
-  border: 1px solid #DEDEDE;
-  background-color: #EFEFEF;
+  border: 1px solid #dedede;
+  background-color: #efefef;
 `;
 
 export default class Accumulate extends Component {
@@ -20,44 +19,53 @@ export default class Accumulate extends Component {
     const { displaySetup } = this.props.currentReport;
     this.state = {
       showControlVisible: false,
-      showOptionIds: displaySetup.showOptionIds
-    }
+      showOptionIds: displaySetup.showOptionIds,
+    };
   }
   handleChangeDisplaySetup = (data, isRequest = false) => {
     const { displaySetup } = this.props.currentReport;
-    this.props.changeCurrentReport({
-      displaySetup: {
-        ...displaySetup,
-        ...data,
-      }
-    }, isRequest);
-  }
-  handleChange = (event) => {
+    this.props.changeCurrentReport(
+      {
+        displaySetup: {
+          ...displaySetup,
+          ...data,
+        },
+      },
+      isRequest,
+    );
+  };
+  handleChange = event => {
     const { value } = event.target;
     if (value === 1) {
-      this.handleChangeDisplaySetup({
-        showOptionIds: []
-      }, true);
+      this.handleChangeDisplaySetup(
+        {
+          showOptionIds: [],
+        },
+        true,
+      );
     } else {
       this.setState({ showControlVisible: true });
     }
-  }
-  handleChangeColumn = ({ newShowControls, newControlSorts }) => {
+  };
+  handleChangeColumn = ({ newShowControls }) => {
     this.setState({
-      showOptionIds: newShowControls
+      showOptionIds: newShowControls,
     });
-  }
+  };
   handleSaveShowOptionIds = () => {
     const { showOptionIds } = this.state;
     if (_.isEmpty(showOptionIds)) {
       alert(_l('请选择显示项'), 2);
       return;
     }
-    this.handleChangeDisplaySetup({
-      showOptionIds
-    }, true);
+    this.handleChangeDisplaySetup(
+      {
+        showOptionIds,
+      },
+      true,
+    );
     this.setState({ showControlVisible: false });
-  }
+  };
   renderFooter() {
     return (
       <div className="mTop20 mBottom10 pRight8">
@@ -80,18 +88,20 @@ export default class Accumulate extends Component {
     );
   }
   render() {
-    const { allControls, reportData, currentReport } = this.props;
+    const { allControls, currentReport } = this.props;
     const { showControlVisible, showOptionIds } = this.state;
     const { xaxes, displaySetup } = currentReport;
     const control = _.find(allControls, { controlId: xaxes.controlId }) || {};
     const { options = [] } = control;
-    const optionList = options.filter(item => !item.isDeleted).map(item => {
-      return {
-        controlId: item.key,
-        controlName: item.value,
-        type: xaxes.controlType
-      }
-    });
+    const optionList = options
+      .filter(item => !item.isDeleted)
+      .map(item => {
+        return {
+          controlId: item.key,
+          controlName: item.value,
+          type: xaxes.controlType,
+        };
+      });
     return (
       <div className="mBottom20">
         <div className="mBottom8 Font13">{_l('累计')}</div>
@@ -101,7 +111,7 @@ export default class Accumulate extends Component {
             checked={displaySetup.isAccumulate}
             onChange={() => {
               this.handleChangeDisplaySetup({
-                isAccumulate: !displaySetup.isAccumulate
+                isAccumulate: !displaySetup.isAccumulate,
               });
             }}
           >
@@ -112,7 +122,9 @@ export default class Accumulate extends Component {
           <div className="mBottom16 mLeft20">
             <Radio.Group onChange={this.handleChange} value={displaySetup.showOptionIds.length ? 2 : 1}>
               <Space direction="vertical" className="mTop10">
-                <Radio value={1} className="Font13">{_l('全部')}</Radio>
+                <Radio value={1} className="Font13">
+                  {_l('全部')}
+                </Radio>
                 <Radio value={2} className="Font13">
                   <div className="flexRow valignWrapper">
                     <div>{_l('自定义显示项')}</div>
@@ -123,7 +135,13 @@ export default class Accumulate extends Component {
             {!_.isEmpty(displaySetup.showOptionIds) && (
               <ShowControlIdWrapper className="flexRow valignWrapper mTop10">
                 <div className="flex">{_l('显示%0项字段', displaySetup.showOptionIds.length)}</div>
-                <Icon className="Gray_9e pointer" icon="edit" onClick={() => { this.setState({ showControlVisible: true }); }}/>
+                <Icon
+                  className="Gray_9e pointer"
+                  icon="edit"
+                  onClick={() => {
+                    this.setState({ showControlVisible: true });
+                  }}
+                />
               </ShowControlIdWrapper>
             )}
           </div>

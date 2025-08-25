@@ -1,11 +1,13 @@
 import React, { Fragment, useState } from 'react';
-import { Dropdown, Icon } from 'ming-ui';
+import update from 'immutability-helper';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { SettingItem } from '../../../styled';
-import { enumWidgetType, getIconByType } from 'src/pages/widgetConfig/util';
+import { Dropdown, Icon } from 'ming-ui';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
-import ConfigRelate from '../relateSheet/ConfigRelate';
+import { enumWidgetType, getIconByType } from 'src/pages/widgetConfig/util';
 import { WHOLE_SIZE } from '../../../config/Drag';
+import { SettingItem } from '../../../styled';
+import ConfigRelate from '../relateSheet/ConfigRelate';
 
 const SaveWrap = styled(Dropdown)`
   .Item-content {

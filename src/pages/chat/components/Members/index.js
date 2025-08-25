@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { LoadDiv, UserCard } from 'ming-ui';
 import GroupController from 'src/api/group';
-import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 import InviteOrAddUsers from './InviteOrAddUsers';
 import './index.less';
 
@@ -76,8 +76,7 @@ export default class Members extends Component {
       <div className="ChatPanel-Members ChatPanel-sessionInfo-item">
         <div className="ChatPanel-Members-hander ChatPanel-sessionInfo-hander">
           <span>
-            {`${isPost ? _l('群成员') : _l('成员')} (${groupMemberCount})`}
-            {!hideChat && <InviteOrAddUsers {...session} />}
+            {isPost ? _l('群成员') : _l('成员')} ({groupMemberCount}){!hideChat && <InviteOrAddUsers {...session} />}
           </span>
           <span
             onClick={this.props.onSetPanelVisible.bind(this, true)}
@@ -85,7 +84,7 @@ export default class Members extends Component {
           >
             {' '}
             {_l('所有成员')}
-            <i className="icon-sidebar-more" />{' '}
+            <i className="icon-arrow-right-border" />{' '}
           </span>
         </div>
         <div className="ChatPanel-Members-body">

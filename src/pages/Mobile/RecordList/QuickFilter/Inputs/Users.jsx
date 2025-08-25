@@ -1,10 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon, UserHead } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
-import { Icon, UserHead } from 'ming-ui';
-import _ from 'lodash';
 
 const UsersCon = styled.div`
   position: relative;
@@ -57,17 +56,7 @@ const emptyAvatar = _.get(md, 'global.FileStoreConfig.pictureHost')
   : '';
 
 export default function Users(props) {
-  const {
-    control,
-    values = [],
-    onChange = () => {},
-    projectId,
-    appId,
-    isMultiple,
-    advancedSetting,
-    controlId,
-    worksheetId,
-  } = props;
+  const { control, values = [], onChange = () => {}, projectId, appId, isMultiple, advancedSetting } = props;
   const { shownullitem, nullitemname, navshow, navfilters = '[]' } = advancedSetting;
   const [showSelectUser, setShowSelectUser] = useState(false);
   const staticAccounts = safeParse(navfilters)
@@ -92,23 +81,29 @@ export default function Users(props) {
     <div className="controlWrapper">
       <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <UsersCon>
-        {values.map(item => (
-          <UserItem>
-            {/* <img src={item.avatar} alt="" className="userAvatar" /> */}
-            <UserHead
-              className="userAvatar InlineBlock"
-              user={{
-                userHead: item.avatar || emptyAvatar,
-                accountId: item.accountId,
-              }}
-              size={28}
-              appId={appId}
-              projectId={projectId}
-            />
-            <span className="userName">{item.fullname}</span>
-            <Icon icon="close" onClick={() => deleteCurrentUser(item)} />
-          </UserItem>
-        ))}
+        {values.map(item => {
+          if (item.accountId === 'isEmpty' && !item.avatar && !item.fullname) {
+            item.avatar = emptyAvatar;
+            item.fullname = nullitemname || _l('为空');
+          }
+          return (
+            <UserItem>
+              {/* <img src={item.avatar} alt="" className="userAvatar" /> */}
+              <UserHead
+                className="userAvatar InlineBlock"
+                user={{
+                  userHead: item.avatar || emptyAvatar,
+                  accountId: item.accountId,
+                }}
+                size={28}
+                appId={appId}
+                projectId={projectId}
+              />
+              <span className="userName">{item.fullname}</span>
+              <Icon icon="close" onClick={() => deleteCurrentUser(item)} />
+            </UserItem>
+          );
+        })}
         {((!isMultiple && _.isEmpty(values)) || isMultiple) && (
           <span className="addBtn" onClick={pickUser}>
             <Icon icon="add" />
@@ -142,8 +137,8 @@ export default function Users(props) {
                   },
                 ].concat(staticAccounts)
               : navshow === '2'
-              ? staticAccounts
-              : []
+                ? staticAccounts
+                : []
           }
         />
       )}

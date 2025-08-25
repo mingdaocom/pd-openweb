@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Skeleton } from 'ming-ui';
@@ -102,7 +102,6 @@ export default function PrintQrBarCode(props) {
     projectId,
     worksheetId,
     viewId,
-    worksheetName,
     selectedRows = [],
     controls,
     count,
@@ -123,7 +122,6 @@ export default function PrintQrBarCode(props) {
   const [loading, setLoading] = useState(!!id);
   const [previewRow, setPreviewRow] = useState(selectedRows[0] || {});
   const [previewRowPublicUrl, setPreviewRowPublicUrl] = useState({});
-  const [changed, setChanged] = useState();
   const [config, setConfig] = useState({
     ...getDefaultConfig(printType),
     sourceType: sourceType,
@@ -277,7 +275,7 @@ export default function PrintQrBarCode(props) {
     <Con className="doNotTriggerClickAway">
       <Header>
         <span className="backIcon" onClick={onClose}>
-          <i className="icon icon-knowledge-return"></i>
+          <i className="icon icon-backspace"></i>
         </span>
         {mode === 'newTemplate' && <span className="Font16 Bold mRight6">{_l('新建模板')}</span>}
         {mode === 'editTemplate' && <span className="Font16 Bold mRight6">{_l('编辑模板')}</span>}
@@ -291,7 +289,6 @@ export default function PrintQrBarCode(props) {
                   alert(_l('名称不能为空'), 3);
                   return;
                 }
-                setChanged(true);
                 setBase({ ...base, name: value });
               }}
             />
@@ -318,7 +315,6 @@ export default function PrintQrBarCode(props) {
               function update(cb = () => {}) {
                 worksheetAjax.saveRecordCodePrintConfig(args).then(data => {
                   alert(_l('保存成功'));
-                  setChanged(false);
                   if (!id) {
                     setBase({ ...base, id: data });
                   }
@@ -380,7 +376,6 @@ export default function PrintQrBarCode(props) {
                   FILTER[2]({ ...c, type: c.type === 30 ? c.sourceControlType : c.type }) || _.includes([37], c.type),
               )}
               onUpdate={changes => {
-                setChanged(true);
                 setConfig(oldConfig => ({ ...oldConfig, ...changes }));
               }}
             />

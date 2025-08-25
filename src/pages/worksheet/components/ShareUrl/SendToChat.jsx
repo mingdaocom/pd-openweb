@@ -1,12 +1,12 @@
-import React, { useState, useCallback, Fragment } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import cx from 'classnames';
+import { debounce } from 'lodash';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Button, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import chatAjax from 'src/api/chat';
-import addressBookAjax from 'src/api/addressBook';
-import groupAjax from 'src/api/group';
-import { Bold600, commonShadow, Tipbd, Tip9e, BorderBox, Textarea } from 'worksheet/components/Basics';
-import { debounce } from 'lodash';
+import { Bold600, BorderBox, commonShadow, Textarea, Tip9e, Tipbd } from 'worksheet/components/Basics';
 
 const Con = styled.div``;
 
@@ -17,7 +17,7 @@ const SelectedUser = styled(BorderBox)`
   align-items: center;
   padding: 0 10px;
   cursor: pointer;
-  ${({ active }) => (active ? 'border-color: #2196f3;' : '')}
+  ${({ active }) => (active ? 'border-color: #1677ff;' : '')}
   > .con {
     flex: 1;
     overflow: hidden;
@@ -63,70 +63,44 @@ const AccountItem = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  &:hover {
-    background: #2196f3;
+  &:hover,
+  &.active {
+    background: #1677ff;
     color: #fff;
   }
 `;
 
 export default function SendToChat(props) {
-  const { card, title, url, onClose = () => {} } = props;
+  const { card, url, onClose = () => {} } = props;
   const [description, setDescription] = useState();
   const [selectedUser, setSelectedUser] = useState();
   const [listActive, setListActive] = useState(false);
   const [list, setList] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(null);
   const [loading, setLoading] = useState();
+  const scrollViewRef = useRef();
+  const descriptionRef = useRef();
+
+  useEffect(() => {
+    if (_.isNumber(activeIndex) && scrollViewRef.current) {
+      const { viewport } = scrollViewRef.current.getScrollInfo();
+      const activeEl = viewport.querySelector('.active');
+      activeEl && scrollViewRef.current.scrollToElement(activeEl);
+    }
+  }, [activeIndex]);
+
   function loadChat(keywords = '') {
     setLoading(true);
-    if (keywords) {
-      Promise.all([
-        groupAjax.getGroups({
-          keywords,
-          pageIndex: 1,
-          pageSize: 20,
-          searchGroupType: 1,
-          sortFiled: 4,
-          sortType: 1,
-          status: 1,
-        }),
-        addressBookAjax.getAllAddressbook({
-          isFilterOther: true,
-          keywords,
-          pageIndex: 1,
-          pageSize: 20,
-          range: 0,
-        }),
-      ]).then(([groupData, userData]) => {
+    setActiveIndex(null);
+    chatAjax
+      .getChatList({
+        keywords,
+        size: 20,
+      })
+      .then(data => {
         setLoading(false);
-        setList(
-          groupData.list
-            .map(a => ({
-              type: 2,
-              value: a.groupId,
-              logo: a.avatar,
-              name: a.name,
-            }))
-            .concat(
-              userData.list.map(a => ({
-                type: 1,
-                value: a.accountId,
-                logo: a.avatar,
-                name: a.fullname,
-              })),
-            ),
-        );
+        setList(data);
       });
-    } else {
-      chatAjax
-        .getChatList({
-          keywords,
-          size: 20,
-        })
-        .then(data => {
-          setLoading(false);
-          setList(data);
-        });
-    }
   }
   function handleSend() {
     if (card && !card.url) {
@@ -147,6 +121,7 @@ export default function SendToChat(props) {
         }
       });
   }
+
   const debounceLoadChat = useCallback(debounce(loadChat, 300), []);
   const chatListComp = (
     <ChatList>
@@ -160,9 +135,10 @@ export default function SendToChat(props) {
           <div className="list flexColumn">
             {loading && <LoadDiv size="small" />}
             {!loading && !!list.length && (
-              <ScrollView className="flex">
-                {list.map(account => (
+              <ScrollView className="flex" ref={scrollViewRef}>
+                {list.map((account, index) => (
                   <AccountItem
+                    className={cx({ active: index === activeIndex })}
                     onClick={() => {
                       setSelectedUser(account);
                       setListActive(false);
@@ -188,6 +164,7 @@ export default function SendToChat(props) {
       )}
     </ChatList>
   );
+
   return (
     <Con>
       <Bold600 className="mTop20">{_l('发送到')}</Bold600>
@@ -221,7 +198,32 @@ export default function SendToChat(props) {
                   e.stopPropagation();
                   e.preventDefault();
                 }}
-                onKeyUp={e => debounceLoadChat(e.target.value)}
+                onKeyUp={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  const code = event.keyCode || event.which;
+                  if (code === 13) {
+                    const account = list[activeIndex];
+                    if (account) {
+                      setSelectedUser(account);
+                      setListActive(false);
+                      setActiveIndex(null);
+                      descriptionRef.current.focus();
+                    }
+                    return;
+                  }
+                  if (code === 38) {
+                    const index = activeIndex === null ? list.length : activeIndex - 1;
+                    setActiveIndex(index < 0 ? list.length - 1 : index);
+                    return;
+                  }
+                  if (code === 40) {
+                    const index = activeIndex === null ? 0 : activeIndex + 1;
+                    setActiveIndex(index >= list.length ? 0 : index);
+                    return;
+                  }
+                }}
+                onChange={e => debounceLoadChat(e.target.value)}
               />
             )}
             {!listActive &&
@@ -247,6 +249,8 @@ export default function SendToChat(props) {
         </SelectedUser>
       </Trigger>
       <Description
+        ref={descriptionRef}
+        className="shareDescription"
         placeholder={_l('添加说明内容')}
         value={description}
         onChange={e => setDescription(e.target.value)}

@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { getCheckAndOther } from '../../../core/utils';
+import React, { useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { getCheckAndOther } from '../../../core/utils';
 
 const OtherInputWrap = styled.div`
   .customFormTextarea {
@@ -20,8 +21,6 @@ const OtherInput = props => {
   const textareaRef = useRef(null);
   const isOnComposition = useRef(false);
   const [currentValue, setCurrentValue] = useState('');
-
-  if (fromFilter || (disabled && !otherValue)) return null;
 
   const noDelOptions = options.filter(i => !i.isDeleted);
 
@@ -49,6 +48,8 @@ const OtherInput = props => {
   useEffect(() => {
     setCurrentValue((otherValue || '').replace(/\r\n|\n/g, ' '));
   }, [value]);
+
+  if (fromFilter || (disabled && !otherValue)) return null;
 
   if (checkIds.includes('other') && noDelOptions.find(i => i.key === 'other') && (!isSubList || type !== 10)) {
     return (

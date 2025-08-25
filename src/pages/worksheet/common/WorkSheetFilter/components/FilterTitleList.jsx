@@ -64,9 +64,9 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   }
   &.active {
     background: #e5f3fe;
-    color: #2196f3;
+    color: #1677ff;
     .filterIcon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   &:hover:not(.active):not(.isDragging) {
@@ -184,7 +184,7 @@ function FilterTitleItem(props) {
               </MenuItem>
               {isCharge && (
                 <MenuItem
-                  icon={<Icon icon="group-members" className="Font18" />}
+                  icon={<Icon icon="group" className="Font18" />}
                   onClick={() => {
                     setMoreMenuActive(false);
                     onToggleFilterType(filter);

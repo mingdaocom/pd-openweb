@@ -137,7 +137,7 @@ export default class UnusualContent extends Component {
               <Button
                 onClick={() => {
                   checkCertification({
-                    projectId: appPkg.projectId,
+                    projectId: _.get(appPkg, 'projectId'),
                     checkSuccess: () => this.setState({ applyJoinAppVisible: true }),
                   });
                 }}

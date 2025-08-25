@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
-import ajaxRequest from 'src/api/appManagement';
-import Config from '../../../config';
-import Search from 'src/pages/workflow/components/Search';
-import './index.less';
-import { LoadDiv, ScrollView, Checkbox, Tooltip, SvgIcon, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Checkbox, LoadDiv, ScrollView, SortableList, SvgIcon, Tooltip } from 'ming-ui';
+import ajaxRequest from 'src/api/appManagement';
+import Search from 'src/pages/workflow/components/Search';
+import Config from '../../../config';
+import './index.less';
 
 const MAX_EXPORT_NUM = 20;
 
@@ -120,7 +120,7 @@ export default class SelectApp extends React.Component {
     const renderSortableItem = ({ item }) => {
       return (
         <div className="selectAppSortableItem pLeft6 Hand">
-          <span className="icon-drag_indicator grabIcon Gray_9e"></span>
+          <span className="icon-drag grabIcon Gray_9e"></span>
           <div className="mRight10 svgBox mLeft5" style={{ backgroundColor: item.iconColor }}>
             <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
           </div>
@@ -165,8 +165,8 @@ export default class SelectApp extends React.Component {
   }, 200);
 
   render() {
-    const { selectListSheetCount, selectList } = this.state;
-    const exportAppWorksheetLimitCount = _.get(md, 'global.SysSettings.exportAppWorksheetLimitCount') || 200;
+    const { selectList } = this.state;
+
     return (
       <Fragment>
         <div className="selectAppContainer mTop10">
@@ -190,7 +190,7 @@ export default class SelectApp extends React.Component {
             <div className="clearfix">
               <span className="Left Font15">{_l('已选')}</span>
               <Tooltip popupPlacement="top" text={<span>{_l('导出的应用总数上限%0个', MAX_EXPORT_NUM)}</span>}>
-                <span className="icon-info1 mLeft8 Gray_bd Right LineHeight20"></span>
+                <span className="icon-info mLeft8 Gray_bd Right LineHeight20"></span>
               </Tooltip>
               <span className={cx('Right', { errorMag: selectList.length > MAX_EXPORT_NUM })}>
                 <span>{selectList.length}</span>

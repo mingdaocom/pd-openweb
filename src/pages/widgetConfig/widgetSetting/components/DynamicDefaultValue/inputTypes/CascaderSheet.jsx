@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { string, arrayOf, shape, func } from 'prop-types';
-import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import { DynamicValueInputWrap } from '../styled';
 import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default class CascaderSheet extends Component {
   static propTypes = {

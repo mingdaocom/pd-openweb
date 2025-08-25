@@ -24,8 +24,8 @@ import { formatQuickFilter } from 'src/utils/filter';
 import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
 
 export const initData = () => {
-  return (dispatch, getState) => {
-    dispatch({ type: 'CHANGE_RESOURCE_LOADINNG', data: true });
+  return dispatch => {
+    dispatch({ type: 'CHANGE_RESOURCE_LOADING', data: true });
     dispatch({ type: 'CHANGE_RESOURCE_RESOURCE_DATA', data: [] });
     dispatch({ type: 'CHANGE_RESOURCE_RESOURCE_DATA_BY_KEY', data: [] });
     dispatch({ type: 'CHANGE_RESOURCE_KEYWORDS', data: '' });
@@ -61,7 +61,7 @@ export const fetchRows = (refresh = true) => {
       endTime = `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`;
     }
 
-    refresh && dispatch({ type: 'CHANGE_RESOURCE_LOADINNG', data: true });
+    refresh && dispatch({ type: 'CHANGE_RESOURCE_LOADING', data: true });
     sheetAjax
       .getFilterRows(
         getFilledRequestParams({
@@ -76,9 +76,10 @@ export const fetchRows = (refresh = true) => {
           kanbanIndex: 1,
           kanbanSize: kanbanSize,
           pageSize: pageSize,
+          langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
         }),
       )
-      .then(({ data, count, resultCode }) => {
+      .then(({ data }) => {
         const resourceData = formatByGroup(
           sortDataByCustomItems(data, view, controls),
           view,
@@ -89,7 +90,7 @@ export const fetchRows = (refresh = true) => {
         dispatch({ type: 'CHANGE_RESOURCE_RESOURCE_DATA', data: resourceData });
         const list = resourceData.filter(o => o.name.toLowerCase().indexOf(keywords.toLowerCase()) >= 0);
         dispatch({ type: 'CHANGE_RESOURCE_RESOURCE_DATA_BY_KEY', data: list });
-        dispatch({ type: 'CHANGE_RESOURCE_LOADINNG', data: false });
+        dispatch({ type: 'CHANGE_RESOURCE_LOADING', data: false });
       });
   };
 };
@@ -100,7 +101,7 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
     const { resourceData = [] } = resourceview;
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
-    const { gridTimes = [], currentTime, keywords } = resourceview;
+    const { gridTimes = [] } = resourceview;
     const type =
       localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
     const times = (_.get(view, 'advancedSetting.showtime') || '')
@@ -134,9 +135,10 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
           pageSize: pageSize,
           kanbanKey,
           pageIndex: kanbanIndex,
+          langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
         }),
       )
-      .then(({ data, count, resultCode }) => {
+      .then(({ data }) => {
         let rowsData = [];
         resourceData.map(o => {
           if (o.key === kanbanKey) {
@@ -161,7 +163,7 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
 };
 
 export const getRelationControls = sourceId => {
-  return (dispatch, getState) => {
+  return dispatch => {
     if (sourceId) {
       sheetAjax
         .getWorksheetControls({
@@ -224,7 +226,7 @@ const formatRows = (item, view, controls, gridTimes, mustParse = true, currentTi
 };
 
 export const refresh = () => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch(fetchRows());
   };
 };
@@ -274,13 +276,13 @@ export const updateKeyWords = keywords => {
 };
 
 export const updateResourceDataByKeys = list => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_RESOURCE_RESOURCE_DATA_BY_KEY', data: list });
   };
 };
 
 export const updateCurrnetTime = time => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_RESOURCE_CURRENT_TIME', data: time });
   };
 };
@@ -289,7 +291,7 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
   return (dispatch, getState) => {
     const { base, controls, resourceview, views } = getState().sheet;
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
-    const { keywords = '', resourceData, gridTimes, currentTime } = resourceview;
+    const { resourceData } = resourceview;
     const startControl = controls.find(o => o.controlId === _.get(view, 'advancedSetting.begindate')) || {};
     const endControl = controls.find(o => o.controlId === _.get(view, 'advancedSetting.enddate')) || {};
     const newOldControl = [];
@@ -417,7 +419,7 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
             }
           });
         }
-        !!newKey ? dispatch(updateByKey(newKey, rowsData, key, rowsOldData)) : dispatch(updateByKey(key, rowsData));
+        newKey ? dispatch(updateByKey(newKey, rowsData, key, rowsOldData)) : dispatch(updateByKey(key, rowsData));
       });
   };
 };

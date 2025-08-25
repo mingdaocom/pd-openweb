@@ -1,14 +1,10 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
-import { Tooltip, Icon, Menu, MenuItem } from 'ming-ui';
-import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
-import CreateNew from './CreateNew';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
+import { Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
+import CreateNew from './CreateNew';
 
-const subList = [
-  { icon: 'plus', text: _l('从空白创建%02008'), createType: 'worksheet' },
-  { icon: 'new_excel', text: _l('从Excel创建%02007'), createType: 'importExcel' },
-];
 const CREATE_ITEM_LIST = [
   // { icon: 'table', text: _l('工作表'), createType: 'selectWorksheet', subList },
   { icon: 'plus', text: _l('从空白创建%02008'), createType: 'worksheet' },

@@ -1,5 +1,5 @@
 import React from 'react';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { ScrollView } from 'ming-ui';
 import { addFriendConfirm } from 'ming-ui/functions';
 import user from 'src/api/user';
 import { getAppFeaturesVisible } from 'src/utils/app';
@@ -91,7 +91,7 @@ export default class UserEntryPoint extends React.PureComponent {
           {isFriend && (
             <div className="card noticeContainer">
               <div>
-                <i className="icon-task-folder-message Font56" />
+                <i className="icon-error1 Font56" />
               </div>
               <div className="Font18 mTop10">{_l('对方不是您的联系人，无法查看')}</div>
             </div>

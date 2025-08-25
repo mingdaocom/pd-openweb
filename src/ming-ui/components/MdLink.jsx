@@ -1,9 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import cx from 'classnames';
 import propTypes from 'prop-types';
 import { fillUrl } from 'src/router/navigateTo';
-import { Link } from 'react-router-dom';
-import _ from 'lodash';
-import cx from 'classnames';
 
 export default function MdLink(props) {
   const { to, children, onClick, className, ...rest } = props;

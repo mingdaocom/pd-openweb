@@ -61,7 +61,7 @@ export default class AppImportUpgrade extends Component {
       .then(data => {
         this.setState({ loading: false, logList: data });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -76,7 +76,7 @@ export default class AppImportUpgrade extends Component {
     this.setState({ showUpgradeProcess: true });
   };
   render() {
-    const { projectId, data, appId } = this.props;
+    const { projectId, data } = this.props;
     const { showUpgradeProcess, loading, logList } = this.state;
 
     return (

@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { default as Radio, SIZE_LIST } from './Radio';
 
 export { Radio, SIZE_LIST };
@@ -45,8 +45,8 @@ class RadioGroup extends Component {
       this.props.defaultCheckedValue !== undefined
         ? this.props.defaultCheckedValue
         : this.props.checkedValue !== undefined
-        ? this.props.checkedValue
-        : null;
+          ? this.props.checkedValue
+          : null;
 
     this.state = {
       data: formatData(checkedValue, this.props.data),

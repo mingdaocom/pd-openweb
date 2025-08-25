@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import styled from 'styled-components';
 import { Input } from 'ming-ui';
 
 const Wrap = styled.div`

@@ -9,7 +9,6 @@ import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import preall from 'src/common/preall';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import store from 'src/redux/configureStore';
-import { shareGetAppLangDetail } from 'src/utils/app';
 import { getRequest } from 'src/utils/common';
 import ChartDialog from '../ChartDialog';
 import './index.less';
@@ -46,11 +45,8 @@ export default class PublicShareChart extends Component {
           },
         );
         window.clientId = _.get(data, 'data.clientId');
-        const { projectId, appId } = data.data;
-        const lang = await shareGetAppLangDetail({
-          projectId,
-          appId,
-        });
+        const { appId } = data.data;
+
         window.appInfo = { id: appId };
         this.setState({ data, loading: false });
       });

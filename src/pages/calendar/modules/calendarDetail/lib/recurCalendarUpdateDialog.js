@@ -1,8 +1,8 @@
-﻿import './css/recurUpdate.less';
-import tpl from './template/repeatCalendarOperator.html';
+﻿import React from 'react';
 import doT from 'dot';
 import Dialog from 'ming-ui/components/Dialog';
-import React from 'react';
+import tpl from './template/repeatCalendarOperator.html';
+import './css/recurUpdate.less';
 
 export default function recurCalendarUpdate(
   { operatorTitle, recurTitle, recurCalendarUpdateFun },

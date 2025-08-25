@@ -157,7 +157,7 @@ export default class SelectWroksheet extends React.Component {
           },
         );
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('程序发生错误'), 3);
       });
   }
@@ -225,17 +225,8 @@ export default class SelectWroksheet extends React.Component {
   };
 
   render() {
-    const {
-      className,
-      dialogClassName,
-      projectId,
-      appId,
-      currentWorksheetId,
-      hint,
-      from,
-      worksheetType,
-      dropdownElement,
-    } = this.props;
+    const { dialogClassName, projectId, appId, currentWorksheetId, hint, from, worksheetType, dropdownElement } =
+      this.props;
     const { loading, worksheets, selectOtherVisible, selectedWorksheet } = this.state;
     return (
       <div className={cx('selectWorksheetCommon ming Dropdown w100')}>

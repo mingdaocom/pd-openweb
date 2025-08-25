@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ConnectAvator from './ConnectAvator';
-import styled from 'styled-components';
+import React from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import ConnectAvator from './ConnectAvator';
+
 const Wrap = styled.div(
   ({ w }) => `
   width: ${w < 320 ? 320 : w}px;
@@ -35,7 +36,7 @@ const Wrap = styled.div(
       height: 30px;
       background: rgba(33, 150, 243, 0.08);
       border-radius: 20px;
-      color: #2196f3;
+      color: #1677ff;
       text-align: center;
       line-height: 30px;
     }

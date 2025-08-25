@@ -214,7 +214,6 @@ export const getFilesSize = files => {
 
 export const getAttachmentTotalSize = files => {
   let totalSize = 0;
-  let currentPrograss = 0;
 
   for (let i = 0, length = files.length; i < length; i++) {
     if (files[i].fileSize) {

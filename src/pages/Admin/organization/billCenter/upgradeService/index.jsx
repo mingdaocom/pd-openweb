@@ -1,16 +1,14 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Checkbox } from 'antd';
-import Config from '../../../config';
-import { Icon, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import './style.less';
-import orderController from 'src/api/order';
-import projectController from 'src/api/project';
 import _ from 'lodash';
 import moment from 'moment';
-
-const productList = [5000, 3000, 2000, 1000];
+import { Icon, LoadDiv } from 'ming-ui';
+import orderController from 'src/api/order';
+import projectController from 'src/api/project';
+import Config from '../../../config';
+import './style.less';
 
 @withRouter
 export default class UpgradeService extends Component {
@@ -67,12 +65,12 @@ export default class UpgradeService extends Component {
               )
                 ? vertionType
                 : data.versions[0].versionIdV2;
-                
+
             this.setState(
               {
                 versionData: data,
                 versionId,
-                versionName: data.versions[0].name
+                versionName: data.versions[0].name,
               },
               () => {
                 this.getUpgradeOrderPrice();
@@ -98,18 +96,18 @@ export default class UpgradeService extends Component {
           this.setState({
             totalPrice: data.totalPrice,
             versionPrice: data.versionPrice,
-            loading: false
+            loading: false,
           });
         }
       });
   }
 
   handleBack() {
-    if(!this.props.history.go(-1)) {
-      location.href = `/admin/home/${Config.projectId}`
-      return
+    if (!this.props.history.go(-1)) {
+      location.href = `/admin/home/${Config.projectId}`;
+      return;
     }
-    this.props.history.go(-1)
+    this.props.history.go(-1);
   }
 
   setStep(step) {
@@ -121,12 +119,15 @@ export default class UpgradeService extends Component {
   }
 
   handleChange(item) {
-    this.setState({
-      versionName: item.name,
-      versionId: item.versionIdV2,
-    }, () => {
-      this.getUpgradeOrderPrice();
-    });
+    this.setState(
+      {
+        versionName: item.name,
+        versionId: item.versionIdV2,
+      },
+      () => {
+        this.getUpgradeOrderPrice();
+      },
+    );
   }
 
   handlePay() {

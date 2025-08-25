@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Tabs } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import './index.less';
 import { toEditWidgetPage } from '../../pages/widgetConfig/util';
-import _ from 'lodash';
+import './index.less';
 
 /**
  * 控件配置地址
@@ -87,7 +86,7 @@ export default class WorksheetConfigHeader extends Component {
       <div className="worksheetConfigHeader">
         <div className="customHeadBox flexRow">
           <span className="goback pointer" onClick={onBack}>
-            <i className="ming Icon icon icon-knowledge-return" />
+            <i className="ming Icon icon icon-backspace Font24" />
           </span>
           <div className="editDetailWrap">
             <div onClick={onBack} className="flexCenter">

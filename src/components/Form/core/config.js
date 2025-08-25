@@ -1,5 +1,5 @@
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
 
 export const FORM_ERROR_TYPE = {
   REQUIRED: 'REQUIRED',
@@ -203,6 +203,7 @@ export const SYSTEM_ENUM = [
   'ctime',
   'utime',
   'daid',
+  'wfcotime',
 ];
 
 // 各控件取值id

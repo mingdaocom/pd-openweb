@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Checkbox, Icon } from 'ming-ui';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import { AnimationWrap, DisplayMode, SettingItem } from '../../../styled';
@@ -296,8 +297,8 @@ const TextHeightLimit = props => {
 // 字段
 export const WidgetItem = props => {
   const { data } = props;
-  const { type, enumDefault, showControls = [] } = data;
-  const { titlestyle, titlecolor, titlesize, valuestyle, valuecolor, valuesize, showtype } = getAdvanceSetting(data);
+  const { type, enumDefault } = data;
+  const { titlestyle, titlecolor, titlesize, valuestyle, valuecolor, valuesize } = getAdvanceSetting(data);
   return (
     <Fragment>
       {!notExplainDisplay(data) && (

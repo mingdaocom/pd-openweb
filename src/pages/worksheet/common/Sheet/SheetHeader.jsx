@@ -62,7 +62,7 @@ const VerticalCenter = styled.div`
     &:hover {
       background: #f7f7f7 !important;
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     &.draftEntry {
@@ -71,7 +71,7 @@ const VerticalCenter = styled.div`
       height: 28px;
       &:hover {
         .draftTxt {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
       }
     }
@@ -83,7 +83,7 @@ const VerticalCenter = styled.div`
     &:hover {
       background: #f7f7f7 !important;
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }
@@ -288,7 +288,7 @@ function SheetHeader(props) {
               }
             >
               <Icon
-                icon="knowledge-message"
+                icon="info"
                 className="Hand sheetDesc"
                 onClick={() => {
                   setDescIsEditing(false);
@@ -474,7 +474,7 @@ function SheetHeader(props) {
             {/* 显示创建按钮 */}
             {canNewRecord && !worksheetInfo.isRequestingRelationControls && (
               <span
-                style={{ backgroundColor: appPkg.iconColor || '#2196f3' }}
+                style={{ backgroundColor: appPkg.iconColor || '#1677ff' }}
                 className="addRow mLeft8 overflow_ellipsis WordBreak"
                 onClick={openNewRecord}
               >

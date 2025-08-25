@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import cx from 'classnames';
-import { Icon, Dialog, Button, ColorPicker } from 'ming-ui';
-import styled from 'styled-components';
 import { TinyColor } from '@ctrl/tinycolor';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Button, ColorPicker, Dialog } from 'ming-ui';
 
 const WrapCon = styled(Dialog)`
   .footer {
@@ -52,7 +52,6 @@ export default props => {
             {_l('亮度建议不低于70')}
             <span className={cx({ Red: v < 70 })}>{_l('（现在 %0）', v)}</span>
           </div>
-
         </div>
         <div className="flexRow alignItemsCenter mTop10">
           <div className="selectColor Relative">{_l('选择颜色')}</div>
@@ -64,8 +63,7 @@ export default props => {
               }}
               getPopupContainer={getColorPopParent}
             >
-              <div className="w100 h100 pointer" style={{ backgroundColor: color }}>
-              </div>
+              <div className="w100 h100 pointer" style={{ backgroundColor: color }}></div>
             </ColorPicker>
           </div>
           <div>{color}</div>

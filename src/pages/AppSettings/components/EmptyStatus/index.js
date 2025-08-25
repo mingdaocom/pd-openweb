@@ -35,7 +35,7 @@ export default function EmptyStatus(props) {
   return (
     <EmptyStatusWrap radiusSize={radiusSize}>
       <div className={`con`}>
-        <Icon icon={icon || 'sp_assignment_white'} className={iconClassName} />
+        <Icon icon={icon || 'assignment'} className={iconClassName} />
       </div>
       <div className={`${emptyTxtClassName}`}>{emptyTxt || _l('暂无信息')}</div>
     </EmptyStatusWrap>

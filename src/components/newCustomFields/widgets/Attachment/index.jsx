@@ -103,7 +103,9 @@ export default class Widgets extends Component {
       } else {
         return file.fileId && !file.updateTime && !file.createUserName;
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return false;
   }
 
@@ -113,6 +115,7 @@ export default class Widgets extends Component {
     try {
       fileIds = JSON.parse(value).map(f => f.fileId);
     } catch (err) {
+      console.log(err);
       this.setState({ loading: false, value: '' });
     }
     const args = { fileIds, worksheetId, rowId: recordId, controlId };
@@ -133,6 +136,7 @@ export default class Widgets extends Component {
         this.setState({ loading: false, value: JSON.stringify(data) });
       })
       .catch(err => {
+        console.log(err);
         this.setState({ loading: false, value: '' });
       });
   }
@@ -185,7 +189,6 @@ export default class Widgets extends Component {
   };
 
   filesChangedAll = files => {
-    const value = JSON.parse(this.state.value || '[]');
     const { attachments, knowledgeAtts, attachmentData } = files;
     const newValue = {};
 
@@ -414,7 +417,9 @@ export default class Widgets extends Component {
                 );
               }
             },
-            cancel: function (res) {},
+            cancel: function (res) {
+              console.log(res);
+            },
           },
     );
   };
@@ -444,7 +449,6 @@ export default class Widgets extends Component {
   renderMobileUploadTrigger = ({
     className,
     originCount,
-    attachments,
     customHint,
     customUploadType,
     icon,
@@ -582,7 +586,9 @@ export default class Widgets extends Component {
       masterData,
       isDraft,
       sourceControlId,
-      fieldPermission
+      fieldPermission,
+      instanceId,
+      workId,
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
     const {
@@ -642,6 +648,8 @@ export default class Widgets extends Component {
     const allAownload =
       advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId') && recordId;
     const filesProps = {
+      workId,
+      instanceId,
       recordBaseInfo: {
         worksheetId,
         recordId,
@@ -868,7 +876,9 @@ export default class Widgets extends Component {
                   let currentAttachments = [];
                   try {
                     currentAttachments = JSON.parse(this.state.value).attachments || [];
-                  } catch (err) {}
+                  } catch (err) {
+                    console.log(err);
+                  }
                   this.filesChanged(currentAttachments.concat(files), 'attachments');
                 }}
               >

@@ -1,6 +1,7 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { ConfigProvider } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { SortableList } from 'ming-ui';
 import attachmentApi from 'src/api/attachment';
@@ -240,7 +241,7 @@ const Files = props => {
   const handleResetNameFile = (id, newName) => {
     newName = newName.trim();
 
-    if (/[\/\\:\*\?"<>\|]/g.test(newName)) {
+    if (/[/\\:*?"<>|]/g.test(newName)) {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
       return;
     }
@@ -347,7 +348,7 @@ const Files = props => {
       {
         index: _.findIndex(res, { id: data.fileID }),
         files: res,
-        filterRegex: _.get(advancedSetting, 'filterRegex'),
+        filterRegex: _.get(props.advancedSetting, 'filterRegex'),
         checkValueByFilterRegex: props.checkValueByFilterRegex,
         worksheetId: recordBaseInfo.worksheetId,
         rowId: recordBaseInfo.recordId,
@@ -532,7 +533,7 @@ const Files = props => {
         onResetNameFile={handleResetNameFile}
         onAttachmentName={(id, name) => {
           name = name.trim();
-          if (/[\/\\:\*\?"<>\|]/g.test(name)) {
+          if (/[/\\:*?"<>|]/g.test(name)) {
             alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
             return;
           }

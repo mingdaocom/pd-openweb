@@ -25,7 +25,7 @@ import TimeIcon from './image/time.png';
 import InstallDialog from './installDialog';
 import { FreeTrialWrap, HomePageWrap, TitleWrap } from './styled';
 
-export default function HomePage({ match, location: routerLocation, authority, ...reset }) {
+export default function HomePage({ match, location: routerLocation, authority }) {
   const { projectId } = _.get(match, 'params');
   const { companyName } = getCurrentProject(projectId);
   const [data, setData] = useSetState({ basicLoading: true, hideBalance: true });
@@ -33,7 +33,6 @@ export default function HomePage({ match, location: routerLocation, authority, .
   const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
-  const isEnLang = md.global.Account.lang === 'en';
   const isLocal = md.global.Config.IsLocal;
   const isCloseProject = !_.find(md.global.Account.projects, l => l.projectId === projectId);
   const analysisPermission = authority.includes(PERMISSION_ENUM.USER_ANALYTICS);
@@ -83,7 +82,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
   };
 
   // 获取用量信息
-  const getUsageData = data => {
+  const getUsageData = () => {
     projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: false, onlyUsage: true }).then(res => {
       const {
         effectiveApkCount,
@@ -193,28 +192,25 @@ export default function HomePage({ match, location: routerLocation, authority, .
 
   const { currentLicense = {}, nextLicense = {} } = data;
   const { endDate, expireDays, version = {} } = currentLicense;
-  const { version: nextVersion, startDate: nextStartDate, endDate: nextEndDate } = nextLicense;
+  const { version: nextVersion } = nextLicense;
   const versionIdV2 = parseInt(version.versionIdV2);
 
-  const isTeam = data.licenseType === 1 && versionIdV2 === 1;
   const getValue = value => (_.isUndefined(value) || _.isNaN(value) ? '-' : value);
 
   const getNoLimit = key => {
-    const isSingleVersion = versionIdV2 === 0;
-
     if (isCloseProject) return false;
 
     switch (key) {
+      case 'limitApkCount':
       case 'limitWorksheetCount':
-        return isLocal ? data[key] === 2147483647 : !isFree && !isTeam && !isSingleVersion;
-      case 'limitDataPipelineJobCount':
-        return !isFree && !isLocal && !isSingleVersion;
-      case 'limitDataPipelineEtlJobCount':
-        return !isFree && !isLocal && !isSingleVersion;
       case 'limitAllWorksheetRowCount':
-        return !isFree && !isSingleVersion;
+      case 'limitDataPipelineRowCount':
+      case 'limitDataPipelineJobCount':
       case 'limitAggregationTableCount':
-        return isLocal && versionIdV2 === 3;
+      case 'limitDataPipelineEtlJobCount':
+        return data[key] >= 2147483647;
+      case 'limitExecCount':
+        return data[key] >= 1000000000;
     }
     return false;
   };
@@ -228,30 +224,61 @@ export default function HomePage({ match, location: routerLocation, authority, .
     }
   };
 
-  const getUsage = (key, numUnit, isAttachmentUpload) => {
+  const getUsage = key => {
     if (getValue(data[key]) === '-' || getNoLimit(key)) return _l('不限');
 
-    return isAttachmentUpload
-      ? formatFileSize(data[key])
-      : isEnLang
-        ? `${formatValue(data[key])} ${numUnit}`
-        : data[key] >= 100000000
-          ? _l('%0 亿+', _.floor(getValue(data[key] / 100000000), 4)) + numUnit
-          : data[key] >= 10000
-            ? _l('%0 万', getValue(data[key] / 10000)) + numUnit
-            : `${getValue(data[key])} ${numUnit}`;
+    let value = key === 'effectiveApkStorageCount' ? formatFileSize(data[key]) : getValue(data[key]);
+    let overMillion = false;
+    let overTenThousand = false;
+    if (key !== 'effectiveApkStorageCount') {
+      overMillion = data[key] >= 100000000;
+      overTenThousand = data[key] >= 10000;
+      value = overMillion
+        ? _.floor(getValue(data[key] / 100000000), 4)
+        : overTenThousand
+          ? getValue(data[key] / 10000)
+          : value;
+    }
+
+    switch (key) {
+      case 'effectiveApkStorageCount':
+        return value;
+      case 'effectiveWorksheetRowCount':
+      case 'limitAllWorksheetRowCount':
+      case 'effectiveDataPipelineRowCount':
+      case 'limitDataPipelineRowCount':
+        return overMillion ? _l('%0 亿+行', value) : overTenThousand ? _l('%0 万行', value) : _l('%0 行', value);
+      case 'useExecCount':
+      case 'limitExecCount':
+        return overMillion ? _l('%0 亿+次', value) : overTenThousand ? _l('%0 万次', value) : _l('%0 次', value);
+      case 'effectiveExternalUserCount':
+      case 'limitExternalUserCount':
+        return overMillion ? _l('%0 亿+人', value) : overTenThousand ? _l('%0 万人', value) : _l('%0 人', value);
+      case 'effectiveApkCount':
+      case 'limitApkCount':
+      case 'effectiveWorksheetCount':
+      case 'limitWorksheetCount':
+      case 'effectiveAggregationTableCount':
+      case 'limitAggregationTableCount':
+      case 'effectiveDataPipelineJobCount':
+      case 'limitDataPipelineJobCount':
+      case 'effectiveDataPipelineEtlJobCount':
+      case 'limitDataPipelineEtlJobCount':
+        return overMillion ? _l('%0 亿+个', value) : overTenThousand ? _l('%0 万个', value) : _l('%0 个', value);
+      default:
+    }
   };
 
-  const getCountText = (key, limit, numUnit) => {
+  const getCountText = (key, limit) => {
     const isAttachmentUpload = key === 'effectiveApkStorageCount'; // 附件上传量
 
     return (
       <div className="useCount">
-        <div>{_l('已用: %0', getUsage(key, numUnit, isAttachmentUpload))}</div>
+        <div>
+          {_l('已用:')} <span className="mLeft3">{getUsage(key)}</span>
+        </div>
         <div className="flex TxtRight">
-          <span className="mLeft4">
-            {isAttachmentUpload ? `${getValue(data[limit])}GB` : getUsage(limit, numUnit, isAttachmentUpload)}
-          </span>
+          <span className="mLeft4">{isAttachmentUpload ? `${getValue(data[limit])}GB` : getUsage(limit)}</span>
         </div>
       </div>
     );
@@ -402,6 +429,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
                       <span className="mRight5">{_l('下个授权')}</span>
                       {_l('%0到期', getValue(createTimeSpan(nextLicense.endDate, 4)))}
                       <Tooltip
+                        autoCloseDelay={0}
                         text={
                           <span>
                             {_l('下个授权：%0', nextVersion.name)}
@@ -513,12 +541,13 @@ export default function HomePage({ match, location: routerLocation, authority, .
           <div className="Font16 bold Gray mBottom6 valignWrapper mBottom6">
             {_l('账户余额')}
             <Tooltip
+              autoCloseDelay={0}
               text={_l(
                 '用于系统中发送邮件、短信等计费服务项目自动扣费。为避免系统功能不可用，请保障账户余额充足。【点击查看详细说明】',
               )}
               popupPlacement="bottom"
             >
-              <Icon icon="workflow_help" className="mLeft6 Hover_21 helpIcon" />
+              <Icon icon="help" className="mLeft6 Hover_21 helpIcon" />
             </Tooltip>
           </div>
           <div className="mBottom6">
@@ -595,17 +624,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
             <div className="content">
               <ul>
                 {UPLOAD_COUNT.filter(item => (IsPlatformLocal || !isLocal ? item : item.isLocalFilter)).map(item => {
-                  const {
-                    key,
-                    limit,
-                    text,
-                    link,
-                    click,
-                    numUnit,
-                    featureId,
-                    routePath = undefined,
-                    autoPurchase,
-                  } = item;
+                  const { key, limit, text, link, click, featureId, routePath = undefined, autoPurchase } = item;
 
                   if (featureId && !getFeatureStatus(projectId, featureId)) return;
 
@@ -633,6 +652,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
                           <span className="Font15 Bold">{text}</span>
                           {key === 'effectiveApkStorageCount' && (
                             <Tooltip
+                              autoCloseDelay={0}
                               popupPlacement="top"
                               text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
                             >
@@ -660,12 +680,12 @@ export default function HomePage({ match, location: routerLocation, authority, .
                             ? '#eaeaea'
                             : percentValue > 90
                               ? { from: '#F51744 ', to: '#FF5779' }
-                              : { from: '#2196f3 ', to: '#4bb2ff' }
+                              : { from: '#1677ff ', to: '#4bb2ff' }
                         }
                         strokeWidth={4}
                         percent={percentValue}
                       />
-                      {getCountText(key, limit, numUnit)}
+                      {getCountText(key, limit)}
                       {!md.global.Config.IsLocal && hasBalance && !!autoPurchase && !data[autoPurchase] && (
                         <span
                           className="mTop10 InlineBlock Gray_75 Font13 Underline Hover_21"
@@ -740,7 +760,7 @@ export default function HomePage({ match, location: routerLocation, authority, .
             <span className="remainTime">{_l('(剩余时间%0天)', data.leftDays || 0)}</span>
           </div>
           <ul className="inviteRules">
-            {(data.rules || []).map(({ inviteCount, addDays, achieveDays }, index) => (
+            {(data.rules || []).map(({ inviteCount, achieveDays }, index) => (
               <li key={inviteCount} style={{ flex: index + 1 }}>
                 <div className="achieveDays">
                   <span>{achieveDays}</span>

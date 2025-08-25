@@ -90,8 +90,7 @@ class DiscussLogFile extends Component {
   };
 
   render() {
-    const { workflowStatus, configLoading, workflow, approval, forReacordDiscussion, hiddenTabs, isWorksheetDiscuss } =
-      this.props;
+    const { configLoading, workflow, approval, forReacordDiscussion, isWorksheetDiscuss } = this.props;
     const { status, loading, doNotLoadAtDidMount } = this.state;
 
     return (

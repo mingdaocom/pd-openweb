@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
-import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain';
+import _ from 'lodash';
 import styled from 'styled-components';
-import TaskHeader from './TaskHeader';
-import TaskCanvas from './TaskCanvas';
-import Disposition from './Disposition';
-import Monitor from './Monitor';
-import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import SyncTask from 'src/pages/integration/api/syncTask.js';
 import { v4 as uuidv4 } from 'uuid';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import PublishFail from 'src/pages/integration/components/PublishFail';
-import { navigateTo } from 'src/router/navigateTo';
 import { Dialog } from 'ming-ui';
-import 'src/pages/integration/dataIntegration/connector/style.less';
-import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
-import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import LoadDiv from 'ming-ui/components/LoadDiv';
 import dataSourceApi from 'src/pages/integration/api/datasource.js';
+import SyncTask from 'src/pages/integration/api/syncTask.js';
+import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import PublishFail from 'src/pages/integration/components/PublishFail';
+import 'src/pages/integration/dataIntegration/connector/style.less';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
+import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain';
+import { navigateTo } from 'src/router/navigateTo';
+import Disposition from './Disposition';
+import Monitor from './Monitor';
+import TaskCanvas from './TaskCanvas';
+import TaskHeader from './TaskHeader';
 
 const Wrap = styled.div`
   height: 100%;
@@ -62,10 +63,8 @@ class Task extends Component {
   }
 
   validatePermission = projectId => {
-    const hasTaskAuth = checkPermission(projectId, [
-      PERMISSION_ENUM.CREATE_SYNC_TASK,
-      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
-    ]);
+    const hasTaskAuth =
+      projectId && checkPermission(projectId, [PERMISSION_ENUM.CREATE_SYNC_TASK, PERMISSION_ENUM.MANAGE_SYNC_TASKS]);
     if (!hasTaskAuth) {
       alert(_l('该同步任务无权限查看或已删除'), 3);
       navigateTo('/integration');
@@ -427,7 +426,7 @@ class Task extends Component {
         </Wrap>
         {showPublishFail && (
           <PublishFail
-            toNode={id => {
+            toNode={() => {
               this.setState({
                 // curId: id,
                 tab: 'task',

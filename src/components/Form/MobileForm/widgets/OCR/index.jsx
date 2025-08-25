@@ -5,10 +5,22 @@ import { Icon, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
-import { getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
+import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
 
 const OCR = props => {
-  const { worksheetId, controlId, advancedSetting, formData, onChange, enumDefault, hint = '' } = props;
+  const {
+    worksheetId,
+    controlId,
+    advancedSetting,
+    formData,
+    onChange,
+    enumDefault,
+    hint = '',
+    dataSource,
+    projectId,
+    appId,
+    recordId,
+  } = props;
   const { requestmap, authaccount } = advancedSetting || {};
   const requestMap = safeParse(advancedSetting.requestmap || '[]');
 
@@ -41,7 +53,7 @@ const OCR = props => {
       postList.current.abort();
     }
 
-    const paramsData = getParamsByConfigs(requestMap, formData, file);
+    const paramsData = getParamsByConfigs(recordId, requestMap, formData, file);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -50,7 +62,7 @@ const OCR = props => {
       controlId,
       apkId: appId,
       apiTemplateId: dataSource,
-      authId: authaccount,
+      authId: dealAuthAccount(authaccount, formData),
       pushUniqueId: md.global.Config.pushUniqueId,
     };
 
@@ -269,7 +281,7 @@ const OCR = props => {
         },
       }}
       onUploaded={handleUploaded}
-      onAdd={(up, files) => {
+      onAdd={up => {
         setIsUploading(true);
         up.disableBrowse();
       }}
@@ -277,8 +289,8 @@ const OCR = props => {
         if (_.get(props, 'strDefault') === '10') {
           // 是否禁用相册
           const ele = fileRef.current.upload.nextSibling.querySelector('input');
-
-          ele.setAttribute('capture', 'camera');
+          ele.setAttribute('accept', 'image/*');
+          ele.setAttribute('capture', 'environment');
         }
       }}
     >

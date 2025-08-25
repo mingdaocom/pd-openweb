@@ -1,10 +1,10 @@
 import React from 'react';
-import cx from 'classnames';
 import { useDrag } from 'react-dnd-latest';
-import { Icon } from 'ming-ui';
 import { Checkbox } from 'antd';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import cx from 'classnames';
+import { Icon } from 'ming-ui';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -18,17 +18,17 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
       return 'calculate';
     }
     if ([WIDGETS_TO_API_TYPE_ENUM.SCORE, WIDGETS_TO_API_TYPE_ENUM.MONEY].includes(item.type)) {
-      return 'number_6';
+      return 'looks_six';
     }
     if ([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT].includes(item.type)) {
       return 'arrow_drop_down_circle';
     }
     // 公式-数字
     if (WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER === item.type) {
-      return 'number_6';
+      return 'looks_six';
     }
     return getIconByType(item.type);
-  }
+  };
   return (
     <div
       ref={drag}
@@ -42,12 +42,11 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
           className="mRight10"
           checked={isActive}
           onChange={onChangeCheckbox}
-        >
-        </Checkbox>
+        ></Checkbox>
       </div>
       <Icon
         className={cx('Gray_75 Font20 mRight10', {
-          active: isActive
+          active: isActive,
         })}
         icon={getIcon()}
       />

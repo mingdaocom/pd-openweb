@@ -13,12 +13,12 @@ class WorkflowStepItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      visible: false
-    }
+      visible: false,
+    };
   }
   render() {
     const { visible } = this.state;
-    const { instance, worksheetId, recordId, controls = [] } = this.props;
+    const { appId, instance, worksheetId, recordId, controls = [] } = this.props;
     const { works, currentWork, currentWorkItem, processId, status, isApproval } = instance;
     return (
       <Wrap className="stepList">
@@ -26,7 +26,7 @@ class WorkflowStepItem extends Component {
           <div className="Font17 bold flex">{_l('流程进度')}</div>
           {isApproval && (
             <div className="flexRow alignItemsCenter Gray_9e" onClick={() => this.setState({ visible: true })}>
-              <Icon className="Font16 mRight5" icon="department1" />
+              <Icon className="Font16 mRight5" icon="department" />
               <div className="bold">{_l('流转图')}</div>
             </div>
           )}
@@ -42,6 +42,7 @@ class WorkflowStepItem extends Component {
         />
         {visible && (
           <MobileFlowChart
+            appId={appId}
             processId={processId}
             instanceId={currentWork.instanceId}
             onClose={() => this.setState({ visible: false })}

@@ -1,20 +1,20 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { errorMessage, checkIsProject } from '../../utils/utils';
-import { clearFolderTip } from '../../redux/actions';
-import './folderDetail.less';
-import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import _ from 'lodash';
+import { Dialog, RichText, ScrollView, UserHead } from 'ming-ui';
 import Icon from 'ming-ui/components/Icon';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
-import editFolder from '../../components/editFolder/editFolder';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import Editor from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditorDiaLogContent';
-import { Dialog, UserHead, ScrollView, RichText } from 'ming-ui';
-import _ from 'lodash';
-import { Tooltip } from 'antd';
+import editFolder from '../../components/editFolder/editFolder';
+import { clearFolderTip } from '../../redux/actions';
+import { checkIsProject, errorMessage } from '../../utils/utils';
+import './folderDetail.less';
 
 class FolderDetail extends Component {
   constructor(props) {
@@ -49,7 +49,7 @@ class FolderDetail extends Component {
           logPageIndex: 1,
           logs: [],
         });
-        $('#taskList').nanoScroller({ scrollTop: 0 });
+        $('.taskList .scroll-viewport').scrollTop(0);
         this.getFolderDetail();
       }, 0);
     }
@@ -111,7 +111,7 @@ class FolderDetail extends Component {
         if ($topFolderList.length && $li.length === 1) {
           let projectId = $li.data('projectid');
           let isExist = false;
-          $.map(md.global.Account.projects, (project, i) => {
+          $.map(md.global.Account.projects, project => {
             if (projectId === project.projectId) {
               isExist = true;
               return;
@@ -832,19 +832,17 @@ class FolderDetail extends Component {
   /**
    * 滚动
    */
-  scroll = (evt, obj) => {
-    if (obj.maximum - obj.position <= 30) {
-      // 加载讨论
-      if (this.state.tabIndex === 1 && this.commentList) {
-        this.commentList.updatePageIndex();
-      }
+  scroll = () => {
+    // 加载讨论
+    if (this.state.tabIndex === 1 && this.commentList) {
+      this.commentList.updatePageIndex();
+    }
 
-      // 日志滚动
-      if (this.state.tabIndex === 2 && this.state.logs.length === this.state.logPageIndex * 20) {
-        this.setState({ logPageIndex: this.state.logPageIndex + 1 }, () => {
-          this.getFolderLog();
-        });
-      }
+    // 日志滚动
+    if (this.state.tabIndex === 2 && this.state.logs.length === this.state.logPageIndex * 20) {
+      this.setState({ logPageIndex: this.state.logPageIndex + 1 }, () => {
+        this.getFolderLog();
+      });
     }
   };
 
@@ -933,7 +931,7 @@ class FolderDetail extends Component {
     } else if (type === 15) {
       return 'icon-eye';
     } else if (type === 19 || type === 99) {
-      return 'icon-task-new-delete';
+      return 'icon-trash';
     }
 
     return 'icon-charger';
@@ -962,7 +960,7 @@ class FolderDetail extends Component {
     }
 
     return (
-      <ScrollView id="taskList" updateEvent={this.scroll}>
+      <ScrollView className="taskList" onScrollEnd={this.scroll}>
         <div className="folderDetailWrapper">
           <div className="folderDesc boderRadAll_3">
             <div className="descTitle flexRow pLeft20">
@@ -985,7 +983,7 @@ class FolderDetail extends Component {
                   maxHeight={500}
                   minHeight={40}
                   placeholder={_l('说明这个项目希望达成的目标和计划…')}
-                  onClickNull={e => {
+                  onClickNull={() => {
                     data.isAdmin &&
                       this.setState({
                         isEditing: true,
@@ -1014,6 +1012,7 @@ class FolderDetail extends Component {
             <div className="folderDetailHead">
               {_l('项目所有成员')} ({data.admins.length + data.ordinaryMembers.length + 1})
               <Tooltip
+                autoCloseDelay={0}
                 title={() => {
                   return (
                     <Fragment>

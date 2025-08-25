@@ -1,10 +1,11 @@
-﻿import PropTypes from 'prop-types';
-import React from 'react';
+﻿import React from 'react';
 import ReactDOM from 'react-dom';
-import { min, assign } from 'lodash';
-import cx from 'classnames';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import { Motion, spring } from 'react-motion';
+import cx from 'classnames';
+import { assign, min } from 'lodash';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import LoadDiv from 'ming-ui/components/LoadDiv';
 import './imageViewer.css';
 
 function getClientX(evt) {
@@ -77,6 +78,7 @@ class ImageViewer extends React.Component {
     document.addEventListener('touchmove', this.mouseMove);
     document.addEventListener('keydown', this.ctrlDown);
     document.addEventListener('keyup', this.ctrlUp);
+    window.addEventListener('wheel', this.onWheel, { passive: false });
   }
 
   componentDidUpdate(prevProps) {
@@ -102,6 +104,7 @@ class ImageViewer extends React.Component {
     document.removeEventListener('touchmove', this.mouseMove);
     document.removeEventListener('keydown', this.ctrlDown);
     document.removeEventListener('keyup', this.ctrlUp);
+    window.removeEventListener('wheel', this.onWheel, { passive: false });
     this._isMounted = false;
   }
 
@@ -213,7 +216,6 @@ class ImageViewer extends React.Component {
     }
     let scale;
     const { width, height } = this.imageEle;
-    const container = this.props.con ? this.props.con : ReactDOM.findDOMNode(this).parentNode;
     const rect = document.querySelector('.attachmentsPreview').getBoundingClientRect();
     const conHeight = rect.height - 54 - (showThumbnail ? 143 : 52);
     if (rect.width && rect.height) {
@@ -294,7 +296,7 @@ class ImageViewer extends React.Component {
   }
 
   ctrlDown = evt => {
-    if (evt.keyCode === 90) {
+    if (evt.keyCode === 17) {
       this.setState({
         ctrlIsdDown: true,
       });
@@ -302,14 +304,14 @@ class ImageViewer extends React.Component {
   };
 
   ctrlUp = evt => {
-    if (evt.keyCode === 90) {
+    if (evt.keyCode === 17) {
       this.setState({
         ctrlIsdDown: false,
       });
     }
   };
 
-  onConClose = evt => {
+  onConClose = () => {
     // 当预览层在修改name时点击预览区域图片外区域不关闭弹层  --这样写太恶心了
     if (this.props.onClose) {
       if (document.activeElement == $('.previewHeader .editableBlock input')[0]) {
@@ -341,11 +343,7 @@ class ImageViewer extends React.Component {
         style={{ left: dragStart ? left : spring(left), top: dragStart ? top : spring(top), rotate: spring(rotate) }}
       >
         {motionState => (
-          <div
-            className={cx('dragAbleContainer', this.props.className)}
-            onWheel={this.onWheel}
-            onMouseDown={this.onConClose}
-          >
+          <div className={cx('dragAbleContainer', this.props.className)} onMouseDown={this.onConClose}>
             {this.state.loading && <LoadDiv size="big" className="dragAbleLoadDiv" />}
             {this.state.src && (
               <img

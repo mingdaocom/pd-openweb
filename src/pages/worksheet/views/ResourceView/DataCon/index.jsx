@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/utils/common';
-import { dayTimeByPart, timeWidth, timeWidthHalf, types, weekObj } from '../config';
 import GroupCon from './GroupCon';
 
 const Wrap = styled.div`
@@ -30,7 +30,7 @@ const Wrap = styled.div`
           }
         }
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       input {
@@ -83,7 +83,7 @@ export default function DataCon(props) {
             </React.Fragment>
             {keywords && (
               <i
-                className="icon icon-cancel1 Hand"
+                className="icon icon-cancel Hand"
                 onClick={() => {
                   updateKeyWords('');
                 }}

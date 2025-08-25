@@ -60,7 +60,6 @@ export default class PortalMg extends Component {
       '.attachmentsPreview',
       '.Tooltip',
       '.mui-dialog-container',
-      '.mdAlertDialog',
       '.confirm',
       '.PositionContainer-wrapper',
       '.groupSettingAvatarSelect',

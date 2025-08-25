@@ -2,6 +2,7 @@ import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'src/pages/widgetConfig/util/setting';
 import { SYSTEM_CONTROL } from '../../../../config/widget';
@@ -49,6 +50,7 @@ export default function RelateConfig(props) {
           <span style={{ marginRight: '6px' }}>{_l('关联视图')}</span>
           <Tooltip
             popupPlacement="bottom"
+            autoCloseDelay={0}
             title={
               <span>
                 {_l(
@@ -65,6 +67,7 @@ export default function RelateConfig(props) {
         <Dropdown
           border
           className="w100"
+          menuClass="w100"
           style={{ marginTop: '8px' }}
           loading={loading}
           noneContent={_l('请先选择关联表')}
@@ -119,7 +122,11 @@ export default function RelateConfig(props) {
                   }}
                 >
                   <span style={{ marginRight: '6px' }}>{_l('按条件过滤')}</span>
-                  <Tooltip popupPlacement="bottom" title={<span>{_l('设置筛选条件，只显示满足条件的关联记录')}</span>}>
+                  <Tooltip
+                    popupPlacement="bottom"
+                    autoCloseDelay={0}
+                    title={<span>{_l('设置筛选条件，只显示满足条件的关联记录')}</span>}
+                  >
                     <i className="icon-help Gray_bd Font16 pointer"></i>
                   </Tooltip>
                 </Checkbox>
@@ -178,6 +185,7 @@ export default function RelateConfig(props) {
                   <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
                   <Tooltip
                     popupPlacement="bottom"
+                    autoCloseDelay={0}
                     title={
                       <span>
                         {_l(

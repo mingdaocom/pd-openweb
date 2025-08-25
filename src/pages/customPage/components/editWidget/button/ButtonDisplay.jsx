@@ -12,7 +12,7 @@ const ButtonDisplayWrap = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 20px 0;
+  // padding: 20px 0;
   text-align: center;
   .title,
   .explain {
@@ -115,7 +115,7 @@ export default function ButtonDisplay({
   };
   const translateInfo = getTranslateInfo(appId, null, widget.id);
   return (
-    <ButtonDisplayWrap>
+    <ButtonDisplayWrap className="buttonDisplayWrap">
       <div className="flexColumn" style={{ alignItems: newTitleStyles.textAlign === 'left' ? 'start' : undefined }}>
         {title && (
           <div className="title" style={replaceTitleStyle(newTitleStyles, themeColor)}>

@@ -1,9 +1,10 @@
 import React from 'react';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { getRequest } from 'src/utils/common';
-import { getWorkWeiXinCorpInfoByApp } from './util';
 import googleIcon from './img/google.svg';
-import microsoftIcon from 'src/pages/NewPrivateDeployment/images/microsoft.png';
+import microsoftIcon from './img/microsoft.png';
+import { getWorkWeiXinCorpInfoByApp } from './util';
 
 const integrationInto = {
   1: { iconClassName: 'dingIcon', text: _l('钉钉登录') },
@@ -32,7 +33,7 @@ export default function (props) {
     ssoAppUrl,
     ssoWebUrl,
     isLark,
-    onChange = () => { },
+    onChange = () => {},
     googleSsoSet,
   } = props;
   const isCanWeixin = !isNetwork && !isMobile;
@@ -80,7 +81,7 @@ export default function (props) {
   //第三方集成登录
   const renderIntegrationBtn = () => {
     let style = {};
-    if (!!customNameIcon.iconUrl) {
+    if (customNameIcon.iconUrl) {
       style = { backgroundImage: `url(${customNameIcon.iconUrl})` };
     }
     return (
@@ -89,10 +90,12 @@ export default function (props) {
           if (_.includes([1, 6], projectIntergrationType)) {
             location.href =
               projectIntergrationType === 1
-                ? `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                }auth/dingding?p=${projectId}`
-                : `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                }auth/feishu?p=${projectId}`;
+                ? `${
+                    md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                  }auth/dingding?p=${projectId}`
+                : `${
+                    md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                  }auth/feishu?p=${projectId}`;
           } else {
             const request = getRequest();
             getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);

@@ -1,9 +1,8 @@
-import React, { forwardRef, useState, useEffect } from 'react';
-import { string } from 'prop-types';
-import styled from 'styled-components';
-import BaseCard from './BaseCard';
-import worksheetAjax from 'src/api/worksheet';
+import React, { forwardRef } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import worksheetAjax from 'src/api/worksheet';
+import BaseCard from './BaseCard';
 
 const EditableCardWrap = styled.div`
   position: relative;
@@ -30,13 +29,13 @@ const EditableCardWrap = styled.div`
       vertical-align: text-top;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
 
 const EditableCard = forwardRef((props, ref) => {
-  const { stateData = {}, data, type, currentView, updateTitleData, showNull = false } = props;
+  const { stateData = {}, data, type, currentView, updateTitleData } = props;
   const rowId = data.rowId;
   let { childType, viewControls } = currentView;
 

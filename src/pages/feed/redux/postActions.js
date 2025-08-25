@@ -81,11 +81,6 @@ function loadPosts(options, pageOptions, currentCount = 0) {
   );
 }
 
-function getFirstPostAutoID(postIds, postsById) {
-  const postItem = postIds && postIds.length ? postsById[postIds[0]] : undefined;
-  return postItem && postItem.autoID;
-}
-
 function getLastPostAutoID(postIds, postsById) {
   const postItem = postIds && postIds.length ? postsById[postIds[postIds.length - 1]] : undefined;
   return postItem && postItem.autoID;
@@ -169,7 +164,7 @@ export function focusUpdater() {
  * @param  {string} projectId 网络 id, 全部为 null, 其他协作群等没非网络的情况下为空字符串
  */
 export function loadTop(projectId) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'POST_LOAD_TOP_START' });
     if (projectId === '') {
       // 其他协作群组

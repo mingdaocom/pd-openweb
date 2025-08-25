@@ -1,11 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { any, func } from 'prop-types';
-import cx from 'classnames';
-import flowNode from '../../../../api/flowNode';
-import { Dialog, ScrollView, LoadDiv } from 'ming-ui';
 import JsonView from 'react-json-view';
-import { NODE_TYPE } from '../../../enum';
+import cx from 'classnames';
+import _ from 'lodash';
+import { any, func } from 'prop-types';
 import styled from 'styled-components';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../../api/flowNode';
+import { ACTION_ID, NODE_TYPE } from '../../../enum';
 
 const Footer = styled.div`
   background: #f4f4f4;
@@ -73,7 +74,7 @@ export default function DetailFooter({
           };
         }
 
-        if (selectNodeType === NODE_TYPE.GET_MORE_RECORD) {
+        if (selectNodeType === NODE_TYPE.GET_MORE_RECORD && !_.includes([ACTION_ID.BATCH_UPDATE], res.actionId)) {
           res = {
             worksheetId: res.appId || '',
             rowIds: res.sourceIds || [],

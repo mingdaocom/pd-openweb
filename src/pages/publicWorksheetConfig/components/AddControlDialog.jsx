@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Dialog, Input } from 'ming-ui';
 import { H3 } from 'worksheet/components/Basics';
+
 export default class AddConntrol extends React.Component {
   render() {
     const { defaultText, onOk, onClose } = this.props;

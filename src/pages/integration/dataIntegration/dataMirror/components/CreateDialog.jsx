@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Select } from 'antd';
 import cx from 'classnames';
@@ -44,7 +44,7 @@ export default function CreateDialog(props) {
       dest,
       dbOptionList,
       doubleWriteTables,
-      isCeating,
+      isCreating,
       schemaOptionList,
     },
     setState,
@@ -58,7 +58,7 @@ export default function CreateDialog(props) {
     dest: {},
     dbOptionList: [],
     doubleWriteTables: [],
-    isCeating: false,
+    isCreating: false,
     schemaOptionList: [],
   });
 
@@ -93,7 +93,7 @@ export default function CreateDialog(props) {
                   <React.Fragment>
                     {item.workSheetName}
                     <Tooltip text={_l('名称包含特殊字符，无法同步')}>
-                      <Icon icon="info1" className="Gray_bd mLeft5 pointer" />
+                      <Icon icon="info" className="Gray_bd mLeft5 pointer" />
                     </Tooltip>
                   </React.Fragment>
                 ) : (
@@ -150,7 +150,6 @@ export default function CreateDialog(props) {
             setState({ schemaOptionList });
           }
         });
-    } else {
     }
   };
 
@@ -251,7 +250,6 @@ export default function CreateDialog(props) {
               schemaOptionList: [],
             });
           }}
-          hideToSource={true}
           canEdit={true}
         />
         {dest.dsType && (
@@ -309,7 +307,7 @@ export default function CreateDialog(props) {
       okText={step === 1 ? _l('创建并同步') : _l('下一步')}
       cancelText={step === 1 ? _l('上一步') : _l('取消')}
       okDisabled={
-        isCeating ||
+        isCreating ||
         !(
           (step === 1 &&
             doubleWriteTables.filter(o => o.isErr || !o.tableName.trim()).length <= 0 &&
@@ -324,9 +322,9 @@ export default function CreateDialog(props) {
       onOk={() => {
         if (step === 1) {
           setState({
-            isCeating: true,
+            isCreating: true,
           });
-          if (isCeating) {
+          if (isCreating) {
             return;
           }
           emitter.emit('CHECK_TABLE_EXISTS');
@@ -346,10 +344,10 @@ export default function CreateDialog(props) {
             worksheetInfos={worksheetInfos}
             onChange={(doubleWriteTables, nextCreate, isChecking) => {
               if (isChecking) {
-                setState({ isCeating: isChecking });
+                setState({ isCreating: isChecking });
                 return;
               }
-              setState({ doubleWriteTables, isCeating: nextCreate ? nextCreate : false });
+              setState({ doubleWriteTables, isCreating: nextCreate ? nextCreate : false });
               nextCreate && onCreate(doubleWriteTables);
             }}
           />

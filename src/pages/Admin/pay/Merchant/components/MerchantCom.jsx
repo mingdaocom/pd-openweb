@@ -90,7 +90,7 @@ function SuccessDialog(props) {
       <SuccessWrap className="pTop100 pBottom100">
         {!loading ? (
           <Fragment>
-            <Icon icon="Finish" className="Font48 finishIcon" />
+            <Icon icon="check_circle" className="Font48 finishIcon" />
             <div className="Font24 Bold Gray mTop28 TxtCenter">{_l('试用开通成功')}</div>
           </Fragment>
         ) : (
@@ -121,7 +121,7 @@ function EmptyMerchant(props) {
             desc: _l('需完成商户签约认证或绑定微信/支付宝直连商户'),
             icon: 'sp_account_balance_wallet_white',
           },
-          { title: _l('资金管理'), desc: _l('独立收款并提供安全、便捷的资金管理功能'), icon: 'payment3' },
+          { title: _l('资金管理'), desc: _l('独立收款并提供安全、便捷的资金管理功能'), icon: 'navigation_key' },
           { title: _l('聚合支付'), desc: _l('在多端场景下使用微信/支付宝聚合支付'), icon: 'phonelink' },
         ].map((item, index) => {
           const { title, desc, icon } = item;
@@ -187,7 +187,7 @@ export default class MerchantCom extends Component {
         dataIndex: 'subscribeMerchant',
         render: (value, record) => {
           return (
-            <span style={{ color: value ? '#4CAF50' : '#2196f3' }}>
+            <span style={{ color: value ? '#4CAF50' : '#1677ff' }}>
               {value ? _l('已付费') : record.planType === 0 ? _l('试用中') : _l('待付费')}
             </span>
           );
@@ -251,6 +251,7 @@ export default class MerchantCom extends Component {
         width: 'fit-content',
         fixed: 'right',
         render: (text, record) => {
+          const { projectId, featureType } = props;
           const { status, merchantPaymentChannel } = record;
           // 0-注册中 1-待开通 2-开通中 3-已开通 4-已禁用
           if (md.global.Config.IsLocal) {
@@ -335,6 +336,13 @@ export default class MerchantCom extends Component {
                       type="merchant"
                       extraParam={record.id}
                       projectId={props.projectId}
+                      onClick={
+                        featureType === '2'
+                          ? () => {
+                              buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
+                            }
+                          : undefined
+                      }
                     />
                   )}
                   {_.includes([1, 2], record.merchantPaymentChannel) && !record.subscribeMerchant && (
@@ -372,7 +380,7 @@ export default class MerchantCom extends Component {
           this.props.changeShowCreateMerchant(true);
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -386,7 +394,11 @@ export default class MerchantCom extends Component {
   };
 
   onClickTrial = record => {
-    const { projectId } = this.props;
+    const { projectId, featureType } = this.props;
+    if (featureType === '2') {
+      buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
+      return;
+    }
 
     Dialog.confirm({
       width: 560,
@@ -493,7 +505,11 @@ export default class MerchantCom extends Component {
           </Fragment>
         ) : (
           <Fragment>
-            <div>{_l('1.支付功能服务费：按商户号收取，年费999元/商户，月费199元/商户；新商户可申请一周免费试用，试用期间单笔订单限额1元。')}</div>
+            <div>
+              {_l(
+                '1.支付功能服务费：按商户号收取，年费999元/商户，月费199元/商户；新商户可申请一周免费试用，试用期间单笔订单限额1元。',
+              )}
+            </div>
             <div>{_l('2.支付渠道：聚合支付(费率0.25%)、微信支付/支付宝支付(费率以签约渠道为准)。')}</div>
             <div>{_l('3.提现说明：微信/支付宝直连商户号，需在对应官方平台操作提现。')}</div>
           </Fragment>

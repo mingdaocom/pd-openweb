@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const TABS = [
   {
     key: 'transaction',
@@ -66,7 +68,7 @@ export const ORDER_STATUS = [
   { label: _l('已退款'), value: 3 },
   { label: _l('支付超时'), value: 4 },
   { label: _l('部分退款'), value: 5 },
-  { label: _l('已取消'), value: 8 },
+  { label: _l('已取消'), value: 7 },
 ];
 
 // 支付状态
@@ -138,11 +140,11 @@ export const getOrderStatusInfo = (orderStatus, msg = '') => {
     color = '#4CAF50';
   } else if (orderStatus === 4) {
     text = _l('订单超时');
-    icon = 'icon-info1';
+    icon = 'icon-info';
     color = '#FF9D00';
   } else {
     text = msg || _l('支付失败');
-    icon = 'icon-task-folder-message';
+    icon = 'icon-error1';
     color = '#f44133';
   }
 

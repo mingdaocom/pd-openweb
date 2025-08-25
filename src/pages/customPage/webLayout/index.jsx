@@ -1,18 +1,19 @@
-import React, { useState, memo, useRef, Fragment, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { EditWidget, WidgetList, WidgetContent } from '../components';
+import { ReactSVG } from 'react-svg';
+import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
-import { replaceColor, isLightColor } from 'src/pages/customPage/util';
+import styled from 'styled-components';
 import { updatePageInfo } from 'src/pages/customPage/redux/action';
-import { ReactSVG } from 'react-svg';
+import { isLightColor, replaceColor } from 'src/pages/customPage/util';
+import { EditWidget, WidgetContent, WidgetList } from '../components';
 import { bgImages } from '../components/ConfigSideWrap/BgConfig';
-import { TinyColor } from '@ctrl/tinycolor';
 
 const BgImageWrap = styled(ReactSVG)`
-  >div, >div>svg {
+  > div,
+  > div > svg {
     height: 100%;
     width: 100%;
   }
@@ -67,18 +68,18 @@ const getTabsContainerForCard = event => {
     }
   }
   return null;
-}
+};
 const getTabsIdentifierId = (classNames = '') => {
   const match = classNames.match(/tabs-([a-f0-9-]+)/) || classNames.match(/card-([a-f0-9-]+)/);
   return match ? match[1] : null;
-}
+};
 const getTabIdentifierId = (classNames = '') => {
   const match = classNames.match(/tab-([a-f0-9-]+)/);
   return match ? match[1] : null;
-}
+};
 
-function webLayout(props) {
-  const { editable = true, updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, delWidget, ...rest } = props;
+function WebLayout(props) {
+  const { editable = true, updateWidget = _.noop, className = '', emptyPlaceholder, config, appPkg, ...rest } = props;
   const [editingWidget, setWidget] = useState({});
   const $ref = useRef(null);
   const { adjustScreen } = rest;
@@ -87,7 +88,8 @@ function webLayout(props) {
   const components = props.components || [];
   const bgIsDark = pageConfig.pageBgColor && !isLightColor(pageConfig.pageBgColor);
   const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
-  const backgroundColor = appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
+  const backgroundColor =
+    appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
   const lowAlphaIconColor = new TinyColor(iconColor).setAlpha(0.25).toRgbString();
 
   useEffect(() => {
@@ -96,25 +98,33 @@ function webLayout(props) {
       const tabsContainer = getTabsContainerForCard(event);
       if (tabsContainer) {
         const sectionId = getTabsIdentifierId(tabsContainer.className);
-        const tabId = event.target.classList.contains('tab') ? getTabIdentifierId(event.target.className) : getTabIdentifierId(_.get(tabsContainer.querySelector('.tabsHeader .tab.active') || tabsContainer.querySelector('.tabsHeader .tab'), 'className'));
+        const tabId = event.target.classList.contains('tab')
+          ? getTabIdentifierId(event.target.className)
+          : getTabIdentifierId(
+              _.get(
+                tabsContainer.querySelector('.tabsHeader .tab.active') ||
+                  tabsContainer.querySelector('.tabsHeader .tab'),
+                'className',
+              ),
+            );
         props.updatePageInfo({
           activeContainerInfo: {
             sectionId,
-            tabId
-          }
+            tabId,
+          },
         });
       } else {
         props.updatePageInfo({
-          activeContainerInfo: {}
+          activeContainerInfo: {},
         });
       }
-    }
+    };
     if (editable) {
       componentsWrap.addEventListener('click', handleClickActiveWrap);
     }
     return () => {
       componentsWrap.removeEventListener('click', handleClickActiveWrap);
-    }
+    };
   }, []);
 
   const renderPageBgImage = () => {
@@ -129,20 +139,18 @@ function webLayout(props) {
         }}
       />
     );
-  }
+  };
 
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
-      {pageConfig.pageBgImage && !editable && (
-        renderPageBgImage()
-      )}
+      {pageConfig.pageBgImage && !editable && renderPageBgImage()}
       <ContentWrap
         ref={$ref}
         className={cx(className, {
           componentsEmpty: components <= 0,
           Relative: components <= 0 && editable,
-          adjustScreen
+          adjustScreen,
         })}
         id="componentsWrap"
         style={{
@@ -153,12 +161,10 @@ function webLayout(props) {
           '--widget-color': pageConfig.widgetBgColor,
           '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
           '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
-          '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#2196f3',
+          '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#1677ff',
         }}
       >
-        {pageConfig.pageBgImage && editable && (
-          renderPageBgImage()
-        )}
+        {pageConfig.pageBgImage && editable && renderPageBgImage()}
         {components.length > 0 ? (
           <div className="componentsWrap">
             <WidgetContent
@@ -197,5 +203,5 @@ export default connect(
     components: state.customPage.components,
     apk: state.customPage.apk,
   }),
-  dispatch => bindActionCreators({ updatePageInfo }, dispatch)
-)(memo(webLayout));
+  dispatch => bindActionCreators({ updatePageInfo }, dispatch),
+)(memo(WebLayout));

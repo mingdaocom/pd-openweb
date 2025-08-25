@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { MdLink } from 'ming-ui';
 import { hasPermission } from 'src/components/checkPermission';
@@ -37,9 +38,9 @@ const Wrap = styled.div`
     &.cur {
       background: #e3f2fe;
       a {
-        color: #2196f3;
+        color: #1677ff;
         i {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       &:hover {

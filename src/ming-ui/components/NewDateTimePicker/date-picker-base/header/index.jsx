@@ -1,9 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
-import './style.less';
-
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
+import './style.less';
 
 class Header extends Component {
   buttonOnClick = (event, action) => {
@@ -40,10 +38,6 @@ class Header extends Component {
     const _month = time.getMonth() + 1;
     // 月 MM
     const month = _month.toString();
-
-    const _date = time.getDate();
-    // 日 DD
-    const date = _date < 10 ? '0' + _date.toString() : _date.toString();
 
     const timeButtons = [];
     if (this.props.view === 'year') {

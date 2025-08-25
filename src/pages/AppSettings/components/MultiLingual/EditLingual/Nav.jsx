@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tree } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView, SvgIcon } from 'ming-ui';
 import { getTranslateInfo } from 'src/utils/app';
@@ -19,10 +20,10 @@ const Wrap = styled.div`
     padding: 8px 6px;
     &.active {
       svg {
-        fill: #2196f3 !important;
+        fill: #1677ff !important;
       }
       font-weight: bold;
-      color: #2196f3;
+      color: #1677ff;
       background-color: #ecf7fe;
     }
   }
@@ -30,7 +31,7 @@ const Wrap = styled.div`
   .treeWrap {
     min-height: 0;
     margin: 0 -10px;
-    padding: 0 10px;
+    padding-left: 10px;
   }
 
   .ant-tree {
@@ -53,13 +54,13 @@ const Wrap = styled.div`
     }
     .ant-tree-node-content-wrapper.ant-tree-node-selected {
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
       svg {
-        fill: #2196f3 !important;
+        fill: #1677ff !important;
       }
       font-weight: bold;
-      color: #2196f3;
+      color: #1677ff;
       background-color: #ecf7fe;
     }
     .ant-tree-title {
@@ -137,7 +138,7 @@ const customPageConfig = [
   },
 ];
 
-const getTreeData = (appId, { sections, collections, searchValue }) => {
+const getTreeData = (appId, { sections, collections, workflows, searchValue }) => {
   const getChildren = (appItem, childSections = []) => {
     if (appItem.type === 0) {
       const res = sheetConfig.map(item => {
@@ -182,7 +183,7 @@ const getTreeData = (appId, { sections, collections, searchValue }) => {
     }
     return [];
   };
-  const result = sections
+  const appChildren = sections
     .map(gourup => {
       return {
         title: getTranslateInfo(appId, null, gourup.appSectionId).name || gourup.name,
@@ -217,7 +218,7 @@ const getTreeData = (appId, { sections, collections, searchValue }) => {
       key: 'appItemEntrance',
       title: _l('应用项'),
       selectable: false,
-      children: result.length === 1 && !result[0].title ? result[0].children : result,
+      children: appChildren.length === 1 && !appChildren[0].title ? appChildren[0].children : appChildren,
     },
     {
       key: 'optionsEntrance',
@@ -229,6 +230,29 @@ const getTreeData = (appId, { sections, collections, searchValue }) => {
             key: c.collectionId,
             title: getTranslateInfo(appId, null, c.collectionId).name || c.name,
             type: 'collections',
+          };
+        })
+        .filter(n => (searchValue ? n.title.toLocaleLowerCase().includes(searchValue) : true)),
+    },
+    {
+      key: 'workflowsEntrance',
+      title: _l('工作流'),
+      selectable: false,
+      children: workflows
+        .map(flow => {
+          return {
+            key: flow.processId,
+            title: getTranslateInfo(appId, null, flow.processId).name || flow.name,
+            originalTitle: flow.name,
+            type: 'workflow',
+            children: [
+              {
+                title: _l('节点名称'),
+                type: 'workflowNode',
+                key: `${flow.processId}-workflowNode`,
+                processId: flow.processId,
+              },
+            ],
           };
         })
         .filter(n => (searchValue ? n.title.toLocaleLowerCase().includes(searchValue) : true)),
@@ -247,14 +271,15 @@ const getExpandedKeys = treeData => {
 };
 
 export default function Nav(props) {
-  const { style, app, translateData } = props;
+  const { style, app } = props;
   const { expandedKeys, setExpandedKeys } = props;
   const { selectedKeys, onSelectedKeys } = props;
-  const { name, iconUrl, sections, collections = [] } = app;
+  const { name, iconUrl, sections, collections = [], workflows = [] } = app;
   const [searchValue, setSearchValue] = useState('');
   const treeData = getTreeData(app.id, {
     sections,
     collections,
+    workflows,
     searchValue: searchValue.toLocaleLowerCase(),
   });
 
@@ -276,11 +301,9 @@ export default function Nav(props) {
             setSearchValue(e.target.value);
           }}
         />
-        {searchValue && (
-          <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-        )}
+        {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
       </div>
-      <div className="treeWrap flexColumn flex">
+      <div className="treeWrap flexColumn flex overflowHidden">
         <div
           className={cx('flexRow alignItemsCenter pointer appItem', { active: selectedKeys.includes('app') })}
           onClick={() => {

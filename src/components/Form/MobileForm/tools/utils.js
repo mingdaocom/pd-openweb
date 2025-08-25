@@ -1,5 +1,6 @@
 import _, { get, includes, isArray, isObject, isString } from 'lodash';
 import { isEmptyValue } from 'src/utils/control';
+import RegExpValidator from 'src/utils/expression';
 import { FROM } from '../../core/config';
 import { allSwitchKeys, HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
 import { controlState } from '../../core/formUtils';
@@ -80,6 +81,7 @@ export const getAdvanceSetting = (data, key) => {
   try {
     return JSON.parse(value);
   } catch (error) {
+    console.log(error);
     return '';
   }
 };
@@ -148,7 +150,7 @@ export const checkCellIsEmpty = value => {
 
 function parseCardStyle(control, value, type) {
   try {
-    const parsedValue = safeParse(value);
+    const parsedValue = safeParse(value) || {};
     return {
       ...getValueStyle(
         {
@@ -167,6 +169,7 @@ function parseCardStyle(control, value, type) {
       direction: parsedValue.direction,
     };
   } catch (err) {
+    console.log(err);
     return {};
   }
 }
@@ -193,8 +196,6 @@ export const getRecordCardStyle = control => {
 
 function transformLat(lng, lat) {
   var pi = 3.14159265358979324;
-  var a = 6378245.0;
-  var ee = 0.00669342162296594323;
   var dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
   dLat += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLat += ((20.0 * Math.sin(lat * pi) + 40.0 * Math.sin((lat / 3.0) * pi)) * 2.0) / 3.0;
@@ -204,8 +205,6 @@ function transformLat(lng, lat) {
 
 function transformLng(lng, lat) {
   var pi = 3.14159265358979324;
-  var a = 6378245.0;
-  var ee = 0.00669342162296594323;
   var dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
   dLng += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLng += ((20.0 * Math.sin(lng * pi) + 40.0 * Math.sin((lng / 3.0) * pi)) * 2.0) / 3.0;
@@ -316,4 +315,56 @@ export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item })
     md.global.Account.accountId &&
     ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38, 53], item.type))
   );
+};
+
+export const getCoverUrl = (coverId, record, controls) => {
+  const coverControl = _.find(controls, c => c.controlId && c.controlId === coverId);
+  if (!coverControl) {
+    return;
+  }
+  try {
+    const files = safeParse(record[coverId]) || [];
+    const coverFile = _.find(files, file => file && RegExpValidator.fileIsPicture(file.ext));
+    const { previewUrl = '' } = coverFile;
+    return previewUrl.indexOf('imageView2') > -1
+      ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
+      : `${previewUrl}&imageView2/1/w/200/h/140`;
+  } catch (err) {
+    console.log(err);
+  }
+  return;
+};
+
+export const inputValueReg = (inputValue, regType) => {
+  return new RegExp(inputValue.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), regType || 'i');
+};
+
+export const sortPathsBySearchKeyword = (data, inputValue) => {
+  let list = data.filter(item => (safeParse(item.searchPath) || []).length > 0);
+  const reg = inputValueReg(inputValue, 'g');
+
+  const formatValue = value => {
+    const pathStr = value.searchPath || '[]';
+    const pathArr = JSON.parse(pathStr);
+    return pathArr.map(p => {
+      const idx = p.search(reg);
+      return idx === -1 ? 999 : idx;
+    });
+  };
+
+  return list.sort((a, b) => {
+    const aIndexArr = formatValue(a);
+    const bIndexArr = formatValue(b);
+    const maxCount = Math.max(aIndexArr.length, bIndexArr.length);
+
+    for (let i = 0; i < maxCount; i++) {
+      const aVal = aIndexArr[i];
+      const bVal = bIndexArr[i];
+
+      if (bVal === undefined || aVal < bVal) return -1;
+      if (aVal === undefined || aVal > bVal) return 1;
+    }
+
+    return 0;
+  });
 };

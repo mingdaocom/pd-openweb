@@ -1,20 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Checkbox, Dropdown } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { dialogSelectUser } from 'ming-ui/functions';
-import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
-import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
-import _ from 'lodash';
-import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import Account from 'src/pages/integration/api/account';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, LoadDiv } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import Account from 'src/pages/integration/api/account';
+import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-// const TRIGGER_TYPE = {
-//   ALLOW: 0,
-//   ONLY_WORKFLOW: 1,
-//   NO_ALLOW: 2,
-// };
+import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
+import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+
 const Wrap = styled.div`
   flex: 1;
   overflow: auto;
@@ -27,11 +23,11 @@ const Con = styled.div`
   // border: 1px solid #dddddd;
   border-radius: 4px;
   .saveBtn {
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
     height: 36px;
     line-height: 36px;
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
     border-radius: 3px;
     padding: 0 36px;
   }
@@ -77,7 +73,7 @@ const WrapCon = styled.div`
     }
   }
   .addApp {
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1764c0;
     }

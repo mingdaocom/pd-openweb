@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
 import { Tooltip } from 'antd';
@@ -93,7 +93,7 @@ const Group = props => {
 
   const [collectProps, drop] = useDrop({
     accept: dndAccept,
-    drop(item, monitor) {
+    drop(item) {
       const current = item.data;
       const target = data;
       if (current.id === target.id) {
@@ -131,7 +131,6 @@ const Group = props => {
         if (target.index === 0) {
           const clientOffset = monitor.getClientOffset();
           const hoverBoundingRect = ref.current.getBoundingClientRect();
-          const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
           const hoverClientY = clientOffset.y - hoverBoundingRect.top;
           setActiveFirst(hoverClientY <= 10);
         } else {
@@ -267,7 +266,7 @@ const Group = props => {
               </Tooltip>
             </Trigger>
             <Tooltip title={_l('删除')} placement="bottom">
-              <Icon className="Gray_9e pointer Font17 operateIcon" icon="delete2" onClick={() => onDeleteGroup(data)} />
+              <Icon className="Gray_9e pointer Font17 operateIcon" icon="trash" onClick={() => onDeleteGroup(data)} />
             </Tooltip>
             <Tooltip title={_l('新建子分组')} placement="bottom">
               <Icon
@@ -355,7 +354,7 @@ const Group = props => {
                 <Tooltip title={_l('删除')} placement="bottom">
                   <Icon
                     className="Gray_9e pointer Font17 operateIcon"
-                    icon="delete2"
+                    icon="trash"
                     onClick={() => onDeleteGroup(data, parentId)}
                   />
                 </Tooltip>
@@ -528,33 +527,27 @@ const Container = props => {
           .then(result => {
             if (result) {
               if (targetData.layerIndex === 0) {
-                homeAppApi
-                  .updateAppSectionSort({
-                    appId: app.id,
-                    appSectionIds: res.map(data => data.id),
-                  })
-                  .then(data => {});
+                homeAppApi.updateAppSectionSort({
+                  appId: app.id,
+                  appSectionIds: res.map(data => data.id),
+                });
               }
               if (targetData.layerIndex === 1) {
                 const workSheetIds = _.find(res, { id: targetDataParentId }).items.map(data => data.id);
-                homeAppApi
-                  .updateSectionChildSort({
-                    appId: app.id,
-                    appSectionId: targetDataParentId,
-                    workSheetIds,
-                  })
-                  .then(data => {});
+                homeAppApi.updateSectionChildSort({
+                  appId: app.id,
+                  appSectionId: targetDataParentId,
+                  workSheetIds,
+                });
               }
               if (targetData.layerIndex === 2) {
                 const { items = [] } = res.filter(data => _.find(data.items, { id: targetDataParentId }))[0] || {};
                 const workSheetIds = _.find(items, { id: targetDataParentId }).items.map(data => data.id);
-                homeAppApi
-                  .updateSectionChildSort({
-                    appId: app.id,
-                    appSectionId: targetDataParentId,
-                    workSheetIds,
-                  })
-                  .then(data => {});
+                homeAppApi.updateSectionChildSort({
+                  appId: app.id,
+                  appSectionId: targetDataParentId,
+                  workSheetIds,
+                });
               }
             } else {
               alert(_l(_l('移动失败')), 2);
@@ -662,18 +655,16 @@ const Container = props => {
       });
   };
   const handleDeleteGroup = (data, parentId) => {
-    const { id, layerIndex, type, items = [] } = data;
+    const { id, layerIndex, items = [] } = data;
     if (layerIndex === 0 && (navigationGroup.length === 1 || items.length)) {
       if (navigationGroup.length === 1) {
         handleSetNavigationGroup(navigationGroup.map(data => Object.assign(data, { name: '' })));
-        homeAppApi
-          .updateAppSection({
-            appId: app.id,
-            appSectionId: id,
-            appSectionName: '',
-            icon: data.icon,
-          })
-          .then(data => {});
+        homeAppApi.updateAppSection({
+          appId: app.id,
+          appSectionId: id,
+          appSectionName: '',
+          icon: data.icon,
+        });
       } else if (items.length) {
         alert(_l('非空导航组不能删除'), 3);
       }

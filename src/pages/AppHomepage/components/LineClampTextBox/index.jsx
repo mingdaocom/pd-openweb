@@ -1,8 +1,7 @@
 import React, { Component, createRef } from 'react';
-import { string } from 'prop-types';
 import cx from 'classnames';
-import './index.less';
 import { compareProps } from '../../../PageHeader/util';
+import './index.less';
 
 /**
  * 多行文字超出隐藏
@@ -48,7 +47,8 @@ export default class lineClampTextBox extends Component {
         ref={this.$textBox}
         style={{ ...style, WebkitLineClamp: line }}
         className={cx('lineClampTextBox', className)}
-        {...props}>
+        {...props}
+      >
         <div ref={this.$textContent} className="contentText" style={{ WebkitBoxOrient: 'vertical' }}>
           {text}
         </div>

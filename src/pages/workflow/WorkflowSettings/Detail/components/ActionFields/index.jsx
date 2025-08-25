@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import './index.less';
-import { getIcons } from '../../../utils';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { APP_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
-import _ from 'lodash';
+import { getIcons } from '../../../utils';
+import './index.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 

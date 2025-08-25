@@ -1,9 +1,9 @@
-﻿import importUserAjax from 'src/api/importUser';
-import userAjax from 'src/api/user';
+﻿import _ from 'lodash';
+import importUserAjax from 'src/api/importUser';
+import { CALL_API } from '../middleware/api';
 
 export const UPDATE_CURSOR = 'UPDATE_CURSOR';
 export const REMOVE_CURSOR = 'REMOVE_CURSOR';
-import { CALL_API } from '../middleware/api';
 
 export const ADD_TO_USERSET = 'ADD_TO_USERSET';
 export const REMOVE_FROM_USERSET = 'REMOVE_FROM_USERSET';

@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Icon, ColorPicker } from 'ming-ui';
-import { SCORE_COLORS_LIST } from '../../config/score';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import { ColorPicker, Icon } from 'ming-ui';
+import { SCORE_COLORS_LIST } from '../../config/score';
 import { SelectColorWrap } from './SplitLineConfig/style';
 
 export default function ColorSelectWrap({ color: activeColor, handleChange }) {

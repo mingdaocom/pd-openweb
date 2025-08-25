@@ -1,4 +1,4 @@
-﻿import { map, trim, assign } from 'lodash';
+﻿import { assign, map, trim } from 'lodash';
 import kc from 'src/api/kc';
 import { NODE_TYPE } from '../constant/enum';
 import { IdItem } from '../utils';

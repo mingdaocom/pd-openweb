@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
@@ -79,9 +80,9 @@ const Wrap = styled.div`
         color: #757575;
       }
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         .icon {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -89,7 +90,7 @@ const Wrap = styled.div`
   .toCustomLib {
     color: #9d9d9d;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .minBold {
@@ -122,10 +123,10 @@ const Wrap = styled.div`
         color: #151515;
       }
       &:hover {
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
         i,
         .viewName {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -355,8 +356,8 @@ export default class AddViewDisplayMenu extends Component {
                 key={id}
                 className="viewTypeItem flexRow Hand"
                 onClick={() => onClick({ id })}
-                onMouseEnter={e => this.setState({ guild: id })}
-                onMouseLeave={e => this.setState({ guild: '' })}
+                onMouseEnter={() => this.setState({ guild: id })}
+                onMouseLeave={() => this.setState({ guild: '' })}
               >
                 <div className="valignWrapper flex">
                   <Icon style={{ color, fontSize: '20px' }} icon={icon} />
@@ -384,7 +385,10 @@ export default class AddViewDisplayMenu extends Component {
                   <div className="">
                     {orgPlugins.length > 0 && (
                       <React.Fragment>
-                        <div className="Gray_9e mTop16 Bold Hand groupTitle" onClick={() => this.onClickGroup('company')}>
+                        <div
+                          className="Gray_9e mTop16 Bold Hand groupTitle"
+                          onClick={() => this.onClickGroup('company')}
+                        >
                           <Icon
                             icon={retract.includes('company') ? 'arrow-right-tip' : 'arrow-down'}
                             className="Font13 mRight8"

@@ -1,0 +1,177 @@
+.aliasCon {
+  background: #fff;
+  h5,
+  p,
+  h6 {
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+  }
+  .conBox {
+    max-width: 1000px;
+    margin: 0 40px;
+    padding-bottom: 100px;
+    h5 {
+      margin-top: 35px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 17px;
+      letter-spacing: 0px;
+      color: #151515;
+    }
+    p {
+      color: #9e9e9e;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .attr {
+      border: 1px solid #cccccc;
+      border-radius: 2px;
+      width: 100%;
+      height: 36px;
+      display: flex;
+      position: relative;
+      &:hover {
+        border: 1px solid #bdbdbd;
+      }
+      .inputTxt {
+        flex: 1;
+        padding-left: 12px;
+        line-height: 36px;
+        color: #151515;
+        &.noData {
+          color: #bdbdbd;
+        }
+      }
+      .icon {
+        width: 28px;
+        line-height: 36px;
+      }
+    }
+    .line {
+      display: block;
+      border-bottom: 1px solid #eaeaea;
+      margin: 32px 0;
+    }
+    .name {
+      border: 1px solid #cccccc;
+      border-radius: 2px;
+      width: 100%;
+      height: 36px;
+      line-height: 36px;
+      padding: 0 13px;
+      box-sizing: border-box;
+      &:hover {
+        border: 1px solid #bdbdbd;
+      }
+      &:focus {
+        border: 1px solid #1677ff;
+      }
+    }
+    .preview {
+      & > div {
+        .title {
+          display: inline-block;
+          width: 74px;
+          padding-right: 22px;
+          text-align: left;
+          padding: 5px 0;
+          color: #757575;
+        }
+        .btnCon {
+          display: inline-block;
+          padding: 5px 18px;
+          background: #1677ff 0% 0% no-repeat padding-box;
+          border-radius: 22px;
+          color: #fff;
+          max-width: 560px;
+          cursor: initial;
+        }
+        &.notice {
+          display: flex;
+          .noticeCon {
+            flex: 1;
+            box-shadow: 0px 1px 3px #00000029;
+            border: 1px solid #efefef;
+            border-radius: 2px;
+            padding: 10px;
+            display: flex;
+            .appIcon {
+              width: 32px;
+              height: 32px;
+              display: inline-block;
+              background: #f7a943 0% 0% no-repeat padding-box;
+              color: #fff;
+              border-radius: 50%;
+              line-height: 33px;
+              text-align: center;
+            }
+            .textCon {
+              color: #9e9e9e;
+              padding-left: 13px;
+              padding-top: 5px;
+              .text {
+                display: block;
+                max-width: 490px;
+                span {
+                  color: #1677ff;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .nameFocus {
+    background-color: #f7a943;
+  }
+  .btnAlias {
+    border: 1px solid #1677ff;
+    border-radius: 3px;
+    width: 132px;
+    text-align: center;
+    height: 36px;
+    line-height: 36px;
+    display: inline-block;
+    color: #1677ff;
+    cursor: pointer;
+    &:hover {
+      color: #fff;
+      background-color: #1677ff;
+    }
+  }
+  .listCon {
+    position: absolute;
+    left: 0;
+    top: 35px;
+    width: 220px;
+    /* height: 264px; */
+    overflow: auto;
+    max-height: 264px;
+    display: block;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 6px 24px #0000003d;
+    border-radius: 2px;
+    li {
+      display: block;
+      height: 36px;
+      line-height: 36px;
+      padding: 0 14px;
+      box-sizing: border-box;
+      cursor: pointer;
+      color: #151515;
+      &.current,
+      &:hover {
+        background-color: #1677ff;
+        color: #fff;
+        .icon {
+          color: #fff;
+        }
+      }
+      .icon {
+        color: #9e9e9e;
+      }
+    }
+  }
+}

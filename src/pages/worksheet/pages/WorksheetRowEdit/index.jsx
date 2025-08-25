@@ -135,7 +135,7 @@ class WorksheetRowEdit extends Component {
 
     return (
       <div className="flexColumn h100 alignItemsCenter justifyContentCenter">
-        <i className="icon-Import-failure" style={{ color: '#FF7600', fontSize: 60 }} />
+        <i className="icon-error1" style={{ color: '#FF7600', fontSize: 60 }} />
         <div className="Font17 bold mTop15">{SHARE_STATE[data.resultCode]}</div>
       </div>
     );
@@ -163,7 +163,7 @@ class WorksheetRowEdit extends Component {
         {loading || !Components ? (
           <LoadDiv className="mTop20" />
         ) : (
-          <div className="worksheetRowEdit h100 flexColumn">
+          <div className="worksheetRowEdit h100 flexColumn minHeight0">
             <ScrollView className="flex">
               {isError && this.renderError()}
               {data.linkState === 1 && this.renderComplete()}
@@ -179,7 +179,7 @@ class WorksheetRowEdit extends Component {
                     hideOtherOperate={data.linkState === 0}
                     allowEmptySubmit
                     updateSuccess={() => this.setState({ data: { ...data, linkState: 1 } })}
-                    isEditRecord={true}
+                    isEditRecord={data.linkState === 0}
                     renderFooter={({ onSubmit }) =>
                       data.linkState !== 2 ? (
                         <div

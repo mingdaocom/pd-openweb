@@ -10,8 +10,6 @@ import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { eventStr } from './util';
 
-let isChangeing = false;
-
 @connect(
   state => ({
     ...state.sheet,
@@ -28,6 +26,7 @@ class External extends Component {
       isSearch: false,
       random: parseInt(Math.random() * 1000000000000),
     };
+    this.scrollRef = React.createRef();
   }
 
   componentDidMount() {
@@ -36,7 +35,7 @@ class External extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     const { calendarview = {}, getInitType, fetchExternal, refreshEventList, updateCalendarEventIsAdd } = nextProps;
     const { calendarEventIsAdd, calendarData = {} } = calendarview;
     const { calendarInfo } = calendarData;
@@ -56,7 +55,7 @@ class External extends Component {
       //向上更新排期事件 不滚动
       if (this.state.loadUp) {
         setTimeout(() => {
-          $('.eventListBox .nano-content').scrollTop($('.eventListBox .mcm').height() - this.state.eventConH);
+          this.handleScrollTo($('.eventListBox .mcm').height() - this.state.eventConH);
           this.setState({
             loadUp: false,
           });
@@ -65,18 +64,24 @@ class External extends Component {
     }
   }
 
-  renderSearchData = seachData => {
+  handleScrollTo = top => {
+    if (this.scrollRef.current) {
+      this.scrollRef.current.scrollTo({ top });
+    }
+  };
+
+  renderSearchData = searchData => {
     const { getInitType } = this.props;
     const typeEvent = getInitType();
-    if (seachData.length <= 0) {
+    if (searchData.length <= 0) {
       return <div className="noData">{_l('没有搜索结果')}</div>;
     }
     return (
-      <div className="seachData">
+      <div className="searchData">
         <div className="text">
-          {_l('%0条%1', seachData.length, (this.props.tabList.find(o => o.key === typeEvent) || {}).txt)}
+          {_l('%0条%1', searchData.length, (this.props.tabList.find(o => o.key === typeEvent) || {}).txt)}
         </div>
-        {this.renderEventData(seachData)}
+        {this.renderEventData(searchData)}
       </div>
     );
   };
@@ -143,7 +148,7 @@ class External extends Component {
       <React.Fragment>
         {eventData.map(it => {
           const { extendedProps = {}, timeList = [] } = it;
-          const { rowid, stringColor = '', recordColor } = extendedProps;
+          const { rowid, recordColor } = extendedProps;
           let editable =
             timeList.length > 1
               ? timeList.filter(o => o.editable).length > 0
@@ -186,13 +191,12 @@ class External extends Component {
     );
   };
 
-  handleScroll = (event, values) => {
+  handleScroll = ({ direction }) => {
     const { calendarview, getInitType } = this.props;
     const { calenderEventList } = calendarview;
     const { keyWords } = calenderEventList;
     const typeEvent = getInitType();
-    const { direction, maximum, position } = values;
-    if (direction === 'down' && maximum - position < 20 && !calenderEventList[`${typeEvent}IsAll`]) {
+    if (direction === 'down' && !calenderEventList[`${typeEvent}IsAll`]) {
       this.setState({
         scrollType: 1,
         scrollLoading: true,
@@ -201,7 +205,6 @@ class External extends Component {
       this.props.updateEventList(pageIndx, false);
     } else if (
       direction === 'up' &&
-      position < 20 &&
       typeEvent === eventStr[1] &&
       !calenderEventList[`${typeEvent}UpIsAll`] &&
       !keyWords
@@ -231,7 +234,7 @@ class External extends Component {
   render() {
     const { calendarview, getInitType } = this.props;
     const { calenderEventList = {}, calendarLoading = false } = calendarview;
-    const { keyWords, seachData = [] } = calenderEventList;
+    const { keyWords, searchData = [] } = calenderEventList;
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
@@ -245,7 +248,6 @@ class External extends Component {
                 className="cursorText"
                 placeholder={_l('搜索%0', (this.props.tabList.find(o => o.key === typeEvent) || {}).txt)}
                 onChange={event => {
-                  isChangeing = false;
                   const searchValue = event.target.value;
                   this.props.searchKeys(searchValue);
                   if (!searchValue) {
@@ -254,10 +256,9 @@ class External extends Component {
                 }}
                 onKeyUp={e => {
                   if (e.keyCode === 13) {
-                    isChangeing = true;
                     const searchValue = e.target.value;
                     this.props.searchEventArgs(searchValue, 1);
-                    $('.eventListBox .nano-content').scrollTop(0);
+                    this.handleScrollTo(0);
                     this.setState({ isSearch: !!searchValue });
                   }
                 }}
@@ -269,7 +270,7 @@ class External extends Component {
                   className="Font18 Hand"
                   onClick={() => {
                     this.props.searchEventArgs('', 1);
-                    $('.eventListBox .nano-content').scrollTop(0);
+                    this.handleScrollTo(0);
                     this.setState({ isSearch: false });
                   }}
                 />
@@ -278,13 +279,13 @@ class External extends Component {
             {!this.state.isSearch && (
               <div className="tab">
                 <ul>
-                  {this.props.tabList.map((it, i) => {
+                  {this.props.tabList.map(it => {
                     return (
                       <li
                         className={cx('Hand', { current: it.key === typeEvent })}
                         onClick={() => {
                           this.props.getEventScheduledData(it.key);
-                          $('.eventListBox .nano-content').scrollTop(0);
+                          this.handleScrollTo(0);
                           safeLocalStorageSetItem('CalendarShowExternalTypeEvent', it.key);
                         }}
                       >
@@ -298,11 +299,11 @@ class External extends Component {
             {calendarLoading && <LoadDiv />}
             {this.state.isSearch && !calendarLoading && (
               <ScrollView className="eventListBox flex">
-                <div className="mcm">{this.renderSearchData(seachData)}</div>
+                <div className="mcm">{this.renderSearchData(searchData)}</div>
               </ScrollView>
             )}
             {!this.state.isSearch && !calendarLoading && eventData && eventData.length > 0 && (
-              <ScrollView className="eventListBox flex" updateEvent={this.handleScroll}>
+              <ScrollView ref={this.scrollRef} className="eventListBox flex" onReachVerticalEdge={this.handleScroll}>
                 {this.renderListEvent()}
               </ScrollView>
             )}

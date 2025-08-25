@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
@@ -52,8 +52,8 @@ const Wrap = styled.div`
 
 export default function ViewFilter(props) {
   const { view, projectId, appId, sheetSwitchPermit, updateCurrentView, columns = [] } = props;
-  const [{ existingFilters, shwoMoreMenu, appearFilters, version }, setState] = useSetState({
-    shwoMoreMenu: false,
+  const [{ existingFilters, showMoreMenu, appearFilters, version }, setState] = useSetState({
+    showMoreMenu: false,
     existingFilters: [],
     appearFilters: view.filters || [],
     version: 0,
@@ -68,7 +68,7 @@ export default function ViewFilter(props) {
           existingFilters: existingFilters.concat(data),
         });
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('获取筛选列表失败'), 2);
       });
   }, [props.worksheetId]);
@@ -106,9 +106,9 @@ export default function ViewFilter(props) {
         <div className="Gray_75 mTop8 flex">{_l('添加筛选条件，在视图中显示符合筛选条件的记录')}</div>
         {existingFilters.length ? (
           <Trigger
-            popupVisible={shwoMoreMenu}
-            onPopupVisibleChange={shwoMoreMenu => {
-              setState({ shwoMoreMenu });
+            popupVisible={showMoreMenu}
+            onPopupVisibleChange={showMoreMenu => {
+              setState({ showMoreMenu });
             }}
             popupClassName="DropdownPanelTrigger"
             action={['click']}
@@ -123,7 +123,7 @@ export default function ViewFilter(props) {
                     onClick={() => {
                       setState({
                         appearFilters: items,
-                        shwoMoreMenu: false,
+                        showMoreMenu: false,
                         version: version + 1,
                       });
                     }}
@@ -135,7 +135,7 @@ export default function ViewFilter(props) {
               </Menu>
             }
           >
-            <Tooltip disable={shwoMoreMenu} popupPlacement="bottom" text={<span>{_l('已保存的筛选器')}</span>}>
+            <Tooltip disable={showMoreMenu} popupPlacement="bottom" text={<span>{_l('已保存的筛选器')}</span>}>
               <div className="valignWrapper more pointer">
                 <span>{_l('更多')}</span>
                 <Icon icon="arrow-down" />
@@ -159,7 +159,7 @@ export default function ViewFilter(props) {
             filterResigned={false}
             columns={columns}
             conditions={appearFilters}
-            urlParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
+            urlParams={safeParse(view?.advancedSetting?.urlparams, 'array')}
             onConditionsChange={conditions => {
               setState({
                 appearFilters: conditions,
@@ -181,8 +181,8 @@ export default function ViewFilter(props) {
               className="cancelBtn Hand Gray_75 mLeft16"
               onClick={() => {
                 if (_.isEqual(appearFilters, view.filters)) {
-                  props.onClose()
-                  return
+                  props.onClose();
+                  return;
                 }
                 setState({
                   appearFilters: view.filters,

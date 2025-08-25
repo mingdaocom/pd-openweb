@@ -44,7 +44,7 @@ a:focus {
   text-align: center;
 }
 .page .title {
-  background: #2196f3;
+  background: #1677ff;
   height: 416px;
 }
 .page .title img {
@@ -95,7 +95,7 @@ a:focus {
   color: #232323;
 }
 .page .content .contentTxt a {
-  color: #2196f3;
+  color: #1677ff;
 }
 .page .content ul li .hvr-float-shadow {
   display: inline-block;

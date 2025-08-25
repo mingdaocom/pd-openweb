@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
@@ -8,12 +9,13 @@ import FlowChart, { MobileFlowChart } from '../FlowChart';
 const Btn = styled.div`
   &:hover {
     .Gray_bd {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
 
 export default ({
+  appId,
   processId,
   instanceId,
   processName = '',
@@ -36,13 +38,14 @@ export default ({
       <div className="flex" />
       {isApproval && (
         <div className="flexRow pointer alignItemsCenter Gray_75 ThemeHoverColor3" onClick={() => setVisible(true)}>
-          <Icon className="Font16 mRight5" icon="department1" />
+          <Icon className="Font16 mRight5" icon="department" />
           <div className="bold">{_l('流转图')}</div>
         </div>
       )}
 
       {visible && (
         <Modal
+          appId={appId}
           processId={processId}
           instanceId={instanceId}
           selectNodeId={_.get(currentWork, 'flowNode.id')}

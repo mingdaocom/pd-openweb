@@ -1,0 +1,45 @@
+import React from 'react';
+import { Input } from 'antd';
+import _ from 'lodash';
+import { getTranslateInfo } from 'src/utils/app';
+import { LANG_DATA_TYPE } from '../config';
+import EditInput from './EditInput';
+
+export default function Workflow(props) {
+  const { app, translateData, comparisonLangId, comparisonLangData, selectNode, onEditAppLang } = props;
+  const data = _.find(translateData, { correlationId: selectNode.key }) || {};
+  const translateInfo = data.data || {};
+
+  const handleSave = info => {
+    onEditAppLang({
+      id: data.id,
+      parentId: app.id,
+      correlationId: selectNode.key,
+      type: LANG_DATA_TYPE.workflow,
+      data: {
+        ...translateInfo,
+        ...info,
+      },
+    });
+  };
+
+  const name = comparisonLangId
+    ? getTranslateInfo(app.id, null, selectNode.key, comparisonLangData).name
+    : selectNode.originalTitle;
+
+  return (
+    <div className="pAll20">
+      <div className="Font14 bold mBottom20">{translateInfo.name || selectNode.originalTitle}</div>
+      <div className="flexRow alignItemsCenter nodeItem">
+        <div className="Font13 mRight20 label">{_l('工作流名称')}</div>
+        <Input className="flex mRight20" value={name} disabled={true} />
+        <EditInput
+          className="flex"
+          disabled={!name}
+          value={translateInfo.name}
+          onChange={value => handleSave({ name: value })}
+        />
+      </div>
+    </div>
+  );
+}

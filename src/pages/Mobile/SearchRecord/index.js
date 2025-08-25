@@ -101,6 +101,7 @@ class Search extends Component {
         viewId: params.viewId,
         keyWords: searchId ? undefined : keyWords,
         filterControls: searchFilter ? filterControls.concat(searchFilter) : filterControls,
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       })
       .then(({ data }) => {
         const { rows } = this.state;

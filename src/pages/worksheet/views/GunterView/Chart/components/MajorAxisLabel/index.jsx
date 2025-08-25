@@ -1,8 +1,8 @@
-import React, { Fragment, Component, createRef } from 'react';
-import styled from 'styled-components';
-import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
+import React, { Component, createRef, Fragment } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
 
 const AxisLabel = styled.div`
   font-size: 14px;
@@ -22,18 +22,16 @@ const paddingLeft = 15;
 
 const isGunterExport = location.href.includes('gunterExport');
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['chartScroll']),
-  })
-)
+@connect(state => ({
+  ..._.pick(state.sheet.gunterView, ['chartScroll']),
+}))
 export default class MajorAxisLabel extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isyear: false,
-      reset: true
-    }
+      reset: true,
+    };
     this.$axisRef = createRef(null);
     this.$yearRef = createRef(null);
     this.yearLabelWidth = 0;
@@ -52,7 +50,7 @@ export default class MajorAxisLabel extends Component {
   }
   onScroll = () => {
     const { item, periodType, chartScroll } = this.props;
-    const [ y, m ] = item.time.split('-');
+    const [, m] = item.time.split('-');
     const yearVisible = [PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) && !isGunterExport;
     const scrollLeft = Math.abs(chartScroll.x - paddingLeft) + (yearVisible ? this.yearLabelWidth : 0);
     const currentEl = this.$axisRef.current;
@@ -68,10 +66,10 @@ export default class MajorAxisLabel extends Component {
     } else {
       this.setState({ isyear: m === '01' });
     }
-  }
+  };
   renderYearLabel() {
     const { item, chartScroll } = this.props;
-    const [ y, m ] = item.time.split('-');
+    const [y] = item.time.split('-');
 
     if (this.state.reset) {
       const left = Math.abs(chartScroll.x);
@@ -84,7 +82,7 @@ export default class MajorAxisLabel extends Component {
   }
   renderName() {
     const { item, periodType } = this.props;
-    const [ y, m ] = item.time.split('-');
+    const [, m] = item.time.split('-');
     if (this.state.isyear || ![PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) || isGunterExport) {
       return item.time;
     }
@@ -95,10 +93,7 @@ export default class MajorAxisLabel extends Component {
     return (
       <Fragment>
         {[PERIOD_TYPE.day, PERIOD_TYPE.week].includes(periodType) && !isGunterExport && this.renderYearLabel()}
-        <AxisLabel
-          ref={this.$axisRef}
-          style={{ width: item.width }}
-        >
+        <AxisLabel ref={this.$axisRef} style={{ width: item.width }}>
           {this.renderName()}
         </AxisLabel>
       </Fragment>

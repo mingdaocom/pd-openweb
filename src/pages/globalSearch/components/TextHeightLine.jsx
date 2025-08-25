@@ -1,6 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+
 const TextBox = styled.span`
   .hightLine {
     background: #dbf0ff;
@@ -9,7 +10,7 @@ const TextBox = styled.span`
 `;
 
 export default function TextHeightLine(props) {
-  const { heightLineText, text, hightLineClass, className } = props;
+  const { heightLineText, text = '', hightLineClass, className } = props;
 
   let list = text.split(heightLineText);
   return (

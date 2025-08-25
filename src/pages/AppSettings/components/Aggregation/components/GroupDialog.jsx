@@ -1,22 +1,22 @@
 import React, { useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Dialog, SortableList } from 'ming-ui';
+import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import { useSetState } from 'react-use';
+import _, { isUndefined } from 'lodash';
 import Trigger from 'rc-trigger';
-import ChooseControls from './ChooseControls';
+import styled from 'styled-components';
+import { Dialog, Icon, SortableList } from 'ming-ui';
 import 'src/pages/AppSettings/components/Aggregation/components/style.less';
+import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, GROUPMAXBYREL, isUnique } from '../config';
 import {
-  getNodeInfo,
+  formatControls,
   getControls,
+  getLimitControlByRelativeNum,
+  getNodeInfo,
   getResultField,
   isDelStatus,
-  formatControls,
-  getLimitControlByRelativeNum,
 } from '../util';
-import _, { isUndefined } from 'lodash';
-import { canArraySplit, isUnique, GROUPMAX, GROUPLIMITTYPES } from '../config';
+import ChooseControls from './ChooseControls';
 
 const inputW = 240;
 const inputWm = 200;
@@ -161,7 +161,7 @@ const WrapDrop = styled.div`
   max-height: 360px;
 `;
 const WrapAdd = styled.span`
-  color: #2196f3;
+  color: #1677ff;
   background: #fff;
   height: 36px;
   position: relative;
@@ -188,7 +188,7 @@ export default function GroupDialog(props) {
         <div className="leftCon flexRow alignItemsCenter justifyContentCenter">
           <div className="num">{num + 1}</div>
           <Icon
-            icon="delete1"
+            icon="trash"
             className="clearIcon Hand del Font16"
             onClick={() => {
               onUpdate(items.filter((o, i) => i !== num));
@@ -227,7 +227,10 @@ export default function GroupDialog(props) {
                             a => !oidList.includes(`${o.dataSource}_${a.controlId}`) && ![6, 8].includes(a.type), //这期先不支持数值金额
                           )
                           .map(o => {
-                            if (getLimitControlByRelativeNum(flowDataNew) >= 3 && GROUPLIMITTYPES.includes(o.type)) {
+                            if (
+                              getLimitControlByRelativeNum(flowDataNew) >= GROUPMAXBYREL &&
+                              GROUPLIMITTYPES.includes(o.type)
+                            ) {
                               o.isLimit = true;
                             } else {
                               o = _.omit(o, ['isLimit']);
@@ -267,15 +270,15 @@ export default function GroupDialog(props) {
                           sourceInfos={sourceInfoData}
                           onChange={data => {
                             const { control, childrenControl } = data;
-                            const dataControl = !!childrenControl ? childrenControl : control;
-                            const name = !!childrenControl
+                            const dataControl = childrenControl ? childrenControl : control;
+                            const name = childrenControl
                               ? `${control.controlName}-${dataControl.controlName}`
                               : dataControl.controlName;
                             let newDt = {
                               alias: name,
                               controlSetting: dataControl,
                               isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
-                              parentFieldInfo: !!childrenControl
+                              parentFieldInfo: childrenControl
                                 ? {
                                     controlSetting: control,
                                     oid: `${o.worksheetId}_${control.controlId}`,
@@ -285,7 +288,7 @@ export default function GroupDialog(props) {
                               isTitle: dataControl.attribute === 1, //是否是标题，只有是工作表字段才有值
                               mdType: dataControl.type,
                               name: name,
-                              oid: `${!!childrenControl ? control.dataSource : o.worksheetId}_${dataControl.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
+                              oid: `${childrenControl ? control.dataSource : o.worksheetId}_${dataControl.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
                               precision: 0,
                               scale: 0,
                             };
@@ -318,6 +321,7 @@ export default function GroupDialog(props) {
                         <Tooltip
                           placement="bottomLeft"
                           offset={[-20, 0]}
+                          autoCloseDelay={0}
                           title={
                             <span className="">
                               {_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) && (
@@ -336,7 +340,7 @@ export default function GroupDialog(props) {
                       )}
                       {_.get(item, `fields[${i}].name`) && (
                         <Icon
-                          icon="cancel1"
+                          icon="cancel"
                           className="Gray_9e mLeft8 clearField"
                           onClick={e => {
                             e.stopPropagation();
@@ -355,7 +359,7 @@ export default function GroupDialog(props) {
                   </Trigger>
                   {i < sourceInfos.length - 1 && (
                     <div className="joinCon flexRow alignItemsCenter justifyContentCenter">
-                      <Icon icon="task-point-more" className="Font20 Gray_bd" />
+                      <Icon icon="more_horiz" className="Font20 Gray_bd" />
                     </div>
                   )}
                 </React.Fragment>
@@ -369,7 +373,7 @@ export default function GroupDialog(props) {
   const onSave = () => {
     //字段名称显示第一个工作表，第一个字段的名称。
     let isErr = false;
-    groupControls.map((o, n) => {
+    groupControls.map(o => {
       sourceInfos.map((oo, nn) => {
         if (!(_.get(o, `fields[${nn}]`) || {}).oid) {
           isErr = true;

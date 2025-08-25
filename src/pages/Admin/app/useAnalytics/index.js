@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import moment from 'moment';
-import { Button, Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { VersionProductType } from 'src/utils/enum';
@@ -60,6 +59,7 @@ export default class UseAnalytics extends Component {
             <Tooltip
               tooltipClass="analyticsTooltip"
               popupPlacement="bottom"
+              autoCloseDelay={0}
               text={
                 <span className="tooltipCon">
                   {_l(

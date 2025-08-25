@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
-import CellControl from 'worksheet/components/CellControls';
+import { Icon, LoadDiv } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
+import CellControl from 'worksheet/components/CellControls';
 
 const Wrap = styled.div(
   ({ width }) => `

@@ -9,7 +9,7 @@ export default class TimeSelect extends Component {
     dateNoTime: true,
   };
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (this.text && this.text.value !== nextProps.data.number) {
       this.text.value = nextProps.data.number;
     }

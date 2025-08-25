@@ -26,7 +26,7 @@ const SetInitialPassword = styled.div`
       width: 320px;
       height: 36px;
       margin: 0 24px 0 28px;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
     .passwordError {
       border: 1px solid #ff4d4f;
@@ -100,7 +100,7 @@ export default class IntegrationSetPassword extends Component {
   };
   render() {
     let { disabled } = this.props;
-    const { passwordRegexTip, passwordRegex } = md.global.SysSettings;
+    const { passwordRegexTip } = md.global.SysSettings;
 
     return (
       <SetInitialPassword>

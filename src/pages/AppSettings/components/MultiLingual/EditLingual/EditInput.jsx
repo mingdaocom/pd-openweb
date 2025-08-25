@@ -1,7 +1,7 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from 'antd';
 
-export default function(props) {
+export default function (props) {
   const { className, style, disabled, type, value, onChange } = props;
   const [name, setName] = useState(value);
   const Component = type === 'textArea' ? Input.TextArea : Input;
@@ -14,7 +14,7 @@ export default function(props) {
     if (value !== event.target.value) {
       onChange(event.target.value || undefined);
     }
-  }
+  };
 
   return (
     <Component

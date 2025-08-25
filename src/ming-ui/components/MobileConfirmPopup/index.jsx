@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 const PopupWrap = styled(Popup)`
-  .contentBox {
+  .titleBox {
     display: flex;
-    padding: 24px 15px;
+    padding: 24px 15px 30px;
     .descIconBox {
       margin-right: 15px;
       .success {
@@ -34,6 +34,9 @@ const PopupWrap = styled(Popup)`
       color: #757575;
     }
   }
+  .contentBox {
+    padding: 0 15px 24px;
+  }
   .footerBox {
     padding: 10px;
     display: flex;
@@ -57,30 +60,36 @@ const ConfirmPopup = props => {
     subDesc,
     cancelText = _l('取消'),
     confirmText = _l('确认'),
+    removeCancelBtn = false,
     onCancel,
     onConfirm,
+    children,
+    className,
   } = props;
 
   return (
-    <PopupWrap className="mobileModal topRadius" onClose={onCancel} visible={visible}>
-      {/* 内容 */}
-      <div className="contentBox">
+    <PopupWrap className={`mobileModal topRadius ${className || ''}`} onClose={onCancel} visible={visible}>
+      {/* 标题 */}
+      <div className="titleBox">
         {descIcon && <div className="descIconBox">{descIcon}</div>}
         <div className="descBox">
           <div className="title">{title}</div>
           {subDesc && <div className="subDesc">{subDesc}</div>}
         </div>
       </div>
+      {/* 自定义内容 */}
+      {children && <div className="contentBox">{children}</div>}
+
       <div className="footerBox">
         {/* 取消 */}
-        {cancelText && onCancel && (
+        {cancelText && onCancel && !removeCancelBtn && (
           <Button className="cancel" onClick={onCancel}>
             {cancelText}
           </Button>
         )}
         {/* 确认 */}
         {confirmText && onConfirm && (
-          <Button color="primary" onClick={onConfirm}>
+          <Button color="primary" onClick={onConfirm} data-id="confirmBtn">
             {confirmText}
           </Button>
         )}
@@ -96,6 +105,7 @@ ConfirmPopup.propTypes = {
   subDesc: PropTypes.string,
   cancelText: PropTypes.string,
   confirmText: PropTypes.string,
+  removeCancelBtn: PropTypes.bool,
   onCancel: PropTypes.func,
   onConfirm: PropTypes.func,
 };

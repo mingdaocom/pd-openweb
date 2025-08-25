@@ -250,7 +250,7 @@ class TaskToolbar extends Component {
                 className="mLeft5 tip-bottom-left"
                 data-tip={_l('项目及看板名称、自定义任务内容被保存为模板的信息')}
               >
-                <i className="icon-knowledge-message" />
+                <i className="icon-info" />
               </span>
             </li>
 
@@ -259,7 +259,7 @@ class TaskToolbar extends Component {
                 className="ThemeBGColor3"
                 onClick={() => this.setState({ showExportFolder: true, showOperator: false })}
               >
-                <i className="icon-task_custom_excel_01" />
+                <i className="icon-new_excel" />
                 {_l('导出任务列表到Excel')}
               </li>
             ) : undefined}
@@ -279,7 +279,7 @@ class TaskToolbar extends Component {
                     deleteFolder(folderId, this.props.hideNavigation);
                   }}
                 >
-                  <i className="icon-task-new-delete" />
+                  <i className="icon-trash" />
                   {_l('删除项目')}
                 </li>
               </Fragment>
@@ -293,7 +293,7 @@ class TaskToolbar extends Component {
                   exitFolder(folderId, this.props.hideNavigation);
                 }}
               >
-                <i className="icon-task-new-exit" />
+                <i className="icon-groupExit" />
                 {_l('退出项目')}
               </li>
             ) : undefined}
@@ -479,11 +479,11 @@ class TaskToolbar extends Component {
                 data-tip={isTop ? _l('取消置顶') : _l('置顶')}
                 onClick={this.updateFolderTop}
               >
-                <i className="icon-folder-top" />
+                <i className="icon-set_top" />
               </span>
             )}
             <span className="networkLabel tip-bottom-right" data-tip={companyName}>
-              <i className={projectId ? 'icon-company' : 'icon-charger'} />
+              <i className={projectId ? 'icon-business' : 'icon-charger'} />
             </span>
             {!this.state.showEdit ? (
               <span className={cx('folderName', { 'ThemeColor3 pointer': auth })} onClick={this.editFolderName}>

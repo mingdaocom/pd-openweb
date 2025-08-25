@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Radio, Input, Space, Select, Tag, Tooltip } from 'antd';
-import { Icon, ColorPicker } from 'ming-ui';
+import { Checkbox, Input, Radio, Select, Space, Tag, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { ColorPicker, Icon } from 'ming-ui';
 import { reportTypes, roundTypes } from 'statistics/Charts/common';
 import RuleColor from './Color/RuleColor';
 
@@ -13,8 +14,8 @@ export default class Label extends Component {
     };
   }
   render() {
-    const { currentReport, onChangeDisplayValue, onUpdateDisplaySetup, onChangeStyle } = this.props;
-    const { reportType, yaxisList, displaySetup, summary, rightY, style, split } = currentReport;
+    const { currentReport, onChangeDisplayValue, onChangeDisplaySetup, onChangeStyle } = this.props;
+    const { reportType, yaxisList, displaySetup, summary, rightY, style } = currentReport;
     const { percent } = displaySetup;
 
     const labelPercent = (
@@ -26,7 +27,7 @@ export default class Label extends Component {
             onChange={event => {
               onChangeDisplayValue('percent', {
                 ...percent,
-                enable: event.target.checked
+                enable: event.target.checked,
               });
             }}
           >
@@ -43,7 +44,7 @@ export default class Label extends Component {
                 const count = Number(event.target.value.replace(/-/g, ''));
                 onChangeDisplayValue('percent', {
                   ...percent,
-                  dot: count >= 9 ? 9 : count
+                  dot: count >= 9 ? 9 : count,
                 });
               }}
               suffix={
@@ -55,7 +56,7 @@ export default class Label extends Component {
                       let newYdot = Number(percent.dot);
                       onChangeDisplayValue('percent', {
                         ...percent,
-                        dot: newYdot >= 9 ? 9 : newYdot + 1
+                        dot: newYdot >= 9 ? 9 : newYdot + 1,
                       });
                     }}
                   />
@@ -66,7 +67,7 @@ export default class Label extends Component {
                       let newYdot = Number(percent.dot);
                       onChangeDisplayValue('percent', {
                         ...percent,
-                        dot: newYdot ? newYdot - 1 : 0
+                        dot: newYdot ? newYdot - 1 : 0,
                       });
                     }}
                   />
@@ -80,7 +81,7 @@ export default class Label extends Component {
               onChange={value => {
                 onChangeDisplayValue('percent', {
                   ...percent,
-                  roundType: value
+                  roundType: value,
                 });
               }}
             >
@@ -98,14 +99,19 @@ export default class Label extends Component {
                   const value = percent.dotFormat === '1' ? '0' : '1';
                   onChangeDisplayValue('percent', {
                     ...percent,
-                    dotFormat: value
+                    dotFormat: value,
                   });
                 }}
               >
                 {_l('省略末尾的 0')}
               </Checkbox>
-              <Tooltip title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')} placement="bottom" arrowPointAtCenter>
-                <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+              <Tooltip
+                autoCloseDelay={0}
+                title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
+                placement="bottom"
+                arrowPointAtCenter
+              >
+                <Icon className="Gray_9e Font18 pointer" icon="info" />
               </Tooltip>
             </div>
           </div>
@@ -220,7 +226,7 @@ export default class Label extends Component {
                     onChangeDisplayValue('colorRules', newColorRules);
                   }}
                 >
-                  <Icon className="Font16 Gray_9e" icon="delete2" />
+                  <Icon className="Font16 Gray_9e" icon="trash" />
                 </div>
               )}
             </div>
@@ -259,8 +265,7 @@ export default class Label extends Component {
                 className="mLeft0"
                 checked={displaySetup.showNumber}
                 onChange={() => {
-                  onUpdateDisplaySetup({
-                    ...displaySetup,
+                  onChangeDisplaySetup({
                     showNumber: !displaySetup.showNumber,
                   });
                 }}
@@ -282,8 +287,7 @@ export default class Label extends Component {
                 className="mLeft0"
                 checked={displaySetup.showDimension}
                 onChange={() => {
-                  onUpdateDisplaySetup({
-                    ...displaySetup,
+                  onChangeDisplaySetup({
                     showDimension: !displaySetup.showDimension,
                   });
                 }}
@@ -310,8 +314,7 @@ export default class Label extends Component {
                 className="mLeft0 mBottom5"
                 checked={displaySetup.showNumber}
                 onChange={() => {
-                  onUpdateDisplaySetup({
-                    ...displaySetup,
+                  onChangeDisplaySetup({
                     showNumber: !displaySetup.showNumber,
                   });
                 }}
@@ -370,14 +373,12 @@ export default class Label extends Component {
             checked={displaySetup.showDimension || displaySetup.showNumber}
             onChange={() => {
               if (displaySetup.showDimension || displaySetup.showNumber) {
-                onUpdateDisplaySetup({
-                  ...displaySetup,
+                onChangeDisplaySetup({
                   showDimension: false,
                   showNumber: false,
                 });
               } else {
-                onUpdateDisplaySetup({
-                  ...displaySetup,
+                onChangeDisplaySetup({
                   showDimension: true,
                   showNumber: true,
                 });
@@ -387,6 +388,19 @@ export default class Label extends Component {
             {reportType === reportTypes.FunnelChart ? _l('显示转化率') : _l('显示数据')}
           </Checkbox>
         </div>
+        {reportType === reportTypes.FunnelChart && (
+          <div className="mLeft20 mBottom12">
+            {(displaySetup.showDimension || displaySetup.showNumber) && (
+              <Input
+                className="chartInput"
+                defaultValue={style.funnelConversionText || _l('转化率')}
+                onBlur={event => {
+                  onChangeStyle({ funnelConversionText: event.target.value.slice(0, 10) });
+                }}
+              />
+            )}
+          </div>
+        )}
         {reportType === reportTypes.LineChart && displaySetup.showNumber && (
           <Select
             mode="multiple"

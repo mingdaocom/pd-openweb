@@ -33,7 +33,7 @@ const Dropdown = props => {
       );
     }
 
-    return <span className="breakAllWrap">{content}</span>;
+    return <span className="breakAllWrap radioText">{content}</span>;
   };
 
   const onChange = value => {

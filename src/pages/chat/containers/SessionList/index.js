@@ -1,22 +1,22 @@
 import React, { Component, Fragment } from 'react';
+import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import ScrollView from 'ming-ui/components/ScrollView';
+import _ from 'lodash';
+import { Icon, ScrollView, Tooltip } from 'ming-ui';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import GroupController from 'src/api/group';
+import { getRequest } from 'src/utils/common';
 import SessionItem from '../../components/SessionItem';
-import * as ajax from '../../utils/ajax';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils/';
-import * as socket from '../../utils/socket';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import * as ajax from '../../utils/ajax';
 import Constant from '../../utils/constant';
-import { createRoot } from 'react-dom/client';
-import Tooltip from 'ming-ui/components/Tooltip';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import * as socket from '../../utils/socket';
 import './index.less';
-import _ from 'lodash';
-import { Icon } from 'ming-ui';
-import GroupController from 'src/api/group';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class ContextMenu extends Component {
@@ -97,17 +97,24 @@ class SessionList extends Component {
       isFeed: false,
       isClear: false,
       chatCount: 0,
+      showSessionCount: 0,
     };
+    this.isWindowChat = location.href.includes('windowChat');
   }
   componentDidMount() {
+    // const { visible } = this.props;
     // 会话列表
     this.getChatSessionList(this.state.pageIndex);
     // 全局打开会话窗口
     window.handleOpenChatPanel = this.handleOpenChatPanel.bind(this);
+    // !visible && this.handleResizeObserver();
+  }
+  componentWillUnmount() {
+    this.resizeObserver && this.resizeObserver.unobserve(this.sessionListWrap);
   }
   componentWillReceiveProps(nextProps) {
     const { chatCount } = this.state;
-    const { sessionList } = nextProps;
+    const { sessionList, currentSession } = nextProps;
     if (!sessionList.length) {
       this.getChatSessionList(1);
       return;
@@ -126,6 +133,40 @@ class SessionList extends Component {
       this.setState({
         chatCount: currentChatCount,
       });
+    }
+    if (this.props.currentSession.id && currentSession.id !== this.props.currentSession.id) {
+      const { id } = getRequest();
+      if (this.isWindowChat && id) {
+        history.replaceState(null, '', window.location.pathname);
+      }
+    }
+    if (this.props.messageListShowType !== nextProps.messageListShowType) {
+      this.props.dispatch(actions.setSessionList(sessionList));
+    }
+    if (this.isWindowChat && sessionList.length && _.isEmpty(currentSession)) {
+      const { id, type } = getRequest();
+      const target = _.find(sessionList, { value: id });
+      if (target) {
+        this.handleOpenPanel(target);
+      } else if (utils.getIsInbox(id)) {
+        id && this.addInbox({ id, type });
+      } else {
+        id && this.addSession({ id, type });
+      }
+    }
+  }
+  handleResizeObserver() {
+    this.resizeObserver = new ResizeObserver(() => {
+      const { clientHeight } = this.sessionListWrap;
+      const sessionHeight = 42;
+      const marginBottom = 5;
+      const count = parseInt((clientHeight + marginBottom) / sessionHeight);
+      this.setState({
+        showSessionCount: count > 0 ? count - 1 : count,
+      });
+    });
+    if (this.sessionListWrap) {
+      this.resizeObserver.observe(this.sessionListWrap);
     }
   }
   getChatSessionList(pageIndex) {
@@ -172,6 +213,65 @@ class SessionList extends Component {
         }
       });
   }
+  addInbox = ({ id, type }) => {
+    const message = {
+      count: 0,
+      id,
+      type: Number(type),
+      dtype: id,
+    };
+    socket.Contact.recordAction({
+      id: message,
+      type: 3,
+    });
+    socket.Contact.clearUnread({
+      type: message.type,
+      value: id,
+    }).then(() => {
+      this.props.dispatch(
+        actions.updateSessionList({
+          id,
+          clearCount: 0,
+        }),
+      );
+    });
+    this.props.dispatch(actions.addSysSession(id, message));
+  };
+  addSession = ({ id, type = 1 }) => {
+    ajax
+      .chatSessionItem({
+        type,
+        value: id,
+      })
+      .then(result => {
+        let data = {};
+        if (type == Constant.SESSIONTYPE_USER) {
+          data = {
+            isGroup: false,
+            uname: result.fullname,
+            count: 0,
+            from: result.accountId,
+            logo: result.avatar,
+            sysType: 1,
+            msg: { con: '' },
+          };
+        } else if (type == Constant.SESSIONTYPE_GROUP) {
+          data = {
+            isGroup: true,
+            groupname: result.name,
+            count: 0,
+            to: result.groupId,
+            from: result.from,
+            avatar: result.avatar,
+            sysType: 1,
+            msg: { con: '' },
+          };
+        }
+        this.props.dispatch(actions.addSession(data));
+        // this.props.dispatch(actions.addCurrentSession(result));
+        this.handleOpenPanel(data);
+      });
+  };
   handleScrollEnd() {
     this.getChatSessionList(this.state.pageIndex);
   }
@@ -207,7 +307,7 @@ class SessionList extends Component {
 
     // 清除计数
     if (item.count || item.weak_count) {
-      socket.Contact.clearUnread(Object.assign({}, item)).then(result => {
+      socket.Contact.clearUnread(Object.assign({}, item)).then(() => {
         this.props.dispatch(
           actions.updateSessionList({
             id: item.value,
@@ -247,7 +347,7 @@ class SessionList extends Component {
     socket.Contact.remove({
       id: item.value,
       type: item.type,
-    }).then(result => {});
+    }).then(() => {});
   }
   handleContextMenu(item, event) {
     event.preventDefault();
@@ -322,28 +422,27 @@ class SessionList extends Component {
     }
   }
   handleGotoSession() {
-    const { chatCount } = this.state;
-    const { sessionList } = this.props;
-    const scrollView = this.scrollView.nanoScroller;
-    if (chatCount) {
-      const sessions = sessionList.filter(item => item.count);
-      const sessionEls = sessions.map(item => {
-        const el = $(`[data-id=${item.value}]`);
-        return el.size() ? el.position().top : 0;
-      });
-      const { contentScrollTop } = scrollView.nanoscroller;
-      const gotoCount = this.gotoCount || 0;
-      if (gotoCount === sessionEls.length - 1) {
-        this.gotoCount = 0;
-      } else {
-        this.gotoCount = gotoCount + 1;
-      }
-      $(scrollView).nanoScroller({ scrollTop: sessionEls[gotoCount] + contentScrollTop });
-    } else {
-      $(scrollView).nanoScroller({ scrollTop: 0 });
-    }
+    // const { chatCount } = this.state;
+    // const { sessionList } = this.props;
+    // const scrollView = this.scrollView;
+    // if (chatCount) {
+    //   const sessions = sessionList.filter(item => item.count);
+    //   const sessionEls = sessions.map(item => {
+    //     const el = $(`[data-id=${item.value}]`);
+    //     return el.size() ? el.position().top : 0;
+    //   });
+    //   const { contentScrollTop } = scrollView;
+    //   const gotoCount = this.gotoCount || 0;
+    //   if (gotoCount === sessionEls.length - 1) {
+    //     this.gotoCount = 0;
+    //   } else {
+    //     this.gotoCount = gotoCount + 1;
+    //   }
+    //   this.scrollView.current.scrollTo(sessionEls[gotoCount] + contentScrollTop);
+    // } else {
+    //   this.scrollView.current.scrollTo(0);
+    // }
   }
-
   handleUpdatePushNotice() {
     const { hoverItem } = this.state;
     const { type, isPush, value, isSilent } = hoverItem;
@@ -353,7 +452,7 @@ class SessionList extends Component {
         GroupController.updateGroupPushNotice({
           groupId: value,
           isPushNotice: !isPush,
-        }).then(result => {
+        }).then(() => {
           this.props.dispatch(actions.updateGroupPushNotice(value, !isPush));
           this.handleClickAway();
         });
@@ -372,7 +471,6 @@ class SessionList extends Component {
         break;
     }
   }
-
   renderMenu() {
     const { isFeed, hoverItem } = this.state;
     const { top_info, type, isPush, isSilent } = hoverItem;
@@ -493,7 +591,7 @@ class SessionList extends Component {
               text={<span>{chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}</span>}
             >
               <div className="SessionList-bell" style={{ cursor: chatCount ? 'pointer' : 'initial' }}>
-                <i className="icon-hr_message_reminder"></i>
+                <i className="icon-notifications"></i>
                 {chatCount ? <span>{chatCount >= 99 ? '99+' : chatCount}</span> : undefined}
               </div>
             </Tooltip>
@@ -517,60 +615,84 @@ class SessionList extends Component {
     }
   }
   render() {
-    const { loading, menuVisible, offset, hoverItem, isClear } = this.state;
-    const { currentSession, visible, sessionList } = this.props;
+    const { loading, menuVisible, offset, hoverItem, isClear, chatCount } = this.state;
+    const { currentSession, visible, sessionList, isOpenCommonApp } = this.props;
     return (
-      <div className="ChatList-sessionList-wrapper">
-        {this.renderClearAllCount()}
-        <ScrollView
-          onScrollEnd={this.handleScrollEnd.bind(this)}
-          className="SessionList-scrollView ThemeBGColor9"
-          ref={scrollView => {
-            this.scrollView = scrollView;
-          }}
-        >
-          <ClickAwayable
-            component="div"
-            onClickAway={this.handleClickAway.bind(this)}
-            onClickAwayExceptions={['.ChatPanel-addToolbar-menu']}
+      <div
+        className={cx('ChatList-sessionList-wrapper flexColumn minHeight0', {
+          'ChatList-sessionList-show': visible,
+        })}
+        ref={el => {
+          this.sessionListWrap = el;
+        }}
+      >
+        <div className="flex minHeight0">
+          <ScrollView
+            onScrollEnd={this.handleScrollEnd.bind(this)}
+            className="SessionList-scrollView ThemeBGColor9"
+            options={{ scrollbars: visible ? {} : { visibility: 'hidden' } }}
+            ref={scrollView => {
+              this.scrollView = scrollView;
+            }}
           >
-            <ContextMenu visible={menuVisible} offset={offset}>
-              {isClear ? this.renderClearMenu() : this.renderMenu()}
-            </ContextMenu>
-          </ClickAwayable>
-          {sessionList.map((item, index) => (
-            <SessionItem
-              onOpenPanel={this.handleOpenPanel.bind(this, item)}
-              onRemoveSession={this.handleRemoveSession.bind(this, item)}
-              onContextMenu={event => {
-                this.handleContextMenu(item, event);
-              }}
-              item={item}
-              visible={visible}
-              key={item.value}
-              isActive={item.value === currentSession.value}
-              isHover={item.value === hoverItem.value}
-            />
-          ))}
-          {!sessionList.length && visible && !loading ? this.renderEmpty() : undefined}
-          {loading ? (
-            <div className={cx('ChatList-sessionList-loading', { visible: !visible, nodata: !sessionList.length })}>
-              <LoadDiv size="small" />
-            </div>
-          ) : undefined}
-        </ScrollView>
+            {sessionList.map(item => (
+              <SessionItem
+                onOpenPanel={this.handleOpenPanel.bind(this, item)}
+                onRemoveSession={this.handleRemoveSession.bind(this, item)}
+                onContextMenu={event => {
+                  this.handleContextMenu(item, event);
+                }}
+                item={item}
+                visible={visible}
+                key={item.value}
+                isActive={item.value === currentSession.value}
+                isHover={item.value === hoverItem.value}
+              />
+            ))}
+            {!sessionList.length && visible && !loading ? this.renderEmpty() : undefined}
+            {loading && (
+              <div className={cx('ChatList-sessionList-loading', { visible: !visible, nodata: !sessionList.length })}>
+                <LoadDiv size="small" />
+              </div>
+            )}
+            <ClickAwayable
+              component="div"
+              onClickAway={this.handleClickAway.bind(this)}
+              onClickAwayExceptions={['.ChatPanel-addToolbar-menu']}
+            >
+              <ContextMenu visible={menuVisible} offset={offset}>
+                {isClear ? this.renderClearMenu() : this.renderMenu()}
+              </ContextMenu>
+            </ClickAwayable>
+          </ScrollView>
+        </div>
+        {!visible && (isOpenCommonApp ? !!chatCount : true) && (
+          <div
+            className="flexRow alignItemsCenter justifyContentCenter mTop5"
+            onClick={() => {
+              document.querySelector('.toolbarWrap .sessionList').click();
+            }}
+          >
+            <Tooltip text={chatCount ? _l('未读消息') : _l('展开')} popupPlacement="left" offset={[-3, 0]}>
+              <div className="countWrap pointer Font12">
+                {chatCount ? chatCount >= 99 ? '99+' : chatCount : <Icon icon="arrow-left-border" />}
+              </div>
+            </Tooltip>
+          </div>
+        )}
       </div>
     );
   }
 }
 
 export default connect(state => {
-  const { currentSession, currentSessionList, sessionList, visible, socketState } = state.chat;
+  const { currentSession, currentSessionList, sessionList, socketState, toolbarConfig } = state.chat;
   return {
     currentSession,
     currentSessionList,
     sessionList,
-    visible,
     socketState,
+    messageListShowType: toolbarConfig.messageListShowType,
+    isOpenCommonApp: toolbarConfig.isOpenCommonApp && toolbarConfig.hideOpenCommonApp !== true,
   };
 })(SessionList);

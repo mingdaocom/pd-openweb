@@ -53,14 +53,7 @@ class DialogSettingInviteRules extends React.Component {
   };
 
   render() {
-    const {
-      showDialogSettingInviteRules,
-      setValue,
-      updateType,
-      dispatch,
-      projectId,
-      updateAllowProjectCodeJoin = () => {},
-    } = this.props;
+    const { showDialogSettingInviteRules, setValue, projectId, updateAllowProjectCodeJoin = () => {} } = this.props;
     return (
       <Dialog
         width={640}
@@ -173,6 +166,7 @@ class DialogSettingInviteRules extends React.Component {
               <p className="Gray Font13">
                 {_l('邀请审核')}
                 <Tooltip
+                  autoCloseDelay={0}
                   text={
                     <span>
                       {_l(
@@ -266,7 +260,7 @@ class DialogSettingInviteRules extends React.Component {
                 <p className="Gray Font13">
                   {_l('部门')}
                   <span className="warnTip dept Hidden">
-                    <span className="icon-knowledge-message Red" />
+                    <span className="icon-info Red" />
                     <span className="Red">{_l('尚未配置部门')}</span>
                     <span
                       className="Gray_9e Hand"
@@ -324,7 +318,7 @@ class DialogSettingInviteRules extends React.Component {
                 <p className="Gray Font13">
                   {_l('工作地点')}
                   <span className="warnTip workSite Hidden">
-                    <span className="icon-knowledge-message Red" />
+                    <span className="icon-info Red" />
                     <span className="Red"> {_l('尚未配置工作地点')}</span>
                     <span
                       className="Gray_9e Hand"

@@ -47,10 +47,6 @@ const Empty = styled.span`
   border-radius: 3px;
 `;
 
-const Group = styled.div`
-  display: inline-block;
-`;
-
 const Control = styled.div`
   display: flex;
   flex-direction: ${$props => $props.direction};

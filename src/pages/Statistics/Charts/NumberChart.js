@@ -1,10 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { generate } from '@ant-design/colors';
 import { Col, Dropdown, Menu, Row, Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { images } from 'statistics/components/ChartStyle/components/BgPicker/Image';
 import { browserIsMobile } from 'src/utils/common';
 import { toFixed } from 'src/utils/control';
 import { formatContrastTypes, isFormatNumber, isTimeControl } from '../common';
@@ -15,6 +16,11 @@ const isMobile = browserIsMobile();
 
 const Wrap = styled.div`
   justify-content: center;
+  &.oneNumberWrap {
+    height: 40%;
+    margin: auto 0;
+    border-radius: 10px;
+  }
   &.verticalAlign-top {
     align-items: flex-start;
     overflow-y: auto;
@@ -33,10 +39,11 @@ const Wrap = styled.div`
     &.oneNumber {
       padding-left: 0;
       padding-right: 0;
+      margin: 0 10px;
     }
     &.hover:hover {
       cursor: pointer;
-      background-color: ${props => (props.isDark ? '#ffffff1a' : '#f5f5f5')};
+      background-color: ${props => (props.bgStyleValue ? 'transparent' : props.isDark ? '#ffffff1a' : '#f5f5f5')};
     }
   }
   .wrap-center {
@@ -158,6 +165,9 @@ const NumberChartContent = styled.div`
   .subTextWrap > .w100:first-of-type {
     margin-top: 8px;
   }
+  .flexWrap {
+    flex-wrap: wrap;
+  }
   .contrastWrap,
   .minorWrap {
     margin-bottom: 4px;
@@ -261,26 +271,21 @@ const getControlMinAndMax = map => {
 
 export const replaceColor = (data, customPageConfig = {}, themeColor) => {
   const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
-  if (numberChartColor && numberChartColorIndex >= (data.numberChartColorIndex || 0)) {
+  const resolveColor = color => {
+    if (color === 'DARK_COLOR' && themeColor) return themeColor;
+    if (color === 'LIGHT_COLOR' && themeColor) return generate(themeColor)[0];
+    return color;
+  };
+  if (!data.bgStyleValue && numberChartColor && numberChartColorIndex >= (data.numberChartColorIndex || 0)) {
     return {
       ...data,
       fontColor: numberChartColor,
-      // iconColor: numberChartColor,
     };
   }
   data = _.clone(data);
-  if (data.fontColor === 'DARK_COLOR') {
-    data.fontColor = themeColor;
-  }
-  if (data.fontColor === 'LIGHT_COLOR') {
-    data.fontColor = generate(themeColor)[0];
-  }
-  if (data.iconColor === 'DARK_COLOR') {
-    data.iconColor = themeColor;
-  }
-  if (data.iconColor === 'LIGHT_COLOR') {
-    data.iconColor = generate(themeColor)[0];
-  }
+  data.titleColor = resolveColor(data.titleColor || defaultNumberChartStyle.titleColor);
+  data.fontColor = resolveColor(data.fontColor);
+  data.iconColor = resolveColor(data.iconColor);
   return data;
 };
 
@@ -406,6 +411,50 @@ export default class extends Component {
       isLinkageMatch: true,
     });
   };
+  getBgStyles = () => {
+    const { themeColor, reportData } = this.props;
+    const { numberChartStyle = {} } = reportData.style;
+    const { bgStyleValue, fillType = 1 } = numberChartStyle;
+    if (bgStyleValue === 'color') {
+      const { bgColor = '#fff' } = numberChartStyle;
+      const { iconColor } = replaceColor({ iconColor: bgColor }, {}, themeColor);
+      return { backgroundColor: iconColor };
+    }
+    if (bgStyleValue === 'gradient') {
+      const { gradient } = numberChartStyle;
+      return { background: `linear-gradient(${gradient})` };
+    }
+    if (bgStyleValue === 'image') {
+      const { bgImageIndex } = numberChartStyle;
+      const src = images(`./${bgImageIndex}.jpg`);
+      return {
+        backgroundImage: `url(${src})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      };
+    }
+    if (bgStyleValue === 'custom' && fillType === 1) {
+      const { displaySetup } = reportData;
+      const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
+      return {
+        backgroundImage: `url(${previewUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      };
+    }
+    return {};
+  };
+  renderBgImage = () => {
+    const { reportData } = this.props;
+    const { numberChartStyle = {} } = reportData.style;
+    const { bgStyleValue, fillType = 1 } = numberChartStyle;
+    if (bgStyleValue === 'custom' && fillType === 3) {
+      const { displaySetup } = reportData;
+      const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
+      return previewUrl ? <img src={previewUrl} className="w100 h100 Absolute" /> : null;
+    }
+    return null;
+  };
   renderContrast({ value, contrastValue, name, controlId, isContrastValue }) {
     const { filter, displaySetup = {}, style, yaxisList } = this.props.reportData;
     const { ignoreToday } = filter;
@@ -428,10 +477,10 @@ export default class extends Component {
     }
 
     return (
-      <div className="w100 flexRow textWrap contrastWrap Font14">
+      <div className="w100 flexRow textWrap flexWrap contrastWrap Font14">
         <div className="mRight5 Gray_75">
           {name}
-          {isContrastValue && ` (${tipsText})`}
+          {isContrastValue && tipsText && ` (${tipsText})`}
         </div>
         {contrastValue && percentage ? (
           <Tooltip title={contrastValue} overlayInnerStyle={{ textAlign: 'center' }}>
@@ -440,7 +489,7 @@ export default class extends Component {
                 positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : contrastColor ? 'DepGreen' : 'Red'
               }`}
             >
-              <div className="valignWrapper">
+              <div className="valignWrapper flexRow alignItemsCenter justifyContentCenter flexWrap">
                 {isEquality ? null : (
                   <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />
                 )}
@@ -477,7 +526,6 @@ export default class extends Component {
       isThumbnail,
     } = this.props;
     const { pageStyleType = 'light' } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
     const mobileFontSize = isMobile || layoutType === 'mobile' ? this.props.mobileFontSize : 0;
     const { xaxes, yaxisList, style, filter, displaySetup, desc } = reportData;
     const { controlId, name, value, lastContrastValue, contrastValue, minorList = [], descVisible } = data;
@@ -490,8 +538,18 @@ export default class extends Component {
     const hideVisible = xaxes.controlId && yaxisList.length === 1;
     const formatrValue = formatrChartValue(value, false, hideVisible ? yaxisList : newYaxisList, controlId);
     const { numberChartStyle = defaultNumberChartStyle } = style;
-    const { iconVisible, textAlign, icon, iconColor, shape, fontSize, fontColor, lastContrastText, contrastText } =
-      replaceColor(numberChartStyle, customPageConfig, themeColor);
+    const {
+      iconVisible,
+      textAlign,
+      icon,
+      iconColor,
+      shape,
+      fontSize,
+      fontColor,
+      titleColor,
+      lastContrastText,
+      contrastText,
+    } = replaceColor(numberChartStyle, customPageConfig, themeColor);
     const newFontSize = mobileFontSize || fontSize;
     const titleFontSize = mobileFontSize
       ? mobileFontSize - 5
@@ -499,7 +557,7 @@ export default class extends Component {
     const contrastTypes = formatContrastTypes(filter);
     const oneNumber = !xaxes.controlId && yaxisList.length === 1;
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
-    const color = !_.isEmpty(rule)
+    const getFontColor = !_.isEmpty(rule)
       ? getStyleColor({
           value: rule.controlId ? _.get(_.find(minorList, { controlId: rule.controlId }), 'value') || value : value,
           controlMinAndMax,
@@ -507,11 +565,17 @@ export default class extends Component {
           controlId: rule.controlId || yaxisList[0].controlId,
         })
       : (() => {
-          if (layoutType === 'mobile') {
-            return themeColor;
+          if (numberChartStyle.bgStyleValue && oneNumber) {
+            return fontColor;
           }
           return pageStyleType === 'dark' && !isThumbnail ? themeColor : fontColor;
         })();
+    const getTitleColor = (() => {
+      if (numberChartStyle.bgStyleValue && oneNumber) {
+        return titleColor;
+      }
+      return undefined;
+    })();
     const isOpacity = !_.isEmpty(linkageMatch) && isLinkageMatch ? linkageMatch.value !== data.originalId : false;
     return (
       <Col span={span} onClick={event => (!oneNumber ? this.handleClick(event, data) : _.noop())}>
@@ -538,18 +602,18 @@ export default class extends Component {
               <div className="contentWrapper textWrap flexColumn tip-top">
                 {name && (
                   <div className="flexRow valignWrapper w100 mBottom2">
-                    <div className="flex ellipsis name" style={{ fontSize: titleFontSize }}>
+                    <div className="flex ellipsis name" style={{ fontSize: titleFontSize, color: getTitleColor }}>
                       {name}
                     </div>
                     {descVisible && desc && (
-                      <Tooltip title={desc} placement="bottom">
+                      <Tooltip title={desc} placement="bottom" autoCloseDelay={0}>
                         <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 mRight7 InlineBlock mTop2" />
                       </Tooltip>
                     )}
                   </div>
                 )}
                 <div className="flexRow">
-                  <div className="ellipsis count" style={{ color }}>
+                  <div className="ellipsis count" style={{ color: getFontColor }}>
                     {formatrValue}
                   </div>
                 </div>
@@ -560,15 +624,16 @@ export default class extends Component {
                 value,
                 contrastValue: lastContrastValue,
                 name: lastContrastText || _l('环比'),
-                controlId: data.controlId
-              })}
-              {!!contrastTypes.length && this.renderContrast({
-                value,
-                contrastValue,
-                name: contrastText || _l('同比'),
                 controlId: data.controlId,
-                isContrastValue: true
               })}
+              {(!!contrastTypes.length || [4, 8, 11].includes(filter.rangeType)) &&
+                this.renderContrast({
+                  value,
+                  contrastValue,
+                  name: contrastText || _l('同比'),
+                  controlId: data.controlId,
+                  isContrastValue: true,
+                })}
               {minorList.map(data => (
                 <div className="w100 flexRow textWrap minorWrap Font14">
                   <div className="mRight5 Gray_75 name">{data.name}</div>
@@ -631,11 +696,18 @@ export default class extends Component {
     const controlMinAndMax = getControlMinAndMax(map);
     return (
       <Wrap
-        className={cx('numberChart flexRow h100', `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`)}
+        className={cx(
+          'numberChart flexRow h100 Relative',
+          `verticalAlign-${numberChartStyle.allowScroll ? 'top' : 'center'}`,
+          { oneNumberWrap: oneNumber && !isThumbnail },
+        )}
         columnCount={newColumnCount}
         isDark={isDark}
+        bgStyleValue={oneNumber ? numberChartStyle.bgStyleValue : undefined}
         onClick={event => (oneNumber ? this.handleClick(event, list[0]) : _.noop())}
+        style={oneNumber ? this.getBgStyles() : {}}
       >
+        {oneNumber && this.renderBgImage()}
         <Row gutter={[8, 0]}>
           {showTotal &&
             !!list.length &&

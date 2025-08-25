@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon, SvgIcon, Tooltip } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
@@ -34,7 +35,7 @@ export default function BtnTd(props) {
         worksheetId,
         ...obj,
       })
-      .then(res => {
+      .then(() => {
         cb && cb();
       });
   };
@@ -55,7 +56,7 @@ export default function BtnTd(props) {
         }
       });
   };
-  const optionWorksheetBtn = ({ appId, viewId, optionType, callback }) => {
+  const optionWorksheetBtn = ({ appId, viewId, optionType }) => {
     sheetAjax
       .optionWorksheetBtn({
         appId,
@@ -96,7 +97,7 @@ export default function BtnTd(props) {
     return _l('未分配视图');
   };
   const color = !it.color
-    ? '#2196f3'
+    ? '#1677ff'
     : it.color === 'transparent' && !it.icon
       ? '#9e9e9e'
       : it.color === 'transparent'
@@ -243,7 +244,7 @@ export default function BtnTd(props) {
       </div>
       <div className="more w80px TxtCenter">
         <Icon
-          icon="task-point-more"
+          icon="more_horiz"
           className="moreActive Hand Font18 Gray_9e Hover_21"
           onClick={() => {
             setState({

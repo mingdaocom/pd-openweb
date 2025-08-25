@@ -7,6 +7,7 @@ import { isRelateRecordTableControl } from 'src/utils/control';
 
 export default class RowDetail extends React.Component {
   static propTypes = {
+    widgetStyle: PropTypes.shape({}),
     ignoreLock: PropTypes.bool,
     disabled: PropTypes.bool,
     className: PropTypes.string,
@@ -62,6 +63,11 @@ export default class RowDetail extends React.Component {
 
   handleSave = (nextContinue, isSwitchSave, ignoreAlert) => {
     if (!this.customwidget.current) {
+      return;
+    }
+
+    if ($(this.formcon.current).find('.Progress--circle').length > 0) {
+      alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
     const { data, onSave, onClose, openNextRecord } = this.props;

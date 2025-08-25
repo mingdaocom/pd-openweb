@@ -1,17 +1,19 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
+import { Popup } from 'antd-mobile';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { Button, Dialog, LoadDiv, MenuItem } from 'ming-ui';
 import paymentAjax from 'src/api/payment.js';
 import { agreeOrRefuseRefundConfirm } from 'src/pages/Admin/pay/components/MobileRefundModal';
 import { refundConfirmFunc } from 'src/pages/Admin/pay/components/MobileRefundModal';
 import reimburseDialogFunc from 'src/pages/Admin/pay/Merchant/components/WithdrawReimburseDialog';
 import { browserIsMobile } from 'src/utils/common';
-import { infoKeys, refundInfoKeys, refundStatusList, sourceTypeInfo, statusList } from './config';
+import { infoKeys, refundInfoKeys, refundStatusList, selectPayStatusList, sourceTypeInfo, statusList } from './config';
 
 const WrapCon = styled.div`
   overflow: auto;
@@ -44,10 +46,13 @@ const Wrap = styled.div`
     color: #f44336;
   }
   .wait {
-    color: #2196f3;
+    color: #1677ff;
   }
   .war {
     color: #ff9d00;
+  }
+  .cancel {
+    color: #757575;
   }
   .refundBtn,
   .cancelRefundBtn {
@@ -92,7 +97,7 @@ const Wrap = styled.div`
   }
 `;
 
-const MobileEmptyWrap = styled.div`
+const EmptyWrap = styled.div`
   justify-content: center;
   .iconWrap {
     width: 80px;
@@ -111,21 +116,114 @@ const Btn = styled.div`
   text-align: center;
   cursor: pointer;
   &:hover {
-    color: #2196f3;
-    border: 1px solid #2196f3;
+    color: #1677ff;
+    border: 1px solid #1677ff;
+  }
+`;
+
+const SelectPayStatusWrap = styled.span`
+  display: inline-block;
+  height: 32px;
+  background: #fff;
+  line-height: 32px;
+  padding: 0 14px;
+  margin-bottom: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  .icon {
+    color: #9e9e9e;
+  }
+  &:hover {
+    .icon {
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+`;
+const PopupWrap = styled.div`
+  width: 220px;
+  padding: 6px 0;
+  background: #fff;
+  box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
+  .popupItem {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 20px;
+    cursor: pointer;
+    &:hover {
+      background: #f8f8f8;
+    }
+  }
+`;
+const More = styled.div`
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  margin-left: 6px;
+  border-radius: 3px;
+  color: #9e9e9e;
+  border: 1px solid #e0e0e0;
+  &:hover {
+    color: #1677ff;
+  }
+  &.mobileMore {
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    border: none;
+    background-color: #f6f6f6;
+    color: #9d9d9d;
+    &:hover {
+      color: #9d9d9d;
+    }
+  }
+`;
+
+const MobileBtn = styled(Button)`
+  border: 1px solid #eee !important;
+  background-color: #fff !important;
+  &.delete {
+    background-color: #f44336 !important;
+    border: 1px solid #f44336;
+    color: #fff;
   }
 `;
 
 export default function PayLog(props) {
-  const { projectId, worksheetId, rowId, appId, viewId } = props;
-  const [{ payOrder, loading, refundOrders, allowRefund, editing }, setState] = useSetState({
+  const { projectId, worksheetId, rowId, appId, viewId, isCharge, updatePayConfig = () => {} } = props;
+  const [
+    {
+      payOrders,
+      loading,
+      refundOrders,
+      allowRefund,
+      editing,
+      selectStatus,
+      showCancelOrder,
+      showConfirmCancelOrderDialog,
+      cancelOrderId,
+      popupVisible,
+    },
+    setState,
+  ] = useSetState({
     payOrder: {},
+    payOrders: [],
     loading: true,
     refundOrders: [],
     allowRefund: false,
     editing: false,
+    selectStatus: 100,
+    showCancelOrder: false,
+    showConfirmCancelOrderDialog: false,
+    cancelOrderId: undefined,
+    popupVisible: false,
   });
   const isMobile = browserIsMobile();
+  const filterPayOrders = payOrders.filter(v =>
+    isMobile
+      ? true
+      : (selectStatus !== 100 && selectStatus === v.status) || (selectStatus === 100 && !_.includes([4, 7], v.status)),
+  );
 
   useEffect(() => {
     getInfo();
@@ -142,7 +240,7 @@ export default function PayLog(props) {
       .then(data => {
         setState({
           loading: false,
-          payOrder: data.payOrder,
+          payOrders: data.payOrders,
           refundOrders: data.refundOrders,
           allowRefund: data.allowRefund,
           editing: false,
@@ -163,7 +261,7 @@ export default function PayLog(props) {
         refundSourceType: 1,
         appId,
       })
-      .then(res => {
+      .then(() => {
         getInfo();
       })
       .catch(() => {
@@ -174,21 +272,51 @@ export default function PayLog(props) {
       });
   };
 
+  const handleCancelPayOrder = orderId => {
+    paymentAjax
+      .cancelOrder({ orderId })
+      .then(res => {
+        if (res) {
+          const copyPayOrders = _.clone(payOrders);
+          const index = _.findIndex(copyPayOrders, v => v.orderId === orderId);
+          copyPayOrders[index] = { ...copyPayOrders[index], status: 7 };
+          setState({ payOrders: copyPayOrders, cancelOrderId: undefined });
+          updatePayConfig();
+          alert(_l('取消订单成功'));
+        } else {
+          alert(_l('取消订单失败'), 2);
+        }
+      })
+      .catch(() => {
+        alert(_l('取消订单失败'), 2);
+      });
+  };
+
+  // 确认取消订单
+  const confirmCancelOrder = orderId => {
+    Dialog.confirm({
+      title: _l('取消后无法恢复，是否确认取消？'),
+      confirm: 'danger',
+      onOk: () => handleCancelPayOrder(orderId),
+    });
+  };
+
+  const renderEmpty = () => {
+    return (
+      <EmptyWrap className="flexColumn valignWrapper h100">
+        <div className="iconWrap flexRow justifyContentCenter alignItemsCenter">
+          <i className="icon icon-sp_account_balance_wallet_white Font50 White" />
+        </div>
+        <div className="Font15 Gray_bd mTop20 bold">{isMobile ? _l('暂无付款') : _l('暂无订单')}</div>
+      </EmptyWrap>
+    );
+  };
+
   if (loading) {
     return <LoadDiv />;
   }
-  if (!!payOrder.msg) {
-    if (isMobile) {
-      return (
-        <MobileEmptyWrap className="flexColumn valignWrapper h100">
-          <div className="iconWrap flexRow justifyContentCenter alignItemsCenter">
-            <i className="icon icon-sp_account_balance_wallet_white Font50 White" />
-          </div>
-          <div className="Font18 Gray_bd mTop20">{_l('暂无付款明细')}</div>
-        </MobileEmptyWrap>
-      );
-    }
-    return <div className="Gray_bd Font13 mTop80 pTop100 TxtCenter">{_l('暂无数据')}</div>;
+  if (filterPayOrders.length && !!_.get(filterPayOrders[0] || {}, 'msg')) {
+    return renderEmpty();
   }
 
   const onOk = item => {
@@ -236,7 +364,7 @@ export default function PayLog(props) {
     });
   };
 
-  const onRefund = () => {
+  const onRefund = payOrder => {
     if (editing) return;
     const { amount, refundAmount, orderId, merchantOrderId, taxAmount, description, merchantNo } = payOrder;
 
@@ -319,7 +447,8 @@ export default function PayLog(props) {
                 {['createTime', 'refundTime'].includes(a.key)
                   ? moment(o[a.key]).format('YYYY-MM-DD HH:mm:ss')
                   : ['payAccountInfo', 'operatorAccountInfo'].includes(a.key)
-                    ? a.key === 'payAccountInfo' && o.sourceType === 6
+                    ? a.key === 'payAccountInfo' &&
+                      (o.sourceType === 6 || _.get(o, `${a.key}.accountId`) === 'user-workflow')
                       ? '-'
                       : _.get(o, `${a.key}.fullname`)
                     : o[a.key]}
@@ -368,87 +497,206 @@ export default function PayLog(props) {
   };
 
   const renderPay = () => {
-    const data = statusList.find(o => o.key === payOrder.status) || {};
-    let list = infoKeys;
-    //  退款金额 没有 则不显示
-    // 已支付、待支付、支付超时；不展示退款金额字段
-    if (!payOrder.refundAmount || [0, 1, 4].includes(payOrder.status)) {
-      list = list.filter(o => o.key !== 'refundAmount');
-    }
-    return (
-      <Wrap className={cx('Font13')}>
-        <div className="flexRow alignItemsCenter mBottom16">
-          <span className="topTitle overflow_ellipsis flex Bold Gray Font15">{payOrder.description}</span>
-          <span className={cx('status mLeft30 Bold', data.type)}>{data.text}</span>
-        </div>
-        {list.map((o, i) => {
-          const isNull =
-            (o.key === 'paidTime' && ![1, 3, 5, 2].includes(payOrder.status)) || //支付时间
-            (o.key === 'refundAmount' && ![3, 5].includes(payOrder.status)) || //退款金额
-            ([0, 4].includes(payOrder.status) &&
-              ['settlementAmount', 'taxAmount'].includes(o.key) &&
-              !payOrder[o.key]) || //待支付/支付超时结算金额和手续费显示-
-            (!payOrder[o.key] && payOrder[o.key] !== 0); //已支付/已退款/部分退款直接显示结算金额和手续费
-          return (
-            <div className={cx('flexRow alignItemsCenter', { mBottom12: i < list.length - 1 })}>
-              <span className={cx('payTitle Gray_75 Bold')}>{o.txt}</span>
-              <span className={cx('con mLeft15 WordBreak Gray')}>
-                {o.key === 'sourceType'
-                  ? sourceTypeInfo[payOrder[o.key]]
-                  : o.key === 'payOrderType'
-                    ? payOrder.payOrderType === 0 //payOrderType 0支付宝 1微信 -1未支付
-                      ? _l('支付宝')
-                      : payOrder.payOrderType === 1
-                        ? _l('微信')
-                        : '-'
-                    : isNull
-                      ? '-'
-                      : ['createTime', 'paidTime'].includes(o.key)
-                        ? moment(payOrder[o.key]).format('YYYY-MM-DD HH:mm:ss')
-                        : ['payAccountInfo'].includes(o.key)
-                          ? o.key === 'payAccountInfo' && payOrder.sourceType === 6
-                            ? '-'
-                            : _.get(payOrder, `${o.key}.fullname`)
-                          : payOrder[o.key]}
-                {['taxAmount', 'refundAmount', 'settlementAmount', 'amount'].includes(o.key) && !isNull ? (
-                  <span className="pLeft5">{_l('元')} </span>
-                ) : (
-                  ''
-                )}
-              </span>
-            </div>
-          );
-        })}
-        {allowRefund && (
-          <div
-            className={cx('refundBtn w100 mTop24 TxtCenter Bold', { Hand: !editing, disable: editing })}
-            onClick={() => onRefund()}
-          >
-            {_l('申请退款')}
+    return filterPayOrders.map(payOrder => {
+      const data = statusList.find(o => o.key === payOrder.status) || {};
+      let list = infoKeys;
+      //  退款金额 没有 则不显示
+      // 已支付、待支付、支付超时；不展示退款金额字段
+      if (!payOrder.refundAmount || [0, 1, 4].includes(payOrder.status)) {
+        list = list.filter(o => o.key !== 'refundAmount');
+      }
+
+      return (
+        <Wrap key={payOrder.orderId} className={cx('Font13 mBottom14')}>
+          <div className="flexRow alignItemsCenter mBottom16">
+            <span className="topTitle overflow_ellipsis flex Bold Gray Font15">{payOrder.description}</span>
+            <span className={cx('status mLeft30 Bold', data.type)}>{data.text}</span>
+            {isMobile && data.key === 0 && (
+              <More
+                className="mobileMore"
+                onClick={() => setState({ showCancelOrder: true, cancelOrderId: payOrder.orderId })}
+              >
+                <i className="icon icon-more_horiz Font20 LineHeight32" />
+              </More>
+            )}
           </div>
-        )}
-        {payOrder.status === 0 && !isMobile && (
-          <div className="flexRow mTop12">
-            <Btn
-              className="mRight6"
-              onClick={() => {
-                copy(`${md.global.Config.WebUrl}orderpay/${payOrder.orderId}`);
-                alert(_l('链接已复制'));
-              }}
+          {list.map((o, i) => {
+            const isNull =
+              (o.key === 'paidTime' && ![1, 3, 5, 2].includes(payOrder.status)) || //支付时间
+              (o.key === 'refundAmount' && ![3, 5].includes(payOrder.status)) || //退款金额
+              ([0, 4, 7].includes(payOrder.status) && ['settlementAmount', 'taxAmount'].includes(o.key)) || //待支付/支付超时/已取消结算金额和手续费显示-
+              (!payOrder[o.key] && payOrder[o.key] !== 0); //已支付/已退款/部分退款直接显示结算金额和手续费
+            return (
+              <div className={cx('flexRow alignItemsCenter', { mBottom12: i < list.length - 1 })}>
+                <span className={cx('payTitle Gray_75 Bold')}>{o.txt}</span>
+                <span className={cx('con mLeft15 WordBreak Gray')}>
+                  {o.key === 'sourceType'
+                    ? sourceTypeInfo[payOrder[o.key]]
+                    : o.key === 'payOrderType'
+                      ? payOrder.payOrderType === 0 //payOrderType 0支付宝 1微信 -1未支付
+                        ? _l('支付宝')
+                        : payOrder.payOrderType === 1
+                          ? _l('微信')
+                          : '-'
+                      : isNull
+                        ? '-'
+                        : ['createTime', 'paidTime'].includes(o.key)
+                          ? moment(payOrder[o.key]).format('YYYY-MM-DD HH:mm:ss')
+                          : ['payAccountInfo'].includes(o.key)
+                            ? o.key === 'payAccountInfo' &&
+                              (payOrder.sourceType === 6 || _.get(payOrder, `${o.key}.accountId`) === 'user-workflow')
+                              ? '-'
+                              : _.get(payOrder, `${o.key}.fullname`)
+                            : payOrder[o.key]}
+                  {['taxAmount', 'refundAmount', 'settlementAmount', 'amount'].includes(o.key) && !isNull ? (
+                    <span className="pLeft5">{_l('元')} </span>
+                  ) : (
+                    ''
+                  )}
+                </span>
+              </div>
+            );
+          })}
+          {allowRefund && _.includes([1, 5], payOrder.status) && (
+            <div
+              className={cx('refundBtn w100 mTop24 TxtCenter Bold', { Hand: !editing, disable: editing })}
+              onClick={() => onRefund(payOrder)}
             >
-              <i className="icon icon-add_link Font22 LineHeight36 mRight8 TxtMiddle" />
-              <span className="TxtMiddle">{_l('获取支付链接')}</span>
-            </Btn>
+              {_l('申请退款')}
+            </div>
+          )}
+          {payOrder.status === 0 && !isMobile && (
+            <div className="flexRow mTop12">
+              <Btn
+                className="mRight6"
+                onClick={() => {
+                  copy(`${md.global.Config.WebUrl}orderpay/${payOrder.orderId}`);
+                  alert(_l('链接已复制'));
+                }}
+              >
+                <i className="icon icon-add_link Font22 LineHeight36 mRight8 TxtMiddle" />
+                <span className="TxtMiddle">{_l('获取支付链接')}</span>
+              </Btn>
+              {/* 下单人和管理员都可以取消订单 */}
+              {(isCharge || md.global.Account.accountId === _.get(payOrder, 'payAccountInfo.accountId')) && (
+                <Trigger
+                  popupVisible={!isMobile && showCancelOrder}
+                  onPopupVisibleChange={visible => setState({ showCancelOrder: visible })}
+                  popupAlign={{ points: ['tr', 'br'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
+                  action={['click']}
+                  popup={() => (
+                    <PopupWrap
+                      onClick={() => {
+                        setState({ showCancelOrder: false });
+                        confirmCancelOrder(payOrder.orderId);
+                      }}
+                    >
+                      <MenuItem>
+                        <span className="icon icon-cancel Gray_9e mRight6 Font16 TxtMiddle" />
+                        <span className="TxtMiddle">{_l('取消订单')}</span>
+                      </MenuItem>
+                    </PopupWrap>
+                  )}
+                >
+                  <More>
+                    <i className="icon icon-more_horiz Font20 LineHeight36" />
+                  </More>
+                </Trigger>
+              )}
+            </div>
+          )}
+        </Wrap>
+      );
+    });
+  };
+
+  const renderPopup = () => {
+    return (
+      <PopupWrap>
+        {selectPayStatusList.map(item => (
+          <div
+            key={item.key}
+            className="popupItem"
+            onClick={() => {
+              setState({ selectStatus: item.key, popupVisible: false });
+            }}
+          >
+            {item.text}
           </div>
-        )}
-      </Wrap>
+        ))}
+      </PopupWrap>
     );
   };
 
   return (
-    <WrapCon className={cx('h100', isMobile ? 'pAll10' : 'pAll20')}>
-      {renderPay()}
-      {renderRefundCon()}
-    </WrapCon>
+    <Fragment>
+      <WrapCon className={cx('h100', isMobile ? 'pAll10' : 'pAll20')}>
+        {!isMobile && (
+          <Trigger
+            popupAlign={{ points: ['tl', 'bl'], offset: [0, 2] }}
+            action={['click']}
+            popupVisible={popupVisible}
+            onPopupVisibleChange={visible => setState({ popupVisible: visible })}
+            popup={renderPopup}
+          >
+            <SelectPayStatusWrap>
+              <span>{(_.find(selectPayStatusList, v => v.key === selectStatus) || { text: _l('待支付') }).text}</span>
+              <i className="icon icon-arrow-down-border mLeft6" />
+            </SelectPayStatusWrap>
+          </Trigger>
+        )}
+        {_.includes([4, 7, 100], selectStatus) && !filterPayOrders.length ? (
+          renderEmpty()
+        ) : (
+          <Fragment>
+            {renderPay()}
+            {selectStatus === 100 && renderRefundCon()}
+          </Fragment>
+        )}
+      </WrapCon>
+      <Popup
+        position="bottom"
+        className="mobileModal topRadius"
+        visible={isMobile && showCancelOrder}
+        onMaskClick={() => setState({ showCancelOrder: false })}
+      >
+        <div className="flexRow header LineHeight24">
+          <div className="Gray_9e">{_l('订单操作')}</div>
+          <div className="closeIcon TxtCenter" onClick={() => setState({ showCancelOrder: false })}>
+            <icon className="icon icon-close" />
+          </div>
+        </div>
+        <div
+          className="Font15 bold pLeft15 pBottom20"
+          onClick={() => setState({ showCancelOrder: false, showConfirmCancelOrderDialog: true })}
+        >
+          <span className="icon icon-cancel Gray_9e mRight10 Font16 TxtMiddle" />
+          <span className="TxtMiddle">{_l('取消订单')}</span>
+        </div>
+      </Popup>
+
+      <Popup position="bottom" className="mobileModal topRadius" visible={showConfirmCancelOrderDialog}>
+        <div className="Font16 bold header Gray LineHeight24">{_l('取消后无法恢复，是否确认取消？')}</div>
+        <div className="flexRow mBottom10 pLeft15 pRight15">
+          <MobileBtn
+            radius
+            className="flex mRight6 bold Gray_75 Font13"
+            onClick={() => setState({ showConfirmCancelOrderDialog: false })}
+          >
+            {_l('取消')}
+          </MobileBtn>
+          <MobileBtn
+            radius
+            className="flex mLeft6 bold Font13 delete"
+            onClick={() => {
+              setState({ showConfirmCancelOrderDialog: false });
+              handleCancelPayOrder(cancelOrderId);
+            }}
+          >
+            {_l('确定')}
+          </MobileBtn>
+        </div>
+      </Popup>
+    </Fragment>
   );
 }

@@ -49,7 +49,7 @@ export const CAN_AS_ORG_ROLE_DYNAMIC_FIELD = [48, 26];
 export const CAN_AS_OTHER_DYNAMIC_FIELD = [3, 5, 15, 16, 26, 27, 40, 46, 48];
 
 // 有函数动态值的控件
-export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 28, 36, 40, 41, 46];
+export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 28, 36, 40, 41, 46, 34];
 
 // 没有动态字段值的控件
 export const CAN_NOT_AS_FIELD_DYNAMIC_FIELD = [34];
@@ -138,7 +138,7 @@ export const H5_WATER_MASK_TYPES = [
 ];
 
 export const PRINT_TEMP_TYPES = [
-  { id: 'temp-name', text: _l('模版名称'), key: 'printTemp', icon: 'icon-letter_a' },
+  { id: 'temp-name', text: _l('模版名称'), key: 'printTemp', icon: 'icon-text_bold2' },
   { id: 'print-time', text: _l('导出时间'), key: 'printTemp', icon: 'icon-event' },
 ];
 
@@ -364,4 +364,5 @@ export const DYNAMIC_FROM_MODE = {
   FAST_FILTER: 10, // 快速筛选
   H5_WATER_MASK: 11, // h5照片水印
   PRINT_TEMP: 12, // 打印模板
+  API_AUTH_ACCOUNT: 13, // api集成账户选择
 };

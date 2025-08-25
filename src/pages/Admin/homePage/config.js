@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const QUICK_ENTRY_CONFIG = [
   {
     icon: 'people_5',
@@ -7,7 +9,7 @@ export const QUICK_ENTRY_CONFIG = [
     action: 'addPerson',
   },
   {
-    icon: 'task_summary',
+    icon: 'layers',
     color: '#00BBD7',
     title: _l('批量导入'),
     explain: _l('批量导入成员'),
@@ -22,7 +24,7 @@ export const QUICK_ENTRY_CONFIG = [
   },
   {
     icon: 'settings',
-    color: '#2196f3',
+    color: '#1677ff',
     title: _l('设置组织管理员'),
     explain: _l('拥有后台操作的权限'),
     action: 'settingAdmin',
@@ -36,7 +38,7 @@ export const QUICK_ENTRY_CONFIG = [
   },
   // {
   //   icon: 'laptop_mac',
-  //   color: '#2196f3',
+  //   color: '#1677ff',
   //   title: _l('客户端安装'),
   //   explain: _l('为成员安装客户端'),
   //   action: 'installDesktop',
@@ -87,7 +89,7 @@ export const UPLOAD_COUNT = [
     PurchaseExpandPack: true,
     click: 'aggregationtable',
     routePath: 'expansionserviceAggregationtable',
-    isLocalFilter: !_.get(window, 'md.global.SysSettings.hideDataPipeline'),
+    isLocalFilter: false,
   },
   {
     key: 'effectiveDataPipelineJobCount',
@@ -146,7 +148,7 @@ export const UPLOAD_COUNT = [
   {
     key: 'effectiveApkStorageCount',
     limit: 'limitApkStorageCount',
-    text: _l('附件上传流量'),
+    text: _l('附件上传流量（今年）'),
     unit: _l('年'),
     click: 'storage',
     numUnit: 'GB',

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
-import moment from 'moment';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { UserHead, Icon, Menu, MenuItem } from 'ming-ui';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Menu, MenuItem, UserHead } from 'ming-ui';
 import delegationAjax from 'src/pages/workflow/api/delegation';
 import PageTableCon from '../../components/PageTableCon';
 import PointImg from '../images/point.png';
@@ -218,7 +218,7 @@ function DeputeTable(props) {
                     <MenuItem
                       key={index}
                       onClick={() => onClickOp(item.key, record)}
-                      style={{ lineHeight: 'normal', height: 44, lineHeight: '44px' }}
+                      style={{ height: 44, lineHeight: '44px' }}
                     >
                       <div className="h100">{item.label}</div>
                     </MenuItem>

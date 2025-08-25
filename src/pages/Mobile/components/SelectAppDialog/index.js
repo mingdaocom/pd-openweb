@@ -1,25 +1,16 @@
-import React, { Fragment, useEffect, useCallback } from 'react';
+import React, { Fragment, useCallback, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Popup, Button } from 'antd-mobile';
-import { Input, SvgIcon, LoadDiv, ScrollView } from 'ming-ui';
+import { Button, Popup } from 'antd-mobile';
+import _ from 'lodash';
+import { Input, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import './index.less';
-import { _callOnClient } from '@sentry/minimal';
-import _ from 'lodash';
 
 const RESULT_IS_DATA = ['getManagerApps', 'getUserApp', 'getMyApp'];
 const NO_PAGE = ['getManagerApps', 'getUserApp', 'getMyApp'];
 
 export default function SelectAppDialog(props) {
-  const {
-    visible,
-    projectId,
-    ajaxFun = 'getAppsForProject',
-    unique = false,
-    onClose,
-    onOk,
-    filterFun = () => {},
-  } = props;
+  const { visible, projectId, ajaxFun = 'getAppsForProject', onClose, onOk, filterFun = () => {} } = props;
 
   const [stateData, setStateData] = useSetState({
     pageIndex: 1,
@@ -84,7 +75,7 @@ export default function SelectAppDialog(props) {
             <i className="icon icon-search Gray_9e" />
             <Input className="flex" placeholder={_l('搜索')} onChange={onSearch} />
           </div>
-          <ScrollView className="appListWrap flex" onScrollEnd={onScrollEnd}>
+          <ScrollView className="appListWrap flex overflowHidden" onScrollEnd={onScrollEnd}>
             {appList
               .filter(item => !NO_PAGE.includes(ajaxFun) || item.appName.toLowerCase().includes(keyWords.toLowerCase()))
               .map(item => {

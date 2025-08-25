@@ -13,7 +13,7 @@
   transition: all 0.25s;
 
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 }
 
@@ -46,13 +46,14 @@
 }
 
 .appPkgHeaderWrap {
-  .flexCenterHeight;
+  .flexCenterHeight();
   height: 50px;
   justify-content: space-between;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   z-index: 15;
 
-  .roledebugSelectWrap, .roleSelectCon {
+  .roledebugSelectWrap,
+  .roleSelectCon {
     border: 1px solid transparent;
   }
 
@@ -305,7 +306,9 @@
         }
       }
     }
-    .moreIcon, .arrowIcon, .openIcon {
+    .moreIcon,
+    .arrowIcon,
+    .openIcon {
       color: rgba(255, 255, 255, 0.7) !important;
     }
   }
@@ -320,10 +323,10 @@
 
   .appDetailWrap {
     position: relative;
-    .flexCenterHeight;
+    .flexCenterHeight();
 
     .appIconAndName {
-      .flexCenterHeight;
+      .flexCenterHeight();
       cursor: pointer;
       color: #fff;
 
@@ -436,15 +439,6 @@
         color: @delColor !important;
         padding-left: 48px !important;
       }
-
-      .Item-content:hover {
-        .icon {
-          color: #fff !important;
-        }
-
-        color: #fff !important;
-        background-color: @delColor !important;
-      }
     }
 
     .appConfigIcon {
@@ -473,7 +467,7 @@
     .appIntroIcon {
       font-size: 18px;
       transition: all 0.25s;
-      .headerColorSwitch;
+      .headerColorSwitch();
     }
   }
 
@@ -524,7 +518,9 @@
     padding: 20px 24px;
     background-color: #fff;
     z-index: 10;
-    box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0px 4px 16px 1px rgba(0, 0, 0, 0.24),
+      0 0 1px 0 rgba(0, 0, 0, 0.12);
     transform: scale(0);
     transform-origin: left top;
     transition: transform 0.25s;
@@ -575,19 +571,19 @@
   }
 
   .appItemsOuterWrap {
-    .flexCenterHeight;
+    .flexCenterHeight();
     flex: 1;
     position: relative;
     overflow: hidden;
   }
 
   .appExtensionWrap {
-    .flexCenterHeight;
+    .flexCenterHeight();
     flex-shrink: 0;
     font-weight: bold;
 
     .appExtensionItem {
-      .headerColorSwitch;
+      .headerColorSwitch();
       padding: 2px 7px;
       margin-right: 10px;
       cursor: pointer;
@@ -655,7 +651,7 @@
 
       & > .icon {
         font-size: 23px;
-        .headerColorSwitch;
+        .headerColorSwitch();
       }
     }
 
@@ -688,7 +684,7 @@
 }
 
 .appItemPointerWrap {
-  .flexCenterHeight;
+  .flexCenterHeight();
   width: 36px;
   justify-content: space-between;
   margin-right: 48px;
@@ -773,17 +769,11 @@
         color: @delColor !important;
       }
     }
-
-    .Item-content:hover {
-      .icon {
-        color: #fff !important;
-      }
-    }
   }
 }
 
 .appItemsWrap li {
-  .flexCenterHeight;
+  .flexCenterHeight();
   position: relative;
   box-sizing: border-box;
   white-space: nowrap;
@@ -820,7 +810,7 @@
   }
 
   .sortableItem {
-    .flexCenterHeight;
+    .flexCenterHeight();
     padding: 0 20px;
     position: relative;
     color: #fff;
@@ -856,4 +846,3 @@
     color: #fff;
   }
 }
-

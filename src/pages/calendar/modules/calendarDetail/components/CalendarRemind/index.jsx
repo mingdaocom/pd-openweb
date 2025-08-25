@@ -1,11 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Dropdown from 'ming-ui/components/Dropdown';
-import cx from 'classnames';
-import Icon from 'ming-ui/components/Icon';
+import PropTypes from 'prop-types';
 import Checkbox from 'ming-ui/components/Checkbox';
-import { REMINDTYPE } from '../../constant';
+import Dropdown from 'ming-ui/components/Dropdown';
+import Icon from 'ming-ui/components/Icon';
 import { updateRemind, updateRemindVoice } from '../../common';
+import { REMINDTYPE } from '../../constant';
 
 const typeArr = [REMINDTYPE.NONE, REMINDTYPE.MINUTE, REMINDTYPE.HOUR, REMINDTYPE.DAY];
 const convert = (remindType, remindTime) => {
@@ -69,7 +68,7 @@ export default class CalendarRemind extends Component {
       {
         value: setValue,
       },
-      callback
+      callback,
     );
   }
 
@@ -98,7 +97,7 @@ export default class CalendarRemind extends Component {
     }
   }
   // 修改日程语音提醒
-  changeVoiceRemind(checked, value, event) {
+  changeVoiceRemind(checked) {
     const { id } = this.props;
     const voiceRemind = !checked;
     updateRemindVoice({
@@ -111,7 +110,7 @@ export default class CalendarRemind extends Component {
     });
   }
   // 修改提醒时间
-  onChangeRemind = (evt) => {
+  onChangeRemind = evt => {
     let value = $.trim(evt.currentTarget.value);
 
     if (value < 0) {
@@ -142,7 +141,7 @@ export default class CalendarRemind extends Component {
     } else {
       return (
         <div className="calendarRemind calRow">
-          <Icon icon={'task-point-more'} className="Font20 calIcon" />
+          <Icon icon={'more_horiz'} className="Font20 calIcon" />
           <div className="calLine">
             <span className="formLabel">{_l('提醒%19000')}:</span>
             {remindType === REMINDTYPE.NONE ? null : (
@@ -160,7 +159,12 @@ export default class CalendarRemind extends Component {
             <Dropdown {...dropDownProps} className="InlineBlock" />
             {remindType === REMINDTYPE.NONE ? null : (
               <span className="mLeft50 Gray_9e InlineBlock">
-                <Checkbox className="Font12 InlineBlock TxtMiddle" size="small" checked={voiceRemind} onClick={this.changeVoiceRemind.bind(this)}>
+                <Checkbox
+                  className="Font12 InlineBlock TxtMiddle"
+                  size="small"
+                  checked={voiceRemind}
+                  onClick={this.changeVoiceRemind.bind(this)}
+                >
                   {_l('电话提醒')}
                 </Checkbox>
                 <span className="mLeft10 TxtMiddle" data-tip={_l('勾选电话提醒，将以电话语音形式通知您')}>

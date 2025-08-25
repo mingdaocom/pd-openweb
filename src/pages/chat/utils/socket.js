@@ -168,7 +168,7 @@ export const Contact = {
    * 清除所以未读计数
    */
   clearAllUnread() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       IM.socket.emit('clear all unread', {}, data => {
         resolve(data);
       });
@@ -179,7 +179,7 @@ export const Contact = {
    * @param {*} param
    */
   remove(param) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       IM.socket.emit('remove session', param, data => {
         resolve(data);
       });
@@ -202,7 +202,7 @@ export const Contact = {
    * @param {*} contact
    */
   recordAction(contact) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       IM.socket.emit(
         'operate',
         {
@@ -223,7 +223,7 @@ export const Contact = {
    * @param {*} param
    */
   setTop(param) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       IM.socket.emit('sticky on top', param, data => {
         resolve(data);
       });
@@ -234,7 +234,7 @@ export const Contact = {
    * @param {*} param
    */
   setSlience(param) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       IM.socket.emit('silence message', param, data => {
         resolve(data);
       });

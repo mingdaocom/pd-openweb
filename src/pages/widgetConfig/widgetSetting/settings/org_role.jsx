@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import WidgetUserPermission from '../components/WidgetUserPermission';
 import RoleConfig from '../components/WidgetHighSetting/ControlSetting/RoleConfig';
+import WidgetUserPermission from '../components/WidgetUserPermission';
 
 const DISPLAY_OPTIONS = [
   {

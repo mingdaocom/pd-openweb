@@ -22,7 +22,6 @@ import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/action
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
 import DragLayer from '../HierarchyView/components/DragLayer';
-import LeftBoundary from '../HierarchyView/components/LeftBoundary';
 import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
 import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
 import ToolBar from '../HierarchyView/ToolBar';
@@ -36,6 +35,10 @@ const RecordStructureWrap = styled.div`
   overflow: auto;
   ::-webkit-scrollbar-x {
     height: 14px;
+  }
+
+  .skeletonBox {
+    padding: 10px 14px;
   }
 `;
 
@@ -109,7 +112,7 @@ function HierarchyVertical(props) {
     addRecordPath: {},
   });
 
-  const [collect, drop] = useDrop({
+  const [, drop] = useDrop({
     accept: ITEM_TYPE.ITEM,
     hover(item, monitor) {
       function scroll() {
@@ -213,6 +216,7 @@ function HierarchyVertical(props) {
         document.querySelector('body').removeChild(copyDom);
       });
     } catch (error) {
+      console.log(error);
       alert(_l('生成失败'), 2);
       document.querySelector('body').removeChild(copyDom);
     }
@@ -420,7 +424,7 @@ function HierarchyVertical(props) {
   };
 
   let pending = false;
-  const handleScroll = e => {
+  const handleScroll = () => {
     const $wrap = $wrapRef.current;
     const $right = $wrap.scrollWidth - $wrap.scrollLeft - $wrap.clientWidth;
     if ($right < Math.min(280, $wrap.clientWidth / 2)) {
@@ -466,7 +470,7 @@ function HierarchyVertical(props) {
     !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'));
 
   const renderContent = () => {
-    const { viewControl, viewType, viewId, layersName = [], viewControls, advancedSetting = {} } = view;
+    const { viewControl, viewType, viewId, layersName = [], viewControls } = view;
     const hierarchyData = hierarchyViewCanSelectFields({
       controls,
       worksheetId,
@@ -546,6 +550,7 @@ function HierarchyVertical(props) {
                     'worksheetInfo',
                     'sheetSwitchPermit',
                     'sheetButtons',
+                    'hierarchyTopLevelDataCount',
                   ])}
                   {...rest}
                   key={hierarchyViewData.length === 1 ? hierarchyViewData[0].pathId.join('-') : 'root'}

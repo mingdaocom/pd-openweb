@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
-import { DndProvider } from 'react-dnd-latest';
+import React, { useEffect, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
-import DisplayRow from './displayRow';
-import { genControlsByWidgets, genWidgetsByControls } from '../util';
+import { DndProvider } from 'react-dnd-latest';
 import { flatten } from 'lodash';
+import { genControlsByWidgets, genWidgetsByControls } from '../util';
+import DisplayRow from './displayRow';
 
 export default function PublicFormDisplay(props) {
   const { controls, onChange, ...rest } = props;

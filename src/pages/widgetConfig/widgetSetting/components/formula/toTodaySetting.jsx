@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { parseDataSource } from '../../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import DynamicSelectDateControl from '../DynamicSelectDateControl';
-import InputSuffix from './InputSuffix';
-import PreSuffix from '../PreSuffix';
 import PointerConfig from '../PointerConfig';
-import _ from 'lodash';
+import PreSuffix from '../PreSuffix';
+import InputSuffix from './InputSuffix';
 
 const COMPUTE_MODE = [
   {
@@ -18,7 +17,7 @@ const COMPUTE_MODE = [
 ];
 
 export default function ToTodaySetting({ data, onChange, ...rest }) {
-  const { sourceControlId, unit = '3' } = data;
+  const { sourceControlId } = data;
   const { dateformulatype = '1', autocarry = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>

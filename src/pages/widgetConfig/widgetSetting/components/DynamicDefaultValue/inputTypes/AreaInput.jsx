@@ -64,7 +64,7 @@ export default function (props) {
                 onDynamicValueChange([]);
               }}
             >
-              <span className="icon icon-closeelement-bg-circle Font15"></span>
+              <span className="icon icon-cancel Font15"></span>
             </div>
           )}
           <CityPicker

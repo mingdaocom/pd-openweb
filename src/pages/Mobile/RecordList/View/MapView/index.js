@@ -1,13 +1,14 @@
 import React from 'react';
-import MapView from 'src/pages/worksheet/views/MapView';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import MapView from 'src/pages/worksheet/views/MapView';
 import ViewErrorPage from '../components/ViewErrorPage';
 import SearchRecord from './SearchRecord';
-import styled from 'styled-components';
 
 const Wrap = styled.div`
   position: relative;
-`
+`;
 
 export default function MobileMapView(props) {
   const { view, controls, sheetSwitchPermit } = props;
@@ -22,7 +23,7 @@ export default function MobileMapView(props) {
 
   return (
     <Wrap>
-      <SearchRecord view={view}/>
+      <SearchRecord view={view} />
       <MapView {...props} />
     </Wrap>
   );

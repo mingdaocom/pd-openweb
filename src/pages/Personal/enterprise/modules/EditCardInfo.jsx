@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import account from 'src/api/account';
 import { Input } from 'antd';
-import './index.less'
+import account from 'src/api/account';
+import './index.less';
 
 const userInfoList = [
   { label: _l('姓名'), key: 'fullname' },
@@ -15,7 +15,7 @@ export default class EditCardInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      contactPhone: this.props.userInfo.contactPhone
+      contactPhone: this.props.userInfo.contactPhone,
     };
   }
 
@@ -75,7 +75,12 @@ export default class EditCardInfo extends Component {
             );
           })}
           <div className="Gray_75">{_l('工作电话')}</div>
-          <Input className="mTop6" placeholder={_l('工作电话')} value={contactPhone} onChange={(e) => this.setState({ contactPhone: e.target.value })} />
+          <Input
+            className="mTop6"
+            placeholder={_l('工作电话')}
+            value={contactPhone}
+            onChange={e => this.setState({ contactPhone: e.target.value })}
+          />
         </div>
         <div className="mTop32 Right">
           <span className="Font14 Gray_9e mRight32 Hover_49 Hand" onClick={() => this.props.closeDialog()}>

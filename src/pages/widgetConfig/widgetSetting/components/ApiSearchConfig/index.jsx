@@ -1,20 +1,22 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, SvgIcon, Dropdown } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, LoadDiv, SvgIcon } from 'ming-ui';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import { SettingItem } from '../../../styled';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
-import { dealRequestControls } from '../../../util/data';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import SearchParams from './SearchParams';
+import SelectAuthAccount from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectAuthAccount';
+import DropdownSelectFields from '../../../components/DropdownSelectFields';
+import { SettingItem } from '../../../styled';
+import { dealRequestControls } from '../../../util/data';
+import { transferValue } from '../DynamicDefaultValue/util';
 import SearchMapping from './SearchMapping';
 import SearchMappingFilter from './SearchMappingFilter';
-import SelectAuthAccount from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectAuthAccount';
-import _ from 'lodash';
-import cx from 'classnames';
+import SearchParams from './SearchParams';
 
 const SearchMode = styled.div`
   display: flex;
@@ -85,10 +87,26 @@ const AuthWrap = styled.div`
     margin-top: 1px;
     left: -6px;
   }
+  .actionControlMore {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-radius: 0 3px 3px 0;
+    color: #757575;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      color: #1677ff !important;
+    }
+  }
 `;
 
 function BasicInfo(props) {
-  const { data = {}, apiInfo = {}, onClick, globalSheetInfo = {} } = props;
+  const { data = {}, apiInfo = {}, onClick } = props;
   return (
     <SearchMode onClick={onClick} isDelete={data.dataSource && _.isEmpty(apiInfo)}>
       {data.dataSource ? (
@@ -148,6 +166,7 @@ export default function ApiSearchConfig(props) {
     status: { saveIndex } = {},
     fromCustomFilter, // 自定义事件条件
     fromOperationFlow, // 业务封装流程
+    allControls = [],
   } = props;
   const requestmap = getAdvanceSetting(data, 'requestmap') || [];
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
@@ -159,6 +178,10 @@ export default function ApiSearchConfig(props) {
   const [originResponseControls, setOriginResponseControls] = useState([]);
   const [flowList, setList] = useState([]);
   const [enabled, setEnabled] = useState(true);
+  const newAuthAccount = safeParse(authaccount, 'object');
+  const { authId, authIdAccounts, authIdKeywords } = newAuthAccount.authIdAccounts
+    ? newAuthAccount
+    : { authId: authaccount };
 
   useEffect(() => {
     if (!data.dataSource) return;
@@ -207,7 +230,7 @@ export default function ApiSearchConfig(props) {
   }, [globalSheetInfo.appId]);
 
   // 输入参数 | 输出参数
-  const dealResult = (requestControls = [], responseControls = [], basicInfo) => {
+  const dealResult = (requestControls = [], responseControls = [], basicInfo = {}) => {
     setRequestControls(dealRequestControls(requestControls, true));
     setResponseControls(dealRequestControls(responseControls));
 
@@ -236,7 +259,7 @@ export default function ApiSearchConfig(props) {
     };
 
     if (!_.isEmpty(params)) {
-      onChange(handleAdvancedSettingChange(data, params));
+      onChange({ ...handleAdvancedSettingChange(data, params), hasAuth: _.get(basicInfo, 'hasAuth') });
     }
   };
 
@@ -267,6 +290,28 @@ export default function ApiSearchConfig(props) {
     });
   };
 
+  // 集成api选择账号
+  const renderApiAuth = ({ content, onChange }) => {
+    const dynamicValue = transferValue(content);
+    return (
+      <DropdownSelectFields
+        data={{
+          type: 2,
+          advancedSetting: { defsource: JSON.stringify(dynamicValue) },
+        }}
+        dynamicValue={dynamicValue}
+        placeholder={_l('选择当前表单字段')}
+        value={content}
+        controls={allControls.map(i => ({ ...i, relationControls: [] }))}
+        globalSheetInfo={globalSheetInfo}
+        onChange={obj => {
+          const id = obj.relateSheetControlId ? `$${obj.fieldId}~${obj.relateSheetControlId}$` : `$${obj.fieldId}$`;
+          onChange(id);
+        }}
+      />
+    );
+  };
+
   return (
     <Fragment>
       {fromOperationFlow ? (
@@ -293,9 +338,24 @@ export default function ApiSearchConfig(props) {
                 <AuthWrap>
                   <span className="authRequired">*</span>
                   <SelectAuthAccount
-                    authId={authaccount}
+                    companyId={globalSheetInfo.projectId}
+                    authId={authId}
+                    authIdAccounts={authIdAccounts}
+                    authIdKeywords={authIdKeywords}
+                    fromType={2}
                     apiId={data.dataSource}
-                    onChange={authId => onChange(handleAdvancedSettingChange(data, { authaccount: authId }))}
+                    renderApiAuth={renderApiAuth}
+                    onChange={obj => {
+                      if (_.isObject(obj)) {
+                        onChange(
+                          handleAdvancedSettingChange(data, {
+                            authaccount: _.isEmpty(obj.authIdAccounts) ? '' : JSON.stringify(obj),
+                          }),
+                        );
+                      } else {
+                        onChange(handleAdvancedSettingChange(data, { authaccount: obj }));
+                      }
+                    }}
                   />
                 </AuthWrap>
               )}

@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, SvgIcon, Tooltip } from 'ming-ui';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
@@ -27,6 +28,7 @@ export default function WorkSheetGroup(props) {
   );
   const [popupVisible, setPopupVisible] = useState(false);
   const [isDrag, setIsDrag] = useState(false);
+  const [groupHide, setGroupHide] = useState(false);
   const isActive = !childrenVisible && isCurrentChildren;
   const showIcon =
     currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0
@@ -89,6 +91,7 @@ export default function WorkSheetGroup(props) {
       [2, 3, 4].includes(status) && (
         <Tooltip
           popupPlacement="right"
+          autoCloseDelay={0}
           text={<span>{_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}</span>}
         >
           <Icon
@@ -120,8 +123,12 @@ export default function WorkSheetGroup(props) {
                 setChildrenVisible(!childrenVisible);
                 if (!childrenVisible) {
                   localStorage.setItem(childrenOpenKey, 1);
+                  setGroupHide(false);
                 } else {
                   localStorage.removeItem(childrenOpenKey);
+                  setTimeout(() => {
+                    setGroupHide(true);
+                  }, 300);
                 }
               }
             } else {
@@ -187,7 +194,7 @@ export default function WorkSheetGroup(props) {
         </div>
         {sheetListVisible && (
           <div
-            className={cx('groupItems overflowHidden', { hide: isDrag })}
+            className={cx('groupItems overflowHidden', { hide: isDrag || groupHide })}
             style={{ height: childrenVisible ? (childrenItems.length ? childrenItems.length * 44 + 1 : 0) : 0 }}
           >
             {renderGroupItems()}

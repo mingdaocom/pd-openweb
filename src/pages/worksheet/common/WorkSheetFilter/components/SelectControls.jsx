@@ -40,7 +40,7 @@ export default function SelectControls(props) {
           placeholder={_l('搜索字段')}
           manualRef={inputRef}
           value={keyword}
-          onChange={e => {
+          onChange={() => {
             setKeyword(inputRef.current.value);
           }}
         />

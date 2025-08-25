@@ -19,6 +19,7 @@ export default class LoopProcess extends Component {
     this.state = {
       data: {},
       saveRequest: false,
+      cacheKey: +new Date(),
     };
   }
 
@@ -26,7 +27,7 @@ export default class LoopProcess extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -62,7 +63,7 @@ export default class LoopProcess extends Component {
           };
         });
 
-        this.setState({ data: result });
+        this.setState({ data: result, cacheKey: +new Date() });
       });
   }
 
@@ -114,7 +115,7 @@ export default class LoopProcess extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data } = this.state;
+    const { data, cacheKey } = this.state;
     const END_LIST = [
       { text: _l('跳出并进入下一次循环'), value: 1 },
       { text: _l('跳出并终止循环，继续后面的流程'), value: 2 },
@@ -139,7 +140,7 @@ export default class LoopProcess extends Component {
           <div className="flex" />
         </div>
 
-        <LoopProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
+        <LoopProcessParameters {...this.props} key={cacheKey} data={data} updateSource={this.updateSource} />
 
         <div className="Font13 mTop20 bold">{_l('循环退出条件')}</div>
         <div className="Font13 mTop5 Gray_75">
@@ -241,7 +242,7 @@ export default class LoopProcess extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

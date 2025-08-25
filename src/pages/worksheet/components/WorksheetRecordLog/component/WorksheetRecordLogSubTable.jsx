@@ -183,14 +183,13 @@ function WorksheetRecordLogSubTable(props) {
         _value = safeParse(value2);
       }
       if (type === 42) {
-        _value =
-          _value && _value.hasOwnProperty('server')
-            ? [_value]
-            : [
-                {
-                  server: _value,
-                },
-              ];
+        _value = _.has(_value, 'server')
+          ? [_value]
+          : [
+              {
+                server: _value,
+              },
+            ];
         return (
           <WorksheetRecordLogThumbnail
             oldList={editRowType === 'remove' ? _value : []}
@@ -279,7 +278,7 @@ function WorksheetRecordLogSubTable(props) {
       let cell = {
         ...control,
         value: typeof item !== 'string' ? JSON.stringify([item]) : item,
-        value2: [42, 11, 10].includes(control.type) ? item : [item],
+        value2: [42, 11, 10, 9].includes(control.type) ? item : [item],
       };
       let content = cell.type === 27 ? null : renderText(cell);
 

@@ -1,20 +1,20 @@
-﻿import React, { Component, Fragment, createRef } from 'react';
+﻿import React, { Component, createRef, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { LoadDiv, Button, ScrollView } from 'ming-ui';
-import userController from 'src/api/user';
+import { Button, LoadDiv, ScrollView } from 'ming-ui';
+import departmentController from 'src/api/department';
 import groupController from 'src/api/group';
 import structureController from 'src/api/structure';
-import departmentController from 'src/api/department';
-import Result from './Result';
-import NoData from './NoData';
-import GDropdown from './GDropdown';
-import ExtraUserList from './ExtraUserList';
-import DepartmentTree from './DepartmentTree';
-import DepartmentList from './DepartmentList';
+import userController from 'src/api/user';
+import { ChooseType, RenderTypes, UserTabsId } from './constant';
 import DefaultUserList from './DefaultUserList';
 import DepartmentGroupUserList from './DepartmentGroupUserList';
-import { RenderTypes, ChooseType, UserTabsId } from './constant';
+import DepartmentList from './DepartmentList';
+import DepartmentTree from './DepartmentTree';
+import ExtraUserList from './ExtraUserList';
+import GDropdown from './GDropdown';
+import NoData from './NoData';
+import Result from './Result';
 import './style.less';
 
 const DefaultUserTabs = isNetwork => {
@@ -111,7 +111,6 @@ export default class GeneraSelect extends Component {
       ],
     });
 
-    const href = location.href;
     this.boxRef = createRef(null);
   }
 
@@ -166,28 +165,29 @@ export default class GeneraSelect extends Component {
     window.addEventListener('keydown', this.handleKeyDown, false);
   }
 
-  updateEvent(event, values) {
-    const { position, maximum, direction } = values;
-    if (direction === 'down' && maximum - position <= 50) {
-      let page = false;
-      if (this.state.chooseType === ChooseType.USER) {
-        page = this.getTabItem().page;
-      } else if (this.state.chooseType === ChooseType.RESIGNED) {
-        page = this.state.haveMore;
-      }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
 
-      if (this.promiseObj) return;
+  updateEvent() {
+    let page = false;
+    if (this.state.chooseType === ChooseType.USER) {
+      page = this.getTabItem().page;
+    } else if (this.state.chooseType === ChooseType.RESIGNED) {
+      page = this.state.haveMore;
+    }
 
-      if (page) {
-        this.setState(
-          {
-            pageIndex: this.state.pageIndex + 1,
-          },
-          () => {
-            this.defaultAction();
-          },
-        );
-      }
+    if (this.promiseObj) return;
+
+    if (page) {
+      this.setState(
+        {
+          pageIndex: this.state.pageIndex + 1,
+        },
+        () => {
+          this.defaultAction();
+        },
+      );
     }
   }
 
@@ -216,7 +216,7 @@ export default class GeneraSelect extends Component {
     const { currentIndex, chooseType } = this.state;
     const flattenResult = this.getResultData();
     if (chooseType === ChooseType.USER && $('#dialogBoxSelectUser') && this.scrollView && flattenResult.length) {
-      const { which, ctrlKey } = event;
+      const { which, ctrlKey, metaKey } = event;
       if (which === 38) {
         this.setState(
           {
@@ -238,6 +238,9 @@ export default class GeneraSelect extends Component {
         // 单选 ctrl+回车自动提交
       } else if (ctrlKey && which == 13 && this.userSettings.unique) {
         this.submit();
+      } else if (which == 13 && (metaKey || ctrlKey)) {
+        // ⌘、Ctrl + 回车自动提交
+        this.submit();
       } else if (which === 13 && this.state.currentIndex >= 0) {
         this.toogleUserSelect(flattenResult[this.state.currentIndex]);
       }
@@ -251,23 +254,20 @@ export default class GeneraSelect extends Component {
     const current = flattenResult[currentIndex] || {};
     const $currentEl = $(`#GSelect-User-${current.accountId}`);
 
-    if (!scrollViewEl.nanoscroller.isActive || currentIndex === -1) {
+    if (!scrollViewEl && currentIndex === -1) {
       return;
     }
     if (direction === 'up') {
       if ($currentEl.position().top < 0 || $currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
-        $scrollViewEl.nanoScroller({ scrollTo: $currentEl });
+        this.scrollView.scrollToElement($currentEl[0]);
       }
     } else if (direction === 'down') {
       if ($currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
-        const bottom =
-          $scrollViewEl.find('.nano-content').get(0).scrollHeight -
-          $scrollViewEl.find('.nano-content').get(0).scrollTop -
-          $currentEl.position().top -
-          $currentEl.height();
-        $scrollViewEl.nanoScroller({ scrollBottom: bottom });
+        const { scrollTop, scrollHeight, maxScrollTop } = this.scrollView.getScrollInfo() || {};
+        const bottom = scrollHeight - scrollTop - $currentEl.position().top - $currentEl.height();
+        this.scrollView.scrollTo({ top: maxScrollTop - bottom });
       } else if ($currentEl.position().top < 0) {
-        $scrollViewEl.nanoScroller({ scrollTo: $currentEl });
+        this.scrollView.scrollToElement($currentEl[0]);
       }
     }
   }
@@ -283,7 +283,7 @@ export default class GeneraSelect extends Component {
       dataRange: 0, // 0 全部  1 好友 2 网络
       btnName: _l('确认'), // 按钮文字
       selectModes: props.commonSettings.selectModes || [ChooseType.USER],
-      callback: (users, departments, group) => {}, // 关闭时的回调
+      callback: () => {}, // 关闭时的回调
     };
     const defaultUserSettings = {
       _id: 0, // index for defaultTabs
@@ -425,6 +425,11 @@ export default class GeneraSelect extends Component {
       } else if (tabItem.type == RenderTypes.GROUP) {
         // 群组
         doAction = tabItem.actions.getGroups;
+        reqData.searchGroupType = localStorage.getItem('isCheckedGroupOnlyMyJoin')
+          ? safeParse(localStorage.getItem('isCheckedGroupOnlyMyJoin'))
+            ? 1
+            : 0
+          : 1;
       } else {
         // 其他 全部属于 user类型
         doAction = tabItem.actions.getUsers;
@@ -487,7 +492,6 @@ export default class GeneraSelect extends Component {
 
   /** 请求部门 */
   departmentAction() {
-    const userSettings = this.userSettings;
     const commonSettings = this.commonSettings;
     this.setState({
       loading: true,
@@ -884,7 +888,11 @@ export default class GeneraSelect extends Component {
       this.closeSearch();
       return;
     }
-    let selectedTabId = this.state.keywords ? this.state.selectedUserTabId : UserTabsId.CONACT_USER;
+    let selectedTabId =
+      keywords &&
+      _.includes([UserTabsId.CONACT_USER, UserTabsId.DEPARTMENT, UserTabsId.GROUP], this.state.selectedUserTabId)
+        ? this.state.selectedUserTabId
+        : UserTabsId.CONACT_USER;
     if (_.includes(showTabs, 'structureUsers')) {
       selectedTabId = 'structureUsers';
     } else if (_.includes(showTabs, 'ruleMember')) {
@@ -1220,6 +1228,7 @@ export default class GeneraSelect extends Component {
         if (this.state.keywords) {
           return (
             <DepartmentGroupUserList
+              projectId={commonSettings.projectId}
               data={mainData.data}
               onChange={this.toogleUserSelect}
               toggleUserItem={this.toggleUserItem}
@@ -1272,6 +1281,7 @@ export default class GeneraSelect extends Component {
       case RenderTypes.GROUP:
         return (
           <DepartmentGroupUserList
+            projectId={commonSettings.projectId}
             data={mainData.data}
             onChange={this.toogleUserSelect}
             toggleUserItem={this.toggleUserItem}
@@ -1281,6 +1291,7 @@ export default class GeneraSelect extends Component {
             tabType={UserTabsId.GROUP}
             unique={this.userSettings.unique}
             keywords={this.state.keywords}
+            userAction={this.userAction}
             selectedAccountIds={this.userSettings.selectedAccountIds}
           />
         );
@@ -1289,6 +1300,7 @@ export default class GeneraSelect extends Component {
       case RenderTypes.OTHER_USER:
         return (
           <ExtraUserList
+            projectId={commonSettings.projectId}
             data={mainData.data}
             onChange={this.toogleUserSelect}
             selectedUsers={this.selectedUsers}
@@ -1503,7 +1515,7 @@ export default class GeneraSelect extends Component {
           );
           SelectGroups = SelectDepartments = null;
         }
-        Tabs = er.map(mode => {
+        Tabs = this.commonSettings.selectModes.map(mode => {
           if (mode === ChooseType.USER) {
             return SelectUsers;
           } else if (mode === ChooseType.DEPARTMENT) {
@@ -1523,7 +1535,7 @@ export default class GeneraSelect extends Component {
     return (
       <Fragment>
         <div className="GSelect-head-searchArea">
-          <span className="icon-search1 searchIcon" />
+          <span className="icon-search searchIcon" />
           <input
             type="text"
             value={keywords}
@@ -1536,7 +1548,7 @@ export default class GeneraSelect extends Component {
           />
           {keywords && (
             <div className="GSelect-head-searchArea--deleteIcon">
-              <span className="icon-delete_out " onClick={this.closeSearch} />
+              <span className="icon-cancel " onClick={this.closeSearch} />
             </div>
           )}
         </div>
@@ -1571,7 +1583,7 @@ export default class GeneraSelect extends Component {
         <div className="GSelect-head">{this.renderHead()}</div>
         <ScrollView
           className="GSelect-container"
-          updateEvent={this.updateEvent.bind(this)}
+          onScrollEnd={this.updateEvent.bind(this)}
           ref={scrollView => (this.scrollView = scrollView)}
         >
           {this.renderContent()}
@@ -1599,6 +1611,8 @@ export default class GeneraSelect extends Component {
           </div>
           <div>
             <Button
+              className="tip-top"
+              data-tip={window.isMacOs ? '⌘ + Enter' : 'Ctrl + Enter'}
               onClick={evt => {
                 evt.nativeEvent.stopImmediatePropagation();
                 this.submit();

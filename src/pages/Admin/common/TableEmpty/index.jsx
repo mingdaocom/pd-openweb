@@ -1,7 +1,7 @@
 import React from 'react';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
 import './index.less';
-import cx from 'classnames';
 
 export default class TableEmpty extends React.Component {
   static propTypes = {

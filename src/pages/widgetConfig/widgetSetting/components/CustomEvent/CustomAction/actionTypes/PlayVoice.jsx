@@ -1,12 +1,13 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
+import _ from 'lodash';
 import { Dialog, Icon } from 'ming-ui';
+import fileAjax from 'src/api/file';
 import { SettingItem } from '../../../../../styled';
+import { VOICE_FILE_LIST } from '../../config';
 import { CustomActionWrap, DynamicBtn } from '../../style';
 import UploadFile from '../UploadField';
-import cx from 'classnames';
-import { VOICE_FILE_LIST } from '../../config';
-import fileAjax from 'src/api/file';
 
 export default function PlayVoice(props) {
   const { actionData = {}, handleOk } = props;
@@ -74,7 +75,7 @@ export default function PlayVoice(props) {
                   <span className="flex overflow_ellipsis">{item.fileName}</span>
                   {isUpload && (
                     <Icon
-                      icon="delete1"
+                      icon="trash"
                       className="deleteBtn mLeft5 Font16"
                       onClick={e => {
                         e.stopPropagation();

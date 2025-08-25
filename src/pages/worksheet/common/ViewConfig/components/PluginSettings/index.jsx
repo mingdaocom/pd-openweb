@@ -1,7 +1,8 @@
-import React, { createRef, useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import { saveAs } from 'file-saver';
+import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -76,7 +77,7 @@ const WrapPopup = styled.div`
     padding: 0 16px;
     font-weight: 400;
     &:hover {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
     }
   }
@@ -85,7 +86,7 @@ const WrapPopup = styled.div`
 function PluginSettings(params) {
   const { projectId, worksheetControls, onChangeView, view } = params;
   const [
-    { switchSettings, paramSettings, name, icon, iconUrl, iconColor, editInfo, showEdit, visible, addVisible, key },
+    { switchSettings, paramSettings, name, icon, iconUrl, iconColor, editInfo, showEdit, addVisible, key },
     setState,
   ] = useSetState({
     switchSettings: {},
@@ -179,7 +180,7 @@ function PluginSettings(params) {
               icon={iconUrl}
               name={icon}
               projectId={projectId}
-              onModify={({ iconColor, icon, iconUrl }) => {
+              onModify={({ iconColor, icon }) => {
                 if (iconColor) {
                   onChangeView({ iconColor }, true);
                 } else {
@@ -211,7 +212,7 @@ function PluginSettings(params) {
               name,
             });
           }}
-          onBlur={e => {
+          onBlur={() => {
             let value = name.trim();
             if (_.get(view, 'pluginInfo.name') !== value) {
               onChangeView({ name: value }, true);
@@ -339,7 +340,7 @@ function PluginSettings(params) {
                       onClick={() => {
                         let num = paramSettings.filter(a => a.fieldId === o.fieldId).length;
                         const getNum = num => {
-                          if (!!paramSettings.find(a => a.fieldId === `${o.fieldId}${num}`)) {
+                          if (paramSettings.find(a => a.fieldId === `${o.fieldId}${num}`)) {
                             return getNum(num + 1);
                           } else {
                             return num;
@@ -352,6 +353,7 @@ function PluginSettings(params) {
                                 fieldId: `${o.fieldId}${num > 0 ? getNum(num) : ''}`,
                                 paramName: o.paramName,
                                 type: o.type,
+                                sourceControlType: o.sourceControlType,
                               }),
                             ),
                           },
@@ -423,7 +425,7 @@ function PluginSettings(params) {
             info={editInfo}
             onClickAwayExceptions={[
               '.ant-select',
-              '.nano',
+              '.scrollViewContainer',
               '.mui-dialog-container',
               '.ant-select-dropdown',
               '.rc-trigger-popup',
@@ -462,8 +464,9 @@ function PluginSettings(params) {
           onOk={str => {
             let value = [];
             try {
-              value = JSON.parse(str);
+              value = safeParse(str, 'array');
             } catch (error) {
+              console.log(error);
               return alert(_l('请输入正确的格式'), 3);
             }
             if (!(_.isObject(value) && _.isArray(value)) || value.length <= 0) {

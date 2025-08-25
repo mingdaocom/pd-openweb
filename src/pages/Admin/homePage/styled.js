@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const HomePageWrap = styled.div`
   display: flex;
   flex-direction: column;
@@ -49,7 +50,7 @@ export const HomePageWrap = styled.div`
       .helpIcon {
         color: #d0d0d0 !important;
         &:hover {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
       }
       .buttons {
@@ -81,7 +82,7 @@ export const HomePageWrap = styled.div`
         font-size: 14px;
         color: #fff;
         border-radius: 16px;
-        background: #2196f3;
+        background: #1677ff;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -240,7 +241,7 @@ export const HomePageWrap = styled.div`
       font-size: 12px;
       cursor: pointer;
       .Hover_21:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     .limitUser {
@@ -353,7 +354,7 @@ export const HomePageWrap = styled.div`
       align-items: center;
       i {
         font-size: 24px;
-        color: #2196f3;
+        color: #1677ff;
       }
       span {
         color: #757575;
@@ -428,7 +429,7 @@ export const HomePageWrap = styled.div`
       margin: 0 12px;
       span {
         font-size: 16px;
-        color: #2196f3;
+        color: #1677ff;
         margin: 0 4px;
       }
     }
@@ -438,7 +439,7 @@ export const HomePageWrap = styled.div`
       color: #757575;
     }
     .upgrade {
-      color: #2196f3;
+      color: #1677ff;
       margin-left: 6px;
     }
     .delayTrial {
@@ -451,7 +452,7 @@ export const HomePageWrap = styled.div`
       span {
         margin-left: 4px;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -581,7 +582,7 @@ export const FreeTrialWrap = styled.div`
     font-size: 18px;
     margin-top: 20px;
     span {
-      color: #2196f3;
+      color: #1677ff;
       font-size: 24px;
       margin: 0 6px;
     }
@@ -591,7 +592,7 @@ export const FreeTrialWrap = styled.div`
     margin: 12px 0;
   }
   .remainTime {
-    color: #2196f3;
+    color: #1677ff;
     margin-left: 6px;
   }
   .inviteRules {
@@ -601,7 +602,7 @@ export const FreeTrialWrap = styled.div`
     li {
       min-width: 80px;
       .achieveDays {
-        color: #2196f3;
+        color: #1677ff;
         font-size: 14px;
         span {
           margin-right: 4px;
@@ -618,9 +619,9 @@ export const FreeTrialWrap = styled.div`
       }
     }
     .activeSymbolWrap {
-      background: #2196f3 !important;
+      background: #1677ff !important;
       .iconWrap {
-        background: #2196f3 !important;
+        background: #1677ff !important;
       }
     }
     .symbolWrap {

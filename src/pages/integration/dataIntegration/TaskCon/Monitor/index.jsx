@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
@@ -110,11 +110,9 @@ function Monitor(props) {
   const { currentProjectId: projectId } = props;
   const [
     {
-      keywords,
       showDate,
       pageSize,
       pageIndex,
-      loading,
       list,
       runningTime,
       readRecord,
@@ -166,7 +164,7 @@ function Monitor(props) {
     getLog();
   }, [pageIndex]);
 
-  const getG2plotComponent = (initChartData = history) => {
+  const getG2plotComponent = () => {
     import('@antv/g2plot').then(data => {
       g2plotComponent.current.value = data;
     });
@@ -244,7 +242,7 @@ function Monitor(props) {
       yField: 'value',
       seriesField: 'category',
       smooth: true,
-      color: ['#61DDAA', '#2196F3'],
+      color: ['#61DDAA', '#1677ff'],
       xAxis: {
         label: {
           style: {
@@ -338,7 +336,7 @@ function Monitor(props) {
             <span className="flex Bold Font16">
               {_l('历史')}
               <Tooltip text={<span>{_l('仅保留最近6个月的读写历史')}</span>} popupPlacement={'top'}>
-                <Icon className="mLeft5 Gray_bd" type="info1" />
+                <Icon className="mLeft5 Gray_bd" type="info" />
               </Tooltip>
             </span>
             <Dropdown
@@ -360,7 +358,7 @@ function Monitor(props) {
           <div className="title Bold Font16">
             {_l('日志')}
             <Tooltip text={<span>{_l('仅保留最近6个月的日志')}</span>} popupPlacement={'top'}>
-              <Icon className="mLeft5 Gray_bd" type="info1" />
+              <Icon className="mLeft5 Gray_bd" type="info" />
             </Tooltip>
           </div>
           <div className="listTable">

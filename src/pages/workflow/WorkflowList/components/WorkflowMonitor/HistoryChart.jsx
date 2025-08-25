@@ -1,8 +1,9 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { Fragment, PureComponent } from 'react';
+import _ from 'lodash';
+import moment from 'moment';
 import { Dropdown, LoadDiv } from 'ming-ui';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import { formatter } from './enum';
-import moment from 'moment';
 
 export default class HistoryChart extends PureComponent {
   constructor(props) {
@@ -66,7 +67,7 @@ export default class HistoryChart extends PureComponent {
       seriesField: 'category',
       appendPadding: [20, 0],
       smooth: true,
-      color: ['#F51744', '#2196F3', '#61DDAA'],
+      color: ['#F51744', '#1677ff', '#61DDAA'],
       xAxis: {
         label: {
           style: {
@@ -129,7 +130,7 @@ export default class HistoryChart extends PureComponent {
           'g2-tooltip-title': { color: '#757575' },
         },
         customContent: (title, items) => {
-          const [data1 = {}, data2 = {}, data3 = {}] = items;
+          const [data1 = {}] = items;
           const date = _.get(data1, 'data.date');
 
           return `<div class="g2TooltipWrap">
@@ -162,7 +163,7 @@ export default class HistoryChart extends PureComponent {
         start: 23 / 24,
         end: 1,
         foregroundStyle: {
-          fill: '#2196F3',
+          fill: '#1677ff',
           opacity: 0.11,
         },
         TrendCfg: {
@@ -177,7 +178,7 @@ export default class HistoryChart extends PureComponent {
         },
       },
     });
-    this.lineChart.on('slider:click', e => {
+    this.lineChart.on('slider:click', () => {
       this.setState({ showDate: undefined });
     });
     this.lineChart.render();

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import store from 'redux/configureStore';
@@ -33,9 +33,9 @@ const FilterEntry = styled.div`
     width: 100%;
   }
   &.highlight {
-    color: #2196f3;
+    color: #1677ff;
     .icon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .name {
@@ -82,7 +82,11 @@ function FilterContent(props) {
             ...filtersGroup,
             filters: filtersGroup.filters.map(f => {
               f.objectControls.forEach(item => {
-                item.control = replaceControlsTranslateInfo(ids.appId, item.worksheetId, item.control ? [item.control] : [])[0];
+                item.control = replaceControlsTranslateInfo(
+                  ids.appId,
+                  item.worksheetId,
+                  item.control ? [item.control] : [],
+                )[0];
               });
               return {
                 ...f,

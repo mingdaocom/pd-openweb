@@ -1,9 +1,9 @@
-import React, { useEffect, useState, Fragment } from 'react';
-import { SpinLoading } from 'antd-mobile';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { View } from 'src/pages/customPage/components/editWidget/view/Preview';
-import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
+import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import { View } from 'src/pages/customPage/components/editWidget/view/Preview';
 
 const emptyArray = [];
 
@@ -31,7 +31,7 @@ function ViewContent(props) {
         const value = rect.top <= pageRect.bottom;
         value && setVisible(true);
       }
-    }
+    };
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
     window[`refresh-${objectId}`] = () => {
@@ -39,11 +39,11 @@ function ViewContent(props) {
       setTimeout(() => {
         setVisible(true);
       }, 100);
-    }
+    };
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
       delete window[`refresh-${objectId}`];
-    }
+    };
   }, []);
 
   if (
@@ -55,16 +55,18 @@ function ViewContent(props) {
   ) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
-        <SpinLoading color='primary' />
+        <SpinLoading color="primary" />
       </div>
     );
   }
 
-  const isClickSearch = !!filterComponents.map(data => {
-    const { filters, advancedSetting } = data;
-    const result = _.find(filters, { objectId });
-    return result && advancedSetting.clicksearch === '1';
-  }).filter(n => n).length;
+  const isClickSearch = !!filterComponents
+    .map(data => {
+      const { filters, advancedSetting } = data;
+      const result = _.find(filters, { objectId });
+      return result && advancedSetting.clicksearch === '1';
+    })
+    .filter(n => n).length;
 
   if (isClickSearch && !filtersGroup.length) {
     return (
@@ -77,20 +79,16 @@ function ViewContent(props) {
   if (!visible) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
-        <SpinLoading color='primary' />
+        <SpinLoading color="primary" />
       </div>
     );
   }
 
-  return (
-    <View {...props} filtersGroup={filtersGroup.length ? filtersGroup : emptyArray} />
-  );
+  return <View {...props} filtersGroup={filtersGroup.length ? filtersGroup : emptyArray} />;
 }
 
-export default connect(
-  state => ({
-    filtersGroup: state.mobile.filtersGroup,
-    filterComponents: state.mobile.filterComponents,
-    loadFilterComponentCount: state.mobile.loadFilterComponentCount,
-  })
-)(ViewContent);
+export default connect(state => ({
+  filtersGroup: state.mobile.filtersGroup,
+  filterComponents: state.mobile.filterComponents,
+  loadFilterComponentCount: state.mobile.loadFilterComponentCount,
+}))(ViewContent);

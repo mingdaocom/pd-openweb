@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
 
 const UpgradeContentWrap = styled.div`
@@ -79,7 +79,7 @@ export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobi
     return (
       <MobileWrap>
         <IconWrap>
-          <i className={cx('Font48', icon)} style={{ color: STATUS_INFO[appStatus].color }}/>
+          <i className={cx('Font48', icon)} style={{ color: STATUS_INFO[appStatus].color }} />
         </IconWrap>
         <div className="Gray_bd Font17 mTop20">{STATUS_INFO[appStatus].text}</div>
         {!!STATUS_INFO[appStatus].desc && <div className="Gray_9e mTop10">{STATUS_INFO[appStatus].desc}</div>}

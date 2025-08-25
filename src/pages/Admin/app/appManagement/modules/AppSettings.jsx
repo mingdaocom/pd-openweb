@@ -152,7 +152,7 @@ export default class AppSettings extends React.Component {
   }
 
   render() {
-    const { activeId, list, selectedCount = 0 } = this.state;
+    const { activeId, list } = this.state;
 
     if (!list.length) {
       return <LoadDiv />;

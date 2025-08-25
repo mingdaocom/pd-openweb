@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -9,12 +8,12 @@ import sheetAjax from 'src/api/worksheet';
 import { CreateCustomBtn } from 'worksheet/common';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
+import 'src/pages/FormSet/containers/Print/style.less';
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import BtnTd from '../components/BtnTd';
 import TrashDialog from '../components/Trash';
-import './print.less';
 
 const Con = styled.div`
   width: 100%;
@@ -53,9 +52,9 @@ const Con = styled.div`
       color: #9e9e9e;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       .trashIcon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -73,7 +72,7 @@ const ArrowUp = styled.span`
   cursor: pointer;
   &:hover,
   &.active {
-    border-color: transparent transparent #2196f3 transparent;
+    border-color: transparent transparent #1677ff transparent;
   }
 `;
 
@@ -85,7 +84,7 @@ const ArrowDown = styled.span`
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #2196f3 transparent transparent transparent;
+    border-color: #1677ff transparent transparent transparent;
   }
 `;
 
@@ -286,7 +285,7 @@ function CustomBtnFormSet(props) {
             worksheetId={worksheetId}
             sheetSwitchPermit={worksheetInfo.switches}
             workflowId={''}
-            refreshFn={(worksheetId, appId, viewId, rowId) => {
+            refreshFn={() => {
               getSheetBtns();
             }}
             updateCustomButtons={updateCustomButtons}

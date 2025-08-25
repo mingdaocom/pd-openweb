@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID } from '../../enum';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Code extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class Code extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('数据异常')}
         </div>
       );

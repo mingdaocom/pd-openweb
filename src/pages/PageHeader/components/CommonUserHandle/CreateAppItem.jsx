@@ -1,9 +1,8 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Icon, Menu, MenuItem } from 'ming-ui';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
 import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
 import { addFirstAppSection, createAppItem, getSheetList } from 'worksheet/redux/actions/sheetList';

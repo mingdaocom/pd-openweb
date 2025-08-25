@@ -73,7 +73,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       });
       let errorItems = formdata.getErrorControls();
       rulesErrors.forEach(errorItem => {
-        if (_.includes(showControls, errorItem.controlId)) {
+        if (_.includes(showControls, errorItem.controlId) && !errorItem.ignoreErrorMessage) {
           result[row.rowid + '-' + errorItem.controlId] = errorItem.errorMessage;
         }
       });

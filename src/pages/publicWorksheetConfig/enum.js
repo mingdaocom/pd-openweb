@@ -1,4 +1,3 @@
-import React from 'react';
 import CoverBg from './images/cover.png';
 import CoverActiveBg from './images/cover_active.png';
 import TopBg from './images/top.png';
@@ -9,7 +8,7 @@ export const themes = [
   { main: '#FF9800', second: '#FFFAF2' },
   { main: '#4CAF50', second: '#F6FBF6' },
   { main: '#00BCD4', second: '#F2FCFD' },
-  { main: '#2196F3', second: '#F3FAFF' },
+  { main: '#1677ff', second: '#F3FAFF' },
   { main: '#9C26AF', second: '#FAF4FB' },
   { main: '#3F51B5', second: '#F5F6FB' },
   { main: '#455A64', second: '#F5F6F7' },

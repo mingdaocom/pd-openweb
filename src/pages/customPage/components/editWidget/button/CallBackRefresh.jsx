@@ -1,11 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Checkbox, Divider, Dropdown, Input, Space } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Dropdown, Checkbox, Space, Input, Divider } from 'antd';
-import { TagWrap, AddTagWrap, getFilterObject } from '../filter/FilterObject';
 import reportApi from 'statistics/api/report';
+import { AddTagWrap, getFilterObject, TagWrap } from '../filter/FilterObject';
 
-const CallBackRefresh = (props) => {
+const CallBackRefresh = props => {
   const { pageId, components, refreshObjects = [], onChange } = props;
   const [filterObject, setFilterObject] = useState([]);
   const [addTagVisible, setAddTagVisible] = useState(false);
@@ -14,20 +15,23 @@ const CallBackRefresh = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    reportApi.listByPageId({ appId: pageId }).then(data => {
-      setFilterObject(getFilterObject(components, data));
-    }).finally(() => setLoading(false));
+    reportApi
+      .listByPageId({ appId: pageId })
+      .then(data => {
+        setFilterObject(getFilterObject(components, data));
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const addFilterObject = id => {
-    const { name, worksheetId, ...data } = filterObject.filter(item => item.objectId == id)[0];
+    const { ...data } = filterObject.filter(item => item.objectId == id)[0];
     const newObjects = refreshObjects.concat({ ...data });
     onChange(newObjects);
-  }
+  };
   const removeFilterObject = id => {
     const newObjects = refreshObjects.filter(item => item.objectId !== id);
     onChange(newObjects);
-  }
+  };
 
   const renderOverlay = () => {
     return (
@@ -38,7 +42,9 @@ const CallBackRefresh = (props) => {
             autoFocus
             value={search}
             placeholder={_l('搜索')}
-            onChange={e => { setSearch(e.target.value) }}
+            onChange={e => {
+              setSearch(e.target.value);
+            }}
           />
         </div>
         <Divider className="mTop5 mBottom5" />
@@ -49,39 +55,41 @@ const CallBackRefresh = (props) => {
               const { checked } = e.target;
               if (checked) {
                 const newObjects = filterObject.map(c => {
-                  const { name, worksheetId, ...data } = c;
+                  const { ...data } = c;
                   return {
                     ...data,
                   };
                 });
                 onChange(newObjects);
-              } else  {
+              } else {
                 onChange([]);
               }
             }}
           >
             <span className="Font13">{_l('全选')}</span>
           </Checkbox>
-          {filterObject.filter(n => (n.name || '').toLocaleLowerCase().includes(search.toLocaleLowerCase())).map(c => (
-            <Checkbox
-              key={c.objectId}
-              checked={_.find(refreshObjects, { objectId: c.objectId }) ? true : false}
-              onChange={(e) => {
-                const { checked } = e.target;
-                if (checked) {
-                  addFilterObject(c.objectId);
-                } else {
-                  removeFilterObject(c.objectId);
-                }
-              }}
-            >
-              <span className="Font13">{c.name}</span>
-            </Checkbox>
-          ))}
+          {filterObject
+            .filter(n => (n.name || '').toLocaleLowerCase().includes(search.toLocaleLowerCase()))
+            .map(c => (
+              <Checkbox
+                key={c.objectId}
+                checked={_.find(refreshObjects, { objectId: c.objectId }) ? true : false}
+                onChange={e => {
+                  const { checked } = e.target;
+                  if (checked) {
+                    addFilterObject(c.objectId);
+                  } else {
+                    removeFilterObject(c.objectId);
+                  }
+                }}
+              >
+                <span className="Font13">{c.name}</span>
+              </Checkbox>
+            ))}
         </Space>
       </AddTagWrap>
     );
-  }
+  };
 
   const renderObject = item => {
     const object = _.find(filterObject, { objectId: item.objectId });
@@ -96,19 +104,21 @@ const CallBackRefresh = (props) => {
             </span>
           </Fragment>
         ) : (
-          <span className="Font13 Red mLeft5 mRight5">
-            {_l('该刷新对象已删除')}
-          </span>
+          <span className="Font13 Red mLeft5 mRight5">{_l('该刷新对象已删除')}</span>
         )}
-        <Icon className="Gray_9e Font16 pointer" icon="close" onClick={() => { removeFilterObject(item.objectId) }} />
+        <Icon
+          className="Gray_9e Font16 pointer"
+          icon="close"
+          onClick={() => {
+            removeFilterObject(item.objectId);
+          }}
+        />
       </div>
     );
-  }
+  };
 
   if (loading) {
-    return (
-      <LoadDiv />
-    );
+    return <LoadDiv />;
   }
 
   if (!filterObject.length) {
@@ -121,9 +131,7 @@ const CallBackRefresh = (props) => {
         <span>{_l('创建完成后刷新组件')}</span>
       </div>
       <TagWrap>
-        {refreshObjects.map(item => (
-          renderObject(item)
-        ))}
+        {refreshObjects.map(item => renderObject(item))}
         <div
           className="tag add valignWrapper pointer"
           onClick={() => {

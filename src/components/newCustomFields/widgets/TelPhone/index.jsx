@@ -1,11 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { addBehaviorLog } from 'src/utils/project.js';
 
 const TelPhoneWrap = styled.div`
   position: absolute;
@@ -31,7 +32,7 @@ export default class Widgets extends Component {
     maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = nextProps.value || '';
     }
@@ -71,7 +72,7 @@ export default class Widgets extends Component {
   };
 
   render() {
-    const { disabled, hint, value, onBlur, onChange, from, maskPermissions } = this.props;
+    const { disabled, hint, value, onBlur, onChange, maskPermissions } = this.props;
     const { originValue, isEditing, maskStatus } = this.state;
     const isMask = maskPermissions && value && maskStatus;
 
@@ -93,7 +94,13 @@ export default class Widgets extends Component {
           <span
             className={cx({ maskHoverTheme: disabled && isMask })}
             onClick={() => {
-              if (disabled && isMask) this.setState({ maskStatus: false });
+              if (disabled && isMask) {
+                addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+                  rowId: this.props.recordId,
+                  controlId: this.props.controlId,
+                });
+                this.setState({ maskStatus: false });
+              }
             }}
           >
             {this.getShowValue()}

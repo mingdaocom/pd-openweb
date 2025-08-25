@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 function User(props) {
-  const { avatar, fullname, department, job, subordinates, clickHandler, subTotalCount } = props;
+  const { avatar, fullname, department, job, clickHandler, subTotalCount } = props;
   const _props = clickHandler
     ? {
         onClick: clickHandler,

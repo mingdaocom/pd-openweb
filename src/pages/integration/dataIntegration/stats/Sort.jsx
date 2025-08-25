@@ -1,6 +1,6 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
 
 let sortFlag = 0;
 export const SORT_TYPE = {

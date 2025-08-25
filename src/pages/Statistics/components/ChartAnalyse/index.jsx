@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { Collapse, Switch } from 'antd';
-import OriginalData from './components/OriginalData';
-import DataContrast from './components/DataContrast';
-import PeriodTarget from './components/PeriodTarget';
-import AuxiliaryLine from './components/AuxiliaryLine';
-import AutoLinkage from './components/AutoLinkage';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'statistics/redux/actions';
+import { Collapse, Switch } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
 import { ContrastValue } from 'statistics/components/ChartStyle/components/NumberStyle';
-import _ from 'lodash';
+import * as actions from 'statistics/redux/actions';
 import { defaultNumberChartStyle } from '../.../../../enum';
+import AutoLinkage from './components/AutoLinkage';
+import AuxiliaryLine from './components/AuxiliaryLine';
+import DataContrast from './components/DataContrast';
+import OriginalData from './components/OriginalData';
+import PeriodTarget from './components/PeriodTarget';
 
 @connect(
   state => ({
@@ -65,16 +65,13 @@ export default class ChartAnalyse extends Component {
   renderOriginalData() {
     const { worksheetInfo, currentReport, base } = this.props;
     const { displaySetup, filter, style } = currentReport;
-
-    if (base.appType === 2) {
-      return null;
-    }
+    const aggregationSheet = base.appType === 2;
 
     return (
       <Collapse.Panel
         key="originalData"
         header={_l('查看原始数据')}
-        className={cx({ collapsible: !displaySetup.showRowList })}
+        className={cx({ collapsible: !displaySetup.showRowList, hideArrowIcon: aggregationSheet })}
         extra={
           <Switch
             size="small"
@@ -90,14 +87,16 @@ export default class ChartAnalyse extends Component {
           />
         }
       >
-        <OriginalData
-          worksheetInfo={worksheetInfo}
-          displaySetup={displaySetup}
-          viewId={filter.viewId}
-          style={style || {}}
-          onChangeDisplaySetup={this.handleChangeDisplaySetup}
-          onChangeStyle={this.handleChangeStyle}
-        />
+        {!aggregationSheet && (
+          <OriginalData
+            worksheetInfo={worksheetInfo}
+            displaySetup={displaySetup}
+            viewId={filter.viewId}
+            style={style || {}}
+            onChangeDisplaySetup={this.handleChangeDisplaySetup}
+            onChangeStyle={this.handleChangeStyle}
+          />
+        )}
       </Collapse.Panel>
     );
   }
@@ -143,7 +142,6 @@ export default class ChartAnalyse extends Component {
               onChange={checked => {
                 this.handleChangeDisplaySetup(
                   {
-                    ...displaySetup,
                     contrastType: checked ? 2 : 0,
                     contrast: checked ? true : false,
                   },
@@ -158,7 +156,7 @@ export default class ChartAnalyse extends Component {
           isNumberChart={isNumberChart}
           contrastVisible={contrastVisible}
           currentReport={currentReport}
-          onUpdateDisplaySetup={this.handleChangeDisplaySetup}
+          onChangeDisplaySetup={this.handleChangeDisplaySetup}
           onChangeStyle={this.handleChangeStyle}
           onChangeCurrentReport={this.props.changeCurrentReport}
         />
@@ -188,7 +186,7 @@ export default class ChartAnalyse extends Component {
 
     return (
       <Collapse.Panel key="periodTarget" header={_l('周期目标')}>
-        <PeriodTarget currentReport={currentReport} onUpdateDisplaySetup={this.handleChangeDisplaySetup} />
+        <PeriodTarget currentReport={currentReport} onChangeDisplaySetup={this.handleChangeDisplaySetup} />
       </Collapse.Panel>
     );
   }
@@ -202,7 +200,7 @@ export default class ChartAnalyse extends Component {
   }
   render() {
     const { sourceType, currentReport } = this.props;
-    const { reportType, xaxes } = currentReport;
+    const { reportType } = currentReport;
     return (
       <div className="chartAdvanced">
         <Collapse className="chartCollapse" expandIcon={this.renderExpandIcon} ghost>

@@ -36,7 +36,7 @@ export default function UserMenu({ onClose = () => {} }) {
         )}
         {knowledgeVisible && (
           <li onClick={() => window.open('/apps/kcupload')} className="ThemeBGColor3">
-            <i className="icon icon-knowledge-cloud" />
+            <i className="icon icon-cloud_upload" />
             {_l('上传文件')}
           </li>
         )}

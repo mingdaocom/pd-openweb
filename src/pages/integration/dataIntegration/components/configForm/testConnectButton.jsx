@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TEST_STATUS } from '../../constant';
 import { Icon, LoadDiv } from 'ming-ui';
+import { TEST_STATUS } from '../../constant';
 
 const TestButton = styled.div`
   display: inline-block;
   vertical-align: middle;
-  border: 1px solid #2196f3;
+  border: 1px solid #1677ff;
   border-radius: 3px;
-  color: #2196f3;
+  color: #1677ff;
   background-color: #fff;
   font-size: 14px;
   line-height: 18px;
@@ -19,7 +19,7 @@ const TestButton = styled.div`
   &.lightHover {
     &.default {
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #f4f8fb;
       }
     }
@@ -28,7 +28,7 @@ const TestButton = styled.div`
   &.default {
     &:hover {
       color: #fff;
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
   }
 
@@ -67,7 +67,7 @@ export default function TestConnectButton(props) {
     <TestButton className={`${testStatus.className} ${className || ''}`} onClick={onTestConnect}>
       {testStatus === TEST_STATUS.TESTING && <LoadDiv size="small" style={{ marginRight: 5 }} />}
       {testStatus === TEST_STATUS.SUCCESS && <Icon icon="done" />}
-      {testStatus === TEST_STATUS.FAILED && <Icon icon="info1" />}
+      {testStatus === TEST_STATUS.FAILED && <Icon icon="info" />}
       {testStatus.text}
     </TestButton>
   );

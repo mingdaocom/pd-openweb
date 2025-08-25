@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import { Tooltip, Checkbox } from 'ming-ui';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Tooltip } from 'ming-ui';
 
 const LinkParamSettings = styled.div`
   width: 324px;
@@ -40,8 +40,8 @@ const AppLinkWrap = styled.div`
     border: 1px solid #dddddd;
     margin-left: 8px;
     &:hover {
-      color: #2196f3;
-      border: 1px solid #2196f3;
+      color: #1677ff;
+      border: 1px solid #1677ff;
     }
   }
 `;

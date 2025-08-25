@@ -16,7 +16,6 @@ class DialogCreateAndEditPosition extends React.Component {
 
   handleSubmit = () => {
     const { filed, positionList, projectId, currentPosition } = this.props;
-    const { exsistCurrentName, submitLoading } = this.state;
     let jobName = this.state.jobName.trim();
 
     fixedDataAjax.checkSensitive({ content: jobName }).then(res => {
@@ -45,7 +44,7 @@ class DialogCreateAndEditPosition extends React.Component {
             this.props.onCancel();
             this.setState({ submitLoading: false });
           })
-          .catch(err => {
+          .catch(() => {
             this.setState({ submitLoading: false });
           });
       } else {
@@ -63,7 +62,7 @@ class DialogCreateAndEditPosition extends React.Component {
             this.props.onCancel();
             this.setState({ submitLoading: false });
           })
-          .catch(err => {
+          .catch(() => {
             this.setState({ submitLoading: false });
           });
       }
@@ -97,7 +96,7 @@ class DialogCreateAndEditPosition extends React.Component {
                 });
             }}
           >
-            <i class="icon-task-new-delete Font16 mRight10"></i>
+            <i class="icon-trash Font16 mRight10"></i>
             <span>{_l('删除')}</span>
           </span>
         ) : (
@@ -118,7 +117,7 @@ class DialogCreateAndEditPosition extends React.Component {
               return;
             } else if (exsistCurrentName || submitLoading) {
               return;
-            } else if (!!positionList.find(it => it.jobName === jobName)) {
+            } else if (positionList.find(it => it.jobName === jobName)) {
               alert(_l('该职位名称已存在'), 3);
               this.setState({ exsistCurrentName: true });
               return;

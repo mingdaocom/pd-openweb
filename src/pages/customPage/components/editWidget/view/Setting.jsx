@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Checkbox } from 'antd';
 import _ from 'lodash';
@@ -33,12 +33,13 @@ const Wrap = styled.div`
 
 function Setting(props) {
   const { appPkg = {}, ids = {}, setting, setSetting, setLoading, components } = props;
-  const { appId, pageId } = ids;
+  const { appId } = ids;
   const projectId = appPkg.projectId || appPkg.id;
   const { value, viewId, config = { isAddRecord: true, searchRecord: true, openView: true } } = setting;
   const { name, maxCount, isAddRecord, searchRecord, openView } = config;
 
   const [dataSource, setDataSource] = useState({ views: [] });
+  // eslint-disable-next-line no-unused-vars
   const [currentViewId, setCurrentViewId] = useState(viewId);
   const { views } = dataSource;
   const viewIds = components.map(c => c.viewId).filter(id => id !== currentViewId);
@@ -62,7 +63,7 @@ function Setting(props) {
           appId,
         })
         .then(res => {
-          const { views = [], template } = res;
+          const { views = [] } = res;
           setDataSource({
             views: getShowViews(views).map(({ viewId, name, viewType }) => ({
               text: getTranslateInfo(appId, null, viewId).name || name,

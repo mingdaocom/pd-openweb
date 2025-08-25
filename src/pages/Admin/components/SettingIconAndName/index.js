@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Dialog, Input, Button, Icon, QiniuUpload } from 'ming-ui';
 import styled from 'styled-components';
-import workWxIcon from '../../integration/platformIntegration/images/workwx.png';
+import { Button, Dialog, Icon, Input, QiniuUpload } from 'ming-ui';
 import dingIcon from '../../integration/platformIntegration/images/ding.png';
 import feishuIcon from '../../integration/platformIntegration/images/feishu.png';
+import workWxIcon from '../../integration/platformIntegration/images/workwx.png';
 
 const DialogWrap = styled(Dialog)`
   .mui-dialog-header {

@@ -1,11 +1,12 @@
-import React, { useEffect, useState, Component, Fragment } from 'react';
-import { ScrollView, Input, Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, Input, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import styled from 'styled-components';
 
 const Wrap = styled.div`
   padding: 12px 20px;
@@ -13,6 +14,7 @@ const Wrap = styled.div`
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   .width160 {
     width: 160px;
   }
@@ -117,7 +119,7 @@ export default class EncryptFieldList extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingApp: false });
       });
   };
@@ -163,7 +165,7 @@ export default class EncryptFieldList extends Component {
           loading: false,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -267,46 +269,44 @@ export default class EncryptFieldList extends Component {
           <div className="appName w20">{_l('所属应用')}</div>
           <div className="worksheetName w30">{_l('所属工作表')}</div>
         </div>
-        <div className="listContent">
-          <ScrollView>
-            {loading ? (
-              <LoadDiv className="mTop40" />
-            ) : _.isEmpty(dataList) ? (
-              <Empty className="w100 h100" detail={{ icon: 'icon-verify', desc: _l('无数据') }} />
-            ) : (
-              dataList.map((item, index) => {
-                const { controlName, type, appName, iconColor, appIconUrl, worksheetName, iconUrl } = item;
+        <ScrollView className="listContent">
+          {loading ? (
+            <LoadDiv className="mTop40" />
+          ) : _.isEmpty(dataList) ? (
+            <Empty className="w100 h100" detail={{ icon: 'icon-verify', desc: _l('无数据') }} />
+          ) : (
+            dataList.map((item, index) => {
+              const { controlName, type, appName, iconColor, appIconUrl, worksheetName, iconUrl } = item;
 
-                return (
-                  <div className="listItem flexRow" key={index}>
-                    <div className="controlName w50 ellipsis">
-                      <i className={`Gray_bd mRight5 Font16 TxtMiddle icon-${getIconByType(type)}`}></i>
-                      {controlName}
-                    </div>
-                    <div className="appName w20 flexRow alignItemsCenter">
-                      {!!appName ? (
-                        <Fragment>
-                          <div className="iconWrap pTop2" style={{ backgroundColor: iconColor }}>
-                            <SvgIcon url={appIconUrl} fill="#fff" size={12} />
-                          </div>
-                          <div className="flex ellipsis">{appName}</div>
-                        </Fragment>
-                      ) : (
-                        '-'
-                      )}
-                    </div>
-                    <div className="worksheetName w30 flexRow alignItemsCenter">
-                      <div className="iconWrap">
-                        <SvgIcon url={iconUrl} fill="#757575" size={16} />
-                      </div>
-                      <div className="flex ellipsis">{worksheetName}</div>
-                    </div>
+              return (
+                <div className="listItem flexRow" key={index}>
+                  <div className="controlName w50 ellipsis">
+                    <i className={`Gray_bd mRight5 Font16 TxtMiddle icon-${getIconByType(type)}`}></i>
+                    {controlName}
                   </div>
-                );
-              })
-            )}
-          </ScrollView>
-        </div>
+                  <div className="appName w20 flexRow alignItemsCenter">
+                    {appName ? (
+                      <Fragment>
+                        <div className="iconWrap pTop2" style={{ backgroundColor: iconColor }}>
+                          <SvgIcon url={appIconUrl} fill="#fff" size={12} />
+                        </div>
+                        <div className="flex ellipsis">{appName}</div>
+                      </Fragment>
+                    ) : (
+                      '-'
+                    )}
+                  </div>
+                  <div className="worksheetName w30 flexRow alignItemsCenter">
+                    <div className="iconWrap">
+                      <SvgIcon url={iconUrl} fill="#757575" size={16} />
+                    </div>
+                    <div className="flex ellipsis">{worksheetName}</div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </ScrollView>
       </Wrap>
     );
   }

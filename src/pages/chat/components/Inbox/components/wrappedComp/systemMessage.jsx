@@ -1,4 +1,4 @@
-﻿import React, { Fragment, PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { createRoot } from 'react-dom/client';
 import linkify from 'linkifyjs/html';
 import styled from 'styled-components';
@@ -189,7 +189,7 @@ export default class SystemMessage extends PureComponent {
           },
         });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({
           processInfo: {
             name: '',
@@ -222,7 +222,7 @@ export default class SystemMessage extends PureComponent {
     if (md.global.Account.isPortal) {
       content = content
         .replace(/<a data-accountid=[^>]*/gi, '<a') //不能点击用户
-        .replace(/<a href=\"\/app\/[^>]*/gi, '<a'); //不能点击应用
+        .replace(/<a href="\/app\/[^>]*/gi, '<a'); //不能点击应用
     }
 
     // 直接进到外部门户审批列表
@@ -271,19 +271,7 @@ export default class SystemMessage extends PureComponent {
 
               <span
                 dangerouslySetInnerHTML={{
-                  __html: parse(
-                    xss(
-                      linkify(
-                        xss(
-                          content
-                            .replace(/[\r\n]/g, '<br />')
-                            .replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, ''),
-                          xssOptions,
-                        ),
-                      ),
-                      xssOptions,
-                    ),
-                  ).replace(/&/g, '&#38;'),
+                  __html: parse(xss(linkify(xss(content.replace(/[\r\n]/g, '<br />').replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, ''), xssOptions)), xssOptions)),
                 }}
                 ref={el => {
                   this.msg = el;
@@ -292,7 +280,7 @@ export default class SystemMessage extends PureComponent {
             </div>
             <div className="Gray_9 mTop8">
               {done && (
-                <Tooltip text={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
+                <Tooltip text={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`} autoCloseDelay={0}>
                   <Done className="Hover_21 Hand">
                     <Icon icon="done" className="mRight6" />
                     <span className="text">{MSG_DONE_TEXT[inboxType] || _l('已处理')}</span>

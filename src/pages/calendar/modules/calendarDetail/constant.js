@@ -1,9 +1,8 @@
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
+
 export const WEEKDAYS = _.map(new Array(7), (value, index) => {
-  return moment()
-    .day(index)
-    .format('dd');
+  return moment().day(index).format('dd');
 });
 
 export const RECURLAYERS = [_l('天'), _l('周'), _l('月'), _l('年')];

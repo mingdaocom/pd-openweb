@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import { DynamicValueInputWrap } from '../styled';
-import { dialogSelectDept } from 'ming-ui/functions';
 import update from 'immutability-helper';
 import _ from 'lodash';
-
+import { dialogSelectDept } from 'ming-ui/functions';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap } from '../styled';
 
 export default class DepartmentInput extends Component {
   // 成员多选数据处理

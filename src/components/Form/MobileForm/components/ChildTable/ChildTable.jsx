@@ -10,13 +10,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { Skeleton } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
+import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { SHEET_VIEW_HIDDEN_TYPES, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
+import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
 import { updateOptionsOfControls } from 'src/utils/control';
 import { isRelateRecordTableControl, parseAdvancedSetting, replaceByIndex, sortControlByIds } from 'src/utils/control';
 import {
@@ -28,9 +29,7 @@ import {
 } from 'src/utils/record';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { controlState } from '../../../core/formUtils';
-import ExportSheetButton from './ExportSheetButton';
 import MobileTable from './MobileTable';
-import * as actions from './redux/actions';
 import RowDetailMobile from './RowDetailMobileModal';
 import SearchInput from './SearchInput';
 import TableComponent from './TableComponent';
@@ -98,7 +97,7 @@ class ChildTable extends React.Component {
   }
 
   componentDidMount() {
-    const { mode, control, recordId, needResetControls } = this.props;
+    const { control, recordId, needResetControls } = this.props;
     this.updateDefsourceOfControl();
     if (recordId) {
       if (!(get(this, 'props.base.loaded') || get(this, 'props.base.reset'))) {
@@ -269,7 +268,9 @@ class ChildTable extends React.Component {
     let controlssorts = [];
     try {
       controlssorts = JSON.parse(advancedSetting.controlssorts);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     let result = sortControlByIds(controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(c => {
       const control = { ...c };
       const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
@@ -279,7 +280,11 @@ class ChildTable extends React.Component {
       }
       control.originalFieldPermission = control.fieldPermission;
       if (!_.find(showControls, scid => control.controlId === scid)) {
-        control.fieldPermission = '000';
+        if (control.type === 52) {
+          control.hidden = true;
+        } else {
+          control.fieldPermission = '000';
+        }
       } else {
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
       }
@@ -332,9 +337,8 @@ class ChildTable extends React.Component {
     });
   }
 
-  loadRows = (nextProps, { needResetControls, pageIndex = 1 } = {}) => {
+  loadRows = (nextProps, { needResetControls } = {}) => {
     const { control, recordId, masterData, loadRows, from } = nextProps || this.props;
-    const h5ShowType = _.get(control || {}, 'advancedSetting.h5showtype');
 
     if (!recordId || !masterData) {
       return;
@@ -347,6 +351,7 @@ class ChildTable extends React.Component {
       controlId: control.controlId,
       isCustomButtonFillRecord: control.isCustomButtonFillRecord,
       from,
+      setLoadingInfo: control.setLoadingInfo,
       callback: res => {
         if (res === null) {
           this.setState({
@@ -395,7 +400,6 @@ class ChildTable extends React.Component {
 
   getShowColumns() {
     const { control } = this.props;
-    let { h5showtype } = parseAdvancedSetting(control.advancedSetting);
 
     const { controls } = this.state;
     const hiddenTypes = window.isPublicWorksheet ? [48] : [];
@@ -421,7 +425,9 @@ class ChildTable extends React.Component {
     let widths = [];
     try {
       widths = JSON.parse(control.advancedSetting.widths);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     columns.forEach((column, i) => {
       result[column.controlId] = widths[i];
     });
@@ -518,6 +524,7 @@ class ChildTable extends React.Component {
       masterData,
       abortController: this.abortController,
       masterRecordRowId: recordId,
+      noAutoSubmit: true,
       updateLoadingItems: loadingInfo => {
         if (row && !row.needShowLoading) return;
         this.setState(prev => {
@@ -589,7 +596,7 @@ class ChildTable extends React.Component {
 
   handleAddRowByLine = () => {
     const { from, control, addRow, rows } = this.props;
-    const { pageSize, pageIndex } = this.state;
+    const { pageSize } = this.state;
     const maxCount = this.settings.maxCount;
     const maxShowRowCount = this.settings.rownum;
     const controlPermission = controlState(control, from);
@@ -619,7 +626,9 @@ class ChildTable extends React.Component {
             activeCell.click();
           }
         }, 100);
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }, 100);
   };
 
@@ -677,14 +686,16 @@ class ChildTable extends React.Component {
               ele.scrollTop = ele.scrollTop + (selectedRecords.length - 1) * itemHeight;
             }
             this.worksheettable.current.table.refs.setScroll(0, 100000);
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
         }, 100);
       },
     });
   };
 
   handleUpdateCell({ control, cell, row = {} }, options) {
-    const { rows, updateRow, addRow } = this.props;
+    const { rows, updateRow } = this.props;
     const { controls } = this.state;
     const rowData = _.find(rows, r => r.rowid === row.rowid);
     if (!rowData) {
@@ -758,7 +769,7 @@ class ChildTable extends React.Component {
     );
   };
 
-  handleSwitch = ({ prev, next }) => {
+  handleSwitch = ({ prev }) => {
     const { previewRowIndex } = this.state;
     let newRowIndex;
     if (prev) {
@@ -922,8 +933,6 @@ class ChildTable extends React.Component {
       batchcids,
       allowsingle,
       hidenumber,
-      rowheight,
-      rownum,
       h5showtype,
       h5abstractids,
       titleWrap,
@@ -945,7 +954,6 @@ class ChildTable extends React.Component {
       pageSize,
       pageIndex,
       keywords,
-      headHeight,
       isEditCurrentRow,
       isMobileSearchFocus,
       isAddRowByLine,
@@ -957,8 +965,6 @@ class ChildTable extends React.Component {
     const addRowFromRelateRecords = !!batchAddControls.length;
     const allowAddByLine =
       (_.isUndefined(_.get(control, 'advancedSetting.allowsingle')) && !addRowFromRelateRecords) || allowsingle;
-    let allowExport = _.get(control, 'advancedSetting.allowexport');
-    allowExport = _.isUndefined(allowExport) || allowExport === '1';
     const controlPermission = controlState(control, from);
     let tableRows = rows.map(row => {
       if (/^temp/.test(row.rowid)) {
@@ -1099,6 +1105,7 @@ class ChildTable extends React.Component {
             useUserPermission={useUserPermission}
             recordId={recordId}
             showExpand={showExpand}
+            widgetStyle={this.worksheetInfo.advancedSetting}
             updateIsAddByLine={value => this.setState({ isAddRowByLine: value })}
             onSave={this.handleRowDetailSave}
             submitChildTableCheckData={control.submitChildTableCheckData}
@@ -1160,6 +1167,7 @@ class ChildTable extends React.Component {
 
         {recordVisible && (
           <RowDetailMobile
+            widgetStyle={this.worksheetInfo.advancedSetting}
             isEditCurrentRow={isEditCurrentRow}
             masterData={masterData}
             isWorkflow
@@ -1248,7 +1256,7 @@ class ChildTable extends React.Component {
   }
 }
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = state => ({
   baseLoading: state.baseLoading,
   base: state.base,
   rows: state.rows,

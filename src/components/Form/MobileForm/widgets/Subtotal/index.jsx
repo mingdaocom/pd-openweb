@@ -20,7 +20,7 @@ const Tips = styled.div`
 `;
 
 const Subtotal = props => {
-  const { value, dot, unit, advancedSetting = {}, enumDefault2, enumDefault, triggerCustomEvent, formDisabled } = props;
+  const { value, dot, unit, advancedSetting = {}, enumDefault2, enumDefault, formDisabled } = props;
 
   const getContent = () => {
     let content = value;
@@ -79,6 +79,7 @@ const Subtotal = props => {
           action={['click']}
           popupPlacement={'top'}
           offset={[0, 0]}
+          autoCloseDelay={0}
         >
           <i className="icon-info_outline mLeft5" />
         </Tooltip>

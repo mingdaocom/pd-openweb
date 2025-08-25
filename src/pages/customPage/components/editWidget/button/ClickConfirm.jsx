@@ -1,9 +1,9 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Icon } from 'ming-ui';
+import React, { Fragment, useState } from 'react';
 import { Radio } from 'antd';
-import styled from 'styled-components';
-import DoubleConfirmDialog from './DoubleConfirmDialog';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import DoubleConfirmDialog from './DoubleConfirmDialog';
 
 const FilterTextCon = styled.div`
   width: 100%;
@@ -47,13 +47,13 @@ const FilterTextCon = styled.div`
     width: 20px;
 
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 
   .editWorkflow {
     width: auto;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 

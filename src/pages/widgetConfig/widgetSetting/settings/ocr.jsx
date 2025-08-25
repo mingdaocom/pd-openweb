@@ -1,14 +1,14 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import { RadioGroup } from 'ming-ui';
 import WidgetDropdown from '../../components/Dropdown';
-import { isEmpty } from 'lodash';
-import { Button, SettingItem } from '../../styled';
 import { TEMPLATE_TYPE } from '../../config/ocr';
-import OcrMap from '../components/OcrMap';
-import ApiSearchConfig from '../components/ApiSearchConfig';
 import { ALL_SYS } from '../../config/widget';
+import { Button, SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import _ from 'lodash';
+import ApiSearchConfig from '../components/ApiSearchConfig';
+import OcrMap from '../components/OcrMap';
 
 const API_DISPLAY = [
   {
@@ -115,7 +115,10 @@ export default function OcrDisplay(props) {
         />
         {ocrapitype !== '1' && (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
           <div className="mTop10 Gray_9e">
-            {_l('使用系统集成的识别服务，单次识别收费为%0/次，批量处理按照%0/附件数量计费，费用将直接从企业账务中心扣除。', _.get(md, 'global.PriceConfig.DataPipelinePrice'))}
+            {_l(
+              '使用系统集成的识别服务，单次识别收费为%0/次，批量处理按照%0/附件数量计费，费用将直接从企业账务中心扣除。',
+              _.get(md, 'global.PriceConfig.DataPipelinePrice'),
+            )}
           </div>
         )}
       </SettingItem>

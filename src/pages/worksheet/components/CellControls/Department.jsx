@@ -139,7 +139,9 @@ export default class Text extends React.Component {
           newData = isCancel
             ? value.filter(l => l.departmentId !== data[0].departmentId)
             : _.uniqBy(value.concat(data), 'departmentId');
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         this.setState(
           {
             value: newData,
@@ -262,8 +264,9 @@ export default class Text extends React.Component {
         >
           {!!value && (
             <div className={cx('cellDepartments cellControl', { singleLine })}>
-              {value.map((department, index) => (
+              {value.map(department => (
                 <Tooltip
+                  autoCloseDelay={0}
                   flag={department.departmentId}
                   mouseEnterDelay={0.6}
                   disable={!projectId}

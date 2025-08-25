@@ -1,13 +1,12 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
+import React, { Fragment, useState } from 'react';
+import { useSetState } from 'react-use';
+import { Dropdown, Menu } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import { Menu, Dropdown } from 'antd';
-import { useSetState } from 'react-use';
 import worksheetAjax from 'src/api/worksheet';
-import VerifyDel from './VerifyDel';
-import _ from 'lodash';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import VerifyDel from './VerifyDel';
 
 const ControlsWrap = styled.div`
   .grade {
@@ -59,7 +58,7 @@ const ControlsWrap = styled.div`
   .addRelate {
     margin-top: 6px;
     width: 280px;
-    color: #2196f3;
+    color: #1677ff;
     font-weight: bold;
     line-height: 36px;
     cursor: pointer;
@@ -92,7 +91,7 @@ const InputWrap = styled.div`
 
 const isVisible = control => {
   let { fieldPermission = '111' } = control;
-  const [visible, editable, canAdd] = fieldPermission.split('');
+  const [visible] = fieldPermission.split('');
   if (visible === '0') {
     return false;
   }

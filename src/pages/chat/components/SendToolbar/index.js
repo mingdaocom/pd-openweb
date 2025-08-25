@@ -3,15 +3,14 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import chatAjax from 'src/api/chat';
-import GroupController from 'src/api/group';
+import { SOURCE_TYPE } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion/emotion';
+import MentionsInput from 'src/components/MentionsInput';
 import { getToken, setCaretPosition } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-import '../../lib/mentionInput/js/mentionInput';
 import * as utils from '../../utils';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
-import * as socket from '../../utils/socket';
 import fileConfirm from '../fileConfirm/fileConfirm';
 import './index.less';
 
@@ -64,15 +63,16 @@ export default class SendToolbar extends Component {
     // 表情
     this.initEmotion();
     // 本地文件上传
-    socket
-      .fetchUploadToken({
-        type: 1,
-      })
-      .then(data => {
-        this.initUpload(data);
-      });
+    setTimeout(() => {
+      this.initUpload();
+    }, 500);
     // AT
     isGroup && this.initKeyAT();
+  }
+  componentWillUnmount() {
+    const { session } = this.props;
+    const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea').get(0);
+    textarea && textarea.destroy && textarea.destroy();
   }
   initEmotion() {
     const { id } = this.props.session;
@@ -84,11 +84,11 @@ export default class SendToolbar extends Component {
       mdBear: true,
       showAru: true,
       offset: isFileTrsnsfer ? 313 : 263,
-      relatedLeftSpace: isFileTrsnsfer ? -304 : -254,
-      historyKey: `${md.global.Account.accountId || ''}_Emotions`,
+      relatedLeftSpace: isFileTrsnsfer ? -304 : -264,
       onMDBearSelect: (name, src, targetEmotionSrc) => {
         // 注意：ft 这个字段是作为七牛文件存储的类型判断的，所以要注意加上这个字段
         // 1.图片 2.附件 3.音频
+        name = name == 'null' ? null : name;
         const bearFile = {
           ft: 1,
           hash: '',
@@ -109,8 +109,7 @@ export default class SendToolbar extends Component {
       },
     });
   }
-  initUpload(data) {
-    const { token, key } = data;
+  initUpload() {
     const { session } = this.props;
     const _this = this;
 
@@ -134,7 +133,7 @@ export default class SendToolbar extends Component {
               uploader.removeFile(files[j]);
             }
             let fileExt = `.${RegExpValidator.getExtOfFileName(files[j].name)}`;
-            let isPic = RegExpValidator.fileIsPicture(fileExt);
+
             tokenFiles.push({ bucket: 1, ext: fileExt }); //chat 上传都用 bucket: 1
           }
 
@@ -178,7 +177,7 @@ export default class SendToolbar extends Component {
           uploader.settings.multipart_params.key = file.key;
           uploader.settings.multipart_params['x:serverName'] = window.config.FilePath; //chat 上传都用 window.config.FilePath
           uploader.settings.multipart_params['x:filePath'] = file.key ? file.key.replace(file.fileName, '') : '';
-          uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
+          uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
             file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
           );
@@ -255,34 +254,18 @@ export default class SendToolbar extends Component {
   initKeyAT() {
     const { session } = this.props;
     const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea');
-    const _this = this;
-    textarea.wcMentionsInput({
-      remoteURLParas: {
+    MentionsInput({
+      input: textarea.get(0),
+      sourceType: SOURCE_TYPE.CHAT,
+      isAddressBookSelect: false,
+      defaultMaxHeight: 380,
+      getPopupContainer: () => textarea.get(0).parentNode,
+      chatParas: {
         groupId: session.id,
-        pageSize: 10,
-        pageIndex: 1,
+        avatar: session.avatar,
       },
-      ajaxController: GroupController,
-      showAvatars: false,
-      onShow($target) {
-        $target.height(230);
-      },
-      addAtAll(keyword) {
-        const result = [];
-
-        if (_l('全体成员').indexOf(keyword) !== -1) {
-          result.push({
-            type: 'user',
-            id: 'all',
-            name: _l('全体成员'),
-            logo: session.avatar,
-          });
-        }
-
-        return result;
-      },
-      onSelected(user) {
-        _this.props.onSelectedUser(`@${user}`);
+      onSelected: user => {
+        this.props.onSelectedUser(`@${user}`);
       },
     });
   }
@@ -291,7 +274,7 @@ export default class SendToolbar extends Component {
     const { session } = this.props;
     const $textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea');
     const $target = $(at);
-    const $container = $(`#ChatPanel-${session.id}`).find('.mentions-autocomplete-list');
+    const $container = $(`#ChatPanel-${session.id}`).find('.mentionsAutocompleteList');
     if (!$target.data('open') || !$container.is(':visible')) {
       $textarea.val($textarea.val() + '@').trigger('keyup');
       setCaretPosition($textarea.get(0), $textarea.val().length);
@@ -348,10 +331,10 @@ export default class SendToolbar extends Component {
     };
     chatAjax
       .sendCardToChat(params)
-      .then(reuslt => {
+      .then(() => {
         alert(_l('发送成功'));
       })
-      .catch(error => {
+      .catch(() => {
         alert(_l('发送失败'), 2);
       });
   }

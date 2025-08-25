@@ -1,11 +1,11 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _, { get, includes, isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, RadioGroup, Tooltip } from 'ming-ui';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import WidgetDropdown from '../../components/Dropdown';
-import { SYSTEM_CONTROL } from '../../config/widget';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../config/widget';
 import { useSheetInfo } from '../../hooks';
 import { SettingItem } from '../../styled';
 import {
@@ -28,15 +28,36 @@ const COMMON_TYPE = [
   { text: _l('未填计数'), value: 14 },
 ];
 
+const UNIQUE_TYPE = [
+  {
+    text: _l('去重计数'),
+    value: 21,
+    tips: _l(
+      '去除重复的字段值后计数。对于可以选择多个值的字段（如多选、成员/组织角色/部门多选），则针对多选组合去重后计数。',
+    ),
+  },
+];
+
+const SINGLE_UNIQUE_TYPE = [
+  {
+    text: _l('单个选项去重计数'),
+    value: 22,
+    tips: _l(
+      '去除重复的选项后计数。对于可以选择多个选项的字段（如多选、成员/组织角色/部门多选、关联记录多条），针对所有选项去重后计数',
+    ),
+  },
+];
+
 const NUMBER_TYPE = [
   ...COMMON_TYPE,
+  ...UNIQUE_TYPE,
   { text: _l('求和'), value: 5 },
   { text: _l('平均值'), value: 1 },
   { text: _l('最大值'), value: 2 },
   { text: _l('最小值'), value: 3 },
 ];
 
-const DATE_TYPE = [...COMMON_TYPE, { text: _l('最晚'), value: 2 }, { text: _l('最早'), value: 3 }];
+const DATE_TYPE = [...COMMON_TYPE, ...UNIQUE_TYPE, { text: _l('最晚'), value: 2 }, { text: _l('最早'), value: 3 }];
 
 const getOutputType = enumDefault2 => {
   if (enumDefault2 === 15) {
@@ -69,19 +90,25 @@ const getDefaultUnit = selectedControl => {
 
 const getTotalType = control => {
   if (isEmpty(control)) return COMMON_TYPE;
+
   // 汇总选择汇总字段
   if (control.type === 37) {
     if (includes([0, 6, 8], control.enumDefault2)) return NUMBER_TYPE;
     if (includes([15, 16, 46], control.enumDefault2)) return DATE_TYPE;
   }
+
   // 汇总选择公式日期字段
   if (control.type === 38 && control.enumDefault2 === 0 && control.enumDefault === 1) return NUMBER_TYPE;
+
   // 汇总选择公式函数字段
   if (control.type === 53 && includes([6], control.enumDefault2)) return NUMBER_TYPE;
+
   const type = control.type === 30 ? control.sourceControlType : control.type;
   if (includes([6, 8, 31, 28], type)) return NUMBER_TYPE;
   if (includes([15, 16, 46], type)) return DATE_TYPE;
-  return COMMON_TYPE;
+
+  if (includes([9, 10, 11, 26, 27, 29, 48], type)) return [...COMMON_TYPE, ...UNIQUE_TYPE, ...SINGLE_UNIQUE_TYPE];
+  return includes([14, 34, 42], type) ? COMMON_TYPE : [...COMMON_TYPE, ...UNIQUE_TYPE];
 };
 
 const RecordCount = styled.div`
@@ -93,7 +120,7 @@ const RecordCount = styled.div`
 export default function Subtotal(props) {
   const { data, onChange, allControls, globalSheetInfo = {} } = props;
   const { sourceControlId, dataSource, enumDefault, enumDefault2, unit } = data;
-  const { summaryresult = '0', numshow } = getAdvanceSetting(data);
+  const { summaryresult = '0', numshow, reportempty } = getAdvanceSetting(data);
   const [visible, setVisible] = useState(false);
   const parsedDataSource = parseDataSource(dataSource);
 
@@ -118,11 +145,16 @@ export default function Subtotal(props) {
   ).filter(
     i =>
       !_.includes(
-        ['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'wfstatus', , 'rowid'],
+        WORKFLOW_SYSTEM_CONTROL.map(o => o.controlId),
         i.controlId,
       ),
   );
-  const filterColumns = (sheetData.info || {}).worksheetId ? sheetData.controls || [] : relationControls || [];
+  const filterColumns = ((sheetData.info || {}).worksheetId ? sheetData.controls || [] : relationControls || []).filter(
+    (i = {}) => {
+      if (i.type === 38 && i.enumDefault === 3) return false;
+      return true;
+    },
+  );
 
   const selectedControl = getControlByControlId(availableControls, sourceControlId);
   const totalType = getTotalType(selectedControl);
@@ -131,7 +163,7 @@ export default function Subtotal(props) {
 
   const filterControls = filterByTypeAndSheetFieldType(
     resortControlByColRow(filterOnlyShowField(availableControls) || []),
-    type => !includes([22, 25, 29, 30, 43, 45, 47, 49, 50, 51, 52, 10010], type),
+    type => !includes([22, 25, 30, 43, 45, 47, 49, 50, 51, 52, 10010], type),
   ).map(item => ({ value: item.controlId, text: item.controlName, icon: getIconByType(item.type) }));
 
   const handleChange = value => {
@@ -230,7 +262,7 @@ export default function Subtotal(props) {
                 }
 
                 return (
-                  <div className={cx('text', { Red: !controlName || invalidError })}>
+                  <div className={cx('text overflow_ellipsis', { Red: !controlName || invalidError })}>
                     {controlName ? (
                       invalidError ? (
                         _l('%0(无效类型)', controlName)
@@ -254,6 +286,19 @@ export default function Subtotal(props) {
                 border
                 value={enumDefault}
                 data={totalType}
+                renderItem={item => {
+                  if (!item) return '';
+                  return (
+                    <span>
+                      {item.text}
+                      {item.tips && (
+                        <Tooltip text={item.tips} popupPlacement="bottom" autoCloseDelay={0}>
+                          <span className="icon-help Font14 Gray_9e mLeft4" />
+                        </Tooltip>
+                      )}
+                    </span>
+                  );
+                }}
                 onChange={value => {
                   const nextData = {
                     ...handleAdvancedSettingChange(data, { summaryresult: '' }),
@@ -296,6 +341,19 @@ export default function Subtotal(props) {
                   }
                 }}
               />
+
+              {_.includes([21, 22], enumDefault) && (
+                <div className="labelWrap mTop16">
+                  <Checkbox
+                    checked={reportempty === '1'}
+                    size="small"
+                    text={_l('包含空值')}
+                    onClick={checked => {
+                      onChange(handleAdvancedSettingChange(data, { reportempty: String(+!checked) }));
+                    }}
+                  />
+                </div>
+              )}
             </SettingItem>
           )}
           <SettingItem>

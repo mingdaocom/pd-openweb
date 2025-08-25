@@ -1,5 +1,6 @@
-import { get, last, isFunction } from 'lodash';
-import { api, utils, mainWebApi } from './widgetFunctions';
+import { get, isFunction, last } from 'lodash';
+import _ from 'lodash';
+import { api, mainWebApi, utils } from './widgetFunctions';
 
 export default class WidgetBridge {
   constructor(options) {

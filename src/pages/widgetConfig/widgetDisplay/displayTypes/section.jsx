@@ -1,10 +1,10 @@
 import React from 'react';
+import _, { isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
-import RowItem from '../rowItem';
+import { DRAG_ACCEPT } from '../../config/Drag';
 import { putControlByOrder } from '../../util';
 import BottomDragPointer from '../components/BottomDragPointer';
-import { DRAG_ACCEPT } from '../../config/Drag';
+import RowItem from '../rowItem';
 
 const SectionWrap = styled.div`
   padding: 8px 12px;

@@ -1,7 +1,8 @@
 import base, { controllerName } from './base';
+
 /**
  * getPivotData
-*/
+ */
 var getPivotData = {
   /**
    * getPivotData
@@ -10,7 +11,7 @@ var getPivotData = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getPivotData: function(args, options) {
+  getPivotData: function (args, options) {
     base.ajaxOptions.url = base.server() + '/getPivotData';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'getPivotData', JSON.stringify(args), $.extend(base, options));

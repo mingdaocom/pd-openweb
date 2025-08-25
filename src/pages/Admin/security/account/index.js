@@ -1,26 +1,37 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { VersionProductType } from 'src/utils/enum';
 import FeatureListWrap from '../../components/FeatureListWrap';
 import Config from '../../config';
 import DialogSettingInviteRules from '../../user/membersDepartments/structure/components/dialogSettingInviteRules';
 import ContactsHiddenWrap from './contactsHidden';
+import UseInfoDisplaySettings from './UseInfoDisplaySettings';
 
 export default class Account extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showDialogSettingInviteRules: false,
+      showUseInfoDisplay: false,
     };
   }
 
   render() {
-    const { showDialogSettingInviteRules, showAddressRange } = this.state;
+    const { showDialogSettingInviteRules, showAddressRange, showUseInfoDisplay } = this.state;
     const projectId = Config.projectId;
 
     if (showAddressRange) {
       return (
         <ContactsHiddenWrap onClose={() => this.setState({ showAddressRange: false })} projectId={Config.projectId} />
+      );
+    }
+
+    if (showUseInfoDisplay) {
+      return (
+        <UseInfoDisplaySettings
+          projectId={Config.projectId}
+          onClose={() => this.setState({ showUseInfoDisplay: false })}
+        />
       );
     }
 
@@ -45,6 +56,13 @@ export default class Account extends Component {
               showSlideIcon: true,
               featureId: VersionProductType.contactsHide,
               onClick: () => this.setState({ showAddressRange: true }),
+            },
+            {
+              key: 'useInfoDisplay',
+              title: _l('成员信息显示'),
+              description: _l('设置组织内成员互相可见的信息'),
+              showSlideIcon: true,
+              onClick: () => this.setState({ showUseInfoDisplay: true }),
             },
           ]}
         />

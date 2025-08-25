@@ -1,5 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
-import { useKey, useKeyPressEvent } from 'react-use';
+import { useKeyPressEvent } from 'react-use';
+import cx from 'classnames';
 import {
   debounce,
   find,
@@ -7,8 +8,10 @@ import {
   get,
   identity,
   isEmpty,
+  isEqual,
   isNumber,
   isUndefined,
+  some,
   union,
   unionBy,
   values,
@@ -17,17 +20,33 @@ import styled from 'styled-components';
 import { Button, Menu, MenuItem, Modal } from 'ming-ui';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
+import QuickFilter from 'worksheet/common/Sheet/QuickFilter/QuickFilter';
+import {
+  formatFilterValues,
+  formatFilterValuesToServer,
+  handleConditionsDefault,
+  validate,
+} from 'worksheet/common/Sheet/QuickFilter/utils';
 import ColumnHead from 'worksheet/components/BaseColumnHead';
 import Pagination from 'worksheet/components/Pagination';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import 'src/pages/worksheet/components/WorksheetTable/components/ColumnHead/ColumnHead.less';
 import { checkIsTextControl, isRelateRecordTableControl } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { getSheetStylesOfRelateRecordTable } from 'src/utils/worksheet';
 import Header from './Header';
 import RowHead from './RowHeadForSelectRecords';
 import SelectedInfo from './SelectedInfo';
-import useRecords, { ERROR_MESSAGE, getWorksheetInfo } from './useRecords';
+import useRecords, { ERROR_STATUS } from './useRecords';
+import {
+  enrichFilters,
+  formatSearchFilters,
+  getEmptyText,
+  getNumFromLocalStorage,
+  getTableConfig,
+  getTitleControl,
+} from './util';
 
 const Con = styled.div`
   padding: 0 24px;
@@ -43,6 +62,7 @@ const Table = styled.div`
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   overflow: hidden;
+  min-height: 90px;
   .worksheetTableComp,
   .tableBorder {
     border: none !important;
@@ -54,6 +74,18 @@ const Table = styled.div`
     * {
       user-select: none !important;
     }
+  }
+`;
+
+const QuickFilterCon = styled.div`
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+  &.filtersVisible {
+    margin: 12px 0 -5px;
+    visibility: visible;
+    height: auto;
+    overflow: auto;
   }
 `;
 
@@ -108,48 +140,6 @@ const RefreshBtn = styled.div`
 
 const PAGE_SIZE = 100;
 
-function getTitleControl(control, controls) {
-  let titleControl =
-    get(control, 'advancedSetting.showtitleid') &&
-    find(controls, { controlId: get(control, 'advancedSetting.showtitleid') });
-  if (!titleControl) {
-    const attributeTitle = find(controls, { attribute: 1 });
-    titleControl = attributeTitle;
-  }
-  return titleControl;
-}
-
-function getTableConfig(controlsForShow, { titleControl, coverControl } = {}) {
-  let fixedColumnCount = 1;
-  let visibleControls = controlsForShow;
-  if (titleControl) {
-    visibleControls = [titleControl].concat(visibleControls.filter(c => c.controlId !== titleControl.controlId));
-  }
-  if (coverControl) {
-    fixedColumnCount += 1;
-    visibleControls = [coverControl].concat(visibleControls.filter(c => c.controlId !== coverControl.controlId));
-  }
-  return {
-    visibleControls,
-    fixedColumnCount,
-  };
-}
-
-function getEmptyText({ keyWords, error } = {}) {
-  if (error) {
-    return ERROR_MESSAGE[error];
-  }
-  return keyWords ? _l('没有搜索结果') : _l('暂无记录');
-}
-
-function getNumFromLocalStorage(key, defaultValue) {
-  return localStorage.getItem(key) &&
-    !isNaN(Number(localStorage.getItem(key))) &&
-    isNumber(Number(localStorage.getItem(key)))
-    ? Number(localStorage.getItem(key))
-    : defaultValue;
-}
-
 export default function SelectDialog({ ...args }) {
   const {
     singleConfirm,
@@ -187,7 +177,6 @@ export default function SelectDialog({ ...args }) {
     pageSize,
     keyWords,
     searchConfig,
-    quickFilters,
     changePageIndex,
     changePageSize,
     setIgnoreAllFilters,
@@ -217,12 +206,23 @@ export default function SelectDialog({ ...args }) {
   const [activeRowIndex, setActiveRowIndex] = useState(-1);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [tempSheetColumnWidths, setTempSheetColumnWidths] = useState({});
-  const allowShowIgnoreAllFilters = isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
+  const [isFiltered, setIsFiltered] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(window.localStorage.getItem(`selectDialogFiltersVisible`));
+  const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
+  const allowShowIgnoreAllFilters =
+    error === ERROR_STATUS.INVALID_CONDITION && isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
   const showNewRecord =
     !loading && allowNewRecord && (get(window, 'shareState.isPublicFormPreview') ? false : worksheetInfo.allowAdd);
   const lineNumberBegin = 0;
   const controls = replaceControlsTranslateInfo(worksheetInfo.appId, null, get(worksheetInfo, 'template.controls', []));
   const showControls = control.showControls || args.showControls || [];
+  const enableFastFilters = get(control, 'advancedSetting.openfastfilters') !== '0';
+  const fastFiltersViewId =
+    enableFastFilters &&
+    get(control, 'advancedSetting.fastfilterstype') === '2' &&
+    get(control, 'advancedSetting.fastfiltersview');
+  const fastFiltersView = fastFiltersViewId && find(worksheetInfo.views, { viewId: fastFiltersViewId });
+  const [fastFilters, setFastFilters] = useState((fastFiltersView && get(fastFiltersView, 'fastFilters')) || []);
   let controlsForShow = (
     get(control, 'advancedSetting.chooseshow') === '1'
       ? safeParse(get(control, 'advancedSetting.chooseshowids'), 'array')
@@ -303,9 +303,25 @@ export default function SelectDialog({ ...args }) {
   );
 
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
+  const handleConfirm = useCallback(() => {
+    if (!selectedRowIds.length) return;
+    const selectedRecords = selectedRowIds.map(id =>
+      find(records.concat(values(recordsCache.current)), record => record.rowid === id),
+    );
+    if (!isUndefined(selectedCount) && selectedCount + selectedRecords.length > maxCount) {
+      alert(_l('最多关联%0条', maxCount), 3);
+      return;
+    }
+    onOk(selectedRecords);
+    onClose();
+  }, [selectedRowIds, records, selectedCount, maxCount]);
   const handleInputKeyDown = useCallback(
     e => {
       if (e.key === 'Enter') {
+        if (e.ctrlKey || e.metaKey) {
+          handleConfirm();
+          return;
+        }
         if (activeRowIndex !== -1) {
           handleToggleSelect(records[activeRowIndex].rowid, activeRowIndex);
         }
@@ -323,20 +339,8 @@ export default function SelectDialog({ ...args }) {
         tableRef.current.table.focusRow(newActiveRowIndex);
       }
     },
-    [activeRowIndex, records],
+    [activeRowIndex, records, handleConfirm],
   );
-  const handleConfirm = useCallback(() => {
-    if (!selectedRowIds.length) return;
-    const selectedRecords = selectedRowIds.map(id =>
-      find(records.concat(values(recordsCache.current)), record => record.rowid === id),
-    );
-    if (!isUndefined(selectedCount) && selectedCount + selectedRecords.length > maxCount) {
-      alert(_l('最多关联%0条', maxCount), 3);
-      return;
-    }
-    onOk(selectedRecords);
-    onClose();
-  }, [selectedRowIds, records, selectedCount, maxCount]);
   useKeyPressEvent(
     'Shift',
     () => {
@@ -366,11 +370,79 @@ export default function SelectDialog({ ...args }) {
     });
   }, [selectedRowIds, records]);
   useEffect(() => {
+    if (
+      cache.current.prefFastFilters &&
+      !isEqual(cache.current.prefFastFilters, fastFilters) &&
+      isEmpty(cache.current.prefFastFilters) &&
+      !cache.current.fastFiltersDidMount
+    ) {
+      if (isEmpty(fastFilters)) {
+        return;
+      }
+      const newFastFilters = handleConditionsDefault(fastFilters || [], controls);
+      const fastFiltersHasDefaultValue = some(newFastFilters, validate);
+      if (fastFiltersHasDefaultValue) {
+        setFastFilters(
+          newFastFilters.map(condition => ({
+            ...condition,
+            values: formatFilterValues(condition.dataType, condition.values),
+          })),
+        );
+        if (get(fastFiltersView, 'advancedSetting.enablebtn') !== '1') {
+          setFiltersVisible(true);
+          setIsFiltered(true);
+          handleUpdateQuickFilters(
+            newFastFilters.filter(validate).map(condition => ({
+              ...condition,
+              filterType: condition.dataType === 29 && condition.filterType === 2 ? 24 : condition.filterType || 2,
+              spliceType: condition.spliceType || 1,
+              values: formatFilterValuesToServer(
+                condition.dataType,
+                formatFilterValues(condition.dataType, condition.values),
+              ),
+              ...(condition.dataType === 36 ? { value: 1 } : {}),
+            })),
+          );
+        }
+      }
+      cache.current.fastFiltersDidMount = true;
+    }
+    cache.current.prefFastFilters = fastFilters;
+  }, [fastFilters, fastFilters]);
+  useEffect(() => {
+    setFastFilters(fastFiltersView && get(fastFiltersView, 'fastFilters'));
+  }, [fastFiltersView]);
+  useEffect(() => {
     return () => {
       document.querySelector('#selectRecordsTableCon') &&
         document.querySelector('#selectRecordsTableCon').classList.remove('noSelect');
     };
   }, []);
+
+  let { searchFilters } = searchConfig;
+  searchFilters = searchFilters.filter(f => find(controls, { controlId: f.controlId }));
+  const showFilterControls =
+    enableFastFilters && (!isEmpty(fastFilters) || (isEmpty(fastFilters) && searchFilters && !!searchFilters.length));
+  const isFilter = enableFastFilters && isEmpty(fastFilters) && searchFilters && !!searchFilters.length;
+  const isFastFilter = enableFastFilters && !isEmpty(fastFilters);
+  let param = {};
+  if (isFilter) {
+    param = {
+      projectId,
+      appId,
+      view: { advancedSetting: { enablebtn: '1' } },
+      filters: formatSearchFilters(enrichFilters(searchFilters), controls),
+      base: { worksheetId: control.dataSource },
+    };
+  } else if (isFastFilter) {
+    param = {
+      projectId: worksheetInfo.projectId,
+      appId: worksheetInfo.appId,
+      base: { worksheetId },
+      view: fastFiltersView,
+      filters: fastFilters,
+    };
+  }
   return (
     <Modal
       visible
@@ -396,19 +468,20 @@ export default function SelectDialog({ ...args }) {
           <i className="icon icon-task-later ThemeHoverColor3"></i>
         </RefreshBtn>
         <Header
-          loading={loading}
           showNewRecord={showNewRecord}
+          showFastFilters={showFilterControls}
           entityName={worksheetInfo.entityName}
           btnName={get(worksheetInfo, 'advancedSetting.btnname')}
-          projectId={worksheetInfo.projectId}
-          appId={worksheetInfo.appId}
-          worksheetId={worksheetId}
           control={control}
           searchConfig={searchConfig}
           controls={controls}
-          quickFilters={quickFilters}
+          filtersVisible={filtersVisible}
+          isFiltered={isFiltered}
+          onExpandFastFilters={() => {
+            setFiltersVisible(prev => !prev);
+            safeLocalStorageSetItem('selectDialogFiltersVisible', !filtersVisible);
+          }}
           onSearch={debounce(handleUpdateKeyWords, 500)}
-          onFilter={handleUpdateQuickFilters}
           onNewRecord={() => {
             if (!isUndefined(selectedCount) && selectedCount + selectedRowIds.length > maxCount) {
               alert(_l('最多关联%0条', maxCount), 3);
@@ -446,6 +519,27 @@ export default function SelectDialog({ ...args }) {
           }}
           onKeyDown={handleInputKeyDown}
         />
+        {showFilterControls && (
+          <QuickFilterCon className={cx({ filtersVisible })}>
+            <QuickFilter
+              showTextAdvanced
+              {...param}
+              controls={controls}
+              updateQuickFilter={newFilters => {
+                handleUpdateQuickFilters(newFilters);
+                setIsFiltered(true);
+                if (isEmpty(newFilters)) {
+                  setIsFiltered(false);
+                }
+              }}
+              resetQuickFilter={() => {
+                handleUpdateQuickFilters([]);
+                setIsFiltered(false);
+              }}
+              onFilterClick={() => {}}
+            />
+          </QuickFilterCon>
+        )}
         {showTable && (
           <Fragment>
             {loading ? (
@@ -453,11 +547,13 @@ export default function SelectDialog({ ...args }) {
             ) : (
               <Table id="selectRecordsTableCon">
                 <WorksheetTable
+                  watchHeight
                   ref={tableRef}
                   enableRules={false}
                   triggerClickImmediate
                   rowHeadWidth={66}
                   appId={appId}
+                  worksheetId={worksheetId}
                   loading={recordsLoading}
                   viewId={viewId}
                   projectId={projectId}
@@ -474,7 +570,16 @@ export default function SelectDialog({ ...args }) {
                     setTempSheetColumnWidths(prev => ({ ...prev, [controlId]: value }));
                   }}
                   columnStyles={sheetStyles ? sheetStyles.columnStyles : {}}
-                  columns={tableConfig.visibleControls}
+                  columns={tableConfig.visibleControls.map(c =>
+                    disableMaskDataControls[c.controlId]
+                      ? {
+                          ...c,
+                          advancedSetting: Object.assign({}, c.advancedSetting, {
+                            datamask: '0',
+                          }),
+                        }
+                      : c,
+                  )}
                   rowHeight={!isRelateRecordTableControl(control) && coverControl ? 88 : 34}
                   data={records}
                   sheetViewHighlightRows={
@@ -487,7 +592,11 @@ export default function SelectDialog({ ...args }) {
                     const { columnIndex } = rest;
                     const showFrozen = columnIndex < 11 && !control.hideFrozen && fixedColumnCount !== columnIndex;
                     const showUnFrozen = columnIndex === fixedColumnCount && !control.hideFrozen;
-                    const showDropdown = showFrozen || showUnFrozen;
+                    const maskData =
+                      get(control, 'advancedSetting.datamask') === '1' &&
+                      get(control, 'advancedSetting.isdecrypt') === '1';
+                    const showRemoveMask = maskData && !get(window, 'shareState.shareId');
+                    const showDropdown = showFrozen || showUnFrozen || showRemoveMask;
                     return (
                       <ColumnHead
                         {...rest}
@@ -507,7 +616,7 @@ export default function SelectDialog({ ...args }) {
                                   closeMenu();
                                 }}
                               >
-                                <i className="icon icon-task-new-locked"></i>
+                                <i className="icon icon-lock"></i>
                                 {_l('冻结')}
                               </MenuItem>
                             )}
@@ -522,6 +631,20 @@ export default function SelectDialog({ ...args }) {
                                 {_l('解冻')}
                               </MenuItem>
                             )}
+                            {showRemoveMask && (
+                              <MenuItem
+                                onClick={() => {
+                                  addBehaviorLog('worksheetBatchDecode', worksheetId, {
+                                    controlId: control.controlId,
+                                  });
+                                  setDisableMaskDataControls(prev => ({ ...prev, [control.controlId]: true }));
+                                  closeMenu();
+                                }}
+                              >
+                                <i className="icon icon-eye_off"></i>
+                                {_l('解码')}
+                              </MenuItem>
+                            )}
                           </Menu>
                         )}
                         selected={!!selectedRowIds.length}
@@ -529,7 +652,7 @@ export default function SelectDialog({ ...args }) {
                           control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined
                         }
                         changeSort={newIsAsc => {
-                          const newSortControl = _.isUndefined(newIsAsc)
+                          const newSortControl = isUndefined(newIsAsc)
                             ? {}
                             : {
                                 controlId: control.controlId,
@@ -601,7 +724,7 @@ export default function SelectDialog({ ...args }) {
               />
             )}
           </div>
-          {!!total && !selectedRowIds.length && (
+          {!!total && (
             <Pagination
               disabled={loading || recordsLoading}
               appendToBody

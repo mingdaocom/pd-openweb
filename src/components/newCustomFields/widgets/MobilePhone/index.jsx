@@ -10,7 +10,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/utils/common';
-import { FROM } from '../../tools/config';
+import { addBehaviorLog } from 'src/utils/project.js';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -89,7 +89,7 @@ export default class Widgets extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.value !== this.props.value && (nextProps.value || this.props.value !== undefined) && this.input) {
       this.setValue(nextProps.value);
       if (!nextProps.value && this.iti) {
@@ -157,7 +157,7 @@ export default class Widgets extends Component {
     }
   }
 
-  onFocus = e => {
+  onFocus = () => {
     const countryData = this.iti.getSelectedCountryData();
     let value;
     if (!_.keys(countryData).length) {
@@ -222,7 +222,6 @@ export default class Widgets extends Component {
       onBlur = () => {},
       onInputKeydown,
       enumDefault,
-      from,
       value,
       maskPermissions,
       isCell,
@@ -255,7 +254,13 @@ export default class Widgets extends Component {
           <span
             className={cx('LineHeight20', { maskHoverTheme: disabled && isMask })}
             onClick={() => {
-              if (disabled && isMask) this.setState({ maskStatus: false });
+              if (disabled && isMask) {
+                addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+                  rowId: this.props.recordId,
+                  controlId: this.props.controlId,
+                });
+                this.setState({ maskStatus: false });
+              }
             }}
           >
             {this.getShowValue()}
@@ -286,8 +291,11 @@ export default class Widgets extends Component {
               disabled={disabled}
               onFocus={this.onFocus}
               onBlur={() => {
-                onBlur(originValue);
-                this.setState({ isEditing: false });
+                // change事件有延时，失焦同样延时执行，等待value更新
+                setTimeout(() => {
+                  onBlur(originValue);
+                  this.setState({ isEditing: false });
+                }, 10);
               }}
               onKeyDown={onInputKeydown}
             />

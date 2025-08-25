@@ -96,7 +96,7 @@ export default class SortableAppItem extends Component {
   };
 
   getFirstAppItemId = () => {
-    const { permissionType, value, appPkg } = this.props;
+    const { value, appPkg } = this.props;
     const isCharge = appPkg.viewHideNavi;
     const { workSheetInfo = [], childSections = [] } = value;
     const firstAppItem =
@@ -115,7 +115,7 @@ export default class SortableAppItem extends Component {
     }
   };
 
-  getNavigateUrl = (appSectionId, isCharge) => {
+  getNavigateUrl = appSectionId => {
     const { appPkg } = this.props;
     let { appId } = getIds(this.props);
     if (md.global.Account.isPortal) {
@@ -177,7 +177,7 @@ export default class SortableAppItem extends Component {
               onFocus={this.handleFocus}
               onBlur={e => this.handleNameBlur(value, e)}
               onKeyDown={this.handleKeyDown}
-              onClick={e => {
+              onClick={() => {
                 const input = this.$nameRef.current;
                 if (window.isFirefox && input) {
                   input.setSelectionRange(input.value.length, input.value.length);
@@ -189,7 +189,7 @@ export default class SortableAppItem extends Component {
           <MdLink
             className="sortableItem stopPropagation"
             to={url}
-            onClick={event => {
+            onClick={() => {
               if (this.ids.groupId !== appSectionId) {
                 changeBoardViewData([]);
                 sessionStorage.setItem('addBehaviorLogInfo', JSON.stringify({ type: 'group' }));

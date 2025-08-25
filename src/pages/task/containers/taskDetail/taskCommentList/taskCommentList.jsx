@@ -68,6 +68,7 @@ class TaskCommentList extends Component {
       appId: md.global.APPInfo.taskAppID,
       remark: taskId + '|' + htmlDecodeReg(data.taskName) + '|' + _l('任务'),
       storageId: taskId,
+      projectId: data.projectID,
       selectGroupOptions: { projectId: data.projectID },
       onSubmit: this.onSubmit,
     };

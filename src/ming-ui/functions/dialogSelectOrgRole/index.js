@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import organizeAjax from 'src/api/organize';
-import { Dialog, LoadDiv, Checkbox, ScrollView, Radio, FunctionWrap, Icon } from 'ming-ui';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Checkbox, Dialog, FunctionWrap, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import organizeAjax from 'src/api/organize';
+import './index.less';
 
 class DialogSelectOrgRole extends Component {
   static defaultProps = {
@@ -118,7 +118,7 @@ class DialogSelectOrgRole extends Component {
           loading: false,
         });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   }
@@ -241,7 +241,7 @@ class DialogSelectOrgRole extends Component {
     const list = treeData.filter(l => l.orgRoleGroupId !== '' || l.children.length);
 
     return (
-      <ScrollView onScrollEnd={this.onScrollEnd}>
+      <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
         {!keywords &&
           list.map(groupItem => {
             return (
@@ -340,7 +340,7 @@ class DialogSelectOrgRole extends Component {
               onChange={this.handleSearch}
             />
             <span
-              className={cx('searchClose icon-closeelement-bg-circle', { Block: !!keywords.trim() })}
+              className={cx('searchClose icon-cancel', { Block: !!keywords.trim() })}
               onClick={() => this.setState({ keywords: '', searchList: [], pageIndex: 1 })}
             />
           </div>

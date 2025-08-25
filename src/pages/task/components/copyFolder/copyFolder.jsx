@@ -1,12 +1,13 @@
 ﻿import React, { Component } from 'react';
+import { Dialog } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { dialogSelectUser } from 'ming-ui/functions';
-import './less/copyFolder.less';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { errorMessage } from '../../utils/utils';
-import { Dialog } from 'ming-ui';
+import './less/copyFolder.less';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 export default class CopyFolder extends Component {
@@ -276,7 +277,7 @@ export default class CopyFolder extends Component {
                   className="mLeft5 copyTip"
                   data-tip={_l('项目的字段设置会被复制，每条任务的具体字段值不会被复制')}
                 >
-                  <i className="icon-knowledge-message" />
+                  <i className="icon-info" />
                 </span>
               </div>
             </li>

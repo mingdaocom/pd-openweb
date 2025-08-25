@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -22,7 +23,7 @@ const MobileSubListWrap = styled.div`
 const DISPLAY_OPTIONS = [
   {
     text: _l('列表'),
-    img: 'file-list',
+    img: 'list',
     size: 'Font32',
     value: '1',
     tips: _l('列表中仅显示设置的摘要字段，点击单条明细后查看详情'),

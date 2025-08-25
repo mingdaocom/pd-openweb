@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import _ from 'lodash';
 import { ExecNumber, Statistic, TaskList } from './components';
-import { navigateTo } from 'router/navigateTo';
 
 const SyncTaskWrapper = styled.div`
   background: #fff;
@@ -42,17 +40,17 @@ const SyncTaskWrapper = styled.div`
       cursor: pointer;
 
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #f5f5f5;
       }
       &.isActive {
-        color: #2196f3;
+        color: #1677ff;
         background: rgba(33, 150, 243, 0.07);
       }
     }
     .addTaskButton {
       padding: 8px 24px;
-      background: #2196f3;
+      background: #1677ff;
       border-radius: 18px;
       color: #fff;
       display: inline-block;

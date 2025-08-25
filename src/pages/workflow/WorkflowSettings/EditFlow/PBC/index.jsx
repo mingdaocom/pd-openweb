@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate, WhiteNode } from '../components';
 import { ACTION_ID } from '../../enum';
+import { CreateNode, NodeOperate, WhiteNode } from '../components';
 
 export default class PBC extends Component {
   constructor(props) {
@@ -22,7 +22,7 @@ export default class PBC extends Component {
     if (item.appId && !item.appName && !isPBCExport) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的业务流程已删除')}
         </div>
       );

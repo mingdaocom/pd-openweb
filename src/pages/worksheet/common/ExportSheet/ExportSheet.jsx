@@ -42,7 +42,10 @@ export default class ExportSheet extends Component {
     props.columns.unshift({ type: 2, controlId: 'rowid', controlName: _l('记录ID') });
     if (!isShowWorkflowSys) {
       _.remove(props.columns, o =>
-        _.includes(['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfcaid', 'wfctime'], o.controlId),
+        _.includes(
+          ['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfcaid', 'wfctime', 'wfcotime', 'wfdtime'],
+          o.controlId,
+        ),
       );
     }
 
@@ -292,7 +295,6 @@ export default class ExportSheet extends Component {
     (async () => {
       const {
         columns,
-        allCount,
         allWorksheetIsSelected,
         worksheetId,
         exportView: { viewId },
@@ -490,7 +492,7 @@ export default class ExportSheet extends Component {
           isNumber,
         };
 
-        worksheetAjax.saveExportConfig(args).then(res => {
+        worksheetAjax.saveExportConfig(args).then(() => {
           alert(_l('保存成功'));
         });
       },
@@ -809,6 +811,7 @@ export default class ExportSheet extends Component {
                 <span>
                   {_l('加速导出')}
                   <Tooltip
+                    autoCloseDelay={0}
                     overlayStyle={{ maxWidth: 350 }}
                     title={
                       <Fragment>
@@ -849,6 +852,7 @@ export default class ExportSheet extends Component {
                     <span>
                       {_l('导出为Excel数值类型')}
                       <Tooltip
+                        autoCloseDelay={0}
                         overlayStyle={{ maxWidth: 350 }}
                         title={
                           <div>

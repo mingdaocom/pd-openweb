@@ -2,8 +2,8 @@ import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import WidgetUserPermission from '../components/WidgetUserPermission';
 import DepartmentConfig from '../components/WidgetHighSetting/ControlSetting/DepartmentConfig';
+import WidgetUserPermission from '../components/WidgetUserPermission';
 
 const DEPARTMENT_TYPES = [
   {

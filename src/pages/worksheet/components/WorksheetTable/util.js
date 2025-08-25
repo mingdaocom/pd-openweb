@@ -1,6 +1,7 @@
 import _, { get } from 'lodash';
 import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
 import { emitter } from 'src/utils/common';
+import { controlState, replaceByIndex } from 'src/utils/control';
 
 const KEY_MAP = {
   DELETE: 8,
@@ -52,7 +53,6 @@ export function handleLifeEffect(
   {
     showColumnWidthChangeMask,
     tableType,
-    isRelateRecordList,
     isSubList,
     cache = {},
     onCellEnter = () => {},
@@ -83,8 +83,10 @@ export function handleLifeEffect(
   }
   function handleCellLeave(e) {
     try {
-      if (e.relatedTarget.closest('.expandCell')) return;
-    } catch (err) {}
+      if (e.relatedTarget && e.relatedTarget.closest('.expandCell')) return;
+    } catch (err) {
+      console.log(err);
+    }
     if ($tableElement) {
       $tableElement.find('.cell,.expandCell').removeClass('hover').removeClass('row-head-hover');
       if (tableType === 'classic') {
@@ -240,7 +242,9 @@ export function handleLifeEffect(
         if (_.get(safeParse(window.tempCopyForSheetView), 'tableId') === tableId) {
           window.tempCopyForSheetView = undefined;
         }
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
       if (window.activeTableId === tableId) {
         focusCell(-10000);
         window.activeTableId = undefined;
@@ -248,16 +252,16 @@ export function handleLifeEffect(
     }
   }
   emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
-  $tableElement.on('mouseenter', '.cell', handleCellEnter);
-  $tableElement.on('mouseleave', '.cell', handleCellLeave);
+  $tableElement.on('mouseenter', '.cell:not(.row-id-groupTitle)', handleCellEnter);
+  $tableElement.on('mouseleave', '.cell:not(.row-id-groupTitle)', handleCellLeave);
 
   emitter.addListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);
   document.body.addEventListener('click', handleOuterClick);
   return () => {
     emitter.removeListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
-    $tableElement.off('mouseenter', '.cell:not(.row-head)', handleCellEnter);
-    $tableElement.off('mouseleave', '.cell:not(.row-head)', handleCellLeave);
+    $tableElement.off('mouseenter', '.cell:not(.row-id-groupTitle)', handleCellEnter);
+    $tableElement.off('mouseleave', '.cell:not(.row-id-groupTitle)', handleCellLeave);
     window.removeEventListener('keydown', handleKeyDown);
     emitter.removeListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
     document.body.removeEventListener('click', handleOuterClick);
@@ -278,12 +282,22 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
         (item.fieldPermission[0] || '1') + '0' + (item.fieldPermission[2] || '1');
       return;
     }
+    if (item.sectionId) {
+      const sectionControl = _.find(formData, c => c.controlId === item.sectionId);
+      const sectionControlState = controlState(sectionControl);
+      const itemControlState = controlState(item);
+      item.fieldPermission = replaceByIndex(
+        item.fieldPermission,
+        1,
+        itemControlState.editable && sectionControlState.editable ? '1' : '0',
+      );
+    }
     fieldPermissions[row.rowid + '-' + item.controlId] = item.fieldPermission || '111';
   });
   return fieldPermissions;
 }
 
-export function getRulePermissions({ data = [], controls, rules, isSubList, columns } = {}) {
+export function getRulePermissions({ data = [], controls, rules } = {}) {
   const result = {};
   data.forEach(row => {
     const controlFieldPermissions = getControlFieldPermissionsAfterRules(row, controls, rules);

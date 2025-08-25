@@ -1,6 +1,4 @@
 .ming.Switch {
-  -webkit-transition: all 0.4s ease;
-  transition: all 0.4s ease;
   border-radius: 100px;
   position: relative;
   display: inline-block;
@@ -13,6 +11,14 @@
     width: 62px;
     min-width: 62px;
   }
+  &.animate {
+    -webkit-transition: all 0.4s ease;
+    transition: all 0.4s ease;
+    .dot {
+      -webkit-transition: all 0.2s ease;
+      transition: all 0.2s ease;
+    }
+  }
   .dot {
     position: absolute;
     display: block;
@@ -20,11 +26,11 @@
     height: 20px;
     top: 2px;
     content: '';
-    -webkit-transition: all 0.2s ease;
-    transition: all 0.2s ease;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.16);
+    box-shadow:
+      0px 3px 6px rgba(0, 0, 0, 0.12),
+      0px 1px 2px rgba(0, 0, 0, 0.16);
   }
   .txt {
     width: 28px;

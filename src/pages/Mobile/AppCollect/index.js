@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { LoadDiv } from 'ming-ui';
-import ApplicationItem from 'mobile/AppHome/components/ApplicationItem';
-import homeAppAjax from 'src/api/homeApp';
-import Back from '../components/Back';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp';
+import ApplicationItem from 'mobile/AppHome/components/ApplicationItem';
+import Back from '../components/Back';
 
 const Wrap = styled.div`
   display: flex;
@@ -22,7 +23,7 @@ export default class RecordCollect extends Component {
     this.state = {
       loading: false,
       markedAppItems: [],
-      langItems: []
+      langItems: [],
     };
   }
 
@@ -39,41 +40,54 @@ export default class RecordCollect extends Component {
     Promise.all([
       homeAppAjax.myPlatform({ projectId, containsLinks: true }),
       projectId ? homeAppAjax.myPlatformLang({ projectId, noCache: false }) : undefined,
-    ]).then(result => {
-      const [platformRes, langRes = []] = result;
-      const { markedAppItems = [] } = platformRes;
-      this.setState({
-        markedAppItems: markedAppItems.filter(o => o && !o.webMobileDisplay),
-        langItems: langRes,
-        loading: false,
+    ])
+      .then(result => {
+        const [platformRes, langRes = []] = result;
+        const { markedAppItems = [] } = platformRes;
+        this.setState({
+          markedAppItems: markedAppItems.filter(o => o && !o.webMobileDisplay),
+          langItems: langRes,
+          loading: false,
+        });
+      })
+      .catch(() => {
+        this.setState({ markedAppItems: [], loading: false });
       });
-    }).catch(err => {
-      this.setState({ markedAppItems: [], loading: false });
-    });
   };
 
   render() {
     const { markedAppItems, langItems, loading } = this.state;
 
     return (
-      <Wrap>
-        {loading ? (
-          <div className="loadingWrap flexRow alignItemsCenter justifyContentCenter">
-            <LoadDiv />
-          </div>
-        ) : (
-          markedAppItems.map((item, index) => {
-            return <ApplicationItem direction="horizontal" index={index} radius={40} iconSize={30} data={item} myPlatformLang={langItems} />;
-          })
-        )}
+      <ScrollView options={{ overflow: { x: 'hidden' } }}>
+        <Wrap>
+          {loading ? (
+            <div className="loadingWrap flexRow alignItemsCenter justifyContentCenter">
+              <LoadDiv />
+            </div>
+          ) : (
+            markedAppItems.map((item, index) => {
+              return (
+                <ApplicationItem
+                  direction="horizontal"
+                  index={index}
+                  radius={40}
+                  iconSize={30}
+                  data={item}
+                  myPlatformLang={langItems}
+                />
+              );
+            })
+          )}
 
-        <Back
-          icon="home"
-          onClick={() => {
-            window.mobileNavigateTo('/mobile/dashboard');
-          }}
-        />
-      </Wrap>
+          <Back
+            icon="home"
+            onClick={() => {
+              window.mobileNavigateTo('/mobile/dashboard');
+            }}
+          />
+        </Wrap>
+      </ScrollView>
     );
   }
 }

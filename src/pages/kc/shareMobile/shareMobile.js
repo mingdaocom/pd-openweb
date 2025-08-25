@@ -3,7 +3,6 @@ import moment from 'moment';
 import qs from 'query-string';
 import attachmentAjax from 'src/api/attachment';
 import chatAjax from 'src/api/chat';
-import kcAjax from 'src/api/kc';
 import shareajax from 'src/api/share';
 import weixinAjax from 'src/api/weixin';
 import saveToKnowledge from 'src/components/kc/saveToKnowledge/saveToKnowledge';
@@ -35,7 +34,9 @@ var MobileSharePreview = function (options) {
   var shareId;
   try {
     shareId = location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1];
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   if (MSP.options.node) {
     MSP.nodeData = MSP.options.node;
     MSP.init();

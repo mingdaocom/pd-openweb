@@ -17,7 +17,6 @@ const SPECIAL_HINT_TEXT = {
 const Area = props => {
   const {
     disabled,
-    type,
     value,
     advancedSetting = {},
     recordId,

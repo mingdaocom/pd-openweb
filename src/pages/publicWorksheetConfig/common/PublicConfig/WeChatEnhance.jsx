@@ -253,7 +253,7 @@ function WeChatEnhance(props) {
               mime_types: [{ title: 'image', extensions: 'jpg,jpeg,png' }],
             },
             max_file_size: '1m',
-            error_callback: err => {
+            error_callback: () => {
               alert(_l('有不合法的文件格式，请重新选择图片上传'), 3);
               return;
             },
@@ -261,7 +261,7 @@ function WeChatEnhance(props) {
           }}
           bucket={4}
           onUploaded={handleUploaded}
-          onAdd={(up, files) => {
+          onAdd={up => {
             setIsUploading(true);
             up.disableBrowse();
           }}
@@ -299,7 +299,7 @@ function WeChatEnhance(props) {
                   })
                 }
               >
-                <Icon icon="task-new-delete" className="Gray_9e Font17" />
+                <Icon icon="trash" className="Gray_9e Font17" />
               </div>
             </div>
           </div>

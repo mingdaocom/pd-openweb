@@ -121,7 +121,11 @@ export default class ApplicationList extends Component {
           </Fragment>
         ),
       },
-    ];
+    ].filter(
+      v =>
+        (md.global.SysSettings.hideTemplateLibrary && v.key !== 'application') ||
+        !md.global.SysSettings.hideTemplateLibrary,
+    );
     this.actionSheetHandler = ActionSheet.show({
       actions: BUTTONS,
       extra: (
@@ -132,7 +136,7 @@ export default class ApplicationList extends Component {
           </div>
         </div>
       ),
-      onAction: (action, index) => {
+      onAction: action => {
         if (action.key === 'application') {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
@@ -210,7 +214,7 @@ export default class ApplicationList extends Component {
           </div>
         ) : _.includes(dashboardHideGroup, type) ? null : (
           <div className="appCon flexRow alignItemsCenter">
-            {_.map(appList, (item, i) => {
+            {_.map(appList, item => {
               return <ApplicationItem data={item} myPlatformLang={myPlatformLang} />;
             })}
             {canCreateApp && (

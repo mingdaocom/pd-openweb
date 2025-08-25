@@ -73,6 +73,32 @@
   }
 }
 
+.cellControlOptionsRadio,
+.cellControlOptionsCheckbox {
+  .RadioGroupCon {
+    display: flex;
+    flex-wrap: wrap;
+    .Radio {
+      margin-bottom: 6px;
+    }
+  }
+  .CheckboxGroup {
+    display: flex;
+    flex-wrap: wrap;
+    > .flexColumn.w100 {
+      display: none;
+    }
+    .Checkbox {
+      margin-right: 20px;
+      margin-bottom: 6px;
+    }
+  }
+  .otherInputBox,
+  .cellControlOptionsCheckbox {
+    display: none;
+  }
+}
+
 .cellRelation {
   display: inline-block;
   .relationIcon {
@@ -202,7 +228,6 @@
 // 人员
 .cellUsers {
   display: inline-block;
-  min-width: 100px;
   .cellUser {
     display: inline-block;
     vertical-align: middle;
@@ -289,9 +314,9 @@
   &.allowOpenList {
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       .icon {
-        color: #2196f3;
+        color: #1677ff;
       }
       background-color: rgba(33, 150, 243, 0.16);
     }
@@ -411,6 +436,15 @@
   .RelateRecordDropdown {
     overflow: hidden;
     width: 100%;
+  }
+  .cellControlOptionsRadio,
+  .cellControlOptionsCheckbox {
+    .RadioGroupCon {
+      flex-wrap: nowrap;
+    }
+    .CheckboxGroup {
+      flex-wrap: nowrap;
+    }
   }
 }
 
@@ -638,6 +672,9 @@
       border-radius: 0px !important;
       box-shadow: inset 0 0 0 2px #f44336 !important;
     }
+    &.ignoreErrorMessage .ant-select-selector {
+      box-shadow: inset 0 0 0 2px #ff933e !important;
+    }
   }
   &:hover {
     .hoverShow {
@@ -684,6 +721,9 @@
 
 .cellControlErrorStatus {
   box-shadow: inset 0 0 0 2px #f44336 !important;
+  &.ignoreErrorMessage {
+    box-shadow: inset 0 0 0 2px #ff933e !important;
+  }
 }
 
 .cell.cellControlErrorStatus:not(.isediting):not(.focus) {

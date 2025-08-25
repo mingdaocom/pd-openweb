@@ -1,18 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
+import { ConfigProvider, Table } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
-import styled from 'styled-components';
-import { Table, ConfigProvider } from 'antd';
 import Trigger from 'rc-trigger';
-import { Icon, Dropdown, UserHead, Tooltip } from 'ming-ui';
+import styled from 'styled-components';
+import { Dropdown, Icon, Tooltip, UserHead } from 'ming-ui';
 import { dialogSelectApp } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import IsAppAdmin from '../../../components/IsAppAdmin';
-import MoveDataBaseDialog from '../component/MoveDataBaseDialog';
 import ConfirmMoveDialog from '../component/ConfirmMoveDialog';
+import MoveDataBaseDialog from '../component/MoveDataBaseDialog';
 import './ManageDataBase.less';
 
 const ActionOpWrap = styled.ul`
@@ -28,7 +28,7 @@ const ActionOpWrap = styled.ul`
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
     }
   }
@@ -130,7 +130,7 @@ function ManageDataBase(props) {
       dataIndex: 'appId',
       classNames: 'optionWrapTr w50 mRight20',
       width: 50,
-      render: (value, record, index) => {
+      render: (value, record) => {
         return (
           <Trigger
             popupVisible={actionOp === value}
@@ -188,7 +188,7 @@ function ManageDataBase(props) {
         filterDBType: 2,
         ...param,
       })
-      .then(({ apps, maxCount, total, count }) => {
+      .then(({ apps, total }) => {
         setLoading(false);
         setData({ apps: apps, total: total });
       });
@@ -252,7 +252,7 @@ function ManageDataBase(props) {
     return (
       <div className="manageListNull flex flexColumn">
         <div className="iconWrap">
-          <Icon icon="widgets2" />
+          <Icon icon="widgets" />
         </div>
         <div className="emptyExplain">{_l('暂无应用')}</div>
       </div>

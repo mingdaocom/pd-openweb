@@ -81,7 +81,7 @@ const CarouselComponent = styled(Carousel)`
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 80%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(9, 5, 5, 0.03) 16%, rgba(0, 0, 0, 0.35) 100%);
     .content {
       overflow: auto;
       padding: 0 30px;
@@ -393,8 +393,8 @@ export default function CarouselPreview(props) {
   };
 
   const renderBarCode = (record, data) => {
-    const { advancedSetting: { width, faultrate } = {}, enumDefault } = imageControl;
-    const parseWidth = parseFloat(width);
+    const { advancedSetting: { faultrate } = {}, enumDefault } = imageControl;
+
     return (
       <div
         onClick={() => handleTriggerAction(record)}

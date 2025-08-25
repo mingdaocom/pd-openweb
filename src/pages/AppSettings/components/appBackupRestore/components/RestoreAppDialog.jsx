@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
-import { Dialog, VerifyPasswordConfirm, Button, Checkbox } from 'ming-ui';
-import { useSetState } from 'react-use';
-import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import { connect } from 'react-redux';
-import appManagementAjax from 'src/api/appManagement';
-import Beta from '../../Beta';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
+import { Button, Checkbox, Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import { navigateTo } from 'src/router/navigateTo';
 
 const RestoreContentWrap = styled.div`
@@ -66,8 +65,8 @@ export const RestoreContent = props => {
               {item.type === 'appItem' && appItemTotal
                 ? _l('共有 %0 个应用项', appItemTotal)
                 : item.type === 'data'
-                ? _l('共有 %0 行记录', rowTotal)
-                : ''}
+                  ? _l('共有 %0 行记录', rowTotal)
+                  : ''}
             </div>
           </div>
         ))}
@@ -124,7 +123,6 @@ function RestoreAppDialog(props) {
     currentValid,
     changeRestoreAppVisible = () => {},
     actCurrentFileInfo = {},
-    getList = () => {},
   } = props;
 
   const onOk = data => {

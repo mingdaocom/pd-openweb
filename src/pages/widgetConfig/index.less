@@ -5,6 +5,8 @@ body {
   display: flex;
   height: 100%;
   padding-top: 50px;
+  position: relative;
+  overflow: hidden;
 }
 .displayItemTransition-enter {
   opacity: 0.01;
@@ -69,6 +71,7 @@ body {
 
 .DialogWidgetConfig {
   overflow: hidden;
+  z-index: 1001;
   .mui-dialog-header {
     display: none;
   }

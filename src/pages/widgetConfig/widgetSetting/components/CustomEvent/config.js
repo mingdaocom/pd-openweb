@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, InfoCircleFilled } from '@ant-design/icons';
+import _ from 'lodash';
 import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils';
 import { isCustomWidget } from '../../../util';
 
@@ -89,14 +90,14 @@ export const EVENT_DETAIL = [
   { color: '#00c345', bgColor: '#DBF0DC' },
   { color: '#ff9300', bgColor: '#FFEBCD' },
   { color: '#f52222', bgColor: 'rgba(245, 34, 34, 0.6)' },
-  { color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.6)' },
+  { color: '#1677ff', bgColor: 'rgba(33, 150, 243, 0.6)' },
 ];
 
 // 更多操纵
 export const EVENT_MORE_OPTIONS = [
   { text: _l('修改条件描述'), value: 'edit', icon: 'edit' },
   { text: _l('复制'), value: 'copy', icon: 'copy' },
-  { text: _l('删除'), value: 'delete', icon: 'delete1' },
+  { text: _l('删除'), value: 'delete', icon: 'trash' },
 ];
 
 // 消息提示类型
@@ -104,7 +105,7 @@ export const ALERT_TYPE_OPTIONS = [
   { text: _l('成功'), value: '1', icon: <CheckCircleFilled style={{ color: '#00C345' }} /> },
   { text: _l('失败'), value: '2', icon: <CloseCircleFilled style={{ color: '#F52222' }} /> },
   { text: _l('警告'), value: '3', icon: <ExclamationCircleFilled style={{ color: '#FF9A00' }} /> },
-  { text: _l('通知'), value: '4', icon: <InfoCircleFilled style={{ color: '#2196F3' }} /> },
+  { text: _l('通知'), value: '4', icon: <InfoCircleFilled style={{ color: '#1677ff' }} /> },
 ];
 
 const SUPPORT_VALUE_CHANGE_WIDGET = [

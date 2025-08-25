@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useSetState } from 'react-use';
+import { Select } from 'antd';
 import styled from 'styled-components';
 import { Dialog, LoadDiv } from 'ming-ui';
-import { Select } from 'antd';
 import AjaxApi from 'src/api/appManagement.js';
-import { useSetState } from 'react-use';
 
 const Wrap = styled.div`
   .iconBG {
@@ -24,7 +24,7 @@ const Wrap = styled.div`
   }
   .ownerTag {
     color: #fff;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 10px;
     display: inline-block;
     line-height: 18px;
@@ -105,7 +105,7 @@ export default function BatchDialog(props) {
             defaultValue={defaultRoles}
             notFoundContent={_l('无相关角色')}
             filterOption={(input, option) => option.label.includes(input)}
-            options={roleInfos.map((o, i) => {
+            options={roleInfos.map(o => {
               return { label: o.name, value: o.roleId };
             })}
           ></Select>

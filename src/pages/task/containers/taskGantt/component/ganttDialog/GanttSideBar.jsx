@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import config from './config';
 
@@ -7,10 +6,10 @@ const INDENT = 20;
 export default class GanttSideBar extends Component {
   componentDidMount() {
     const $graphWrap = document.querySelector('.graphWrap');
-    this.taskList.addEventListener('scroll', (e) => {
+    this.taskList.addEventListener('scroll', e => {
       e.currentTarget.className == config.scrollingEle && ($graphWrap.scrollTop = e.target.scrollTop);
     });
-    this.taskList.addEventListener('mouseover', (e) => {
+    this.taskList.addEventListener('mouseover', e => {
       config.scrollingEle = e.currentTarget.className;
     });
   }
@@ -42,7 +41,7 @@ export default class GanttSideBar extends Component {
                     haveChildren: item.child && item.child.length,
                     childrenVisible: item.childrenVisible,
                   },
-                  item.childrenVisible ? 'icon-remove_circle_outline' : 'icon-addapplication'
+                  item.childrenVisible ? 'icon-remove_circle_outline' : 'icon-add_circle',
                 )}
                 onClick={() => this.props.toggleTask(nextArgs)}
               />
@@ -51,7 +50,9 @@ export default class GanttSideBar extends Component {
                 {item.taskName}
               </span>
             </div>
-            {item.child && item.childrenVisible && <div className="childrenWrap">{this.renderTaskList(item.child, nextArgs)}</div>}
+            {item.child && item.childrenVisible && (
+              <div className="childrenWrap">{this.renderTaskList(item.child, nextArgs)}</div>
+            )}
           </div>
         );
       })

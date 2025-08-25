@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const GROUP_INFOS = [
   {
     label: _l('群名称'),

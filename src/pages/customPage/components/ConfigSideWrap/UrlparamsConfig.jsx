@@ -1,19 +1,19 @@
 import React, { Fragment } from 'react';
+import { Input, Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
-import { Tooltip, Input } from 'antd';
 
 export default props => {
   const { urlParams, updatePageInfo } = props;
   const onAdd = () => {
     updatePageInfo({
-      urlParams: urlParams.concat('')
+      urlParams: urlParams.concat(''),
     });
     setTimeout(() => {
       const inputs = document.querySelectorAll('.urlParamsWrap input');
       const input = inputs[inputs.length - 1];
       input && input.focus();
     }, 0);
-  }
+  };
   const onValidate = index => {
     const currentValue = urlParams[index];
 
@@ -30,7 +30,11 @@ export default props => {
   return (
     <Fragment>
       <div className="Gray Font14 bold mTop20 mBottom10">{_l('链接参数')}</div>
-      <div className="Gray_9e Font13 mBottom10">{_l('指定参数名，可作为查询字符串附加在自定义页面链接后。在加载页面时可动态获取参数值用于自定义页面的筛选条件。')}</div>
+      <div className="Gray_9e Font13 mBottom10">
+        {_l(
+          '指定参数名，可作为查询字符串附加在自定义页面链接后。在加载页面时可动态获取参数值用于自定义页面的筛选条件。',
+        )}
+      </div>
       {urlParams.map((value, index) => (
         <div className="flexRow alignItemsCenter mBottom10 urlParamsWrap">
           <Input
@@ -43,7 +47,7 @@ export default props => {
                 return i === index ? event.target.value : p;
               });
               updatePageInfo({
-                urlParams: newParams
+                urlParams: newParams,
               });
             }}
             onBlur={() => {
@@ -52,22 +56,26 @@ export default props => {
           />
           <Tooltip title={_l('删除')} placement="top">
             <Icon
-              icon="delete1"
+              icon="trash"
               className="Gray_9e Font19 pointer"
               onClick={() => {
                 const newParams = urlParams.filter((_, i) => i !== index);
                 updatePageInfo({
-                  urlParams: newParams
+                  urlParams: newParams,
                 });
               }}
             />
           </Tooltip>
         </div>
       ))}
-      <div className="flexRow alignItemsCenter pointer Gray_9e mTop10 hoverText" onClick={onAdd} style={{ width: 'fit-content' }}>
+      <div
+        className="flexRow alignItemsCenter pointer Gray_9e mTop10 hoverText"
+        onClick={onAdd}
+        style={{ width: 'fit-content' }}
+      >
         <Icon icon="add" className="Font17" />
         <span>{_l('参数')}</span>
       </div>
     </Fragment>
   );
-}
+};

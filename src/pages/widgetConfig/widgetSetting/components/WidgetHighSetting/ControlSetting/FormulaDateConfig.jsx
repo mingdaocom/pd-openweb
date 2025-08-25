@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { ShowFormat } from './DateConfig';
 import WeekdaySetting from '../components/WeekdaySetting';
+import { ShowFormat } from './DateConfig';
 
 export default function FormulaDateConfig(props) {
   const { data } = props;

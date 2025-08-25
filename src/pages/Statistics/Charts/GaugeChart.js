@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor, formatNumberValue } from './common';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
-import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 import { generate } from '@ant-design/colors';
+import { TinyColor } from '@ctrl/tinycolor';
+import _ from 'lodash';
+import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import { formatNumberValue, formatrChartValue, getChartColors, getStyleColor } from './common';
 
-const initRegisterShape = (G2) => {
+const initRegisterShape = G2 => {
   const { Util, registerShape } = G2;
   registerShape('point', 'custom-gauge-indicator', {
     draw(cfg, container) {
@@ -37,10 +38,7 @@ const initRegisterShape = (G2) => {
         const { startAngle, endAngle } = Util.getAngle(cfg, this.coordinate);
         const radius = this.coordinate.getRadius();
         const midAngle = (startAngle + endAngle) / 2;
-        const { x: x1, y: y1 } = Util.polarToCartesian(center.x, center.y, radius / 15, midAngle + 1 / Math.PI);
-        const { x: x2, y: y2 } = Util.polarToCartesian(center.x, center.y, radius / 15, midAngle - 1 / Math.PI);
         const { x, y } = Util.polarToCartesian(center.x, center.y, radius * 0.65, midAngle);
-        const { x: x0, y: y0 } = Util.polarToCartesian(center.x, center.y, radius * 0.1, midAngle + Math.PI);
         const sa = Math.PI / 2 + midAngle;
         const r1 = 5.5;
         const p1 = {
@@ -92,9 +90,9 @@ const initRegisterShape = (G2) => {
       }
 
       return group;
-    }
+    },
   });
-}
+};
 
 let isInitRegisterShape = false;
 
@@ -107,7 +105,7 @@ export const replaceColor = (gaugeColor, themeColor) => {
     return lightColor;
   }
   return gaugeColor;
-}
+};
 
 function findNthValueInRange(minValue, maxValue, n) {
   const interval = (maxValue - minValue) / 99;
@@ -121,8 +119,8 @@ export default class extends Component {
     this.state = {
       dropdownVisible: false,
       offset: {},
-      match: null
-    }
+      match: null,
+    };
     this.GaugeChart = null;
     this.g2plotComponent = {};
   }
@@ -145,16 +143,16 @@ export default class extends Component {
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       !_.isEqual(style, oldStyle) ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor
     ) {
       const GaugeChartConfig = this.getComponentConfig(nextProps);
       this.GaugeChart.update(GaugeChartConfig);
     }
-    if (
-      displaySetup.showChartType !== oldDisplaySetup.showChartType ||
-      nextProps.direction !== this.props.direction
-    ) {
+    if (displaySetup.showChartType !== oldDisplaySetup.showChartType || nextProps.direction !== this.props.direction) {
       this.GaugeChart.destroy();
       setTimeout(() => {
         this.renderGaugeChart(nextProps);
@@ -162,7 +160,6 @@ export default class extends Component {
     }
   }
   renderGaugeChart(props) {
-    const { reportData } = props;
     const GaugeChartConfig = this.getComponentConfig(props);
     const { Gauge, G2 } = this.g2plotComponent;
     if (!isInitRegisterShape) {
@@ -176,14 +173,24 @@ export default class extends Component {
   }
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
-    const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
+    const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, yaxisList, displaySetup } = reportData;
     const { showChartType, showDimension, showNumber, colorRules } = displaySetup;
     const showPercent = displaySetup.percent.enable;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
-    const { indicatorVisible, fontColor = 'rgba(0, 0, 0, 1)', gaugeColorType = 1, sectionColorConfig = {}, isApplyGaugeColor, applySectionScale } = style;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
+    const {
+      indicatorVisible,
+      fontColor = 'rgba(0, 0, 0, 1)',
+      gaugeColorType = 1,
+      sectionColorConfig = {},
+      isApplyGaugeColor,
+      applySectionScale,
+    } = style;
     const scaleType = _.isUndefined(style.scaleType) ? 1 : style.scaleType;
     const isNumberScale = _.isUndefined(style.isNumberScale) ? scaleType === 1 : style.isNumberScale;
     const isProgressScale = _.isUndefined(style.isProgressScale) ? scaleType === 2 : style.isProgressScale;
@@ -192,20 +199,14 @@ export default class extends Component {
     const data = map[numberControlId] || { value: 0, min: 0, max: 0 };
     const { clientHeight } = this.chartEl;
     const colors = getChartColors(style, themeColor, projectId);
-    const gaugeColor = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? colors[0] : replaceColor(style.gaugeColor, themeColor) || colors[0];
+    const gaugeColor =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? colors[0]
+        : replaceColor(style.gaugeColor, themeColor) || colors[0];
     const fontColorRule = _.get(colorRules[0], 'dataBarRule') || {};
     const gaugeColorRule = _.get(colorRules[1], 'dataBarRule') || {};
     const maxValue = data.max || 1;
     const percent = data.value <= data.min ? 0 : (data.value - data.min) / (maxValue - data.min);
-    const getOffset = () => {
-      if (showChartType === 1) {
-        return clientHeight / 7;
-      }
-      if (showChartType === 2) {
-        return 0;
-      }
-      return clientHeight / 9;
-    }
     const getFontColor = () => {
       if (isApplyGaugeColor) {
         if (gaugeColorType === 1) {
@@ -221,7 +222,7 @@ export default class extends Component {
               }
             });
             return index - 1;
-          }
+          };
           return sectionColors[getIndex()];
         }
       } else if (_.isEmpty(fontColorRule)) {
@@ -234,18 +235,18 @@ export default class extends Component {
             [controlId]: {
               min: data.min,
               max: data.max,
-              center: (data.max + data.min) / 2
-            }
+              center: (data.max + data.min) / 2,
+            },
           },
           rule: fontColorRule,
-          controlId
+          controlId,
         });
         return color || fontColor;
       }
-    }
+    };
     const getGaugeColor = () => {
       if (_.isEmpty(gaugeColorRule)) {
-        return gaugeColor;
+        return [gaugeColor, new TinyColor(gaugeColor).setAlpha(0.3).toString()];
       } else {
         const controlId = yaxisList[0].controlId;
         const color = getStyleColor({
@@ -254,24 +255,29 @@ export default class extends Component {
             [controlId]: {
               min: data.min,
               max: data.max,
-              center: (data.max + data.min) / 2
-            }
+              center: (data.max + data.min) / 2,
+            },
           },
           rule: gaugeColorRule,
-          controlId
+          controlId,
         });
-        return color || gaugeColor;
+        const value = color || gaugeColor;
+        return [value, new TinyColor(value).setAlpha(0.3).toString()];
       }
-    }
+    };
     const getSectionColors = () => {
       const colors = SYS_CHART_COLORS[0].colors;
       const { sectionColors = [] } = sectionColorConfig;
       return sectionColors.map((data, index) => data.color || colors[index % colors.length]).reverse();
-    }
+    };
     const getTicks = () => {
       const { sectionColors = [] } = sectionColorConfig;
-      return [0].concat(_.cloneDeep(sectionColors).reverse().map(data => data.value / 100));
-    }
+      return [0].concat(
+        _.cloneDeep(sectionColors)
+          .reverse()
+          .map(data => data.value / 100),
+      );
+    };
     const renderNumberLabel = value => {
       if (value == 0) {
         return formatrChartValue(data.min, false, yaxisList, null, false);
@@ -281,14 +287,14 @@ export default class extends Component {
       }
       const rangeValue = findNthValueInRange(data.min, data.max, value * 100);
       return formatrChartValue(rangeValue, false, yaxisList, null, false);
-    }
+    };
     const base = {
       percent,
       appendPadding: [10, 10, showChartType == 2 ? 65 : 50, 10],
       range: {
         color: gaugeColorType === 2 && !_.isEmpty(sectionColorConfig) ? getSectionColors() : getGaugeColor(),
         ticks: gaugeColorType === 2 && !_.isEmpty(sectionColorConfig) ? getTicks() : undefined,
-        width: 32
+        width: 32,
       },
       indicator: {
         shape: 'custom-gauge-indicator',
@@ -333,8 +339,8 @@ export default class extends Component {
             }
           },
           style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
+            fill: isDark ? '#ffffffcc' : undefined,
+          },
         },
         tickMethod: applySectionScale ? () => getTicks() : undefined,
         tickLine: isNumberScale || isProgressScale || scaleType !== null ? {} : false,
@@ -343,34 +349,40 @@ export default class extends Component {
         },
       },
       statistic: {
-        content: (showNumber || showPercent) ? {
-          formatter: ({ percent }) => {
-            const value = formatrChartValue(data.value, false, yaxisList);
-            const percentValue = `(${formatNumberValue(percent * 100, displaySetup.percent)}%)`;
-            return `${showNumber ? value : ''} ${showPercent ? percentValue : ''}`;
-          },
-          style: {
-            color: isDark ? '#ffffffcc' : getFontColor(),
-            fontSize: '20px',
-            lineHeight: '24px',
-            width: '50%',
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-            display: 'block',
-          },
-          offsetY: showChartType == 2 ? clientHeight / 2 : 40
-        } : null,
-        title: showDimension ? {
-          formatter: ({ percent }) => `${numberControlName}`,
-          style: {
-            color: isDark ? '#ffffffcc' : '#9e9e9e',
-            lineHeight: 4,
-            fontSize: '13px',
-          },
-          offsetY: showChartType == 2 ? clientHeight / 2 : 43
-        } : null
+        content:
+          showNumber || showPercent
+            ? {
+                formatter: ({ percent }) => {
+                  const value = formatrChartValue(data.value, false, yaxisList);
+                  const percentValue = `(${formatNumberValue(percent * 100, displaySetup.percent)}%)`;
+                  return `${showNumber ? value : ''} ${showPercent ? percentValue : ''}`;
+                },
+                style: {
+                  color: isDark ? '#ffffff' : getFontColor(),
+                  opacity: 1,
+                  fontSize: '20px',
+                  lineHeight: '24px',
+                  width: '50%',
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  display: 'block',
+                },
+                offsetY: showChartType == 2 ? clientHeight / 2 : 40,
+              }
+            : null,
+        title: showDimension
+          ? {
+              formatter: () => `${numberControlName}`,
+              style: {
+                color: isDark ? '#ffffff' : '#9e9e9e',
+                lineHeight: 4,
+                fontSize: '13px',
+              },
+              offsetY: showChartType == 2 ? clientHeight / 2 : 43,
+            }
+          : null,
       },
-    }
+    };
     if (indicatorVisible === false) {
       base.indicator.pointer = null;
       base.indicator.pin = null;
@@ -384,13 +396,12 @@ export default class extends Component {
     if (showChartType === 3) {
       base.type = 'meter';
       base.meter = {
-        stepRatio: 0.7
-      }
+        stepRatio: 0.7,
+      };
     }
     return base;
   }
   render() {
-    const { displaySetup = {} } = this.props.reportData;
     return (
       <div className="flex flexColumn chartWrapper">
         <div className="h100" ref={el => (this.chartEl = el)}></div>

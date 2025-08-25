@@ -1,66 +1,72 @@
-var path = require('path');
-var cheerio = require('cheerio');
-var _ = require('lodash');
-var fs = require('fs');
-var notifier = require('node-notifier');
-const isProduction = process.env.NODE_ENV === 'production';
-var $ = require('gulp-load-plugins')();
-var webpack = require('webpack');
-var minimist = require('minimist');
-const { cloneDeep } = require('lodash');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const readline = require('readline');
+
+const cheerio = require('cheerio');
+const _ = require('lodash');
+const notifier = require('node-notifier');
+const $ = require('gulp-load-plugins')();
+const webpack = require('webpack');
+const minimist = require('minimist');
 const dayjs = require('dayjs');
 const axios = require('axios');
-const readline = require('readline');
-var argv = minimist(process.argv.slice(2));
-var verbose = !!argv.verbose;
+const chalk = require('chalk');
+
+const isProduction = process.env.NODE_ENV === 'production';
+const argv = minimist(process.argv.slice(2));
+const verbose = !!argv.verbose;
 
 const htmlTemplatesPath = path.join(__dirname, '../src/html-templates');
 
 function wrapPathBase(base, relativePath) {
-  try {
-    if (_.isString(relativePath)) {
-      return path.resolve(base, relativePath);
-    } else if (_.isObject(relativePath) && !_.isArray(relativePath)) {
-      const newPaths = {};
-      Object.keys(relativePath).forEach(key => {
-        newPaths[key] = wrapPathBase(base, relativePath[key]);
-      });
-      return newPaths;
-    } else if (_.isArray(relativePath)) {
-      return relativePath.map(rpath => wrapPathBase(base, rpath));
-    } else {
-      console.log(base, relativePath);
-      throw new Error('传入的路径参数不合法');
-    }
-  } catch (err) {
-    console.log(base, relativePath);
-    throw new Error('传入的路径参数不合法');
+  if (_.isString(relativePath)) {
+    return path.resolve(base, relativePath);
   }
+  if (_.isObject(relativePath) && !_.isArray(relativePath)) {
+    const newPaths = {};
+    for (const key in relativePath) {
+      if (Object.prototype.hasOwnProperty.call(relativePath, key)) {
+        newPaths[key] = wrapPathBase(base, relativePath[key]);
+      }
+    }
+    return newPaths;
+  }
+  if (_.isArray(relativePath)) {
+    return relativePath.map(rpath => wrapPathBase(base, rpath));
+  }
+  throw new Error(`Invalid path parameter: ${relativePath}`);
 }
-function notify(title, message, isError, extra) {
-  var options = _.extend({}, extra, {
+
+function notify(title, message, isError, extra = {}) {
+  const options = {
+    ...extra,
     sound: isError,
     icon: isError
       ? path.join(require.resolve('gulp-notify'), '..', 'assets', 'gulp-error.png')
       : path.join(require.resolve('gulp-notify'), '..', 'assets', 'gulp.png'),
-    title: title,
+    title,
     message: message.slice(0, 100),
-  });
+  };
   try {
     notifier.notify(options);
   } catch (err) {
-    // console.error(err);
+    console.error('Notifier failed:', err);
   }
   if (isError) {
-    $.util.log($.util.colors.red(message.slice(0, 1000)));
+    $.util.log(chalk.red(message.slice(0, 1000)));
   }
 }
 
-var webpackCompile = function webpackCompile(err, stats) {
-  if (err) throw new $.util.PluginError('webpack', err);
+const webpackCompile = (err, stats) => {
+  if (err) {
+    throw new $.util.PluginError('webpack', err);
+  }
+
   stats.compilation.warnings = stats.compilation.warnings.filter(w => !/Failed to parse source map/.test(w.details));
-  var output = stats.toString({
-    colors: $.util.colors.supportsColor,
+
+  const output = stats.toString({
+    colors: chalk.supportsColor,
     hash: verbose,
     version: verbose,
     timings: verbose,
@@ -70,68 +76,53 @@ var webpackCompile = function webpackCompile(err, stats) {
     cachedAssets: verbose,
     children: false,
   });
+
   $.util.log('[webpack]', output);
-  var json = stats.toJson();
-  var assets, title, message;
+
+  const json = stats.toJson();
+
   if (json.warnings && json.warnings.length) {
-    $.util.log($.util.colors.yellow(json.warnings));
+    $.util.log(chalk.yellow(json.warnings.join('\n')));
   }
-  var isError = !!json.errors.length;
+
+  const isError = !!json.errors.length;
+  let title;
+  let message;
+
   if (isError) {
-    message = _(json.errors)
-      .map(function (error) {
-        return _.trim(_(error).split('\n\n').compact().first());
-      })
-      .uniq()
-      .join('\n');
-    title = 'Webpack 发生错误';
+    message = [...new Set(json.errors.map(error => _.trim(error.message)))].join('\n');
+    title = 'Webpack Error';
   } else {
-    assets = _(json.assets || [])
-      .concat(
-        _(json.children)
-          .map(function (stat) {
-            return stat.assets;
-          })
-          .flatten()
-          .value(),
-      )
-      .compact()
-      .filter(function (asset) {
-        return asset.emitted;
-      })
-      .value();
-    title =
-      '生成' +
-      _.filter(assets, function (asset) {
-        return _.endsWith(asset.name, '.js');
-      }).length +
-      '个js文件,' +
-      _.filter(assets, function (asset) {
-        return _.endsWith(asset.name, '.map');
-      }).length +
-      '个map文件';
-    message = assets
-      .map(function (asset) {
-        return asset.name;
-      })
+    const allAssets = json.assets.concat(...(json.children || []).map(stat => stat.assets));
+    const emittedAssets = allAssets.filter(asset => asset.emitted);
+
+    const jsFileCount = emittedAssets.filter(asset => asset.name.endsWith('.js')).length;
+    const mapFileCount = emittedAssets.filter(asset => asset.name.endsWith('.map')).length;
+
+    title = `Generated ${jsFileCount} JS file(s), ${mapFileCount} map file(s)`;
+    message = emittedAssets
+      .map(asset => asset.name)
       .join(',')
-      .substr(0, 80);
+      .substring(0, 80);
   }
+
   notify(title, message, isError);
 };
-var webpackTaskFactory = function webpackTaskFactory(webpackConfigArg, isWatch) {
-  webpackConfigArg = cloneDeep(webpackConfigArg);
-  return function webpackTask(callback) {
-    var webpackCompiler = webpack(webpackConfigArg);
-    var compile = function webpackTaskFactoryCompile(err, stats) {
+
+const webpackTaskFactory = (webpackConfigArg, isWatch) => {
+  const webpackConfig = _.cloneDeep(webpackConfigArg);
+  return callback => {
+    const webpackCompiler = webpack(webpackConfig);
+    const compile = (err, stats) => {
       webpackCompile(err, stats);
       if (isProduction && stats.toJson().errors.length) {
-        process.exit();
+        process.exit(1);
       }
-      return callback();
+      callback();
     };
+
     if (isWatch) {
-      webpackCompiler.watch(200, compile);
+      webpackCompiler.watch({ aggregateTimeout: 200 }, compile);
     } else {
       webpackCompiler.run(compile);
     }
@@ -140,28 +131,24 @@ var webpackTaskFactory = function webpackTaskFactory(webpackConfigArg, isWatch) 
 
 function parseNginxRewriteConf(confPathList, data = {}) {
   const content =
-    confPathList
-      .map(confPath => {
-        return fs.readFileSync(confPath).toString();
-      })
-      .join('\n') +
-    'rewrite (?i)^/portallogin /portalLogin.html break;rewrite (?i)^/portalTpauth /portalLogin.html break;';
+    confPathList.map(confPath => fs.readFileSync(confPath).toString()).join('\n') +
+    '\nrewrite (?i)^/portallogin /portalLogin.html break;\nrewrite (?i)^/portalTpauth /portalLogin.html break;';
 
-  const rules = content
+  return content
     .split(/\r?\n/)
     .filter(rule => rule && /^rewrite(.*)break;/.test(rule))
-    .map(rule => rule.replace(/ +/g, ' ').split(/ /))
-    .map(rule => ({
-      match: rule[1].replace('(?i)', ''),
-      redirect: rule[2].replace(/\${(.*?)}/g, (match, p1) => data[p1] || ''),
-      ignoreCase: rule[1].indexOf('(?i)') > -1,
-    }));
-  return rules;
+    .map(rule => {
+      const parts = rule.replace(/ +/g, ' ').split(' ');
+      return {
+        match: parts[1].replace('(?i)', ''),
+        redirect: parts[2].replace(/\${(.*?)}/g, (match, p1) => data[p1] || ''),
+        ignoreCase: parts[1].includes('(?i)'),
+      };
+    });
 }
 
 function getEntryName(str, filename) {
-  var crypto = require('crypto');
-  return path.parse(filename).name + '-' + crypto.createHash('md5').update(str).digest('hex');
+  return `${path.parse(filename).name}-${crypto.createHash('md5').update(str).digest('hex')}`;
 }
 
 function getEntryFromHtml(filename, type) {
@@ -170,26 +157,28 @@ function getEntryFromHtml(filename, type) {
   const entrySrc = $('script')
     .toArray()
     .map(node => $(node).attr('src') || '')
-    .filter(src => src.startsWith(`webpack${type ? `[${type}]` : ''}`))[0];
-  return entrySrc
-    ? {
-        type: (entrySrc.match(/\[(\w+)\]/) || '')[1] || 'index',
-        src: (entrySrc.match(/\?([\w/.]+)/) || '')[1],
-        origin: entrySrc,
-      }
-    : undefined;
+    .find(src => src.startsWith(`webpack${type ? `[${type}]` : ''}`));
+
+  if (!entrySrc) return undefined;
+
+  const typeMatch = entrySrc.match(/\[(\w+)\]/);
+  const srcMatch = entrySrc.match(/\?([\w/.]+)/);
+
+  return {
+    type: typeMatch ? typeMatch[1] : 'index',
+    src: srcMatch ? srcMatch[1] : null,
+    origin: entrySrc,
+  };
 }
 
 function findEntryMap(type) {
   const entrySet = {};
-  fs.readdirSync(htmlTemplatesPath)
-    // .filter(name => /\.html?$/.test(name))
-    .forEach(filename => {
-      const entry = getEntryFromHtml(filename, type);
-      if (entry && entry.src) {
-        entrySet[getEntryName(entry.src, filename)] = entry.src;
-      }
-    });
+  fs.readdirSync(htmlTemplatesPath).forEach(filename => {
+    const entry = getEntryFromHtml(filename, type);
+    if (entry && entry.src) {
+      entrySet[getEntryName(entry.src, filename)] = entry.src;
+    }
+  });
   return entrySet;
 }
 

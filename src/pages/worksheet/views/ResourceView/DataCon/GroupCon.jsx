@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, UserHead } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
@@ -118,7 +119,7 @@ const WrapTableCon = styled.div`
       .addCoin {
         display: block;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       .totalNum {
@@ -165,7 +166,7 @@ const TbWrap = styled.div`
 export default function GroupCon(props) {
   const headContainer = useRef(null);
   const tbodyContainer = useRef(null);
-  const { resourceview, view, controls, viewId, projectId, appId, worksheetInfo, base = {} } = props;
+  const { resourceview, view, controls, viewId, appId, worksheetInfo, base = {} } = props;
   const { resourceDataByKey, keywords } = resourceview;
   const viewControlInfo = controls.find(o => o.controlId === _.get(view, 'viewControl')) || {};
   const { dataSource } = viewControlInfo;
@@ -180,7 +181,7 @@ export default function GroupCon(props) {
     const displayControlsInfo = resourceRelationControls.filter(o => displayControls.includes(o.controlId));
     return sortControlByIds(displayControlsInfo, controlsSorts);
   };
-  const [{ widthConfig, dragValue, displayControlsInfo, allWidth, isScrollHead }, setState] = useSetState({
+  const [{ widthConfig, dragValue, displayControlsInfo, isScrollHead }, setState] = useSetState({
     dragValue: 0,
     widthConfig: localStorage.getItem(`viewColumnWidthConfig-${props.viewId}`)
       ? JSON.parse(localStorage.getItem(`viewColumnWidthConfig-${props.viewId}`))
@@ -290,7 +291,7 @@ export default function GroupCon(props) {
       defaultFormDataEditable: true,
       directAdd: true,
       isCharge: isCharge,
-      onAdd: record => {
+      onAdd: () => {
         refresh();
       },
     });
@@ -436,7 +437,7 @@ export default function GroupCon(props) {
           }}
         >
           {resourceDataByKey.length <= 0 && (
-            <div className="TxtCenter mTop20 Gray_9e">{!!keywords ? _l('没有搜索结果') : _l('无数据')}</div>
+            <div className="TxtCenter mTop20 Gray_9e">{keywords ? _l('没有搜索结果') : _l('无数据')}</div>
           )}
           {resourceDataByKey.map((o, i) => {
             const height = o.height + lineBottomHeight + 1; //底部有lineBottomHeight间距,
@@ -473,7 +474,7 @@ export default function GroupCon(props) {
                 getIconNameByExt(
                   /^\w+$/.test(ext) ? ext.toLowerCase() : RegExpValidator.getExtOfFileName(ext).toLowerCase(),
                 ) === 'img';
-              return !!coverCid ? (
+              return coverCid ? (
                 <div className="flexRow alignItemsCenter flex">
                   {!isImg ? (
                     <div
@@ -589,6 +590,7 @@ export default function GroupCon(props) {
                             ? { options: _.get(it, 'sourceControl.options') }
                             : {}),
                         }}
+                        isCharge={props.isCharge}
                         from={4}
                         // appId={appId}
                         projectId={worksheetInfo.projectId}
@@ -624,7 +626,7 @@ export default function GroupCon(props) {
                           }
                         }
                         if (isSameType([27, 48], info)) {
-                          const { name = '', key } = o;
+                          const { key } = o;
                           const row = safeParse(o.name || '{}');
                           if (key) {
                             value = JSON.stringify([row]);

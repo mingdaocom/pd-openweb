@@ -1,11 +1,11 @@
 import React from 'react';
-import { Checkbox, Tooltip } from 'ming-ui';
-import styled from 'styled-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
-import lookPng from './img/s.png';
 import _ from 'lodash';
-import { formatFields, getSectionIds, getFunction, getDecryptCheckboxProps } from './util';
+import styled from 'styled-components';
+import { Checkbox, Tooltip } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import lookPng from './img/s.png';
+import { formatFields, getDecryptCheckboxProps, getFunction, getSectionIds } from './util';
 
 const Wrap = styled.div`
   text-align: left;
@@ -151,11 +151,7 @@ export default class extends React.PureComponent {
           )}
         </div>
         <div className={'filedSetting flex'}>
-          <Checkbox
-            checked={!notRead}
-            value={fieldId}
-            onClick={this.changeFieldReadAuth}
-          />
+          <Checkbox checked={!notRead} value={fieldId} onClick={this.changeFieldReadAuth} />
         </div>
         <div className={'filedSetting flex'}>
           {![52].includes(type) && (

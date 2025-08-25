@@ -1,13 +1,15 @@
-import React, { useState, Fragment } from 'react';
-import { Icon, ColorPicker, SvgIcon } from 'ming-ui';
-import styled from 'styled-components';
+import React, { Fragment, useState } from 'react';
+import { Checkbox, Collapse, Input, Select, Switch, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Input, Collapse, Checkbox, Switch, Tooltip, Select } from 'antd';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { normTypes, defaultNumberChartStyle, sizeTypes } from '../../../enum';
-import RuleColor from './Color/RuleColor';
+import styled from 'styled-components';
+import { ColorPicker, Icon, SvgIcon } from 'ming-ui';
 import { replaceColor } from 'statistics/Charts/NumberChart';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { defaultNumberChartStyle, normTypes, sizeTypes } from '../../../enum';
+import BgPicker from './BgPicker';
+import RuleColor from './Color/RuleColor';
 
 const Wrap = styled.div`
   .chartTypeSelect {
@@ -16,7 +18,7 @@ const Wrap = styled.div`
       padding: 3px 8px !important;
     }
     .active .shape {
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
   }
   .lable {
@@ -83,17 +85,6 @@ const iconTypes = [
   },
 ];
 
-const contrastValueShowTypes = [
-  {
-    name: _l('百分比'),
-    value: 0,
-  },
-  {
-    name: _l('数值'),
-    value: 1,
-  },
-];
-
 const colorTypes = [
   {
     name: _l('绿升红降'),
@@ -108,7 +99,8 @@ const colorTypes = [
 const maxColumnCount = 6;
 
 const CardLayout = props => {
-  const { xaxes, yaxisList, numberChartStyle, onChangeNumberStyle } = props;
+  const { themeColor, currentReport, handleChangeDisplaySetup, numberChartStyle, onChangeNumberStyle } = props;
+  const { xaxes, yaxisList, displaySetup } = currentReport;
 
   const changeColumnCount = value => {
     if (value) {
@@ -190,8 +182,22 @@ const CardLayout = props => {
             {_l('允许容器内滚动')}
           </Checkbox>
           <Tooltip title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')} placement="bottom" arrowPointAtCenter>
-            <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+            <Icon className="Gray_9e Font18 pointer" icon="info" />
           </Tooltip>
+        </div>
+      )}
+      {!xaxes.controlId && yaxisList.length === 1 && (
+        <div className="flexRow valignWrapper mBottom12">
+          <div className="mRight10">{_l('背景')}</div>
+          <BgPicker
+            themeColor={themeColor}
+            config={numberChartStyle}
+            onChange={data => {
+              onChangeNumberStyle(data);
+            }}
+            displaySetup={displaySetup}
+            handleChangeDisplaySetup={handleChangeDisplaySetup}
+          ></BgPicker>
         </div>
       )}
     </Wrap>
@@ -200,10 +206,9 @@ const CardLayout = props => {
 
 const IconSetting = props => {
   const { projectId, themeColor, customPageConfig, numberChartStyle, onChangeNumberStyle } = props;
-  const [visible, setVisible] = useState(false);
   const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
   const icon = numberChartStyle.icon || '3_1_coins';
-  const { iconColor } = replaceColor({ iconColor: numberChartStyle.iconColor || '#2196F3' }, {}, themeColor);
+  const { iconColor } = replaceColor({ iconColor: numberChartStyle.iconColor || '#1677ff' }, {}, themeColor);
   return (
     <Wrap className="mBottom16">
       <div className="flexRow valignWrapper mBottom12">
@@ -229,7 +234,7 @@ const IconSetting = props => {
             />
           }
         >
-          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10" onClick={() => {}}>
+          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10">
             <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
           </EntranceWrapper>
         </Trigger>
@@ -279,13 +284,13 @@ const StatisticsValue = props => {
     props;
   const { numberChartColor, numberChartColorIndex = 1 } = customPageConfig;
   const [ruleColorModalVisible, setRuleColorModalVisible] = useState(false);
-  const { controlId } = currentReport.xaxes;
-  const { colorRules } = currentReport.displaySetup;
+  const { xaxes, yaxisList, displaySetup } = currentReport;
+  const { colorRules } = displaySetup;
   const colorRule = _.get(colorRules[0], 'dataBarRule');
   const onCancel = () => {
     setRuleColorModalVisible(false);
   };
-  const { fontColor } = replaceColor({ fontColor: numberChartStyle.fontColor }, {}, themeColor);
+  const { fontColor, titleColor } = replaceColor(_.pick(numberChartStyle, ['fontColor', 'titleColor']), {}, themeColor);
   return (
     <Wrap className="mBottom16">
       <div className="mBottom12">{_l('文字')}</div>
@@ -306,8 +311,27 @@ const StatisticsValue = props => {
           ))}
         </div>
       </div>
+      {!xaxes.controlId && yaxisList.length === 1 && numberChartStyle.bgStyleValue && (
+        <div className="flexRow valignWrapper mBottom12">
+          <div style={{ width: 60 }}>{_l('文本颜色')}</div>
+          <ColorPicker
+            isPopupBody={true}
+            sysColor={true}
+            themeColor={themeColor}
+            value={titleColor}
+            onChange={value => {
+              const data = { titleColor: value };
+              onChangeNumberStyle(data);
+            }}
+          >
+            <div className="colorWrap pointer">
+              <div className="colorBlock" style={{ backgroundColor: titleColor }}></div>
+            </div>
+          </ColorPicker>
+        </div>
+      )}
       <div className="flexRow valignWrapper mBottom12">
-        <div style={{ width: 50 }}>{_l('颜色')}</div>
+        <div style={{ width: 60 }}>{_l('数值颜色')}</div>
         {!colorRule && (
           <ColorPicker
             isPopupBody={true}
@@ -344,7 +368,7 @@ const StatisticsValue = props => {
               onChangeDisplayValue('colorRules', []);
             }}
           >
-            <Icon className="Font16 Gray_9e" icon="delete2" />
+            <Icon className="Font16 Gray_9e" icon="trash" />
           </EntranceWrapper>
         )}
         <RuleColor
@@ -496,7 +520,7 @@ export const ContrastValue = props => {
 
 export function numberSummaryPanelGenerator(props) {
   const { currentReport, changeCurrentReport, onChangeDisplayValue } = props;
-  const { xaxes, yaxisList, summary, displaySetup } = currentReport;
+  const { xaxes, summary, displaySetup } = currentReport;
   const switchChecked = displaySetup.showTotal;
 
   if (!xaxes.controlId) {
@@ -587,13 +611,8 @@ export default function numberStylePanelGenerator(props) {
   };
   return (
     <Fragment>
-      <Collapse.Panel key="cardLayout" header={_l('卡片布局')} {...collapseProps}>
-        <CardLayout
-          xaxes={xaxes}
-          yaxisList={yaxisList}
-          numberChartStyle={numberChartStyle}
-          onChangeNumberStyle={onChangeNumberStyle}
-        />
+      <Collapse.Panel key="cardLayout" header={_l('卡片样式')} {...collapseProps}>
+        <CardLayout {...props} numberChartStyle={numberChartStyle} onChangeNumberStyle={onChangeNumberStyle} />
       </Collapse.Panel>
       {!xaxes.controlId && yaxisList.length === 1 && (
         <Collapse.Panel

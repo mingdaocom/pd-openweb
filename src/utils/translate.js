@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { getTranslateInfo } from 'src/utils/app';
 
 const replaceOptionControlTranslateInfo = (data, { translateInfo, optionTranslateInfo }) => {
@@ -8,7 +9,7 @@ const replaceOptionControlTranslateInfo = (data, { translateInfo, optionTranslat
     };
   });
   data.advancedSetting.otherhint = translateInfo.otherhint || data.advancedSetting.otherhint;
-}
+};
 
 export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) => {
   if (!window[`langData-${appId}`]) return controls;

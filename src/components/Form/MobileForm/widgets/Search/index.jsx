@@ -4,7 +4,13 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import { clearValue, getParamsByConfigs, getShowValue, handleUpdateApi } from '../../../core/searchUtils';
+import {
+  clearValue,
+  dealAuthAccount,
+  getParamsByConfigs,
+  getShowValue,
+  handleUpdateApi,
+} from '../../../core/searchUtils';
 import PopupSearch from './PopupSearch';
 
 const SearchBox = props => {
@@ -34,6 +40,7 @@ const SearchBox = props => {
       appId,
       type,
       enumDefault2,
+      recordId,
     } = props;
     setData({});
 
@@ -46,7 +53,7 @@ const SearchBox = props => {
     }
 
     setLoading(true);
-    const paramsData = getParamsByConfigs(requestMap, formData, keywords);
+    const paramsData = getParamsByConfigs(recordId, requestMap, formData, keywords);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -55,7 +62,7 @@ const SearchBox = props => {
       controlId,
       apkId: appId,
       apiTemplateId: dataSource,
-      authId: authaccount,
+      authId: dealAuthAccount(authaccount, formData),
       actionType: enumDefault2 === 1 ? 13 : 8,
       pushUniqueId: md.global.Config.pushUniqueId,
     };

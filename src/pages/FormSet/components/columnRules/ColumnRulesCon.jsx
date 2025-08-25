@@ -1,34 +1,28 @@
 import React, { Fragment } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Icon, Support, Button, ScrollView, SortableList } from 'ming-ui';
+import { bindActionCreators } from 'redux';
 import { Drawer } from 'antd';
-import * as actions from './redux/actions/columnRules';
-import * as columnRules from './redux/actions/columnRules';
-import EditBox from './EditBox';
-import RuleItem from './RuleItem';
-import { hasRuleChanged } from './config';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Button, Icon, ScrollView, SortableList, Support } from 'ming-ui';
+import { hasRuleChanged, TAB_TYPES, TABS_DISPLAY } from './config';
+import EditBox from './EditBox';
+import * as actions from './redux/actions/columnRules';
+import * as columnRules from './redux/actions/columnRules';
+import RuleItem from './RuleItem';
 
-const TABS_DISPLAY = [
-  {
-    text: _l('交互'),
-    value: 0,
-  },
-  {
-    text: _l('验证'),
-    value: 1,
-  },
-];
 class ColumnRulesCon extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
+  componentWillUnmount() {
+    this.props.updateActiveTab(0);
+  }
+
   renderCon() {
-    const { columnRulesListData = [], grabControlRules, selectRules = {}, activeTab } = this.props;
+    const { columnRulesListData = [], grabControlRules, selectRules = {}, activeTab, addColumnRules } = this.props;
     const totalData =
       (selectRules.ruleId || '').indexOf('-') >= 0 ? columnRulesListData.concat(selectRules) : columnRulesListData;
 
@@ -41,6 +35,10 @@ class ColumnRulesCon extends React.Component {
             <Icon icon="list" className="Gray_bd" />
           </span>
           <span className="Font15 Gray_9e mTop20">{_l('暂无业务规则')}</span>
+          <div className="addEmptyRules" onClick={() => addColumnRules()}>
+            <Icon icon="plus" className="mRight3" />
+            {_l('添加规则')}
+          </div>
         </div>
       );
     }
@@ -85,11 +83,13 @@ class ColumnRulesCon extends React.Component {
       <Fragment>
         <div className="columnRuleTitle">
           <div className="flexRow">
-            <span className="Font17 Bold flex">{_l('业务规则')}</span>
-            <div className="addRules" onClick={() => addColumnRules()}>
-              <Icon icon="plus" className="mRight3" />
-              {_l('添加规则')}
-            </div>
+            <span className="Font17 Bold flex LineHeight36">{_l('业务规则')}</span>
+            {activeTab !== TAB_TYPES.LOCK_RULE && (
+              <div className="addRules" onClick={() => addColumnRules()}>
+                <Icon icon="plus" className="mRight3" />
+                {_l('添加规则')}
+              </div>
+            )}
           </div>
           <div className="columnRuleTabs">
             {TABS_DISPLAY.map(item => {
@@ -104,16 +104,20 @@ class ColumnRulesCon extends React.Component {
                   }}
                 >
                   {item.text}
-                  {list.length > 0 && <span className='mLeft3'>({list.length})</span>}
+                  {list.length > 0 && <span className="mLeft3">({list.length})</span>}
                 </div>
               );
             })}
           </div>
           <div className="columnRuleDesc">
             <span className="Gray_9e">
-              {activeTab === 0
-                ? _l('交互规则可以根据条件实时控制指定字段的显隐、是否可编辑、是否必填等属性。')
-                : _l('验证规则可以规范数据的录入。当满足条件时，禁止保存记录并对指定字段提示错误。')}
+              {activeTab === TAB_TYPES.NORMAL_RULE
+                ? _l('显示、隐藏、只读、可编辑、必填会随着条件变化实时生效，只读所有将在记录保存后生效。')
+                : activeTab === TAB_TYPES.CHECK_RULE
+                  ? _l('当满足条件时,可对指定字段进行提示。')
+                  : _l(
+                      '满足条件时，将在记录保存后生效锁定。锁定记录无法被编辑或删除，仅应用管理员可解锁记录。只能添加一条锁定规则。',
+                    )}
             </span>
             <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/business-rule" />
           </div>

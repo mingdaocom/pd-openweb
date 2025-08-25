@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
-import { areEqual, VariableSizeGrid } from 'react-window';
-import _, { includes } from 'lodash';
+import React from 'react';
+import { VariableSizeGrid } from 'react-window';
+import { includes } from 'lodash';
 
 function sum(array = []) {
   return array.reduce((a, b) => a + b, 0);
@@ -28,15 +28,15 @@ export default function Grid(props) {
     bottomFixedCount,
     rightFixedCount,
     rowHeight,
-    cache,
     getColumnWidth,
+    getRowHeight,
     Cell,
     tableData,
     setRef,
   } = props;
   let leftFixedCount = props.leftFixedCount;
   let leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
-  if (leftFixedWidth > width) {
+  if (leftFixedWidth > width && leftFixedCount > 2) {
     leftFixedCount = 1;
     leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   }
@@ -91,7 +91,7 @@ export default function Grid(props) {
         }
         return getColumnWidth(index);
       }}
-      rowHeight={() => rowHeight}
+      rowHeight={getRowHeight || (() => rowHeight)}
       rowCount={config.rowCount}
       itemData={{
         ...tableData,

@@ -24,14 +24,14 @@ const sessionList = (state = [], action) => {
 };
 
 /**
- * 控制 chat 的展开和收起，默认收起
+ * toolbar 配置数据
  * @param {*} state
  * @param {*} action
  */
-const visible = (state = utils.setVisible(), action) => {
+const toolbarConfig = (state = utils.getToolbarConfig(), action) => {
   switch (action.type) {
-    case 'SET_VISIBLE':
-      return action.visible;
+    case 'SET_TOOLBAR_CONFIG':
+      return Object.assign({}, state, action.result);
     default:
       return state;
   }
@@ -69,7 +69,6 @@ const currentSessionList = (state = [], action) => {
   }
 };
 
-
 /**
  * 当前 inbox 的会话信息
  * @param {*} state
@@ -88,11 +87,11 @@ const currentInboxList = (state = [], action) => {
         if (item.value === action.id) {
           return {
             ...item,
-            ...action.data
-          }
+            ...action.data,
+          };
         }
         return item;
-      })
+      });
     default:
       return state;
   }
@@ -115,7 +114,11 @@ const messages = (state = {}, action) => {
       return Object.assign({}, state, { [action.id]: state[action.id].concat(action.result) });
     case 'REMOVE_MESSAGE':
       const targetState = state[action.id];
-      return targetState ? Object.assign({}, state, { [action.id]: targetState.filter(item => item && item.waitingId !== action.messageId) }) : state;
+      return targetState
+        ? Object.assign({}, state, {
+            [action.id]: targetState.filter(item => item && item.waitingId !== action.messageId),
+          })
+        : state;
     case 'REMOVE_MESSAGES':
       delete state[action.id];
       return Object.assign({}, state);
@@ -179,7 +182,7 @@ const bottomUnreadMessage = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 /**
  * 是否在新标签页聊天
@@ -207,7 +210,7 @@ const showAddressBook = (state = false, action) => {
     default:
       return state;
   }
-}
+};
 
 /**
  * socket 状态
@@ -221,11 +224,11 @@ const socketState = (state = 0, action) => {
     default:
       return state;
   }
-}
+};
 
 export default combineReducers({
   sessionList,
-  visible,
+  toolbarConfig,
   currentSession,
   currentSessionList,
   currentInboxList,
@@ -235,5 +238,5 @@ export default combineReducers({
   isWindow,
   showAddressBook,
   bottomUnreadMessage,
-  socketState
+  socketState,
 });

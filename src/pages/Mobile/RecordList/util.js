@@ -7,7 +7,7 @@ import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { getAdvanceSetting } from 'src/utils/control';
 
-const { sheet, board, calendar, gallery, structure, gunter, detail, resource, map, customize } = VIEW_DISPLAY_TYPE;
+const { sheet, board, calendar, gallery, structure, gunter, detail, resource, map } = VIEW_DISPLAY_TYPE;
 
 export const getViewActionInfo = ({
   view = {},
@@ -23,7 +23,7 @@ export const getViewActionInfo = ({
 }) => {
   const { navGroup = [], childType, advancedSetting = {}, viewControl, viewControls = [] } = view;
   const { appnavtype } = advancedSetting;
-  const { appNaviStyle, debugRole } = appDetail;
+  const { appNaviStyle } = appDetail;
   const { allowAdd, template = {} } = worksheetInfo;
   const { controls = [] } = template;
   const viewType = String(view.viewType);
@@ -57,6 +57,7 @@ export const getViewActionInfo = ({
       try {
         calendarcids = JSON.parse(calendarcids);
       } catch (error) {
+        console.log(error);
         calendarcids = [];
       }
       if (calendarcids.length <= 0) {
@@ -145,7 +146,7 @@ export const getDefaultValueInCreate = (mobileNavGroupFilters = []) => {
       value = '[]';
     }
     return { [data.controlId]: value };
-  } else if ([29, 35]) {
+  } else if ([29, 35].includes(data.dataType)) {
     return {
       [data.controlId]: JSON.stringify([
         {
@@ -155,4 +156,11 @@ export const getDefaultValueInCreate = (mobileNavGroupFilters = []) => {
       ]),
     };
   }
+};
+
+// 分组数据平铺
+export const getFlatSheetRows = ({ groupData, unfoldedKeys = [], isFilterUnfolded = true }) => {
+  return groupData
+    .filter(v => (isFilterUnfolded ? _.includes(unfoldedKeys || [], v.key) : true))
+    .reduce((rows, item) => rows.concat(item.rows), []);
 };

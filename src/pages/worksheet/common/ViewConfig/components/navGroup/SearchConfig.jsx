@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { RadioGroup, Dropdown } from 'ming-ui';
-import styled from 'styled-components';
-import { formatControlsToDropdown } from 'src/pages/widgetConfig/util/index.js';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import styled from 'styled-components';
+import { Dropdown, RadioGroup } from 'ming-ui';
+import { formatControlsToDropdown } from 'src/pages/widgetConfig/util/index.js';
 
 //可搜索的字段仅支持文本类型字段（文本、号码、邮箱、证件、自动编号、文本组合）
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];

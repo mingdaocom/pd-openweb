@@ -1,22 +1,26 @@
 import domtoimage from 'dom-to-image';
+import { saveAs } from 'file-saver';
 
 const printImage = el => {
-  return new Promise((resolve, reject) => {
-    domtoimage.toPng(el).then((dataUrl) => {
-      let img = new Image();
-      img.onload = () => {
-        resolve(img);
-      }
-      img.src = dataUrl;
-    }).catch((error) => {
-      console.error('oops, something went wrong!', error);
-      resolve();
-    });
+  return new Promise(resolve => {
+    domtoimage
+      .toPng(el)
+      .then(dataUrl => {
+        let img = new Image();
+        img.onload = () => {
+          resolve(img);
+        };
+        img.src = dataUrl;
+      })
+      .catch(error => {
+        console.error('oops, something went wrong!', error);
+        resolve();
+      });
   });
-}
+};
 
 class Canvas {
-  constructor (config = {}) {
+  constructor(config = {}) {
     this.canvas = document.createElement('canvas');
     this.canvas.width = config.bgWidth;
     this.canvas.height = config.bgHeight;
@@ -43,6 +47,7 @@ class Canvas {
             resolve(blob);
           }, 1000);
         } catch (err) {
+          console.log(err);
           reject();
         }
       });
@@ -50,56 +55,57 @@ class Canvas {
   }
 }
 
-const printGunter = (name) => {
-
-  return new Promise((resolve, reject) => {
-
+const printGunter = name => {
+  return new Promise(resolve => {
     const directoryHeader = document.querySelector('.gunterDirectoryHeader');
     const groupingScroller = document.querySelector('.gunterGroupingScroller');
     const chartHeader = document.querySelector('.gunterChartHeader .headerScroll');
     const chartScroller = document.querySelector('.gunterChartScroller');
 
     const gunter = new Canvas({
-       bgWidth: groupingScroller.offsetWidth + chartHeader.offsetWidth,
-       bgHeight: directoryHeader.offsetHeight + groupingScroller.offsetHeight,
-       title: name
+      bgWidth: groupingScroller.offsetWidth + chartHeader.offsetWidth,
+      bgHeight: directoryHeader.offsetHeight + groupingScroller.offsetHeight,
+      title: name,
     });
 
-    gunter.mergeRun([
-      {
-        el: directoryHeader,
-        x: 0,
-        y: 0,
-      },
-      {
-        el: groupingScroller,
-        x: 0,
-        y: directoryHeader.offsetHeight,
-      },
-      {
-        el: chartHeader,
-        x: directoryHeader.offsetWidth,
-        y: 0,
-      },
-      {
-        el: chartScroller,
-        x: directoryHeader.offsetWidth,
-        y: chartHeader.offsetHeight,
-      }
-    ]).then(() => {
-      gunter.download().then(blob => {
-        if (blob) {
-          window.close();
-        } else {
-          resolve(true);
-        }
-      }).catch(() => {
-        resolve(true);
+    gunter
+      .mergeRun([
+        {
+          el: directoryHeader,
+          x: 0,
+          y: 0,
+        },
+        {
+          el: groupingScroller,
+          x: 0,
+          y: directoryHeader.offsetHeight,
+        },
+        {
+          el: chartHeader,
+          x: directoryHeader.offsetWidth,
+          y: 0,
+        },
+        {
+          el: chartScroller,
+          x: directoryHeader.offsetWidth,
+          y: chartHeader.offsetHeight,
+        },
+      ])
+      .then(() => {
+        gunter
+          .download()
+          .then(blob => {
+            if (blob) {
+              window.close();
+            } else {
+              resolve(true);
+            }
+          })
+          .catch(() => {
+            resolve(true);
+          });
       });
-    });
-
   });
-
-}
+};
 
 export default printGunter;

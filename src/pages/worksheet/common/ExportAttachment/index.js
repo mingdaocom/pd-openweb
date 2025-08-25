@@ -1,11 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import fileAjax from 'src/api/file';
 import { formatQuickFilter } from 'src/utils/filter';
-import { getPssId } from 'src/utils/pssId';
 
 const hyphenList = [
   { value: 0, label: _l('空格') + '( )', optionLabel: ' ' },
@@ -114,7 +113,7 @@ class ExportAttachment extends Component {
   };
 
   render() {
-    const { visible, onCancel = () => {}, attachmentControls = [], isCharge } = this.props;
+    const { onCancel = () => {}, attachmentControls = [], isCharge } = this.props;
     const { hyphen, hyphenValue, nameMethodValues = [], selectControlIds = [], generateFolder } = this.state;
 
     const exampleArr = nameMethodList.filter(it => _.includes(nameMethodValues, it.value));

@@ -12,7 +12,7 @@ import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
-import { getCurrentProject, getFeatureStatus, getThemeColors } from 'src/utils/project';
+import { getFeatureStatus, getThemeColors } from 'src/utils/project';
 import ExternalLinkDialog from './ExternalLinkDialog';
 import SelectDBInstance from './SelectDBInstance';
 
@@ -49,7 +49,7 @@ export default class AddAppItem extends Component {
   state = { addTypeVisible: false, externalLinkDialogVisible: false };
 
   handleClick = ({ id, href, dbInstanceId }) => {
-    const { projectId, type } = this.props;
+    const { projectId } = this.props;
     const { groupId } = this.props;
 
     switch (id) {
@@ -80,6 +80,7 @@ export default class AddAppItem extends Component {
         break;
       case 'installLoacal':
         this.setState({ importAppDialog: true });
+        break;
       default:
         break;
     }
@@ -102,7 +103,6 @@ export default class AddAppItem extends Component {
         <ImportApp
           closeDialog={params => {
             this.setState({ importAppDialog: false, importAppParams: params });
-            const currentProject = getCurrentProject(projectId);
             const hasDataBase =
               getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
             if (hasDataBase && hasAppResourceAuth) {
@@ -219,12 +219,13 @@ export default class AddAppItem extends Component {
                           return;
                         }
                         if (id === 'createFromEmpty') {
-                          const currentProject = getCurrentProject(projectId);
                           const hasDataBase =
                             getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
                             !md.global.Config.IsPlatformLocal;
+
                           if (hasDataBase && hasAppResourceAuth) {
                             this.getMyDbInstances({ id, href }, 'createFromEmpty');
+
                             return;
                           }
                         }

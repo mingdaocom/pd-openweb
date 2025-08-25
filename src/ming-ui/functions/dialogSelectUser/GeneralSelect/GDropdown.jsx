@@ -1,12 +1,9 @@
-/* eslint-disable */
-/* eslint-disable */
-import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import Icon from 'ming-ui/components/Icon';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import Icon from 'ming-ui/components/Icon';
 
 class Dropdown extends Component {
   static propTypes = {
@@ -75,7 +72,7 @@ class Dropdown extends Component {
         iconName: PropTypes.string,
         Children: PropTypes.array,
         /** 显示结果 */
-      })
+      }),
     ),
   };
 
@@ -104,7 +101,6 @@ class Dropdown extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.value != undefined) {
-      // eslint-disable-line eqeqeq
       this.setState({
         value: nextProps.value,
       });
@@ -116,7 +112,6 @@ class Dropdown extends Component {
     const getTextFromList = list => {
       list.forEach(item => {
         if (item.value != undefined && item.value === value) {
-          // eslint-disable-line eqeqeq
           text = item.text;
           return false;
         } else if (item.children) {
@@ -138,7 +133,6 @@ class Dropdown extends Component {
 
   handleChange(event, value) {
     if (this.props.value == undefined) {
-      // eslint-disable-line eqeqeq
       this.setState({
         value,
       });
@@ -168,14 +162,17 @@ class Dropdown extends Component {
           }}
         >
           <div>
-            {value != undefined ? ( // eslint-disable-line eqeqeq
+            {value != undefined ? (
               <span
                 className={cx('value', {
                   ThemeHoverColor3: this.props.hoverTheme,
                   ThemeHoverBorderColor3: this.props.hoverTheme,
                 })}
               >
-                {this.props.renderValue.replace(/{{value}}/g, this.getTextFromDataById(this.props.data, this.state.value))}
+                {this.props.renderValue.replace(
+                  /{{value}}/g,
+                  this.getTextFromDataById(this.props.data, this.state.value),
+                )}
               </span>
             ) : (
               <span className="GSelect-Dropdown--placeholder">{placeholder}</span>

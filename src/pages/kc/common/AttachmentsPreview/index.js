@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware, compose } from 'redux';
+import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import AttachmentsPreview from './attachmentsPreview';
 import reducer from './reducers/reducer';
@@ -13,4 +13,4 @@ export default function (props) {
       <AttachmentsPreview {...props} />
     </Provider>
   );
-};
+}

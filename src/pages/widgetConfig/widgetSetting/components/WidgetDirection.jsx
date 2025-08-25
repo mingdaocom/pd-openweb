@@ -1,7 +1,7 @@
 import React from 'react';
-import { Dropdown } from 'ming-ui';
-import { handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 export default ({ data, onChange }) => (
   <div className="settingItem">

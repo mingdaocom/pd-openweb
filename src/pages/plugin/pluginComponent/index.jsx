@@ -61,9 +61,9 @@ const Wrapper = styled.div`
           font-size: 16px;
         }
         &.isCur {
-          border-bottom: 4px solid #2196f3;
+          border-bottom: 4px solid #1677ff;
           a {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -92,7 +92,7 @@ const Wrapper = styled.div`
       }
       .headerBtn {
         padding: 8px 24px;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 18px;
         color: #fff;
         display: inline-block;
@@ -128,7 +128,7 @@ const PluginListBox = styled.div`
     &:hover {
       background: rgba(247, 247, 247, 1);
       .name {
-        color: #2196f3;
+        color: #1677ff;
       }
       .operateIcon {
         background: rgba(247, 247, 247, 1);
@@ -168,7 +168,7 @@ const PluginListBox = styled.div`
       background: #fff;
 
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #fff !important;
       }
     }
@@ -238,7 +238,7 @@ export default function PluginComponent(props) {
           setFetchState({ loading: false, noMore: res.plugins.length < 50 });
         }
       })
-      .catch(error => {
+      .catch(() => {
         setFetchState({ loading: false });
         setPluginList([]);
       });
@@ -317,6 +317,7 @@ export default function PluginComponent(props) {
                   ? _l('启用时全组织可用，关闭后不影响已创建工作流')
                   : _l('启用时全组织可用，关闭后不影响已创建视图')
               }
+              autoCloseDelay={0}
             >
               <Icon icon="info_outline" className="Gray_bd mLeft4 pointer" />
             </Tooltip>

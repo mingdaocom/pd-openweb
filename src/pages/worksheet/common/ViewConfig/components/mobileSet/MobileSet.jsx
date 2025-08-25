@@ -11,7 +11,7 @@ import CoverSetting from '../CoverSettingCon';
 import DisplayControl from '../DisplayControl';
 
 const Wrap = styled.div`
-  .rowClumns {
+  .rowColumns {
     label {
       flex: 1;
     }
@@ -213,7 +213,7 @@ export default class MobileSet extends React.Component {
           </p>
           <RadioGroup
             size="middle"
-            className="mBottom20 rowClumns"
+            className="mBottom20 rowColumns"
             checkedValue={_.get(view, 'advancedSetting.rowcolumns') === '2' ? '2' : '1'}
             data={[
               {

@@ -91,8 +91,8 @@ export const newTask = (acceptor, options = {}) => {
  * @param {*} acceptor
  * @param {*} options
  */
-export const selectTask = acceptor => {
-  return new Promise((resolve, reject) => {
+export const selectTask = () => {
+  return new Promise(resolve => {
     const onSubmit = task => {
       const { sid, name } = task;
       const message = {
@@ -119,7 +119,7 @@ export const selectTask = acceptor => {
  * @param {*} options
  */
 export const newSchedule = (acceptor, options = {}) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     let members = [];
     if (acceptor.type === Constant.SESSIONTYPE_USER && acceptor.id !== Constant.FILE_TRANSFER.id) {
       members = [
@@ -155,8 +155,8 @@ export const newSchedule = (acceptor, options = {}) => {
  * 选择日程
  * @param {*} acceptor
  */
-export const selectSchedule = acceptor => {
-  return new Promise((resolve, reject) => {
+export const selectSchedule = () => {
+  return new Promise(resolve => {
     const onSubmit = item => {
       const { sid, name, sidext } = item;
       const message = {
@@ -187,7 +187,7 @@ export const selectSchedule = acceptor => {
  * @param {*} options
  */
 export const newVote = (acceptor, options) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     _initPost(
       acceptor,
       {
@@ -209,7 +209,7 @@ export const newVote = (acceptor, options) => {
  * @param {*} options
  */
 export const newFeed = (acceptor, options) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     _initPost(
       acceptor,
       {

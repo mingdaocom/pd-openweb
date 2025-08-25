@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Dropdown } from 'ming-ui';
-import { getIcons } from '../../../utils';
 import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
 import { APP_TYPE } from '../../../enum';
+import { getIcons } from '../../../utils';
 
 export default class SelectNodeObject extends Component {
   /**
@@ -46,15 +46,12 @@ export default class SelectNodeObject extends Component {
         <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
         {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId && item.appName ? (
           <Fragment>
-            <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
-            <span
-              className="Font14 mLeft5 bold flowDropdownGray ellipsis"
-              style={{ maxWidth: 150 }}
-            >{`“${item.appName}”`}</span>
+            <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
+            <span className="Font14 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
           </Fragment>
         ) : (
           <span className="Font14 mLeft5 Gray_75">
-            <i className="icon-workflow_error Font14 mRight5" />
+            <i className="icon-info_outline Font14 mRight5" />
             {_l('设置此节点后才能选择')}
           </span>
         )}

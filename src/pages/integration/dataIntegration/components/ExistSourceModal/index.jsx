@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Modal, Icon, ScrollView, LoadDiv } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import { SOURCE_FROM_TYPE, CREATE_TYPE, ROLE_TYPE, dataMirrorDestTypes } from '../../constant';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Modal, ScrollView } from 'ming-ui';
 import dataSourceApi from '../../../api/datasource';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { formatDate } from '../../../config';
+import { CREATE_TYPE, dataMirrorDestTypes, ROLE_TYPE, SOURCE_FROM_TYPE } from '../../constant';
 
 const ExistSourceWrapper = styled.div`
   display: flex;
@@ -31,6 +31,7 @@ const ExistSourceWrapper = styled.div`
   }
   .contentWrapper {
     flex: 1;
+    overflow: hidden;
   }
 `;
 
@@ -90,7 +91,7 @@ const LeftListWrapper = styled.div`
     &:hover {
       span,
       i {
-        color: #2196f3 !important ;
+        color: #1677ff !important ;
       }
     }
   }

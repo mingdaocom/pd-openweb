@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
-import { Dialog, LoadDiv, ScrollView, FunctionWrap, SvgIcon } from 'ming-ui';
+import _ from 'lodash';
+import { Dialog, FunctionWrap, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import './index.less';
-import { Tooltip } from 'antd';
-import _ from 'lodash';
 
 const LINK_TYPES = [
   { text: _l('自定义'), value: 1 },
@@ -161,7 +161,7 @@ class SelectIntegrationApi extends Component {
         />
         {this.state[keyName] && (
           <i
-            className="icon-cancel1 Gray_9e Font15 pointer"
+            className="icon-cancel Gray_9e Font15 pointer"
             onClick={() => this.setState({ [keyName]: '' }, () => this.handleSearch(type))}
           ></i>
         )}

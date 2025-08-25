@@ -154,10 +154,10 @@ FileConfirm.prototype = {
     return FC.dialogEle.$fileName.val() + (FC.ext ? '.' + FC.ext : '');
   },
   validate: function (str) {
-    var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
-    var valid = illegalChars.test(str);
-    if (valid) {
-      alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
+    const illegalSet = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
+    const illegalChars = new RegExp(`[${illegalSet.map(c => '\\' + c).join('')}]`, 'g');
+    if (illegalChars.test(str)) {
+      alert(_l('名称不能包含以下字符: ') + ' ' + illegalSet.join(' '), 3);
       return false;
     }
     return true;

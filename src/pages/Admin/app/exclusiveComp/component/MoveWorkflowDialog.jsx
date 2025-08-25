@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Empty } from 'antd';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import Status from './Status';
 import projectAjax from 'src/api/project';
+import Status from './Status';
 
 const MoveWorkflowDialogWrap = styled(Dialog)`
   min-height: 400px;
@@ -22,7 +22,7 @@ const ContentWrap = styled.ul`
   > li.active,
   > li:hover {
     background: rgba(33, 150, 243, 0.11);
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
   }
   .emptyWrap {
     margin-top: 94px;
@@ -62,7 +62,11 @@ function MoveWorkflowDialog(props) {
       }}
     >
       <ContentWrap>
-        {list.length === 0 && <div className='emptyWrap'><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={_l('没有可选算力')}></Empty></div> }
+        {list.length === 0 && (
+          <div className="emptyWrap">
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={_l('没有可选算力')}></Empty>
+          </div>
+        )}
         {list.map(item => (
           <li
             key={`moveExplainItem-${item.id}`}

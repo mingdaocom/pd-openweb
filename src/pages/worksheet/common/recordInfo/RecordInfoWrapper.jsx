@@ -74,6 +74,7 @@ export default class RecordInfoWrapper extends Component {
       try {
         sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId });
       } catch (err) {
+        console.log(err);
         sheetSwitchPermit = [];
       }
     }

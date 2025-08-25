@@ -1,12 +1,13 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
 import { Select } from 'antd';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import AddControlDiaLog from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/AddControlDiaLog';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { SYS } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import AddControlDiaLog from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/AddControlDiaLog';
+
 const DropDownSetChoose = styled.div`
   position: relative;
   .Red {

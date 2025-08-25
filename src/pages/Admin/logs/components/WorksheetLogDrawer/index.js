@@ -10,7 +10,7 @@ import WorksheetLog from './WorksheetLog';
 import './index.less';
 
 export default function WorksheetLogDrawer(props) {
-  const { visible, projectId, appId, onClose = () => {} } = props;
+  const { visible, appId, onClose = () => {} } = props;
   const worksheetListRef = useRef(null);
   const [{ worksheetLoading, worksheetList, selectWorksheetId, searchValue, searchWorksheetList }, setData] =
     useSetState({
@@ -34,10 +34,13 @@ export default function WorksheetLogDrawer(props) {
               workSheetName: getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName,
             };
           }),
-          selectWorksheetId: props.selectWorksheetId || _.get(list, '[0].workSheetId'),
+          selectWorksheetId:
+            props.selectWorksheetId && (_.find(list, v => v.workSheetId === props.selectWorksheetId) || {}).type === 0
+              ? props.selectWorksheetId
+              : _.get(list, '[0].workSheetId'),
         });
       })
-      .catch(err => {
+      .catch(() => {
         setData({ worksheetLoading: false });
       });
   };
@@ -83,7 +86,7 @@ export default function WorksheetLogDrawer(props) {
             ) : searchValue && _.isEmpty(searchWorksheetList) ? (
               <div className="Gray_9e pLeft16">{_l('暂无搜索结果')}</div>
             ) : (
-              (!!_.trim(searchValue) ? searchWorksheetList : worksheetList).map(item => {
+              (_.trim(searchValue) ? searchWorksheetList : worksheetList).map(item => {
                 const { workSheetId, workSheetName, iconUrl } = item;
                 return (
                   <div
@@ -112,7 +115,7 @@ export default function WorksheetLogDrawer(props) {
             <div className="flex"></div>
             <i className="icon icon-close Font18 Hand" onClick={onClose} />
           </div>
-          <div className="flex logContent">
+          <div className="flex logContent minHeight0">
             {selectWorksheetId && <WorksheetLog worksheetId={selectWorksheetId} rowId="" />}
           </div>
         </div>

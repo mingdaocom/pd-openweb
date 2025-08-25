@@ -1,11 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import moment from 'moment';
 import { times } from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import PanelSelect from './PanelSelect';
-import { generateOptions } from './utils';
 
 function timetoString(val) {
   return val < 10 ? `0${val}` : `${val}`;

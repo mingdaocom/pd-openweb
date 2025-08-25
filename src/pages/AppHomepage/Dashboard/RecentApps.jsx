@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import cx from 'classnames';
 import styled from 'styled-components';
 import RecentOrCollectAppList from './RecentOrCollectAppList';
-import cx from 'classnames';
 
 const Wrapper = styled.div`
   flex: 1;

@@ -73,7 +73,7 @@ const TreeWrap = styled(Tree)`
       }
       .nodeName {
         font-weight: 600 !important;
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }
@@ -168,7 +168,7 @@ class RoleManage extends Component {
               onlyRefreshGroup && treeData[0] && treeData[0].key === DefaultGroup.key ? treeData[0].children : [],
           },
         ].concat(
-          res.map((l, i) => {
+          res.map(l => {
             let data = treeData.find(o => o.orgRoleGroupId === l.orgRoleGroupId);
             return {
               ...l,
@@ -191,7 +191,7 @@ class RoleManage extends Component {
   updateChildren = (data, orgRoleGroupIds, updateCurrentRole = false, init = false) => {
     const { match, searchValue } = this.props;
     const { params = {} } = match;
-    const { pageIndex, treeData } = this.state;
+    const { pageIndex } = this.state;
 
     if (!data.length) {
       this.setState({ treeData: [], loading: false });
@@ -400,7 +400,7 @@ class RoleManage extends Component {
               };
             });
             this.setState({
-              searchRes: !!searchValue
+              searchRes: searchValue
                 ? {
                     ...searchRes,
                     data: searchRes.data.filter(l => l.organizeId !== item.organizeId),
@@ -523,7 +523,7 @@ class RoleManage extends Component {
   };
 
   handleSearch = value => {
-    const { searchRes } = this.state;
+    const { searchRes, treeData } = this.state;
 
     if (!value) {
       treeData[0] && treeData[0].children[0] && this.handleClick(treeData[0].children[0]);
@@ -662,7 +662,7 @@ class RoleManage extends Component {
                     <Menu>
                       <Menu.Item
                         key="0"
-                        onClick={e => {
+                        onClick={() => {
                           l.isLeaf && this.createAndEdit('edit');
                           this.setState(
                             l.isLeaf
@@ -680,14 +680,14 @@ class RoleManage extends Component {
                       >
                         {_l('编辑')}
                       </Menu.Item>
-                      <Menu.Item key="1" className="delRole" onClick={e => this.showDeleteDialog(l)}>
+                      <Menu.Item key="1" className="delRole" onClick={() => this.showDeleteDialog(l)}>
                         {_l('删除')}
                       </Menu.Item>
                     </Menu>
                   }
                 >
                   <Icon
-                    icon="more_vert"
+                    icon="moreop"
                     className="Gray_9e Font18 TxtMiddle editIcon Hover_21"
                     onClick={e => e.stopPropagation()}
                   />
@@ -802,7 +802,7 @@ class RoleManage extends Component {
           )}
 
           <div className="roleList">
-            <ScrollView onScrollEnd={this.onScrollEnd}>
+            <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
               {loading ? (
                 <LoadDiv />
               ) : searchValue ? (

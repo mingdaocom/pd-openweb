@@ -1,7 +1,8 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import update from 'immutability-helper';
+import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import reportConfig from 'statistics/api/reportConfig';
 import { getTranslateInfo } from 'src/utils/app';

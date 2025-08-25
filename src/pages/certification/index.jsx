@@ -14,6 +14,7 @@ import styled from 'styled-components';
 import { Avatar, Button, Dropdown, Icon, Input, LoadDiv, Qr } from 'ming-ui';
 import certificationApi from 'src/api/certification';
 import marketplacePaymentApi from 'src/api/marketplacePayment';
+import sseAjax from 'src/api/sse';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import HelpCollection from 'src/pages/PageHeader/components/CommonUserHandle/HelpCollection';
 import { getRequest } from 'src/utils/common';
@@ -53,7 +54,7 @@ const Wrapper = styled.div`
       font-size: 17px;
       font-weight: 500;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .helpWrap {
@@ -162,7 +163,7 @@ const Wrapper = styled.div`
       cursor: pointer;
       &:hover {
         .icon-refresh1 {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
       }
 
@@ -181,7 +182,7 @@ const Wrapper = styled.div`
         height: 170px;
         backdrop-filter: blur(3px);
         background-color: rgba(255, 255, 255, 0.8);
-        .icon-check_circle1 {
+        .icon-check_circle {
           color: #4caf50;
         }
         .icon-refresh1 {
@@ -218,7 +219,7 @@ const CommonRangePicker = styled(RangePicker)`
   box-shadow: none !important;
   &:hover,
   &.ant-picker-focused {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -229,19 +230,22 @@ const initialValues = {
   idCardBack: undefined,
   idCardValidDate: undefined,
   verifyCode: '',
-  fullName: '',
+  legalName: '',
   companyName: '',
   creditCode: '',
   creditValidDate: undefined,
   mobile: '',
   idNumber: '',
+  contactName: '',
+  contactIdNumber: '',
+  contactMobile: '',
 };
 
 export default function Certification(props) {
   const { certSource, projectId } = _.get(props, 'match.params');
   const { type, returnUrl } = getRequest();
   const [currentPage, setCurrentPage] = useState(
-    certSource === 'personal' ? 'personal' : type === 'upgrade' ? 'enterprise' : '',
+    certSource === 'personal' ? 'personal' : ['upgrade', 'update'].includes(type) ? 'enterprise' : '',
   );
   const [formData, setFormData] = useSetState(initialValues);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -264,7 +268,7 @@ export default function Certification(props) {
   useEffect(() => {
     switch (currentPage) {
       case 'enterprise':
-        !!currentProject.projectId && checkEnterpriseIsCert();
+        !!currentProject.projectId && getCertFailedInfo();
         break;
       case 'personal':
         setPersonalLoading(true);
@@ -309,19 +313,6 @@ export default function Certification(props) {
     setFormData({ ...initialValues, enterpriseType: formData.enterpriseType });
   }, [formData.enterpriseType]);
 
-  const checkEnterpriseIsCert = () => {
-    certificationApi.checkIsCert({ projectId, authType: 2, certSource: SOURCE_TYPE[certSource] }).then(res => {
-      if (res) {
-        alert(_l('已认证，不支持重复认证'), 3);
-        setTimeout(() => {
-          type === 'upgrade' && returnUrl && (location.href = decodeURIComponent(returnUrl));
-        }, 1000);
-      } else {
-        getCertFailedInfo();
-      }
-    });
-  };
-
   const getAndCheckCertState = () => {
     setQrLoading(true);
     setCertStatus(CERT_STATUS.NORMAL);
@@ -349,7 +340,7 @@ export default function Certification(props) {
       }
     });
 
-    const resp = await certificationApi.checkFaceCertSSE(
+    const resp = await sseAjax.checkFaceCertSSE(
       { state: certState },
       { abortController: controller, isReadableStream: true },
     );
@@ -372,54 +363,45 @@ export default function Certification(props) {
   };
 
   const getCertFailedInfo = () => {
-    certificationApi
-      .getCertFailedInfo({
-        authType: currentPage === 'personal' ? 1 : 2,
-        certSource: SOURCE_TYPE[certSource],
-        projectId,
-      })
-      .then(res => {
-        if (res) {
-          const { authType, personalInfo, enterpriseInfo = {} } = res;
-          const { idCardFront, idCardFrontUrl, idCardBack, idCardBackUrl, idCardValidDateStart, idCardValidDateEnd } =
-            personalInfo || {};
-          const {
-            legalName,
-            legalIdCardFront,
-            legalIdCardFrontUrl,
-            legalIdCardBack,
-            legalIdCardBackUrl,
-            legalIdCardValidDateStart,
-            legalIdCardValidDateEnd,
-            businessLicense,
-            businessLicenseUrl,
-            businessLicenseValidDateStart,
-            businessLicenseValidDateEnd,
-          } = enterpriseInfo || {};
+    certificationApi.getCertFailedInfo({ authType: 2, certSource: SOURCE_TYPE[certSource], projectId }).then(res => {
+      if (res) {
+        const { enterpriseInfo = {} } = res;
+        const {
+          legalIdCardFront,
+          legalIdCardFrontUrl,
+          legalIdCardBack,
+          legalIdCardBackUrl,
+          legalIdCardValidDateStart,
+          legalIdCardValidDateEnd,
+          businessLicense,
+          businessLicenseUrl,
+          businessLicenseValidDateStart,
+          businessLicenseValidDateEnd,
+        } = enterpriseInfo || {};
 
-          let defaultValues = {};
+        const defaultValues = {
+          ..._.pick(enterpriseInfo, [
+            'enterpriseType',
+            'companyName',
+            'creditCode',
+            'idNumber',
+            'mobile',
+            'legalName',
+            'contactName',
+            'contactIdNumber',
+            'contactMobile',
+          ]),
+          person: enterpriseInfo.legalName,
+          idCardFront: { key: legalIdCardFront, url: legalIdCardFrontUrl },
+          idCardBack: { key: legalIdCardBack, url: legalIdCardBackUrl },
+          idCardValidDate: [moment(legalIdCardValidDateStart), moment(legalIdCardValidDateEnd)],
+          businessLicense: { key: businessLicense, url: businessLicenseUrl },
+          creditValidDate: [moment(businessLicenseValidDateStart), moment(businessLicenseValidDateEnd)],
+        };
 
-          if (authType === 1) {
-            defaultValues = {
-              ..._.pick(personalInfo, ['idNumber', 'fullName', 'mobile']),
-              idCardFront: { key: idCardFront, url: idCardFrontUrl },
-              idCardBack: { key: idCardBack, url: idCardBackUrl },
-              idCardValidDate: [moment(idCardValidDateStart), moment(idCardValidDateEnd)],
-            };
-          } else {
-            defaultValues = {
-              ..._.pick(enterpriseInfo, ['enterpriseType', 'companyName', 'creditCode', 'idNumber', 'mobile']),
-              fullName: legalName,
-              idCardFront: { key: legalIdCardFront, url: legalIdCardFrontUrl },
-              idCardBack: { key: legalIdCardBack, url: legalIdCardBackUrl },
-              idCardValidDate: [moment(legalIdCardValidDateStart), moment(legalIdCardValidDateEnd)],
-              businessLicense: { key: businessLicense, url: businessLicenseUrl },
-              creditValidDate: [moment(businessLicenseValidDateStart), moment(businessLicenseValidDateEnd)],
-            };
-          }
-          setFormData(defaultValues);
-        }
-      });
+        setFormData(defaultValues);
+      }
+    });
   };
 
   const maskIdNumber = data => {
@@ -440,74 +422,42 @@ export default function Certification(props) {
 
   const onSubmit = () => {
     form.validateFields().then(() => {
-      const {
-        enterpriseType,
-        businessLicense,
-        idCardFront,
-        idCardBack,
-        idCardValidDate,
-        verifyCode,
-        fullName,
-        creditValidDate,
-        companyName,
-        creditCode,
-        mobile,
-        idNumber,
-        person,
-      } = formData;
+      const { enterpriseType, businessLicense, creditValidDate, legalName, person } = formData;
 
-      const data = {};
-      // 个人
-      if (currentPage === 'personal') {
-        data.certSource = SOURCE_TYPE[certSource];
-        data.projectId = projectId;
-        data.verifyCode = verifyCode;
-        data.personalInfo = {
-          bucket: 3,
-          idType: 1,
-          idCardFront: _.get(idCardFront, 'key'),
-          idCardBack: _.get(idCardBack, 'key'),
-          idCardValidDateStart: moment(idCardValidDate[0]).format('YYYY-MM-DD'),
-          idCardValidDateEnd: moment(idCardValidDate[1]).format('YYYY-MM-DD'),
-          fullName,
-          mobile,
-          idNumber,
-        };
+      if (person !== legalName) {
+        alert(_l('法人姓名不一致'), 3);
+        return;
       }
-      // 企业
-      if (currentPage === 'enterprise') {
-        if (person !== fullName) {
-          alert(_l('法人姓名不一致'), 3);
-          return;
-        }
-        data.certSource = SOURCE_TYPE[certSource];
-        data.entityId = projectId;
-        data.isUpgrade = type === 'upgrade';
-        data.enterpriseInfo = {
+
+      const data = {
+        certSource: SOURCE_TYPE[certSource],
+        entityId: projectId,
+        isUpgrade: type === 'upgrade',
+        enterpriseInfo: {
+          ..._.pick(formData, [
+            'legalName',
+            'mobile',
+            'idNumber',
+            'enterpriseType',
+            'companyName',
+            'creditCode',
+            'contactName',
+            'contactIdNumber',
+            'contactMobile',
+          ]),
           bucket: 3,
           idType: 1,
+          contactIdType: 1,
           businessLicense: _.get(businessLicense, 'key'),
-          legalIdCardFront: _.get(idCardFront, 'key'),
-          legalIdCardBack: _.get(idCardBack, 'key'),
           businessLicenseValidDateStart:
             enterpriseType !== 2 ? moment(creditValidDate[0]).format('YYYY-MM-DD') : undefined,
           businessLicenseValidDateEnd:
             enterpriseType !== 2 ? moment(creditValidDate[1]).format('YYYY-MM-DD') : undefined,
-          legalIdCardValidDateStart: moment(idCardValidDate[0]).format('YYYY-MM-DD'),
-          legalIdCardValidDateEnd: moment(idCardValidDate[1]).format('YYYY-MM-DD'),
-          legalName: fullName,
-          mobile,
-          idNumber,
-          enterpriseType,
-          companyName,
-          creditCode,
-        };
-      }
+        },
+      };
 
       setSubmitLoading(true);
-      (currentPage === 'enterprise'
-        ? certificationApi.enterpriseCertification
-        : certificationApi.personalCertification)(data)
+      certificationApi[type === 'update' ? 'renewEnterpriseCertification' : 'enterpriseCertification'](data)
         .then(data => {
           const errorMsg = {
             [ENTERPRISE_TYPE.ENTERPRISE]: {
@@ -562,39 +512,6 @@ export default function Certification(props) {
               creditValidDate: formatValidDate(data.period, '至', 'YYYY年MM月DD日'),
               person: data.person,
             });
-            return resolve();
-          } else {
-            return reject(data.errorMsg);
-          }
-        });
-      } else {
-        return resolve();
-      }
-    });
-  };
-
-  // 验证身份证
-  const onValidateIDCardOCR = (first, value, callback, isFront) => {
-    return new Promise((resolve, reject) => {
-      const { key, url } = value || {};
-      const { idCardFront, idCardBack } = formData;
-
-      if (key && key !== (isFront ? _.get(idCardFront, 'key') : _.get(idCardBack, 'key'))) {
-        marketplacePaymentApi.iDCardOCR({ projectId: '', url }).then(data => {
-          if (data.resultCode === 1) {
-            if (isFront) {
-              if (data.idNum) {
-                setFormData({ fullName: data.name, idNumber: data.idNum });
-              } else {
-                return reject(_l('未检测到身份证人像面信息'));
-              }
-            } else {
-              if (data.validDate) {
-                setFormData({ idCardValidDate: formatValidDate(data.validDate) });
-              } else {
-                return reject(_l('未检测到身份证国徽面信息'));
-              }
-            }
             return resolve();
           } else {
             return reject(data.errorMsg);
@@ -704,61 +621,54 @@ export default function Certification(props) {
         )}
 
         <div className="moduleTitle">{_l('法人信息')}</div>
-        <div className="flexRow">
-          <Form.Item
-            name="idCardFront"
-            label={_l('法人身份证人像面')}
-            rules={[
-              { required: true, message: _l('请上传身份证人像面') },
-              () => ({
-                validator: (rule, value, callback) => onValidateIDCardOCR(rule, value, callback, true),
-              }),
-            ]}
-            className="flex"
-          >
-            <UploadCertificate />
-          </Form.Item>
-          <Form.Item
-            name="idCardBack"
-            label={_l('法人身份证国徽面')}
-            rules={[{ required: true, message: _l('请上传身份证国徽面') }, () => ({ validator: onValidateIDCardOCR })]}
-            className="flex"
-          >
-            <UploadCertificate />
-          </Form.Item>
-        </div>
-
-        {formData.idCardFront && (
-          <React.Fragment>
-            <Form.Item label={_l('法人姓名')} name="fullName" rules={[{ required: true, message: _l('请输入姓名') }]}>
-              <Input placeholder={_l('请输入')} />
-            </Form.Item>
-            <Form.Item
-              label={_l('法人身份证号')}
-              name="idNumber"
-              rules={[
-                { required: true, message: _l('请输入身份证号码') },
-                { pattern: /(^\d{15}$)|(^\d{17}(\d|X|x)$)/, message: _l('请输入有效的身份证号码') },
-              ]}
-            >
-              <Input placeholder={_l('请输入')} />
-            </Form.Item>
-          </React.Fragment>
-        )}
-        {formData.idCardBack && (
-          <Form.Item
-            label={_l('法人身份证有效期')}
-            name="idCardValidDate"
-            rules={[{ required: true, message: _l('请输入身份证有效期') }]}
-          >
-            <CommonRangePicker locale={locale} />
-          </Form.Item>
-        )}
+        <Form.Item label={_l('法人姓名')} name="legalName" rules={[{ required: true, message: _l('请输入法人姓名') }]}>
+          <Input placeholder={_l('请输入')} />
+        </Form.Item>
+        <Form.Item
+          label={_l('法人身份证号')}
+          name="idNumber"
+          rules={[
+            { required: true, message: _l('请输入法人身份证号码') },
+            { pattern: /(^\d{15}$)|(^\d{17}(\d|X|x)$)/, message: _l('请输入有效的身份证号码') },
+          ]}
+        >
+          <Input placeholder={_l('请输入')} />
+        </Form.Item>
         <Form.Item
           label={_l('法人手机号')}
           name="mobile"
           rules={[
-            { required: true, message: _l('请输入手机号') },
+            { required: true, message: _l('请输入法人手机号') },
+            { pattern: /^1[2-9]\d{9}$/, message: _l('请输入有效的手机号') },
+          ]}
+          className="isLast"
+        >
+          <Input placeholder={_l('请输入大陆手机号')} />
+        </Form.Item>
+
+        <div className="moduleTitle">{_l('联系人信息')}</div>
+        <Form.Item
+          label={_l('联系人姓名')}
+          name="contactName"
+          rules={[{ required: true, message: _l('请输入联系人姓名') }]}
+        >
+          <Input placeholder={_l('请输入')} />
+        </Form.Item>
+        <Form.Item
+          label={_l('联系人身份证号')}
+          name="contactIdNumber"
+          rules={[
+            { required: true, message: _l('请输入联系人身份证号码') },
+            { pattern: /(^\d{15}$)|(^\d{17}(\d|X|x)$)/, message: _l('请输入有效的身份证号码') },
+          ]}
+        >
+          <Input placeholder={_l('请输入')} />
+        </Form.Item>
+        <Form.Item
+          label={_l('联系人手机号')}
+          name="contactMobile"
+          rules={[
+            { required: true, message: _l('请输入联系人手机号') },
             { pattern: /^1[2-9]\d{9}$/, message: _l('请输入有效的手机号') },
           ]}
           className="isLast"
@@ -782,14 +692,19 @@ export default function Certification(props) {
         <div
           className="backBtn flexRow alignItemsCenter pointer h100"
           onClick={() => {
-            if (currentPage === 'success' || !currentPage || certSource === 'personal' || type === 'upgrade') {
+            if (
+              currentPage === 'success' ||
+              !currentPage ||
+              certSource === 'personal' ||
+              ['upgrade', 'update'].includes(type)
+            ) {
               returnUrl && (location.href = decodeURIComponent(returnUrl));
             } else {
               setCurrentPage('');
             }
           }}
         >
-          <Icon icon="arrow_back" className="Font20" />
+          <Icon icon="backspace" className="Font20" />
           <div className="mLeft16">{!currentPage ? _l('身份认证') : _l('返回')}</div>
         </div>
         <div className="flex" />
@@ -805,7 +720,7 @@ export default function Certification(props) {
           }}
         >
           <div className="helpWrap" onClick={() => setHelpVisible(true)}>
-            <Icon icon="workflow_help" className="Font20 Gray_75 TxtMiddle" />
+            <Icon icon="help" className="Font20 Gray_75 TxtMiddle" />
             <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
           </div>
         </Trigger>
@@ -873,7 +788,7 @@ export default function Certification(props) {
                       {certStatus !== CERT_STATUS.NORMAL && (
                         <div className="qrMask flexColumn alignItemsCenter justifyContentCenter">
                           <Icon
-                            icon={certStatus !== CERT_STATUS.EXPIRED ? 'check_circle1' : 'refresh1'}
+                            icon={certStatus !== CERT_STATUS.EXPIRED ? 'check_circle' : 'refresh1'}
                             className="Font40"
                           />
                           <div className="Font12 mTop4">

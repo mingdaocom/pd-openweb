@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import { LoadDiv, Dialog } from 'ming-ui';
 import domtoimage from 'dom-to-image';
 import { saveAs } from 'file-saver';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
+import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 // import ToolBar from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/ToolBar';
 import EditCon from './EditCon/index.jsx';
 import TaskNode from './TaskNode';
-import { formatTaskNodeData, formatDataWithLine } from './util';
-import _ from 'lodash';
-import TaskFlow from 'src/pages/integration/api/taskFlow.js';
+import { formatDataWithLine, formatTaskNodeData } from './util';
 import './style.less';
+
 const Wrap = styled.div`
   &.taskContainer {
     .ContainerCon {
@@ -158,7 +159,7 @@ class TaskCanvas extends Component {
       nodeType,
       nodeConfig,
     }).then(res => {
-      let { errorMsg, errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
+      let { errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
       if (res.failed) {
         alert(res.errorMsg, 2);
         return;
@@ -168,13 +169,13 @@ class TaskCanvas extends Component {
       }
       this.onCompute(
         {
-          toUpdate: !!toUpdate
+          toUpdate: toUpdate
             ? !toUpdate.find(o => o.nodeId === node.nodeId)
               ? [...toUpdate, node]
               : toUpdate
             : [node],
-          toAdd: !!toAdd ? toAdd : [],
-          toDeleteIds: !!toDeleteIds ? toDeleteIds : [],
+          toAdd: toAdd ? toAdd : [],
+          toDeleteIds: toDeleteIds ? toDeleteIds : [],
           srcIsDb,
         },
         cb,
@@ -215,6 +216,7 @@ class TaskCanvas extends Component {
         document.querySelector('body').removeChild(copyDom);
       });
     } catch (error) {
+      console.log(error);
       alert(_l('生成失败'), 2);
       document.querySelector('body').removeChild(copyDom);
     }
@@ -235,7 +237,7 @@ class TaskCanvas extends Component {
 
   closeEdit = () => {
     const { currentId } = this.state;
-    if (!!currentId) {
+    if (currentId) {
       this.setState({
         currentId: '',
       });
@@ -243,7 +245,7 @@ class TaskCanvas extends Component {
   };
 
   render() {
-    const { loading, scale, list, currentId, firstNodeId, flowNodes } = this.state;
+    const { loading, scale, list, currentId, flowNodes } = this.state;
     return (
       <Wrap className="taskContainer Relative flex">
         <div

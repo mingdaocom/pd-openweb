@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { UserHead } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
+import { UserHead } from 'ming-ui';
 import { isSameType } from 'worksheet/common/ViewConfig/util';
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['viewConfig']),
-    ..._.pick(state.sheet, ['isCharge', 'base', 'worksheetInfo', 'controls']),
-  }),
-)
+@connect(state => ({
+  ..._.pick(state.sheet.gunterView, ['viewConfig']),
+  ..._.pick(state.sheet, ['isCharge', 'base', 'worksheetInfo', 'controls']),
+}))
 export default class GroupContent extends Component {
   constructor(props) {
     super(props);

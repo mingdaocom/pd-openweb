@@ -1,11 +1,11 @@
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import _, { debounce } from 'lodash';
 import { func, string } from 'prop-types';
 import styled from 'styled-components';
-import { Modal, Icon, Input, Skeleton } from 'ming-ui';
+import { Icon, Input, Modal, Skeleton } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import RecordCoverCardList from './RecordCoverCardList';
-import _, { debounce } from 'lodash';
 import emptyImg from './empty.png';
+import RecordCoverCardList from './RecordCoverCardList';
 
 const Title = styled.div`
   font-size: 16px;
@@ -29,7 +29,7 @@ const SearchCon = styled.div`
     color: #bdbdbd;
   }
   &.focus {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -53,32 +53,11 @@ const Empty = styled.div`
   }
 `;
 
-const LoadingButton = styled.div`
-  display: inline-block;
-  cursor: pointer;
-  height: 29px;
-  line-height: 29px;
-  padding: 0 12px;
-  color: #2196f3;
-  border-radius: 3px;
-  font-size: 13px;
-  .loading {
-    margin-right: 6px;
-    .icon {
-      display: inline-block;
-      animation: rotate 1.2s linear infinite;
-    }
-  }
-  &:hover {
-    background: #f8f8f8;
-  }
-`;
-
 const NewRecordButton = styled.div`
   margin-top: 20px;
   height: 38px;
   border-radius: 38px;
-  background-color: #2196f3;
+  background-color: #1677ff;
   padding: 0 24px;
   color: #fff;
   display: flex;
@@ -281,7 +260,7 @@ export default function SearchRelateRecords(props) {
             <div className="Font16 Gray_9e">{_l('没有搜索结果')}</div>
             {allowAdd && (
               <NewRecordButton
-                onClick={e => {
+                onClick={() => {
                   onNewRecord();
                   onCancel();
                 }}

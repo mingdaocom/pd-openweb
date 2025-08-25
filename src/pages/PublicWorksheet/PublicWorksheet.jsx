@@ -185,7 +185,7 @@ export default class PublicWorksheet extends React.Component {
 
   getThemeBgColor = ({ themeBgColor, themeColor }) => {
     if (!themeBgColor) {
-      return !themes[themeColor] ? '#2196f3' : (themes[themeColor] || {}).main;
+      return !themes[themeColor] ? '#1677ff' : (themes[themeColor] || {}).main;
     } else {
       return themeBgColor;
     }
@@ -319,7 +319,7 @@ export default class PublicWorksheet extends React.Component {
                         completeNumber: publicWorksheetInfo.completeNumber + 1,
                       },
                     });
-                    $('.nano').nanoScroller({ scrollTop: 0 });
+                    $('.scrollViewContainer .scroll-viewport').scrollTop(0);
                   }}
                   formData={formData}
                   rules={rules}
@@ -375,7 +375,7 @@ export default class PublicWorksheet extends React.Component {
                       if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
                         alert(_l('你访问的表单暂未开放!'), 3);
                       }
-                      resolve(data);
+                      resolve(info);
                     } else {
                       reject();
                     }

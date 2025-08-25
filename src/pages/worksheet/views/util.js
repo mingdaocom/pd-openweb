@@ -1,4 +1,5 @@
 import { find, get } from 'lodash';
+import _ from 'lodash';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { FIELD_REG_EXP } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
@@ -80,6 +81,7 @@ export function getRecordAttachments(coverImageStr) {
       try {
         coverArr = JSON.parse(coverImageStr);
       } catch (e) {
+        console.log(e);
         coverArr = '';
       }
       if (_.isArray(coverArr) && coverArr.length) {
@@ -168,7 +170,7 @@ export const getSearchData = sheet => {
     controls,
     hierarchyView: { hierarchyViewState = [], hierarchyViewData = {} },
     gunterView: { grouping = [], withoutArrangementVisible },
-    mapView: { mapViewData = [], mapViewState = {} },
+    mapView: { mapViewData = [] },
   } = sheet;
   const view = find(views, item => item.viewId === base.viewId) || {};
   const titleControlId = (_.find(controls, { attribute: 1 }) || {}).controlId;

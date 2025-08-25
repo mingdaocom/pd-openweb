@@ -1,14 +1,13 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import { browserIsMobile } from 'src/utils/common';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import EditableCellCon from '../EditableCellCon';
 
 function Location(props, ref) {
-  const { className, style, cell, editable, recordId, updateCell, onClick, updateEditingStatus } = props;
+  const { className, style, cell, editable, updateCell, onClick, updateEditingStatus } = props;
   const { enumDefault2, advancedSetting, strDefault } = cell;
   const onlyCanAppUse = (strDefault || '00')[0] === '1';
   const isediting = props.isediting && !onlyCanAppUse;
@@ -16,7 +15,9 @@ function Location(props, ref) {
   let locationData;
   try {
     locationData = JSON.parse(value);
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 
   const getLocationInfo = () => {
     return locationData.title || locationData.address

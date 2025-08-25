@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import { Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
-import SingleControlValue from '../SingleControlValue';
+import { Dropdown } from 'ming-ui';
 import { OPERATION_TYPE } from '../../../enum';
+import SingleControlValue from '../SingleControlValue';
 
 export default props => {
   const { data, getNodeDetail, updateSource } = props;
@@ -41,13 +41,13 @@ export default props => {
           !fieldId
             ? () => <span className="Gray_75">{_l('请选择')}</span>
             : fieldId && !item
-            ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
-            : () => (
-                <span>
-                  {item.controlName}
-                  <span className="Gray_75">（{_l('关联表“%0”', item.sourceEntityName)}）</span>
-                </span>
-              )
+              ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
+              : () => (
+                  <span>
+                    {item.controlName}
+                    <span className="Gray_75">（{_l('关联表“%0”', item.sourceEntityName)}）</span>
+                  </span>
+                )
         }
         border
         onChange={fieldId =>

@@ -77,12 +77,6 @@ export default class GlobalSearch extends Component {
     const urlParam = getRequest(this.props.search);
     const { searchType, projectId, appProjectId } = this.state;
 
-    const _projectId = NEED_ALL_ORG_TAB.includes(urlParam.search_type)
-      ? 'all'
-      : urlParam.search_type !== searchType
-        ? getCurrentProjectId()
-        : projectId;
-
     this.updateSearchParam({
       searchKey: urlParam.search_key,
       searchType: urlParam.search_type || 'all',
@@ -134,7 +128,7 @@ export default class GlobalSearch extends Component {
   updateSearchParam = (options = {}) => {
     this.setState(options, () => {
       this.getData();
-      if (options.hasOwnProperty('projectId') && ['record', 'all'].includes(this.state.searchType)) {
+      if (_.has(options, 'projectId') && ['record', 'all'].includes(this.state.searchType)) {
         this.getFilterCount();
       }
     });
@@ -146,7 +140,7 @@ export default class GlobalSearch extends Component {
     const _searchRange = searchType === 'record' && appId ? 1 : 2;
 
     if (!searchKey || !searchKey.trim() || searchKey.trim() === 'undefined') return;
-    if (SEARCH_APP_SEARCH_TYPE.hasOwnProperty(searchType) && !projectId) return;
+    if (_.has(SEARCH_APP_SEARCH_TYPE, searchType) && !projectId) return;
 
     this.setState({ loading: true, otherLoading: true });
 
@@ -198,7 +192,7 @@ export default class GlobalSearch extends Component {
               appData: resApp,
             });
           },
-          err => {
+          () => {
             this.setState({ otherLoading: false });
           },
         );
@@ -221,7 +215,7 @@ export default class GlobalSearch extends Component {
         return;
       }
 
-      const promise = SEARCH_APP_SEARCH_TYPE.hasOwnProperty(searchType)
+      const promise = _.has(SEARCH_APP_SEARCH_TYPE, searchType)
         ? smartSearchAjax.searchApp(searchAppParam)
         : smartSearchAjax.search(searchParam);
 
@@ -230,11 +224,7 @@ export default class GlobalSearch extends Component {
         const _state = {
           loading: false,
           otherLoading: false,
-          total: SEARCH_APP_SEARCH_TYPE.hasOwnProperty(searchType)
-            ? _data.total || 0
-            : _data[0]
-              ? _data[0].count || 0
-              : 0,
+          total: _.has(SEARCH_APP_SEARCH_TYPE, searchType) ? _data.total || 0 : _data[0] ? _data[0].count || 0 : 0,
           searchAppResCode: res.resultCode,
         };
         if (['app', 'record'].indexOf(searchType) > -1) {
@@ -298,7 +288,7 @@ export default class GlobalSearch extends Component {
   };
 
   onChange = value => {
-    const { searchKey, searchType, projectId, loading, otherLoading } = this.state;
+    const { searchKey, searchType, loading, otherLoading } = this.state;
     if (value.searchType === searchType || loading || otherLoading) return;
     navigateTo(`/search?search_key=${searchKey || ''}&search_type=${value.searchType || ''}`);
   };
@@ -480,7 +470,7 @@ export default class GlobalSearch extends Component {
                     text={_l('只搜索记录标题')}
                     className="Gray_9e"
                     checked={onlyTitle}
-                    onClick={value => {
+                    onClick={() => {
                       this.setState({ onlyTitle: !onlyTitle }, () => this.updateSearchApp({ type: 8 }));
                     }}
                   />
@@ -568,7 +558,7 @@ export default class GlobalSearch extends Component {
     );
   };
 
-  handleScrollEnd = _.debounce(e => {
+  handleScrollEnd = _.debounce(() => {
     const { searchType, loadEnd } = this.state;
 
     if (searchType === 'all' || loadEnd) return;
@@ -580,7 +570,6 @@ export default class GlobalSearch extends Component {
     const {
       searchKey,
       searchType,
-      data,
       loading,
       projectId,
       total,
@@ -644,7 +633,7 @@ export default class GlobalSearch extends Component {
                             text={_l('只搜索记录标题')}
                             className="Gray_9e mLeft20"
                             checked={onlyTitle}
-                            onClick={value => {
+                            onClick={() => {
                               this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
                             }}
                           />

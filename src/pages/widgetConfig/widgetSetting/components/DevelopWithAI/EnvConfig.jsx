@@ -1,12 +1,12 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { Drawer } from 'antd';
 import { find, get, pick } from 'lodash';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, RadioGroup, Switch } from 'ming-ui';
+import { Dropdown, Switch } from 'ming-ui';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { selectRecords } from 'src/components/SelectRecords';
-import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
 import CustomReference from '../CustomWidget/CustomReference';
 import { getFormData } from './util';
@@ -47,7 +47,7 @@ const LoadMockDataBtn = styled.div`
   height: 24px;
   justify-content: center;
   align-items: center;
-  color: #2196f3;
+  color: #1677ff;
 `;
 
 const LoadedMockDataBtn = styled.div`
@@ -64,7 +64,7 @@ const LoadedMockDataBtn = styled.div`
     margin-left: 16px;
   }
   .clearMockData {
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
     margin-left: 16px;
   }
@@ -73,7 +73,7 @@ const LoadedMockDataBtn = styled.div`
 const ShowAllEnvBtn = styled.div`
   margin-left: 20px;
   font-size: 13px;
-  color: #2196f3;
+  color: #1677ff;
   display: inline-block;
   cursor: pointer;
   i {

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { Checkbox, Input, Select, Switch, Collapse } from 'antd';
+import { Checkbox, Collapse, Input, Select, Switch } from 'antd';
 import cx from 'classnames';
+import { Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
 
 class YAxis extends Component {
@@ -9,7 +9,8 @@ class YAxis extends Component {
     super(props);
   }
   render() {
-    const { ydisplay, onChangeDisplayValue, onChangeCurrentReport, isRight, reportType, yreportType, isDualAxes } = this.props;
+    const { ydisplay, onChangeDisplayValue, onChangeCurrentReport, isRight, reportType, yreportType, isDualAxes } =
+      this.props;
     return (
       <Fragment>
         {isDualAxes && !isRight && (
@@ -63,36 +64,38 @@ class YAxis extends Component {
             </Checkbox>
           </div>
         )}
-        {![reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) && ydisplay.showDial && !isRight && (
-          <div className="mBottom16">
-            <div className="mBottom8">{_l('线条样式')}</div>
-            <Select
-              className="chartSelect w100"
-              value={ydisplay.lineStyle}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-              onChange={value => {
-                onChangeDisplayValue({
-                  ...ydisplay,
-                  lineStyle: value,
-                });
-              }}
-            >
-              <Select.Option className="selectOptionWrapper" value={1}>
-                {_l('实线')}
-              </Select.Option>
-              <Select.Option className="selectOptionWrapper" value={2}>
-                {_l('虚线')}
-              </Select.Option>
-            </Select>
-          </div>
-        )}
+        {![reportTypes.BidirectionalBarChart, reportTypes.ScatterChart].includes(reportType) &&
+          ydisplay.showDial &&
+          !isRight && (
+            <div className="mBottom16">
+              <div className="mBottom8">{_l('线条样式')}</div>
+              <Select
+                className="chartSelect w100"
+                value={ydisplay.lineStyle}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={value => {
+                  onChangeDisplayValue({
+                    ...ydisplay,
+                    lineStyle: value,
+                  });
+                }}
+              >
+                <Select.Option className="selectOptionWrapper" value={1}>
+                  {_l('实线')}
+                </Select.Option>
+                <Select.Option className="selectOptionWrapper" value={2}>
+                  {_l('虚线')}
+                </Select.Option>
+              </Select>
+            </div>
+          )}
         {reportType !== reportTypes.BidirectionalBarChart && (
           <Fragment>
             <div className="flexRow valignWrapper">
               <Checkbox
                 className="mLeft0 mBottom16"
                 checked={ydisplay.showTitle}
-                onChange={checked => {
+                onChange={() => {
                   onChangeDisplayValue({
                     ...ydisplay,
                     showTitle: !ydisplay.showTitle,
@@ -166,7 +169,7 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
         ydisplay: data,
       },
     });
-  }
+  };
   return (
     <Collapse.Panel
       key="bidirectionalBarChartYAxis"
@@ -259,7 +262,7 @@ export default function yAxisPanelGenerator(props) {
     <Fragment>
       <Collapse.Panel
         key="yAxis"
-        header={isDualAxes ? _l('Y轴') : (isVertical ? _l('X轴') : _l('Y轴'))}
+        header={isDualAxes ? _l('Y轴') : isVertical ? _l('X轴') : _l('Y轴')}
         className={cx({ yAxisCollapsible: !switchChecked })}
         {...collapseProps}
         extra={

@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { InputNumber, Switch } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import { getOptions } from '../../../util/setting';
 
 const AssignValueContent = styled.div`
   .hint {

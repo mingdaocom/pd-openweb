@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+
 // 获取应用id、分组id、工作表id
 export const getIds = props => _.get(props, ['match', 'params']);
 

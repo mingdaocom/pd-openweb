@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { Button, Dialog, Popup, SpinLoading } from 'antd-mobile';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Textarea } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
@@ -194,7 +195,7 @@ const appPermissions = Component => {
           getLang: true,
         })
         .then(data => {
-          const { langInfo, fixAccount, fixRemark, fixed, webMobileDisplay, permissionType } = data;
+          const { fixAccount, fixRemark, fixed, webMobileDisplay, permissionType } = data;
           const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
           window[`timeZone_${appId}`] = data.timeZone;
           window.appInfo = data;
@@ -234,7 +235,7 @@ const appPermissions = Component => {
   return AppPermissions;
 };
 
-const run = Component => {
+const run = () => {
   return Component => appPermissions(Component);
 };
 

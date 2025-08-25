@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import { CommonDisplay } from '../../styled';
 
-export default function Signature(props) {
+export default function Signature() {
   return (
     <CommonDisplay>
       <div className="intro">

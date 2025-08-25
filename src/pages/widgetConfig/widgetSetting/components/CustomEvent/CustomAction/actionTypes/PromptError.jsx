@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Icon } from 'ming-ui';
-import { CustomActionWrap } from '../../style';
 import cx from 'classnames';
-import { enumWidgetType } from '../../../../../util';
-import { DEFAULT_CONFIG } from '../../../../../config/widget';
-import DynamicDefaultValue from '../../../DynamicDefaultValue';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
-import AddFields from '../AddFields';
+import _ from 'lodash';
+import { Dialog, Icon } from 'ming-ui';
 import { getErrorControls } from 'src/pages/FormSet/components/columnRules/config.js';
+import { DEFAULT_CONFIG } from '../../../../../config/widget';
+import { enumWidgetType } from '../../../../../util';
+import { getAdvanceSetting } from '../../../../../util/setting';
+import DynamicDefaultValue from '../../../DynamicDefaultValue';
+import { CustomActionWrap } from '../../style';
+import AddFields from '../AddFields';
 
 export default function PromptError(props) {
   const { actionData = {}, handleOk, allControls = [] } = props;
@@ -96,7 +97,7 @@ export default function PromptError(props) {
                     )}
                   </div>
                   <Icon
-                    icon="delete1"
+                    icon="trash"
                     className="Font16 deleteBtn"
                     onClick={() => {
                       setState({ actionItems: actionItems.filter((i, idx) => idx !== index) });

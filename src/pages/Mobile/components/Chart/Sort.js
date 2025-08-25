@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { getSortData, formatSorts, isTimeControl, timeParticleSizeDropdownData } from 'statistics/common';
-import { reportTypes } from 'statistics/Charts/common';
 import _ from 'lodash';
+import { reportTypes } from 'statistics/Charts/common';
+import { formatSorts, getSortData, isTimeControl, timeParticleSizeDropdownData } from 'statistics/common';
 
 const defaultSort = {
   value: 0,
@@ -50,14 +50,22 @@ export default class ChartSort extends Component {
     const isPivotTable = reportType === reportTypes.PivotTable;
     const yList = yaxisList.map(item => item.controlId);
     if (isPivotTable) {
-      const linesId = lines.map(item => isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId);
-      const columnsId = columns.map(item => isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId);
+      const linesId = lines.map(item =>
+        isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId,
+      );
+      const columnsId = columns.map(item =>
+        isTimeControl(item.controlType) ? `${item.controlId}-${item.particleSizeType}` : item.controlId,
+      );
       sorts = formatSorts(sorts, [...linesId, ...columnsId, ...yList]);
     } else {
       const xaxesId = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
       const rightYList = rightY ? rightY.yaxisList.map(item => item.controlId) : [];
       const splitId = split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId;
-      const rightYSplitId = rightY ? (rightY.split.particleSizeType ? `${rightY.split.controlId}-${rightY.split.particleSizeType}` : rightY.split.controlId) : null;
+      const rightYSplitId = rightY
+        ? rightY.split.particleSizeType
+          ? `${rightY.split.controlId}-${rightY.split.particleSizeType}`
+          : rightY.split.controlId
+        : null;
       const ySameList = _.filter(yList, id => rightYList.includes(id)).map(item => item);
       const newRightYList = rightYList.map(id => {
         return ySameList.includes(id) ? `${id}-right` : id;
@@ -69,7 +77,7 @@ export default class ChartSort extends Component {
     });
   };
   handleSaveSortList = () => {
-    const { xaxes, sorts, split, yaxisList, rightY, reportType } = this.props.currentReport;
+    const { xaxes, split, yaxisList, rightY, reportType } = this.props.currentReport;
     const { currentCustomSort, sortList } = this.state;
     const sortListKey = sortList.map(item => item.originalName);
     const isPivotTable = reportType === reportTypes.PivotTable;
@@ -111,7 +119,7 @@ export default class ChartSort extends Component {
   };
   handleChangeXSort = (value, { controlId }) => {
     const { currentReport } = this.props;
-    const { xaxes, yaxisList, split, sorts, displaySetup, reportType } = currentReport;
+    const { yaxisList, split, sorts, displaySetup, reportType } = currentReport;
     const isDualAxes = reportType === reportTypes.DualAxes;
     const splitId = _.get(split, ['controlId']);
     const isExclusion = _.isEmpty(splitId) || isDualAxes;
@@ -126,7 +134,7 @@ export default class ChartSort extends Component {
       }
 
       const newSorts = sorts
-        .map((n, index) => {
+        .map(n => {
           if (n[controlId]) {
             if (value) {
               n[controlId] = value;
@@ -245,7 +253,9 @@ export default class ChartSort extends Component {
       !_.isEmpty(sortData) && (
         <div key={item.controlId}>
           <div className="flexRow valignWrapper Font13 Gray_75 mBottom16">
-            {item.particleSizeType ? `${item.controlName}(${ _.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text })` : item.controlName}
+            {item.particleSizeType
+              ? `${item.controlName}(${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text})`
+              : item.controlName}
           </div>
           <div className="itemWrapper flexRow valignWrapper">
             {[defaultSort, ...sortData].map(data => (
@@ -278,40 +288,67 @@ export default class ChartSort extends Component {
     const rightYSplitId = _.get(rightY, ['split', 'controlId']);
     return (
       <div className="sortWrapper pAll15">
-        {xaxes && reportType !== reportTypes.PivotTable && (
-          this.renderItem({
-            ...xaxes,
-            originalControlId: xaxes.controlId,
-            controlId: xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId,
-            particleSizeType: xaxes.particleSizeType
-          }, this.handleChangeXSort)
-        )}
+        {xaxes &&
+          reportType !== reportTypes.PivotTable &&
+          this.renderItem(
+            {
+              ...xaxes,
+              originalControlId: xaxes.controlId,
+              controlId: xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId,
+              particleSizeType: xaxes.particleSizeType,
+            },
+            this.handleChangeXSort,
+          )}
         {reportType == reportTypes.PivotTable && (
           <Fragment>
-            {currentReport.lines.map(yItem => this.renderItem({
-              ...yItem,
-              originalControlId: yItem.controlId,
-              controlId: isTimeControl(yItem.controlType) ? `${yItem.controlId}-${yItem.particleSizeType}` : yItem.controlId
-            }, this.handleChangePivotTableSort))}
-            {currentReport.columns.map(yItem => this.renderItem({
-              ...yItem,
-              originalControlId: yItem.controlId,
-              controlId: isTimeControl(yItem.controlType) ? `${yItem.controlId}-${yItem.particleSizeType}` : yItem.controlId
-            }, this.handleChangePivotTableSort))}
+            {currentReport.lines.map(yItem =>
+              this.renderItem(
+                {
+                  ...yItem,
+                  originalControlId: yItem.controlId,
+                  controlId: isTimeControl(yItem.controlType)
+                    ? `${yItem.controlId}-${yItem.particleSizeType}`
+                    : yItem.controlId,
+                },
+                this.handleChangePivotTableSort,
+              ),
+            )}
+            {currentReport.columns.map(yItem =>
+              this.renderItem(
+                {
+                  ...yItem,
+                  originalControlId: yItem.controlId,
+                  controlId: isTimeControl(yItem.controlType)
+                    ? `${yItem.controlId}-${yItem.particleSizeType}`
+                    : yItem.controlId,
+                },
+                this.handleChangePivotTableSort,
+              ),
+            )}
           </Fragment>
         )}
         {yaxisList.map(yItem => this.renderItem(yItem, this.handleChangeYSort))}
-        {splitId && this.renderItem({
-          ...split,
-          originalControlId: splitId,
-          controlId: split.particleSizeType ? `${splitId}-${split.particleSizeType}` : splitId
-        }, this.handleChangeYSort)}
+        {splitId &&
+          this.renderItem(
+            {
+              ...split,
+              originalControlId: splitId,
+              controlId: split.particleSizeType ? `${splitId}-${split.particleSizeType}` : splitId,
+            },
+            this.handleChangeYSort,
+          )}
         {rightYaxisList.map(yItem => this.renderItem(yItem, this.handleChangeYSort))}
-        {rightYSplitId && this.renderItem({
-          ...rightY.split,
-          originalControlId: rightYSplitId,
-          controlId: rightY.split.particleSizeType ? `${rightYSplitId}-${rightY.split.particleSizeType}` : rightYSplitId
-        }, this.handleChangeYSort)}
+        {rightYSplitId &&
+          this.renderItem(
+            {
+              ...rightY.split,
+              originalControlId: rightYSplitId,
+              controlId: rightY.split.particleSizeType
+                ? `${rightYSplitId}-${rightY.split.particleSizeType}`
+                : rightYSplitId,
+            },
+            this.handleChangeYSort,
+          )}
       </div>
     );
   }

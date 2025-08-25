@@ -7,6 +7,7 @@ import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { accAdd, accDiv, accMul, accSub } from 'src/utils/common';
 import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project.js';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 
 const NumWrap = styled.span`
@@ -48,6 +49,7 @@ const Numeric = props => {
     advancedSetting: { datamask, dotformat, showtype, showformat, numinterval, numshow, thousandth },
     triggerCustomEvent,
     value,
+    otherSheetControlType,
   } = props;
   let { prefix, suffix = props.unit, currency } = props.advancedSetting || {};
   if (type === 8 && _.includes(['1', '2'], showformat)) {
@@ -76,7 +78,7 @@ const Numeric = props => {
   const isEffective = (val = currentValue) => {
     // 允许为 0
     return val !== null && val !== undefined && val !== '';
-  }
+  };
 
   const getShowValue = () => {
     let value = getEditValue();
@@ -87,11 +89,13 @@ const Numeric = props => {
       value = dealMaskValue({ ...props, value });
     } else {
       // 数值兼容老的千分位配置enumDefault
-      if (type !== 6 || _.isUndefined(thousandth) ? enumDefault !== 1 : thousandth !== '1') {
+      if (
+        type === 6 && _.isUndefined(thousandth) && otherSheetControlType !== 30 ? enumDefault !== 1 : thousandth !== '1'
+      ) {
         value = formatNumberThousand(value);
       }
     }
-    return `${(value || value === 0) ? [prefix, value, suffix].filter(v => isEffective(v)).join(' ') : hint}`;
+    return `${value || value === 0 ? [prefix, value, suffix].filter(v => isEffective(v)).join(' ') : hint}`;
   };
 
   const onFocus = e => {
@@ -187,7 +191,10 @@ const Numeric = props => {
 
   useEffect(() => {
     setCurrentValue(getEditValue());
-  }, [value]);
+    if (inputRef && inputRef.current) {
+      inputRef.current.value = getEditValue() ? getEditValue() : '';
+    }
+  }, [isEditing]);
 
   return (
     <div className="flexCenter flexRow">
@@ -218,7 +225,13 @@ const Numeric = props => {
               Gray_bd: !isEffective(),
             })}
             onClick={() => {
-              if (disabled && isMask) setMaskStatus(false);
+              if (disabled && isMask) {
+                addBehaviorLog('worksheetDecode', props.worksheetId, {
+                  rowId: props.recordId,
+                  controlId: props.controlId,
+                });
+                setMaskStatus(false);
+              }
             }}
           >
             {getShowValue()}

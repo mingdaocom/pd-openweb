@@ -4,11 +4,12 @@ import CodeMirror from 'codemirror';
 import _, { get, identity, isEmpty } from 'lodash';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
-import { checkTypeSupportForFunction, functions } from '../enum';
-import useCloseBrackets from '../lib/closebrackets';
+import { checkTypeSupportForFunction } from 'src/utils/control';
+import { functions } from '../enum';
+import setCloseBrackets from '../lib/closebrackets';
 import setJavascriptMode from '../lib/javascript';
-import useMatchBrackets from '../lib/matchbrackets';
-import useShowHint from '../lib/show-hint';
+import setMatchBrackets from '../lib/matchbrackets';
+import setShowHint from '../lib/show-hint';
 import { getControlType } from './ControlList';
 import '../lib/show-hint.css';
 
@@ -25,9 +26,9 @@ if (!window.emitter) {
 }
 
 setJavascriptMode(CodeMirror);
-useCloseBrackets(CodeMirror);
-useMatchBrackets(CodeMirror);
-useShowHint(CodeMirror);
+setCloseBrackets(CodeMirror);
+setMatchBrackets(CodeMirror);
+setShowHint(CodeMirror);
 
 function createElement(text, style = {}, { tooltip } = {}) {
   const dom = document.createElement('span');
@@ -114,17 +115,20 @@ export default class Function {
     };
     if (type === 'mdfunction') {
       args.keywords = _.assign(
-        ...args.keywords,
-        ...Object.keys(functions).map(key => ({
-          [key]: {
-            type: 'fn',
-            style: 'customFn',
-          },
-        })),
+        {},
+        args.keywords,
+        Object.keys(functions)
+          .map(key => ({
+            [key]: {
+              type: 'fn',
+              style: 'customFn',
+            },
+          }))
+          .reduce((a, b) => Object.assign(a, b), {}),
       );
     }
     if (type === 'javascript') {
-      args.keywords = _.assign(...args.keywords, {
+      args.keywords = _.assign({}, args.keywords, {
         SYSTEM_URL_PARAMS: {
           type: 'system',
           style: 'system',
@@ -160,7 +164,7 @@ export default class Function {
       window.emitter.emit('FUNCTIONEDITOR_CLEAR');
     });
 
-    editor.on('cursorActivity', (cm, event) => {
+    editor.on('cursorActivity', cm => {
       const cursor = cm.getCursor();
       const line = this.editor.getLine(cursor.line);
       const beforeChar = line.charAt(cursor.ch - 1);
@@ -174,7 +178,7 @@ export default class Function {
         });
       }
     });
-    editor.on('inputRead', (...args) => {
+    editor.on('inputRead', () => {
       if (this.type === 'mdfunction') {
         this.showHint();
       }
@@ -223,7 +227,7 @@ export default class Function {
               text: '',
               displayText: control.controlName,
               control,
-              render: (parent, data, cur, i, hints) => {
+              render: (parent, data, cur, i) => {
                 const isLast = i === filteredControls.length - 1;
                 const node = document.createElement('div');
                 node.className = 'hint-item';
@@ -244,7 +248,7 @@ export default class Function {
               filteredFunctions.map(fnName => ({
                 text: fnName,
                 displayText: fnName,
-                render: (parent, data, cur, i) => {
+                render: parent => {
                   const node = document.createElement('div');
                   node.textContent = fnName;
                   parent.appendChild(node);
@@ -297,7 +301,7 @@ export default class Function {
     const cursor = editor.getCursor();
     editor.setCursor({ ...cursor, ch: cursor.ch - 1 });
   }
-  insertTag({ value, text }, position, type = 'column') {
+  insertTag({ value }, position) {
     const editor = this.editor;
     position = position || editor.getCursor();
     if (editor.getValue()[position.ch - 1] === '$') {
@@ -371,7 +375,7 @@ export default class Function {
   }
   markSymbol() {
     const value = this.editor.getValue();
-    const matchs = groupMatch(value, /[,\(\)\[\]\"\'\+\-\*\/]/g);
+    const matchs = groupMatch(value, /[,()[\]"'+\-*/]/g);
     matchs.forEach(match => {
       this.editor.markText(
         { line: match.line, ch: match.start },
@@ -420,7 +424,6 @@ export default class Function {
     const value = this.editor.getValue();
     const matchs = groupMatch(value, /(,|\+|-|\*|\/)\)/g);
     matchs.forEach(match => {
-      const str = match.str[0];
       const marker = this.editor.markText(
         { line: match.line, ch: match.start },
         { line: match.line, ch: match.end },
@@ -447,7 +450,6 @@ export default class Function {
 
   markUnclosedBrackets() {
     const editor = this.editor;
-    const value = editor.getValue();
     const bracketStack = [];
     const unclosedBrackets = [];
 
@@ -469,6 +471,10 @@ export default class Function {
       const line = editor.getLine(lineNum);
       for (let ch = 0; ch < line.length; ch++) {
         const char = line[ch];
+        const token = editor.getTokenAt({ line: lineNum, ch: ch + 1 });
+        if (token.type && token.type.includes('string')) {
+          continue;
+        }
         if (char === '(') {
           const functionStartCh = findFunctionName(line, ch);
           bracketStack.push({

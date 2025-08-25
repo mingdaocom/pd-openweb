@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import datasourceApi from '../../../../api/datasource';
 import SelectTables from '../../../components/SelectTables';
 import { DATABASE_TYPE } from '../../../constant';

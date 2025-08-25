@@ -37,7 +37,7 @@ export default class Widgets extends Component {
     });
   };
 
-  getRowById = ({ appId, worksheetId, viewId, rowId }) => {
+  getRowById = ({ appId, worksheetId, rowId }) => {
     const { filterControls = [], parentWorksheetId, control = {}, relateRecordIds = [] } = this.props;
     const { controlId, controlName, enumDefault } = control;
 
@@ -129,7 +129,7 @@ export default class Widgets extends Component {
     } else {
       const result = content.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/);
       if (result) {
-        const [url, appId, worksheetId, viewId, rowId] = result;
+        const [, appId, worksheetId, viewId, rowId] = result;
         const { scanlink } = _.get(this.props, 'control.advancedSetting') || {};
         if (appId && worksheetId && viewId && rowId) {
           if (scanlink !== '1') {
@@ -158,9 +158,31 @@ export default class Widgets extends Component {
             alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         } else {
+          if (window.isMingDaoApp) {
+            this.handleScanRelationLoaded({
+              controlId,
+              controlName,
+              enumDefault,
+              title: '',
+              rowId: '',
+              type: '1',
+            });
+            return;
+          }
           this.props.onOpenRecordCardListDialog(content);
         }
       } else {
+        if (window.isMingDaoApp) {
+          this.handleScanRelationLoaded({
+            controlId,
+            controlName,
+            enumDefault,
+            title: '',
+            rowId: '',
+            type: '1',
+          });
+          return;
+        }
         this.props.onOpenRecordCardListDialog(content);
       }
     }

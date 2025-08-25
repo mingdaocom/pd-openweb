@@ -1,12 +1,13 @@
-import React, { useEffect, createRef } from 'react';
+import React, { createRef, useEffect } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Input, LoadDiv } from 'ming-ui';
 import FieldMappingList from 'src/pages/integration/dataIntegration/components/FieldsMappingList';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
-import _ from 'lodash';
 import { hsMorePkControl } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
-import styled from 'styled-components';
+
 const Wrap = styled.div`
   background: #f7f7f7;
   border: 1px solid #eaeaea;
@@ -111,7 +112,7 @@ export default function DestEdit(props) {
             placeholder={_l('请输入')}
             defaultValue={sheetName}
             onBlur={e => {
-              const sheetName = e.target.value
+              const sheetName = e.target.value;
               onChangeInfo({
                 sheetName,
                 node: {
@@ -167,12 +168,12 @@ export default function DestEdit(props) {
                 destField: !o.destField
                   ? o.destField
                   : {
-                    ...o.sourceField,
-                    ...o.destField,
-                    dataType: _.get(o, 'destField.dataType'),
-                    oid: null,
-                    id: null,
-                  },
+                      ...o.sourceField,
+                      ...o.destField,
+                      dataType: _.get(o, 'destField.dataType'),
+                      oid: null,
+                      id: null,
+                    },
               };
             }
           });

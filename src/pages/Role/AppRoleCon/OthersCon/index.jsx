@@ -46,7 +46,7 @@ const Des = styled.div`
     border: 1px solid #dddddd;
     background: #fff;
     &.c {
-      background: #2196f3;
+      background: #1677ff;
       border: 0;
       color: #fff;
     }
@@ -74,7 +74,7 @@ const ExplainCon = styled.div`
   }
   .explain-button {
     padding: 15px 22px;
-    background: #2196f3;
+    background: #1677ff;
     border: none;
     color: #ffffff;
     font-size: 14px;
@@ -108,7 +108,7 @@ function OthersCon(props) {
           setStep(3);
         }
       })
-      .catch(err => setLoading(false));
+      .catch(() => setLoading(false));
   }, []);
 
   const changeStep = num => {
@@ -124,7 +124,7 @@ function OthersCon(props) {
           setData(res);
         }
       })
-      .catch(err => setLoading(false));
+      .catch(() => setLoading(false));
   };
 
   const renderExplain = () => {

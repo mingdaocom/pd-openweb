@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
-import { Icon, Button } from 'ming-ui';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { TinyColor } from '@ctrl/tinycolor';
-import { SYS_COLOR, SYS_CHART_COLORS } from '../../config';
-import ChartColorSetting from './ChartColorSetting';
+import { Button, Icon } from 'ming-ui';
 import projectAjax from 'src/api/projectSetting';
-import ChartSettingDialog from './ChartSettingDialog';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
-import IllustrationTrigger from './IllustrationTrigger';
 import { navigateTo } from 'src/router/navigateTo';
+import { SYS_CHART_COLORS, SYS_COLOR } from '../../config';
+import ChartColorSetting from './ChartColorSetting';
+import ChartSettingDialog from './ChartSettingDialog';
+import IllustrationTrigger from './IllustrationTrigger';
 import '../index.less';
 
 const ColorBox = styled.div(
@@ -26,7 +26,7 @@ const ColorBox = styled.div(
   position: relative;
   cursor: pointer;
   &:hover {
-    border-color: #2196F3;
+    border-color: #1677ff;
     .removeIcon {
       opacity: ${hasRemove ? 1 : 0};
     }
@@ -58,7 +58,7 @@ const ColorBox = styled.div(
     cursor: pointer;
     color: #bdbdbd;
     &:hover {
-      color: #2196F3;
+      color: #1677ff;
     }
   }
   .hide {
@@ -99,7 +99,7 @@ export default class CustomColor extends Component {
         system_color: (!themeColor.system || _.isEmpty(themeColor.system) ? SYS_COLOR : themeColor.system).map(l => {
           return {
             ...l,
-            enable: l.hasOwnProperty('enable') ? l.enable : true,
+            enable: _.has(l, 'enable') ? l.enable : true,
           };
         }),
         custom_color: themeColor.custom || [],
@@ -107,7 +107,7 @@ export default class CustomColor extends Component {
           (l, i) => {
             return {
               ...SYS_CHART_COLORS[i],
-              enable: l.hasOwnProperty('enable') && i !== 0 ? l.enable : true,
+              enable: _.has(l, 'enable') && i !== 0 ? l.enable : true,
             };
           },
         ),
@@ -202,7 +202,7 @@ export default class CustomColor extends Component {
                 <i className={cx('icon-done selectIcon', { hide: !item.enable })}></i>
               </div>
               <i
-                className="icon-remove_circle removeIcon"
+                className="icon-minus-square removeIcon"
                 onClick={e => {
                   e.stopPropagation();
 
@@ -231,7 +231,7 @@ export default class CustomColor extends Component {
   };
 
   renderChartList = (list, editable = false) => {
-    const { system_char, custom_char } = this.state;
+    const { custom_char } = this.state;
 
     return (
       <div className="chartSettingWrap">

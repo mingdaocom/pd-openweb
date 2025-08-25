@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { string, arrayOf, shape, func } from 'prop-types';
-import CustomDefaultValue from './CustomDefaultValue';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../../components';
-import { DynamicValueInputWrap } from '../../styled';
 import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../../components';
+import { DynamicValueInputWrap } from '../../styled';
+import CustomDefaultValue from './CustomDefaultValue';
 
 export default class SubSheet extends Component {
   static propTypes = {

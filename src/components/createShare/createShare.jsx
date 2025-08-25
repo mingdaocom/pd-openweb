@@ -7,7 +7,7 @@ import { mdNotification } from 'ming-ui/functions';
 import { htmlEncodeReg } from 'src/utils/common';
 import './css/createShare.css';
 
-function createShare(props) {
+function CreateShare(props) {
   const {
     isCreate = true,
     isCalendar = false, // 为true时弹左下角框
@@ -192,5 +192,5 @@ function createShare(props) {
 }
 
 export default props => {
-  FunctionWrap(createShare, { ...props, onClose: () => {} });
+  FunctionWrap(CreateShare, { ...props, onClose: () => {} });
 };

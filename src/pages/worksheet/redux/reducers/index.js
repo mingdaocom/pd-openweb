@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import { browserIsMobile } from 'src/utils/common';
 import boardView from './boardView';
 import * as calendarview from './calendarview';
@@ -96,6 +97,26 @@ function saveViewSetLoading(state = false, action) {
   }
 }
 
+function viewRowsLoading(state = false, action) {
+  switch (action.type) {
+    case 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING':
+      return action.value;
+    case 'CHANGE_BOARD_VIEW_LOADING':
+    case 'CHANGE_GALLERY_VIEW_LOADING':
+    case 'CHANGE_DETAIL_VIEW_LOADING':
+    case 'CHANGE_MAP_VIEW_LOADING':
+      return action.loading;
+    case 'CHANGE_CALENDAR_LOADING':
+    case 'CHANGE_GUNTER_LOADINNG':
+    case 'CHANGE_RESOURCE_LOADING':
+      return action.data;
+    case 'CHANGE_HIERARCHY_DATA_STATUS':
+      return typeof action?.data?.loading === 'boolean' ? action?.data?.loading : state;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   base,
   isCharge,
@@ -103,6 +124,7 @@ export default combineReducers({
   activeViewStatus,
   fieldShowCount,
   ...worksheet,
+  viewRowsLoading,
   boardView,
   hierarchyView: combineReducers(hierarchyView),
   sheetview: combineReducers(sheetview),

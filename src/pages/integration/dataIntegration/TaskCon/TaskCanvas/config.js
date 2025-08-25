@@ -1,5 +1,5 @@
-import { FILTER_RELATION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import moment from 'moment';
+import { FILTER_RELATION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
 export const tW = 220;
 export const tH = 58;
@@ -23,7 +23,7 @@ export const NODE_TYPE_LIST = [
     nodeType: 'JOIN',
     icon: 'join_inner',
     name: _l('多表连接'),
-    color: '#2196F3',
+    color: '#1677ff',
   },
   {
     nodeType: 'AGGREGATE',
@@ -55,7 +55,7 @@ export const ACTION_LIST = [
   {
     txt: _l('多表连接'),
     type: 'JOIN',
-    color: '#2196F3',
+    color: '#1677ff',
     icon: 'join_inner',
   },
   {
@@ -76,28 +76,28 @@ export const JOIN_TYPE = [
   {
     txt: _l('内连接'),
     type: 'INNER_JOIN',
-    color: '#2196F3',
+    color: '#1677ff',
     img: 'joinInner',
     tips: _l('左右互查，只合并命中条目'),
   },
   {
     txt: _l('左连接'),
     type: 'LEFT_JOIN',
-    color: '#2196F3',
+    color: '#1677ff',
     img: 'joinLeft',
     tips: _l('左查右，合并全部'),
   },
   {
     txt: _l('右连接'),
     type: 'RIGHT_JOIN',
-    color: '#2196F3',
+    color: '#1677ff',
     img: 'joinRight',
     tips: _l('右查左，合并全部'),
   },
   // {
   //   txt: _l('全连接'), //全外连接
   //   type: 'FULL_OUTER_JOIN',
-  //   color: '#2196F3',
+  //   color: '#1677ff',
   //   img: 'joinFull',
   //   tips: _l('左右表按连接字段全部合并'),
   // },

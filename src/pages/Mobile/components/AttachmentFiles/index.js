@@ -5,8 +5,12 @@ import moment from 'moment';
 import { Icon, Progress, QiniuUpload } from 'ming-ui';
 import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { formatResponseData } from 'src/components/UploadFiles/utils';
-import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
+import {
+  checkAccountUploadLimit,
+  checkFileAvailable,
+  formatResponseData,
+  getFilesSize,
+} from 'src/components/UploadFiles/utils';
 import MapHandler from 'src/ming-ui/components/amap/MapHandler';
 import MapLoader from 'src/ming-ui/components/amap/MapLoader';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -46,7 +50,7 @@ function getDynamicWrapTxt(dynamicTxt, canvasWidth, ctx, fontSize) {
 }
 
 function compressImage(file, quality) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     var reader = new FileReader();
     reader.onload = function (event) {
       var image = new Image();
@@ -83,7 +87,7 @@ function compressImage(file, quality) {
   });
 }
 
-function addWaterMarker(file, watermark, { dynamicControls, advancedSetting }, callback) {
+function addWaterMarker(file, watermark, { dynamicControls, advancedSetting }) {
   const isNew = !!_.get(advancedSetting, 'h5watermark');
   let textLayouts = [];
   let dynamicTxt = '';
@@ -112,7 +116,7 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting }, c
     });
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = function (event) {
       const image = new Image();
@@ -206,21 +210,28 @@ export class UploadFileWrapper extends Component {
   }
   getMethod() {
     const self = this;
-    const {
-      advancedSetting = {},
-      projectId,
-      appId,
-      worksheetId,
-      customUploadType,
-      checkValueByFilterRegex,
-      formData,
-    } = self.props;
+    const { advancedSetting = {}, customUploadType, checkValueByFilterRegex, formData, projectId, appId } = self.props;
     const method = {
-      onAdd(uploader, files, nextStart) {
+      async onAdd(uploader, files, nextStart) {
         if (_.isEmpty(files)) {
           self.props.onChange([]);
           return;
         }
+
+        //判断应用上传量是否达到上限
+        const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
+        if (projectId && !window.isPublicApp && !window.isPublicWorksheet && !isPublicWorkflow) {
+          const filesSize = getFilesSize(files);
+          const params = { projectId, appId, fromType: 9 };
+          const available = await checkAccountUploadLimit(filesSize, params);
+          if (!available) {
+            alert(_l('应用附件上传量已到最大值'), 3);
+            self.onRemoveAll(uploader);
+            self.props.onChange([], true);
+            return;
+          }
+        }
+
         self.uploading = true;
         const start = () => {
           if (advancedSetting) {
@@ -296,7 +307,7 @@ export class UploadFileWrapper extends Component {
                 return RegExpValidator.fileIsPicture(`.${ext}`);
               })
               .map(file => {
-                return new Promise(async (resolve, reject) => {
+                return new Promise(async resolve => {
                   const nativeFile = file.getNative();
                   let newFile = nativeFile;
                   if (isWatermark) {
@@ -347,7 +358,7 @@ export class UploadFileWrapper extends Component {
           start();
         }
       },
-      onBeforeUpload(uploader, file) {
+      onBeforeUpload(uploader) {
         self.currentFile = uploader;
       },
       onUploadProgress(uploader, file) {
@@ -427,7 +438,7 @@ export class UploadFileWrapper extends Component {
     });
   }
   render() {
-    const { advancedSetting = {}, appId, worksheetId, projectId } = this.props;
+    const { appId, worksheetId, projectId } = this.props;
     const { children, qiniuUploadClassName, className, style } = this.props;
     return (
       <div className="Relative mobileUploadTriggerWrap" style={style} ref={el => (this.uploadContainer = el)}>
@@ -565,7 +576,7 @@ export default class AttachmentList extends Component {
             diameter={diameter || 47}
             foregroundColor="#BDBDBD"
             backgroundColor="#fff"
-            format={percent => ''}
+            format={() => ''}
             percent={parseInt(progress)}
           />
         </div>

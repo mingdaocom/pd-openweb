@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import Members from './structure';
-import Resigned from './resignation';
-import DialogSettingInviteRules from './structure/components/dialogSettingInviteRules';
-import Config from '../../config';
 import cx from 'classnames';
+import Config from '../../config';
+import Resigned from './resignation';
+import Members from './structure';
+import DialogSettingInviteRules from './structure/components/dialogSettingInviteRules';
 
 export default class MembersDepartments extends Component {
   constructor(props) {

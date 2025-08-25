@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { List, Map, Set } from 'immutable';
-import { PICK_TYPE, NODE_SORT_BY, NODE_SORT_TYPE } from '../constant/enum';
+import { NODE_SORT_BY, NODE_SORT_TYPE, PICK_TYPE } from '../constant/enum';
 
 function kcListElement(state = null, action) {
   switch (action.type) {

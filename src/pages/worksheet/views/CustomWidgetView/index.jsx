@@ -19,6 +19,7 @@ function getDefaultOfParam(control) {
   try {
     return safeParse(_.get(control, 'advancedSetting.defsource'))[0].staticValue;
   } catch (err) {
+    console.log(err);
     return;
   }
 }
@@ -27,8 +28,10 @@ function getParamsMap(view = {}) {
   const paramSettings = _.get(view, 'pluginInfo.paramSettings') || [];
   const pluginMap = safeParse(_.get(view, 'advancedSetting.plugin_map') || '');
   const configuration = _.get(view, 'pluginInfo.configuration') || {};
+  const environmentparams = safeParse(_.get(view, 'advancedSetting.environmentparams'));
   const result = {
     ...configuration,
+    ...environmentparams,
   };
   paramSettings.forEach(c => {
     if (![22, 201].includes(c.type)) {
@@ -70,7 +73,7 @@ function CustomWidgetViewContent(props) {
     refresh,
   } = props;
 
-  const { isPublished = false, currentScriptUrl, fastFilters } = view;
+  const { isPublished = false, currentScriptUrl } = view;
   const debugUrl = localStorage.getItem('customViewDebugUrl_' + viewId);
   const codeUrl = _.get(view, 'pluginInfo.codeUrl');
   const scriptUrl = isPublished ? currentScriptUrl : debugUrl || codeUrl;

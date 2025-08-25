@@ -73,7 +73,7 @@ export default function initWorksheetSocket() {
       return;
     }
 
-    if (status === 2 || ((type === 4 || type === 3) && status === 1)) {
+    if (status === 2 || ((type === 4 || type === 3) && status === 1) || (type === 4 && status === 3)) {
       emitter.emit('RELOAD_RECORD_INFO', {
         worksheetId,
         recordId,
@@ -124,7 +124,7 @@ export default function initWorksheetSocket() {
         maxCount: 3,
       });
     } else {
-      const { id, promptType } = STATUS[status];
+      const { promptType } = STATUS[status];
       let description = getSingleNoticeDescription(data);
       const isOperate = _.includes([3, 4], data.type);
       const triggerData = getDataFromLocalPushUniqueId();

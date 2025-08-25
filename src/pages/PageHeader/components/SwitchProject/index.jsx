@@ -37,9 +37,6 @@ const ProjectsMenuCon = styled.div`
   box-shadow:
     0 4px 20px rgb(0 0 0 / 13%),
     0 2px 6px rgb(0 0 0 / 10%);
-  .nano-pane {
-    z-index: 20;
-  }
 `;
 
 const ProjectsMenu = styled.div`
@@ -55,7 +52,7 @@ const ProjectItem = styled.div`
   height: 40px;
   line-height: 40px;
   &.active {
-    color: #2196f3;
+    color: #1677ff;
     background: rgb(33, 150, 243, 0.08);
   }
   &:not(.active):hover {
@@ -145,9 +142,7 @@ function SwitchProject() {
             }}
             popup={
               <Menu className="Relative">
-                <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>
-                  {_l('加入组织')}
-                </NewMenuItem>
+                <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>{_l('加入组织')}</NewMenuItem>
               </Menu>
             }
             getPopupContainer={() => createRef.current}

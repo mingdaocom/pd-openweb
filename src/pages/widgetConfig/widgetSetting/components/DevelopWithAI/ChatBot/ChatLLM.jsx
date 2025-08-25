@@ -1,18 +1,18 @@
-import React, { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle, useMemo } from 'react';
-import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
-import { MESSAGE_TYPE } from './enum';
-import PropTypes from 'prop-types';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
-import useChatBot from './useChat';
+import { get, isFunction } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { v4 } from 'uuid';
+import { Skeleton } from 'ming-ui';
+import { previewQiniuUrl } from 'src/components/previewAttachments';
+import { generateParamsForPrompt, getMessageList, saveMessageList } from '../util';
+import AutoHeightInput from './AutoHeightInput';
+import { MESSAGE_TYPE } from './enum';
 import LoadingDots from './LoadingDots';
 import Markdown from './Markdown';
-import AutoHeightInput from './AutoHeightInput';
-import { get, isFunction } from 'lodash';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
 import UploadImage from './UploadImage';
-import { generateParamsForPrompt, getMessageList, saveMessageList } from '../util';
-import { v4 } from 'uuid';
+import useChatBot from './useChat';
 
 const Container = styled.div`
   display: flex;
@@ -64,7 +64,7 @@ const Message = styled.div`
   margin: 10px 0 16px;
   cursor: ${props => (props.loading ? 'default' : 'pointer')};
   // &.active {
-  //   border: 1px solid #2196f3;
+  //   border: 1px solid #1677ff;
   // }
 `;
 
@@ -107,7 +107,7 @@ const InputWrapper = styled.div`
   border-radius: 5px;
   border: 1px solid #ddd;
   &.focused {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -136,7 +136,7 @@ const SendTools = styled.div`
 
 const SendButton = styled.div`
   cursor: pointer;
-  color: #2196f3;
+  color: #1677ff;
   font-size: 20px;
   line-height: 1em;
   &.disabled {

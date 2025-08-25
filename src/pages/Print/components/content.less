@@ -110,7 +110,7 @@
       height: 34px;
       ul > li {
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
         &:first-child {
           border-top-left-radius: 3px;
@@ -168,6 +168,7 @@
     }
     table {
       table-layout: fixed;
+      max-width: 100%;
     }
     .approvalSignatureTable {
       td {
@@ -403,7 +404,7 @@
   .ant-table.ant-table-bordered thead > tr > th,
   .ant-table.ant-table-bordered tbody > tr > td {
     &.borderLine {
-      border-right: 2px solid #2196f3 !important;
+      border-right: 2px solid #1677ff !important;
     }
   }
   .infoSignature {
@@ -426,6 +427,9 @@
   @media print {
     .ant-notification {
       display: none;
+    }
+    * {
+      overflow: visible !important;
     }
   }
 }

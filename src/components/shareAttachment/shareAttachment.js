@@ -83,20 +83,49 @@ SelectSendTo.prototype = {
       e.stopPropagation();
     });
     // 按键up触发搜索
-    ST.elements.$searchInput.on('keyup', function (e) {
-      var keywords = _.trim($(this).val());
-      if (
-        e.keyCode === 37 ||
-        e.keyCode === 38 ||
-        e.keyCode === 39 ||
-        e.keyCode === 40 ||
-        ST.keywordsCache === keywords
-      ) {
-        return;
-      }
-      ST.keywordsCache = keywords;
-      ST.fetchList();
-    });
+    ST.elements.$searchInput.on(
+      'keyup',
+      _.debounce(function (e) {
+        var keywords = _.trim($(this).val());
+        const $list = ST.elements.$searchList.find('.listItem');
+        const index = $list.index($('.listItem.active'));
+
+        if (e.keyCode === 13) {
+          ST.select($list.eq(index).data('key'));
+          return;
+        }
+
+        if (e.keyCode === 38 && !ST.isHoverList) {
+          $list
+            .removeClass('active')
+            .eq(index - 1 >= 0 ? index - 1 : 0)
+            .addClass('active')[0]
+            .scrollIntoView({ block: 'center' });
+          return;
+        }
+
+        if (e.keyCode === 40 && !ST.isHoverList) {
+          $list
+            .removeClass('active')
+            .eq(index + 1 <= $list.length - 1 ? index + 1 : $list.length - 1)
+            .addClass('active')[0]
+            .scrollIntoView({ block: 'center' });
+          return;
+        }
+
+        if (
+          e.keyCode === 37 ||
+          e.keyCode === 38 ||
+          e.keyCode === 39 ||
+          e.keyCode === 40 ||
+          ST.keywordsCache === keywords
+        ) {
+          return;
+        }
+        ST.keywordsCache = keywords;
+        ST.fetchList();
+      }, 300),
+    );
     // 点击搜索栏触发搜索
     ST.elements.$selected.on('click', function (e) {
       ST.elements.$listPanel.show(0, 0, function () {
@@ -136,6 +165,7 @@ SelectSendTo.prototype = {
           ST.select(0);
         })
         .catch(function (err) {
+          console.error(err);
           alert(_l('创建失败'), 2);
         });
     });
@@ -161,6 +191,7 @@ SelectSendTo.prototype = {
         ST.renderList();
       })
       .catch(function (err) {
+        console.error(err);
         alert(_l('获取数据失败'), 2);
       });
   },
@@ -170,6 +201,20 @@ SelectSendTo.prototype = {
       listItemTpl({
         list: ST.listTplData,
       }),
+    );
+
+    const $list = ST.elements.$searchList.find('.listItem');
+
+    $list.eq(0).addClass('active');
+    $list.hover(
+      function () {
+        $(this).closest('.searchList').find('.active').removeClass('active');
+        $(this).addClass('active');
+        ST.isHoverList = true;
+      },
+      function () {
+        ST.isHoverList = false;
+      },
     );
   },
   select: function (key) {
@@ -494,8 +539,6 @@ ShareAttachment.prototype = {
   initSelectTargetList: function () {
     var SA = this;
     var left = 10;
-    var targetBtnWidth = 50 + 36;
-    var targetBtnNums = 4;
     var $targetBtnList = SA.$dialog.find('.selectTargetBtnList');
     var $listBox = $targetBtnList.find('.listBox');
     var $listCon = $targetBtnList.find('.listCon');
@@ -659,7 +702,7 @@ ShareAttachment.prototype = {
       SA.$dialog
         .find('.selectSharePermission')
         .addClass('noPermission')
-        .on('click', function (e) {
+        .on('click', function () {
           alert(_l('无权修改，请联系管理员'), 3);
         });
     }
@@ -696,7 +739,6 @@ ShareAttachment.prototype = {
       });
   },
   initSelectSendTo: function (type, callback) {
-    var SA = this;
     window.selectSendTo = new SelectSendTo(
       {
         el: '#selectSendTo',
@@ -746,7 +788,7 @@ ShareAttachment.prototype = {
       case SEND_TO_TYPE.FEED: {
         $sendToContent.empty();
         var sObj = {
-          callback: function (postItem) {
+          callback: function () {
             if ($('.shareAttachmentDialog')[0]) {
               $('.shareAttachmentDialog').parent().remove();
             }
@@ -909,7 +951,7 @@ ShareAttachment.prototype = {
           KcController.updateNode({
             id: options.node.id,
             visibleType: NODE_VISIBLE_TYPE.PUBLIC,
-          }).then(function (data) {
+          }).then(function () {
             alert(_l('已将链接设为“任何人可预览”，可直接打开'), 4);
             SA.options.node.visibleType = NODE_VISIBLE_TYPE.PUBLIC;
             SA.$dialog
@@ -1065,7 +1107,7 @@ ShareAttachment.prototype = {
           sendPromise = ChatController.sendCardToChat(params);
         }
         sendPromise
-          .then(function (data) {
+          .then(function () {
             alert(_l('发送成功'));
             if ($('.shareAttachmentDialog')[0]) {
               $('.shareAttachmentDialog').parent().remove();
@@ -1159,8 +1201,7 @@ ShareAttachment.prototype = {
         }
         saveToKnowledge(attachmentType, sourceData)
           .save(SA.kcPath)
-          .then(function (message) {
-            // alert(message || '保存成功');
+          .then(function () {
             if ($('.shareAttachmentDialog')[0]) {
               $('.shareAttachmentDialog').parent().remove();
             }
@@ -1232,7 +1273,6 @@ ShareAttachment.prototype = {
   loadPicture: function () {
     var SA = this;
     SA.dialogEle.$thumbnailCon.removeClass('hide');
-    var reader = new FileReader();
     var img = document.createElement('img');
     img.addEventListener(
       'error',
@@ -1250,7 +1290,7 @@ ShareAttachment.prototype = {
     return SA.dialogEle.$fileName.val() + (SA.file.ext ? '.' + SA.file.ext : '');
   },
   validate: function (str) {
-    var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
+    var illegalChars = /[/\\:*?"<>|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
       alert(_l('名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
@@ -1265,7 +1305,7 @@ ShareAttachment.prototype = {
       id: SA.options.id,
       visibleType: visibleType,
     })
-      .then(function (data) {
+      .then(function () {
         if (SA.options.isKcFolder) {
           SA.options.node.visibleType = visibleType;
           SA.options.node.isOpenShare = visibleType === NODE_VISIBLE_TYPE.PUBLIC;
@@ -1280,6 +1320,7 @@ ShareAttachment.prototype = {
         }
       })
       .catch(function (err) {
+        console.error(err);
         alert(_l('修改失败'), 3);
       });
   },
@@ -1291,7 +1332,7 @@ ShareAttachment.prototype = {
       viewId: SA.options.viewId,
       shareRange: visibleType,
     })
-      .then(function (data) {
+      .then(function () {
         alert(_l('修改成功'));
         callback(visibleType);
         if (SA.callbacks.updateView) {
@@ -1299,6 +1340,7 @@ ShareAttachment.prototype = {
         }
       })
       .catch(function (err) {
+        console.error(err);
         alert(_l('修改失败'), 3);
       });
   },
@@ -1310,7 +1352,7 @@ ShareAttachment.prototype = {
       rowId: SA.options.rowId,
       shareRange: visibleType,
     })
-      .then(function (data) {
+      .then(function () {
         alert(_l('修改成功'));
         callback(visibleType);
         if (SA.callbacks.updateShareRangeOfRecord) {
@@ -1318,6 +1360,7 @@ ShareAttachment.prototype = {
         }
       })
       .catch(function (err) {
+        console.error(err);
         alert(_l('修改失败'), 3);
       });
   },

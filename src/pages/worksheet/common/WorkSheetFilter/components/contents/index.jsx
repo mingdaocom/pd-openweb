@@ -1,17 +1,17 @@
 import React from 'react';
-import { CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE } from '../../enum';
-import Text from './Text';
-import YesNo from './YesNo';
-import Number from './Number';
-import Date from './Date';
-import Options from './Options';
-import Users from './Users';
-import Time from './Time';
-import DiabledInput from './DiabledInput';
-import RelateRecord from './RelateRecord';
-import Cascader from './Cascader';
-import RelateFilter from './RelateFilter';
 import _, { includes } from 'lodash';
+import { CONTROL_FILTER_WHITELIST, FILTER_CONDITION_TYPE } from '../../enum';
+import Cascader from './Cascader';
+import Date from './Date';
+import DiabledInput from './DiabledInput';
+import Number from './Number';
+import Options from './Options';
+import RelateFilter from './RelateFilter';
+import RelateRecord from './RelateRecord';
+import Text from './Text';
+import Time from './Time';
+import Users from './Users';
+import YesNo from './YesNo';
 
 export default function (key, props) {
   if (props.isDynamicsource) {

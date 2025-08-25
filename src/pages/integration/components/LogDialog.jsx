@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Dialog } from 'ming-ui';
-import { useSetState } from 'react-use';
+import React, { useEffect } from 'react';
 import JsonView from 'react-json-view';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
-import _ from 'lodash';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
-const TABLIST = ['请求参数', '返回值'];
+import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
+
+const TABLIST = ['请求参数', '返回值'];
 
 const Wrap = styled.div`
   .tabCon {
@@ -24,8 +25,8 @@ const Wrap = styled.div`
       box-sizing: border-box;
       border-bottom: 3px solid rgba(0, 0, 0, 0);
       &.isCur {
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -91,9 +92,13 @@ export default function LogDialog(props) {
   };
   const getInfo = info => {
     let da = {};
+    if (!info) {
+      return da;
+    }
     try {
       da = JSON.parse(info);
     } catch (error) {
+      console.log(error);
       da = {
         //无法JSON.parse，兼容呈现
         data: info,
@@ -173,8 +178,8 @@ export default function LogDialog(props) {
                   tab !== 0
                     ? getInfo(_.get(data, 'json.result'))
                     : [1, 4, 5].includes(data.contentType) //contentType 1 4 5 请求使用这个requests
-                    ? data.requests
-                    : getInfo(data.body)
+                      ? data.requests
+                      : getInfo(data.body)
                 }
                 // theme="brewer"
                 displayDataTypes={false}

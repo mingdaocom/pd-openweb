@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import { antNotification, Checkbox, Dialog, LoadDiv } from 'ming-ui';
 import RoleController from 'src/api/role';
 import userAjax from 'src/api/user';
@@ -228,7 +229,7 @@ class StructureContent extends Component {
                 className="InlineBlock Gray_9e Font12 TxtMiddle LineHeight24 noDepartment"
                 defaultChecked={typeCursor === 1}
                 checked={noDepartmentUsers}
-                onClick={(checked, id) => {
+                onClick={checked => {
                   this.props.updateNoDepartmentUsers(!checked);
                   this.props.updateCursor('');
                   if (checked) {

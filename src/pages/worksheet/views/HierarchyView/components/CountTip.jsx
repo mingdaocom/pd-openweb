@@ -14,7 +14,7 @@ const CountTip = styled(FlexCenter)`
   font-weight: bold;
   cursor: pointer;
   padding: ${props => (props.visible ? '0 8px' : '0 4px 0 8px')};
-  background: ${props => (props.visible ? '#9e9e9e' : '#2196f3')};
+  background: ${props => (props.visible ? '#9e9e9e' : '#1677ff')};
   box-shadow: ${props => (props.visible ? 'none' : '0 1px 2px rgba(0, 0, 0, 0.24)')};
 `;
 export default ({ count, rowId, visible, onClick }) => (

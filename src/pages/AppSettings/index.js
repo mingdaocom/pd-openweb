@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import Loadable from 'react-loadable';
 import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, LoadDiv, Tooltip, UpgradeIcon } from 'ming-ui';
 import { hasPermission } from 'src/components/checkPermission';
 import { getMyPermissions } from 'src/components/checkPermission';
@@ -81,7 +82,7 @@ class AppSettings extends Component {
           this.getConfigList();
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -91,7 +92,7 @@ class AppSettings extends Component {
     const { appId } = _.get(this.props, 'match.params');
     const { data: { projectId } = { projectId: '' } } = this.state;
     this.setState({ delAppConfirmVisible: false });
-    homeAppApi.deleteApp({ appId, projectId, isHomePage: true }).then(res => {
+    homeAppApi.deleteApp({ appId, projectId, isHomePage: true }).then(() => {
       navigateTo('/dashboard');
     });
   };

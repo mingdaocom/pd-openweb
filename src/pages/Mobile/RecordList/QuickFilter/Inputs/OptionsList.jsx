@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import _ from 'lodash';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { arrayOf, bool, func, shape, string } from 'prop-types';
-import _ from 'lodash';
 
 const Item = styled.div`
   padding: 8px 0;
   .icon-done {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -34,7 +34,7 @@ export default function OptionsList(props) {
             >
               {o.value}
             </div>
-            {_.includes(selected, o.key) && <Icon className="Font20" icon="done"/>}
+            {_.includes(selected, o.key) && <Icon className="Font20" icon="done" />}
           </Item>
         ))}
     </div>

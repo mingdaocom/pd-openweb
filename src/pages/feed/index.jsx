@@ -2,8 +2,8 @@
 import { connect } from 'react-redux';
 import qs from 'query-string';
 import Feed from './components/app/feed';
-import { changeListType, changeTitle } from './redux/postActions';
 import postEnum from './constants/postEnum';
+import { changeListType, changeTitle } from './redux/postActions';
 
 @connect()
 export default class CalendarEntrypoint extends Component {

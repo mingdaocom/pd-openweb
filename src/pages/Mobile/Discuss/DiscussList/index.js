@@ -53,7 +53,7 @@ class DiscussList extends Component {
   }
   openActionSheet(discussionId) {
     const { rowId } = this.props;
-    const BUTTONS = [{ name: _l('删除评论'), class: 'Red', icon: 'delete2', iconClass: 'Font18' }];
+    const BUTTONS = [{ name: _l('删除评论'), class: 'Red', icon: 'trash', iconClass: 'Font18' }];
     this.actionSheetHandler = ActionSheet.show({
       actions: BUTTONS.map(item => {
         return {

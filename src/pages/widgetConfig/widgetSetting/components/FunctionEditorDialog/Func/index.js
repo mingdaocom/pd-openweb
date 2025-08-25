@@ -1,4 +1,4 @@
-import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { includes } from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
@@ -208,6 +208,7 @@ function Func(props, ref) {
             {!codeEditorLoading && (
               <CodeEdit
                 isWorksheetFlow={isWorksheetFlow}
+                isCustom={fromCustom}
                 showTestButton={supportDebug && type !== 'javascript'}
                 dialogWidth={dialogWidth}
                 dialogHeight={dialogHeight}
@@ -243,7 +244,6 @@ Func.propTypes = {
   control: shape({}),
   supportJavaScript: bool,
   value: shape({}),
-  control: shape({}),
   controls: arrayOf(shape({})),
   controlGroups: arrayOf(shape({})), // { controlName, controlId }
   renderTag: func,

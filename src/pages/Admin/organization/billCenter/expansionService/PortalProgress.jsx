@@ -1,9 +1,9 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import cx from 'classnames';
+import moment from 'moment';
 import { Radio } from 'ming-ui';
 import Config from '../../../config';
-import cx from 'classnames';
 import './style.less';
-import moment from 'moment';
 
 const getOptions = effectiveExternalUserCount => {
   return [

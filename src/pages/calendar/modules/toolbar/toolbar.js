@@ -86,7 +86,6 @@ Toolbar.Event = function () {
 
   // 未确认日程颜色分类click
   $('#invitedCalendars').on('click', '.inviteCalendarTypeList li', function (event) {
-    var catName = $(this).find('span').html();
     var catID = $(this).attr('catID');
     var catClassName = $(this).find('.editColor').attr('class');
     var $calendarType = $(this).parents('.inviteCalendarType');
@@ -285,7 +284,6 @@ Toolbar.Event = function () {
     $('#others').hide();
   }
   $('#others').on('click', function () {
-    var _this = $(this);
     const calendarLastPId = localStorage.getItem('calendarLastPId');
     dialogSelectUser({
       sourceId: '',

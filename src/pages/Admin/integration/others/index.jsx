@@ -8,7 +8,6 @@ import {
   Dropdown,
   Icon,
   LoadDiv,
-  Support,
   Switch,
   Tooltip,
   UpgradeIcon,
@@ -36,9 +35,11 @@ const DATA_INFO = [
     key: 'effective',
     label: _l('LDAP登录'),
     showSetting: true,
-    description: _l(
-      '在付费版下，您可以通过组织的二级域名登录页面，通过集成LDAP账号登录，实现统一身份认证管理 （确保员工的账号已与邮箱绑定，系统通过邮箱进行映射）',
-    ),
+    description: md.global.Config.IsLocal
+      ? _l('启用后，成员可在组织专属登录页使用 LDAP 登录。系统将通过邮箱进行身份匹配，请确保成员账号已绑定对应邮箱')
+      : _l(
+          '在付费版下，您可以通过组织的二级域名登录页面，通过集成LDAP账号登录，实现统一身份认证管理 （确保员工的账号已与邮箱绑定，系统通过邮箱进行映射）',
+        ),
     featureId: VersionProductType.LDAPIntergration,
     showCustomName: true,
     iconClassName: 'icon-lock',
@@ -54,7 +55,9 @@ const DATA_INFO = [
   {
     key: 'enabledMDLogin',
     label: _l('平台帐号登录'),
-    description: _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO或第三方平台账号登录时，可以关闭本系统账号登录'),
+    description: md.global.Config.IsLocal
+      ? _l('在组织专属登录页，当开启了SSO、LDAP或第三方平台账号登录时，可关闭平台账号登录入口')
+      : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO或第三方平台账号登录时，可以关闭本系统账号登录'),
   },
   {
     key: 'orgKey',
@@ -287,7 +290,7 @@ export default class OtherTool extends Component {
   };
 
   handleCheck() {
-    const { DNGroupList = [], searchRange, accountTxtType, accountTxt } = this.state;
+    const { DNGroupList = [], searchRange, accountTxtType } = this.state;
     const loginSettingData =
       accountTxtType === 100
         ? loginSetting.concat({
@@ -670,7 +673,7 @@ export default class OtherTool extends Component {
             this.setState({ saveDisabled: false });
           }
         })
-        .catch(err => {
+        .catch(() => {
           this.setState({ saveDisabled: false });
         });
     }
@@ -733,7 +736,7 @@ export default class OtherTool extends Component {
           alert(_l('修改失败'), 2);
         }
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('修改失败'), 2);
         this.setState({ [`${key}CustomName`]: this.state[`${key}DefaultCustomName`] });
       });
@@ -822,7 +825,9 @@ export default class OtherTool extends Component {
                 <div className="toolItemDescribe">
                   {description}
                   {docLink && (
-                    <a href={docLink + (lang === 'zh-Hans' ? 'zh-Hans/' : 'en/')} className="mLeft5" target="_blank">{_l('查看文档')}</a>
+                    <a href={docLink + (lang === 'zh-Hans' ? 'zh-Hans/' : 'en/')} className="mLeft5" target="_blank">
+                      {_l('查看文档')}
+                    </a>
                   )}
                 </div>
                 {showCustomName && (
@@ -934,6 +939,7 @@ export default class OtherTool extends Component {
           <div className="formLabel TxtLeft">
             {_l('WEB-移动端')}
             <Tooltip
+              autoCloseDelay={0}
               popupPlacement="bottom"
               text={<span>{_l('若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录')}</span>}
             >

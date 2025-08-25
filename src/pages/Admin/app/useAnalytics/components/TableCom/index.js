@@ -1,10 +1,10 @@
-import React, { Fragment, Component } from 'react';
-import { Icon, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
-import PropTypes from 'prop-types';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import './index.less';
 
 export default class TableCom extends Component {
   constructor(props) {
@@ -41,7 +41,7 @@ export default class TableCom extends Component {
     this.setState(
       {
         sorterInfo: {
-          order: sorterInfo.sortFiled === item.dataIndex && sorterInfo.order === 'asc' ? 'desc' : 'asc',
+          order: sorterInfo.sortFiled === item.dataIndex && sorterInfo.order === 'desc' ? 'asc' : 'desc',
           sortFiled: item.dataIndex,
         },
       },
@@ -55,7 +55,7 @@ export default class TableCom extends Component {
     const { columns = [], loading, total, pageIndex } = this.props;
     let { dataSource = [], sorterInfo = {} } = this.state;
     return (
-      <div className="tableWrap flexColumn">
+      <div className="tableWrap flexColumn overflowHidden">
         <div className="tableHeader flexRow">
           {columns.map(item => {
             return (
@@ -69,18 +69,19 @@ export default class TableCom extends Component {
                   })}
                   style={{ zIndex: 1 }}
                   onClick={() => {
+                    if (!item.sorter) return;
                     this.clickSorter(item);
                   }}
                 >
                   {item.title}
                 </div>
                 {!!item.explain && (
-                  <Tooltip text={<span>{item.explain}</span>} popupPlacement="bottom">
+                  <Tooltip text={<span>{item.explain}</span>} popupPlacement="bottom" autoCloseDelay={0}>
                     <Icon icon="info" className="Font16 Gray_9e mLeft3 mRight12 hover_f3" />
                   </Tooltip>
                 )}
                 {item.sorter && (
-                  <div className="flexColumn sorter">
+                  <div className="flexColumn sorter Hand" onClick={() => this.clickSorter(item)}>
                     <Icon
                       icon="arrow-up"
                       className={cx({
@@ -105,7 +106,7 @@ export default class TableCom extends Component {
           ) : _.isEmpty(dataSource) ? (
             this.renderEmpty()
           ) : (
-            <ScrollView>
+            <ScrollView className="h100">
               {dataSource.map(item => {
                 return (
                   <div className="row flexRow alignItemsCenter">

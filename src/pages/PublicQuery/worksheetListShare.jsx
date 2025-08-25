@@ -3,7 +3,6 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -81,7 +80,6 @@ class WorksheetListShare extends React.Component {
       viewIdForPermit,
       appId,
       worksheetId,
-      projectId,
       viewName,
       worksheetName,
     } = this.props;
@@ -102,7 +100,7 @@ class WorksheetListShare extends React.Component {
       ? showControlsNoTitle.slice(0, 2).map(item => item.controlId)
       : showControlsData;
     // 下载附件权限
-    const recordAttachmentSwitch = !!viewIdForPermit
+    const recordAttachmentSwitch = viewIdForPermit
       ? isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewIdForPermit)
       : true;
 
@@ -128,7 +126,7 @@ class WorksheetListShare extends React.Component {
                     return (
                       <div className={cx('controlName flex Hand', { title: control.attribute })} key={i}>
                         {control.attribute === 1 ? (
-                          <Tooltip popupPlacement="bottom" text={<span>{dataTitle}</span>}>
+                          <Tooltip popupPlacement="bottom" text={<span>{dataTitle}</span>} autoCloseDelay={0}>
                             <i className="icon icon-ic_title"></i>
                           </Tooltip>
                         ) : (

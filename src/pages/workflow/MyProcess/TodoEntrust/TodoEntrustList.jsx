@@ -58,14 +58,14 @@ margin-top: 20px;
 line-height: 36px;
 border: 0;
 border-radius: 4px;
-background-color: ${isMobile ? (isAdd ? '#fff' : '#2196f3') : isAdd ? '#f5f5f5' : '#f7f7f7'} ;
-color: ${isMobile && !isAdd ? '#fff' : '#2196f3'};
+background-color: ${isMobile ? (isAdd ? '#fff' : '#1677ff') : isAdd ? '#f5f5f5' : '#f7f7f7'} ;
+color: ${isMobile && !isAdd ? '#fff' : '#1677ff'};
 font-size: ${isMobile ? '13px' : '14px'};
 cursor: pointer;
 
 &:hover {
   color: ${!isAdd && '#fff'}
-  background-color: ${!isAdd ? '#2196f3' : '#fff'};
+  background-color: ${!isAdd ? '#1677ff' : '#fff'};
 }
 &.mobileStyle {
   height: 32px;
@@ -155,6 +155,7 @@ function TodoEntrustList(props) {
               <div className="flexRow alignItemsCenter">
                 <span className="bold">{_l('待办委托')}</span>
                 <Tooltip
+                  autoCloseDelay={0}
                   text={_l('待办事项如果匹配到多条待办委托，将分配给委托开始时间最早的待办委托')}
                   popupPlacement="bottom"
                 >
@@ -206,20 +207,16 @@ function TodoEntrustList(props) {
                         ) : (
                           <div className="trusteeAvatarWrapper valignWrapper mRight10">
                             <UserHead
+                              projectId={item.companyId}
                               className="circle"
-                              user={{
-                                userHead: item.trustee.avatar,
-                                accountId: item.trustee.accountId,
-                              }}
+                              user={{ userHead: item.trustee.avatar, accountId: item.trustee.accountId }}
                               size={22}
                               chatButton={false}
                             />
                             <UserName
+                              projectId={item.companyId}
                               className="Gray Font13 pLeft5 pRight10 pTop1"
-                              user={{
-                                userName: item.trustee.fullName,
-                                accountId: item.trustee.accountId,
-                              }}
+                              user={{ userName: item.trustee.fullName, accountId: item.trustee.accountId }}
                               chatButton={false}
                             />
                           </div>

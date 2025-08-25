@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
-import { string } from 'prop-types';
-import { ITEM_TYPE } from '../config';
-import BaseCard from '../../components/BaseCard';
-import { DragLayer } from 'react-dnd';
-import { dealHierarchyData } from '../util';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { useDragLayer } from 'react-dnd-latest';
+import BaseCard from '../../components/BaseCard';
+import { ITEM_TYPE } from '../config';
+import { dealHierarchyData } from '../util';
 
 const layerStyles = {
   position: 'fixed',
@@ -54,9 +53,11 @@ export default function CustomDragLayer(props) {
   if (!isDragging) {
     return null;
   }
-  return (
+  // 自定义页面中固定定位受父级样式影响失效，将预览层挂载到body上
+  return ReactDOM.createPortal(
     <div style={layerStyles}>
       <div style={getItemStyles()}>{renderItem()}</div>
-    </div>
+    </div>,
+    document.body, // 渲染到 body
   );
 }

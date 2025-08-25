@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
+import _ from 'lodash';
 import { ACTION_ID } from '../../enum';
 import { SingleControlValue } from '../components';
-import _ from 'lodash';
 
 export default props => {
   const { data, updateSource } = props;

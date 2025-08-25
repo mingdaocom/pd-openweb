@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import cx from 'classnames';
 import { useDrag } from 'react-dnd-latest';
 import { Checkbox } from 'antd';
-import { Icon, Dialog } from 'ming-ui';
+import cx from 'classnames';
+import { Dialog, Icon } from 'ming-ui';
 
 const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -20,9 +20,9 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) =
       title: <span className="Red">{_l('您确定要删除计算字段“%0” ?', item.controlName)}</span>,
       onOk: () => {
         onDelete(item.controlId);
-      }
+      },
     });
-  }
+  };
   return (
     <Fragment>
       <div
@@ -31,15 +31,10 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) =
         style={{ opacity: isDragging ? 0.4 : 1 }}
         className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 pRight5 Font13 Gray pointer"
       >
-        <Checkbox
-          className="mRight10"
-          checked={isActive}
-          onChange={onChangeCheckbox}
-        >
-        </Checkbox>
+        <Checkbox className="mRight10" checked={isActive} onChange={onChangeCheckbox}></Checkbox>
         <Icon
           className={cx('Gray_75 Font20 mRight10', {
-            active: isActive
+            active: isActive,
           })}
           icon="calculate"
         />

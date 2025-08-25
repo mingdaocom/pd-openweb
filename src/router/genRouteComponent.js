@@ -1,9 +1,9 @@
 import React from 'react';
-import WithTitleRoute from './withTitle';
-import { Route, Redirect } from 'react-router-dom';
+import { Redirect, Route } from 'react-router-dom';
 import Loadable from 'react-loadable';
-import ErrorPage from 'src/components/errorPage/errorPage';
 import _ from 'lodash';
+import ErrorPage from 'src/components/errorPage/errorPage';
+import WithTitleRoute from './withTitle';
 
 function Loading(props) {
   const { error } = props;
@@ -34,7 +34,9 @@ export default () => {
       if (redirect) {
         components.push(<Route key={i} {...rest} render={() => <Redirect to={redirect} />} />);
       } else {
-        components.push(<WithTitleRoute key={i} component={getComponent(component)} {...rest} preCallback={preCallback} />);
+        components.push(
+          <WithTitleRoute key={i} component={getComponent(component)} {...rest} preCallback={preCallback} />,
+        );
       }
     });
     return components;

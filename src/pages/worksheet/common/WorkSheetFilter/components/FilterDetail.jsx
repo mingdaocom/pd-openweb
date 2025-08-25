@@ -79,7 +79,7 @@ const AddButton = styled(VCenterIconText)`
   color: #757575;
   font-weight: bold;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -115,7 +115,7 @@ export default function FilterDetail(props) {
   const scrollRef = useRef();
   const [foldedMap, setFoldedMap] = useState({});
   const { projectId, appId, worksheetId, isCharge } = base;
-  const featureType = getFeatureStatus(projectId, VersionProductType.filterGroup);
+  const featureType = supportGroup ? getFeatureStatus(projectId, VersionProductType.filterGroup) : '';
   let canEdit = props.canEdit;
   if (_.isUndefined(canEdit)) {
     canEdit = filter.type === FILTER_TYPE.PUBLIC ? isCharge : filter.createAccountId === md.global.Account.accountId;
@@ -184,7 +184,7 @@ export default function FilterDetail(props) {
       {!isSingleFilter && !isNew && (
         <Header>
           <BackBtn onClick={handleBack}>
-            <i className="icon icon-knowledge-return"></i>
+            <i className="icon icon-backspace"></i>
           </BackBtn>
           <FilterDetailName
             editable={canEdit}
@@ -262,7 +262,7 @@ export default function FilterDetail(props) {
                   canEdit={canEdit && groupIndex === 0}
                   type={conditionsGroup.spliceType}
                   onChange={value => actions.updateConditionsGroup({ spliceType: value }, '*')}
-                  onDelete={value => actions.deleteGroup(groupIndex + 1)}
+                  onDelete={() => actions.deleteGroup(groupIndex + 1)}
                 />
               )}
             </Fragment>

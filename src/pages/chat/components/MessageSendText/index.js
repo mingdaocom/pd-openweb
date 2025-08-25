@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import './index.less';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
+import './index.less';
 
 export default class MessageSendText extends Component {
   constructor(props) {

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { func, string } from 'prop-types';
 import cx from 'classnames';
-import { Dialog, Checkbox, Input } from 'ming-ui';
-import './index.less';
 import _ from 'lodash';
+import { func, string } from 'prop-types';
+import { Dialog, Input } from 'ming-ui';
+import './index.less';
 
 export default class VerifyDel extends Component {
   static propTypes = {
@@ -41,7 +41,7 @@ export default class VerifyDel extends Component {
   };
   render() {
     const { onOk, onCancel, cancelText, name, mode } = this.props;
-    const { isDelChecked, value, delObj = {} } = this.state;
+    const { value, delObj = {} } = this.state;
     const currentName = (mode ? delObj.name : name) || '';
     const isCanDel = value.trim() === currentName.trim();
     return (
@@ -49,7 +49,6 @@ export default class VerifyDel extends Component {
         style={{ width: '560px' }}
         visible
         className="verifyDelDialog"
-        visible
         title={null}
         footer={null}
         onCancel={onCancel}

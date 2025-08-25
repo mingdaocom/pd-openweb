@@ -3,6 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
@@ -139,6 +140,7 @@ export const getCurrentValue = (item, data, control) => {
                   d = i;
                 }
               } catch (e) {
+                console.log(e);
                 d = i;
               }
               if (d.toString().indexOf('add_') > -1) {
@@ -266,9 +268,9 @@ export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
 
 const Reg = {
   // 座机号码
-  telPhoneNumber: /^[+]?([\d\s()\-]+)$/,
+  telPhoneNumber: /^[+]?([\d\s()-]+)$/,
   // 邮箱地址
-  emailAddress: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i,
+  emailAddress: /^[\w-+]+(\.[\w-+]+)*@[\w-+]+(\.[\w-+]+)*\.[\w-+]+$/i,
   // 身份证号码
   idCardNumber:
     /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
@@ -421,7 +423,9 @@ const parseStaticValue = (item, staticValue) => {
     try {
       parsedValue = safeParse(staticValue);
       return JSON.stringify(parsedValue.map(r => ({ ...r, initRowIsCreate: false })));
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return staticValue;
@@ -477,6 +481,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
           try {
             return JSON.stringify(safeParse(sourcevalue).filter(r => r.sid));
           } catch (err) {
+            console.log(err);
             return '';
           }
         }
@@ -487,15 +492,17 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
           (currentItem.type === 38 && currentItem.enumDefault === 2)
         ) {
           try {
+            if (!sourcevalue) return '';
             let cValue = 0;
             const { options, enumDefault } = _.find(parentControl.relationControls, o => o.controlId === item.cid);
 
-            safeParse(sourcevalue).forEach(key => {
-              cValue += !!enumDefault ? options.find(o => o.key === key).score : 0;
+            safeParse(sourcevalue, 'array').forEach(key => {
+              cValue += enumDefault ? options.find(o => o.key === key).score : 0;
             });
 
             return cValue;
           } catch (err) {
+            console.log(err);
             return sourcevalue;
           }
         }
@@ -520,6 +527,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
         return sourcevalue;
       } catch (err) {
+        console.log(err);
         return '';
       }
     }
@@ -593,7 +601,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
     // 合并成新的一维数组
     value.forEach(obj => {
-      if (typeof obj === 'string' && /[\{|\[]/.test(obj)) {
+      if (typeof obj === 'string' && /[{|[]/.test(obj)) {
         if (_.isArray(safeParse(obj))) {
           source = source.concat(safeParse(obj));
         } else {
@@ -646,6 +654,7 @@ export const getOtherWorksheetFieldValue = ({ data, dataSource, sourceControlId 
       return safeParse(record.sourcevalue)[sourceControlId];
     }
   } catch (err) {
+    console.log(err);
     return '';
   }
 };
@@ -749,7 +758,9 @@ export function calcDefaultValueFunction({ formData, fnControl, forceSyncRun }) 
 export function asyncUpdateMdFunction({ formData, fnControl, update }) {
   try {
     execValueFunction(fnControl, formData, { update });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 // 嵌入字段处理
@@ -799,7 +810,6 @@ export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
 
 // 处理日期公式
 export const parseDateFormula = (data, currentItem, recordCreateTime) => {
-  const roundType = currentItem.advancedSetting.roundtype || '0';
   const getTime = (str, pos) => {
     if (str === '$ctime$') {
       return recordCreateTime || new Date();
@@ -928,7 +938,6 @@ export const parseDateFormula = (data, currentItem, recordCreateTime) => {
     }
     value = handleDotAndRound(currentItem, value);
   } else if (currentItem.enumDefault === 2) {
-    let dateColumnType = 0;
     let formatMode = 'YYYY-MM-DD HH:mm:ss';
     let formulaResult;
     let date;
@@ -940,10 +949,11 @@ export const parseDateFormula = (data, currentItem, recordCreateTime) => {
       if (!column) {
         return;
       } else {
-        dateColumnType = column.type;
         try {
           formatMode = getShowFormat(column);
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         date = formatColumnToText(column, true, true, { doNotHandleTimeZone: true });
       }
     } else if (currentItem.sourceControlId === '$ctime$') {
@@ -1049,14 +1059,24 @@ const getControlValue = (data, currentItem, controlId, objValue) => {
   return _.isUndefined(value) ? '' : value;
 };
 
+function checkChildTableIsEmpty(control = {}) {
+  const store = control.store;
+  const state = store && store.getState();
+  if (state && state.rows && !state.baseLoading) {
+    return filterEmptyChildTableRows(state.rows).length <= 0;
+  } else {
+    return control.value === '0' || !control.value;
+  }
+}
+
 // 检测必填
 export const checkRequired = item => {
   let errorType = '';
 
   if (
     item.required &&
-    ((!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value))) ||
-      (_.isString(item.value) && !item.value.trim()) ||
+    ((item.type !== 34 && (!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value)))) ||
+      (item.type !== 34 && _.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
       (item.type === 14 &&
         ((_.isArray(safeParse(item.value)) && !safeParse(item.value).length) ||
@@ -1070,8 +1090,7 @@ export const checkRequired = item => {
       (item.type === 29 &&
         typeof item.value === 'string' &&
         (item.value.startsWith('deleteRowIds') || item.value === '0')) ||
-      (item.type === 34 &&
-        ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
+      (item.type === 34 && checkChildTableIsEmpty(item)) ||
       (item.type === 36 && item.value === '0') ||
       (item.type === 28 && parseFloat(item.value) === 0))
   ) {
@@ -1640,6 +1659,11 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           advancedSetting: { showtype: '6' },
           value: moment(new Date()).format('YYYY-MM-DD HH:mm:ss'),
         };
+      } else if (cid === 'user-self') {
+        currentControl = {
+          type: 26,
+          value: JSON.stringify([{ accountId: md.global.Account.accountId, name: _l('当前用户') }]),
+        };
       } else {
         currentControl = _.cloneDeep(_.find(data, it => it.controlId === cid)) || {};
       }
@@ -1912,7 +1936,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
       case FILTER_CONDITION_TYPE.N_END:
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.TEXT.value:
-            var isInValue = true;
+            let isInValue = true;
             _.map(compareValues, function (it) {
               if (value.endsWith(it)) {
                 isInValue = false;
@@ -2255,9 +2279,11 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               return _.includes(areaValues, code);
               // 部门
             }
+            break;
           default:
             return true;
         }
+        break;
       //   NBETWEEN: 12, // 不在范围内
       //   DATE_NBETWEEN 32 //不在范围内
       case FILTER_CONDITION_TYPE.NBETWEEN:
@@ -2300,9 +2326,11 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               return !_.includes(areaValues, code);
               // 部门
             }
+            break;
           default:
             return true;
         }
+        break;
       //   GT: 13, // > 晚于
       //   DATE_GT: 33, // > 晚于
       case FILTER_CONDITION_TYPE.GT:
@@ -2523,6 +2551,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
 
               return _.isEqual(safeParse(value || '[]').sort(), compareValues.sort());
             }
+            break;
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return true;
@@ -2538,6 +2567,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           default:
             return true;
         }
+        break;
       // ARRNE：27, // 数组不等于
       case FILTER_CONDITION_TYPE.ARRNE:
         switch (conditionGroupType) {
@@ -2579,6 +2609,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
 
               return !_.isEqual(safeParse(value || '[]', 'array').sort(), compareValues.sort());
             }
+            break;
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
@@ -2594,6 +2625,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           default:
             return true;
         }
+        break;
       // ALLCONTAIN：28, // 数组同时包含
       case FILTER_CONDITION_TYPE.ALLCONTAIN:
         switch (conditionGroupType) {
@@ -2624,6 +2656,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
 
               return _.every(compareValues, its => _.includes(safeParse(value || '[]', 'array'), its));
             }
+            break;
           // 关联记录
           case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
             if (_.isEmpty(value) && _.isEmpty(compareValues)) return false;
@@ -2637,6 +2670,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           default:
             return true;
         }
+        break;
       // 文本同时包含
       case FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN:
         return compareValues.every(i => value.includes(i));
@@ -2692,7 +2726,7 @@ export const checkValueAvailable = (rule = {}, data = [], recordId, from) => {
         const da = _.find(data, d => d.controlId === id);
         return (
           (recordId && id === 'rowid') ||
-          _.includes(['currenttime'], id) ||
+          _.includes(['currenttime', 'user-self'], id) ||
           (da && controlState(da, from).visible & !da.hidden)
         );
       });
@@ -2754,7 +2788,7 @@ export const checkAllValueAvailable = (rules = [], data = [], recordId, from) =>
       rule.ruleItems.map(item => {
         if (item.type === 6 && rule.checkType !== 2) {
           const { isAvailable } = checkValueAvailable(rule, data, recordId, from);
-          isAvailable && errors.push(item.message);
+          isAvailable && errors.push({ errorMessage: item.message, ignoreErrorMessage: rule.checkType === 3 });
         }
       });
     });
@@ -2781,6 +2815,7 @@ export const getRuleErrorInfo = (rules = [], badData = []) => {
                 ruleId,
                 errorType: FORM_ERROR_TYPE.RULE_ERROR,
                 showError: true,
+                ignoreErrorMessage: rule.checkType === 3,
               });
             });
           });
@@ -2822,32 +2857,72 @@ export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item 
   let required = it.required || false;
   let disabled = it.disabled || false;
   const eventPermissions = it.eventPermissions || '';
+  const types = attrs.map(i => i.type);
 
   //隐藏
-  if (_.includes(attrs, 2) || eventPermissions[0] === '0') {
+  if (_.includes(types, 2) || eventPermissions[0] === '0') {
     fieldPermission = replaceStr(fieldPermission, 0, '0');
     if (isSubList && _.includes(item.showControls || [], it.controlId)) {
       item.showControls = (item.showControls || []).filter(c => c !== it.controlId);
     }
   } else {
     //显示
-    if (_.includes(attrs, 1) || eventPermissions[0] === '1') {
+    if (_.includes(types, 1) || eventPermissions[0] === '1') {
       fieldPermission = replaceStr(fieldPermission, 0, '1');
     }
   }
   //只读
-  if (_.includes(attrs, 4) || eventPermissions[1] === '0') {
+  if (_.includes(types, 4) || eventPermissions[1] === '0') {
     fieldPermission = replaceStr(fieldPermission, 1, '0');
   } else {
+    // 必填、可编辑，子表、关联记录给编辑细分权限
+    const permission = _.last(attrs.map(i => i.permission).filter(_.identity));
+    if (!_.isUndefined(permission)) {
+      if (it.type === 34) {
+        it.advancedSetting = {
+          ...it.advancedSetting,
+          allowcancel: _.includes(permission, 'delete') ? '1' : '0',
+          allowedit: _.includes(permission, 'edit') ? '1' : '0',
+          ...(_.includes(permission, 'add')
+            ? _.get(item, 'advancedSetting.allowadd') !== '1'
+              ? { allowadd: '1', allowsingle: '1' }
+              : {}
+            : { allowadd: '0', allowsingle: '0', batchcids: JSON.stringify([]), allowimport: '0', allowcopy: '0' }),
+        };
+      } else if (isSheetDisplay(it)) {
+        if (_.includes(permission, 'add')) {
+          if (!_.includes([0, 1], it.enumDefault2)) {
+            it.enumDefault2 = it.enumDefault2 === 10 ? 0 : 1;
+            it.advancedSetting = {
+              ...it.advancedSetting,
+              searchrange: '1',
+            };
+          }
+        } else {
+          it.enumDefault2 = it.enumDefault2 === 0 ? 10 : 11;
+          it.advancedSetting = {
+            ...it.advancedSetting,
+            searchrange: '',
+          };
+        }
+        it.advancedSetting = {
+          ...it.advancedSetting,
+          allowcancel: _.includes(permission, 'delete') ? '1' : '0',
+          ...(_.get(it, 'advancedSetting.allowbatch') === '1'
+            ? { batchcancel: _.includes(permission, 'delete') ? '1' : '0' }
+            : {}),
+        };
+      }
+    }
     //必填
-    if (_.includes(attrs, 5)) {
+    if (_.includes(types, 5)) {
       required = true;
       fieldPermission = replaceStr(fieldPermission, 1, '1');
       const { errorText } = onValidator({ item: { ...it, required, fieldPermission }, verifyAllControls });
       item.type !== 34 && checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
     } else {
       //编辑
-      if (_.includes(attrs, 3) || eventPermissions[1] === '1') {
+      if (_.includes(types, 3) || eventPermissions[1] === '1') {
         fieldPermission = replaceStr(fieldPermission, 1, '1');
         const { errorType, errorText } = onValidator({ item: { ...it, fieldPermission }, verifyAllControls });
         checkRuleValidator(it.controlId, errorType, errorText);
@@ -2855,7 +2930,7 @@ export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item 
     }
   }
   //解锁
-  if (_.includes(attrs, 8)) {
+  if (_.includes(types, 8)) {
     disabled = false;
   }
   it.fieldPermission = fieldPermission;
@@ -2931,8 +3006,8 @@ export const updateRulesData = ({
     errorMsg: {},
   };
 
-  function pushType(key, id, type) {
-    relateRuleType[key][id] ? relateRuleType[key][id].push(type) : (relateRuleType[key][id] = [type]);
+  function pushType(key, id, obj) {
+    relateRuleType[key][id] ? relateRuleType[key][id].push(obj) : (relateRuleType[key][id] = [obj]);
   }
 
   const filterRules = getAvailableFilters(rules, formatData, recordId);
@@ -2958,17 +3033,19 @@ export const updateRulesData = ({
           return;
         }
 
+        const attrObj = { type: currentType };
+
         if (_.includes([7, 8], currentType)) {
           formatData.map(item => {
-            pushType('parent', item.controlId, currentType);
+            pushType('parent', item.controlId, attrObj);
           });
         } else if (!_.includes([6], currentType)) {
           controls.map(con => {
-            const { controlId = '', childControlIds = [] } = con;
+            const { controlId = '', childControlIds = [], permission, isCustom } = con;
             if (!childControlIds.length) {
-              pushType('parent', controlId, currentType);
+              pushType('parent', controlId, { ...attrObj, ...(isCustom ? { permission } : {}) });
             } else {
-              childControlIds.map(child => pushType('child', `${controlId}-${child}`, currentType));
+              childControlIds.map(child => pushType('child', `${controlId}-${child}`, attrObj));
             }
           });
         }
@@ -3049,7 +3126,6 @@ export const updateRulesData = ({
     formatData.forEach(it => {
       it.relationControls.forEach(re => {
         // 子表会出现控件id重复的情况
-        const id = `${it.controlId}-${re.controlId}`;
         updateDataPermission({
           attrs: [],
           it: re,

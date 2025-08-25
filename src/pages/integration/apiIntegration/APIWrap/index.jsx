@@ -1,23 +1,24 @@
 import React, { useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { Icon, Menu, LoadDiv, Tooltip, SvgIcon } from 'ming-ui';
+import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import { RedMenuItemWrap, MenuItemWrap, LogoWrap, ActWrap, BtnWrap } from '../style';
-import Switch from 'src/pages/workflow/components/Switch';
-import Set from './Set';
-import Cite from './Cite';
-import Log from './Log';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import flowNodeAjax from 'src/pages/workflow/api/flowNode';
-import processAjax from 'src/pages/workflow/api/process.js';
+import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Menu, SvgIcon, Tooltip } from 'ming-ui';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import processAjax from 'src/pages/workflow/api/process.js';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import Switch from 'src/pages/workflow/components/Switch';
 import HistoryVersion from 'src/pages/workflow/WorkflowSettings/Header/HistoryVersion.jsx';
-import DocumentTitle from 'react-document-title';
+import { ActWrap, BtnWrap, LogoWrap, MenuItemWrap, RedMenuItemWrap } from '../style';
+import Cite from './Cite';
+import Log from './Log';
+import Set from './Set';
 
 const WrapMenu = styled(Menu)`
   .historyVersion {
@@ -65,8 +66,8 @@ const Wrap = styled.div`
         color: #757575;
       }
       &.isCur {
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -146,8 +147,8 @@ const Wrap = styled.div`
         padding: 0 30px;
         border: 1px solid #ebebeb;
         &:hover {
-          color: #2196f3;
-          border: 1px solid #2196f3;
+          color: #1677ff;
+          border: 1px solid #1677ff;
         }
       }
     }
@@ -162,9 +163,9 @@ const Wrap = styled.div`
       height: 38px;
       border-radius: 3px;
       line-height: 38px;
-      color: #2196f3;
+      color: #1677ff;
       padding: 0 30px;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       &:hover {
         color: #1764c0;
         border: 1px solid #1764c0;
@@ -177,7 +178,7 @@ const Wrap = styled.div`
   .icon-close {
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -276,7 +277,7 @@ function APISetting(props) {
   };
 
   // 获取API详情
-  const getInfo = async (processId, data) => {
+  const getInfo = async processId => {
     setState({ loading: true });
     if (!processId) {
       return;
@@ -537,7 +538,7 @@ function APISetting(props) {
                           />
                         )}
                         <RedMenuItemWrap
-                          icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
+                          icon={<Icon icon="trash" className="Font17 mLeft5" />}
                           onClick={() => {
                             setState({
                               showMenu: false,
@@ -571,7 +572,7 @@ function APISetting(props) {
                     });
                   }}
                 >
-                  <i className={'icon-more_vert Font22 TxtMiddle'} />
+                  <i className={'icon-moreop Font22 TxtMiddle'} />
                 </ActWrap>
               </Trigger>
             )}
@@ -617,7 +618,7 @@ function APISetting(props) {
                   }
                 }}
               >
-                <Icon icon="knowledge-return" className="Font16" />
+                <Icon icon="backspace" className="Font16" />
               </ActWrap>
             )}
             <div className="Hand apiDes flexRow flex">
@@ -634,7 +635,7 @@ function APISetting(props) {
                       icon={''}
                       name={data.iconName}
                       projectId={localStorage.getItem('currentProjectId')}
-                      onModify={({ iconColor, icon, iconUrl }) => {
+                      onModify={({ iconColor, iconUrl }) => {
                         if (iconColor) {
                           updateInfo({ ...data, iconColor });
                         } else {
@@ -660,6 +661,7 @@ function APISetting(props) {
               <div className={cx('apiTop', { flex: !isFix, w150: !props.forPage })}>
                 <div className="flexRow">
                   <Tooltip
+                    autoCloseDelay={0}
                     text={<span>{_l('API建议命名为动作+名词，如：获取订单列表、删除订单')}</span>}
                     action={['click']}
                     popupPlacement={'bottomLeft'}

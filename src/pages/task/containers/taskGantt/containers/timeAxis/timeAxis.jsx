@@ -1,11 +1,9 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import config from '../../config/config';
-import './timeAxis.less';
-import utils from '../../utils/utils';
 import moment from 'moment';
-
-const { GRANULARITY, workingSumHours } = config;
+import config from '../../config/config';
+import utils from '../../utils/utils';
+import './timeAxis.less';
 
 class TimeAxis extends Component {
   constructor(props) {
@@ -25,7 +23,9 @@ class TimeAxis extends Component {
   }
 
   adjustYear(time) {
-    return this.currentYear == time.split('-')[0] ? moment(new Date(time.split('-').concat([1]))).format('MMM') : time.replace('-', '.');
+    return this.currentYear == time.split('-')[0]
+      ? moment(new Date(time.split('-').concat([1]))).format('MMM')
+      : time.replace('-', '.');
   }
 
   getScrollValue() {
@@ -40,7 +40,10 @@ class TimeAxis extends Component {
 
     return (
       <div className="timeAxisContent">
-        <div className="timeAxisContentScroll" style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend), transform: translateX }}>
+        <div
+          className="timeAxisContentScroll"
+          style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend), transform: translateX }}
+        >
           <div className="timeAxisMonthsWrapper">
             {timeAxisSource.map((item, index) => (
               <div className="timeAxisMonths" style={{ width: width * item.dateList.length }} key={index}>
@@ -69,11 +72,13 @@ class TimeAxis extends Component {
     const filterWeekend = this.props.stateConfig.filterWeekend;
     const width = utils.singleTableWidth(currentView, filterWeekend);
     const dayStyle = { width };
-    const translateX = `translateX(${this.getScrollValue()}px)`;
 
     return (
       <div className="timeAxisContent">
-        <div className="timeAxisContentScroll" style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend) }}>
+        <div
+          className="timeAxisContentScroll"
+          style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend) }}
+        >
           <div className="timeAxisMonthsWrapper">
             {timeAxisSource.map((item, index) => (
               <div className="timeAxisMonths" style={{ width: width * item.dateList.length }} key={index}>
@@ -104,10 +109,17 @@ class TimeAxis extends Component {
 
     return (
       <div className="timeAxisContent">
-        <div className="timeAxisContentScroll" style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend), transform: translateX }}>
+        <div
+          className="timeAxisContentScroll"
+          style={{ width: utils.getViewSumWidth(currentView, timeAxisSource, filterWeekend), transform: translateX }}
+        >
           <div className="timeAxisMonthsWrapper">
             {timeAxisSource.map((item, index) => (
-              <div className="timeAxisMonths" style={{ width: this.getYearCount(item.dateList, currentView, filterWeekend) }} key={index}>
+              <div
+                className="timeAxisMonths"
+                style={{ width: this.getYearCount(item.dateList, currentView, filterWeekend) }}
+                key={index}
+              >
                 {item.year}
               </div>
             ))}
@@ -116,7 +128,11 @@ class TimeAxis extends Component {
             {timeAxisSource.map((item, index) => (
               <div className="timeAxisDays" key={index}>
                 {item.dateList.map((month, dayIndex) => (
-                  <div className="timeAxisDay" style={{ width: utils.singleTableWidth(currentView, filterWeekend, month) }} key={dayIndex}>
+                  <div
+                    className="timeAxisDay"
+                    style={{ width: utils.singleTableWidth(currentView, filterWeekend, month) }}
+                    key={dayIndex}
+                  >
                     <span>{moment(month).format('MMM')}</span>
                   </div>
                 ))}
@@ -142,7 +158,7 @@ class TimeAxis extends Component {
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { stateConfig, timeAxisSource } = state.task;
 
   return {

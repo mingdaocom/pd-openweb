@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Icon, Textarea, Linkify } from 'ming-ui';
+import { Icon, Linkify, Textarea } from 'ming-ui';
 
 export default class CalendarSummary extends Component {
   constructor(props) {
@@ -25,7 +24,7 @@ export default class CalendarSummary extends Component {
 
     return (
       <div className="calendarSummary calRow">
-        <Icon icon={'task-signal'} className="Font18 calIcon" />
+        <Icon icon={'abstract'} className="Font18 calIcon" />
         <div className="calLine">
           <div className="summaryBox" onClick={() => this.setState({ isFocus: true })}>
             {isFocus || !this.props.description ? (

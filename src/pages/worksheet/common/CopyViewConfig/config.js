@@ -14,6 +14,15 @@ export const VIEW_TYPE_OPTIONS = [
   },
 ];
 
+export const DEFAULT_KEYS = ['FastFilter', 'Show', 'CardSet', 'ColStyle'];
+
+export const COPY_CONFIGS_BY_GROUP = [
+  { types: ['Show', 'ColStyle', 'CardSet'], title: _l('显示设置') },
+  { types: ['Filter', 'Sort', 'RecordColor', 'Controls'], title: _l('记录设置') },
+  { types: ['FastFilter', 'NavGroup', 'ActionSet', 'ActionSet', 'Print'], title: _l('用户操作') },
+  { types: ['MobileSet', 'urlParams'], title: _l('其他') },
+];
+
 export const COPY_CONFIGS = [
   {
     icon: 'tune_new',

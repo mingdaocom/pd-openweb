@@ -10,6 +10,7 @@ import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { ACTION_VALUE_ENUM } from '../../CustomEvent/config';
 import FunctionEditorDialog from '../../FunctionEditorDialog';
 import SearchWorksheetDialog from '../../SearchWorksheet/SearchWorksheetDialog';
 import {
@@ -39,11 +40,6 @@ const MenuStyle = styled.div`
     width: 20px;
     color: #757575;
   }
-  &:hover {
-    i {
-      color: #fff;
-    }
-  }
 `;
 
 export default class SelectOtherField extends Component {
@@ -66,7 +62,7 @@ export default class SelectOtherField extends Component {
   // 插入标签;
   insertField = para => {
     const { fieldId, relateSheetControlId, type } = para;
-    const { data = {}, onDynamicValueChange, dynamicValue } = this.props;
+    const { data = {}, onDynamicValueChange } = this.props;
     const { advancedSetting = {} } = data;
     const isText = _.includes([1, 2, 41, 45], data.type);
     const isAsync = () => {
@@ -179,7 +175,7 @@ export default class SelectOtherField extends Component {
   };
 
   getCurrentField = data => {
-    if (this.props.from === DYNAMIC_FROM_MODE.FAST_FILTER && data.type === 26) {
+    if (this.props.from === DYNAMIC_FROM_MODE.FAST_FILTER && [26, 27, 48].includes(data.type)) {
       return CURRENT_TYPES[data.type];
     }
     // 自定义默认值
@@ -259,7 +255,6 @@ export default class SelectOtherField extends Component {
       data,
       dynamicValue,
       onDynamicValueChange,
-      controls,
       allControls,
       onChange,
       popupContainer,
@@ -269,13 +264,17 @@ export default class SelectOtherField extends Component {
       withLinkParams,
       withDY,
       linkParams = [],
-      hideDynamic,
       fromCustomEventApi,
+      actionData = {},
+      fromCustomEvent,
     } = this.props;
 
     const filterTypes = this.getCurrentField(data);
     //子表、列表默认显示查询工作表icon，如包含清空操作时，显示动态值icon操作
     const isSubList = (_.includes([34], data.type) || isSheetDisplay(data)) && !showEmpty;
+
+    // 事件设置值，子表函数默认值支持本身
+    const subListSetValueEvent = data.type === 34 && actionData.actionType === ACTION_VALUE_ENUM.SET_VALUE;
 
     const renderPopupForQuickFilter = () => {
       switch (showPopupType) {
@@ -331,7 +330,7 @@ export default class SelectOtherField extends Component {
                 }}
               >
                 <MenuStyle>
-                  <i className={`icon-hr_time Font20 mRight15`}></i>
+                  <i className={`icon-task_custom_today Font20 mRight15`}></i>
                   {_l('动态时间')}
                 </MenuStyle>
               </MenuItem>
@@ -434,13 +433,18 @@ export default class SelectOtherField extends Component {
           <FunctionEditorDialog
             supportJavaScript
             supportDebug
+            fromCustom={subListSetValueEvent}
             appId={get(this.props, 'globalSheetInfo.appId')}
             worksheetId={get(this.props, 'globalSheetInfo.worksheetId')}
             projectId={get(this.props, 'globalSheetInfo.projectId')}
             control={data}
-            value={getAdvanceSetting(data, 'defaultfunc')}
+            value={
+              subListSetValueEvent
+                ? { ...getAdvanceSetting(data, 'defaultfunc'), type: 'javascript' }
+                : getAdvanceSetting(data, 'defaultfunc')
+            }
             title={data.controlName}
-            controls={allControls.filter(c => c.controlId !== data.controlId)}
+            controls={fromCustomEvent ? allControls : allControls.filter(c => c.controlId !== data.controlId)}
             onClose={() => this.setState({ fxVisible: false })}
             onSave={value => {
               onChange(

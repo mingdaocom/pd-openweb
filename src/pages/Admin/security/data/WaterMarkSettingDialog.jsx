@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Trigger from 'rc-trigger';
-import _ from 'lodash';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
 import { Dialog, TagTextarea, Tooltip } from 'ming-ui';
-import { ControlTag, SelectFieldsWrap } from 'src/pages/widgetConfig/styled/index';
 import projectSettingAjax from 'src/api/projectSetting';
+import { ControlTag, SelectFieldsWrap } from 'src/pages/widgetConfig/styled/index';
 import Config from '../../config';
 
 const CONTROLS = [
@@ -90,7 +90,7 @@ function WaterMarkSettingDialog(props) {
             getRef={tagTextarea => {
               $tagTextarea.current = tagTextarea;
             }}
-            renderTag={(id, options) => {
+            renderTag={id => {
               const originControl = _.find(CONTROLS, item => item.controlId === id);
               const controlName = _.get(originControl, 'controlName');
               return (

@@ -34,7 +34,7 @@ export default class GetMoreRecord extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -514,8 +514,11 @@ export default class GetMoreRecord extends Component {
           <Fragment>
             {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据')}
             {data.actionId === ACTION_ID.FROM_WORKSHEET && (
-              <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
-                <i className="icon-knowledge-message Font16 mLeft5 Gray_9e" />
+              <Tooltip
+                autoCloseDelay={0}
+                title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}
+              >
+                <i className="icon-info Font16 mLeft5 Gray_9e" />
               </Tooltip>
             )}
           </Fragment>
@@ -811,7 +814,9 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，更新记录')}</div>
-        <div className="mTop5 Gray_75">{_l('最大更新1000行数据')}</div>
+        <div className="mTop5 Gray_75">
+          {_l('最大更新%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
+        </div>
 
         <UpdateFields
           companyId={this.props.companyId}
@@ -840,7 +845,9 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
-        <div className="mTop5 Gray_75">{_l('最大删除10000行数据')}</div>
+        <div className="mTop5 Gray_75">
+          {_l('最大删除%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
+        </div>
 
         <div className="mTop15 flexRow">
           <Checkbox
@@ -873,7 +880,7 @@ export default class GetMoreRecord extends Component {
           bg={isRefresh ? 'BGGreen' : 'BGYellow'}
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>{this.renderContent()}</ScrollView>
         </div>
         <DetailFooter

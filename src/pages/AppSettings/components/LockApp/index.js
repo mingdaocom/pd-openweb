@@ -1,10 +1,10 @@
-import React, { Fragment, useState } from 'react';
-import { Button, Switch } from 'ming-ui';
-import { unlockAppLockPassword, lockAppFunc, modifyAppLockPassword, closeLockFunc } from './AppLockPasswordDialog';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
+import { Button, Switch } from 'ming-ui';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import AppSettingHeader from '../AppSettingHeader';
+import { closeLockFunc, lockAppFunc, modifyAppLockPassword, unlockAppLockPassword } from './AppLockPasswordDialog';
 
 const Wrap = styled.div`
   .prompt {
@@ -30,7 +30,6 @@ export default function LockAppCom(props) {
   const isNormalApp = sourceType === 1;
   const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
   const refreshPage = () => navigateTo(`/app/${appId}`);
-  const [switchLock, setSwitchLock] = useState(isRecovery);
 
   const recoveryLock = () => {
     return (
@@ -82,8 +81,8 @@ export default function LockAppCom(props) {
       />
       <div className="mBottom20">
         <Switch
-          disabled={switchLock && !(isNormalApp && isOwner)}
-          checked={switchLock}
+          disabled={isRecovery && !(isNormalApp && isOwner)}
+          checked={isRecovery}
           onClick={checked => {
             if (!checked) {
               lockAppFunc({
@@ -95,7 +94,7 @@ export default function LockAppCom(props) {
             }
           }}
         />
-        {switchLock && <span className="Gray_9e mLeft15 TxtMiddle">{_l('开启')}</span>}
+        {isRecovery && <span className="Gray_9e mLeft15 TxtMiddle">{_l('开启')}</span>}
       </div>
       {isRecovery && recoveryLock()}
     </Wrap>

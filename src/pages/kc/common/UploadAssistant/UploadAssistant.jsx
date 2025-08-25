@@ -1,4 +1,4 @@
-﻿import React, { Fragment } from 'react';
+﻿import React from 'react';
 import ReactDom from 'react-dom';
 import cx from 'classnames';
 import Immutable from 'immutable';
@@ -446,9 +446,7 @@ class UploadAssistant extends React.Component {
           <div
             className={cx('dropContainer ThemeBorderColor4', this.state.dragOver ? 'ThemeBGColor5' : 'ThemeBGColor6')}
           >
-            <div
-              className={cx('uploadIcon icon-knowledge-cloud', this.state.dragOver ? 'ThemeColor3' : 'ThemeColor4')}
-            />
+            <div className={cx('uploadIcon icon-cloud_upload', this.state.dragOver ? 'ThemeColor3' : 'ThemeColor4')} />
             <div className="dropDesc">{this.state.dragOver ? _l('松开鼠标开始上传') : _l('拖拽文件到这里上传')}</div>
           </div>
           <div className="chooseBtnContainer">

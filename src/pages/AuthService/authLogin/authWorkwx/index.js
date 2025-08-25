@@ -17,9 +17,9 @@ const isMobile = browserIsMobile();
 if (code) {
   if (checkLogin()) {
     if (checkOriginUrl(url)) {
-      location.href = decodeURIComponent(url);
+      location.replace(decodeURIComponent(url));
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     ajax.post({
@@ -35,9 +35,9 @@ if (code) {
           getGlobalMeta().then(() => {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
-              location.href = decodeURIComponent(url);
+              location.replace(decodeURIComponent(url));
             } else {
-              location.href = isMobile ? `/mobile` : `/app`;
+              location.replace(isMobile ? `/mobile` : `/app`);
             }
           });
         }
@@ -50,9 +50,9 @@ if (code) {
   const newUrl = addOtherParam(url, otherParamString);
   if (checkLogin()) {
     if (checkOriginUrl(newUrl)) {
-      location.href = newUrl;
+      location.replace(newUrl);
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     const hosts = location.host.split('.');
@@ -68,7 +68,16 @@ if (code) {
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/workwx?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );
-        location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&agentid=${agentId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`;
+
+        if (agentId) {
+          location.replace(
+            `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&agentId=${agentId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`,
+          );
+        } else {
+          location.replace(
+            `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`,
+          );
+        }
       },
       error: login,
     });

@@ -138,7 +138,7 @@ class AppHome extends React.Component {
           silent: true,
         },
       )
-      .then(result => {});
+      .then(() => {});
   };
   filterSearchResult = (apps = [], keyWords) => {
     return apps.filter(
@@ -227,7 +227,7 @@ class AppHome extends React.Component {
     return (
       <div className="h100" style={{ overflow: 'auto' }}>
         <div className="appCon flexRow alignItemsCenter">
-          {_.map(searchResult, (item, i) => {
+          {_.map(searchResult, item => {
             return <ApplicationItem data={item} myPlatformLang={myPlatformLang} />;
           })}
         </div>
@@ -462,7 +462,7 @@ class AppHome extends React.Component {
   };
 
   // 图表收藏
-  renderCollectCharts = (projectId, reportAutoRefreshTimer) => {
+  renderCollectCharts = () => {
     const { collectCharts } = this.props;
     if (_.isEmpty(collectCharts)) return;
 

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import * as actions from 'worksheet/redux/actions/gunterview';
 
 const TodayWrapper = styled.div`
   position: absolute;
@@ -13,7 +13,7 @@ const TodayWrapper = styled.div`
   color: #fff;
   padding: 1px 5px;
   border-radius: 4px;
-  background-color: #2196f3;
+  background-color: #1677ff;
   &.left {
     left: 5px;
   }
@@ -35,8 +35,8 @@ export default class Today extends Component {
     this.state = {
       disable: onlyWorkDay ? dayOff.includes(moment().days()) : false,
       todayVisible: false,
-      direction: 'left'
-    }
+      direction: 'left',
+    };
     this.debounceScroll = _.debounce(this.handleScroll, 500);
   }
   componentDidMount() {
@@ -50,7 +50,7 @@ export default class Today extends Component {
   componentWillReceiveProps({ gunterView }) {
     const { onlyWorkDay, dayOff } = gunterView.viewConfig;
     this.setState({
-      disable: onlyWorkDay ? dayOff.includes(moment().days()) : false
+      disable: onlyWorkDay ? dayOff.includes(moment().days()) : false,
     });
   }
   handleScroll = () => {
@@ -80,22 +80,20 @@ export default class Today extends Component {
       }
       this.setState({ todayVisible: true });
     }
-  }
+  };
   handleGoToday = () => {
     const { todayVisible } = this.state;
     if (todayVisible) {
       this.setState({ todayVisible: false });
       this.props.refreshGunterView();
     }
-  }
+  };
   render() {
     const { todayVisible, disable, direction } = this.state;
     return (
-      (todayVisible && !disable) && (
-        <TodayWrapper
-          className={cx('pointer', direction)}
-          onClick={this.handleGoToday}
-        >
+      todayVisible &&
+      !disable && (
+        <TodayWrapper className={cx('pointer', direction)} onClick={this.handleGoToday}>
           {_l('今天')}
         </TodayWrapper>
       )

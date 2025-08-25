@@ -1,9 +1,9 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
-import './taskLog.less';
-import ajaxRequest from 'src/api/taskCenter';
-import LoadDiv from 'ming-ui/components/LoadDiv';
 import filterXSS from 'xss';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import ajaxRequest from 'src/api/taskCenter';
+import './taskLog.less';
 
 export default class TaskDetail extends Component {
   constructor(props) {
@@ -61,11 +61,11 @@ export default class TaskDetail extends Component {
     } else if (type === 9) {
       return 'icon-task-status-no';
     } else if (type === 10) {
-      return 'icon-task-new-locked';
+      return 'icon-lock';
     } else if (type === 11) {
       return 'icon-task-new-no-locked';
     } else if (type === 14 || type === 99) {
-      return 'icon-task-new-delete';
+      return 'icon-trash';
     }
   }
 

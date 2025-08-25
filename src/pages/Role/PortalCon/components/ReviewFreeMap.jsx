@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon, Radio } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
 import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 

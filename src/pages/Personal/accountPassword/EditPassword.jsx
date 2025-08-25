@@ -99,25 +99,7 @@ export default class EditPassword extends Component {
 
   forbidRefresh() {
     $("<div class='passwordModifySuccessMask'></div>").appendTo('html > body');
-    this.forbidF5();
     this.forbidRightClick();
-  }
-
-  forbidF5() {
-    document.onkeydown = function (e) {
-      e = window.event || e;
-      var keycode = e.keyCode || e.which;
-      if ((keycode = 116)) {
-        if (window.event) {
-          try {
-            e.keyCode = 0;
-          } catch (e) {}
-          e.returnValue = false;
-        } else {
-          e.preventDefault();
-        }
-      }
-    };
   }
 
   forbidRightClick() {

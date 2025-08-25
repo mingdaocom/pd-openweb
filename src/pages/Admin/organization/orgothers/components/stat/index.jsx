@@ -1,13 +1,11 @@
 ﻿import React, { Fragment } from 'react';
-import Input from 'ming-ui/components/Input';
-import StatTable from './StatTable';
-import Config from '../../../../config';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import DatePickerFilter from './datePickerFilter';
-
-import './style.less';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
+import Config from '../../../../config';
+import DatePickerFilter from './datePickerFilter';
+import StatTable from './StatTable';
+import './style.less';
 
 const routeList = [
   {

@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { Motion, spring } from 'react-motion';
 import { useKey } from 'react-use';
-import styled from 'styled-components';
+import cx from 'classnames';
 import { includes } from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 
 const ConBox = styled.div`
   position: absolute;
@@ -22,7 +22,9 @@ const Con = styled.div`
   line-height: 48px;
   padding: 0 10px 0 24px;
   z-index: 9;
-  box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0px 6px 24px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -63,15 +65,6 @@ const CancelButton = styled(Button)`
   &:hover {
     background-color: rgba(255, 255, 255, 0.16);
   }
-`;
-
-const ExtraButton = styled(Button)`
-  font-weight: 600;
-  user-select: none;
-  color: #fff;
-  border: 1px solid #fff;
-  margin-right: 10px;
-  line-height: 26px;
 `;
 
 export default function EditingBar(props) {
@@ -133,7 +126,7 @@ export default function EditingBar(props) {
           onClick={e => e.stopPropagation()}
           className="editingBar"
         >
-          <Con style={{ background: isBlack ? '#151515' : '#2196f3' }}>
+          <Con style={{ background: isBlack ? '#151515' : '#1677ff' }}>
             <span className="flex bold">{title}</span>
             {loading && <Loading className="icon icon-loading_button" />}
             {!loading && cancelText && (

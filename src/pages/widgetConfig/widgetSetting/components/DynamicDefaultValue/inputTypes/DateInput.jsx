@@ -56,7 +56,7 @@ export default class DateInput extends Component {
     this.updateValue();
   };
 
-  handleDateChange = (date, formatMode) => {
+  handleDateChange = date => {
     const { data, withMaxOrMin } = this.props;
 
     if (_.isNull(date)) {

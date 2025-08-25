@@ -1,15 +1,19 @@
 import React from 'react';
-import { string, element } from 'prop-types';
-import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
+import { element, string } from 'prop-types';
+import { navigateTo } from 'src/router/navigateTo';
 
 export default function PurchaseExpandPack(props) {
-  const { className, text, type, projectId, routePath = 'expansionservice', extraParam } = props;
+  const { className, text, type, projectId, routePath = 'expansionservice', extraParam, onClick } = props;
   const { version, licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
 
   const handleClick = e => {
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
+    if (onClick && _.isFunction(onClick)) {
+      onClick();
+      return;
+    }
     navigateTo(`/admin/${routePath}/${projectId}/${type}${extraParam ? '/' + extraParam : ''}`);
   };
 

@@ -1,16 +1,11 @@
-// import react, react-markdown-editor-lite, and a markdown parser you like
 import React, { forwardRef, useEffect, useState } from 'react';
 import MdEditor from 'react-markdown-editor-lite';
-// import style manually
 import 'react-markdown-editor-lite/lib/index.css';
 import cx from 'classnames';
 import MarkdownIt from 'markdown-it';
 import styled from 'styled-components';
 import { getToken } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-
-// Register plugins if required
-// MdEditor.use(YOUR_PLUGINS_HERE);
 
 const Wrap = styled.div`
   .MdEditorCon {
@@ -47,7 +42,7 @@ const Markdown = forwardRef((props, ref) => {
   const [value, setValue] = useState(props.value);
   // Initialize a markdown parser
   const mdParser = new MarkdownIt({ linkify: editProps.linkify });
-  const handleChange = ({ html, text }) => {
+  const handleChange = ({ text }) => {
     setValue(text);
     onSave(text);
     // 这里可以处理 newValue，比如保存到服务器等
@@ -114,7 +109,7 @@ const Markdown = forwardRef((props, ref) => {
     'tab-insert',
   ];
   const handleImageUpload = file => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const data = new FormData();
       let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
       let isPic = RegExpValidator.fileIsPicture(fileExt);

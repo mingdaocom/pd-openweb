@@ -1,20 +1,20 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import Trigger from 'rc-trigger';
-import { Icon, Button, Dialog, Checkbox, Tooltip } from 'ming-ui';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog } from 'ming-ui';
 
 const ChangeSheetLayout = styled.span`
   position: absolute;
   left: 12px;
   cursor: pointer;
   font-size: 15px;
-  color: #2196f3;
+  color: #1677ff;
   .icon {
     font-size: 16px;
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -81,7 +81,7 @@ export default function LayoutChangedIcon(props) {
                     <Checkbox
                       className="InlineBlock"
                       defaultChecked={applyToAllChecked}
-                      text={_l('同时将列样式应用到其它所有表格')}
+                      text={_l('同时将列样式应用到其它所有表格视图')}
                       onClick={() => (cache.current.isApplyAll = !cache.current.isApplyAll)}
                       style={{
                         color: '#333',

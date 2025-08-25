@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Dialog, RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../../../../styled';
+import { getAdvanceSetting } from '../../../../../util/setting';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { CustomActionWrap } from '../../style';
-import { getAdvanceSetting } from '../../../../../util/setting';
 
 const DISPLAY_OPTIONS = [
   {

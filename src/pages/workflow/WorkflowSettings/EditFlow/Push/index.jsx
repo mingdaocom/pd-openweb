@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
 import { PUSH_LIST, PUSH_TYPE } from '../../enum';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Push extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class Push extends Component {
     if (item.pushType && item.isException) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('节点配置有误')}
         </div>
       );

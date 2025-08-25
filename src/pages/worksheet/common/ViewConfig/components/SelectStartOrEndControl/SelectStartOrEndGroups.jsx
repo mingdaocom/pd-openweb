@@ -27,19 +27,19 @@ const WrapFragment = styled.div`
     border-radius: 3px;
     padding: 0 12px;
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .addMark {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .addCalendarcids {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
       i {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }
@@ -87,7 +87,7 @@ const Wrap = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff !important;
       i {
         color: #fff !important;
@@ -110,7 +110,6 @@ export default function SelectStartOrEndGroups(props) {
   } = props;
   timeControls = setSysWorkflowTimeControlFormat(timeControls, sheetSwitchPermit);
   let $ref = useRef(null);
-  const { advancedSetting = {} } = view;
   const [calendarcids, setCalendarcids] = useState([]);
   const [visible, setVisible] = useState(false);
   const [showInput, setShowInput] = useState();
@@ -120,18 +119,19 @@ export default function SelectStartOrEndGroups(props) {
   const getData = () => {
     let calendarcids = [];
     try {
-      calendarcids = JSON.parse(_.get(view, ['advancedSetting', 'calendarcids']));
+      calendarcids = safeParse(_.get(view, ['advancedSetting', 'calendarcids']), 'array');
     } catch (error) {
+      console.log(error);
       calendarcids = [];
     }
     if (calendarcids.length <= 0 && begindateOrFirst) {
       calendarcids = begindate
         ? [{ begin: begindate, end: enddate }]
         : [
-          {
-            begin: (timeControls[0] || {}).controlId,
-          },
-        ];
+            {
+              begin: (timeControls[0] || {}).controlId,
+            },
+          ];
     }
     return calendarcids;
   };
@@ -251,8 +251,10 @@ export default function SelectStartOrEndGroups(props) {
               </span>
             )}
             <Icon
-              icon="delete2"
-              className={cx('Font16 mRight5 deleted Hand InlineFlex flex-shrink-0', { option0: calendarcids.length <= 1 })}
+              icon="trash"
+              className={cx('Font16 mRight5 deleted Hand InlineFlex flex-shrink-0', {
+                option0: calendarcids.length <= 1,
+              })}
               onClick={() => {
                 if (calendarcids.length <= 1) {
                   return;

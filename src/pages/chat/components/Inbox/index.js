@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+
 export { default as Inbox } from './components/Inbox';
 
 export function index(options) {

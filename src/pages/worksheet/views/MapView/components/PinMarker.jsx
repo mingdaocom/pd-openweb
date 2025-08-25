@@ -11,7 +11,7 @@ import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import { sortControlByIds } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
-import { getRecordColorConfig } from 'src/utils/record';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 import EditableCard from '../../components/EditableCard';
 import Marker from '../amap/Maker';
 
@@ -38,9 +38,6 @@ const wrapStyles = `
   position: relative;
   left: -17px;
   transform: translateX(50%);
-}
-.pinIcon {
-  color: #f44336 !important;
 }
 .markCon > .content {
   margin-left: 6px;
@@ -140,6 +137,7 @@ function getTagColor(tagType, colorControl, record = {}) {
         color: new TinyColor(color).isLight() ? '#151515' : '#fff',
       };
     } catch (err) {
+      console.log(err);
       return {
         color: '#151515',
         bgColor: '#fff',
@@ -176,10 +174,19 @@ export default function MarkerCard(props) {
     getData,
     updateNavGroup,
   } = props;
-  const { position, title, summary, cover, record } = marker;
-  const { titleId, tagType, tagcolorid, showControlIds, showControlName, showtitle } = mapViewConfig;
-  const isGMap = type === 'GMap';
+  const { position, title, cover, record } = marker;
+  const { titleId, tagType, tagcolorid, showtitle } = mapViewConfig;
   const [active, setActive] = useState(false);
+  const recordColorConfig = getRecordColorConfig(view);
+
+  const recordColor =
+    recordColorConfig &&
+    getRecordColor({
+      controlId: recordColorConfig.controlId,
+      colorItems: recordColorConfig.colorItems,
+      controls,
+      row: marker.record,
+    });
 
   useEffect(() => {
     if (mobileCloseCard === 0 || !isMobile || !active) return;
@@ -207,7 +214,9 @@ export default function MarkerCard(props) {
   let coverUrl;
   try {
     coverUrl = safeParse(cover, 'array')[0] ? safeParse(cover, 'array')[0].previewUrl : '';
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 
   const openRecord = () => {
     openRecordInfo({
@@ -237,11 +246,12 @@ export default function MarkerCard(props) {
 
   return (
     <Con {...props} position={[position.x, position.y]} zIndex={active ? 101 : 100}>
-      <div className="markCon" style={{ zIndex: isCurrent ? 9 : 1 }}>
+      <div className="markCon" style={{ zIndex: isCurrent || active ? 9 : 1 }}>
         <div className="iconCon">
           <Icon
             icon="location_on"
             className="Font34 pinIcon"
+            style={{ color: recordColor?.color ? `${recordColor.color}` : '#f44336' }}
             onMouseOver={() => setActive(true)}
             onMouseOut={() => setActive(false)}
             onTouchStartCapture={() => setActive(!active)}
@@ -252,7 +262,7 @@ export default function MarkerCard(props) {
           className="content"
           onMouseOver={() => setActive(true)}
           onMouseOut={() => setActive(false)}
-          onClick={e => {
+          onClick={() => {
             if (isMobile) return;
             handleRecordClick(view, marker.record, () => {
               openRecord();
@@ -312,7 +322,6 @@ export default function MarkerCard(props) {
                 type="board"
                 showNull={true}
                 data={{
-                  abstractValue: marker.abstract,
                   allAttachments: safeParse(marker.cover, 'array'),
                   allowDelete: record.allowdelete,
                   allowEdit: false,
@@ -326,7 +335,7 @@ export default function MarkerCard(props) {
                   rawRow: JSON.stringify(marker.record),
                   rowId: marker.record.rowid,
                   formData: formData,
-                  recordColorConfig: getRecordColorConfig(view),
+                  recordColorConfig,
                 }}
                 hoverShowAll
                 canDrag={false}
@@ -335,7 +344,7 @@ export default function MarkerCard(props) {
                 allowCopy={worksheetInfo.allowAdd}
                 allowRecreate={worksheetInfo.allowAdd}
                 sheetSwitchPermit={sheetSwitchPermit}
-                onUpdate={(updated, item) => {}}
+                onUpdate={() => {}}
                 onDelete={handleRefresh}
                 onCopySuccess={handleRefresh}
                 updateTitleData={updateTitleControlData}

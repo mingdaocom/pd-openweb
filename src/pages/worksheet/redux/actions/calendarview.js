@@ -13,7 +13,7 @@ let getRows;
 let getRowsIds = [];
 export const fetch = searchArgs => {
   return (dispatch, getState) => {
-    const { base, filters, quickFilter = [] } = getState().sheet;
+    const { base, quickFilter = [] } = getState().sheet;
     const { worksheetId, viewId, appId, chartId } = base;
     if (getRows && getRowsIds.includes(viewId)) {
       getRows.abort();
@@ -25,6 +25,7 @@ export const fetch = searchArgs => {
     if (searchArgs.endTime) {
       searchArgs.endTime = dateConvertToUserZone(searchArgs.endTime);
     }
+    dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: true });
     getRows = sheetAjax.getFilterRows(
       getFilledRequestParams({
         appId,
@@ -47,11 +48,13 @@ export const fetch = searchArgs => {
           'endTime',
         ]),
         fastFilters: formatQuickFilter(quickFilter),
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       }),
     );
     getRows.then(res => {
       getRowsIds = getFilterRowsIds.filter(o => o !== viewId);
       dispatch({ type: 'CHANGE_CALENDARLIST', data: res.data, resultCode: res.resultCode });
+      dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: false });
       dispatch(updataEditable(true));
       dispatch(updateFormatData());
     });
@@ -112,7 +115,7 @@ export const fetchExternal = () => {
 };
 
 export const updataEditable = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_CALENDAR_EDITABLE', data: data });
   };
 };
@@ -120,7 +123,7 @@ export const updataEditable = data => {
 //格式化处理已排期数据
 const formatData = arr => {
   let newArr = [];
-  arr.forEach((oldData, i) => {
+  arr.forEach(oldData => {
     let index = -1;
     let alreadyExists = newArr.some((newData, j) => {
       if (moment(oldData.start).isSame(newData.date, 'day')) {
@@ -206,7 +209,7 @@ const dataResort = obj => {
 };
 
 export function changeCalendarTime(start, end) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_CALENDAR_VIEW_START', data: start });
     dispatch({ type: 'CHANGE_CALENDAR_VIEW_END', data: end });
   };
@@ -229,6 +232,7 @@ export function getCalendarData() {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
       calendarcids = [];
+      console.log(error);
     }
     let colorList = colorid ? controls.find(it => it.controlId === colorid) || [] : [];
     let timeControls = getTimeControls(controls);
@@ -274,7 +278,7 @@ export function getCalendarData() {
 }
 
 export const getInitType = () => {
-  return (dispatch, getState) => {
+  return () => {
     let type = window.localStorage.getItem('CalendarShowExternalTypeEvent');
     if (!type) {
       safeLocalStorageSetItem('CalendarShowExternalTypeEvent', 'eventNoScheduled');
@@ -285,7 +289,7 @@ export const getInitType = () => {
 
 // 获取已排期
 export const getEventScheduledData = type => {
-  return (dispatch, getState) => {
+  return dispatch => {
     if (type === 'eventScheduled') {
       // 早于今天的第一页数据
       dispatch(
@@ -331,7 +335,7 @@ export function getEventList({
     if (getFilterRows && getFilterRowsIds.includes(viewId)) {
       getFilterRows.abort();
     }
-    dispatch({ type: 'CHANGE_CALENDAR_ISOVER', data: true });
+    dispatch({ type: 'CHANGE_CALENDAR_IS_OVER', data: true });
     let prams = {
       appId,
       viewId: viewId,
@@ -428,9 +432,9 @@ export function getEventList({
       getFilterRowsIds = getFilterRowsIds.filter(o => o !== viewId);
       let s = rowsData.data;
       if (keyWords) {
-        let seachDataList = [];
+        let searchDataList = [];
         s.map(it => {
-          seachDataList.push(
+          searchDataList.push(
             ...setDataFormat({
               ...it,
               worksheetControls: controls,
@@ -445,7 +449,7 @@ export function getEventList({
           data: {
             ...calenderEventList,
             keyWords,
-            seachData: seachDataList,
+            searchData: searchDataList,
           },
         });
         dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: false });
@@ -486,7 +490,7 @@ export function getEventList({
           [`${typeEvent}Count`]: isUp ? calenderEventList[`${typeEvent}Count`] : rowsData.count,
           typeEvent,
           keyWords,
-          seachData: [],
+          searchData: [],
           updataRowIds: pageIndex === 1 ? [] : calenderEventList.updataRowIds,
           eventScheduledUpIsAll: isUp ? s.length < 20 : calenderEventList.eventScheduledUpIsAll,
           eventScheduledUpIndex: isUp ? pageIndex : calenderEventList.eventScheduledUpIndex, //已排期 今天之前的 pageIndex
@@ -517,7 +521,7 @@ export function getEventList({
         });
         dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: false });
       }
-      dispatch({ type: 'CHANGE_CALENDAR_ISOVER', data: true });
+      dispatch({ type: 'CHANGE_CALENDAR_IS_OVER', data: true });
       if (cb) {
         dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: true });
         cb();
@@ -541,7 +545,7 @@ export function searchKeys(keyWords) {
 }
 
 export function searchEventArgs(keyWords, pageIndex) {
-  return (dispatch, getState) => {
+  return dispatch => {
     const typeEvent = dispatch(getInitType());
     dispatch({ type: 'CHANGE_CALENDAR_LOADING', data: true });
     dispatch(getEventList({ pageIndex, typeEvent, keyWords }));
@@ -580,7 +584,7 @@ export function deleteEventList(rowid) {
 }
 
 export function refreshEventList() {
-  return (dispatch, getState) => {
+  return dispatch => {
     const typeEvent = dispatch(getInitType());
     dispatch({
       type: 'CHANGE_CALENDAR_CLEAR',
@@ -593,7 +597,7 @@ export function refreshEventList() {
 }
 //当前新增表单
 export function updateCalendarEventIsAdd(data) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'CALENDAR_EVENT_IS_ADD',
       data: data,
@@ -607,12 +611,12 @@ export function updateEventData(rowId, data, time) {
     const { calendarview, controls, base, views } = getState().sheet;
     const { calendarData, calenderEventList = {} } = calendarview;
     const currentView = views.find(o => o.viewId === base.viewId) || {};
-    let { keyWords, seachData, eventScheduledDtResort = [], updataRowIds = [] } = calenderEventList;
+    let { keyWords, searchData, eventScheduledDtResort = [], updataRowIds = [] } = calenderEventList;
     const typeEvent = dispatch(getInitType());
     if (keyWords) {
       // 搜索状态 直接更新卡片数据
       let da = [];
-      seachData.map((it, i) => {
+      searchData.map(it => {
         if (it.extendedProps.rowid === rowId) {
           da.push(
             ...setDataFormat({
@@ -631,7 +635,7 @@ export function updateEventData(rowId, data, time) {
         type: 'CHANGE_CALENDAR_LIST',
         data: {
           ...calenderEventList,
-          seachData: da,
+          searchData: da,
         },
       });
     } else {
@@ -663,7 +667,7 @@ export function updateEventData(rowId, data, time) {
           da = da.concat(_.omit(data, ['allowedit', 'allowdelete']));
           add = true;
         } else {
-          da = da.map((it, i) => {
+          da = da.map(it => {
             if (it.rowid === rowId) {
               return _.omit(data, ['allowedit', 'allowdelete']);
             } else {
@@ -712,21 +716,21 @@ export function updateEventData(rowId, data, time) {
   };
 }
 
-export const mobileIsShowMoreClick = flag => (dispatch, getState) => {
+export const mobileIsShowMoreClick = flag => dispatch => {
   dispatch({
     type: 'SHOW_MOBILE_MORE_CLICK',
     flag,
   });
 };
 
-export const changeMobileCurrentData = data => (dispatch, getState) => {
+export const changeMobileCurrentData = data => dispatch => {
   dispatch({
     type: 'CHANGE_MOBILE_CURRENTDATA',
     data,
   });
 };
 
-export const changeMobileCurrentDate = date => (dispatch, getState) => {
+export const changeMobileCurrentDate = date => dispatch => {
   dispatch({
     type: 'CHANGE_MOBILE_CURRENTDATE',
     date,

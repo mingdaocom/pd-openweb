@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
-import { bindActionCreators } from 'redux';
+import React from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
-import { loadWorksheet, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } from 'worksheet/redux/actions';
-import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
-import { getSearchData } from 'worksheet/views/util';
+import _ from 'lodash';
+import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import Sheet from 'worksheet/common/Sheet/Sheet';
+import { loadWorksheet, openNewRecord, refreshSheet, updateFilters, updateSearchRecord } from 'worksheet/redux/actions';
+import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
+import { getSearchData } from 'worksheet/views/util';
 import Header from './Header';
-import _ from 'lodash';
 
 const Con = styled.div`
   width: 100%;

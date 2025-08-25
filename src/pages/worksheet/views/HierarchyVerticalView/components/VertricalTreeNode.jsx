@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/utils/common';
@@ -85,12 +85,10 @@ function VertricalTreeNode(props) {
     depth,
     isRoot = false,
     view,
-    isMix = false,
     isNarrow = false,
     showTopAdd = false,
     handleAddRecord,
     controls,
-    ...rest
   } = props;
   const { children = [], display, pathId = [], visible = false } = data;
   const { advancedSetting = {} } = view;

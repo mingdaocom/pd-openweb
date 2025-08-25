@@ -12,9 +12,9 @@ export const setFavicon = (iconUrl, iconColor) => {
     .then(res => res.text())
     .then(data => {
       if (iconUrl.indexOf('_preserve.svg') === -1) {
-        data = btoa(data.replace(/fill=\".*?\"/g, '').replace(/\<svg/, `<svg fill="${iconColor}"`));
+        data = btoa(data.replace(/fill=".*?"/g, '').replace(/<svg/, `<svg fill="${iconColor}"`));
       } else {
-        data = btoa(data.replace(/\<svg/, `<svg fill="${iconColor}"`));
+        data = btoa(data.replace(/<svg/, `<svg fill="${iconColor}"`));
       }
 
       $('[rel="icon"]').attr('href', `data:image/svg+xml;base64,${data}`);
@@ -85,7 +85,7 @@ export const getTranslateInfo = (appId, parentId, id, data) => {
 export const getAppLangDetail = appDetail => {
   const { langInfo } = appDetail;
   const appId = appDetail.id;
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
       appManagementApi
         .getAppLangDetail({

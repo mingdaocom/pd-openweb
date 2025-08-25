@@ -3,10 +3,11 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import filterXss from 'xss';
-import { Button, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Button, Dialog, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
 import roleController from 'src/api/role';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { dateConvertToUserZone } from 'src/utils/project';
@@ -72,6 +73,7 @@ export default class orgLog extends React.Component {
                   {isNormalUser ? (
                     <UserName
                       className="Gray Font13 pRight10 pTop3 flex ellipsis"
+                      projectId={projectId}
                       user={{
                         userName: fullname,
                         accountId: accountId,
@@ -96,7 +98,7 @@ export default class orgLog extends React.Component {
                     rUserList: extrasAccounts,
                   })
                 : '';
-              const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
+              const txt = (isUser ? message : opeartContent).replace(/<a.*?>/g, '').replace(/<\/a>/g, '');
               return opeartContent ? (
                 <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
                   <span
@@ -182,7 +184,7 @@ export default class orgLog extends React.Component {
     downloadAjax.exportOrgOperateLogs(params).then(res => {
       this.setState({ disabledExportBtn: false });
       if (!res) {
-        Confirm({
+        Dialog.confirm({
           title: _l('数据导出超过100,000行，本次仅导出前100,000行记录'),
           okText: _l('导出'),
           onOk: () => {
@@ -228,6 +230,17 @@ export default class orgLog extends React.Component {
     } = this.state;
     const { operateTargetType, operateType } = searchValues;
     const { projectId } = _.get(this.props, 'match.params') || '';
+
+    const licenseType = (md.global.Account.projects.find(o => o.projectId === projectId) || {}).licenseType;
+
+    if (licenseType === 0) {
+      return upgradeVersionDialog({
+        projectId,
+        explainText: _l('请升级至付费版解锁'),
+        isFree: true,
+        dialogType: 'content',
+      });
+    }
 
     if (showHistoryLogs) {
       return (

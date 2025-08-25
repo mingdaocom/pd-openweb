@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Dialog, Button } from 'ming-ui';
-import externalPortalAjax from 'src/api/externalPortal.js';
-
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal.js';
+
 const Load = styled.div`
   width: 15px;
   height: 15px;
@@ -38,7 +38,7 @@ const Wrap = styled.div`
     line-height: 34px;
     padding: 0 5px;
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .errTxt {
@@ -159,7 +159,7 @@ export default function EditPortalUrlDialog(props) {
               setState({ urlSuffix: str, errStr: '' });
             }}
             onBlur={e => {
-              if (!!e.target.value.trim()) {
+              if (e.target.value.trim()) {
                 verify(urlSuffix);
               }
             }}

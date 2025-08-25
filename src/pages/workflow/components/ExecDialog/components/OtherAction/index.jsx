@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import _, { get } from 'lodash';
+import _ from 'lodash';
 import { func, object, oneOf, string } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog, Dropdown, Signature, Textarea, VerifyPasswordInput } from 'ming-ui';
@@ -11,6 +11,7 @@ import instanceAJAX from '../../../../api/instance';
 import codeAuth from 'src/api/codeAuth';
 import Attachment from 'src/components/newCustomFields/widgets/Attachment';
 import verifyPassword from 'src/components/verifyPassword';
+import { getTranslateInfo } from 'src/utils/app';
 import { ACTION_TO_TEXT } from '../../config';
 import './index.less';
 
@@ -75,7 +76,7 @@ const TemplateList = styled.div`
     color: #757575;
     &:hover,
     &.active {
-      color: #2196f3;
+      color: #1677ff;
       background-color: #e8f5ff;
     }
   }
@@ -205,14 +206,15 @@ export default class OtherAction extends Component {
   renderHeader = () => {
     const { action, data } = this.props;
     const btnMap = data.btnMap || {};
+    const translateInfo = getTranslateInfo(_.get(data, 'app.id'), data.parentId, _.get(data, 'flowNode.id'));
 
     return (
       <header className="flexRow">
         <div className="headerText Font17">
           {(ACTION_TO_TEXT[action] || {}).headerText}
-          {action === 'pass' && (btnMap[4] || _l('同意'))}
-          {action === 'overrule' && (btnMap[5] || _l('拒绝'))}
-          {action === 'return' && (btnMap[17] || _l('退回'))}
+          {action === 'pass' && (translateInfo[`btnmap_4`] || btnMap[4] || _l('同意'))}
+          {action === 'overrule' && (translateInfo[`btnmap_5`] || btnMap[5] || _l('拒绝'))}
+          {action === 'return' && (translateInfo[`btnmap_17`] || btnMap[17] || _l('退回'))}
         </div>
       </header>
     );
@@ -381,6 +383,7 @@ export default class OtherAction extends Component {
                     color="#fff"
                     overlayInnerStyle={{ padding: '12px 16px', width: 240 }}
                     align={{ offset: [5, 15] }}
+                    autoCloseDelay={0}
                     title={() => (
                       <Fragment>
                         <div className="Font15 bold Gray">
@@ -799,6 +802,7 @@ export default class OtherAction extends Component {
                     <Attachment
                       projectId={projectId}
                       appId={app.id}
+                      worksheetId={_.get(this.props, 'data.flowNode.appId')}
                       value={files}
                       hint={_l('附件')}
                       canAddKnowledge={false}

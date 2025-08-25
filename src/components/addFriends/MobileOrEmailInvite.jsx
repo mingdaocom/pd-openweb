@@ -167,7 +167,7 @@ export default class MobileOrEmailInvite extends Component {
     InviteController.getInviteAccountInfo({
       accounts: accountObj,
     })
-      .then(data => {
+      .then(() => {
         this.invite(accountObj);
       })
       .catch(() => {
@@ -189,7 +189,7 @@ export default class MobileOrEmailInvite extends Component {
       );
     } else {
       content = (
-        <EmailInput data={o} inputClassName="rowTel pLeft8" onChange={data => this.handleChange(data, index)} />
+        <EmailInput data={item} inputClassName="rowTel pLeft8" onChange={data => this.handleChange(data, index)} />
       );
     }
 
@@ -285,7 +285,7 @@ export default class MobileOrEmailInvite extends Component {
           {fromType !== FROM_TYPE.GROUPS && (
             <div className="addBox mLeft10">
               <span onClick={() => setDetailMode(DETAIL_MODE.INVITE)}>
-                <Icon icon="overdue_network" />
+                <Icon icon="access_time" />
                 {_l('邀请记录')}
               </span>
             </div>
@@ -316,7 +316,7 @@ export default class MobileOrEmailInvite extends Component {
             {fromType !== FROM_TYPE.GROUPS && showInviteRules && (
               <div className="addBox Gray_9e mRight16">
                 <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
-                  <Icon icon="settings1" />
+                  <Icon icon="settings" />
                   {_l('邀请设置')}
                 </span>
               </div>

@@ -1,6 +1,6 @@
 import React from 'react';
-import CellControl from 'worksheet/components/CellControls';
 import _ from 'lodash';
+import CellControl from 'worksheet/components/CellControls';
 
 export default function MDCell(props) {
   const {

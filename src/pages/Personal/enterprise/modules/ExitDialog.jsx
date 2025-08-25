@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dialog } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import account from 'src/api/account';
+import { navigateTo } from 'src/router/navigateTo';
 import { htmlEncodeReg } from 'src/utils/common';
 import './index.less';
 
@@ -66,7 +67,7 @@ export default class ExitDialog extends Component {
             this.props.getData();
             break;
           case 3:
-            this.props.transferAdminProject(this.props.projectId, this.props.companyName, thi.props.password, result);
+            this.props.transferAdminProject(this.props.projectId, this.props.companyName, this.props.password, result);
             break;
           case 4:
             this.toLogout();
@@ -83,7 +84,7 @@ export default class ExitDialog extends Component {
   }
 
   render() {
-    const { needTransfer, companyName } = this.props;
+    const { needTransfer } = this.props;
     const { userInfo } = this.state;
     return (
       <Fragment>
@@ -92,7 +93,7 @@ export default class ExitDialog extends Component {
             <p>{_l('需要先移交管理身份再退出，退出后，管理员可以在后台交接或分配您负责的剩余工作')}</p>
             <div>
               <span
-                className="icon-addapplication Font32 ThemeColor3 ThemeHoverColor2 TxtMiddle Hand"
+                className="icon-add_circle Font32 ThemeColor3 ThemeHoverColor2 TxtMiddle Hand"
                 onClick={() => this.handleSelct()}
               ></span>
               {userInfo.accountId ? (

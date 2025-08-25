@@ -20,7 +20,7 @@ export default class Api extends Component {
     if (item.appId && !item.appName) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('API已删除')}
         </div>
       );
@@ -29,7 +29,7 @@ export default class Api extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('节点存在异常')}
         </div>
       );

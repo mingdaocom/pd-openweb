@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Switch, Support, Button, Skeleton } from 'ming-ui';
-import PublicWorksheetConfigForm from '../common/PublicWorksheetConfigForm';
-import ConfigPanel from '../common/ConfigPanel';
-import ShareUrl from 'worksheet/components/ShareUrl';
-import * as actions from '../redux/actions';
-import { VISIBLE_TYPE } from '../enum';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
-import { renderLimitInfo, isDisplayPromptText, getDisabledControls } from '../utils';
+import PropTypes from 'prop-types';
+import { Button, Skeleton, Support, Switch } from 'ming-ui';
+import ShareUrl from 'worksheet/components/ShareUrl';
+import { checkCertification } from 'src/components/checkCertification';
+import ConfigPanel from '../common/ConfigPanel';
+import PublicWorksheetConfigForm from '../common/PublicWorksheetConfigForm';
+import { VISIBLE_TYPE } from '../enum';
+import * as actions from '../redux/actions';
+import { getDisabledControls, isDisplayPromptText, renderLimitInfo } from '../utils';
 
 function EnablePanel(props) {
   const {
@@ -19,7 +20,6 @@ function EnablePanel(props) {
     loadPublicWorksheet,
     updateWorksheetVisibleType,
     clear,
-    setHederVisible,
     refreshShareUrl,
     worksheetSettings,
     originalControls,
@@ -31,17 +31,17 @@ function EnablePanel(props) {
   const enabled = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC;
 
   function updateFormVisible(value) {
-    setHederVisible(!value);
     setFormVisible(value);
   }
 
   function onSwitchChange() {
     const newVisibleType = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC ? VISIBLE_TYPE.CLOSE : VISIBLE_TYPE.PUBLIC;
-    updateWorksheetVisibleType(newVisibleType, () => {
-      if (newVisibleType === VISIBLE_TYPE.PUBLIC) {
-        updateFormVisible(true);
-      }
-    });
+    newVisibleType === VISIBLE_TYPE.PUBLIC
+      ? checkCertification({
+          projectId,
+          checkSuccess: () => updateWorksheetVisibleType(newVisibleType, () => updateFormVisible(true)),
+        })
+      : updateWorksheetVisibleType(newVisibleType);
   }
 
   const onHideControl = controlId => {
@@ -56,7 +56,7 @@ function EnablePanel(props) {
       const updateControls = sectionList.concat(curControl);
       hideControl(updateControls.map(item => item.controlId));
     } else {
-      if (!!curControl.sectionId) {
+      if (curControl.sectionId) {
         const tabControl = originalControls.filter(item => item.controlId === curControl.sectionId)[0] || {};
         const showTabSectionList = originalControls.filter(
           item => item.sectionId === tabControl.controlId && !_.find(needHidedControlIds, id => id === item.controlId),
@@ -155,7 +155,6 @@ EnablePanel.propTypes = {
   clear: PropTypes.func,
   loadPublicWorksheet: PropTypes.func,
   updateWorksheetVisibleType: PropTypes.func,
-  setHederVisible: PropTypes.func,
 };
 
 const mapStateToProps = state => ({

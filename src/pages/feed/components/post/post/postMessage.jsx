@@ -106,7 +106,7 @@ class PostMessage extends React.Component {
       const regex = new RegExp(
         '(' +
           this.props.keywords
-            .replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&')
+            .replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&')
             .split(' ')
             .filter(s => s)
             .join('|') +

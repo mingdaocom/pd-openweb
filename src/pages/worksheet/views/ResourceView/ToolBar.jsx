@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';

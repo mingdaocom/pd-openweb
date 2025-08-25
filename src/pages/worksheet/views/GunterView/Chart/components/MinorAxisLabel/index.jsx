@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
+import moment from 'moment';
 import styled from 'styled-components';
 import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
-import moment from 'moment';
 
 const AxisLabel = styled.div`
   color: #151515;
@@ -18,12 +18,12 @@ const AxisLabel = styled.div`
     margin-left: -3px;
     position: absolute;
     bottom: 0;
-    background-color: #F44336;
+    background-color: #f44336;
   }
 `;
 
 const formatDate = (date, type) => {
-  const [ year, month, day ] = date.split('-');
+  const [, month, day] = date.split('-');
   if (type === PERIOD_TYPE.day) {
     return day;
   }
@@ -32,7 +32,8 @@ const formatDate = (date, type) => {
     const week = time.isoWeek();
     return (
       <Fragment>
-        {week}{_l('周%05034')}
+        {week}
+        {_l('周%05034')}
       </Fragment>
     );
   }
@@ -46,9 +47,9 @@ const formatDate = (date, type) => {
     return month == '01' ? _l('上半年') : _l('下半年');
   }
   return date;
-}
+};
 
-const MinorAxisLabel = (props) => {
+const MinorAxisLabel = props => {
   const { index, item, periodType } = props;
   const title = formatDate(item.time, periodType);
   return (
@@ -62,6 +63,6 @@ const MinorAxisLabel = (props) => {
       {item.isToday && <div className="dot" style={{ left: item.left }}></div>}
     </AxisLabel>
   );
-}
+};
 
 export default MinorAxisLabel;

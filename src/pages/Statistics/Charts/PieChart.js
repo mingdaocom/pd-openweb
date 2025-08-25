@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { browserIsMobile } from 'src/utils/common';
-import { toFixed } from 'src/utils/control';
 import {
   formatNumberValue,
   formatrChartValue,
@@ -82,7 +81,7 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const pieConfig = this.getPieConfig(nextProps);
-      this.PieChart.update(pieConfig);
+      this.PieChart && this.PieChart.update(pieConfig);
     }
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
@@ -293,7 +292,7 @@ export default class extends Component {
               radio: { style: { r: 6 } },
               itemName: {
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined,
+                  fill: isDark ? '#ffffffb0' : undefined,
                 },
               },
             }
@@ -340,7 +339,7 @@ export default class extends Component {
                   fontSize: 14,
                   fontWeight: 300,
                   transform: `translate(-50%, -100%) scale(${titleScale})`,
-                  color: isDark ? '#ffffffcc' : undefined,
+                  color: isDark ? '#ffffffb0' : undefined,
                 },
                 formatter: datum => (datum ? datum.name || datum.originalId : formatSummaryName(summary)),
               },
@@ -350,7 +349,7 @@ export default class extends Component {
                   fontWeight: 500,
                   transform: `translate(-50%, 0px) scale(${contentScale})`,
                   width: `${_.min([clientWidth, clientHeight]) / 3}px`,
-                  color: isDark ? '#ffffffcc' : undefined,
+                  color: isDark ? '#ffffffb0' : undefined,
                 },
                 formatter: datum => {
                   const value = datum ? datum.originalValue : summary.sum;
@@ -378,7 +377,7 @@ export default class extends Component {
                 return `${dimensionText} ${numberText} ${percentText}`;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : false,

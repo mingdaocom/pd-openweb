@@ -1,25 +1,24 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { Icon, Dropdown, Checkbox, Support } from 'ming-ui';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { Collapse, Input, Tooltip } from 'antd';
-import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import cx from 'classnames';
+import update from 'immutability-helper';
+import _ from 'lodash';
+import img from 'staticfiles/images/colour.png';
 import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Support } from 'ming-ui';
+import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
+import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
+import { SUPPORT_RELATE_SEARCH } from '../../config';
 import { SettingItem } from '../../styled';
+import { AnimationWrap, DisplayMode } from '../../styled';
+import { canSetAsTitle, resetWidgets } from '../../util';
+import IconSetting from '../../widgetSetting/components/SplitLineConfig/IconSetting';
+import { SectionItem } from '../../widgetSetting/components/SplitLineConfig/style';
+import StyleSetting from '../../widgetSetting/components/SplitLineConfig/StyleSetting';
+import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
 import QuickArrange from './QuickArrange';
 import './FieldRecycleBin.less';
-import img from 'staticfiles/images/colour.png';
-import _ from 'lodash';
-import { AnimationWrap, DisplayMode } from '../../styled';
-import StyleSetting from '../../widgetSetting/components/SplitLineConfig/StyleSetting';
-import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
-import { SectionItem } from '../../widgetSetting/components/SplitLineConfig/style';
-import IconSetting from '../../widgetSetting/components/SplitLineConfig/IconSetting';
-import { resetWidgets, canSetAsTitle } from '../../util';
-import update from 'immutability-helper';
-import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
-import { SUPPORT_RELATE_SEARCH } from '../../config';
 
 const { Panel } = Collapse;
 
@@ -69,25 +68,6 @@ const TITLE_TYPE = [
   { value: '2', text: _l('右对齐'), img: 'align-right' },
 ];
 
-const WidgetStyleWrap = styled.div`
-  position: absolute;
-  background: #fff;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 17px 20px;
-  bottom: 0;
-  z-index: 9;
-  overflow: auto;
-  overflow-x: hidden;
-  .introTitle {
-    display: flex;
-    align-items: center;
-    font-size: 17px;
-    font-weight: 700;
-  }
-`;
-
 const DropItemWrap = styled.div`
   .itemBox {
     width: 18px;
@@ -100,7 +80,41 @@ const DropItemWrap = styled.div`
   }
 `;
 
-function WidgetStyleSetting(props) {
+const IconWrap = styled.div`
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  cursor: pointer;
+  color: ${props => (props.isActive ? '#757575' : '#bdbdbd')};
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+`;
+
+export function FixedIcon(props) {
+  const { fixedKey, setPanelFixed } = props;
+  const value = props[fixedKey];
+  return (
+    <Tooltip title={value ? _l('取消固定') : _l('固定')} placement="bottom">
+      <IconWrap isActive={value} onClick={() => setPanelFixed(fixedKey)}>
+        <Icon icon="folder-top" className="Font18" />
+      </IconWrap>
+    </Tooltip>
+  );
+}
+
+export function CloseIcon(props) {
+  return (
+    <IconWrap className="closeIcon" onClick={() => props.onClose()} isActive={true}>
+      <Icon icon="close" className="Font16" />
+    </IconWrap>
+  );
+}
+
+export function WidgetStyleSetting(props) {
   const {
     allControls = [],
     styleInfo: { info = {} } = {},
@@ -163,8 +177,7 @@ function WidgetStyleSetting(props) {
   };
 
   return (
-    <WidgetStyleWrap>
-      <div className="introTitle">{_l('表单样式')}</div>
+    <Fragment>
       <SettingCollapseWrap
         bordered={false}
         activeKey={expandKeys}
@@ -473,7 +486,11 @@ function WidgetStyleSetting(props) {
                 onClick={checked => handleChange({ hidetab: checked ? '0' : '1' })}
               >
                 <span style={{ marginRight: '4px' }}>{_l('当只有一个标签页时隐藏')}</span>
-                <Tooltip placement="bottom" title={_l('勾选后，当只有一个标签页时隐藏此标签页标题。直接显示内部内容')}>
+                <Tooltip
+                  placement="bottom"
+                  autoCloseDelay={0}
+                  title={_l('勾选后，当只有一个标签页时隐藏此标签页标题。直接显示内部内容')}
+                >
                   <i className="icon-help Gray_9e Font16 Hand"></i>
                 </Tooltip>
               </Checkbox>
@@ -481,21 +498,18 @@ function WidgetStyleSetting(props) {
           </SettingItem>
         </Panel>
       </SettingCollapseWrap>
-    </WidgetStyleWrap>
+    </Fragment>
   );
 }
 
-export default function WidgetStyle(props) {
+export function WidgetStyle(props) {
   const {
-    styleInfo: { activeStatus = false, info = {} } = {},
+    styleInfo: { activeStatus = false } = {},
+    setPanelVisible = () => {},
     setStyleInfo = () => {},
     setActiveWidget = () => {},
     setBatchActive = () => {},
   } = props;
-
-  const handleChange = obj => {
-    setStyleInfo({ info: Object.assign({}, info, obj) });
-  };
 
   return (
     <Fragment>
@@ -505,16 +519,12 @@ export default function WidgetStyle(props) {
           setStyleInfo({ activeStatus: !activeStatus });
           setActiveWidget({});
           setBatchActive([]);
+          setPanelVisible({ settingVisible: !activeStatus });
         }}
       >
         <Icon icon="design-services" />
         <div className="recycle">{_l('表单样式')}</div>
       </div>
-      {activeStatus &&
-        createPortal(
-          <WidgetStyleSetting {...props} handleChange={handleChange} />,
-          document.getElementById('widgetConfigSettingWrap'),
-        )}
     </Fragment>
   );
 }

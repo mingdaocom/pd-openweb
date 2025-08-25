@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
 
 const AddRecordWrap = styled.div`
   position: fixed;
@@ -34,7 +34,7 @@ const BatchOperationWrap = styled.div`
 `;
 
 export function AddRecordBtn(props) {
-  const { entityName, className, warpStyle = {}, backgroundColor, onClick = () => {} } = props;
+  const { className, warpStyle = {}, backgroundColor, onClick = () => {} } = props;
   return (
     <AddRecordWrap
       className={`addRecordItemWrapper ${className}`}
@@ -50,7 +50,7 @@ export function BatchOperationBtn(props) {
   const { style, className, onClick = () => {} } = props;
   return (
     <BatchOperationWrap className={className} style={style} onClick={onClick}>
-      <Icon icon={'task-complete'} className="Font24 LineHeight44" />
+      <Icon icon={'done_all'} className="Font24 LineHeight44" />
     </BatchOperationWrap>
   );
 }

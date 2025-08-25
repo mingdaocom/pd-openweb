@@ -1,5 +1,6 @@
 import React, { Fragment, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { find, get, includes, isEmpty } from 'lodash';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
@@ -81,11 +82,12 @@ const CardWrapper = styled.div`
 
 export default function OperateButtons({
   row = {},
+  status,
   rowHeight,
   worksheetId: worksheetIdFromProps,
   isInCard,
   recordId,
-  relateRecordControlId,
+  entityName = _l('记录'),
   onCopySuccess = () => {},
   onDeleteSuccess = () => {},
 }) {
@@ -96,12 +98,18 @@ export default function OperateButtons({
   const conRef = useRef();
   const [width, setWidth] = useState(0);
   const [loading, setLoading] = useState(isInCard);
-  const viewId = view.viewId;
+  const viewId = view?.viewId;
   let buttons = getSheetOperatesButtons(view, {
     buttons: sheetButtons,
     printList,
   });
   buttons = filterButtonBySheetSwitchPermit(buttons, sheetSwitchPermit, viewId, row);
+  if (_.isObject(status)) {
+    buttons = buttons.map(button => ({
+      ...button,
+      disabled: button.type === 'custom_button' && !status[`${recordId}-${button.btnId}`],
+    }));
+  }
   const operatesButtonsStyle = getSheetOperatesButtonsStyle(view);
   const { visibleNum, primaryNum, style, showIcon } = operatesButtonsStyle;
   const showMore = visibleNum < buttons.length;
@@ -147,18 +155,24 @@ export default function OperateButtons({
           projectId={projectId}
           appId={appId}
           viewId={viewId}
+          isRecordLock={row.sys_lock}
+          entityName={entityName}
           worksheetId={worksheetId}
           recordId={recordId}
           buttons={buttons.map((button, index) => ({
             ...button,
             icon: button.icon || (style === 'icon' ? 'custom_actions' : ''),
-            color: button.color === 'transparent' ? '#2196f3' : button.color,
+            color: button.color === 'transparent' ? '#1677ff' : button.color,
             style,
             showIcon,
             showAsPrimary: style === 'standard' && index < primaryNum,
             className: ['operates-' + style, 'operates-showIcon-' + showIcon].join(' '),
             ...(button.type !== 'custom_button' && {
               onClick: () => {
+                if (window.isPublicApp) {
+                  alert(_l('预览模式下，不能操作'), 3);
+                  return;
+                }
                 if (button.type === 'copy') {
                   handleCopyRecord({
                     worksheetId,
@@ -167,6 +181,10 @@ export default function OperateButtons({
                     onCopySuccess,
                   });
                 } else if (button.type === 'delete') {
+                  if (row.sys_lock) {
+                    alert(_l('%0已锁定', entityName), 3);
+                    return;
+                  }
                   handleDeleteRecord({
                     worksheetId,
                     recordId,
@@ -175,6 +193,8 @@ export default function OperateButtons({
                   });
                 } else if (button.type === 'share') {
                   handleShareRecord({
+                    isCharge,
+                    appId,
                     worksheetId,
                     viewId,
                     recordId,

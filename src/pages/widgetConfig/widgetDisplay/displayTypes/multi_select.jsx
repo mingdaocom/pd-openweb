@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { find } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';

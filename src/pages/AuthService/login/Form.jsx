@@ -1,9 +1,9 @@
-import React, { createRef } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Account from 'src/pages/AuthService/components/Inputs/Account.jsx';
-import Password from 'src/pages/AuthService/components/Inputs/Password.jsx';
 import FullName from 'src/pages/AuthService/components/Inputs/FullName.jsx';
+import Password from 'src/pages/AuthService/components/Inputs/Password.jsx';
 
 export default function (props) {
   const { warnList, keys } = props;

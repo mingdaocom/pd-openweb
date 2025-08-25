@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, FunctionWrap, QiniuUpload, Support, VerifyPasswordConfirm } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
@@ -70,11 +71,11 @@ class BackupFromFilesCom extends Component {
             appItemCount,
             rowCount,
             containData,
-            errTip: _.includes([2, 4], state) ? _l('文件校验失败，非同源或不明来源文件') : '',
+            errTip: _.includes([2, 4], state) ? _l('文件校验失败，只能通过本应用备份文件来还原') : '',
           });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ checkLoading: false, checkSuccess: false, analyzeLoading: false });
       });
   };
@@ -103,11 +104,11 @@ class BackupFromFilesCom extends Component {
           analyzeLoading: false,
           rowCount,
           fileType,
-          errTip: _.includes([2, 4], state) ? _l('文件校验失败，非同源或不明来源文件') : '',
+          errTip: _.includes([2, 4], state) ? _l('文件校验失败，只能通过本应用备份文件来还原') : '',
           taskId: id,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ checkLoading: false, checkSuccess: false, analyzeLoading: false });
       });
   };
@@ -123,7 +124,7 @@ class BackupFromFilesCom extends Component {
           },
           type: 21,
         }}
-        onAdd={(up, files) => {
+        onAdd={() => {
           this.setState({ isEncrypt: false, errTip: '' });
         }}
         onBeforeUpload={(up, file) => {
@@ -246,7 +247,7 @@ class BackupFromFilesCom extends Component {
                 <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
                 {errTip && (
                   <div className="mTop15 errTip Font14">
-                    <span className="icon-closeelement-bg-circle Font15 mRight6"></span>
+                    <span className="icon-cancel Font15 mRight6"></span>
                     <span>{_l(errTip)}</span>
                   </div>
                 )}

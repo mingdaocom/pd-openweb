@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import ImportExcel from './ImportExcel';
-import ImportConfig from './ImportConfig';
+import { antNotification } from 'ming-ui';
 import ConfigControl from './ConfigControl';
 import ErrorDialog from './ErrorDialog';
-import { antNotification } from 'ming-ui';
-import _ from 'lodash';
+import ImportConfig from './ImportConfig';
+import ImportExcel from './ImportExcel';
 
 export const wsexcelSocketInit = () => {
   if (!window.IM) return;
@@ -46,10 +46,10 @@ export const wsexcelSocketInit = () => {
               ? '；' +
                 _l('跳过%0行（%1行重复，%2行错误）', formatNum(sCount), formatNum(rCount), formatNum(sCount - rCount))
               : sCount && rCount
-              ? '；' + _l('跳过%0行重复', formatNum(sCount))
-              : sCount
-              ? '；' + _l('跳过%0行错误', formatNum(sCount))
-              : '';
+                ? '；' + _l('跳过%0行重复', formatNum(sCount))
+                : sCount
+                  ? '；' + _l('跳过%0行错误', formatNum(sCount))
+                  : '';
 
           return txt1 + txt2;
         };

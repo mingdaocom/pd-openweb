@@ -1,17 +1,17 @@
-import React, { Fragment, useState, useRef, useEffect } from 'react';
-import { useSetState } from 'react-use';
-import PropTypes from 'prop-types';
-import { Select, DatePicker } from 'antd';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Motion, spring } from 'react-motion';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import { useSetState } from 'react-use';
+import { DatePicker, Select } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
-import SelectUser from '../SelectUser';
-import CustomSelectDate from '../CustomSelectDate';
-import styled from 'styled-components';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import CustomSelectDate from '../CustomSelectDate';
+import SelectUser from '../SelectUser';
 
 const Wrap = styled.div`
   flex-wrap: wrap;
@@ -57,7 +57,7 @@ const ExpandBtn = styled.div`
   line-height: 36px;
   margin-left: 20px;
   cursor: pointer;
-  color: #2196f3;
+  color: #1677ff;
   font-size: 13px;
   .icon {
     margin-right: 2px;
@@ -106,7 +106,7 @@ export default function SearchWrap(props) {
   const visibleSearchList = fullShow ? searchList : searchList.slice(0, colNum);
 
   const renderSearchCon = item => {
-    const { key, type, label, options = [], className, ...extra } = item;
+    const { key, type, options = [], className, ...extra } = item;
     switch (type) {
       case 'selectUser':
         return (
@@ -201,7 +201,7 @@ export default function SearchWrap(props) {
 
   useEffect(() => {
     if (window.ResizeObserver && typeof window.ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(entries => {
+      resizeObserver = new ResizeObserver(() => {
         setWidth(searchBoxRef && searchBoxRef.current && searchBoxRef.current.clientWidth);
       });
       resizeObserver.observe(searchBoxRef.current);

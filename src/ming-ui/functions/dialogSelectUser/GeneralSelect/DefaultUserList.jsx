@@ -1,15 +1,9 @@
-/**
- * 选择成员（全部）
- */
-/**
- * 选择成员（全部）
- */
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { Icon, Tooltip } from 'ming-ui';
-import User from './User';
-import NoData from './NoData';
 import ManageOftenUserDialog from './ManageOftenUserDialog';
+import NoData from './NoData';
+import User from './User';
 
 export default class DefaultUserList extends Component {
   constructor(props) {

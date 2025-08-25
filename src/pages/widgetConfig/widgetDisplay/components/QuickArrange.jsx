@@ -1,18 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
-import update from 'immutability-helper';
-import { flatten, last, head, isEmpty } from 'lodash';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { isFullLineControl, isHaveGap } from '../../util/widgets';
+import update from 'immutability-helper';
+import { flatten, head, isEmpty, last } from 'lodash';
+import styled from 'styled-components';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { AnimationWrap, SettingItem } from '../../styled';
-import styled from 'styled-components';
+import { isFullLineControl, isHaveGap } from '../../util/widgets';
 
 const ArrangeBtn = styled.div`
   cursor: pointer;
   font-weight: bold;
   color: #9e9e9e;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
   &.disabled {
     cursor: not-allowed;
@@ -47,7 +47,7 @@ export default function QuickArrange({ widgets, setWidgets, status }) {
       return;
     }
     // 多列排列
-    const nextWidgets = flattenWidgets.reduce((widgetList, widget, curIdx) => {
+    const nextWidgets = flattenWidgets.reduce((widgetList, widget) => {
       const lastRow = last(widgetList);
 
       /**

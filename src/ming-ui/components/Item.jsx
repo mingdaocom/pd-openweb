@@ -1,11 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { createElement } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './less/Item.less';
 
 function Item(props) {
-  const { className, children, icon, iconAtEnd, subMenu, target, href, disabled, text, iconName, iconHint, ...rest } =
-    props;
+  const { className, children, icon, iconAtEnd, subMenu, target, href, disabled, ...rest } = props;
   return (
     <li {...rest} className={cx(className, `ming Item ${iconAtEnd ? 'iconAtEnd' : ''}`)}>
       {createElement(

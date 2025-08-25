@@ -21,7 +21,7 @@ export default function sysNotice(data) {
                 onClick: () => window.open(link),
               },
             ]
-          : []
+          : [],
       });
     } else if (data.type === 2) {
       if (data.createTime && moment(data.createTime).toDate() < moment(md.global.Account.createTime).toDate()) return;
@@ -37,7 +37,7 @@ export default function sysNotice(data) {
             text: _l('立即刷新'),
             onClick: () => location.reload(),
           },
-        ]
+        ],
       });
     } else {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import Dropdown from './dropdown';
 import { Steps } from 'ming-ui';
+import Dropdown from './dropdown';
 
 const DropdownWidget = props => {
   const { disabled, advancedSetting = {}, value, options = [], enumDefault2 } = props;

@@ -7,6 +7,7 @@ import { isRelateRecordTableControl } from 'src/utils/control';
 
 export default class RowDetail extends React.Component {
   static propTypes = {
+    widgetStyle: PropTypes.shape({}),
     ignoreLock: PropTypes.bool,
     disabled: PropTypes.bool,
     className: PropTypes.string,
@@ -52,12 +53,17 @@ export default class RowDetail extends React.Component {
     return this.handleSave(false, false, false, true);
   };
 
-  handleSave = (nextContinue, isSwitchSave, ignoreAlert, isCopy = false) => {
+  handleSave = (nextContinue, isSwitchSave, ignoreAlert, isCopy = false, extraParams = {}) => {
     if (!this.customwidget.current) {
       return;
     }
+
+    if ($(this.formcon.current).find('.Progress--circle').length > 0) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
     const { data, onSave, onClose, openNextRecord, disabled } = this.props;
-    const submitData = this.customwidget.current.getSubmitData({ ignoreAlert });
+    const submitData = this.customwidget.current.getSubmitData({ ignoreAlert, ...extraParams });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
 
@@ -81,9 +87,13 @@ export default class RowDetail extends React.Component {
         });
         openNextRecord();
       }
-      if (!isCopy) onClose();
+      if (!isCopy && !nextContinue) onClose();
       return row;
     }
+  };
+
+  continueSubmit = extraParams => {
+    this.handleSave(false, false, false, false, extraParams);
   };
 
   handleClose = () => {
@@ -172,6 +182,7 @@ export default class RowDetail extends React.Component {
             ignoreSection
             widgetStyle={widgetStyle}
             rules={rules}
+            continueSubmit={this.continueSubmit}
           />
         </div>
       </RecordInfoContext.Provider>

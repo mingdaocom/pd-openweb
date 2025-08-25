@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Icon, Tooltip } from 'ming-ui';
 import _ from 'lodash';
-import SingleControlValue from '../SingleControlValue';
+import { Checkbox, Icon, Tooltip } from 'ming-ui';
 import { NODE_TYPE } from '../../../enum';
+import SingleControlValue from '../SingleControlValue';
 
 export default ({
   companyId,

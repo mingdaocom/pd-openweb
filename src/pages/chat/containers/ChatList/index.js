@@ -1,12 +1,15 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 import cx from 'classnames';
-import './index.less';
-import SessionList from '../SessionList';
-import Btns from '../Btns';
-import * as socket from '../../utils/socketEvent';
+import _ from 'lodash';
 import * as actions from '../../redux/actions';
+import * as socket from '../../utils/socketEvent';
+import Apps from '../Apps';
+import SessionList from '../SessionList';
+import Mingo from './Mingo';
+import Toolbar from './Toolbar';
+import ToolbarDrawer from './Toolbar/Drawer';
+import './index.less';
 
 class Chat extends Component {
   constructor(props) {
@@ -39,31 +42,91 @@ class Chat extends Component {
       isOpenMessageSound: Account.isOpenMessageSound,
       isOpenMessageTwinkle: Account.isOpenMessageTwinkle,
       backHomepageWay: Account.backHomepageWay || 1,
-    }
+    };
     Object.assign(window, settings);
+    // 获取工具栏配置
+    const {
+      isOpenMingoAI = true,
+      isOpenMessage = true,
+      isOpenSearch = true,
+      isOpenFavorite = true,
+      isShowToolName = false,
+      isOpenMessageList = true,
+      isOpenCommonApp = true,
+      commonAppShowType = 2,
+      commonAppOpenType = 1,
+      messageListShowType = 1,
+    } = Account;
+    this.props.dispatch(
+      actions.setToolbarConfig({
+        isOpenMingoAI,
+        isOpenMessage,
+        isOpenSearch,
+        isOpenFavorite,
+        isShowToolName,
+        isOpenMessageList,
+        isOpenCommonApp,
+        commonAppShowType,
+        commonAppOpenType,
+        messageListShowType,
+      }),
+    );
   }
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.visible !== this.props.visible) {
-      return true;
+  onCloseSessionList = () => {
+    const { toolbarConfig } = this.props;
+    const { sessionListVisible, isOpenCommonApp } = toolbarConfig;
+    if (sessionListVisible && !isOpenCommonApp) {
+      this.props.dispatch(
+        actions.setToolbarConfig({
+          sessionListVisible: false,
+        }),
+      );
     }
-    return false;
-  }
+  };
   render() {
-    const { visible, location, history } = this.props;
+    const { toolbarConfig } = this.props;
+    const { isOpenMessageList, isOpenCommonApp, sessionListVisible, hideOpenCommonApp } = toolbarConfig;
+    const isLocal = md.global.Config.IsLocal && !location.hostname.includes('nocoly');
 
     return (
-      <div className={cx('ChatList-wrapper', { open: visible })}>
-        <div className="ThemeBG ChatList-blur" />
-        <SessionList />
-        <Btns {...{ location, history }} />
-      </div>
+      <Fragment>
+        <ToolbarDrawer />
+        <div className="ChatList-wrapper">
+          <Toolbar />
+          <div className="divider" />
+          <div className="flexColumn flex minHeight0" onClick={this.onCloseSessionList}>
+            {isOpenMessageList && (
+              <div className={cx('flexColumn flex minHeight0 mTop12 mBottom14', { hide: sessionListVisible })}>
+                <SessionList visible={false} />
+              </div>
+            )}
+            {isOpenMessageList && isOpenCommonApp && !sessionListVisible && (
+              <div className={cx('divider', { hide: hideOpenCommonApp })} />
+            )}
+            {isOpenCommonApp && (
+              <div
+                className={cx('flexColumn alignItemsCenter mTop14 mBottom8', { hide: hideOpenCommonApp })}
+                style={{ height: isOpenMessageList && !sessionListVisible ? '30%' : '100%' }}
+              >
+                <Apps />
+              </div>
+            )}
+          </div>
+          {!isLocal && (
+            <Fragment>
+              <div className="divider" />
+              <Mingo />
+            </Fragment>
+          )}
+        </div>
+      </Fragment>
     );
   }
 }
 
 export default connect(state => {
-  const { visible } = state.chat;
+  const { toolbarConfig } = state.chat;
   return {
-    visible,
+    toolbarConfig,
   };
 })(Chat);

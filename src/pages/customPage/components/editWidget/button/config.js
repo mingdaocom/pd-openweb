@@ -1,4 +1,4 @@
-export const COLORS = ['#e91e63', '#ff9800', '#4caf50', '#00bcd4', '#2196f3', '#9c27b0', '#3f51b5', '#455a64'];
+export const COLORS = ['#e91e63', '#ff9800', '#4caf50', '#00bcd4', '#1677ff', '#9c27b0', '#3f51b5', '#455a64'];
 export const ICONS = [
   'clear_1',
   'done_2',
@@ -35,7 +35,7 @@ export const GET_DEFAULT_BUTTON_LIST = () => [
     explain: '',
     count: 5,
     mobileCount: 1,
-    buttonList: [{ name: _l('添加新订单'), color: '#2196f3' }],
+    buttonList: [{ name: _l('添加新订单'), color: '#1677ff' }],
   },
   {
     style: 1,
@@ -46,7 +46,7 @@ export const GET_DEFAULT_BUTTON_LIST = () => [
     buttonList: [
       { name: _l('添加客户'), color: '#4caf50' },
       { name: _l('添加拜访记录'), color: '#4caf50' },
-      { name: _l('添加报表'), color: '#2196f3' },
+      { name: _l('添加报表'), color: '#1677ff' },
     ],
   },
   {
@@ -102,7 +102,7 @@ export const GET_DEFAULT_BUTTON_LIST = () => [
       },
       {
         name: _l('销售出库'),
-        color: '#2196f3',
+        color: '#1677ff',
         config: { icon: '1_0_home', iconUrl: `${md.global.FileStoreConfig.pubHost}customIcon/1_0_home.svg` },
       },
       {
@@ -134,10 +134,10 @@ export const GET_DEFAULT_BUTTON_LIST = () => [
     count: 2,
     mobileCount: 1,
     buttonList: [
-      { name: _l('添加新订单'), color: '#2196f3' },
-      { name: _l('添加新客户'), color: '#2196f3' },
-      { name: _l('查看我的订单'), color: '#2196f3' },
-      { name: _l('查看我的统计'), color: '#2196f3' },
+      { name: _l('添加新订单'), color: '#1677ff' },
+      { name: _l('添加新客户'), color: '#1677ff' },
+      { name: _l('查看我的订单'), color: '#1677ff' },
+      { name: _l('查看我的统计'), color: '#1677ff' },
     ],
   },
 ];

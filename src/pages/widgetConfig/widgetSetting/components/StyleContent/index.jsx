@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Collapse } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { SettingCollapseWrap } from '../../content/styled';
+import { Collapse } from 'antd';
+import _ from 'lodash';
 import { isSheetDisplay, supportSettingCollapse } from '../../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
+import { SettingCollapseWrap } from '../../content/styled';
 import WidgetStyle from '../WidgetStyle';
 import { CardItem, WidgetItem } from './StyleContentItems';
-import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 
 const { Panel } = Collapse;
 

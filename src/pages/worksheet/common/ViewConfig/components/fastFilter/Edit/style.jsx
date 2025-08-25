@@ -44,7 +44,7 @@ export const Wrap = styled.div`
       .icon-close {
         color: #9d9d9d !important
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -63,7 +63,7 @@ export const Wrap = styled.div`
       }
       .active {
         .inputBox {
-          border: 1px solid #2196f3;
+          border: 1px solid #1677ff;
         }
       }
       .inputBox {
@@ -135,7 +135,7 @@ export const Wrap = styled.div`
           border-radius: 4px;
           height: 36px;
           &.active {
-            border: 1px solid #2196f3;
+            border: 1px solid #1677ff;
           }
           .value,
           .Dropdown--placeholder {
@@ -202,13 +202,6 @@ export const Wrap = styled.div`
   }
   .ming.Input{
     font-size: 13px;
-    border: 1px solid #ddd;
-    &:hover {
-      border-color: #bbb;
-    }
-    &:focus {
-      border-color: #2196f3;
-    }
   }
   .disabledBtn {
     cursor: not-allowed;

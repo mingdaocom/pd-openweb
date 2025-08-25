@@ -1,23 +1,23 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import './subTask.less';
 import { connect } from 'react-redux';
-import { formatTaskTime, checkIsProject, taskStatusDialog } from '../../../utils/utils';
-import Textarea from 'ming-ui/components/Textarea';
-import config, { OPEN_TYPE } from '../../../config/config';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import { addSubTask, editTaskStatus, updateTaskName, updateTaskCharge, taskFoldStatus } from '../../../redux/actions';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
+import cx from 'classnames';
+import _ from 'lodash';
 import { UserHead } from 'ming-ui';
+import Textarea from 'ming-ui/components/Textarea';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import config, { OPEN_TYPE } from '../../../config/config';
+import { addSubTask, editTaskStatus, taskFoldStatus, updateTaskCharge, updateTaskName } from '../../../redux/actions';
 import {
-  afterUpdateTaskName,
-  afterUpdateTaskStatus,
   afterAddTask,
   afterUpdateTaskCharge,
+  afterUpdateTaskName,
+  afterUpdateTaskStatus,
 } from '../../../utils/taskComm';
-import _ from 'lodash';
+import { checkIsProject, formatTaskTime, taskStatusDialog } from '../../../utils/utils';
+import './subTask.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const statusTip = [
@@ -29,7 +29,7 @@ const statusTip = [
 
 // 单条子任务
 class SingleItem extends Component {
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     if (_.isEqual(nextProps, this.props)) {
       return false;
     }
@@ -138,7 +138,7 @@ class SingleItem extends Component {
             onClick={() => this.props.switchTaskDetail(taskID)}
           >
             {item.totalItemCount || item.topicCount || item.subCount ? (
-              <i className="icon-task-signal Font13" />
+              <i className="icon-abstract Font13" />
             ) : (
               <i className="icon-arrow-right-border" />
             )}

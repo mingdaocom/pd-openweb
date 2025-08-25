@@ -1,14 +1,13 @@
-import React, { Component, Fragment } from 'react';
-import { Dialog, Button, Icon, LoadDiv, Support, SvgIcon } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon/index.jsx';
-import successImg from '../images/succuss.png';
-import congratulationImg from '../images/congratulation.png';
-import { navigateTo } from 'src/router/navigateTo';
-
+import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Button, Dialog, Icon, LoadDiv, Support, SvgIcon } from 'ming-ui';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon/index.jsx';
+import { navigateTo } from 'src/router/navigateTo';
+import congratulationImg from '../images/congratulation.png';
+import successImg from '../images/succuss.png';
+import './index.less';
 
 export default class DialogCreateApp extends Component {
   constructor(props) {
@@ -48,7 +47,7 @@ export default class DialogCreateApp extends Component {
     });
     this.props.updateExcelDetailData(result);
   };
-  onBlur = (e, item) => {
+  onBlur = e => {
     let val = _.trim(e.target.value);
     if (!val) {
       this.setState({ isEditSheetName: false });
@@ -59,7 +58,6 @@ export default class DialogCreateApp extends Component {
   render() {
     const {
       visible,
-      createType,
       projectId,
       createAppStatus,
       createAppLoading,

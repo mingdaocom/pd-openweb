@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Select, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView, Switch, UserHead } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
@@ -95,7 +96,7 @@ export default class AggregationTable extends Component {
   getAppList() {
     const { appList } = this.state;
     const { projectId } = this.props.match.params || {};
-    const { appPageIndex = 1, isMoreApp, loadingApp } = this.state;
+    const { appPageIndex = 1, isMoreApp, loadingApp, keyword = '' } = this.state;
     // 加载更多
     if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
       return;
@@ -109,7 +110,7 @@ export default class AggregationTable extends Component {
         order: 3,
         pageIndex: appPageIndex,
         pageSize: 50,
-        keyword: '',
+        keyword: keyword.trim(),
       })
       .then(({ apps }) => {
         const newAppList = apps.map(item => {
@@ -125,7 +126,7 @@ export default class AggregationTable extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingApp: false });
       });
   }
@@ -205,38 +206,42 @@ export default class AggregationTable extends Component {
         <AdminTitle prefix={_l('聚合表')} />
         <div className="orgManagementHeader">{_l('聚合表')}</div>
         <div className="orgManagementContent flexColumn">
-        {!md.global.Config.IsLocal && <div className="appManagementCount">
-            {featureType === '2' ? (
-              <Fragment>
-                <span>{_l('升级版本后可在应用中创建聚合表')}</span>
-                <a
-                  href="javascript:void(0);"
-                  className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
-                  onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
-                >
-                  {_l('升级版本')}
-                </a>
-              </Fragment>
-            ) : (
-              <Fragment>
-                <span className="Gray_9e mRight5">{_l('已启用聚合表个数')}</span>
-                <span className="bold">
-                  {_l('%0 / %1 个', effectiveAggregationTableCount, limitAggregationTableCount)}
-                </span>
-                <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
-                <span className="bold">{_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}</span>
-                {!md.global.Config.IsLocal && (
-                  <PurchaseExpandPack
-                    className="ThemeHoverColor2 mLeft5"
-                    text={_l('扩充')}
-                    type="aggregationtable"
-                    routePath="expansionserviceAggregationtable"
-                    projectId={projectId}
-                  />
-                )}
-              </Fragment>
-            )}
-          </div>}
+          {!md.global.Config.IsLocal && (
+            <div className="appManagementCount">
+              {featureType === '2' ? (
+                <Fragment>
+                  <span>{_l('升级版本后可在应用中创建聚合表')}</span>
+                  <a
+                    href="javascript:void(0);"
+                    className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
+                    onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
+                  >
+                    {_l('升级版本')}
+                  </a>
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <span className="Gray_9e mRight5">{_l('已启用聚合表个数')}</span>
+                  <span className="bold">
+                    {_l('%0 / %1 个', effectiveAggregationTableCount, limitAggregationTableCount)}
+                  </span>
+                  <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
+                  <span className="bold">
+                    {_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}
+                  </span>
+                  {!md.global.Config.IsLocal && (
+                    <PurchaseExpandPack
+                      className="ThemeHoverColor2 mLeft5"
+                      text={_l('扩充')}
+                      type="aggregationtable"
+                      routePath="expansionserviceAggregationtable"
+                      projectId={projectId}
+                    />
+                  )}
+                </Fragment>
+              )}
+            </div>
+          )}
           <div className="flexRow">
             <Select
               className="w180 mdAntSelect"
@@ -252,6 +257,7 @@ export default class AggregationTable extends Component {
               }
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
               notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+              onSearch={_.debounce(val => this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList), 500)}
               onChange={value => this.setState({ appId: value, pageIndex: 1 }, this.searchDataList)}
               onPopupScroll={e => {
                 e.persist();
@@ -320,7 +326,7 @@ export default class AggregationTable extends Component {
             </div>
             <div className="w140">{_l('创建人')}</div>
           </div>
-          <div className="flex">
+          <div className="flex overflowHidden">
             {loading && pageIndex === 1 ? (
               <LoadDiv className="mTop15" />
             ) : _.isEmpty(list) ? (
@@ -405,6 +411,7 @@ export default class AggregationTable extends Component {
                             overlayStyle={{ maxWidth: 350, maxHeight: 300, overflow: 'auto' }}
                             align={{ offset: [12, 0] }}
                             title={<span className="InlineBlock WordBreak">{errorInfo}</span>}
+                            autoCloseDelay={0}
                           >
                             <Icon type={'error'} className="Red Font16 TxtMiddle InlineBlock" />
                           </Tooltip>

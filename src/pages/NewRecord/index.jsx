@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { Button, LoadDiv } from 'ming-ui';
+import { connect } from 'react-redux';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { Button, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import NewRecord from 'src/pages/worksheet/common/newRecord';
+import { navigateTo } from 'src/router/navigateTo';
 import successPng from './success.png';
 import './index.less';
-import { navigateTo } from 'src/router/navigateTo';
 
 const ScaleButton = styled.div`
   position: absolute;
@@ -25,7 +25,7 @@ const ScaleButton = styled.div`
     line-height: 1.4em;
   }
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -75,7 +75,7 @@ export default class NewRecordLand extends Component {
     const { match = {}, appPkg } = this.props;
     const { appId, worksheetId, viewId } = match.params || {};
     const { isLarge, status } = this.state;
-    
+
     if (!appPkg.id) {
       return (
         <div className="newRecordLand">

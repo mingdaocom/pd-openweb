@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -55,7 +55,7 @@ const Wrap = styled.div`
       left: 0;
       top: 50%;
       width: 4px;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       transform: translate(0, -4px);
     }
     &.dragStart {
@@ -126,7 +126,7 @@ export default function RecordBlock(props) {
     }
     event.stopPropagation();
     const allList = getTops(resourceDataByKey);
-    const { left, width, before, after, top } = props.row;
+    const { left, before, after, top } = props.row;
     const x = event.clientX;
     const y = event.clientY;
     let changValue = null;
@@ -350,8 +350,6 @@ export default function RecordBlock(props) {
           <RecordInfoWrapper
             enablePayment={worksheetInfo.enablePayment}
             projectId={worksheetInfo.projectId}
-            // currentSheetRows={props.list}
-            // showPrevNext
             allowAdd={worksheetInfo.allowAdd}
             sheetSwitchPermit={sheetSwitchPermit} // 表单权限
             visible
@@ -362,18 +360,15 @@ export default function RecordBlock(props) {
             hideRecordInfo={() => {
               setState({ recordInfoVisible: false });
               emitter.emit('ROWS_UPDATE');
+              refresh();
             }}
             recordId={props.row.rowid}
             worksheetId={worksheetId}
             rules={worksheetInfo.rules}
-            updateSuccess={(ids, updated, data) => {
-              refresh();
-            }}
             onDeleteSuccess={() => {
               refresh();
             }}
-            // hideRows={() => {}}
-            handleAddSheetRow={data => {
+            handleAddSheetRow={() => {
               refresh();
             }}
           />

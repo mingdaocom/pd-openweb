@@ -1,9 +1,9 @@
 import React from 'react';
-import { bool, func, number, shape, string } from 'prop-types';
-import styled from 'styled-components';
-import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import cx from 'classnames';
 import _ from 'lodash';
+import { func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 
 const Con = styled.div`
   padding: 4px 6px !important;
@@ -20,7 +20,7 @@ const Con = styled.div`
 `;
 
 export default function OptionsSteps(props) {
-  const { className, recordId = '', style, rowFormData, cell = {}, rowHeight = 34, onClick } = props;
+  const { className, recordId = '', style, rowFormData, cell = {}, rowHeight = 34, onClick, isSubList = false } = props;
   return (
     <Con className={cx(className, 'cellControl flexRow')} style={style} imgHeight={rowHeight - 9} onClick={onClick}>
       {!recordId.startsWith('empty') && (
@@ -29,7 +29,10 @@ export default function OptionsSteps(props) {
           {...{
             ...cell,
             advancedSetting: { ...cell.advancedSetting, width: 200 },
-            ..._.pick(props, ['recordId', 'appId', 'worksheetId', 'viewId']),
+            ..._.pick(
+              props,
+              isSubList ? ['recordId', 'appId', 'worksheetId'] : ['recordId', 'appId', 'worksheetId', 'viewId'],
+            ),
           }}
           formData={!rowFormData ? null : _.isFunction(rowFormData) ? rowFormData() : rowFormData}
         />

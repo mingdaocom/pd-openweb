@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { SelectNodeObject } from '../components';
-import { Dialog, Checkbox } from 'ming-ui';
 import _ from 'lodash';
+import { Checkbox, Dialog } from 'ming-ui';
+import { SelectNodeObject } from '../components';
 
 /**
  * 删除记录

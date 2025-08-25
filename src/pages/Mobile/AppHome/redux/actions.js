@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import homeAppAjax from 'src/api/homeApp';
-import favoriteAjax from 'src/api/favorite';
 import appManagementApi from 'src/api/appManagement';
+import favoriteAjax from 'src/api/favorite';
+import homeAppAjax from 'src/api/homeApp';
 
 export const getMyApp = (projectId, isPullRefresh) => dispatch => {
   if (!isPullRefresh) {
@@ -126,7 +126,7 @@ export const myPlatform = (projectId, isPullRefresh) => dispatch => {
   });
 };
 
-export const getAllFavorites = projectId => (dispatch, getState) => {
+export const getAllFavorites = projectId => dispatch => {
   favoriteAjax.getAllFavorites({ projectId, isRefresh: 1 }).then(res => {
     dispatch({
       type: 'COLLECT_RECORDS',
@@ -135,7 +135,7 @@ export const getAllFavorites = projectId => (dispatch, getState) => {
   });
 };
 
-export const getAllCollectCharts = projectId => (dispatch, getState) => {
+export const getAllCollectCharts = projectId => dispatch => {
   favoriteAjax.getAllFavorites({ projectId, type: 2, isRefresh: 1 }).then(res => {
     dispatch({
       type: 'COLLECT_CHARTS',
@@ -151,10 +151,9 @@ export const clearAllCollectCharts = () => dispatch => {
   });
 };
 
-export const updateAppHomeScrollY = scrollY => (dispatch) => {
+export const updateAppHomeScrollY = scrollY => dispatch => {
   dispatch({
     type: 'APP_HOME_SCROLL_Y',
-    data: scrollY
-  })
-}
-
+    data: scrollY,
+  });
+};

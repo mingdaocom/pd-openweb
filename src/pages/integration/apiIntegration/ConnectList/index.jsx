@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -63,9 +63,9 @@ const Wrap = styled.div`
           font-size: 16px;
         }
         &.isCur {
-          border-bottom: 4px solid #2196f3;
+          border-bottom: 4px solid #1677ff;
           a {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -79,7 +79,7 @@ const WrapListHeader = styled.div`
   padding: 32px 32px 0 32px;
   .addConnect {
     padding: 8px 24px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 21px;
     color: #fff;
     display: inline-block;
@@ -120,7 +120,6 @@ function Con(props) {
       showConnect,
       connectData,
       hasChange,
-      listCount,
       countSort,
       timeSort,
       searchType,
@@ -328,7 +327,7 @@ function Con(props) {
                       <span>{_l('创建自定义连接')}</span>
                     </MenuItemWrap>
                     <MenuItemWrap
-                      icon={<Icon icon="knowledge-upload" className="Font17 mLeft5" />}
+                      icon={<Icon icon="file_upload" className="Font17 mLeft5" />}
                       onClick={() => {
                         setState({ isCreate: true, showMenu: false, connectData: null });
                       }}

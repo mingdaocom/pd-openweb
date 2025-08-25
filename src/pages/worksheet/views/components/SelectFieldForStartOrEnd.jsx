@@ -15,7 +15,7 @@ const BtnForSure = styled.div`
     line-height: 36px;
     height: 36px;
     color: #fff;
-    background-color: #2196f3;
+    background-color: #1677ff;
     border-radius: 4px;
     outline: none;
     cursor: pointer;
@@ -39,7 +39,7 @@ export default function SelectFieldForStartOrEnd(props) {
     mustSameType, //必须同类型
     isCalendarcids, //日历视图多组时间设置
   } = props;
-  const { appId, worksheetId, viewId } = base;
+  const { viewId } = base;
   const [view, setView] = useState(props.view || {});
   const [isUnAb, setIsUnAb] = useState();
   let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
@@ -53,7 +53,9 @@ export default function SelectFieldForStartOrEnd(props) {
     try {
       ids = JSON.parse(calendarcids);
     } catch (error) {
+      console.log(error);
       ids = calendarcids;
+      console.log(error);
     }
     let obj = isCalendarcids
       ? {
@@ -72,7 +74,7 @@ export default function SelectFieldForStartOrEnd(props) {
         : begindateOrFirst
           ? timeControls[0] || {}
           : {};
-      end = enddate ? props.controls.find((it, i) => it.controlId === enddate) || {} : {};
+      end = enddate ? props.controls.find(it => it.controlId === enddate) || {} : {};
     } else {
       start =
         ids.length > 0 && ids[0].begin
@@ -80,7 +82,7 @@ export default function SelectFieldForStartOrEnd(props) {
           : begindateOrFirst
             ? timeControls[0] || {}
             : {};
-      end = ids.length > 0 && ids[0].end ? props.controls.find((it, i) => it.controlId === ids[0].end) || {} : {};
+      end = ids.length > 0 && ids[0].end ? props.controls.find(it => it.controlId === ids[0].end) || {} : {};
     }
     let listData = ids.map(o => {
       return {
@@ -106,7 +108,7 @@ export default function SelectFieldForStartOrEnd(props) {
     try {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
-      calendarcids = calendarcids;
+      console.log(error);
     }
     let objs = isCalendarcids
       ? {

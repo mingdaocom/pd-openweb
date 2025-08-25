@@ -1,46 +1,48 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import { Dropdown, Menu } from 'antd';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
 import {
   formatControlInfo,
-  formatrChartValue,
   formatrChartAxisValue,
-  getLegendType,
-  reportTypes,
+  formatrChartValue,
   formatYaxisList,
+  getAuxiliaryLineConfig,
   getChartColors,
   getEmptyChartData,
-  getAuxiliaryLineConfig
+  getLegendType,
+  reportTypes,
 } from './common';
-import { Icon } from 'ming-ui';
-import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
-import _ from 'lodash';
 
 const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minValue, maxValue) => {
-  if (!data.length) return []
+  if (!data.length) return [];
   let result = [];
   const { value } = data[0];
   const formatValue = value => {
     if (_.isNumber(minValue) && value < minValue) return minValue;
     if (_.isNumber(maxValue) && value > maxValue) return maxValue;
     return value;
-  }
+  };
   value.forEach(item => {
     const name = item.x;
     data.forEach((element, index) => {
       const target = element.value.filter(n => n.x === name);
       if (target.length) {
-        const { rename, emptyShowType } = element.c_id ? (_.find(yaxisList, { controlId: element.c_id }) || {}) : yaxisList[0];
+        const { rename, emptyShowType } = element.c_id
+          ? _.find(yaxisList, { controlId: element.c_id }) || {}
+          : yaxisList[0];
         const hideEmptyValue = !emptyShowType && !target[0].v;
         if (!hideEmptyValue) {
           const value = target[0].v;
           result.push({
-            groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
+            groupName: `${splitControlId ? element.key : rename || element.key}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
             groupKey: element.originalKey,
             value: formatValue(value) || (emptyShowType ? 0 : null),
             originalValue: value,
             name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
-            originalId: item.originalX || name || element.originalKey
-        });
+            originalId: item.originalX || name || element.originalKey,
+          });
         }
       }
     });
@@ -81,7 +83,7 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-    }
+    };
     this.RadarChart = null;
   }
   componentDidMount() {
@@ -106,7 +108,10 @@ export default class extends Component {
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -125,7 +130,10 @@ export default class extends Component {
     if (this.chartEl) {
       this.RadarChart = new this.RadarComponent(this.chartEl, config);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && (xaxes.controlId || split.controlId);
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+        (xaxes.controlId || split.controlId);
       if (this.isViewOriginalData || this.isLinkageData) {
         this.RadarChart.on('element:click', this.handleClick);
       }
@@ -133,7 +141,7 @@ export default class extends Component {
     }
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split, appId, reportId, name, reportType, style, map } = this.props.reportData;
+    const { xaxes, split, appId, reportId, name, reportType, style } = this.props.reportData;
     const currentData = data.data;
     const param = {};
     const linkageMatch = {
@@ -141,7 +149,7 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (_.isArray(currentData)) {
       return;
@@ -157,7 +165,7 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (split.controlId) {
@@ -173,64 +181,80 @@ export default class extends Component {
         controlName: split.controlName,
         controlValue: formatControlInfo(currentData.groupName).name,
         type: split.controlType,
-        control: split
+        control: split,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: gEvent.x + 20,
-        y: gEvent.y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: gEvent.x + 20,
+          y: gEvent.y,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     this.setState({ dropdownVisible: false });
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const config = this.getComponentConfig(this.props);
-      this.RadarChart.update(config);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const config = this.getComponentConfig(this.props);
+        this.RadarChart.update(config);
+      },
+    );
+  };
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, displaySetup, yaxisList, split, xaxes } = reportData;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const { position } = getLegendType(displaySetup.legendType);
     const { ydisplay, auxiliaryLines } = displaySetup;
-    const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId, ydisplay.minValue, ydisplay.maxValue);
+    const data = formatChartData(
+      map,
+      yaxisList,
+      split.controlId,
+      xaxes.controlId,
+      ydisplay.minValue,
+      ydisplay.maxValue,
+    );
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style, themeColor, projectId);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, { yaxisList, colors });
@@ -247,13 +271,13 @@ export default class extends Component {
           formatter: value => {
             const item = _.find(data, { originalId: value });
             return item ? item.name || _l('空') : value;
-          }
+          },
         },
         groupName: {
           formatter: value => formatControlInfo(value).name,
         },
         value: {
-          min: 0
+          min: 0,
         },
       },
       xAxis: {
@@ -271,10 +295,10 @@ export default class extends Component {
           autoHide: false,
           autoEllipsis: true,
           style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
+            fill: isDark ? '#ffffffb0' : undefined,
+          },
         },
-        verticalLimitLength: 120
+        verticalLimitLength: 120,
       },
       yAxis: {
         line: null,
@@ -284,20 +308,21 @@ export default class extends Component {
             type: 'line',
             style: {
               lineDash: null,
+              stroke: isDark ? '#ffffff6b' : undefined,
             },
           },
-          alternateColor: 'rgba(250, 250, 250, 0.7)',
+          alternateColor: isDark ? undefined : 'rgba(250, 250, 250, 0.7)',
         },
         label: {
           formatter: value => {
             return formatrChartAxisValue(Number(value), false, newYaxisList);
           },
           style: {
-            fill: isDark ? '#ffffffcc' : undefined
-          }
+            fill: isDark ? '#ffffffb0' : undefined,
+          },
         },
         minLimit: ydisplay.minValue || null,
-        maxLimit: ydisplay.maxValue || (data.length ? null : 5)
+        maxLimit: ydisplay.maxValue || (data.length ? null : 5),
       },
       limitInPlot: true,
       area: {},
@@ -317,33 +342,40 @@ export default class extends Component {
           const labelValue = formatrChartValue(originalValue, false, newYaxisList, originalValue ? undefined : id);
           return {
             name,
-            value: _.isNumber(originalValue) ? style.tooltipValueType ? labelValue : originalValue.toLocaleString('zh', { minimumFractionDigits: dot }) : '--',
+            value: _.isNumber(originalValue)
+              ? style.tooltipValueType
+                ? labelValue
+                : originalValue.toLocaleString('zh', { minimumFractionDigits: dot })
+              : '--',
           };
         },
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
-      },
-      legend: displaySetup.showLegend && (yaxisList.length > 1 || split.controlId)
-        ? {
-            position,
-            flipPage: true,
-            itemHeight: 20,
-            radio: { style: { r: 6 } },
-            itemName: {
-              style: {
-                fill: isDark ? '#ffffffcc' : undefined
-              }
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
             }
-          }
-        : false,
+          : undefined,
+      },
+      legend:
+        displaySetup.showLegend && (yaxisList.length > 1 || split.controlId)
+          ? {
+              position,
+              flipPage: true,
+              itemHeight: 20,
+              radio: { style: { r: 6 } },
+              itemName: {
+                style: {
+                  fill: isDark ? '#ffffffb0' : undefined,
+                },
+              },
+            }
+          : false,
       point: displaySetup.showNumber
         ? {
             shape: 'circle',
@@ -357,27 +389,24 @@ export default class extends Component {
               return formatrChartValue(originalValue, false, newYaxisList, originalValue ? undefined : id);
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined
-            }
+              fill: isDark ? '#ffffffb0' : undefined,
+            },
           }
         : false,
-      annotations: _.flatten(auxiliaryLineConfig.map(item => {
-        const { start, text } = item;
-        const textConfig = {
-          type: 'text',
-          offsetX: 5,
-          position: [0, start[1]],
-          content: text ? text.content : '',
-          style: text ? text.style : undefined
-        }
-        const arcConfig = {
-          type: 'arc',
-          start: ['start', start[1]],
-          end: ['end', 'end'],
-          style: item.style
-        }
-        return [textConfig]
-      }))
+      annotations: _.flatten(
+        auxiliaryLineConfig.map(item => {
+          const { start, text } = item;
+          const textConfig = {
+            type: 'text',
+            offsetX: 5,
+            position: [0, start[1]],
+            content: text ? text.content : '',
+            style: text ? text.style : undefined,
+          };
+
+          return [textConfig];
+        }),
+      ),
     };
 
     this.setCount(newYaxisList);
@@ -390,7 +419,7 @@ export default class extends Component {
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
   renderOverlay() {
@@ -418,7 +447,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
@@ -430,7 +459,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
+            <span data-tip={originalCount ? originalCount : null} className="count">
+              {count}
+            </span>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ConfigProvider, Pagination, Table } from 'antd';
 import styled from 'styled-components';
-import { Pagination, Table, ConfigProvider } from 'antd';
 
 const Wrap = styled.div`
   .userImgBox {
@@ -110,7 +110,7 @@ const Wrap = styled.div`
 `;
 
 function PorTalTable(props) {
-  const [pageSize, setPageSize] = useState(props.pageSize || 10);
+  const { pageSize = 10 } = props;
   const { type, clickRow, noShowCheck } = props;
   const [listCell, setList] = useState([]);
   const [columnsCell, setColumns] = useState([]);

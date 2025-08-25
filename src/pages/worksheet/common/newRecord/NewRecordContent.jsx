@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from 'antd-mobile';
 import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
 import cx from 'classnames';
-import _, { get, isEmpty } from 'lodash';
+import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { EditingBar, ScrollView } from 'ming-ui';
@@ -42,15 +42,6 @@ const Con = styled.div`
       min-width: 0;
       padding: ${({ isMobile }) => (isMobile ? '0 20px' : ' 0 32px')};
       overflow-x: ${({ isMobile }) => (isMobile ? 'hidden' : 'unset')};
-    }
-  }
-  .fixedLeftOrRight {
-    .nano-content {
-      display: flex;
-      flex-direction: column;
-      .customFieldsCon {
-        flex: 1;
-      }
     }
   }
 `;
@@ -246,7 +237,7 @@ function NewRecordForm(props) {
     cache.current.newRecordOptions = options;
     customwidget.current.submitFormData();
   }
-  async function onSave(error, { data, handleRuleError, handleServiceError } = {}) {
+  async function onSave(error, { data, handleRuleError, handleServiceError, alertLockError } = {}) {
     if (error) {
       onSubmitEnd();
       return;
@@ -268,6 +259,7 @@ function NewRecordForm(props) {
           const remark = await customButtonConfirm();
           customBtn.btnRemark = remark;
         } catch (err) {
+          console.log(err);
           onSubmitEnd();
           return;
         }
@@ -299,10 +291,44 @@ function NewRecordForm(props) {
           customwidget.current.dataFormat.callStore('setUniqueError', { badData });
         },
         setRuleError: badData => handleRuleError(badData),
+        alertLockError: () => alertLockError(),
         setServiceError: badData => handleServiceError(badData),
         onSubmitSuccess: ({ rowData, newControls }) => {
-          handOverNavigation(true);
+          handOverNavigation(!isContinue);
+
+          // 支付配置‘立即支付’，创建记录后弹出付款层
+          // if (
+          //   worksheetInfo.isAllowImmediatePayment &&
+          //   !isMobile &&
+          //   (actionType === BUTTON_ACTION_TYPE.CLOSE || notDialog)
+          // ) {
+          //   handlePrePayOrder({
+          //     worksheetId,
+          //     rowId: rowData.rowid,
+          //     paymentModule: md.global.Account.isPortal ? 3 : 2,
+          //     projectId: projectId || props.projectId,
+          //     appId,
+          //     payNow: true,
+          //     isAtOncePayment: true,
+          //     onUpdateSuccess: updateObj => {},
+          //   });
+          // }
+
+          // 创建记录后关闭弹层
+          if (actionType === BUTTON_ACTION_TYPE.CLOSE) {
+            alert(_l('提交成功'), 1, 1000);
+          }
+
           if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
+            if (
+              notDialog &&
+              location.pathname.includes('mobile/addRecord') &&
+              actionType !== BUTTON_ACTION_TYPE.CONTINUE_ADD &&
+              !continueAdd
+            ) {
+              compatibleMDJS('back', { closeAll: false });
+            }
+
             if (isDraft && _.isFunction(handleAddRelation)) {
               handleAddRelation([rowData]);
               setErrorVisible(false);
@@ -379,6 +405,7 @@ function NewRecordForm(props) {
                   rowId: rowData.rowid,
                   viewId: openViewId,
                   from: 3,
+                  enablePayment: worksheetInfo.enablePayment,
                 });
               } else {
                 openRecordInfo({
@@ -388,6 +415,7 @@ function NewRecordForm(props) {
                   viewId: openViewId,
                   appSectionId: groupId,
                   isOpenNewAddedRecord: true,
+                  enablePayment: worksheetInfo.enablePayment,
                 });
               }
             }
@@ -440,10 +468,7 @@ function NewRecordForm(props) {
     setRestoreVisible(true);
     setIsSettingTempData(false);
   };
-  const onTempNewRecordCancel = () => {
-    setRestoreVisible(false);
-    removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
-  };
+
   function handleRestoreTempRecord(newFormdata) {
     if (window.isMingDaoApp) return;
     if (needCache) {
@@ -511,7 +536,7 @@ function NewRecordForm(props) {
           defaultFormDataEditable,
           writeControls,
         });
-        newFormdata = newFormdata;
+
         setOriginFormdata(newFormdata);
         setFormdata(newFormdata);
         // 离线缓存;
@@ -657,7 +682,9 @@ function NewRecordForm(props) {
                   try {
                     const res = await publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }, { silent: true });
                     name = res.name;
-                  } catch (err) {}
+                  } catch (err) {
+                    console.log(err);
+                  }
                   resolve(`${url} ${name}`);
                 })
               }
@@ -708,7 +735,7 @@ function NewRecordForm(props) {
               relateRecordData={relateRecordData}
               worksheetId={worksheetId}
               showError={errorVisible}
-              onChange={(data, ids, { noSaveTemp, isAsyncChange } = {}) => {
+              onChange={(data, ids, { noSaveTemp } = {}) => {
                 if (isSubmitting.current || maskLoading) {
                   return;
                 }

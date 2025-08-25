@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, Dialog, UserHead, VerifyPasswordConfirm } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import localForage from 'localforage';
 import _ from 'lodash';
-import { Dialog, LoadDiv, Support, Tooltip } from 'ming-ui';
+import { Dialog, LoadDiv, Tooltip } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import login from 'src/api/login';
 import weixin from 'src/api/weixin';
@@ -177,6 +177,7 @@ export default function UserMenu(props) {
               action={['hover']}
               popup={renderTooltipText()}
               popupVisible={projectLength > 1 && userVisible}
+              autoCloseDelay={0}
             >
               <a className="Hand clearfix">
                 <span className="icon icon-business" />
@@ -207,6 +208,7 @@ export default function UserMenu(props) {
             action={['hover']}
             popup={renderTooltipLanguageText()}
             popupVisible={languageVisible}
+            autoCloseDelay={0}
           >
             <a className="Hand clearfix">
               <span className="icon icon-language" />

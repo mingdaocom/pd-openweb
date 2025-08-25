@@ -1,18 +1,18 @@
-import React, { useState, useReducer, useEffect, useRef } from 'react';
-import { arrayOf, bool, func, shape, string } from 'prop-types';
-import { Modal, Dialog, Checkbox, VerifyPasswordConfirm } from 'ming-ui';
-import styled from 'styled-components';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
 import update from 'immutability-helper';
+import _ from 'lodash';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Modal, VerifyPasswordConfirm } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
-import ColumnHead from './TrashColumnHead';
-import TrashBatchOperate from './TrashBatchOperate';
-import Header from './Header';
-import _ from 'lodash';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { BrowserRouter } from 'react-router-dom';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
+import Header from './Header';
+import TrashBatchOperate from './TrashBatchOperate';
+import ColumnHead from './TrashColumnHead';
 
 const Con = styled.div`
   width: 100%;
@@ -60,7 +60,7 @@ const trashReducer = (state, action) => {
 
 const PAGE_SIZE = 50;
 
-const createActions = (dispatch, state) => ({
+const createActions = dispatch => ({
   loadRows: ({
     appId,
     worksheetId,
@@ -413,7 +413,7 @@ export default function WorkSheetTrash(props) {
                   }}
                 />
               )}
-              renderRowHead={({ className, style, rowIndex, row }) => (
+              renderRowHead={({ className, style, rowIndex }) => (
                 <RowHead
                   isTrash
                   canSelectAll
@@ -430,7 +430,7 @@ export default function WorkSheetTrash(props) {
                   onSelect={newSelected => {
                     let newSelectRows = [];
                     if (isAll) {
-                      newSelected.forEach(rowId => {
+                      newSelected.forEach(() => {
                         newSelectRows = records.filter(r => _.find(newSelected, id => r.rowid !== id));
                         newSelected = newSelectRows.map(r => r.rowid);
                       });

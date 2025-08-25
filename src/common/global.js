@@ -6,6 +6,7 @@ import moment from 'moment';
 import qs from 'query-string';
 import { v4 as uuidv4 } from 'uuid';
 import { antAlert, destroyAlert } from 'ming-ui/functions/alert';
+import loginApi from 'src/api/login';
 import versionApi from 'src/api/version';
 import { PUBLIC_KEY } from 'src/utils/enum';
 import { getPssId } from 'src/utils/pssId';
@@ -163,7 +164,7 @@ window._l = function (key, ...args) {
 
   const currentLang = langConfig.find(item => item.key === getCurrentLang());
 
-  if (!!currentLang) {
+  if (currentLang) {
     const xhrObj = new XMLHttpRequest();
     const script = document.createElement('script');
     const path =
@@ -337,12 +338,17 @@ window.createTimeSpan = (dateStr, showType = 1) => {
   } else if (dateTime.isSame(now, 'd')) {
     return `${isShowSort ? '' : _l('今天')} ${hour}:${minute}`;
   } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
-    return _l('昨天') + (isShowSort ? '' : ` ${hour}:${minute}`);
+    return _l('昨天') + (isShowSort || showType === 5 ? '' : ` ${hour}:${minute}`);
   } else if (dateTime.format('YYYY') === now.format('YYYY')) {
+    if (showType === 5) {
+      return _l('%0月%1日', simpleMonth, simpleDay);
+    }
     return `${_l('%0月%1日', simpleMonth, simpleDay)}` + (isShowSort ? '' : ` ${hour}:${minute}`);
   }
 
-  return isShowSort ? `${_l('%0年', year)}` : `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
+  return isShowSort || showType === 5
+    ? `${_l('%0年', year)}`
+    : `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
 };
 
 const tabId = Date.now().toString();
@@ -427,7 +433,7 @@ const getErrorMessage = (jqXHR = {}, textStatus, exception) => {
     errorMessage = _l('服务异常，请稍后重试');
   }
 
-  // 火狐在用户跳走时会弹 “请求服务器失败”
+  // 火狐在用户跳走时会弹 "请求服务器失败"
   if (errorMessage && textStatus !== 'abort' && jqXHR.status !== 0 && !window.isFirefox) {
     alert({ msg: errorMessage, type: 2, key: _.includes([401, 412], jqXHR.status) ? 'failure' : '' });
   }
@@ -530,7 +536,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
   }
 
   return {
-    url: ajaxOptions.url || serverPath + encodeURIComponent(controllerName) + '/' + encodeURIComponent(actionName),
+    url: ajaxOptions.url || serverPath + controllerName + '/' + encodeURIComponent(actionName),
     headers,
     data,
   };
@@ -645,22 +651,49 @@ window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, cle
 /**
  * 接口数据解密
  */
-const interfaceDataDecryption = source => {
-  const { data, key, encrypted } = source || {};
-
-  if (encrypted) {
-    const decrypted = CryptoJS.AES.decrypt(data, CryptoJS.enc.Utf8.parse(key), {
+const interfaceDataDecryption = (response, actionName = '') => {
+  const { data, key, encrypted } = response || {};
+  const getDecryptedValue = (decryptKey, encryptedValue) => {
+    const decrypted = CryptoJS.AES.decrypt(encryptedValue, CryptoJS.enc.Utf8.parse(decryptKey), {
       iv: CryptoJS.enc.Utf8.parse(PUBLIC_KEY.replace(/\r|\n/, '').slice(26, 42)),
     });
 
-    // 返回解密后的数据
+    return decrypted.toString(CryptoJS.enc.Utf8);
+  };
+
+  // 返回解密后的数据
+  if (encrypted) {
+    return { data: JSON.parse(getDecryptedValue(key, data)) };
+  } else if (
+    _.includes(['GetRowByID', 'GetRowDetail', 'GetFilterRows', 'GetRowRelationRows'], actionName) &&
+    !['meihua.mingdao.com', 'www.mingdao.com'].includes(location.host)
+  ) {
+    let dataStr = JSON.stringify(data);
+    const encryptedArray = dataStr.match(/\$\$encryptedStart\$\$.*?\$\$.*?\$\$encryptedEnd/g) || [];
+
+    encryptedArray.forEach(item => {
+      const [decryptKey, encryptedValue] = item
+        .split(/\$\$encryptedStart\$\$(.*?)\$\$(.*?)\$\$encryptedEnd/)
+        .filter(o => o);
+
+      dataStr = dataStr.replace(item, getDecryptedValue(decryptKey, encryptedValue));
+    });
+
     return {
-      data: JSON.parse(decrypted.toString(CryptoJS.enc.Utf8)),
+      data: JSON.parse(dataStr),
     };
   }
 
-  return source;
+  return response;
 };
+
+/**
+ * 5分钟自动延期登录状态
+ */
+const throttledCheckLogin = _.throttle(() => loginApi.checkLogin({}, { silent: true }), 5 * 60 * 1000, {
+  leading: false,
+  trailing: true,
+});
 
 /**
  * 请求 API 接口
@@ -680,6 +713,11 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   const customParseResponse = options.customParseResponse; // 自定义解析返回内容
   const isReadableStream = options.isReadableStream; // 流式响应
   const { url, headers, data } = disposeRequestParams(controllerName, actionName, requestData || {}, ajaxOptions);
+
+  // 私有部署 非主站接口 5分钟自动延期登录状态
+  if (_.get(md.global.Config, 'IsLocal') && url.indexOf('wwwapi') === -1 && _.get(md, 'global.Account.accountId')) {
+    throttledCheckLogin();
+  }
 
   if (isSync) {
     const xhr = new XMLHttpRequest();
@@ -721,7 +759,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
     const { key, moduleType, sourceId } = getLocalizationKey(controllerName, actionName, requestData);
     let version;
 
-    if (!_.get(window, 'shareState.shareId') && key && sourceId) {
+    if (!_.get(window, 'shareState.shareId') && !window.isWeixin && key && sourceId) {
       const localSource = await localForage.getItem(`${key}_${sourceId}`);
 
       if (localSource && !localStorage.getItem('IS_DEV_MODE')) {
@@ -766,7 +804,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
           !options.silent && alert(responseData.exception, 2);
           reject({ errorCode: responseData.state, errorMessage: responseData.exception, errorData: responseData });
         } else {
-          const { data } = interfaceDataDecryption(responseData);
+          const { data } = interfaceDataDecryption(responseData, actionName);
 
           !_.get(window, 'shareState.shareId') &&
             insertLocalData({ key, moduleType, sourceId, version, data: _.cloneDeep(data) });

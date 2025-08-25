@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import _ from 'lodash';
 import syncTaskApi from '../../../../api/syncTask';
 
 const StatisticContent = styled.div`

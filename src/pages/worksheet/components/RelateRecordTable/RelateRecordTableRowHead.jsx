@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import cx from 'classnames';
 import { Checkbox, ConfirmPanel } from 'ming-ui';
-import _ from 'lodash';
-import RecordOperate from 'worksheet/components/RecordOperate';
-import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import { FlexCenter } from 'worksheet/components/Basics';
+import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
+import RecordOperate from 'worksheet/components/RecordOperate';
 
 const Con = styled.span`
   padding: 0 16px !important;
@@ -27,6 +27,15 @@ const Con = styled.span`
   .Checkbox-box {
     margin-right: -2px !important;
   }
+  &.hideNumber {
+    .number {
+      display: none;
+    }
+    .moreOperate,
+    .deleteRowIcon {
+      display: inline-block;
+    }
+  }
   &.isNew {
     &::before {
       content: '';
@@ -36,7 +45,7 @@ const Con = styled.span`
       top: 0;
       bottom: 0;
       width: 2px;
-      background: #2196f3;
+      background: #1677ff;
     }
   }
   &.hover,
@@ -63,7 +72,7 @@ const OpenRecordBtn = styled(FlexCenter)`
   font-size: 16px;
   width: 24px;
   height: 24px;
-  color: #2196f3;
+  color: #1677ff;
   border-radius: 4px;
   &:hover {
     background: rgba(0, 0, 0, 0.05);
@@ -74,6 +83,7 @@ export default function RowHead(props) {
   const [moreOperateVisible, setMoreOperateVisible] = useState(false);
   const {
     tableType,
+    showNumber = true,
     isBatchEditing,
     allIsSelected,
     selected,
@@ -127,7 +137,7 @@ export default function RowHead(props) {
       cancelText={_l('取消')}
     >
       <Con
-        className={cx(className, { isNew: row.isNew, moreOperateVisible })}
+        className={cx(className, { isNew: row.isNew, moreOperateVisible, hideNumber: !showNumber })}
         style={style}
         hideOperate={!recordId && !allowRemoveRelation}
       >
@@ -153,7 +163,7 @@ export default function RowHead(props) {
         )}
         {!isBatchEditing && (
           <Fragment>
-            {row.rowid && (
+            {row.rowid && showNumber && (
               <span
                 className="number"
                 key="number"

@@ -1,13 +1,13 @@
-import doT from 'dot';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
-import postAjax from 'src/api/post';
-import './style.less';
-import mainHtml from './tpl/main.html';
-import resultHtml from './tpl/result.html';
+import doT from 'dot';
 import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
-import React from 'react';
 import { SelectGroup } from 'ming-ui/functions/quickSelectGroup';
+import postAjax from 'src/api/post';
+import mainHtml from './tpl/main.html';
+import resultHtml from './tpl/result.html';
+import './style.less';
 
 var EditShareScope = function (options, callback) {
   var DEFAULTS = {};

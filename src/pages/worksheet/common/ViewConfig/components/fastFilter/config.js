@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 //时间
 export const DATE_TYPE = [
   [
@@ -90,4 +92,4 @@ export const DATE_FORMAT_BY_DATERANGETYPE = {
   3: 'YYYY-MM-DD',
   2: 'YYYY-MM-DD HH',
   1: 'YYYY-MM-DD HH:mm',
-}
+};

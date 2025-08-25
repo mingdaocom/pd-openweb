@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, UpgradeIcon } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -112,7 +113,7 @@ export default class GeneralSettings extends Component {
                   <div>
                     {clickFunc && (
                       <Icon
-                        icon="sidebar-more"
+                        icon="arrow-right-border"
                         className="Font18 Gray_9d Right Hand"
                         onClick={() => this[clickFunc]()}
                       />

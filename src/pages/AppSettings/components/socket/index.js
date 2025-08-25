@@ -1,6 +1,7 @@
 import React from 'react';
-import { Icon, antNotification } from 'ming-ui';
+import _ from 'lodash';
 import filterXSS from 'xss';
+import { antNotification, Icon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 
 const getAction = status => {
@@ -67,8 +68,8 @@ export default () => {
       status === 1
         ? _l(`应用“${appName}”正在导入升级，完成后会通知您`)
         : status === 2
-        ? _l(`应用“${appName}”导入升级完成`)
-        : _l(`应用“${appName}”导入升级失败`);
+          ? _l(`应用“${appName}”导入升级完成`)
+          : _l(`应用“${appName}”导入升级失败`);
     let action = getAction(status);
 
     antNotification[action]({

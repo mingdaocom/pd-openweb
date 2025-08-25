@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, Radio } from 'ming-ui';
-import { NODE_TYPE, ACTION_ID } from '../../enum';
 import _ from 'lodash';
+import { Dialog, Radio } from 'ming-ui';
+import { ACTION_ID, NODE_TYPE } from '../../enum';
 
 export default ({
   nodeId,

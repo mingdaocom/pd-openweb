@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { string } from 'prop-types';
+import React, { useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import { SelectFieldsWrap } from '../../styled';
 import { getIconByType } from '../../util';
 

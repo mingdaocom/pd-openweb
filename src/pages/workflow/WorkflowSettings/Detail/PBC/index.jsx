@@ -48,7 +48,7 @@ export default class PBC extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -397,7 +397,7 @@ export default class PBC extends Component {
         selectNodeId={this.props.selectNodeId}
         sourceNodeId={item.dataSource ? parentNode.nodeId : ''}
         controls={data.fields.map(o => {
-          if (o.type === 10000008) {
+          if (_.includes([26, 10000008], o.type)) {
             o.controlId = o.fieldId;
             o.flowNodeAppDtos = data.batchNodes;
           }
@@ -409,7 +409,13 @@ export default class PBC extends Component {
         item={item}
         i={_.findIndex(data.fields, o => o.fieldId === item.fieldId)}
         isPlugin={isPlugin}
-        moreNodesMenuStyle={selectFieldId ? { marginLeft: -570, width: 715 } : { marginLeft: -112, width: 256 }}
+        moreNodesMenuStyle={
+          item.type === 26 && item.nodeId
+            ? {}
+            : selectFieldId
+              ? { marginLeft: -570, width: 715 }
+              : { marginLeft: -112, width: 256 }
+        }
       />
     );
   };
@@ -477,7 +483,7 @@ export default class PBC extends Component {
                 this.updateSource({ fields });
               }}
             >
-              <i className="icon-delete2" />
+              <i className="icon-trash" />
             </span>
 
             <span
@@ -869,7 +875,7 @@ export default class PBC extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{isPBCOut ? this.renderExportContent() : this.renderContent()}</div>
           </ScrollView>

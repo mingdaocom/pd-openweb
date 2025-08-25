@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { RadioGroup, Dropdown } from 'ming-ui';
+import React from 'react';
+import { useSetState } from 'react-use';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Dropdown, RadioGroup } from 'ming-ui';
 import { Button } from 'worksheet/styled';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
-import { useSetState } from 'react-use';
-import HierarchyRelateMultiSheet from './hierarchyRelateMultiSheet';
-import _ from 'lodash';
 import StructureType from 'src/pages/worksheet/common/ViewConfig/components/StructureType';
+import HierarchyRelateMultiSheet from './hierarchyRelateMultiSheet';
 
 const RELATE_TYPE = [
   { text: _l('本表关联'), value: 1 },
@@ -64,7 +64,7 @@ const HierarchyViewConfigWrap = styled.div`
     .addRelate {
       margin-top: 6px;
       width: 280px;
-      color: #2196f3;
+      color: #1677ff;
       font-weight: bold;
     }
   }

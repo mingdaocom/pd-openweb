@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
-import { arrayOf, func, shape, string, bool } from 'prop-types';
-import { Modal, ScrollView, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import styled from 'styled-components';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
+import { arrayOf, bool, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { LoadDiv, Modal, ScrollView } from 'ming-ui';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const Header = styled.div`
   height: 52px;
@@ -129,7 +129,7 @@ export default function AppTrash(props) {
       {!loading && !data.length && (
         <EmptyCon>
           <div className="emptyIcon">
-            <i className="icon icon-custom_-page_delete"></i>
+            <i className="icon icon-recycle"></i>
           </div>
           <div className="Font17 Gray_9e mTop16">{keyword ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}</div>
         </EmptyCon>

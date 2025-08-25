@@ -1,13 +1,13 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Dialog } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Checkbox } from 'antd';
-import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { filterData } from 'src/pages/FormSet/components/columnRules/config';
+import { Dialog } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 
 export default function FilterData(props) {
-  const { projectId, appId, worksheetId, filterId, controls, config, onChangeConfig } = props;
+  const { projectId, appId, filterId, controls, config, onChangeConfig } = props;
   const { isFilter, filterConditions = [] } = config;
   const [visible, setVisible] = useState(false);
   const [filter, setFilter] = useState([]);

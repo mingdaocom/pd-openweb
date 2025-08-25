@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import moment from 'moment';
 import Emotion from 'src/components/emotion/emotion';
+import { INBOXTYPES } from 'src/pages/chat/components/Inbox/constants';
 import { htmlDecodeReg } from 'src/utils/common';
 import { dateConvertToUserZone } from 'src/utils/project';
 import Constant from './constant';
 
-export const formatMsgDate = dateStr => {
+export const formatMsgDate = (dateStr, isHourMinute = true) => {
   const dateTime = moment(dateStr);
   const now = moment();
   const diff = now.diff(dateTime);
@@ -17,54 +18,22 @@ export const formatMsgDate = dateStr => {
   const simpleDay = dateTime.format('D');
   const hour = dateTime.format('HH');
   const minute = dateTime.format('mm');
+  const hourMinute = `${hour}:${minute}`;
 
   // 处理未来时间的情况
-  if (diff < 0) return `${hour}:${minute}`;
+  if (diff < 0) return hourMinute;
 
   if (minutes < 60) {
-    return `${hour}:${minute}`;
+    return hourMinute;
   } else if (dateTime.isSame(now, 'd')) {
-    return `${_l('今天')} ${hour}:${minute}`;
+    return _l('今天') + ` ${hourMinute}`;
   } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
-    return _l('昨天') + ` ${hour}:${minute}`;
+    return _l('昨天') + (isHourMinute ? ` ${hourMinute}` : '');
   } else if (dateTime.format('YYYY') === now.format('YYYY')) {
-    return `${_l('%0月%1日', simpleMonth, simpleDay)}` + ` ${hour}:${minute}`;
+    return `${_l('%0月%1日', simpleMonth, simpleDay)}` + (isHourMinute ? ` ${hourMinute}` : '');
   }
 
-  return `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
-};
-
-/**
- * 获取时间戳
- * @param {*} time
- */
-const getTimeStamp = (time, prevTime, force) => {
-  let _time = time;
-  force = force === true;
-
-  // 传来的时间戳的类型有：
-  // 后台来的时间格式：2015-9-17 16:3725.337
-  // 自己发送消息的毫秒数：1442479105055
-  if (_time && typeof _time !== 'number') {
-    _time = _time.replace(/-/g, '/');
-    const ms = Number(_time.substring(_time.lastIndexOf('.') + 1));
-    _time = new Date(_time.substring(0, _time.lastIndexOf('.'))).getTime() + ms;
-  } else {
-    _time = moment(getCurrentTime()).toDate().getTime();
-  }
-
-  let timeStamp = '';
-  const now = moment(getCurrentTime()).toDate();
-
-  prevTime = prevTime || 0;
-
-  // 间隔时间小于一分钟的消息将不会显示时间戳
-  if (Math.abs(_time - prevTime) > 1000 * 60 || force) {
-    timeStamp = formatMsgDate(moment(_time).format('YYYY-MM-DD HH:mm:ss.S'));
-    prevTime = _time;
-  }
-
-  return timeStamp.replace(_l('刚刚'), now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes());
+  return `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)}` + (isHourMinute ? ` ${hourMinute}` : '');
 };
 
 const sortTop = (list, value) => {
@@ -81,9 +50,6 @@ const sortTop = (list, value) => {
         res.push(item);
       }
     });
-    // res.sort(function(a, b) {
-    //   return Date.parse(b._time) - Date.parse(a._time);
-    // });
     return top.concat(res);
   } else {
     return list;
@@ -95,26 +61,42 @@ const sortTop = (list, value) => {
  * @param  {Array} sessions 列表
  * @return {Array}          排序之后的结果
  */
-export const sortSession = (sessions, value) => {
+export const sortSession = (sessions, value, messageListShowType = md.global.Account.messageListShowType) => {
   sessions = _.orderBy(sessions, ['sendMsg']);
   const other = [];
   const top = [];
-  sessions.forEach(item => {
-    const isTop = item.top_info ? item.top_info.isTop : false;
-    if (isTop) {
-      top.push(item);
-    } else {
-      other.push(item);
-    }
-  });
+  const count = [];
 
-  // if (!value) {
-  //   top.sort(function(a, b) {
-  //     return Date.parse(b.top_info.time) - Date.parse(a.top_info.time);
-  //   });
-  // }
-
-  return sortTop(top, value).concat(other);
+  if (messageListShowType === 1) {
+    sessions.forEach(item => {
+      const isTop = item.top_info ? item.top_info.isTop : false;
+      if (isTop) {
+        top.push(item);
+      } else if (item.count && ('isPush' in item ? item.isPush : true)) {
+        count.push(item);
+      } else {
+        other.push(item);
+      }
+    });
+    const sortList = sortTop(top, value).sort((a, b) => {
+      const aHasValue = a.count != null && a.count !== 0;
+      const bHasValue = b.count != null && b.count !== 0;
+      if (aHasValue && !bHasValue) return -1;
+      if (!aHasValue && bHasValue) return 1;
+      return 0;
+    });
+    return count.concat(sortList, other);
+  } else {
+    sessions.forEach(item => {
+      const isTop = item.top_info ? item.top_info.isTop : false;
+      if (isTop) {
+        top.push(item);
+      } else {
+        other.push(item);
+      }
+    });
+    return sortTop(top, value).concat(other);
+  }
 };
 
 /**
@@ -198,7 +180,7 @@ const formatSession = item => {
   }
 
   item._time = item.time;
-  item.time = formatMsgDate(dateConvertToUserZone(item.time), 2);
+  item.time = formatMsgDate(dateConvertToUserZone(item.time), false);
   item.type = Number(item.type);
   item.messageAtlist = item.atlist;
   item.sendMsg = localStorage.getItem(`textareaValue${item.value}`);
@@ -212,9 +194,9 @@ const formatSession = item => {
  * @param {*} list
  */
 export const filterSessionList = list => {
-  list = _(list)
+  list = _.chain(list)
     .groupBy('value')
-    .map((value, key) => {
+    .map(value => {
       return value[0];
     })
     .value();
@@ -280,7 +262,6 @@ export const formatNewMessage = (message, prevMessage) => {
 export const formatNewSession = message => {
   if ('dtype' in message) {
     // 系统消息
-    message.count = message.count;
     message.msg = {
       con: message.msg,
     };
@@ -291,7 +272,6 @@ export const formatNewSession = message => {
     message.iswd = false;
     message.name = message.isGroup ? message.groupname : message.uname;
     message.msgid = message.id;
-    message.count = message.count;
     message.value = message.isGroup
       ? message.to
       : md.global.Account.accountId === message.from
@@ -406,7 +386,7 @@ export const cardDisposeName = card => {
 export const toLink = str => {
   // url前面加一个空格
   // str = str.replace(/(http|https|ftp):\/\//ig, ' $1://');
-  const urlReg = /((http|https|ftp):\/\/|w{1,3}\.)[^\s\|<\|\u4E00-\u9FA5]+/gi;
+  const urlReg = /((http|https|ftp):\/\/|w{1,3}\.)[^\s|<|\u4E00-\u9FA5]+/gi;
   // var urlReg = /((http|https|ftp):\/\/|www)[^\s\|<\|\u4E00-\u9FA5]*[^(http|https|ftp:\/\/)]/ig;
   return str.replace(urlReg, m => {
     let _href = m;
@@ -486,7 +466,7 @@ export const highlightMessage = id => {
  * @param {*} el
  */
 const highlight = el => {
-  const className = window.isFirefox ? 'highlight' : 'highlight';
+  const className = 'highlight';
   el.addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
     $(this).removeClass(className);
   });
@@ -498,16 +478,12 @@ const highlight = el => {
  * @param {*} isBottom
  */
 export const scrollEnd = (id, isBottom = false) => {
-  const scrollView = $(`#ChatPanel-${id}`).find('.ChatPanel-sessionList .has-scrollbar');
-  if (!scrollView.size()) {
-    return;
-  }
-  const { nanoscroller } = scrollView.get(0);
-  const { maxScrollTop, contentScrollTop } = nanoscroller || {};
-  if (nanoscroller && (isBottom || maxScrollTop - contentScrollTop < 50)) {
-    scrollView.nanoScroller({ flash: true }).nanoScroller({
-      scroll: 'bottom',
-    });
+  const scrollView = window[`scrollView-${id}`];
+  if (scrollView) {
+    const { scrollTop, maxScrollTop } = scrollView.getScrollInfo();
+    if (maxScrollTop && (isBottom || maxScrollTop - scrollTop < 200)) {
+      scrollView.scrollTo({ top: maxScrollTop });
+    }
   }
 };
 
@@ -516,10 +492,8 @@ export const scrollEnd = (id, isBottom = false) => {
  * @param {*} id
  */
 export const sessionListScrollTop = () => {
-  const scrollView = $('.ChatList-sessionList-wrapper .nano');
-  scrollView.nanoScroller({ flash: true }).nanoScroller({
-    scroll: 'top',
-  });
+  const scrollView = $('.ChatList-sessionList-wrapper .scroll-viewport')[0];
+  scrollView.scrollTo({ top: 0 });
 };
 
 /**
@@ -649,12 +623,13 @@ export const getInboxId = function (type) {
   }
 };
 
+export const getIsInbox = id => _.toArray(INBOXTYPES).includes(id);
+
 /**
  * 是否还存在计数
  * @param {*} list
- * @param {*} filterValue
  */
-export const isCount = (list, filterValue) => {
+export const isCount = list => {
   let isCount = false;
   for (let i = 0; i < list.length; i++) {
     const session = list[i] || {};
@@ -668,18 +643,21 @@ export const isCount = (list, filterValue) => {
   return isCount;
 };
 
-export const setVisible = () => {
-  const value = localStorage.getItem('chatList_isUp');
-  if (value === 'true') {
-    return true;
-  } else if (value === 'false') {
-    return false;
-  } else {
-    safeLocalStorageSetItem('chatList_isUp', false);
-    return false;
-  }
+export const getToolbarConfig = () => {
+  const mingoFixing = localStorage.getItem('mingoFixing') === 'true';
+  const sessionListFixing = localStorage.getItem('sessionListFixing') === 'true';
+  const favoriteFixing = localStorage.getItem('favoriteFixing') === 'true';
+  const toolBarOpenType = localStorage.getItem('toolBarOpenType');
+  return {
+    mingoVisible: toolBarOpenType === 'mingo' && mingoFixing,
+    mingoFixing,
+    sessionListVisible: toolBarOpenType === 'sessionList' && sessionListFixing,
+    sessionListFixing,
+    favoriteVisible: toolBarOpenType === 'favorite' && favoriteFixing,
+    favoriteFixing,
+  };
 };
 
 export const convertGroupAbout = value => {
   return value ? toLink(tagConvert(value)).replace(/\r\n|\n/gi, '<br/>') : _l('暂无群公告');
-}
+};

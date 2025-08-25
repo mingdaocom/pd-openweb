@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
-import { createRoot } from 'react-dom/client';
-import config from '../../config/config';
-import './timeBars.less';
-import utils from '../../utils/utils';
-import cx from 'classnames';
-import Tooltip from 'ming-ui/components/Tooltip';
-import { DragSource } from 'react-dnd';
 import { findDOMNode } from 'react-dom';
-import DragPreview from '../dragPreview/dragPreview';
-import { formatTaskTime } from '../../../../utils/utils';
+import { createRoot } from 'react-dom/client';
+import { DragSource } from 'react-dnd';
+import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import Tooltip from 'ming-ui/components/Tooltip';
+import { formatTaskTime } from '../../../../utils/utils';
+import config from '../../config/config';
+import utils from '../../utils/utils';
+import DragPreview from '../dragPreview/dragPreview';
+import './timeBars.less';
 
 let root;
 
@@ -134,7 +134,7 @@ const ganttSource = {
       }, 200);
     }
   },
-  endDrag(props, monitor, component) {
+  endDrag(props) {
     // 触发拖拽单侧的时候也触发了拖拽整个的bug
     if (config.isSingleDrag) {
       return;
@@ -369,7 +369,7 @@ export default class TimeBars extends Component {
    * @return {object}
    */
   getTimeBarStyle() {
-    const { data, row, col, filterWeekend } = this.props;
+    const { data, row, filterWeekend } = this.props;
     const style = {
       top: row * 26 + 10,
     };
@@ -622,7 +622,6 @@ export default class TimeBars extends Component {
    */
   tooltipTimeMessage() {
     const { data } = this.props;
-    const hours = 0;
 
     // 未指定起止时间
     if (!data.startTime && !data.deadline) {
@@ -708,6 +707,7 @@ export default class TimeBars extends Component {
         mouseEnterDelay={0.5}
         offset={offset}
         overflow={[0, 0]}
+        autoCloseDelay={0}
       >
         <div
           className={cx(
@@ -730,7 +730,7 @@ export default class TimeBars extends Component {
             <span className="timeBarArrowBtn" style={this.timeBarArrowBtnStyle()} onClick={() => this.showOrHideTask()}>
               <i
                 className={cx(
-                  data.arrowStatus === config.ARROW_STATUS.OPEN ? 'icon-remove_circle_outline' : 'icon-addapplication',
+                  data.arrowStatus === config.ARROW_STATUS.OPEN ? 'icon-remove_circle_outline' : 'icon-add_circle',
                 )}
               />
             </span>

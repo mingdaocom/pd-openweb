@@ -2,7 +2,6 @@ import React from 'react';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import html2canvas from 'html2canvas';
-import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
 import { addBehaviorLog } from 'src/utils/project';
 import { fromType, typeForCon } from '../config';
@@ -79,7 +78,7 @@ class Header extends React.Component {
       promiseList.push(promise);
     });
 
-    Promise.all(promiseList).then(res => {
+    Promise.all(promiseList).then(() => {
       let content = (contentNode.innerHTML || '').replace(/figure/g, 'p');
       let noPrint = document.querySelector('#printContent .noPrint');
 
@@ -167,7 +166,7 @@ class Header extends React.Component {
         <React.Fragment>
           {from === fromType.FORM_SET && (
             <Icon
-              icon="knowledge-return"
+              icon="backspace"
               className="mRight12 Font16"
               onClick={() => {
                 this.props.onCloseFn();
@@ -248,7 +247,7 @@ class Header extends React.Component {
                     $('.iframeDiv').attr('src', $('.iframeDiv').attr('src'));
                   }}
                 >
-                  <Icon icon="replay" className=" Font16 mRight10" />
+                  <Icon icon="rotate" className=" Font16 mRight10" />
                   {_l('生成失败时，请点击此处刷新试试')}
                 </span>
               )}
@@ -266,7 +265,7 @@ class Header extends React.Component {
                       className="exportForWord InlineBlock Gray_75 Hand"
                       onClick={() => this.setState({ exportLoading: true }, this.exportWord)}
                     >
-                      <i className="icon-file_download Gray_9e mRight3 TxtMiddle Font15"></i>
+                      <i className="icon-download Gray_9e mRight3 TxtMiddle Font15"></i>
                       {_l('导出Word')}
                     </div>
                   ))}

@@ -134,11 +134,11 @@ export default class PostMention extends React.Component {
 
     switch (post.postType) {
       case 0:
-        const medal = post.MedalPost,
-          medalName = medal.MedalName,
-          medalPath = medal.MedalPath,
-          description = medal.MedalDescription,
-          sendRemark = medal.SendRemark;
+        const medal = post.MedalPost;
+        const medalName = medal.MedalName;
+        const medalPath = medal.MedalPath;
+        const description = medal.MedalDescription;
+
         return (
           <div className="mTop20 mBottom20 clearfix">
             <div className="Left">
@@ -152,7 +152,7 @@ export default class PostMention extends React.Component {
             </div>
           </div>
         );
-        break;
+
       case 1:
         const { linkTitle, linkUrl, linkThumb, linkDesc } = post;
         return (
@@ -164,10 +164,10 @@ export default class PostMention extends React.Component {
             {linkDesc ? <div className="mTop5 Gray">{linkDesc.toLowerCase()}</div> : null}
           </div>
         );
-        break;
+
       case 4:
       case 7:
-        const className = postType == 4 ? 'icon-qa' : 'icon-votenobg';
+        const className = post.postType == 4 ? 'icon-qa' : 'icon-votenobg';
         const from = this.mergeFromSourceState();
         const fromLink = from.fromLink;
 
@@ -176,7 +176,9 @@ export default class PostMention extends React.Component {
             <div className="Left logoContainer">
               <i className={'Font24 Gray_9' + className}></i>
             </div>
-            <div className="textContainer">{message.substring(0, 25) + (message.length > 25 ? '...' : '')}</div>
+            <div className="textContainer">
+              {post.message.substring(0, 25) + (post.message.length > 25 ? '...' : '')}
+            </div>
             <div class="viewDetail">
               <a target="_blank" href={fromLink} class="detailBtn boderRadAll_3">
                 {_l('查看详情')}
@@ -184,7 +186,6 @@ export default class PostMention extends React.Component {
             </div>
           </div>
         );
-        break;
       default:
         break;
     }

@@ -1,29 +1,14 @@
 import _ from 'lodash';
-﻿/* autoTextarea文本框根据输入内容自适应高度  lio 2012-3-31 add
 
-//调用：
-//$("textarea").autoTextarea({
-//maxHeight:220,    //最大高度
-//minHeight:20        //最小高度
-//})
-*/
-/* autoTextarea文本框根据输入内容自适应高度  lio 2012-3-31 add
-
-//调用：
-//$("textarea").autoTextarea({
-//maxHeight:220,    //最大高度
-//minHeight:20        //最小高度
-//})
-*/
 var prefixer = '.autoTextarea';
 var KEYDOWN = 'keydown' + prefixer;
-var EVENTS = _.map(['keyup', 'blur', 'focus'], function(e) {
+var EVENTS = _.map(['keyup', 'blur', 'focus'], function (e) {
   return e + prefixer;
 }).join(' ');
 
-export default (function($) {
-  $.fn.autoTextarea = function(options) {
-    return $(this).each(function() {
+export default (function ($) {
+  $.fn.autoTextarea = function (options) {
+    return $(this).each(function () {
       var $this = $(this);
       var opts = $.extend(
         {
@@ -34,7 +19,7 @@ export default (function($) {
         options,
       );
 
-      var initTextArea = function() {
+      var initTextArea = function () {
         $this.css('height', 0);
         var origHeight = $.trim($this.val()) === '' ? opts.minHeight : $this.get(0).scrollHeight - opts.gap;
 
@@ -46,12 +31,12 @@ export default (function($) {
 
         $this.height(origHeight).scrollTop($this.scrollTop());
         $this.data('autoTextarea', {
-          setOpts: function(newOpts) {
+          setOpts: function (newOpts) {
             opts = Object.assign({}, opts, newOpts);
           },
         });
 
-        $this.on(KEYDOWN, function(event) {
+        $this.on(KEYDOWN, function (event) {
           if (event.keyCode === 13) {
             var height = this.scrollHeight - opts.gap;
             if (height > opts.maxHeight) {
@@ -61,7 +46,7 @@ export default (function($) {
           }
         });
 
-        $this.on(EVENTS, function() {
+        $this.on(EVENTS, function () {
           if (!$this.val()) {
             $this.height(opts.minHeight);
           }
@@ -97,7 +82,7 @@ export default (function($) {
 
       if (exist) {
         exist.setOpts(opts);
-        _.forEach(EVENTS.split(' '), function(e) {
+        _.forEach(EVENTS.split(' '), function (e) {
           $this.off(e);
         });
         $this.off(KEYDOWN);

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
-import PayHeader from '../payHeader';
-import payAjax from 'src/api/pay';
-import genQrDataurl, { QRErrorCorrectLevel } from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import payAjax from 'src/api/pay';
 import { canPurchase } from 'src/components/checkPermission';
+import genQrDataurl, { QRErrorCorrectLevel } from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
+import PayHeader from '../payHeader';
 
 const WecharPayWrap = styled.div`
   padding-top: 60px;

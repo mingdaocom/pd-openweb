@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import { LoadDiv } from 'ming-ui';
-import MobileChart from 'mobile/CustomPage/ChartContent';
-import homeAppAjax from 'src/api/homeApp';
-import favoriteAjax from 'src/api/favorite';
-import Back from '../components/Back';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
+import favoriteAjax from 'src/api/favorite';
+import MobileChart from 'mobile/CustomPage/ChartContent';
+import Back from '../components/Back';
 
 const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   padding: 16px 10px;
   background-color: #f5f5f5;
+  height: 100%;
+  overflow-y: auto;
   .loadingWrap {
     width: 100%;
     height: 100vh;
@@ -55,7 +57,7 @@ export default class ChartCollect extends Component {
       .then(collectCharts => {
         this.setState({ collectCharts, loading: false });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ collectCharts: [], loading: false });
       });
   };
@@ -70,7 +72,7 @@ export default class ChartCollect extends Component {
             <LoadDiv />
           </div>
         ) : (
-          collectCharts.map((item, index) => {
+          collectCharts.map(item => {
             return (
               <div key={item.favoriteId} className="chartItemWrap flexColumn">
                 <MobileChart

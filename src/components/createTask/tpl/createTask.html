@@ -7,7 +7,7 @@
     <ul class="createTaskNetworkList boxShadow5 boderRadAll_3 Hidden" id="createTaskNetworkList">
         {{~md.global.Account.projects:project}}
         <li class="ThemeBGColor3" data-id="{{=project.projectId}}">
-            <i class="icon-company"></i>{{!project.companyName}}
+            <i class="icon-business"></i>{{!project.companyName}}
         </li>
         {{~}}
         <li class="ThemeBGColor3" data-id=""><i class="icon-charger"></i>{{=_l('个人')}}</li>
@@ -61,7 +61,7 @@
     <!-- <input class="boderRadAll_3 boxSizing ThemeBorderColor3" id="txtLastDate" type="text" placeholder="{{=_l('未指定日期')}}" readonly="readonly" value="{{=it.Deadlines }}" /> -->
     <div class="boderRadAll_3 boxSizing ThemeBorderColor3" id="txtLastDate"></div>
 </div>
-<div class="boxSizing p82 pRight26 relative Font14 Hidden" style="height: 38px;"  id="createTaskStage">
+<div class="boxSizing p82 pRight26 relative Font14 Hidden" style="height: 38px" id="createTaskStage">
     <div class="createTaskLabel">{{=_l('看板')}}</div>
     <input type="hidden" id="folderStage" />
     <span class="InlineBlock w100" id="folderStageBox"></span>

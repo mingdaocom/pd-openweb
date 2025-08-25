@@ -1,6 +1,6 @@
-import { getAMapPosition, getAMapPixel } from './common';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { getAMapPixel, getAMapPosition } from './common';
 import { isFun } from './common.js';
 
 export const MarkerConfigurableProps = [

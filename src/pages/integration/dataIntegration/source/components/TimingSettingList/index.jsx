@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, ScrollView, LoadDiv, Dialog } from 'ming-ui';
 import { Drawer } from 'antd';
-import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting';
-import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig.js';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig.js';
+import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting';
 
 const TimingSettingListWrapper = styled.div`
   background: #fff;
@@ -28,7 +28,7 @@ const TimingSettingListWrapper = styled.div`
       &:hover {
         background: #f7f7f7;
         .tableName {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -182,7 +182,7 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
                   {timingItem.lastReadTime ? moment(timingItem.lastReadTime).format('YYYY-MM-DD HH:mm:ss') : '-'}
                 </div>
                 <div className="operateColumn">
-                  <Icon icon="delete1" className="Font16" onClick={() => onDelete(timingItem.id)} />
+                  <Icon icon="trash" className="Font16" onClick={() => onDelete(timingItem.id)} />
                 </div>
               </div>
             );

@@ -51,7 +51,7 @@ class ChatPanelSession extends Component {
       this.checkAccountSecured();
     }
   }
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     const { session } = this.props;
     if (nextProps.currentSession.value === session.id) {
       return true;
@@ -116,7 +116,7 @@ class ChatPanelSession extends Component {
   }
   handleOpenFile(isOpenFile) {
     const { session } = this.props;
-    const { infoVisible, searchText } = this.state;
+    const { infoVisible } = this.state;
     this.setState({
       isOpenFile,
       infoVisible: isOpenFile ? true : session.isGroup ? infoVisible : false,
@@ -126,7 +126,6 @@ class ChatPanelSession extends Component {
   handlePrepareUpload(temporaryMessage) {
     const { session, messages } = this.props;
     const currentMessages = messages[session.id] || [];
-    const messageType = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const sendMsg = {
       ...temporaryMessage,
       waitingid: temporaryMessage.file.id,
@@ -171,13 +170,20 @@ class ChatPanelSession extends Component {
     this.setState({
       value,
     });
+    if (!value) {
+      const { currentSession } = this.props;
+      const textarea = document.querySelector(`#ChatPanel-${currentSession.value} .ChatPanel-textarea textarea`);
+      textarea && textarea.reset && textarea.reset();
+    }
     try {
       if (isWindow && window.opener && window.opener.updateChatSessionList) {
         window.opener.updateChatSessionList(id, value);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   }
-  handleSelectedUser(user) {
+  handleSelectedUser() {
     const { session } = this.props;
     const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea');
     const value = textarea.val();
@@ -268,7 +274,7 @@ class ChatPanelSession extends Component {
     const currentMessages = messages[session.id] || [];
     socket.Message.sendShake(Constant.SESSIONTYPE_USER, {
       aid: session.id,
-    }).then(result => {
+    }).then(() => {
       const sendMsg = {
         waitingid: utils.getUUID(),
         msg: _l('你发送了一个抖动'),
@@ -313,7 +319,6 @@ class ChatPanelSession extends Component {
     );
     socket.Message.send(messageType, Object.assign({}, sendMsg)).then(
       result => {
-        const { socket: message } = result;
         this.props.dispatch(
           actions.updateMessage({
             to: session.id,
@@ -357,7 +362,7 @@ class ChatPanelSession extends Component {
   getAtParam(id) {
     const textarea = $(`#ChatPanel-${id}`).find('.ChatPanel-textarea textarea');
     let atList = [];
-    textarea.wcMentionsInput('getMentions', users => {
+    textarea.get(0).getMentions(users => {
       for (let i = 0; i < users.length; i++) {
         if (users[i].id === 'all') {
           atList = 'all';
@@ -393,7 +398,7 @@ class ChatPanelSession extends Component {
           onSearchText={this.handleSearchText.bind(this)}
           onOpenFile={this.handleOpenFile.bind(this)}
         />
-        <div className="ChatPanel-body">
+        <div className="ChatPanel-body minHeight0">
           <div className="ChatPanel-sessionWrapper">
             {!isSecured && (
               <WarnBox>

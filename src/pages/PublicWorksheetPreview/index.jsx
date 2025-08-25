@@ -6,7 +6,11 @@ export default class extends React.Component {
     super(props);
   }
   render() {
-    const { match: { params: { worksheetId } } } = this.props;
+    const {
+      match: {
+        params: { worksheetId },
+      },
+    } = this.props;
     return <PublicWorksheet worksheetId={worksheetId} isPreview />;
   }
 }

@@ -5,7 +5,6 @@ import DocumentTitle from 'react-document-title';
 import { useFullscreen, useToggle } from 'react-use';
 import cx from 'classnames';
 import { pick } from 'lodash';
-import { string } from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
@@ -120,7 +119,6 @@ function CustomPageContent(props) {
     appPkg,
     loading,
     visible,
-    activeSheetId,
     adjustScreen,
     config,
     updatePageInfo,
@@ -151,7 +149,7 @@ function CustomPageContent(props) {
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const currentSheet = findSheet(id, sheetList) || props.currentSheet || {};
   const pageName = getTranslateInfo(appPkg.id, null, pageId).name || props.pageName || currentSheet.workSheetName || '';
-  const { urlTemplate, configuration } = currentSheet;
+  const { urlTemplate } = currentSheet;
 
   useEffect(() => {
     if (id && isFullscreen) {
@@ -213,7 +211,7 @@ function CustomPageContent(props) {
       const dataSource = transferValue(urlTemplate);
       const urlList = [];
       dataSource.map(o => {
-        if (!!o.staticValue) {
+        if (o.staticValue) {
           urlList.push(o.staticValue);
         } else {
           const embedValue = getEmbedValue(
@@ -252,7 +250,7 @@ function CustomPageContent(props) {
         emptyPlaceholder={
           <div className="empty">
             <div className="iconWrap">
-              <i className="icon-custom_widgets"></i>
+              <i className="icon-widgets"></i>
             </div>
             <p className="mTop16">{_l('暂未添加组件')}</p>
           </div>
@@ -278,7 +276,7 @@ function CustomPageContent(props) {
 }
 
 export default connect(
-  ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { data, appSectionDetail } }) => ({
+  ({ appPkg, customPage, sheet: { isCharge, base }, sheetList: { data } }) => ({
     ...pick(customPage, [
       'loading',
       'visible',

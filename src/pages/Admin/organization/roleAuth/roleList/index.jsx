@@ -18,7 +18,7 @@ class RoleList extends React.Component {
     manualRef: PropTypes.func,
   };
 
-  constructor(props) {
+  constructor() {
     super();
     this.state = {
       isLoading: false,

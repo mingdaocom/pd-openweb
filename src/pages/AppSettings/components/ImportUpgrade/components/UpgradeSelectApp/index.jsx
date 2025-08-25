@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
 import cx from 'classnames';
-import { Icon, SvgIcon } from 'ming-ui';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
 import { dialogSelectApp } from 'ming-ui/functions';
 
 const Wrap = styled.div`
@@ -58,8 +59,8 @@ const Wrap = styled.div`
     }
     .selectAppBtn {
       &:hover {
-        border: 1px solid #2196f3;
-        color: #2196f3 !important;
+        border: 1px solid #1677ff;
+        color: #1677ff !important;
       }
     }
   }
@@ -80,7 +81,7 @@ const SelectWrap = styled.ul`
     padding: 10px 20px;
     cursor: pointer;
     &:not(.disabled):hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #e6f2fd;
     }
     &.disabled {
@@ -195,8 +196,6 @@ export default function UpgradeSelectApp(props) {
   return (
     <Wrap className="mTop35">
       {files.map(item => {
-        const appInfo = _.get(item, 'apps[0]');
-
         return (
           <div className="UpgradeSelectAppItem" key={`UpgradeSelectAppItem-${item.fileName}`}>
             {renderBox(item)}

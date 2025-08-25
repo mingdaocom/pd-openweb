@@ -1,11 +1,11 @@
 import React from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
 import { Select } from 'antd';
+import cx from 'classnames';
 import { Dialog, Icon } from 'ming-ui';
 import fixedDataAjax from 'src/api/fixedData.js';
 import organizeAjax from 'src/api/organize.js';
 import './dialogCreateAndEditRole.less';
+
 class DialogCreateAndEditRole extends React.Component {
   constructor(props) {
     super(props);
@@ -22,7 +22,7 @@ class DialogCreateAndEditRole extends React.Component {
   }
 
   handleSubmit = async () => {
-    const { filed, projectId, currentRole, searchValue, treeData } = this.props;
+    const { filed, projectId, currentRole, treeData } = this.props;
     const { orgRoleGroupId } = this.state;
     let roleName = this.state.roleName.trim();
     let remark = this.state.remark.trim();
@@ -65,7 +65,7 @@ class DialogCreateAndEditRole extends React.Component {
           this.props.onCancel();
           this.setState({ submitLoading: false });
         })
-        .catch(err => {
+        .catch(() => {
           this.setState({ submitLoading: false });
         });
     } else {
@@ -86,7 +86,7 @@ class DialogCreateAndEditRole extends React.Component {
           }
           this.setState({ submitLoading: false });
         })
-        .catch(err => {
+        .catch(() => {
           this.setState({ submitLoading: false });
         });
     }
@@ -114,7 +114,7 @@ class DialogCreateAndEditRole extends React.Component {
               return;
             } else if (exsistCurrentName || submitLoading) {
               return;
-            } else if (!!roleList.find(it => it.roleName === roleName)) {
+            } else if (roleList.find(it => it.roleName === roleName)) {
               alert(_l('该角色名称已存在'), 3);
               this.setState({ exsistCurrentName: true });
               return;

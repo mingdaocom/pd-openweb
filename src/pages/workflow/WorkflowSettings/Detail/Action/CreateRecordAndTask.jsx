@@ -24,7 +24,7 @@ export default class CreateRecordAndTask extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.data.selectNodeId !== this.props.data.selectNodeId) {
       this.setState({ isBatch: !!nextProps.data.selectNodeId });
     }

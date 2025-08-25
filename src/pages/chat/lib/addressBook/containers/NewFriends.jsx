@@ -1,11 +1,8 @@
 import React from 'react';
-
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-
+import { LoadDiv, ScrollView } from 'ming-ui';
+import ListNull from '../components/ListNull';
 import NewFriendsList from '../components/NewFriendsList';
 import RecommendsList from '../components/RecommendsList';
-import ListNull from '../components/ListNull';
 
 export default class NewFriends extends React.Component {
   constructor() {
@@ -51,7 +48,7 @@ export default class NewFriends extends React.Component {
 
   renderContent() {
     const { firstLoading, loadedApplys, loadedRecommends, haveRecommends, haveApplys } = this.state;
-    if (loadedApplys && loadedRecommends && (!haveApplys && !haveRecommends)) {
+    if (loadedApplys && loadedRecommends && !haveApplys && !haveRecommends) {
       return <ListNull type="newfriends" />;
     }
     return (

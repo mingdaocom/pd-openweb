@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import _, { find, get, isFunction, trim, uniqBy } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
@@ -54,7 +54,6 @@ export default function useRecords(props) {
     controlId,
     parentWorksheetId,
     appId,
-    projectId,
     formData,
     ignoreRowIds,
     filterRowIds = [],
@@ -174,7 +173,7 @@ export default function useRecords(props) {
             return 0;
           });
         }
-        if (filteredRecords.length === 0 && (pageIndex + 1) * pageSize < res.count) {
+        if (filteredRecords.length === 0 && pageIndex * pageSize < res.count) {
           setPageIndex(pageIndex + 1);
         }
         setRecords(filteredRecords);

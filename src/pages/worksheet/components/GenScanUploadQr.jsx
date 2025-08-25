@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { get, isEmpty, startsWith } from 'lodash';
-import PropTypes, { func } from 'prop-types';
+import { get, isEmpty } from 'lodash';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { LoadDiv, Qr } from 'ming-ui';
@@ -24,18 +24,17 @@ export function getTemporaryAttachmentFromUrl({ fileUrl, fileName = '', fileSize
   const urlObj = new URL(fileUrl);
   const name = fileName.replace(/\.[^.]+$/, '');
   const ext = get(fileName.match(/\.[^.]+$/), '0');
-  const fileNameOfUrl = get(urlObj.pathname.match(/\/([^\/]*$)/, ''), '1').replace(/\.[^.]+$/, '');
+  const fileNameOfUrl = get(urlObj.pathname.match(/\/([^/]*$)/, ''), '1').replace(/\.[^.]+$/, '');
   return {
     fileID: generateFileOId(),
     fileSize: fileSize || 0,
     serverName: urlObj.origin + '/',
-    filePath: urlObj.pathname.replace(/\/([^\/]*$)/, '').replace(/^\//, '') + '/',
+    filePath: urlObj.pathname.replace(/\/([^/]*$)/, '').replace(/^\//, '') + '/',
     fileName: fileNameOfUrl,
     fileExt: ext,
     originalFileName: name,
     key: urlObj.pathname.replace(/^\//, ''),
     oldOriginalFileName: name,
-    originalFileName: name,
     url: fileUrl,
   };
 }
@@ -64,7 +63,7 @@ const Popup = styled.div`
     height: 200px;
     background-color: rgba(255, 255, 255, 0.95);
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
     .qrExpired {
       font-size: 13px;
@@ -228,7 +227,7 @@ function QrPopup({
           worksheetId,
           controlId,
           viewId,
-          rowId: !startsWith(rowId, 'temp') && !startsWith(rowId, 'default') ? rowId : '',
+          rowId: '',
         })
         .then(data => {
           if (data.scanUrl) {

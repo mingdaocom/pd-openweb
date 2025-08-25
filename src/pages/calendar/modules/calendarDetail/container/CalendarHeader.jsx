@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Textarea from 'ming-ui/components/Textarea';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
+import LoadDiv from 'ming-ui/components/LoadDiv';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { getUserAllCalCategories, getCalendarColor, Config } from '../common';
+import Textarea from 'ming-ui/components/Textarea';
+import { Config, getCalendarColor, getUserAllCalCategories } from '../common';
 
 export default class CalendarHeader extends Component {
   static propTypes = {
@@ -165,9 +165,8 @@ export default class CalendarHeader extends Component {
   }
 
   renderOperations() {
-    const { auth, openDetailPage, postMessage, shareCalendar, deleteCalendar, exitCalendar, createTask, reFetchData } =
-      this.props;
-    const { showShare, showExit, showDelete, showEdit } = auth;
+    const { auth, openDetailPage, postMessage, deleteCalendar, exitCalendar, createTask, reFetchData } = this.props;
+    const { showExit, showDelete, showEdit } = auth;
     const { isShowOpList } = this.state;
     return (
       <div className="calendarOperations pLeft15">
@@ -178,7 +177,7 @@ export default class CalendarHeader extends Component {
         ></span>
         <span className="Relative mLeft20 calMoreOp">
           <span
-            className="icon-task-point-more Font19 ThemeHoverColor3 pointer"
+            className="icon-more_horiz Font19 ThemeHoverColor3 pointer"
             ref={btn => {
               this.opBtn = btn;
             }}
@@ -198,7 +197,9 @@ export default class CalendarHeader extends Component {
               ignoreOnHide={true}
               con={'.calendarHeader'}
             >
-              {(showExit || showDelete) && !md.global.SysSettings.forbidSuites.includes('2') ? <MenuItem onClick={createTask}>{_l('创建为新任务')}</MenuItem> : null}
+              {(showExit || showDelete) && !md.global.SysSettings.forbidSuites.includes('2') ? (
+                <MenuItem onClick={createTask}>{_l('创建为新任务')}</MenuItem>
+              ) : null}
               <MenuItem onClick={this.handleJoinOutLook.bind(this)}>{_l('加入Outlook')}</MenuItem>
               {showEdit ? <MenuItem onClick={postMessage}>{_l('群发消息')}</MenuItem> : null}
               {Config.isDetailPage ? null : <MenuItem onClick={openDetailPage}>{_l('新页面打开')}</MenuItem>}

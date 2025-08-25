@@ -125,11 +125,6 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/Personal'),
     title: _l('个人账户'),
   },
-  privateDeployment: {
-    path: '/privateDeployment/:routeType?',
-    component: () => import('src/pages/NewPrivateDeployment'),
-    title: _l('系统配置'),
-  },
   appInstallSetting: {
     path: '/appInstallSetting',
     component: () => import('src/pages/appInstallSetting'),

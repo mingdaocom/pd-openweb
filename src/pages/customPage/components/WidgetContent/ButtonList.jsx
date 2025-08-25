@@ -38,7 +38,7 @@ const ButtonListWrap = styled.div`
 `;
 
 const getDepartments = (projectId, accountId) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     departmentApi
       .getDepartmentsByAccountId({
         projectId,
@@ -53,7 +53,7 @@ const getDepartments = (projectId, accountId) => {
 };
 
 const getOrganize = (projectId, accountId) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     organizeApi
       .getOrganizesByAccountId({
         projectId,
@@ -177,7 +177,7 @@ export function ButtonList({
             };
           }),
       })
-      .then(data => {
+      .then(() => {
         refreshComponent();
       });
   }
@@ -377,7 +377,7 @@ export function ButtonList({
         } else {
           const urlPath = result.split('?')[0];
           const data = urlPath.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/) || [];
-          const [url, appId, worksheetId, viewId, rowId] = data;
+          const [, appId, worksheetId, viewId, rowId] = data;
           if (appId && worksheetId && viewId && rowId) {
             run({
               appId,

@@ -114,7 +114,7 @@ class PreviewHeader extends React.Component {
       wpsEditUrl,
       allowEdit,
     } = this.props;
-    const { name, ext, previewType } = attachment;
+    const { name, ext } = attachment;
     const deleted = error.status === LOADED_STATUS.DELETED;
     const {
       canEditFileName,

@@ -8,6 +8,7 @@
   ATTENDANCE: 6,
   WORKSHEET: 7,
   WORKSHEETROW: 8,
+  CHAT: 9,
 };
 
 export const AT_ALL_TEXT = {
@@ -19,4 +20,5 @@ export const AT_ALL_TEXT = {
   [SOURCE_TYPE.ATTENDANCE]: _l('审批全体成员'),
   [SOURCE_TYPE.WORKSHEET]: _l('工作表全体成员'),
   [SOURCE_TYPE.WORKSHEETROW]: _l('全体参与者'),
+  [SOURCE_TYPE.CHAT]: _l('全体成员'),
 };

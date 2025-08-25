@@ -180,7 +180,7 @@ export default class Ding extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'circulated'}
+                icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'visibility'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -212,7 +212,7 @@ export default class Ding extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
             </div>
           ) : (
             <React.Fragment>
@@ -234,7 +234,7 @@ export default class Ding extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
             </div>
           )}
           {this.state.isHasInfo && this.state.show2 && (
@@ -265,7 +265,7 @@ export default class Ding extends React.Component {
                   <Button
                     type="primary"
                     className="editInfo"
-                    onClick={e => {
+                    onClick={() => {
                       this.setState({
                         canEditInfo: true,
                       });
@@ -277,7 +277,7 @@ export default class Ding extends React.Component {
                   <Button
                     type="primary"
                     className="saveInfo"
-                    onClick={e => {
+                    onClick={() => {
                       checkClearIntergrationData({
                         projectId: this.props.projectId,
                         onSave: this.editInfo,
@@ -525,7 +525,7 @@ export default class Ding extends React.Component {
                       disabled={this.state.isCloseDing}
                       checked={this.state.intergrationClientWorkingPattern === item.key}
                       text={item.label}
-                      onClick={e => this.handleChangePattern(item.key)}
+                      onClick={() => this.handleChangePattern(item.key)}
                     />
                   );
                 })}
@@ -551,7 +551,11 @@ export default class Ding extends React.Component {
                     <span className="Block Gray">
                       <span className="Bold">{_l('注意：')}</span>
                       <span>此功能需要在钉钉中开启添加待办任务接口权限。</span>
-                      <Support text={_l('如何开启？')} type={3} href="https://help.mingdao.com/dingtalk/integration-guide#pending" />
+                      <Support
+                        text={_l('如何开启？')}
+                        type={3}
+                        href="https://help.mingdao.com/dingtalk/integration-guide#pending"
+                      />
                     </span>
                   </div>
                 </div>

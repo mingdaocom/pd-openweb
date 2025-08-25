@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Dialog, Input } from 'ming-ui';
+import { Dialog, Icon, Input } from 'ming-ui';
 import syncTaskApi from '../../../../api/syncTask';
-import { TASK_STATUS_TYPE } from '../../../constant';
 import { navigateTo } from 'src/router/navigateTo';
+import { TASK_STATUS_TYPE } from '../../../constant';
 
 const Wrapper = styled.div`
   .optionIcon {
@@ -18,7 +18,7 @@ const Wrapper = styled.div`
     background-color: #fff;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background-color: #f5f5f5;
     }
   }

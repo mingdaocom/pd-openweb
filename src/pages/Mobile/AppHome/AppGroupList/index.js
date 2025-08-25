@@ -67,7 +67,7 @@ class AppGroupList extends Component {
                   );
                 }}
               >
-                <Icon icon="h5_star" className="Font20" style={{ color: item.isMarked ? '#ffc400' : '#9e9e9e' }} />
+                <Icon icon="star_3" className="Font20" style={{ color: item.isMarked ? '#ffc400' : '#9e9e9e' }} />
               </div>
             </div>
           );

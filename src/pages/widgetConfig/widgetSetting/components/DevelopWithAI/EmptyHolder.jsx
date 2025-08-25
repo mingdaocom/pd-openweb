@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import placeholderIcon from './assets/ai-messages.svg';
 import { getDefaultPrompt } from './util';
+
 const Con = styled.div`
   position: absolute;
   background-color: #fff;
@@ -28,7 +29,7 @@ const Con = styled.div`
   }
   .enterEditor {
     font-size: 13px;
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
     margin-top: 30px;
   }

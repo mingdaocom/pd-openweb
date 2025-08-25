@@ -1,14 +1,14 @@
 import React from 'react';
-import { arrayOf, shape, string, func, bool, number } from 'prop-types';
+import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Dropdown, VCenterIconText } from 'ming-ui';
-import cx from 'classnames';
-import AddCondition from './AddCondition';
-import { getTypeKey } from '../util';
+import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { CONTROL_FILTER_WHITELIST, FILTER_RELATION_TYPE } from '../enum';
-import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
+import { getTypeKey } from '../util';
+import AddCondition from './AddCondition';
 import Condition from './ConditionV2';
-import _ from 'lodash';
 
 const Con = styled.div`
   .conditionItem {

@@ -4,6 +4,43 @@ import moment from 'moment';
 import { formatFileSize } from 'src/utils/common';
 import { formatter } from '../../util';
 
+const getDualAxesData = (data = []) => {
+  if (_.isEmpty(data)) {
+    return [{ date: '', value: 10000, value1: 10000, value2: 10000, category: 'virtual' }];
+  } else if (data.length === 1) {
+    const current = data[0];
+    const virtualPre = {
+      ...current,
+      date: moment(current.date).subtract(1, 'day').format('YYYY-MM-DD'),
+      value: null,
+      value1: null,
+      value2: null,
+      category: 'virtual',
+    };
+    const virtualNext = {
+      ...current,
+      date: moment(current.date).add(1, 'day').format('YYYY-MM-DD'),
+      value: null,
+      value1: null,
+      value2: null,
+      category: 'virtual',
+    };
+    return [virtualPre, current, virtualNext];
+  } else if (data.every(item => item.value === 0)) {
+    return [
+      ...data,
+      {
+        date: moment().format('YYYY-MM-DD'),
+        value: 10000,
+        value1: null,
+        value2: null,
+        category: 'virtual',
+      },
+    ];
+  }
+  return data;
+};
+
 export default class LineChart extends React.Component {
   constructor(props) {
     super(props);
@@ -40,7 +77,7 @@ export default class LineChart extends React.Component {
     return Math.ceil(max) * Math.pow(10, bite);
   };
   renderChart = () => {
-    const { isDualAxes, configObj = {}, chartInfo = {}, currentDimension } = this.props;
+    const { chartInfo = {}, currentDimension, selectedDate } = this.props;
     const { type, total, total1, total2, subTypeTotal = [] } = chartInfo;
     const { data = [] } = this.state;
     const { Line, DualAxes } = this.g2plotComponent;
@@ -48,19 +85,15 @@ export default class LineChart extends React.Component {
 
     let isAllZero = _.isEmpty(data) || data.every(item => item.value === 0);
     let maxValue = !_.isEmpty(data) && !isAllZero ? Math.max(...data.map(item => item.value)) : 1000;
+    const showEveryXaxis =
+      (_.includes([0, 1, 5], selectedDate) && currentDimension === '1d') ||
+      (_.includes([0, 1, 2, 5], selectedDate) && currentDimension === '1w');
+
     switch (type) {
       case 'app':
       case 'record':
-        let data1 = !_.isEmpty(data)
-          ? (!_.isEmpty(data[0]) && data[0].every(item => item.value === 0)) || _.isEmpty(data[0])
-            ? [...data[0], { value1: 10000, value: 10000 }]
-            : data[0]
-          : [{ value1: 10000, value: 10000 }];
-        let data2 = !_.isEmpty(data)
-          ? (!_.isEmpty(data[1]) && data[1].every(item => item.value === 0)) || _.isEmpty(data[1])
-            ? [...data[1], { value1: 10000, value: 10000 }]
-            : data[1]
-          : [{ value1: 10000, value: 10000 }];
+        const data1 = getDualAxesData(data.length ? data[0] : []);
+        const data2 = getDualAxesData(data.length > 1 ? data[1] : []);
         let max1 = this.getMax(data1);
         let max2 = this.getMax(data2);
         let alias1 = data.length && data[0].length ? data[0][0].category : '';
@@ -73,8 +106,13 @@ export default class LineChart extends React.Component {
           xAxis: {
             label: {
               formatter: text => {
+                const isVirtual =
+                  (_.find(data1, v => v.date === text) || {}).category === 'virtual' ||
+                  (_.find(data2, v => v.date === text) || {}).category === 'virtual';
+                if (isVirtual) return null;
                 return moment(text).date() === 1 ? moment(text).format('MM月DD日') : moment(text).format('DD');
               },
+              autoHide: !showEveryXaxis,
             },
           },
           yAxis: {
@@ -133,49 +171,48 @@ export default class LineChart extends React.Component {
             itemHeight: 30,
           },
           tooltip: {
-            title: date => {
-              const currentDate = moment(date).format('YYYY/MM/DD');
+            customContent: (title, items) => {
+              const isVirtual = (_.find(items, v => _.get(v, 'data.date') === title) || {}).category === 'virtual';
+              if (isVirtual) return null;
+
+              const currentDate = moment(title).format('YYYY/MM/DD');
               const isWeek = currentDimension === '1w';
               const isMonth = currentDimension === '1M';
               let nextDate = isWeek
-                ? moment(date).endOf('week').format('YYYY/MM/DD')
+                ? moment(title).endOf('week').format('YYYY/MM/DD')
                 : isMonth
-                  ? moment(date).endOf('month').format('YYYY/MM/DD')
+                  ? moment(title).endOf('month').format('YYYY/MM/DD')
                   : '';
               if (nextDate && moment().isBefore(nextDate)) {
                 nextDate = moment().format('YYYY/MM/DD');
               }
 
-              return nextDate
-                ? `${currentDate}-${nextDate}${isWeek ? '(' + _l('第%0周', moment(date).week()) + ')' : ''}`
+              const customTitle = nextDate
+                ? `${currentDate}-${nextDate}${isWeek ? '(' + _l('第%0周', moment(title).week()) + ')' : ''}`
                 : currentDate;
-            },
-            formatter: datum => {
-              let unit = datum.value1 ? _l('次') : _l('人');
-              let name =
-                type === 'app'
-                  ? datum.value1 || datum.value1 === 0
-                    ? _l('次数')
-                    : datum.value2 || datum.value2 === 0
-                      ? _l('人数')
-                      : ''
-                  : datum.value1 || datum.value1 === 0
-                    ? _l('行记录数')
-                    : datum.value2 || datum.value2 === 0
-                      ? _l('人数')
-                      : '';
-              return {
-                name,
-                value:
-                  datum.value1 > 0
-                    ? formatter(datum.value1) + ' ' + unit
-                    : datum.value2 > 0
-                      ? formatter(datum.value2) + ' ' + unit
-                      : 0 + ' ' + unit,
-              };
+
+              return `<div class="g2TooltipWrap">
+              <div class="g2-tooltip-title">${customTitle}</div>
+              <ul class="g2-tooltip-list">
+              ${(function () {
+                return items
+                  .map(it =>
+                    it
+                      ? `<li class="g2-tooltip-list-item">
+                  <span class="g2-tooltip-marker" style="background-color: ${it.color};"></span>
+                  <span class="g2-tooltip-name">${it.name}</span>:
+                  <span class="g2-tooltip-value">${
+                    it.value > 0 ? formatter(it.value) + ' ' + it.data.unit : 0 + ' ' + it.data.unit
+                  }</span>
+                  </li>`
+                      : ``,
+                  )
+                  .join('');
+              })()}
+              </ul>
+            </div>`;
             },
           },
-          ...configObj,
         });
         break;
       case 'workflow':
@@ -191,7 +228,7 @@ export default class LineChart extends React.Component {
             position: 'top-left',
             offsetX: 10,
             itemName: {
-              formatter: text => {
+              formatter: () => {
                 return total;
               },
               style: {
@@ -207,10 +244,12 @@ export default class LineChart extends React.Component {
             itemHeight: 30,
           },
           xAxis: {
+            range: data.length > 1 ? [0, 1] : undefined,
             label: {
               formatter: text => {
                 return moment(text).date() === 1 ? moment(text).format('MM月DD日') : moment(text).format('DD');
               },
+              autoHide: !showEveryXaxis,
             },
           },
           yAxis: {
@@ -218,7 +257,7 @@ export default class LineChart extends React.Component {
             max: this.getCeil(maxValue),
             min: 0,
           },
-          color: ['#2196F3', '#61DDAA'],
+          color: ['#1677ff', '#61DDAA'],
           tooltip: {
             title: date => {
               const currentDate = moment(date).format('YYYY/MM/DD');
@@ -245,7 +284,6 @@ export default class LineChart extends React.Component {
               };
             },
           },
-          ...configObj,
         });
         break;
       case 'attachment':
@@ -258,10 +296,12 @@ export default class LineChart extends React.Component {
           seriesField: 'category',
           autoFit: true,
           xAxis: {
+            range: data.length > 6 ? [0, 1] : undefined,
             label: {
               formatter: text => {
                 return moment(text).date() === 1 ? moment(text).format('MM月DD日') : moment(text).format('DD');
               },
+              autoHide: !showEveryXaxis,
             },
           },
           yAxis: {

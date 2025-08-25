@@ -66,7 +66,7 @@ export default class Cancellation extends Component {
           );
         }
       })
-      .catch(err => {
+      .catch(() => {
         location.href = '/login';
       });
   };

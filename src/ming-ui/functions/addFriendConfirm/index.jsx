@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Dialog, Textarea, Input, FunctionWrap } from 'ming-ui';
-import userController from 'src/api/user';
-import addressBookController from 'src/api/addressBook';
-import _ from 'lodash';
 import { useRef } from 'react';
+import _ from 'lodash';
+import { Dialog, FunctionWrap, Input, Textarea } from 'ming-ui';
+import addressBookController from 'src/api/addressBook';
+import userController from 'src/api/user';
 import './css/style.css';
 
-function addFriendConfirm(props) {
+function AddFriendConfirm(props) {
   const { accountId, callback } = props;
   const [data, setData] = useState(null);
   const contentRef = useRef();
@@ -67,7 +67,14 @@ function addFriendConfirm(props) {
   if (!data) return null;
 
   return (
-    <Dialog visible dialogClasses="addFriendConfirm" title={_l('添加为好友')} okDisabled={!data.companyName || !data.profession} onOk={save} onCancel={handleClose}>
+    <Dialog
+      visible
+      dialogClasses="addFriendConfirm"
+      title={_l('添加为好友')}
+      okDisabled={!data.companyName || !data.profession}
+      onOk={save}
+      onCancel={handleClose}
+    >
       <div className="recBox clearfix" ref={contentRef}>
         {!data.showExtraInput ? (
           <div className="tip">{_l('发送验证信息，等待好友确认')}</div>
@@ -124,5 +131,5 @@ function addFriendConfirm(props) {
 }
 
 export default props => {
-  FunctionWrap(addFriendConfirm, { ...props, onClose: () => {} });
+  FunctionWrap(AddFriendConfirm, { ...props, onClose: () => {} });
 };

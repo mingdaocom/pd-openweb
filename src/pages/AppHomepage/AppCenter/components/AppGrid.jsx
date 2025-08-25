@@ -1,24 +1,24 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { string, bool, shape, arrayOf, func } from 'prop-types';
-import styled from 'styled-components';
-import { ScrollView, Icon, SvgIcon } from 'ming-ui';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, bool, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, ScrollView, SvgIcon } from 'ming-ui';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VerticalMiddle } from 'worksheet/components/Basics';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { navigateTo } from 'src/router/navigateTo';
 import AddAppItem from './AddAppItem';
-import NoProjectsStatus from './NoProjectsStatus';
-import SearchInput from './SearchInput';
 import AppGroupSkeleton from './AppGroupSkeleton';
 import AppList from './AppList';
 import HomeSetting from './HomeSetting';
-import _ from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import NoProjectsStatus from './NoProjectsStatus';
+import SearchInput from './SearchInput';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -125,9 +125,9 @@ const GroupTabClickPopup = styled.div`
   border-radius: 3px;
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
     i {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -299,7 +299,9 @@ const MorePopupContainer = styled.div`
   background: #fff;
   border-radius: 3px;
   padding: 6px 0;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0px 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   .groupItem {
     display: flex;
     align-items: center;
@@ -557,7 +559,6 @@ export default function AppGrid(props) {
     externalApps = [],
     aloneApps = [],
     activeGroupApps = [],
-    recentApps = [],
     groups = [],
     isDashboard,
     dashboardColor,
@@ -941,7 +942,7 @@ export default function AppGrid(props) {
             title: _l('外部协作'),
             type: 'external',
             apps: externalApps,
-            iconName: 'external_collaboration',
+            iconName: 'launch',
           })}
         {(isExternal || !projectId) && renderGroup({ title: _l('个人应用'), type: 'personal', apps: aloneApps })}
       </AppsCon>

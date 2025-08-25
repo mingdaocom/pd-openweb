@@ -30,7 +30,7 @@ const Wrapper = styled.div`
         width: 220px;
       }
       .confirmBtn {
-        background: #2196f3;
+        background: #1677ff;
         :hover {
           background: #1565c0;
         }
@@ -42,9 +42,9 @@ const Wrapper = styled.div`
         &.isValidView {
           cursor: pointer;
           &:hover {
-            color: #2196f3;
+            color: #1677ff;
             i {
-              color: #2196f3 !important;
+              color: #1677ff !important;
             }
           }
         }
@@ -66,7 +66,7 @@ const Wrapper = styled.div`
     }
     .operate {
       flex: 1;
-      .icon-delete1 {
+      .icon-trash {
         color: #9d9d9d;
         font-size: 14px;
         cursor: pointer;
@@ -81,7 +81,6 @@ const Wrapper = styled.div`
 export default function DebugEnv(props) {
   const { configType, debugEnvList, onChangeDebugEnvList, onUpdate, appList, belongType, onGetAppList } = props;
   const [worksheetList, setWorksheetList] = useSetState({});
-  const [checkAdmin, setCheckAdmin] = useSetState({ visible: false });
 
   const updateDebugEnv = (data, index) => {
     const newDebugEnvList = debugEnvList.map((item, i) => {
@@ -224,7 +223,7 @@ export default function DebugEnv(props) {
       render: (item, index) =>
         !item.isEdit ? (
           <Icon
-            icon="delete1"
+            icon="trash"
             onClick={() => {
               Dialog.confirm({
                 title: _l('删除调试应用'),

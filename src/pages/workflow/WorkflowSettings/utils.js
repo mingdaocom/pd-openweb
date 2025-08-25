@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE, GLOBAL_VARIABLE, CONTROLS_NAME } from './enum';
+import { ACTION_ID, APP_TYPE, CONDITION_TYPE, CONTROLS_NAME, GLOBAL_VARIABLE, NODE_TYPE, TRIGGER_ID } from './enum';
 
 /**
  * 遍历获取统计id
@@ -25,9 +25,9 @@ export const getIcons = (type, appType, actionId) => {
   switch (type) {
     case NODE_TYPE.FIRST:
       if (appType === APP_TYPE.LOOP) {
-        icon = 'icon-hr_surplus';
+        icon = 'icon-access_alarm';
       } else if (appType === APP_TYPE.DATE) {
-        icon = 'icon-hr_time';
+        icon = 'icon-task_custom_today';
       } else if (appType === APP_TYPE.WEBHOOK) {
         icon = 'icon-workflow_webhook';
       } else if (appType === APP_TYPE.CUSTOM_ACTION) {
@@ -65,11 +65,11 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-workflow_ea';
       break;
     case NODE_TYPE.CC:
-      icon = 'icon-workflow_notice';
+      icon = 'icon-send';
       break;
     case NODE_TYPE.ACTION:
       if (appType === APP_TYPE.TASK) {
-        icon = 'icon-custom_assignment';
+        icon = 'icon-assignment';
       } else if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
       } else if (appType === APP_TYPE.GLOBAL_VARIABLE) {
@@ -77,7 +77,7 @@ export const getIcons = (type, appType, actionId) => {
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.EDIT) {
         icon = 'icon-workflow_update';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.ADD) {
-        icon = 'icon-workflow_new';
+        icon = 'icon-playlist_add';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.DELETE) {
         icon = 'icon-hr_delete';
       } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.RELATION) {
@@ -100,13 +100,13 @@ export const getIcons = (type, appType, actionId) => {
       break;
     case NODE_TYPE.FORMULA:
       if (_.includes([ACTION_ID.OBJECT_TOTAL, ACTION_ID.WORKSHEET_TOTAL, ACTION_ID.CUSTOM_ACTION_TOTAL], actionId)) {
-        icon = 'icon-sigma';
+        icon = 'icon-task_functions';
       } else {
         icon = 'icon-workflow_function';
       }
       break;
     case NODE_TYPE.MESSAGE:
-      icon = 'icon-workflow_sms';
+      icon = 'icon-forum';
       break;
     case NODE_TYPE.EMAIL:
       icon = 'icon-workflow_email';
@@ -125,7 +125,11 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-url';
       break;
     case NODE_TYPE.LINK:
-      icon = 'icon-link2';
+      if (actionId === ACTION_ID.RECORD_LINK_PAY) {
+        icon = 'icon-Collection';
+      } else {
+        icon = 'icon-link2';
+      }
       break;
     case NODE_TYPE.SUB_PROCESS:
       icon = 'icon-subprocess';
@@ -161,7 +165,7 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-approval';
       break;
     case NODE_TYPE.NOTICE:
-      icon = 'icon-hr_message_reminder';
+      icon = 'icon-notifications';
       break;
     case NODE_TYPE.SNAPSHOT:
       icon = 'icon-camera_alt';
@@ -206,7 +210,7 @@ export const getIcons = (type, appType, actionId) => {
       break;
     case NODE_TYPE.FIND_MORE_MESSAGE:
       if (appType === APP_TYPE.USER) {
-        icon = 'icon-group-members';
+        icon = 'icon-group';
       } else if (appType === APP_TYPE.DEPARTMENT) {
         icon = 'icon-department';
       } else if (appType === APP_TYPE.EXTERNAL_USER) {
@@ -216,7 +220,7 @@ export const getIcons = (type, appType, actionId) => {
       }
       break;
     default:
-      icon = 'icon-workflow_info';
+      icon = 'icon-report';
       break;
   }
 
@@ -310,6 +314,7 @@ export const checkJSON = value => {
     value = JSON.parse((value || '').replace(/\$[^ \r\n]+?\$/g, 1));
     return _.isObject(value);
   } catch (e) {
+    console.log(e);
     return false;
   }
 };

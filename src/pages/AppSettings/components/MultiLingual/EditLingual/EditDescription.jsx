@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Input, Modal } from 'antd';
-import { Icon, RichText } from 'ming-ui';
+import { RichText } from 'ming-ui';
 import EditAppIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
 import { filterHtmlTag } from '../util';
 
-export default function(props) {
+export default function (props) {
   const { value, originalValue, onChange } = props;
   const [editAppIntroVisible, setEditAppIntroVisible] = useState(false);
 
@@ -48,7 +48,7 @@ export default function(props) {
               changeSetting={false}
             />
           )}
-          onSave={(value) => {
+          onSave={value => {
             onChange(value || undefined);
             setEditAppIntroVisible(false);
           }}

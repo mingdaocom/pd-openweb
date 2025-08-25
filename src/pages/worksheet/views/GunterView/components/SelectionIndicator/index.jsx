@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
 import _ from 'lodash';
+import styled from 'styled-components';
+import * as actions from 'worksheet/redux/actions/gunterview';
 
 const SelectionIndicatorWrapper = styled.div(
   ({ color }) => `
@@ -66,13 +66,13 @@ export default class SelectionIndicator extends React.Component {
     if (_.isNumber(editIndex)) {
       updateEditIndex(null);
     }
-  }
-  handleMouseLeave = (event) => {
+  };
+  handleMouseLeave = event => {
     this.setState({ top: null });
     if (_.isNumber(this.props.editIndex) && !event) {
       this.props.updateEditIndex(null);
     }
-  }
+  };
   handleMouseMove = event => {
     const { grouping, chartScroll, editIndex } = this.props;
     const scrollY = Math.abs(chartScroll.y);
@@ -94,7 +94,7 @@ export default class SelectionIndicator extends React.Component {
     } else {
       this.setState({ top: null });
     }
-  }
+  };
   render() {
     const { editIndex, searchRecordId, chartScroll } = this.props;
     const { top, height } = this.state;

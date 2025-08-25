@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Picker from './Picker';
+import PropTypes from 'prop-types';
 import CalendarRange from './CalendarRange';
 import locale from './locale/zh_CN';
+import Picker from './Picker';
 import '../less/DatePicker.less';
 import '../less/dateRangePicker.less';
 import '../less/Rangepicker.less';

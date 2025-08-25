@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Modal } from 'antd';
+import _ from 'lodash';
 import PropTypes, { string } from 'prop-types';
 import styled from 'styled-components';
-import { Modal } from 'antd';
 import { Button } from 'ming-ui';
 import ErrorWrapper from './ErrorWrapper';
-
 import './less/Modal.less';
-import _ from 'lodash';
 
 const ModalButtonCon = styled.div`
   z-index: 2;
@@ -28,9 +27,9 @@ const ModalButton = styled.div`
     color: #757575;
   }
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
     span {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -121,7 +120,9 @@ export default function MdModal(props) {
     if (locateRef.current) {
       try {
         locateRef.current.parentElement.parentElement.style.maxHeight = window.innerHeight - 32 + 'px';
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }
     const id = Math.random() * Math.random();
     if (window.closeFns) {

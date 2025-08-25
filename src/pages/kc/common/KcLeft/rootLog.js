@@ -181,7 +181,7 @@ export function getRootLog(rootName, rootId) {
                   item.type === ROOT_LOG_TYPE.CHILDRECYCLED ||
                   item.type === ROOT_LOG_TYPE.CHILDDELETED
                 ) {
-                  logTypeName = 'icon-task-new-delete';
+                  logTypeName = 'icon-trash';
                 } else {
                   logTypeName = 'icon-edit';
                 }

@@ -137,12 +137,15 @@ const Attachments = ({ disabled, scanId, scanInfo, defaultAttachments }) => {
             : {
                 className: 'w100',
                 options: {
-                  getToken: files => {
-                    return attachmentAjax.getScanUploadToken({
-                      files,
-                      scanId,
-                      ...omit(scanInfo, ['control']),
-                    });
+                  getToken: (files, a, b, options = {}) => {
+                    return attachmentAjax.getScanUploadToken(
+                      {
+                        files,
+                        scanId,
+                        ...omit(scanInfo, ['control']),
+                      },
+                      options,
+                    );
                   },
                   error_callback: err => {
                     if (err === 1) {
@@ -207,7 +210,7 @@ const Attachments = ({ disabled, scanId, scanInfo, defaultAttachments }) => {
               })}
         >
           <Button type="primary" onClick={() => {}} className="selectFile" disabled={disabled}>
-            <i className="icon icon-attachment1 mRight10 Font18"></i>
+            <i className="icon icon-ic_attachment_black mRight10 Font18"></i>
             {_l('添加附件')}
           </Button>
         </UploadWrapper>

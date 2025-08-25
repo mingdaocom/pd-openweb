@@ -1,9 +1,8 @@
 import React from 'react';
-import '@mdfe/nanoscroller';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { ScrollView } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
@@ -77,10 +76,11 @@ export default class WorkSheetComment extends React.Component {
     formdata.map(o => {
       let d;
       try {
-        d = JSON.parse(o.value).map(item => {
+        d = safeParse(o.value, 'array').map(item => {
           return Object.assign({}, item, { job: o.controlName });
         });
       } catch (err) {
+        console.log(err);
         d = [];
       }
       data = data.concat(d);
@@ -112,17 +112,19 @@ export default class WorkSheetComment extends React.Component {
         ),
       //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
     );
-    let hash = {};
-    const data2 = data.reduce((preVal, curVal) => {
-      hash[curVal.accountId] ? '' : (hash[curVal.accountId] = true && preVal.push(curVal));
-      return preVal;
+    const hash = {};
+    const data2 = data.reduce((result, current) => {
+      if (!hash[current.accountId]) {
+        hash[current.accountId] = true; // 标记已存在
+        result.push(current); // 添加到结果数组
+      }
+      return result;
     }, []);
-    this.setState({
-      atData: data2,
-    });
+
+    this.setState({ atData: data2 });
   };
 
-  handleRecordRightContentScroll = e => {
+  handleRecordRightContentScroll = () => {
     if (
       this.$scrollCon &&
       this.$scrollCon.scrollHeight - this.$scrollCon.clientHeight - this.$scrollCon.scrollTop < 20
@@ -133,20 +135,11 @@ export default class WorkSheetComment extends React.Component {
   };
 
   scrollToListTop() {
-    if (this.scrollView && this.scrollView.nanoScroller && this.commentList) {
-      $(this.scrollView.nanoScroller).nanoScroller({ scrollTop: 0 });
+    if (this.scrollView && this.scrollView.scrollTo && this.commentList) {
+      this.scrollView.scrollTo({ top: 0 });
     }
   }
 
-  handleScroll = (event, values) => {
-    const { direction, maximum, position } = values;
-    // filelist ignore event
-    if (direction === 'down' && maximum - position < 20 && this.commentList) {
-      // method of child component
-      const { updatePageIndex } = this.commentList;
-      updatePageIndex();
-    }
-  };
   render() {
     const {
       instanceId,
@@ -158,6 +151,7 @@ export default class WorkSheetComment extends React.Component {
       status,
       exAccountDiscussEnum,
       allowExAccountDiscuss,
+      isHide,
     } = this.props;
     const { worksheetInfo, disType } = this.state;
     let entityType = //0 = 全部，1 = 不包含外部讨论，2=外部讨论
@@ -169,7 +163,7 @@ export default class WorkSheetComment extends React.Component {
     const commenterProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       scrollToListTop: this.scrollToListTop.bind(this),
-      change: (payload, discussion) => {
+      change: payload => {
         this.setState(payload, () => this.getAtData());
       },
       addCallback,
@@ -178,13 +172,14 @@ export default class WorkSheetComment extends React.Component {
       entityType,
       instanceId,
       workId,
+      isHide,
     };
     const commentListProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       listRef: el => {
         this.commentList = el;
       },
-      change: (payload, discussion) => {
+      change: payload => {
         this.setState(payload, () => this.getAtData());
       },
       addCallback,
@@ -239,13 +234,21 @@ export default class WorkSheetComment extends React.Component {
             ref={scrollView => {
               this.scrollView = scrollView;
             }}
-            updateEvent={this.handleScroll}
+            onScrollEnd={() => {
+              const { updatePageIndex } = this.commentList;
+              updatePageIndex();
+            }}
             preserveScrollTop
           >
             {renderWorkSheetCommentList()}
           </ScrollView>
         )}
-        <WorkSheetCommenter {...commenterProps} discussions={this.state.discussions} atData={this.state.atData} />
+        <WorkSheetCommenter
+          {...commenterProps}
+          discussions={this.state.discussions}
+          atData={this.state.atData}
+          autoFocus={true}
+        />
       </div>
     );
   }

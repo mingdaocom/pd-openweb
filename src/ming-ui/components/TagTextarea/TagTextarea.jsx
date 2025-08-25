@@ -1,13 +1,13 @@
 import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import PropTypes from 'prop-types';
-import CodeMirror from 'codemirror';
 import cx from 'classnames';
-import 'codemirror/lib/codemirror.css';
+import CodeMirror from 'codemirror';
 import 'codemirror/addon/display/placeholder';
-import { MODE } from './enum';
-import './TagTextarea.less';
 import _, { get, includes } from 'lodash';
+import PropTypes from 'prop-types';
+import { MODE } from './enum';
+import 'codemirror/lib/codemirror.css';
+import './TagTextarea.less';
 
 const TagWrapper = ({ onDidMount = () => {}, tag }) => {
   useLayoutEffect(() => {
@@ -65,7 +65,6 @@ export default class TagTextarea extends React.Component {
       height,
       onFocus,
       onBlur,
-      onChange,
       getRef,
       readonly,
       noCursor,
@@ -117,7 +116,7 @@ export default class TagTextarea extends React.Component {
             t
               .toUpperCase()
               .split('')
-              .filter(t => (obj.origin === 'paste' ? /[0-9A-Z\+\-\*\/\(\)\,\.\$]/ : /[0-9A-Z\+\-\*\/\(\)\,\.]/).test(t))
+              .filter(t => (obj.origin === 'paste' ? /[0-9A-Z+\-*/(),.$]/ : /[0-9A-Z+\-*/(),.]/).test(t))
               .join(''),
           );
         }
@@ -130,7 +129,7 @@ export default class TagTextarea extends React.Component {
           text = text.map(t =>
             t
               .split('')
-              .filter(t => (obj.origin === 'paste' ? /[0-9YMdhm\+\-\$]/ : /[0-9YMdhm\+\-]/).test(t))
+              .filter(t => (obj.origin === 'paste' ? /[0-9YMdhm+\-$]/ : /[0-9YMdhm+-]/).test(t))
               .join(''),
           );
         }
@@ -191,8 +190,8 @@ export default class TagTextarea extends React.Component {
   }
 
   markOperators(markers, value) {
-    const poss = getRePosFromStr(value, /\+|\-|\*|\/|\(|\)|,/g);
-    poss.forEach((pos, i) => {
+    const poss = getRePosFromStr(value, /\+|-|\*|\/|\(|\)|,/g);
+    poss.forEach(pos => {
       const operatorEle = document.createElement('span');
       operatorEle.classList.add('operator');
       operatorEle.innerHTML = pos.tag;
@@ -287,7 +286,7 @@ export default class TagTextarea extends React.Component {
 /**
  * getRePosFromStr 正则匹配字段返回位置信息
  * */
-export function getRePosFromStr(text = '', re = /\$[^ \r\n\[\](){}!@%^&*+=]+?\$/g) {
+export function getRePosFromStr(text = '', re = /\$[^ \r\n[\](){}!@%^&*+=]+?\$/g) {
   const lines = text.split('\n');
   const positions = [];
   let m;

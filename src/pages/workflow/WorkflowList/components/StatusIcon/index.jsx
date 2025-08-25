@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { number, string, shape } from 'prop-types';
 import cx from 'classnames';
+import { number, shape, string } from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 import './index.less';
 

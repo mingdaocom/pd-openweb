@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
-import ajaxRequest from 'src/api/appManagement';
+import { Button, Dialog, Dropdown, LoadDiv } from 'ming-ui';
 import processVersion from '../../../../api/processVersion';
-import { Dialog, LoadDiv, Dropdown, Button } from 'ming-ui';
+import ajaxRequest from 'src/api/appManagement';
 import './index.less';
 
 export default class SelectOtherPBCDialog extends Component {

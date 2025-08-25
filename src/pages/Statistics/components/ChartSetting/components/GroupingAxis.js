@@ -1,30 +1,32 @@
-import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { Menu, Dropdown, Tooltip } from 'antd';
+import React, { Component } from 'react';
+import { Dropdown, Menu, Tooltip } from 'antd';
 import _ from 'lodash';
-import WithoutFidldItem from './WithoutFidldItem';
+import { Icon } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import {
   areaParticleSizeDropdownData,
-  timeParticleSizeDropdownData,
-  isNumberControl,
-  isTimeControl,
-  isAreaControl,
-  isOptionControl,
+  filterAreaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
-  timeDataParticle,
-  filterTimeData,
+  isAreaControl,
+  isNumberControl,
+  isOptionControl,
+  isTimeControl,
   timeGatherParticle,
+  timeParticleSizeDropdownData,
 } from 'statistics/common';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import WithoutFidldItem from './WithoutFidldItem';
 
-const emptyTypes = [{
-  value: 0,
-  name: _l('隐藏')
-}, {
-  value: 1,
-  name: _l('显示')
-}];
+const emptyTypes = [
+  {
+    value: 0,
+    name: _l('隐藏'),
+  },
+  {
+    value: 1,
+    name: _l('显示'),
+  },
+];
 
 const timeGather = timeParticleSizeDropdownData.filter(item => [5, 8, 9, 10, 11].includes(item.value));
 const timeParticle = timeGatherParticle.filter(item => [11, 12, 14].includes(item.value));
@@ -39,7 +41,11 @@ export default class GroupingAxis extends Component {
       isAlert && alert(_l('数值和颜色不允许重复'), 2);
       return false;
     }
-    if ([reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && xaxes.controlId && yaxisList.length > 1) {
+    if (
+      [reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) &&
+      xaxes.controlId &&
+      yaxisList.length > 1
+    ) {
       isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);
       return false;
     }
@@ -49,10 +55,10 @@ export default class GroupingAxis extends Component {
     } else {
       return true;
     }
-  }
+  };
   handleAddControl = data => {
     if (this.handleVerification(data, true)) {
-      const { split, disableParticleSizeTypes } = this.props;
+      const { disableParticleSizeTypes } = this.props;
       const isTime = isTimeControl(data.type);
       const isArea = isAreaControl(data.type);
       const dropdownData = isTime ? timeGather : areaParticleSizeDropdownData;
@@ -66,23 +72,23 @@ export default class GroupingAxis extends Component {
         ...data,
       });
     }
-  }
+  };
   handleClear = () => {
     this.props.onChangeCurrentReport({
       controlId: null,
       particleSizeType: 0,
     });
-  }
+  };
   handleChangeTimeParticleSizeType = value => {
     this.props.onChangeCurrentReport({
       particleSizeType: value,
     });
-  }
+  };
   handleChangeEmptyType = value => {
     this.props.onChangeCurrentReport({
       emptyType: value,
     });
-  }
+  };
   getName = () => {
     const { reportType } = this.props;
     if (reportType === reportTypes.DualAxes) {
@@ -95,10 +101,9 @@ export default class GroupingAxis extends Component {
       return _l('颜色(维度)');
     }
     return _l('分组');
-  }
-  renderTimeOverlay(axis) {
+  };
+  renderTimeOverlay() {
     const { split, disableParticleSizeTypes } = this.props;
-    const showtype = _.get(axis, 'advancedSetting.showtype');
     const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(split.controlId, disableParticleSizeTypes);
     const timeDataList = split.controlType === WIDGETS_TO_API_TYPE_ENUM.TIME ? timeParticle : timeGather;
     return (
@@ -120,9 +125,10 @@ export default class GroupingAxis extends Component {
       </Menu>
     );
   }
-  renderAreaOverlay() {
+  renderAreaOverlay(axis) {
     const { split, disableParticleSizeTypes } = this.props;
     const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(split.controlId, disableParticleSizeTypes);
+    const areaParticleSizeDropdownData = filterAreaParticleSizeDropdownData(axis);
     return (
       <Menu className="chartControlMenu chartMenu">
         {areaParticleSizeDropdownData.map(item => (
@@ -147,32 +153,30 @@ export default class GroupingAxis extends Component {
       <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
         <Menu.SubMenu
           popupClassName="chartMenu"
-          title={(
+          title={
             <div className="flexRow valignWrapper w100">
               <div className="flex">{_l('无记录的项目')}</div>
               <div className="Font12 Gray_75 emptyTypeName">{split.emptyType ? _l('显示') : _l('隐藏')}</div>
             </div>
-          )}
+          }
           popupOffset={[0, -15]}
         >
-          {
-            emptyTypes.map(item => (
-              <Menu.Item
-                key={item.value}
-                style={{ color: item.value === split.emptyType ? '#1e88e5' : null }}
-                onClick={() => {
-                  this.handleChangeEmptyType(item.value);
-                }}
-              >
-                {item.name}
-              </Menu.Item>
-            ))
-          }
+          {emptyTypes.map(item => (
+            <Menu.Item
+              key={item.value}
+              style={{ color: item.value === split.emptyType ? '#1e88e5' : null }}
+              onClick={() => {
+                this.handleChangeEmptyType(item.value);
+              }}
+            >
+              {item.name}
+            </Menu.Item>
+          ))}
         </Menu.SubMenu>
       </Menu>
     );
   }
-  renderAxis(item) {
+  renderAxis() {
     const { split, axisControls, allControls, reportType } = this.props;
     const axis = _.find(axisControls, { controlId: split.controlId });
     const control = _.find(allControls, { controlId: split.controlId }) || {};
@@ -216,7 +220,9 @@ export default class GroupingAxis extends Component {
   }
   render() {
     const { name, split, yaxisList, reportType } = this.props;
-    const visible = [reportTypes.BarChart, reportTypes.RadarChart, reportTypes.ScatterChart].includes(reportType) ? true : yaxisList.length === 1;
+    const visible = [reportTypes.BarChart, reportTypes.RadarChart, reportTypes.ScatterChart].includes(reportType)
+      ? true
+      : yaxisList.length === 1;
     return visible ? (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name || this.getName()}</div>

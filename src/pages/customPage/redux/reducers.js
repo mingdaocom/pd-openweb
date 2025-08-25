@@ -1,30 +1,28 @@
-/* eslint-disable no-redeclare */
-/* eslint-disable no-case-declarations */
 import update from 'immutability-helper';
+import _ from 'lodash';
+import maxBy from 'lodash/maxBy';
 import { v4 as uuidv4 } from 'uuid';
+import { enumWidgetType, getDefaultLayout, getIndexById } from '../util';
 import {
   ADD_WIDGET,
-  DEL_WIDGET,
-  DEL_TABS_WIDGET,
-  DEL_WIDGET_TAB,
-  UPDATE_WIDGET,
-  UPDATE_LAYOUT,
-  UPDATE_PAGE_INFO,
-  UPDATE_LOADING,
-  UPDATE_SAVE_LOADING,
-  INSET_TITLE,
-  UPDATE_MODIFIED,
   COPY_WIDGET,
-  UPDATE_WIDGET_VISIBLE,
-  UPDATE_EDIT_PAGE_VISIBLE,
+  DEL_TABS_WIDGET,
+  DEL_WIDGET,
+  DEL_WIDGET_TAB,
+  DELETE_LINKAGE_FILTERS_GROUP,
+  INSET_TITLE,
   UPDATE_COMPONENTS,
+  UPDATE_EDIT_PAGE_VISIBLE,
   UPDATE_FILTERS_GROUP,
+  UPDATE_LAYOUT,
   UPDATE_LINKAGE_FILTERS_GROUP,
-  DELETE_LINKAGE_FILTERS_GROUP
+  UPDATE_LOADING,
+  UPDATE_MODIFIED,
+  UPDATE_PAGE_INFO,
+  UPDATE_SAVE_LOADING,
+  UPDATE_WIDGET,
+  UPDATE_WIDGET_VISIBLE,
 } from './actionType';
-import { getDefaultLayout, getIndexById, enumWidgetType } from '../util';
-import maxBy from 'lodash/maxBy';
-import _ from 'lodash';
 
 const initialState = {
   loading: true,
@@ -35,13 +33,12 @@ const initialState = {
   desc: '',
   adjustScreen: false,
   version: null,
-  pageName: '',
   apk: {},
   components: [],
   filtersGroup: {},
   linkageFiltersGroup: {},
   filterComponents: [],
-  loadFilterComponentCount: 0
+  loadFilterComponentCount: 0,
 };
 
 function updateLayout(state, payload) {
@@ -130,14 +127,14 @@ function copyWidget(state, payload) {
           ...item,
           btnId: null,
           filterId: null,
-          id: uuidv4()
-        }
+          id: uuidv4(),
+        };
         if (config.isFilter) {
-          btn.config = { ...config, isFilter: undefined }
+          btn.config = { ...config, isFilter: undefined };
         }
         return btn;
-      })
-    }
+      }),
+    };
   }
 
   return update(state, {
@@ -174,6 +171,10 @@ export default function customPage(state = initialState, action) {
           .forEach(key => sessionStorage.removeItem(key));
       } else {
         sessionStorage.setItem(`customPageEditVisible-${state.pageId}`, String(payload));
+      }
+      const chat = document.querySelector('#chat');
+      if (chat) {
+        payload ? chat.classList.add('hide') : chat.classList.remove('hide');
       }
       return update(state, { visible: { $set: payload } });
     case UPDATE_MODIFIED:
@@ -220,17 +221,17 @@ export default function customPage(state = initialState, action) {
         const { loadFilterComponentCount } = state;
         const { filter } = payload;
         addData.loadFilterComponentCount = {
-          $set: loadFilterComponentCount + 1
-        }
+          $set: loadFilterComponentCount + 1,
+        };
         addData.filterComponents = {
           $push: [
             {
               value: uuid,
               advancedSetting: filter.advancedSetting || {},
               filters: _.flatten(filter.filters.map(item => item.objectControls)),
-            }
-          ]
-        }
+            },
+          ],
+        };
       }
       return update(state, addData);
     case COPY_WIDGET:
@@ -245,7 +246,9 @@ export default function customPage(state = initialState, action) {
       if (payload.type === enumWidgetType.filter || payload.type === 'filter') {
         const { loadFilterComponentCount } = state;
         delData.loadFilterComponentCount = loadFilterComponentCount - 1;
-        delData.filterComponents = delData.filterComponents.filter(item => item.value !== (payload.value || payload.uuid));
+        delData.filterComponents = delData.filterComponents.filter(
+          item => item.value !== (payload.value || payload.uuid),
+        );
       }
       return delData;
     case DEL_TABS_WIDGET:
@@ -260,10 +263,10 @@ export default function customPage(state = initialState, action) {
             return false;
           }
           return true;
-        })
-      }
+        }),
+      };
     case DEL_WIDGET_TAB:
-      const { tabId } = payload; 
+      const { tabId } = payload;
       return {
         ...state,
         components: state.components.filter(c => {
@@ -271,8 +274,8 @@ export default function customPage(state = initialState, action) {
             return false;
           }
           return true;
-        })
-      }
+        }),
+      };
     case UPDATE_WIDGET:
       const { widget, layoutType, ...rest } = payload;
       let result = {};
@@ -307,7 +310,7 @@ export default function customPage(state = initialState, action) {
           } else {
             return item;
           }
-        })
+        });
       }
       return result;
     case UPDATE_LAYOUT:
@@ -332,25 +335,25 @@ export default function customPage(state = initialState, action) {
         ...state,
         filtersGroup: {
           ...state.filtersGroup,
-          [payload.value]: payload.filters
-        }
-      }
+          [payload.value]: payload.filters,
+        },
+      };
     case UPDATE_LINKAGE_FILTERS_GROUP:
       return {
         ...state,
         linkageFiltersGroup: {
           ...state.linkageFiltersGroup,
-          [payload.value]: payload.filters
-        }
-      }
+          [payload.value]: payload.filters,
+        },
+      };
     case DELETE_LINKAGE_FILTERS_GROUP:
       delete state.linkageFiltersGroup[payload.value];
       return {
         ...state,
         linkageFiltersGroup: {
-          ...state.linkageFiltersGroup
-        }
-      }
+          ...state.linkageFiltersGroup,
+        },
+      };
     default:
       return state;
   }

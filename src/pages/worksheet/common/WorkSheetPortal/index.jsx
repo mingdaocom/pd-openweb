@@ -1,9 +1,10 @@
-import React, { Component, Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import WorksheetEmpty from 'worksheet/common/WorksheetEmpty/WorksheetEmpty';
@@ -20,8 +21,7 @@ const WorkSheetPortal = props => {
   const { appId, groupId, isCharge, projectId, loading, appPkg } = props;
   const { sheetListActions } = props;
   const [editId, setEditId] = useState('');
-  const [wrapWidth, setWrapWidth] = useState(0);
-  const filterEmptyAppItem = isCharge ? item => true : item => !(item.type === 2 && _.isEmpty(item.items));
+  const filterEmptyAppItem = isCharge ? () => true : item => !(item.type === 2 && _.isEmpty(item.items));
   const data =
     isCharge && appPkg.viewHideNavi
       ? props.data
@@ -47,15 +47,15 @@ const WorkSheetPortal = props => {
         appSectionId: id,
         appSectionName: workSheetName,
       })
-      .then(data => {
+      .then(() => {
         sheetListActions.updateSheetListAppItem(id, { workSheetName, edit: false });
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('修改分组名称失败'), 2);
       });
   };
 
-  const handleFocus = e => {
+  const handleFocus = () => {
     setTimeout(() => {
       ref && ref.current && ref.current.select();
     }, 0);
@@ -81,7 +81,7 @@ const WorkSheetPortal = props => {
     const Wrap = item.notMore ? Fragment : Drag;
     const isEdit = editId === appItem.workSheetId || item.edit;
     const items = item.items || [];
-    const showIcon = appPkg.displayIcon.split('')[1] === '1';
+    const showIcon = (_.get(appPkg, 'displayIcon') || '').split('')[1] === '1';
 
     const renderIcon = () => {
       let icon = 'visibility_off';
@@ -93,7 +93,11 @@ const WorkSheetPortal = props => {
       }
       return (
         [2, 3, 4].includes(item.status) && (
-          <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、开发者）')}</span>}>
+          <Tooltip
+            popupPlacement="bottom"
+            autoCloseDelay={0}
+            text={<span>{_l('仅系统角色可见（包含管理员、开发者）')}</span>}
+          >
             <Icon className="Font16 mLeft10 pointer visibilityIcon" icon={icon} style={{ color: '#ee6f09' }} />
           </Tooltip>
         )
@@ -185,8 +189,8 @@ const WorkSheetPortal = props => {
     }
 
     return (
-      <div className="WorkSheetPortal flexColumn w100 h100">
-        <div className="flex">
+      <div className="WorkSheetPortal flexColumn w100 h100 minHeight0">
+        <div className="flex minHeight0">
           <DndProvider key="navigationList" context={window} backend={HTML5Backend}>
             <ScrollView>
               {secondLevelGroupData.map(item => renderGroupItem(item))}

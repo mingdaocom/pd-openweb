@@ -4,8 +4,7 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import DragMask from 'worksheet/common/DragMask';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
@@ -24,6 +23,8 @@ const LeftListWrapper = styled.div(
   position: relative;
   z-index: 3;
   border-right: 1px solid #ddd;
+  width: ${width}px;
+  box-sizing: content-box;
 
   .searchBar {
     width: ${width}px;
@@ -42,7 +43,7 @@ const LeftListWrapper = styled.div(
         }
       }
       &:hover{
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     input {
@@ -69,7 +70,7 @@ const Drag = styled.div(
   cursor: ew-resize;
   border-left: 1px solid #e0e0e0;
   &:hover{
-    border-left: 1px solid #2196f3;
+    border-left: 1px solid #1677ff;
   }
 `,
 );
@@ -290,7 +291,7 @@ function DetailView(props) {
               )}
               {detailKeyWords && (
                 <i
-                  className="icon icon-cancel1 Hand"
+                  className="icon icon-cancel Hand"
                   onClick={() => {
                     fetchRows(1, '');
                     inputRef.current.value = '';

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import { func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import Search from 'src/components/newCustomFields/widgets/Search';
 import EditableCellCon from '../EditableCellCon';
-import cx from 'classnames';
-import _ from 'lodash';
 
 const Con = styled(EditableCellCon)`
   > div {

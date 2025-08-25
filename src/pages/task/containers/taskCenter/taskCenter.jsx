@@ -1,46 +1,30 @@
 ﻿import React, { Component, Fragment } from 'react';
-import './taskCenter.less';
-import TaskNavigation from '../taskNavigation/taskNavigation';
 import { connect } from 'react-redux';
+import _ from 'lodash';
+import 'src/components/createTask/createTask';
+import ErrorState from 'src/components/errorPage/errorState';
+import config from '../../config/config';
 import {
-  getTaskStorage,
-  getTaskState,
-  getFolderState,
-  checkIsProject,
-  errorMessage,
-  setStateToStorage,
-} from '../../utils/utils';
-import {
-  updateStateConfig,
+  clearFolderSettings,
+  editTaskStatus,
   taskFirstSetStorage,
   updateKeyWords,
-  updateTaskCharge,
+  updateStateConfig,
   updateTaskMemberStar,
-  editTaskStatus,
-  clearFolderSettings,
 } from '../../redux/actions';
-import config from '../../config/config';
-import { dialogSelectUser } from 'ming-ui/functions';
-import 'src/components/createTask/createTask';
-import {
-  checkTaskSubTask,
-  afterUpdateTaskCharge,
-  afterUpdateTaskStar,
-  afterUpdateTaskStatus,
-  joinProjectPrompt,
-} from '../../utils/taskComm';
-import TaskToolbar from '../taskToolbar/taskToolbar';
-import Subordinate from '../subordinate/subordinate';
-import TaskList from '../taskList/taskList';
-import TaskStage from '../taskStage/taskStage';
-import TaskGantt from '../taskGantt/containers/taskGantt/taskGantt';
+import { afterUpdateTaskStar, afterUpdateTaskStatus, checkTaskSubTask, joinProjectPrompt } from '../../utils/taskComm';
+import { getFolderState, getTaskState, getTaskStorage, setStateToStorage } from '../../utils/utils';
 import Attachment from '../attachment/attachment';
 import FolderChart from '../folderChart/folderChart';
-import TaskTree from '../taskTree/taskTree';
 import FolderDetail from '../folderDetail/folderDetail';
-import ajaxRequest from 'src/api/taskCenter';
-import ErrorState from 'src/components/errorPage/errorState';
-import _ from 'lodash';
+import Subordinate from '../subordinate/subordinate';
+import TaskGantt from '../taskGantt/containers/taskGantt/taskGantt';
+import TaskList from '../taskList/taskList';
+import TaskNavigation from '../taskNavigation/taskNavigation';
+import TaskStage from '../taskStage/taskStage';
+import TaskToolbar from '../taskToolbar/taskToolbar';
+import TaskTree from '../taskTree/taskTree';
+import './taskCenter.less';
 
 class TaskCenter extends Component {
   constructor(props) {
@@ -70,7 +54,6 @@ class TaskCenter extends Component {
           const taskId = $tr.data('taskid');
           const auth = $tr.data('auth');
           let isMask = true;
-          const projectId = $tr.data('projectid');
           const { isSubUser, filterUserId } = that.props.taskConfig;
 
           // 无权限和查看权限
@@ -356,7 +339,7 @@ class TaskCenter extends Component {
    */
   renderFolderContainers() {
     const { emitter, taskConfig } = this.props;
-    const { viewType, folderId, projectId } = taskConfig;
+    const { viewType } = taskConfig;
 
     // 列表
     if (viewType === config.folderViewType.treeView) {
@@ -410,7 +393,7 @@ class TaskCenter extends Component {
    */
   renderErrorPage() {
     const { code } = this.props.folderSettings;
-    const { taskFilter, folderId, searchKeyWords, projectId } = this.props.taskConfig;
+    const { folderId } = this.props.taskConfig;
 
     // 无权限
     if (code === 300020101) {

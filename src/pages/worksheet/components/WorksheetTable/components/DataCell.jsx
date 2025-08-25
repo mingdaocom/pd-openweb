@@ -14,7 +14,6 @@ export default function MDCell(props) {
     row,
     getRow = () => undefined,
     control,
-    fixedColumnCount,
     getPopupContainer,
     from,
     isDraft,

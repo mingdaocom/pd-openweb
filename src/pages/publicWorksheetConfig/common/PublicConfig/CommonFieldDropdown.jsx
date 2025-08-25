@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Icon, Checkbox } from 'ming-ui';
 import _ from 'lodash';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const NewCheckbox = styled(Checkbox)`
   .icon {

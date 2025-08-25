@@ -1,16 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Menu, MenuItem } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Menu, MenuItem } from 'ming-ui';
 
 const ColumnListWrap = styled.div`
   position: absolute;
   width: 100%;
   background: #fff;
   z-index: 1;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   .header.search {
     padding: 0 20px;
     border-bottom: 1px solid #eee;
@@ -118,7 +120,7 @@ export default class ColumnListDropdown extends React.Component {
       list = list.filter(
         column =>
           (column.filterValue || column.text || '').search(
-            new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+            new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
           ) !== -1,
       );
     }
@@ -130,7 +132,7 @@ export default class ColumnListDropdown extends React.Component {
       >
         {showSearch && (
           <div className="header search flexRow">
-            <i className="icon icon-workflow_find"></i>
+            <i className="icon icon-search"></i>
             <input
               type="text"
               className="searchInput"

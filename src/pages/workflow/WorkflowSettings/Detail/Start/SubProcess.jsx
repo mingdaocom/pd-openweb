@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { APP_TYPE, APP_TYPE_TEXT, FIELD_TYPE_LIST } from '../../enum';
-import styled from 'styled-components';
-import { Icon, Dropdown } from 'ming-ui';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Dropdown, Icon } from 'ming-ui';
+import { APP_TYPE, APP_TYPE_TEXT, FIELD_TYPE_LIST } from '../../enum';
 
 const List = styled.div`
   .w120 {
@@ -22,7 +22,7 @@ const List = styled.div`
     line-height: 36px;
     font-size: 13px;
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
 `;

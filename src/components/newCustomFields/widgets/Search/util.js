@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-import { getAttachmentData } from 'src/components/newCustomFields/tools/formUtils.js';
+import { getAttachmentData, getDynamicValue } from 'src/components/newCustomFields/tools/formUtils.js';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { isEmptyValue } from 'src/utils/control';
 import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../../../pages/widgetConfig/config/widget';
@@ -85,12 +85,11 @@ const getValue = (control = {}, type) => {
   }
 };
 
-const getDynamicValue = (item, formData, keywords) => {
+const getApiDynamicValue = (item, formData, keywords) => {
   const tempValues = safeParse(item.defsource || '[]').map(source => {
     // 动态值
     if (source.cid) {
       if (source.cid === 'search-keyword') return keywords;
-      const isOcr = _.includes(['ocr-file', 'ocr-file-url'], source.cid);
 
       if (source.cid === 'ocr-file-url' && item.type === 2) {
         return keywords ? `${_.get(keywords, 'serverName')}${_.get(keywords, 'key')}?imageView2/2/w/1920/q/90` : '';
@@ -191,13 +190,13 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
                   return i;
                 })
               : formData;
-            rowItem[c.id] = childControl || !cid ? getDynamicValue(c, controlValues, keywords) : '';
+            rowItem[c.id] = childControl || !cid ? getApiDynamicValue(c, controlValues, keywords) : '';
           });
           return rowItem;
         });
       }
     } else {
-      params[item.id] = getDynamicValue(item, formData, keywords);
+      params[item.id] = getApiDynamicValue(item, formData, keywords);
     }
   });
   return params;
@@ -280,4 +279,20 @@ export const handleUpdateApi = (props, itemData = {}, isDefault = false, callbac
       }
     }
   });
+};
+
+// authAccount处理
+export const dealAuthAccount = (authaccount = '', formData) => {
+  const parseAccount = safeParse(authaccount, 'object');
+  if (parseAccount.authIdAccounts) {
+    const { authIdAccounts = [], authIdKeywords } = parseAccount;
+    return JSON.stringify({
+      accountId: _.get(authIdAccounts, '0.roleId'),
+      keywords: getDynamicValue(formData, {
+        type: 2,
+        advancedSetting: { defsource: JSON.stringify([{ cid: authIdKeywords, rcid: '', staticValue: '' }]) },
+      }),
+    });
+  }
+  return authaccount || '';
 };

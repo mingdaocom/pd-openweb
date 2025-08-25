@@ -265,7 +265,7 @@ export default function (props) {
         <div className="messageBox mTop5">
           {isMustDepartment && (
             <div className={cx('mesDiv hasValue', renderClassName('departmentId', departmentId))}>
-              <div ref={departmentId => (departmentId = departmentId)}>
+              <div>
                 <DepDropDown
                   {...props}
                   onBlur={() => setState({ focusDiv: '' })}
@@ -283,7 +283,7 @@ export default function (props) {
 
           {isMustJob && (
             <div className={cx('mesDiv hasValue', renderClassName('jobId', jobId))}>
-              <div ref={jobId => (jobId = jobId)}>
+              <div>
                 <Dropdown
                   showItemTitle
                   value={jobId || undefined}
@@ -303,7 +303,7 @@ export default function (props) {
 
           {isMustWorkSite && (
             <div className={cx('mesDiv hasValue', renderClassName('workSiteId', workSiteId))}>
-              <div ref={workSiteId => (workSiteId = workSiteId)}>
+              <div>
                 <Dropdown
                   showItemTitle
                   value={workSiteId || undefined}
@@ -328,7 +328,6 @@ export default function (props) {
                 className="jobNumber"
                 maxLength={'60'}
                 autoComplete="off"
-                ref={jobNumber => (jobNumber = jobNumber)}
                 onBlur={() => setState({ focusDiv: '' })}
                 onFocus={() => setState({ focusDiv: 'jobNumber' })}
                 onChange={e => {
@@ -337,7 +336,7 @@ export default function (props) {
                 }}
                 value={jobNumber}
               />
-              <div className="title" onClick={e => setState({ focusDiv: 'jobNumber' })}>
+              <div className="title" onClick={() => setState({ focusDiv: 'jobNumber' })}>
                 {_l('工号')}
               </div>
               {renderWarn('jobNumber')}

@@ -211,7 +211,7 @@ export default class CustomPage extends Component {
       <div className="flexRow justifyContentCenter alignItemsCenter h100">
         <EmptyData>
           <div className="iconWrap">
-            <i className="icon-custom_widgets"></i>
+            <i className="icon-widgets"></i>
           </div>
           <p className="Gray_75 TxtCenter mTop16">{_l('没有内容')}</p>
         </EmptyData>
@@ -236,8 +236,8 @@ export default class CustomPage extends Component {
           '--widget-color': pageConfig.widgetBgColor,
           '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
           '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
-          '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#2196f3',
-          '--app-primary-color': apk.iconColor
+          '--widget-icon-hover-color': widgetIsDark ? '#ffffff' : '#1677ff',
+          '--app-primary-color': apk.iconColor,
         }}
       >
         <GridLayout
@@ -302,7 +302,7 @@ export default class CustomPage extends Component {
     const dataSource = transferValue(urlTemplate);
     const urlList = [];
     dataSource.map(o => {
-      if (!!o.staticValue) {
+      if (o.staticValue) {
         urlList.push(o.staticValue);
       } else {
         urlList.push(

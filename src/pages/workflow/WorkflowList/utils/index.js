@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
-import { MdLink } from 'ming-ui';
+import _ from 'lodash';
 import moment from 'moment';
-import { DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME, APP_TYPE, ACTION_ID } from '../../WorkflowSettings/enum';
+import { MdLink } from 'ming-ui';
+import { ACTION_ID, APP_TYPE, DATE_TYPE, EXEC_TIME_TYPE, TIME_TYPE_NAME } from '../../WorkflowSettings/enum';
 
 export const FLOW_TYPE = {
   APP: '1',
@@ -81,13 +82,13 @@ export const START_APP_TYPE = {
     text: _l('工作表事件'),
   },
   5: {
-    iconName: 'hr_surplus',
-    iconColor: '#2196f3',
+    iconName: 'access_alarm',
+    iconColor: '#1677ff',
     text: _l('时间'),
   },
   6: {
-    iconName: 'hr_time',
-    iconColor: '#2196f3',
+    iconName: 'task_custom_today',
+    iconColor: '#1677ff',
     text: _l('时间'),
   },
   7: {
@@ -150,7 +151,7 @@ export const START_APP_TYPE = {
 export const TYPES = [
   { text: _l('所有流程'), value: '', icon: 'icon-workflow' },
   { text: _l('工作表事件%03003'), value: FLOW_TYPE.APP, icon: 'icon-table' },
-  { text: _l('时间%03004'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
+  { text: _l('时间%03004'), value: FLOW_TYPE.TIME, icon: 'icon-task_custom_today' },
   { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
   { text: _l('Webhook'), value: FLOW_TYPE.WEBHOOK, icon: 'icon-workflow_webhook' },
   { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
@@ -241,8 +242,8 @@ export const getActionTypeContent = (type, item, disable) => {
             {item.executeTimeType === EXEC_TIME_TYPE.BEFORE
               ? _l('之前')
               : item.executeTimeType === EXEC_TIME_TYPE.AFTER
-              ? _l('之后')
-              : ''}
+                ? _l('之后')
+                : ''}
             {item.executeTimeType !== EXEC_TIME_TYPE.CURRENT && <span>{item.number + TIME_TYPE_NAME[item.unit]}</span>}
           </span>
         )}
@@ -294,8 +295,8 @@ export const getActionTypeContent = (type, item, disable) => {
     return item.triggerId === ACTION_ID.CONDITION_LOOP
       ? _l('满足条件时循环')
       : item.triggerId === ACTION_ID.COUNT_LOOP
-      ? _l('循环指定次数')
-      : _l('循环触发');
+        ? _l('循环指定次数')
+        : _l('循环触发');
   }
 
   // 所有流程

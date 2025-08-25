@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
 import certificationApi from '../../api/certification';
+import CertificationDetail from './CertificationDetail';
 import SelectCertification from './SelectCertification';
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
   .certBtn {
-    color: #2196f3;
+    color: #1e88e5;
     font-weight: bold;
     width: fit-content;
     cursor: pointer;
@@ -55,7 +56,6 @@ const DetailDialog = styled(Dialog)`
 export default function CertificationButton(props) {
   const { authType = 0, projectId, onUpdateCertStatus } = props;
   const [detailVisible, setDetailVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   const onVerify = isUpgrade => {
     const isCert = certificationApi.checkIsCert(
@@ -71,7 +71,7 @@ export default function CertificationButton(props) {
     if (projectId) {
       certificationApi.getCertInfoList({ certSource: 1, isUpgrade }).then(res => {
         if (res && !!res.length) {
-          SelectCertification({ certList: res, projectId, onUpdateCertStatus });
+          SelectCertification({ certList: res, projectId, onUpdateCertStatus, isUpgrade });
         } else {
           isUpgrade
             ? window.open(
@@ -108,22 +108,16 @@ export default function CertificationButton(props) {
         </div>
       )}
 
-      <DetailDialog
-        visible={detailVisible}
-        width={800}
-        footer={null}
-        onCancel={() => {
-          setDetailVisible(false);
-          setLoading(true);
-        }}
-      >
-        <div className="detailWrapper flexColumn justifyContentCenter alignItemsCenter">
-          {loading && <LoadDiv className="loadDiv" />}
-          <iframe
-            className="w100 h100 Border0"
-            style={{ display: loading ? 'none' : 'block' }}
-            src={`${md.global.Config.WebUrl}certificationDetail/${projectId ? `project/${projectId}` : 'personal'}`}
-            onLoad={() => setLoading(false)}
+      <DetailDialog visible={detailVisible} width={800} footer={null} onCancel={() => setDetailVisible(false)}>
+        <div className="detailWrapper">
+          <CertificationDetail
+            isHap={true}
+            certSource={projectId ? 'project' : 'personal'}
+            projectId={projectId}
+            onRemoveSuccess={() => {
+              onUpdateCertStatus(0);
+              setDetailVisible(false);
+            }}
           />
         </div>
       </DetailDialog>

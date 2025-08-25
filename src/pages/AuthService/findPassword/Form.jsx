@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import Account from 'src/pages/AuthService/components/Inputs/Account.jsx';
 import Password from 'src/pages/AuthService/components/Inputs/Password.jsx';
 import VerifyCode from 'src/pages/AuthService/components/Inputs/VerifyCode.jsx';

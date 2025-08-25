@@ -1,21 +1,23 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Dropdown, Checkbox, Tooltip, Input } from 'ming-ui';
 import cx from 'classnames';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { canNavGroup, getSetDefault, getSetHtmlData } from './util';
-import bgNavGroups from './img/bgNavGroups.png';
-import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import sheetAjax from 'src/api/worksheet';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import NavShow from './NavShow';
-import NavSort from '../NavSort';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import _ from 'lodash';
-import { MaxNavW, MinNavW, defaultNavOpenW } from 'src/pages/worksheet/common/ViewConfig/config.js';
-import SearchConfig from './SearchConfig';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Input, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
+import { defaultNavOpenW, MaxNavW, MinNavW } from 'src/pages/worksheet/common/ViewConfig/config.js';
+import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import NavSort from '../NavSort';
+import bgNavGroups from './img/bgNavGroups.png';
 import MobileConfig from './MobileConfig';
+import NavShow from './NavShow';
+import SearchConfig from './SearchConfig';
+import { canNavGroup, getSetDefault, getSetHtmlData } from './util';
 
 const Wrap = styled.div`
   .hasData {
@@ -38,11 +40,11 @@ const Wrap = styled.div`
           border-color: #bbb;
         }
         &:focus {
-          border-color: #2196f3;
+          border-color: #1677ff;
         }
       }
     }
-    .cancle {
+    .cancel {
       color: #9e9e9e;
       cursor: pointer;
       &:hover {
@@ -73,7 +75,7 @@ const Wrap = styled.div`
         border-radius: 4px;
         height: 36px;
         &.active {
-          border: 1px solid #2196f3;
+          border: 1px solid #1677ff;
         }
         .value,
         .Dropdown--placeholder {
@@ -129,7 +131,7 @@ const Wrap = styled.div`
       span.addIcon {
         position: relative;
         background: #f8f8f8;
-        color: #2196f3;
+        color: #1677ff;
         border-radius: 3px;
         display: block;
         padding: 12px 0;
@@ -146,15 +148,12 @@ const Wrap = styled.div`
       }
       &.active {
         .inputBox {
-          border: 1px solid #2196f3;
+          border: 1px solid #1677ff;
         }
       }
     }
     .checkBox {
       vertical-align: middle;
-    }
-    .ming.Checkbox.checked .Checkbox-box {
-      // background-color: #9e9e9e;
     }
     .ming.Checkbox.Checkbox--disabled {
       color: #151515;
@@ -209,7 +208,7 @@ const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 3px;
         color: #fff;
         display: inline-block;
@@ -286,7 +285,7 @@ export default function NavGroup(params) {
     setData(navGroup);
     let editAttrs = ['navGroup'];
     let param = { navGroup: navGroup ? [navGroup] : [] };
-    if (!!advancedSetting) {
+    if (advancedSetting) {
       editAttrs.push('advancedSetting');
       param = {
         ...param,
@@ -308,16 +307,21 @@ export default function NavGroup(params) {
       shownullitem: '1', //默认新增显示空
       navsorts: '',
       customnavs: '',
+      navlayer: [27].includes(data.type) ? '999' : '',
       navshow: [26, 27, 48].includes(data.type) ? '1' : !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
       usenav: '0', //新配置 默认不勾选
-      navsearchtype: !!_.get(data, 'advancedSetting.searchtype') ? _.get(data, 'advancedSetting.searchtype') : '0', //0或者空 模糊匹配 1：精确搜索
-      navsearchcontrol: !!_.get(data, 'advancedSetting.searchcontrol')
+      navsearchtype: _.get(data, 'advancedSetting.searchtype') ? _.get(data, 'advancedSetting.searchtype') : '0', //0或者空 模糊匹配 1：精确搜索
+      navsearchcontrol: _.get(data, 'advancedSetting.searchcontrol')
         ? _.get(data, 'advancedSetting.searchcontrol')
         : undefined,
     };
     if ([35].includes(data.type)) {
       info.showallitem = '';
+    }
+    //兼容处理地区/级联/关联字段 不支持分栏显示
+    if ([...AREA, 29, 35].includes(data.type) && !['1', '2'].includes(appnavtype)) {
+      info.appnavtype = '2';
     }
     updateView(d, info);
     setShowAddCondition(false);
@@ -409,6 +413,7 @@ export default function NavGroup(params) {
             <NavShow
               canShowAll
               canShowNull
+              canShowAllNavLayer={data.type === 27 && navshow === '2'} //  {/* 部门字段，且指定项 可设置显示层级，且默认勾选 */}
               params={o}
               value={navshow}
               onChange={newValue => {
@@ -532,7 +537,7 @@ export default function NavGroup(params) {
 
   return (
     <Wrap>
-      {!!_.get(navGroup, ['controlId']) ? (
+      {_.get(navGroup, ['controlId']) ? (
         <div className="hasData">
           <div className="viewSetTitle">{_l('筛选列表')}</div>
           <div className="Gray_75 mTop8 mBottom4">
@@ -543,7 +548,7 @@ export default function NavGroup(params) {
               <div className="title mTop25 Gray Bold">
                 {_l('筛选字段')}
                 <span
-                  className="cancle Right"
+                  className="cancel Right"
                   onClick={() => {
                     onDelete();
                   }}
@@ -588,6 +593,38 @@ export default function NavGroup(params) {
               })}
               {filterData && !filterData.isErr && renderDrop(filterData)}
             </div>
+            {/* 关联且指定视图｜级联 可设置显示层级 */}
+            {((_.get(filterData, 'type') === 29 && !!navGroup.viewId) || _.get(filterData, 'type') === 35) && (
+              <React.Fragment>
+                <div className="commonConfigItem Font13 mTop24 bold mTop4">{_l('默认展开层级')}</div>
+                <AnimationWrap className="mTop8">
+                  {[
+                    { text: 1, value: '1' },
+                    { text: 2, value: '2' },
+                    { text: 3, value: '3' },
+                    { text: 4, value: '4' },
+                    { text: 5, value: '5' },
+                  ].map(item => {
+                    const navlayer = _.get(view, 'advancedSetting.navlayer') || '1';
+                    return (
+                      <div
+                        className={cx('animaItem overflow_ellipsis', {
+                          active: navlayer === item.value,
+                        })}
+                        onClick={() => {
+                          const { value } = item;
+                          if (navlayer !== value) {
+                            updateAdvancedSetting({ navlayer: value });
+                          }
+                        }}
+                      >
+                        {item.text}
+                      </div>
+                    );
+                  })}
+                </AnimationWrap>
+              </React.Fragment>
+            )}
             <div className="title mTop30 Gray Bold">{_l('默认宽度')}</div>
             <div className="Relative navWidth mTop8">
               <Input
@@ -632,6 +669,7 @@ export default function NavGroup(params) {
               }}
             />
             <Tooltip
+              autoCloseDelay={0}
               popupPlacement="bottom"
               text={
                 <span>
@@ -642,7 +680,7 @@ export default function NavGroup(params) {
               }
             >
               <div className="Hand InlineBlock TxtTop mLeft5">
-                <Icon icon="workflow_help" className="Gray_9e helpIcon Font18 InlineBlock mTop2" />
+                <Icon icon="help" className="Gray_9e helpIcon Font18 InlineBlock mTop2" />
               </div>
             </Tooltip>
           </div>

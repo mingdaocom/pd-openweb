@@ -1,15 +1,15 @@
 import React from 'react';
-import { Icon, Dropdown, Checkbox } from 'ming-ui';
-import { isVisible, isRelation } from '../../util';
-import { fromType, typeForCon, DEFAULT_FONT_SIZE, APPROVAL_POSITION_OPTION, SYST_PRINT } from '../../config';
-import './index.less';
+import _ from 'lodash';
 import moment from 'moment';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import _ from 'lodash';
+import { APPROVAL_POSITION_OPTION, DEFAULT_FONT_SIZE, fromType, typeForCon } from '../../config';
+import { isRelation, isVisible } from '../../util';
+import AdditionSetting from './AdditionSetting';
 import BasicsSetting from './BasicsSetting';
 import ControlsSetting from './ControlsSetting';
-import AdditionSetting from './AdditionSetting';
+import './index.less';
 
 const Setting = [
   {
@@ -71,7 +71,7 @@ class SideNav extends React.Component {
   };
 
   toggleWorkflowCheckItem(key) {
-    const { handChange, printData = [], systemControl } = this.props;
+    const { handChange, printData = [] } = this.props;
     const { workflow = [] } = printData;
     const newWorkflow = workflow.map(item => {
       if (item.flowNode.id === key) {

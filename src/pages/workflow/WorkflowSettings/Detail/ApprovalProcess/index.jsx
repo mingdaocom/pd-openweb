@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SelectNodeObject,
-  Member,
-  SelectUserDropDown,
-  ApprovalProcessSettings,
-} from '../components';
 import _ from 'lodash';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
+import {
+  ApprovalProcessSettings,
+  DetailFooter,
+  DetailHeader,
+  Member,
+  SelectNodeObject,
+  SelectUserDropDown,
+} from '../components';
 
 export default class ApprovalProcess extends Component {
   constructor(props) {
@@ -29,7 +29,7 @@ export default class ApprovalProcess extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -258,7 +258,7 @@ export default class ApprovalProcess extends Component {
           removeNodeName
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="flowDetailStartHeader flexColumn BGDarkBlue" style={{ height: 245 }}>
               <div className="flowDetailStartIcon flexRow" style={{ background: 'rgba(0, 0, 0, 0.24)' }}>

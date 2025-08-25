@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
@@ -17,7 +17,6 @@ import {
   getSourceIndex,
   isDateTimeGroup,
   isDelStatus,
-  isTimeGroup,
   setResultFieldSettingByAggFuncType,
 } from '../util';
 import { WrapS } from './style';
@@ -95,6 +94,7 @@ export default function GroupCon(props) {
           {sourceTables.length <= 1 && (
             <Tooltip
               placement="bottom"
+              autoCloseDelay={0}
               title={
                 <span className="">
                   {_.get(item, 'resultField.parentFieldInfo.controlSetting.controlName') && (
@@ -359,7 +359,7 @@ export default function GroupCon(props) {
         return { ...o, num: i };
       })}
       itemKey="num"
-      onSortEnd={(newItems = [], newIndex) => {
+      onSortEnd={(newItems = []) => {
         onChange(
           newItems.map(o => _.omit(o, 'num')),
           false,

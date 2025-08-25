@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { DragHeaderItem } from './tabHeader';
-import { getPathById } from '../../util/widgets';
-import displayTypes from '../displayTypes';
-import RightDragPointer from '../components/RightDragPointer';
 import { enumWidgetType } from '../../util';
+import { getPathById } from '../../util/widgets';
+import RightDragPointer from '../components/RightDragPointer';
+import displayTypes from '../displayTypes';
+import { DragHeaderItem } from './tabHeader';
 
 const CollapseWrap = styled.div`
   border-radius: 8px;
@@ -53,7 +54,7 @@ export default function DisplayCollapse(props) {
   return (
     <CollapseWrap className="tabItemWrap">
       <div id="collapseHeaderContent">
-        {tabWidgets.map((data, columnIndex) => {
+        {tabWidgets.map(data => {
           const row = _.head(getPathById(widgets, data.controlId));
           const isActive = activeWidget.controlId === data.controlId;
           const isOpen = selectItem.controlId === data.controlId;

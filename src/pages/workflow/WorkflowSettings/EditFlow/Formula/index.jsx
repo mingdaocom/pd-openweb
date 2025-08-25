@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { SUMMARY_LIST } from 'src/utils/record';
 import { ACTION_ID } from '../../enum';
 import { getIcons } from '../../utils';
@@ -41,7 +42,7 @@ export default class Formula extends Component {
       if (!selectNodeName) {
         return (
           <div className="pLeft8 pRight8 red">
-            <i className="icon-workflow_info Font18 mRight5" />
+            <i className="icon-report Font18 mRight5" />
             {_l('指定的节点对象已删除')}
           </div>
         );
@@ -53,7 +54,7 @@ export default class Formula extends Component {
     if (isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('节点存在异常')}
         </div>
       );
@@ -63,7 +64,7 @@ export default class Formula extends Component {
       if (item.appId && !item.appName) {
         return (
           <div className="pLeft8 pRight8 red">
-            <i className="icon-workflow_info Font18 mRight5" />
+            <i className="icon-report Font18 mRight5" />
             {_l('工作表已删除')}
           </div>
         );
@@ -117,7 +118,7 @@ export default class Formula extends Component {
       }
       formulaValue = formulaValue
         .replace(/\+/g, ' + ')
-        .replace(/\-/g, ' - ')
+        .replace(/-/g, ' - ')
         .replace(/\*/g, ' * ')
         .replace(/\//g, ' / ');
     }

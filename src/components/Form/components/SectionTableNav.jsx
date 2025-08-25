@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useState, Fragment } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Motion, spring } from 'react-motion';
-import { Icon, Tooltip, SvgIcon } from 'ming-ui';
-import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Icon, SvgIcon, Tooltip } from 'ming-ui';
 
 const Con = styled.div`
   display: flex;
@@ -53,7 +53,7 @@ const Tab = styled.div`
     left: 0px;
     right: 0px;
     height: 3px;
-    background-color: #2196f3;
+    background-color: #1677ff;
     bottom: 0px;
   }
 `;
@@ -111,7 +111,7 @@ export function renderTabs(props) {
     return (
       iconUrl && (
         <IconCon isFixedRight={isFixedRight}>
-          <SvgIcon url={iconUrl} fill={isFixedActive ? '#2196f3' : '#6e6e6e'} size={20} />
+          <SvgIcon url={iconUrl} fill={isFixedActive ? '#1677ff' : '#6e6e6e'} size={20} />
         </IconCon>
       )
     );

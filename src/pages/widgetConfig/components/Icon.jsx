@@ -21,7 +21,7 @@ const IconWrap = styled.i`
   &.link {
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

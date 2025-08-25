@@ -1,4 +1,4 @@
-import { head, find } from 'lodash';
+import { find, head } from 'lodash';
 
 export function getBoardItemKey(data) {
   try {
@@ -12,6 +12,7 @@ export function getBoardItemKey(data) {
     }
     return parseData || '-1';
   } catch (error) {
+    console.log(error);
     return '-1';
   }
 }

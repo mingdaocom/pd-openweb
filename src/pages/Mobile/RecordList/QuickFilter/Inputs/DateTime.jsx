@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { func, shape, string, number } from 'prop-types';
-import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import { Input, TimeZoneTag } from 'ming-ui';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { Option } from './Options';
-import RightSidebar from './RightSidebar';
-import DateTimeList from './DateTimeList';
 import _ from 'lodash';
 import moment from 'moment';
+import { func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Input, TimeZoneTag } from 'ming-ui';
+import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
+import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
+import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import DateTimeList from './DateTimeList';
+import { Option } from './Options';
+import RightSidebar from './RightSidebar';
 
 const InputCon = styled(Input)`
   width: 100%;
@@ -20,7 +20,16 @@ const InputCon = styled(Input)`
   background-color: #f5f5f5;
 `;
 
-const replaceTimeValue = value => value.replace ? value.replace(/[\u4e00-\u9fa5]+/g, '-') : value;
+const replaceTimeValue = value => (value.replace ? value.replace(/[\u4e00-\u9fa5]+/g, '-') : value);
+
+const formatValue = (control, value, valueFormat) => {
+  const showType = _.get(control, 'advancedSetting.showtype');
+  return value
+    ? control.controlId === 'ctime' || control.controlId === 'utime'
+      ? moment(value).format('YYYY-MM-DD HH:mm:ss')
+      : moment(value).format(showType === '2' ? 'YYYY-MM-DD HH:00' : valueFormat)
+    : '';
+};
 
 export default function DateTime(props) {
   const {
@@ -43,19 +52,16 @@ export default function DateTime(props) {
   let allowedDateRange = [];
   try {
     allowedDateRange = JSON.parse(advancedSetting.daterange);
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   if (dateRangeType) {
     control.advancedSetting.showtype = String(dateRangeType);
   }
-  const showDatePicker = dateRange === 18 || _.isEmpty(allowedDateRange);
-  const isEmpty =
-    dateRange === 18
-      ? filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN
-        ? !(minValue && maxValue)
-        : !value
-      : !dateRange;
+
   const showType = _.get(control, 'advancedSetting.showtype');
-  const valueFormat = getShowFormat(control);
+  const showValueFormat = getShowFormat(control);
+  const valueFormat = getDatePickerConfigs(control).formatMode;
   let date = _.includes(['4', '5'], showType)
     ? DATE_TYPE.map(os =>
         os.filter(o =>
@@ -77,7 +83,13 @@ export default function DateTime(props) {
       onChange({ dateRange: 0, minValue: undefined, maxValue: undefined });
     } else {
       const filterType = props.filterType || FILTER_CONDITION_TYPE.DATEENUM;
-      onChange({ filterType: filterType, dateRange: value, minValue: undefined, maxValue: undefined, value: undefined });
+      onChange({
+        filterType: filterType,
+        dateRange: value,
+        minValue: undefined,
+        maxValue: undefined,
+        value: undefined,
+      });
     }
   };
   const startDateExtraObj = endDateValue ? { max: moment(replaceTimeValue(endDateValue)).toDate() } : {};
@@ -108,7 +120,7 @@ export default function DateTime(props) {
               readOnly
               className="centerAlign"
               placeholder={_l('开始')}
-              value={minValue || ''}
+              value={formatValue(control, minValue, showValueFormat)}
               onClick={() => {
                 setStartDateVisible(true);
               }}
@@ -123,16 +135,11 @@ export default function DateTime(props) {
                   setStartDateVisible(false);
                 }}
                 onSelect={date => {
-                  const d =
-                    control.controlId === 'ctime' || control.controlId === 'utime'
-                      ? moment(date).format('YYYY-MM-DD HH:mm:ss')
-                      : moment(date).format(showType === '2' ? 'YYYY-MM-DD HH:00' : valueFormat);
-
                   onChange({
                     dateRange: 18,
                     filterType: 31,
-                    minValue: d,
-                    maxValue: maxValue,
+                    minValue: moment(date).format(valueFormat),
+                    maxValue: moment(date).format(valueFormat),
                   });
                   setStartDateVisible(false);
                 }}
@@ -159,7 +166,7 @@ export default function DateTime(props) {
               readOnly
               className="centerAlign"
               placeholder={_l('结束')}
-              value={maxValue || ''}
+              value={formatValue(control, maxValue, showValueFormat)}
               onClick={() => {
                 setEndDateVisible(true);
               }}
@@ -175,15 +182,11 @@ export default function DateTime(props) {
                   setEndDateVisible(false);
                 }}
                 onSelect={date => {
-                  const d =
-                    control.controlId === 'ctime' || control.controlId === 'utime'
-                      ? moment(date).format('YYYY-MM-DD HH:mm:ss')
-                      : moment(date).format(showType === '2' ? 'YYYY-MM-DD HH:00' : valueFormat);
                   onChange({
                     dateRange: 18,
                     filterType: 31,
                     minValue: minValue,
-                    maxValue: d,
+                    maxValue: moment(date).format(valueFormat),
                   });
                   setEndDateVisible(false);
                 }}
@@ -211,7 +214,7 @@ export default function DateTime(props) {
               readOnly
               className="centerAlign"
               placeholder={_l('请选择日期')}
-              value={value || ''}
+              value={formatValue(control, value, showValueFormat)}
               onClick={() => {
                 setStartDateVisible(true);
               }}
@@ -226,15 +229,10 @@ export default function DateTime(props) {
                   setStartDateVisible(false);
                 }}
                 onSelect={date => {
-                  const d =
-                    control.controlId === 'ctime' || control.controlId === 'utime'
-                      ? moment(date).format('YYYY-MM-DD HH:mm:ss')
-                      : moment(date).format(showType === '2' ? 'YYYY-MM-DD HH:00' : valueFormat);
-
                   onChange({
                     dateRange: 18,
                     filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
-                    value: d,
+                    value: moment(date).format(valueFormat),
                   });
                   setStartDateVisible(false);
                 }}

@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Dropdown } from 'ming-ui';
-import { SettingItem } from '../../../styled';
-import { handleAdvancedSettingChange, getAdvanceSetting } from '../../../util/setting';
-import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
+import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
+import { SettingItem } from '../../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 
 const MULTI_SELECT_DISPLAY = [
   {

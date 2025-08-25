@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { arrayOf, func, number, shape, string } from 'prop-types';
 import { useEffect } from 'react';
 import { useRef } from 'react';
-import styled from 'styled-components';
-import { Tooltip, Input, Dialog } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Dialog, Input, Tooltip } from 'ming-ui';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import ControlSelect from 'worksheet/components/ControlSelect';
-import _ from 'lodash';
 
 const Title = styled.div`
   font-size: 13px;
@@ -19,7 +19,7 @@ const Title = styled.div`
     color: #9e9e9e;
     cursor: pointer;
     &.on {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

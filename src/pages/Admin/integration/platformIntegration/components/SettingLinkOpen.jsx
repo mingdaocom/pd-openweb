@@ -1,7 +1,6 @@
-import React, { Fragment } from 'react';
-import { Radio } from 'ming-ui';
-import _ from 'lodash';
+import React from 'react';
 import cx from 'classnames';
+import { Radio } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
 
 const messageLinkTypes = [
@@ -35,7 +34,7 @@ function SettingLinkOpen(props) {
             disabled={disabled}
             checked={value === item.key}
             text={item.label}
-            onClick={e => handleChange(item.key)}
+            onClick={() => handleChange(item.key)}
           />
         );
       })}

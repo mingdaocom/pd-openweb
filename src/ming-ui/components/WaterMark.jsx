@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ConfigProvider } from 'antd';
 import classNames from 'classnames';
+import _ from 'lodash';
 import { getCurrentProject } from 'src/utils/project';
 
 /**
@@ -93,7 +94,6 @@ const WaterMark = props => {
         setBase64Url(canvas.toDataURL());
       }
     } else {
-      // eslint-disable-next-line no-console
       console.error('当前环境不支持Canvas');
     }
   }, [
@@ -167,7 +167,7 @@ export default props => {
   };
 
   const getContent = () => {
-    if (!!currentProject.enabledWatermarkTxt) {
+    if (currentProject.enabledWatermarkTxt) {
       return currentProject.enabledWatermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
     }
 

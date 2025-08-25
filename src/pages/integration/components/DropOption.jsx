@@ -1,9 +1,9 @@
 import React from 'react';
+import { useSetState } from 'react-use';
+import cx from 'classnames';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Menu, MenuItem } from 'ming-ui';
-import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import cx from 'classnames';
 
 const MenuWrap = styled(Menu)`
   position: relative !important;
@@ -15,20 +15,6 @@ const MenuWrap = styled(Menu)`
   }
   .ming.MenuItem {
     z-index: 1;
-    &.cur {
-      .Item-content,
-      .Item-content:not(.disabled):hover {
-        background-color: #1e88e5 !important;
-        color: #fff !important;
-        .gray_75 {
-          color: #fff;
-        }
-      }
-    }
-    .Item-content:not(.disabled):hover {
-      background: #f5f5f5 !important;
-      color: #2196f3 !important;
-    }
   }
   .GroupTypeMenuWrap {
     position: absolute;
@@ -47,7 +33,7 @@ const MenuWrap = styled(Menu)`
       padding: 0 16px;
       &:hover {
         background: #f5f5f5;
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

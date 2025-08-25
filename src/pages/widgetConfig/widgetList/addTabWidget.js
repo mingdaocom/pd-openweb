@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
+import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 
@@ -9,8 +9,6 @@ const TAB_POSITION_TYPE = [
   { value: '1', text: _l('底部'), img: require('/staticfiles/images/tab_bottom.png') },
   { value: '3', text: _l('左侧'), img: require('/staticfiles/images/tab_left.png') },
 ];
-
-const SectionConfirmWrap = styled.div``;
 
 function AddTabWidget(props) {
   const { tabposition, handleOk } = props;

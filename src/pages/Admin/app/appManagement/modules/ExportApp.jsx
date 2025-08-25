@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Checkbox, Dialog, Icon, Support, Tooltip } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
 import { generateRandomPassword } from 'src/utils/common';
@@ -161,8 +162,9 @@ export default class ExportApp extends React.Component {
                   offset: [-5, 0],
                   overflow: { adjustX: true, adjustY: true },
                 }}
+                autoCloseDelay={0}
               >
-                <Icon icon="workflow_help" className="Gray_9e" />
+                <Icon icon="help" className="Gray_9e" />
               </Tooltip>
             )}
           </div>
@@ -284,7 +286,7 @@ export default class ExportApp extends React.Component {
           </div>
           {relation && (
             <div className="exportWarning">
-              <span className="icon-info1 Font15 mLeft12 mRight6" />
+              <span className="icon-info Font15 mLeft12 mRight6" />
               {_l('此应用工作表关联了未选择导出的应用工作表，直接导出将失去这部分关联')}
             </div>
           )}

@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import { getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import * as utils from '../../utils/';
 import * as ajax from '../../utils/ajax';
-import Constant from '../../utils/constant';
 import { FileItem } from '../Files';
 
 const format = res => {
@@ -50,7 +48,6 @@ export default class Files extends Component {
   }
   updateFiles(searchText) {
     const { session } = this.props;
-    const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const { loading, pageIndex, files } = this.state;
     if (loading || !pageIndex) {
       return;

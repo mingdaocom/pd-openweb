@@ -66,16 +66,16 @@ export const ShowChoose = styled.div`
         overflow: hidden;
       }
       &.checked {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
-        border-top: 1px solid #2196f3;
-        border-bottom: 1px solid #2196f3;
+        border-top: 1px solid #1677ff;
+        border-bottom: 1px solid #1677ff;
         z-index: 1;
         &:last-child {
-          border-right: 1px solid #2196f3;
+          border-right: 1px solid #1677ff;
         }
         &:first-child {
-          border-left: 1px solid #2196f3;
+          border-left: 1px solid #1677ff;
         }
       }
     }
@@ -150,9 +150,9 @@ export const AnimationWrap = styled.div`
       margin-left: 0;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     i {
@@ -160,9 +160,9 @@ export const AnimationWrap = styled.div`
     }
     &.active {
       background: #ffffff;
-      color: #2196f3;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &.disabled {

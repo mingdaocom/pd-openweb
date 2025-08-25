@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { Icon, LoadDiv, Tooltip, Checkbox } from 'ming-ui';
-import { Table, ConfigProvider, Dropdown } from 'antd';
-import PaginationWrap from '../PaginationWrap';
-import _ from 'lodash';
+import { ConfigProvider, Dropdown, Table } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import PaginationWrap from '../PaginationWrap';
 import './index.less';
 
 export default class PageTableCon extends Component {
@@ -22,6 +22,9 @@ export default class PageTableCon extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.paginationInfo !== nextProps.paginationInfo) {
       this.setState({ pageIndex: nextProps.paginationInfo.pageIndex, pageSize: nextProps.paginationInfo.pageSize });
+    }
+    if (!_.isEqual(this.props.columns, nextProps.columns)) {
+      this.setState({ columns: nextProps.columns });
     }
   }
 
@@ -63,7 +66,7 @@ export default class PageTableCon extends Component {
           </Checkbox>
         </div>
         <ul>
-          {columns.map((item, index) => {
+          {columns.map(item => {
             return (
               <li key={item.dataIndex}>
                 <Checkbox

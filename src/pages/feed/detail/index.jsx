@@ -1,12 +1,11 @@
-﻿import './feeddetail.css';
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import qs from 'query-string';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
-import { changePostDetailId, clearPostDetail } from './redux/postDetailActions';
 import PostDetails from '../components/post/postDetails/postDetails';
+import { changePostDetailId, clearPostDetail } from './redux/postDetailActions';
+import './feeddetail.css';
 
 @connect(state => ({
   postItem: state.post.postsById[state.postDetail.postId],
@@ -47,7 +46,7 @@ export default class FeedDetailEntrypoint extends Component {
         <br />
         <br />
         <div>
-          <i className="icon-task-folder-message Font56 Feeddetail-errorIcon" />
+          <i className="icon-error1 Font56 Feeddetail-errorIcon" />
         </div>
         <div className="Font18 mTop20 Gray">{this.props.error}</div>
         <br />

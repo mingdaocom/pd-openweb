@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../redux/actions';
-import { Icon, Dialog, Checkbox, LoadDiv, QiniuUpload } from 'ming-ui';
-import externalPortalAjax from 'src/api/externalPortal';
-import _ from 'lodash';
-import { saveAs } from 'file-saver';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import { saveAs } from 'file-saver';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import * as actions from '../redux/actions';
 
 const Wrap = styled.div`
   .listCon {
@@ -19,7 +19,7 @@ const Wrap = styled.div`
   }
   .down,
   .uploadUser {
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1e88e5 !important;
     }
@@ -42,7 +42,7 @@ function AddUserDialog(props) {
         appId,
         isSendMsgs,
       })
-      .then(res => {
+      .then(() => {
         changeIsSendMsgs(isSendMsgs);
         externalPortalAjax
           .importExAccounts({
@@ -149,7 +149,7 @@ function AddUserDialog(props) {
                 </span>
               }
               checked={isSendMsgs}
-              onClick={checked => {
+              onClick={() => {
                 setIsSend(!isSendMsgs);
               }}
             />
@@ -164,7 +164,7 @@ function AddUserDialog(props) {
                 },
                 max_file_size: '4m',
               }}
-              onAdd={(up, files) => {
+              onAdd={up => {
                 if (loading) return;
                 setLoading(true);
                 up.disableBrowse();
@@ -172,7 +172,7 @@ function AddUserDialog(props) {
               onBeforeUpload={(up, file) => {
                 setState({ file });
               }}
-              onUploaded={(up, file, response) => {
+              onUploaded={(up, file) => {
                 up.disableBrowse(false);
                 setLoading(false);
                 setState({

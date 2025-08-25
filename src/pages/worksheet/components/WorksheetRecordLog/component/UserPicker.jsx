@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { Checkbox, Icon, Avatar } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Avatar, Checkbox, Icon } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
 import { isUser } from '../util';
 
 const UserPickerWrapper = styled.div`
@@ -151,11 +151,11 @@ export default function UserPicker(props) {
           {selectUsers.length > 1
             ? selectUsers.length + _l('项')
             : selectUsers.length === 1
-            ? selectUsers[0].fullname
-            : _l('操作者')}
+              ? selectUsers[0].fullname
+              : _l('操作者')}
         </span>
-        <Icon icon="arrow-down" style={!!selectUsers.length ? {} : { display: 'inline-block' }} />
-        {!!selectUsers.length && <Icon onClick={clearSelectUser} icon="cancel1" />}
+        <Icon icon="arrow-down" style={selectUsers.length ? {} : { display: 'inline-block' }} />
+        {!!selectUsers.length && <Icon onClick={clearSelectUser} icon="cancel" />}
       </span>
     </Trigger>
   );

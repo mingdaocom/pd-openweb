@@ -1,7 +1,7 @@
-﻿import kcAjax from 'src/api/kc';
-import chatController from 'src/api/chat';
-import kcService from '../../../api/service';
+﻿import kcService from '../../../api/service';
 import attachmentAjax from 'src/api/attachment';
+import chatController from 'src/api/chat';
+import kcAjax from 'src/api/kc';
 
 const rejectErr = function (ajaxPromise) {
   return new Promise((resolve, reject) => {
@@ -67,7 +67,7 @@ export function fetchViewUrl(attachment) {
           resolve(attachment);
         }
       })
-      .catch(error => {
+      .catch(() => {
         reject('获取预览链接失败');
       });
   });

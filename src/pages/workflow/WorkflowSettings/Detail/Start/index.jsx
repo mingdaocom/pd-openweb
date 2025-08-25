@@ -1,24 +1,24 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dialog, LoadDiv } from 'ming-ui';
 import cx from 'classnames';
-import { APP_TYPE, DATE_TYPE, TRIGGER_ID } from '../../enum';
+import _ from 'lodash';
+import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { checkConditionsIsNull, getIcons, getStartNodeColor, checkJSON, clearFlowNodeMapParameter } from '../../utils';
-import { DetailHeader, DetailFooter } from '../components';
-import LoopContent from './LoopContent';
-import WebhookContent from './WebhookContent';
+import { APP_TYPE, DATE_TYPE, TRIGGER_ID } from '../../enum';
+import { checkConditionsIsNull, checkJSON, clearFlowNodeMapParameter, getIcons, getStartNodeColor } from '../../utils';
+import { DetailFooter, DetailHeader } from '../components';
+import ApprovalProcess from './ApprovalProcess';
 import CustomAction from './CustomAction';
+import DateContent from './DateContent';
+import DiscussContent from './DiscussContent';
+import LoopContent from './LoopContent';
+import LoopProcessContent from './LoopProcessContent';
+import PBCContent from './PBCContent';
 import SubProcess from './SubProcess';
 import UserAndDepartment from './UserAndDepartment';
+import WebhookContent from './WebhookContent';
 import WorksheetContent from './WorksheetContent';
-import DateContent from './DateContent';
-import PBCContent from './PBCContent';
-import DiscussContent from './DiscussContent';
-import ApprovalProcess from './ApprovalProcess';
-import LoopProcessContent from './LoopProcessContent';
-import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
-import moment from 'moment';
 
 const START_NODE_EXECUTE_DATE_TYPE = 16;
 
@@ -35,7 +35,7 @@ export default class Start extends Component {
     this.getNodeDetail();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (
       nextProps.selectNodeName &&
       nextProps.selectNodeName !== this.props.selectNodeName &&
@@ -399,7 +399,7 @@ export default class Start extends Component {
           bg={flowInfo.child ? 'BGBlueAsh' : getStartNodeColor(data.appType, data.triggerId)}
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             {flowInfo.child ? (
               <SubProcess data={data} updateSource={this.updateSource} />

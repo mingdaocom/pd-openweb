@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import ControlContent from './ControlContent';
 
 export default function Control(props) {
@@ -14,13 +15,15 @@ export default function Control(props) {
 
   useEffect(() => {
     setLoading(true);
-    sheetApi.getWorksheetInfo({
-      worksheetId: selectNode.workSheetId,
-      getTemplate: true
-    }).then(data => {
-      setLoading(false);
-      setSheetInfo(data);
-    });
+    sheetApi
+      .getWorksheetInfo({
+        worksheetId: selectNode.workSheetId,
+        getTemplate: true,
+      })
+      .then(data => {
+        setLoading(false);
+        setSheetInfo(data);
+      });
   }, [selectNode.key]);
 
   if (loading) {
@@ -35,11 +38,15 @@ export default function Control(props) {
     const el = document.querySelector(`.navItem-${c.controlId}`);
     const className = 'highlight';
     const highlightEl = el.querySelector('.itemName');
-    $(highlightEl).addClass(className).on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
-      $(this).removeClass(className);
-    });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
-  }
+    $(highlightEl)
+      .addClass(className)
+      .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+        $(this).removeClass(className);
+      });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
+  };
 
   const { template = {} } = sheetInfo;
   const controls = (template.controls || []).filter(c => !ALL_SYS.includes(c.controlId));
@@ -57,7 +64,7 @@ export default function Control(props) {
         <span className="mLeft5 Font13 ellipsis">{translateInfo.name || c.controlName}</span>
       </div>
     );
-  }
+  };
 
   return (
     <div className="flexRow pAll10 h100">
@@ -68,21 +75,17 @@ export default function Control(props) {
             placeholder={_l('字段')}
             className="flex"
             value={searchValue}
-            onChange={(e) => {
+            onChange={e => {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
         </div>
         <ScrollView className="flex">
-          {controls.filter(c => c.controlName.includes(searchValue)).map(c => (
-            renderControlNav(c)
-          ))}
+          {controls.filter(c => c.controlName.includes(searchValue)).map(c => renderControlNav(c))}
         </ScrollView>
       </div>
-      <ScrollView className="flex" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">
           {controls.map(c => (
             <ControlContent

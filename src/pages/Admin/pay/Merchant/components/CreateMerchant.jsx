@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
-import CreateJxqfMerchant from './CreateJxqfMerchant';
-import CreateWechatOrAliMerchant from './CreateWechatOrAliMerchant';
-import { PAY_CHANNEL } from '../../config';
 import cx from 'classnames';
 import _ from 'lodash';
-import './createMerchant.less';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { PAY_CHANNEL } from '../../config';
 import jxqfImg from '../../images/jxqf.png';
+import CreateJxqfMerchant from './CreateJxqfMerchant';
+import CreateWechatOrAliMerchant from './CreateWechatOrAliMerchant';
+import './createMerchant.less';
 
 const Header = styled.div`
   .icon-backspace {

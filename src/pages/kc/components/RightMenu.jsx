@@ -1,17 +1,15 @@
 /* 右键菜单项*/
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Icon from 'ming-ui/components/Icon';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import Icon from 'ming-ui/components/Icon';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { NODE_TYPE, NODE_STATUS, NODE_OPERATOR_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
-
+import { NODE_OPERATOR_TYPE, NODE_STATUS, NODE_TYPE, NODE_VIEW_TYPE } from '../constant/enum';
 import UploadNewVersion from './UploadNewVersion';
-import _ from 'lodash';
 
 @withClickAway
 export default class RightMenu extends React.Component {
@@ -94,7 +92,7 @@ export default class RightMenu extends React.Component {
           style={{ left: this.state.clientX, top: this.state.clientY }}
           onClick={props.onClickAway}
         >
-          <MenuItem icon={<Icon icon="task-new-delete" />} onClick={() => props.removeNode(NODE_STATUS.DELETED)}>
+          <MenuItem icon={<Icon icon="trash" />} onClick={() => props.removeNode(NODE_STATUS.DELETED)}>
             {_l('彻底删除')}
           </MenuItem>
           <MenuItem icon={<Icon icon="rotate" />} onClick={props.restoreNode}>
@@ -111,7 +109,7 @@ export default class RightMenu extends React.Component {
           onClick={props.onClickAway}
         >
           <MenuItem
-            icon={<Icon icon="kc-view" />}
+            icon={<Icon icon="zoom_in2" />}
             className={cx({ hide: isFolder || isMulti })}
             onClick={evt => props.handlePreview(item, evt)}
           >
@@ -125,7 +123,7 @@ export default class RightMenu extends React.Component {
             打开
           </MenuItem>
           {!isFolder && !isMulti && isUrl && canEdit && (
-            <MenuItem icon={<Icon icon="edit" />} onClick={evt => props.onAddLinkFile(true, item)}>
+            <MenuItem icon={<Icon icon="edit" />} onClick={() => props.onAddLinkFile(true, item)}>
               编辑
             </MenuItem>
           )}
@@ -184,11 +182,11 @@ export default class RightMenu extends React.Component {
             </MenuItem>
           )}
           {(isAdmin || (isCreateUser && canEdit) || isMulti) && (
-            <MenuItem icon={<Icon icon="task-new-delete" />} onClick={() => props.removeNode(NODE_STATUS.RECYCLED)}>
+            <MenuItem icon={<Icon icon="trash" />} onClick={() => props.removeNode(NODE_STATUS.RECYCLED)}>
               {_l('删除')}
             </MenuItem>
           )}
-          <MenuItem icon={<Icon icon="knowledge-message" />} onClick={props.showDetail}>
+          <MenuItem icon={<Icon icon="info" />} onClick={props.showDetail}>
             {_l('属性')}
           </MenuItem>
         </Menu>

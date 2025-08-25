@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Dialog } from 'ming-ui';
 import { isEmpty } from 'lodash';
+import { Dialog } from 'ming-ui';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { getAdvanceSetting } from '../../../util/setting';

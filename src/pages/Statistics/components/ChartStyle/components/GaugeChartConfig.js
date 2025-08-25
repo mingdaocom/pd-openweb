@@ -1,23 +1,28 @@
-import React, { Component, Fragment, useState } from 'react';
+import React, { useState } from 'react';
+import { Button, Checkbox, Collapse, ConfigProvider, Input, Modal, Radio, Switch, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Icon, ColorPicker } from 'ming-ui';
-import { ConfigProvider, Button, Modal, Collapse, Switch, Radio, Input, Checkbox, Tooltip } from 'antd';
-import RuleColor from './Color/RuleColor';
+import _ from 'lodash';
+import { ColorPicker, Icon } from 'ming-ui';
 import { getChartColors } from 'statistics/Charts/common';
-import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 import { replaceColor } from 'statistics/Charts/GaugeChart';
+import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
+import RuleColor from './Color/RuleColor';
 
 const colors = SYS_CHART_COLORS[0].colors;
-const bisectSectionColors = [{
-  value: 100,
-  color: colors[0]
-}, {
-  value: 66,
-  color: colors[1]
-}, {
-  value: 33,
-  color: colors[2]
-}];
+const bisectSectionColors = [
+  {
+    value: 100,
+    color: colors[0],
+  },
+  {
+    value: 66,
+    color: colors[1],
+  },
+  {
+    value: 33,
+    color: colors[2],
+  },
+];
 
 const defaultSectionColorConfig = {
   type: 1,
@@ -29,18 +34,21 @@ const defaultSectionColorConfig = {
 const getSection = (value, isFloor) => {
   const n = 100 / value;
   const result = [];
-  for(let i = 0; i < value; i++) {
+  for (let i = 0; i < value; i++) {
     if (i) {
       const v = n * i;
       result.push(isFloor ? Math.floor(v) : Number(v.toFixed(2)));
     }
   }
-  return result.concat(100).reverse().map(n => {
-    return {
-      value: n,
-    }
-  });
-}
+  return result
+    .concat(100)
+    .reverse()
+    .map(n => {
+      return {
+        value: n,
+      };
+    });
+};
 
 const SectionColorConfigModal = props => {
   const { style, onChangeStyle, visible, onCancel } = props;
@@ -50,14 +58,14 @@ const SectionColorConfigModal = props => {
   const changeSectionColorConfig = config => {
     setData({
       ...data,
-      ...config
+      ...config,
     });
-  }
+  };
   const sortSectionColors = () => {
     changeSectionColorConfig({
-      sectionColors: sectionColors.sort((a, b) => b.value - a.value)
+      sectionColors: sectionColors.sort((a, b) => b.value - a.value),
     });
-  }
+  };
   return (
     <Modal
       title={_l('区间颜色')}
@@ -67,13 +75,10 @@ const SectionColorConfigModal = props => {
       centered={true}
       destroyOnClose={true}
       closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
-      footer={(
+      footer={
         <div className="mTop20 mBottom10 pRight8">
           <ConfigProvider autoInsertSpaceInButton={false}>
-            <Button
-              type="link"
-              onClick={onCancel}
-            >
+            <Button type="link" onClick={onCancel}>
               {_l('取消')}
             </Button>
             <Button
@@ -104,7 +109,7 @@ const SectionColorConfigModal = props => {
             </Button>
           </ConfigProvider>
         </div>
-      )}
+      }
       onCancel={onCancel}
     >
       <div className="Font13">
@@ -112,11 +117,11 @@ const SectionColorConfigModal = props => {
         <Radio.Group
           className="mBottom10"
           value={type}
-          onChange={(event) => {
+          onChange={event => {
             const { value } = event.target;
             const data = {
-              type: value
-            }
+              type: value,
+            };
             if (value === 1) {
               data.quantity = sectionColors.length;
               data.sectionColors = getSection(sectionColors.length, isFloor);
@@ -124,8 +129,12 @@ const SectionColorConfigModal = props => {
             changeSectionColorConfig(data);
           }}
         >
-          <Radio value={1} className="Font13 mRight60">{_l('等分区间')}</Radio>
-          <Radio value={2} className="Font13">{_l('自定义区间')}</Radio>
+          <Radio value={1} className="Font13 mRight60">
+            {_l('等分区间')}
+          </Radio>
+          <Radio value={2} className="Font13">
+            {_l('自定义区间')}
+          </Radio>
         </Radio.Group>
         {type === 1 && (
           <div className="flexRow valignWrapper mTop10 mBottom10">
@@ -153,9 +162,9 @@ const SectionColorConfigModal = props => {
                   sectionColors: newSectionColors.map((item, index) => {
                     return {
                       ...item,
-                      color: _.get(sectionColors[index], 'color') || undefined
-                    }
-                  })
+                      color: _.get(sectionColors[index], 'color') || undefined,
+                    };
+                  }),
                 });
               }}
               suffix={
@@ -174,9 +183,9 @@ const SectionColorConfigModal = props => {
                         sectionColors: newSectionColors.map((item, index) => {
                           return {
                             ...item,
-                            color: _.get(sectionColors[index], 'color') || undefined
-                          }
-                        })
+                            color: _.get(sectionColors[index], 'color') || undefined,
+                          };
+                        }),
                       });
                     }}
                   />
@@ -194,9 +203,9 @@ const SectionColorConfigModal = props => {
                         sectionColors: newSectionColors.map((item, index) => {
                           return {
                             ...item,
-                            color: _.get(sectionColors[index], 'color') || undefined
-                          }
-                        })
+                            color: _.get(sectionColors[index], 'color') || undefined,
+                          };
+                        }),
                       });
                     }}
                   />
@@ -206,11 +215,11 @@ const SectionColorConfigModal = props => {
             <Checkbox
               className="mLeft16"
               checked={isFloor}
-              onChange={(event) => {
+              onChange={event => {
                 const { checked } = event.target;
                 changeSectionColorConfig({
                   isFloor: checked,
-                  sectionColors: getSection(sectionColors.length, checked)
+                  sectionColors: getSection(sectionColors.length, checked),
                 });
               }}
             >
@@ -241,11 +250,11 @@ const SectionColorConfigModal = props => {
                     if (index === i) {
                       return {
                         ...data,
-                        value
-                      }
+                        value,
+                      };
                     }
                     return data;
-                  })
+                  }),
                 });
               }}
               onBlur={sortSectionColors}
@@ -265,17 +274,19 @@ const SectionColorConfigModal = props => {
                     if (index === i) {
                       return {
                         ...data,
-                        color: value
-                      }
+                        color: value,
+                      };
                     }
                     return data;
-                  })
+                  }),
                 });
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: data.color || colors[index % colors.length] }}>
-                </div>
+                <div
+                  className="colorBlock"
+                  style={{ backgroundColor: data.color || colors[index % colors.length] }}
+                ></div>
               </div>
             </ColorPicker>
             {type === 2 && sectionColors.length > 1 && (
@@ -285,7 +296,7 @@ const SectionColorConfigModal = props => {
                   icon="close"
                   onClick={() => {
                     changeSectionColorConfig({
-                      sectionColors: sectionColors.filter((_, i) => index !== i)
+                      sectionColors: sectionColors.filter((_, i) => index !== i),
                     });
                   }}
                 />
@@ -301,7 +312,7 @@ const SectionColorConfigModal = props => {
               changeSectionColorConfig({
                 sectionColors: sectionColors.concat({
                   value: '',
-                })
+                }),
               });
             }}
           >
@@ -312,7 +323,7 @@ const SectionColorConfigModal = props => {
       </div>
     </Modal>
   );
-}
+};
 
 const GaugeColor = props => {
   const { projectId, currentReport, onChangeStyle, onChangeDisplayValue } = props;
@@ -321,7 +332,10 @@ const GaugeColor = props => {
   const styleConfig = currentReport.style || {};
   const colors = getChartColors(styleConfig, themeColor, projectId);
   const { gaugeColor = '#64B5F6' } = currentReport.style;
-  const color = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? colors[0] : replaceColor(gaugeColor, themeColor);
+  const color =
+    chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+      ? colors[0]
+      : replaceColor(gaugeColor, themeColor);
   const { colorRules } = currentReport.displaySetup;
   const colorRule = _.get(colorRules[1], 'dataBarRule');
   const { gaugeColorType = 1, sectionColorConfig, applySectionScale } = currentReport.style;
@@ -332,19 +346,23 @@ const GaugeColor = props => {
       <Radio.Group
         className="mBottom10"
         value={gaugeColorType}
-        onChange={(event) => {
+        onChange={event => {
           const { value } = event.target;
           onChangeStyle({
             gaugeColorType: value,
-            applySectionScale: value === 1 ? false : applySectionScale
+            applySectionScale: value === 1 ? false : applySectionScale,
           });
           if (value === 2 && _.isEmpty(sectionColorConfig)) {
             setSectionColorModalVisible(true);
           }
         }}
       >
-        <Radio value={1} className="Font13 mRight40">{_l('进度')}</Radio>
-        <Radio value={2} className="Font13">{_l('区间颜色')}</Radio>
+        <Radio value={1} className="Font13 mRight40">
+          {_l('进度')}
+        </Radio>
+        <Radio value={2} className="Font13">
+          {_l('区间颜色')}
+        </Radio>
       </Radio.Group>
       {gaugeColorType === 1 && (
         <div className="flexRow valignWrapper">
@@ -365,8 +383,7 @@ const GaugeColor = props => {
               }}
             >
               <div className="colorWrap pointer">
-                <div className="colorBlock" style={{ backgroundColor: color }}>
-                </div>
+                <div className="colorBlock" style={{ backgroundColor: color }}></div>
               </div>
             </ColorPicker>
           )}
@@ -382,11 +399,11 @@ const GaugeColor = props => {
             <div
               className="entranceWrap ruleIcon flexRow valignWrapper pointer"
               onClick={() => {
-                const newColorRules = colorRules.map((item, index) => index === 1 ? {} : item);
+                const newColorRules = colorRules.map((item, index) => (index === 1 ? {} : item));
                 onChangeDisplayValue('colorRules', newColorRules);
               }}
             >
-              <Icon className="Font16 Gray_9e" icon="delete2" />
+              <Icon className="Font16 Gray_9e" icon="trash" />
             </div>
           )}
         </div>
@@ -406,11 +423,11 @@ const GaugeColor = props => {
         yaxisList={currentReport.yaxisList}
         reportType={currentReport.reportType}
         colorRule={colorRule || {}}
-        onSave={(data) => {
+        onSave={data => {
           const rule = {
             controlId: '',
-            dataBarRule: data
-          }
+            dataBarRule: data,
+          };
           if (colorRules.length) {
             onChangeDisplayValue('colorRules', [colorRules[0], rule]);
           } else {
@@ -428,16 +445,11 @@ const GaugeColor = props => {
       />
     </div>
   );
-}
+};
 
 export function gaugeColorPanelGenerator(props) {
-  const { currentReport, onChangeStyle, onChangeDisplayValue, ...collapseProps } = props;
   return (
-    <Collapse.Panel
-      key="gaugeColor"
-      header={_l('仪表盘')}
-      {...props}
-    >
+    <Collapse.Panel key="gaugeColor" header={_l('仪表盘')} {...props}>
       <GaugeColor {...props} />
     </Collapse.Panel>
   );
@@ -509,7 +521,6 @@ export function scalePanelGenerator(props) {
   );
 }
 
-
 export function indicatorPanelGenerator(props) {
   const { currentReport, onChangeStyle, ...collapseProps } = props;
   const { style } = currentReport;
@@ -532,7 +543,6 @@ export function indicatorPanelGenerator(props) {
           }}
         />
       }
-    >
-    </Collapse.Panel>
+    ></Collapse.Panel>
   );
 }

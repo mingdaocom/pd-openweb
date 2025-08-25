@@ -62,7 +62,9 @@ export default class Widgets extends Component {
         const newRecords = nextData.map(item => JSON.parse(item.sourcevalue));
         this.cardsComp.current.table.clearAndAdd(newRecords);
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   shouldComponentUpdate(nextProps) {
@@ -78,12 +80,13 @@ export default class Widgets extends Component {
       typeof value === 'string' &&
       value.indexOf('deleteRowIds') > -1
     ) {
-      return;
+      return [];
     }
     let data = [];
     try {
       data = JSON.parse(value);
     } catch (err) {
+      console.log(err);
       return [];
     }
     if (!_.isObject(data)) {
@@ -98,7 +101,9 @@ export default class Widgets extends Component {
     let data = [];
     try {
       data = value.map(r => (r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name }));
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     return data;
   }
 
@@ -165,6 +170,7 @@ export default class Widgets extends Component {
     if (showtype === RELATE_RECORD_SHOW_TYPE.TABLE) {
       return (
         <RelateRecordTable
+          allowEdit={!disabled}
           saveSync={false}
           instanceId={instanceId}
           workId={workId}

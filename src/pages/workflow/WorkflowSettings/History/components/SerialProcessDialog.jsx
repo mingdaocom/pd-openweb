@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, Support, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
+import { Dialog, LoadDiv, Support } from 'ming-ui';
 import activityAJAX from '../../../api/activity';
-import _ from 'lodash';
 import emptyListPng from '../images/emptyList.png';
 
 const DialogWarp = styled(Dialog)`
@@ -133,7 +133,7 @@ export default ({ processId, onClose = () => {} }) => {
               <div className="w150 mLeft16 bold flexRow alignItemsCenter">
                 <i
                   className="icon-play-circle Font24 mRight6"
-                  style={{ color: item.createDate ? '#2196F3' : '#00BCD7' }}
+                  style={{ color: item.createDate ? '#1677ff' : '#00BCD7' }}
                 />
                 {item.createDate ? _l('运行中') : _l('等待中')}
               </div>

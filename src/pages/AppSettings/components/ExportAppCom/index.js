@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView, Tooltip, UserHead, UserName } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import ExportApp from 'src/pages/Admin/app/appManagement/modules/ExportApp';
@@ -36,7 +37,7 @@ export default class ExportAppCom extends Component {
         pageIndex,
         pageSize: 50,
       })
-      .then(({ records, total }) => {
+      .then(({ records }) => {
         this.setState({
           records: pageIndex > 1 ? this.state.records.concat(records) : records,
           loading: false,
@@ -104,7 +105,6 @@ export default class ExportAppCom extends Component {
       exportPassword,
       lockPassword,
     } = item;
-    const { records } = this.state;
     const hasPassword = passwordType === 'exportPassword' ? hasExportPassword : hasLockPassword;
     const showPassword = passwordType === 'exportPassword' ? show_exportPassword : show_lockPassword;
     const password = passwordType === 'exportPassword' ? exportPassword : lockPassword;
@@ -168,7 +168,7 @@ export default class ExportAppCom extends Component {
             <LoadDiv />
           </div>
         ) : (
-          <div className="exportAppListWrap flexColumn flex">
+          <div className="exportAppListWrap flexColumn flex overflowHidden">
             <div className="row headerRow flexRow Gray_9e Font14">
               <div className="operator">{_l('操作人')}</div>
               <div className="date">{_l('导出时间')}</div>
@@ -177,7 +177,7 @@ export default class ExportAppCom extends Component {
               <div className="password">{_l('应用锁密码')}</div>
               <div className="download"></div>
             </div>
-            <div className="flex listContent">
+            <div className="flex listContent overflowHidden">
               {_.isEmpty(records) ? (
                 <EmptyStatus
                   radiusSize={132}
@@ -187,7 +187,7 @@ export default class ExportAppCom extends Component {
                   emptyTxt={_l('暂无导出记录')}
                 />
               ) : (
-                <ScrollView onScrollEnd={this.onScrollEnd}>
+                <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
                   {records.map(item => {
                     const { operator = {}, createTime, apps = [], downLoadUrl } = item;
                     const appNames = apps.map((v, i) => (i < apps.length - 1 ? v.appName + ';' : v.appName)).join('');

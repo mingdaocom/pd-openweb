@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Menu, MenuItem, VCenterIconText } from 'ming-ui';
 import IconText from 'worksheet/components/IconText';
-import styled from 'styled-components';
 
 const Con = styled.div`
   display: inline-block;

@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { pageSize, initData } from '../UserCon/config';
+import { initData } from '../UserCon/config';
 
 export const loading = (state = false, action) => {
   switch (action.type) {

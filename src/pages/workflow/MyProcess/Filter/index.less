@@ -1,4 +1,3 @@
-
 .processFilterDrawerWrapper {
   width: 280px;
   height: 100%;
@@ -7,7 +6,9 @@
   margin-right: 20px;
   opacity: 0;
   margin-left: -280px;
-  transition: opacity 0.3s, margin-left 0.3s 0.1s;
+  transition:
+    opacity 0.3s,
+    margin-left 0.3s 0.1s;
   .ant-drawer-content-wrapper {
     box-shadow: none !important;
   }
@@ -27,21 +28,21 @@
     height: 100%;
     background-color: #fff;
     border-radius: 3px;
-    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.16);
+    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.16);
   }
   .header {
     height: 43px;
     padding: 0 16px;
-    border-bottom: 1px solid #EAEAEA;
+    border-bottom: 1px solid #eaeaea;
     .reset {
-      color: #2196f3e6;
+      color: #1677ffe6;
       margin: 0 20px;
       &:hover {
-        color: #2196F3 !important;
+        color: #1677ff !important;
       }
     }
     .icon-close:hover {
-      color: #2196F3 !important;
+      color: #1677ff !important;
     }
   }
   .filterContent {
@@ -66,10 +67,11 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     &.active {
-      border-color: #2196F3 !important;
+      border-color: #1677ff !important;
     }
   }
-  .inputWrapper, .dateInput {
+  .inputWrapper,
+  .dateInput {
     input::placeholder {
       color: #bdbdbd;
     }
@@ -82,7 +84,7 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       &:focus {
-        border-color: #2196F3;
+        border-color: #1677ff;
       }
     }
     .icon-close {
@@ -90,7 +92,7 @@
       right: 26px;
       top: 7px;
       &:hover {
-        color: #2196F3 !important;
+        color: #1677ff !important;
       }
     }
     .icon-search {
@@ -99,12 +101,14 @@
     }
   }
   .todoListFilter {
-    border-top: 1px solid #EAEAEA;
+    border-top: 1px solid #eaeaea;
     padding-top: 16px;
   }
   .selectWrapper {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector, &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      border-color: #2196F3 !important;
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
+      .ant-select-selector {
+      border-color: #1677ff !important;
     }
     .ant-select-selector {
       border-radius: 4px;
@@ -118,7 +122,8 @@
     .ant-select-selection-placeholder {
       font-size: 13px;
     }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
+    .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
       opacity: 1;
       font-size: 13px;
     }
@@ -133,10 +138,13 @@
         height: 30px;
       }
     }
-    &.ant-input-affix-wrapper:hover, &:hover {
-      border-color: #2196F3 !important;
+    &.ant-input-affix-wrapper:hover,
+    &:hover {
+      border-color: #1677ff !important;
     }
-    &.ant-input-affix-wrapper, &.ant-input-affix-wrapper-focused, & {
+    &.ant-input-affix-wrapper,
+    &.ant-input-affix-wrapper-focused,
+    & {
       border-radius: 4px !important;
       box-shadow: none !important;
     }
@@ -149,7 +157,8 @@
       border-left: 1px solid #d9d9d9;
       background-color: #fff;
     }
-    .icon-expand_less, .icon-expand_more {
+    .icon-expand_less,
+    .icon-expand_more {
       line-height: 10px;
     }
     &.ant-picker-range .ant-picker-input > input {
@@ -181,7 +190,7 @@
       padding: 10px 8px;
       border-radius: 4px;
       &:hover {
-        background-color: #F7F7F7;
+        background-color: #f7f7f7;
       }
       &.active {
         background-color: #2094f31a;
@@ -193,7 +202,7 @@
     margin-left: 24px;
     border-radius: 4px;
     &:hover {
-      background-color: #F7F7F7;
+      background-color: #f7f7f7;
     }
     &.active {
       background-color: #2094f31a;
@@ -207,7 +216,7 @@
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
     color: #fff;
-    background-color: #2196F3;
+    background-color: #1677ff;
     .icon {
       color: #fff !important;
     }
@@ -215,5 +224,5 @@
 }
 
 .processFilterTarget:hover {
-  color: #2196F3 !important;
+  color: #1677ff !important;
 }

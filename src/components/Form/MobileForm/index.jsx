@@ -51,7 +51,6 @@ const CustomFormItemControlWrap = styled.div`
 const MobileForm = props => {
   const {
     from,
-    disabled,
     widgetStyle = {},
     ignoreSection,
     tabControlProp = {},
@@ -62,6 +61,7 @@ const MobileForm = props => {
     renderFormItem,
     renderVerifyCode,
     triggerCustomEvent,
+    setLoadingInfo,
   } = props;
   const { otherTabs = [] } = tabControlProp;
   const { dispatch } = useFormStore();
@@ -85,6 +85,7 @@ const MobileForm = props => {
       errorItems,
       uniqueErrorItems,
       loadingItems,
+      updateErrorState,
     } = props;
     const { instanceId, workId } = mobileApprovalRecordInfo;
     const { titlelayout_app = '1' } = widgetStyle;
@@ -148,6 +149,7 @@ const MobileForm = props => {
               widgetStyle={{ ...widgetStyle, displayRow, ...hideTitleStyle }}
               disabled={disabled}
               formDisabled={item.disabled}
+              updateErrorState={updateErrorState}
               handleChange={handleChange}
             />
           )}
@@ -164,6 +166,7 @@ const MobileForm = props => {
                 richTextControlCount,
                 isDraft: isDraft || from === FROM.DRAFT,
                 ...(item.type === 22 ? { setNavVisible } : {}),
+                setLoadingInfo,
               }),
               widgets,
             )}

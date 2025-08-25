@@ -29,7 +29,7 @@ export const WrapCom = styled.div`
         position: absolute;
         left: 0;
         top: 0;
-        background: #2196f3;
+        background: #1677ff;
         animation-name: fadeMove;
         animation-duration: 1s;
         animation-timing-function: ease-in-out;
@@ -63,7 +63,7 @@ export const WrapCom = styled.div`
             display: block;
             width: 8px;
             height: 3px;
-            background: #2196f3;
+            background: #1677ff;
             margin-top: 12px;
           }
         }

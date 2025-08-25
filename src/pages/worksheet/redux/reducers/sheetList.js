@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import update from 'immutability-helper';
 
 function data(state = [], action) {
   switch (action.type) {
@@ -95,5 +94,5 @@ export default combineReducers({
   isUnfold,
   guidanceVisible,
   isValidAppSectionId,
-  appPkgData
+  appPkgData,
 });

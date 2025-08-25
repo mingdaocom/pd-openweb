@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter } from '../components';
-import { ACTION_ID } from '../../enum';
 import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { ACTION_ID } from '../../enum';
+import { DetailFooter, DetailHeader } from '../components';
 
 export default class Example extends Component {
   constructor(props) {
@@ -18,7 +18,7 @@ export default class Example extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -102,7 +102,7 @@ export default class Example extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">内容</div>
           </ScrollView>

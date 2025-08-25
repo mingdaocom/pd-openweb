@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
-import _ from 'lodash';
-import styled from 'styled-components';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 
 const OPTIONS = [
@@ -89,7 +88,7 @@ function OperatePicker(props) {
         <Icon icon="ads_click" />
         <span className="selectConText">{selected ? selected.label : _l('操作')}</span>
         <Icon icon="arrow-down" style={selected ? {} : { display: 'inline-block' }} />
-        {selected && <Icon icon="cancel1" onClick={onClear} />}
+        {selected && <Icon icon="cancel" onClick={onClear} />}
       </OperateWrap>
     </Trigger>
   );

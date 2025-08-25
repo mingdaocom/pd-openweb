@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { SettingItem, DisplayMode } from '../../styled';
-import cx from 'classnames';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
 import img from 'staticfiles/images/markdown.png';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { DisplayMode, SettingItem } from '../../styled';
 import '../../styled/style.less';
 
 const DISPLAY_OPTIONS = [
@@ -69,6 +69,7 @@ export default function Text(props) {
           {DISPLAY_OPTIONS.map(item => {
             return (
               <Tooltip
+                autoCloseDelay={0}
                 title={item.value === 3 ? <MarkdownTips /> : ''}
                 placement="bottomRight"
                 overlayClassName="textMarkdownTipsContainer"

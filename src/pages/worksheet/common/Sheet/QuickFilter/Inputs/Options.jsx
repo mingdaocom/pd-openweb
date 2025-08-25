@@ -1,11 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { arrayOf, func, number, shape, string } from 'prop-types';
-import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
-import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
-import Option from './StyledOption';
 import _, { filter, find } from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
+import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
+import Option from './StyledOption';
 
 const Con = styled.div`
   position: relative;
@@ -33,7 +33,7 @@ const Con = styled.div`
       }
     }
     &.ant-select-open {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
     }
     &.customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
       background-color: transparent !important;
@@ -95,18 +95,8 @@ const Con = styled.div`
 
 const FullLineCon = styled.div`
   position: relative;
-`;
-
-const Selected = styled.div`
-  position: absolute;
-  background: #fff;
-  left: 10px;
-  top: 1px;
-  font-size: 13px;
-  z-index: 2;
-  min-height: 30px;
-  width: calc(100% - 40px);
-  pointer-events: none;
+  display: flex;
+  flex-wrap: wrap;
 `;
 
 function pickOptions(options, navfilters) {
@@ -114,11 +104,12 @@ function pickOptions(options, navfilters) {
     const pickIds = JSON.parse(navfilters);
     return pickIds.map(pickId => _.find(options, { key: pickId })).filter(_.identity);
   } catch (err) {
+    console.log(err);
     return options;
   }
 }
 export default function Options(props) {
-  const { filterType, isMultiple, control, advancedSetting = {}, onChange = () => {} } = props;
+  const { control, advancedSetting = {}, onChange = () => {} } = props;
   const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
   if (String(navshow) === '2') {
@@ -176,7 +167,7 @@ export default function Options(props) {
           fromFilter
           {...{
             ...control,
-            advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1' },
+            advancedSetting: { ...control.advancedSetting, allowadd: '0', showtype: '1', chooseothertype: '0' },
             options: options.map(o => {
               return { ...o, hide: false }; //视图 快速筛选不隐藏选项
             }),
@@ -201,7 +192,7 @@ export default function Options(props) {
         <Checkbox
           {...{
             ...control,
-            advancedSetting: { ...control.advancedSetting, checktype: '1' },
+            advancedSetting: { ...control.advancedSetting, checktype: '1', chooseothertype: '0' },
             options: options.map(o => {
               return { ...o, hide: false }; //视图 快速筛选不隐藏选项
             }),
@@ -212,7 +203,11 @@ export default function Options(props) {
           dropdownClassName="scrollInTable withIsEmpty"
           value={JSON.stringify(values)}
           onChange={newValue => {
-            handleChange({ values: JSON.parse(newValue) });
+            let parsedValue = JSON.parse(newValue);
+            if (parsedValue.length > 1) {
+              parsedValue = parsedValue.filter(v => v !== 'isEmpty');
+            }
+            handleChange({ values: parsedValue });
           }}
         />
       </Con>

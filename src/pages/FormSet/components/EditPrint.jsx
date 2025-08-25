@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Button, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
@@ -62,7 +63,7 @@ class EditPrint extends React.Component {
     this.setData();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (
       nextProps.templateId !== this.props.templateId ||
       nextProps.fileType !== this.props.fileType ||
@@ -73,7 +74,7 @@ class EditPrint extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate() {
     if (!this.state.bindCreateUpload) {
       this.createUploader(this.props.fileType);
     }
@@ -139,7 +140,7 @@ class EditPrint extends React.Component {
       type: 33,
       init: {
         BeforeUpload: (up, file) => {
-          if (RegExpValidator.getExtOfFileName(file.name) != SUFFIX[fileType]) {
+          if (RegExpValidator.getExtOfFileName(file.name).toLocaleLowerCase() !== SUFFIX[fileType]) {
             alert(_l('上传失败，文件错误'), 3, 1000);
             return false;
           }
@@ -153,7 +154,7 @@ class EditPrint extends React.Component {
             error: false,
           });
         },
-        FilesAdded: (up, file) => {
+        FilesAdded: up => {
           up.setOption('auto_start', true);
           up.disableBrowse();
         },
@@ -425,11 +426,13 @@ class EditPrint extends React.Component {
 
     return (
       <div className="editPrint upload flexColumn h100">
-        <h5 className="tempTitle overflow_ellipsis">
-          {templateId && !isCreate ? _l('编辑模板: %0', _.get(templateData, 'name')) : _l('新建模板')}
+        <h5 className="tempTitle flexRow alignItemsCenter">
+          <span className="flex overflow_ellipsis">
+            {templateId && !isCreate ? _l('编辑模板: %0', _.get(templateData, 'name')) : _l('新建模板')}
+          </span>
           <Icon
-            icon="clear_1"
-            className="closeBtnN"
+            icon="close"
+            className="mLeft10 Gray_9e ThemeHoverColor3 Hand"
             onClick={() => {
               onClose();
             }}

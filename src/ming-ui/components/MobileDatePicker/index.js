@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-mobile-datepicker';
-import PropTypes from 'prop-types';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import './index.less';
 
 const getDate = (date, minuteStep) => {
@@ -14,9 +14,6 @@ const getDate = (date, minuteStep) => {
   }
   return date;
 };
-
-const getMInute = date => moment(date).minute();
-const getSecond = date => moment(date).second();
 
 export default function MobileDatePicker(props) {
   const {

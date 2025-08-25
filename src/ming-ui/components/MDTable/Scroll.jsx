@@ -133,7 +133,7 @@ export default class extends React.Component {
     }
   };
 
-  documentMouseup = e => {
+  documentMouseup = () => {
     this.lastY = 0;
     this.lastX = 0;
     this.verdown = false;

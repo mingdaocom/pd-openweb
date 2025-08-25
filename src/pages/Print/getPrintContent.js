@@ -24,6 +24,7 @@ const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') 
   try {
     attachments = JSON.parse(value);
   } catch (err) {
+    console.log(err);
     return <span className="mBottom5 InlineBlock" dangerouslySetInnerHTML={{ __html: '&nbsp;' }}></span>;
   }
 
@@ -145,8 +146,8 @@ const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') 
   sourceControlType: 他表字段type
   valueItem: 他表字段valueItem；[valueItem, valueItem]
   */
-const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) => {
-  let value = sourceControlType ? valueItem : item.value;
+const getPrintContent = (item, sourceControlType, valueItem) => {
+  let value = !_.isUndefined(sourceControlType) ? valueItem : item.value;
   let type = sourceControlType || item.type;
   let printOption = item.printOption;
   let dataItem = {
@@ -216,6 +217,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         try {
           records = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           return null;
         }
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
@@ -267,7 +269,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         return _.isArray(records) && records.length > 0 ? (
           <table className="relaList" style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
             <tbody>
-              {records.map((da, i) => {
+              {records.map(da => {
                 let data = da;
                 let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
@@ -376,7 +378,9 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         let records = [];
         try {
           records = JSON.parse(value);
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || {};
 
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
@@ -453,7 +457,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         return _.isArray(records) && records.length > 0 ? (
           <table className="relaList" style={STYLE_PRINT.table} border="0" cellPadding="0" cellSpacing="0">
             <tbody>
-              {records.map((da, i) => {
+              {records.map(da => {
                 let data = JSON.parse(da.sourcevalue || '[]');
                 let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
@@ -582,7 +586,7 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
     }
     case 47: {
       let barCodeData = { ...dataItem, formData: dataItem.allControls || dataItem.controls };
-      const { enumDefault, enumDefault2, dataSource, recordId, appId, worksheetId, viewIdForPermit, viewId, isView } =
+      const { enumDefault, enumDefault2, dataSource, recordId, appId, worksheetId, viewIdForPermit, viewId } =
         barCodeData;
 
       if (
@@ -624,7 +628,9 @@ const getPrintContent = (item, sourceControlType, valueItem, relationItemKey) =>
         let selectedKeys = [];
         try {
           selectedKeys = JSON.parse(dataItem.value);
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         return dataItem.options
           .filter(l => !l.isDeleted)
           .map(o => {

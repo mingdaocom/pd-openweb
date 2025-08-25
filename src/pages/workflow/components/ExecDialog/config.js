@@ -3,8 +3,8 @@ export const ACTION_TYPES = {
     id: 'default',
     icon: {
       1: 'table',
-      5: 'hr_surplus',
-      6: 'hr_time',
+      5: 'access_alarm',
+      6: 'task_custom_today',
       7: 'workflow_webhook',
     },
   },
@@ -18,13 +18,13 @@ export const ACTION_TYPES = {
   },
   5: {
     id: 'notice',
-    icon: 'workflow_notice',
+    icon: 'send',
   },
 };
 
 export const ACTION_LIST = {
   3: { id: 'revoke', text: _l('撤回'), icon: 'repeal-o', sort: 3 },
-  4: { id: 'pass', text: _l('同意'), icon: 'done_2', sort: 1 },
+  4: { id: 'pass', text: _l('同意'), icon: 'done', sort: 1 },
   5: { id: 'overrule', text: _l('拒绝'), icon: 'clear', sort: 2 },
   6: { id: 'transferApprove', text: _l('转审'), icon: 'sp_post_exchange_white', sort: 5 },
   7: { id: 'sign', text: _l('加签'), icon: 'person_add', sort: 6 },
@@ -38,14 +38,14 @@ export const ACTION_LIST = {
 
 export const OPERATION_LIST = {
   12: { id: 'print', text: _l('打印'), icon: 'print' },
-  16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add1' },
+  16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add' },
 };
 
 export const MOBILE_OPERATION_LIST = {
   6: { id: 'transferApprove', text: _l('转审'), icon: 'swap_horiz' },
   7: { id: 'sign', text: _l('加签'), icon: 'countersign' },
   10: { id: 'transfer', text: _l('转交'), icon: 'sp_post_exchange_white' },
-  16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add1' },
+  16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add' },
   17: { id: 'return', text: _l('退回'), icon: 'repeal-o' },
   19: { id: 'taskRevoke', text: _l('撤回'), icon: 'repeal-o' },
 };

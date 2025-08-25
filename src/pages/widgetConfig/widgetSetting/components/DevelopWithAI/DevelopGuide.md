@@ -19,7 +19,7 @@ function RandomIdGenerator({ value, onChange }) {
           setId(newId);
           onChange(newId);
         }}
-        className="p-2 bg-[#2196f3] text-white rounded-full"
+        className="p-2 bg-[#1677ff] text-white rounded-full"
       >
         <LucideIcon name="RefreshCcw" size="16" />
       </button>

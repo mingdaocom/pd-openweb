@@ -57,29 +57,6 @@ const PERSON = [
     value: 1003,
   },
 ];
-// 国徽面
-const EMBLEM = [
-  {
-    text: _l('身份证国徽面'),
-    match: FILE,
-    value: 1010,
-  },
-  {
-    text: _l('发证机关'),
-    match: TEXT,
-    value: 1011,
-  },
-  {
-    text: _l('有效期起始日期'),
-    match: DATE,
-    value: 1012,
-  },
-  {
-    text: _l('有效期结束日期'),
-    match: DATE,
-    value: 1013,
-  },
-];
 
 const DETAIL = [
   {

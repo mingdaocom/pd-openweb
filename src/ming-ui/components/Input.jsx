@@ -61,7 +61,7 @@ class Input extends Component {
   }
 
   render() {
-    const { size, type, defaultValue, value, manualRef, ...others } = this.props;
+    const { size, type, manualRef, ...others } = this.props;
     return (
       <input
         {...others}

@@ -9,7 +9,6 @@ import { LoadDiv, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
-import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import { changeAppColor, syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import store from 'src/redux/configureStore';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
@@ -29,7 +28,7 @@ const Wrap = styled.div`
 
 const isMobile = browserIsMobile();
 
-const Entry = props => {
+const Entry = () => {
   const { hideHeader } = getRequest();
   const pathname = location.pathname.split('/');
   const id = pathname[pathname.length - 1];
@@ -45,7 +44,7 @@ const Entry = props => {
       clientId,
     }).then(async result => {
       const { data } = result;
-      const { appId, projectId, langInfo } = data;
+      const { projectId } = data;
       localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
@@ -77,7 +76,7 @@ const Entry = props => {
   }, []);
 
   const getEntityShareById = data => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
       const result = await appManagementApi.getEntityShareById({ id, sourceType: 21, ...data });
       const clientId = _.get(result, 'data.clientId');
       const { appId, projectId } = result.data;

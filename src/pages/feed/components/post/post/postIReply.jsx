@@ -2,10 +2,10 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { UserHead, UserName } from 'ming-ui';
+import postEnum from '../../../constants/postEnum';
+import PostFooter from './postFooter';
 import PostMain from './postMain';
 import PostMessage from './postMessage';
-import PostFooter from './postFooter';
-import postEnum from '../../../constants/postEnum';
 
 /**
  * 动态卡片内部内容, 包括动态、相应类型动态的附加信息、操作项、回复/标签等

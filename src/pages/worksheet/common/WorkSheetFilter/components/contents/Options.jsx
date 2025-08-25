@@ -152,7 +152,7 @@ export default class Options extends Component {
     );
   };
 
-  renderSelect = TagComp => {
+  renderSelect = () => {
     const { type, disabled, folded, control, projectId, onChange, from } = this.props;
     const { selectedOptions, search, keywords } = this.state;
     if (disabled) {
@@ -171,7 +171,7 @@ export default class Options extends Component {
             chooserange={chooserange}
             projectId={projectId}
             level={areaLevel}
-            callback={(area, level) => {
+            callback={area => {
               const last = _.last(area);
               search && this.setState({ keywords: undefined, search: '' });
               const tempItem = _.find(selectedOptions, o => o.temp);
@@ -212,6 +212,10 @@ export default class Options extends Component {
         <div
           className="filterSelectDepartment"
           onClick={e => {
+            if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+              alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+              return;
+            }
             quickSelectDept(e.target, {
               unique: selectSingle,
               projectId,
@@ -243,6 +247,10 @@ export default class Options extends Component {
         <div
           className="filterSelectDepartment"
           onClick={e => {
+            if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+              alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
+              return;
+            }
             quickSelectRole(e.target, {
               projectId,
               unique: selectSingle,

@@ -18,7 +18,6 @@ export function chartScroll(state = { on: _.noop, off: _.noop }, action) {
   }
 }
 
-
 export function loading(state = true, action) {
   switch (action.type) {
     case 'CHANGE_GUNTER_LOADINNG':
@@ -37,7 +36,10 @@ export function grouping(state = [], action) {
   }
 }
 
-export function groupingVisible(state = (localStorage.getItem('gunterGroupingVisible') === 'false' ? false : true), action) {
+export function groupingVisible(
+  state = localStorage.getItem('gunterGroupingVisible') === 'false' ? false : true,
+  action,
+) {
   switch (action.type) {
     case 'CHANGE_GUNTER_GROUPING_VISIBLE':
       return action.data;
@@ -100,7 +102,10 @@ export function editIndex(state = null, action) {
   }
 }
 
-export function withoutArrangementVisible(state = (localStorage.getItem('gunterViewWithoutArrangementVisible') === 'true' ? true : false), action) {
+export function withoutArrangementVisible(
+  state = localStorage.getItem('gunterViewWithoutArrangementVisible') === 'true' ? true : false,
+  action,
+) {
   switch (action.type) {
     case 'CHANGE_GUNTER_WITHOUT_ARRANGEMENT_VISIBLE':
       return action.data;

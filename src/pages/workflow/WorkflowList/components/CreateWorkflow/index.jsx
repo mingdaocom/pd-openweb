@@ -1,11 +1,11 @@
 import React, { Component, createRef } from 'react';
-import { string, func } from 'prop-types';
+import { func, string } from 'prop-types';
 import { Icon, Support } from 'ming-ui';
+import api from '../../../api/process';
+import appManagement from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import FullScreenCurtain from '../../../components/FullScreenCurtain';
 import { START_APP_TYPE } from '../../utils';
-import api from '../../../api/process';
-import appManagement from 'src/api/appManagement';
 import BgIcon from './BgIcon';
 import './index.less';
 

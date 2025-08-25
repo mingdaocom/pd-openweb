@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Input, Tooltip } from 'antd';
+import cx from 'classnames';
 import { Checkbox } from 'ming-ui';
-import { Tooltip, Input } from 'antd';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import AttachmentConfig from '../AttachmentConfig';
 import TextVerify from './TextVerify';
-import cx from 'classnames';
 
 export default function AttachmentVerify(props) {
   const { data, onChange } = props;
@@ -42,6 +42,7 @@ export default function AttachmentVerify(props) {
           <span style={{ marginRight: '4px' }}>{_l('限制单个文件大小')}</span>
           <Tooltip
             placement="bottom"
+            autoCloseDelay={0}
             title={
               <span>
                 {_l(

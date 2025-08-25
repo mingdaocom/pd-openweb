@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import './index.less';
-import * as utils from '../../utils';
 import Textarea from 'ming-ui/components/Textarea';
 import GroupController from 'src/api/group';
+import * as utils from '../../utils';
+import './index.less';
 
 export default class Announcement extends Component {
   constructor(props) {
@@ -38,7 +38,7 @@ export default class Announcement extends Component {
     GroupController.updateGroupAbout({
       groupId,
       groupAbout: value,
-    }).then((reuslt) => {
+    }).then(reuslt => {
       if (reuslt) {
         this.props.updateGroupAbout(value);
       }
@@ -63,13 +63,19 @@ export default class Announcement extends Component {
     );
   }
   render() {
-    const { isAdmin } = this.props.session;
     const { value, compile } = this.state;
     return (
-      <div className={cx('ChatPanel-Announcement ChatPanel-sessionInfo-item', { 'ChatPanel-Announcement-compile': compile })}>
+      <div
+        className={cx('ChatPanel-Announcement ChatPanel-sessionInfo-item', {
+          'ChatPanel-Announcement-compile': compile,
+        })}
+      >
         <div className="ChatPanel-Announcement-hander ChatPanel-sessionInfo-hander">{_l('群公告')}</div>
         <div className="ChatPanel-Announcement-body">
-          <div className="ChatPanel-Announcement-text" dangerouslySetInnerHTML={{ __html: utils.convertGroupAbout(value) }} />
+          <div
+            className="ChatPanel-Announcement-text"
+            dangerouslySetInnerHTML={{ __html: utils.convertGroupAbout(value) }}
+          />
         </div>
       </div>
     );

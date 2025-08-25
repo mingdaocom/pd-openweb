@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
@@ -65,6 +65,7 @@ export default class RecordItem extends React.PureComponent {
     try {
       coverControlData = getCoverControlData(JSON.parse(data[coverCid]) || []);
     } catch (err) {
+      console.log(err);
       return null;
     }
     return coverControlData;
@@ -81,7 +82,13 @@ export default class RecordItem extends React.PureComponent {
     const cardControls = new Array(showControls.length);
     allControls.forEach(control => {
       const indexOfShowControls = showControls.indexOf(control.controlId);
-      if (indexOfShowControls > -1 && control.attribute !== 1) {
+      if (
+        indexOfShowControls > -1 &&
+        !(
+          (control.attribute == 1 && !get(this.props, 'control.advancedSetting.showtitleid')) ||
+          get(this.props, 'control.advancedSetting.showtitleid') === control.controlId
+        )
+      ) {
         cardControls[indexOfShowControls] = control;
       }
     });
@@ -175,7 +182,7 @@ export default class RecordItem extends React.PureComponent {
         </div>
         {selected && multiple && (
           <span className={`${baseCle}-selectedIcon`}>
-            <i className="icon icon-done_2" />
+            <i className="icon icon-done" />
           </span>
         )}
       </div>

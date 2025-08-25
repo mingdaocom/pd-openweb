@@ -1,18 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { array, func, bool, string } from 'prop-types';
-import { Icon } from 'ming-ui';
-import Dropdown from '../../components/Dropdown';
-import Search from '../../components/Search';
-import { FLOW_STATUS } from './config';
-import moment from 'moment';
-import cx from 'classnames';
-import SerialProcessDialog from './components/SerialProcessDialog';
-import instanceVersionAjax from '../../api/instanceVersion';
 import { DatePicker } from 'antd';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
+import { array, bool, func, string } from 'prop-types';
+import { Icon } from 'ming-ui';
+import instanceVersionAjax from '../../api/instanceVersion';
+import Dropdown from '../../components/Dropdown';
+import Search from '../../components/Search';
+import SerialProcessDialog from './components/SerialProcessDialog';
+import { FLOW_STATUS } from './config';
 
 export default class HistoryHeader extends Component {
   static propTypes = {
@@ -83,7 +84,7 @@ export default class HistoryHeader extends Component {
 
     return (
       <div className="historyHeader">
-        {!!batchIds.length ? (
+        {batchIds.length ? (
           <Fragment>
             <div
               className={cx('historyHeaderBtn mRight15 stop', { disabled: !stopIdsCount })}

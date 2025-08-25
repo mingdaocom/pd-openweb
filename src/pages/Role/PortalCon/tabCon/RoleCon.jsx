@@ -1,14 +1,14 @@
 import React from 'react';
-import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import _ from 'lodash';
+import { Dialog, LoadDiv } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
 import externalPortalAjax from 'src/api/externalPortal';
 import RoleTem from 'src/pages/Role/component/RolePermissions';
-import { LoadDiv, Dialog } from 'ming-ui';
 import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
-import appManagementAjax from 'src/api/appManagement';
+import * as actions from 'src/pages/Role/PortalCon/redux/actions';
+
 class Con extends React.Component {
   constructor(props) {
     super(props);
@@ -87,6 +87,7 @@ class Con extends React.Component {
                 roleId: (list[0] || {}).roleId,
               });
               this.props.setPortalRoleList(list);
+              this.props.setQuickTag({ roleId: 'all', tab: 'roleSet' });
               alert(_l('删除成功'));
             } else {
               alert(_l('删除失败，请稍后重试'), 2);
@@ -117,7 +118,7 @@ class Con extends React.Component {
   quickTag = data => {
     const { setQuickTag, setFastFilters, setFastFiltersData } = this.props;
     setQuickTag(data);
-    if (!!data.roleId) {
+    if (data.roleId) {
       if (data.tab !== 'user') {
         setFastFiltersData({
           controlId: 'portal_role',
@@ -223,7 +224,7 @@ class Con extends React.Component {
                 });
                 break;
               case 2:
-                externalPortalAjax.editDefaultExRole({ appId: appId, defaultRoleId: data.roleId }).then(res => {
+                externalPortalAjax.editDefaultExRole({ appId: appId, defaultRoleId: data.roleId }).then(() => {
                   let newRoleList = this.state.roleList.map(o => {
                     if (o.roleId === data.roleId) {
                       return { ...o, isDefault: true };

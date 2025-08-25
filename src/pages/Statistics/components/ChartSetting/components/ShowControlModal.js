@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { ConfigProvider, Modal, Button, Input, Select } from 'antd';
-import { Icon, SortableList } from 'ming-ui';
+import { Button, ConfigProvider, Modal, Select } from 'antd';
 import cx from 'classnames';
-import styled from 'styled-components';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { relevanceImageSize } from 'statistics/common';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, SortableList } from 'ming-ui';
+import { relevanceImageSize } from 'statistics/common';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const SearchControlWrapper = styled.div`
   padding: 8px 5px;
@@ -15,7 +15,7 @@ const SearchControlWrapper = styled.div`
     border: none;
   }
   .icon-close:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
 `;
 
@@ -29,7 +29,7 @@ const ButtonWrapper = styled.div`
   background-color: #f5f5f5;
   cursor: pointer;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
     background-color: #f0f0f0;
   }
 `;
@@ -272,7 +272,7 @@ export default class ShowControlModal extends Component {
               dragPreviewImage
               items={filteredColumns}
               itemKey="controlId"
-              renderItem={(options) => renderSortableItem({ ...options, otherProps })}
+              renderItem={options => renderSortableItem({ ...options, otherProps })}
               onSortEnd={this.handleSortEnd}
             />
           </div>

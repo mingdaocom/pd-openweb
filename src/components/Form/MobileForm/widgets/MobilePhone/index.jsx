@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import intlTelInput, { initIntlTelInput } from 'ming-ui/components/intlTelInput';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
+import { addBehaviorLog } from 'src/utils/project.js';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 
 const CustomFormControlPhone = styled.div`
@@ -41,7 +42,6 @@ const CustomFormControlPhone = styled.div`
 
 const MobilePhone = props => {
   const {
-    className,
     hint,
     flag,
     maskPermissions,
@@ -106,7 +106,7 @@ const MobilePhone = props => {
     return val && maskStatus ? dealMaskValue({ ...props, value: val }) : val || hint;
   };
 
-  const onFocus = event => {
+  const onFocus = () => {
     const countryData = iti.current.getSelectedCountryData();
 
     setOriginValue(!_.keys(countryData).length ? inputRef.current.value.replace(/ /g, '') : iti.current.getNumber());
@@ -205,7 +205,13 @@ const MobilePhone = props => {
         <span
           className={cx({ overflowEllipsis: !value })}
           onClick={() => {
-            if (disabled && isMask) setMaskStatus(false);
+            if (disabled && isMask) {
+              addBehaviorLog('worksheetDecode', props.worksheetId, {
+                rowId: props.recordId,
+                controlId: props.controlId,
+              });
+              setMaskStatus(false);
+            }
           }}
         >
           {getShowValue()}

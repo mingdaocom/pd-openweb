@@ -132,7 +132,7 @@ export default function DisplayControl(props) {
                 if (effectiveControls.length <= 0) {
                   return;
                 }
-                const showcount = !!_.get(view, 'advancedSetting.showcount')
+                const showcount = _.get(view, 'advancedSetting.showcount')
                   ? undefined
                   : effectiveControls.length > 3
                     ? 3

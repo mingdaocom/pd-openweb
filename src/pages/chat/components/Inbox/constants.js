@@ -133,7 +133,7 @@ export const MSGTYPES = {
   // 档案系统消息
   DossierMessage: 32,
   // 档案@到的
-  DossierMentioned: 33,
+  // DossierMentioned: 33,
   // 档案回复我的
   DossierReply: 34,
   // 档案讨论

@@ -20,7 +20,7 @@ export default class ApiPackage extends Component {
     if (item.appId && !item.appName) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('API 连接与认证已删除')}
         </div>
       );

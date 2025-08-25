@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import './taskTime.less';
 import { connect } from 'react-redux';
-import { getCurrentTime, formatTimeInfo } from '../../../utils/utils';
-import config, { OPEN_TYPE } from '../../../config/config';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
-import { afterUpdateTaskDateInfo, afterUpdateTaskDate } from '../../../utils/taskComm';
-import { updateTaskStartTimeAndDeadline, updateTaskActualStartTime, updateCompletedTime } from '../../../redux/actions';
+import cx from 'classnames';
 import moment from 'moment';
+import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import config, { OPEN_TYPE } from '../../../config/config';
+import { updateCompletedTime, updateTaskActualStartTime, updateTaskStartTimeAndDeadline } from '../../../redux/actions';
+import { afterUpdateTaskDate, afterUpdateTaskDateInfo } from '../../../utils/taskComm';
+import { formatTimeInfo, getCurrentTime } from '../../../utils/utils';
+import './taskTime.less';
 
 const TASK_STATUS = {
   nostart: -1,
@@ -17,13 +17,13 @@ const TASK_STATUS = {
 
 const TASK_STATUS_TEXT = {
   '-1': _l('未开始'),
-  '0': _l('进行中'),
-  '1': _l('已完成'),
+  0: _l('进行中'),
+  1: _l('已完成'),
 };
 
 const COLORS = {
   gray: '#9e9e9e',
-  blue: '#2196f3',
+  blue: '#1677ff',
   green: '#30af00',
   red: '#ff0000',
   yellow: '#ffa414',
@@ -210,7 +210,12 @@ class TaskTime extends Component {
     };
 
     // 逾期 计划存在   没有实际开始或者实际开始大于计划
-    if (startTime && endTime && moment(currentTime) > moment(startTime) && ((!actualStartTime && !status) || moment(actualStartTime) > moment(startTime))) {
+    if (
+      startTime &&
+      endTime &&
+      moment(currentTime) > moment(startTime) &&
+      ((!actualStartTime && !status) || moment(actualStartTime) > moment(startTime))
+    ) {
       if (actualStartTime && moment(currentTime) > moment(actualStartTime)) {
         processOpts.yellow.width = (moment(actualStartTime) - moment(startTime)) / 60 / 1000 / mins;
       } else {
@@ -274,7 +279,7 @@ class TaskTime extends Component {
   updatePlanTime(time, isUpdateStartTime) {
     const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
-    const callback = (source) => {
+    const callback = source => {
       if (openType === OPEN_TYPE.slide) {
         afterUpdateTaskDate(source);
       } else {
@@ -321,7 +326,7 @@ class TaskTime extends Component {
    * 修改完成时间
    */
   updateCompletedTime(completeTime) {
-    const { taskId } = this.props;
+    const { taskId, openType } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const callback = () => {
       if (openType === OPEN_TYPE.slide) {
@@ -333,7 +338,7 @@ class TaskTime extends Component {
     };
 
     if (!moment(completeTime).isSame(moment(data.completeTime))) {
-      this.props.dispatch(updateCompletedTime(taskId, completeTime));
+      this.props.dispatch(updateCompletedTime(taskId, completeTime, callback));
     }
   }
 
@@ -353,8 +358,20 @@ class TaskTime extends Component {
     const { taskId } = this.props;
     const { data } = this.props.taskDetails[taskId];
     const hasAuth = data.auth === config.auth.Charger || data.auth === config.auth.Member;
-    const { status, text, color } = this.getTaskStatus(data.status, data.startTime, data.deadline, data.actualStartTime, data.completeTime);
-    const processLines = this.taskProcessLines(data.status, data.startTime, data.deadline, data.actualStartTime, data.completeTime);
+    const { status, text, color } = this.getTaskStatus(
+      data.status,
+      data.startTime,
+      data.deadline,
+      data.actualStartTime,
+      data.completeTime,
+    );
+    const processLines = this.taskProcessLines(
+      data.status,
+      data.startTime,
+      data.deadline,
+      data.actualStartTime,
+      data.completeTime,
+    );
 
     return (
       <div className="detailTime flexRow">
@@ -363,7 +380,7 @@ class TaskTime extends Component {
             className={cx(
               { 'icon-watch_later': status === TASK_STATUS.nostart },
               { 'icon-go_out': status === TASK_STATUS.processing },
-              { 'icon-check_circle': status === TASK_STATUS.completed }
+              { 'icon-check_circle': status === TASK_STATUS.completed },
             )}
           />
         </div>
@@ -425,9 +442,14 @@ class TaskTime extends Component {
 
             {processLines.blue.width > 0 ? (
               <div
-                className={cx('detailTimeLineToday', { 'tip-bottom-left': this.getTodayBorderNum(processLines).right < 100 })}
+                className={cx('detailTimeLineToday', {
+                  'tip-bottom-left': this.getTodayBorderNum(processLines).right < 100,
+                })}
                 data-tip={_l('今天 %0', moment(getCurrentTime()).format('MMMDo'))}
-                style={{ borderLeftWidth: this.getTodayBorderNum(processLines).left, borderRightWidth: this.getTodayBorderNum(processLines).right }}
+                style={{
+                  borderLeftWidth: this.getTodayBorderNum(processLines).left,
+                  borderRightWidth: this.getTodayBorderNum(processLines).right,
+                }}
               >
                 <span />
               </div>
@@ -451,18 +473,24 @@ class TaskTime extends Component {
                     className={cx(
                       'mLeft5 mRight5 detailTimeRealBold detailTimeRealColor',
                       { detailTimeRealStartColor: processLines.yellow.width > 0 },
-                      { detailTimeRealLine: hasAuth }
+                      { detailTimeRealLine: hasAuth },
                     )}
                   >
                     {data.actualStartTime ? formatTimeInfo(moment(data.actualStartTime), true).text : '...'}
                   </span>
                 </DateTime>
-                <div className="detailTimeRealMs">{data.actualStartTime && this.contrastActualOrPlan(data.startTime, data.actualStartTime)}</div>
+                <div className="detailTimeRealMs">
+                  {data.actualStartTime && this.contrastActualOrPlan(data.startTime, data.actualStartTime)}
+                </div>
               </Fragment>
             ) : data.startTime ? (
               <div
-                className={cx('detailTimeNowStart ThemeColor3 ThemeBorderColor3', { 'pointer ThemeHoverColor2 ThemeHoverBorderColor2': hasAuth })}
-                onClick={() => hasAuth && this.updateTaskActualStartTime(moment(getCurrentTime()).format('YYYY-MM-DD HH:00'))}
+                className={cx('detailTimeNowStart ThemeColor3 ThemeBorderColor3', {
+                  'pointer ThemeHoverColor2 ThemeHoverBorderColor2': hasAuth,
+                })}
+                onClick={() =>
+                  hasAuth && this.updateTaskActualStartTime(moment(getCurrentTime()).format('YYYY-MM-DD HH:00'))
+                }
               >
                 {_l('现在开始')}
               </div>
@@ -484,7 +512,7 @@ class TaskTime extends Component {
                     className={cx(
                       'mLeft5 detailTimeRealBold detailTimeRealColor',
                       { detailTimeRealEndColor: data.deadline && moment(data.completeTime) > moment(data.deadline) },
-                      { detailTimeRealLine: hasAuth }
+                      { detailTimeRealLine: hasAuth },
                     )}
                   >
                     {formatTimeInfo(moment(data.completeTime), true).text}

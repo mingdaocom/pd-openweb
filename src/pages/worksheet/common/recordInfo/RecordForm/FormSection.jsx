@@ -26,9 +26,9 @@ const FormSectionWrap = styled.div`
     ${props => (props.isUnfold ? '' : 'flex-direction:column;min-height: 50px;justify-content: center;')}
     ${props => (props.isFixedRight ? 'flex-direction: row-reverse;' : '')}
     &.active {
-      color: #2196f3;
+      color: #1677ff;
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     &.active:before {
@@ -38,7 +38,7 @@ const FormSectionWrap = styled.div`
       height: 60%;
       content: ' ';
       position: absolute;
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
     & > span.ellipsis {
       display: ${props => (props.isUnfold ? 'inline-block;' : 'none')};

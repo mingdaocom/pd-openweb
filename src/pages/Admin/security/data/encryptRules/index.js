@@ -59,7 +59,7 @@ export default class EncryptRules extends Component {
           totalCount: pageIndex === 1 ? res.totalCount : this.state.totalCount,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -170,7 +170,7 @@ export default class EncryptRules extends Component {
             <div className="w150">{_l('创建人')}</div>
             <div className="w80">{_l('')}</div>
           </div>
-          <div className="flex flexColumn mTop16 mBottom16 listContent">
+          <div className="flex flexColumn mTop16 mBottom16 listContent overflowHidden">
             <ScrollView className="flex">
               {loading ? (
                 <LoadDiv className="mTop40" />
@@ -182,7 +182,7 @@ export default class EncryptRules extends Component {
                     <div className="flex ellipsis">
                       {item.name}
                       {!!item.remark && (
-                        <Tooltip text={item.remark}>
+                        <Tooltip text={item.remark} autoCloseDelay={0}>
                           <Icon icon="info_outline" className="Gray_bd mLeft5" />
                         </Tooltip>
                       )}

@@ -89,7 +89,7 @@ export default function Validity(props) {
             onOpenChange={setOpen}
             format={'YYYY-MM-DD HH:mm'}
             value={customDate}
-            clearIcon={<Icon icon="cancel1" className="Gray_bd Font17" />}
+            clearIcon={<Icon icon="cancel" className="Gray_bd Font17" />}
             disabledDate={current => {
               if (current) {
                 return current < moment();
@@ -114,7 +114,7 @@ export default function Validity(props) {
             className="dateSelect"
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             allowClear={validTime ? true : false}
-            clearIcon={<Icon icon="cancel1" className="Gray_bd Font17" />}
+            clearIcon={<Icon icon="cancel" className="Gray_bd Font17" />}
             onChange={(value = alwaysValue) => {
               const target = _.find(validityDateTypes, { value });
               if (target && target.getValidTime) {

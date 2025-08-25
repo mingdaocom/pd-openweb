@@ -78,7 +78,7 @@ const SearchFolderCon = styled.ul`
   }
 `;
 
-function SearchFolder(props) {
+function SearchFolder() {
   const { projectId } = Store.getState().task.taskConfig;
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -188,14 +188,14 @@ BatchTask.initEvent = function () {
     BatchTask.loadBatchData(1);
     // 处理数据
     const $iconTaskNewLocked = $('#batchTask .batchIcon.iconTaskNewLocked');
-    const lock = $iconTaskNewLocked.find('.icon-task-new-locked').length > 0;
+    const lock = $iconTaskNewLocked.find('.icon-lock').length > 0;
     const title = lock ? _l('批量锁定任务') : _l('批量解锁任务');
     // 权限判断
     BatchTask.taskAuth('updateTaskLocked', title, lock);
   });
 
   // 更多
-  $batchTask.on('click', '.batchMore', event => {
+  $batchTask.on('click', '.batchMore', () => {
     $batchTask.find('.batchOperator').toggleClass('Hidden');
   });
 
@@ -260,10 +260,9 @@ BatchTask.initEvent = function () {
 
   // 修改任务负责人
   $batchTask.on('click', '.batchCharge', function () {
-    const $this = $(this);
     let size = 0;
     let projectId = $('.selectTask:first').attr('data-projectid');
-    $.map($('.selectTask'), (_this, i) => {
+    $.map($('.selectTask'), _this => {
       if ($(_this).attr('data-projectid') === projectId) {
         size++;
       }
@@ -300,7 +299,7 @@ BatchTask.initEvent = function () {
     let size = 0;
     const existsIds = [];
     let projectId = $('.selectTask:first').attr('data-projectid');
-    $.map($('.selectTask'), (_this, i) => {
+    $.map($('.selectTask'), _this => {
       if ($(_this).attr('data-projectid') === projectId) {
         size++;
       }
@@ -450,7 +449,7 @@ BatchTask.bindDialog = function () {
     .html(renderToString(<LoadDiv />));
 
   let lockedSize = 0;
-  $.map($('.selectTask'), (_this, i) => {
+  $.map($('.selectTask'), _this => {
     if ($(_this).find('.lockToOtherTask').length) {
       lockedSize++;
     }
@@ -490,7 +489,7 @@ BatchTask.renderSelectTags = () => {
 
 BatchTask.getAllTaskIds = function () {
   const allTaskIds = [];
-  $.map($('.selectTask'), (_this, i) => {
+  $.map($('.selectTask'), _this => {
     allTaskIds.push($(_this).data('taskid'));
   });
 
@@ -523,7 +522,7 @@ BatchTask.updateUserNotice = function () {
 };
 
 // 批量锁定任务 isAuth 是否验证过权限
-BatchTask.updateTaskLocked = function (lock, isAuth) {
+BatchTask.updateTaskLocked = function (lock) {
   ajaxRequest
     .batchUpdateTaskLocked({
       taskIDstr: BatchTask.Settings.TaskIds.join(','),
@@ -534,10 +533,10 @@ BatchTask.updateTaskLocked = function (lock, isAuth) {
         // 批量的锁处理
         const $iconTaskNoNews = $('#batchTask .batchIcon.iconTaskNewLocked');
         if (lock) {
-          $iconTaskNoNews.find('i').removeClass('icon-task-new-locked').addClass('icon-task-new-no-locked');
+          $iconTaskNoNews.find('i').removeClass('icon-lock').addClass('icon-task-new-no-locked');
           $iconTaskNoNews.attr('data-tip', _l('批量解锁任务')).data('bindDate', false);
         } else {
-          $iconTaskNoNews.find('i').addClass('icon-task-new-locked').removeClass('icon-task-new-no-locked');
+          $iconTaskNoNews.find('i').addClass('icon-lock').removeClass('icon-task-new-no-locked');
           $iconTaskNoNews.attr('data-tip', _l('批量锁定任务')).data('bindDate', false);
         }
 
@@ -555,12 +554,12 @@ BatchTask.updateTaskLocked = function (lock, isAuth) {
           );
         } else {
           if (lock) {
-            $iconTaskNoNews.find('i').removeClass('icon-task-new-locked').addClass('icon-task-new-no-locked');
+            $iconTaskNoNews.find('i').removeClass('icon-lock').addClass('icon-task-new-no-locked');
             $iconTaskNoNews.attr('data-tip', _l('批量锁定任务')).data('bindDate', false);
             // 加锁
             $('#taskList .selectTask .markTask').addClass('lockToOtherTask');
           } else {
-            $iconTaskNoNews.find('i').addClass('icon-task-new-locked').removeClass('icon-task-new-no-locked');
+            $iconTaskNoNews.find('i').addClass('icon-lock').removeClass('icon-task-new-no-locked');
             $iconTaskNoNews.attr('data-tip', _l('批量锁定任务')).data('bindDate', false);
             // 加锁
             $('#taskList .selectTask .markTask').removeClass('lockToOtherTask');
@@ -573,7 +572,7 @@ BatchTask.updateTaskLocked = function (lock, isAuth) {
 };
 
 // 批量删除任务
-BatchTask.DelTask = function (isAuth) {
+BatchTask.DelTask = function () {
   const isDelSubTask = $('.overDateBatch .btnCk').hasClass('selected');
   ajaxRequest
     .batchDeleteTask({
@@ -620,7 +619,7 @@ BatchTask.DelTask = function (isAuth) {
 };
 
 // 批量现在开始任务
-BatchTask.updateTasksActualStartTime = function (isAuth) {
+BatchTask.updateTasksActualStartTime = function () {
   ajaxRequest
     .updateTasksActualStartTime({
       taskIds: BatchTask.Settings.TaskIds,
@@ -659,7 +658,7 @@ BatchTask.updateTasksActualStartTime = function (isAuth) {
 };
 
 // 更新项目
-BatchTask.updateFolder = function (folderId, isAuto) {
+BatchTask.updateFolder = function (folderId) {
   ajaxRequest
     .batchUpdateTaskFolderID({
       taskIDstr: BatchTask.Settings.TaskIds.join(','),
@@ -675,7 +674,7 @@ BatchTask.updateFolder = function (folderId, isAuto) {
 };
 
 // 批量修改任务状态
-BatchTask.updateTaskStatus = function (status, isAuth) {
+BatchTask.updateTaskStatus = function (status) {
   taskStatusDialog(status, () => {
     const taskStatusFun = function (isAllSubTask) {
       ajaxRequest
@@ -1166,9 +1165,6 @@ BatchTask.shiftCtrlKeyTree = function (_this, type) {
     config.$prevNode = _this;
     _this.toggleClass('selectTask ThemeBGColor6');
   } else {
-    // 所有任务
-    const $allSingleTreeTask = $('.singleFolderTask  .singleTreeTask');
-
     // 直接shift 没有选中过
     if (!config.$prevNode) {
       config.$prevNode = $('.singleFolderTask li:first .singleTreeTask:first');
@@ -1257,7 +1253,6 @@ BatchTask.shiftCtrlKeyStage = function (_this, type) {
       prevTop = $prevNode.offset().top;
     }
 
-    let $next;
     // 循环
     while (prevTop <= thisTop) {
       $prevNode.addClass('selectTask ThemeBGColor6');

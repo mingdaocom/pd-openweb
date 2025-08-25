@@ -11,7 +11,7 @@
     .iconSetting {
       color: #9e9e9e;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -53,7 +53,7 @@
     height: 28px;
     padding: 0 10px;
     border-radius: 4px;
-    background-color: #D3EAFD;
+    background-color: #d3eafd;
     cursor: pointer;
     &.transparent {
       padding: 0;
@@ -64,11 +64,11 @@
     }
     span {
       font-size: 13px;
-      color: #2196F3;
+      color: #1677ff;
       padding: 0 9px 0 4px;
     }
     .icon {
-      color: #2196F3;
+      color: #1677ff;
     }
   }
   .filterTrigger {
@@ -86,11 +86,12 @@
   border-radius: 3px;
   padding: 17px 24px 6px 17px;
   background-color: #fff;
-  box-shadow: 0px 4px 16px 0px rgba(0,0,0,0.24);
+  box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
   .userItemWrapper {
     height: 30px;
   }
-  .userLabel, .timeLabel {
+  .userLabel,
+  .timeLabel {
     font-weight: 500;
   }
   .timeLabel {
@@ -108,7 +109,7 @@
       height: 24px;
       padding: 0 5px 0 25px;
       border-radius: 12px;
-      background-color: #F4F4F4;
+      background-color: #f4f4f4;
     }
     .icon-close {
       padding-left: 8px;
@@ -122,8 +123,8 @@
     height: 30px;
     justify-content: center;
     &:hover {
-      color: #2196f3;
-      border-color: #2196f3;
+      color: #1677ff;
+      border-color: #1677ff;
     }
   }
   .dateScope {
@@ -134,14 +135,14 @@
       padding: 6px 12px;
       margin-bottom: 10px;
       margin-right: 10px;
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
       &:hover {
-        background-color: #EDEDED;
+        background-color: #ededed;
       }
     }
     .active {
-      color: #2196F3;
-      background-color: #D3EAFD !important;
+      color: #1677ff;
+      background-color: #d3eafd !important;
     }
   }
   .ant-picker {
@@ -150,7 +151,7 @@
     border-radius: 3px;
     margin-bottom: 7px;
     &.ant-picker-focused {
-      border-color: #2196F3 !important;
+      border-color: #1677ff !important;
     }
     .ant-picker-active-bar {
       display: none;
@@ -163,10 +164,6 @@
 }
 
 .inboxBox {
-  // scrollbar override
-  .nano-slider {
-    background: rgba(0, 0, 0, 0.15) !important;
-  }
   // message
   .messageItem {
     padding: 10px 15px 0;
@@ -213,7 +210,7 @@
         text-decoration: none;
         color: #151515;
         &:before {
-          content: attr(data-title) "：";
+          content: attr(data-title) '：';
           vertical-align: top;
         }
         .sourceName {
@@ -292,11 +289,12 @@
     margin: -1px 0 0 0;
     padding: 16px 20px;
     background-color: #fff;
-    &::before, &::after {
+    &::before,
+    &::after {
       border-color: #9e9e9e33;
     }
     .ant-divider-inner-text {
-      color: #9E9E9E;
+      color: #9e9e9e;
     }
   }
   // comment
@@ -336,12 +334,12 @@
   background-size: 150px;
   &.starMsg {
     padding-top: 260px;
-    background-image: url("./images/msgStarNull.png");
+    background-image: url('./images/msgStarNull.png');
     background-position: center 70px;
   }
   &.commMsg {
     padding-top: 270px;
-    background-image: url("./images/msgNull.png");
+    background-image: url('./images/msgNull.png');
     background-position: center 90px;
   }
 }

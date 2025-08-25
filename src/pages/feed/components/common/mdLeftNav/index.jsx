@@ -1,7 +1,6 @@
-﻿import cx from 'classnames';
+﻿import React from 'react';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
-import React from 'react';
-
 import './mdLeftNav.css';
 
 function MDLeftNav(props) {

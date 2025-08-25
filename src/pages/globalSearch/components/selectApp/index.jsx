@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Trigger from 'rc-trigger';
-import { Icon, Input, LoadDiv, SvgIcon } from 'ming-ui';
-import cx from 'classnames';
+import { Icon, Input, SvgIcon } from 'ming-ui';
 import HomeAjax from 'src/api/homeApp';
 import './index.less';
 
 export default function SelectApp(props) {
-  const { projectId, onChange, defaultAppId, className, filterIds } = props;
-
+  const { projectId, onChange, className, filterIds } = props;
   const [value, setValue] = useState(null);
   const [visible, setVisible] = useState(false);
   const [search, setSearch] = useState('');
   const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     HomeAjax.getMyApp({ projectId: projectId || localStorage.getItem('currentProjectId') }).then(res => {
@@ -50,7 +47,6 @@ export default function SelectApp(props) {
             <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
           </div>
           <ul className="appList">
-            {loading && <LoadDiv size="middle" />}
             {list
               .filter(l => l.name.indexOf(search) > -1)
               .filter(l => filterIds.length === 0 || filterIds.indexOf(l.id) > -1)

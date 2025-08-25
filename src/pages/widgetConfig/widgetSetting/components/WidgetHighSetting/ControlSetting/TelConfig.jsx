@@ -3,6 +3,7 @@ import { useSetState } from 'react-use';
 import { Dropdown, Tooltip } from 'antd';
 import cx from 'classnames';
 import { isEqual } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import fixedDataController from 'src/api/fixedData';
@@ -22,7 +23,7 @@ const TelConfigWrap = styled.div`
     border: 1px solid #ddd;
     border-radius: 4px;
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .title {

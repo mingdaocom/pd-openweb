@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
 import { TimePicker as AntTimePicker } from 'antd';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
 import TimePicker from 'src/components/newCustomFields/widgets/Time';
 import { FILTER_CONDITION_TYPE } from '../../enum';
-import _ from 'lodash';
 
 export default class Date extends Component {
   static propTypes = {

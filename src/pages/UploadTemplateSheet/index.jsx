@@ -505,6 +505,11 @@ export default class UploadTemplateSheet extends React.Component {
                     '（4）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。',
                   )}
                 </li>
+                <li className="Gray_75 pLeft12">
+                  {_l(
+                    '（5）序号打印：如果需要在子表、关联记录、查询记录（列表）中打印系统自动生成的序号字段，可在代码中调用 sequencenumber 字段代码，例如 #{关联表字段代码.sequencenumber}。其中“关联表字段代码”为当前表中关联字段的字段代码，sequencenumber 为系统自动编号字段的固定代码',
+                  )}
+                </li>
               </ol>
             </p>
             <p className="mTop12 Gray_75">
@@ -596,7 +601,7 @@ export default class UploadTemplateSheet extends React.Component {
 
                       {/** 弹层中的字段列表 */}
                       {(it.controlList || []).map(o => {
-                        const { type, advancedSetting } = o;
+                        const { type } = o;
 
                         // 过滤掉关联字段列表、查询字段类型
                         const isRelationList = this.getIsRelationList(o);
@@ -621,7 +626,7 @@ export default class UploadTemplateSheet extends React.Component {
 
     return (
       <div className="listCon">
-        {approvalList.map((item, i) => {
+        {approvalList.map(item => {
           return (
             <React.Fragment>
               <p
@@ -739,7 +744,7 @@ export default class UploadTemplateSheet extends React.Component {
   };
 
   render() {
-    const { worksheetName, scroll } = this.state;
+    const { worksheetName } = this.state;
     return (
       <React.Fragment>
         <DocumentTitle title={_l('制作模板 - %0', worksheetName || '')} />
@@ -768,7 +773,7 @@ export default class UploadTemplateSheet extends React.Component {
             </p>
             <p className="Gray_75">
               {_l(
-                '4. 可获取附件字段中的图片，字段代码为：#{附件$[90*auto_L]$}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量。',
+                '4. 可获取附件字段中的图片缩略图和文件名。字段代码为：#{附件$[90*auto_L]$_name}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量；_name表示获取文件名。',
               )}
               <ol className="">
                 <li className="Gray_75 pLeft12">
@@ -783,7 +788,12 @@ export default class UploadTemplateSheet extends React.Component {
                 </li>
                 <li className="Gray_75 pLeft12">
                   {_l(
-                    '（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}',
+                    '（3）默认代码中不包含文件名，需要时可自行拼接_name。例如：#{附件$[90*auto_L]$_name}表示同时获取图片缩略图和文件名；#{附件_name}表示只获取文件名。备注：Excel模版不支持图片与文件名同步显示。',
+                  )}
+                </li>
+                <li className="Gray_75 pLeft12">
+                  {_l(
+                    '（4）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}',
                   )}
                 </li>
               </ol>

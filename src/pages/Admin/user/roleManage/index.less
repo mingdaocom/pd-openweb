@@ -10,7 +10,7 @@
     border-right: 1px solid #eaeaea;
     display: flex;
     flex-direction: column;
-    padding: 0 8px 20px;
+    padding: 0 0 20px 8px;
 
     .searchContainer {
       box-sizing: border-box;
@@ -42,7 +42,9 @@
         min-height: 500px;
         max-height: 90%;
         border-radius: 3px;
-        box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+        box-shadow:
+          0 4px 23px 5px rgba(0, 0, 0, 0.2),
+          0 2px 6px rgba(0, 0, 0, 0.15);
         overflow: auto;
         background: #fff;
 
@@ -60,7 +62,7 @@
           display: flex;
           flex-wrap: nowrap;
 
-          >span {
+          > span {
             &:not(:first-child) {
               position: relative;
               padding-left: 10px;
@@ -120,7 +122,7 @@
       padding: 0 0px 12px 16px;
 
       .iconHover:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
 
       .creatRole {
@@ -171,7 +173,7 @@
           margin-right: 0 !important;
 
           &:hover {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
 
@@ -180,7 +182,7 @@
           line-height: 30px;
 
           &:hover {
-            color: #2196f3 !important;
+            color: #1677ff !important;
           }
         }
 
@@ -190,7 +192,7 @@
 
         &.current {
           background-color: rgba(33, 150, 243, 0.11);
-          color: #2196f3 !important;
+          color: #1677ff !important;
           font-weight: bold;
 
           &:hover {
@@ -198,7 +200,7 @@
           }
 
           .roleName {
-            color: #2196f3 !important;
+            color: #1677ff !important;
           }
         }
 
@@ -296,8 +298,8 @@
 
         &.addUser {
           color: #fff;
-          background: #2196f3;
-          border: 1px solid #2196f3;
+          background: #1677ff;
+          border: 1px solid #1677ff;
         }
 
         &:hover {
@@ -363,7 +365,6 @@
         }
 
         tr {
-
           th,
           td {
             border-bottom: 1px solid #eaeaea;
@@ -477,7 +478,7 @@
             }
 
             .name {
-              color: #2196f3 !important;
+              color: #1677ff !important;
             }
           }
         }
@@ -486,7 +487,7 @@
   }
 
   .themeColor {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
 }
 
@@ -501,7 +502,10 @@
 
 .actRoleDrop {
   width: 160px;
-  box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
   padding: 6px 0;
   background-color: #fff !important;
 

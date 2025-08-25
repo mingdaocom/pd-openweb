@@ -32,3 +32,5 @@ export { default as NavSet } from './NavSet';
 export { default as BatchSet } from './BatchSet';
 export { default as TitleControl } from './TitleControl';
 export { default as Sort } from './Sort';
+export { default as GroupSet } from './GroupSet';
+export { default as EnvParams } from './EnvParams';

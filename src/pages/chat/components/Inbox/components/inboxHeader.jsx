@@ -1,16 +1,16 @@
-import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
+import { connect } from 'react-redux';
 import antd from 'antd';
-import Trigger from 'rc-trigger';
-import { TYPES, TYPE_GROUP } from '../constants';
-import InboxFilter from './baseComponent/inboxFilter';
-import { Dropdown, Icon } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import { Dropdown, Icon } from 'ming-ui';
 import Config from 'src/pages/chat/utils/config';
-import * as actions from '../../../redux/actions';
 import * as socket from 'src/pages/chat/utils/socket';
-import { connect } from 'react-redux';
+import * as actions from '../../../redux/actions';
+import { TYPE_GROUP, TYPES } from '../constants';
+import InboxFilter from './baseComponent/inboxFilter';
 
 class InboxHeader extends React.Component {
   static propTypes = {
@@ -45,7 +45,10 @@ class InboxHeader extends React.Component {
     } else {
       return (
         <span>
-          {_.find(parsedData, l => l.value === type).text}
+          {_.get(
+            _.find(parsedData, l => l.value === type),
+            'text',
+          )}
           <Dropdown
             value={type}
             data={parsedData}
@@ -91,7 +94,7 @@ class InboxHeader extends React.Component {
 
   handleUpdatePushNotice() {
     const { currentSession } = this.props;
-    const { type, isPush, value, isSilent } = currentSession;
+    const { type, isSilent } = currentSession;
 
     this.props.dispatch(
       actions.sendSetSlience({
@@ -107,7 +110,7 @@ class InboxHeader extends React.Component {
     const { currentSession, sessionList } = this.props;
     const item = _.find(sessionList, { value: currentSession.value }) || {};
     if (item.count || item.weak_count) {
-      socket.Contact.clearUnread(Object.assign({}, item)).then(result => {
+      socket.Contact.clearUnread(Object.assign({}, item)).then(() => {
         this.props.dispatch(
           actions.updateSessionList({
             id: item.value,
@@ -116,7 +119,7 @@ class InboxHeader extends React.Component {
         );
       });
     }
-  }
+  };
 
   renderMenu = () => {
     const { currentSession } = this.props;
@@ -215,7 +218,7 @@ class InboxHeader extends React.Component {
               placement="bottomRight"
               overlayClassName="inboxFilterDropdown"
             >
-              <div className={cx('filterWrapper flexRow valignWrapper', { transparent: _.isEmpty(filter) })}>
+              <div className={cx('filterWrapper flexRow valignWrapper mRight15', { transparent: _.isEmpty(filter) })}>
                 {filter ? (
                   <Fragment>
                     <Icon className="Font20" icon="filter" />
@@ -239,6 +242,13 @@ class InboxHeader extends React.Component {
               </div>
             </antd.Dropdown>
           )}
+          <Icon
+            className="Font20 Gray_9e pointer ThemeHoverColor3"
+            icon="maximizing_a"
+            onClick={() => {
+              window.open(`/windowChat?id=${currentSession.id}&type=${currentSession.type}`);
+            }}
+          />
         </div>
       </div>
     );
@@ -250,6 +260,6 @@ export default connect(state => {
 
   return {
     currentSession,
-    sessionList
+    sessionList,
   };
 })(InboxHeader);

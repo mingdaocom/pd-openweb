@@ -1,19 +1,18 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
-import autoSize from 'ming-ui/decorators/autoSize';
-import { Icon } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import autoSize from 'ming-ui/decorators/autoSize';
+import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 
 const Wrap = styled.div`
   .addSource {
     background: #ffffff;
     border: 1px dashed #dddddd;
     border-radius: 4px;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
-      border: 1px dashed #2196f3;
+      border: 1px dashed #1677ff;
     }
   }
   .sourceCard {
@@ -34,8 +33,8 @@ const Wrap = styled.div`
 `;
 //新增源|目的地
 function EditDest(props) {
-  const { onUpdate, dest = {}, hideToSource } = props;
-  const { dbName = '', dsType, tableName, schema, iconBgColor, className } = dest || {};
+  const { onUpdate, dest = {} } = props;
+  const { dsType, tableName, iconBgColor, className } = dest || {};
   const [{ show }, setState] = useSetState({
     show: false,
   });
@@ -66,20 +65,7 @@ function EditDest(props) {
               </svg>
             </div>
             <div className="flex mLeft8">
-              <div className="name Bold flexRow alignItemsCenter">
-                {dest.sourceName}
-                {!hideToSource && (
-                  <Icon
-                    icon="task-new-detail"
-                    className="mLeft10 Font12 ThemeColor3 ThemeHoverColor2 Hand"
-                    onClick={e => {
-                      e.stopPropagation();
-                      const infoTxt = 'dataDestId';
-                      window.open(`/integration/sourceDetail/${(_.get(node, 'nodeConfig.config') || {})[infoTxt]}`); //数据源落地页地址
-                    }}
-                  />
-                )}
-              </div>
+              <div className="name Bold flexRow alignItemsCenter">{dest.sourceName}</div>
               <div className="des Gray_9e">{tableName}</div>
             </div>
             {props.canEdit && <i className="icon icon-expand_more Font20 Hand Block" />}

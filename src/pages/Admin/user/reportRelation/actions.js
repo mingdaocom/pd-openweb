@@ -166,6 +166,7 @@ export const replaceStructure =
             replacedAccountId,
           },
         });
+        dispatch(fetchSubordinates(parentId));
       } else {
         alert(_l('操作失败'), 2);
       }

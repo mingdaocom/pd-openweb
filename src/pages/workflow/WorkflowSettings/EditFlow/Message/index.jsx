@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, MembersName, NodeOperate } from '../components';
 import { replaceField } from '../../utils';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class Message extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class Message extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('内容存在异常')}
         </div>
       );
@@ -60,7 +60,7 @@ export default class Message extends Component {
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <i className={cx('workflowAvatar icon-workflow_sms', item.smsContent ? 'BGBlue' : 'BGGray')} />
+              <i className={cx('workflowAvatar icon-forum', item.smsContent ? 'BGBlue' : 'BGGray')} />
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent Font13">

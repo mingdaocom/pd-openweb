@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
 import { useKey } from 'react-use';
+import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
-import DialogHeader from './DialogHeader';
-import DialogFooter from './DialogFooter';
 import DialogBase from './DialogBase';
+import DialogFooter from './DialogFooter';
+import DialogHeader from './DialogHeader';
 import '../less/Dialog.less';
 
 function enterHandle(Comp) {
   return function UseKey(props) {
-    useKey('Enter', e => {
+    useKey('Enter', () => {
       if (!props.visible || !props.bindEnterTriggerOk) {
         return;
       }

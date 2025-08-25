@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import FreeFieldRunner from 'worksheet/common/FreeFieldRunner/FreeFieldRunner';
 import { getEnv } from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/util';

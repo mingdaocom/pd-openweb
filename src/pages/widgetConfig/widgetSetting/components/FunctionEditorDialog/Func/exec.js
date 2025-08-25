@@ -1,9 +1,8 @@
 import dayjs from 'dayjs';
-import _, { get, isNumber } from 'lodash';
+import _, { get, isNaN } from 'lodash';
 import qs from 'query-string';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { toFixed } from 'src/utils/control';
-import { formatControlValue } from 'src/utils/control';
+import { formatControlValue } from 'src/utils/function-library';
 import { functions } from './enum';
 
 const execWorkerCode = `onmessage = function (e) {
@@ -146,7 +145,9 @@ function replaceControlIdToValue(expression, formData, inString) {
   if (expression.indexOf('SYSTEM_URL_PARAMS') > -1) {
     try {
       expression = `var SYSTEM_URL_PARAMS=${JSON.stringify(qs.parse(location.search))};` + expression;
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   }
   return expression;
 }
@@ -164,17 +165,21 @@ function formatFunctionResult(control, value) {
     case WIDGETS_TO_API_TYPE_ENUM.NUMBER:
     case WIDGETS_TO_API_TYPE_ENUM.MONEY:
       try {
-        if (typeof result === 'string' && /[^0-9\.\-]/.test(result || '')) {
-          result = (result || '').match(/^-?[\d\.]+/)[0];
+        if (!(result === '' || result === undefined || result === null || isNaN(result))) {
+          if (typeof result === 'string' && /[^0-9.-]/.test(result || '')) {
+            result = (result || '').match(/^-?[\d.]+/)[0];
+          }
+          result = (typeof (result || 0) === 'string' ? Number(result || 0) : result || 0)
+            .toFixed(12)
+            .toString()
+            .match(/^-?[\d.]+/)[0];
+          result = (result || '').replace(/\.([0-9]*[1-9])0+$|\.0+$/, (match, group) => {
+            return group ? `.${group}` : '';
+          });
         }
-        result = (result || '')
-          .toFixed(12)
-          .toString()
-          .match(/^-?[\d\.]+/)[0];
-        result = (result || '').replace(/\.([0-9]*[1-9])0+$|\.0+$/, (match, group) => {
-          return group ? `.${group}` : '';
-        });
-      } catch (err) {}
+      } catch (err) {
+        (() => {})(err);
+      }
       break;
     case WIDGETS_TO_API_TYPE_ENUM.DATE:
       result = result && dayjs(result).isValid() ? dayjs(result).format('YYYY-MM-DD') : undefined;
@@ -222,7 +227,9 @@ export default function (control, formData, { update, type, forceSyncRun = false
   let expressionData = {};
   try {
     expressionData = JSON.parse(control.advancedSetting.defaultfunc);
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   let expression = defaultExpression || _.get(expressionData, 'expression');
   let fnType = _.get(expressionData, 'type');
   if (!expression) {

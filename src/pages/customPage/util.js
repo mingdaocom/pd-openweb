@@ -2,6 +2,7 @@ import { generate } from '@ant-design/colors';
 import { TinyColor } from '@ctrl/tinycolor';
 import domtoimage from 'dom-to-image';
 import { get } from 'lodash';
+import _ from 'lodash';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -17,7 +18,6 @@ import {
   redefineComplexControl,
 } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isLightColor as utilsIsLightColor } from 'src/utils/control';
-import { MAX_COMPONENT_COUNT } from './config';
 import { containerWidgets, widgets } from './enum';
 
 export const FlexCenter = styled.div`
@@ -86,7 +86,7 @@ export const getDefaultLayout = ({
 
 // export const formatComponents = components => components.map(item => ({ ...item, layout: JSON.parse(item.layout || '{}') }));
 
-export const componentCountLimit = components => {
+export const componentCountLimit = () => {
   // if (components.length >= MAX_COMPONENT_COUNT) {
   //   alert(_l('自定义页面最多只能添加%0个组件', MAX_COMPONENT_COUNT), 3);
   //   return false;
@@ -146,7 +146,7 @@ export const getLayout = (components, layoutType) => {
   });
 };
 
-export const computeWidth = ({ width, count, margin = 20 }) => {
+export const computeWidth = ({ count, margin = 20 }) => {
   return { width: `calc(${100 / count}% - ${margin}px)` };
 };
 
@@ -191,7 +191,7 @@ export const genUrl = (url, para, info) => {
 };
 
 const blobToImg = blob => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const reader = new FileReader();
     reader.addEventListener('load', () => {
       const img = new Image();
@@ -212,7 +212,7 @@ const imgToCanvas = img => {
 };
 
 const addHintWatermark = (canvas, layouts) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const text = _l('不支持打印');
     const ctx = canvas.getContext('2d');
     ctx.font = '40px';
@@ -241,7 +241,7 @@ const addUserWatermark = (canvas, currentProject) => {
   };
 
   const getContent = () => {
-    if (!!currentProject.enabledWatermarkTxt) {
+    if (currentProject.enabledWatermarkTxt) {
       return currentProject.enabledWatermarkTxt.replace(/\$(\w+)\$/g, (_, key) => getValue(key));
     }
 
@@ -250,7 +250,7 @@ const addUserWatermark = (canvas, currentProject) => {
 
   const content = getContent();
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const ctx = canvas.getContext('2d');
 
     ctx.font = '18px normal';
@@ -277,7 +277,7 @@ const addUserWatermark = (canvas, currentProject) => {
 };
 
 export const createFontLink = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const link = document.createElement('link');
     link.onload = resolve;
     link.setAttribute('class', 'fontlinksheet');
@@ -289,7 +289,7 @@ export const createFontLink = () => {
 };
 
 export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const wrap =
       document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
     const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
@@ -383,7 +383,7 @@ export const replaceColor = (config, iconColor) => {
   const lightColor = iconColors[0];
   const data = { ...config };
   if (config.pageStyleType === 'dark') {
-    if (data.pageBgColor === 'iconColor10') {
+    if (data.pageBgColor === 'iconColor10' || data.pageBgColor === 'iconColor') {
       data.widgetBgColor = iconColors[8];
     } else {
       data.widgetBgColor = '#2A2D2F';

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import propTypes from 'prop-types';
-import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
+import styled from 'styled-components';
+import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 
 const SearchInputCon = styled(VerticalMiddle)`
   width: 220px;
@@ -87,7 +87,7 @@ export default function SearchInput(props) {
       />
       {value && (
         <BaseBtnCon
-          onClick={e => {
+          onClick={() => {
             inputRef.current.value = '';
             setIsFocus(false);
             onChange('');

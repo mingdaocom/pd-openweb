@@ -20,7 +20,7 @@ export default class Example extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('异常')}
         </div>
       );
@@ -30,7 +30,6 @@ export default class Example extends Component {
       <Fragment>
         <div className="pLeft8 pRight8">
           <span className="Gray_75">{_l('运算：')}</span>
-          {fieldValue + fieldControlName + formulaValue}
         </div>
       </Fragment>
     );

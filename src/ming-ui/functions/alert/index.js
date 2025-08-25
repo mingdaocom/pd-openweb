@@ -9,12 +9,12 @@ function getIcon(type = 'success') {
       fontSize: 16,
     },
     error: {
-      name: 'closeelement-bg-circle',
+      name: 'cancel',
       color: '#f44336',
       fontSize: 18,
     },
     warning: {
-      name: 'task-folder-message',
+      name: 'error1',
       color: '#fb0',
       fontSize: 18,
     },

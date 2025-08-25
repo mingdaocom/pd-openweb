@@ -1,4 +1,4 @@
-import React, { createRef, Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
@@ -33,10 +33,10 @@ const Wrap = styled.div`
       margin-top: 14px;
       &.hs {
         background: #e3f2fd;
-        color: #2196f3;
+        color: #1677ff;
       }
       &.cur {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
       }
     }
@@ -61,7 +61,7 @@ const Wrap = styled.div`
     height: 36px;
     line-height: 36px;
     border-radius: 3px 3px 3px 3px;
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
     &.canClear {
       background: #ffffff;
@@ -69,7 +69,7 @@ const Wrap = styled.div`
       border: 1px solid #dddddd;
     }
   }
-  .viewColdeTagTextarea {
+  .viewCodeTagTextarea {
     max-width: 400px;
     .CodeMirror {
       min-height: 100px;
@@ -82,7 +82,7 @@ const Wrap = styled.div`
       border-color: #bbb;
     }
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .tagInputarea .tagInputareaIuput:not(.active) {
@@ -243,10 +243,11 @@ export default function DebugConfig(params) {
   };
   const saveConfig = () => {
     let value = {};
-    if (!!_.get(tagtextarea, 'current.props.defaultValue')) {
+    if (_.get(tagtextarea, 'current.props.defaultValue')) {
       try {
         value = JSON.parse(_.get(tagtextarea, 'current.props.defaultValue'));
       } catch (error) {
+        console.log(error);
         return alert(_l('请输入正确的格式'), 3);
       }
       if (!(_.isObject(value) && !_.isArray(value))) {
@@ -425,14 +426,14 @@ export default function DebugConfig(params) {
             <div className="mTop20">{_l('环境参数')}</div>
             <div className="Gray_75">{_l('配置插件运行时所需要的参数，采用JSON格式')}</div>
             <TagTextarea
-              className={cx('flex mTop10 viewColdeTagTextarea')}
+              className={cx('flex mTop10 viewCodeTagTextarea')}
               defaultValue={configuration}
               codeMirrorMode="javascript"
               getRef={tag => (tagtextarea.current = tag)}
               // lineNumbers
               key={JSON.stringify(version)}
               height={0}
-              onChange={(err, value, obj) => {
+              onChange={(err, value) => {
                 // console.log(err, value, obj);
                 if (!err) {
                   setState({
@@ -440,7 +441,7 @@ export default function DebugConfig(params) {
                   });
                 }
               }}
-              onBlur={e => {
+              onBlur={() => {
                 saveConfig();
               }}
             />

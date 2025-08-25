@@ -1,8 +1,8 @@
 ﻿import React, { Component } from 'react';
-import './less/printTask.less';
 import cx from 'classnames';
-import ajaxRequest from 'src/api/taskCenter';
 import { Dialog } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import './less/printTask.less';
 
 export default class PrintTask extends Component {
   constructor(props) {
@@ -94,7 +94,7 @@ export default class PrintTask extends Component {
                         className="mLeft5 operationTips tip-top"
                         data-tip={_l('可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务')}
                       >
-                        <i className="icon-knowledge-message" />
+                        <i className="icon-info" />
                       </span>
                     ) : undefined}
                   </div>

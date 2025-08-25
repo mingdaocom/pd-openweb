@@ -1,19 +1,19 @@
-import React, { Fragment, useEffect, useState, useCallback } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
+import { Switch } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView, Checkbox, MdLink } from 'ming-ui';
-import { Switch } from 'antd';
-import _ from 'lodash';
-import cx from 'classnames';
-import OptionColumn from './OptionColumn';
-import { TASK_STATUS_TYPE, TASK_STATUS_TAB_LIST, SORT_TYPE } from '../../../constant';
-import syncTaskApi from '../../../../api/syncTask';
-import { formatDate } from '../../../../config';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import dataSourceApi from '../../../../api/datasource';
+import { Checkbox, Icon, LoadDiv, MdLink, ScrollView } from 'ming-ui';
 import ToolTip from 'ming-ui/components/Tooltip';
+import dataSourceApi from '../../../../api/datasource';
+import syncTaskApi from '../../../../api/syncTask';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import DropMotion from 'src/pages/worksheet/components/Animations/DropMotion';
+import { formatDate } from '../../../../config';
+import { SORT_TYPE, TASK_STATUS_TAB_LIST, TASK_STATUS_TYPE } from '../../../constant';
+import OptionColumn from './OptionColumn';
 
 const TaskListBox = styled.div`
   .itemWrapper {
@@ -28,7 +28,7 @@ const TaskListBox = styled.div`
           height: 8px;
 
           &.selected {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -43,7 +43,7 @@ const TaskListBox = styled.div`
           }
         }
         .titleText {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
         .optionIcon {
           background: rgba(247, 247, 247, 1);
@@ -109,7 +109,7 @@ const TaskListBox = styled.div`
     background: #fff;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #fff !important;
     }
   }
@@ -173,7 +173,9 @@ const TaskIcon = styled.div`
   margin-right: 8px;
   font-size: 22px;
   background: #fff;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 0px 1px, rgba(0, 0, 0, 0.06) 0px 1px 3px;
+  box-shadow:
+    rgba(0, 0, 0, 0.16) 0px 0px 1px,
+    rgba(0, 0, 0, 0.06) 0px 1px 3px;
 
   .svg-icon {
     width: 24px;
@@ -255,7 +257,7 @@ const FilterItem = styled.div`
 
       &.isActive {
         font-weight: 600;
-        color: #2196f3;
+        color: #1677ff;
       }
       &:hover {
         border-color: #ccc;
@@ -284,7 +286,7 @@ const FilterItem = styled.div`
       cursor: pointer;
 
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #f5f5f5;
       }
     }
@@ -305,8 +307,8 @@ const SelectedWrapper = styled.div`
     border-radius: 3px;
     cursor: pointer;
     &:hover {
-      border-color: #2196f3;
-      color: #2196f3;
+      border-color: #1677ff;
+      color: #1677ff;
     }
   }
 `;
@@ -349,7 +351,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     [],
   );
 
-  useEffect(() => {
+  const getTypes = () => {
     //获取数据源类型列表
     const getTypeParams = {
       projectId,
@@ -365,7 +367,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         setSourceTypeTabList([{ key: 'ALL', text: _l('全部') }, ...list]);
       }
     });
-  }, []);
+  };
 
   useEffect(() => {
     if (!fetchState.loading) return;
@@ -492,7 +494,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       renderTitle: () => {
         const checkableCount = taskList.filter(task => !task.errorInfo).length;
         const checked = checkableCount === selectedTasks.length;
-        return !!selectedTasks.length ? (
+        return selectedTasks.length ? (
           <Checkbox
             size="small"
             className={cx('taskItemCheckbox', { isShow: !!selectedTasks.length })}
@@ -579,7 +581,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             )}
             {(item.hasConfigUpdate || item.taskStatus === TASK_STATUS_TYPE.UN_PUBLIC) && !item.errorInfo && (
               <div className="flexRow alignItemsCenter">
-                <Icon icon="info1" className="warnColor Font16 mLeft8" />
+                <Icon icon="info" className="warnColor Font16 mLeft8" />
                 <span className="mLeft4 ThemeColor">{item.hasConfigUpdate ? _l('有更新未发布') : _l('未发布')}</span>
               </div>
             )}
@@ -600,7 +602,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
                   </ErrorInfoWrapper>
                 }
               >
-                <Icon icon="info1" className="errorIcon" />
+                <Icon icon="info" className="errorIcon" />
               </Trigger>
             )}
           </div>
@@ -785,7 +787,10 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               <Icon
                 icon="filter"
                 className={cx('filterIcon', { isActive: showFilter })}
-                onClick={() => setShowFilter(!showFilter)}
+                onClick={() => {
+                  setShowFilter(!showFilter);
+                  !showFilter && !sourceTypeTabList.length && getTypes();
+                }}
               />
               {!showFilter &&
                 [fetchState.taskStatus, fetchState.sourceType, fetchState.destType].filter(item => item === 'ALL')
@@ -805,33 +810,37 @@ export default function TaskList({ projectId, onRefreshComponents }) {
 
         {showFilter && (
           <div className="mTop16">
-            {FILTER_TYPES.map((list, i) => {
-              return (
-                <FilterItem key={i} className={cx({ isExpand: isFilterExpand[list.key] })}>
-                  <div className="itemText">{list.title}</div>
-                  <ul>
-                    {list.data.map((item, index) => (
-                      <li
-                        key={index}
-                        title={item.text}
-                        className={cx({ isActive: item.key === fetchState[list.key] })}
-                        onClick={() => setFetchState({ [list.key]: item.key, pageNo: 0, loading: true })}
-                      >
-                        {item.text}
-                      </li>
-                    ))}
+            {!sourceTypeTabList.length ? (
+              <LoadDiv />
+            ) : (
+              FILTER_TYPES.map((list, i) => {
+                return (
+                  <FilterItem key={i} className={cx({ isExpand: isFilterExpand[list.key] })}>
+                    <div className="itemText">{list.title}</div>
+                    <ul>
+                      {list.data.map((item, index) => (
+                        <li
+                          key={index}
+                          title={item.text}
+                          className={cx({ isActive: item.key === fetchState[list.key] })}
+                          onClick={() => setFetchState({ [list.key]: item.key, pageNo: 0, loading: true })}
+                        >
+                          {item.text}
+                        </li>
+                      ))}
 
-                    {list.hasExpand && (
-                      <Icon
-                        icon={isFilterExpand[list.key] ? 'arrow-up' : 'arrow-down'}
-                        className="expandIcon"
-                        onClick={() => setIsFilterExpand({ [list.key]: !isFilterExpand[list.key] })}
-                      />
-                    )}
-                  </ul>
-                </FilterItem>
-              );
-            })}
+                      {list.hasExpand && (
+                        <Icon
+                          icon={isFilterExpand[list.key] ? 'arrow-up' : 'arrow-down'}
+                          className="expandIcon"
+                          onClick={() => setIsFilterExpand({ [list.key]: !isFilterExpand[list.key] })}
+                        />
+                      )}
+                    </ul>
+                  </FilterItem>
+                );
+              })
+            )}
           </div>
         )}
 
@@ -853,7 +862,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         </DropMotion>
       </div>
 
-      <div className="flexColumn h100 leftMove22">
+      <div className="flexColumn flex leftMove22 overflowHidden pBottom20">
         <TaskListBox>
           <div className={cx('itemWrapper mTop8', { isHeader: true })}>
             <div className="rowItem">

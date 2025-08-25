@@ -10,6 +10,7 @@ import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponen
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { accMul, browserIsMobile, emitter, isKeyBoardInputChar } from 'src/utils/common';
 import { formatNumberFromInput, formatStrZero, renderText, toFixed } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import EditableCellCon from '../EditableCellCon';
 import CellErrorTips from './comps/CellErrorTip';
@@ -158,7 +159,16 @@ export default class Text extends React.Component {
 
   get masked() {
     const { cell, isCharge } = this.props;
-    return this.controlCanMask && this.state.value && (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1');
+    return (
+      this.controlCanMask &&
+      this.state.value &&
+      (isCharge || _.get(cell, 'advancedSetting.isdecrypt') === '1') &&
+      !(
+        _.get(window, 'shareState.isPublicView') ||
+        _.get(window, 'shareState.isPublicPage') ||
+        _.get(window, 'shareState.isPublicRecord')
+      )
+    );
   }
 
   get isMultipleLine() {
@@ -186,14 +196,14 @@ export default class Text extends React.Component {
   };
 
   handleEdit = e => {
-    const { updateEditingStatus, cell } = this.props;
+    const { updateEditingStatus } = this.props;
     e.stopPropagation();
     updateEditingStatus(true, this.focus);
   };
 
-  handleBlur = target => {
+  handleBlur = () => {
     this.hadBlur = true;
-    const { isSubList, cell, error, updateCell, updateEditingStatus } = this.props;
+    const { isSubList, cell, error, ignoreErrorMessage, updateCell, updateEditingStatus } = this.props;
     this.tempKey = [];
     let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
@@ -220,10 +230,10 @@ export default class Text extends React.Component {
     } else if ((cell.enumDefault === 0 || cell.enumDefault === 2) && typeof value === 'string') {
       value = value.replace(/\r\n|\n/g, ' ').trim();
     }
-    if (error) {
+    if (error && !ignoreErrorMessage) {
       updateEditingStatus(false);
       this.setState({
-        value: this.state.oldValue,
+        value: oldValue,
       });
       return;
     }
@@ -278,7 +288,7 @@ export default class Text extends React.Component {
         navigator.clipboard
           .readText()
           .then(setKeyboardValue)
-          .catch(err => {
+          .catch(() => {
             if (window.tempCopyForSheetView) {
               handleCopyFromWindow();
             } else {
@@ -372,6 +382,10 @@ export default class Text extends React.Component {
       return;
     }
     e.stopPropagation();
+    addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+      rowId: this.props.recordId,
+      controlId: _.get(this.props, 'cell.controlId'),
+    });
     if (!this.state.forceShowFullValue) {
       e.preventDefault();
     }
@@ -391,6 +405,7 @@ export default class Text extends React.Component {
       popupContainer,
       editable,
       onClick,
+      ignoreErrorMessage,
     } = this.props;
     const { rows } = this.context || {};
     let { value, forceShowFullValue } = this.state;
@@ -468,6 +483,7 @@ export default class Text extends React.Component {
             className={cx('Ming textControlTextArea cellControlEdittingStatus stopPropagation', {
               isMultipleLine: this.isMultipleLine,
               cellControlErrorStatus: error,
+              ignoreErrorMessage,
             })}
             {...editProps}
             value={String(_.isUndefined(editProps.value) ? '' : editProps.value)}
@@ -481,7 +497,13 @@ export default class Text extends React.Component {
             onChange={this.handleChange}
           />
         )}
-        {error && <CellErrorTips pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
+        {error && (
+          <CellErrorTips
+            color={ignoreErrorMessage ? '#ff933e' : undefined}
+            pos={rowIndex === 0 ? 'bottom' : 'top'}
+            error={error}
+          />
+        )}
         {this.isMultipleLine && (
           <MultipleLineTip className="ellipsis">
             {window.isMacOs ? _l('⌘+Enter结束编辑') : _l('Ctrl+Enter结束编辑')}
@@ -536,7 +558,11 @@ export default class Text extends React.Component {
                             linelimit: needLineLimit,
                             ellipsis: isMobile,
                           })
-                        : cx({ 'ellipsis w100 InlineBlock': isCard, abstractContent: isCard && isMobile })
+                        : cx({
+                            'ellipsis InlineBlock': isCard,
+                            w100: isCard && !this.masked,
+                            abstractContent: isCard && isMobile,
+                          })
                     }
                     title={text}
                     onClick={this.handleUnMask}

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import RecentOrCollectAppList from './RecentOrCollectAppList';
 import AddCollectApp from './AddCollectApp';
-import _ from 'lodash';
+import RecentOrCollectAppList from './RecentOrCollectAppList';
 
 const Wrapper = styled.div`
   flex: 1;

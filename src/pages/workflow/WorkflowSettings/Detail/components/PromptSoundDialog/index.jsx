@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Icon, Dialog, Tooltip } from 'ming-ui';
 import _ from 'lodash';
-import PromptSound from '../PromptSound';
-import { LANGUAGE_BCP47 } from '../../../enum';
+import styled from 'styled-components';
+import { Dialog, Icon, Tooltip } from 'ming-ui';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
+import { LANGUAGE_BCP47 } from '../../../enum';
+import PromptSound from '../PromptSound';
 
 const MessageBox = styled.div`
   height: 36px;
@@ -12,7 +12,7 @@ const MessageBox = styled.div`
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
-  .icon-delete2:hover {
+  .icon-trash:hover {
     color: #f44336 !important;
   }
 `;
@@ -33,7 +33,11 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
     <Fragment>
       <div className="Font13 bold mTop25">
         {_l('提示音')}
-        <Tooltip popupPlacement="bottom" text={_l('在 APP 运行期间方可进行语音播报，而 H5 则不具备此功能')}>
+        <Tooltip
+          popupPlacement="bottom"
+          autoCloseDelay={0}
+          text={_l('在 APP 运行期间方可进行语音播报，而 H5 则不具备此功能')}
+        >
           <Icon className="Font16 Gray_9e mLeft5 tip-top-right" style={{ verticalAlign: 'text-bottom' }} icon="info" />
         </Tooltip>
       </div>
@@ -49,8 +53,8 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
                   (promptSound.file
                     ? _l('自定义')
                     : !promptSound.preset
-                    ? _l('默认')
-                    : VOICE_FILE_LIST.find(o => o.fileKey === promptSound.preset).fileName)
+                      ? _l('默认')
+                      : VOICE_FILE_LIST.find(o => o.fileKey === promptSound.preset).fileName)
                 : _l('语音播报：%0', LANGUAGE_BCP47.find(o => o.value === promptSound.language).text)}
             </span>
           )}
@@ -59,7 +63,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
         {promptSound.type !== 0 && (
           <span data-tip={_l('清空')} className="mRight15">
             <Icon
-              type="delete2"
+              type="trash"
               className="Gray_75 Font14 pointer"
               onClick={() =>
                 updateSource({

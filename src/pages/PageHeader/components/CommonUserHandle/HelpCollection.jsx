@@ -15,7 +15,7 @@ const collections = () => {
       text: _l('支持'),
       items: [
         { id: 'helpDoc', text: _l('帮助文档'), icon: 'class', href: 'https://help.mingdao.com/' },
-        { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.net/' },
+        { id: 'video', text: _l('学习视频'), icon: 'play_circle_outline', href: 'https://learn.mingdao.com/' },
         { id: 'communityQuestions', text: _l('社区提问'), icon: 'forum', href: 'https://bbs.mingdao.net/' },
         { id: 'helpDoc', text: _l('寻找伙伴支持'), icon: 'partner', href: 'https://www.mingdao.com/partnerlist' },
         { id: 'partnerSupport', text: _l('人工客服'), icon: 'support_agent' },
@@ -44,7 +44,7 @@ const collections = () => {
     {
       type: 'buy',
       text: _l('购买'),
-      items: [{ id: 'versionAndPrice', text: _l('版本和价格'), icon: 'stars', href: 'https://www.mingdao.com/price' }],
+      items: [{ id: 'versionAndPrice', text: _l('版本和价格'), icon: 'score', href: 'https://www.mingdao.com/price' }],
     },
   ];
 };
@@ -60,7 +60,7 @@ const CollectionWrap = styled.div`
     width: 316px;
     background: #ffffff;
     border-radius: 8px;
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
     padding: 10px 15px;
     box-sizing: border-box;
     &:hover {

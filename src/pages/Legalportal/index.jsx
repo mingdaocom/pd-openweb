@@ -178,9 +178,9 @@ const Wrap = styled.div`
   }
 `;
 
-const LegalPortalCon = props => {
+const LegalPortalCon = () => {
   const str = 'legalportal/';
-  const [{ loading, hLoading, legalInfo, keys, key, isOpen }, setState] = useSetState({
+  const [{ loading, legalInfo, keys, key, isOpen }, setState] = useSetState({
     hLoading: true,
     loading: true,
     legalInfo: {},

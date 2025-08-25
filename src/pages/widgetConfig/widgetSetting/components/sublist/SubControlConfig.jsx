@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { SETTING_MODE_DISPLAY } from '../../../config/setting';
+import { getAdvanceSetting } from '../../../util/setting';
+import ExplainContent from '../../content/ExplainContent';
 import SettingContent from '../../content/SettingContent';
 import StyleContent from '../StyleContent';
-import ExplainContent from '../../content/ExplainContent';
 import WidgetIntro from '../WidgetIntro';
-import _ from 'lodash';
-import { getAdvanceSetting } from '../../../util/setting';
 
 const SubControlConfigWrap = styled.div`
   position: absolute;
@@ -19,6 +20,8 @@ const SubControlConfigWrap = styled.div`
   flex-direction: column;
   & > div:nth-child(2) {
     margin-top: 0;
+    padding: 0 20px;
+    flex: unset;
   }
   .subListConfigContent {
     flex: 1;
@@ -55,19 +58,19 @@ export default function SubControlConfig({
   const { controlId } = control || {};
   const queryId = _.get(getAdvanceSetting(control, 'dynamicsrc'), 'id');
   const { controlName, dataSource: subListSheetId } = subListData;
-  // 1: 设置，2: 样式， 3: 说明
-  const [mode, setMode] = useState(1);
+  const [settingMode, setSettingMode] = useState(SETTING_MODE_DISPLAY.SETTING);
 
   const handleChange = obj => {
     changeWidgetData(controlId, obj);
   };
   const subListProps = {
     ...rest,
+    subListData,
     data: control,
     onChange: handleChange,
     from: 'subList',
     subListSheetId,
-    mode: mode,
+    settingMode: settingMode,
     allControls: controls.filter(c => c.controlId !== controlId),
     globalSheetControls: allControls,
     queryConfig: _.find(subQueryConfigs || [], i => i.id === queryId) || {},
@@ -76,17 +79,18 @@ export default function SubControlConfig({
   };
 
   const getContent = () => {
-    if (mode === 2) {
-      return <StyleContent {...subListProps} />;
-    } else if (mode === 3) {
-      return <ExplainContent {...subListProps} />;
-    } else {
-      return <SettingContent {...subListProps} />;
+    switch (settingMode) {
+      case SETTING_MODE_DISPLAY.CONTROL_STYLE:
+        return <StyleContent {...subListProps} />;
+      case SETTING_MODE_DISPLAY.DESC:
+        return <ExplainContent {...subListProps} />;
+      default:
+        return <SettingContent {...subListProps} />;
     }
   };
 
   useEffect(() => {
-    setMode(1);
+    setSettingMode(SETTING_MODE_DISPLAY.SETTING);
   }, [controlId]);
 
   return (
@@ -95,7 +99,7 @@ export default function SubControlConfig({
         <i className="icon-arrow-left-border Font18 Gray_75"></i>
         <span className="Bold">{controlName}</span>
       </div>
-      <WidgetIntro {...subListProps} setMode={setMode} />
+      <WidgetIntro {...subListProps} setSettingMode={setSettingMode} />
       <div className="subListConfigContent">{getContent()}</div>
     </SubControlConfigWrap>
   );

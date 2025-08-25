@@ -1,18 +1,13 @@
-
-
 .ChatList-sessionList {
   width: 100%;
   transform: translateX(0px);
   transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.68, 1.04);
-  &.open {
-    transform: translateX(160px);
-  }
   &-loading {
     display: flex;
     flex-direction: row;
     align-items: center;
     &.visible {
-      width: 66px;
+      width: 52px;
     }
     &.nodata {
       height: 100%;
@@ -37,20 +32,61 @@
     }
   }
   &-wrapper {
-    width: 230px;
+    width: 100%;
     flex: 1;
-    height: calc(~'100% - 125px');
+    .countWrap {
+      color: #515151;
+      font-weight: bold;
+      height: 18px;
+      border-radius: 12px;
+      text-align: center;
+      line-height: 15px;
+      padding: 0 8px;
+      border: 1px solid #dddddd;
+      .icon {
+        font-weight: bold !important;
+      }
+    }
+  }
+  &-show {
+    width: calc(~'100% + 10px') !important;
+    .SessionList-item {
+      border-radius: 4px;
+      margin-right: 10px;
+      padding: 8px;
+      .chat_calendar:before {
+        top: 7px !important;
+      }
+      &.active {
+        &::before {
+          content: none !important;
+        }
+        background-color: #d0e8ff !important;
+      }
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+        .delete {
+          opacity: 1;
+        }
+      }
+    }
+    .SessionList-info {
+      opacity: 1;
+    }
+    .SessionList-avatar {
+      width: 40px;
+      height: 40px;
+    }
   }
 }
 
 .SessionList-scrollView {
-  height: calc(~'100% - 56px') !important;
   box-shadow: none !important;
 }
 
 .SessionList-bell {
   font-size: 12px;
-  color: #9E9E9E;
+  color: #9e9e9e;
   width: 36px;
   height: 36px;
   background-color: #fff;

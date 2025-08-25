@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import moment from 'moment';
-import { Button, Icon, Input, Textarea, Tooltip } from 'ming-ui';
+import { Icon, Textarea, Tooltip } from 'ming-ui';
 import privateGuide from 'src/api/privateGuide';
 import { getRequest } from 'src/utils/common';
 import ApplyPrivateKey from './ApplyPrivateKey';
-import './privatekey.less';
 import 'rc-trigger/assets/index.css';
+import './privatekey.less';
 
 const LicenseVersions = [_l('社区版'), _l('标准版'), _l('专业版'), _l('大型专业版'), _l('教学版'), _l('专业版试用')];
 
@@ -20,7 +20,7 @@ const formatDate = date => {
 
 export default class PersonalEntrypoint extends Component {
   constructor(props) {
-    super();
+    super(props);
     const { hash } = location;
     this.state = {
       isApply: hash === '#apply',

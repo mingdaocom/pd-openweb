@@ -1,8 +1,8 @@
-import React, { Fragment, Component } from 'react';
-import DiscussInfo from './DiscussInfo';
-import cx from 'classnames';
+import React from 'react';
 import { Popup } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
+import DiscussInfo from './DiscussInfo';
 
 export default props => {
   const { isModal, match, appId, worksheetId, rowId, viewId, projectId, discussionCount, getDiscussionsCount } = props;

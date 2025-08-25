@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -6,6 +6,7 @@ import { Button, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import RegExpValidator from 'src/utils/expression';
@@ -94,6 +95,7 @@ export default class LoginLog extends Component {
                   />
                   <UserName
                     className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                    projectId={Config.projectId}
                     user={{
                       userName: log.fullname,
                       accountId: log.accountId,
@@ -217,13 +219,24 @@ export default class LoginLog extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ disabledExportBtn: false });
       });
   };
 
   render() {
     const { loading, dataSource = [], count = 0, disabledExportBtn, searchValues, pageIndex } = this.state;
+
+    const licenseType = (md.global.Account.projects.find(o => o.projectId === Config.projectId) || {}).licenseType;
+
+    if (licenseType === 0) {
+      return upgradeVersionDialog({
+        projectId: Config.projectId,
+        explainText: _l('请升级至付费版解锁'),
+        isFree: true,
+        dialogType: 'content',
+      });
+    }
 
     let searchList = [
       {
@@ -282,6 +295,7 @@ export default class LoginLog extends Component {
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
             />
             <Tooltip
+              autoCloseDelay={0}
               text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
               popupPlacement="bottom"
             >

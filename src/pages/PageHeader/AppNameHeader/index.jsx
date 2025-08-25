@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import api from 'api/homeApp';
-import './index.less';
-import { navigateTo } from '../../../router/navigateTo';
 import { SvgIcon } from 'ming-ui';
+import { navigateTo } from '../../../router/navigateTo';
+import './index.less';
 
 export default class AppNameHeader extends Component {
   constructor(props) {
@@ -41,7 +41,8 @@ export default class AppNameHeader extends Component {
                 }}
                 onClick={() => {
                   navigateTo(`/app/${this.props.match.params.apkId}`);
-                }}>
+                }}
+              >
                 <SvgIcon url={iconUrl} fill="#fff" size={24} />
               </span>
             </div>
@@ -49,7 +50,8 @@ export default class AppNameHeader extends Component {
               className="appName Gray Font16 Hand"
               onClick={() => {
                 navigateTo(`/app/${this.props.match.params.apkId}`);
-              }}>
+              }}
+            >
               {name}
             </div>
           </React.Fragment>

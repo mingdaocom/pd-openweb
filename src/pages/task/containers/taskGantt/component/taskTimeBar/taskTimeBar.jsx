@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import config from '../../config/config';
-import './taskTimeBar.less';
-import TimeBars from '../timeBars/timeBars';
 import { DropTarget } from 'react-dnd';
 import cx from 'classnames';
+import config from '../../config/config';
+import TimeBars from '../timeBars/timeBars';
+import './taskTimeBar.less';
 
 const ganttTarget = {
-  hover(props, monitor, component) {
+  hover(props, monitor) {
     // 触发拖拽单侧的时候也触发了拖拽整个的bug
     if (config.isSingleDrag) {
       return;
@@ -39,15 +39,13 @@ export default class TaskTimeBar extends Component {
         {item.taskTimeBars.map((timeBars, row) =>
           timeBars.map((data, col) => {
             return <TimeBars data={data} row={row} col={col} key={data.taskId} {...this.props} />;
-          })
+          }),
         )}
 
         {!config.folderId && item.account.hidden ? (
           <div className="taskTimeBarsHidden" onClick={() => this.props.updateUserStatus(item.account.accountId)} />
-        ) : (
-          undefined
-        )}
-      </div>
+        ) : undefined}
+      </div>,
     );
   }
 }

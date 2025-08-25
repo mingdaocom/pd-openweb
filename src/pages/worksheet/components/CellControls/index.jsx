@@ -5,10 +5,15 @@ import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { controlState, onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { accDiv } from 'src/utils/common';
-import { checkIsTextControl, getCopyControlText, handleCopyControlText } from 'src/utils/control';
+import {
+  checkIsTextControl,
+  getControlStateAndCheckSectionControl,
+  getCopyControlText,
+  handleCopyControlText,
+} from 'src/utils/control';
 import SheetContext from '../../common/Sheet/SheetContext';
 import Area from './Area';
 import Attachments from './Attachments';
@@ -223,7 +228,7 @@ export default class CellControl extends React.Component {
   }
 
   validate(cell, row) {
-    const { tableFromModule, cellUniqueValidate, clearCellError, rowFormData } = this.props;
+    const { tableFromModule, cellUniqueValidate, rowFormData } = this.props;
     let { errorType } = onValidator({ item: cell, data: _.isFunction(rowFormData) ? rowFormData() : rowFormData });
     if (!errorType && (cell.unique || cell.uniqueInRecord) && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
       errorType = cellUniqueValidate(cell.controlId, cell.value, row.rowid) ? '' : 'UNIQUE';
@@ -243,7 +248,7 @@ export default class CellControl extends React.Component {
     }
   }
 
-  onValidate = (value, returnObject = false) => {
+  onValidate = value => {
     const { projectId, cell, row, checkRulesErrorOfControl, rowFormData, clearCellError } = this.props;
     // 百分比值处理
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
@@ -281,25 +286,23 @@ export default class CellControl extends React.Component {
     } catch (err) {
       console.log(err);
     }
-    const error = checkRulesErrorOfControl({
+    const ruleError = checkRulesErrorOfControl({
       control: cell,
       row: rowForCheckRule,
       validateRealtime: true,
     });
-    if (error) {
-      this.setState({ error: error.errorMessage });
-      return !error;
+    if (ruleError) {
+      this.setState({ error: ruleError.errorMessage, ignoreErrorMessage: ruleError.ignoreErrorMessage });
+      return ruleError;
     }
     this.setState({
       error: errorText || null,
+      ignoreErrorMessage: false,
     });
-    if (returnObject) {
-      return {
-        errorType,
-        errorText,
-      };
-    }
-    return !errorType;
+    return {
+      errorType,
+      errorText,
+    };
   };
 
   handleCopy = cell => {
@@ -586,7 +589,6 @@ export default class CellControl extends React.Component {
       sheetSwitchPermit,
       viewId,
       appId,
-      allowlink,
       disableDownload,
       updateCell,
       isCharge,
@@ -595,12 +597,18 @@ export default class CellControl extends React.Component {
       chatButton,
       isDraft,
     } = this.props;
-    const { isediting } = this.state;
+    // style.transform = `translate3d(${style.left}px, ${style.top}px, 0)`;
+    // style.left = 0;
+    // style.top = 0;
+    const { isediting, ignoreErrorMessage } = this.state;
     const error = this.error;
     const singleLine = rowHeight === ROW_HEIGHT[0];
     let className = this.props.className + ' cell-id-' + this.id;
     if (error) {
       className = className + ' cellControlErrorStatus';
+    }
+    if (ignoreErrorMessage) {
+      className = className + ' ignoreErrorMessage';
     }
     if (singleLine) {
       className += ' singleLine';
@@ -643,8 +651,12 @@ export default class CellControl extends React.Component {
         cell.type = cell.enumDefault2 || 6;
       }
     }
-    const controlPermission = controlState(cell);
-    this.editable = canedit && row && row.allowedit && controlPermission.editable && !cell.isSubtotal;
+    const controlPermission = getControlStateAndCheckSectionControl(
+      cell,
+      from,
+      _.isFunction(rowFormData) ? rowFormData() : rowFormData,
+    );
+    this.editable = canedit && row && row.allowedit && !row.sys_lock && controlPermission.editable && !cell.isSubtotal;
     if (this.editable) {
       className += ' editable';
     }
@@ -692,6 +704,7 @@ export default class CellControl extends React.Component {
       tableFromModule,
       isediting,
       error,
+      ignoreErrorMessage,
       sheetSwitchPermit,
       viewId,
       appId,

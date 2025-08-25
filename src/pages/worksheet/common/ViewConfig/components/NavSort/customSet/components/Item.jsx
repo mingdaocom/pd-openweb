@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, UserHead } from 'ming-ui';
 import { quickSelectDept, quickSelectRole, quickSelectUser } from 'ming-ui/functions';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
@@ -17,7 +18,7 @@ export default function (props) {
     valueRef.current = setting;
   }, [setting]);
 
-  const { onAdd, onDelete, item, onUpdate, projectId, appId, DragHandle } = props;
+  const { onAdd, onDelete, item, onUpdate, projectId, appId, DragHandle, maxCount } = props;
   const { num, info } = item;
   const addUser = (isMultiple = true, tabType, cb) => {
     quickSelectUser($ref.current, {
@@ -58,7 +59,7 @@ export default function (props) {
     onUpdate(maxCount ? newData.slice(0, maxCount) : newData, num);
   };
 
-  const addDep = (e, isMultiple = true, cb) => {
+  const addDep = (e, isMultiple = true) => {
     quickSelectDept(e.target, {
       projectId,
       isIncludeRoot: false,
@@ -130,7 +131,7 @@ export default function (props) {
         )}
         <Icon
           className="Font16 Hand delete mLeft15 deleteLine"
-          icon="delete2"
+          icon="trash"
           onClick={() => {
             onDelete(info);
           }}

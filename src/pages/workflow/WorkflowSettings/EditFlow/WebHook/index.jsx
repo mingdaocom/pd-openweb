@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import _ from 'lodash';
 import { ACTION_ID, APP_TYPE } from '../../enum';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Write extends Component {
   constructor(props) {
@@ -34,7 +35,7 @@ export default class Write extends Component {
     if (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType) && !item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );

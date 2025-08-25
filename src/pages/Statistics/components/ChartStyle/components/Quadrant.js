@@ -1,6 +1,5 @@
 import React, { Component, Fragment, useState } from 'react';
-import { Input, Radio, Space } from 'antd';
-import cx from 'classnames';
+import { Input } from 'antd';
 import styled from 'styled-components';
 import { ColorPicker } from 'ming-ui';
 import { formatNumberFromInput } from 'src/utils/control';
@@ -48,7 +47,7 @@ const QuadrantAxisValue = props => {
       onChange={event => {
         setValue(formatNumberFromInput(event.target.value));
       }}
-      onBlur={event => {
+      onBlur={() => {
         props.onChange(value ? Number(value) : value);
       }}
       onKeyDown={event => {

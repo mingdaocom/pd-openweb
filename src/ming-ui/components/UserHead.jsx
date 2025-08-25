@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { Avatar, UserCard } from 'ming-ui';
 
 /**
@@ -57,8 +57,8 @@ export default class UserHead extends React.Component {
       src.indexOf('?') > 0
         ? src.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/100/h/100/q/90')
         : src
-        ? src + '?imageView2/1/w/100/h/100/q/90'
-        : '';
+          ? src + '?imageView2/1/w/100/h/100/q/90'
+          : '';
 
     const result = (
       <div

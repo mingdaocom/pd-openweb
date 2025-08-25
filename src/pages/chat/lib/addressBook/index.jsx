@@ -1,22 +1,17 @@
 import React from 'react';
 import shallowEqual from 'react-redux/lib/utils/shallowEqual';
-
 import { default as MingDialog } from 'ming-ui/components/Dialog';
 import Icon from 'ming-ui/components/Icon';
-
-import SiderBar from './containers/SiderBar';
-import NewFriends from './containers/NewFriends';
+import { config } from './config';
+import { gatherProjects, SIDER_BAR_LIST, TYPES } from './constants';
+import Apps from './containers/Apps';
 import Contacts from './containers/Contacts';
-import Groups from './containers/Groups';
 import Friends from './containers/Friends';
+import Groups from './containers/Groups';
+import NewFriends from './containers/NewFriends';
 import Others from './containers/Others';
 import ProjectContacts from './containers/ProjectContacts';
-import Apps from './containers/Apps';
-
-import { TYPES, SIDER_BAR_LIST, gatherProjects } from './constants';
-
-import { config } from './config';
-
+import SiderBar from './containers/SiderBar';
 import './style.less';
 
 const Dialog = MingDialog.DialogBase;
@@ -91,7 +86,7 @@ export default function AddressBookDialog(props) {
   };
 
   config.callback = props.closeDialog;
-  const { showNewFriends } = props;
+
   if (!props.showAddressBook) return null;
   return (
     <Dialog {...dialogProps}>

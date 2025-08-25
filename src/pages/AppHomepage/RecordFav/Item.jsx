@@ -205,7 +205,7 @@ export default function Item(props) {
               onUpdateFavoriteTop();
             }}
           >
-            <Icon className="Font20" icon={isTop ? 'unpin' : 'folder-top'} />
+            <Icon className="Font20" icon={isTop ? 'unpin' : 'set_top'} />
           </div>
         </Tooltip>
       </div>

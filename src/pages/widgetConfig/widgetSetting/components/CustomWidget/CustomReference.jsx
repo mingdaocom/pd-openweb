@@ -54,7 +54,7 @@ const CustomReferenceWrap = styled.div`
         border-color: #ccc;
       }
       &:focus {
-        border-color: #2196f3;
+        border-color: #1677ff;
       }
     }
     .showValue,

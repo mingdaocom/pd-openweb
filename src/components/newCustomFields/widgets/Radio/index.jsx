@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -71,7 +71,7 @@ class Widgets extends Component {
   };
 
   render() {
-    const { disabled, advancedSetting, className, vertical, options, value } = this.props;
+    const { disabled, advancedSetting, className, vertical, options, value, onConClick = () => {} } = this.props;
     const { direction = '2', width = '200', readonlyshowall } = advancedSetting || {};
     const { checkIds } = getCheckAndOther(value);
     const readOnlyShow = !browserIsMobile() && readonlyshowall === '1' && disabled ? true : !disabled;
@@ -88,6 +88,7 @@ class Widgets extends Component {
           { groupRow: direction === '2' && !browserIsMobile() },
         )}
         style={{ height: 'auto' }}
+        onClick={onConClick}
       >
         <div className={`ming RadioGroup2 ${className || ''}`}>
           <div
@@ -98,49 +99,56 @@ class Widgets extends Component {
           >
             {displayOptions.map((item, index) => {
               return (
-                <div
-                  className="flexColumn"
-                  style={direction === '0' && !browserIsMobile() ? { width: this.getItemWidth(displayOptions) } : {}}
-                >
-                  {browserIsMobile() && disabled && item.key === 'other' ? (
-                    <div
-                      className="flexColumn"
-                      style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
-                    >
-                      <Radio
-                        needDefaultUpdate
-                        key={index}
-                        disabled={disabled}
-                        text={this.renderList(item, checkIds)}
-                        value={item.key}
-                        checked={_.includes(checkIds, item.key)}
-                        title={item.value}
-                        onClick={this.onChange}
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="flexColumn"
-                      style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
-                    >
-                      <Radio
-                        needDefaultUpdate
-                        key={index}
-                        disabled={disabled}
-                        text={this.renderList(item, checkIds)}
-                        value={item.key}
-                        checked={_.includes(checkIds, item.key)}
-                        title={item.value}
-                        onClick={this.onChange}
-                      />
-                      {item.key === 'other' && (
-                        <div className="otherInputBox">
-                          <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />
-                        </div>
-                      )}
+                <Fragment>
+                  <div
+                    className="flexColumn"
+                    style={direction === '0' && !browserIsMobile() ? { width: this.getItemWidth(displayOptions) } : {}}
+                  >
+                    {browserIsMobile() && disabled && item.key === 'other' ? (
+                      <div
+                        className="flexColumn"
+                        style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
+                      >
+                        <Radio
+                          needDefaultUpdate
+                          key={index}
+                          disabled={disabled}
+                          text={this.renderList(item, checkIds)}
+                          value={item.key}
+                          checked={_.includes(checkIds, item.key)}
+                          title={item.value}
+                          onClick={this.onChange}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="flexColumn"
+                        style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
+                      >
+                        <Radio
+                          needDefaultUpdate
+                          key={index}
+                          disabled={disabled}
+                          text={this.renderList(item, checkIds)}
+                          value={item.key}
+                          checked={_.includes(checkIds, item.key)}
+                          title={item.value}
+                          onClick={this.onChange}
+                        />
+                        {/* {item.key === 'other' && (
+                          <div className="otherInputBox">
+                            <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />
+                          </div>
+                        )} */}
+                      </div>
+                    )}
+                  </div>
+                  {item.key === 'other' && !(browserIsMobile() && disabled) && (
+                    <div className="otherInputBox w100">
+                      <OtherInput className="pLeft0" {...this.props} isSelect={browserIsMobile() ? true : false} />
                     </div>
                   )}
-                </div>
+                </Fragment>
               );
             })}
           </div>

@@ -45,7 +45,7 @@ export default function ExportSheetButton(props) {
         ></i>
       ) : (
         <IconBtn className="Hand ThemeHoverColor3">
-          <i className="icon icon-file_download" />
+          <i className="icon icon-download" />
         </IconBtn>
       )}
     </span>

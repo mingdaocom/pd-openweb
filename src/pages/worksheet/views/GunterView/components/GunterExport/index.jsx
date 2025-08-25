@@ -1,19 +1,19 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { updateBase, loadWorksheet } from 'worksheet/redux/actions';
-import Gunter from 'src/pages/worksheet/views/GunterView';
 import DocumentTitle from 'react-document-title';
-import { LoadDiv } from 'ming-ui';
-import printGunter from './print';
-import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
+import { LoadDiv } from 'ming-ui';
+import { loadWorksheet, updateBase } from 'worksheet/redux/actions';
+import Gunter from 'src/pages/worksheet/views/GunterView';
+import printGunter from './print';
+import './index.less';
 
 @connect(
   state => ({
     ..._.pick(state.sheet, ['base', 'views']),
-    ..._.pick(state.sheet.gunterView, ['loading'])
+    ..._.pick(state.sheet.gunterView, ['loading']),
   }),
   dispatch => bindActionCreators({ updateBase, loadWorksheet }, dispatch),
 )
@@ -21,8 +21,8 @@ export default class GunterExport extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: false
-    }
+      error: false,
+    };
   }
   componentDidMount() {
     const { match } = this.props;
@@ -34,7 +34,7 @@ export default class GunterExport extends Component {
       setTimeout(() => {
         const view = _.find(views, { viewId: base.viewId });
         const name = `${view.name}${moment().format('_YYYYMMDDHHmmSS')}`;
-        printGunter(name).then((error) => {
+        printGunter(name).then(error => {
           if (error) {
             this.setState({ error: true });
           }
@@ -49,7 +49,7 @@ export default class GunterExport extends Component {
       return (
         <Fragment>
           <Gunter view={view} />
-          <DocumentTitle title={_l('%0正在导出，请稍候...', view.name)}/>
+          <DocumentTitle title={_l('%0正在导出，请稍候...', view.name)} />
         </Fragment>
       );
     } else {
@@ -66,7 +66,7 @@ export default class GunterExport extends Component {
           {error ? (
             <Fragment>
               <div className="mTop10 Gray_75">{_l('导出失败，请缩小视图类型再尝试~')}</div>
-              <DocumentTitle title={_l('导出失败')}/>
+              <DocumentTitle title={_l('导出失败')} />
             </Fragment>
           ) : (
             <Fragment>

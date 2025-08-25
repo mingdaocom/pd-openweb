@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import User from './User';
-import NoData from './NoData';
 import _ from 'lodash';
+import NoData from './NoData';
+import User from './User';
 
 export default class ExtraUserList extends Component {
   getChecked(user) {

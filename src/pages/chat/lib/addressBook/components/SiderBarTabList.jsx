@@ -1,13 +1,13 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 
 export default class SiderTabList extends React.Component {
   static propTypes = {
     name: PropTypes.string.isRequired,
     isOpen: PropTypes.bool.isRequired,
     children: PropTypes.node,
-  }
+  };
 
   constructor(props) {
     super();

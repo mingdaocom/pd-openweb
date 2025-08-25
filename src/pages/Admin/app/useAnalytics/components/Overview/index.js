@@ -10,13 +10,13 @@ import appManagement from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
 import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import { formatValue } from 'src/pages/Admin/homePage/config.js';
 import { formatFileSize } from 'src/utils/common';
 import { dateDimension, formatChartData, formatter, selectDateList } from '../../util';
 import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
 
-const { Option } = Select;
 const Summary = styled.div`
   background-color: #fff;
   padding: 20px 32px 0;
@@ -95,7 +95,7 @@ const ChartWrap = styled.div`
         cursor: pointer;
         margin: 2px;
         &.currentDimension {
-          color: #2196f3;
+          color: #1677ff;
           background-color: #fff;
           border-radius: 3px;
         }
@@ -123,7 +123,7 @@ const ChartWrap = styled.div`
       vertical-align: middle;
     }
     .colorBlue {
-      background: #2196f3;
+      background: #1677ff;
     }
     .colorGreen {
       background: #61ddaa;
@@ -152,6 +152,8 @@ export default class Overview extends Component {
       departmentInfo: {},
       depFlag: false,
       wrapWidth: undefined,
+      startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      endTime: moment().format('YYYY-MM-DD HH:mm:ss'),
     };
     this.summaryRef = React.createRef();
   }
@@ -226,7 +228,7 @@ export default class Overview extends Component {
 
   getChartData = () => {
     const { projectId } = this.props;
-    const { departmentInfo = {}, selectedDate, appId = '', currentDimension, depFlag } = this.state;
+    const { departmentInfo = {}, selectedDate, appId = '', currentDimension, depFlag, startTime, endTime } = this.state;
     let extra =
       departmentInfo.departmentId && departmentInfo.departmentId.indexOf('org') > -1
         ? {}
@@ -240,12 +242,14 @@ export default class Overview extends Component {
         dateDemension: selectedDate === 0 ? '1d' : currentDimension,
         depFlag,
         isApp: this.props.appId ? true : false,
+        startTime,
+        endTime,
         ...extra,
       })
       .then(({ workflow = {}, record = {}, app = {}, attachment = {} }) => {
         this.updateChartData({ workflow, record, app, attachment, isFilterByDepartment: !!extra.departmentId });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -294,6 +298,7 @@ export default class Overview extends Component {
               ...item,
               value1: item.value,
               category: _l('行记录数'),
+              unit: _l('条'),
             })),
         _.isEmpty(personStatisticsResult)
           ? [{ value1: 10000, value: 10000, category: _l('人数') }]
@@ -301,6 +306,7 @@ export default class Overview extends Component {
               ...item,
               value2: item.value,
               category: _l('人数'),
+              unit: _l('人'),
             })),
       ],
       totalDegree: formatter(totalDegree) + ' ' + _l('次'),
@@ -312,6 +318,7 @@ export default class Overview extends Component {
               ...item,
               value1: item.value,
               category: _l('次数'),
+              unit: _l('次'),
             })),
         _.isEmpty(apppersonStatisticsResult)
           ? [{ value2: 10000, value: 10000, category: _l('人数') }]
@@ -319,6 +326,7 @@ export default class Overview extends Component {
               ...item,
               value2: item.value,
               category: _l('人数'),
+              unit: _l('人'),
             })),
       ],
       loading: false,
@@ -330,7 +338,7 @@ export default class Overview extends Component {
     this.setState({ workSheetCount, rowCount, workFlowCount, userCount, loading: false });
   };
 
-  getAuthor = () => {
+  getAppAnalysisData = () => {
     this.setState({ loading: true });
     const { projectId, appId } = this.props;
     const { departmentInfo = {}, selectedDate, currentDimension, depFlag } = this.state;
@@ -361,9 +369,6 @@ export default class Overview extends Component {
   renderChart = (data = [], isDualAxes, chartInfo) => {
     const { selectedDate, currentDimension, loading } = this.state;
     const { total, type } = chartInfo;
-    let showEveryXaxis =
-      ((selectedDate === 2 || selectedDate === 3 || selectedDate === 4) && currentDimension === '1d') ||
-      (selectedDate === 4 && currentDimension === '1w');
     let isEmpty = _.isArray(data[0]) ? _.isEmpty(data[0]) && _.isEmpty(data[1]) : _.isEmpty(data);
 
     return (
@@ -380,23 +385,7 @@ export default class Overview extends Component {
             isDualAxes={isDualAxes}
             chartInfo={chartInfo}
             currentDimension={currentDimension}
-            configObj={
-              !showEveryXaxis
-                ? {
-                    xAxis: {
-                      label: {
-                        formatter: text => {
-                          return moment(text).date() === 1
-                            ? moment(text).format('MM月DD日')
-                            : moment(text).format('DD');
-                        },
-                        autoHide: false,
-                      },
-                      tickInterval: 1,
-                    },
-                  }
-                : {}
-            }
+            selectedDate={selectedDate}
           />
         )}
       </div>
@@ -439,7 +428,7 @@ export default class Overview extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingApp: false });
       });
   }
@@ -499,7 +488,6 @@ export default class Overview extends Component {
       workSheetCount,
       rowCount,
       workFlowCount,
-      userCount,
       departmentInfo = {},
       totalNumberOfexecute,
       totalCapacityUsage,
@@ -515,8 +503,12 @@ export default class Overview extends Component {
       subTypeTotal,
       effectiveAttachmentTotal,
       effectiveAttachmentCode,
+      dateInfo = {},
+      startTime,
+      endTime,
     } = this.state;
     const showEffectiveAttachment = effectiveAttachmentCode === 1;
+    const customDateDays = moment(endTime).diff(moment(startTime), 'days');
 
     return (
       <Fragment>
@@ -558,7 +550,10 @@ export default class Overview extends Component {
               <div className="summaryItem Hand linkHover">
                 <div className="Gray_75 fontWeight600 ">
                   {_l('附件累计存储量')}
-                  <Tooltip text={_l('指应用下字段、讨论等附件，此数据每天统计一次，第二天自动重新计算')}>
+                  <Tooltip
+                    text={_l('指应用下字段、讨论等附件，此数据每天统计一次，第二天自动重新计算')}
+                    autoCloseDelay={0}
+                  >
                     <Icon icon="info" className="Gray_9e mLeft4 Hand" />
                   </Tooltip>
                 </div>
@@ -622,29 +617,28 @@ export default class Overview extends Component {
                   }}
                 />
               )}
-              <Select
-                className="width200 mRight15 mdAntSelect"
-                placeholder={_l('最近30天')}
-                value={selectedDate}
-                suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
-                onChange={value => {
+              <CustomSelectDate
+                className="mdAntSelect mRight10 width200"
+                dateFormat={'YYYY-MM-DD HH:mm:ss'}
+                searchDateList={selectDateList}
+                dateInfo={dateInfo}
+                min={moment().subtract(1, 'year')}
+                changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
                   this.setState(
-                    { selectedDate: value, currentDimension: value === 2 || value === 3 || value === 4 ? '1M' : '1d' },
-                    () => {
-                      this.getChartData();
+                    {
+                      dateInfo: { startDate, endDate, searchDateStr },
+                      selectedDate: dayRange,
+                      startTime: startDate,
+                      endTime: endDate,
                     },
+                    this.getChartData,
                   );
                 }}
-              >
-                {selectDateList.map(item => (
-                  <Option key={item.value} value={item.value}>
-                    {item.label}
-                  </Option>
-                ))}
-              </Select>
+              />
             </div>
             <div className="dateDimension">
-              {selectedDate !== 0 &&
+              {!_.includes([0, 5], selectedDate) &&
+                customDateDays >= 29 &&
                 dateDimension.map(item => (
                   <span
                     key={item.value}
@@ -667,6 +661,7 @@ export default class Overview extends Component {
               {_l('应用访问量')}
               <Tooltip
                 popupPlacement="bottom"
+                autoCloseDelay={0}
                 text={
                   <span>
                     {_l('应用访问次数计数说明：')}
@@ -689,6 +684,7 @@ export default class Overview extends Component {
               {_l('记录创建量')}
               <Tooltip
                 popupPlacement="bottom"
+                autoCloseDelay={0}
                 text={
                   <span>
                     {_l('记录创建次数计数说明：')}

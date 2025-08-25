@@ -1,11 +1,12 @@
-import './css/editFolder.less';
-import doT from 'dot';
-import editFolderTpl from './tpl/editFolder.html';
-import ajaxRequest from 'src/api/taskCenter';
-import { Dialog, Button } from 'ming-ui';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import doT from 'dot';
+import _ from 'lodash';
+import { Button, Dialog } from 'ming-ui';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import ajaxRequest from 'src/api/taskCenter';
+import editFolderTpl from './tpl/editFolder.html';
+import './css/editFolder.less';
 
 const EditFolder = function (opts) {
   const defaults = {

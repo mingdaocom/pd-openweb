@@ -1,6 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import copy from 'copy-to-clipboard';
-import { Button, Dialog, Icon, Input } from 'ming-ui';
+import { Button, Dialog, Input } from 'ming-ui';
 import RegExpValidator from 'src/utils/expression';
 
 const CreateLinkDialog = props => {

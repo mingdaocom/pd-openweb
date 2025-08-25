@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import cx from 'classnames';
 import { includes } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';

@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
 import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
@@ -44,7 +43,6 @@ function SideAppItem({
   createType,
   urlTemplate,
 }) {
-  const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${id}`));
   return (
     <MdLink
       className="stopPropagation"
@@ -66,7 +64,7 @@ function SideAppItem({
       }}
     >
       <li>
-        <div className="iconWrap" style={{ backgroundColor: iconColor || '#2196f3' }}>
+        <div className="iconWrap" style={{ backgroundColor: iconColor || '#1677ff' }}>
           <SvgIcon url={iconUrl} fill="#fff" size={18} />
         </div>
         <div className="appInfo">

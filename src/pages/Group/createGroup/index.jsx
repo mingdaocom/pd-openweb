@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Avatar, Dialog, Dropdown, Icon, Input, Radio, Switch, Tooltip } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -130,7 +131,7 @@ function CreateGroup(props) {
           alert(_l('创建失败'), 2);
         }
       })
-      .catch(err => {
+      .catch(() => {
         setState({ createLoading: false });
       });
   };
@@ -141,7 +142,12 @@ function CreateGroup(props) {
     dialogSelectDept({
       projectId: orgId,
       unique: true,
-      selectFn: data => setState({ department: data[0] }),
+      selectFn: data => setState({ department: data[0], isOfficial: !_.isEmpty(data[0]) }),
+      onClose: isSelect => {
+        if (!isSelect) {
+          setState({ isOfficial: false, department: undefined });
+        }
+      },
     });
   };
 
@@ -157,11 +163,26 @@ function CreateGroup(props) {
         </div>
         {type === 0 && !hideOfficial && (
           <div>
-            <Switch checked={isOfficial} onClick={() => setState({ isOfficial: !isOfficial })} size="small" />
-            <span className="Font13 Gray_15 mLeft8">{_l('设为官方群组')}</span>
-            <span className="ThemeColor mLeft8 Hand" onClick={onSelectDept}>
-              {_.isEmpty(department) ? _l('选择关联部门') : _l('关联部门：%0', department.departmentName)}
-            </span>
+            <Switch
+              checked={isOfficial}
+              onClick={() => {
+                setState({ isOfficial: !isOfficial });
+                if (isOfficial) {
+                  setState({ department: undefined });
+                } else {
+                  onSelectDept();
+                }
+              }}
+              size="small"
+            />
+            <span className="Font13 Gray_15 mLeft8">{_l('关联部门')}</span>
+            {!_.isEmpty(department) && isOfficial && (
+              <span className="ThemeColor mLeft8 Hand bold" onClick={onSelectDept}>
+                {department.departmentName}
+              </span>
+            )}
+
+            <div className="mTop5 Gray_75 mLeft42">{_l('新成员加入部门后自动加入群组')}</div>
           </div>
         )}
       </Fragment>
@@ -230,11 +251,21 @@ function CreateGroup(props) {
       onCancel={onClose}
     >
       <ContentWrap>
-        <div className="group">
-          <div className="label">{_l('群类型')}</div>
-          <div className="content">{renderGroupType()}</div>
-        </div>
-        {type === 0 && (
+        {!projectId && (
+          <div className="group">
+            <div className="label">{_l('群类型')}</div>
+            <div className="content">
+              {renderGroupType()}
+              <div className="mTop8 Gray_75">
+                {type === 0
+                  ? _l('组织成员离职后自动退群，信息沟通更安全（推荐）')
+                  : _l('群组归属于个人，组织成员离职并不会退出该群组')}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {type === 0 && !projectId && (
           <div className="group">
             <div className="label">{_l('所属组织')}</div>
             <div className="content">{renderOrg()}</div>
@@ -245,6 +276,7 @@ function CreateGroup(props) {
           <div className="content">
             <Input
               className="w100"
+              autoFocus
               value={name}
               onChange={value => setState({ name: value })}
               placeholder={_l('群名称（必填）')}

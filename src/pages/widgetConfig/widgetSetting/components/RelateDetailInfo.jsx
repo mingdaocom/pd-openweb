@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { RelateDetail } from '../../styled';
 import { toEditWidgetPage } from '../../util';
 
@@ -14,7 +15,7 @@ export default function RelateDetailInfo(props) {
       <div className="text flexWidth" title={name}>
         {name}
       </div>
-      <i className={cx('Font16 Gray_9e mRight6', !sourceControlId ? 'icon-trending' : 'icon-sync1')} />
+      <i className={cx('Font16 Gray_9e mRight6', !sourceControlId ? 'icon-right' : 'icon-sync1')} />
       <span
         className={cx('ThemeColor3 Bold flexWidth', { pointer: !fromPortal })}
         title={sheetInfo.name}

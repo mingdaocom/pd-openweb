@@ -27,7 +27,7 @@ const Con = styled.div`
   }
 `;
 
-export default function ViewLand(props) {
+export default function ViewLand() {
   $('body').addClass('fixedScreen');
   const pathname = location.pathname.split('/').slice(-3);
   const [appId, worksheetId, viewId] = pathname;

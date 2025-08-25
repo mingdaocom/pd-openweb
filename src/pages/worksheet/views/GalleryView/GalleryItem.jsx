@@ -1,22 +1,53 @@
-import React, { createRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { useSetState } from 'react-use';
+import { Skeleton } from 'antd';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
+import sheetAjax from 'src/api/worksheet';
 import EditableCard from '../components/EditableCard';
 import EditingRecordItem from '../components/EditingRecordItem';
 import RecordPortal from '../components/RecordPortal';
-import sheetAjax from 'src/api/worksheet';
-import _ from 'lodash';
 
-export default class GalleryItem extends React.Component {
-  static propTypes = {};
-  static defaultProps = {};
-  constructor(props) {
-    super(props);
-    this.$ref = createRef(null);
-    this.state = { isEditTitle: false };
-  }
+const GalleryItem = props => {
+  const {
+    sheetSwitchPermit,
+    data,
+    worksheetInfo,
+    base,
+    views,
+    isCharge,
+    fieldShowCount,
+    allowEditForGroup,
+    groups,
+    groupControl,
+    galleryViewCard = {},
+    updateGalleryViewCard = () => {},
+  } = props;
+  const $ref = useRef(null);
+  const { viewId, appId } = base;
+  const view = views.find(o => o.viewId === viewId) || {};
+  const { projectId } = worksheetInfo;
+  const [{ isEditTitle }, setState] = useSetState({
+    isEditTitle: false,
+  });
+  const skeletonHeight = galleryViewCard?.height || data.fields?.length * 30 || 200;
+  const skeletonRows = Math.floor(skeletonHeight / 40);
+  const { ref, inView } = useInView({
+    root: null,
+    rootMargin: '100px',
+    threshold: 0,
+  });
 
-  updateTitleData = control => {
-    const { data, onUpdateFn, base, views } = this.props;
+  useEffect(() => {
+    if (inView && galleryViewCard.needUpdate && $ref.current) {
+      const height = $ref.current.getBoundingClientRect().height;
+      updateGalleryViewCard({ height, needUpdate: false });
+    }
+  }, [inView, galleryViewCard.needUpdate]);
+
+  const updateTitleData = control => {
+    const { data, onUpdateFn, base, views } = props;
     const { viewId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
     let newControl = control;
@@ -40,27 +71,24 @@ export default class GalleryItem extends React.Component {
         }
       });
   };
-  getStyle = () => {
-    const $dom = this.$ref.current;
+
+  const getStyle = () => {
+    const $dom = $ref.current;
     if (!$dom) return {};
     const { top, left, width } = $dom.getBoundingClientRect();
     return { top, left, width };
   };
-  onCloseEdit = () => {
-    this.setState({ isEditTitle: false });
-    $('.galleryScrollWrap .nano-content').css({ overflowY: 'auto' });
+
+  const onCloseEdit = () => {
+    setState({ isEditTitle: false });
   };
-  render() {
-    const { sheetSwitchPermit, data, worksheetInfo, base, views, isCharge, fieldShowCount } = this.props;
-    const { viewId, appId } = base;
-    const view = views.find(o => o.viewId === viewId) || {};
-    const { isEditTitle } = this.state;
-    const { projectId } = worksheetInfo;
-    return (
-      <React.Fragment>
+
+  return (
+    <div ref={ref}>
+      {inView ? (
         <EditableCard
           type="board"
-          ref={this.$ref}
+          ref={$ref}
           data={data}
           currentView={{
             ...view,
@@ -71,48 +99,61 @@ export default class GalleryItem extends React.Component {
           isCharge={isCharge}
           allowCopy={worksheetInfo.allowAdd && data.allowEdit}
           allowRecreate={worksheetInfo.allowAdd}
+          {..._.pick(worksheetInfo, ['entityName', 'roleType'])}
           sheetSwitchPermit={sheetSwitchPermit}
           editTitle={() => {
-            this.setState({ isEditTitle: true });
-            $('.galleryScrollWrap .nano-content').css({ overflowY: 'hidden' });
+            setState({ isEditTitle: true });
           }}
-          onUpdate={(updated, item) => {
-            this.props.onUpdateFn(updated, item);
+          onUpdate={item => {
+            //移动到另一分组下 更新数据
+            props.onUpdateFn('', item);
           }}
           onDelete={() => {
             sheetAjax
               .deleteWorksheetRows({ rowIds: [data.rowId], ..._.pick(view, ['worksheetId', 'viewId']) })
               .then(res => {
                 if (res.isSuccess) {
-                  this.props.onDeleteFn(data.rowId);
+                  props.onDeleteFn(data.rowId);
                 } else {
                   alert(_l('删除失败请稍后再试'), 2);
                 }
               });
           }}
-          onCopySuccess={this.props.onCopySuccess}
-          updateTitleData={this.updateTitleData}
+          onCopySuccess={props.onCopySuccess}
+          updateTitleData={updateTitleData}
           onAdd={({ item }) => {
-            this.props.onAdd(item);
+            props.onAdd(item);
           }}
+          allowEditForGroup={allowEditForGroup}
+          groups={groups}
+          groupControl={groupControl}
         />
-        {isEditTitle && (
-          <RecordPortal closeEdit={this.onCloseEdit}>
-            <EditingRecordItem
-              type="board"
-              currentView={view}
-              data={data}
-              fieldShowCount={fieldShowCount}
-              style={{
-                ...this.getStyle(),
-              }}
-              isCharge={isCharge}
-              closeEdit={this.onCloseEdit}
-              updateTitleData={this.updateTitleData}
-            />
-          </RecordPortal>
-        )}
-      </React.Fragment>
-    );
-  }
-}
+      ) : (
+        <div className="skeletonBox" style={{ height: skeletonHeight }}>
+          <Skeleton paragraph={{ rows: skeletonRows }} />
+        </div>
+      )}
+      {isEditTitle && (
+        <RecordPortal closeEdit={onCloseEdit}>
+          <EditingRecordItem
+            type="board"
+            currentView={view}
+            data={data}
+            fieldShowCount={fieldShowCount}
+            style={{
+              ...getStyle(),
+            }}
+            isCharge={isCharge}
+            closeEdit={onCloseEdit}
+            updateTitleData={updateTitleData}
+            allowEditForGroup={allowEditForGroup}
+            groups={groups}
+            groupControl={groupControl}
+          />
+        </RecordPortal>
+      )}
+    </div>
+  );
+};
+
+export default GalleryItem;

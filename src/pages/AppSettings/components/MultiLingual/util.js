@@ -1,2 +1,1 @@
-
-export const filterHtmlTag = (value = '') => value.replace(/<[^>]*>/g, '').replace(/&nbsp;/ig, '');
+export const filterHtmlTag = (value = '') => value.replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, '');

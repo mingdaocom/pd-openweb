@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -22,7 +22,7 @@ const ROLE_OPERATION = {
     { type: 'edit', icon: 'edit', text: _l('修改名称和图标%01007') },
     { type: 'copy', icon: 'content-copy', text: _l('复制应用%01008') },
     { type: 'setGroup' },
-    { type: 'del', icon: 'delete2', text: _l('删除应用%01009'), className: 'delApp' },
+    { type: 'del', icon: 'trash', text: _l('删除应用%01009'), className: 'delApp' },
   ],
   // 管理员
   100: [
@@ -43,7 +43,7 @@ const DEFAULT_ROLE_OPERATION = [{ type: 'setGroup' }];
 const EXTERNAL_LINK_OPERATION = [
   { type: 'setExternalLink', icon: 'settings', text: _l('设置外部链接') },
   { type: 'manageUser', icon: 'group', text: _l('管理用户') },
-  { type: 'del', icon: 'delete2', text: _l('删除'), className: 'delApp' },
+  { type: 'del', icon: 'trash', text: _l('删除'), className: 'delApp' },
 ];
 
 const Divider = styled.div`
@@ -65,11 +65,13 @@ export default ({
   allowCreate,
   sourceType,
   isGoodsStatus,
+  isExternalApp,
   ...propsRest
 }) => {
-  const allowDelete =
-    !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
-    hasPermission(propsRest.myPermissions, PERMISSION_ENUM.CREATE_APP);
+  const allowDelete = !isExternalApp
+    ? !_.get(getCurrentProject(projectId, true), 'cannotDeleteApp') ||
+      hasPermission(propsRest.myPermissions, PERMISSION_ENUM.CREATE_APP)
+    : true;
   let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)].filter(v => (allowDelete ? true : v.type !== 'del'));
   if (!list.length) return null;
   if (disabledCopy) {

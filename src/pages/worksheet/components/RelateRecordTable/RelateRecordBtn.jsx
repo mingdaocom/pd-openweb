@@ -10,6 +10,7 @@ const Con = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 const MenuCon = styled.div`

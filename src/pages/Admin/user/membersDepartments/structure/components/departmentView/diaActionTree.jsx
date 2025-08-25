@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { loadUsers, getFullTree, deleteDepartment, loadAllUsers, editDepartment } from '../../actions/entities';
-import { removeCursor, updateCursor, updateTypeCursor } from '../../actions/current';
 import copy from 'copy-to-clipboard';
-import './index.less';
-import { createEditDeptDialog } from '../CreateEditDeptDialog';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import departmentController from 'src/api/department';
+import { removeCursor, updateCursor, updateTypeCursor } from '../../actions/current';
+import { deleteDepartment, editDepartment, getFullTree, loadAllUsers, loadUsers } from '../../actions/entities';
+import { createEditDeptDialog } from '../CreateEditDeptDialog';
+import './index.less';
 
 const handleDialogCallback = (dispatch, payload) => {
   const { response = {}, pageIndex, type, expandedKeys, projectId } = payload;
@@ -54,7 +54,7 @@ class DiaActionTree extends React.Component {
     $('.departmentTreeBox').removeClass('actinNow');
   }
 
-  handleClick = e => {
+  handleClick = () => {
     const { departmentId, projectId, dispatch, expandedKeys } = this.props;
     this.props.closeAction();
     createEditDeptDialog({
@@ -101,7 +101,7 @@ class DiaActionTree extends React.Component {
 
   // 删除部门
   deleteCurrentDepartment = () => {
-    const { departmentId, projectId, pageIndex, expandedKeys, dispatch, newDepartments } = this.props;
+    const { departmentId, projectId, expandedKeys, dispatch, newDepartments } = this.props;
 
     departmentController
       .deleteDepartments({
@@ -129,7 +129,7 @@ class DiaActionTree extends React.Component {
           alert(_l('删除失败'), 2);
         }
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('删除失败'), 2);
       });
   };

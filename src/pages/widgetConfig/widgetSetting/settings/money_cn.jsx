@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect } from 'react';
+import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { formatControlsToDropdown, parseDataSource } from '../../util';

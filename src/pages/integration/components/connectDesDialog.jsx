@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
+import React from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import AvatorInfo from 'src/pages/Personal/personalInfo/modules/AvatorInfo.jsx';
 import 'src/pages/Personal/personalInfo/modules/index.less';
-import _ from 'lodash';
 
 const Wrap = styled.div`
   p,
@@ -46,7 +46,7 @@ const Wrap = styled.div`
     border-radius: 3px;
     width: 100%;
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   textarea {
@@ -56,7 +56,7 @@ const Wrap = styled.div`
   .btn {
     margin-top: 32px;
     padding: 8px 32px;
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
     line-height: 1em;
     border-radius: 3px;
@@ -79,7 +79,7 @@ const WrapAvatorInfo = styled.div`
 `;
 
 function ConnectDesDia(props) {
-  const [{ uploadLoading, iconName, name, explain }, setState] = useSetState({
+  const [{ iconName, name, explain }, setState] = useSetState({
     iconName: _.get(props, ['data', 'iconName']),
     name: _.get(props, ['data', 'name']),
     explain: _.get(props, ['data', 'explain']),

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
 import { Checkbox, Icon } from 'ming-ui';
 import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet.jsx';
 import TitleControl from 'src/pages/worksheet/common/ViewConfig/components/TitleControl.jsx';
@@ -25,34 +24,6 @@ let obj = [
   { txt: _l('年'), key: '4' },
 ]; //calendartype：默认视图 0:月 1：周 2：日 3：季度 4：年
 let weekObj = [_l('周一'), _l('周二'), _l('周三'), _l('周四'), _l('周五'), _l('周六'), _l('周天')];
-
-const GunterTypeChoose = styled.div`
-  ul > li {
-    margin-top: 10px;
-    display: inline-block;
-    width: 61px;
-    height: 32px;
-    text-align: center;
-    line-height: 32px;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
-    overflow: hidden;
-    vertical-align: top;
-    border-right: 1px solid #e0e0e0;
-    &:first-child {
-      border-radius: 3px 0px 0px 3px;
-      border-left: 1px solid #e0e0e0;
-    }
-    &:last-child {
-      border-radius: 0 3px 3px 0;
-    }
-    &.current {
-      background: #2196f3;
-      color: #fff;
-      border: #2196f3;
-    }
-  }
-`;
 
 export default function GunterSet(props) {
   const { appId, view, updateCurrentView, worksheetControls = [] } = props;
@@ -244,7 +215,7 @@ export default function GunterSet(props) {
               return (
                 <div
                   className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
-                  onClick={e => {
+                  onClick={() => {
                     let str = unweekday;
                     if (unweekday.indexOf(n) >= 0) {
                       str = str.replace(n, '');

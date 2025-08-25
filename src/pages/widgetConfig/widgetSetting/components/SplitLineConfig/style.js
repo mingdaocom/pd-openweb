@@ -82,6 +82,7 @@ export const SectionItem = styled.div`
     display: inline-block;
     width: 60px;
     text-align: left;
+    color: #757575;
     &.Width100 {
       width: 100px;
     }
@@ -102,11 +103,11 @@ export const SectionItem = styled.div`
       color: #757575;
       flex: 1;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
       &.active {
         background: #ffffff;
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

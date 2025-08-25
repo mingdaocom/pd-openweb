@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _, { isEqual } from 'lodash';
 import { Icon } from 'ming-ui';
 import {
   DEFAULT_CONFIG,
@@ -74,7 +75,13 @@ function renderContent(data, recordInfo, extendParam) {
     if (typeof oldList[0] !== 'object' || isFileEdit) {
       oldList = isFileEdit ? newList : [];
     }
-
+    if (editType === 2) {
+      if (isEqual(newValue, oldValue)) {
+        newList = [];
+      } else {
+        newList = _.differenceBy(oldList, newList, type === 14 ? 'fileId' : 'key');
+      }
+    }
     let _oldValue = _.differenceBy(oldList, newList, type === 14 ? 'fileId' : 'key');
     let _newValue = _.differenceBy(newList, oldList, type === 14 ? 'fileId' : 'key');
     let _defaultValue = newList.filter(l =>

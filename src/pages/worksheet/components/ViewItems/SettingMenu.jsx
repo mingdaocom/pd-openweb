@@ -102,8 +102,12 @@ function SettingMenu(props) {
 
   const handleChangeViewType = (viewType = 'sheet') => {
     if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
-      const advancedSetting = _.omit(item.advancedSetting || {}, [
+      let advancedSetting = _.omit(item.advancedSetting || {}, [
         'navfilters',
+        'groupfilters',
+        'groupshow',
+        'groupsorts',
+        'groupcustom',
         'topfilters',
         'topshow',
         'customitems',
@@ -112,6 +116,11 @@ function SettingMenu(props) {
         'checkradioid',
         ['detail', 'resource'].includes(viewType) ? 'actioncolumn' : undefined,
       ]);
+
+      if (!['sheet', 'gallery'].includes(viewType)) {
+        //转换成非表格和画廊视图，分组配置都清空（包括看板视图）
+        advancedSetting = _.omit(advancedSetting, ['groupsetting', 'groupopen', 'groupempty']);
+      }
 
       if (advancedSetting.navshow && _.get(item, 'navGroup[0].controlId')) {
         let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId')) || {};
@@ -145,7 +154,7 @@ function SettingMenu(props) {
   };
 
   return (
-    <Menu className="viewItemMoreOperate" style={{ width: 240 }}>
+    <Menu className="viewItemMoreOperate" style={{ width: 220 }}>
       {editName && isCharge && (
         <MenuItem data-event="rename" icon={<Icon icon="workflow_write" className="Font18" />} onClick={clickEditName}>
           <span className="text">{_l('重命名%05004')}</span>
@@ -205,7 +214,7 @@ function SettingMenu(props) {
           {!isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
             <MenuItem
               data-event="copy"
-              icon={<Icon icon="content-copy" className="Font16" />}
+              icon={<Icon icon="content-copy" className="Font18" />}
               onClick={() => {
                 onCopyView(item);
                 handleClose();
@@ -290,7 +299,7 @@ function SettingMenu(props) {
           icon={
             <Icon
               icon={_.get(item, 'advancedSetting.showhide') !== 'hide' ? 'visibility_off' : 'visibility'}
-              className="Font16"
+              className="Font18"
             />
           }
           className="hiddenTypeMenuWrap"

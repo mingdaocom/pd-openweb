@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Tooltip, Dialog, Input, ColorPicker, Icon } from 'ming-ui';
-import styled from 'styled-components';
+import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { TinyColor } from '@ctrl/tinycolor';
+import styled from 'styled-components';
+import { ColorPicker, Dialog, Icon, Input, Tooltip } from 'ming-ui';
 import IllustrationTrigger from './IllustrationTrigger';
 
 const CustomChartContentWrap = styled.div`
@@ -131,14 +131,14 @@ const CustomChartContentWrap = styled.div`
         cursor: pointer;
         color: #bdbdbd;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
     .addColorWrap:hover {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       .icon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -182,7 +182,7 @@ const CustomColorsWrap = styled.div`
         }
       }
       &.selected {
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
       }
       &.disabled {
         cursor: not-allowed;
@@ -208,7 +208,7 @@ const CustomColorsWrap = styled.div`
   }
 `;
 
-const DEFAULT_COLOR = '#2196f3';
+const DEFAULT_COLOR = '#1677ff';
 
 export default function ChartSettingDialog(props) {
   const { onOk, visible, onCancel, data = null, editable = false, customColors = [], id, customChar = [] } = props;
@@ -372,7 +372,7 @@ export default function ChartSettingDialog(props) {
               <div className="colorBg" style={{ background: color }}></div>
               {editable && (
                 <i
-                  className="icon-remove_circle removeIcon"
+                  className="icon-minus-square removeIcon"
                   onClick={e => {
                     e.stopPropagation();
                     setThemeColors(themeColors.filter(l => l !== color));

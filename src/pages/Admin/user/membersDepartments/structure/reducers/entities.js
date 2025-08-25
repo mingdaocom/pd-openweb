@@ -1,7 +1,7 @@
 ﻿import _, { merge } from 'lodash';
 import * as ENTITIES_ACTIONS from '../actions/entities';
 import { SEARCH_SUCCESS } from '../actions/search';
-import { filterDeleteTreeData, getParentsId, updateTreeData } from '../modules/util';
+import { filterDeleteTreeData, getParentsId } from '../modules/util';
 
 const ACTIONS = {
   ...ENTITIES_ACTIONS,
@@ -42,7 +42,7 @@ const mergeDepartmentUsers = (department, payload) => {
 
 const mergeDepartments = (state, action) => {
   const { departmentId, response, type } = action;
-  const { departments, getDepartmentIds } = state;
+  const { departments } = state;
   const department = departments[departmentId];
   let originData = response;
   if (
@@ -223,15 +223,12 @@ const entities = (state = initialState, action) => {
     response,
     departmentId,
     department,
-    id,
     curDepartmentId,
-    isGetAll,
     isShowExport,
     importExportType,
     importExportResult = {},
-    fullDepartmentInfo = {},
   } = action;
-  let { getDepartmentIds, newDepartments, departments } = state;
+  let { getDepartmentIds } = state;
   if (type === 'UPDATE_IMPORT_EXPORT_RESULT') {
     return {
       ...state,
@@ -276,7 +273,6 @@ const entities = (state = initialState, action) => {
       let departments = {};
       const func = data => {
         departments = merge(departments, _.keyBy(data, 'departmentId'));
-        console.log(departments, 'departments');
         data.forEach(item => {
           if (item.subDepartments && !_.isEmpty(item.subDepartments)) {
             func(item.subDepartments);

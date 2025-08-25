@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import workWeiXinAjax from 'src/api/workWeiXin.js';
-import { Icon, Button, LoadDiv } from 'ming-ui';
-import { checkClearIntergrationData } from '../../utils';
-import wechatIcon from '../img/wechat_work.png';
-import styled from 'styled-components';
-import gearImg from '../img/gear.gif';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Icon, LoadDiv } from 'ming-ui';
+import workWeiXinAjax from 'src/api/workWeiXin.js';
+import { checkClearIntergrationData } from '../../utils';
+import gearImg from '../img/gear.gif';
+import wechatIcon from '../img/wechat_work.png';
 
 const BuildAppBox = styled.div`
   padding: 15px 32px 0;
@@ -21,7 +21,7 @@ const BuildAppBox = styled.div`
       justify-content: space-between;
       .icon1 {
         width: 58px;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 50%;
         text-align: center;
         .icon {
@@ -76,7 +76,7 @@ const BuildAppBox = styled.div`
     width: 132px;
     height: 36px;
     line-height: 36px;
-    background: #2196f3;
+    background: #1677ff;
     opacity: 1;
     border-radius: 18px;
     color: #fff;
@@ -105,7 +105,7 @@ const BuildAppBox = styled.div`
   }
   .linkTxt {
     font-size: 13px;
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
   }
   .BoldText {
@@ -181,7 +181,7 @@ export default class BuildAppNewRules extends Component {
       <div className="stepOneContent">
         <div className="iconContainer">
           <div className="icon1">
-            <Icon icon="widgets2" />
+            <Icon icon="widgets" />
           </div>
           <div className="icon2">
             <Icon icon="swap_horiz" />
@@ -207,23 +207,14 @@ export default class BuildAppNewRules extends Component {
       </div>
     );
   };
-  // 前往企业微信后台-应用管理
-  toEnterPriseWXBackStage = () => {
-    window.open('https://work.weixin.qq.com/wework_admin/frame#apps');
-  };
+
   renderStepTwo = () => {
     return (
       <StepTwo>
         <img className="gearImg" src={gearImg} />
         <div className="title">{_l('应用开发中')}</div>
         <div className="gray9e">{_l('授权完成后应用进入开发阶段')}</div>
-        <div className="gray9e">
-          {_l('可以前往')}
-          <span className="Hand linkTxt" onClick={this.toEnterPriseWXBackStage}>
-            {_l('企业微信后台-应用管理')}
-          </span>
-          {'查看开发进度，预计1-3个工作日内完成。 '}
-        </div>
+        <div className="gray9e">{_l('请务必联系对接顾问完成通讯录授权，')}</div>
       </StepTwo>
     );
   };

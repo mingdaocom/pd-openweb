@@ -31,22 +31,30 @@ export default class MobileCheckbox extends Component {
   };
 
   onChange = key => {
+    const { chooseothertype } = this.props;
     const { selectChecked } = this.state;
 
     if (_.includes(selectChecked, key)) {
       _.remove(selectChecked, o => o === key);
     } else {
       selectChecked.push(key);
+      if (chooseothertype === '1') {
+        _.remove(selectChecked, item => (key === 'other' ? !item.startsWith('other') : item.startsWith('other')));
+      }
     }
 
     this.setState({ selectChecked });
   };
 
   handleSelectAll = (options, isChecked) => {
+    const { chooseothertype } = this.props;
     if (isChecked) {
       this.setState({ selectChecked: [] });
     } else {
-      this.setState({ selectChecked: options.map(v => v.key) });
+      const filteredOptions = chooseothertype === '1' ? options.filter(v => v.key !== 'other') : options;
+      this.setState({
+        selectChecked: filteredOptions.map(v => v.key),
+      });
     }
   };
 
@@ -73,12 +81,11 @@ export default class MobileCheckbox extends Component {
       children,
       data,
       checked,
-      callback,
       renderText,
-      otherValue,
       controlName,
       delOptions = [],
       showselectall,
+      chooseothertype,
     } = this.props;
     const { visible, selectChecked, keywords } = this.state;
     let source = [].concat(data).filter(item => !item.isDeleted && !item.hide);
@@ -86,7 +93,7 @@ export default class MobileCheckbox extends Component {
 
     selectChecked.forEach(item => {
       if ((item || '').indexOf('add_') > -1) {
-        source.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
+        source.push({ key: item, color: '#1677ff', value: item.split('add_')[1] });
       }
     });
 
@@ -144,15 +151,17 @@ export default class MobileCheckbox extends Component {
                   className="bold"
                   arrowIcon={false}
                   onClick={() => {
-                    const options = !!keywords.length
+                    const options = keywords.length
                       ? source.filter(
                           item =>
                             `${item.value || ''}|${item.pinYin || ''}`.search(
-                              new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                              new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
                             ) !== -1,
                         )
                       : source;
-                    this.handleSelectAll(options, selectChecked.length === options.length);
+                    let threshold = 0;
+                    if (chooseothertype === '1') threshold = 1;
+                    this.handleSelectAll(options, selectChecked.length === options.length - threshold);
                   }}
                 >
                   <span className="Font15 ThemeColor3">{_l('全选')}</span>
@@ -163,7 +172,7 @@ export default class MobileCheckbox extends Component {
                 .filter(
                   item =>
                     `${item.value || ''}|${item.pinYin || ''}`.search(
-                      new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                      new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
                     ) !== -1,
                 )
                 .map(item => (

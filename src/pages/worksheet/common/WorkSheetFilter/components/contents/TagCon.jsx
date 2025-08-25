@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Input } from 'ming-ui';
 import styled from 'styled-components';
+import { Input } from 'ming-ui';
 
 const InputWrap = styled.span`
   position: relative;
@@ -22,27 +23,27 @@ function TagCon(props) {
 
   return (
     <div className={cx('filterTagCon', { disabled })} onClick={() => inputRef.current.focus()}>
-      {data.length ? (
-        data.map((item, index) => (
-          <span className="fiterTagItem" key={index}>
-            {renderItem ? renderItem(item) : <span className="text breakAll">{item.name}</span>}
-            <span
-              className="remove"
-              onClick={e => {
-                e.stopPropagation();
-                if (disabled) {
-                  return;
-                }
-                onRemove(item);
-              }}
-            >
-              <i className="icon icon-delete"></i>
+      {data.length
+        ? data.map((item, index) => (
+            <span className="fiterTagItem" key={index}>
+              {renderItem ? renderItem(item) : <span className="text breakAll">{item.name}</span>}
+              <span
+                className="remove"
+                onClick={e => {
+                  e.stopPropagation();
+                  if (disabled) {
+                    return;
+                  }
+                  onRemove(item);
+                }}
+              >
+                <i className="icon icon-delete"></i>
+              </span>
             </span>
-          </span>
-        ))
-      ) : null}
+          ))
+        : null}
       {needInput && !disabled && (
-        <InputWrap className='CityPicker-input-tagSearchBox'>
+        <InputWrap className="CityPicker-input-tagSearchBox">
           <Input
             manualRef={inputRef}
             placeholder={data.length ? '' : _l('请选择')}

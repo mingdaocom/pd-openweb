@@ -31,7 +31,7 @@ import processAjax from 'src/pages/workflow/api/process';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { getAppFeaturesPath, getTranslateInfo, setFavicon } from 'src/utils/app';
+import { getAppFeaturesPath, getAppLangDetail, getTranslateInfo, setFavicon } from 'src/utils/app';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import Search from '../components/Search';
@@ -74,9 +74,9 @@ const HeaderWrap = styled.div`
       color: #757575;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       .trashIcon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -127,29 +127,29 @@ const CreateBtnBig = styled.div`
 const DropdownBox = styled.div`
   &.active {
     .Dropdown--border {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
       background: #e3f2fd;
       .value {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &:hover {
       .icon-arrow-down-border {
         visibility: hidden;
       }
-      .icon-closeelement-bg-circle {
+      .icon-cancel {
         display: block;
       }
     }
   }
-  .icon-closeelement-bg-circle {
+  .icon-cancel {
     position: absolute;
     display: none;
     top: 10px;
     right: 6px;
     color: #757575;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -161,7 +161,7 @@ const ArrowUp = styled.span`
   cursor: pointer;
   &:hover,
   &.active {
-    border-color: transparent transparent #2196f3 transparent;
+    border-color: transparent transparent #1677ff transparent;
   }
 `;
 
@@ -173,7 +173,7 @@ const ArrowDown = styled.span`
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #2196f3 transparent transparent transparent;
+    border-color: #1677ff transparent transparent transparent;
   }
 `;
 
@@ -212,7 +212,7 @@ class AppWorkflowList extends Component {
     this.checkIsAppAdmin();
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     const type = this.getQueryStringType();
 
     if (type !== this.state.type) {
@@ -247,9 +247,12 @@ class AppWorkflowList extends Component {
   getAppDetail() {
     const appId = this.props.match.params.appId;
 
-    homeApp.getApp({ appId }).then(appDetail => {
-      this.setState({ appDetail });
-      setFavicon(appDetail.iconUrl, appDetail.iconColor);
+    homeApp.getApp({ appId, getLang: true }).then(appDetail => {
+      getAppLangDetail(appDetail).then(() => {
+        appDetail.name = getTranslateInfo(appId, null, appId).name || appDetail.name;
+        this.setState({ appDetail });
+        setFavicon(appDetail.iconUrl, appDetail.iconColor);
+      });
     });
   }
 
@@ -277,13 +280,15 @@ class AppWorkflowList extends Component {
       this.ajaxRequest.abort();
     }
 
+    const appId = this.props.match.params.appId;
+
     if (!type) {
       this.ajaxRequest = processVersion.listAll({
-        relationId: this.props.match.params.appId,
+        relationId: appId,
       });
     } else {
       this.ajaxRequest = processVersion.list({
-        relationId: this.props.match.params.appId,
+        relationId: appId,
         processListType: type,
       });
     }
@@ -292,7 +297,10 @@ class AppWorkflowList extends Component {
       this.ajaxRequest = null;
 
       result.forEach(list => {
-        list.groupName = getTranslateInfo(this.props.match.params.appId, null, list.groupId).name || list.groupName;
+        list.groupName = getTranslateInfo(appId, null, list.groupId).name || list.groupName;
+        list.processList.forEach(item => {
+          item.name = getTranslateInfo(appId, null, item.id).name || item.name;
+        });
       });
 
       // webhook触发
@@ -668,7 +676,7 @@ class AppWorkflowList extends Component {
   renderListItem(item) {
     const { type, selectFlowId, appDetail, sortType } = this.state;
     const ICON = {
-      timer: 'icon-hr_surplus',
+      timer: 'icon-access_alarm',
       User: 'icon-hr_structure',
       ExternalUser: 'icon-language',
     };
@@ -958,7 +966,7 @@ class AppWorkflowList extends Component {
               }}
             />
             <Icon
-              icon="closeelement-bg-circle"
+              icon="cancel"
               className="Font16 pointer"
               onClick={() => {
                 this.clearUrlWorksheetId();
@@ -980,11 +988,7 @@ class AppWorkflowList extends Component {
             border
             onChange={statusFilter => this.setState({ statusFilter })}
           />
-          <Icon
-            icon="closeelement-bg-circle"
-            className="Font16 pointer"
-            onClick={() => this.setState({ statusFilter: '' })}
-          />
+          <Icon icon="cancel" className="Font16 pointer" onClick={() => this.setState({ statusFilter: '' })} />
         </DropdownBox>
 
         <DropdownBox
@@ -999,11 +1003,7 @@ class AppWorkflowList extends Component {
             border
             onChange={userFilter => this.setState({ userFilter })}
           />
-          <Icon
-            icon="closeelement-bg-circle"
-            className="Font16 pointer"
-            onClick={() => this.setState({ userFilter: '' })}
-          />
+          <Icon icon="cancel" className="Font16 pointer" onClick={() => this.setState({ userFilter: '' })} />
         </DropdownBox>
 
         {showDateRangePicker && (
@@ -1039,6 +1039,7 @@ class AppWorkflowList extends Component {
               dateFilter === 8
                 ? () => (
                     <Tooltip
+                      autoCloseDelay={0}
                       popupPlacement="bottomLeft"
                       text={
                         !rangeDate.length ? (
@@ -1068,7 +1069,7 @@ class AppWorkflowList extends Component {
             }
           />
           <Icon
-            icon="closeelement-bg-circle"
+            icon="cancel"
             className="Font16 pointer"
             onClick={() => this.setState({ dateFilter: '', rangeDate: [] })}
           />

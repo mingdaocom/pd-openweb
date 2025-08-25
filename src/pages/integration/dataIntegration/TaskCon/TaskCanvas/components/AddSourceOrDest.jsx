@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
-import autoSize from 'ming-ui/decorators/autoSize';
 import { Icon } from 'ming-ui';
-import _ from 'lodash';
+import autoSize from 'ming-ui/decorators/autoSize';
+import ExistSourceModal from 'src/pages/integration/dataIntegration/components/ExistSourceModal';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 
@@ -14,9 +14,9 @@ const Wrap = styled.div`
     background: #ffffff;
     border: 1px dashed #dddddd;
     border-radius: 4px;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
-      border: 1px dashed #2196f3;
+      border: 1px dashed #1677ff;
     }
   }
   .sourceCard {
@@ -67,15 +67,8 @@ const PopupWrap = styled.div(
 function AddSourceOrDest(props) {
   const { onUpdate, node = {}, onUpdateFlowDatasources, flowData } = props;
   const { nodeType = '' } = node;
-  const {
-    dbName = '',
-    dsType,
-    tableName,
-    schema,
-    iconBgColor,
-    className,
-  } = _.get(node, ['nodeConfig', 'config']) || {};
-  const [{ visible, show, sourceFormData }, setState] = useSetState({
+  const { dsType, tableName, iconBgColor, className } = _.get(node, ['nodeConfig', 'config']) || {};
+  const [{ visible, show }, setState] = useSetState({
     visible: false,
     sourceFormData: {},
   });

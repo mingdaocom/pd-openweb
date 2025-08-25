@@ -100,7 +100,7 @@ export default class FileMessage extends Component {
         {message.isPrepare && !cancel && cancelShow ? (
           <div className="Message-fileAction" onClick={this.handleStopFile.bind(this)}>
             <span className="btn btnCancel" title={_l('取消')}>
-              <i className="icon-closeelement-bg-circle" />
+              <i className="icon-cancel" />
             </span>
           </div>
         ) : undefined}

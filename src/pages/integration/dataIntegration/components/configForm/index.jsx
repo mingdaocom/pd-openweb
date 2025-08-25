@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
-import { Icon, LoadDiv, RadioGroup, Input } from 'ming-ui';
 import { Select } from 'antd';
-import { DATABASE_TYPE, TEST_STATUS, CREATE_TYPE_RADIO_LIST, CREATE_TYPE, sourceNamePattern } from '../../constant';
-import CustomFields from 'src/components/newCustomFields';
-import { customFormData, getCardDescription } from './formConfig';
-import SourceSelectModal from '../SourceSelectModal';
-import ExistSourceModal from '../ExistSourceModal';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { Icon, Input, LoadDiv, RadioGroup } from 'ming-ui';
 import dataSourceApi from '../../../api/datasource';
 import appManagementApi from 'src/api/appManagement';
-import _ from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
+import CustomFields from 'src/components/newCustomFields';
+import { CREATE_TYPE, CREATE_TYPE_RADIO_LIST, DATABASE_TYPE, sourceNamePattern, TEST_STATUS } from '../../constant';
+import { getExtraParams } from '../../utils';
+import ExistSourceModal from '../ExistSourceModal';
+import SourceSelectModal from '../SourceSelectModal';
+import { customFormData, getCardDescription } from './formConfig';
 import SSHConnect from './SSHConnect';
 import TestConnectButton from './testConnectButton';
-import { getExtraParams } from '../../utils';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -40,7 +40,7 @@ const SelectCard = styled.div`
   cursor: pointer;
 
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 
   .svg-icon {
@@ -60,7 +60,7 @@ const SelectCard = styled.div`
     font-size: 20px;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #f5f5f5;
     }
   }
@@ -106,7 +106,7 @@ const SourceSelectFormWrapper = styled.div`
         background: #f2f2f2;
       }
       :focus {
-        border-color: #2196f3 !important;
+        border-color: #1677ff !important;
         background: #fff;
       }
     }

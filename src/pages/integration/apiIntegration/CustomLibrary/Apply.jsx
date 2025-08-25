@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { dialogSelectApp } from 'ming-ui/functions';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 
 const ApplyBtn = styled.div`
   padding: 0 32px;
   height: 36px;
   border-radius: 18px;
-  background: #2196f3;
+  background: #1677ff;
   color: #fff;
   cursor: pointer;
   &:hover {

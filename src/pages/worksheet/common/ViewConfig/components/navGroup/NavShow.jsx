@@ -1,24 +1,24 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, Dropdown, Tooltip } from 'ming-ui';
-import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import sheetAjax from 'src/api/worksheet';
-import _ from 'lodash';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet/index.jsx';
-import { EditInfo } from 'src/pages/widgetConfig/styled/index.js';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+import { EditInfo } from 'src/pages/widgetConfig/styled/index.js';
+import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet/index.jsx';
 
 const Wrap = styled.div`
   .icon-rename_input {
     color: #9e9e9e;
     padding-right: 10px;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .Dropdown {
@@ -45,7 +45,7 @@ const Wrap = styled.div`
       border-radius: 4px;
       height: 36px;
       &.active {
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
       }
       .value,
       .Dropdown--placeholder {
@@ -111,6 +111,8 @@ const SwitchStyle = styled.div`
   }
 `;
 
+let pendingFilterVisible = false;
+
 export default function NavShow(props) {
   const {
     params,
@@ -120,6 +122,7 @@ export default function NavShow(props) {
     advancedSetting = {},
     canShowNull,
     canShowAll,
+    canShowAllNavLayer,
     fromCondition,
   } = props;
   const [
@@ -136,11 +139,26 @@ export default function NavShow(props) {
     loading: false,
     showCustom: false,
   });
+
+  useEffect(() => {
+    () => {
+      pendingFilterVisible = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (pendingFilterVisible && value === '3' && !loading) {
+      setState({ filterVisible: true });
+      pendingFilterVisible = false;
+    }
+  }, [value, loading]);
+
   useEffect(() => {
     let navfilters = [];
     try {
-      navfilters = JSON.parse(props.navfilters);
+      navfilters = safeParse(props.navfilters, 'array');
     } catch (error) {
+      console.log(error);
       navfilters = [];
     }
     setState({
@@ -183,7 +201,7 @@ export default function NavShow(props) {
 
   const onFormatChange = newValue => {
     const { navfilters } = newValue;
-    if (!!navfilters) {
+    if (navfilters) {
       onChange(newValue);
     } else {
       //显示制定项，人员部门等字段处理
@@ -194,7 +212,10 @@ export default function NavShow(props) {
             ? JSON.stringify(filters.map(o => handleCondition(o)))
             : JSON.stringify(
                 filters.map(info => {
-                  if ([19, 23, 24, 26, 27, 29, 35, 48].includes(data.type) && value === '2') {
+                  if (
+                    [19, 23, 24, 26, 27, 29, 35, 48].includes(data.type === 30 ? data.sourceControlType : data.type) &&
+                    value === '2'
+                  ) {
                     return safeParse(info).id;
                   } else {
                     return info;
@@ -203,6 +224,26 @@ export default function NavShow(props) {
               ),
       });
     }
+  };
+
+  const handleDropdownChange = valueNew => {
+    onFormatChange({
+      navshow: valueNew,
+      navfilters: JSON.stringify([]),
+      showNextGroup: valueNew === '2' && canShowAllNavLayer ? '999' : undefined,
+    });
+    setState({
+      filters: [],
+      filterVisible: valueNew === '3',
+    });
+    pendingFilterVisible = valueNew === '3';
+  };
+
+  const onCloseFilterDialog = () => {
+    pendingFilterVisible = false;
+    setState({
+      filterVisible: false,
+    });
   };
 
   return (
@@ -216,22 +257,7 @@ export default function NavShow(props) {
         }
         value={filterInfo.navGroupId === 'wfstatus' && !showSysWorkflow ? '0' : value || '0'}
         className="flex settingContent mBottom0"
-        onChange={value => {
-          onFormatChange({
-            navshow: value,
-            navfilters: JSON.stringify([]),
-          });
-          setState({
-            filters: [],
-          });
-          setTimeout(() => {
-            if (value === '3') {
-              setState({
-                filterVisible: true,
-              });
-            }
-          }, 500);
-        }}
+        onChange={handleDropdownChange}
       />
       {(value === '2' || (filters.length > 0 && value === '3' && !loading)) && <div className="mTop12"></div>}
       {value === '2' && (
@@ -293,10 +319,10 @@ export default function NavShow(props) {
           globalSheetControls={filterInfo.globalSheetControls}
           onChange={({ filters }) => {
             onFormatChange({ navfilters: JSON.stringify(filters.map(handleCondition)) });
-            setState({ filterVisible: false });
+            onCloseFilterDialog();
           }}
           fromCondition={fromCondition}
-          onClose={() => setState({ filterVisible: false })}
+          onClose={() => onCloseFilterDialog()}
         />
       )}
       {filters.length > 0 && value === '3' && !loading && (
@@ -339,6 +365,22 @@ export default function NavShow(props) {
               }}
             />
           </Tooltip>
+        </div>
+      )}
+      {canShowAllNavLayer && (
+        <div className="flexRow alignItemsCenter">
+          <SwitchStyle className="flex">
+            <Icon
+              icon={advancedSetting.navlayer === '999' ? 'ic_toggle_on' : 'ic_toggle_off'}
+              className="Font28 Hand"
+              onClick={() => {
+                onFormatChange({
+                  navlayer: advancedSetting.navlayer === '999' ? '' : '999',
+                });
+              }}
+            />
+            <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示所有下级部门')}</div>
+          </SwitchStyle>
         </div>
       )}
       {canShowNull && (

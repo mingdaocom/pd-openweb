@@ -13,7 +13,7 @@ export const APP_GROUP_CONFIG = [
   },
   {
     type: 'del',
-    icon: 'delete2',
+    icon: 'trash',
     text: _l('删除分组%02009'),
     className: 'delApp',
   },
@@ -40,7 +40,7 @@ export const DROPDOWN_APP_CONFIG = [
   { type: 'appLogs', icon: 'wysiwyg', text: _l('日志'), featureId: 31 },
   { type: 'copy', icon: 'content-copy', text: _l('复制'), action: 'copyAppVisible' },
   { type: 'modifyAppLockPassword', icon: 'lock', text: _l('解锁应用%02048'), action: 'modifyAppLockPasswordVisible' },
-  { type: 'appManageMenu', icon: 'custom_widgets', text: _l('应用管理'), action: 'toAppManageMenu' },
+  { type: 'appManageMenu', icon: 'widgets', text: _l('应用管理'), action: 'toAppManageMenu' },
   { type: 'appLicense', icon: 'access_time', text: _l('应用订购计划'), action: 'appLicense' },
   {
     type: 'worksheetapi',

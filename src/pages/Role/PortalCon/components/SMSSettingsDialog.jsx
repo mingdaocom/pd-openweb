@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Input } from 'antd';
+import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import { Input } from 'antd';
+
 const { TextArea } = Input;
-import cx from 'classnames';
+
 const Wrap = styled.div``;
 export default function Con(props) {
   const { onCancel, onChangePortalSet, sign } = props;

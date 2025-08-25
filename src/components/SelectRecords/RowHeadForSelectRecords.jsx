@@ -1,9 +1,8 @@
 import React from 'react';
-import { get, isEmpty, isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import propTypes from 'prop-types';
 import styled from 'styled-components';
 import { Checkbox, Radio } from 'ming-ui';
-import { FlexCenter } from 'worksheet/components/Basics';
 
 const Con = styled.div`
   width: 40px;
@@ -20,19 +19,6 @@ const Con = styled.div`
   }
 `;
 
-const OpenRecordBtn = styled(FlexCenter)`
-  margin-left: 8px;
-  font-size: 16px;
-  width: 24px;
-  height: 24px;
-  color: #2196f3;
-  border-radius: 4px;
-  cursor: pointer;
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
-`;
-
 export default function RowHeadForSelectRecords({
   className,
   style = {},
@@ -41,7 +27,6 @@ export default function RowHeadForSelectRecords({
   data = [],
   selectedRowIds = [],
   onToggleSelect = () => {},
-  onOpenRecord = () => {},
   onUpdateSelectedRowIds = () => {},
 }) {
   const row = data[rowIndex] || {};
@@ -72,7 +57,6 @@ export default function RowHeadForSelectRecords({
             }
           }}
         />
-        <div style={{ width: 32 }}></div>
       </Con>
     );
   }
@@ -82,11 +66,6 @@ export default function RowHeadForSelectRecords({
         <Checkbox checked={checked} noMargin size="small" onClick={() => onToggleSelect(row.rowid, rowIndex)} />
       ) : (
         <Radio checked={checked} noMargin size="small" onClick={() => onToggleSelect(row.rowid, rowIndex)} />
-      )}
-      {!get(window, 'shareState.shareId') && (
-        <OpenRecordBtn className="openRecord" onClick={onOpenRecord}>
-          <i className="icon icon-worksheet_enlarge Hand ThemeHoverColor3" />
-        </OpenRecordBtn>
       )}
     </Con>
   );
@@ -98,5 +77,4 @@ RowHeadForSelectRecords.propTypes = {
   type: propTypes.number,
   rowIndex: propTypes.number,
   data: propTypes.arrayOf(propTypes.shape({})),
-  onOpenRecord: propTypes.func,
 };

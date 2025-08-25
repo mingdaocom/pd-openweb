@@ -1,0 +1,3 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[113.554448,22.107312],[113.561046,22.106214],[113.580194,22.109694],[113.603872,22.132865],[113.601946,22.138113],[113.589178,22.14428],[113.583056,22.136473],[113.553916,22.125216],[113.554448,22.107312]]]},"properties":{"adcode":820008,"level":"district","name":"圣方济各堂区","pinyin":"shengfangjigetangqu","parent":{"adcode":820000},"childrenNum":0,"center":[113.5599542,22.12348639],"centroid":[113.5599542,22.12348639]}}
+]}

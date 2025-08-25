@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useRef } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
-import { CreateNode, SimplifyNode } from '../components';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import _ from 'lodash';
-import { Tooltip } from 'antd';
+import { CreateNode, SimplifyNode } from '../components';
 import 'rc-trigger/assets/index.css';
 
 const ApprovalProcessBox = styled.div`
@@ -75,7 +75,7 @@ const Box = styled.div`
       .icon-approval {
         display: none;
       }
-      .icon-external_collaboration {
+      .icon-launch {
         display: block;
       }
     }
@@ -87,7 +87,7 @@ const Box = styled.div`
       background-color: #122ec9;
     }
   }
-  .icon-external_collaboration {
+  .icon-launch {
     display: none;
   }
 `;
@@ -114,7 +114,7 @@ export default props => {
         IconElement={
           <Fragment>
             <Icon type="approval" />
-            <Icon type="external_collaboration" />
+            <Icon type="launch" />
           </Fragment>
         }
         nodeTriggerFunc={() => isHide && changeShrink()}
@@ -151,6 +151,7 @@ export default props => {
         <ApprovalProcessBox className={cx('flexColumn', { foldCurrentNode: isHide })}>
           {foldBtn && !isHide ? (
             <Tooltip
+              autoCloseDelay={0}
               title={() => (
                 <span
                   className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3 mTop7"

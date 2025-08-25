@@ -1,4 +1,3 @@
-import React from 'react';
 import sessionNewMsgAudio from 'src/pages/chat/lib/mp3player/sessionNewMsgAudio.html';
 import systemNewMsgAudio from 'src/pages/chat/lib/mp3player/systemNewMsgAudio.html';
 import { navigateToLogin } from 'src/router/navigateTo';
@@ -22,7 +21,6 @@ export const socketInitEvent = function () {
 
   IM.socket.on('logout message', ({ sessionId }) => {
     if ((getPssId() || '') === sessionId) {
-      $('.mdAlertDialog').remove();
       setTimeout(() => {
         if (!window.currentLeave) {
           navigateToLogin({ needSecondCheck: true });
@@ -134,7 +132,6 @@ export const notifyInit = function () {
 };
 
 export const stateInit = function () {
-  const key = 'chat';
   const reconnectDelayTime = 10000;
   let disconnectTime = 0;
   let isOpen = true;
@@ -180,10 +177,10 @@ export const stateInit = function () {
   });
 
   IM.socket.on('reconnecting', () => {
-    if (reconnectCount > 1) {
-    } else {
+    if (reconnectCount <= 1) {
       reconnectCount++;
     }
+
     if (window.localStorage.getItem('websocket') == 'polling') {
       IM.socket.io.opts.transports = ['polling'];
     }
@@ -226,7 +223,7 @@ export const sync = function () {
     this.props.dispatch(actions.setTop(status));
   });
 
-  IM.socket.on('clear all unread', status => {
+  IM.socket.on('clear all unread', () => {
     this.props.dispatch(actions.clearAllUnread());
   });
 

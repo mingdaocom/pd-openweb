@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, ProcessParameters } from '../components';
 import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { DetailFooter, DetailHeader, ProcessParameters } from '../components';
 
 export default class Plugin extends Component {
   constructor(props) {
@@ -17,7 +17,7 @@ export default class Plugin extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -123,7 +123,7 @@ export default class Plugin extends Component {
     return (
       <Fragment>
         <DetailHeader {...this.props} data={{ ...data }} icon="icon-workflow" updateSource={this.updateSource} />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.app.describe && <div className="Font14 Gray_75 workflowDetailDesc">{data.app.describe}</div>}

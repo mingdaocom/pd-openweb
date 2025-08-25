@@ -1,7 +1,8 @@
 import base, { controllerName } from './base';
+
 /**
  * report
-*/
+ */
 var report = {
   /**
    * 导出图表
@@ -10,7 +11,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  export: function(args, options) {
+  export: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/export';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportexport', JSON.stringify(args), $.extend(base, options));
@@ -23,7 +24,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  exportReport: function(args, options) {
+  exportReport: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/exportReport';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'reportexportReport', args, $.extend(base, options));
@@ -50,6 +51,7 @@ var report = {
    * @param {boolean} [args.YAxisList[0].showNumber] 显示数值
    * @param {integer} [args.YAxisList[0].sortType] 排序 0 :默认 1:升序 2:降序
    * @param {string} [args.YAxisList[0].suffix] 后缀
+   * @param {boolean} [args.YAxisList[0].thousandth] 是否显示千分位
    * @param {string} [args.YAxisList[0].value] 固定值
    * @param {integer} [args.YReportType] null
    * @param {string} [args.appId] 工作表ID
@@ -162,6 +164,7 @@ var report = {
    * @param {string} [args.formulas[0].advancedSetting.allowdelete] null
    * @param {string} [args.formulas[0].advancedSetting.allowdownload] null
    * @param {string} [args.formulas[0].advancedSetting.allowupload] null
+   * @param {string} [args.formulas[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.formulas[0].advancedSetting.datamask] null
    * @param {string} [args.formulas[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.formulas[0].advancedSetting.isdecrypt] null
@@ -224,6 +227,7 @@ var report = {
    * @param {string} [args.split.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.split.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.split.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.split.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.split.fields[0].advancedSetting.datamask] null
    * @param {string} [args.split.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.split.fields[0].advancedSetting.isdecrypt] null
@@ -283,6 +287,7 @@ var report = {
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.xAxes.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.xAxes.fields[0].advancedSetting.datamask] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.xAxes.fields[0].advancedSetting.isdecrypt] null
@@ -314,7 +319,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getReportData: function(args, options) {
+  getReportData: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/get';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportget', JSON.stringify(args), $.extend(base, options));
@@ -341,6 +346,7 @@ var report = {
    * @param {boolean} [args.YAxisList[0].showNumber] 显示数值
    * @param {integer} [args.YAxisList[0].sortType] 排序 0 :默认 1:升序 2:降序
    * @param {string} [args.YAxisList[0].suffix] 后缀
+   * @param {boolean} [args.YAxisList[0].thousandth] 是否显示千分位
    * @param {string} [args.YAxisList[0].value] 固定值
    * @param {integer} [args.YReportType] null
    * @param {string} [args.appId] 工作表ID
@@ -453,6 +459,7 @@ var report = {
    * @param {string} [args.formulas[0].advancedSetting.allowdelete] null
    * @param {string} [args.formulas[0].advancedSetting.allowdownload] null
    * @param {string} [args.formulas[0].advancedSetting.allowupload] null
+   * @param {string} [args.formulas[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.formulas[0].advancedSetting.datamask] null
    * @param {string} [args.formulas[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.formulas[0].advancedSetting.isdecrypt] null
@@ -515,6 +522,7 @@ var report = {
    * @param {string} [args.split.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.split.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.split.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.split.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.split.fields[0].advancedSetting.datamask] null
    * @param {string} [args.split.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.split.fields[0].advancedSetting.isdecrypt] null
@@ -574,6 +582,7 @@ var report = {
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.xAxes.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.xAxes.fields[0].advancedSetting.datamask] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.xAxes.fields[0].advancedSetting.isdecrypt] null
@@ -605,7 +614,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getData: function(args, options) {
+  getData: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/getData';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportgetData', JSON.stringify(args), $.extend(base, options));
@@ -632,6 +641,7 @@ var report = {
    * @param {boolean} [args.YAxisList[0].showNumber] 显示数值
    * @param {integer} [args.YAxisList[0].sortType] 排序 0 :默认 1:升序 2:降序
    * @param {string} [args.YAxisList[0].suffix] 后缀
+   * @param {boolean} [args.YAxisList[0].thousandth] 是否显示千分位
    * @param {string} [args.YAxisList[0].value] 固定值
    * @param {integer} [args.YReportType] null
    * @param {string} [args.appId] 工作表ID
@@ -744,6 +754,7 @@ var report = {
    * @param {string} [args.formulas[0].advancedSetting.allowdelete] null
    * @param {string} [args.formulas[0].advancedSetting.allowdownload] null
    * @param {string} [args.formulas[0].advancedSetting.allowupload] null
+   * @param {string} [args.formulas[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.formulas[0].advancedSetting.datamask] null
    * @param {string} [args.formulas[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.formulas[0].advancedSetting.isdecrypt] null
@@ -806,6 +817,7 @@ var report = {
    * @param {string} [args.split.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.split.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.split.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.split.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.split.fields[0].advancedSetting.datamask] null
    * @param {string} [args.split.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.split.fields[0].advancedSetting.isdecrypt] null
@@ -865,6 +877,7 @@ var report = {
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.xAxes.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.xAxes.fields[0].advancedSetting.datamask] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.xAxes.fields[0].advancedSetting.isdecrypt] null
@@ -896,7 +909,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getFavoriteData: function(args, options) {
+  getFavoriteData: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/getFavoriteData';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportgetFavoriteData', JSON.stringify(args), $.extend(base, options));
@@ -908,7 +921,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getReportSingleCacheId: function(args, options) {
+  getReportSingleCacheId: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/getReportSingleCacheId';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportgetReportSingleCacheId', JSON.stringify(args), $.extend(base, options));
@@ -935,6 +948,7 @@ var report = {
    * @param {boolean} [args.YAxisList[0].showNumber] 显示数值
    * @param {integer} [args.YAxisList[0].sortType] 排序 0 :默认 1:升序 2:降序
    * @param {string} [args.YAxisList[0].suffix] 后缀
+   * @param {boolean} [args.YAxisList[0].thousandth] 是否显示千分位
    * @param {string} [args.YAxisList[0].value] 固定值
    * @param {integer} [args.YReportType] null
    * @param {string} [args.appId] 工作表ID
@@ -1047,6 +1061,7 @@ var report = {
    * @param {string} [args.formulas[0].advancedSetting.allowdelete] null
    * @param {string} [args.formulas[0].advancedSetting.allowdownload] null
    * @param {string} [args.formulas[0].advancedSetting.allowupload] null
+   * @param {string} [args.formulas[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.formulas[0].advancedSetting.datamask] null
    * @param {string} [args.formulas[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.formulas[0].advancedSetting.isdecrypt] null
@@ -1109,6 +1124,7 @@ var report = {
    * @param {string} [args.split.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.split.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.split.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.split.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.split.fields[0].advancedSetting.datamask] null
    * @param {string} [args.split.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.split.fields[0].advancedSetting.isdecrypt] null
@@ -1168,6 +1184,7 @@ var report = {
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.xAxes.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.xAxes.fields[0].advancedSetting.datamask] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.xAxes.fields[0].advancedSetting.isdecrypt] null
@@ -1199,7 +1216,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getTableData: function(args, options) {
+  getTableData: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/getTableData';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportgetTableData', JSON.stringify(args), $.extend(base, options));
@@ -1208,14 +1225,14 @@ var report = {
    * 获取图表列表
    * @param {Object} args 请求参数
    * @param {string} [args.appId] *工作表ID
-   * @param {string} [args.appType] 默认1：工作表 
+   * @param {string} [args.appType] 默认1：工作表
    * @param {string} [args.isOwner] 个人：true,公共：false
    * @param {string} [args.pageIndex] 页数
    * @param {string} [args.pageSize] 条数
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  list: function(args, options) {
+  list: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/list';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'reportlist', args, $.extend(base, options));
@@ -1223,11 +1240,11 @@ var report = {
   /**
    * 获取自定义页面的统计图列表
    * @param {Object} args 请求参数
-   * @param {string} [args.appId] appId 
+   * @param {string} [args.appId] appId
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  listByPageId: function(args, options) {
+  listByPageId: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/listByPageId';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'reportlistByPageId', args, $.extend(base, options));
@@ -1254,6 +1271,7 @@ var report = {
    * @param {boolean} [args.YAxisList[0].showNumber] 显示数值
    * @param {integer} [args.YAxisList[0].sortType] 排序 0 :默认 1:升序 2:降序
    * @param {string} [args.YAxisList[0].suffix] 后缀
+   * @param {boolean} [args.YAxisList[0].thousandth] 是否显示千分位
    * @param {string} [args.YAxisList[0].value] 固定值
    * @param {integer} [args.YReportType] null
    * @param {string} [args.appId] 工作表ID
@@ -1366,6 +1384,7 @@ var report = {
    * @param {string} [args.formulas[0].advancedSetting.allowdelete] null
    * @param {string} [args.formulas[0].advancedSetting.allowdownload] null
    * @param {string} [args.formulas[0].advancedSetting.allowupload] null
+   * @param {string} [args.formulas[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.formulas[0].advancedSetting.datamask] null
    * @param {string} [args.formulas[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.formulas[0].advancedSetting.isdecrypt] null
@@ -1428,6 +1447,7 @@ var report = {
    * @param {string} [args.split.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.split.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.split.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.split.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.split.fields[0].advancedSetting.datamask] null
    * @param {string} [args.split.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.split.fields[0].advancedSetting.isdecrypt] null
@@ -1487,6 +1507,7 @@ var report = {
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdelete] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowdownload] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.allowupload] null
+   * @param {string} [args.xAxes.fields[0].advancedSetting.chooserange] 地区指定国家：空代表国际，null代表中国（老数据）  有值代表指定了国家
    * @param {string} [args.xAxes.fields[0].advancedSetting.datamask] null
    * @param {string} [args.xAxes.fields[0].advancedSetting.dotformat] 数值 空/0:显示完整的位数 1:自动
    * @param {string} [args.xAxes.fields[0].advancedSetting.isdecrypt] null
@@ -1518,7 +1539,7 @@ var report = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  refreshData: function(args, options) {
+  refreshData: function (args, options) {
     base.ajaxOptions.url = base.server() + '/report/refreshData';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportrefreshData', JSON.stringify(args), $.extend(base, options));

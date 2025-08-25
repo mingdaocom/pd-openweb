@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog } from 'ming-ui';
-import styled from 'styled-components';
-import _ from 'lodash';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import variableApi from 'src/api/variable';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import GlobalVarTable from './GlobalVarTable';
-import variableApi from 'src/api/variable';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
 
 const SelectVarDialog = styled(Dialog)`
   position: relative;
@@ -35,8 +35,8 @@ const SelectVarDialog = styled(Dialog)`
           margin-left: 32px;
         }
         &.active {
-          border-bottom: 3px solid #2196f3;
-          color: #2196f3;
+          border-bottom: 3px solid #1677ff;
+          color: #1677ff;
         }
       }
     }

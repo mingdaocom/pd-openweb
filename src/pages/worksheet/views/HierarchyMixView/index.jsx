@@ -110,7 +110,7 @@ function HierarchyMix(props) {
     addRecordPath: {},
   });
 
-  const [collect, drop] = useDrop({
+  const [, drop] = useDrop({
     accept: ITEM_TYPE.ITEM,
     hover(item, monitor) {
       function scroll() {
@@ -204,6 +204,7 @@ function HierarchyMix(props) {
         document.querySelector('body').removeChild(copyDom);
       });
     } catch (error) {
+      console.log(error);
       alert(_l('生成失败'), 2);
       document.querySelector('body').removeChild(copyDom);
     }
@@ -410,7 +411,7 @@ function HierarchyMix(props) {
   };
 
   let pending = false;
-  const handleScroll = e => {
+  const handleScroll = () => {
     const $wrap = $wrapRef.current;
     const $right = $wrap.scrollWidth - $wrap.scrollLeft - $wrap.clientWidth;
     if ($right < Math.min(280, $wrap.clientWidth / 2)) {
@@ -450,7 +451,7 @@ function HierarchyMix(props) {
   };
 
   const renderContent = () => {
-    const { viewControl, viewType, viewId, layersName = [], viewControls, advancedSetting = {} } = view;
+    const { viewControl, viewType, viewId, layersName = [], viewControls } = view;
     const hierarchyData = hierarchyViewCanSelectFields({
       controls,
       worksheetId,
@@ -536,6 +537,7 @@ function HierarchyMix(props) {
                     'worksheetInfo',
                     'sheetSwitchPermit',
                     'sheetButtons',
+                    'hierarchyTopLevelDataCount',
                   ])}
                   {...rest}
                   uniqId={uniqId}

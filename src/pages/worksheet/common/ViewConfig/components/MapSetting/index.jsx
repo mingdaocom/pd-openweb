@@ -18,11 +18,6 @@ const MapSettingWrap = styled.div`
   .allColorSelectFields {
     font-weight: 500;
     border-radius: 4px;
-
-    .Dropdown--border {
-      // border: 1px solid rgba(33, 150, 243, 0.3);
-    }
-
     .Item-content {
       padding-left: 32px !important;
     }
@@ -44,9 +39,9 @@ const DisplayControlOption = styled(FlexCenter)`
 `;
 
 const SelectValue = styled(DisplayControlOption)`
-  &：hover {
+  &:hover {
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

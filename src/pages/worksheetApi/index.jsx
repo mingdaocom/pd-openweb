@@ -5,8 +5,7 @@ import JsonView from 'react-json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, ScrollView, Skeleton, SvgIcon, Textarea } from 'ming-ui';
+import { Avatar, Dialog, Icon, LoadDiv, ScrollView, Skeleton, SvgIcon, Textarea, Tooltip } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import ajaxRequest from 'src/api/worksheet';
@@ -14,9 +13,10 @@ import integrationAjax from 'src/pages/integration/api/syncTask';
 import processAjax from 'src/pages/workflow/api/process';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
-import AliasDialog from 'src/pages/FormSet/components/AliasDialog.jsx';
+import AliasDialog from 'src/pages/FormSet/components/AliasDialog';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import Share from 'src/pages/worksheet/components/Share';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { setFavicon } from 'src/utils/app';
 import {
@@ -37,71 +37,17 @@ import {
   SIDEBAR_LIST,
   WORKSHEETINFO_SUCCESS_DATA,
 } from './config';
+import FiltersGenerate from './FiltersGenerate';
 import noDataImg from './img/lock.png';
 import MoreOption from './MoreOption';
 import SecretKey from './SecretKey';
+import WorksheetAliasDialog from './WorksheetAliasDialog';
 import './index.less';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([
   { text: _l('对象'), value: 10000006, en: 'object' },
   { text: _l('文本'), value: 1, en: 'string' },
 ]);
-
-const Wrap = styled.div`
-  input {
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    height: 36px;
-    line-height: 36px;
-    padding: 0 6px;
-    width: 100%;
-    box-sizing: border-box;
-    &:focus {
-      border: 1px solid #2196f3;
-    }
-  }
-`;
-class WorksheetAliasDialog extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { alias: '' };
-  }
-  componentDidMount() {
-    const { alias } = this.props;
-    this.setState({
-      alias,
-    });
-  }
-  render() {
-    const { show, onOk } = this.props;
-    const { alias } = this.state;
-    return (
-      <Dialog
-        className=""
-        visible={show}
-        onCancel={this.props.onClose}
-        title={_l('设置工作表别名')}
-        onOk={() => {
-          onOk(alias);
-        }}
-      >
-        <Wrap>
-          <input
-            type="text"
-            className="name mTop6"
-            placeholder={_l('请输入')}
-            value={alias}
-            onChange={e => {
-              this.setState({
-                alias: e.target.value.trim(),
-              });
-            }}
-          />
-        </Wrap>
-      </Dialog>
-    );
-  }
-}
 
 class WorksheetApi extends Component {
   constructor(props) {
@@ -116,8 +62,8 @@ class WorksheetApi extends Component {
       authorizes: [],
       addSecretKey: false,
       errorCode: 0, // 1：工作表不存在 2：应用过期
-      showAliasDialog: false,
-      numberTypeList: [],
+      aliasDialog: { visible: false, type: 'control' },
+      templateControls: [],
       appInfo: {},
       whiteListDialog: false,
 
@@ -137,8 +83,11 @@ class WorksheetApi extends Component {
       dataPipelineList: undefined,
       expandIds: [],
       webhookList: [],
+      visibleAppKeys: [],
+      visibleSigns: [],
     };
     this.canScroll = true;
+    this.contentScrollRef = React.createRef();
   }
 
   componentDidMount() {
@@ -248,11 +197,7 @@ class WorksheetApi extends Component {
 
   getAuthorizes = () => {
     appManagementAjax.getAuthorizes({ appId: this.getId() }).then(authorizes => {
-      const newAppInfo = {
-        ...this.state.appInfo,
-        apiRequest: !!authorizes.length ? _.pick(authorizes[0], ['appKey', 'sign']) : {},
-      };
-      this.setState({ authorizes, appInfo: newAppInfo });
+      this.setState({ authorizes });
     });
   };
 
@@ -275,7 +220,7 @@ class WorksheetApi extends Component {
       let [data = [], list = {}] = result;
       const isDataPipeline = selectId.includes('dataPipeline');
 
-      if (!!list.alias) {
+      if (list.alias) {
         data = data.map(o => {
           return { ...o, alias: list.alias };
         });
@@ -300,7 +245,7 @@ class WorksheetApi extends Component {
       this.setState(
         {
           [isDataPipeline ? 'dataPipelineData' : 'data']: data,
-          numberTypeList: list.template.controls || [],
+          templateControls: list.template.controls || [],
           loading: false,
           alias: list.alias,
           menuList: MENU_LIST,
@@ -362,7 +307,9 @@ class WorksheetApi extends Component {
 
     setTimeout(() => {
       this.canScroll = true;
-      $('.worksheetApiScroll').nanoScroller({ scrollTo: $(`#${selectId}-content`) });
+      if (this.contentScrollRef.current) {
+        this.contentScrollRef.current.scrollToElement($(`#${selectId}-content`)[0]);
+      }
     }, 0);
   }
 
@@ -490,7 +437,7 @@ class WorksheetApi extends Component {
 
   // 渲染聚合表侧栏
   renderDataPipelineSide() {
-    const { selectId, expandIds = [], dataPipelineLoading } = this.state;
+    const { expandIds = [], dataPipelineLoading } = this.state;
     const isOpen = expandIds[0] === 'dataPipeline';
 
     return (
@@ -624,7 +571,9 @@ class WorksheetApi extends Component {
               key={i + type}
               id={item.worksheetId + MENU_LIST[index].id + '-content'}
             >
-              {o.id === 'Table' ? this.renderTable(item, i, type) : this.renderWorksheetCommon(item, index, type)}
+              {['FieldTable', 'ViewTable'].includes(o.id)
+                ? this.renderComparisonTable(item, i, type)
+                : this.renderWorksheetCommon(item, index, type)}
             </div>
           );
         })}
@@ -775,7 +724,37 @@ class WorksheetApi extends Component {
         name: 'controls',
         required: _l('是'),
         type: 'list',
-        desc: _l('控件数据'),
+        desc: () => {
+          return (
+            <Fragment>
+              <div>{_l('控件数据，传参规范见右侧示例')}</div>
+              <div>{_l('controlName：控件名称，必填')}</div>
+              <div>{_l('alias：控件别名')}</div>
+              <div>
+                {_l(
+                  'type：控件类型，目前支持控件类型有 2:文本、6:数值、9:单选、10:多选、46:时间、15:日期（年-月-日）、16:日期 （年-月-日 时:分）、26:成员、14:附件、29:关联记录',
+                )}
+              </div>
+              <div>{_l('required：是否必选，true：必填，false：非必填')}</div>
+              <div>{_l('attribute：标题字段标识，1:标题，0:非标题，工作表中只能设置一个标题字段')}</div>
+              <div>{_l('dot：保留小数位（0-14），控件类型为6:数值,8:金额时填入')}</div>
+              <div>
+                {_l(
+                  'enumDefault：类型为26:成员时，表示成员数量，填入规则 0：单选,1：多选。类型为29:关联记录时，表示关联记录数量，填入规则 1：单条 2：多条',
+                )}
+              </div>
+              <div>{_l('options：选项信息，控件类型为 11:单选,10:多选时填入')}</div>
+              <div>{_l('max：等级最大值，控件类型为28:等级时填入,填入规则（0-10）')}</div>
+              <div>{_l('dataSource：数据源 id，类型为 29 （关联记录）时传入,表示关联表 id)')}</div>
+              <div>
+                {_l(
+                  'advancedSetting: 类型为15、16 日期时传入，格式{“showtype": “6”}，显示类型 5：年 4：年月 3：年月日 2：年月日时 1：年月日时分 6：年月日时分秒',
+                )}
+              </div>
+              <div>{_l('unit：类型为46时间时传入，1：时分，6：时分秒')}</div>
+            </Fragment>
+          );
+        },
       },
     ];
 
@@ -799,7 +778,7 @@ class WorksheetApi extends Component {
                 <div className="w32">{o.name}</div>
                 <div className="mLeft30 w18">{o.required}</div>
                 <div className="mLeft30 w14">{o.type}</div>
-                <div className="mLeft30 w36">{o.desc}</div>
+                <div className="mLeft30 w36">{typeof o.desc === 'function' ? o.desc() : o.desc}</div>
               </div>
             );
           })}
@@ -1110,112 +1089,115 @@ class WorksheetApi extends Component {
   /**
    * 对照表
    */
-  renderTable(item, i, type) {
-    const { showAliasDialog, numberTypeList = [], showWorksheetAliasDialog, alias, dialogType } = this.state;
+  renderComparisonTable(item, i, type) {
     const { isSharePage } = this.props;
+    const {
+      aliasDialog = {},
+      templateControls = [],
+      showWorksheetAliasDialog,
+      alias,
+      dialogType,
+      dataApp,
+    } = this.state;
+    const isFieldTable = i === 0;
 
     return (
       <Fragment>
         <div className="flex worksheetApiContent1">
-          <div className="Font22 bold">{item.name}</div>
-          <div className="Font14 bold mTop20">
-            <span className="mRight20 Gray_75">{_l('工作表ID：') + item.worksheetId}</span>
-            <span className="Gray_75">{_l('工作表别名：') + (alias || '')}</span>
-            {!isSharePage && (
-              <span
-                className="Hand Font13 mLeft20"
-                style={{ color: '#2196F3' }}
-                onClick={() => {
-                  this.setState({
-                    showWorksheetAliasDialog: true,
-                    dialogType: type,
-                  });
-                }}
-              >
-                {_l('设置')}
-              </span>
-            )}
-          </div>
-          <div className="Font17 bold mTop40">
-            {MENU_LIST[0].title}
+          {isFieldTable && (
+            <React.Fragment>
+              <div className="flexRow alignItemsCenter">
+                <div className="Font22 bold flex">{item.name}</div>
+                {!isSharePage && (
+                  <FiltersGenerate controls={templateControls} projectId={dataApp.projectId} appId={this.getId()} />
+                )}
+              </div>
+              <div className="Font14 bold mTop20 mBottom40">
+                <span className="mRight20 Gray_75">{_l('工作表ID：') + item.worksheetId}</span>
+                <span className="Gray_75">{_l('工作表别名：') + (alias || '')}</span>
+                {!isSharePage && (
+                  <span
+                    className="Hand Font13 mLeft20"
+                    style={{ color: '#1677ff' }}
+                    onClick={() => this.setState({ showWorksheetAliasDialog: true, dialogType: type })}
+                  >
+                    {_l('设置')}
+                  </span>
+                )}
+              </div>
+            </React.Fragment>
+          )}
+
+          <div className="Font17 bold">
+            {MENU_LIST[i].title}
             {!isSharePage && (
               <span
                 className="Right Hand Font13"
-                style={{ color: '#2196F3' }}
+                style={{ color: '#1677ff' }}
                 onClick={() => {
-                  this.setState({
-                    showAliasDialog: !showAliasDialog,
-                    dialogType: type,
-                  });
+                  this.setState({ aliasDialog: { visible: true, type: MENU_LIST[i].type }, dialogType: type });
                 }}
               >
-                {_l('设置字段别名')}
+                {MENU_LIST[i].btnText}
               </span>
             )}
           </div>
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
-            <div className="w22">{_l('字段ID')}</div>
-            <div className="mLeft30 w18">{_l('字段名称')}</div>
-            <div className="mLeft30 w14">{_l('类型')}</div>
-            <div className="mLeft30 w14">{_l('控件类型编号')}</div>
-            <div className="mLeft30 w32">{_l('说明')}</div>
+            {MENU_LIST[i].fields.map(field => (
+              <div key={field.key} className={field.className}>
+                {field.text}
+              </div>
+            ))}
           </div>
-          {item.controls.map((o, i) => {
+          {(isFieldTable ? item.controls : item.views).map((o, index) => {
             return (
-              <div key={`${o.controlId}-${i}`} className="flexRow worksheetApiLine flexRowHeight">
-                <div className="w22">
-                  {o.controlId} {o.alias && <div>({o.alias})</div>}
-                </div>
-                <div className="mLeft30 w18">{o.controlName}</div>
-                <div className="mLeft30 w14">{o.type}</div>
-                <div className="mLeft30 w14">
-                  {_.get(_.find(numberTypeList, numberType => numberType.controlId === o.controlId) || {}, 'type')}
-                </div>
-                <div className="mLeft30 w32">{o.desc}</div>
+              <div key={`${o.controlId || o.viewId}-${index}`} className="flexRow worksheetApiLine flexRowHeight">
+                {MENU_LIST[i].fields.map(field => (
+                  <div key={`data-${field.key}`} className={field.className}>
+                    {['controlId', 'viewId'].includes(field.key) && (
+                      <React.Fragment>
+                        <div>{o[field.key]}</div>
+                        {o.alias && <div>({o.alias})</div>}
+                      </React.Fragment>
+                    )}
+
+                    {field.key === 'numberType' &&
+                      _.get(_.find(templateControls, numberType => numberType.controlId === o.controlId) || {}, 'type')}
+
+                    {field.key === 'viewType' && (_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[o.type] }) || {}).text}
+
+                    {!['controlId', 'viewId', 'numberType', 'viewType'].includes(field.key) && o[field.key]}
+                  </div>
+                ))}
               </div>
             );
           })}
         </div>
-        {showAliasDialog && dialogType === type && (
+        {aliasDialog.visible && aliasDialog.type === MENU_LIST[i].type && dialogType === type && (
           <AliasDialog
-            showAliasDialog={showAliasDialog}
-            controls={this.state.data[0].controls}
+            type={MENU_LIST[i].type}
+            data={this.state.data[0][MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
+            controlTypeList={this.state.data[0][MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
             worksheetId={item.worksheetId}
             appId={this.getId()}
-            setFn={data => {
-              this.setState(
-                {
-                  showAliasDialog: data.showAliasDialog,
-                  dialogType: undefined,
-                },
-                () => {
-                  this.getWorksheetApiInfo(item.worksheetId);
-                },
-              );
+            onClose={isUpdate => {
+              this.setState({ aliasDialog: { visible: false }, dialogType: undefined });
+              isUpdate && this.getWorksheetApiInfo(item.worksheetId);
             }}
           />
         )}
-        {showWorksheetAliasDialog && dialogType === type && (
+        {showWorksheetAliasDialog && dialogType === type && isFieldTable && (
           <WorksheetAliasDialog
-            show={showWorksheetAliasDialog}
-            onClose={() => {
-              this.setState({ showWorksheetAliasDialog: false, dialogType: undefined });
-            }}
+            onClose={() => this.setState({ showWorksheetAliasDialog: false, dialogType: undefined })}
             alias={alias}
             onOk={alias => {
               ajaxRequest
-                .updateWorksheetAlias({
-                  appId: this.getId(),
-                  worksheetId: item.worksheetId,
-                  alias,
-                })
+                .updateWorksheetAlias({ appId: this.getId(), worksheetId: item.worksheetId, alias })
                 .then(res => {
                   if (res === 0) {
                     this.setState({
                       alias,
-                      data: this.state.data.map(o => {
-                        return { ...o, alias: alias };
-                      }),
+                      data: this.state.data.map(o => ({ ...o, alias: alias })),
                       showWorksheetAliasDialog: false,
                       dialogType: undefined,
                     });
@@ -1239,8 +1221,36 @@ class WorksheetApi extends Component {
    * 授权管理
    */
   renderAuthorizationManagement = () => {
-    const { authorizes = [], addSecretKey } = this.state;
-    const lang = window.getCurrentLang();
+    const { authorizes = [], addSecretKey, visibleAppKeys, visibleSigns } = this.state;
+
+    const renderIconRow = (visibleState, text) => {
+      const visible = this.state[visibleState].includes(text);
+
+      return (
+        <div className="flexRow alignItemsCenter mTop4">
+          <Tooltip text={visible ? _l('隐藏') : _l('显示')}>
+            <Icon
+              icon={visible ? 'visibility_off' : 'eye_off'}
+              className="Font16 pointer Gray_75 ThemeHoverColor2"
+              onClick={() => {
+                this.setState({
+                  [visibleState]: visible
+                    ? this.state[visibleState].filter(item => item !== text)
+                    : this.state[visibleState].concat(text),
+                });
+              }}
+            />
+          </Tooltip>
+          <Tooltip text={_l('复制')}>
+            <Icon
+              icon="copy"
+              className="Font16 pointer Gray_75 ThemeHoverColor2 mLeft8"
+              onClick={() => this.onCopy(text)}
+            />
+          </Tooltip>
+        </div>
+      );
+    };
 
     return (
       <Fragment>
@@ -1248,33 +1258,47 @@ class WorksheetApi extends Component {
           <div className="Font22 bold">{_l('授权管理')}</div>
           {authorizes.length > 0 && (
             <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
-              <div className="w25">AppKey</div>
-              <div className="mLeft30 w25">SecretKey</div>
-              <div className="mLeft30 w25">Sign</div>
-              <div className="mLeft30 w30">{_l('授权类型')}</div>
-              <div className="mLeft30 w8">{_l('操作')}</div>
+              <div className="w14">{_l('名称')}</div>
+              <div className="mLeft10 w12">AppKey</div>
+              <div className="mLeft10 w26">Sign</div>
+              <div className="mLeft10 w18">{_l('授权类型')}</div>
+              <div className="mLeft10 w22">{_l('创建者')}</div>
+              <div className="mLeft10 w8">{_l('操作')}</div>
             </div>
           )}
-          {authorizes.map((o, i) => {
+          {authorizes.map(o => {
             return (
               <div key={o.appKey} className="flexRow worksheetApiLine flexRowHeight pTop8 pBottom8">
-                <div className="w25">
-                  <div onClick={() => this.onCopy(o.appKey)}>{o.appKey}</div>
+                <div className="w14">{o.name}</div>
+                <div className="mLeft10 w12">
+                  {visibleAppKeys.includes(o.appKey) && <div>{o.appKey}</div>}
                   <div className="Gray_9e">{o.remark}</div>
+                  {renderIconRow('visibleAppKeys', o.appKey)}
                 </div>
-                <div className="mLeft30 w25" onClick={() => this.onCopy(o.secretKey)}>
-                  {o.secretKey}
+                <div className="mLeft10 w26">
+                  {visibleSigns.includes(o.sign) && <div>{o.sign}</div>}
+                  {renderIconRow('visibleSigns', o.sign)}
                 </div>
-                <div className="mLeft30 w25" onClick={() => this.onCopy(o.sign)}>
-                  {o.sign}
-                </div>
-                <div className="mLeft30 w30">
+                <div className="mLeft10 w18">
                   <div>
-                    {o.status === 2 ? _l('授权已关闭') : o.type === 1 ? _l('本应用全部接口') : _l('本应用只读接口')}
+                    {o.status === 2
+                      ? _l('授权已关闭')
+                      : o.type === 1
+                        ? _l('本应用全部接口')
+                        : o.type === 2
+                          ? _l('本应用只读接口')
+                          : _l('自定义')}
                   </div>
                   {o.status !== 2 && o.viewNull && <div>{_l('空视图参数不返回数据')}</div>}
                 </div>
-                <div className="mLeft30 w8 Relative">
+                <div className="mLeft10 w22">
+                  <div className="flexRow alignItemsCenter">
+                    <Avatar src={_.get(o, 'creater.avatar')} size={20} />
+                    <div className="mLeft4">{_.get(o, 'creater.fullname')}</div>
+                  </div>
+                  <div className="mTop4">{o.createTime}</div>
+                </div>
+                <div className="mLeft10 w8 Relative">
                   <Icon
                     icon="more_horiz"
                     className="Font18 Hand Relative"
@@ -1323,7 +1347,7 @@ class WorksheetApi extends Component {
             showMoreOption: showMoreOption,
           });
         }}
-        onClickAwayExceptions={['.mui-dialog-container']}
+        onClickAwayExceptions={['.mui-dialog-container', '.tencent-captcha__transform']}
         onClickAway={() => this.setState({ showMoreOption: false })}
       />
     );
@@ -1418,11 +1442,15 @@ class WorksheetApi extends Component {
    * 渲染请求内容
    */
   renderPostContent(item, i, otherOptions, rightOptions = {}) {
+    const url = this.state.data[0].apiUrl + MENU_LIST[i].apiName;
+
     return (
       <Fragment>
         {this.renderLeftContent(i)}
         {this.renderRightContent({
-          data: this.setCommonPostParameters(item, otherOptions),
+          data: MENU_LIST[i].isGet
+            ? this.getUrl(url, this.setCommonPostParameters(item, otherOptions))
+            : this.setCommonPostParameters(item, otherOptions),
           errorData: appRoleErrorData,
           ...rightOptions,
         })}
@@ -1521,7 +1549,7 @@ class WorksheetApi extends Component {
   }
 
   renderMapItem = o => {
-    const { numberTypeList = [] } = this.state;
+    const { templateControls = [] } = this.state;
     let { relationValue = [], controlId, value, alias } = o;
     let list = {
       controlId: alias || controlId,
@@ -1529,7 +1557,7 @@ class WorksheetApi extends Component {
     };
     if (
       _.get(
-        _.find(numberTypeList, item => item.controlId === controlId),
+        _.find(templateControls, item => item.controlId === controlId),
         'type',
       ) === 14
     ) {
@@ -1549,7 +1577,7 @@ class WorksheetApi extends Component {
       _.includes(
         [9, 10, 11],
         _.get(
-          _.find(numberTypeList, item => item.controlId === controlId),
+          _.find(templateControls, item => item.controlId === controlId),
           'type',
         ),
       )
@@ -1622,7 +1650,7 @@ class WorksheetApi extends Component {
   /**
    * scrollView滚动
    */
-  scroll = _.throttle((evt, obj) => {
+  scroll = _.throttle(({ scrollTop }) => {
     if (!this.canScroll) {
       return;
     }
@@ -1630,7 +1658,7 @@ class WorksheetApi extends Component {
     let totalHeight = 0;
     let isExist = false;
 
-    $('.nano-content .worksheetApiLi').map((index, el) => {
+    $('.scrollViewContainer .worksheetApiLi').map((index, el) => {
       heightArr.push({
         id: $(el).attr('id').replace('-content', ''),
         h: $(el).height(),
@@ -1640,7 +1668,7 @@ class WorksheetApi extends Component {
       .filter(item => item.height > 0)
       .forEach(item => {
         totalHeight += item.h;
-        if (!isExist && totalHeight - item.h * 0.3 > obj.position) {
+        if (!isExist && totalHeight - item.h * 0.3 > scrollTop) {
           isExist = true;
           this.setState({ selectId: item.id });
         }
@@ -1771,20 +1799,14 @@ class WorksheetApi extends Component {
           {!isSharePage && (
             <div
               className="shareButton Hand Gray_75 flexRow valignWrapper"
-              onClick={() => {
-                if (!_.get(appInfo, 'apiRequest.appKey')) {
-                  alert(_l('授权管理中至少有一个密钥，才允许分享'), 3);
-                  return;
-                }
-                this.setState({ shareVisible: true });
-              }}
+              onClick={() => this.setState({ shareVisible: true })}
             >
               <Icon icon="share" className="mRight8 Font18" />
               <span className="Font14">{_l('分享')}</span>
             </div>
           )}
         </header>
-        <div className="flex flexRow">
+        <div className="flex flexRow minHeight0">
           <div className="worksheetApiSide h100">
             {data.length <= 0 ? (
               <div className="flexColumn h100">
@@ -1792,11 +1814,12 @@ class WorksheetApi extends Component {
               </div>
             ) : (
               <ScrollView>
-                {sidebarList.map(({ key, title, render, args }) => {
+                {sidebarList.map(({ key, title, render, args }, index) => {
                   return render ? (
-                    this[render](args)
+                    <Fragment key={index}>{this[render](args)}</Fragment>
                   ) : (
                     <div
+                      key={index}
                       className={cx('worksheetApiMenuTitle', { active: selectId === key })}
                       onClick={() => this.setSelectId({ selectId: key })}
                     >
@@ -1807,14 +1830,14 @@ class WorksheetApi extends Component {
               </ScrollView>
             )}
           </div>
-          <div className="flex h100">
+          <div className="flex h100 minWidth0">
             {data.length <= 0 ? (
               <div className="TxtCenter TxtMiddle noDataApi" style={{ paddingTop: $(document).height() / 3 }}>
                 <img src={noDataImg} alt={_l('您不是应用的管理员，无权访问此页面')} width="130" />
                 <p className="pTop30 Gray_75 Font17">{_l('您不是应用的管理员，无权访问此页面')}</p>
               </div>
             ) : (
-              <ScrollView className="worksheetApiScroll" updateEvent={this.scroll}>
+              <ScrollView ref={this.contentScrollRef} className="worksheetApiScroll" onScrollEnd={this.scroll}>
                 <div className="flexRow worksheetApiLi" id="summary-content">
                   <div className="worksheetApiContent1">
                     <div className="Font22 bold">{_l('概述')}</div>
@@ -1858,12 +1881,12 @@ class WorksheetApi extends Component {
                   {this.renderWorksheetInfo()}
                 </div>
 
-                <div className="flexRow worksheetApiLi" id="workflowInfo-content">
-                  {this.renderWorkflowInfo()}
-                </div>
                 <div id="list-content">{data.map((item, i) => this.renderContent(item, i))}</div>
                 <div id="dataPipeline-content">
                   {dataPipelineData.map((item, i) => this.renderContent(item, i, 'dataPipeline'))}
+                </div>
+                <div className="flexRow worksheetApiLi" id="workflowInfo-content">
+                  {this.renderWorkflowInfo()}
                 </div>
                 {/** 应用角色 */}
                 {this.renderAppRoleContent()}
@@ -1885,7 +1908,7 @@ class WorksheetApi extends Component {
             isCharge={true}
             params={{
               appId: appId,
-              sourceId: _.get(appInfo, 'apiRequest.appKey'),
+              sourceId: _.get(appInfo, 'apiRequest.appKey') || this.getId(),
               title: _l('API说明'),
             }}
             onClose={() => this.setState({ shareVisible: false })}
@@ -1924,7 +1947,7 @@ const Entry = () => {
   }, []);
 
   const getEntityShareById = data => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
       const result = await appManagementAjax.getEntityShareById({ id, sourceType: 45, ...data });
       const clientId = _.get(result, 'data.clientId');
       window.clientId = clientId;

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Dropdown } from 'ming-ui';
-import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { getControlFormatType, getDefaultDateRangeType, getDateRangeTypeListByShowtype } from '../util';
 import _ from 'lodash';
-import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 import moment from 'moment';
+import { Dropdown } from 'ming-ui';
+import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { getControlFormatType, getDateRangeTypeListByShowtype, getDefaultDateRangeType } from '../util';
 
 export default function DropCom(props) {
   const { data, worksheetControls, control, advancedSetting, updateViewSet } = props;
@@ -22,7 +22,7 @@ export default function DropCom(props) {
     ? ['filterType'].includes(data.key) && data.keys.includes(type) && control[data.key] === 0
       ? FILTER_CONDITION_TYPE.DATE_BETWEEN //兼容老数据的默认值
       : control[data.key]
-    : JSON.parse(advancedSetting[data.key]) || data.default;
+    : (!advancedSetting[data.key] ? '' : JSON.parse(advancedSetting[data.key])) || data.default;
   return (
     <React.Fragment>
       <div className="title">{data.txt}</div>

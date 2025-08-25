@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { RECURTYPE, FREQUENCY, WEEKDAYS, RECURLAYERS } from '../../constant';
-import { formatRecur } from '../../common';
-import Dropdown from 'ming-ui/components/Dropdown';
-import DatePicker from 'ming-ui/components/DatePicker';
 import _ from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import DatePicker from 'ming-ui/components/DatePicker';
+import Dropdown from 'ming-ui/components/Dropdown';
+import { formatRecur } from '../../common';
+import { FREQUENCY, RECURLAYERS, RECURTYPE, WEEKDAYS } from '../../constant';
 
 export default class RepeatBox extends Component {
   static propTypes = {
@@ -35,14 +35,16 @@ export default class RepeatBox extends Component {
 
   // 修改星期
   changeWeekDay(event) {
-    const { calendar: { weekDay } } = this.props;
+    const {
+      calendar: { weekDay },
+    } = this.props;
     let weekDayArray = weekDay ? weekDay.split(',').sort((a, b) => a - b) : [];
     const value = event.target.getAttribute('value');
     const isInArray = weekDayArray.indexOf(value) !== -1;
     if (isInArray) {
       weekDayArray = _.without(weekDayArray, value);
     } else {
-      _(weekDayArray)
+      _.chain(weekDayArray)
         .push(value)
         .sort((a, b) => a - b)
         .commit();
@@ -71,7 +73,9 @@ export default class RepeatBox extends Component {
    * render functions
    */
   renderFrequency() {
-    const { calendar: { frequency } } = this.props;
+    const {
+      calendar: { frequency },
+    } = this.props;
     // dropDown props required value is string
     const data = [
       { text: _l('无'), value: FREQUENCY.NONE + '' },
@@ -99,14 +103,21 @@ export default class RepeatBox extends Component {
   }
 
   renderInterval() {
-    const { calendar: { frequency, interval } } = this.props;
+    const {
+      calendar: { frequency, interval },
+    } = this.props;
     const suffix = RECURLAYERS[frequency - 1];
     return (
       <div className="LineHeight30">
         <span className="formLabel">{_l('频率:')}</span>
         <div className="FormControl">
           {_l('每')}
-          <input type="text" className="intervalBox ThemeBorderColor3" value={interval} onChange={this.changeInterval.bind(this)} />
+          <input
+            type="text"
+            className="intervalBox ThemeBorderColor3"
+            value={interval}
+            onChange={this.changeInterval.bind(this)}
+          />
           {suffix}
           {this.renderWeekDay(frequency)}
         </div>
@@ -115,7 +126,9 @@ export default class RepeatBox extends Component {
   }
 
   renderWeekDay() {
-    const { calendar: { frequency, weekDay } } = this.props;
+    const {
+      calendar: { frequency, weekDay },
+    } = this.props;
     const weekDayArray = weekDay ? weekDay.split(',').sort((a, b) => a - b) : [];
     if (frequency !== FREQUENCY.WEEK) return null;
     return (
@@ -123,7 +136,12 @@ export default class RepeatBox extends Component {
         {WEEKDAYS.map((day, index) => {
           const isSelected = weekDayArray.indexOf('' + index) !== -1;
           return (
-            <span className={cx('weekday', { ThemeBGColor3: isSelected })} onClick={this.changeWeekDay.bind(this)} value={index} key={index}>
+            <span
+              className={cx('weekday', { ThemeBGColor3: isSelected })}
+              onClick={this.changeWeekDay.bind(this)}
+              value={index}
+              key={index}
+            >
               {day}
             </span>
           );
@@ -133,9 +151,15 @@ export default class RepeatBox extends Component {
   }
 
   renderRecur() {
-    const { calendar: { recurType } } = this.props;
+    const {
+      calendar: { recurType },
+    } = this.props;
     // dropDown props required value is string
-    const data = [{ text: _l('永不'), value: RECURTYPE.NONE }, { text: _l('次数'), value: RECURTYPE.COUNT }, { text: _l('日期'), value: RECURTYPE.DATE }];
+    const data = [
+      { text: _l('永不'), value: RECURTYPE.NONE },
+      { text: _l('次数'), value: RECURTYPE.COUNT },
+      { text: _l('日期'), value: RECURTYPE.DATE },
+    ];
     const dropDownProps = {
       data,
       value: recurType,
@@ -150,12 +174,20 @@ export default class RepeatBox extends Component {
   }
 
   renderRecurEdit() {
-    const { calendar: { end, recurType, recurCount, untilDate } } = this.props;
+    const {
+      calendar: { end, recurType, recurCount, untilDate },
+    } = this.props;
     if (recurType === RECURTYPE.COUNT) {
       return (
         <span className="mLeft10">
           {_l('发生')}
-          <input type="text" className="recurCountBox ThemeBorderColor3" value={recurCount} onChange={this.changeRecurCount.bind(this)} />次后
+          <input
+            type="text"
+            className="recurCountBox ThemeBorderColor3"
+            value={recurCount}
+            onChange={this.changeRecurCount.bind(this)}
+          />
+          次后
         </span>
       );
     } else {
@@ -191,7 +223,9 @@ export default class RepeatBox extends Component {
   }
 
   render() {
-    const { calendar: { isChildCalendar, frequency } } = this.props;
+    const {
+      calendar: { isChildCalendar, frequency },
+    } = this.props;
     if (isChildCalendar) return null;
     return (
       <div>

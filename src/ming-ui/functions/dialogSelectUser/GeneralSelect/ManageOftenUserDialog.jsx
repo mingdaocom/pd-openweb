@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, FunctionWrap, Icon, LoadDiv, RadioGroup, SortableList } from 'ming-ui';
-import userAjax from 'src/api/user';
-import addressBookAjax from 'src/api/addressBook';
 import accountSettingAjax from 'src/api/accountSetting';
-import User from './User';
+import addressBookAjax from 'src/api/addressBook';
+import userAjax from 'src/api/user';
 import { MAX_OFTEN_USERS, OFTEN_USER_OPTIONS } from './constant';
+import User from './User';
 
 const Wrap = styled.div`
   overflow: hidden;

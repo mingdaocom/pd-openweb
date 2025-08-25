@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
-import Trigger from 'rc-trigger';
-import { MenuItem, Icon, Checkbox } from 'ming-ui';
-import styled from 'styled-components';
-import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
+import React, { useRef, useState } from 'react';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Icon, MenuItem } from 'ming-ui';
+import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 

@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Dialog, Dropdown, Icon, ScrollView, Support, Tooltip } from 'ming-ui';
+import { SYS, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { dealRequestControls } from '../../../util/data';
-import { Dialog, Support, Icon, Tooltip, ScrollView, Dropdown } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getMapControls } from '../DynamicDefaultValue/util';
-import { SYS_CONTROLS, SYS } from 'src/pages/widgetConfig/config/widget';
-import cx from 'classnames';
 import './DialogMapping.less';
-import _ from 'lodash';
 
 export default function DialogMapping(props) {
   const {
@@ -290,7 +290,7 @@ export default function DialogMapping(props) {
       width={720}
       title={<span className="Bold">{_l('建立映射')}</span>}
       onCancel={onClose}
-      className={cx('DialogMappingConfig', { mappingHeight: noData })}
+      className={cx('DialogMappingConfig', { mappingHeight: noData, mappingScrollBox: !noData })}
       {...(fromOperationFlow
         ? { description: _l('流程中有其他PBP、子流程、循环流程、代办、延时节点时，输出参数映射无效') }
         : {})}
@@ -305,7 +305,7 @@ export default function DialogMapping(props) {
         {noData ? (
           renderNoData()
         ) : (
-          <ScrollView className="controlBox flex mTop15">
+          <ScrollView className="controlBox flex mTop15 pRight10">
             {isBtn ? (
               renderForm(dealData)
             ) : (

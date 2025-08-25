@@ -13,7 +13,7 @@ export function refreshRecord({
   searchArgs,
   quickFilter,
   navGroupFilters,
-  cb = () => { },
+  cb = () => {},
 }) {
   const args = {
     appId,
@@ -44,9 +44,10 @@ export function refreshRecord({
     args.keyWords = searchArgs.keyWords;
     args.searchType = searchArgs.searchType;
   }
-  worksheetAjax.refreshWorksheetRows(args)
+  worksheetAjax
+    .refreshWorksheetRows(args)
     .then(cb)
-    .catch(err => {
+    .catch(() => {
       alert(_l('修改失败'), 2);
     });
 }

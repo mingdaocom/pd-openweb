@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Skeleton } from 'ming-ui';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import Empty from './components/Empty';
 import FilterDetail from './components/FilterDetail';
@@ -39,11 +39,11 @@ const SwitchTab = styled.div`
     text-align: center;
     display: inline-block;
     &.active {
-      color: #2196f3;
+      color: #1677ff;
       background: #ffffff;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -63,7 +63,6 @@ function Filters(props, ref) {
   const {
     style = {},
     maxHeight = 543,
-    supportGroup = true,
     projectId,
     appId,
     viewId,
@@ -123,7 +122,15 @@ function Filters(props, ref) {
   }
   function filterAddConditionControls(controls) {
     return filterOnlyShowField(
-      showWorkflowControl ? controls : controls.filter(c => !_.includes(SYS_CONTROLS_WORKFLOW, c.controlId)),
+      showWorkflowControl
+        ? controls
+        : controls.filter(
+            c =>
+              !_.includes(
+                WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId),
+                c.controlId,
+              ),
+          ),
     );
   }
   function filterWorksheet(filter) {

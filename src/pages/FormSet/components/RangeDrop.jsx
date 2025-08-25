@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon, Radio } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -13,7 +12,7 @@ const HeaderRange = styled.div`
     float: right;
   }
   .ming.icon-close:hover {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
 `;
 const RangeBox = styled.div`

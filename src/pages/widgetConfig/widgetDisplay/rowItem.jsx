@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import _, { head, isEmpty, get, some } from 'lodash';
 import { useDrop } from 'react-dnd-latest';
-import DisplayItem from './displayItem';
+import cx from 'classnames';
+import _, { head, isEmpty, some } from 'lodash';
+import styled from 'styled-components';
 import { DRAG_ACCEPT, DRAG_MODE } from '../config/Drag';
-import { isFullLineDragItem } from '../util/drag';
 import { notInsetSectionTab } from '../util';
+import { isFullLineDragItem } from '../util/drag';
 import { isFullLineControl } from '../util/widgets';
+import DisplayItem from './displayItem';
 
 const DisplayRowWrap = styled.div`
   display: flex;

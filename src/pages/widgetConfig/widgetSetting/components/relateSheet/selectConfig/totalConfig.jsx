@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
@@ -17,7 +18,7 @@ const TotalConfigWrap = styled.div`
     display: inline-flex;
     align-items: center;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
     &.disabled {
       color: #9e9e9e;
@@ -95,7 +96,7 @@ export default function ReportConfig(props) {
         />
         <Icon
           className="deleteBtn"
-          icon="delete1"
+          icon="trash"
           onClick={() => {
             const newSettings = reportsetting.filter(i => i.controlId !== item.controlId);
             handleChange(handleAdvancedSettingChange(data, { reportsetting: JSON.stringify(newSettings) }));

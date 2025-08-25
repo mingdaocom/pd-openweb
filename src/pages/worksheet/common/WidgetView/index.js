@@ -89,6 +89,22 @@ window.api.call = (controller, action, data) => {
   window.utils[functionName] = args =>
     window.callMdUtil(
       functionName,
-      omitBy(args, (value, key) => typeof value === 'function'),
+      omitBy(args, value => typeof value === 'function'),
     );
 });
+
+window.stateSave = data => {
+  return window.callMd('call-main-web', ['plugin', 'stateSave'].join('/'), {
+    controller: 'plugin',
+    action: 'stateSave',
+    data,
+  });
+};
+
+window.stateRead = data => {
+  return window.callMd('call-main-web', ['plugin', 'stateRead'].join('/'), {
+    controller: 'plugin',
+    action: 'stateRead',
+    data,
+  });
+};

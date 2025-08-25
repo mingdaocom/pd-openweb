@@ -12,7 +12,7 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }

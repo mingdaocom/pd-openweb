@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RowDetail from './RowDetail';
 
@@ -20,6 +21,7 @@ export default function RowDetailModal(props) {
     isExceed,
     isEditCurrentRow,
     copyRow,
+    widgetStyle,
     deleteRow = () => {},
   } = props;
   const formContent = useRef(null);
@@ -34,10 +36,9 @@ export default function RowDetailModal(props) {
 
   // 切换上一条/下一条
   const handleSwitch = type => {
-
-    if ($('.childTableRowDetailMobileDialog').find('.fileUpdateLoading').length) {
+    if ($('.mobileChildTableRowDetailDialog').find('.fileUpdateLoading').length) {
       alert(_l('附件正在上传，请稍后'), 3);
-      return
+      return;
     }
 
     if (!switchDisabled[type]) {
@@ -95,10 +96,7 @@ export default function RowDetailModal(props) {
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>
         {isEditCurrentRow && !props.disabled && allowDelete && (
-          <i
-            className="headerBtn icon icon-task-new-delete Font18 Red"
-            onClick={() => onDelete(data.rowid, onClose)}
-          ></i>
+          <i className="headerBtn icon icon-trash Font18 Red" onClick={() => onDelete(data.rowid, onClose)}></i>
         )}
         {allowCopy && (
           <i
@@ -114,7 +112,7 @@ export default function RowDetailModal(props) {
           <span
             className="ThemeColor Font16 bold"
             onClick={() => {
-              if ($('.childTableRowDetailMobileDialog').find('.fileUpdateLoading').length) {
+              if ($('.mobileChildTableRowDetailDialog').find('.fileUpdateLoading').length) {
                 alert(_l('附件正在上传，请稍后'), 3);
                 return;
               }
@@ -127,7 +125,7 @@ export default function RowDetailModal(props) {
             {_l('保存')}
           </span>
         ) : (
-          <i className="headerBtn icon icon-delete_out Gray_9e Font20" onClick={() => handleClose(data.rowid)}></i>
+          <i className="headerBtn icon icon-cancel Gray_9e Font20" onClick={() => handleClose(data.rowid)}></i>
         )}
       </div>
       <div className="forCon flex leftAlign">
@@ -138,7 +136,7 @@ export default function RowDetailModal(props) {
           ref={formContent}
           {...props}
           disabled={type === 'new' ? false : disabled}
-          widgetStyle={!mobileIsEdit ? { titlelayout_app: '2', titlewidth_app: '80' } : {}}
+          widgetStyle={widgetStyle ? widgetStyle : !mobileIsEdit ? { titlelayout_app: '2', titlewidth_app: '80' } : {}}
         />
       </div>
       {type === 'new' ? (

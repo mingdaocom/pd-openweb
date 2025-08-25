@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon } from 'ming-ui';
-import departmentController from 'src/api/department';
-import ContactItem from './ContactItem';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import departmentController from 'src/api/department';
 
 const DepartmentTreeWrapper = styled.div`
   border-right: 1px solid #f3f3f3;
-  overflow: auto;
+  height: 100%;
   .subs {
     margin-left: 10px;
   }
@@ -24,7 +23,7 @@ const Department = styled.div`
     background-color: #d6ecfe;
     .icon,
     div {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .iconArrow {
@@ -135,9 +134,9 @@ export default class ProjectContactList extends React.Component {
     const { department = [], departmentLoading } = this.state;
     const project = _.find(md.global.Account.projects, { projectId });
     return (
-      <DepartmentTreeWrapper className="flex">
+      <DepartmentTreeWrapper>
         <ScrollView
-          className="flex asdsad"
+          className="h100 asdsad"
           onScrollEnd={() => {
             if (!departmentLoading && this.props.isMore) {
               this.props.loadNextPage();
@@ -158,6 +157,6 @@ export default class ProjectContactList extends React.Component {
   onScrollEnd = () => {};
 
   render() {
-    return <ScrollView onScrollEnd={this.onScrollEnd}>{this.renderListContent()}</ScrollView>;
+    return <div className="h100">{this.renderListContent()}</div>;
   }
 }

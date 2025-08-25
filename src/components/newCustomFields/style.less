@@ -208,7 +208,7 @@
       }
       &.active,
       &:focus {
-        border-color: #2196f3 !important;
+        border-color: #1677ff !important;
         background: #fff !important;
         box-shadow: none !important;
       }
@@ -246,7 +246,7 @@
     .customAntSelect {
       &.ant-select-open {
         .ant-select-selector {
-          border-color: #2196f3 !important;
+          border-color: #1677ff !important;
           background-color: #fff !important;
         }
       }
@@ -302,7 +302,7 @@
         display: block;
         &.isLoading {
           animation: rotate 2s linear infinite;
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -331,7 +331,7 @@
         transition: all 0.2s linear;
         &:hover {
           i {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
         &:first-child {
@@ -411,7 +411,7 @@
           right: 0;
           bottom: -1px;
           background: #fff;
-          color: #2196f3;
+          color: #1677ff;
           border: 1px solid rgba(0, 0, 0, 0);
           padding: 0 3px;
           line-height: 16px;
@@ -534,7 +534,7 @@
       }
 
       &:focus {
-        border-color: #2196f3 !important;
+        border-color: #1677ff !important;
         background: #fff !important;
         box-shadow: none !important;
       }
@@ -625,7 +625,7 @@
 
       &.customFormEditor {
         background: #fff !important;
-        border-color: #2196f3 !important;
+        border-color: #1677ff !important;
       }
 
       &.formBoxNoBorder {
@@ -669,7 +669,7 @@
         .customOCRLoading {
           display: block;
           animation: rotate 2s linear infinite;
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       &.customFormSwitchColumn {
@@ -730,7 +730,7 @@
       box-sizing: border-box;
       padding: 6px 12px;
       vertical-align: top;
-      border-color: #2196f3;
+      border-color: #1677ff;
       background: #fff;
       font-size: 13px;
     }
@@ -759,7 +759,7 @@
 
       &:not(.controlDisabled):hover {
         > .ming.Icon:not(.customFormButtoDel) {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
         .customFormButtoDel {
           display: block;
@@ -1077,7 +1077,7 @@
         box-shadow: none;
       }
       &.ant-picker-focused:not(.controlDisabled) {
-        border-color: #2196f3 !important;
+        border-color: #1677ff !important;
         background: #fff !important;
         .ant-picker-clear {
           opacity: 1;
@@ -1127,7 +1127,7 @@
   position: absolute;
   bottom: 100%;
   transform: translateY(-5px);
-  z-index: 1;
+  z-index: 3;
   left: 0;
   color: #fff;
   padding: 3px 8px;
@@ -1140,6 +1140,13 @@
 
   &.isChildTable {
     transform: translateY(15px);
+  }
+
+  &.ignoreErrorMessage {
+    background: #f8932c;
+    .customFormErrorArrow {
+      border-color: transparent transparent transparent #f8932c;
+    }
   }
 
   span {
@@ -1242,7 +1249,7 @@ input.customFormControlBox:disabled {
 .customAntSelect {
   &.ant-select-open {
     .ant-select-selector {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
       background-color: #fff !important;
     }
     .ant-select-arrow {
@@ -1386,20 +1393,43 @@ input.customFormControlBox:disabled {
   }
 }
 
+.newRuleErrorMsgDialog {
+  width: 98% !important;
+  max-width: 510px;
+  .mui-dialog-header {
+    height: inherit;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    .mui-dialog-default-title {
+      margin-bottom: 16px;
+    }
+    .mui-dialog-desc {
+      padding-top: 0px !important;
+      overflow-x: hidden;
+    }
+  }
+  .errorItem {
+    display: flex;
+    align-items: center;
+    margin-top: 6px;
+  }
+}
+
 .mobileCustomFormTextareaBox {
   border: 1px solid #e0e0e0 !important;
   margin-bottom: 1px !important;
   border-radius: 2px !important;
   margin-top: 0 !important;
   &:focus {
-    border-color: #2196f3 !important;
+    border-color: #1677ff !important;
     background: #fff !important;
     box-shadow: none !important;
   }
 }
 
 .customFormControlTags {
-  height: 26px;
+  height: 28px;
   border-radius: 26px;
   background: #f7f7f7 !important;
   display: inline-flex;
@@ -1409,6 +1439,8 @@ input.customFormControlBox:disabled {
   vertical-align: top;
   position: relative;
   max-width: 100%;
+  border: 1px solid transparent;
+  box-sizing: border-box;
   .departWrap {
     width: 26px;
     height: 26px;
@@ -1418,6 +1450,9 @@ input.customFormControlBox:disabled {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+  }
+  &.clickActive {
+    border: 1px solid #1677ff;
   }
   &:hover,
   &.selected {
@@ -1441,8 +1476,28 @@ input.customFormControlBox:disabled {
     right: -5px;
     opacity: 0;
     transition: all 0.2s ease-out;
+    background-color: #fff;
+    border-radius: 50%;
     &:hover {
       color: #757575;
     }
+  }
+}
+
+.quickConfigPopover {
+  .ant-popover-inner-content {
+    padding: 6px 0;
+    width: 180px;
+    max-height: 300px;
+    overflow-x: hidden;
+  }
+  &.ant-popover-placement-bottomLeft {
+    padding-top: 0px !important;
+  }
+  &.ant-popover-placement-rightTop {
+    padding-left: 0px !important;
+  }
+  .ant-popover-arrow {
+    display: none !important;
   }
 }

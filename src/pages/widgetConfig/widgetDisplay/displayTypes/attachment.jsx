@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
+import _ from 'lodash';
 import { CommonDisplay } from '../../styled';
 
 export default function Attachment(props) {

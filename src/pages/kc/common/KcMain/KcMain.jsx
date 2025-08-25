@@ -1,47 +1,43 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { Drawer } from 'antd';
 import cx from 'classnames';
 import { List } from 'immutable';
 import { min } from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
-
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { ScrollView } from 'ming-ui';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
-import { Drawer } from 'antd';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withDragSelect from 'ming-ui/decorators/withDragSelect';
-
+import { navigateTo } from 'src/router/navigateTo';
 import AttachmentsPreview from '../../common/AttachmentsPreview';
-import KcListHeader from '../../components/KcListHeader';
-import KcListEmpty from '../../components/KcListEmpty';
-import KcNewFolder from '../../components/KcNewFolder';
-import KcAppItem from '../../components/KcAppItem';
-import RightMenu from '../../components/RightMenu';
 import Detail from '../../components/Detail';
-
+import KcAppItem from '../../components/KcAppItem';
+import KcListEmpty from '../../components/KcListEmpty';
+import KcListHeader from '../../components/KcListHeader';
+import KcNewFolder from '../../components/KcNewFolder';
+import RightMenu from '../../components/RightMenu';
 import {
-  NODE_STATUS,
+  NODE_OPERATOR_TYPE,
   NODE_SORT_BY,
   NODE_SORT_TYPE,
-  NODE_OPERATOR_TYPE,
+  NODE_STATUS,
   PICK_TYPE,
   ROOT_PERMISSION_TYPE,
 } from '../../constant/enum';
+import * as kcActions from '../../redux/actions/kcAction';
+import * as selectActions from '../../redux/actions/selectAction';
 import { getRootNameAndLink } from '../../utils';
 import { handleDownloadOne, updateNodeName } from '../../utils/common';
 import {
-  registerNodeItemEvent,
   bindEvent,
-  handleDragSelectClickOnly,
   handleDragSelect,
+  handleDragSelectClickOnly,
   handleDragSelectFromGap,
+  registerNodeItemEvent,
 } from '../../utils/kcevent';
-
-import * as kcActions from '../../redux/actions/kcAction';
-import * as selectActions from '../../redux/actions/selectAction';
-
 import './KcMain.less';
 
 const DragSelect = createDecoratedComponent(withDragSelect);
@@ -244,7 +240,6 @@ class KcMain extends Component {
       selectItems,
       selectSingleItem,
       changeSortBy,
-      changeFolder,
       restoreNode,
       isRecycle,
       isReadOnly,
@@ -317,7 +312,7 @@ class KcMain extends Component {
       const last = validList.count() - 1;
       kclist = (
         <div {...kclistProps}>
-          <ScrollView scrollContentClassName="kclistScrollContent" scrollEvent={triggerLoadMoreNodes}>
+          <ScrollView className="kclistScrollContent" onScrollEnd={triggerLoadMoreNodes}>
             <DragSelect
               key="nodeList"
               containerSelector="#kclistContainer"
@@ -547,16 +542,10 @@ class KcMain extends Component {
                   />
                 </span>
                 <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量删除')}>
-                  <i
-                    className="icon-task-new-delete ThemeColor3 pointer"
-                    onClick={() => removeNode(NODE_STATUS.RECYCLED)}
-                  />
+                  <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.RECYCLED)} />
                 </span>
                 <span className={cx({ hide: !isRecycle })} data-tip="批量彻底删除">
-                  <i
-                    className="icon-task-new-delete ThemeColor3 pointer"
-                    onClick={() => removeNode(NODE_STATUS.DELETED)}
-                  />
+                  <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.DELETED)} />
                 </span>
                 <span className={cx({ hide: !isRecycle })} data-tip={_l('批量还原')}>
                   <i className="icon-rotate ThemeColor3 pointer" onClick={restoreNode} />

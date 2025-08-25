@@ -1,5 +1,6 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import sheetAjax from 'src/api/worksheet';
 import ErrorState from 'src/components/errorPage/errorState';
@@ -12,12 +13,13 @@ import { MODULE_TYPE_TO_NAME } from './config';
 import Alias from './containers/Alias';
 import ColumnRules from './containers/ColumnRules';
 import CustomBtnFormSet from './containers/CustomBtnFormSet';
+import EditProtect from './containers/EditProtect';
 import FormIndexSetting from './containers/FormIndexSetting';
 import FunctionalSwitch from './containers/FunctionalSwitch';
 import Print from './containers/Print';
+import Share from './containers/Share';
 import Sidenav from './containers/Sidenav';
 import SubmitFormSetting from './containers/SubmitFormSetting/index';
-import ValidationRules from './containers/ValidationRules';
 import './index.less';
 
 class FormSet extends React.Component {
@@ -100,8 +102,6 @@ class FormSet extends React.Component {
         return <Alias {...param} />;
       case 'display':
         return <ColumnRules {...this.state} />;
-      case 'validationBox':
-        return <ValidationRules />;
       case 'printTemplate':
         return <Print {...param} />;
       case 'functionalSwitch':
@@ -110,8 +110,12 @@ class FormSet extends React.Component {
         return <CustomBtnFormSet {...param} />;
       case 'indexSetting':
         return <FormIndexSetting {...param} />;
+      case 'editProtect':
+        return <EditProtect {...param} />;
       case 'submitForm':
         return <SubmitFormSetting {...param} />;
+      case 'share':
+        return <Share {...param} />;
       default:
         return <SubmitFormSetting {...param} />;
     }
@@ -120,7 +124,7 @@ class FormSet extends React.Component {
   render() {
     const { match = { params: {} } } = this.props;
     const { worksheetId, type = '' } = match.params;
-    const { loading, noRight = false, worksheetName } = this.state;
+    const { loading, noRight = false, worksheetName, worksheetInfo } = this.state;
     if (loading) {
       return <LoadDiv />;
     }
@@ -151,7 +155,7 @@ class FormSet extends React.Component {
           </div>
         ) : (
           <div className="flexBox columnRulesBox">
-            <Sidenav {...this.props} />
+            <Sidenav {...this.props} projectId={worksheetInfo.projectId} />
             <DocumentTitle
               title={_l('表单设置 - %0 - %1', MODULE_TYPE_TO_NAME[type || 'submitForm'], worksheetName || '')}
             />

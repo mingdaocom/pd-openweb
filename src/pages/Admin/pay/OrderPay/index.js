@@ -67,13 +67,13 @@ export default class OrderPay extends Component {
       orderId: orderId,
       paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
     });
-    orderInfo.msg = orderInfo.status === 8 ? _l('订单已取消') : orderInfo.msg;
+    orderInfo.msg = _.includes([7, 8], orderInfo.status) ? _l('订单已取消') : orderInfo.msg;
     const { status, wechatPayStatus, expireCountdown, msg, amount, expireTime } = orderInfo || {};
 
     if (status !== 0 || !!msg) {
       this.setState({
         orderInfo,
-        orderStatus: !!msg ? -1 : status,
+        orderStatus: msg ? -1 : status,
         loading: false,
       });
       $('.qrCodeWrap').parent().parent().remove();
@@ -117,7 +117,7 @@ export default class OrderPay extends Component {
         window.open(res.codeUrl, '_self');
         return;
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ payLoading: false });
       });
   };
@@ -132,10 +132,6 @@ export default class OrderPay extends Component {
       alert(_l('商户暂未开通微信支付'), 2);
       return;
     }
-
-    const cacheUserInfo = localStorage.getItem('wxUserInfo');
-    const wxUserInfo = JSON.parse(cacheUserInfo || '{}');
-    const openId = wxUserInfo.openId || localStorage.getItem('wechatPayOpenId');
 
     if (!window.isWeiXin) return;
 
@@ -178,7 +174,7 @@ export default class OrderPay extends Component {
           }
         });
       })
-      .catch(({ errorCode, errorMessage }) => {
+      .catch(() => {
         window.history.replaceState(
           {},
           '',
@@ -207,9 +203,9 @@ export default class OrderPay extends Component {
     paymentAjax
       .getPayOrderStatus({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
       .then(({ status, expireCountdown, msg, amount, description }) => {
-        msg = status === 8 ? _l('订单已取消') : msg;
+        msg = _.includes([7, 8], status) ? _l('订单已取消') : msg;
 
-        if (status === 8 && $('.qrCodeWrap')) {
+        if (_.includes([7, 8], status) && $('.qrCodeWrap')) {
           $('.qrCodeWrap').parents('.mui-dialog-container').parents('div').remove();
         }
 
@@ -221,7 +217,7 @@ export default class OrderPay extends Component {
             {
               orderStatus: orderInfo.expireTime !== 0 && expireCountdown < 0 ? 4 : status,
               expireCountdown,
-              orderInfo: !!msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
+              orderInfo: msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
               loading: false,
             },
             () => {

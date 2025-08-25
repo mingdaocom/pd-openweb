@@ -1,5 +1,6 @@
 // 高德地图地址采用jsonp callback -->amapInitComponent
 // 含插件Autocomplete，Geocoder，Geolocation，ToolBar，Scale，CitySearch
+import _ from 'lodash';
 import global from 'src/api/global';
 
 export const getMapKey = keyName => {
@@ -25,7 +26,7 @@ export const getMapKey = keyName => {
 
 export default class MapLoader {
   loadJs() {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       // 获取地图数据
       const { key } = getMapKey('amap') || {};
       const AMAP_URL = `https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.Autocomplete,AMap.PlaceSearch,AMap.Geocoder,AMap.Geolocation,AMap.ToolBar,AMap.Scale,AMap.CitySearch`;

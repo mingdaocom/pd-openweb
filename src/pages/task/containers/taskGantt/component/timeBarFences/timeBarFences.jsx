@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import config from '../../config/config';
-import './timeBarFences.less';
-import utils from '../../utils/utils';
 import _ from 'lodash';
 import moment from 'moment';
+import config from '../../config/config';
+import utils from '../../utils/utils';
+import './timeBarFences.less';
 
 // 时间栅栏
 export default class TimeBarFences extends Component {
@@ -29,7 +29,7 @@ export default class TimeBarFences extends Component {
       timeAxisSource[0].dateList[0],
       moment(config.timeStamp).format('YYYY-MM-DD ') + config.workingTimes[0][0],
       viewType,
-      filterWeekend
+      filterWeekend,
     );
   }
 
@@ -49,7 +49,7 @@ export default class TimeBarFences extends Component {
    * @return {string}
    */
   fencesBGColor(source) {
-    const { timeAxisSource, viewType, filterWeekend } = this.props;
+    const { viewType } = this.props;
     const currentTime = moment(config.timeStamp);
     const currentDays = currentTime.days();
 
@@ -88,9 +88,9 @@ export default class TimeBarFences extends Component {
     const fencesArr = [];
 
     timeAxisSource.forEach(items =>
-      items.dateList.forEach((item) => {
+      items.dateList.forEach(item => {
         fencesArr.push(item);
-      })
+      }),
     );
 
     return (
@@ -100,16 +100,17 @@ export default class TimeBarFences extends Component {
             <div
               key={i}
               className="timeBarFencesSingle"
-              style={{ width: utils.singleTableWidth(viewType, filterWeekend, source), background: this.fencesBGColor(source) }}
+              style={{
+                width: utils.singleTableWidth(viewType, filterWeekend, source),
+                background: this.fencesBGColor(source),
+              }}
             />
           );
         })}
 
         {!filterWeekend || !_.includes(config.filterWeekendDay, moment(config.timeStamp).days()) ? (
           <div className="timeBarToday" style={this.timeBarTodayStyle()} />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }

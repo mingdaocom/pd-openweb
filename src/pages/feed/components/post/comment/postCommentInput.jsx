@@ -1,18 +1,19 @@
-import PropTypes from 'prop-types';
 import React from 'react';
-import cx from 'classnames';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAway = createDecoratedComponent(withClickAway);
-import { addComment } from '../../../redux/postActions';
 import { connect } from 'react-redux';
-import { SOURCE_TYPE } from 'src/components/comment/config';
-import UploadFiles from 'src/components/UploadFiles';
-import 'src/components/mentioninput/mentionsInput';
-import 'src/components/autoTextarea/autoTextarea';
-import Emotion from 'src/components/emotion/emotion';
+import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import 'src/components/autoTextarea/autoTextarea';
+import { SOURCE_TYPE } from 'src/components/comment/config';
+import Emotion from 'src/components/emotion/emotion';
+import MentionsInput from 'src/components/MentionsInput';
+import UploadFiles from 'src/components/UploadFiles';
+import { addComment } from '../../../redux/postActions';
+
+const ClickAway = createDecoratedComponent(withClickAway);
 
 const LET_ME_REPLY = _l('我来回复');
 const TEXT_AREA_MIN_HEIGHT_COLLAPSE = 22;
@@ -80,6 +81,7 @@ class PostCommentInput extends React.Component {
   componentWillUnmount() {
     const textarea = this.textarea;
     const button = this.button;
+    textarea.destroy && textarea.destroy();
     $(textarea).off();
     $(button).off();
   }
@@ -110,7 +112,7 @@ class PostCommentInput extends React.Component {
 
         if (!comp.bound) {
           $(button).click(() => {
-            $(textarea).mentionsInput('val', data => {
+            textarea.val(data => {
               const commentMsg = data;
 
               if (!commentMsg || !$.trim(commentMsg)) {
@@ -156,7 +158,7 @@ class PostCommentInput extends React.Component {
                     scope: scope,
                   },
                   () => {
-                    $(textarea).mentionsInput('reset');
+                    textarea.reset();
                     if (commentUpload) {
                       commentUpload.clearAttachment();
                     }
@@ -194,22 +196,24 @@ class PostCommentInput extends React.Component {
         }
 
         const newState = { isEditing: true };
-        if (!comp.state.uploadAttachmentObj) {
-        }
 
         if (comp.state.isUploadComplete) {
           comp.setState(newState);
         }
       })
-      .mentionsInput({
-        submitBtn: 'buttonComment_' + postItem.postID + '_' + postItem.commentID,
-        searchType: 0,
-        showCategory: true,
-        sourceType: SOURCE_TYPE.POST,
-        isAtAll: true,
-        projectId: _.get(postItem, 'projectIds[0]'),
-      })
       .val(isToComment ? '' : LET_ME_REPLY);
+
+    MentionsInput({
+      input: textarea,
+      popupAlignOffset: [0, -10],
+      // getPopupContainer: () => textarea.parentNode.parentNode,
+      submitBtn: 'buttonComment_' + postItem.postID + '_' + postItem.commentID,
+      searchType: 0,
+      showCategory: true,
+      sourceType: SOURCE_TYPE.POST,
+      isAtAll: true,
+      projectId: _.get(postItem, 'projectIds[0]'),
+    });
 
     if (comp.props.focus) {
       $(textarea).focus();
@@ -224,7 +228,7 @@ class PostCommentInput extends React.Component {
     });
   }
 
-  handleReshareToggle = evt => {
+  handleReshareToggle = () => {
     const { isReshare } = this.state;
     this.setState({
       isReshare: !isReshare,
@@ -311,7 +315,10 @@ class PostCommentInput extends React.Component {
     const isToComment = !!postItem.commentID;
     const dropElementID = 'text_' + postItem.postID + '_' + postItem.commentID + 'C';
     return (
-      <ClickAway onClickAwayExceptions={['.quickSelectGroup']} onClickAway={this.componentClickAway}>
+      <ClickAway
+        onClickAwayExceptions={['.quickSelectGroup', '.mentionsAutocompleteList']}
+        onClickAway={this.componentClickAway}
+      >
         <div className="postCommentBox">
           <div
             className={cx('replyFrame', { replyFrameFocus: this.state.isEditing })}
@@ -417,4 +424,4 @@ class PostCommentInput extends React.Component {
   }
 }
 
-export default connect(state => ({}))(PostCommentInput);
+export default connect()(PostCommentInput);

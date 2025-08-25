@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Checkbox, Select } from 'antd';
+import { Select } from 'antd';
 import _ from 'lodash';
 import { Dialog, Icon, Input, RadioGroup } from 'ming-ui';
 import { dialogSelectDept, dialogSelectJob } from 'ming-ui/functions';
@@ -21,11 +21,11 @@ const options = [
     className: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 'show' : 'hide',
   },
 ];
-const checkedOptions = [
-  { label: _l('短信'), value: 1 },
-  { label: _l('邮件'), value: 2 },
-  { label: _l('微信'), value: 3 },
-];
+// const checkedOptions = [
+//   { label: _l('短信'), value: 1 },
+//   { label: _l('邮件'), value: 2 },
+//   { label: _l('微信'), value: 3 },
+// ];
 export default class DialogBatchEdit extends Component {
   constructor(props) {
     super(props);
@@ -49,7 +49,7 @@ export default class DialogBatchEdit extends Component {
       }
     });
   };
-  dialogSelectDeptFn = e => {
+  dialogSelectDeptFn = () => {
     const { projectId } = this.props;
     const { departmentInfos } = this.state;
     const _this = this;
@@ -67,7 +67,7 @@ export default class DialogBatchEdit extends Component {
       },
     });
   };
-  dialogSelectJobFn = e => {
+  dialogSelectJobFn = () => {
     const { projectId } = this.props;
     const { jobInfos } = this.state;
     dialogSelectJob({
@@ -178,7 +178,6 @@ export default class DialogBatchEdit extends Component {
       idAct,
       workSiteInfo = [],
       workSiteId,
-      messageWay = [],
       password,
     } = this.state;
     return (
@@ -208,7 +207,7 @@ export default class DialogBatchEdit extends Component {
                   <Icon
                     className="Font14 Hand Gray_bd"
                     icon="moreop"
-                    onClick={e => {
+                    onClick={() => {
                       this.setState({
                         isShowAct: !isShowAct,
                         idAct: !isShowAct ? item.departmentId : '',
@@ -260,7 +259,7 @@ export default class DialogBatchEdit extends Component {
                   <Icon
                     className="Font14 Hand Gray_bd"
                     icon="moreop"
-                    onClick={e => {
+                    onClick={() => {
                       this.setState({
                         isShowAct: !isShowAct,
                         idAct: !isShowAct ? item.jobId : '',

@@ -1,8 +1,8 @@
 import React from 'react';
-import PinMarker from '../components/PinMarker';
-import _ from 'lodash';
 import { OverlayView } from '@react-google-maps/api';
+import _ from 'lodash';
 import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
+import PinMarker from '../components/PinMarker';
 
 const wrapperStyle = {
   width: '100%',

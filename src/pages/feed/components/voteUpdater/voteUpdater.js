@@ -1,10 +1,10 @@
 import React from 'react';
-import './voteUpdater.css';
+import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
-import { createRoot } from 'react-dom/client';
 import { DatePicker, QiniuUpload } from 'ming-ui';
+import './voteUpdater.css';
 
 const VoteUpdater = {
   init: function ($el) {
@@ -293,7 +293,7 @@ const VoteUpdater = {
 
           up.disableBrowse(false);
         }}
-        onAdd={(up, files) => {
+        onAdd={up => {
           $divVoteUpload.find('.votePicContainer' + index).show();
           up.disableBrowse();
         }}
@@ -333,7 +333,7 @@ const VoteUpdater = {
       if ($(el).find('.voteOptions li').length > 0) {
         var oplength = $(el).find('.voteOptions li').length;
         if (oplength > 0) {
-          for (var i = 0; i < oplength; i++) {
+          for (let i = 0; i < oplength; i++) {
             if (i > 1) {
               $(el).find('.voteOptions li').eq(i).remove();
             }
@@ -370,21 +370,6 @@ const VoteUpdater = {
     voteAvailableNumber = parseInt($el.find('.voteAvailableNumber').val() || '0', 10);
     voteAnonymous = $el.find('.voteAnonymous').prop('checked');
     voteVisble = voteAnonymous.length > 0;
-
-    var rData = '';
-    if (voteOptions.length > 0) {
-      rData += 'voteOptions=' + encodeURIComponent(voteOptions || '');
-      rData += '&voteOptionFiles=' + encodeURIComponent(voteOptionFiles || '');
-    }
-    if (voteLastTime.length > 0) {
-      rData += '&voteLastTime=' + encodeURIComponent(voteLastTime || '');
-    }
-    if (voteLastHour.length > 0) {
-      rData += '&voteLastHour=' + encodeURIComponent(voteLastHour || '');
-    }
-    rData += '&voteAvailableNumber=' + encodeURIComponent(voteAvailableNumber || '');
-    rData += '&voteAnonymous=' + encodeURIComponent(voteAnonymous || '');
-    rData += '&voteVisble=' + encodeURIComponent(voteVisble || '');
 
     return {
       invalid: $.grep($voteItems, function (voteItem) {

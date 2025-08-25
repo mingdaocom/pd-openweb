@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Member from './member';
-import Icon from 'ming-ui/components/Icon';
 import _ from 'lodash';
+import Icon from 'ming-ui/components/Icon';
+import Member from './member';
 
 export default class CalendarMembers extends Component {
   renderWxMembers() {
@@ -11,7 +10,16 @@ export default class CalendarMembers extends Component {
     return (
       <div className="membersContainer">
         {thirdUser.map(m => {
-          return <Member isCreateUser={false} isWxMember={true} member={m} thirdUser={thirdUser} key={m.thirdID} {...memberOtherProps} />;
+          return (
+            <Member
+              isCreateUser={false}
+              isWxMember={true}
+              member={m}
+              thirdUser={thirdUser}
+              key={m.thirdID}
+              {...memberOtherProps}
+            />
+          );
         })}
       </div>
     );

@@ -1,18 +1,18 @@
-import React, { useState, useRef } from 'react';
-import { Input, Tooltip } from 'antd';
-import AutoIcon from '../../../components/Icon';
-import _ from 'lodash';
+import React, { useRef, useState } from 'react';
 import ClipboardButton from 'react-clipboard.js';
+import { Input, Tooltip } from 'antd';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import Options from './Options';
-import { SettingItem, EditOptionDialog } from '../../../styled';
+import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
+import AutoIcon from '../../../components/Icon';
+import { EditOptionDialog, SettingItem } from '../../../styled';
+import { checkOptionsRepeat } from '../../../util';
 import { getDefaultOptions } from '../../../util/setting';
 import DeleteDialog from './DelateDialog';
-import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
-import { checkOptionsRepeat } from '../../../util';
+import Options from './Options';
 
 export default function EditOptionList(props) {
-  const { onOk, options = [], globalSheetInfo = {}, onCancel, worksheetIds = [], ...rest } = props;
+  const { onOk, options = [], globalSheetInfo = {}, onCancel, ...rest } = props;
   const appId = props.appId || globalSheetInfo.appId;
   const $ref = useRef(null);
   const [name, setName] = useState(props.name);
@@ -86,8 +86,8 @@ export default function EditOptionList(props) {
           <div className="flexCenter">
             <i
               style={{ color: colorful ? '#43bd36' : '#bdbdbd' }}
-              className={`Font24 pointer icon-${colorful ? 'toggle_on' : 'toggle_off'}`}
-              onClick={e => setColorful(colorful ? false : true)}
+              className={`Font24 pointer icon-${colorful ? 'ic_toggle_on' : 'ic_toggle_off'}`}
+              onClick={() => setColorful(colorful ? false : true)}
             ></i>
             <span style={{ marginLeft: '8px' }}>{_l('彩色')}</span>
           </div>

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
+import { Dropdown, Menu, Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
-import { Menu, Dropdown, Tooltip } from 'antd';
-import WithoutFidldItem from './WithoutFidldItem';
-import RenameModal from './RenameModal';
-import { isNumberControl, emptyShowTypes } from 'statistics/common';
-import { normTypes } from '../../../enum';
 import { reportTypes } from 'statistics/Charts/common';
+import { emptyShowTypes, isNumberControl } from 'statistics/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import _ from 'lodash';
+import { normTypes } from '../../../enum';
+import RenameModal from './RenameModal';
+import WithoutFidldItem from './WithoutFidldItem';
 
 const SortableItemContent = styled.div`
   position: relative;
@@ -39,9 +39,8 @@ function arrayMove(array, oldIndex, newIndex) {
 }
 
 const renderOverlay = props => {
-  const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, allControls, currentReport } =
-    props;
-  const { reportType, sorts, xaxes, yaxisList } = currentReport;
+  const { item, onNormType, onEmptyShowType, onChangeControlId, allControls, currentReport } = props;
+  const { reportType, xaxes, yaxisList } = currentReport;
   const { controlId, controlType, normType } = item;
   const control = _.find(allControls, { controlId }) || {};
   const isNumberChart = reportTypes.NumberChart === reportType;
@@ -150,7 +149,7 @@ const renderSortableItem = props => {
   return (
     <SortableItemContent>
       <DragHandle>
-        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag" />
       </DragHandle>
       <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
         {axis ? (
@@ -225,7 +224,6 @@ export default class YAxis extends Component {
     }
   };
   handleAddControl = data => {
-    const { yaxisList, currentReport, onChangeCurrentReport } = this.props;
     if (this.handleVerification(data, true)) {
       this.props.onAddAxis(data);
     }
@@ -271,7 +269,7 @@ export default class YAxis extends Component {
     });
   };
   handleSortEnd = (list, newIndex, oldIndex) => {
-    const { currentReport, yaxisList, onChangeCurrentReport } = this.props;
+    const { currentReport, onChangeCurrentReport } = this.props;
     const { reportType, config } = currentReport;
     const data = { yaxisList: list };
     if (reportType === reportTypes.ProgressChart) {
@@ -301,7 +299,7 @@ export default class YAxis extends Component {
     );
   }
   renderWithoutFidldItem() {
-    const { currentReport, yaxisList, split } = this.props;
+    const { currentReport, yaxisList } = this.props;
     const { reportType, xaxes } = currentReport;
     const Content = <WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />;
 
@@ -325,7 +323,6 @@ export default class YAxis extends Component {
   }
   render() {
     const { name, currentReport, axisControls, allControls, yaxisList } = this.props;
-    const { reportType } = currentReport;
     const otherProps = {
       allControls,
       axisControls,

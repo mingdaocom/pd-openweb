@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Icon, Tooltip } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -28,6 +28,7 @@ function AddNode(props) {
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
         <Tooltip
+          autoCloseDelay={0}
           popupPlacement="bottom"
           text={<span>{_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}</span>}
         >

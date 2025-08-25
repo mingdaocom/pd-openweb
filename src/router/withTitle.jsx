@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import { string } from 'prop-types';
-import DocumentTitle from 'react-document-title';
 import { Route } from 'react-router-dom';
-import _ from 'lodash';
+import DocumentTitle from 'react-document-title';
+import { string } from 'prop-types';
 
 export default class WithTitle extends Component {
   static propTypes = {
@@ -25,7 +24,7 @@ export default class WithTitle extends Component {
   };
 
   render() {
-    const { title, component, ...rest } = this.props;
+    const { ...rest } = this.props;
     return <Route {...rest} component={this.renderComponentWithTitle} />;
   }
 }

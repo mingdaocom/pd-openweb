@@ -11,7 +11,7 @@ const Password = styled(Input.Password)`
   border: 1px solid #ccc !important;
   margin-bottom: 10px;
   &.ant-input-affix-wrapper-focused {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -96,6 +96,7 @@ export default function VerifyPasswordInput(props) {
         <Tooltip
           action="hover"
           tooltipStyle={{ maxWidth: 360 }}
+          autoCloseDelay={0}
           text={
             <Fragment>
               {isRequired ? (
@@ -118,7 +119,7 @@ export default function VerifyPasswordInput(props) {
           }
         >
           <NoPassword className="flexRow alignItemsCenter">
-            <i className="icon icon-workflow_help mRight5 Font16" />
+            <i className="icon icon-help mRight5 Font16" />
             <span>{_l('没有密码')}</span>
           </NoPassword>
         </Tooltip>

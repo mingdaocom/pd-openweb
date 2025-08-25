@@ -2,6 +2,15 @@ import { AT_ALL_TEXT } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion/emotion';
 import { htmlEncodeReg } from './common';
 
+function escapeHTML(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 /**
  * 替换动态/任务等内容中的链接
  * @param  {string} args.message        替换前的 html
@@ -13,7 +22,7 @@ import { htmlEncodeReg } from './common';
  * @return {string}                替换后的 html
  */
 export default args => {
-  let message = args.message.replace(/\n/g, '<br>');
+  let message = escapeHTML(args.message).replace(/\n/g, '<br>');
   let rUserList = args.rUserList;
   let rGroupList = args.rGroupList;
   let categories = args.categories;
@@ -39,9 +48,9 @@ export default args => {
     if (message.indexOf(startTag) > -1) {
       const customRegExp = new RegExp(
         '(' +
-          startTag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&') +
+          startTag.replace(/[-[\]{}()*+?.\\^$|]/g, '\\$&') +
           ')([0-9a-zA-Z-]*\\|?.*?)' +
-          endTag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&'),
+          endTag.replace(/[-[\]{}()*+?.\\^$|]/g, '\\$&'),
         'gi',
       );
 
@@ -208,7 +217,7 @@ export default args => {
 
   if (!noLink) {
     message = message.replace(/\n/g, '<br>');
-    let urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=])?[^ <>\[\]*(){},\u4E00-\u9FA5]+/gi;
+    let urlReg = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- ./?%&=])?[^ <>[\]*(){},\u4E00-\u9FA5]+/gi;
 
     message = message.replace(urlReg, function (m) {
       return '<a target="_blank" href="' + m + '">' + m + '</a>';

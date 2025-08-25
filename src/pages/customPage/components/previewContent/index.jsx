@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
@@ -46,7 +45,7 @@ const PreviewContentWrapper = styled.div`
       }
     }
     .actionIcon:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .displayNone {
@@ -107,6 +106,7 @@ function PreviewContent(props) {
     if (hrefReg.test(value)) return <iframe ref={ref} src={parseLink(value)}></iframe>;
   };
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   return <PreviewWrap>{useMemo(renderContent, [parseLink(value)])}</PreviewWrap>;
 }
 

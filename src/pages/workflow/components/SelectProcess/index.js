@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
-import ajaxRequest from 'src/api/appManagement';
-import { Dialog, LoadDiv, Dropdown, Button } from 'ming-ui';
-import '../SelectUsersFromApp/index.less';
-import processVersion from '../../api/processVersion';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Dialog, Dropdown, LoadDiv } from 'ming-ui';
+import processVersion from '../../api/processVersion';
+import ajaxRequest from 'src/api/appManagement';
+import '../SelectUsersFromApp/index.less';
 
 export default class SelectProcess extends Component {
   static propTypes = {

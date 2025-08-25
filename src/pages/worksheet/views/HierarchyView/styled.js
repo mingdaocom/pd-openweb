@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Circle } from 'worksheet/styled';
+
 export const AddRecord = styled(Circle)`
   background-color: #fff;
   justify-content: center;
@@ -10,7 +11,7 @@ export const AddRecord = styled(Circle)`
     color: #9e9e9e;
     transition: transform 0.25s;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       transform: rotate(90deg);
     }
   }

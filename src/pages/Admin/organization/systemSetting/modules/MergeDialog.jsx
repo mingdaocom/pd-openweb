@@ -51,7 +51,8 @@ export default class MergeDialog extends Component {
         onCancel={() => {
           this.props.closeMergeDialog();
         }}
-        onOk={() => this.handleSave()}>
+        onOk={() => this.handleSave()}
+      >
         <div className="warpMerge">
           <div>{_l('合并到')}</div>
           <Radio.Group className="content" onChange={this.onChange.bind(this)} value={this.state.toMergerIds}>

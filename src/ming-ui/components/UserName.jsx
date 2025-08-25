@@ -1,7 +1,6 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { UserCard } from 'ming-ui';
 
 /**
@@ -16,6 +15,7 @@ class UserName extends React.Component {
     className: PropTypes.string,
     chatButton: PropTypes.bool,
     projectId: PropTypes.string, // 网络id
+    appId: PropTypes.string, //外部门户需要传
   };
 
   static defaultProps = {
@@ -23,7 +23,7 @@ class UserName extends React.Component {
   };
 
   render() {
-    const { user, className, chatButton, isSecretary = false, projectId } = this.props;
+    const { user, className, chatButton, isSecretary = false, projectId, appId } = this.props;
 
     const disabled =
       this.props.disabled ||
@@ -43,7 +43,13 @@ class UserName extends React.Component {
       ].includes(user.accountId);
 
     return (
-      <UserCard sourceId={user.accountId} disabled={disabled} chatButton={chatButton} projectId={projectId}>
+      <UserCard
+        sourceId={user.accountId}
+        disabled={disabled}
+        chatButton={chatButton}
+        projectId={projectId}
+        appId={appId}
+      >
         <a
           className={cx({ Gray_6: !user.accountId }, className)}
           href={disabled || isSecretary ? 'javascript:void(0);' : '/user_' + user.accountId}

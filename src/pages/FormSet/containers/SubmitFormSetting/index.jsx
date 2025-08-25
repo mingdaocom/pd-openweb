@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Switch, Dropdown, Icon, ScrollView, Tooltip, LoadDiv, RadioGroup, Checkbox } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
-import { SUBMIT_NEXT_ACTION_LIST } from 'src/pages/FormSet/config';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Checkbox, Dropdown, Icon, LoadDiv, RadioGroup, ScrollView, Switch, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import { SUBMIT_NEXT_ACTION_LIST } from 'src/pages/FormSet/config';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { Con, Wrap, WrapTxt } from './style';
-import DoubleConfirmationDialog from './DoubleConfirmDialog';
-import { defaultDoubleConfirm } from './config';
 import { getShowViews } from 'src/pages/worksheet/views/util';
+import { defaultDoubleConfirm } from './config';
+import DoubleConfirmationDialog from './DoubleConfirmDialog';
+import { Con, Wrap, WrapTxt } from './style';
 
 let ajaxPromise = null;
 function SubmitFormSetting(props) {

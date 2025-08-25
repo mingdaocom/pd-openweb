@@ -4,7 +4,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import CryptoJS from 'crypto-js';
 import _, { isEmpty } from 'lodash';
-import { Button, Dialog, Icon, LoadDiv, Support, Textarea } from 'ming-ui';
+import { Button, Dialog, Icon, LoadDiv, Textarea } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
@@ -108,7 +108,7 @@ export default function CreateWechatOrAliMerchant(props) {
           initData: merchantInfo,
         });
       })
-      .catch(err => {
+      .catch(() => {
         setLoading(false);
       });
   };
@@ -202,7 +202,7 @@ export default function CreateWechatOrAliMerchant(props) {
         }
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setLoading(false);
       });
   };
@@ -357,7 +357,7 @@ export default function CreateWechatOrAliMerchant(props) {
               </div>
             </div>
             <div className="Gray_75 Font12 mTop10">
-              <i className="icon icon-task-setting_promet Gray_9d mRight5" />
+              <i className="icon icon-error1 Gray_9d mRight5" />
               {_l('出于安全考虑，原始密钥信息不能直接编辑，点击上方按钮进行替换更新')}
             </div>
           </Fragment>

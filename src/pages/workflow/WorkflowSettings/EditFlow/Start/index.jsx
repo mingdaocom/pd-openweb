@@ -1,28 +1,20 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate, MembersName, WhiteNode } from '../components';
-import {
-  TRIGGER_ID,
-  APP_TYPE,
-  EXEC_TIME_TYPE,
-  DATE_TYPE,
-  TIME_TYPE_NAME,
-  CUSTOM_ACTION_TEXT,
-  NODE_TYPE,
-  ACTION_ID,
-  APP_TYPE_TEXT,
-} from '../../enum';
-import { getIcons, getStartNodeColor } from '../../utils';
 import _ from 'lodash';
 import moment from 'moment';
-import styled from 'styled-components';
-
-const Box = styled.div`
-  margin-bottom: -20px;
-  > .flexRow {
-    display: inline-flex;
-  }
-`;
+import {
+  ACTION_ID,
+  APP_TYPE,
+  APP_TYPE_TEXT,
+  CUSTOM_ACTION_TEXT,
+  DATE_TYPE,
+  EXEC_TIME_TYPE,
+  NODE_TYPE,
+  TIME_TYPE_NAME,
+  TRIGGER_ID,
+} from '../../enum';
+import { getIcons, getStartNodeColor } from '../../utils';
+import { CreateNode, MembersName, NodeOperate, WhiteNode } from '../components';
 
 export default class Start extends Component {
   constructor(props) {
@@ -172,8 +164,8 @@ export default class Start extends Component {
                 {item.executeTimeType === EXEC_TIME_TYPE.BEFORE
                   ? _l('之前')
                   : item.executeTimeType === EXEC_TIME_TYPE.AFTER
-                  ? _l('之后')
-                  : ''}
+                    ? _l('之后')
+                    : ''}
                 {item.executeTimeType !== EXEC_TIME_TYPE.CURRENT && (
                   <span>{item.number + TIME_TYPE_NAME[item.unit]}</span>
                 )}

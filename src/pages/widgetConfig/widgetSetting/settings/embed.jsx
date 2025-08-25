@@ -1,22 +1,22 @@
 import React, { Fragment, useEffect } from 'react';
-import { SettingItem, EditInfo, DisplayMode } from '../../styled';
-import { Checkbox, Icon, LoadDiv } from 'ming-ui';
-import { Input } from 'antd';
-import styled from 'styled-components';
-import AttachmentConfig from '../components/AttachmentConfig';
 import { useSetState } from 'react-use';
-import worksheetAjax from 'src/api/worksheet';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import reportApi from 'statistics/api/report.js';
-import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
-import SelectViewFromSheet from '../components/embed/SelectViewFromSheet';
-import FilterDialog from '../components/embed/filterDialog';
-import { FilterItemTexts } from '../components/FilterData';
-import { SYSTEM_CONTROL } from '../../config/widget';
-import TextInput from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/TextInput';
-import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import reportApi from 'statistics/api/report.js';
+import TextInput from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/TextInput';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { SYSTEM_CONTROL } from '../../config/widget';
+import { DisplayMode, EditInfo, SettingItem } from '../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import AttachmentConfig from '../components/AttachmentConfig';
+import FilterDialog from '../components/embed/filterDialog';
+import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
+import SelectViewFromSheet from '../components/embed/SelectViewFromSheet';
+import { FilterItemTexts } from '../components/FilterData';
 
 const EMBED_TYPES = [
   {
@@ -63,7 +63,7 @@ export default function Embed(props) {
     sheetName: '',
     reportName: '',
   });
-  const [{ worksheetId, viewType, controls }, setWorksheetInfo] = useSetState({
+  const [{ viewType, controls }, setWorksheetInfo] = useSetState({
     worksheetId: '',
     viewType: '',
     controls: [],

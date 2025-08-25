@@ -58,6 +58,10 @@ class WorksheetSahre extends React.Component {
         const { viewId = '', rowId = '', exported = false, shareAuthor, clientId } = res;
         shareAuthor && (window.shareAuthor = shareAuthor);
 
+        if (res.visibleType === 1) {
+          this.setState({ loading: false, isSearch: true, rowsList: [], publicqueryRes: { visibleType: 1 } });
+        }
+
         if (clientId) {
           window.clientId = clientId;
           !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', clientId);
@@ -68,7 +72,7 @@ class WorksheetSahre extends React.Component {
         shareAuthor && (window.shareAuthor = shareAuthor);
         localStorage.setItem('currentProjectId', projectId);
 
-        const lang = await shareGetAppLangDetail({
+        await shareGetAppLangDetail({
           projectId,
           appId,
         });

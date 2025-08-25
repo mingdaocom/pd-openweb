@@ -1,11 +1,11 @@
 import React from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import EditText from './EditText';
-import BaseCard from './BaseCard';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
-import _ from 'lodash';
+import BaseCard from './BaseCard';
+import EditText from './EditText';
 
 const EditingCardWrap = styled.div`
   position: absolute;

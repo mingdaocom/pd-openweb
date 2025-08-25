@@ -4,8 +4,6 @@ import _ from 'lodash';
 import { Dialog, Icon, LoadDiv, SortableList } from 'ming-ui';
 import account from 'src/api/account';
 import accountSettingApi from 'src/api/accountSetting';
-import registerAjax from 'src/api/register';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getRequest } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import common from '../common';
@@ -148,7 +146,10 @@ export default class AccountChart extends React.Component {
 
   //创建
   handleCreate() {
-    if ((md.global.Account.superAdmin || (md.global.Config.IsPlatformLocal && md.global.SysSettings.enableCreateProject))) {
+    if (
+      md.global.Account.superAdmin ||
+      (md.global.Config.IsPlatformLocal && md.global.SysSettings.enableCreateProject)
+    ) {
       window.open('/enterpriseRegister?type=create');
     } else {
       alert('权限不足，无法创建组织', 3);
@@ -207,7 +208,7 @@ export default class AccountChart extends React.Component {
                   <Icon icon={expandCloseProject ? 'arrow-up-border' : 'arrow-up-border1'} className="mLeft10" />
                 </div>
                 {expandCloseProject &&
-                  closeProject.list.map((item, index) => (
+                  closeProject.list.map(item => (
                     <EnterpriseCard
                       key={`close-project-${item.projectId}`}
                       card={item}
@@ -260,7 +261,7 @@ export default class AccountChart extends React.Component {
               </span>
             </div>
             <div className="withoutEnterpriseTopBox TxtCenter clearfix">
-              <span className="icon-business1 mBottom40 Font56"></span>
+              <span className="icon-business mBottom40 Font56"></span>
               <span>
                 {_l('您还没有加入任何组织，请')}
                 <span className="Hand mLeft5 mRight5 highLight InlineBlock" onClick={() => this.handleCreate()}>

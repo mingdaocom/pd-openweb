@@ -1,7 +1,7 @@
 import React from 'react';
 import { Dialog } from 'ming-ui';
-import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 
 const segmentation = columns => {
   for (let i = 0; i < columns.length; i++) {

@@ -409,7 +409,7 @@ export default class extends Component {
                           ? { backgroundColor: convertColor(appPkg.iconColor) }
                           : null
                       }
-                      onClick={e => {
+                      onClick={() => {
                         this.switchVisible({ appItemIntroVisible: true });
                       }}
                     >

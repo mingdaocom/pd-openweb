@@ -1,17 +1,17 @@
-import React, { useEffect, useState, Fragment, useCallback, useRef } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Select, Input } from 'antd';
-import { Dialog, Icon, Checkbox, LoadDiv, ScrollView, Button, Tooltip, SvgIcon } from 'ming-ui';
+import { Input, Select } from 'antd';
 import _ from 'lodash';
-import Search from 'src/pages/workflow/components/Search';
+import styled from 'styled-components';
+import { Button, Checkbox, Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
 import appManagement from 'src/api/appManagement';
-import resourceApi from 'src/pages/workflow/api/resource';
-import processVersion from 'src/pages/workflow/api/processVersion';
-import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
 import projectAjax from 'src/api/project';
-import IsAppAdmin from '../../../components/IsAppAdmin';
+import processVersion from 'src/pages/workflow/api/processVersion';
+import resourceApi from 'src/pages/workflow/api/resource';
+import Search from 'src/pages/workflow/components/Search';
+import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
 import { navigateTo } from 'src/router/navigateTo';
+import IsAppAdmin from '../../../components/IsAppAdmin';
 
 const TYPE_LIST = [
   { label: _l('工作表事件'), value: 1 },
@@ -28,6 +28,7 @@ const AddWorkflowDialogContentWrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 0;
   .Grey_21 {
     color: #212121;
   }
@@ -257,7 +258,7 @@ function AddWorkflowDialog(props) {
   const getAppList = (pageIndex, keywords) => {
     const _pageIndex = pageIndex || appIndex;
 
-    if (_pageIndex > 1 && appList.length >= total || appLoading) return;
+    if ((_pageIndex > 1 && appList.length >= total) || appLoading) return;
 
     setApp({ appLoading: true });
     const searchText = keywords !== undefined ? keywords : searchApp;
@@ -367,7 +368,7 @@ function AddWorkflowDialog(props) {
         });
       }),
     );
-    promiseList.then(res => {
+    promiseList.then(() => {
       alert(_l('移动成功'));
       init();
       onOk();
@@ -491,7 +492,10 @@ function AddWorkflowDialog(props) {
         title={
           <span className="Font17 bold">
             {_l('添加工作流')}
-            <Tooltip text={_l('工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。')}>
+            <Tooltip
+              text={_l('工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。')}
+              autoCloseDelay={0}
+            >
               <span className="mLeft8 Font17 Gray_bd icon-info_outline"></span>
             </Tooltip>
           </span>
@@ -609,7 +613,7 @@ function AddWorkflowDialog(props) {
                 <Checkbox
                   value={undefined}
                   text={null}
-                  onClick={(checkd, value) => {
+                  onClick={checkd => {
                     let ids = [];
                     if (checkd) {
                       ids = workflowList
@@ -628,7 +632,7 @@ function AddWorkflowDialog(props) {
               <div className="columnStatus">{_l('状态')}</div>
             </div>
           )}
-          <div className="flex relative workflowListWrap">
+          <div className="flex relative workflowListWrap minHeight0">
             {workflowList.length === 0
               ? renderEmpty(appId)
               : renderList(

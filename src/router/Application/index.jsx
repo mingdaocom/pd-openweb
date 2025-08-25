@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { Switch } from 'react-router-dom';
-import genRouteComponent from '../genRouteComponent';
-import { ROUTE_CONFIG, PORTAL_ROUTE_CONFIG } from './config';
-import ajaxRequest from 'src/api/homeApp';
-import { LoadDiv } from 'ming-ui';
-import { navigateTo } from 'router/navigateTo';
-import UnusualContent from 'src/components/UnusualContent';
-import FixedContent from 'src/components/FixedContent';
-import UpgradeContent from 'src/components/UpgradeContent';
-import { getIds } from '../../pages/PageHeader/util';
 import { connect } from 'react-redux';
-import { setAppStatus } from '../../pages/PageHeader/redux/action';
 import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
+import { LoadDiv } from 'ming-ui';
+import ajaxRequest from 'src/api/homeApp';
+import FixedContent from 'src/components/FixedContent';
+import UnusualContent from 'src/components/UnusualContent';
+import UpgradeContent from 'src/components/UpgradeContent';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { setAppStatus } from '../../pages/PageHeader/redux/action';
+import { getIds } from '../../pages/PageHeader/util';
+import genRouteComponent from '../genRouteComponent';
+import { PORTAL_ROUTE_CONFIG, ROUTE_CONFIG } from './config';
 
 @connect(state => ({ appPkg: state.appPkg }), dispatch => ({ setAppStatus: status => dispatch(setAppStatus(status)) }))
 export default class Application extends Component {

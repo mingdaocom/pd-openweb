@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { List, Popup } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
 import nzh from 'nzh';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Radio } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, Radio } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import { sortPathsBySearchKeyword } from 'src/components/Form/MobileForm/tools/utils';
 import { renderText as renderCellText } from 'src/utils/control';
 
 const CascaderCon = styled.div`
@@ -64,10 +66,13 @@ export default class Cascader extends Component {
       layersName: null,
       options: null,
       pathData: [],
+      loading: true,
     };
     this.ajax = '';
     this.cacheData = [];
     this.sourcePath = {};
+    this.searchRef = React.createRef();
+    this.handleSearch = this.onSearch.bind(this);
   }
   componentDidMount() {}
   componentWillReceiveProps(nextProps) {
@@ -79,11 +84,15 @@ export default class Cascader extends Component {
     const { control = {} } = this.props;
     const { dataSource, viewId } = control;
     const { options, layersName } = this.state;
+    const keywords = this.getKeywords();
 
-    if (options !== null && !rowId) {
+    if (this.ajax) {
       return;
     }
 
+    this.setState({
+      loading: true,
+    });
     this.ajax = sheetAjax.getFilterRows({
       worksheetId: dataSource,
       viewId,
@@ -92,33 +101,38 @@ export default class Cascader extends Component {
       pageSize: 10000,
       isGetWorksheet: true,
       getType: 10,
+      keywords,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     });
 
-    this.ajax.then(result => {
-      if (result.resultCode === 1) {
-        const { template } = result;
-        const control = template.controls.find(item => item.attribute === 1);
-        const data = result.data.map(item => {
-          return {
-            value: item.rowid,
-            label: this.renderLabel(item, control),
-            isLeaf: !item.childrenids,
-          };
-        });
-
-        if (!rowId && !_.isArray(layersName)) {
-          this.setState({
-            layersName: (_.find(result.worksheet.views, item => item.viewId === viewId) || {}).layersName || [],
+    this.ajax
+      .then(result => {
+        if (result.resultCode === 1) {
+          const { template } = result;
+          const control = template.controls.find(item => item.attribute === 1);
+          const data = result.data.map(item => {
+            return {
+              value: item.rowid,
+              label: this.renderLabel(item, control),
+              searchPath: keywords ? item.path : '[]',
+              isLeaf: !!keywords || !item.childrenids,
+            };
           });
-        }
 
-        this.ajax = '';
-        this.cacheData = _.uniqBy(this.cacheData.concat(result.data), 'rowid');
-        this.deepDataUpdate('options', _.cloneDeep(options), data, rowId);
-      } else {
-        this.setState({ isError: true });
-      }
-    });
+          if (!rowId && !_.isArray(layersName)) {
+            this.setState({
+              layersName: (_.find(result.worksheet.views, item => item.viewId === viewId) || {}).layersName || [],
+            });
+          }
+
+          this.ajax = '';
+          this.cacheData = keywords ? result.data : _.uniqBy(this.cacheData.concat(result.data), 'rowid');
+          this.deepDataUpdate('options', _.cloneDeep(options), data, rowId);
+        } else {
+          this.setState({ isError: true });
+        }
+      })
+      .finally(() => this.setState({ loading: false }));
   };
   renderLabel(item, control) {
     return control ? renderCellText(Object.assign({}, control, { value: item[control.controlId] })) : _l('未命名');
@@ -144,6 +158,16 @@ export default class Cascader extends Component {
     }
     this.setState({ [key]: options });
   }
+
+  getKeywords() {
+    return this.searchRef?.current?.keywords?.trim() || '';
+  }
+
+  onSearch() {
+    this.setState({ operatePath: [], selectItem: {}, value: '', selectedId: '' });
+    this.loadData();
+  }
+
   renderH5Header() {
     const { onChange, control = {} } = this.props;
     const { advancedSetting = {} } = control;
@@ -178,7 +202,10 @@ export default class Cascader extends Component {
           </div>
         )}
         <div className="flex" />
-        <div className="ellipsis Gray" style={{ position: 'absolute', left: '50%', marginLeft: -65, width: 130 }}>
+        <div
+          className="ellipsis Gray"
+          style={{ position: 'absolute', left: '50%', marginLeft: -65, width: 130, textAlign: 'center' }}
+        >
           {(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
         </div>
         {(minLayer && !+anylevel ? operatePath.length >= minLayer : !+anylevel) && (
@@ -194,7 +221,7 @@ export default class Cascader extends Component {
       </div>
     );
   }
-  treeSelectChange = (id, title) => {
+  treeSelectChange = id => {
     const { onChange, isMultiple, values = [] } = this.props;
     let value = this.sourcePath[id];
     id &&
@@ -230,12 +257,51 @@ export default class Cascader extends Component {
 
     if (!lastId) {
       return options;
-    } else {
-      findData(options, lastId);
-
-      return sourceData;
     }
+
+    findData(options, lastId);
+    return sourceData;
   }
+
+  formatSearchData = (item, keywords) => {
+    const searchPath = safeParse(item.searchPath) || [];
+    const nodes = [];
+
+    searchPath.forEach((part, idx) => {
+      if (idx > 0) {
+        nodes.push(' / ');
+      }
+
+      if (part.includes(keywords)) {
+        nodes.push(
+          <span className="highlight" key={idx}>
+            {part}
+          </span>,
+        );
+      } else {
+        nodes.push(part);
+      }
+    });
+
+    return nodes;
+  };
+
+  // 简单展示内容（无 Radio）
+  renderSimpleContent = (item, keywords) => {
+    return (
+      <div className="flexRow">
+        <div className={cx('flex ellipsis', { canWrap: keywords })}>
+          {keywords ? this.formatSearchData(item, keywords) : item.label}
+        </div>
+        {!item.isLeaf && (
+          <div className="pLeft10 Font16 Gray_9e">
+            <i className="icon-arrow-right-border" />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   renderH5Content() {
     const { control } = this.props;
     const { advancedSetting = {} } = control;
@@ -246,20 +312,28 @@ export default class Cascader extends Component {
 
     if (isError) return <div className="mTop10">{_l('数据源异常')}</div>;
     if (options === null) return <LoadDiv />;
-    if (!options.length) return <div className="mTop10">{_l('无数据')}</div>;
+    if (!options.length) return null;
 
-    const h5Options = this.getH5Options().map(item =>
-      limitLayer && limitLayer === operatePath.length ? { ...item, isLeaf: true } : item,
+    let h5Options = this.getH5Options().map(item =>
+      limitLayer && limitLayer === operatePath.length
+        ? { ...item, isLeaf: true, label: item.label || _l('未命名') }
+        : { ...item, label: item.label || _l('未命名') },
     );
 
     if (!h5Options.length) return <LoadDiv />;
+
+    const keywords = this.getKeywords();
+    if (keywords) {
+      h5Options = sortPathsBySearchKeyword(h5Options, keywords);
+    }
     // 必须选择最后一级
-    if (+anylevel) {
+    if (keywords || +anylevel) {
       return (
-        <List className="leftAlign">
+        <List className="leftAlign quickFilterCascaderList">
           {h5Options.map(item => (
             <List.Item
               key={item.value}
+              arrowIcon={false}
               onClick={() => {
                 if (item.isLeaf) {
                   this.setState({ visible: false, operatePath: [], selectedId: item.value });
@@ -271,14 +345,7 @@ export default class Cascader extends Component {
                 }
               }}
             >
-              <div className="flexRow">
-                <div className="flex ellipsis">{item.label}</div>
-                {!item.isLeaf && (
-                  <div className="pLeft10 Font16 Gray_9e">
-                    <i className="icon-arrow-right-border" />
-                  </div>
-                )}
-              </div>
+              {this.renderSimpleContent(item, keywords)}
             </List.Item>
           ))}
         </List>
@@ -288,7 +355,7 @@ export default class Cascader extends Component {
     // 至少向后选择指定级
     if (minLayer) {
       return (
-        <List className="leftAlign">
+        <List className="leftAlign quickFilterCascaderList">
           {h5Options.map(item => (
             <List.Item
               key={item.value}
@@ -348,7 +415,7 @@ export default class Cascader extends Component {
 
     // 任意层级
     return (
-      <List className="leftAlign">
+      <List className="leftAlign quickFilterCascaderList">
         {h5Options.map(item => (
           <List.Item key={item.value}>
             <div className="flexRow">
@@ -382,7 +449,7 @@ export default class Cascader extends Component {
   }
   render() {
     const { control, values = [], isMultiple } = this.props;
-    let { visible } = this.state;
+    let { visible, loading } = this.state;
     return (
       <Fragment>
         <div className="controlWrapper">
@@ -401,7 +468,7 @@ export default class Cascader extends Component {
             {values.map(item => (
               <CascaderItem>
                 <div className="flexRow alignItemsCenter">
-                  <span className="userName flex">{item.name}</span>
+                  <span className="userName flex">{item.name || _l('未命名')}</span>
                   <Icon
                     icon="close"
                     onClick={() => {
@@ -433,7 +500,8 @@ export default class Cascader extends Component {
             }}
           >
             {this.renderH5Header()}
-            <div style={{ height: 280, overflowY: 'auto' }}>{this.renderH5Content()}</div>
+            <MobileSearch ref={this.searchRef} onSearch={this.handleSearch} />
+            <div style={{ height: 280, overflowY: 'auto' }}>{loading ? <LoadDiv /> : this.renderH5Content()}</div>
           </Popup>
         )}
       </Fragment>

@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs-extra');
 const axios = require('axios');
+const { spawn } = require('child_process');
 const ejs = require('ejs');
 const { API_SERVER } = require('../publishConfig');
 const AJAX_PATH = path.join(__dirname, '../../src/api');
@@ -62,8 +63,22 @@ function parseData(data) {
   const paths = Object.keys(data.paths);
   const dirMap = {};
   paths.forEach(swaggerpath => {
-    let dirname = swaggerpath.split('/')[1];
-    let fnname = swaggerpath.split('/')[2];
+    const pathArr = swaggerpath.split('/');
+    let dirname;
+    let controllerName;
+    let fnname;
+
+    // 兼容处理sse的时候路径3层问题
+    if (pathArr.length === 4 && swaggerpath.indexOf('sse') > -1) {
+      dirname = pathArr[1];
+      controllerName = pathArr[1] + '/' + pathArr[2];
+      fnname = pathArr[3];
+    } else {
+      dirname = pathArr[1];
+      controllerName = pathArr[1];
+      fnname = pathArr[2];
+    }
+
     if (dirname && fnname) {
       const dirMapKey = dirname.replace(/^[A-W]{1}/, first => first.toLowerCase());
       let type, request;
@@ -88,7 +103,7 @@ function parseData(data) {
         fnname: fnname.substr(0, 1).toLowerCase() + fnname.slice(1),
         path: swaggerpath,
         actionName: fnname,
-        controllerName: dirname,
+        controllerName,
         params: (schema && schema.properties) || [],
       };
       if (dirMap[dirMapKey]) {
@@ -117,6 +132,25 @@ function handleOutput(data) {
   print.success(`请求文件已全部生成到${AJAX_PATH}`);
 }
 
+function handleFormatPath() {
+  return new Promise((resolve, reject) => {
+    const child = spawn('npx', ['prettier', AJAX_PATH + '/**/*.{ts,tsx,js,jsx}', '--write']);
+    child.stdout.on('data', data => {
+      console.log(data.toString());
+    });
+    child.stderr.on('data', data => {
+      console.error(data.toString());
+    });
+    child.on('close', code => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error('prettier 执行失败'));
+      }
+    });
+  });
+}
+
 async function main(callback = () => {}) {
   const host = getApiHost(process.argv[2]);
   if (!host) {
@@ -137,6 +171,9 @@ async function main(callback = () => {}) {
     print.info('开始解析并生成 api 文件');
     const dataForOutput = parseData(data);
     await handleOutput(dataForOutput);
+    print.info('开始格式化文件');
+    await handleFormatPath();
+    print.success('格式化文件完成');
   } catch (err) {
     print.danger('生成文件失败！');
     throw err;

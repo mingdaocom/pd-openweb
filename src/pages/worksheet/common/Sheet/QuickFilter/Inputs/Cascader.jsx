@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import _ from 'lodash';
+import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
-import { arrayOf, func, shape, string } from 'prop-types';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
 import { BaseSelectedItem } from './Styles';
-import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;
@@ -14,7 +14,7 @@ const Con = styled.div`
   line-height: 32px;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -62,12 +62,11 @@ const Icon = styled.i`
 `;
 
 export default function RelateRecord(props) {
-  const { view = {}, control, values = [], advancedSetting, onChange = () => {} } = props;
+  const { control, values = [], advancedSetting, onChange = () => {} } = props;
   const { allowitem } = advancedSetting || {};
   const isMultiple = String(allowitem) === '2';
   const cache = useRef({});
   const [popupVisible, setPopupVisible] = useState();
-  const [random, setRandom] = useState();
   const valuesForShow = cache.current.tempValue ? values.concat(cache.current.tempValue) : values;
   function handleChange(value) {
     onChange({
@@ -115,7 +114,6 @@ export default function RelateRecord(props) {
             onChange={newSelected => {
               newSelected = JSON.parse(newSelected);
               cache.current.tempValue = newSelected.map(item => ({ rowid: item.sid, name: item.name }))[0];
-              setRandom(Math.random());
             }}
             dataSource={control.dataSource}
             viewId={control.viewId}

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
 import { Menu } from 'antd';
+import { Icon } from 'ming-ui';
+
 const HIDDEN_MENU = [
   {
     text: _l('全隐藏%05011'),
@@ -20,7 +21,7 @@ const HIDDEN_MENU = [
 ];
 
 export default function HiddenMenu(props) {
-  const { onClick, current = 0, showhide, ...rest } = props;
+  const { onClick, showhide, ...rest } = props;
   let type = showhide === 'hide' ? 1 : 0;
 
   return (

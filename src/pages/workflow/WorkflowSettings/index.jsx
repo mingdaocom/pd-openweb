@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import Header from './Header';
+import processVersion from '../api/processVersion';
+import { clearSource, getFlowInfo, getProcessById } from '../redux/actions';
 import EditFlow from './EditFlow';
+import Header from './Header';
 import History from './History';
 import ProcessConfig from './ProcessConfig';
 import WorkflowInfo from './WorkflowInfo';
-import processVersion from '../api/processVersion';
-import { getFlowInfo, getProcessById, clearSource } from '../redux/actions';
-import _ from 'lodash';
 
 class WorkflowSettings extends Component {
   constructor(props) {
@@ -88,7 +88,9 @@ class WorkflowSettings extends Component {
         <Fragment>
           <div className="workflowSettings flexColumn h100">
             <div className="workflowSettingsHeader flexRow">
-              <i className="icon-backspace Font20 ThemeColor3 workflowReturn" onClick={this.back} />
+              <div className="workflowReturn tip-bottom-right" onClick={this.back} data-tip={_l('返回')}>
+                <i className="icon-backspace" />
+              </div>
             </div>
             <div className="flowEmptyWrap flex">
               <div className="flowEmptyPic flowEmptyPic-lock" />
@@ -105,7 +107,9 @@ class WorkflowSettings extends Component {
       return (
         <div className="workflowSettings flexColumn h100">
           <div className="workflowSettingsHeader flexRow">
-            <i className="icon-backspace Font20 ThemeColor3 workflowReturn" onClick={this.back} />
+            <div className="workflowReturn tip-bottom-right" onClick={this.back} data-tip={_l('返回')}>
+              <i className="icon-backspace" />
+            </div>
           </div>
           <div className="flowEmptyWrap flex">
             <div className="flowEmptyPic flowEmptyPic-del" />

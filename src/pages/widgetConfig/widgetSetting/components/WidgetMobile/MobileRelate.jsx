@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
+import _ from 'lodash';
+import { Checkbox, Dropdown } from 'ming-ui';
 import { SettingItem } from '../../../styled';
-import SheetDealDataType from '../SheetDealDataType';
 import { formatControlsToDropdown } from '../../../util';
-import { updateConfig, getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
+import SheetDealDataType from '../SheetDealDataType';
 
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 
@@ -13,7 +14,7 @@ export default function WidgetRelate(props) {
   const { data, onChange } = props;
   const { strDefault, relationControls = [] } = data;
   let { dismanual = 0, scanlink = '1', scancontrol = '1', scancontrolid } = getAdvanceSetting(data);
-  const [isHiddenOtherViewRecord, disableAlbum, onlyRelateByScanCode] = strDefault.split('');
+  const [, disableAlbum, onlyRelateByScanCode] = strDefault.split('');
 
   const scanControls = formatControlsToDropdown(relationControls.filter(item => TEXT_TYPE_CONTROL.includes(item.type)));
   const isScanControlDelete = scancontrolid && _.find(scanControls, s => s.value === scancontrolid) === -1;
@@ -25,6 +26,7 @@ export default function WidgetRelate(props) {
           {_l('移动端输入')}
           <Tooltip
             placement={'bottom'}
+            autoCloseDelay={0}
             title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
           >
             <i className="icon-help Gray_9e Font16 pointer"></i>

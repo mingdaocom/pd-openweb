@@ -1,15 +1,21 @@
 import React, { Component, createRef } from 'react';
-import cx from 'classnames';
 import { connect } from 'react-redux';
-import { isWeekEndDay } from 'worksheet/views/GunterView/util';
+import cx from 'classnames';
 import _ from 'lodash';
+import { isWeekEndDay } from 'worksheet/views/GunterView/util';
 
-@connect(
-  state => ({
-    ..._.pick(state.sheet.gunterView, ['grouping', 'periodList', 'periodType', 'viewConfig', 'withoutArrangementVisible', 'chartScroll', 'groupingScroll']),
-    ..._.pick(state.sheet, ['base']),
-  })
-)
+@connect(state => ({
+  ..._.pick(state.sheet.gunterView, [
+    'grouping',
+    'periodList',
+    'periodType',
+    'viewConfig',
+    'withoutArrangementVisible',
+    'chartScroll',
+    'groupingScroll',
+  ]),
+  ..._.pick(state.sheet, ['base']),
+}))
 export default class TimeCanvas extends Component {
   constructor(props) {
     super(props);
@@ -41,7 +47,8 @@ export default class TimeCanvas extends Component {
     const { grouping, chartScroll, groupingScroll, base } = props || this.props;
     const gunterChartWrapperEl = document.querySelector(`.gunterView-${base.viewId} .gunterChartWrapper`);
     const gunterGroupingScrollerEl = document.querySelector(`.gunterView-${base.viewId} .gunterGroupingScroller`);
-    const height = document.body.clientHeight - (gunterChartWrapperEl ? gunterChartWrapperEl.getBoundingClientRect().top : 0);
+    const height =
+      document.body.clientHeight - (gunterChartWrapperEl ? gunterChartWrapperEl.getBoundingClientRect().top : 0);
     const maxHeight = grouping.length ? grouping[grouping.length - 1].openCount * 32 : 0;
     const isScroll = maxHeight >= height;
     const marginBottom = 80;
@@ -57,24 +64,23 @@ export default class TimeCanvas extends Component {
       chartScroll.refresh();
       groupingScroll && groupingScroll.refresh();
     }
-  }
+  };
   render() {
     const { periodType, periodList, viewConfig } = this.props;
     return (
       <div className="timeCanvasWrapper flexRow" ref={this.$ref}>
-        {
-          periodList.map((item, index) => (
-            <div
-              key={index}
-              className={cx('item', { Relative: item.isToday, weekEndDay: isWeekEndDay(item.time, periodType, viewConfig) })}
-              style={{ width: item.width }}
-            >
-              {item.isToday && (
-                <div className="today" style={{ left: item.left }}></div>
-              )}
-            </div>
-          ))
-        }
+        {periodList.map((item, index) => (
+          <div
+            key={index}
+            className={cx('item', {
+              Relative: item.isToday,
+              weekEndDay: isWeekEndDay(item.time, periodType, viewConfig),
+            })}
+            style={{ width: item.width }}
+          >
+            {item.isToday && <div className="today" style={{ left: item.left }}></div>}
+          </div>
+        ))}
       </div>
     );
   }

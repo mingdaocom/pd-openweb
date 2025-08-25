@@ -22,7 +22,7 @@ export default class Snapshot extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -232,7 +232,7 @@ export default class Snapshot extends Component {
                 height={0}
                 content={data.appId}
                 formulaMap={data.formulaMap}
-                onChange={(err, value, obj) => this.updateSource({ appId: value })}
+                onChange={(err, value) => this.updateSource({ appId: value })}
                 updateSource={this.updateSource}
               />
             </div>
@@ -337,7 +337,7 @@ export default class Snapshot extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{data.actionId ? this.renderContent() : this.renderNullContent()}</div>
           </ScrollView>

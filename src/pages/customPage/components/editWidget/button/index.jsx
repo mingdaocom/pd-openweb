@@ -1,9 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { useSetState } from 'react-use';
 import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import { string } from 'prop-types';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
@@ -69,7 +68,7 @@ export default function Btn(props) {
     const COLORS = getThemeColors(projectId);
     const lastButton = buttonList[buttonList.length - 1] || {};
     const colorIndex = COLORS.indexOf(lastButton.color);
-    const defaultColor = '#2196f3';
+    const defaultColor = '#1677ff';
     const color = colorIndex === -1 ? defaultColor : COLORS[colorIndex + 1] || COLORS[0];
     const { btnType } = btnSetting.config || {};
     const data = { name: _l('我是按钮'), color, id: uuidv4() };
@@ -129,7 +128,7 @@ export default function Btn(props) {
                 ...input,
                 advancedSetting: {
                   defsource: JSON.stringify(input.value),
-                  enumDefault: _.includes([26, 27, 48], input.type) ? 1 : inputData.enumDefault,
+                  enumDefault: _.includes([26, 27, 48], input.type) ? 1 : input.advancedSetting.enumDefault,
                 },
               });
               input.value = JSON.parse(advancedSetting.defsource);

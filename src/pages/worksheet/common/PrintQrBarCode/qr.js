@@ -95,7 +95,7 @@ export class QrLabel {
   getCompressedFontSize(value, width) {
     let count = 0;
     value.split('').forEach(char => {
-      count += /[\x00-\x7F]/.test(char) ? 1.1 : 2;
+      count += /[0x00-0x7F]/.test(char) ? 1.1 : 2;
     });
     return (width / count) * 2;
   }

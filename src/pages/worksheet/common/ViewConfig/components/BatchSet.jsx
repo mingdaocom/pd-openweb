@@ -60,10 +60,11 @@ const Wrap = styled.div`
 `;
 
 export const showTypeData = [
-  { value: 1, text: _l('纯文本') },
   { value: 0, text: _l('标签') },
+  { value: 1, text: _l('文字') },
+  { value: 3, text: _l('文字（单元格背景色）') },
   { value: 2, text: _l('进度') },
-  { value: 3, text: _l('单元格背景色') },
+  { value: 7, text: _l('平铺') },
   { value: 4, text: _l('正方形') },
   { value: 5, text: _l('圆形') },
   { value: 6, text: _l('自适应') },
@@ -209,7 +210,7 @@ export default function BatchSetDialog(props) {
                   <Wrap className="flexRow alignItemsCenter justifyContentRight flex-shrink-0">
                     <div className="liInput">
                       {/* 单选，附件 */}
-                      {[9, 11, 14].includes(o.type === 30 ? o.sourceControlType : o.type) && (
+                      {[9, 10, 11, 14].includes(o.type === 30 ? o.sourceControlType : o.type) && (
                         <BatchShowtypeDrop
                           border
                           placeholder={_l('样式')}
@@ -220,7 +221,9 @@ export default function BatchSetDialog(props) {
                           data={showTypeData.filter(a =>
                             (o.type === 30 ? o.sourceControlType : o.type) === 14
                               ? [4, 5, 6].includes(a.value)
-                              : ![4, 5, 6].includes(a.value),
+                              : (o.type === 30 ? o.sourceControlType : o.type) === 10
+                                ? [0, 7].includes(a.value)
+                                : ![4, 5, 6].includes(a.value),
                           )}
                           changeValue={changeValue}
                         />
@@ -315,7 +318,7 @@ export default function BatchSetDialog(props) {
       editAdKeys: ['liststyle'],
     };
     if (applyToAll) {
-      worksheetAjax.editWorksheetSetting({ worksheetId, appId, ...data }).then(res => {
+      worksheetAjax.editWorksheetSetting({ worksheetId, appId, ...data }).then(() => {
         updateWorksheetInfo({
           advancedSetting: { ..._.get(currentSheetInfo, 'advancedSetting'), liststyle },
         });
@@ -345,18 +348,34 @@ export default function BatchSetDialog(props) {
     });
   };
 
+  const onChangeBatchAutoWidth = value => {
+    if (value === 'autoWidth') {
+      if (window[`getTableColumnWidth-${worksheetId}`]) {
+        const widths = columns.map(o => window[`getTableColumnWidth-${worksheetId}`](o));
+        setState({
+          styles: [...showList, ...hideList].map((o, i) => ({
+            ...(styles.find(s => s.cid === o.controlId) || {}),
+            cid: o.controlId,
+            width: widths[i],
+          })),
+        });
+      }
+    }
+  };
+
   return (
     <Modal
-      title="编辑列样式"
+      title={_l('编辑列样式')}
       visible={visible}
       onCancel={onClose}
       centered={true}
+      maskClosable={false}
       width={720}
       footer={[
         <div className="flexRow alignItemsCenter pTop6 pBottom6 pLeft8 pRight8">
           <div className="flex flexRow alignItemsCenter justifyContentLeft">
             <Checkbox checked={applyToAll} onChange={() => setState({ applyToAll: !applyToAll })}>
-              {_l('同时应用到其它所有表格')}
+              {_l('同时应用到其它所有表格视图')}
             </Checkbox>
           </div>
           <Button type="link" onClick={onClose}>
@@ -401,14 +420,35 @@ export default function BatchSetDialog(props) {
                   renderPointer={() => {
                     return (
                       <Tooltip title={_l('批量设置')}>
-                        <Icon className={'operateBtn Font18'} icon="align_setting" />
+                        <Icon className={'operateBtn Font18 hoverText'} icon="align_setting" />
                       </Tooltip>
                     );
                   }}
                 />
               </div>
-              <div className="liInput">
-                <span className="">{_l('列宽')}</span>
+              <div className="liInput flexRow alignItemsCenter">
+                <span className="flex">{_l('列宽')}</span>
+                <Dropdown
+                  isAppendToBody
+                  menuStyle={{ width: 180 }}
+                  points={['tl', 'bl']}
+                  offset={[-75, 0]}
+                  className="operate"
+                  data={[
+                    {
+                      value: 'autoWidth',
+                      text: _l('列宽适合内容'),
+                    },
+                  ]}
+                  onChange={value => onChangeBatchAutoWidth(value)}
+                  renderPointer={() => {
+                    return (
+                      <Tooltip title={_l('批量设置')}>
+                        <Icon className={'operateBtn Font18 hoverText'} icon="align_setting" />
+                      </Tooltip>
+                    );
+                  }}
+                />
               </div>
               {!isTreeTableView && (
                 <div className="liInput">

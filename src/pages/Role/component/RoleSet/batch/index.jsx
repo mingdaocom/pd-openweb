@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Switch, Tooltip, SvgIcon, Icon, Radio as MDRadio, Button } from 'ming-ui';
-import { Checkbox, List, Radio, Modal } from 'antd';
-import lookPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/look.png';
-import editPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/edit.png';
-import delPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/del.png';
+import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import { sheetActionList, recordActionList } from 'src/pages/Role/config.js';
+import { Checkbox, List, Modal, Radio } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Icon, Radio as MDRadio, SvgIcon, Switch, Tooltip } from 'ming-ui';
+import delPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/del.png';
+import editPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/edit.png';
+import lookPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/look.png';
+import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
 import { Wrap } from './style';
 
 const dataPermissionOptions = [
@@ -130,12 +131,12 @@ export default function (props) {
       <React.Fragment>
         <div className="mTop20">
           {actionList.length > 0 &&
-            actionList.map((o, i) => {
+            actionList.map(o => {
               return (
                 <div className="subCheckbox InlineFlex mRight8 flexRow alignItemsCenter">
                   <Checkbox
                     checked={(sheet[o.key] || {}).enable}
-                    onChange={e => {
+                    onChange={() => {
                       changeSheetOptionInfo({
                         [o.key]: { enable: !(sheet[o.key] || {}).enable },
                       });
@@ -209,7 +210,7 @@ export default function (props) {
                   className="InlineFlex cascaderRadio Gray"
                   text={option.label}
                   checked={option.value === value}
-                  onClick={e => {
+                  onClick={() => {
                     if (option.value === value) {
                       setState({
                         sheet: {
@@ -239,7 +240,7 @@ export default function (props) {
   const hasSet = (actionList, value) => {
     if (value === 'clear') return true;
     let isSet = false;
-    actionList.map((o, i) => {
+    actionList.map(o => {
       if ((sheet[o.key] || {}).enable) {
         isSet = true;
       }

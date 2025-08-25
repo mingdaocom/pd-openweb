@@ -1,5 +1,6 @@
-import React, { Component, Fragment, useEffect, useState } from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -27,7 +28,7 @@ const AppItem = props => {
     const dataSource = transferValue(urlTemplate);
     const urlList = [];
     dataSource.map(o => {
-      if (!!o.staticValue) {
+      if (o.staticValue) {
         urlList.push(o.staticValue);
       } else {
         urlList.push(

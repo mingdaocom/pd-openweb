@@ -117,7 +117,7 @@ export default class AdminEntryPoint extends PureComponent {
         if (itemMenu.featureIds) {
           itemMenu.featureIds
             .filter(l => !md.global.Config.IsPlatformLocal || !itemMenu.platformHiddenIds.includes(l))
-            .forEach((l, i) => {
+            .forEach(l => {
               let itemFeatureType = getFeatureStatus(projectId, l);
               if (itemFeatureType) {
                 featureType = featureType ? Math.min(itemFeatureType, featureType).toString() : itemFeatureType;
@@ -125,7 +125,7 @@ export default class AdminEntryPoint extends PureComponent {
             });
         }
 
-        return !(_.includes(['analytics', 'applog', 'computing', 'aggregationTable'], key) && !featureType);
+        return !(_.includes(['analytics', 'applog', 'computing', 'aggregationTable', 'quota'], key) && !featureType);
       });
 
       return result;

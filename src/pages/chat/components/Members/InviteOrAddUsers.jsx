@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Menu, Dropdown } from 'antd';
-import { addGroupMembers } from '../../utils/group';
-import Constant from '../../utils/constant';
+import { Dropdown, Menu } from 'antd';
 import addFriends from 'src/components/addFriends';
+import Constant from '../../utils/constant';
+import { addGroupMembers } from '../../utils/group';
 
 const ITEMS = [
   {

@@ -48,7 +48,7 @@ const CustomMessageBox = styled.div`
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
-  .icon-delete2:hover {
+  .icon-trash:hover {
     color: #f44336 !important;
   }
 `;
@@ -69,7 +69,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #2196f3;
+      border-bottom: 3px solid #1677ff;
     }
   }
 `;
@@ -92,7 +92,7 @@ export default class Approval extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -337,6 +337,7 @@ export default class Approval extends Component {
 
               {item.value === 11 && (
                 <Tooltip
+                  autoCloseDelay={0}
                   popupPlacement="bottom"
                   text={
                     <span>
@@ -584,7 +585,7 @@ export default class Approval extends Component {
               className="workflowDetailTipsWidth mLeft5 Gray_75"
               data-tip={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}
             >
-              <i className="Font14 icon-workflow_help Gray_9e" />
+              <i className="Font14 icon-help Gray_9e" />
             </span>
           </div>
         )}
@@ -1159,7 +1160,7 @@ export default class Approval extends Component {
           bg="BGViolet"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font13 bold">{_l('数据对象')}</div>
@@ -1245,7 +1246,7 @@ export default class Approval extends Component {
                       <Fragment>
                         <span data-tip={_l('删除模板')}>
                           <Icon
-                            type="delete2"
+                            type="trash"
                             className="Gray_75 Font14 pointer"
                             onClick={() =>
                               this.updateSource({
@@ -1312,6 +1313,7 @@ export default class Approval extends Component {
                         {_l('登录密码验证')}
                         <Tooltip
                           popupPlacement="bottom"
+                          autoCloseDelay={0}
                           text={<span>{_l('启用后，用户输入登录密码后才可进行通过/否决')}</span>}
                         >
                           <Icon
@@ -1348,7 +1350,7 @@ export default class Approval extends Component {
                     height={0}
                     content={data.explain}
                     formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) => this.updateSource({ explain: value })}
+                    onChange={(err, value) => this.updateSource({ explain: value })}
                     updateSource={this.updateSource}
                   />
 
@@ -1399,7 +1401,7 @@ export default class Approval extends Component {
                     </div>
                   ) : (
                     <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-                      <i className="icon-task-setting_promet Font16 Gray_9e" />
+                      <i className="icon-error1 Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                     </div>
                   )}
@@ -1446,7 +1448,7 @@ export default class Approval extends Component {
                     })
                   ) : (
                     <div className="Gray_75 Font13 flexRow flowDetailTips mTop25">
-                      <i className="icon-task-setting_promet Font16 Gray_9e" />
+                      <i className="icon-error1 Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
                     </div>
                   )}

@@ -52,7 +52,7 @@ export default class Member extends Component {
 
     return (
       <div className="flexRow flowDetailMemberBox">
-        <span className={cx('flowDetailMemberIcon icon-group-members bd')} />
+        <span className={cx('flowDetailMemberIcon icon-group bd')} />
 
         <div className={cx('mLeft6 ellipsis bold', { delete: !item.roleName && !item.entityName })}>
           {!item.roleName && !item.entityName
@@ -140,7 +140,7 @@ export default class Member extends Component {
     if (!roleTypeId) {
       return (
         <span data-tip={controlType !== 27 ? _l('使用人员的组织结构关系') : _l('使用部门的组织结构关系')}>
-          <i className="icon-task-point-more flowDetailMemberOrganize" />
+          <i className="icon-more_horiz flowDetailMemberOrganize" />
         </span>
       );
     }
@@ -353,6 +353,7 @@ export default class Member extends Component {
       <Tooltip
         zIndex={10000}
         placement="bottom"
+        autoCloseDelay={0}
         title={_l(
           '由所选组织角色中设置的分管此部门的负责人进行审批。如：工会委员（组织角色）中张三分管部门A、B；则A、B部门的审批由张三作为负责人。',
         )}
@@ -399,13 +400,13 @@ export default class Member extends Component {
                 (item.roleName || item.entityName) &&
                 !item.count && (
                   <div className="flowDetailMemberError flex">
-                    <i className="mRight5 Font16 icon-workflow_error" />
+                    <i className="mRight5 Font16 icon-info_outline" />
                     {nullText[item.type]}
                   </div>
                 )}
               {!inline && _.includes([USER_TYPE.ROLE], item.type) && item.count === -1 && (
                 <div className="flowDetailMemberError flex">
-                  <i className="mRight5 Font16 icon-workflow_error" />
+                  <i className="mRight5 Font16 icon-info_outline" />
                   {_l('不支持包含全组织的角色')}
                 </div>
               )}

@@ -1,17 +1,13 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, VerifyPasswordInput } from 'ming-ui';
-import { Button, ActionSheet } from 'antd-mobile';
-import OtherAction from '../OtherAction';
-import {
-  ACTION_TYPES,
-  ACTION_LIST,
-  ACTION_TO_METHOD,
-  MOBILE_OPERATION_LIST,
-} from 'src/pages/workflow/components/ExecDialog/config';
 import instanceApi from 'src/pages/workflow/api/instance';
-import verifyPassword from 'src/components/verifyPassword';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
+import verifyPassword from 'src/components/verifyPassword';
+import { ACTION_LIST, ACTION_TO_METHOD, MOBILE_OPERATION_LIST } from 'src/pages/workflow/components/ExecDialog/config';
+import OtherAction from '../OtherAction';
 import './index.less';
 
 export default class Footer extends Component {
@@ -83,7 +79,7 @@ export default class Footer extends Component {
           </div>
         </div>
       ),
-      onAction: action => {
+      onAction: () => {
         this.actionVerifyPasswordHandler.close();
       },
     });
@@ -209,10 +205,25 @@ export default class Footer extends Component {
     if (noSave) {
       saveFunction({});
     } else {
-      onSubmit({ callback: saveFunction, ignoreError: isStash, ignoreAlert: isStash, silent: isStash });
+      onSubmit({
+        callback: saveFunction,
+        ignoreError: isStash,
+        ignoreAlert: isStash,
+        silent: isStash,
+        ignoreDialog: action !== 'submit',
+      });
     }
   };
-  handleAction = ({ action, content = '', forwardAccountId, backNodeId, signature, files, countersignType, nextUserRange }) => {
+  handleAction = ({
+    action,
+    content = '',
+    forwardAccountId,
+    backNodeId,
+    signature,
+    files,
+    countersignType,
+    nextUserRange,
+  }) => {
     const { instance } = this.props;
     const { ignoreRequired } = (instance || {}).flowNode || {};
 
@@ -348,7 +359,7 @@ export default class Footer extends Component {
   };
   get getHandleBtnConfig() {
     const { instance } = this.props;
-    const { operationTypeList, btnMap = {} } = instance;
+    const { operationTypeList } = instance;
     const baseActionList = [3, 4, 5, 9, 17, 18, 19];
     const actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
     const newOperationTypeList = operationTypeList[1]
@@ -387,7 +398,7 @@ export default class Footer extends Component {
   render() {
     const { isRequest, isUrged, submitAction, otherActionVisible } = this.state;
     const { instance, instanceId, workId } = this.props;
-    const { btnMap = {}, works } = instance;
+    const { btnMap = {} } = instance;
     const { actionList, buttons } = this.getHandleBtnConfig;
 
     if (!actionList.length && !buttons.length) {
@@ -398,14 +409,14 @@ export default class Footer extends Component {
       <div className="processRecordFooterHandle flexRow">
         {this.renderFlowIcon()}
         <div className="flexRow flex">
-          {actionList.map((item, index) => {
+          {actionList.map(item => {
             const { id, text } = ACTION_LIST[item];
-            const disable = (isRequest && submitAction === id) || (isUrged && id === 'urge');
+            const disable = isRequest || (isUrged && id === 'urge');
             return (
               <div
                 key={id}
                 className={cx('headerBtn pointer flex bold', id, { disable })}
-                onClick={event => {
+                onClick={() => {
                   if (disable) return;
                   this.handleClick(id);
                 }}

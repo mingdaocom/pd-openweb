@@ -3,13 +3,15 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
-import { Icon, PullToRefreshWrapper } from 'ming-ui';
-import { ScrollView } from 'ming-ui';
+import PropTypes from 'prop-types';
+import { Icon, LoadDiv, PullToRefreshWrapper, ScrollView } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
-import CustomRecordCard from 'mobile/RecordList/RecordCard';
+import RecordCardIO from 'mobile/RecordList/RecordCard/RecordCardIO';
+import GroupByControl from 'src/pages/Mobile/components/GroupByControl';
 import { browserIsMobile } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { getGroupControlId } from 'src/utils/worksheet';
 import * as actions from '../redux/actions';
 import withoutRows from './assets/withoutRows.png';
 import './index.less';
@@ -17,20 +19,53 @@ import './index.less';
 class SheetRows extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      scrollViewEl: null,
+      viewCardUpdateMap: {},
+    };
   }
+
+  scrollViewRef = React.createRef();
 
   componentDidMount() {
     window.addEventListener('popstate', this.onQueryChange);
+
+    this.intervalId = setInterval(() => {
+      const scrollInfo = this.scrollViewRef.current?.getScrollInfo?.();
+      if (scrollInfo?.viewport) {
+        this.setState({ scrollViewEl: scrollInfo.viewport });
+        clearInterval(this.intervalId);
+        this.intervalId = null;
+      }
+    }, 50);
   }
 
   componentWillUnmount() {
+    this.setState({ currentGroupKey: undefined });
     this.props.updatePreviewRecordId('');
     window.removeEventListener('popstate', this.onQueryChange);
   }
   onQueryChange = () => {
     if (!this.props.previewRecordId) return;
-    handleReplaceState('page', 'recordDetail', () => this.props.updatePreviewRecordId(''));
+    handleReplaceState('page', 'recordDetail', () => {
+      this.setState({ currentGroupKey: undefined });
+      this.props.updatePreviewRecordId('');
+    });
+  };
+
+  updateViewCard = (rowid, height) => {
+    this.setState(prevState => {
+      const prevMap = prevState.viewCardUpdateMap;
+      if (prevMap[rowid] === height) {
+        return null; // 不需要更新
+      }
+      return {
+        viewCardUpdateMap: {
+          ...prevMap,
+          [rowid]: height,
+        },
+      };
+    });
   };
 
   handleEndReached = () => {
@@ -43,13 +78,26 @@ class SheetRows extends Component {
     this.props.updateIsPullRefreshing(true);
     this.props.changePageIndex(1);
   };
+
   renderRow = item => {
-    const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData, sheetSwitchPermit } =
-      this.props;
+    const {
+      worksheetControls,
+      base,
+      view,
+      worksheetInfo,
+      batchOptVisible,
+      batchOptCheckedData,
+      sheetSwitchPermit,
+      currentSheetRows,
+      groupDataInfo,
+      colNum = 1,
+      changeBatchOptData = () => {},
+    } = this.props;
+
     return (
-      <CustomRecordCard
+      <RecordCardIO
         key={item.rowid}
-        className="mLeft8 mRight8"
+        colNum={colNum}
         data={item}
         view={view}
         appId={base.appId}
@@ -58,8 +106,12 @@ class SheetRows extends Component {
         allowAdd={worksheetInfo.allowAdd}
         batchOptVisible={batchOptVisible}
         batchOptCheckedData={batchOptCheckedData}
-        changeBatchOptData={this.props.changeBatchOptData}
         sheetSwitchPermit={sheetSwitchPermit}
+        currentSheetRows={currentSheetRows}
+        groupDataInfo={groupDataInfo}
+        changeBatchOptData={changeBatchOptData}
+        viewRootEl={this.state.scrollViewEl}
+        updateViewCard={this.updateViewCard}
         onClick={() => {
           const { clicktype, clickcid } = view.advancedSetting || {};
           // clicktype：点击操作 空或者0：打开记录 1：打开链接 2：无
@@ -80,6 +132,7 @@ class SheetRows extends Component {
           }
           if (browserIsMobile()) {
             handlePushState('page', 'recordDetail');
+            this.setState({ currentGroupKey: item.groupKey });
             this.props.updatePreviewRecordId(item.rowid);
           }
           addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.rowid }); // 埋点
@@ -92,6 +145,66 @@ class SheetRows extends Component {
     this.props.updateRow(rowId, value, isviewdata);
   };
 
+  // 分组
+  renderGroupContent = () => {
+    const {
+      groupDataInfo,
+      base,
+      view,
+      worksheetControls = [],
+      updateGroupDataInfo = () => {},
+      loadGroupMore = () => {},
+    } = this.props;
+    const { groupData, isGroupLoading, unfoldedKeys } = groupDataInfo;
+    const { viewId, appId, worksheetId } = base;
+
+    return groupData.map(({ key, name, rows = [], totalNum, pageIndex = 1 } = {}) => {
+      return (
+        <Fragment key={key}>
+          <div className="rowWrap">
+            <GroupByControl
+              appId={appId}
+              worksheetId={worksheetId}
+              viewId={viewId}
+              folded={!unfoldedKeys.includes(key)}
+              allFolded={unfoldedKeys.length >= groupData.length}
+              count={totalNum}
+              control={worksheetControls.find(o => o.controlId === getGroupControlId(view))}
+              groupKey={key}
+              name={name}
+              view={view}
+              onFold={() => {
+                this.props.updateGroupDataInfo({
+                  unfoldedKeys: !unfoldedKeys.includes(key)
+                    ? [...unfoldedKeys, key]
+                    : unfoldedKeys.filter(o => o !== key),
+                });
+              }}
+            />
+
+            {unfoldedKeys.includes(key) && rows.map(item => this.renderRow({ ...safeParse(item), groupKey: key }))}
+          </div>
+          {unfoldedKeys.includes(key) && rows.length < totalNum ? (
+            isGroupLoading ? (
+              <LoadDiv />
+            ) : (
+              <div
+                className="mTop10 mBottom10 ThemeColor Font15 TxtCenter"
+                onClick={() => {
+                  updateGroupDataInfo({ groupKey: key, currentKeyPageIndex: pageIndex + 1 });
+                  loadGroupMore(key);
+                }}
+              >
+                <span TxtMiddle>{_l('查看更多')}</span>
+                <span className="icon-arrow-down mLeft6"></span>
+              </div>
+            )
+          ) : null}
+        </Fragment>
+      );
+    });
+  };
+
   render() {
     const {
       currentSheetRows,
@@ -100,15 +213,24 @@ class SheetRows extends Component {
       base,
       view,
       sheetSwitchPermit,
-      worksheetInfo = {},
       previewRecordId,
+      isCharge,
+      worksheetInfo = {},
+      groupDataInfo = {},
     } = this.props;
+    const { groupData } = groupDataInfo;
+    const { currentGroupKey } = this.state;
+    const isGroup = _.get(view, 'advancedSetting.groupsetting');
 
     return (
       <Fragment>
-        <ScrollView className="sheetRowsWrapper flex pTop10" onScrollEnd={this.handleEndReached}>
+        <ScrollView className="sheetRowsWrapper flex" ref={this.scrollViewRef} onScrollEnd={this.handleEndReached}>
           <PullToRefreshWrapper onRefresh={this.handlePullToRefresh}>
-            {currentSheetRows.map(item => this.renderRow(item))}
+            {isGroup ? (
+              this.renderGroupContent()
+            ) : (
+              <div className="rowWrap">{currentSheetRows.map(item => this.renderRow(item))}</div>
+            )}
             {sheetView.isMore ? (
               <div className="flexRow justifyContentCenter">
                 {sheetRowLoading ? <SpinLoading color="primary" /> : null}
@@ -128,11 +250,19 @@ class SheetRows extends Component {
           rowId={previewRecordId}
           sheetSwitchPermit={sheetSwitchPermit}
           canLoadSwitchRecord={true}
-          currentSheetRows={currentSheetRows}
+          isCharge={isCharge}
+          currentSheetRows={
+            isGroup && currentGroupKey
+              ? (_.find(groupData, v => v.key === currentGroupKey) || {}).rows.map(o => safeParse(o))
+              : currentSheetRows
+          }
           loadNextPageRecords={this.props.changePageIndex}
           loadedRecordsOver={!(!sheetRowLoading && sheetView.isMore)}
           changeMobileSheetRows={this.props.changeMobileSheetRows}
-          onClose={() => this.props.updatePreviewRecordId('')}
+          onClose={() => {
+            this.setState({ currentGroupKey: undefined });
+            this.props.updatePreviewRecordId('');
+          }}
           updateRow={this.updateRow}
         />
       </Fragment>
@@ -162,16 +292,21 @@ export const WithoutSearchRows = props => {
 
 export default connect(
   state => ({
-    base: state.mobile.base,
-    worksheetInfo: state.mobile.worksheetInfo,
-    currentSheetRows: state.mobile.currentSheetRows,
-    worksheetControls: state.mobile.worksheetControls,
-    sheetRowLoading: state.mobile.sheetRowLoading,
-    sheetView: state.mobile.sheetView,
-    batchOptVisible: state.mobile.batchOptVisible,
-    batchOptCheckedData: state.mobile.batchOptCheckedData,
-    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
-    previewRecordId: state.mobile.previewRecordId,
+    ..._.pick(
+      state.mobile,
+      'base',
+      'worksheetInfo',
+      'currentSheetRows',
+      'worksheetControls',
+      'sheetRowLoading',
+      'sheetView',
+      'batchOptVisible',
+      'batchOptCheckedData',
+      'sheetSwitchPermit',
+      'previewRecordId',
+      'groupDataInfo',
+      'isCharge',
+    ),
   }),
   dispatch =>
     bindActionCreators(
@@ -182,7 +317,13 @@ export default connect(
         'updateIsPullRefreshing',
         'updatePreviewRecordId',
         'updateRow',
+        'updateGroupDataInfo',
+        'loadGroupMore',
       ]),
       dispatch,
     ),
 )(SheetRows);
+
+SheetRows.PropTypes = {
+  colNum: PropTypes.number, // 一行显示几个，默认1个（画廊视图可配置2个）
+};

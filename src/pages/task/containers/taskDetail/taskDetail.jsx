@@ -2,8 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import { Dialog, LoadDiv } from 'ming-ui';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
@@ -16,7 +15,6 @@ import config, { OPEN_TYPE, RELATION_TYPES } from '../../config/config';
 import {
   destroyTask,
   getTaskDetail,
-  getTaskDiscussions,
   removeTaskMember,
   updateTaskFolderId,
   updateTaskParentId,
@@ -380,20 +378,20 @@ class TaskDetail extends Component {
   /**
    * 滚动到固定位置
    */
-  scrollToFixedPosition(obj) {
-    $('.taskDetailScroll').nanoScroller(obj);
+  scrollToFixedPosition({ scrollTo, scrollTop }) {
+    if (scrollTo) {
+      scrollTo[0]?.scrollIntoView();
+    } else {
+      $('.taskDetailScroll .scroll-viewport').scrollTop(scrollTop);
+    }
   }
 
   /**
    * scrollView滚动
    */
-  scroll = (evt, obj) => {
-    if (this.mounted) {
-      $('.taskDetailHeader').toggleClass('borderClear', obj.position > 0);
-
-      if (obj.maximum - obj.position <= 30 && this.state.tabIndex === TAB_TYPE.comment) {
-        this.commentList.updatePageIndex();
-      }
+  scroll = () => {
+    if (this.mounted && this.state.tabIndex === TAB_TYPE.comment) {
+      this.commentList.updatePageIndex();
     }
   };
 
@@ -417,7 +415,6 @@ class TaskDetail extends Component {
             '.selectUserBox',
             '#dialogBoxSelectUser_container',
             '.mui-dialog-container',
-            '.mdAlertDialog',
             '.PositionContainer-wrapper',
             '.rc-trigger-popup',
             '#chat',
@@ -451,17 +448,7 @@ class TaskDetail extends Component {
    * 渲染任务详情
    */
   renderTaskContent() {
-    const {
-      animationEnd,
-      taskId,
-      beforeTaskId,
-      tabIndex,
-      showHeadShadow,
-      addSubTask,
-      addChecklist,
-      addTags,
-      forceUpdateSource,
-    } = this.state;
+    const { animationEnd, taskId, beforeTaskId, tabIndex, addSubTask, addChecklist, addTags } = this.state;
     const { openType, taskDetails } = this.props;
     const result = taskDetails[taskId];
 
@@ -513,8 +500,8 @@ class TaskDetail extends Component {
           closeDetail={this.closeDetail}
           updateCallback={this.props.updateCallback}
         />
-        <div className="flex taskDetailContent">
-          <ScrollView className="Absolute taskDetailScroll" updateEvent={this.scroll}>
+        <div className="flex taskDetailContent minHeight0">
+          <ScrollView className="Absolute taskDetailScroll" onScrollEnd={this.scroll}>
             <TaskTime taskId={taskId} openType={openType} updateCallback={this.props.updateCallback} />
             <TaskBasic
               taskId={taskId}

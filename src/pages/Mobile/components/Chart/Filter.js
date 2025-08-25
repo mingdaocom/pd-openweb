@@ -1,18 +1,18 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Icon, Input } from 'ming-ui';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
 import { DatePicker } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Input } from 'ming-ui';
 import { reportTypes } from 'statistics/Charts/common';
 import {
+  dropdownDayData,
   dropdownScopeData,
+  isPastAndFuture,
+  isTimeControl,
   timeDataParticle,
   timeGatherParticle,
-  dropdownDayData,
-  isTimeControl,
-  isPastAndFuture,
 } from 'statistics/common';
 
 const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21];
@@ -77,7 +77,6 @@ function ChartFilter(props) {
 
   const RenderDatePicker = () => {
     const isCustom = defaultRangeType === 20;
-    const scopeData = _.find(dropdownScopeData, { value: defaultRangeType }) || {};
     const [minValue, maxValue] = isCustom
       ? defaultRangeValue.split('-').map(item => moment(item))
       : [moment(filter.startDate), moment(filter.endDate)];
@@ -97,9 +96,9 @@ function ChartFilter(props) {
         case 'day':
           return data + '日';
         default:
-          return data
+          return data;
       }
-    }
+    };
 
     useEffect(() => {
       const start = moment(startDate || startDateValue).format('YYYY/MM/DD');
@@ -170,7 +169,7 @@ function ChartFilter(props) {
       {defaultRangeType === 0 && (
         <Fragment>
           <div className="itemWrapper flexRow valignWrapper">
-            {(moreVisible ? datePeriod : datePeriod.slice(0, 6)).map((item, index) => (
+            {(moreVisible ? datePeriod : datePeriod.slice(0, 6)).map(item => (
               <div
                 key={item.value}
                 className={cx('item Font12 Gray', { active: rangeType === item.value })}
@@ -188,7 +187,7 @@ function ChartFilter(props) {
                 {_.find(dropdownScopeData, { value: rangeType }).text}
               </div>
               <div className="itemWrapper flexRow valignWrapper">
-                {dropdownDayData.map((item, index) => (
+                {dropdownDayData.map(item => (
                   <div
                     key={item.value}
                     className={cx('item Font12 Gray', { active: rangeValue == item.value })}
@@ -209,7 +208,7 @@ function ChartFilter(props) {
         <div className="itemWrapper flexRow valignWrapper">
           {dropdownDayData
             .filter(item => item.value <= defaultRangeValue)
-            .map((item, index) => (
+            .map(item => (
               <div
                 key={item.value}
                 className={cx('item Font12 Gray', { active: rangeValue == item.value })}

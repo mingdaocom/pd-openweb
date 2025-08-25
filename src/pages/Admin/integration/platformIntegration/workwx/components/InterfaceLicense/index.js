@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Button, ScrollView, LoadDiv, Icon } from 'ming-ui';
-import workWeiXinAjax from 'src/api/workWeiXin';
-import styled from 'styled-components';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Button, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import workWeiXinAjax from 'src/api/workWeiXin';
 
 const orderTypes = { 1: _l('购买账号'), 2: _l('续期账号'), 5: _l('历史企业迁移订单') };
 const orderStatus = {
@@ -75,7 +75,7 @@ const OrderDetail = styled.div`
     }
   }
   .themeColor {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -133,7 +133,7 @@ export default class InterfaceLicense extends Component {
     const { hasMore } = this.state;
     if (!hasMore) return;
     this.setState({ pageIndex: this.state.pageIndex + 1, hasMore: false }, () => {
-      this.getWorkWxLicenseOrderList(cursor);
+      this.getWorkWxLicenseOrderList();
     });
   };
 
@@ -292,7 +292,7 @@ export default class InterfaceLicense extends Component {
             <div className="headerItem">{_l('下单时间')}</div>
             <div className="headerItem">{_l('下单人')}</div>
           </div>
-          <div className="tableContent flex">
+          <div className="tableContent flex overflowHidden">
             <ScrollView onScrollEnd={this.onScrollEnd}>
               {orderList.map(item => {
                 return (

@@ -1,7 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
 import Config from '../../../config';
 import RoleList from '../roleList';
-import styled from 'styled-components';
 
 const Wrap = styled.div`
   border-radius: 4px;
@@ -42,9 +42,9 @@ const Wrap = styled.div`
           font-size: 17px;
         }
         &.menuTab-active {
-          border-bottom-color: #2196f3;
+          border-bottom-color: #1677ff;
           a {
-            color: #2196f3 !important;
+            color: #1677ff !important;
           }
         }
       }

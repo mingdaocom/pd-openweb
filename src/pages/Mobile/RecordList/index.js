@@ -56,6 +56,7 @@ class RecordList extends Component {
         });
       }
     }
+    window.addEventListener('pageshow', this.handleCloseRecordModal);
   }
   getApp(props) {
     const { params } = props.match;
@@ -74,7 +75,7 @@ class RecordList extends Component {
     const { viewType } = view;
     if (newParams.viewId !== params.viewId) {
       this.props.updateBase({ viewId: newParams.viewId });
-      _.includes([0, 6], viewType) && this.props.resetSheetView();
+      _.includes([0, 3, 6], viewType) && this.props.resetSheetView();
     }
     if (viewType === 2) {
       updateHierarchyConfigLevel(view);
@@ -88,7 +89,12 @@ class RecordList extends Component {
   }
   componentWillUnmount() {
     this.props.emptySheetControls();
+    window.addEventListener('pageshow', this.handleCloseRecordModal);
   }
+
+  handleCloseRecordModal = () => {
+    this.props.updatePreviewRecordId('');
+  };
 
   sheetViewOpenRecord = (recordId, viewId) => {
     this.setState({
@@ -275,7 +281,7 @@ class RecordList extends Component {
                 className="Static mTop10"
                 onClick={() => {
                   if (window.isMingDaoApp && window.APP_OPEN_NEW_PAGE) {
-                    window.location.href = `/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`;
+                    window.open(`/mobile/addRecord/${params.appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
                     return;
                   }
 
@@ -403,6 +409,8 @@ export default connect(
           'changeBatchOptVisible',
           'updateFilterControls',
           'updateQuickFilter',
+          'updateViewCard',
+          'updatePreviewRecordId',
         ]),
         addNewRecord,
       },

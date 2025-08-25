@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -24,7 +23,7 @@ function PicturePreview(props) {
 }
 
 function WorksheetRecordLogThumbnail(props) {
-  const { oldList = [], newList = [], defaultList = [], type, recordInfo, control } = props;
+  const { oldList = [], newList = [], defaultList = [], type } = props;
   const isMobile = browserIsMobile();
   const [open, setOpen] = useState(false);
   let count = oldList.length + newList.length + defaultList.length;
@@ -84,7 +83,7 @@ function WorksheetRecordLogThumbnail(props) {
         </span>
       ));
     }
-    return list.map((item, index) => (
+    return list.map(item => (
       <Trigger
         action={['hover']}
         getPopupContainer={() => document.body}

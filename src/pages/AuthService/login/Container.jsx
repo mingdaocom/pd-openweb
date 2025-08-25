@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useKey } from 'react-use';
+import _ from 'lodash';
 import { Checkbox, LoadDiv } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';

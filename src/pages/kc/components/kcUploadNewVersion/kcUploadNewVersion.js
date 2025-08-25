@@ -151,7 +151,7 @@ UploadNewVersion.prototype = {
     NV.$thumbnail.append(img).show();
   },
   validate: function (str) {
-    var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
+    var illegalChars = /[/\\:*?"<>|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
       alert(_l('名称和详情描述里不能包含以下字符：') + '\\ / : * ? " < > |', 3);

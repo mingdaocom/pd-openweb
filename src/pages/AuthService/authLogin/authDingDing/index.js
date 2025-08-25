@@ -17,9 +17,9 @@ const isMobile = browserIsMobile();
 if (code) {
   if (checkLogin()) {
     if (checkOriginUrl(url)) {
-      location.href = decodeURIComponent(url);
+      location.replace(decodeURIComponent(url));
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     ajax.post({
@@ -36,9 +36,9 @@ if (code) {
           getGlobalMeta().then(() => {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
-              location.href = decodeURIComponent(url);
+              location.replace(decodeURIComponent(url));
             } else {
-              location.href = isMobile ? `/mobile` : `/app`;
+              location.replace(isMobile ? `/mobile` : `/app`);
             }
           });
         }
@@ -51,9 +51,9 @@ if (code) {
   const newUrl = addOtherParam(url, otherParamString);
   if (checkLogin()) {
     if (checkOriginUrl(newUrl)) {
-      location.href = newUrl;
+      location.replace(newUrl);
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     const hosts = location.host.split('.');
@@ -70,7 +70,9 @@ if (code) {
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/dingding?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );
-        location.href = `${defaultCallBackUrl}?redirect_uri=${redirect_uri}&response_type=code&client_id=${clientId}&scope=openid&state=${state}&prompt=consent`;
+        location.replace(
+          `${defaultCallBackUrl}?redirect_uri=${redirect_uri}&response_type=code&client_id=${clientId}&scope=openid&state=${state}&prompt=consent`,
+        );
       },
       error: login,
     });

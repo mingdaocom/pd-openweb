@@ -1,25 +1,25 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import styled from 'styled-components';
+import { ConfigProvider, Empty, Select, Table } from 'antd';
 import cx from 'classnames';
-import moment from 'moment';
-import { Select, Table, ConfigProvider, Empty } from 'antd';
-import Trigger from 'rc-trigger';
 import _ from 'lodash';
-import { Icon, Button, UserHead } from 'ming-ui';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Button, Icon, UserHead } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
-import Search from 'src/pages/workflow/components/Search';
-import PaginationWrap from '../../../components/PaginationWrap';
-import MoveWorkflowDialog from '../component/MoveWorkflowDialog';
-import AddWorkflowDialog from '../component/AddWorkflowDialog';
-import resourceApi from 'src/pages/workflow/api/resource';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
+import resourceApi from 'src/pages/workflow/api/resource';
+import Search from 'src/pages/workflow/components/Search';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
-import { TYPE_LIST, COMPUTING_INSTANCE_STATUS } from '../config';
-import '../index.less';
-import IsAppAdmin from '../../../components/IsAppAdmin';
 import { navigateTo } from 'src/router/navigateTo';
+import IsAppAdmin from '../../../components/IsAppAdmin';
+import PaginationWrap from '../../../components/PaginationWrap';
+import AddWorkflowDialog from '../component/AddWorkflowDialog';
+import MoveWorkflowDialog from '../component/MoveWorkflowDialog';
+import { COMPUTING_INSTANCE_STATUS, TYPE_LIST } from '../config';
+import '../index.less';
 
 const ActionOpWrap = styled.ul`
   background: #fff;
@@ -34,7 +34,7 @@ const ActionOpWrap = styled.ul`
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
     }
   }
@@ -47,7 +47,7 @@ const renderEmpty = () => {
 };
 
 function ExplanDetail(props) {
-  const { projectId, id, history, location } = props;
+  const { projectId, id, history } = props;
 
   const [workflowData, setWorkflowData] = useState({
     count: 0,
@@ -118,6 +118,7 @@ function ExplanDetail(props) {
   };
 
   const getAppList = () => {
+    const { keyword = '' } = this.state;
     appManagement
       .getAppsForProject({
         projectId,
@@ -125,7 +126,7 @@ function ExplanDetail(props) {
         order: 3,
         pageIndex: 1,
         pageSize: 100000,
-        keyword: '',
+        keyword: keyword.trim(),
       })
       .then(({ apps }) => {
         const newAppList = apps.map(item => {
@@ -232,7 +233,7 @@ function ExplanDetail(props) {
             popup={
               <ActionOpWrap>
                 <li
-                  onClick={value => {
+                  onClick={() => {
                     setActionOp(-1);
                     setMoveWorkflowDialog({
                       visible: true,
@@ -292,6 +293,7 @@ function ExplanDetail(props) {
             }
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+            onSearch={_.debounce(val => this.setState({ keyword: val }, () => this.getAppList(projectId)), 500)}
             onChange={value =>
               setFilters({
                 ...filters,

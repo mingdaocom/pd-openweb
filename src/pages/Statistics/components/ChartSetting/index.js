@@ -1,28 +1,27 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
-import XAxis from './components/XAxis';
-import YAxis from './components/YAxis';
-import ValueAxis from './components/ValueAxis';
-import GroupingAxis from './components/GroupingAxis';
-import PivotTableAxis from './components/PivotTableAxis';
-import Filter from './components/Filter';
-import AreaScope from './components/AreaScope';
-import Accumulate from './components/Accumulate';
-import WithoutFidldItem from './components/WithoutFidldItem';
-import {
-  chartType,
-  getAxisText,
-  isTimeControl,
-  filterDisableParticleSizeTypes,
-  funnelShapeList,
-  funnelCurvatureList,
-} from '../../common';
-import { reportTypes } from '../../Charts/common';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'statistics/redux/actions';
-import './index.less';
+import cx from 'classnames';
 import _ from 'lodash';
+import * as actions from 'statistics/redux/actions';
+import { reportTypes } from '../../Charts/common';
+import {
+  chartType,
+  filterDisableParticleSizeTypes,
+  funnelCurvatureList,
+  funnelShapeList,
+  getAxisText,
+} from '../../common';
+import Accumulate from './components/Accumulate';
+import AreaScope from './components/AreaScope';
+import Filter from './components/Filter';
+import GroupingAxis from './components/GroupingAxis';
+import PivotTableAxis from './components/PivotTableAxis';
+import ValueAxis from './components/ValueAxis';
+import WithoutFidldItem from './components/WithoutFidldItem';
+import XAxis from './components/XAxis';
+import YAxis from './components/YAxis';
+import './index.less';
 
 @connect(
   state => ({
@@ -245,7 +244,7 @@ export default class ChartSetting extends Component {
   }
   renderChartAxis(x, y) {
     const { currentReport, axisControls, worksheetInfo, changeCurrentReport } = this.props;
-    const { reportType, displaySetup, xaxes = {}, yaxisList, split = {}, rightY, formulas = [] } = currentReport;
+    const { reportType, xaxes = {}, yaxisList, split = {}, rightY, formulas = [] } = currentReport;
     const isMultiaxis = [reportTypes.DualAxes, reportTypes.BidirectionalBarChart].includes(reportType);
     const isDualAxes = reportTypes.DualAxes === reportType;
     const xAxisVisible = reportType && ![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType);

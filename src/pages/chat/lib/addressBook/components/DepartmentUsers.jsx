@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import UserDetail from './/UserDetail';
-import styled from 'styled-components';
-import { ScrollView, Icon, LoadDiv } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import UserDetail from './/UserDetail';
 
 const LoadingWrapper = styled.div`
   display: flex;
@@ -25,7 +25,10 @@ const UsersWrapper = styled.div`
     margin: 16px 30px 24px 24px;
   }
   .userListContainer {
-    position: relative;
+    flex: 1;
+    padding-right: 2px;
+    width: 420px;
+    overflow: hidden;
   }
 `;
 
@@ -115,8 +118,8 @@ export default class DepartmentUsers extends Component {
           <UsersWrapper className="flex">
             {groupName && <div className="projectInfo">{`${groupName}${allCount ? `(${allCount})` : ''}`}</div>}
             {groupList.length > 0 && (
-              <div className="userListContainer flex">
-                <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
+              <div className="userListContainer">
+                <ScrollView className="h100" onScrollEnd={this.handleScrollEnd}>
                   {groupList.length ? (
                     <Fragment>
                       {groupList.map((item, index) => {

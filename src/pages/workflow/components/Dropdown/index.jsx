@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { string, arrayOf, shape, bool, func, node } from 'prop-types';
-import Icon from 'ming-ui/components/Icon';
+import _ from 'lodash';
+import { arrayOf, bool, func, node, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
+import Icon from 'ming-ui/components/Icon';
 import 'rc-trigger/assets/index.css';
 import './index.less';
-import _ from 'lodash';
 
 export default class Dropdown extends Component {
   static propTypes = {
@@ -48,12 +48,12 @@ export default class Dropdown extends Component {
     popupVisible: false,
   };
 
-  handleChange = (val) => {
+  handleChange = val => {
     this.setState({ popupVisible: false });
     this.props.onChange(val);
   };
 
-  handlePopupVisibleChange = (popupVisible) => {
+  handlePopupVisibleChange = popupVisible => {
     this.setState({ popupVisible });
   };
 
@@ -72,7 +72,10 @@ export default class Dropdown extends Component {
               return (
                 <li
                   key={index}
-                  className={cx({ ThemeColor3: value === selectedValue && !_.includes(specialStyleExpect, value) }, 'ThemeHoverBGColor3 HoverWhite')}
+                  className={cx(
+                    { ThemeColor3: value === selectedValue && !_.includes(specialStyleExpect, value) },
+                    'ThemeHoverBGColor3 HoverWhite',
+                  )}
                   onClick={() => this.handleChange(value)}
                 >
                   {icon && <Icon icon={icon} />}

@@ -1,11 +1,11 @@
+import BothWayRelate from './BothWayRelate';
 import WidgetBase from './WidgetBase';
-import WidgetOperate from './WidgetOperate';
-import WidgetStyle from './WidgetStyle';
 import WidgetHighSetting from './WidgetHighSetting';
 import WidgetMobile from './WidgetMobile';
-import WidgetSecurity from './WidgetSecurity';
-import BothWayRelate from './BothWayRelate';
+import WidgetOperate from './WidgetOperate';
 import WidgetPermission from './WidgetPermission';
+import WidgetSecurity from './WidgetSecurity';
+import WidgetStyle from './WidgetStyle';
 
 const CollapseComponents = {
   WidgetBase,

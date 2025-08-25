@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
+import React from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import cx from 'classnames';
 import 'src/pages/widgetConfig/index.less';
+import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
 
 const Wrap = styled.div`
   &.hideDynamic {
@@ -35,9 +35,9 @@ export default function Input(props) {
     let { advancedSetting = {} } = data;
     let { defsource = '' } = advancedSetting;
     try {
-      defsource = JSON.parse(defsource);
+      defsource = !defsource ? '' : JSON.parse(defsource);
     } catch (error) {
-      defsource = defsource;
+      console.log(error);
     }
     if (data.type === 34 && defsource.length <= 0) {
       //子表 默认值清空呈现异化

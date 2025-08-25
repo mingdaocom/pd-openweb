@@ -37,7 +37,6 @@ function loadWorksheetInfo(worksheetId, { controlId, relationWorksheetId, record
 export default function generateStore(
   control,
   {
-    appId,
     from,
     relationWorksheetId,
     controls,
@@ -66,14 +65,15 @@ export default function generateStore(
   }
   const store = createStore(reducer, compose(applyMiddleware(thunk, logger), ...enhancers));
   store.name = Math.floor(Math.random() * 1000);
-  async function init() {
+  async function init({ noMountInit = false } = {}) {
     if (store.initialized) return;
     if (isFunction(store.setLoadingInfo)) {
       store.setLoadingInfo('store_' + control.controlId, true);
     }
     if (
-      (recordId && instanceId && workId) ||
-      (get(window, 'shareState.isPublicWorkflowRecord') && isFunction(store.setLoadingInfo))
+      !noMountInit &&
+      ((recordId && instanceId && workId) ||
+        (get(window, 'shareState.isPublicWorkflowRecord') && isFunction(store.setLoadingInfo)))
     ) {
       store.setLoadingInfo('loadRows_' + control.controlId, true);
     }
@@ -108,7 +108,7 @@ export default function generateStore(
       ((instanceId && workId) || window.shareState.isPublicWorkflowRecord) &&
       worksheetInfo.workflowChildTableSwitch !== false;
     if (isWorkflow && isFunction(control.updateRelationControls)) {
-      control.updateRelationControls(control.dataSource, controls);
+      control.updateRelationControls(control.controlId, controls);
     }
     const treeLayerControl = find(controls, { controlId: treeLayerControlId });
     store.dispatch({
@@ -125,11 +125,13 @@ export default function generateStore(
         workId,
         worksheetInfo,
         initRowIsCreate,
+        discussId: control.discussId,
         isTreeTableView:
           treeLayerControl &&
           treeLayerControl.type === 29 &&
           !isRelateRecordTableControl(treeLayerControl) &&
           !!treeLayerControlId,
+        originControls: controls,
       },
     });
     store.dispatch({ type: 'UPDATE_BASE_LOADING', value: false });

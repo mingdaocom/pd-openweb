@@ -136,9 +136,6 @@
 .mdLeftNav .panelHead .panelIcon:hover {
   color: white;
 }
-.mdLeftNav .nano {
-  flex: 1;
-}
 
 .mdLeftNav .nullData {
   margin: 17px 0;

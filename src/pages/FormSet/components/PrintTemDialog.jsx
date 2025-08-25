@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { string, func } from 'prop-types';
-import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
+import { func } from 'prop-types';
 import PrintForm from 'src/pages/Print/index.jsx';
+import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
 
 export default class PrintTemDialog extends Component {
   static propTypes = {
@@ -13,7 +13,21 @@ export default class PrintTemDialog extends Component {
   };
 
   render() {
-    const { onBack, isDefault, type, from, printId, worksheetId, projectId, rowId, getType, viewId, appId, name, fileTypeNum } = this.props;
+    const {
+      onBack,
+      isDefault,
+      type,
+      from,
+      printId,
+      worksheetId,
+      projectId,
+      rowId,
+      getType,
+      viewId,
+      appId,
+      name,
+      fileTypeNum,
+    } = this.props;
     const match = {
       params: {
         printType: 'worksheet',

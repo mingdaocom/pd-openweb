@@ -1,4 +1,5 @@
 import { notification } from 'antd';
+import _ from 'lodash';
 import io from 'socket.io-client';
 import exportPivotTableSocket from 'statistics/components/socket';
 import worksheetSocket from 'worksheet/components/socket';
@@ -9,8 +10,6 @@ import { wsexcelSocketInit } from 'src/pages/worksheet/common/WorksheetBody/Impo
 import { wsexcelbatchSocketInit } from 'src/pages/worksheet/components/DialogImportExcelCreate/index.js';
 import { getPssId } from 'src/utils/pssId';
 import customNotice from './customNotice';
-import marketNotice from './marketNotice';
-import getNotice from './marketNotice/getNotice';
 
 export const socketInit = () => {
   if (window.IM === undefined) {

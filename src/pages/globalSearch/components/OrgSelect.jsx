@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { Icon, Tooltip, Input } from 'ming-ui';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, Input, Tooltip } from 'ming-ui';
 import { getCurrentProjectId } from '../utils';
 import './OrgSelect.less';
 
@@ -19,8 +20,8 @@ const OrgSelectCon = styled.div`
     max-width: 287px;
   }
   .orgShowCon:hover {
-    border-color: #2196f3;
-    color: #2196f3;
+    border-color: #1677ff;
+    color: #1677ff;
   }
   .mLeft9 {
     margin-left: 9px !important;
@@ -82,7 +83,7 @@ export default function OrgSelect(props) {
               <Icon icon="search Font16 Gray_9d" />
               <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
               <Tooltip text={_l('记录仅支持单个组织搜索，且不支持外部协作组织')}>
-                <Icon icon="workflow_error" className="Font14 Gray_9d" />
+                <Icon icon="info_outline" className="Font14 Gray_9d" />
               </Tooltip>
             </div>
             <ul className="orgList">

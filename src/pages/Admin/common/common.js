@@ -1,5 +1,4 @@
-﻿import _ from 'lodash';
-import projectSettingApi from 'src/api/projectSetting';
+﻿import projectSettingApi from 'src/api/projectSetting';
 import roleApi from 'src/api/role';
 import { canPurchase, getMyPermissions, hasBackStageAdminAuth } from 'src/components/checkPermission';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -21,7 +20,7 @@ AdminCommon.getAuthority = async () => {
     return [PERMISSION_ENUM.NOT_MEMBER];
   }
 
-  await roleApi.getProjectPermissionsByUser({ projectId: Config.projectId }, { silent: true }).catch(error => {
+  await roleApi.getProjectPermissionsByUser({ projectId: Config.projectId }, { silent: true }).catch(() => {
     isNotProjectUser = true;
   });
 

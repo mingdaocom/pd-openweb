@@ -1,18 +1,11 @@
 import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
 import { formatNumberFromInput } from 'src/utils/control';
-import {
-  formatControlInfo,
-  formatrChartAxisValue,
-  formatrChartValue,
-  formatYaxisList,
-  getChartColors,
-  getLegendType,
-  getStyleColor,
-} from './common';
+import { formatrChartAxisValue, formatrChartValue, getChartColors, getLegendType, getStyleColor } from './common';
 
 const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
@@ -23,7 +16,7 @@ const formatChartData = (data, splitId) => {
   if (splitId) {
     value.forEach(item => {
       const name = item.x;
-      data.forEach((element, index) => {
+      data.forEach(element => {
         const target = element.value.filter(n => n.originalX === item.originalX)[0];
         result.push({
           name,
@@ -37,7 +30,7 @@ const formatChartData = (data, splitId) => {
     value.forEach(item => {
       const name = item.x;
       let obj = {};
-      data.forEach((element, index) => {
+      data.forEach(element => {
         const target = element.value.filter(n => n.originalX === item.originalX)[0];
         if (target) {
           obj[element.c_id] = target.v;
@@ -316,7 +309,7 @@ export default class extends Component {
               position,
               itemName: {
                 style: {
-                  fill: isDark ? '#ffffffcc' : undefined,
+                  fill: isDark ? '#ffffffb0' : undefined,
                 },
               },
             }
@@ -377,7 +370,7 @@ export default class extends Component {
               return item ? item.name || _l('空') : originalId;
             },
             style: {
-              fill: isDark ? '#ffffffcc' : undefined,
+              fill: isDark ? '#ffffffb0' : undefined,
             },
           }
         : null,
@@ -416,7 +409,7 @@ export default class extends Component {
                 return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : null,
@@ -438,20 +431,20 @@ export default class extends Component {
                 return value ? formatrChartAxisValue(Number(formatNumberFromInput(value)), false, yaxisList) : null;
               },
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             }
           : null,
         grid: {
           line: {
             style: {
-              stroke: '#eee',
+              stroke: isDark ? '#ffffff6b' : '#eee',
             },
           },
         },
         line: {
           style: {
-            stroke: '#aaa',
+            stroke: isDark ? '#ffffff6b' : '#aaa',
           },
         },
       },

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useRunner } from 'react-runner';
 import EventEmitter from 'events';
 import * as LucideIconComp from 'lucide-react';
-import PropTypes, { func } from 'prop-types';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { ParentBridge } from 'src/utils/iframeCommunicate';
 
@@ -78,25 +78,25 @@ export default function Runner({ reRenderFlag, type, code, params, onChange = ()
   const memoizedFunctions = useMemo(() => {
     return {
       getRowsForRelation: apiParams =>
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
           bridge.current.call('getRowsForRelation', apiParams).then(res => {
             resolve(res);
           });
         }),
       refreshRecord: apiParams =>
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
           bridge.current.call('refreshRecord', apiParams).then(res => {
             resolve(res);
           });
         }),
       getTitleOfRecord: record =>
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
           bridge.current.call('getTitleOfRecord', record).then(res => {
             resolve(res);
           });
         }),
       setControlHeight: record =>
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
           bridge.current.call('setControlHeight', record).then(res => {
             resolve(res);
           });

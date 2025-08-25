@@ -23,9 +23,6 @@ const tabs = md.global.Account.isPortal
       { title: _l('日志'), type: 3 },
     ];
 
-const tabsHeight = 42;
-const bottomHeight = 50;
-
 const getGroupId = (appSectionDetail, worksheetId) => {
   let groupId = null;
   for (let i = 0; i < appSectionDetail.length; i++) {
@@ -75,6 +72,12 @@ class Discuss extends Component {
     window.addEventListener('popstate', this.onQueryChange);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!_.isEqual(nextProps.sheetDiscussions, this.props.sheetDiscussions)) {
+      this.setState({ discussions: nextProps.sheetDiscussions }, this.getRecordPartner);
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('popstate', this.onQueryChange);
   }
@@ -97,6 +100,7 @@ class Discuss extends Component {
           allowExAccountDiscuss, //允许外部用户讨论
           exAccountDiscussEnum,
           loading: false,
+          disType: md.global.Account.isPortal && exAccountDiscussEnum === 1 ? 2 : 1, //外部门户且不可见内部讨论 则直接显示外部讨论
         },
         this.getRecordPartner,
       );
@@ -132,6 +136,7 @@ class Discuss extends Component {
           return Object.assign({}, item, { job: o.controlName });
         });
       } catch (err) {
+        console.log(err);
         d = [];
       }
       data = data.concat(d);
@@ -163,10 +168,13 @@ class Discuss extends Component {
         ),
       //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
     );
-    let hash = {};
-    const data2 = data.reduce((preVal, curVal) => {
-      hash[curVal.accountId] ? '' : (hash[curVal.accountId] = true && preVal.push(curVal));
-      return preVal;
+    const hash = {};
+    const data2 = data.reduce((result, current) => {
+      if (!hash[current.accountId]) {
+        hash[current.accountId] = true; // 标记已存在
+        result.push(current); // 添加到结果数组
+      }
+      return result;
     }, []);
 
     this.setState({ recordPartner: data2 });
@@ -215,9 +223,6 @@ class Discuss extends Component {
       if (item.type === 3) return recordLogSwitch;
     });
     const pageType = this.state.pageType ? this.state.pageType : newTabs[0].type;
-    const style = {
-      height: document.documentElement.clientHeight - tabsHeight - (recordDiscussSwitch ? bottomHeight : 0),
-    };
     const keys = _.keys(temporaryDiscuss).reverse();
     const firstTemporaryDiscuss = _.isEmpty(keys)
       ? {}
@@ -249,7 +254,7 @@ class Discuss extends Component {
             });
           }}
         >
-          {newTabs.map((tab, index) => (
+          {newTabs.map(tab => (
             <Tabs.Tab title={<span className="bold">{tab.title}</span>} key={tab.type} />
           ))}
         </Tabs>
@@ -308,7 +313,7 @@ class Discuss extends Component {
                 <span className="ThemeColor">{_l('草稿：')}</span>
                 <span className="flex ellipsis Gray_9e">{firstTemporaryDiscuss.content || ''}</span>
                 <Icon
-                  icon="closeelement-bg-circle"
+                  icon="cancel"
                   className="close Font22 Gray_9e Static"
                   onClick={e => {
                     e.stopPropagation();
@@ -370,5 +375,8 @@ class Discuss extends Component {
 }
 
 export default connect(state => {
-  return {};
+  const { sheetDiscussions } = state.mobile;
+  return {
+    sheetDiscussions,
+  };
 })(Discuss);

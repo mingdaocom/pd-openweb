@@ -1,11 +1,12 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import store from 'redux/configureStore';
 import { Checkbox, Select, Tooltip } from 'antd';
 import cx from 'classnames';
-import { defaultPivotTableStyle } from '../../../enum';
-import store from 'redux/configureStore';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { isLightColor } from 'src/pages/customPage/util';
+import { defaultPivotTableStyle } from '../../../enum';
 
 const ColorBlock = styled.div`
   width: 14px;
@@ -28,13 +29,13 @@ const styles = [
   },
   {
     value: 2,
-    color: '#2196F3',
+    color: '#1677ff',
     name: _l('商务'),
     config: {
       columnTextColor: '#fff',
-      columnBgColor: '#2196F3',
+      columnBgColor: '#1677ff',
       lineTextColor: '#fff',
-      lineBgColor: '#2196F3',
+      lineBgColor: '#1677ff',
     },
   },
   {
@@ -128,6 +129,7 @@ const PreinstallStyle = props => {
       <div className="mBottom10 mTop16 flexRow valignWrapper">
         {_l('列宽模式')}
         <Tooltip
+          autoCloseDelay={0}
           title={
             <div className="pTop5 pBottom5">
               <div className="mBottom2">{_l('自动')}</div>
@@ -144,7 +146,7 @@ const PreinstallStyle = props => {
           placement="bottomRight"
           arrowPointAtCenter
         >
-          <Icon className="mLeft10 Gray_9e Font16 pointer" icon="knowledge-message" />
+          <Icon className="mLeft10 Gray_9e Font16 pointer" icon="info" />
         </Tooltip>
       </div>
       <div className="mBottom5">{_l('PC')}</div>

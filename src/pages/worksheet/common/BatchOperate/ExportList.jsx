@@ -74,7 +74,7 @@ export default function ExportList(props) {
     <Con>
       <IconText
         dataEvent="export"
-        icon="file_download"
+        icon="download"
         textCmp={() => {
           return (
             <Fragment>

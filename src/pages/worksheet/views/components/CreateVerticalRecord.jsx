@@ -1,13 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Button } from 'ming-ui';
+import React, { useRef, useState } from 'react';
 import { Input } from 'antd';
 import 'antd/es/input/style/css';
-import SVG from 'svg.js';
-import styled from 'styled-components';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Button } from 'ming-ui';
 import 'rc-trigger/assets/index.css';
-import { getPosition } from '../HierarchyVerticalView/util';
-import _ from 'lodash';
 
 const CreateRecordWrap = styled.div`
   width: 280px;
@@ -24,7 +21,7 @@ const CreateRecordWrap = styled.div`
     font-size: 16px;
     color: #9e9e9e;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -53,28 +50,14 @@ const CreateVerticalRecordWrap = styled.div`
   }
 `;
 export default function CreateVerticalRecord(props) {
-  const {
-    index,
-    noConnector,
-    itemData,
-    scale,
-    data,
-    broCount,
-    removeHierarchyTempItem,
-    createTextTitleRecord,
-    handleAddRecord,
-  } = props;
-  const { pid, rowId, pathId } = itemData;
-
-  // 用来防止触发失焦
-  const [isOutFocus, setOutFocus] = useState(false);
+  const { itemData, data, removeHierarchyTempItem, createTextTitleRecord, handleAddRecord } = props;
+  const { rowId, pathId } = itemData;
   const [value, setValue] = useState('');
   const $itemWrap = useRef(null);
   const getLinesValue = () => value.trim().split('\n');
   const lines = getLinesValue();
 
   const handleClick = type => {
-    setOutFocus(true);
     createTextTitleRecord(type === 'multi' ? getLinesValue(value) : value);
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
@@ -105,7 +88,6 @@ export default function CreateVerticalRecord(props) {
               autoFocus
               onPressEnter={() => {
                 if (value) {
-                  setOutFocus(true);
                   createTextTitleRecord(value, true);
                   setValue('');
                 } else {
@@ -114,7 +96,7 @@ export default function CreateVerticalRecord(props) {
               }}
               onChange={e => setValue(e.target.value.trim())}
               value={value}
-              onBlur={e => {
+              onBlur={() => {
                 if (value) {
                   createTextTitleRecord(value);
                   setValue('');
@@ -127,7 +109,6 @@ export default function CreateVerticalRecord(props) {
             <div
               className="switchToCompleteCreate pointer"
               onMouseDown={() => {
-                setOutFocus(true);
                 handleAddRecord({ path: itemData.path, pathId: itemData.pathId });
                 removeHierarchyTempItem({ rowId, path: data.path });
               }}

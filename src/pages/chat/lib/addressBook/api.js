@@ -1,8 +1,8 @@
 import AddressListController from 'src/api/addressBook';
+import DepartmentController from 'src/api/department';
 import GroupController from 'src/api/group';
 import UserController from 'src/api/user';
-import DepartmentController from 'src/api/department';
-import { SEARCH_GROUP_TYPES, GROUP_STATUS } from './constants';
+import { GROUP_STATUS, SEARCH_GROUP_TYPES } from './constants';
 
 const RANGES = {
   ALL: 0,
@@ -16,7 +16,6 @@ const fetchContacts = function ({
   range = RANGES.ALL,
   pageIndex = 1,
   pageSize = 100,
-  firstCode = '',
   isFilterOther = false,
   keywords = '',
 } = {}) {

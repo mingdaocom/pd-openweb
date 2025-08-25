@@ -1,10 +1,9 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import Remarkable from 'remarkable';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import MarkdownWithCSS from './MarkdownWithCSS';
-import { v4 as uuidv4 } from 'uuid';
 
 function genContentFromWithImage(content) {
   const imageUrl = content.filter(item => item.type === 'image_url').map(item => item.image_url.url);
@@ -12,14 +11,13 @@ function genContentFromWithImage(content) {
     .filter(item => item.type === 'text')
     .map(item => item.text)
     .join('\n');
-  return `![image](${imageUrl})\n${text}`;
+  return `${imageUrl.length ? `![image](${imageUrl})\n` : ''}${text}`;
 }
 
 // 使用 React.memo 包装组件，只在 content 发生变化时重新渲染
 const Markdown = React.memo(
   function Markdown(props) {
     const { id, content, isStreaming, codeIsClosed, onAiCodeUpdate = () => {} } = props;
-    const cache = useRef({});
     const markdown = useMemo(() => {
       const md = new Remarkable({
         breaks: true,
@@ -32,6 +30,14 @@ const Markdown = React.memo(
           return highlight(str, languages.js);
         },
       });
+
+      // 自定义链接渲染规则，让链接在新页面打开
+      md.renderer.rules.link_open = function (tokens, idx) {
+        const token = tokens[idx];
+        const href = token.href;
+        const title = token.title ? ` title="${token.title}"` : '';
+        return `<a href="${href}"${title} target="_blank" rel="noopener noreferrer">`;
+      };
 
       // 如果是流式传输，只对 jsx 代码块特殊处理
       const defaultFence = md.renderer.rules.fence; // 保存默认的fence处理器

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import { TASK_STATUS_TYPE } from '../../../constant';
-import { formatDate } from '../../../../config';
-import syncTaskApi from '../../../../api/syncTask';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import ToolTip from 'ming-ui/components/Tooltip';
+import syncTaskApi from '../../../../api/syncTask';
+import { formatDate } from '../../../../config';
+import { TASK_STATUS_TYPE } from '../../../constant';
 
 const UsageDetailWrapper = styled.div`
   background: #fff;
@@ -44,7 +44,7 @@ const UsageDetailWrapper = styled.div`
     background-color: #fff;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background-color: #f5f5f5;
     }
   }
@@ -97,7 +97,9 @@ const TaskIcon = styled.div`
   margin-right: 8px;
   font-size: 22px;
   background: #fff;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 0px 1px, rgba(0, 0, 0, 0.06) 0px 1px 3px;
+  box-shadow:
+    rgba(0, 0, 0, 0.16) 0px 0px 1px,
+    rgba(0, 0, 0, 0.06) 0px 1px 3px;
 
   .svg-icon {
     width: 24px;

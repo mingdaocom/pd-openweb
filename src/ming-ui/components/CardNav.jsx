@@ -1,10 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+import Beta from 'src/pages/AppSettings/components/Beta';
+import { navigateTo } from 'src/router/navigateTo';
 import Icon from './Icon';
 import UpgradeIcon from './UpgradeIcon';
-import { navigateTo } from 'src/router/navigateTo';
-import Beta from 'src/pages/AppSettings/components/Beta';
 
 const Wrap = styled.ul`
   margin: 12px 14px 0;
@@ -26,13 +26,13 @@ const Wrap = styled.ul`
     }
     &.current {
       background: #f2f9ff;
-      box-shadow: inset 0 0 0 2px #2196f3;
-      color: #2196f3;
+      box-shadow: inset 0 0 0 2px #1677ff;
+      color: #1677ff;
       box-sizing: border-box;
       z-index: 1;
       position: relative;
       .icon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     p {

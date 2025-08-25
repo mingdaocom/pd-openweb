@@ -1,10 +1,10 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { ScrollView, Switch, LoadDiv, SvgIcon } from 'ming-ui';
-import ajaxRequest from 'src/api/appManagement';
 import _ from 'lodash';
-import './index.less';
+import { LoadDiv, ScrollView, SvgIcon, Switch } from 'ming-ui';
+import ajaxRequest from 'src/api/appManagement';
 import './iconfont/iconly.css';
+import './index.less';
 
 const SYSTEM_TYLE = [
   {
@@ -70,8 +70,8 @@ function IconTabs(props) {
     isLine: !_.isUndefined(commonSetting.isLine)
       ? commonSetting.isLine
       : icon.startsWith('sys_')
-      ? icon.endsWith('_line')
-      : false,
+        ? icon.endsWith('_line')
+        : false,
     currentKey: 'general',
     tab: hideCustom ? 0 : !_.isUndefined(commonSetting.tab) ? commonSetting.tab : isCustomIcon(icon) ? 1 : 0, // 0图标 1自定义
     firstLoad: true,
@@ -83,6 +83,7 @@ function IconTabs(props) {
     customIcon: [],
   });
   const currentIcon = useRef(null);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -108,8 +109,7 @@ function IconTabs(props) {
     if (loading) return;
 
     if (!setting.firstLoad) {
-      setting.tab === 0 &&
-        (document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop = setting.changeScrollTop);
+      setting.tab === 0 && scrollRef.current && scrollRef.current.scrollTo({ top: setting.changeScrollTop });
       return;
     }
 
@@ -158,10 +158,8 @@ function IconTabs(props) {
     });
   };
 
-  const onScroll = _.debounce(e => {
-    const scrollCon = document.querySelector('.iconsScrollViewWrap .nano-content');
-
-    if (!SYSTEM_TYLE[0].hasOwnProperty('offsetTop')) {
+  const onScroll = _.debounce(({ scrollTop }) => {
+    if (!_.has(SYSTEM_TYLE[0], 'offsetTop')) {
       getSystemTypeScrollTop();
     }
 
@@ -169,7 +167,7 @@ function IconTabs(props) {
     let index = 0;
 
     SYSTEM_TYLE.forEach((item, i) => {
-      if (scrollCon.scrollTop >= item.offsetTop - 97) {
+      if (scrollTop >= item.offsetTop - 97) {
         _currentKey = item.key;
         index = i;
       }
@@ -190,7 +188,7 @@ function IconTabs(props) {
       currentKey: item.key,
     });
     let scrollTop = document.getElementById(item.key).offsetTop;
-    document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop = scrollTop;
+    scrollRef.current && scrollRef.current.scrollTo({ top: scrollTop });
   };
 
   const onClickIcon = param => {
@@ -199,12 +197,10 @@ function IconTabs(props) {
   };
 
   const handleSwitch = value => {
-    const scrollElem = document.querySelector('.iconsScrollViewWrap .nano-content');
-
     let param = {
       ...setting,
       isLine: !value,
-      changeScrollTop: scrollElem ? scrollElem.scrollTop : setting.scrollTop,
+      changeScrollTop: scrollRef.current ? scrollRef.current.getScrollInfo().scrollTop : setting.scrollTop,
     };
     setSetting(param);
 
@@ -282,7 +278,7 @@ function IconTabs(props) {
 
     return (
       <React.Fragment>
-        <ScrollView className="iconsScrollViewWrap" scrollEvent={onScroll} disableParentScroll>
+        <ScrollView ref={scrollRef} className="iconsScrollViewWrap" onScroll={onScroll} disableParentScroll>
           {renderCommonIcon()}
           <div className="systemIcon">
             {SYSTEM_TYLE.map((item, index) => {
@@ -417,7 +413,7 @@ function IconTabs(props) {
         {setting.tab === 0 && (
           <div className="switchCon">
             <Switch
-              primaryColor="#2196f3"
+              primaryColor="#1677ff"
               checked={setting.isLine}
               onClick={handleSwitch}
               text={setting.isLine ? _l('线框') : _l('填充')}

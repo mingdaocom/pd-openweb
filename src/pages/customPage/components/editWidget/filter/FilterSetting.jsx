@@ -1,26 +1,25 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { Fragment } from 'react';
+import { Select, Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Tooltip, Select } from 'antd';
-import DateTimeDataRange from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/DateTimeDataRange';
 import {
-  TEXT_FILTER_TYPE,
-  RELA_FILTER_TYPE,
+  DATE_FILTER_TYPE,
+  DATE_GRANULARITY_TYPE,
+  DATE_RANGE,
+  DIRECTION_TYPE,
+  getDateRangeTypeListByShowtype,
+  getDefaultDateRangeType,
   GROUP_FILTER_TYPE,
   NUMBER_FILTER_TYPE,
-  DATE_FILTER_TYPE,
   OPTIONS_ALLOWITEM,
-  DIRECTION_TYPE,
+  RELA_FILTER_TYPE,
   SHOW_RELATE_TYPE,
-  DATE_RANGE,
-  DATE_GRANULARITY_TYPE,
-  getDefaultDateRangeType,
-  getDateRangeTypeListByShowtype,
+  TEXT_FILTER_TYPE,
 } from 'worksheet/common/ViewConfig/components/fastFilter/util';
+import DateTimeDataRange from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/DateTimeDataRange';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
-import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 
 const RadioWrap = styled.div`
   border-radius: 3px;
@@ -34,7 +33,7 @@ const RadioWrap = styled.div`
     font-size: 13px;
     cursor: pointer;
     &.active {
-      color: #2196f3;
+      color: #1677ff;
       font-weight: bold;
       border-radius: 3px;
       background-color: #fff;
@@ -46,19 +45,17 @@ export default function FilterSetting(props) {
   const { filter, setFilter, firstControlData } = props;
   const { advancedSetting = {} } = filter;
   const { dataType } = props;
-  const [timeVisible, setTimeVisible] = useState(false);
 
   const getDaterange = () => {
     let daterange = advancedSetting.daterange;
     try {
       daterange = JSON.parse(daterange);
     } catch (error) {
+      console.log(error);
       daterange = [];
     }
     return daterange;
   };
-
-  let daterange = getDaterange();
 
   const changeAdvancedSetting = (data, otherData = {}) => {
     setFilter({
@@ -75,7 +72,9 @@ export default function FilterSetting(props) {
     let types = data.types;
     if (['dateRangeType'].includes(data.key)) {
       types = getDateRangeTypeListByShowtype(
-        (firstControlData.originType || firstControlData.type) === 38 ? _.get(firstControlData, 'unit') : _.get(firstControlData, 'advancedSetting.showtype'),
+        (firstControlData.originType || firstControlData.type) === 38
+          ? _.get(firstControlData, 'unit')
+          : _.get(firstControlData, 'advancedSetting.showtype'),
       );
     }
     const handleChange = value => {
@@ -85,13 +84,13 @@ export default function FilterSetting(props) {
           value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
         param.advancedSetting = {
           ...advancedSetting,
-          daterange: '[]'
+          daterange: '[]',
         };
       }
       if (data.key === 'dateRangeType') {
         param.advancedSetting = {
           ...advancedSetting,
-          daterange: '[]'
+          daterange: '[]',
         };
       }
       setFilter(param);
@@ -151,7 +150,7 @@ export default function FilterSetting(props) {
       <Fragment>
         <div className="Gray Font13 mBottom8 Font13">{data.txt}</div>
         <RadioWrap className="valignWrapper mBottom12">
-          {data.types.map((item, index) => (
+          {data.types.map(item => (
             <div
               key={item.value}
               className={cx('valignWrapper flex', {
@@ -162,10 +161,9 @@ export default function FilterSetting(props) {
                   [data.key]: _.toString(item.value),
                 };
                 if (data.key === 'allowitem' && item.value === 1) {
-                  const { values = [] } = filter;
                   changeAdvancedSetting(result, {
                     values: [],
-                    showDefsource: undefined
+                    showDefsource: undefined,
                   });
                 } else {
                   changeAdvancedSetting(result);
@@ -174,8 +172,8 @@ export default function FilterSetting(props) {
             >
               {item.text}
               {item.txt && (
-                <Tooltip title={item.txt}>
-                  <Icon className="mLeft5" icon="knowledge-message" />
+                <Tooltip title={item.txt} autoCloseDelay={0}>
+                  <Icon className="mLeft5" icon="info" />
                 </Tooltip>
               )}
             </div>

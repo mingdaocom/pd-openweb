@@ -1,11 +1,10 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import { Dialog, Icon, Tooltip } from 'ming-ui';
+import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { Dialog, Tooltip, Icon } from 'ming-ui';
-import { navigateTo } from 'src/router/navigateTo';
-import { sysRoleType, ICON_ROLE_TYPE } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { navigateTo } from 'src/router/navigateTo';
 
 export default class ItemCon extends React.Component {
   render() {
@@ -15,7 +14,6 @@ export default class ItemCon extends React.Component {
       setSelectedIds,
       isOwner,
       appId,
-      appDetail,
       canEditApp,
       selectDebugRole = [],
     } = this.props;
@@ -122,7 +120,7 @@ export default class ItemCon extends React.Component {
           data.totalCount > 0 && <span className="num">{data.totalCount}</span>
         )}
         {!!data.description && (
-          <Tooltip text={<span>{data.description}</span>} popupPlacement="top">
+          <Tooltip text={<span>{data.description}</span>} popupPlacement="top" autoCloseDelay={0}>
             <i className="icon-info_outline Font16 Gray_9e mLeft7" />
           </Tooltip>
         )}

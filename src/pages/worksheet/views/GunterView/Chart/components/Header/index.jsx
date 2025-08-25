@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import { Skeleton } from 'ming-ui';
 import MajorAxisLabel from '../MajorAxisLabel';
 import MinorAxisLabel from '../MinorAxisLabel';
 import Today from '../Today';
-import _ from 'lodash';
 
 @connect(state => ({
   ..._.pick(state.sheet, ['gunterView', 'base']),

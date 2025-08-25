@@ -1,15 +1,15 @@
 import { setPssId } from 'src/utils/pssId';
 import { ajax, browserIsMobile, checkLogin, checkOriginUrl, getGlobalMeta, getRequest, login } from 'src/utils/sso';
 
-const { code, p, i, s, ret, source, url, state } = getRequest();
+const { code, i, s, ret, source, url, state } = getRequest();
 const isMobile = browserIsMobile();
 
 if (source === 'wxwork') {
   if (checkLogin()) {
     if (checkOriginUrl(url)) {
-      location.href = decodeURIComponent(url);
+      location.replace(decodeURIComponent(url));
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     ajax.post({
@@ -24,9 +24,9 @@ if (source === 'wxwork') {
           getGlobalMeta().then(() => {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
-              location.href = decodeURIComponent(url);
+              location.replace(decodeURIComponent(url));
             } else {
-              location.href = isMobile ? `/mobile` : `/app`;
+              location.replace(isMobile ? `/mobile` : `/app`);
             }
           });
         }
@@ -37,9 +37,9 @@ if (source === 'wxwork') {
 } else {
   if (checkLogin()) {
     if (checkOriginUrl(ret)) {
-      location.href = ret;
+      location.replace(ret);
     } else {
-      location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+      location.replace(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
     }
   } else {
     ajax.post({
@@ -56,9 +56,9 @@ if (source === 'wxwork') {
         if (accountResult === 1) {
           setPssId(sessionId);
           if (checkOriginUrl(ret)) {
-            location.href = ret;
+            location.replace(ret);
           } else {
-            location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
+            location.replace(isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`);
           }
         } else {
           alert('登录失败');

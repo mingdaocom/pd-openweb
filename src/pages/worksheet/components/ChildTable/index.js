@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect, Provider } from 'react-redux';
-import _, { get, isFunction } from 'lodash';
+import { get, isFunction } from 'lodash';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import ChildTable from './ChildTable';
 import generateStore from './redux/store';

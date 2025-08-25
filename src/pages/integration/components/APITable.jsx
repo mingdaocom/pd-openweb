@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import cx from 'classnames';
-import { LoadDiv, Checkbox } from 'ming-ui';
+import { Checkbox, LoadDiv } from 'ming-ui';
 
 const Wrap = styled.div(
   ({ maxHeight, minHeight }) => `
@@ -128,7 +127,7 @@ function APITable(props) {
 
     return () => document.removeEventListener('scroll', HandleScroll, true);
   }, [props]);
-  const HandleScroll = e => {
+  const HandleScroll = () => {
     if (!WrapRef.current || !WrapBotttomRef.current) return;
     if (Math.abs($(WrapRef.current).offset().top - $(WrapBotttomRef.current).offset().top) <= 10) {
       props.onScrollEnd && props.onScrollEnd();

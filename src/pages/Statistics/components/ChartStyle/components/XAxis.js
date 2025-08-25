@@ -19,7 +19,7 @@ export default class XAxis extends Component {
         <div className="flexRow valignWrapper mLeft0 mBottom16">
           <Checkbox
             checked={xdisplay.showDial}
-            onChange={event => {
+            onChange={() => {
               onChangeDisplayValue('xdisplay', {
                 ...xdisplay,
                 showDial: !xdisplay.showDial,
@@ -45,9 +45,10 @@ export default class XAxis extends Component {
                 '勾选时，当位置不够，文字会自动倾斜以保证完整显示。未勾选时，将始终水平显示%0文字。',
                 isBarChart ? _l('Y轴') : _l('X轴'),
               )}
+              autoCloseDelay={0}
               placement="bottom"
             >
-              <Icon className="Gray_9e Font17 pointer" icon="info1" />
+              <Icon className="Gray_9e Font17 pointer" icon="info" />
             </Tooltip>
           </div>
         )}
@@ -68,7 +69,7 @@ export default class XAxis extends Component {
           <div className={cx('flexRow valignWrapper mLeft0', xdisplay.showTitle ? 'mBottom8' : 'mBottom16')}>
             <Checkbox
               checked={xdisplay.showTitle}
-              onChange={event => {
+              onChange={() => {
                 onChangeDisplayValue('xdisplay', {
                   ...xdisplay,
                   showTitle: !xdisplay.showTitle,

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { Dropdown, Dialog } from 'ming-ui';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import reportApi from 'statistics/api/report.js';
-import homeAppAjax from 'src/api/homeApp';
-import 'src/pages/widgetConfig/styled/style.less';
-import _ from 'lodash';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Dropdown } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp';
+import reportApi from 'statistics/api/report.js';
+import 'src/pages/widgetConfig/styled/style.less';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 const SelectItem = styled.div`

@@ -1,7 +1,7 @@
-import publicWorksheetAjax from 'src/api/publicWorksheet';
-import formAjax from 'src/api/form';
-import { getNewControlColRow, getNotSupportControlIds } from '../utils';
 import _ from 'lodash';
+import formAjax from 'src/api/form';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
+import { getNewControlColRow, getNotSupportControlIds } from '../utils';
 
 function changeKeyToServer(value) {
   if (!_.isUndefined(value.coverUrl)) {
@@ -20,7 +20,7 @@ function changeKeyToServer(value) {
 }
 
 export const updateSettings =
-  (value, cb = isSuccess => {}) =>
+  (value, cb = () => {}) =>
   (dispatch, getState) => {
     const {
       publicWorksheet: {
@@ -40,7 +40,7 @@ export const updateSettings =
           dispatch({ type: 'PUBLICWORKSHEET_UPDATE_SETTINGS', value });
         }
       })
-      .catch(err => {
+      .catch(() => {
         cb(false);
       });
   };
@@ -61,12 +61,12 @@ function updateBaseConfig(dispatch, getState, value, cb) {
       worksheetId,
       ...params,
     })
-    .then(data => {
+    .then(() => {
       if (_.isFunction(cb)) {
         cb(worksheetId);
       }
     })
-    .catch(err => {
+    .catch(() => {
       alert(_l('保存失败'), 3);
     });
 }
@@ -107,14 +107,14 @@ export function addWorksheetControl(controlName, cb = () => {}) {
         dispatch(hideControl(data.controlId));
         cb(data);
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('添加文本字段失败'), 3);
       });
   };
 }
 
 export function loadPublicWorksheet({ worksheetId }) {
-  return (dispatch, getState) => {
+  return dispatch => {
     publicWorksheetAjax
       .getPublicWorksheetInfo({ worksheetId })
       .then(data => {
@@ -185,7 +185,7 @@ export function loadPublicWorksheet({ worksheetId }) {
           hidedControlIds: data.hidedControlIds || [],
         });
       })
-      .then(err => {});
+      .then(() => {});
   };
 }
 

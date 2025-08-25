@@ -1,21 +1,15 @@
-import React, { setState, useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import { TimePicker } from 'antd';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import cx from 'classnames';
-import { func, shape, string } from 'prop-types';
 import _ from 'lodash';
 import moment from 'moment';
+import { func, shape, string } from 'prop-types';
+import styled from 'styled-components';
 
-function getPicker(type) {
-  return {
-    4: 'month',
-    5: 'year',
-  }[type];
-}
 const Con = styled.div`
   position: relative;
   display: flex;
@@ -40,7 +34,7 @@ const Con = styled.div`
     border-color: #ccc;
   }
   &.active {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
   &:hover {
     .clearIcon {
@@ -100,13 +94,12 @@ const Icon = styled.i`
 
 export default function Time(props) {
   const { control, dateRange, minValue, maxValue, onChange = () => {} } = props;
-  const [active, setActive] = useState();
   const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
   const unit = String(control.unit);
   const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
   const isEmpty = dateRange === 18 ? !(minValue && maxValue) : !dateRange;
   return (
-    <Con className={cx({ active })}>
+    <Con>
       <Content className={cx({ isEmpty })}>
         <RangePickerCon>
           <TimePicker.RangePicker

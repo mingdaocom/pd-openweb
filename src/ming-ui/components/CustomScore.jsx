@@ -90,7 +90,7 @@ class CustomScore extends Component {
     });
     this.props.callback(index, event);
   }
-  onMouseEnter(index, event) {
+  onMouseEnter(index) {
     this.setState({
       score: index,
     });
@@ -140,6 +140,7 @@ class CustomScore extends Component {
               key={index}
               className={cx('StarScore-item', {
                 mobileStyle: isMobile && !this.props.disabled,
+                active: score > 0 && index < score,
               })}
               {...(isMobile
                 ? {

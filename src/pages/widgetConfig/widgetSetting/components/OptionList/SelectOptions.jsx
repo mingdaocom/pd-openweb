@@ -1,27 +1,28 @@
-import React, { useState, useEffect, useCallback, Fragment } from 'react';
-import AutoIcon from '../../../components/Icon';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import ClipboardButton from 'react-clipboard.js';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import { has } from 'lodash';
-import { Support, Dialog, Dropdown, Menu, MenuItem } from 'ming-ui';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Dialog, Dropdown, Menu, MenuItem, Support } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import AutoIcon from '../../../components/Icon';
 import { SettingItem } from '../../../styled';
-import SelectOptionList from './SelectOptionList';
+import {
+  getAdvanceSetting,
+  getDefaultCheckedOption,
+  getDefaultOptions,
+  getOptions,
+  handleAdvancedSettingChange,
+} from '../../../util/setting';
+import DeleteDialog from './DelateDialog';
 import EditOptionList from './EditOptionList';
 import Options from './Options';
-import {
-  getDefaultOptions,
-  getDefaultCheckedOption,
-  getAdvanceSetting,
-  handleAdvancedSettingChange,
-  getOptions,
-} from '../../../util/setting';
-import { Tooltip } from 'antd';
-import Trigger from 'rc-trigger';
-import ClipboardButton from 'react-clipboard.js';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
-import DeleteDialog from './DelateDialog';
-import cx from 'classnames';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import SelectOptionList from './SelectOptionList';
 
 const OPTION_TYPE = [
   {
@@ -76,7 +77,7 @@ const OptionsWrap = styled.div`
       color: #9e9e9e;
       span:hover,
       i:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -106,7 +107,7 @@ const OptionListItem = styled.div`
       color: #9e9e9e;
       font-size: 16px;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -129,7 +130,7 @@ const OptionListItem = styled.div`
     }
     i {
       &:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     .hideIcon {
@@ -148,7 +149,7 @@ const OptionListItem = styled.div`
       bottom: 0;
       width: 100%;
       background-color: #fff;
-      color: #2196f3;
+      color: #1677ff;
       cursor: pointer;
       font-weight: 600;
       &:hover {
@@ -310,12 +311,12 @@ export default function SelectOptions(props) {
             <div className="setColor flexCenter">
               <i
                 style={{ color: colorful ? '#43bd36' : '#bdbdbd' }}
-                className={`Font24 pointer icon-${colorful ? 'toggle_on' : 'toggle_off'}`}
+                className={`Font24 pointer icon-${colorful ? 'ic_toggle_on' : 'ic_toggle_off'}`}
                 onClick={e => {
                   e.stopPropagation();
                   let newData = { enumDefault2: +!enumDefault2 };
                   if (_.find(options, i => !i.color)) {
-                    newData.options = options.map(i => ({ ...i, color: i.color || '#2196f3' }));
+                    newData.options = options.map(i => ({ ...i, color: i.color || '#1677ff' }));
                   }
                   onChange(newData);
                 }}

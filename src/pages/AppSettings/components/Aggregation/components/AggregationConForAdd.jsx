@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import { getTranslateInfo } from 'src/utils/app';
@@ -58,11 +59,11 @@ export default function AddAggregation(props) {
   };
 
   const onChange = ({ control = {}, childrenControl }, worksheetId) => {
-    const controlData = !!childrenControl ? childrenControl : control;
+    const controlData = childrenControl ? childrenControl : control;
     const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
     const { hs, aggFuncType, aggFuncName } = getAggFuncTypes(
       _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [],
-      !!childrenControl ? control : null,
+      childrenControl ? control : null,
       controlData,
       worksheetId,
     );
@@ -71,7 +72,7 @@ export default function AddAggregation(props) {
       alert(_l('不能重复添加相同计算方式的相同字段'), 3);
       return;
     }
-    const name = !!childrenControl ? `${control.controlName}-${controlData.controlName}` : controlData.controlName;
+    const name = childrenControl ? `${control.controlName}-${controlData.controlName}` : controlData.controlName;
     let newDt =
       control.controlId === 'rowscount'
         ? {
@@ -88,7 +89,7 @@ export default function AddAggregation(props) {
               alias: getRuleAlias(`${name}-${aggFuncName}`, flowData),
               controlSetting: controlData,
               isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
-              parentFieldInfo: !!childrenControl
+              parentFieldInfo: childrenControl
                 ? {
                     controlSetting: control,
                     oid: `${worksheetId}_${control.controlId}`,
@@ -98,7 +99,7 @@ export default function AddAggregation(props) {
               isTitle: controlData.attribute === 1, //是否是标题，只有是工作表字段才有值
               mdType: controlData.type,
               name: name,
-              oid: `${!!childrenControl ? control.dataSource : worksheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
+              oid: `${childrenControl ? control.dataSource : worksheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
               precision: 0,
               scale: 0,
               isCalculateField: false,

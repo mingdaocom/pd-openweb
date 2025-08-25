@@ -1,25 +1,16 @@
 import React, { Fragment } from 'react';
 import Clipboard from 'react-clipboard.js';
 import copy from 'copy-to-clipboard';
-import qs from 'query-string';
-import Ajax from 'src/api/workWeiXin';
-import { LoadDiv } from 'ming-ui';
-import { compareProps } from 'pages/PageHeader/util.js';
-import fsImg1 from './img/1.png';
-import fsImg2 from './img/2.png';
-import fsImg3 from './img/3.png';
-import fsImg3_1 from './img/3_1.png';
-import fsImg4 from './img/4.png';
-import fsImg5 from './img/5.png';
-import fsImg6 from './img/6.png';
-import fsImg7 from './img/7.png';
-import fsImg8 from './img/8.png';
-import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
-import scan2 from './img/scan2.png';
-import scan4 from './img/scan4.png';
-import scan5 from './img/scan5.png';
-import './style.less';
+import _ from 'lodash';
 import moment from 'moment';
+import { compareProps } from 'pages/PageHeader/util.js';
+import qs from 'query-string';
+import { LoadDiv } from 'ming-ui';
+import Ajax from 'src/api/workWeiXin';
+import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
+import fsImg4 from './img/4.png';
+import fsImg7 from './img/7.png';
+import './style.less';
 
 const PlatformName = {
   feishu: _l('飞书'),

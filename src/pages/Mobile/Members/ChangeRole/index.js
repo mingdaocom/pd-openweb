@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import * as actions from './redux/actions';
-import { Dialog, Button, List, SpinLoading } from 'antd-mobile';
-import { Icon } from 'ming-ui';
+import { Button, Dialog, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
+import * as actions from './redux/actions';
+import './index.less';
 
 class ChangeRole extends React.Component {
   constructor(props) {
@@ -46,7 +46,7 @@ class ChangeRole extends React.Component {
     if (isRoleListLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }
@@ -56,7 +56,7 @@ class ChangeRole extends React.Component {
         <List style={{ overflow: 'scroll', background: '#fff' }}>
           {roleList.list
             .filter(it => !_.includes([100, 2, 1], it.roleType))
-            .map((item, i) => {
+            .map(item => {
               if (!item.canSetMembers) return;
               return (
                 <List.Item

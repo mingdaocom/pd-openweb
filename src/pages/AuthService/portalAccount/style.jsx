@@ -150,7 +150,7 @@ export const WrapContainer = styled.div`
   }
   .back {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   img {
@@ -244,7 +244,7 @@ export const WrapContainer = styled.div`
     line-height: 1.5;
   }
   .loginBtn {
-    background: #2196f3;
+    background: #1677ff;
     height: 48px;
     border-radius: 4px;
     line-height: 48px;
@@ -289,7 +289,7 @@ export const WrapUl = styled.div`
         border-bottom: 3px solid #fff;
         word-break: break-all;
         &.isCur {
-          color: #2196f3;
+          color: #1677ff;
           border-bottom: 3px solid rgba(33, 150, 243);
         }
       }
@@ -327,7 +327,7 @@ export const WrapWXCon = styled.div`
       top: 0;
       background: rgba(250, 250, 250, 0.95);
       i {
-        color: #2196f3;
+        color: #1677ff;
         margin: 80px 0 0;
         display: inline-block;
       }
@@ -336,7 +336,7 @@ export const WrapWXCon = styled.div`
       }
       .refresh {
         padding: 10px 24px;
-        background: #2196f3;
+        background: #1677ff;
         opacity: 1;
         border-radius: 18px;
         color: #fff;

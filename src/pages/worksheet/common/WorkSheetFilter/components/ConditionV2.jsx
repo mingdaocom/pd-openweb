@@ -6,11 +6,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Dropdown, Icon, Input } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
-import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import {
   API_ENUM_TO_TYPE,
+  CONDITION_OPTIONS,
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
   getControlSelectType,
@@ -99,7 +99,7 @@ export default class Condition extends Component {
 
   getValueType = props => {
     const dynamicSource = _.get(props, 'condition.dynamicSource') || [];
-    return !!dynamicSource.filter(item => item.rcid === 'url').length ? 2 : 1;
+    return dynamicSource.filter(item => item.rcid === 'url').length ? 2 : 1;
   };
 
   setIsDynamicsourceFn = () => {
@@ -265,7 +265,7 @@ export default class Condition extends Component {
               const params = (dynamicSource[0] || {}).cid;
               const isDelete = !!params && !_.includes(urlParams, params);
               return !isDelete ? (
-                !!params ? (
+                params ? (
                   <div className="titleDisplay">{params}</div>
                 ) : (
                   <span className="Gray_bd">{_l('请选择')}</span>
@@ -315,10 +315,7 @@ export default class Condition extends Component {
       control && _.includes([9, 11], control.type) ? [FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE] : [];
     if (isRules && control) {
       if (control.type === 29 && control.enumDefault === 2) {
-        conditionFilterTypes = conditionFilterTypes.filter(
-          type => !_.includes([FILTER_CONDITION_TYPE.RCEQ, FILTER_CONDITION_TYPE.RCNE], type.value),
-        );
-        if (!_.find(conditionFilterTypes, type => type.value === condition.type)) {
+        if (!_.find(conditionFilterTypes, type => type.value === condition.type) && condition.control) {
           this.changeConditionType(conditionFilterTypes[0].value);
         }
       }
@@ -430,7 +427,7 @@ export default class Condition extends Component {
               disabled={!isDynamicValue}
               dropdownClassName="dynamicSelectDropdown"
               value={this.state.isDynamicsource ? 2 : 1}
-              options={isDynamicValue ? conditionTypeListData : conditionTypeListData.filter(o => o.value === 1)}
+              options={isDynamicValue ? CONDITION_OPTIONS : CONDITION_OPTIONS.filter(o => o.value === 1)}
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
               onChange={value => {
                 this.setState(

@@ -1,9 +1,9 @@
 import React from 'react';
-import SingleControlValue from '../SingleControlValue';
-import { NODE_TYPE } from '../../../enum';
-import { getControlTypeName } from '../../../utils';
 import cx from 'classnames';
 import _ from 'lodash';
+import { NODE_TYPE } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
+import SingleControlValue from '../SingleControlValue';
 
 export default ({
   companyId,

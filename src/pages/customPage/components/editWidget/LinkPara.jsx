@@ -1,9 +1,9 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
-import update from 'immutability-helper';
-import cx from 'classnames';
-import { DropdownContent } from '../../../widgetConfig/styled';
+import React, { Fragment, useState } from 'react';
 import { Checkbox, Dropdown, Input } from 'antd';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import styled from 'styled-components';
+import { DropdownContent } from '../../../widgetConfig/styled';
 import { LINK_PARA_FIELDS } from '../../config';
 
 const DEFAULT_PARA_ITEM = { key: '', value: { type: 'static', data: '' } };
@@ -40,7 +40,7 @@ const LinkParaWrap = styled.div`
       &.active,
       &:hover {
         i {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       i {
@@ -59,7 +59,7 @@ const LinkParaWrap = styled.div`
   .add {
     margin-top: 16px;
     font-weight: bold;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1b83d6;
     }

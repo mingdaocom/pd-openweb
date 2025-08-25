@@ -1,10 +1,8 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-
-import './style.less';
-
+import PropTypes from 'prop-types';
 import TimeMenu from './time-menu';
+import './style.less';
 
 class Time extends Component {
   constructor(props) {
@@ -62,11 +60,11 @@ class Time extends Component {
     window.removeEventListener('keydown', this.keyDownListener, false);
   }
 
-  padZero = (value) => {
+  padZero = value => {
     return value < 10 ? `0${value}` : value.toString();
   };
 
-  getTimeLabel = (time) => {
+  getTimeLabel = time => {
     let data = [this.padZero(time.hour), this.padZero(time.minute)];
     if (this.props.type === 'second') {
       data = [this.padZero(time.hour), this.padZero(time.minute), this.padZero(time.second)];
@@ -75,14 +73,14 @@ class Time extends Component {
     return data.join(':');
   };
 
-  clickListener = (e) => {
+  clickListener = e => {
     const node = ReactDOM.findDOMNode(this);
     if ((node === e.target || !node.contains(e.target)) && this.state.menuOpened) {
       this.hideMenu();
     }
   };
 
-  keyDownListener = (e) => {
+  keyDownListener = e => {
     if (
       e.keyCode === 27 && // ESC
       this.state.menuOpened
@@ -138,7 +136,7 @@ class Time extends Component {
     return (
       <div className={classNames}>
         <button
-          ref={(button) => {
+          ref={button => {
             this.button = button;
           }}
           className="mui-forminput"
@@ -206,9 +204,7 @@ Time.defaultProps = {
     second: 0,
   },
   disabled: false,
-  onChange: (event, time, label) => {
-    //
-  },
+  onChange: () => {},
 };
 
 export default Time;

@@ -1,10 +1,8 @@
 import React from 'react';
-import Root from './root';
-
-import store from './store';
 import { Provider } from 'react-redux';
 import Config from '../../config';
-
+import Root from './root';
+import store from './store';
 import './style/index.less';
 
 export default class App extends React.Component {

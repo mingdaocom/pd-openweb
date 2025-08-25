@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export const getFunction = function (keyName) {
   return function (fields) {
     const isAll = _.every(fields, ({ [keyName]: value }) => !value);
@@ -71,7 +73,7 @@ export const formatFields = (checked, fieldId, key, fields) => {
           return o;
         }
       });
-    } else if (!!field.sectionId) {
+    } else if (field.sectionId) {
       const bros = list.filter(o => o.sectionId === field.sectionId);
       const brosC = bros.filter(o => o[key] === checked);
       if (bros.length <= brosC.length || !checked) {

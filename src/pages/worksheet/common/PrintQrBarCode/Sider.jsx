@@ -1,39 +1,39 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Radio } from 'antd';
-import { Tooltip, RadioGroup, Dropdown, Input, Slider, Switch } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, func, number, shape } from 'prop-types';
+import styled from 'styled-components';
+import { Dropdown, Input, RadioGroup, Slider, Switch, Tooltip } from 'ming-ui';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import {
-  SOURCE_TYPE,
+  A4_LAYOUT_LIST,
+  BAR_HEIGHT_LIST,
+  BAR_LABEL_SIZE,
+  BAR_LAYOUT,
+  BAR_LAYOUT_LIST,
+  BAR_POSITION,
+  BAR_POSITION_LIST,
+  CODE_FAULT_TOLERANCE_LIST,
+  LANDSCAPE_QR_CODE_SIZE,
+  LANDSCAPE_QR_CODE_SIZE_LIST,
+  PORTRAIT_CODE_SIZE_LIST,
+  PORTRAIT_QR_CODE_SIZE,
   PRINT_TYPE,
+  PRINT_TYPE_LIST,
+  QR_LABEL_SIZE,
+  QR_LABEL_SIZE_LIST,
+  QR_LAYOUT,
+  QR_LAYOUT_LIST,
+  QR_POSITION,
+  QR_POSITION_LIST,
+  SOURCE_TYPE,
   SOURCE_TYPE_LIST,
   SOURCE_URL_TYPE_LIST,
-  PRINT_TYPE_LIST,
-  A4_LAYOUT_LIST,
-  QR_LABEL_SIZE_LIST,
-  QR_LAYOUT_LIST,
-  PORTRAIT_CODE_SIZE_LIST,
-  LANDSCAPE_QR_CODE_SIZE_LIST,
-  QR_POSITION_LIST,
-  QR_LAYOUT,
-  QR_POSITION,
-  QR_LABEL_SIZE,
-  CODE_FAULT_TOLERANCE_LIST,
-  BAR_LABEL_SIZE,
-  BAR_LAYOUT_LIST,
-  BAR_LAYOUT,
-  BAR_POSITION,
-  BAR_HEIGHT_LIST,
-  BAR_POSITION_LIST,
-  PORTRAIT_QR_CODE_SIZE,
-  LANDSCAPE_QR_CODE_SIZE,
 } from './enum';
 import SelectControlWithInput from './SelectControlWithInput';
 import { getDefaultText } from './util';
-import _ from 'lodash';
-import { arrayOf, func, number, shape } from 'prop-types';
 
 const LABEL_MIN_WIDTH = 20;
 const LABEL_MIN_HEIGHT = 20;
@@ -99,8 +99,8 @@ const ConfigItem = styled.div(
     display: flex;
   }
   .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-    border-color: #2196f3 !important;
-    color: #2196f3 !important;
+    border-color: #1677ff !important;
+    color: #1677ff !important;
   }
   .ant-radio-button-wrapper {
     font-size: 13px;
@@ -131,7 +131,7 @@ const SetAsTitle = styled.i`
   color: #9e9e9e;
   cursor: pointer;
   &.on {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -151,7 +151,7 @@ function setHr(list, indexList = []) {
 }
 
 function numberFilter(value) {
-  const reg = /[^-?\d*(\.\d*)?]/g;
+  const reg = /[^-?\d*(.\d*)?]/g;
   return String(value).replace(reg, '');
 }
 
@@ -590,7 +590,7 @@ export default function Sider(props) {
           <div className="flex"></div>
           <Switch
             size="small"
-            primaryColor="#2196f3"
+            primaryColor="#1677ff"
             checked={showBarValue}
             onClick={() => onUpdate({ showBarValue: !showBarValue })}
           />
@@ -619,7 +619,7 @@ export default function Sider(props) {
         <div className="flex"></div>
         <Switch
           size="small"
-          primaryColor="#2196f3"
+          primaryColor="#1677ff"
           checked={showControlName}
           onClick={() => onUpdate({ showControlName: !showControlName })}
         />

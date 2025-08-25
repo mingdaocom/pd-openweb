@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useMeasure } from 'react-use';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';

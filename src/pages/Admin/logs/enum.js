@@ -1,4 +1,4 @@
-export const seachdateList = [
+export const searchDateList = [
   { value: 0, label: _l('今天') },
   { value: 1, label: _l('昨天') },
   { value: 2, label: _l('本周') },
@@ -262,23 +262,31 @@ export const OPERATE_TYPE = [
   { value: 3, label: _l('新建') },
   { value: 4, label: _l('删除') },
   { value: 5, label: _l('修改') },
-  // { value: 6, label: _l('查看') },
-  // { value: 7, label: _l('导出') },
+  { value: 6, label: _l('查看') },
+  { value: 7, label: _l('导出') },
   // { value: 8, label: _l('下载') },
-  // { value: 9, label: _l('开启') },
-  // { value: 10, label: _l('关闭') },
+  { value: 9, label: _l('开启') },
+  { value: 10, label: _l('关闭') },
   // { value: 11, label: _l('注销') },
   // { value: 12, label: _l('交接') },
   // { value: 13, label: _l('提现') },
   // { value: 14, label: _l('撤回') },
   // { value: 15, label: _l('暂停') },
   // { value: 16, label: _l('退款') },
+  { value: 17, label: _l('恢复') },
 ];
 // 组织管理日志-操作对象
 export const ORG_LOG_OPERATOR = [
   { value: 1, label: _l('管理员') },
   { value: 2, label: _l('成员') },
+  { value: 3, label: _l('部门') },
+  { value: 4, label: _l('组织角色') },
   { value: 5, label: _l('工作台') },
-  // { value: 3, label: _l('部门') },
-  // { value: 4, label: _l('组织角色') },
+  { value: 6, label: _l('账务') },
+  { value: 7, label: _l('汇报关系') },
+  { value: 8, label: _l('外部用户') },
+  { value: 9, label: _l('组织信息') },
+  { value: 10, label: _l('待办委托') },
+  { value: 11, label: _l('应用') },
+  { value: 12, label: _l('工作流') },
 ];

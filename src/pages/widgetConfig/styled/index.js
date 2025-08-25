@@ -15,6 +15,9 @@ export const SettingItem = styled.div`
       box-shadow: none;
     }
   }
+  textarea.ant-input {
+    line-height: 1.5715;
+  }
   .DropdownBottom {
     position: relative;
     .ming.Menu.List {
@@ -135,7 +138,7 @@ export const RelateInfo = styled.div`
     margin: 0 4px;
   }
   .name {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 export const InfoWrap = styled.div`
@@ -166,11 +169,11 @@ export const EditInfo = styled(InfoWrap)`
     .clearBtn {
       visibility: visible;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .edit {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   &.borderError {
@@ -197,7 +200,7 @@ export const DropdownPlaceholder = styled.div`
   cursor: pointer;
   &.active,
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
     &.disabled {
       border-color: #ddd;
     }
@@ -261,11 +264,11 @@ export const SelectFieldsWrap = styled.div`
   }
   .clearValue {
     line-height: 36px;
-    color: #2196f3;
+    color: #1677ff;
     padding-left: 12px;
     cursor: pointer;
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
     }
   }
@@ -292,7 +295,7 @@ export const SelectFieldsWrap = styled.div`
     }
   }
   .fieldsWrap {
-    max-height: 400px;
+    max-height: ${props => (props.limitWidth ? '400px' : '230px')};
     overflow-y: auto;
   }
   .relateSheetList {
@@ -326,7 +329,7 @@ export const SelectFieldsWrap = styled.div`
       overflow: hidden;
       text-overflow: ellipsis;
       &:hover {
-        background-color: #2196f3;
+        background-color: #1677ff;
         color: #fff;
         i {
           color: #fff;
@@ -445,7 +448,7 @@ export const OptionWrap = styled.div`
     color: #151515;
     padding: 0 4px;
   }
-  background-color: ${props => props.color || '#2196f3'};
+  background-color: ${props => props.color || '#1677ff'};
 `;
 
 export const EditModelWrap = styled.div`
@@ -542,7 +545,7 @@ export const IntroMenu = styled.div`
     padding: 0 16px;
     cursor: pointer;
     &:hover {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
       i {
         color: #fff;
@@ -557,17 +560,15 @@ export const IntroMenu = styled.div`
 `;
 
 export const WidgetIntroWrap = styled.div`
-  margin: 11px 20px 0 20px;
-  padding-bottom: 9px;
+  flex: 1;
   border-bottom: 1px solid #eaeaea;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   .title {
     display: flex;
     align-items: center;
     .switchType {
-      padding: 6px;
+      padding: 2px 6px;
       background: #fff;
       border-radius: 3px;
       cursor: pointer;
@@ -588,34 +589,33 @@ export const WidgetIntroWrap = styled.div`
   }
   .iconWrap {
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 
   .introOptions {
+    margin-top: 6px;
+    width: 100%;
     display: flex;
     align-items: center;
     .optionIcon {
-      width: 28px;
-      height: 28px;
+      flex: 1;
+      padding: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
-      border-radius: 3px;
-      margin-right: 10px;
       cursor: pointer;
-      &:last-child {
-        margin-right: 0;
-      }
+      border-bottom: 3px solid transparent;
       i {
         color: #757575;
       }
       &:hover {
-        background: #f5f5f5;
+        i {
+          color: #2196f3;
+        }
       }
       &.active {
-        background: #f5f5f5;
+        border-bottom-color: #2196f3;
         i {
           color: #2196f3;
         }
@@ -623,8 +623,6 @@ export const WidgetIntroWrap = styled.div`
     }
   }
 `;
-
-export const WidgetIntroWrap2 = styled.div``;
 
 export const DropdownContent = styled.div`
   min-height: 36px;
@@ -661,7 +659,7 @@ export const DropdownContent = styled.div`
       color: #bdbdbd;
     }
     &:not(disabled):hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #ffffff;
       i {
         color: #ffffff;
@@ -811,7 +809,7 @@ export const RelateDetail = styled.div`
     flex: 1;
     &.needLink {
       cursor: pointer;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -836,9 +834,9 @@ export const AnimationWrap = styled.div`
       margin-left: 0;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     i {
@@ -846,9 +844,9 @@ export const AnimationWrap = styled.div`
     }
     &.active {
       background: #ffffff;
-      color: #2196f3;
+      color: #1677ff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &.disabled {
@@ -894,7 +892,7 @@ export const SheetViewWrap = styled.div`
     color: #989898;
     &:hover {
       background: #f5f5f5;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -925,7 +923,7 @@ export const BothRelateInfo = styled.div`
     margin: 0 4px;
   }
   .sourceName {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -940,11 +938,11 @@ export const DisplayTabs = styled.div`
     font-weight: 600;
     cursor: pointer;
     &.active {
-      color: #2196f3;
-      border-bottom-color: #2196f3 !important;
+      color: #1677ff;
+      border-bottom-color: #1677ff !important;
     }
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -982,11 +980,11 @@ export const DisplayMode = styled.div`
 
     &.active {
       div {
-        border: 2px solid #2196f3 !important;
+        border: 2px solid #1677ff !important;
       }
       .text,
       i {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     &:hover {
@@ -1035,7 +1033,7 @@ export const SetConfig = styled.div`
     margin-right: 7px;
   }
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 

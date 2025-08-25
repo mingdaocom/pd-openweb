@@ -124,7 +124,7 @@ export default class MyAppItem extends Component {
   };
 
   handleModify = obj => {
-    const { id: appId, projectId, type } = this.props;
+    const { id: appId, projectId } = this.props;
     if (obj.name === '') {
       obj.name = this.dataCache.name;
     }
@@ -208,7 +208,7 @@ export default class MyAppItem extends Component {
       isGoodsStatus,
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
-    const iconColor = this.props.iconColor || '#2196f3';
+    const iconColor = this.props.iconColor || '#1677ff';
     const navColor = this.props.navColor || iconColor;
     const black = '#1b2025' === navColor;
     const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
@@ -287,6 +287,7 @@ export default class MyAppItem extends Component {
                     myPermissions={myPermissions}
                     sourceType={sourceType}
                     isGoodsStatus={isGoodsStatus}
+                    isExternalApp={isExternalApp}
                   />
                 }
                 popupAlign={{
@@ -298,7 +299,7 @@ export default class MyAppItem extends Component {
                 destroyPopupOnHide
               >
                 <div className="myAppItemMore appItemIcon" onClick={() => this.switchVisible({ editAppVisible: true })}>
-                  <Icon className={cx('moreOperation Font18', { active: editAppVisible })} icon="task-point-more" />
+                  <Icon className={cx('moreOperation Font18', { active: editAppVisible })} icon="more_horiz" />
                 </div>
               </Trigger>
             )}

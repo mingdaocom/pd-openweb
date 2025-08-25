@@ -1,23 +1,27 @@
 import React, { Fragment } from 'react';
+import { Checkbox, Collapse, Switch } from 'antd';
 import cx from 'classnames';
-import { Collapse, Checkbox, Switch } from 'antd';
 import goldCrown from 'statistics/assets/topChart/gold_crown.png';
 import goldMedal from 'statistics/assets/topChart/gold_medal.png';
 import one from 'statistics/assets/topChart/one.png';
 
-const styles = [{
-  value: 'crown',
-  name: _l('皇冠'),
-  icon: goldCrown,
-}, {
-  value: 'medal',
-  name: _l('奖牌'),
-  icon: goldMedal,
-}, {
-  value: 'number',
-  name: _l('数字'),
-  icon: one,
-}];
+const styles = [
+  {
+    value: 'crown',
+    name: _l('皇冠'),
+    icon: goldCrown,
+  },
+  {
+    value: 'medal',
+    name: _l('奖牌'),
+    icon: goldMedal,
+  },
+  {
+    value: 'number',
+    name: _l('数字'),
+    icon: one,
+  },
+];
 
 const TopStyle = props => {
   const { style, onChangeStyle } = props;
@@ -40,7 +44,7 @@ const TopStyle = props => {
       ))}
     </div>
   );
-}
+};
 
 const ValueProgressVisible = props => {
   const { style, onChangeStyle } = props;
@@ -58,8 +62,7 @@ const ValueProgressVisible = props => {
       </Checkbox>
     </div>
   );
-}
-
+};
 
 export default function topChartPanelGenerator(props) {
   const { currentReport, onChangeStyle } = props;
@@ -107,4 +110,3 @@ export default function topChartPanelGenerator(props) {
     </Fragment>
   );
 }
-

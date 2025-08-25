@@ -117,10 +117,6 @@
 #leftFolderList .folderItem .settingsLayer .Item-content {
   padding-left: 16px !important;
 }
-#leftFolderList .folderSetting .settingsLayer .Item-content:hover,
-#leftFolderList .folderSetting .settingsLayer .Item-content:hover .Icon {
-  color: #fff !important;
-}
 .yunFileNav .folderList .folderSetting {
   float: right;
   margin-top: 14px;
@@ -135,12 +131,7 @@
   background-color: #fff;
   bottom: auto !important;
 }
-.yunFileNav
-  .folderList
-  .folderSetting
-  .settingsLayer
-  .settingsLayer
-  .List-body {
+.yunFileNav .folderList .folderSetting .settingsLayer .settingsLayer .List-body {
   overflow: hidden !important;
 }
 .settingsLayer .settingItem {
@@ -160,11 +151,7 @@
   color: #666;
   padding-left: 16px !important;
 }
-.settingsLayer .settingItem .Item-content:hover,
-.settingsLayer .settingItem .Item-content:hover .Icon {
-  color: #fff !important;
-}
-.settingsLayer .settingItem .Item-content .icon-task-new-delete {
+.settingsLayer .settingItem .Item-content .icon-trash {
   font-size: 14px;
   vertical-align: 0;
   margin-right: 10px;
@@ -179,19 +166,12 @@
   margin-right: 10px;
   margin-left: 1px;
 }
-.settingsLayer .settingItem .Item-content .icon-task-new-exit {
+.settingsLayer .settingItem .Item-content .icon-groupExit {
   margin-top: -1px;
 }
 .settingsLayer .settingItem .Item-content .icon-knowledge-recycle {
   margin-right: 10px;
   font-size: 14px;
-}
-#leftFolderList .folderSetting .settingsLayer .Item-content:not(:hover) {
-  background: #fff;
-}
-#leftFolderList .folderSetting .settingsLayer .Item-content:hover,
-#leftFolderList .folderSetting .settingsLayer .Item-content:hover .Icon {
-  color: #fff !important;
 }
 .yunFileNav .fileHr.bottomHr {
   margin: 0px;
@@ -213,7 +193,9 @@
   background: #fff;
   border-radius: 3px;
   left: 12px;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 2px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
 }
 .yunFileNav .folderBottom .upgradeHint .upgradeCentent {
   display: block;
@@ -239,7 +221,7 @@
   width: 15px;
   transform: rotateX(50%);
   overflow: hidden;
-  content: "";
+  content: '';
   text-align: center;
   position: absolute;
   top: 109px;
@@ -278,10 +260,6 @@
 .yunFileNav .myFolderSetting .Item-content .Icon {
   line-height: 32px !important;
 }
-.yunFileNav .myFolderSetting li:hover .Item-content,
-.yunFileNav .myFolderSetting li:hover .Item-content .Icon {
-  color: #fff !important;
-}
 .yunFileNav .Item-content .Icon.icon-knowledge-recycle {
   margin-top: -3px !important;
 }
@@ -306,7 +284,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
 }
 .kcDialogBox .mui-dialog-body {
   overflow: hidden !important;
@@ -341,29 +318,13 @@
     }
   }
 }
-.yunFileNav
-  .folderProjectItem
-  .List:not(.Menu)
-  > ul
-  > .Item.folderItem
-  > .Item-content {
+.yunFileNav .folderProjectItem .List:not(.Menu) > ul > .Item.folderItem > .Item-content {
   padding-left: 50px !important;
 }
-.yunFileNav
-  .folderProjectItem
-  .List.noneProjects:not(.Menu)
-  > ul
-  > .Item.folderItem
-  > .Item-content {
+.yunFileNav .folderProjectItem .List.noneProjects:not(.Menu) > ul > .Item.folderItem > .Item-content {
   padding-left: 40px !important;
 }
-.yunFileNav
-  .folderProjectItem
-  .List.noneProjects:not(.Menu)
-  > ul
-  > .Item.folderItem
-  > .Item-content
-  .folderListIcon {
+.yunFileNav .folderProjectItem .List.noneProjects:not(.Menu) > ul > .Item.folderItem > .Item-content .folderListIcon {
   left: 15px;
 }
 .yunFileNav .typeList .Icon.icon-attachment {
@@ -371,7 +332,7 @@
   color: #0091ea !important;
   transform: rotateZ(-90deg);
 }
-.yunFileNav .typeList .Icon.icon-clock {
+.yunFileNav .typeList .Icon.icon-access_time {
   font-size: 16px;
   color: #00bcd4 !important;
 }

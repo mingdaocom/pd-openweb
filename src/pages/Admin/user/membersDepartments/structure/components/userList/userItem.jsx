@@ -434,7 +434,7 @@ class UserItem extends Component {
       editCurrentUser = {},
       departmentId,
     } = this.props;
-    const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp,  fullDepartmentInfo = {}} = this.state;
+    const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp, fullDepartmentInfo = {} } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
     let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
     const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
@@ -515,6 +515,7 @@ class UserItem extends Component {
                   action={['hover']}
                   tooltipClass="departmentFullNametip"
                   popupPlacement="bottom"
+                  autoCloseDelay={0}
                   text={
                     <div>
                       {(departmentData || []).map((it, depIndex) => {
@@ -564,19 +565,9 @@ class UserItem extends Component {
               {
                 <div
                   className="job WordBreak overflow_ellipsis"
-                  title={(jobData || []).map((it, i) => {
-                    if (jobData.length - 1 > i) {
-                      return `${it.name || it.jobName};`;
-                    }
-                    return `${it.name || it.jobName}`;
-                  })}
+                  title={(jobData || []).map(item => item.name || item.jobName).join(';')}
                 >
-                  {(jobData || []).map((it, i) => {
-                    if (jobData.length - 1 > i) {
-                      return `${it.name || it.jobName} ; `;
-                    }
-                    return `${it.name || it.jobName}`;
-                  })}
+                  {(jobData || []).map(item => item.name || item.jobName).join(';')}
                 </div>
               }
             </td>
@@ -649,7 +640,7 @@ class UserItem extends Component {
               principal: _.pick(user, ['accountId', 'avatar', 'fullname']),
             }}
             companyId={projectId}
-            setTodoEntrustModalVisible={e => this.setState({ showDelegate: false })}
+            setTodoEntrustModalVisible={() => this.setState({ showDelegate: false })}
           />
         )}
       </Fragment>

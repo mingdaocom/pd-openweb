@@ -11,6 +11,7 @@ import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/confi
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import { renderText as renderCellText } from 'src/utils/control';
 import { handlePushState, handleReplaceState } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
@@ -30,7 +31,7 @@ export const RecordWrapper = styled.div`
       border: none;
       height: 30px;
       line-height: 30px;
-      border: 2px solid #2196f3;
+      border: 2px solid #1677ff;
     }
     &:hover {
       .icon-edit {
@@ -73,7 +74,7 @@ export const RecordWrapper = styled.div`
   .icon-more_horiz {
     opacity: 0;
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   &:hover .icon-more_horiz {
@@ -144,13 +145,13 @@ export default class Record extends Component {
   }
   get canedit() {
     const { row, base, sheetSwitchPermit } = this.props;
-    return row.allowedit && isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId);
+    return row.allowedit && isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId) && !row.sys_lock;
   }
   onQueryChange = () => {
     handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
   };
   handleClick = () => {
-    const { row, base, controls, sheetSwitchPermit, gunterView } = this.props;
+    const { row, controls, gunterView } = this.props;
     handleRecordClick(
       {
         advancedSetting: { clicktype: gunterView.viewConfig.clickType },
@@ -234,7 +235,7 @@ export default class Record extends Component {
             rowHeight={32}
             from={1}
             projectId={worksheetInfo.projectId}
-            updateCell={(cell, options) => {
+            updateCell={cell => {
               this.debounceUpdateRecordTime(row, cell.value || '', null);
             }}
             onCellFocus={() => {
@@ -295,7 +296,7 @@ export default class Record extends Component {
             rowHeight={32}
             from={1}
             projectId={worksheetInfo.projectId}
-            updateCell={(cell, options) => {
+            updateCell={cell => {
               this.debounceUpdateRecordTime(row, null, cell.value || '');
             }}
             onCellFocus={() => {
@@ -344,15 +345,38 @@ export default class Record extends Component {
         }}
         isCharge={isCharge}
         isDevAndOps={isDevAndOps}
-        shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'fav']}
+        shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'fav', 'lock']}
         allowDelete={row.allowdelete}
         allowCopy={worksheetInfo.allowAdd}
         projectId={worksheetInfo.projectId}
+        isRecordLock={row.sys_lock}
+        isAdmin={worksheetInfo.roleType === 2}
+        entityName={worksheetInfo.entityName}
         appId={appId}
         worksheetId={worksheetId}
         sheetSwitchPermit={sheetSwitchPermit}
         viewId={viewId}
         recordId={row.rowid}
+        updateRecordLock={() => {
+          updateRecordLockStatus(
+            {
+              ..._.pick(base, ['appId', 'viewId', 'worksheetId']),
+              recordId: row.rowid,
+              updateType: row.sys_lock ? 42 : 41,
+            },
+            (err, resdata) => {
+              if (resdata) {
+                this.props.updateRecord(row, [], { ...row, sys_lock: resdata.sys_lock });
+
+                if (resdata.sys_lock) {
+                  alert(_l('%0锁定成功', worksheetInfo.entityName));
+                } else {
+                  alert(_l('%0已解锁', worksheetInfo.entityName));
+                }
+              }
+            },
+          );
+        }}
         onUpdate={(updateControls, newItem) => {
           this.props.updateRecord(row, updateControls, newItem);
         }}
@@ -382,7 +406,7 @@ export default class Record extends Component {
     }
     return (
       <div
-        className={cx('groupingName valignWrapper', { edit: row.isEdit })}
+        className={cx('groupingName valignWrapper', { edit: row.isEdit && !row.sys_lock })}
         style={{ width: widthConfig[0] }}
         onClick={row.isEdit ? _.noop : this.handleClick}
       >
@@ -451,7 +475,7 @@ export default class Record extends Component {
   }
   render() {
     const { recordInfoVisible, RecordInfoComponent, CellControlComponent } = this.state;
-    const { row, gunterView } = this.props;
+    const { row, gunterView, controls } = this.props;
     const { displayControls } = gunterView.viewConfig;
 
     if (!CellControlComponent) return null;
@@ -474,7 +498,9 @@ export default class Record extends Component {
       >
         {_.get(window, 'shareState.shareId') ? <div style={{ width: 22 }} /> : this.renderMore()}
         {this.renderTitle()}
-        {displayControls.map((data, index) => this.renderControl(data, index + 1))}
+        {displayControls.map((data, index) =>
+          this.renderControl(_.find(controls, { controlId: data.controlId }) || data, index + 1),
+        )}
         {this.renderStartTime()}
         {this.renderEndTime()}
         <div className="dayCountField overflow_ellipsis">{row.diff ? _l('%0天', row.diff) : '--'}</div>

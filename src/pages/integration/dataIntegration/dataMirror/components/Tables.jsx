@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dropdown, Icon, Input, LoadDiv, Tooltip } from 'ming-ui';
@@ -81,12 +82,12 @@ const ListBox = styled.div`
     &:hover {
       background: rgba(247, 247, 247, 1);
       .titleText {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
   .optionTxt {
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1565c0;
     }
@@ -205,7 +206,7 @@ function Controls(props) {
     const renderChild = (sourceItem, isLast) => {
       return (
         <div className="flexRow alignItemsCenter w100 isChild controlL">
-          {columnPopup.map((item, j) => {
+          {columnPopup.map(item => {
             return (
               <div className={cx(`${item.dataIndex} flex flexShrink0`)}>
                 {item.render ? item.render(sourceItem, isLast) : sourceItem[item.dataIndex]}
@@ -322,7 +323,7 @@ export default function Tables(props) {
       })
       .then(res => {
         let hasErr = false;
-        const list = (data || doubleWriteTables).map((o, i) => {
+        const list = (data || doubleWriteTables).map(o => {
           if (res.data[o.tableName]) {
             hasErr = true;
           }
@@ -451,7 +452,7 @@ export default function Tables(props) {
               <React.Fragment>
                 {item.isErr && (
                   <Tooltip text={_l('表已存在')}>
-                    <Icon icon="info1" className="Font18 mRight3 warn" />
+                    <Icon icon="info" className="Font18 mRight3 warn" />
                   </Tooltip>
                 )}
                 <span className={cx('title ellipsis mRight3', item.isErr ? 'Gray_bd' : 'Gray')}>{item.tableName}</span>

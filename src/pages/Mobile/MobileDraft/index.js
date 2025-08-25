@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import DraftList from './DraftList';
@@ -65,29 +65,27 @@ function MobileDraftList(props) {
         <div className="flexColumn h100">
           <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
             <div className="flex Font15 Gray_9e leftAlign ellipsis">{_l('共%0条', draftData.length)}</div>
-            <Icon icon="closeelement-bg-circle" className="Font22 Gray_9e" onClick={onCancel} />
+            <Icon icon="cancel" className="Font22 Gray_9e" onClick={onCancel} />
           </div>
-          <div className="flex">
-            <DraftList
-              draftData={draftData}
-              appId={appId}
-              worksheetId={worksheetId}
-              worksheetInfo={worksheetInfo}
-              addNewRecord={addNewRecord}
-              getDraftData={getDraftData}
-              updateDraftList={(rowId, rowData) => {
-                let data = _.clone(draftData);
-                if (!rowData) {
-                  data = data.filter(it => it.rowid !== rowId);
-                } else {
-                  const index = _.findIndex(data, it => it.rowid === rowId);
-                  data[index] = rowData;
-                }
-                updateDraftTotal(data.length);
-                setDraftDataList(data);
-              }}
-            />
-          </div>
+          <DraftList
+            draftData={draftData}
+            appId={appId}
+            worksheetId={worksheetId}
+            worksheetInfo={worksheetInfo}
+            addNewRecord={addNewRecord}
+            getDraftData={getDraftData}
+            updateDraftList={(rowId, rowData) => {
+              let data = _.clone(draftData);
+              if (!rowData) {
+                data = data.filter(it => it.rowid !== rowId);
+              } else {
+                const index = _.findIndex(data, it => it.rowid === rowId);
+                data[index] = rowData;
+              }
+              updateDraftTotal(data.length);
+              setDraftDataList(data);
+            }}
+          />
         </div>
       </ModalWrap>
     </BrowserRouter>

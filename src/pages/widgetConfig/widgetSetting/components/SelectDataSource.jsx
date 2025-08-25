@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
-import { Dialog, RadioGroup } from 'ming-ui';
+import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
-import appManagementAjax from 'src/api/appManagement';
-import SelectSheetFromApp from './SelectSheetFromApp';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import { Dialog, RadioGroup } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import SelectSheetFromApp from './SelectSheetFromApp';
 
 const DATA_SOURCE_MODE = [
   {

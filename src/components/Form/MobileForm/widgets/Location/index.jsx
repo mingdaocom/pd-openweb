@@ -279,7 +279,8 @@ export default class Widgets extends Component {
       icon: 'loading',
       content: _l('正在获取取经纬度，请稍后'),
     });
-    if (!!getMapConfig()) {
+    const isGoogle = !!getMapConfig();
+    if (isGoogle) {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           position => {
@@ -408,7 +409,7 @@ export default class Widgets extends Component {
             <div className="cardWrap">
               {!disabled && (
                 <i
-                  className="icon icon-delete_out removeBtn"
+                  className="icon icon-cancel removeBtn"
                   onClick={evt => {
                     evt.stopPropagation();
                     onChange('');
@@ -462,7 +463,7 @@ export default class Widgets extends Component {
           <MDMap
             isMobile={true}
             allowCustom={advancedSetting.allowcustom === '1'}
-            distance={!!enumDefault2 ? parseInt(advancedSetting.distance) : 0}
+            distance={enumDefault2 ? parseInt(advancedSetting.distance) : 0}
             defaultAddress={location || null}
             onAddressChange={({ lng, lat, address, name }) => {
               onChange(JSON.stringify({ x: lng, y: lat, address, title: name, coordinate: isGoogle ? 'wgs84' : null }));

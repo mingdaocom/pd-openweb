@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
-import { Icon, Menu, MenuItem } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon, Menu, MenuItem } from 'ming-ui';
+
 const MenuWrap = styled(Menu)`
   width: auto !important;
 `;
@@ -13,14 +14,9 @@ const RedMenuItemWrap = styled(MenuItemWrap)`
       color: #f44336 !important;
     }
   }
-  &:not(.disabled):hover {
-    .Icon {
-      color: #fff !important;
-    }
-  }
 `;
 export default function DropOption(props) {
-  const { popupAlign, key, dataList = [] } = props;
+  const { key, dataList = [] } = props;
   const [optionShow, setOptionShow] = useState(false);
   if (dataList.length <= 0) {
     return null;

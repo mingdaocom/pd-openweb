@@ -1,11 +1,11 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Checkbox, Divider, Dropdown, Input, Space, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Icon, LoadDiv } from 'ming-ui';
-import { Dropdown, Checkbox, Tag, Space, Input, Divider, Tooltip } from 'antd';
-import { enumWidgetType } from 'src/pages/customPage/util';
-import reportApi from 'statistics/api/report';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import reportApi from 'statistics/api/report';
+import { enumWidgetType } from 'src/pages/customPage/util';
 
 export const TagWrap = styled.div`
   .tag {
@@ -13,20 +13,20 @@ export const TagWrap = styled.div`
     padding: 0 10px;
     height: 32px;
     max-width: 100%;
-    border: 1px solid #EAEAEA;
+    border: 1px solid #eaeaea;
     border-radius: 15px;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     margin: 0 10px 10px 0;
     &.add {
-      color: #2196F3;
+      color: #1677ff;
       transition: all 0.3s;
       &:hover {
         color: #1079cc;
       }
     }
     &.warning {
-      border-color: #E5A39E;
-      background-color: #FFE5E3;
+      border-color: #e5a39e;
+      background-color: #ffe5e3;
     }
   }
   .icon-close:hover {
@@ -35,7 +35,10 @@ export const TagWrap = styled.div`
 `;
 
 export const AddTagWrap = styled.div`
-  box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px 0 #00000014, 0 9px 28px 8px #0000000d;
+  box-shadow:
+    0 3px 6px -4px #0000001f,
+    0 6px 16px 0 #00000014,
+    0 9px 28px 8px #0000000d;
   .ant-space {
     gap: 0 !important;
     max-height: 420px;
@@ -49,7 +52,8 @@ export const AddTagWrap = styled.div`
     padding: 7px 11px;
     border-radius: 0 !important;
     border: none !important;
-    &:focus, &.ant-input-focused {
+    &:focus,
+    &.ant-input-focused {
       box-shadow: none;
     }
   }
@@ -58,7 +62,8 @@ export const AddTagWrap = styled.div`
   padding: 5px 0;
   border: 1px solid #e5e5e5;
   background-color: #fff;
-  .ant-radio-group, .ant-space {
+  .ant-radio-group,
+  .ant-space {
     width: 100%;
   }
   .ant-space-item {
@@ -71,37 +76,40 @@ export const AddTagWrap = styled.div`
 `;
 
 export const getFilterObject = (components, reports) => {
-  return components.filter(c => [enumWidgetType.analysis, enumWidgetType.view, 'analysis', 'view'].includes(c.type)).map(c => {
-    const objectId = _.get(c, 'config.objectId');
-    const data = { objectId };
-    if (enumWidgetType.analysis === c.type) {
-      data.type = 1;
-      data.name = c.name;
-       // 已经存在的图表
-      if (c.value) {
-        const report = _.find(reports, { id: c.value }) || {};
-        data.worksheetId = report.appId;
+  return components
+    .filter(c => [enumWidgetType.analysis, enumWidgetType.view, 'analysis', 'view'].includes(c.type))
+    .map(c => {
+      const objectId = _.get(c, 'config.objectId');
+      const data = { objectId };
+      if (enumWidgetType.analysis === c.type) {
+        data.type = 1;
+        data.name = c.name;
+        // 已经存在的图表
+        if (c.value) {
+          const report = _.find(reports, { id: c.value }) || {};
+          data.worksheetId = report.appId;
+        }
+        // 刚刚复制的图表
+        if (c.sourceValue) {
+          const report = _.find(reports, { id: c.sourceValue }) || {};
+          data.worksheetId = report.appId;
+        }
       }
-      // 刚刚复制的图表
-      if (c.sourceValue) {
-        const report = _.find(reports, { id: c.sourceValue }) || {};
-        data.worksheetId = report.appId;
+      // 刚刚创建的图表
+      if ('analysis' === c.type) {
+        data.type = 1;
+        data.name = c.name;
+        data.worksheetId = c.worksheetId;
       }
-    }
-    // 刚刚创建的图表
-    if ('analysis' === c.type) {
-      data.type = 1;
-      data.name = c.name;
-      data.worksheetId = c.worksheetId;
-    }
-    if ([enumWidgetType.view, 'view'].includes(c.type)) {
-      data.type = 2;
-      data.name = c.config.name;
-      data.worksheetId = c.value;
-    }
-    return data;
-  }).filter(c => c.worksheetId);
-}
+      if ([enumWidgetType.view, 'view'].includes(c.type)) {
+        data.type = 2;
+        data.name = c.config.name;
+        data.worksheetId = c.value;
+      }
+      return data;
+    })
+    .filter(c => c.worksheetId);
+};
 
 export default function FilterObject(props) {
   const { pageId, components, filter, setFilter } = props;
@@ -114,21 +122,24 @@ export default function FilterObject(props) {
 
   useEffect(() => {
     setLoading(true);
-    reportApi.listByPageId({ appId: pageId }).then(data => {
-      setFilterObject(getFilterObject(components, data));
-    }).finally(() => setLoading(false));
+    reportApi
+      .listByPageId({ appId: pageId })
+      .then(data => {
+        setFilterObject(getFilterObject(components, data));
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const addFilterObject = id => {
-    const { name, ...data } = filterObject.filter(item => item.objectId == id)[0];
+    const { ...data } = filterObject.filter(item => item.objectId == id)[0];
     const same = _.find(objectControls, { worksheetId: data.worksheetId });
     const newObjects = objectControls.concat({ ...data, controlId: same ? same.controlId : '' });
     changeObjects(newObjects);
-  }
+  };
   const removeFilterObject = id => {
     const newObjects = objectControls.filter(item => item.objectId !== id);
     changeObjects(newObjects);
-  }
+  };
   const changeObjects = objectControls => {
     if (filter.global) {
       changeAllFilterObjectControls(objectControls);
@@ -137,9 +148,12 @@ export default function FilterObject(props) {
         objectControls,
       });
     }
-  }
+  };
 
   const renderOverlay = () => {
+    const searchFilterObject = filterObject.filter(n =>
+      (n.name || '').toLocaleLowerCase().includes(search.toLocaleLowerCase()),
+    );
     return (
       <AddTagWrap>
         <div className="valignWrapper pLeft10 pRight10">
@@ -148,38 +162,40 @@ export default function FilterObject(props) {
             autoFocus
             value={search}
             placeholder={_l('搜索')}
-            onChange={e => { setSearch(e.target.value) }}
+            onChange={e => {
+              setSearch(e.target.value);
+            }}
           />
         </div>
         <Divider className="mTop5 mBottom5" />
         <Space direction="vertical">
           <Checkbox
-            checked={filterObject.length === objectControls.length}
+            checked={searchFilterObject.length && searchFilterObject.length === objectControls.length}
             onChange={e => {
               const { checked } = e.target;
               if (checked) {
-                const newObjects = filterObject.map(c => {
-                  const { name, ...data } = c;
+                const newObjects = searchFilterObject.map(c => {
+                  const { ...data } = c;
                   const isSameSheet = data.worksheetId === _.get(objectControls[0], 'worksheetId');
                   return {
                     ...data,
                     controlId: isSameSheet ? _.get(objectControls[0], 'controlId') : undefined,
-                    control: isSameSheet ? _.get(objectControls[0], 'control') : undefined
+                    control: isSameSheet ? _.get(objectControls[0], 'control') : undefined,
                   };
                 });
                 changeObjects(newObjects);
-              } else  {
+              } else {
                 changeObjects([]);
               }
             }}
           >
             <span className="Font13">{_l('全选')}</span>
           </Checkbox>
-          {filterObject.filter(n => (n.name || '').toLocaleLowerCase().includes(search.toLocaleLowerCase())).map(c => (
+          {searchFilterObject.map(c => (
             <Checkbox
               key={c.objectId}
               checked={_.find(objectControls, { objectId: c.objectId }) ? true : false}
-              onChange={(e) => {
+              onChange={e => {
                 const { checked } = e.target;
                 if (checked) {
                   addFilterObject(c.objectId);
@@ -194,7 +210,7 @@ export default function FilterObject(props) {
         </Space>
       </AddTagWrap>
     );
-  }
+  };
 
   const renderObject = item => {
     const object = _.find(filterObject, { objectId: item.objectId });
@@ -210,24 +226,26 @@ export default function FilterObject(props) {
             </span>
             {!sameWorksheet && (
               <Tooltip title={_l('此对象的数据源工作表已更改，无法筛选。请删除后重新添加')} placement="bottom">
-                <Icon className="Red Font17 pointer mRight2" icon="knowledge-message" />
+                <Icon className="Red Font17 pointer mRight2" icon="info" />
               </Tooltip>
             )}
           </Fragment>
         ) : (
-          <span className="Font13 Red mLeft5 mRight5">
-            {_l('该筛选对象已删除')}
-          </span>
+          <span className="Font13 Red mLeft5 mRight5">{_l('该筛选对象已删除')}</span>
         )}
-        <Icon className="Gray_9e Font16 pointer" icon="close" onClick={() => { removeFilterObject(item.objectId) }} />
+        <Icon
+          className="Gray_9e Font16 pointer"
+          icon="close"
+          onClick={() => {
+            removeFilterObject(item.objectId);
+          }}
+        />
       </div>
     );
-  }
+  };
 
   if (loading) {
-    return (
-      <LoadDiv />
-    );
+    return <LoadDiv />;
   }
 
   return (
@@ -235,11 +253,11 @@ export default function FilterObject(props) {
       <div className="valignWrapper mBottom8">
         <div className="flex Font13 bold">{_l('筛选对象')}</div>
         <div className="valignWrapper">
-          <Tooltip title={_l('勾选时，组件内的筛选器使用相同的筛选对象；取消勾选后，可以为每个筛选器设置单独的筛选对象。')}>
-            <Checkbox
-              checked={filter.global}
-              onChange={changeGlobal}
-            >
+          <Tooltip
+            autoCloseDelay={0}
+            title={_l('勾选时，组件内的筛选器使用相同的筛选对象；取消勾选后，可以为每个筛选器设置单独的筛选对象。')}
+          >
+            <Checkbox checked={filter.global} onChange={changeGlobal}>
               <span className="Font13">{_l('作为全局配置')}</span>
             </Checkbox>
           </Tooltip>
@@ -247,9 +265,7 @@ export default function FilterObject(props) {
       </div>
       <div className="Gray_9e Font13 mBottom12 Font13">{_l('选择统计图表或视图组件')}</div>
       <TagWrap>
-        {objectControls.map(item => (
-          renderObject(item)
-        ))}
+        {objectControls.map(item => renderObject(item))}
         <div
           className="tag add valignWrapper pointer"
           onClick={() => {

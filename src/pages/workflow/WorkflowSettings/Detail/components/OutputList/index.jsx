@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dropdown } from 'ming-ui';
-import { FIELD_TYPE_LIST } from '../../../enum';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { v4 as uuidv4, validate } from 'uuid';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { v4 as uuidv4, validate } from 'uuid';
+import { Dropdown, Icon } from 'ming-ui';
+import { FIELD_TYPE_LIST } from '../../../enum';
 
 const OutputListItem = styled.div(
   ({ isHeader }) => `
@@ -34,7 +34,7 @@ const OutputListItem = styled.div(
     border-color: #ddd;
     padding: 0 10px;
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
 `,
@@ -175,7 +175,7 @@ export default class OutputList extends Component {
             </div>
             <div className="width50">
               <Icon
-                type="delete1"
+                type="trash"
                 className="Font16 mRight10 pointer Gray_75 ThemeHoverColor3"
                 onClick={() => this.removeParameters(item.controlId)}
               />

@@ -1,6 +1,7 @@
 import { notification } from 'antd';
 import displayMarketNotice from './displayMarketNotice';
 import displaySysNotice from './displaySysNotice';
+
 export default function marketNotice() {
   const { socket } = window.IM || {};
   if (socket) {

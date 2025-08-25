@@ -1,5 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
-import cx from 'classnames';
+import React, { memo, useRef } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { RichText } from 'ming-ui';
@@ -51,7 +50,7 @@ const RichTextWidget = props => {
       minHeight={90}
       maxHeight={10000}
       autoSize={{ height: displayRow ? 'auto' : '100%' }}
-      handleFocus={() => triggerCustomEvent(ADD_EVENT_ENUM.FOCUS)}
+      onFocus={() => triggerCustomEvent(ADD_EVENT_ENUM.FOCUS)}
     />
   );
 };

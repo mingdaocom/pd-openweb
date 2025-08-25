@@ -8,7 +8,7 @@ import { FROM } from '../core/config';
 import { isPublicLink } from '../core/utils';
 
 export default props => {
-  const { disabledFunctions = [], from, recordId, item, worksheetId, disabled, onChange } = props;
+  const { disabledFunctions = [], from, recordId, item, worksheetId, onChange } = props;
   const [isRefresh, setRefresh] = useState(false);
   const isMobile = browserIsMobile();
 

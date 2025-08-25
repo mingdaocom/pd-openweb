@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import PropTypes, { string } from 'prop-types';
-import { Icon } from 'ming-ui';
-import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import _ from 'lodash';
-import { DEFAULT_COLUMNS, FILTER_CONDITION_TYPE, API_ENUM_TO_TYPE } from '../../enum';
+import PropTypes from 'prop-types';
+import { Icon } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { isSheetDisplay } from '../../../../../widgetConfig/util';
+import { API_ENUM_TO_TYPE, DEFAULT_COLUMNS, FILTER_CONDITION_TYPE } from '../../enum';
 
 @withClickAway
 export default class RelateBox extends Component {
@@ -32,14 +32,21 @@ export default class RelateBox extends Component {
     );
   };
 
-  renderCustom = (data, id) => {
+  renderCustom = (data, type, isTop) => {
+    const id = _.includes([2, 15, 16, 26, 46], type)
+      ? _.get(
+          _.find(DEFAULT_COLUMNS, d => d.type === type),
+          'controlId',
+        )
+      : '';
+    if (!id || (isTop && _.includes(['rowid'], id)) || (!isTop && !_.includes(['rowid'], id))) return null;
     const { onChangeFn } = this.props;
     let showData = _.find(data, i => i.controlId === id);
     if (!showData) return null;
 
     return (
-      <ul className={cx({ customSelectUl: id === 'rowid' })}>
-        {_.map([showData], (item, i) =>
+      <ul className={cx({ customSelectUl: !isTop })}>
+        {_.map([showData], item =>
           this.renderLi(item, -1, () => {
             onChangeFn({ ...item, cid: item.controlId, rcid: '' }, true);
           }),
@@ -105,8 +112,12 @@ export default class RelateBox extends Component {
       from,
       showCustom,
     } = this.props;
-    // 自定义动态筛选值(此刻、记录id)
-    let customColums = showCustom ? DEFAULT_COLUMNS : [];
+    // 自定义动态筛选值(此刻、记录id、当前用户)，只有业务规则支持当前用户，其他暂不支持
+    let customColums = showCustom
+      ? from === 'rule'
+        ? DEFAULT_COLUMNS
+        : DEFAULT_COLUMNS.filter(d => !_.includes(['user-self'], d.controlId))
+      : [];
     let customData = !keywords
       ? customColums
       : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0);
@@ -150,7 +161,7 @@ export default class RelateBox extends Component {
                   {searchResult && (
                     <div className="pTop20 pBottom20 LineHeight80 TxtCenter Gray_9e">{_l('暂无搜索结果')}</div>
                   )}
-                  {showCustom && _.includes([15, 16, 46], control.type) && this.renderCustom(customData, 'currenttime')}
+                  {showCustom && this.renderCustom(customData, control.type, true)}
                   {columnsData.length > 0 && !_.includes(['fastFilter'], from) && (
                     <ul>
                       <p>{globalSheetControls.length <= 0 ? _l('当前表单') : _l('当前子表记录')}</p>
@@ -182,7 +193,7 @@ export default class RelateBox extends Component {
                       )}
                     </ul>
                   )}
-                  {showCustom && _.includes([2], control.type) && this.renderCustom(customData, 'rowid')}
+                  {showCustom && this.renderCustom(customData, control.type)}
                 </div>
               </React.Fragment>
             ) : (

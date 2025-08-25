@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
@@ -17,7 +18,7 @@ const Wrap = styled.div`
     background: rgba(255, 255, 255, 0.04);
     border-radius: 3px 3px 3px 3px;
     opacity: 1;
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
     padding: 0 12px;
   }
   .cover {
@@ -68,7 +69,7 @@ let Ajax = null;
 export default function (props) {
   const trigger = useRef(null);
   const inputRef = useRef(null);
-  const { controlInfo, onChange, onDelete, currentList = [] } = props;
+  const { controlInfo, onChange, currentList = [] } = props;
   const [{ list, pageIndex, keyWords, controls, count, loading, showMenu }, setState] = useSetState({
     list: [],
     pageIndex: 1,
@@ -173,7 +174,7 @@ export default function (props) {
               )}
               {!!list.length && (
                 <div className="pTop6 pBottom6">
-                  {list.map((record, index) => {
+                  {list.map(record => {
                     const ids = isSameType([9, 10, 11, 28], controlInfo)
                       ? currentList
                       : currentList.map(it => it.rowid);
@@ -215,7 +216,7 @@ export default function (props) {
         popupClassName={cx('dropdownTrigger')}
         action={['focus']}
         popupVisible={showMenu}
-        onPopupVisibleChange={showMenu => {
+        onPopupVisibleChange={() => {
           // setState({
           //   showMenu,
           // });

@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Dialog, Button } from 'ming-ui';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
-import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
-import userController from 'src/api/user';
 import styled from 'styled-components';
+import { Button, Dialog } from 'ming-ui';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import userController from 'src/api/user';
+import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 
 const DialogWrap = styled(Dialog)`
   .footer {

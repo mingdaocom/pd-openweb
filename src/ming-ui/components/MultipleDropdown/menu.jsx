@@ -1,37 +1,6 @@
-/**
- * Dropdown 菜单组件，支持
- * 1 单选/多选
- * 2 多级数据
- * 3 副标题
- * 4 分隔线
- */
-/**
- * Dropdown 菜单组件，支持
- * 1 单选/多选
- * 2 多级数据
- * 3 副标题
- * 4 分隔线
- */
-/**
- * Dropdown 菜单组件，支持
- * 1 单选/多选
- * 2 多级数据
- * 3 副标题
- * 4 分隔线
- */
-/**
- * Dropdown 菜单组件，支持
- * 1 单选/多选
- * 2 多级数据
- * 3 副标题
- * 4 分隔线
- */
-import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
-import Checkbox from 'ming-ui/components/Checkbox';
 
 class MultipleDropdownMenu extends Component {
   constructor(props) {
@@ -217,7 +186,7 @@ class MultipleDropdownMenu extends Component {
       let label = item.label;
 
       if (this.props.multipleLevel) {
-        label = this.state.list.map((_item, i, list) => {
+        label = this.state.list.map(_item => {
           return _item.label;
         });
         label.push(item.label);
@@ -358,7 +327,7 @@ class MultipleDropdownMenu extends Component {
   filterList = () => {
     const list = [];
 
-    this.state.options.map((item, i, _list) => {
+    this.state.options.map(item => {
       if (item.type) {
         list.push(item);
       }
@@ -379,10 +348,6 @@ class MultipleDropdownMenu extends Component {
   };
 
   render() {
-    /**
-     * 标题显示文字
-     */
-    let navText = '请选择';
     /**
      * 清空按钮
      */
@@ -415,8 +380,6 @@ class MultipleDropdownMenu extends Component {
       }
 
       if (pillItems.length) {
-        navText = '已选择';
-
         clearBtn = (
           <button
             onClick={e => {
@@ -498,7 +461,7 @@ class MultipleDropdownMenu extends Component {
     /**
      * 当前显示的项目列表
      */
-    let menuItems = this.state.availOptions.map((item, i, list) => {
+    let menuItems = this.state.availOptions.map((item, i) => {
       if (item.type && item.type === 'header') {
         // 副标题
         return (
@@ -636,7 +599,7 @@ MultipleDropdownMenu.defaultProp = {
   multipleSelect: false,
   filter: false,
   filterHint: '',
-  onChange: (event, value) => {},
+  onChange: () => {},
 };
 
 export default MultipleDropdownMenu;

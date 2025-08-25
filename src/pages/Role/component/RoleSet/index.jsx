@@ -132,7 +132,7 @@ const Wrap = styled.div`
               background-color: #f7f7f7;
               opacity: 1;
               i {
-                color: #2196f3;
+                color: #1677ff;
               }
             }
             &.show {
@@ -310,7 +310,7 @@ export default class RoleSet extends PureComponent {
     if (!roleId) {
       // 创建
       const {
-        roleDetail: { roleId: useless, ...params },
+        roleDetail: { ...params },
       } = this.state;
       let param = {
         appId,

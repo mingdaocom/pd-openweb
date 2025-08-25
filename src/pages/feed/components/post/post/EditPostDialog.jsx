@@ -90,7 +90,8 @@ export default class EditPostDialog extends React.Component {
     return attachment;
   }
   setContent(postItem) {
-    import('src/components/mentioninput/mentionsInput').then(() => {
+    import('src/components/MentionsInput').then(data => {
+      const MentionsInput = data.default;
       const message = htmlDecodeReg(
         createLinksForMessage(_.assign({ noLink: true }, postItem))
           .replace(/<br>/g, '\n')
@@ -107,7 +108,7 @@ export default class EditPostDialog extends React.Component {
         .replace(/<[^>]+>/g, '');
       const mentionsCollection = _.map(postItem.rUserList, account => ({
         id: account.aid,
-        value: account.name,
+        fullname: account.name,
         type: 'user',
       })).concat(
         _.map(postItem.rGroupList, group => ({
@@ -117,14 +118,15 @@ export default class EditPostDialog extends React.Component {
         })),
       );
 
-      $(ReactDOM.findDOMNode(this.textarea))
-        .parent()
-        .find('textarea')
-        .mentionsInput({
-          reset: false,
-          showCategory: true,
-        })
-        .mentionsInput('setValue', message, messageMentions, mentionsCollection);
+      const textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea').get(0);
+
+      MentionsInput({
+        input: textarea,
+        showCategory: true,
+        initCallback: () => {
+          textarea.setValue(message, messageMentions, mentionsCollection);
+        },
+      });
     });
   }
 
@@ -137,7 +139,7 @@ export default class EditPostDialog extends React.Component {
     const { postItem } = this.props;
     const { postID } = postItem;
     const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
-    $textarea.mentionsInput('val', data => {
+    $textarea.get(0).val(data => {
       const postMsg = data;
       if (!postMsg || !$.trim(postMsg)) {
         alert(_l('发表内容不能为空'), 3);
@@ -171,7 +173,7 @@ export default class EditPostDialog extends React.Component {
               : undefined,
         },
         () => {
-          $textarea.mentionsInput('reset');
+          $textarea.get(0).reset();
           this.setState({ visible: false }, () => {
             this.props.dispose();
           });

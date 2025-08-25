@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { NODE_TYPE_LIST, ACTION_LIST, JOIN_TYPE, UNION_TYPE_LIST } from '../config';
-import _ from 'lodash';
-import cx from 'classnames';
+import { ACTION_LIST, JOIN_TYPE, NODE_TYPE_LIST, UNION_TYPE_LIST } from '../config';
+
 const Wrap = styled.div(
   ({ width, height }) => `{
     text-align: center;
@@ -42,7 +43,6 @@ const Wrap = styled.div(
 `,
 );
 export default function Avator(props) {
-  const { width, height } = props;
   const [{ nodeData, isAct, defaultInfo }, setState] = useSetState({
     nodeData: props.nodeData,
     isAct: ACTION_LIST.map(o => o.type).includes(props.nodeData.nodeType),

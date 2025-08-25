@@ -2,16 +2,16 @@
 import { findDOMNode } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
-import ChecklistItem from './checklistItem';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import Textarea from 'ming-ui/components/Textarea';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import Textarea from 'ming-ui/components/Textarea';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import ChecklistItem from './checklistItem';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 import EmptyItem from './common/emptyItem';
-import copy from 'copy-to-clipboard';
-import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 let root;
@@ -41,7 +41,7 @@ class ChecklistOperator extends Component {
         onClickAway={() => this.props.isShowOperator()}
       >
         <li className="ThemeBGColor3" onClick={() => this.props.updateChecklistName()}>
-          <i className="icon-new_mail" />
+          <i className="icon-edit" />
           {_l('重命名')}
         </li>
         <li className="ThemeBGColor3 clipboard">
@@ -55,7 +55,7 @@ class ChecklistOperator extends Component {
           </span>
         </li>
         <li className="ThemeBGColor3" onClick={() => this.props.removeCheckList()}>
-          <i className="icon-task-new-delete" />
+          <i className="icon-trash" />
           {_l('删除清单')}
         </li>
       </ClickAwayable>
@@ -91,17 +91,18 @@ const checklistSource = {
       // 处理滚动条滚动
       clearInterval(config.setInterval);
       config.setInterval = setInterval(() => {
-        const scroll = $('.taskDetailScroll .nano-content').scrollTop();
+        const scrollEl = $('.taskDetailScroll .scroll-viewport');
+        const scroll = scrollEl.scrollTop();
         const top = clientOffset.y - config.offset.y;
         if (top <= 180) {
-          $('.taskDetailScroll').nanoScroller({ scrollTop: scroll - 100 });
+          scrollEl.scrollTop(scroll - 100);
         } else if ($(window).height() - top - config.height <= 90) {
-          $('.taskDetailScroll').nanoScroller({ scrollTop: scroll + 100 });
+          scrollEl.scrollTop(scroll + 100);
         }
       }, 200);
     }
   },
-  endDrag(props, monitor, component) {
+  endDrag(props) {
     props.checklistDrop();
     clearInterval(config.setInterval);
     root.unmount();
@@ -237,7 +238,7 @@ export default class Checklist extends Component {
       return (
         <div className="taskChecklist">
           <div className="taskChecklistHead">
-            <i className="icon-task-list" />
+            <i className="icon-list" />
             <div className={cx('taskChecklistName Font14', { Hidden: this.state.isEditName })}>
               <span onClick={() => this.editName()}>{data.name}</span>
               <span className="taskChecklistCount Font14">

@@ -1,15 +1,23 @@
 import _, { find, get, isEmpty } from 'lodash';
-import { validate } from 'uuid';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
-import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { browserIsMobile, getStringBytes } from 'src/utils/common';
-import { isEmptyValue, renderText as renderCellText } from 'src/utils/control';
+import { browserIsMobile } from 'src/utils/common';
+import { getStringBytes } from 'src/utils/common';
+import {
+  checkCellIsEmpty,
+  controlState,
+  getTitleTextFromControls,
+  getTitleTextFromRelateControl,
+  getValueStyle,
+} from 'src/utils/control';
 import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFromValue } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
+
+export function validate(id = '') {
+  return !/^(temp|default|public-temp|deleterowids)/.test(id.toLowerCase());
+}
 
 export const convertControl = type => {
   switch (type) {
@@ -214,7 +222,7 @@ export function formatControlToServer(
       options.forEach((item, i) => {
         if ((item || '').indexOf('add_') > -1) {
           options[i] = JSON.stringify({
-            color: '#2196f3',
+            color: '#1677ff',
             value: item.split('add_')[1],
           });
         }
@@ -260,9 +268,14 @@ export function formatControlToServer(
       try {
         parsedValue = JSON.parse(control.value);
         result.value = parsedValue.code;
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
       break;
     case 29:
+      if (control.editType) {
+        result.editType = control.editType;
+      }
       if (
         _.includes(
           [
@@ -313,7 +326,9 @@ export function formatControlToServer(
             (browserIsMobile() && _.includes(hasDefaultRelateRecordTableControls, control.controlId)) ||
             isRelateRecordDropdown ||
             isSingleRelateRecord ||
-            isFromDefault
+            isFromDefault ||
+            control.editType === 31 ||
+            _.get(parsedValue, '0.needFullUpdate')
           ) {
             result.value = _.isArray(parsedValue)
               ? JSON.stringify(
@@ -351,6 +366,7 @@ export function formatControlToServer(
           try {
             deletedIds = control.value.replace('deleteRowIds: ', '').split(',').filter(_.identity);
           } catch (err) {
+            console.log(err);
             result.value = undefined;
           }
           result.editType = 9;
@@ -477,29 +493,15 @@ export function formatControlToServer(
                 Object.keys(row).map(key => ({ controlId: key, value: row[key] })),
               ),
             );
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
         }
       }
       break;
   }
 
   return result;
-}
-
-/**
- * 获取标题字段文本
- * @param  {} controls 所有控件
- * @param  {} data 控件所在记录数据[可选]
- */
-export function getTitleTextFromControls(controls, data, titleSourceControlType, options = {}) {
-  let titleControl = _.find(controls, control => control.attribute === 1) || {};
-  if (titleSourceControlType) {
-    titleControl.sourceControlType = titleSourceControlType;
-  }
-  if (titleControl && data) {
-    titleControl = Object.assign({}, titleControl, { value: data[titleControl.controlId] || data.titleValue });
-  }
-  return titleControl ? renderCellText(titleControl, options) || _l('未命名') : _l('未命名');
 }
 
 export function getTitleControlId(control = {}) {
@@ -516,69 +518,12 @@ export function getTitleControlId(control = {}) {
   return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
 }
 
-/**
- * 从关联记录字段获取标题字段文本
- * @param  {} controls 所有控件
- * @param  {} data 控件所在记录数据[可选]
- */
-export function getTitleTextFromRelateControl(control = {}, data, options = {}) {
-  let newTitleControlId = control.advancedSetting.showtitleid;
-  if (control.type === 51 && control.enumDefault === 1 && control.showControls[0]) {
-    newTitleControlId = control.showControls[0];
-  }
+export function getTitleControlIdFromRelateControl(control = {}) {
+  let newTitleControlId = get(control, 'advancedSetting.showtitleid');
+  const attributeTitle = find(control.relationControls, { attribute: 1 });
   const matchedTitleControl = find(control.relationControls, { controlId: newTitleControlId });
-  if (newTitleControlId && matchedTitleControl) {
-    control = {
-      ...control,
-      ...(newTitleControlId
-        ? {
-            relationControls: control.relationControls.map(c => ({
-              ...c,
-              attribute: newTitleControlId === c.controlId ? 1 : 0,
-            })),
-          }
-        : {}),
-    };
-  }
-
-  if (data && data.name) {
-    return data.name;
-  }
-  // relationControls返回的选项没有options，在这里赋进去
-  if (_.includes([9, 10, 11], control.sourceControlType)) {
-    if (!_.isEmpty(control.options)) {
-      control.relationControls.forEach(c => {
-        if (c.attribute === 1 && isEmpty(c.options)) {
-          c.options = control.options;
-        }
-      });
-    }
-  }
-  return getTitleTextFromControls(control.relationControls, data, control.sourceControlType, options);
+  return matchedTitleControl ? matchedTitleControl.controlId : attributeTitle ? attributeTitle.controlId : undefined;
 }
-
-// 控件状态
-export const controlState = (data, from) => {
-  if (!data) {
-    return {};
-  }
-  const controlPermissions = data.controlPermissions || '111';
-  const fieldPermission = data.fieldPermission || '111';
-  let state = {
-    visible: true,
-    editable: true,
-  };
-
-  if (_.includes([FROM.NEWRECORD, FROM.PUBLIC_ADD, FROM.H5_ADD, FROM.DRAFT], from)) {
-    state.visible = fieldPermission[0] === '1' && fieldPermission[2] === '1' && controlPermissions[2] === '1';
-    state.editable = fieldPermission[1] === '1';
-  } else {
-    state.visible = fieldPermission[0] === '1' && controlPermissions[0] === '1';
-    state.editable = fieldPermission[1] === '1' && controlPermissions[1] === '1';
-  }
-
-  return state;
-};
 
 const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
   if (recordId) {
@@ -606,7 +551,7 @@ export const getBarCodeValue = ({ data, control, codeInfo }) => {
   const selectControl = _.find(data, i => i.controlId === dataSource);
   if (!(selectControl || {}).value) return '';
   if (enumDefault === 1) {
-    const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!\/\^\*\(\)\+\[\]\{\}\|\.\s]/g, '');
+    const repVal = String(selectControl.value).replace(/[^a-zA-Z0-9@#$%&-=_;:,<>?!/^*()+[\]{}|.\s]/g, '');
     return getStringBytes(repVal) <= 128 ? repVal : getStrBytesLength(repVal, 128);
   }
   return String(selectControl.value).substr(0, 300);
@@ -688,7 +633,9 @@ export const renderCount = item => {
       } else if (item.store) {
         try {
           count = filterEmptyChildTableRows(item.store.getState().rows).length;
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
       }
       if (count > 1000) {
         count = 1000;
@@ -747,7 +694,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
         if (curItem && _.isArray(sourceVal)) {
           const currentItem = {
             ...curItem,
-            type: currentItem.type === 30 ? currentItem.sourceControlType : currentItem.type,
+            type: curItem.type === 30 ? curItem.sourceControlType : curItem.type,
           };
           const arrKey = getArrKey(currentItem);
           ranges[arrKey] = _.uniq(
@@ -900,27 +847,6 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
   return { commonData, tabData };
 };
 
-export const getValueStyle = data => {
-  const item = Object.assign({}, data);
-  let type = item.type;
-  let { valuecolor = '#151515', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
-  if (item.type === 30) {
-    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || '#151515';
-    valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
-    valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
-    type = _.get(item, 'sourceControl.type');
-  }
-  return canSetWidgetStyle({ ...data, type })
-    ? {
-        type,
-        isTextArea: item.type === 2 && item.enumDefault !== 2, // 多行、加单行line-height: 1.5,单行计算
-        height: valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36,
-        size: TITLE_SIZE_OPTIONS[valuesize],
-        valueStyle: isEmptyValue(item.value) ? '' : `color: ${valuecolor} !important;${getTitleStyle(valuestyle)}`,
-      }
-    : { type };
-};
-
 // 部门控件渲染数据处理，后期可能有组织角色
 export const dealRenderValue = (value, advancedSetting = {}) => {
   const { showdelete, allpath } = advancedSetting;
@@ -1038,3 +964,51 @@ export const getServiceError = (badData = [], data, from) => {
   });
   return { serviceError, hideControlErrors };
 };
+
+// 计算汇总去重、单个去重计数
+export function calcSubTotalCount(values = [], control = {}, currentItem = {}) {
+  const unique = currentItem.enumDefault === 21;
+  const filterValues = values.filter(c => {
+    if (control.type === 36) {
+      return c === '1';
+    } else if (_.includes([29, 34], control.type) && _.isNumber(c)) {
+      return !!c;
+    } else {
+      return !checkCellIsEmpty(c);
+    }
+  });
+
+  let formatValues = filterValues.map(f => {
+    if (_.includes([9, 10, 11, 26, 27, 29, 35, 48], control.type)) {
+      const safeValue = safeParse(f || '[]');
+      if (_.isEmpty(safeValue)) return [];
+
+      if (_.includes([9, 10, 11], control.type)) {
+        return safeValue.map(i => (i.indexOf('other') > -1 ? 'other' : i));
+      }
+
+      const value = safeValue.map(i => i[WIDGET_VALUE_ID[control.type]]);
+      return unique ? value.sort() : value;
+    }
+
+    return f;
+  });
+
+  const containsEmptyValues =
+    _.get(currentItem, 'advancedSetting.reportempty') === '1' && values.length !== filterValues.length ? 1 : 0;
+
+  if (unique) return _.uniqWith(formatValues, _.isEqual).length + containsEmptyValues;
+
+  const totalValues = _.reduce(
+    formatValues,
+    (total, v) => {
+      const itemValues = _.isArray(v) ? v : [v];
+      return total.concat(itemValues);
+    },
+    [],
+  );
+
+  return _.uniq(totalValues).length + containsEmptyValues;
+}
+
+export { controlState, getValueStyle, getTitleTextFromControls, getTitleTextFromRelateControl };

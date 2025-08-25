@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import DialogRelationControl from 'src/components/relationControl/relationControl';
 import { getRelationText } from 'src/pages/widgetConfig/util/index';
 import List from './List';
-import cx from 'classnames';
-import _ from 'lodash';
 
 export default class Widgets extends Component {
   static propTypes = {

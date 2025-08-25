@@ -67,7 +67,7 @@ export default class SyncDialog extends Component {
   };
 
   renderConfirmSync = () => {
-    const { projectId, integrationType, tpTotalCount } = this.props;
+    const { projectId, integrationType } = this.props;
     const { mingDaoUserInfos = [], bindQWUserIds = [], confirmVisible, syncLoading } = this.state;
     let userMaps = {};
     mingDaoUserInfos.forEach(item => {
@@ -104,7 +104,7 @@ export default class SyncDialog extends Component {
                 });
               }
             })
-            .catch(err => {
+            .catch(() => {
               this.setState({ confirmVisible: false, syncLoading: false });
             });
         }}
@@ -161,7 +161,7 @@ export default class SyncDialog extends Component {
   }, 200);
 
   renderSelectUsers = accountId => {
-    const { qwUserList = [], searchLoading, keywords } = this.state;
+    const { qwUserList = [], searchLoading } = this.state;
 
     return (
       <div className="selectUserWrap flexColumn">
@@ -173,13 +173,13 @@ export default class SyncDialog extends Component {
             onChange={e => this.searchQWUserList(e.target.value)}
           />
         </div>
-        <div className="userList flex">
+        <div className="userList flex overflowHidden">
           {searchLoading ? (
             <LoadDiv />
           ) : _.isEmpty(qwUserList) ? (
             <div className="mTop50 TxtCenter Gray_75 Font15">{_l('无数据')}</div>
           ) : (
-            <ScrollView>
+            <ScrollView className="h100">
               {qwUserList.map(item => {
                 let qvJobNames = (item.jobNames || []).join(';');
                 let qwDepartmentNames = (item.departmentNames || []).join(';');
@@ -265,7 +265,7 @@ export default class SyncDialog extends Component {
       keywords: _.trim(keywords),
     });
     this.ajaxWorkWXUsers.then(res => {
-      const { item1, item2, item3 = [] } = res;
+      const { item3 = [] } = res;
       this.setState({
         qwUserList: item3.filter(item => !_.includes(bindQWUserIds, item.userId)),
         searchLoading: false,
@@ -333,7 +333,6 @@ export default class SyncDialog extends Component {
       workwxKeyword = '',
       mingDaoUserInfos = [],
       bindQWUserIds = [],
-      filterMatchPhoneBindUserIds = [],
       loading,
     } = this.state;
     const extra = isBindRelationship ? { footer: null } : {};
@@ -553,7 +552,7 @@ export default class SyncDialog extends Component {
                             adjustY: true,
                           },
                         }}
-                        onPopupVisibleChange={visible => {
+                        onPopupVisibleChange={() => {
                           if (this.input) {
                             this.input.value = '';
                           }

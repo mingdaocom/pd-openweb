@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Checkbox, Icon } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon } from 'ming-ui';
 
 const Wrapper = styled.div`
   .expandIcon {
@@ -13,7 +13,7 @@ const Wrapper = styled.div`
     font-size: 18px;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .sectionLiCon::before {
@@ -30,7 +30,7 @@ const Wrapper = styled.div`
   }
 `;
 
-export default function ({ disabled, controls, hidedControls, disabledControls, onAdd = () => {}, onHide = () => {} }) {
+export default function ({ controls, hidedControls, disabledControls, onAdd = () => {}, onHide = () => {} }) {
   const [expandIds, setExpandIds] = useState([]);
 
   const renderControlList = (list, filterSection = true) => {
@@ -49,7 +49,7 @@ export default function ({ disabled, controls, hidedControls, disabledControls, 
                 item =>
                   item.sectionId === c.controlId && !_.find(disabledControls, d => d.controlId === item.controlId),
               );
-              if (!!sectionList.length) {
+              if (sectionList.length) {
                 isCheck = sectionList.some(item => !_.find(hidedControls, h => h.controlId === item.controlId));
                 if (isCheck && _.find(hidedControls, item => item.controlId === c.controlId)) {
                   //标签页内字段全选中，将标签页显示
@@ -71,7 +71,7 @@ export default function ({ disabled, controls, hidedControls, disabledControls, 
                         const updateControls = sectionList.concat([c]);
                         updateControls.forEach(item => onAdd(item));
                       } else {
-                        if (!!c.sectionId) {
+                        if (c.sectionId) {
                           const tabControl = controls.filter(item => item.controlId === c.sectionId)[0] || {};
                           const showTabSectionList = controls.filter(
                             item =>

@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Icon, RadioGroup } from 'ming-ui';
 import cx from 'classnames';
-import { DateTime } from 'ming-ui/components/NewDateTimePicker';
-import { DATE_TYPE } from '../../enum';
 import _ from 'lodash';
 import moment from 'moment';
+import { Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { DATE_TYPE } from '../../enum';
 
 export default class LoopContent extends Component {
   constructor(props) {
@@ -56,8 +56,8 @@ export default class LoopContent extends Component {
         data.repeatType === DATE_TYPE.WORK
           ? [1, 2, 3, 4, 5]
           : data.repeatType === DATE_TYPE.WEEK
-          ? [moment(data.executeTime).days()]
-          : [];
+            ? [moment(data.executeTime).days()]
+            : [];
 
       updateSource({ frequency, interval: 1, weekDays, config: null });
     } else if (!isOldCustom) {
@@ -781,7 +781,7 @@ export default class LoopContent extends Component {
       <Fragment>
         <div className="flowDetailStartHeader flexColumn BGBlue">
           <div className="flowDetailStartIcon flexRow">
-            <i className="icon-hr_surplus Font40 blue" />
+            <i className="icon-access_alarm Font40 blue" />
           </div>
           <div className="Font16 mTop10">{_l('定时')}</div>
         </div>
@@ -808,7 +808,7 @@ export default class LoopContent extends Component {
             >
               {data.executeTime ? moment(data.executeTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
-            <i className="icon-hr_time Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
+            <i className="icon-task_custom_today Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
           </div>
 
           <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
@@ -823,7 +823,7 @@ export default class LoopContent extends Component {
             >
               {data.executeEndTime ? moment(data.executeEndTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
-            <i className="icon-hr_time Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
+            <i className="icon-task_custom_today Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
           </div>
 
           {data.executeTime && (

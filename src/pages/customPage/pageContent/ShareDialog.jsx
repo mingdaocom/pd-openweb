@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
-import { Divider, Input, Modal, Popover, Tooltip } from 'antd';
+import { Divider, Modal, Popover, Tooltip } from 'antd';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
@@ -15,8 +15,8 @@ export const BtnWrap = styled.div`
   padding: 0 10px;
   border: 1px solid #dddddd;
   &.active {
-    color: #2196f3;
-    border-color: #2196f3;
+    color: #1677ff;
+    border-color: #1677ff;
   }
   &.copy {
     padding: 0 20px;
@@ -26,10 +26,10 @@ export const BtnWrap = styled.div`
   &.qrCode,
   &.code {
     &:hover {
-      color: #2196f3;
-      border-color: #2196f3;
+      color: #1677ff;
+      border-color: #1677ff;
       .icon {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }
@@ -88,7 +88,7 @@ export default class ShareDialog extends Component {
         status: status ? 0 : 1,
       })
       .then(result => {
-        const { flag, appEntityShare } = result;
+        const { appEntityShare } = result;
         this.setState({ data: appEntityShare });
       });
   };
@@ -114,7 +114,7 @@ export default class ShareDialog extends Component {
   renderEmbeddedLink() {
     const { sourceId, appId } = this.props;
     const url = `${location.origin}/embed/page/${appId}/${sourceId}`;
-    const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${url}`;
+
     return (
       <Fragment>
         <div className="Font15 bold mBottom15">{_l('嵌入链接')}</div>

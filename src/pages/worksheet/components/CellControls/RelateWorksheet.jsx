@@ -32,6 +32,7 @@ class RelateWorksheet extends Component {
       try {
         relateWorksheetData = JSON.parse(value);
       } catch (err) {
+        console.log(err);
         relateWorksheetData = [];
       }
       if (!_.isArray(relateWorksheetData)) {

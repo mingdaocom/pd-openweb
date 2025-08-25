@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Icon, ScrollView, LoadDiv, Dialog, UserHead, MenuItem } from 'ming-ui';
-import process from '../../api/process';
-import _ from 'lodash';
-import styled from 'styled-components';
-import moment from 'moment';
 import { Tooltip } from 'antd';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
+import _ from 'lodash';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, MenuItem, ScrollView, UserHead } from 'ming-ui';
+import process from '../../api/process';
 
 const HistoryBox = styled.span`
   border-bottom: 1px dashed #757575;
@@ -81,7 +81,7 @@ const ListItem = styled.div`
     font-size: 12px;
     color: #fff;
     &.blue {
-      background: #2196f3;
+      background: #1677ff;
     }
     &.black {
       background: #151515;
@@ -100,6 +100,30 @@ const MenuBox = styled.div`
   box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
 `;
 
+const openPublishVersion = (id, isIntegration, isPlugin) => {
+  location.href = isIntegration ? `/integrationApi/${id}` : isPlugin ? `/workflowplugin/${id}` : `/workflowedit/${id}`;
+};
+
+export const restoreVision = ({ id, date, index, versionName, currentFlowId, isIntegration, isPlugin }) => {
+  const isCurrent = id === currentFlowId;
+
+  Dialog.confirm({
+    title: isCurrent
+      ? _l('删除更改')
+      : _l('恢复到历史版本：%0', versionName ? versionName : `${moment(date).format('YYYYMMDD')}.${index}`),
+    description: isCurrent
+      ? _l('删除当前编辑中的草稿和所有更新，此操作无法撤回')
+      : _l('将以当前的版本创建草稿。您当前正在编辑中的草稿和所有更新将会被删除，此操作无法撤回'),
+    okText: isCurrent ? _l('确定删除') : _l('确定'),
+    buttonType: isCurrent ? 'danger' : 'primary',
+    onOk: () => {
+      process.goBack({ processId: id }, { isIntegration }).then(() => {
+        openPublishVersion(currentFlowId, isIntegration, isPlugin);
+      });
+    },
+  });
+};
+
 export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = false, popupClassName }) => {
   const { enabled, companyId } = flowInfo;
   const [visible, setVisible] = useState(false);
@@ -108,6 +132,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
   const [pageIndex, setPageIndex] = useState(1);
   const [list, setList] = useState([]);
   const [selectId, setSelectId] = useState('');
+  let isFirstLoad = true;
   const getList = _.debounce(pageIndex => {
     // 加载更多
     if (pageIndex > 1 && ((isLoading && isMore) || !isMore)) {
@@ -121,34 +146,9 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
       setIsMore(result.length >= 20);
       setPageIndex(pageIndex);
       setList(pageIndex === 1 ? result : list.concat(result));
+      isFirstLoad = false;
     });
   }, 200);
-  const openPublishVersion = id => {
-    location.href = isIntegration
-      ? `/integrationApi/${id}`
-      : isPlugin
-        ? `/workflowplugin/${id}`
-        : `/workflowedit/${id}`;
-  };
-  const restoreVision = ({ id, date, index }) => {
-    const isCurrent = id === flowInfo.id;
-
-    setSelectId('');
-
-    Dialog.confirm({
-      title: isCurrent ? _l('删除更改') : _l('从版本%0开始编辑', `${moment(date).format('YYYYMMDD')}.${index}`),
-      description: isCurrent
-        ? _l('删除当前编辑中的草稿和所有更新，此操作无法撤回')
-        : _l('将以当前的版本创建草稿。您当前正在编辑中的草稿和所有更新将会被删除，此操作无法撤回'),
-      okText: isCurrent ? _l('确定删除') : _l('确定'),
-      buttonType: isCurrent ? 'danger' : 'primary',
-      onOk: () => {
-        process.goBack({ processId: id }, { isIntegration }).then(() => {
-          openPublishVersion(flowInfo.id);
-        });
-      },
-    });
-  };
   const updateVersionName = ({ id, date, index, versionName }) => {
     setSelectId('');
 
@@ -203,8 +203,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
               <span className="historyListTag blue mRight10 bold">{_l('运行中')}</span>
             )}
             <div className="bold Font14 ellipsis flex">
-              {moment(item.date).format('YYYYMMDD')}.{item.index}
-              {item.versionName && `.${item.versionName}`}
+              {item.versionName ? item.versionName : `${moment(item.date).format('YYYYMMDD')}.${item.index}`}
             </div>
           </div>
           <div className="Font12 mTop5">
@@ -214,7 +213,9 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
                 <span className="mLeft5 mRight5">|</span>
               </Fragment>
             )}
-            <span className="Gray_75 WordBreak">{_l('%0 发布于 %1', item.publisher.fullName, createTimeSpan(item.date))}</span>
+            <span className="Gray_75 WordBreak">
+              {_l('%0 发布于 %1', item.publisher.fullName, createTimeSpan(item.date))}
+            </span>
           </div>
         </div>
         <div className="flexRow alignItemsCenter justifyContentCenter">
@@ -229,9 +230,16 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
             popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: 1, adjustY: 2 } }}
             popup={
               <MenuBox>
-                <MenuItem onClick={() => openPublishVersion(item.id)}>{_l('查看')}</MenuItem>
+                <MenuItem onClick={() => openPublishVersion(item.id, isIntegration, isPlugin)}>{_l('查看')}</MenuItem>
                 <MenuItem onClick={() => updateVersionName(item)}>{_l('重命名版本')}</MenuItem>
-                <MenuItem onClick={() => restoreVision(item)}>{_l('从此版本编辑')}</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    restoreVision({ ...item, currentFlowId: flowInfo.id, isIntegration });
+                    setSelectId('');
+                  }}
+                >
+                  {_l('恢复到此版本')}
+                </MenuItem>
               </MenuBox>
             }
           >
@@ -289,8 +297,11 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
                       <Tooltip title={_l('删除更改')}>
                         <Icon
                           className="Font16 Gray_75 red pointer"
-                          icon="delete2"
-                          onClick={() => restoreVision(list[0])}
+                          icon="trash"
+                          onClick={() => {
+                            restoreVision({ ...list[0], currentFlowId: flowInfo.id, isIntegration });
+                            setSelectId('');
+                          }}
                         />
                       </Tooltip>
                     </div>
@@ -303,7 +314,9 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
                 .filter((o, index) => !(flowInfo.publishStatus === 1 && flowInfo.enabled && index === 0))
                 .map(renderItem)}
 
-              {((isLoading && pageIndex > 1) || !list.length) && <LoadDiv className="mTop15" size="small" />}
+              {((isLoading && pageIndex > 1) || (!list.length && isFirstLoad)) && (
+                <LoadDiv className="mTop15" size="small" />
+              )}
             </HistoryListCon>
           </ScrollView>
         </HistoryListBox>

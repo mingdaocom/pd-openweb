@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { Checkbox, Select } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import account from 'src/api/account';
@@ -8,7 +9,7 @@ import accountController from 'src/api/account';
 import accountGuideController from 'src/api/accountGuide';
 import accountSetting from 'src/api/accountSetting';
 import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
-import microsoftImg from 'src/pages/NewPrivateDeployment/images/microsoft.png';
+import microsoftImg from 'src/pages/AuthService/login/img/microsoft.png';
 import { encrypt } from 'src/utils/common';
 import common from '../common';
 import { initBindAcoount } from '../components/InitBindAccountDialog';
@@ -139,29 +140,25 @@ export default class AccountChart extends React.Component {
     const currentType = this.state[type] || {};
     if (!currentType.state) {
       if (type === 'weiXinBind') {
-        var url = md.global.Config.WebUrl + 'orgsso/weixin/auth';
-        var wWidth = 400;
-        var wHeight = 400;
-        var positionObj = this.getWindowPosition(wWidth, wHeight);
-        this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
+        let url = md.global.Config.WebUrl + 'orgsso/weixin/auth';
+        let positionObj = this.getWindowPosition(400, 400);
+
+        this.showNewWindow(url, 400, 400, positionObj.left, positionObj.top);
       } else if (type === 'googleBind') {
-        var url = md.global.Config.WebUrl + 'orgsso/google/auth';
-        var wWidth = 750;
-        var wHeight = 500;
-        var positionObj = this.getWindowPosition(wWidth, wHeight);
-        this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
+        let url = md.global.Config.WebUrl + 'orgsso/google/auth';
+        let positionObj = this.getWindowPosition(750, 500);
+
+        this.showNewWindow(url, 750, 500, positionObj.left, positionObj.top);
       } else if (type === 'microsoftBind') {
-        var url = md.global.Config.WebUrl + 'orgsso/microsoft/auth';
-        var wWidth = 750;
-        var wHeight = 500;
-        var positionObj = this.getWindowPosition(wWidth, wHeight);
-        this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
+        let url = md.global.Config.WebUrl + 'orgsso/microsoft/auth';
+        let positionObj = this.getWindowPosition(750, 500);
+
+        this.showNewWindow(url, 750, 500, positionObj.left, positionObj.top);
       } else {
-        var url = md.global.Config.WebUrl + 'orgsso/qq/auth';
-        var wWidth = 750;
-        var wHeight = 500;
-        var positionObj = this.getWindowPosition(wWidth, wHeight);
-        this.showNewWindow(url, wWidth, wHeight, positionObj.left, positionObj.top);
+        let url = md.global.Config.WebUrl + 'orgsso/qq/auth';
+        let positionObj = this.getWindowPosition(750, 500);
+
+        this.showNewWindow(url, 750, 500, positionObj.left, positionObj.top);
       }
     } else {
       const text =
@@ -398,7 +395,7 @@ export default class AccountChart extends React.Component {
   renderTips = key => {
     return (
       <Tooltip popupPlacement="top" text={<span>{tipsConfig[key]}</span>}>
-        <span className="icon-novice-circle Gray_bd Hand mLeft5 Font15" />
+        <span className="icon-help Gray_bd Hand mLeft5 Font15"></span>
       </Tooltip>
     );
   };
@@ -574,10 +571,10 @@ export default class AccountChart extends React.Component {
             <div className="Font17 Bold Gray mBottom4 mTop20">{_l('第三方账户')}</div>
             <div className="Gray_75 mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
             <div className="bindingWrap mBottom24">
-              {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false }, index) => {
-                const data = this.state[key] || {};
+              {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false }) => {
+                const data = this.state[key];
 
-                if (needHide && !data.isBind) return null;
+                if (!data || (needHide && !data.isBind)) return null;
 
                 return (
                   <span className="bingingItem" key={`bingingItem-${key}`}>

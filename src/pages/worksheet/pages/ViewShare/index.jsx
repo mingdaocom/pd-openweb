@@ -51,7 +51,7 @@ const Wrap = styled.div`
   }
 `;
 
-const Entry = props => {
+const Entry = () => {
   const shareId = location.pathname.match(/.*\/public\/view\/(.*)/)[1];
   const { showHeader } = getRequest();
   const [loading, setLoading] = useState(true);
@@ -64,7 +64,7 @@ const Entry = props => {
       clientId,
     }).then(async result => {
       const { data } = result;
-      const { appId, projectId } = data;
+      const { projectId } = data;
       localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
@@ -80,9 +80,8 @@ const Entry = props => {
   }, []);
 
   const getShareInfoByShareId = data => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
-      const shareAuthor = _.get(result, 'data.shareAuthor');
       const clientId = _.get(result, 'data.clientId');
       const { appId, projectId } = result.data;
       window.clientId = clientId;

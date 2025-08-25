@@ -3,10 +3,17 @@ import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/u
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { isOwner } from './crtl';
 
-export async function handleShare(
-  { isCharge, appId, worksheetId, viewId, recordId, hidePublicShare, privateShare = true, title, ...rest },
-  callback,
-) {
+export async function handleShare({
+  isCharge,
+  appId,
+  worksheetId,
+  viewId,
+  recordId,
+  hidePublicShare,
+  privateShare = true,
+  title,
+  ...rest
+}) {
   try {
     const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
     let recordTitle = getTitleTextFromControls(row.formData);

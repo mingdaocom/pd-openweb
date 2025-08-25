@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { string, bool, func, any, array } from 'prop-types';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
-import HistoryListItem from './components/HistoryListItem';
-import { STATUS2COLOR } from './config';
-import styled from 'styled-components';
-import { Menu, MenuItem, Support, Dialog, Checkbox, LoadDiv } from 'ming-ui';
-import { SUPPORT_HREF } from '../enum';
 import _ from 'lodash';
 import moment from 'moment';
+import { any, array, bool, func, string } from 'prop-types';
+import styled from 'styled-components';
+import { Checkbox, Dialog, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
 import processVersion from '../../api/processVersion';
-import { Tooltip } from 'antd';
+import { SUPPORT_HREF } from '../enum';
+import HistoryListItem from './components/HistoryListItem';
+import { STATUS2COLOR } from './config';
 
 const HISTORY_TITLE = [
   { id: 'status', text: _l('状态') },
@@ -32,7 +32,7 @@ const Box = styled.div`
     border-bottom: 1px dashed #757575;
     margin: 0 3px;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

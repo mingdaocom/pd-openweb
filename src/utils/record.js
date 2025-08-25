@@ -7,7 +7,7 @@ import { RECORD_COLOR_SHOW_TYPE, VIEW_CONFIG_RECORD_CLICK_ACTION } from 'workshe
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import { getAppFeaturesPath } from 'src/utils/app';
-import { isLightColor } from 'src/utils/control';
+import { isLightColor, isRelateRecordTableControl } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
 import { checkCellIsEmpty, formatAttachmentValue, getTitleTextFromRelateControl } from 'src/utils/control';
 
@@ -36,13 +36,13 @@ export function getRelateRecordCountFromValue(value, propsCount) {
     } else if (!_.isUndefined(propsCount)) {
       savedCount = propsCount;
     } else {
-      savedCount = parsedData[0].count || parsedData.length;
+      savedCount = parsedData[0]?.count || parsedData.length;
     }
     if (!_.isUndefined(savedCount) && !_.isNaN(Number(savedCount))) {
       count = Number(savedCount);
     }
   } catch (err) {
-    // console.log(err);
+    console.log(err);
   }
   if (String(value).startsWith('deleteRowIds')) {
     return 0;
@@ -166,6 +166,7 @@ export function formatRecordToRelateRecord(
         const cellData = JSON.parse(record[titleControl.controlId]);
         name = cellData[0].name;
       } catch (err) {
+        console.error(err);
         name = '';
       }
     }
@@ -283,7 +284,8 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}, { u
     .filter(
       c =>
         (updateControlIds ? _.includes(updateControlIds, c.controlId) : !checkCellIsEmpty(c.value)) &&
-        c.controlId.length === 24,
+        c.controlId.length === 24 &&
+        !isRelateRecordTableControl(c),
     )
     .forEach(control => {
       if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
@@ -306,6 +308,7 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}, { u
                   })),
                 );
               } catch (err) {
+                console.error(err);
                 delete newRow[key];
               }
             });
@@ -314,14 +317,18 @@ export function getRecordTempValue(data = [], relateRecordMultipleData = {}, { u
         }
       } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
         try {
-          results[control.controlId] = JSON.stringify(
-            JSON.parse(control.value).map(r => ({
-              type: r.type,
-              sid: r.sid,
-              name: getTitleTextFromRelateControl(control, r.name ? r : r.row || safeParse(r.sourcevalue)),
-            })),
-          );
-        } catch (err) {}
+          if (get(control, 'value', '')[0] === '[') {
+            results[control.controlId] = JSON.stringify(
+              JSON.parse(control.value).map(r => ({
+                type: r.type,
+                sid: r.sid,
+                name: getTitleTextFromRelateControl(control, r.name ? r : r.row || safeParse(r.sourcevalue)),
+              })),
+            );
+          }
+        } catch (err) {
+          console.error(err);
+        }
       } else if (
         control.type !== WIDGETS_TO_API_TYPE_ENUM.SUB_LIST &&
         _.includes(['string', 'number'], typeof control.value)
@@ -355,6 +362,7 @@ export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSh
             value: JSON.stringify([defaultRelatedSheet.value]),
           };
         } catch (err) {
+          console.error(err);
           return { ...c, value: data[c.controlId] };
         }
       } else {
@@ -369,7 +377,9 @@ export function parseRecordTempValue(data = {}, originFormData, defaultRelatedSh
         };
       }
     });
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+  }
   return { formdata, relateRecordData };
 }
 
@@ -479,6 +489,10 @@ export function handleRecordError(resultCode, control, isNewRecord = false) {
     alert(_l('记录提交失败：有必填字段未填写'), 2);
   } else if (resultCode === 22) {
     alert(_l('记录提交失败：子表字段存在重复数据'), 2);
+  } else if (resultCode === 72) {
+    alert(_l('记录已锁定，无法保存'), 3);
+  } else if (resultCode === 4) {
+    alert(_l('编辑失败，记录已被删除'), 2);
   } else {
     alert(isNewRecord ? _l('提交失败！') : _l('编辑失败！'), 2);
   }
@@ -595,17 +609,15 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
           };
 
           subControls.forEach(c => {
+            if (isRecreate && c.type === 29 && c.enumDefault === 1 && c.dataSource === worksheetId) {
+              itemValue[c.controlId] = undefined;
+              return;
+            }
             if (isRecreate && c.type === 29 && c.advancedSetting.showtype === '3') {
               let value = safeParse(item[c.controlId], 'array').slice(0, 5);
               itemValue[c.controlId] = JSON.stringify(value);
               return;
             }
-
-            if (isRecreate && c.type === 29 && c.enumDefault === 1 && c.dataSource === worksheetId) {
-              itemValue[c.controlId] = undefined;
-              return;
-            }
-
             itemValue[c.controlId] =
               c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
                 ? formatAttachmentValue(item[c.controlId], isRecreate, true)
@@ -673,7 +685,7 @@ export async function handleRowData(props) {
       const index = _.findIndex(defcontrols, o => {
         return o.controlId == item.controlId;
       });
-      (defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item);
+      ((defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item));
     });
 
     return { defaultData, defcontrols };

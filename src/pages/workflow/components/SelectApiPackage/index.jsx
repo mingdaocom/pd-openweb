@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, ScrollView, LoadDiv, Icon } from 'ming-ui';
-import './index.less';
-import packageVersion from '../../api/packageVersion';
-import { navigateTo } from 'router/navigateTo';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
+import { navigateTo } from 'router/navigateTo';
+import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import packageVersion from '../../api/packageVersion';
+import './index.less';
 
 export default ({
   appId,
@@ -112,11 +112,11 @@ export default ({
                 + {_l('添加新连接')}
               </span>
             )}
-            <i className="icon-search1 selectApiPackageSearch Gray_75" />
+            <i className="icon-search selectApiPackageSearch Gray_75" />
           </div>
         )}
 
-        <div className="flex">
+        <div className="flex overflowHidden">
           {data === null ? (
             <LoadDiv />
           ) : !data.length && !keywords ? (

@@ -233,7 +233,7 @@ export default class TimeModal extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.startCount}
-                onChange={e => {
+                onChange={() => {
                   const value = event.target.value;
                   changeDynamicFilter({ startCount: formatNumberFromInput(value).replace('-', '') });
                 }}
@@ -279,7 +279,7 @@ export default class TimeModal extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.endCount}
-                onChange={e => {
+                onChange={() => {
                   const value = event.target.value;
                   changeDynamicFilter({ endCount: formatNumberFromInput(value).replace('-', '') });
                 }}

@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Dialog } from 'ming-ui';
-import { useSetState } from 'react-use';
+import React from 'react';
 import JsonView from 'react-json-view';
-import _ from 'lodash';
+import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
-const TABLIST = ['请求参数', '返回值'];
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+
+const TABLIST = ['请求参数', '返回值'];
 
 const Wrap = styled.div`
   .tabCon {
@@ -22,8 +23,8 @@ const Wrap = styled.div`
       box-sizing: border-box;
       border-bottom: 3px solid rgba(0, 0, 0, 0);
       &.isCur {
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -35,7 +36,7 @@ const Wrap = styled.div`
   }
 `;
 export default function LogDialog(props) {
-  const { logInfo = {}, isErr } = props;
+  const { logInfo = {} } = props;
   const [{ data, tab }, setState] = useSetState({
     data: logInfo.requestCatch,
     tab: 0,
@@ -63,9 +64,13 @@ export default function LogDialog(props) {
   };
   const getInfo = info => {
     let da = {};
+    if (!info) {
+      return da;
+    }
     try {
       da = JSON.parse(info);
     } catch (error) {
+      console.log(error);
       da = {
         data: info,
       };

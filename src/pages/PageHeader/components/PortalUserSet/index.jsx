@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
-import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon, Menu, Tooltip } from 'ming-ui';
 import account from 'src/api/account';
@@ -19,6 +18,7 @@ import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
 import { formatDataForPortalControl, renderText } from 'src/pages/Role/PortalCon/tabCon/util';
 import { browserIsMobile } from 'src/utils/common';
 import { removePssId } from 'src/utils/pssId';
+import BindContactDialog from './BindContactDialog';
 import ChangeAccountDialog from './ChangeAccountDialog';
 import DelDialog from './DelDialog';
 import FindPwdDialog from './FindPwdDialog';
@@ -54,6 +54,7 @@ export default class PortalUserSet extends Component {
       hasPassword: false,
       showMenu: false,
       showModel: false,
+      showBind: false,
     };
   }
 
@@ -66,45 +67,47 @@ export default class PortalUserSet extends Component {
     if (!appId) {
       return;
     }
-    externalPortalAjax
-      .getLoginUrl({
-        appId: appId,
-      })
-      .then(res => {
-        this.setState({
-          url: res,
-        });
-      });
-    this.getPortalDetail(appId);
-    externalPortalAjax
-      .getPortalSetByAppId({
-        appId,
-      })
-      .then(baseInfo => {
-        this.setState({
+
+    Promise.all([
+      externalPortalAjax.getLoginUrl({ appId }),
+      externalPortalAjax.getPortalSetByAppId({ appId }),
+      externalPortalAjax.getDetail({ exAccountId: md.global.Account.accountId, appId }),
+    ]).then(([loginUrlRes, baseInfo, detailRes = {}]) => {
+      const info = this.formatDetailRes(detailRes);
+      this.setState(
+        {
+          url: loginUrlRes,
           baseInfo,
-        });
-      });
+          ...info,
+        },
+        () => {
+          md.global.Account.avatar = info.avatar;
+        },
+      );
+    });
   };
 
-  getPortalDetail = appId => {
+  formatDetailRes = res => {
+    const avatarData = res.receiveControls.find(o => o.controlId === 'portal_avatar') || {};
+    return {
+      currentData: res.receiveControls,
+      avatar: avatarData.value || md.global.Account.avatar,
+      hasPassword: res.hasPassword,
+      showBind: res.doubleBinding,
+    };
+  };
+
+  updatePortalDetail = (appId, data) => {
     externalPortalAjax
       .getDetail({
         exAccountId: md.global.Account.accountId,
-        appId: appId,
+        appId,
       })
       .then(res => {
-        const avatarData = res.receiveControls.find(o => o.controlId === 'portal_avatar') || {};
-        this.setState(
-          {
-            currentData: res.receiveControls,
-            avatar: avatarData.value || md.global.Account.avatar,
-            hasPassword: res.hasPassword,
-          },
-          () => {
-            md.global.Account.avatar = avatarData.value || md.global.Account.avatar;
-          },
-        );
+        const info = this.formatDetailRes(res);
+        this.setState({ ...info, ...data }, () => {
+          md.global.Account.avatar = info.avatar;
+        });
       });
   };
 
@@ -174,11 +177,10 @@ export default class PortalUserSet extends Component {
   render() {
     const {
       name,
-      iconColor = '#2196f3',
+      iconColor = '#1677ff',
       showUserInfo,
       showUserInfoDialog,
       currentData,
-      data,
       showTelDialog,
       showDelDialog,
       baseInfo,
@@ -186,31 +188,22 @@ export default class PortalUserSet extends Component {
       showChangePwd,
       showMenu,
       showModel,
+      showBind,
     } = this.state;
-    const {
-      isMobile,
-      match = {},
-      appStatus,
-      noAvatar,
-      currentPcNaviStyle,
-      appId,
-      projectId,
-      originalLang,
-    } = this.props;
+    const { isMobile, noAvatar, currentPcNaviStyle, appId, projectId, originalLang } = this.props;
     const info = currentData.filter(
       o =>
         !['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status', 'openid', 'portal_email'].includes(
           o.alias,
         ),
     );
-    const { params = {} } = match;
     const color = this.props.iconColor || iconColor;
     const account =
       (currentData.find(o => [type !== 'email' ? 'portal_mobile' : 'portal_email'].includes(o.controlId)) || {})
         .value ||
       (currentData.find(o => ['portal_mobile'].includes(o.controlId)) || {}).value ||
       (currentData.find(o => ['portal_email'].includes(o.controlId)) || {}).value;
-
+    const isM = browserIsMobile();
     return (
       <WrapHeader className={cx({ isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
         <div className={cx('appNameHeaderBoxPortal appNameHeaderBox flexRow noBorder', { isMobile })}>
@@ -224,26 +217,28 @@ export default class PortalUserSet extends Component {
               </div>
             </div>
             <PortalMessage color={color} isMobile={isMobile} />
-            <LanguageList
-              placement={[1, 3].includes(currentPcNaviStyle) ? 'topLeft' : 'bottomRight'}
-              app={{
-                id: appId,
-                projectId,
-                originalLang,
-              }}
-              isCharge={false}
-            >
-              <Tooltip placement="bottom" text={_l('应用语言')}>
-                <div
-                  className={cx(
-                    'h100 flexColumn justifyContentCenter',
-                    [1, 3].includes(currentPcNaviStyle) ? 'mLeft20 mRight20' : 'mRight20',
-                  )}
-                >
-                  <Icon icon="language" className="Font20 White pointer" />
-                </div>
-              </Tooltip>
-            </LanguageList>
+            {!isM && (
+              <LanguageList
+                placement={[1, 3].includes(currentPcNaviStyle) ? 'topLeft' : 'bottomRight'}
+                app={{
+                  id: appId,
+                  projectId,
+                  originalLang,
+                }}
+                isCharge={false}
+              >
+                <Tooltip placement="bottom" text={_l('应用语言')}>
+                  <div
+                    className={cx(
+                      'h100 flexColumn justifyContentCenter',
+                      [1, 3].includes(currentPcNaviStyle) ? 'mLeft20 mRight20' : 'mRight20',
+                    )}
+                  >
+                    <Icon icon="language" className="Font20 White pointer" />
+                  </div>
+                </Tooltip>
+              </LanguageList>
+            )}
             {!noAvatar && (
               <div
                 className={cx('InlineBlock mRight16 Hand', { avatarM: isMobile })}
@@ -559,7 +554,7 @@ export default class PortalUserSet extends Component {
                   exAccountId: md.global.Account.accountId,
                   newCell: formatDataForPortalControl(data.filter(o => ids.includes(o.controlId))),
                 })
-                .then(res => {
+                .then(() => {
                   this.setState({ showUserInfoDialog: false, currentData: data });
                   ids.includes('portal_name') && location.reload();
                 });
@@ -588,7 +583,7 @@ export default class PortalUserSet extends Component {
                 (!(currentData.find(o => o.controlId === 'portal_mobile') || {}).value && type === 'phone')
               ) {
                 this.setState({ showTelDialog: false, type: '' }, () => {
-                  this.getPortalDetail(this.props.appId || getAppId(this.props.match.params));
+                  this.updatePortalDetail(this.props.appId || getAppId(this.props.match.params));
                 });
               } else {
                 // 修改
@@ -626,6 +621,16 @@ export default class PortalUserSet extends Component {
             setShow={() => this.setState({ showDelDialog: false })}
             onOk={() => {
               this.logout();
+            }}
+          />
+        )}
+        {showBind && (
+          <BindContactDialog
+            type={(currentData.find(o => ['portal_mobile'].includes(o.controlId)) || {}).value ? 'email' : 'phone'}
+            appId={this.props.appId || getAppId(this.props.match.params)}
+            onOk={() => {
+              this.setState({ showBind: false });
+              this.updatePortalDetail(this.props.appId || getAppId(this.props.match.params), { showBind: false });
             }}
           />
         )}

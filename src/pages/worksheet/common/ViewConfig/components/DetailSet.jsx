@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { Radio, Icon } from 'ming-ui';
 import _ from 'lodash';
+import { Icon, Radio } from 'ming-ui';
 import { SwitchStyle } from './style';
 
 export default function DetailSet(props) {
@@ -24,7 +24,7 @@ export default function DetailSet(props) {
               className=""
               text={_l('常规（多条）')}
               checked={view.childType !== 1}
-              onClick={value => {
+              onClick={() => {
                 handleChange(2);
               }}
             />
@@ -37,7 +37,7 @@ export default function DetailSet(props) {
               className=""
               text={_l('仅显示详情（一条）')}
               checked={view.childType === 1}
-              onClick={value => {
+              onClick={() => {
                 handleChange(1);
               }}
             />

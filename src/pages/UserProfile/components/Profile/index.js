@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import Info from '../Info/UserInfo';
 import UserFeed from 'src/pages/feed/components/app/userFeed';
+import Info from '../Info/UserInfo';
 import './index.less';
 
 class UserProfile extends Component {

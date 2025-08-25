@@ -18,7 +18,7 @@ const SORT_TYPE = [
       <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
         <span>{_l('自定义')}</span>
         <Tooltip title={_l('附件默认旧文件在前，可拖拽调整顺序，但新上传文件仍会按默认规则排序')} placement="bottom">
-          <span className="icon-info1 Gray_9e Font16 subText" />
+          <span className="icon-info Gray_9e Font16 subText" />
         </Tooltip>
       </div>
     ),
@@ -33,7 +33,7 @@ const FILL_TYPE = [
 const DISPLAY_TYPE = [
   { value: '1', text: _l('缩略图'), img: 'file-thumb' },
   { value: '2', text: _l('卡片'), img: 'file-card' },
-  { value: '3', text: _l('列表'), img: 'file-list' },
+  { value: '3', text: _l('列表'), img: 'list' },
   { value: '4', text: _l('海报'), img: 'file-post' },
 ];
 
@@ -59,7 +59,7 @@ const FILE_TYPE = [
 ];
 
 export default function Attachment(props) {
-  const { from, data, onChange } = props;
+  const { data, onChange } = props;
   const { enumDefault, advancedSetting = {} } = data;
   const { covertype = '0', showtype = '1' } = getAdvanceSetting(data);
   const { type = '', values = [] } = JSON.parse(advancedSetting.filetype || '{}');

@@ -1,11 +1,8 @@
 import React from 'react';
-
-import ScrollView from 'ming-ui/components/ScrollView';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-
-import ListNull from './ListNull';
-import ContactItem from './ContactItem';
 import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import ContactItem from './ContactItem';
+import ListNull from './ListNull';
 
 export default class ContactList extends React.Component {
   constructor() {
@@ -24,10 +21,8 @@ export default class ContactList extends React.Component {
     this.debouncedScroll.cancel();
   }
 
-  scrollEvent(e, { direction, maximum, position }) {
-    if (direction === 'down' && maximum - position < 20) {
-      this.props.fetch();
-    }
+  scrollEvent() {
+    this.props.fetch();
   }
 
   renderList(list) {
@@ -93,7 +88,7 @@ export default class ContactList extends React.Component {
   render() {
     const { searchDepartmentUsers } = this.props;
     return (
-      <ScrollView updateEvent={searchDepartmentUsers ? () => {} : this.debouncedScroll}>
+      <ScrollView className="h100" onScrollEnd={searchDepartmentUsers ? () => {} : this.debouncedScroll}>
         {this.renderListContent()}
       </ScrollView>
     );

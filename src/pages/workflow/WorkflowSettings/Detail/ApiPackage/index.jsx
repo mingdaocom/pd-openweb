@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Icon } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter } from '../components';
-import SelectApiPackage from '../../../components/SelectApiPackage';
 import cx from 'classnames';
-import ConnectParam from 'src/pages/integration/components/ConnectParam';
-import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
-import { APP_TYPE } from '../../enum';
 import _ from 'lodash';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
+import ConnectParam from 'src/pages/integration/components/ConnectParam';
+import SelectApiPackage from '../../../components/SelectApiPackage';
+import { APP_TYPE } from '../../enum';
+import { DetailFooter, DetailHeader } from '../components';
 
 export default class ApiPackage extends Component {
   constructor(props) {
@@ -24,7 +24,7 @@ export default class ApiPackage extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -235,8 +235,8 @@ export default class ApiPackage extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
-          <ScrollView>
+        <div className="flex overflowHidden">
+          <ScrollView options={{ overflow: { x: 'hidden' } }}>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>

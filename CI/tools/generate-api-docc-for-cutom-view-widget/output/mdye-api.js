@@ -1,10 +1,301 @@
 module.exports = {
   worksheet: {
+    getViewPermission: function (data) {
+      return window.api.call('worksheet', 'getViewPermission', data);
+    },
+    getAppExtendAttr: function (data) {
+      return window.api.call('worksheet', 'getAppExtendAttr', data);
+    },
+    getExtendAttrOptionalControl: function (data) {
+      return window.api.call('worksheet', 'getExtendAttrOptionalControl', data);
+    },
+    saveAppExtendAttr: function (data) {
+      return window.api.call('worksheet', 'saveAppExtendAttr', data);
+    },
+    copyWorksheet: function (data) {
+      return window.api.call('worksheet', 'copyWorksheet', data);
+    },
+    updateEntityName: function (data) {
+      return window.api.call('worksheet', 'updateEntityName', data);
+    },
+    editDeveloperNotes: function (data) {
+      return window.api.call('worksheet', 'editDeveloperNotes', data);
+    },
+    updateWorksheetAlias: function (data) {
+      return window.api.call('worksheet', 'updateWorksheetAlias', data);
+    },
+    updateWorksheetDec: function (data) {
+      return window.api.call('worksheet', 'updateWorksheetDec', data);
+    },
+    updateWorksheetShareRange: function (data) {
+      return window.api.call('worksheet', 'updateWorksheetShareRange', data);
+    },
+    getWorksheetInfo: function (data) {
+      return window.api.call('worksheet', 'getWorksheetInfo', data);
+    },
+    getWorksheetBaseInfo: function (data) {
+      return window.api.call('worksheet', 'getWorksheetBaseInfo', data);
+    },
+    getWorksheetInfoByWorkItem: function (data) {
+      return window.api.call('worksheet', 'getWorksheetInfoByWorkItem', data);
+    },
+    getWorksheetShareUrl: function (data) {
+      return window.api.call('worksheet', 'getWorksheetShareUrl', data);
+    },
+    getShareInfoByShareId: function (data) {
+      return window.api.call('worksheet', 'getShareInfoByShareId', data);
+    },
+    getRefreshRowsMinute: function (data) {
+      return window.api.call('worksheet', 'getRefreshRowsMinute', data);
+    },
+    getRowByID: function (data) {
+      return window.api.call('worksheet', 'getRowByID', data);
+    },
+    getAttachmentDetail: function (data) {
+      return window.api.call('worksheet', 'getAttachmentDetail', data);
+    },
+    getAttachmentShareId: function (data) {
+      return window.api.call('worksheet', 'getAttachmentShareId', data);
+    },
+    getRowDetail: function (data) {
+      return window.api.call('worksheet', 'getRowDetail', data);
+    },
+    checkRowEditLock: function (data) {
+      return window.api.call('worksheet', 'checkRowEditLock', data);
+    },
+    getRowEditLock: function (data) {
+      return window.api.call('worksheet', 'getRowEditLock', data);
+    },
+    cancelRowEditLock: function (data) {
+      return window.api.call('worksheet', 'cancelRowEditLock', data);
+    },
+    getWorkItem: function (data) {
+      return window.api.call('worksheet', 'getWorkItem', data);
+    },
+    getRowRelationRows: function (data) {
+      return window.api.call('worksheet', 'getRowRelationRows', data);
+    },
+    addWorksheetRow: function (data) {
+      return window.api.call('worksheet', 'addWorksheetRow', data);
+    },
+    saveDraftRow: function (data) {
+      return window.api.call('worksheet', 'saveDraftRow', data);
+    },
+    addWSRowsBatch: function (data) {
+      return window.api.call('worksheet', 'addWSRowsBatch', data);
+    },
+    updateWorksheetRow: function (data) {
+      return window.api.call('worksheet', 'updateWorksheetRow', data);
+    },
+    checkFieldUnique: function (data) {
+      return window.api.call('worksheet', 'checkFieldUnique', data);
+    },
+    updateWorksheetRows: function (data) {
+      return window.api.call('worksheet', 'updateWorksheetRows', data);
+    },
+    updateRowRelationRows: function (data) {
+      return window.api.call('worksheet', 'updateRowRelationRows', data);
+    },
+    replaceRowRelationRows: function (data) {
+      return window.api.call('worksheet', 'replaceRowRelationRows', data);
+    },
+    refreshSummary: function (data) {
+      return window.api.call('worksheet', 'refreshSummary', data);
+    },
+    refreshWorksheetRows: function (data) {
+      return window.api.call('worksheet', 'refreshWorksheetRows', data);
+    },
+    deleteWorksheetRows: function (data) {
+      return window.api.call('worksheet', 'deleteWorksheetRows', data);
+    },
+    restoreWorksheetRows: function (data) {
+      return window.api.call('worksheet', 'restoreWorksheetRows', data);
+    },
+    removeWorksheetRows: function (data) {
+      return window.api.call('worksheet', 'removeWorksheetRows', data);
+    },
+    getFilterRows: function (data) {
+      return window.api.call('worksheet', 'getFilterRows', data);
+    },
+    getFilterRowsByQueryDefault: function (data) {
+      return window.api.call('worksheet', 'getFilterRowsByQueryDefault', data);
+    },
+    getFilterRowsTotalNum: function (data) {
+      return window.api.call('worksheet', 'getFilterRowsTotalNum', data);
+    },
+    getFilterRowsReport: function (data) {
+      return window.api.call('worksheet', 'getFilterRowsReport', data);
+    },
+    getLogs: function (data) {
+      return window.api.call('worksheet', 'getLogs', data);
+    },
+    getWorksheetOperationLogs: function (data) {
+      return window.api.call('worksheet', 'getWorksheetOperationLogs', data);
+    },
+    getDetailTableLog: function (data) {
+      return window.api.call('worksheet', 'getDetailTableLog', data);
+    },
+    batchGetWorksheetOperationLogs: function (data) {
+      return window.api.call('worksheet', 'batchGetWorksheetOperationLogs', data);
+    },
+    updateWorksheetRowShareRange: function (data) {
+      return window.api.call('worksheet', 'updateWorksheetRowShareRange', data);
+    },
+    getRowsShortUrl: function (data) {
+      return window.api.call('worksheet', 'getRowsShortUrl', data);
+    },
+    copyRow: function (data) {
+      return window.api.call('worksheet', 'copyRow', data);
+    },
+    getNavGroup: function (data) {
+      return window.api.call('worksheet', 'getNavGroup', data);
+    },
+    getWorksheetArchives: function (data) {
+      return window.api.call('worksheet', 'getWorksheetArchives', data);
+    },
+    saveWorksheetFilter: function (data) {
+      return window.api.call('worksheet', 'saveWorksheetFilter', data);
+    },
+    getWorksheetFilters: function (data) {
+      return window.api.call('worksheet', 'getWorksheetFilters', data);
+    },
+    getWorksheetFilterById: function (data) {
+      return window.api.call('worksheet', 'getWorksheetFilterById', data);
+    },
+    deleteWorksheetFilter: function (data) {
+      return window.api.call('worksheet', 'deleteWorksheetFilter', data);
+    },
+    sortWorksheetFilters: function (data) {
+      return window.api.call('worksheet', 'sortWorksheetFilters', data);
+    },
+    saveWorksheetView: function (data) {
+      return window.api.call('worksheet', 'saveWorksheetView', data);
+    },
+    getWorksheetViews: function (data) {
+      return window.api.call('worksheet', 'getWorksheetViews', data);
+    },
+    getWorksheetViewById: function (data) {
+      return window.api.call('worksheet', 'getWorksheetViewById', data);
+    },
+    deleteWorksheetView: function (data) {
+      return window.api.call('worksheet', 'deleteWorksheetView', data);
+    },
+    restoreWorksheetView: function (data) {
+      return window.api.call('worksheet', 'restoreWorksheetView', data);
+    },
+    copyWorksheetView: function (data) {
+      return window.api.call('worksheet', 'copyWorksheetView', data);
+    },
+    sortWorksheetViews: function (data) {
+      return window.api.call('worksheet', 'sortWorksheetViews', data);
+    },
+    copyWorksheetViewConfig: function (data) {
+      return window.api.call('worksheet', 'copyWorksheetViewConfig', data);
+    },
+    editGenerateViewDefaultAlias: function (data) {
+      return window.api.call('worksheet', 'editGenerateViewDefaultAlias', data);
+    },
+    editViewAlias: function (data) {
+      return window.api.call('worksheet', 'editViewAlias', data);
+    },
+    getWorksheetBtns: function (data) {
+      return window.api.call('worksheet', 'getWorksheetBtns', data);
+    },
+    checkWorksheetRowBtn: function (data) {
+      return window.api.call('worksheet', 'checkWorksheetRowBtn', data);
+    },
+    checkWorksheetRowsBtn: function (data) {
+      return window.api.call('worksheet', 'checkWorksheetRowsBtn', data);
+    },
+    getWorksheetBtnByID: function (data) {
+      return window.api.call('worksheet', 'getWorksheetBtnByID', data);
+    },
+    optionWorksheetBtn: function (data) {
+      return window.api.call('worksheet', 'optionWorksheetBtn', data);
+    },
+    saveWorksheetBtn: function (data) {
+      return window.api.call('worksheet', 'saveWorksheetBtn', data);
+    },
+    copyWorksheetBtn: function (data) {
+      return window.api.call('worksheet', 'copyWorksheetBtn', data);
+    },
+    getControlRules: function (data) {
+      return window.api.call('worksheet', 'getControlRules', data);
+    },
+    saveControlRule: function (data) {
+      return window.api.call('worksheet', 'saveControlRule', data);
+    },
+    sortControlRules: function (data) {
+      return window.api.call('worksheet', 'sortControlRules', data);
+    },
+    saveWorksheetControls: function (data) {
+      return window.api.call('worksheet', 'saveWorksheetControls', data);
+    },
+    addWorksheetControls: function (data) {
+      return window.api.call('worksheet', 'addWorksheetControls', data);
+    },
+    getWorksheetControls: function (data) {
+      return window.api.call('worksheet', 'getWorksheetControls', data);
+    },
+    getAiFieldRecommendation: function (data) {
+      return window.api.call('worksheet', 'getAiFieldRecommendation', data);
+    },
+    getWorksheetsControls: function (data) {
+      return window.api.call('worksheet', 'getWorksheetsControls', data);
+    },
+    editControlsAlias: function (data) {
+      return window.api.call('worksheet', 'editControlsAlias', data);
+    },
+    editGenerateControlsDefaultAlias: function (data) {
+      return window.api.call('worksheet', 'editGenerateControlsDefaultAlias', data);
+    },
+    editWorksheetControls: function (data) {
+      return window.api.call('worksheet', 'editWorksheetControls', data);
+    },
+    resetControlIncrease: function (data) {
+      return window.api.call('worksheet', 'resetControlIncrease', data);
+    },
+    deleteWorksheetAutoID: function (data) {
+      return window.api.call('worksheet', 'deleteWorksheetAutoID', data);
+    },
+    editControlsStatus: function (data) {
+      return window.api.call('worksheet', 'editControlsStatus', data);
+    },
+    getWorksheetReferences: function (data) {
+      return window.api.call('worksheet', 'getWorksheetReferences', data);
+    },
+    getPrintList: function (data) {
+      return window.api.call('worksheet', 'getPrintList', data);
+    },
+    getFormComponent: function (data) {
+      return window.api.call('worksheet', 'getFormComponent', data);
+    },
+    getPrint: function (data) {
+      return window.api.call('worksheet', 'getPrint', data);
+    },
+    getCodePrint: function (data) {
+      return window.api.call('worksheet', 'getCodePrint', data);
+    },
+    getPrintTemplate: function (data) {
+      return window.api.call('worksheet', 'getPrintTemplate', data);
+    },
+    editPrint: function (data) {
+      return window.api.call('worksheet', 'editPrint', data);
+    },
+    editPrintFile: function (data) {
+      return window.api.call('worksheet', 'editPrintFile', data);
+    },
+    saveRecordCodePrintConfig: function (data) {
+      return window.api.call('worksheet', 'saveRecordCodePrintConfig', data);
+    },
+    editPrintName: function (data) {
+      return window.api.call('worksheet', 'editPrintName', data);
+    },
+    editPrintRange: function (data) {
+      return window.api.call('worksheet', 'editPrintRange', data);
+    },
     editPrintFilter: function (data) {
       return window.api.call('worksheet', 'editPrintFilter', data);
-    },
-    editTemplateDownloadPermission: function (data) {
-      return window.api.call('worksheet', 'editTemplateDownloadPermission', data);
     },
     editPrintTemplateSort: function (data) {
       return window.api.call('worksheet', 'editPrintTemplateSort', data);
@@ -117,347 +408,11 @@ module.exports = {
     saveExportConfig: function (data) {
       return window.api.call('worksheet', 'saveExportConfig', data);
     },
-    getViewPermission: function (data) {
-      return window.api.call('worksheet', 'getViewPermission', data);
-    },
-    getAppExtendAttr: function (data) {
-      return window.api.call('worksheet', 'getAppExtendAttr', data);
-    },
-    getExtendAttrOptionalControl: function (data) {
-      return window.api.call('worksheet', 'getExtendAttrOptionalControl', data);
-    },
-    saveAppExtendAttr: function (data) {
-      return window.api.call('worksheet', 'saveAppExtendAttr', data);
-    },
-    copyWorksheet: function (data) {
-      return window.api.call('worksheet', 'copyWorksheet', data);
-    },
-    updateEntityName: function (data) {
-      return window.api.call('worksheet', 'updateEntityName', data);
-    },
-    editDeveloperNotes: function (data) {
-      return window.api.call('worksheet', 'editDeveloperNotes', data);
-    },
-    updateWorksheetAlias: function (data) {
-      return window.api.call('worksheet', 'updateWorksheetAlias', data);
-    },
-    updateWorksheetDec: function (data) {
-      return window.api.call('worksheet', 'updateWorksheetDec', data);
-    },
-    updateWorksheetShareRange: function (data) {
-      return window.api.call('worksheet', 'updateWorksheetShareRange', data);
-    },
-    getWorksheetInfo: function (data) {
-      return window.api.call('worksheet', 'getWorksheetInfo', data);
-    },
-    getWorksheetInfoByWorkItem: function (data) {
-      return window.api.call('worksheet', 'getWorksheetInfoByWorkItem', data);
-    },
-    getWorksheetShareUrl: function (data) {
-      return window.api.call('worksheet', 'getWorksheetShareUrl', data);
-    },
-    getShareInfoByShareId: function (data) {
-      return window.api.call('worksheet', 'getShareInfoByShareId', data);
-    },
-    getRowByID: function (data) {
-      return window.api.call('worksheet', 'getRowByID', data);
-    },
-    getAttachmentDetail: function (data) {
-      return window.api.call('worksheet', 'getAttachmentDetail', data);
-    },
-    getAttachmentShareId: function (data) {
-      return window.api.call('worksheet', 'getAttachmentShareId', data);
-    },
-    getRowDetail: function (data) {
-      return window.api.call('worksheet', 'getRowDetail', data);
-    },
-    getWorkItem: function (data) {
-      return window.api.call('worksheet', 'getWorkItem', data);
-    },
-    getRowRelationRows: function (data) {
-      return window.api.call('worksheet', 'getRowRelationRows', data);
-    },
-    addWorksheetRow: function (data) {
-      return window.api.call('worksheet', 'addWorksheetRow', data);
-    },
-    addWSRowsBatch: function (data) {
-      return window.api.call('worksheet', 'addWSRowsBatch', data);
-    },
-    updateWorksheetRow: function (data) {
-      return window.api.call('worksheet', 'updateWorksheetRow', data);
-    },
-    checkFieldUnique: function (data) {
-      return window.api.call('worksheet', 'checkFieldUnique', data);
-    },
-    updateWorksheetRows: function (data) {
-      return window.api.call('worksheet', 'updateWorksheetRows', data);
-    },
-    updateRowRelationRows: function (data) {
-      return window.api.call('worksheet', 'updateRowRelationRows', data);
-    },
-    replaceRowRelationRows: function (data) {
-      return window.api.call('worksheet', 'replaceRowRelationRows', data);
-    },
-    refreshSummary: function (data) {
-      return window.api.call('worksheet', 'refreshSummary', data);
-    },
-    refreshWorksheetRows: function (data) {
-      return window.api.call('worksheet', 'refreshWorksheetRows', data);
-    },
-    deleteWorksheetRows: function (data) {
-      return window.api.call('worksheet', 'deleteWorksheetRows', data);
-    },
-    restoreWorksheetRows: function (data) {
-      return window.api.call('worksheet', 'restoreWorksheetRows', data);
-    },
-    removeWorksheetRows: function (data) {
-      return window.api.call('worksheet', 'removeWorksheetRows', data);
-    },
-    getFilterRows: function (data) {
-      return window.api.call('worksheet', 'getFilterRows', data);
-    },
-    getFilterRowsByQueryDefault: function (data) {
-      return window.api.call('worksheet', 'getFilterRowsByQueryDefault', data);
-    },
-    getFilterRowsTotalNum: function (data) {
-      return window.api.call('worksheet', 'getFilterRowsTotalNum', data);
-    },
-    getFilterRowsReport: function (data) {
-      return window.api.call('worksheet', 'getFilterRowsReport', data);
-    },
-    getLogs: function (data) {
-      return window.api.call('worksheet', 'getLogs', data);
-    },
-    getWorksheetOperationLogs: function (data) {
-      return window.api.call('worksheet', 'getWorksheetOperationLogs', data);
-    },
-    getDetailTableLog: function (data) {
-      return window.api.call('worksheet', 'getDetailTableLog', data);
-    },
-    batchGetWorksheetOperationLogs: function (data) {
-      return window.api.call('worksheet', 'batchGetWorksheetOperationLogs', data);
-    },
-    updateWorksheetRowShareRange: function (data) {
-      return window.api.call('worksheet', 'updateWorksheetRowShareRange', data);
-    },
-    getRowsShortUrl: function (data) {
-      return window.api.call('worksheet', 'getRowsShortUrl', data);
-    },
-    copyRow: function (data) {
-      return window.api.call('worksheet', 'copyRow', data);
-    },
-    getNavGroup: function (data) {
-      return window.api.call('worksheet', 'getNavGroup', data);
-    },
-    getWorksheetArchives: function (data) {
-      return window.api.call('worksheet', 'getWorksheetArchives', data);
-    },
-    saveWorksheetFilter: function (data) {
-      return window.api.call('worksheet', 'saveWorksheetFilter', data);
-    },
-    getWorksheetFilters: function (data) {
-      return window.api.call('worksheet', 'getWorksheetFilters', data);
-    },
-    getWorksheetFilterById: function (data) {
-      return window.api.call('worksheet', 'getWorksheetFilterById', data);
-    },
-    deleteWorksheetFilter: function (data) {
-      return window.api.call('worksheet', 'deleteWorksheetFilter', data);
-    },
-    sortWorksheetFilters: function (data) {
-      return window.api.call('worksheet', 'sortWorksheetFilters', data);
-    },
-    saveWorksheetView: function (data) {
-      return window.api.call('worksheet', 'saveWorksheetView', data);
-    },
-    getWorksheetViews: function (data) {
-      return window.api.call('worksheet', 'getWorksheetViews', data);
-    },
-    deleteWorksheetView: function (data) {
-      return window.api.call('worksheet', 'deleteWorksheetView', data);
-    },
-    copyWorksheetView: function (data) {
-      return window.api.call('worksheet', 'copyWorksheetView', data);
-    },
-    sortWorksheetViews: function (data) {
-      return window.api.call('worksheet', 'sortWorksheetViews', data);
-    },
-    getWorksheetBtns: function (data) {
-      return window.api.call('worksheet', 'getWorksheetBtns', data);
-    },
-    getWorksheetBtnByID: function (data) {
-      return window.api.call('worksheet', 'getWorksheetBtnByID', data);
-    },
-    optionWorksheetBtn: function (data) {
-      return window.api.call('worksheet', 'optionWorksheetBtn', data);
-    },
-    saveWorksheetBtn: function (data) {
-      return window.api.call('worksheet', 'saveWorksheetBtn', data);
-    },
-    copyWorksheetBtn: function (data) {
-      return window.api.call('worksheet', 'copyWorksheetBtn', data);
-    },
-    getControlRules: function (data) {
-      return window.api.call('worksheet', 'getControlRules', data);
-    },
-    saveControlRule: function (data) {
-      return window.api.call('worksheet', 'saveControlRule', data);
-    },
-    sortControlRules: function (data) {
-      return window.api.call('worksheet', 'sortControlRules', data);
-    },
-    saveWorksheetControls: function (data) {
-      return window.api.call('worksheet', 'saveWorksheetControls', data);
-    },
-    addWorksheetControls: function (data) {
-      return window.api.call('worksheet', 'addWorksheetControls', data);
-    },
-    getWorksheetControls: function (data) {
-      return window.api.call('worksheet', 'getWorksheetControls', data);
-    },
-    getAiFieldRecommendation: function (data) {
-      return window.api.call('worksheet', 'getAiFieldRecommendation', data);
-    },
-    getWorksheetsControls: function (data) {
-      return window.api.call('worksheet', 'getWorksheetsControls', data);
-    },
-    editControlsAlias: function (data) {
-      return window.api.call('worksheet', 'editControlsAlias', data);
-    },
-    editGenerateControlsDefaultAlias: function (data) {
-      return window.api.call('worksheet', 'editGenerateControlsDefaultAlias', data);
-    },
-    editWorksheetControls: function (data) {
-      return window.api.call('worksheet', 'editWorksheetControls', data);
-    },
-    resetControlIncrease: function (data) {
-      return window.api.call('worksheet', 'resetControlIncrease', data);
-    },
-    deleteWorksheetAutoID: function (data) {
-      return window.api.call('worksheet', 'deleteWorksheetAutoID', data);
-    },
-    editControlsStatus: function (data) {
-      return window.api.call('worksheet', 'editControlsStatus', data);
-    },
-    getPrintList: function (data) {
-      return window.api.call('worksheet', 'getPrintList', data);
-    },
-    getFormComponent: function (data) {
-      return window.api.call('worksheet', 'getFormComponent', data);
-    },
-    getPrint: function (data) {
-      return window.api.call('worksheet', 'getPrint', data);
-    },
-    getCodePrint: function (data) {
-      return window.api.call('worksheet', 'getCodePrint', data);
-    },
-    getPrintTemplate: function (data) {
-      return window.api.call('worksheet', 'getPrintTemplate', data);
-    },
-    editPrint: function (data) {
-      return window.api.call('worksheet', 'editPrint', data);
-    },
-    saveRecordCodePrintConfig: function (data) {
-      return window.api.call('worksheet', 'saveRecordCodePrintConfig', data);
-    },
-    editPrintName: function (data) {
-      return window.api.call('worksheet', 'editPrintName', data);
-    },
-    editPrintRange: function (data) {
-      return window.api.call('worksheet', 'editPrintRange', data);
+    getWorksheetCurrencyInfos: function (data) {
+      return window.api.call('worksheet', 'getWorksheetCurrencyInfos', data);
     },
 },
 appManagement: {
-    restoreData: function (data) {
-      return window.api.call('appManagement', 'restoreData', data);
-    },
-    backup: function (data) {
-      return window.api.call('appManagement', 'backup', data);
-    },
-    checkRestoreFile: function (data) {
-      return window.api.call('appManagement', 'checkRestoreFile', data);
-    },
-    getTarTaskInfo: function (data) {
-      return window.api.call('appManagement', 'getTarTaskInfo', data);
-    },
-    allUsageOverviewStatistics: function (data) {
-      return window.api.call('appManagement', 'allUsageOverviewStatistics', data);
-    },
-    appUsageOverviewStatistics: function (data) {
-      return window.api.call('appManagement', 'appUsageOverviewStatistics', data);
-    },
-    usageStatisticsForDimension: function (data) {
-      return window.api.call('appManagement', 'usageStatisticsForDimension', data);
-    },
-    getGlobalLogs: function (data) {
-      return window.api.call('appManagement', 'getGlobalLogs', data);
-    },
-    getWorksheetsUnderTheApp: function (data) {
-      return window.api.call('appManagement', 'getWorksheetsUnderTheApp', data);
-    },
-    addLock: function (data) {
-      return window.api.call('appManagement', 'addLock', data);
-    },
-    unlock: function (data) {
-      return window.api.call('appManagement', 'unlock', data);
-    },
-    editLockPassword: function (data) {
-      return window.api.call('appManagement', 'editLockPassword', data);
-    },
-    resetLock: function (data) {
-      return window.api.call('appManagement', 'resetLock', data);
-    },
-    closeLock: function (data) {
-      return window.api.call('appManagement', 'closeLock', data);
-    },
-    checkUpgrade: function (data) {
-      return window.api.call('appManagement', 'checkUpgrade', data);
-    },
-    getWorksheetUpgrade: function (data) {
-      return window.api.call('appManagement', 'getWorksheetUpgrade', data);
-    },
-    upgrade: function (data) {
-      return window.api.call('appManagement', 'upgrade', data);
-    },
-    getUpgradeLogs: function (data) {
-      return window.api.call('appManagement', 'getUpgradeLogs', data);
-    },
-    getMdyInfo: function (data) {
-      return window.api.call('appManagement', 'getMdyInfo', data);
-    },
-    getAppLangs: function (data) {
-      return window.api.call('appManagement', 'getAppLangs', data);
-    },
-    createAppLang: function (data) {
-      return window.api.call('appManagement', 'createAppLang', data);
-    },
-    deleteAppLang: function (data) {
-      return window.api.call('appManagement', 'deleteAppLang', data);
-    },
-    getAppLangDetail: function (data) {
-      return window.api.call('appManagement', 'getAppLangDetail', data);
-    },
-    editAppLang: function (data) {
-      return window.api.call('appManagement', 'editAppLang', data);
-    },
-    machineTranslation: function (data) {
-      return window.api.call('appManagement', 'machineTranslation', data);
-    },
-    getAppStructureForER: function (data) {
-      return window.api.call('appManagement', 'getAppStructureForER', data);
-    },
-    getProjectLangs: function (data) {
-      return window.api.call('appManagement', 'getProjectLangs', data);
-    },
-    getsByProjectIds: function (data) {
-      return window.api.call('appManagement', 'getsByProjectIds', data);
-    },
-    editProjectLangs: function (data) {
-      return window.api.call('appManagement', 'editProjectLangs', data);
-    },
-    getProjectLang: function (data) {
-      return window.api.call('appManagement', 'getProjectLang', data);
-    },
     addRole: function (data) {
       return window.api.call('appManagement', 'addRole', data);
     },
@@ -518,6 +473,9 @@ appManagement: {
     getRolesWithUsers: function (data) {
       return window.api.call('appManagement', 'getRolesWithUsers', data);
     },
+    getSimpleRoles: function (data) {
+      return window.api.call('appManagement', 'getSimpleRoles', data);
+    },
     getTotalMember: function (data) {
       return window.api.call('appManagement', 'getTotalMember', data);
     },
@@ -562,6 +520,12 @@ appManagement: {
     },
     replaceRoleMemberForApps: function (data) {
       return window.api.call('appManagement', 'replaceRoleMemberForApps', data);
+    },
+    getUserApp: function (data) {
+      return window.api.call('appManagement', 'getUserApp', data);
+    },
+    getMyApp: function (data) {
+      return window.api.call('appManagement', 'getMyApp', data);
     },
     getAppsForProject: function (data) {
       return window.api.call('appManagement', 'getAppsForProject', data);
@@ -623,6 +587,12 @@ appManagement: {
     getAuthorizes: function (data) {
       return window.api.call('appManagement', 'getAuthorizes', data);
     },
+    getAuthorizeSheet: function (data) {
+      return window.api.call('appManagement', 'getAuthorizeSheet', data);
+    },
+    getAuthorizeSheetTemple: function (data) {
+      return window.api.call('appManagement', 'getAuthorizeSheetTemple', data);
+    },
     editAuthorizeStatus: function (data) {
       return window.api.call('appManagement', 'editAuthorizeStatus', data);
     },
@@ -634,6 +604,9 @@ appManagement: {
     },
     getWeiXinBindingInfo: function (data) {
       return window.api.call('appManagement', 'getWeiXinBindingInfo', data);
+    },
+    migrate: function (data) {
+      return window.api.call('appManagement', 'migrate', data);
     },
     getAppApplyInfo: function (data) {
       return window.api.call('appManagement', 'getAppApplyInfo', data);
@@ -710,6 +683,144 @@ appManagement: {
     restore: function (data) {
       return window.api.call('appManagement', 'restore', data);
     },
+    restoreData: function (data) {
+      return window.api.call('appManagement', 'restoreData', data);
+    },
+    backup: function (data) {
+      return window.api.call('appManagement', 'backup', data);
+    },
+    checkRestoreFile: function (data) {
+      return window.api.call('appManagement', 'checkRestoreFile', data);
+    },
+    getTarTaskInfo: function (data) {
+      return window.api.call('appManagement', 'getTarTaskInfo', data);
+    },
+    allUsageOverviewStatistics: function (data) {
+      return window.api.call('appManagement', 'allUsageOverviewStatistics', data);
+    },
+    appUsageOverviewStatistics: function (data) {
+      return window.api.call('appManagement', 'appUsageOverviewStatistics', data);
+    },
+    usageStatisticsForDimension: function (data) {
+      return window.api.call('appManagement', 'usageStatisticsForDimension', data);
+    },
+    getGlobalLogs: function (data) {
+      return window.api.call('appManagement', 'getGlobalLogs', data);
+    },
+    getArchivedGlobalLogs: function (data) {
+      return window.api.call('appManagement', 'getArchivedGlobalLogs', data);
+    },
+    getArchivedList: function (data) {
+      return window.api.call('appManagement', 'getArchivedList', data);
+    },
+    getWorksheetsUnderTheApp: function (data) {
+      return window.api.call('appManagement', 'getWorksheetsUnderTheApp', data);
+    },
+    addLock: function (data) {
+      return window.api.call('appManagement', 'addLock', data);
+    },
+    unlock: function (data) {
+      return window.api.call('appManagement', 'unlock', data);
+    },
+    editLockPassword: function (data) {
+      return window.api.call('appManagement', 'editLockPassword', data);
+    },
+    resetLock: function (data) {
+      return window.api.call('appManagement', 'resetLock', data);
+    },
+    closeLock: function (data) {
+      return window.api.call('appManagement', 'closeLock', data);
+    },
+    marketAppUpgrade: function (data) {
+      return window.api.call('appManagement', 'marketAppUpgrade', data);
+    },
+    marketUpgrade: function (data) {
+      return window.api.call('appManagement', 'marketUpgrade', data);
+    },
+    checkUpgrade: function (data) {
+      return window.api.call('appManagement', 'checkUpgrade', data);
+    },
+    getWorksheetUpgrade: function (data) {
+      return window.api.call('appManagement', 'getWorksheetUpgrade', data);
+    },
+    upgrade: function (data) {
+      return window.api.call('appManagement', 'upgrade', data);
+    },
+    getUpgradeLogs: function (data) {
+      return window.api.call('appManagement', 'getUpgradeLogs', data);
+    },
+    getMdyInfo: function (data) {
+      return window.api.call('appManagement', 'getMdyInfo', data);
+    },
+    batchExportApp: function (data) {
+      return window.api.call('appManagement', 'batchExportApp', data);
+    },
+    getsByUnionId: function (data) {
+      return window.api.call('appManagement', 'getsByUnionId', data);
+    },
+    getBatchId: function (data) {
+      return window.api.call('appManagement', 'getBatchId', data);
+    },
+    batchImportCheck: function (data) {
+      return window.api.call('appManagement', 'batchImportCheck', data);
+    },
+    batchImport: function (data) {
+      return window.api.call('appManagement', 'batchImport', data);
+    },
+    getAppLangs: function (data) {
+      return window.api.call('appManagement', 'getAppLangs', data);
+    },
+    createAppLang: function (data) {
+      return window.api.call('appManagement', 'createAppLang', data);
+    },
+    deleteAppLang: function (data) {
+      return window.api.call('appManagement', 'deleteAppLang', data);
+    },
+    getAppLangDetail: function (data) {
+      return window.api.call('appManagement', 'getAppLangDetail', data);
+    },
+    editAppLang: function (data) {
+      return window.api.call('appManagement', 'editAppLang', data);
+    },
+    machineTranslation: function (data) {
+      return window.api.call('appManagement', 'machineTranslation', data);
+    },
+    getAppStructureForER: function (data) {
+      return window.api.call('appManagement', 'getAppStructureForER', data);
+    },
+    getProjectLangs: function (data) {
+      return window.api.call('appManagement', 'getProjectLangs', data);
+    },
+    getsByProjectIds: function (data) {
+      return window.api.call('appManagement', 'getsByProjectIds', data);
+    },
+    editProjectLangs: function (data) {
+      return window.api.call('appManagement', 'editProjectLangs', data);
+    },
+    editPasswordRegexTipLangs: function (data) {
+      return window.api.call('appManagement', 'editPasswordRegexTipLangs', data);
+    },
+    getProjectLang: function (data) {
+      return window.api.call('appManagement', 'getProjectLang', data);
+    },
+    addOfflineItem: function (data) {
+      return window.api.call('appManagement', 'addOfflineItem', data);
+    },
+    editOfflineItemStatus: function (data) {
+      return window.api.call('appManagement', 'editOfflineItemStatus', data);
+    },
+    getOfflineItems: function (data) {
+      return window.api.call('appManagement', 'getOfflineItems', data);
+    },
+    getBackupTask: function (data) {
+      return window.api.call('appManagement', 'getBackupTask', data);
+    },
+    editBackupTaskStatus: function (data) {
+      return window.api.call('appManagement', 'editBackupTaskStatus', data);
+    },
+    editBackupTaskInfo: function (data) {
+      return window.api.call('appManagement', 'editBackupTaskInfo', data);
+    },
 },
 homeApp: {
     createApp: function (data) {
@@ -729,6 +840,9 @@ homeApp: {
     },
     editAppTimeZones: function (data) {
       return window.api.call('homeApp', 'editAppTimeZones', data);
+    },
+    editAppOriginalLang: function (data) {
+      return window.api.call('homeApp', 'editAppOriginalLang', data);
     },
     markApp: function (data) {
       return window.api.call('homeApp', 'markApp', data);
@@ -847,6 +961,12 @@ homeApp: {
     myPlatform: function (data) {
       return window.api.call('homeApp', 'myPlatform', data);
     },
+    marketApps: function (data) {
+      return window.api.call('homeApp', 'marketApps', data);
+    },
+    recentApps: function (data) {
+      return window.api.call('homeApp', 'recentApps', data);
+    },
     getAppIdsAndItemIdsTest: function (data) {
       return window.api.call('homeApp', 'getAppIdsAndItemIdsTest', data);
     },
@@ -899,6 +1019,12 @@ instance: {
     getInstance: function (data) {
       return window.api.call('instance', 'getInstance', data);
     },
+    getOperationDetail: function (data) {
+      return window.api.call('instance', 'getOperationDetail', data);
+    },
+    getOperationHistoryList: function (data) {
+      return window.api.call('instance', 'getOperationHistoryList', data);
+    },
     operation: function (data) {
       return window.api.call('instance', 'operation', data);
     },
@@ -928,6 +1054,9 @@ instance: {
     },
 },
 instanceVersion: {
+    cover: function (data) {
+      return window.api.call('instanceVersion', 'cover', data);
+    },
     get2: function (data) {
       return window.api.call('instanceVersion', 'get2', data);
     },
@@ -1106,6 +1235,9 @@ processVersion: {
     list: function (data) {
       return window.api.call('processVersion', 'list', data);
     },
+    listAll: function (data) {
+      return window.api.call('processVersion', 'listAll', data);
+    },
     removeProcess: function (data) {
       return window.api.call('processVersion', 'removeProcess', data);
     },
@@ -1120,6 +1252,9 @@ delegation: {
     getList: function (data) {
       return window.api.call('delegation', 'getList', data);
     },
+    getListByCompanyId: function (data) {
+      return window.api.call('delegation', 'getListByCompanyId', data);
+    },
     getListByPrincipals: function (data) {
       return window.api.call('delegation', 'getListByPrincipals', data);
     },
@@ -1133,6 +1268,71 @@ qiniu: {
     },
     getFileUploadToken: function (data) {
       return window.api.call('qiniu', 'getFileUploadToken', data);
+    },
+},
+plugin: {
+    create: function (data) {
+      return window.api.call('plugin', 'create', data);
+    },
+    edit: function (data) {
+      return window.api.call('plugin', 'edit', data);
+    },
+    getDetail: function (data) {
+      return window.api.call('plugin', 'getDetail', data);
+    },
+    checkExists: function (data) {
+      return window.api.call('plugin', 'checkExists', data);
+    },
+    getList: function (data) {
+      return window.api.call('plugin', 'getList', data);
+    },
+    getAll: function (data) {
+      return window.api.call('plugin', 'getAll', data);
+    },
+    remove: function (data) {
+      return window.api.call('plugin', 'remove', data);
+    },
+    release: function (data) {
+      return window.api.call('plugin', 'release', data);
+    },
+    rollback: function (data) {
+      return window.api.call('plugin', 'rollback', data);
+    },
+    getReleaseHistory: function (data) {
+      return window.api.call('plugin', 'getReleaseHistory', data);
+    },
+    removeRelease: function (data) {
+      return window.api.call('plugin', 'removeRelease', data);
+    },
+    commit: function (data) {
+      return window.api.call('plugin', 'commit', data);
+    },
+    removeCommit: function (data) {
+      return window.api.call('plugin', 'removeCommit', data);
+    },
+    getCommitHistory: function (data) {
+      return window.api.call('plugin', 'getCommitHistory', data);
+    },
+    getUseDetail: function (data) {
+      return window.api.call('plugin', 'getUseDetail', data);
+    },
+    import: function (data) {
+      return window.api.call('plugin', 'import', data);
+    },
+    export: function (data) {
+      return window.api.call('plugin', 'export', data);
+    },
+    getExportHistory: function (data) {
+      return window.api.call('plugin', 'getExportHistory', data);
+    },
+    getPluginListBySourece: function (data) {
+      return window.api.call('plugin', 'getPluginListBySourece', data);
+    },
+    stateSave: function (data) {
+      return window.api.call('plugin', 'stateSave', data);
+    },
+    stateRead: function (data) {
+      return window.api.call('plugin', 'stateRead', data);
     },
 },
 

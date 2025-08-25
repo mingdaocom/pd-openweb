@@ -1,11 +1,12 @@
-import React, { useEffect, useState, Fragment } from 'react';
-import { bindActionCreators } from 'redux';
-import * as actions from './redux/actions';
-import { Popover } from 'antd';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Popover } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { chartNav } from 'statistics/common';
+import * as actions from './redux/actions';
 
 const Wrap = styled.div`
   position: fixed;
@@ -33,7 +34,7 @@ const AutoLinkagePopover = styled.div`
   }
 `;
 
-const LinkageBtn = (props) => {
+const LinkageBtn = props => {
   const { linkageFiltersGroup = {}, deleteLinkageFiltersGroup, deleteAllLinkageFiltersGroup } = props;
   if (_.isEmpty(linkageFiltersGroup)) {
     return null;
@@ -41,11 +42,11 @@ const LinkageBtn = (props) => {
   const renderLinkageFiltersPopover = () => {
     const toArray = () => {
       let result = [];
-      for(let key in linkageFiltersGroup) {
+      for (let key in linkageFiltersGroup) {
         const item = linkageFiltersGroup[key];
         result.push({
           key,
-          ...item
+          ...item,
         });
       }
       return result;
@@ -55,7 +56,11 @@ const LinkageBtn = (props) => {
       <AutoLinkagePopover>
         <div className="valignWrapper" style={{ padding: '0 4px 0 9px' }}>
           <div className="Font17 bold Gray flex">{_l('联动筛选')}</div>
-          <Icon className="Font24 Gray_9e pointer" icon="close" onClick={() => document.querySelector('.autoLinkageTrigger').click()} />
+          <Icon
+            className="Font24 Gray_9e pointer"
+            icon="close"
+            onClick={() => document.querySelector('.autoLinkageTrigger').click()}
+          />
         </div>
         {res.length ? (
           <Fragment>
@@ -63,19 +68,29 @@ const LinkageBtn = (props) => {
               {res.map(item => (
                 <div className="linkageFilter mTop10" key={item.reportId}>
                   <div className="flexRow alignItemsCenter mBottom2">
-                    <Icon className="Font16 mRight5 ThemeColor" icon={_.find(chartNav, { type: item.reportType }).icon} />
+                    <Icon
+                      className="Font16 mRight5 ThemeColor"
+                      icon={_.find(chartNav, { type: item.reportType }).icon}
+                    />
                     <div className="flex ellipsis bold">{item.reportName}</div>
-                    <Icon className="Font17 Gray_9e pointer" icon="delete2" onClick={() => deleteLinkageFiltersGroup(item.key)} />
+                    <Icon
+                      className="Font17 Gray_9e pointer"
+                      icon="trash"
+                      onClick={() => deleteLinkageFiltersGroup(item.key)}
+                    />
                   </div>
                   <div className="flexColumn mLeft20">
                     {item.filters.map(n => (
                       <div
                         key={n.controlId}
                         dangerouslySetInnerHTML={{
-                          __html: _l('%0是%1', `<span class="bold mRight2">${n.controlName}</span>`, `<span class="bold mLeft2">${n.controlValue || '--'}</span>`)
+                          __html: _l(
+                            '%0是%1',
+                            `<span class="bold mRight2">${n.controlName}</span>`,
+                            `<span class="bold mLeft2">${n.controlValue || '--'}</span>`,
+                          ),
                         }}
-                      >
-                      </div>
+                      ></div>
                     ))}
                   </div>
                 </div>
@@ -99,7 +114,7 @@ const LinkageBtn = (props) => {
         )}
       </AutoLinkagePopover>
     );
-  }
+  };
   return (
     <Popover
       visible={undefined}
@@ -108,9 +123,7 @@ const LinkageBtn = (props) => {
       arrowPointAtCenter={true}
       content={renderLinkageFiltersPopover()}
     >
-      <Wrap
-        className="flexRow alignItemsCenter justifyContentCenter card autoLinkageTrigger"
-      >
+      <Wrap className="flexRow alignItemsCenter justifyContentCenter card autoLinkageTrigger">
         <Icon icon="linkage_filter" className="Font22 ThemeColor" />
       </Wrap>
     </Popover>
@@ -121,5 +134,6 @@ export default connect(
   state => ({
     linkageFiltersGroup: state.mobile.linkageFiltersGroup,
   }),
-  dispatch => bindActionCreators(_.pick(actions, ['deleteLinkageFiltersGroup', 'deleteAllLinkageFiltersGroup']), dispatch),
+  dispatch =>
+    bindActionCreators(_.pick(actions, ['deleteLinkageFiltersGroup', 'deleteAllLinkageFiltersGroup']), dispatch),
 )(LinkageBtn);

@@ -1,4 +1,3 @@
-
 .processTabs {
   color: #9e9e9e;
   background-color: #fff;
@@ -11,7 +10,6 @@
 }
 
 .processContent {
-
   background-color: #f2f2f2;
 
   .headerWrapper {
@@ -29,29 +27,46 @@
       width: 130px;
       height: 130px;
       border-radius: 50%;
-      background-color: #EFEFEF;
+      background-color: #efefef;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .icon {
-      color: #BDBDBD;
+      color: #bdbdbd;
       font-size: 90px;
     }
     span {
       font-size: 18px;
-      color: #9E9E9E;
+      color: #9e9e9e;
       margin-top: 22px;
     }
   }
 
   .searchWrapper {
-    padding: 7px 15px;
-    border-radius: 25px;
-    background-color: #fff;
-    position: relative;
     margin: 0 10px 10px;
+    align-items: center;
 
+    .inputWrap {
+      height: 36px;
+      padding: 0 15px;
+      border-radius: 25px;
+      background-color: #fff;
+      position: relative;
+    }
+    .filterWrap {
+      background-color: #fff;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 10px;
+      .active {
+        color: #33a3f4 !important;
+      }
+    }
     input {
       width: 100%;
       border: none;
@@ -69,7 +84,7 @@
     padding: 0 15px;
     background-color: #fff;
     border-radius: 0 0 8px 8px;
-    box-shadow: 0 6px 12px #0000001F;
+    box-shadow: 0 6px 12px #0000001f;
     position: absolute;
     top: 0;
     z-index: 2;
@@ -87,31 +102,32 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    .passApprove, .rejectApprove {
+    .passApprove,
+    .rejectApprove {
       color: #999;
       text-align: center;
       padding: 4px 15px;
       border-radius: 24px;
-      border: 1px solid #DDDDDD;
+      border: 1px solid #dddddd;
       background-color: #fff;
     }
     .passApprove {
       &.all {
         color: #fff;
-        border-color: #4CAF50;
-        background-color: #4CAF50;
+        border-color: #4caf50;
+        background-color: #4caf50;
       }
     }
     .rejectApprove {
       &.select {
-        color: #F44336;
-        border-color: #F44336;
+        color: #f44336;
+        border-color: #f44336;
         background-color: rgba(244, 67, 54, 0.12);
       }
       &.all {
         color: #fff;
-        border-color: #F44336;
-        background-color: #F44336;
+        border-color: #f44336;
+        background-color: #f44336;
       }
     }
   }
@@ -123,10 +139,7 @@
     background-color: #fff;
     position: fixed;
     right: 20px;
-    bottom: 120px;
+    bottom: 70px;
     z-index: 99;
   }
 }
-
-
-

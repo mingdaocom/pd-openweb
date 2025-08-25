@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import _ from 'lodash';
 import { ACTION_ID } from '../../enum';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Search extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ export default class Search extends Component {
     if (item.appId && !item.appName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('工作表已删除')}
         </div>
       );
@@ -30,7 +31,7 @@ export default class Search extends Component {
     if (item.selectNodeId && !item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );
@@ -48,7 +49,7 @@ export default class Search extends Component {
     if (item.actionId === ACTION_ID.RECORD_UPDATE && item.isException) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('必须配置筛选条件和更新字段')}
         </div>
       );
@@ -57,7 +58,7 @@ export default class Search extends Component {
     if (item.actionId === ACTION_ID.RECORD_DELETE && item.isException) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('必须配置筛选条件')}
         </div>
       );

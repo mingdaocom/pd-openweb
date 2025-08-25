@@ -158,7 +158,7 @@ export default class CommentListItem extends React.Component {
           </Menu>
         )}
       >
-        <Icon className="ThemeHoverColor3 TxtMiddle Font18" icon="task-point-more" />
+        <Icon className="ThemeHoverColor3 TxtMiddle Font18" icon="more_horiz" />
       </Trigger>
     );
   }
@@ -209,6 +209,7 @@ export default class CommentListItem extends React.Component {
                 <Tooltip
                   text={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />}
                   themeColor={'white'}
+                  autoCloseDelay={0}
                 >
                   <span
                     className="msgTip icon-task-reply-msg ThemeColor3 pLeft5"

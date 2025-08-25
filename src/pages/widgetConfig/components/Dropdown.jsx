@@ -24,7 +24,7 @@ export default function DropdownWrapper(props) {
     return <div className="text">{(data.find(item => item.value === value) || {}).text}</div>;
   };
   const getItem = item => {
-    const { text, icon, iconAtEnd, children, ...rest } = item;
+    const { text, icon, iconAtEnd, children } = item;
     if (children) return children;
     if (iconAtEnd) {
       return (

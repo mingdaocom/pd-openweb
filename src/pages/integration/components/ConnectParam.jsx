@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { Icon, Support, Checkbox, Tooltip } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { CardTopWrap } from '../apiIntegration/style';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { Checkbox, Icon, Support, Tooltip } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
-import { v4 as uuidv4, validate } from 'uuid';
 import { formatStr } from 'src/pages/integration/config.js';
+import { CardTopWrap } from '../apiIntegration/style';
+
 const Wrap = styled.div`
   p {
     margin: 0;
@@ -147,7 +148,7 @@ const getDefaultParameters = () => {
 
 //连接参数设置
 function ConnectParam(props) {
-  const [{ node, isEdit, isErr, controls, nodeControls }, setState] = useSetState({
+  const [{ node, isEdit, controls, nodeControls }, setState] = useSetState({
     node: props.node,
     isEdit: false,
     isErr: false,
@@ -199,7 +200,7 @@ function ConnectParam(props) {
         },
         { isIntegration: true },
       )
-      .then(res => {
+      .then(() => {
         setState({
           isEdit: false,
         });
@@ -219,7 +220,7 @@ function ConnectParam(props) {
           readOnly={props.connectType === 2 && key !== 'value'}
           onBlur={e => {
             setState({
-              controls: controls.map((item, n) => {
+              controls: controls.map(item => {
                 if (item.controlId === o.controlId) {
                   return { ...item, [key]: e.target.value };
                 } else {
@@ -249,7 +250,7 @@ function ConnectParam(props) {
         <div className={cx('iconCon', { isEdit })}>
           {!isEdit
             ? controls.length > 0 && (
-                <Icon icon="check_circle1" className="Green_right tip" />
+                <Icon icon="check_circle" className="Green_right tip" />
                 // ) : (
                 //   <Icon icon="error1" className="Red tip" />
               )
@@ -319,7 +320,7 @@ function ConnectParam(props) {
               </div>
             </div>
           )}
-          {controls.map((o, i) => {
+          {controls.map(o => {
             const disabled = (nodeControls.find(it => o.controlId === it.controlId) || {}).hide;
             return (
               <div className="par conTr flexRow">
@@ -339,7 +340,7 @@ function ConnectParam(props) {
                       disabled={props.connectType === 2}
                       onClick={() => {
                         setState({
-                          controls: controls.map((item, n) => {
+                          controls: controls.map(item => {
                             if (item.controlId === o.controlId) {
                               return { ...item, required: !o.required };
                             } else {
@@ -364,7 +365,7 @@ function ConnectParam(props) {
                       disabled={disabled} //设置成隐藏后，不可设置成不隐藏
                       onClick={() => {
                         setState({
-                          controls: controls.map((item, n) => {
+                          controls: controls.map(item => {
                             if (item.controlId === o.controlId) {
                               return { ...item, hide: !o.hide };
                             } else {
@@ -377,10 +378,10 @@ function ConnectParam(props) {
                     {props.connectType !== 2 && (
                       <Icon
                         className="flex Font18 Hand LineHeight36 InlineBlock Gray_9e del"
-                        icon="delete1"
+                        icon="trash"
                         onClick={() => {
                           setState({
-                            controls: controls.filter((item, n) => item.controlId !== o.controlId),
+                            controls: controls.filter(item => item.controlId !== o.controlId),
                           });
                         }}
                       />
@@ -407,7 +408,7 @@ function ConnectParam(props) {
               <div className="TxtCenter">
                 <div
                   className="saveBtn Bold InlineBlock Hand"
-                  onClick={e => {
+                  onClick={() => {
                     update();
                   }}
                 >

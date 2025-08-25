@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
+import { useSetState } from 'react-use';
 import { Select } from 'antd';
+import _ from 'lodash';
 import { Icon, SortableList, Switch } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
-import { useSetState } from 'react-use';
-import _ from 'lodash';
 
 const getWorksheetList = (sections = [], viewHideNavi, isAuthorityApp) => {
   let list = _.reduce(
@@ -148,7 +148,7 @@ export default function MobileCustomNav(props) {
                             useDragHandle
                             items={selectedAppNavList}
                             itemKey="workSheetId"
-                            onSortEnd={(newItems, newIndex) => {
+                            onSortEnd={newItems => {
                               const ids = newItems.map(v => v.workSheetId);
                               setData({ appNavItemIds: ids });
                               onChangeApp({ appNavItemIds: ids });

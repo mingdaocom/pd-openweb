@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui';
 import { validateFnExpression } from 'src/utils/common';
 import FunctionEditor from './FunctionEditor';
 
@@ -18,6 +19,15 @@ const Con = styled.div`
     font-weight: normal;
     margin-bottom: -10px;
     margin-top: 6px;
+  }
+  .subListInfo {
+    display: flex;
+    align-items: center;
+    color: #999999;
+    .icon {
+      font-size: 18px;
+      margin-right: 2px;
+    }
   }
 `;
 
@@ -64,11 +74,11 @@ const TestButton = styled.div`
   line-height: 22px;
   background: #ffffff;
   border-radius: 2px 2px 2px 2px;
-  border: 1px solid #2196f3;
+  border: 1px solid #1677ff;
   font-size: 12px;
-  color: #2196f3;
+  color: #1677ff;
   &:hover {
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
   }
 `;
@@ -119,7 +129,7 @@ function getControlDescription(type) {
 function CodeEdit(props, ref) {
   const {
     isWorksheetFlow,
-    isTest,
+    isCustom,
     control = {},
     mode,
     type,
@@ -133,7 +143,6 @@ function CodeEdit(props, ref) {
     projectId,
     showTestButton,
     dialogWidth,
-    dialogHeight,
     onClick = () => {},
     onChange = () => {},
     insertTagToEditor = () => {},
@@ -194,6 +203,7 @@ function CodeEdit(props, ref) {
     getValue: () => editorRef.current && editorRef.current.editor.getValue(),
     setValue: v => editorRef.current && editorRef.current.editor.setValue(v),
   }));
+  const subListHelpUrl = 'https://help.mingdao.com/worksheet/function-examples/#sumform';
   return (
     <Con readOnly={readOnly} onClick={onClick}>
       {!readOnly && (
@@ -202,6 +212,29 @@ function CodeEdit(props, ref) {
             <span className="name ellipsis">{title}</span>
             <span className="equal">=</span>
           </div>
+          {isCustom && control.type === 34 && (
+            <Tooltip
+              popupPlacement="bottom"
+              text={
+                <div
+                  style={{
+                    width: 360,
+                    whiteSpace: 'break-spaces',
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: _l(
+                      '1.函数返回值需要保证和当前子表的数据结构完全一致，从而对子表数据进行全量替换更新。否则将会导致未知异常问题。\n\n2.此功能仅提供给熟悉代码的用户使用，可以自由处理子表数据实现复杂业务逻辑。普通用户请谨慎使用！\n\n%0',
+                      `<a target="_blank" href="${md.global.Config.HelpUrl ? subListHelpUrl.replace('https://help.mingdao.com', md.global.Config.HelpUrl) : subListHelpUrl}">${_l('查看代码说明>')}</a>`,
+                    ),
+                  }}
+                />
+              }
+            >
+              <div className="subListInfo">
+                <i className="icon icon-novice-circle" /> {_l('子表更新说明')}
+              </div>
+            </Tooltip>
+          )}
           {showTestButton && (
             <TestButton
               onClick={() => {
@@ -235,7 +268,7 @@ function CodeEdit(props, ref) {
       <Editor readOnly={readOnly} ref={editorDomRef} />
       {error && !readOnly && (
         <Error>
-          <i className="icon icon-task-setting_promet" />
+          <i className="icon icon-error1" />
           {error.text}
         </Error>
       )}

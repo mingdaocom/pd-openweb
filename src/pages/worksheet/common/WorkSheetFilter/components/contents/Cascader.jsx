@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
 import { FILTER_CONDITION_TYPE } from '../../enum';
-import _ from 'lodash';
 
 export default class RelateRecord extends React.Component {
   static propTypes = {
@@ -41,7 +41,6 @@ export default class RelateRecord extends React.Component {
   }
 
   addRecord = (selectedRecords, cb = () => {}) => {
-    const { onChange } = this.props;
     const { records } = this.state;
     const newRecords = records
       .filter(r => !_.find(selectedRecords, sr => r.id === sr.sid))
@@ -60,7 +59,6 @@ export default class RelateRecord extends React.Component {
   };
 
   removeRecord = record => {
-    const { onChange } = this.props;
     const { records } = this.state;
     const newRecords = records.filter(r => r.id !== record.id);
     this.setState(
@@ -71,7 +69,7 @@ export default class RelateRecord extends React.Component {
     );
   };
 
-  handleChange = (selected, text) => {
+  handleChange = selected => {
     const { control } = this.props;
     const isTree = control.advancedSetting.showtype === '4';
     // const fullPath = control.advancedSetting.allpath === '1'; // 5.10.1 后端不支持 后面放开
@@ -94,7 +92,7 @@ export default class RelateRecord extends React.Component {
   };
 
   render() {
-    const { control, disabled, from } = this.props;
+    const { control, disabled, from, worksheetId } = this.props;
     const { selectRecordVisible, tempRecord } = this.state;
     let { records } = this.state;
     if (tempRecord) {
@@ -143,6 +141,8 @@ export default class RelateRecord extends React.Component {
               }
             >
               <CascaderDropdown
+                controlId={control.controlId}
+                worksheetId={worksheetId}
                 popupClassName="worksheetFilterCascaderPopup"
                 visible={selectRecordVisible}
                 disabled={disabled}

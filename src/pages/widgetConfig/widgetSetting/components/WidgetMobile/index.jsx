@@ -1,6 +1,6 @@
 import React from 'react';
-import MobileInput from './MobileInput';
 import MobileAttachment from './MobileAttachment';
+import MobileInput from './MobileInput';
 import MobileOcr from './MobileOcr';
 import MobileRelate from './MobileRelate';
 import MobileSubList from './MobileSubList';

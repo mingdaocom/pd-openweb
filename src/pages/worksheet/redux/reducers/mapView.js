@@ -10,7 +10,7 @@ const INIT_STATE = {
 
 export default function boardView(state = INIT_STATE, action) {
   const { type, data } = action;
-  const { mapData, mapViewState, mapViewRecordCount } = state;
+
   switch (type) {
     case 'CHANGE_MAP_VIEW_DATA':
       return { ...state, mapViewData: data };

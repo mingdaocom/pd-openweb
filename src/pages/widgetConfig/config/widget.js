@@ -1,4 +1,4 @@
-import { head, isEmpty, pick } from 'lodash';
+import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { WHOLE_SIZE } from './Drag';
 import { NUM_5_SETTINGS } from './score';
@@ -70,7 +70,7 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
 export const DEFAULT_CONFIG = {
   TEXT: {
     widgetName: _l('文本'),
-    icon: 'letter_a',
+    icon: 'text_bold2',
     defaultHint: _l('填写文本内容'),
     intro: _l('可设为单行或多行，可输入http链接'),
   },
@@ -93,7 +93,7 @@ export const DEFAULT_CONFIG = {
     intro: _l('输入邮箱，并验证格式'),
   },
   NUMBER: {
-    icon: 'number_6',
+    icon: 'looks_six',
     widgetName: _l('数值'),
     defaultHint: _l('填写数值'),
     intro: _l('最大支持输入16位数字'),
@@ -229,7 +229,7 @@ export const DEFAULT_CONFIG = {
   },
   SWITCH: { icon: 'checkbox_01', widgetName: _l('检查项'), intro: _l('可以选中或取消选中') },
   SUBTOTAL: {
-    icon: 'sigma',
+    icon: 'task_functions',
     widgetName: _l('汇总%04005'),
     intro: _l('汇总关联记录或子表中的数据，如：汇总订单明细中的商品总价，最大支持汇总1000行数据。'),
     moreIntroLink: 'https://help.mingdao.com/worksheet/control-rollup',
@@ -443,7 +443,6 @@ export const DEFAULT_DATA = {
       allowupload: '1',
       allowdelete: '1',
       allowdownload: '1',
-      alldownload: '1',
     },
   },
   DATE: {
@@ -478,7 +477,7 @@ export const DEFAULT_DATA = {
     enumDefault2: 1,
     enumDefault: 0,
     advancedSetting: {
-      theme: '#2196F3',
+      theme: '#1677ff',
       color: '#151515',
     },
   },
@@ -562,6 +561,7 @@ export const DEFAULT_DATA = {
     advancedSetting: {
       increase: '[{"type":1,"repeatType":0,"start":null,"length":0,"format":""}]',
       sorttype: 'en',
+      usetimezone: '0',
     },
     controlName: _l('自动编号'),
     size: 6,
@@ -733,6 +733,8 @@ export const WORKFLOW_SYSTEM_CONTROL = [
   { controlId: 'wfstatus', controlName: _l('状态'), type: 2, display: true },
   { controlId: 'wfcuaids', controlName: _l('节点负责人'), type: 26, display: true },
   { controlId: 'wfrtime', controlName: _l('节点开始时间'), type: 16, display: true },
+  { controlId: 'wfcotime', controlName: _l('审批完成时间'), type: 16, display: true },
+  { controlId: 'wfdtime', controlName: _l('截止时间'), type: 16, display: true },
   { controlId: 'wfftime', controlName: _l('剩余时间'), type: 38, display: true },
   { controlId: 'wfcaid', controlName: _l('发起人'), type: 26, display: true },
   { controlId: 'wfctime', controlName: _l('发起时间'), type: 16, display: true },
@@ -881,6 +883,7 @@ export const NORMAL_CONTROLS = ['uaid', 'rowid'];
 
 export const SYS_CONTROLS = [
   ...NORMAL_CONTROLS,
+  'wfdtime',
   'wfname',
   'wfcuaids',
   'wfcaid',
@@ -888,9 +891,20 @@ export const SYS_CONTROLS = [
   'wfrtime',
   'wfftime',
   'wfstatus',
+  'wfcotime',
 ];
 //审批相关系统字段
-export const SYS_CONTROLS_WORKFLOW = ['wfname', 'wfcuaids', 'wfcaid', 'wfctime', 'wfrtime', 'wfftime', 'wfstatus'];
+export const SYS_CONTROLS_WORKFLOW = [
+  'wfname',
+  'wfcuaids',
+  'wfcaid',
+  'wfctime',
+  'wfrtime',
+  'wfftime',
+  'wfstatus',
+  'wfcotime',
+  'wfdtime',
+];
 
 // 所有控件
 export const ALL_WIDGETS_TYPE = { ...COMMON_USE_WIDGETS, ...ADVANCE_WIDGETS, ...RELATE_WIDGETS, ...SPECIAL_WIDGETS };

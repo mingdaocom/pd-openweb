@@ -1,13 +1,13 @@
 import React from 'react';
-import { Icon } from 'ming-ui';
-import { SectionItemWrap, DefaultEmpty } from './style';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import DropComponent from 'src/pages/widgetConfig/components/Dropdown';
+import { DefaultEmpty, SectionItemWrap } from './style';
 import './index.less';
 
 const THEME_COLORS = {
   0: '#FF982D',
-  1: '#2196F3',
+  1: '#1677ff',
   2: '#4CAF50',
 };
 
@@ -23,7 +23,7 @@ const renderItem = newVal => {
   if (newVal === '1') {
     iconContent = <div className="rangeIcon"></div>;
   } else if (newVal === '2') {
-    iconContent = <Icon icon="sidebar_video_tutorial" className="headerArrowIcon Font20" />;
+    iconContent = <Icon icon="play_circle_filled" className="headerArrowIcon Font20" />;
   }
 
   return (

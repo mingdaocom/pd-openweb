@@ -59,17 +59,17 @@ const WrapCon = styled.div`
   }
 `;
 function Drop(props) {
-  const { updateCompany = () => { }, updateState = () => { }, info = {} } = props;
-  const [{ dropDownVisible, extraDatas, warnningData }, setState] = useSetState({
+  const { updateCompany = () => {}, updateState = () => {}, info = {} } = props;
+  const [{ dropDownVisible, extraDatas, warnList }, setState] = useSetState({
     dropDownVisible: false,
     extraDatas: {},
-    warnningData: [],
+    warnList: [],
   });
 
   useEffect(() => {
     setState({
       extraDatas: props.extraDatas,
-      warnningData: props.warnningData,
+      warnList: props.warnList,
     });
   }, [props]);
 
@@ -90,7 +90,7 @@ function Drop(props) {
         onChange={value => {
           if (info.multiple === 1 && (_.get(extraDatas, `${info.id}`) || []).includes(value)) return;
           updateState({
-            warnningData: _.filter(warnningData, it => it.tipDom !== `.${info.id}`),
+            warnList: _.filter(warnList, it => it.tipDom !== `.${info.id}`),
           });
           updateCompany({
             extraDatas: {
@@ -99,7 +99,7 @@ function Drop(props) {
             },
           });
         }}
-        data={(info.options || []).map((o, i) => {
+        data={(info.options || []).map(o => {
           return { value: o.id, text: o.name };
         })}
         renderItem={item => {
@@ -116,7 +116,7 @@ function Drop(props) {
                   __html: item.text,
                 }}
               />
-              {isCur && <Icon icon="done_2" className="Relative ThemeColor3 Font18" style={{ left: 0 }} />}
+              {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" style={{ left: 0 }} />}
             </div>
           );
         }}
@@ -163,11 +163,11 @@ function Drop(props) {
         }}
         {...(info.multiple === 1
           ? {
-            placeholder: _l('请选择'),
-            popupVisible: dropDownVisible,
-            onVisibleChange: visible => setState({ dropDownVisible: visible }),
-            openSearch: true,
-          }
+              placeholder: _l('请选择'),
+              popupVisible: dropDownVisible,
+              onVisibleChange: visible => setState({ dropDownVisible: visible }),
+              openSearch: true,
+            }
           : {})}
       />
     </WrapCon>

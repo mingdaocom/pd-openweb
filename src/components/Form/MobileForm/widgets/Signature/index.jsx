@@ -271,7 +271,7 @@ const Signature = props => {
           }}
           style={{ height: '130px', backgroundImage: `url(${value})` }}
         >
-          <i className="icon icon-delete_out removeBtn" onClick={removeSignature} />
+          <i className="icon icon-cancel removeBtn" onClick={removeSignature} />
         </div>
       ) : (
         renderSignature()

@@ -1,6 +1,7 @@
 import React, { Component, createRef, Fragment } from 'react';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
+import _ from 'lodash';
 import { func, number, string } from 'prop-types';
 import SVG from 'svg.js';
 import { RecordInfoModal } from 'mobile/Record';
@@ -33,9 +34,13 @@ export default class SortableRecordItem extends Component {
       recordInfoVisible: false,
       recordInfoRowId: '',
     };
+    this.isFirstSkip = true;
   }
   componentDidMount() {
-    this.drawConnector();
+    const { hierarchyTopLevelDataCount } = this.props;
+    if (hierarchyTopLevelDataCount < 200) {
+      this.drawConnector();
+    }
     window.addEventListener('popstate', this.onQueryChange);
   }
 
@@ -58,7 +63,10 @@ export default class SortableRecordItem extends Component {
 
   componentDidUpdate() {
     // if (!isEqual(this.getConnectLinePos(nextProps), this.getConnectLinePos(this.props))) {
-    this.drawConnector();
+    const { hierarchyTopLevelDataCount } = this.props;
+    if (!this.isFirstSkip || hierarchyTopLevelDataCount < 200) {
+      this.drawConnector();
+    }
     // }
   }
 
@@ -137,6 +145,8 @@ export default class SortableRecordItem extends Component {
       const linePath = ['M', ...start, 'Q', ...controlPoint, ...end].join(' ');
       draw.path(linePath).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
     }
+
+    if (this.isFirstSkip) this.isFirstSkip = false;
   };
   handleRecordVisible = rowId => {
     if (window.isMingDaoApp && (!window.shareState.shareId || window.APP_OPEN_NEW_PAGE)) {
@@ -240,6 +250,7 @@ export default class SortableRecordItem extends Component {
           />
           <DraggableRecord
             {...this.props}
+            drawConnector={this.drawConnector}
             width={cardwidth}
             viewParaOfRecord={recordInfoPara}
             onDelete={() => deleteHierarchyRecord({ rows: [{ rowid: rowId, allowDelete: true }], path, pathId })}

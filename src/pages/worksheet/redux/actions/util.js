@@ -1,4 +1,5 @@
 import { find } from 'lodash';
+import _ from 'lodash';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 export const dealData = data => {
@@ -126,4 +127,32 @@ export function sortDataByCustomItems(data, view = {}, controls = [], firstNotSp
   return data;
 }
 
-// export function getUserRole() {}
+//根据视图下的分组配置，处理视图呈现数据的顺序，以及是否呈现未分组数据
+export function sortDataByGroupItems(list = [], currentView = {}, controls = []) {
+  const sortedData = sortDataByCustomItems(
+    list.sort((a, b) => {
+      if (a.sort === -1) return 1;
+      if (b.sort === -1) return -1;
+      return a.sort - b.sort;
+    }),
+    {
+      ...currentView,
+      advancedSetting: {
+        ...currentView.advancedSetting,
+        customitems: _.get(currentView, 'advancedSetting.groupcustom'),
+        navfilters: _.get(currentView, 'advancedSetting.groupfilters'),
+        navshow: _.get(currentView, 'advancedSetting.groupshow'),
+      },
+      viewControl: safeParse(_.get(currentView, 'advancedSetting.groupsetting'), 'array')[0].controlId,
+    },
+    controls,
+    false,
+  );
+  const nonNegativeOneItems = sortedData.filter(item => item.key !== '-1');
+  if (_.get(currentView, 'advancedSetting.groupempty') !== '1') {
+    return nonNegativeOneItems;
+  }
+  const negativeOneItems = sortedData.filter(item => item.key == '-1');
+  // 将key为-1的项移到数组最后
+  return [...nonNegativeOneItems, ...negativeOneItems];
+}

@@ -4,7 +4,6 @@ import { Dropdown } from 'antd';
 import classNames from 'classnames';
 import cx from 'classnames';
 import _ from 'lodash';
-import PropTypes from 'prop-types';
 import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
 import {
   addUserToSet,
@@ -13,7 +12,6 @@ import {
   fetchInActive,
   fetchReInvite,
   removeUserFromSet,
-  updateSelectAll,
   updateUserOpList,
 } from '../../actions/current';
 import { loadAllUsers, loadApprovalUsers, loadInactiveUsers, loadUsers } from '../../actions/entities';
@@ -212,7 +210,8 @@ class UserTable extends React.Component {
       }
     });
     let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
-    let actWidth = $('.listInfo').height() > 48 * usersCurrentPage.length || searchId.length ? 80 : 90;
+    let actWidth =
+      $('.listInfo').height() > 48 * usersCurrentPage.length || searchId.length || window.isFirefox ? 80 : 90;
     const selectDatas =
       isSearch && !!searchId[0] && searchAccountIds.length > 0
         ? searchAccountIds.filter(user => user.accountId === searchId[0])
@@ -232,7 +231,7 @@ class UserTable extends React.Component {
               className="TxtMiddle InlineBlock mRight0 checked_selected"
               clearselected={selectCount > 0 && selectCount !== selectDatas.length && !isThisPageCheck}
               checked={isCheck}
-              onClick={(checked, id) => {
+              onClick={() => {
                 let accountIds = _.map(selectDatas, user => user.accountId);
                 if (!isCheck) {
                   dispatch(addUserToSet(accountIds));
@@ -278,7 +277,7 @@ class UserTable extends React.Component {
                 <Icon
                   icon="visibility"
                   className="visibiliityIcon"
-                  style={isSetShowColumn ? { color: '#2196f3' } : {}}
+                  style={isSetShowColumn ? { color: '#1677ff' } : {}}
                 />
               </Tooltip>
             </Dropdown>
@@ -382,7 +381,6 @@ class UserTable extends React.Component {
       departmentId,
       authority = [],
       departmentName,
-      usersCurrentPage = [],
     } = this.props;
     const { openChangeUserInfoDrawer, editCurrentUser = {}, openSortTopUpDialog } = this.state;
     if (isLoading) return <LoadDiv />;
@@ -443,7 +441,7 @@ class UserTable extends React.Component {
 
 UserTable.propTypes = {};
 
-const mapStateToProp = (state, ownProps) => {
+const mapStateToProp = state => {
   const {
     pagination: { userList = {} },
     entities: { users, departments, searchUsers },

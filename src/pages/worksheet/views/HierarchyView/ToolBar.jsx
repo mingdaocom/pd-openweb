@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled, { css } from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import { FlexCenter } from 'worksheet/styled';
@@ -90,7 +91,7 @@ const SelectWrap = styled(Select)`
   }
   &:hover {
     .icon-arrow-down {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -103,6 +104,22 @@ const DISPLAY_HIERARCHY = [
   { value: 5, name: _l('5级') },
 ];
 export default class ToolBar extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      initExport: false,
+    };
+  }
+
+  componentDidMount() {
+    // 初始化时不显示导出图片
+    setTimeout(() => {
+      this.setState({
+        initExport: true,
+      });
+    }, 200);
+  }
+
   componentWillUnmount() {
     this.actionSheetHandler && this.actionSheetHandler.close();
   }
@@ -161,7 +178,9 @@ export default class ToolBar extends Component {
       allowExportAsImage = true,
       customButtons = [],
       mobileViewType,
+      hierarchyTopLevelDataCount,
     } = this.props;
+    const { initExport } = this.state;
     const isMobileSingleView = mobileViewType === 'single';
     const isMobile = browserIsMobile();
 
@@ -237,7 +256,7 @@ export default class ToolBar extends Component {
             )}
           </div>
         )}
-        {allowExportAsImage && !isMobile && (
+        {initExport && hierarchyTopLevelDataCount < 200 && allowExportAsImage && !isMobile && (
           <Tooltip text={<span>{_l('导出为图片')}</span>}>
             <Icon icon="download" className="Gray_75 Font18 pointer mLeft24" onClick={() => onClick('genScreenshot')} />
           </Tooltip>

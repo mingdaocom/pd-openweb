@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
+import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
-const WithoutFidldItem = (props) => {
+const WithoutFidldItem = props => {
   const { disable = false, allowInput, inputValue, onChnageInputValue } = props;
   const [state, setState] = useState(false);
   const [inputVisible, setInputVisible] = useState(false);
@@ -24,7 +25,7 @@ const WithoutFidldItem = (props) => {
       }
       return undefined;
     },
-    collect: (monitor) => ({
+    collect: monitor => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
     }),
@@ -40,7 +41,7 @@ const WithoutFidldItem = (props) => {
     }
     onChnageInputValue(value, inputValue === value ? false : true);
     setInputVisible(_.isNumber(value) ? true : false);
-  }
+  };
 
   useEffect(() => {
     setInputVisible(_.isNumber(inputValue) ? true : false);
@@ -49,7 +50,11 @@ const WithoutFidldItem = (props) => {
   return (
     <div
       ref={drop}
-      className={cx('flexRow valignWrapper withoutFidldItem', { withoutValueItem: inputVisible, disable }, stateClassName)}
+      className={cx(
+        'flexRow valignWrapper withoutFidldItem',
+        { withoutValueItem: inputVisible, disable },
+        stateClassName,
+      )}
       onClick={() => {
         if (allowInput) {
           setInputVisible(true);
@@ -69,11 +74,13 @@ const WithoutFidldItem = (props) => {
             event.which === 13 && handleSave(event);
           }}
         />
+      ) : allowInput ? (
+        _l('输入固定值或选择动态值')
       ) : (
-        allowInput ? _l('输入固定值或选择动态值') : _l('从左侧拖拽添加字段')
+        _l('从左侧拖拽添加字段')
       )}
     </div>
-  )
-}
+  );
+};
 
 export default WithoutFidldItem;

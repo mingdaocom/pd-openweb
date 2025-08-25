@@ -110,7 +110,14 @@ export default class PrePayOrder extends Component {
 
   // 创建订单
   handlePay = merchants => {
-    const { worksheetId, rowId, paymentModule, onUpdateSuccess = () => {}, onCancel = () => {} } = this.props;
+    const {
+      worksheetId,
+      rowId,
+      paymentModule,
+      isAtOncePayment,
+      onUpdateSuccess = () => {},
+      onCancel = () => {},
+    } = this.props;
     const { orderInfo = {}, preOrderInfo = {}, selectedMerchants = [], activePayChannel } = this.state;
     const selectedMerchantNo = (
       _.find(merchants || selectedMerchants, v => v.merchantPaymentChannel === activePayChannel) || {}
@@ -119,7 +126,7 @@ export default class PrePayOrder extends Component {
     this.setState({ payLoading: true });
 
     paymentAjax
-      .createOrder({ worksheetId, rowId, paymentModule, merchantNo: selectedMerchantNo })
+      .createOrder({ worksheetId, rowId, paymentModule, merchantNo: selectedMerchantNo, atOnce: isAtOncePayment })
       .then(res => {
         if (res && res.orderId) {
           if (preOrderInfo.amount <= 0) {
@@ -162,7 +169,7 @@ export default class PrePayOrder extends Component {
     this.setState({ loading: orderStatus === 4 ? false : true });
 
     const orderInfo = await paymentAjax.getPayOrder({ orderId: orderId });
-    orderInfo.msg = orderInfo.status === 8 ? _l('订单已取消') : orderInfo.msg;
+    orderInfo.msg = _.includes([7, 8], orderInfo.status) ? _l('订单已取消') : orderInfo.msg;
     const { status, msg, expireCountdown, amount, expireTime } = orderInfo || {};
 
     if (status !== 0) {
@@ -191,7 +198,7 @@ export default class PrePayOrder extends Component {
     const { orderId } = orderInfo;
 
     paymentAjax.getPayOrderStatus({ orderId }).then(({ status, expireCountdown, msg, amount, description }) => {
-      msg = status === 8 ? _l('订单已取消') : msg;
+      msg = _.includes([7, 8], status) ? _l('订单已取消') : msg;
 
       if (status === 1 && paySuccessReturnUrl) {
         notDialog
@@ -209,7 +216,7 @@ export default class PrePayOrder extends Component {
           {
             orderStatus: orderInfo.expireTime !== 0 && expireCountdown < 0 && !msg ? 4 : status,
             expireCountdown,
-            orderInfo: !!msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
+            orderInfo: msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
           },
           () => {
             if (amount === 0 && !msg) {
@@ -428,7 +435,7 @@ export default class PrePayOrder extends Component {
   };
 
   render() {
-    const { onCancel = () => {}, notDialog, isPaySuccessAddRecord } = this.props;
+    const { onCancel = () => {}, notDialog, isPaySuccessAddRecord, isAtOncePayment } = this.props;
     const {
       loading,
       preOrderInfo = {},
@@ -447,6 +454,8 @@ export default class PrePayOrder extends Component {
     const payChannels = selectedMerchants
       .filter(v => (isMobile ? _.includes(channels, v.merchantPaymentChannel) : true))
       .map(item => _.find(PAY_CHANNEL, v => v.value === item.merchantPaymentChannel));
+
+    if (isAtOncePayment && !orderInfo.orderId) return null;
 
     return (
       <Dialog
@@ -514,7 +523,7 @@ export default class PrePayOrder extends Component {
                             <Radio
                               className="mRight0"
                               checked={activePayChannel === item.value}
-                              onClick={checked => this.setState({ activePayChannel: item.value })}
+                              onClick={() => this.setState({ activePayChannel: item.value })}
                             />
                           </div>
                         );
@@ -577,7 +586,7 @@ export default class PrePayOrder extends Component {
                       _l('支付')
                     ) : (
                       <Fragment>
-                        <i className="icon icon-payment3 mRight5 TxtMiddle Font16" />
+                        <i className="icon icon-navigation_key mRight5 TxtMiddle Font16" />
                         <span className="TxtMiddle">{_l('立即支付')}</span>
                       </Fragment>
                     )}

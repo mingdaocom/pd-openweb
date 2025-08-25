@@ -1,16 +1,15 @@
 import React from 'react';
-import cx from 'classnames';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import _ from 'lodash';
-import RoleTem from 'src/pages/Role/component/RolePermissions';
-import { LoadDiv, Dialog } from 'ming-ui';
-import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
+import { Dialog, LoadDiv } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
-import DeleRoleDialog from './component/DeleRoleDialog';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
+import RoleTem from 'src/pages/Role/component/RolePermissions';
 import { sysRoleType } from 'src/pages/Role/config.js';
+import CopyRoleDialog from 'src/pages/Role/PortalCon/components/CopyRoleDialog';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import DeleRoleDialog from './component/DeleRoleDialog';
 
 class Con extends React.Component {
   constructor(props) {
@@ -25,7 +24,7 @@ class Con extends React.Component {
   }
   componentDidMount() {
     const { appRole = {}, canEditUser } = this.props;
-    const { roleInfos = [], quickTag = {} } = appRole;
+    const { roleInfos = [] } = appRole;
     // const { roleId } = quickTag;
     this.setState({
       roleId: appRole.roleId
@@ -125,6 +124,7 @@ class Con extends React.Component {
             roleList: list,
           });
           getRoleSummary(appId);
+          this.quickTag({ roleId: 'all', tab: 'roleSet' });
           alert(_l('删除成功'));
         } else {
           alert(_l('操作失败，请刷新页面重试'), 2);
@@ -135,8 +135,7 @@ class Con extends React.Component {
     this.props.setQuickTag(data);
   };
   render() {
-    const { showRoleSet, getRoleSummary, isOpenPortal, appId, projectId, setQuickTag, setRoleId, editType } =
-      this.props;
+    const { showRoleSet, getRoleSummary, isOpenPortal, appId, projectId, editType } = this.props;
     const { dataList = [], copyData, roleList = [], loading, roleId, showDeleRoleByMoveUser } = this.state;
     if (loading) {
       return <LoadDiv />;
@@ -175,7 +174,7 @@ class Con extends React.Component {
           isForPortal={false}
           dataList={dataList.filter(o => (isOpenPortal ? true : o.key !== 1))}
           appId={appId}
-          editCallback={roleId => {
+          editCallback={() => {
             getRoleSummary(appId);
           }}
           onDelRole={roleId => {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import _, { includes } from 'lodash';
+import { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { RadioGroup } from 'ming-ui';
 import { getSwitchItemNames } from 'src/utils/control';

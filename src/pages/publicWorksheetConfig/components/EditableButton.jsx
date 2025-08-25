@@ -1,8 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Button, Input } from 'ming-ui';
-import styled from 'styled-components';
 import { TinyColor } from '@ctrl/tinycolor';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Button, Input } from 'ming-ui';
 
 const SubmitButton = styled(Button)`
   max-width: 756px;

@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 
 const DATE_ROW_COUNT = 6;
 const DATE_COL_COUNT = 7;
@@ -156,7 +156,10 @@ class DateTBody extends Component {
                 isInRangeClass = true;
                 cls += ` ${inRangeClass}`;
               }
-              if (startValue.isAfter(endValue, 'day') && (isSameDay(current, endValue) || isSameDay(current, startValue))) {
+              if (
+                startValue.isAfter(endValue, 'day') &&
+                (isSameDay(current, endValue) || isSameDay(current, startValue))
+              ) {
                 isInRangeClass = false;
               }
               if (startValue.isAfter(endValue, 'day') && isSameDay(current, endValue)) {
@@ -206,13 +209,13 @@ class DateTBody extends Component {
         dateCells.push(
           <div
             key={passed}
-            onClick={disabled ? undefined : props.onSelect.bind(null, current)} // eslint-disable-line react/jsx-no-bind
+            onClick={disabled ? undefined : props.onSelect.bind(null, current)}
             title={getTitleString(current)}
             className={cls}
           >
             {dateHtml}
             {isInRangeClass ? <span className={`${prefixCls}-cell-bg ThemeBGColor6`} /> : null}
-          </div>
+          </div>,
         );
 
         passed = passed + 1;
@@ -227,7 +230,7 @@ class DateTBody extends Component {
           })}
         >
           {dateCells}
-        </div>
+        </div>,
       );
     }
     return <div className={`${prefixCls}-tbody`}>{tableHtml}</div>;

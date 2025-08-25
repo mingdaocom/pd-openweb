@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, QiniuUpload, Icon } from 'ming-ui';
+import { Button, Icon, QiniuUpload } from 'ming-ui';
 
 const Wrapper = styled.div`
   .addBtn {
@@ -16,12 +16,12 @@ const Wrapper = styled.div`
       font-size: 18px;
     }
     &:hover {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
       span {
-        color: #2196f3;
+        color: #1677ff;
       }
       .icon {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
 
@@ -103,12 +103,12 @@ export default function UploadCertificate(props) {
             return;
           },
         }}
-        onUploaded={(up, file, response) => {
+        onUploaded={(up, file) => {
           up.disableBrowse(false);
           setUploading(false);
           onChange(file);
         }}
-        onAdd={(up, files) => {
+        onAdd={up => {
           setUploading(true);
           up.disableBrowse();
         }}
@@ -126,7 +126,7 @@ export default function UploadCertificate(props) {
           <img src={`${value.url}&imageView2/1/w/180/h/130`} />
           <div className="mask">
             <div className="deleteBtn Hand" onClick={() => onChange(null)}>
-              <Icon icon="task-new-delete" className="Gray_9e Font17" />
+              <Icon icon="trash" className="Gray_9e Font17" />
             </div>
           </div>
         </div>

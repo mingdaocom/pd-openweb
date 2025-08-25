@@ -1,15 +1,15 @@
 import React, { Fragment } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Icon, Tooltip } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import * as actions from './redux/actions/columnRules';
-import * as columnRules from './redux/actions/columnRules';
-import { getNameWidth, getTextById, getActionLabelByType, filterData, hasRuleChanged } from './config';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { isRelateMoreList } from 'src/components/newCustomFields/tools/formUtils.js';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon, Tooltip } from 'ming-ui';
+import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { isRelateMoreList } from 'src/components/newCustomFields/tools/formUtils.js';
+import { filterData, getActionLabelByType, getNameWidth, getTextById, hasRuleChanged, TAB_TYPES } from './config';
+import * as actions from './redux/actions/columnRules';
+import * as columnRules from './redux/actions/columnRules';
 
 function renderFilterItemTexts(filters = [], disabled = false, worksheetControls = []) {
   if (_.isEmpty(filters)) return '';
@@ -93,12 +93,15 @@ class RuleItems extends React.Component {
   renderActionItem = (actionItem, disabled) => {
     const { worksheetControls } = this.props;
     let leftText = _.includes([7], actionItem.type) ? '' : getActionLabelByType(actionItem.type);
+    if (this.props.activeTab === TAB_TYPES.LOCK_RULE) {
+      leftText = _l('锁定记录');
+    }
 
     let text = '';
     if (_.includes([7], actionItem.type)) {
       text = getActionLabelByType(actionItem.type);
     } else {
-      const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type) || [];
+      const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type, 'rule') || [];
       if (actionItem.type === 6) {
         text = _.isEmpty(currentArr)
           ? actionItem.message
@@ -128,16 +131,17 @@ class RuleItems extends React.Component {
       columnRulesListData,
     } = this.props;
     const { showDeleteBox, name } = this.state;
-    const { filters = [], ruleItems = [], ruleId, disabled, type } = ruleData;
+    const { filters = [], ruleItems = [], ruleId, disabled, type, checkType } = ruleData;
     return (
       <div
         className={cx('ruleItemCon', { active: selectRules.ruleId === ruleId, disabled: disabled })}
-        onClick={e => {
+        onClick={() => {
           if (hasRuleChanged(columnRulesListData, selectRules)) return;
           selectColumnRules(ruleData);
         }}
       >
         <div className="ruleNameInputBox" onClick={e => e.stopPropagation()}>
+          {type === 1 && <div className={cx('ruleTypeIcon', { isWarning: checkType === 3 })}></div>}
           <input
             className={cx('ruleNameInput', { Gray_bd: disabled })}
             style={{ width: getNameWidth(name) }}
@@ -148,7 +152,7 @@ class RuleItems extends React.Component {
               }
             }}
             onChange={e => this.setState({ name: e.target.value })}
-            onBlur={e => {
+            onBlur={() => {
               updateRuleAttr('name', name || ruleData.name, ruleId);
             }}
           />
@@ -163,14 +167,16 @@ class RuleItems extends React.Component {
           <Tooltip popupPlacement="bottom" text={<span>{disabled ? _l('停用') : _l('开启')}</span>}>
             <Icon
               className="Font24 Hand"
-              icon={ruleData.disabled ? 'toggle_off' : 'toggle_on'}
+              icon={ruleData.disabled ? 'ic_toggle_off' : 'ic_toggle_on'}
               style={{ color: ruleData.disabled ? '#bdbdbd' : '#43bd36' }}
               onClick={() => updateRuleAttr('disabled', !ruleData.disabled, ruleId)}
             />
           </Tooltip>
-          <Tooltip popupPlacement="bottom" text={<span>{_l('复制')}</span>}>
-            <Icon icon="copy" className="Font16 Hand Gray_9e Hover_49" onClick={() => copyControlRules(ruleData)} />
-          </Tooltip>
+          {type !== TAB_TYPES.LOCK_RULE && (
+            <Tooltip popupPlacement="bottom" text={<span>{_l('复制')}</span>}>
+              <Icon icon="copy" className="Font16 Hand Gray_9e Hover_49" onClick={() => copyControlRules(ruleData)} />
+            </Tooltip>
+          )}
           <Trigger
             popupVisible={showDeleteBox === ruleId}
             onPopupVisibleChange={showDeleteBox => {
@@ -200,7 +206,7 @@ class RuleItems extends React.Component {
             }
           >
             <Tooltip popupPlacement="bottom" text={<span>{_l('删除')}</span>}>
-              <Icon icon="delete1" className="Font16 Red Hand RedHover" />
+              <Icon icon="trash" className="Font16 Red Hand RedHover" />
             </Tooltip>
           </Trigger>
         </div>
@@ -213,6 +219,7 @@ const mapStateToProps = state => ({
   worksheetControls: state.formSet.worksheetRuleControls,
   selectRules: state.formSet.selectRules,
   columnRulesListData: state.formSet.columnRulesListData,
+  activeTab: state.formSet.activeTab,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
 

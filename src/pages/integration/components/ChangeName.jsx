@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Input, Dialog } from 'ming-ui';
+import { Dialog, Input } from 'ming-ui';
+
 const EditShowNameCon = styled.div`
   .title {
     font-size: 20px;

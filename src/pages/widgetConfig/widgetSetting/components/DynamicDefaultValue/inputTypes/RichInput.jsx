@@ -46,7 +46,7 @@ export default function (props) {
           disabled={true}
           minHeight={34}
           maxHeight={90}
-          onClickNull={e => {
+          onClickNull={() => {
             setVisible(true);
           }}
         />

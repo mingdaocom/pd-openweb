@@ -151,4 +151,3 @@ export const QRPRINT_SIZES = [
     },
   },
 ];
-

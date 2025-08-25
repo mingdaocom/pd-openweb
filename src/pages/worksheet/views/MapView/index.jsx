@@ -36,7 +36,6 @@ function MapView(props) {
     mapView,
     sheetSwitchPermit,
     controls,
-    projectId,
     isCharge,
     view,
     viewId,
@@ -46,7 +45,7 @@ function MapView(props) {
     worksheetInfo,
     groupId,
   } = props;
-  const { mapViewState, mapViewLoading, refreshMap } = mapView;
+  const { mapViewState, refreshMap } = mapView;
   const isMobile = browserIsMobile();
   const isGoogle = !!getMapConfig();
 
@@ -211,7 +210,7 @@ function MapView(props) {
 
     return (
       <Con
-        onTouchStartCapture={e => {
+        onTouchStartCapture={() => {
           if (!isMobile) return;
           $('.mapViewCard.active')[0] && setMobileCloseCard(!mobileCloseCard);
         }}
@@ -221,7 +220,7 @@ function MapView(props) {
         ) : (
           <Map zoom={zoom} center={center}>
             {markers &&
-              markers.map((marker, i) => {
+              markers.map(marker => {
                 return (
                   <PinMarker
                     {...markOptions}

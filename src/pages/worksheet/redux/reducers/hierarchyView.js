@@ -1,6 +1,7 @@
 import update from 'immutability-helper';
 import { isArray, isEmpty } from 'lodash';
-import { dealPath, dealChildren, initState } from './util';
+import _ from 'lodash';
+import { dealChildren, dealPath, initState } from './util';
 
 // 按已有顺序排序
 const sortChildIds = (treeData, rowId, childrenids) => {
@@ -186,7 +187,7 @@ function multiRelateMoveRecord({ state, src, target }) {
 }
 // 移动记录卡片，分别更新原纪录的path和pathId 并将其放入目标记录的children中
 const moveRecord = ({ state, target, src }) => {
-  const { rowId: targetId, path: targetPath } = target;
+  const { path: targetPath } = target;
   const { rowId: srcId, path: srcPath } = src;
   if (_.isEmpty(targetPath) || _.isEmpty(srcPath)) return state;
   if (_.findIndex(target.children, item => item.rowId === srcId) > -1) return state;
@@ -358,6 +359,15 @@ export function hierarchyViewData(state = {}, action) {
     case 'REMOVE_HIERARCHY_TEMP_ITEM':
       return update(state, { $unset: [data.rowId] });
     case 'ADD_TOP_LEVEL_STATE':
+      if (_.isArray(data)) {
+        const newItems = data.reduce((acc, item) => {
+          acc[item.rowid] = item;
+          return acc;
+        }, {});
+        return { ...state, ...newItems };
+      } else {
+        return { ...state, [data.rowid]: data };
+      }
     case 'ADD_TOP_LEVEL_STATE_FROM_TEMP':
       return { ...state, [data.rowid]: data };
     default:

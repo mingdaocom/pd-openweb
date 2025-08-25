@@ -1,38 +1,38 @@
+import React, { Fragment, useState } from 'react';
+import { CaretRightOutlined } from '@ant-design/icons';
 import { Collapse, Tooltip } from 'antd';
+import update from 'immutability-helper';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
-import React, { Fragment, useEffect, useState } from 'react';
-import { Menu, MenuItem, Icon, LoadDiv, Dropdown } from 'ming-ui';
-import { SettingCollapseWrap } from './styled';
-import { CaretRightOutlined } from '@ant-design/icons';
-import WidgetWarning from '../components/WidgetBase/WidgetWarning';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import { AddEventWrap, IconWrap, EventActionWrap, ActionWrap, SpliceWrap } from '../components/CustomEvent/style';
-import {
-  FILTER_VALUE_TYPE,
-  EVENT_DETAIL,
-  getEventDisplay,
-  ACTION_VALUE_ENUM,
-  getActionTextByValue,
-  ALERT_TYPE_OPTIONS,
-  FILTER_VALUE_ENUM,
-  RESULT_DISPLAY,
-  FILTER_SPLICE_TYPE,
-  SPLICE_TYPE_ENUM,
-  ADD_EVENT_DISPLAY,
-  VOICE_FILE_LIST,
-  ADD_EVENT_ENUM,
-  dealEventDisplay,
-} from '../components/CustomEvent/config';
-import { getTextById } from 'src/pages/FormSet/components/columnRules/config.js';
-import _ from 'lodash';
-import MoreOptions from '../components/CustomEvent/components/MoreOptions';
-import EventOptions from '../components/CustomEvent/components/EventOptions';
-import { FilterItemTexts } from '../components/FilterData';
-import update from 'immutability-helper';
+import { Dropdown, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import { getTextById } from 'src/pages/FormSet/components/columnRules/config.js';
 import { getFilterControls } from '../../util/data';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import EventOptions from '../components/CustomEvent/components/EventOptions';
+import MoreOptions from '../components/CustomEvent/components/MoreOptions';
+import {
+  ACTION_VALUE_ENUM,
+  ADD_EVENT_DISPLAY,
+  ADD_EVENT_ENUM,
+  ALERT_TYPE_OPTIONS,
+  dealEventDisplay,
+  EVENT_DETAIL,
+  FILTER_SPLICE_TYPE,
+  FILTER_VALUE_ENUM,
+  FILTER_VALUE_TYPE,
+  getActionTextByValue,
+  getEventDisplay,
+  RESULT_DISPLAY,
+  SPLICE_TYPE_ENUM,
+  VOICE_FILE_LIST,
+} from '../components/CustomEvent/config';
+import { ActionWrap, AddEventWrap, EventActionWrap, IconWrap, SpliceWrap } from '../components/CustomEvent/style';
 import DynamicText from '../components/DynamicDefaultValue/components/DynamicText';
+import { FilterItemTexts } from '../components/FilterData';
+import WidgetWarning from '../components/WidgetBase/WidgetWarning';
+import { SettingCollapseWrap } from './styled';
 
 const { Panel } = Collapse;
 
@@ -127,7 +127,7 @@ export default function CustomEvent(props) {
         </span>
         <EventOptions {...props} eventKey="filters" eventId={item.eventId} index={curIndex} />
         <IconWrap
-          className="icon-delete1 mLeft12"
+          className="icon-trash mLeft12"
           type="danger"
           onClick={e => {
             e.stopPropagation();
@@ -202,8 +202,8 @@ export default function CustomEvent(props) {
                   {i.type === '1'
                     ? _l('函数计算')
                     : i.type === '2'
-                    ? _l('查询工作表')
-                    : renderDynamicValue(i.value, i.controlId)}
+                      ? _l('查询工作表')
+                      : renderDynamicValue(i.value, i.controlId)}
                 </div>
               );
             })}

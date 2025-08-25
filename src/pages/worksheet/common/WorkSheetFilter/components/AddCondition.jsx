@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import Trigger from 'rc-trigger';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import _ from 'lodash';
-import SelectControls from './SelectControls';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import SelectControls from './SelectControls';
 
 export default class AddCondition extends Component {
   static propTypes = {
@@ -42,7 +42,6 @@ export default class AddCondition extends Component {
       renderInParent,
       conditionCount,
       filterColumnClassName,
-      popupContainer,
       widgetControlData = {},
     } = this.props;
     const { columnListVisible } = this.state;

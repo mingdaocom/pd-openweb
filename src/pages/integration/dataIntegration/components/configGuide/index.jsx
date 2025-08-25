@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { DATABASE_TYPE } from '../../constant';
-import MySQLGuide from './MySQL';
-import SqlServerGuide from './SqlServer';
-import PostgreSQLGuide from './PostgreSQL';
-import OracleGuide from './Oracle';
-import MingDaoYunGuide from './MingDaoYun';
-import MongoDBGuide from './MongoDB';
-import MariaDBGuide from './MariaDB';
 import DB2Guide from './DB2';
 import KafkaGuide from './Kafka';
+import MariaDBGuide from './MariaDB';
+import MingDaoYunGuide from './MingDaoYun';
+import MongoDBGuide from './MongoDB';
+import MySQLGuide from './MySQL';
+import OracleGuide from './Oracle';
+import PostgreSQLGuide from './PostgreSQL';
 import SapHaNa from './SapHaNa';
+import SqlServerGuide from './SqlServer';
 
 const TabList = styled.div`
   box-sizing: border-box;
@@ -31,9 +31,9 @@ const TabList = styled.div`
         padding-bottom: 8px;
       }
       &.isCur {
-        border-bottom: 3px solid #2196f3;
+        border-bottom: 3px solid #1677ff;
         a {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }

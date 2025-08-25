@@ -2,6 +2,7 @@ import React, { Component, createRef, Fragment, useEffect, useState } from 'reac
 import ClipboardButton from 'react-clipboard.js';
 import { Input } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, Tooltip, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -27,13 +28,13 @@ const PasswordInputBox = styled.div`
     margin-right: 16px;
     &.editInput {
       background: #fff;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .icon-edit,
   .icon-content-copy {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .error {

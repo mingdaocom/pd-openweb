@@ -40,9 +40,9 @@ const TimeSelect = ({
     }
     return value && value.controlId
       ? {
-        value: value.controlId,
-        label: renderOptionLabel(value),
-      }
+          value: value.controlId,
+          label: renderOptionLabel(value),
+        }
       : undefined;
   };
 
@@ -225,12 +225,12 @@ export default function SelectStartOrEnd(props) {
           addName={addName}
           controls={controls}
           onAdd={data => {
-            let constrolInfo = data;
+            let controlInfo = data;
             if (data.filter(o => SYS.includes(o.controlId)).length <= 0) {
               const sys = controls.filter(o => SYS.includes(o.controlId));
-              constrolInfo = constrolInfo.concat(sys);
+              controlInfo = controlInfo.concat(sys);
             }
-            updateWorksheetControls(constrolInfo);
+            updateWorksheetControls(controlInfo);
           }}
           onChange={value => handleChange({ begindate, enddate, [addKey]: value })}
           title={_l('添加日期字段')}

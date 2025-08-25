@@ -7,6 +7,15 @@ export function view(state = {}, action) {
   }
 }
 
+export function galleryGroupLoading(state = false, action) {
+  switch (action.type) {
+    case 'CHANGE_GALLERY_VIEW_GROUP_LOADING':
+      return action.loading;
+    default:
+      return state;
+  }
+}
+
 export function galleryViewLoading(state = false, action) {
   switch (action.type) {
     case 'CHANGE_GALLERY_VIEW_LOADING':
@@ -50,6 +59,19 @@ export function galleryIndex(state = 0, action) {
   switch (type) {
     case 'CHANGE_GALLERY_VIEW_INDEX':
       return action.pageIndex;
+    default:
+      return state;
+  }
+}
+
+export function galleryViewCard(state = { needUpdate: true, height: 0 }, action) {
+  const { type } = action;
+  switch (type) {
+    case 'UPDATE_GALLERY_VIEW_CARD':
+      return {
+        ...state,
+        ...action.data,
+      };
     default:
       return state;
   }

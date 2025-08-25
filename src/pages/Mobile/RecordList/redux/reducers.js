@@ -1,3 +1,7 @@
+import update from 'immutability-helper';
+import _ from 'lodash';
+import { addRecord, delRecord, updateMultiSelectBoard, updateRecord } from 'worksheet/redux/reducers/boardView';
+
 export const base = (state = {}, action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_BASE':
@@ -133,7 +137,7 @@ export const isCharge = (state = false, action) => {
   }
 };
 
-export const appColor = (state = '#2196F3', action) => {
+export const appColor = (state = '#1677ff', action) => {
   switch (action.type) {
     case 'MOBILE_APP_COLOR':
       return action.value;
@@ -248,6 +252,80 @@ export const previewRecordId = (state = '', action) => {
   switch (action.type) {
     case 'UPDATE_PREVIEW_RECORD':
       return action.data;
+    default:
+      return state;
+  }
+};
+
+export const groupDataInfo = (
+  state = { groupData: [], groupKey: '', currentKeyPageIndex: 1, isGroupLoading: false, unfoldedKeys: [] },
+  action,
+) => {
+  switch (action.type) {
+    case 'UPDATE_GROUP_DATA_INFO':
+      return { ...state, ...action.data };
+    default:
+      return state;
+  }
+};
+
+export const boardView = (
+  state = {
+    boardData: [],
+    boardViewRecordCount: {},
+    boardViewState: {
+      kanbanIndex: 1,
+      hasMoreData: true,
+    },
+  },
+  action,
+) => {
+  const { type, data } = action;
+  const { boardData, boardViewRecordCount, boardViewState } = state;
+
+  switch (type) {
+    case 'MOBILE_CHANGE_BOARD_VIEW_DATA':
+      return {
+        ...state,
+        boardData: data,
+      };
+    case 'MOBILE_UPDATE_BOARD_VIEW_RECORD':
+      return { ...state, boardData: updateRecord(boardData, data) };
+    case 'MOBILE_ADD_BOARD_VIEW_RECORD':
+      return { ...state, boardData: addRecord(boardData, data) };
+    case 'MOBILE_DEL_BOARD_VIEW_RECORD_COUNT':
+      return { ...state, boardData: delRecord(boardData, data) };
+    case 'MOBILE_CHANGE_BOARD_VIEW_STATE':
+      return {
+        ...state,
+        boardViewState: { ...boardViewState, ...data },
+      };
+    case 'MOBILE_INIT_BOARD_VIEW_RECORD_COUNT':
+      return {
+        ...state,
+        boardViewRecordCount: {
+          ...boardViewRecordCount,
+          ...data,
+        },
+      };
+    case 'MOBILE_UPDATE_BOARD_VIEW_RECORD_COUNT':
+      return {
+        ...state,
+        boardViewRecordCount: update(boardViewRecordCount, {
+          [data[0]]: { $apply: item => Math.max(0, item + data[1]) },
+        }),
+      };
+    case 'MOBILE_UPDATE_MULTI_SELECT_BOARD':
+      return { ...state, boardData: updateMultiSelectBoard(boardData, data) };
+    default:
+      return state;
+  }
+};
+
+export const viewCard = (state = { needUpdate: true, height: 0 }, action) => {
+  switch (action.type) {
+    case 'MOBILE_UPDATE_VIEW_CARD':
+      return { ...state, ...action.data };
     default:
       return state;
   }

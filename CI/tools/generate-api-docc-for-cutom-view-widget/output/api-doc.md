@@ -4,6 +4,2497 @@
 
 # 工作表
 
+## getViewPermission
+
+获取视图权限
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getViewPermission(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAppExtendAttr
+
+获取应用角色用户扩展属性
+
+### 参数
+
+args.appId  {string}  AppId  
+args.customLink  {string}  客户自定义登录链接参数值  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getAppExtendAttr(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getExtendAttrOptionalControl
+
+获取工作表的扩展属性选项控件信息
+
+### 参数
+
+args.worksheetId  {string}  工作表Id  
+args.isPortal  {boolean}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getExtendAttrOptionalControl(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveAppExtendAttr
+
+保存应用角色用户扩展属性
+
+### 参数
+
+args.appId  {string}  应用  
+args.worksheetId  {string}  工作表Id  
+args.userControlId  {string}  用户控件  
+args.extendAttrs  {array}  扩展字段属性  
+args.extendAndAttrs  {array}  扩展且字段属性  
+args.status  {integer}  状态【9：关闭 1：正常】  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveAppExtendAttr(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## copyWorksheet
+
+复制表格
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.name  {string}  名称  
+args.projectId  {string}  网络id  
+args.isCopyBtnName  {boolean}  是否复制按钮名称  
+args.isCopyDesc  {boolean}  是否复制描述  
+args.isCopyAdmin  {boolean}  是否复制管理员  
+args.isCopyRows  {boolean}  是否复制行数据  
+args.appId  {string}  应用id  
+args.appSectionId  {string}  分组id  
+args.relationControlIds  {array}  复制的关联控件ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.copyWorksheet(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateEntityName
+
+修改表格行记录名
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.entityName  {string}  记录名  
+args.appID  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateEntityName(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editDeveloperNotes
+
+修改工作表开发者备注
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.developerNotes  {string}  记录名  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editDeveloperNotes(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateWorksheetAlias
+
+更新 工作表别名
+
+### 参数
+
+args.appId  {string}  AppId  
+args.worksheetId  {string}  工作表Id  
+args.alias  {string}  别名  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateWorksheetAlias(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateWorksheetDec
+
+修改表格描述
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.dec  {string}  描述  
+args.resume  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateWorksheetDec(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateWorksheetShareRange
+
+修改表格视图分享范围
+
+### 参数
+
+args.appId  {string}  应用Id  
+args.rowId  {string}  行Id  
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}  视图Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateWorksheetShareRange(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetInfo
+
+工作表详情
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.relationWorksheetId  {string}  关联表的id  
+args.getTemplate  {boolean}  是否获取Template  
+args.getViews  {boolean}  是否获取Views  
+args.appId  {string}  应用Id  
+args.handleDefault  {boolean}  处理默认值  
+args.worksheetIds  {array}  批量工作表id  
+args.handControlSource  {boolean}  是否处理关联的原始类型  
+args.getRules  {boolean}  是否需要验证规则  
+args.getSwitchPermit  {boolean}  是否获取功能开关  
+args.getRelationSearch  {boolean}  获取查下记录控件  
+args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式 3:严格鉴权  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetInfo(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetBaseInfo
+
+获取工作表基本信息
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.relationWorksheetId  {string}  关联表的id  
+args.getTemplate  {boolean}  是否获取Template  
+args.getViews  {boolean}  是否获取Views  
+args.appId  {string}  应用Id  
+args.handleDefault  {boolean}  处理默认值  
+args.worksheetIds  {array}  批量工作表id  
+args.handControlSource  {boolean}  是否处理关联的原始类型  
+args.getRules  {boolean}  是否需要验证规则  
+args.getSwitchPermit  {boolean}  是否获取功能开关  
+args.getRelationSearch  {boolean}  获取查下记录控件  
+args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式 3:严格鉴权  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetBaseInfo(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetInfoByWorkItem
+
+审批、填写获取子表信息及控件权限
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.relationWorksheetId  {string}  关联表的id  
+args.getTemplate  {boolean}  是否获取Template  
+args.getViews  {boolean}  是否获取Views  
+args.appId  {string}  应用Id  
+args.handleDefault  {boolean}  处理默认值  
+args.worksheetIds  {array}  批量工作表id  
+args.handControlSource  {boolean}  是否处理关联的原始类型  
+args.getRules  {boolean}  是否需要验证规则  
+args.getSwitchPermit  {boolean}  是否获取功能开关  
+args.getRelationSearch  {boolean}  获取查下记录控件  
+args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式 3:严格鉴权  
+args.controlId  {string}  子表的控件id  
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+args.linkId  {string}  工作流填写链接id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetInfoByWorkItem(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetShareUrl
+
+获取工作表分享链接
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行Id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.password  {string}  密码code  
+args.validTime  {string}  有效时间  
+args.pageTitle  {string}  页面标题  
+args.isEdit  {boolean}  是否为编辑,获取url时不传，编辑时传true  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetShareUrl(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getShareInfoByShareId
+
+根据shareid得到worksheetid
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.shareId  {string}  对外分享标识  
+args.password  {string}  密码  
+args.printId  {string}  打印模板id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getShareInfoByShareId(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getRefreshRowsMinute
+
+获取工作表校准间隔时间
+
+### 参数
+
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getRefreshRowsMinute(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getRowByID
+
+行详情
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+args.getTemplate  {boolean}  是否获取模板  
+args.shareId  {string}  分享页获取关联记录iD  
+args.checkView  {boolean}  是否验证视图  
+args.relationWorksheetId  {string}  关联控件ID  
+args.discussId  {string}  讨论ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getRowByID(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAttachmentDetail
+
+获取 附件详情
+
+### 参数
+
+args.attachmentShareId  {string}  附件分享Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getAttachmentDetail(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAttachmentShareId
+
+获取 附件分享Id
+
+### 参数
+
+args.appId  {string}  应用Id  
+args.viewId  {string}  视图Id  
+args.worksheetId  {string}  工作表Id  
+args.rowId  {string}  行记录Id  
+args.controlId  {string}  控件Id  
+args.fileId  {string}  附件Id  
+args.instanceId  {string}  实例Id  
+args.workId  {string}  工作Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getAttachmentShareId(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getRowDetail
+
+获取记录详情
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+args.getTemplate  {boolean}  是否获取模板  
+args.shareId  {string}  分享页获取关联记录iD  
+args.checkView  {boolean}  是否验证视图  
+args.relationWorksheetId  {string}  关联控件ID  
+args.discussId  {string}  讨论ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getRowDetail(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkRowEditLock
+
+校验行记录编辑锁
+
+### 参数
+
+args.worksheetId  {string}    
+args.rowId  {string}    
+args.getRowUpdateTime  {boolean}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.checkRowEditLock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getRowEditLock
+
+获取行记录编辑锁
+
+### 参数
+
+args.worksheetId  {string}    
+args.rowId  {string}    
+args.getRowUpdateTime  {boolean}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getRowEditLock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## cancelRowEditLock
+
+取消行记录编辑锁
+
+### 参数
+
+args.worksheetId  {string}    
+args.rowId  {string}    
+args.getRowUpdateTime  {boolean}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.cancelRowEditLock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorkItem
+
+根据工作流实例信息获取工作表信息
+
+### 参数
+
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorkItem(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getRowRelationRows
+
+获取记录关联记录
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.controlId  {string}  控件id  
+args.pageIndex  {integer}  页码  
+args.pageSize  {integer}  页大小  
+args.getWorksheet  {boolean}  是否获取工作表信息  
+args.sortId  {string}    
+args.isAsc  {boolean}    
+args.shareId  {string}  分享ID  
+args.keywords  {string}  关键词  
+args.linkId  {string}  链接分享id  
+args.viewId  {string}    
+args.filterControls  {array}    
+args.getRules  {boolean}    
+args.fastFilters  {array}  快递筛选  
+args.instanceId  {string}    
+args.workId  {string}    
+args.appId  {string}    
+args.discussId  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getRowRelationRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## addWorksheetRow
+
+添加行
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.worksheetId  {string}  工作表id  
+args.receiveControls  {array}  该行所有的cell  
+args.receiveRows  {array}  批量新增所有rows  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.btnId  {string}  自定义按钮ID  
+args.btnRemark  {string}  按钮备注  
+args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
+args.btnRowId  {string}  点击按钮对应的行记录ID  
+args.pushUniqueId  {string}  推送ID  
+args.verifyCode  {string}  验证码【根据配置来校验是否必填】  
+args.rowStatus  {integer}  1：正常 21：草稿箱 22：提交草稿箱  
+args.draftRowId  {string}  草稿ID  
+args.clientId  {string}  未登录用户临时登录凭据  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.addWorksheetRow(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveDraftRow
+
+保存草稿箱记录
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.worksheetId  {string}  工作表id  
+args.receiveControls  {array}  该行所有的cell  
+args.receiveRows  {array}  批量新增所有rows  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.btnId  {string}  自定义按钮ID  
+args.btnRemark  {string}  按钮备注  
+args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
+args.btnRowId  {string}  点击按钮对应的行记录ID  
+args.pushUniqueId  {string}  推送ID  
+args.verifyCode  {string}  验证码【根据配置来校验是否必填】  
+args.rowStatus  {integer}  1：正常 21：草稿箱 22：提交草稿箱  
+args.draftRowId  {string}  草稿ID  
+args.clientId  {string}  未登录用户临时登录凭据  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveDraftRow(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## addWSRowsBatch
+
+批量添加行
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.worksheetId  {string}  工作表id  
+args.receiveControls  {array}  该行所有的cell  
+args.receiveRows  {array}  批量新增所有rows  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.btnId  {string}  自定义按钮ID  
+args.btnRemark  {string}  按钮备注  
+args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
+args.btnRowId  {string}  点击按钮对应的行记录ID  
+args.pushUniqueId  {string}  推送ID  
+args.verifyCode  {string}  验证码【根据配置来校验是否必填】  
+args.rowStatus  {integer}  1：正常 21：草稿箱 22：提交草稿箱  
+args.draftRowId  {string}  草稿ID  
+args.clientId  {string}  未登录用户临时登录凭据  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.addWSRowsBatch(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateWorksheetRow
+
+修改行
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.newOldControl  {array}  要修改的cell  
+args.viewId  {string}  视图Id  
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+args.btnId  {string}  自定义按钮ID  
+args.btnRemark  {string}  按钮备注  
+args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
+args.btnRowId  {string}  点击按钮对应的行记录ID  
+args.pushUniqueId  {string}  推送ID  
+args.rowStatus  {integer}  1：正常 21：草稿箱  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateWorksheetRow(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkFieldUnique
+
+验证字段唯一性
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.controlId  {string}  需要验证的控件id  
+args.controlValue  {string}  新输入的值  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.checkFieldUnique(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateWorksheetRows
+
+批量修改
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}  视图Id  
+args.rowIds  {array}  行id  
+args.appId  {string}  应用Id  
+args.isAll  {boolean}  是否全部  
+args.excludeRowIds  {array}  需要排除的rowIds  
+args.filterControls  {array}  筛选条件  
+args.keyWords  {string}  搜索关键字  
+args.fastFilters  {array}  快递筛选  
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}    
+args.btnId  {string}  自定义按钮ID  
+args.btnRemark  {string}  按钮备注  
+args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
+args.btnRowId  {string}  点击按钮对应的行记录ID  
+args.pushUniqueId  {string}  推送ID  
+args.controls  {array}  批量编辑  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateWorksheetRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateRowRelationRows
+
+编辑记录关联记录
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.rowIds  {array}  行ids  
+args.isAdd  {boolean}  isAdd  
+args.controlId  {string}  控件Id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateRowRelationRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## replaceRowRelationRows
+
+编辑
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.fromRowId  {string}  老的上级RowId  
+args.toRowId  {string}  新的上级RowId  
+args.rowIds  {array}  行ids  
+args.controlId  {string}  关联控件ID  
+args.viewId  {string}  视图Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.replaceRowRelationRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## refreshSummary
+
+刷新汇总控件
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.rowIds  {array}  行ids  
+args.isAdd  {boolean}  isAdd  
+args.controlId  {string}  控件Id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  流程实例id  
+args.workId  {string}  运行节点id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.refreshSummary(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## refreshWorksheetRows
+
+批量刷新行记录
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}  视图Id  
+args.rowIds  {array}  行id  
+args.appId  {string}  应用Id  
+args.isAll  {boolean}  是否全部  
+args.excludeRowIds  {array}  需要排除的rowIds  
+args.filterControls  {array}  筛选条件  
+args.keyWords  {string}  搜索关键字  
+args.fastFilters  {array}  快递筛选  
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}    
+args.btnId  {string}  自定义按钮ID  
+args.btnRemark  {string}  按钮备注  
+args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
+args.btnRowId  {string}  点击按钮对应的行记录ID  
+args.pushUniqueId  {string}  推送ID  
+args.controls  {array}  批量编辑  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.refreshWorksheetRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## deleteWorksheetRows
+
+删除行
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowIds  {array}  行id  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.isAll  {boolean}  是否全选  
+args.excludeRowIds  {array}  需要排除的rowIds  
+args.filterControls  {array}  筛选条件  
+args.keyWords  {string}  搜索关键字  
+args.fastFilters  {array}  快速筛选  
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}    
+args.thoroughDelete  {boolean}  彻底删除  
+args.pushUniqueId  {string}  推送ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.deleteWorksheetRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## restoreWorksheetRows
+
+恢复行
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowIds  {array}  行ids  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.restoreRelation  {boolean}  恢复关联  
+args.copyRelationControlId  {string}    
+args.isAll  {boolean}  是否全选  
+args.excludeRowIds  {array}  需要排除的rowIds  
+args.filterControls  {array}  筛选条件  
+args.keyWords  {string}  搜索关键字  
+args.fastFilters  {array}  快速筛选  
+args.pushUniqueId  {string}  推送ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.restoreWorksheetRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## removeWorksheetRows
+
+彻底删除
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowIds  {array}  行ids  
+args.appId  {string}  应用Id  
+args.isAll  {boolean}  是否全选  
+args.excludeRowIds  {array}  需要排除的rowIds  
+args.filterControls  {array}  筛选条件  
+args.keyWords  {string}  搜索关键字  
+args.fastFilters  {array}  快速筛选  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.removeWorksheetRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getFilterRows
+
+过滤查找
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.worksheetId  {string}  工作表id  
+args.filterControls  {array}  查询列  
+args.fastFilters  {array}  快速筛选  
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}  筛选组件筛选  
+args.sortControls  {array}  排序列  
+args.keyWords  {string}  关键词  
+args.pageSize  {integer}  页大小  
+args.pageIndex  {integer}  页码  
+args.isUnRead  {boolean}  是否已读  
+args.isGetWorksheet  {boolean}  是否查询工作表的详情  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.relationWorksheetId  {string}  relationWorksheetId  
+args.relationViewId  {string}  RelationViewId  
+args.rowId  {string}  行id  
+args.controlId  {string}  控件Id  
+args.kanbanKey  {string}  全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,  
+args.layer  {integer}  层级视图加载层数  
+args.beginTime  {string}  开始时间 日历视图  
+args.endTime  {string}  结束时间 日历视图  
+args.kanbanSize  {integer}  页大小  
+args.kanbanIndex  {integer}  页码  
+args.formId  {string}  公开表单ID  
+args.linkId  {string}  填写链接id  
+args.reportId  {string}  统计图ID  
+args.notGetTotal  {boolean}  不获取总记录数  
+args.requestParams  {object}  请求参数  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getFilterRows(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getFilterRowsByQueryDefault
+
+工作表查询默认值获取
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.worksheetId  {string}  工作表id  
+args.filterControls  {array}  查询列  
+args.fastFilters  {array}  快速筛选  
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}  筛选组件筛选  
+args.sortControls  {array}  排序列  
+args.keyWords  {string}  关键词  
+args.pageSize  {integer}  页大小  
+args.pageIndex  {integer}  页码  
+args.isUnRead  {boolean}  是否已读  
+args.isGetWorksheet  {boolean}  是否查询工作表的详情  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.relationWorksheetId  {string}  relationWorksheetId  
+args.relationViewId  {string}  RelationViewId  
+args.rowId  {string}  行id  
+args.controlId  {string}  控件Id  
+args.kanbanKey  {string}  全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,  
+args.layer  {integer}  层级视图加载层数  
+args.beginTime  {string}  开始时间 日历视图  
+args.endTime  {string}  结束时间 日历视图  
+args.kanbanSize  {integer}  页大小  
+args.kanbanIndex  {integer}  页码  
+args.formId  {string}  公开表单ID  
+args.linkId  {string}  填写链接id  
+args.reportId  {string}  统计图ID  
+args.notGetTotal  {boolean}  不获取总记录数  
+args.requestParams  {object}  请求参数  
+args.id  {string}  工作表查询id  
+args.getAllControls  {boolean}  是否返回所有控件返回值  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getFilterRowsByQueryDefault(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getFilterRowsTotalNum
+
+获取行记录总数
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.worksheetId  {string}  工作表id  
+args.filterControls  {array}  查询列  
+args.fastFilters  {array}  快速筛选  
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}  筛选组件筛选  
+args.sortControls  {array}  排序列  
+args.keyWords  {string}  关键词  
+args.pageSize  {integer}  页大小  
+args.pageIndex  {integer}  页码  
+args.isUnRead  {boolean}  是否已读  
+args.isGetWorksheet  {boolean}  是否查询工作表的详情  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.relationWorksheetId  {string}  relationWorksheetId  
+args.relationViewId  {string}  RelationViewId  
+args.rowId  {string}  行id  
+args.controlId  {string}  控件Id  
+args.kanbanKey  {string}  全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,  
+args.layer  {integer}  层级视图加载层数  
+args.beginTime  {string}  开始时间 日历视图  
+args.endTime  {string}  结束时间 日历视图  
+args.kanbanSize  {integer}  页大小  
+args.kanbanIndex  {integer}  页码  
+args.formId  {string}  公开表单ID  
+args.linkId  {string}  填写链接id  
+args.reportId  {string}  统计图ID  
+args.notGetTotal  {boolean}  不获取总记录数  
+args.requestParams  {object}  请求参数  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getFilterRowsTotalNum(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getFilterRowsReport
+
+工作表最下方统计
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.filterControls  {array}  查询列  
+args.columnRpts  {array}  列排序  
+args.keyWords  {string}  关键词  
+args.controlId  {string}    
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.fastFilters  {array}    
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}  筛选组件  
+args.requestParams  {object}  请求参数  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getFilterRowsReport(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getLogs
+
+获取日志
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.pageSize  {integer}  页大小  
+args.pageIndex  {integer}  页码  
+args.rowId  {string}  行id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getLogs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetOperationLogs
+
+获取工作表操作日志
+
+### 参数
+
+args.pageSize  {integer}  分页大小  
+args.pageIndex  {integer}  当前页  
+args.objectType  {integer}  日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他  
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  记录id  
+args.filterUniqueIds  {array}  根据唯一码筛选  
+args.controlIds  {array}  筛选控件或属性ID  
+args.opeartorIds  {array}  筛选操作人  
+args.startDate  {string}  开始时间  
+args.endDate  {string}  结束时间  
+args.lastMark  {string}  最后标记时间  
+args.isGlobaLog  {boolean}  是否为全局日志获取记录日志  
+args.requestType  {integer}  日志操作类型 1：手动 2：工作流 3：按钮  
+args.archiveId  {string}  归档ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetOperationLogs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getDetailTableLog
+
+获取子表日志详情
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行记录id  
+args.uniqueId  {string}  唯一id  
+args.createTime  {string}  创建时间  
+args.lastMark  {string}  最后标记时间  
+args.objectType  {integer}  对象类型  
+args.requestType  {integer}  请求类型  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+args.archiveId  {string}  归档ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getDetailTableLog(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## batchGetWorksheetOperationLogs
+
+批量获取工作表日志
+
+### 参数
+
+args.pageSize  {integer}  分页大小  
+args.pageIndex  {integer}  当前页  
+args.objectType  {integer}  日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他  
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  记录id  
+args.filterUniqueIds  {array}  根据唯一码筛选  
+args.controlIds  {array}  筛选控件或属性ID  
+args.opeartorIds  {array}  筛选操作人  
+args.startDate  {string}  开始时间  
+args.endDate  {string}  结束时间  
+args.lastMark  {string}  最后标记时间  
+args.isGlobaLog  {boolean}  是否为全局日志获取记录日志  
+args.requestType  {integer}  日志操作类型 1：手动 2：工作流 3：按钮  
+args.archiveId  {string}  归档ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.batchGetWorksheetOperationLogs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## updateWorksheetRowShareRange
+
+工作表记录分享范围修改
+
+### 参数
+
+args.appId  {string}  应用Id  
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}  视图Id  
+args.rowId  {string}  行id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.updateWorksheetRowShareRange(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getRowsShortUrl
+
+获取记录短链
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowIds  {array}  行ids  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getRowsShortUrl(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## copyRow
+
+复制行记录
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.rowIds  {array}  行ids  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.restoreRelation  {boolean}  恢复关联  
+args.copyRelationControlId  {string}    
+args.isAll  {boolean}  是否全选  
+args.excludeRowIds  {array}  需要排除的rowIds  
+args.filterControls  {array}  筛选条件  
+args.keyWords  {string}  搜索关键字  
+args.fastFilters  {array}  快速筛选  
+args.pushUniqueId  {string}  推送ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.copyRow(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getNavGroup
+
+获取分组导航
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.filterControls  {array}  查询列  
+args.columnRpts  {array}  列排序  
+args.keyWords  {string}  关键词  
+args.controlId  {string}    
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.fastFilters  {array}    
+args.navGroupFilters  {array}  导航分组筛选  
+args.filtersGroup  {array}  筛选组件  
+args.requestParams  {object}  请求参数  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getNavGroup(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetArchives
+
+获取工作表归档列表
+
+### 参数
+
+args.type  {integer}  1：行记录日志  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetArchives(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveWorksheetFilter
+
+保存筛选器
+
+### 参数
+
+args.name  {string}  筛选器名称  
+args.worksheetId  {string}  工作表id  
+args.type  {integer}  视图类型 1：个人 2：公共  
+args.items  {array}    
+args.filterId  {string}  筛选条件编号  
+args.appId  {string}  应用Id  
+args.module  {integer}  1:工作表 2:统计  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveWorksheetFilter(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetFilters
+
+获取可见筛选器
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.controlId  {string}  控件ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetFilters(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetFilterById
+
+获取筛选器详情
+
+### 参数
+
+args.filterId  {string}  筛选器Id  
+args.items  {array}  FilterSort  
+args.projectId  {string}  网络Id  
+args.worksheetId  {string}  工作表ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetFilterById(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## deleteWorksheetFilter
+
+删除筛选器
+
+### 参数
+
+args.filterId  {string}  筛选器Id  
+args.appId  {string}  应用ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.deleteWorksheetFilter(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## sortWorksheetFilters
+
+筛选器排序
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.filterIds  {array}  筛选器Id  
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.sortWorksheetFilters(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveWorksheetView
+
+保存视图
+
+### 参数
+
+args.name  {string}  视图名称  
+args.worksheetId  {string}  工作表Id  
+args.sortCid  {string}  排序字段Id  
+args.sortType  {integer}  排序类型  
+args.rowHeight  {integer}  行高 0：紧凑 1：中等 2：高 3：超高  
+args.controls  {array}  controls  
+args.filters  {array}  filters  
+args.fastFilters  {array}  fastfilters  
+args.moreSort  {array}  排序  
+args.navGroup  {array}  导航分组  
+args.displayControls  {array}  显示字段  
+args.showControls  {array}  Web显示字段  
+args.controlsSorts  {array}  字段排序  
+args.layersName  {array}  层级名称  
+args.customDisplay  {boolean}  是否配置自定义显示列  
+args.viewId  {string}  视图id  
+args.appId  {string}  应用Id  
+args.unRead  {boolean}  unRead  
+args.viewType  {integer}  0:列表 1：看板 2：层级  
+args.childType  {integer}  1：单表层级 2：多表层级  
+args.viewControl  {string}  视图维度ID(分组ID)  
+args.viewControls  {array}  多表层级视图控件  
+args.coverCid  {string}  封面字段  
+args.coverType  {integer}  0：填满 1：完整显示  
+args.showControlName  {boolean}  显示控件名称  
+args.advancedSetting  {object}  视图高级配置  
+args.editAttrs  {array}  编辑属性  
+args.editAdKeys  {array}  编辑AdvancedSetting属性keys  
+args.pluginId  {string}  视图插件id  
+args.pluginName  {string}  视图插件名称  
+args.pluginIcon  {string}  视图插件图标  
+args.pluginIconColor  {string}  插件插件图标颜色  
+args.pluginSource  {integer}  插件来源  
+args.projectId  {string}  组织id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveWorksheetView(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetViews
+
+获取可见视图
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}    
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetViews(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetViewById
+
+获取视图详情
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.viewId  {string}    
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetViewById(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## deleteWorksheetView
+
+删除视图
+
+### 参数
+
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.status  {integer}  9：删除 999：彻底删除  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.deleteWorksheetView(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## restoreWorksheetView
+
+恢复视图
+
+### 参数
+
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.status  {integer}  9：删除 999：彻底删除  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.restoreWorksheetView(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## copyWorksheetView
+
+获取工作表API
+
+### 参数
+
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.copyWorksheetView(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## sortWorksheetViews
+
+视图排序
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.viewIds  {array}  视图Id  
+args.appId  {string}  应用Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.sortWorksheetViews(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## copyWorksheetViewConfig
+
+复制视图配置
+
+### 参数
+
+args.viewId  {string}  视图Id  
+args.copyKeys  {array}  用户选中的配置  
+args.worksheetId  {string}  工作表Id  
+args.targetViewIds  {array}  目标视图Id集合  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.copyWorksheetViewConfig(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editGenerateViewDefaultAlias
+
+批量生成视图别名
+
+### 参数
+
+args.worksheetId  {string}  表id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editGenerateViewDefaultAlias(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editViewAlias
+
+编辑视图别名
+
+### 参数
+
+args.worksheetId  {string}  表id  
+args.views  {array}  视图别名信息  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editViewAlias(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetBtns
+
+获取按钮列表
+
+### 参数
+
+args.appId  {string}  应用ID  
+args.viewId  {string}  视图ID  
+args.rowId  {string}  行记录ID  
+args.worksheetId  {string}  工作表ID  
+args.btnId  {string}    
+args.status  {integer}  状态 1：正常 9：回收站  
+args.btnIds  {array}  批量获取按钮的id  
+args.rowIds  {array}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetBtns(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkWorksheetRowBtn
+
+验证按钮是否满足行记录
+
+### 参数
+
+args.appId  {string}  应用ID  
+args.viewId  {string}  视图ID  
+args.rowId  {string}  行记录ID  
+args.worksheetId  {string}  工作表ID  
+args.btnId  {string}    
+args.status  {integer}  状态 1：正常 9：回收站  
+args.btnIds  {array}  批量获取按钮的id  
+args.rowIds  {array}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.checkWorksheetRowBtn(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkWorksheetRowsBtn
+
+批量验证行记录是否满足按钮条件
+
+### 参数
+
+args.appId  {string}  应用ID  
+args.viewId  {string}  视图ID  
+args.rowId  {string}  行记录ID  
+args.worksheetId  {string}  工作表ID  
+args.btnId  {string}    
+args.status  {integer}  状态 1：正常 9：回收站  
+args.btnIds  {array}  批量获取按钮的id  
+args.rowIds  {array}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.checkWorksheetRowsBtn(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetBtnByID
+
+获取按钮详情
+
+### 参数
+
+args.appId  {string}  应用ID  
+args.viewId  {string}  视图ID  
+args.rowId  {string}  行记录ID  
+args.worksheetId  {string}  工作表ID  
+args.btnId  {string}    
+args.status  {integer}  状态 1：正常 9：回收站  
+args.btnIds  {array}  批量获取按钮的id  
+args.rowIds  {array}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetBtnByID(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## optionWorksheetBtn
+
+操作按钮
+
+### 参数
+
+args.appId  {string}  应用iD  
+args.viewId  {string}  视图ID  
+args.btnId  {string}  按钮ID  
+args.worksheetId  {string}  工作表ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.optionWorksheetBtn(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveWorksheetBtn
+
+保存按钮
+
+### 参数
+
+args.btnId  {string}    
+args.name  {string}    
+args.worksheetId  {string}    
+args.showType  {integer}  1:一直 2：满足筛选条件  
+args.filters  {array}  筛选条件  
+args.displayViews  {array}  显示视图  
+args.clickType  {integer}  1：立即执行 2：二次确认 3：填写  
+args.confirmMsg  {string}  确认信息  
+args.sureName  {string}  确认按钮  
+args.cancelName  {string}  取消按钮  
+args.writeObject  {integer}  对象 1：本记录 2：关联记录  
+args.writeType  {integer}  类型 1：填写字段 2：新建关联记录  
+args.relationControl  {string}  关联记录ID  
+args.addRelationControlId  {string}  新建关联记录ID  
+args.workflowType  {integer}  1:执行 2：不执行  
+args.workflowId  {string}  工作流ID  
+args.writeControls  {array}  填写控件 type - 1：只读 2：填写 3：必填  
+args.appId  {string}  应用ID  
+args.color  {string}  颜色  
+args.icon  {string}  图标  
+args.desc  {string}  描述  
+args.isAllView  {integer}    
+args.editAttrs  {array}  编辑属性  
+args.verifyPwd  {boolean}    
+args.enableConfirm  {boolean}    
+args.advancedSetting  {object}    
+args.isBatch  {boolean}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveWorksheetBtn(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## copyWorksheetBtn
+
+复制按钮
+
+### 参数
+
+args.appId  {string}  应用iD  
+args.viewId  {string}  视图ID  
+args.btnId  {string}  按钮ID  
+args.worksheetId  {string}  工作表ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.copyWorksheetBtn(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getControlRules
+
+获取规则列表
+
+### 参数
+
+args.worksheetId  {string}    
+args.ruleId  {string}    
+args.instanceId  {string}  通过工作流时必传  
+args.workId  {string}  通过工作流时必传  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getControlRules(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveControlRule
+
+保存规则
+
+### 参数
+
+args.worksheetId  {string}    
+args.ruleId  {string}    
+args.ruleIds  {array}    
+args.name  {string}    
+args.disabled  {boolean}    
+args.filters  {array}    
+args.ruleItems  {array}    
+args.editAttrs  {array}    
+args.type  {integer}  0:交互  1：验证 2：锁定  
+args.checkType  {integer}  0：前端  1：前后端  
+args.hintType  {integer}  0：输入和提交 1：仅提交  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveControlRule(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## sortControlRules
+
+@param {Object} args 请求参数
+
+### 参数
+
+args.worksheetId  {string}    
+args.ruleId  {string}    
+args.ruleIds  {array}    
+args.name  {string}    
+args.disabled  {boolean}    
+args.filters  {array}    
+args.ruleItems  {array}    
+args.editAttrs  {array}    
+args.type  {integer}  0:交互  1：验证 2：锁定  
+args.checkType  {integer}  0：前端  1：前后端  
+args.hintType  {integer}  0：输入和提交 1：仅提交  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.sortControlRules(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveWorksheetControls
+
+保存表控件
+
+### 参数
+
+args.sourceId  {string}  兼容老数据  
+args.worksheetId  {string}  WorksheetId  
+args.version  {integer}  版本号  
+args.controls  {array}  控件集合  
+args.appId  {string}  应用ID  
+args.controlId  {string}  控件ID  
+args.controlIds  {array}  控件IDs  
+args.status  {integer}  状态 1:恢复 999：彻底删除  
+args.initNum  {integer}  初始化编号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveWorksheetControls(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## addWorksheetControls
+
+添加表控件
+
+### 参数
+
+args.sourceId  {string}  兼容老数据  
+args.worksheetId  {string}  WorksheetId  
+args.version  {integer}  版本号  
+args.controls  {array}  控件集合  
+args.appId  {string}  应用ID  
+args.controlId  {string}  控件ID  
+args.controlIds  {array}  控件IDs  
+args.status  {integer}  状态 1:恢复 999：彻底删除  
+args.initNum  {integer}  初始化编号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.addWorksheetControls(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetControls
+
+获取表控件
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.relationWorksheetId  {string}  关联表的id  
+args.getTemplate  {boolean}  是否获取Template  
+args.getViews  {boolean}  是否获取Views  
+args.appId  {string}  应用Id  
+args.handleDefault  {boolean}  处理默认值  
+args.worksheetIds  {array}  批量工作表id  
+args.handControlSource  {boolean}  是否处理关联的原始类型  
+args.getRules  {boolean}  是否需要验证规则  
+args.getSwitchPermit  {boolean}  是否获取功能开关  
+args.getRelationSearch  {boolean}  获取查下记录控件  
+args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式 3:严格鉴权  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetControls(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAiFieldRecommendation
+
+获取工作表字段智能建议
+
+### 参数
+
+args.prompt  {string}  提示词  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getAiFieldRecommendation(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetsControls
+
+批量获取表控件
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.relationWorksheetId  {string}  关联表的id  
+args.getTemplate  {boolean}  是否获取Template  
+args.getViews  {boolean}  是否获取Views  
+args.appId  {string}  应用Id  
+args.handleDefault  {boolean}  处理默认值  
+args.worksheetIds  {array}  批量工作表id  
+args.handControlSource  {boolean}  是否处理关联的原始类型  
+args.getRules  {boolean}  是否需要验证规则  
+args.getSwitchPermit  {boolean}  是否获取功能开关  
+args.getRelationSearch  {boolean}  获取查下记录控件  
+args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式 3:严格鉴权  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetsControls(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editControlsAlias
+
+编辑控件别名
+
+### 参数
+
+args.sourceId  {string}  兼容老数据  
+args.worksheetId  {string}  WorksheetId  
+args.version  {integer}  版本号  
+args.controls  {array}  控件集合  
+args.appId  {string}  应用ID  
+args.controlId  {string}  控件ID  
+args.controlIds  {array}  控件IDs  
+args.status  {integer}  状态 1:恢复 999：彻底删除  
+args.initNum  {integer}  初始化编号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editControlsAlias(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editGenerateControlsDefaultAlias
+
+生成控件默认别名
+
+### 参数
+
+args.appId  {string}  应用id  
+args.worksheetId  {string}  工作表id  
+args.version  {integer}  版本号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editGenerateControlsDefaultAlias(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editWorksheetControls
+
+保存表控件
+
+### 参数
+
+args.sourceId  {string}  兼容老数据  
+args.worksheetId  {string}  WorksheetId  
+args.version  {integer}  版本号  
+args.controls  {array}  控件集合  
+args.appId  {string}  应用ID  
+args.controlId  {string}  控件ID  
+args.controlIds  {array}  控件IDs  
+args.status  {integer}  状态 1:恢复 999：彻底删除  
+args.initNum  {integer}  初始化编号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editWorksheetControls(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## resetControlIncrease
+
+重置自动编号
+
+### 参数
+
+args.sourceId  {string}  兼容老数据  
+args.worksheetId  {string}  WorksheetId  
+args.version  {integer}  版本号  
+args.controls  {array}  控件集合  
+args.appId  {string}  应用ID  
+args.controlId  {string}  控件ID  
+args.controlIds  {array}  控件IDs  
+args.status  {integer}  状态 1:恢复 999：彻底删除  
+args.initNum  {integer}  初始化编号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.resetControlIncrease(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## deleteWorksheetAutoID
+
+删除autoid
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.relationWorksheetId  {string}  关联表的id  
+args.getTemplate  {boolean}  是否获取Template  
+args.getViews  {boolean}  是否获取Views  
+args.appId  {string}  应用Id  
+args.handleDefault  {boolean}  处理默认值  
+args.worksheetIds  {array}  批量工作表id  
+args.handControlSource  {boolean}  是否处理关联的原始类型  
+args.getRules  {boolean}  是否需要验证规则  
+args.getSwitchPermit  {boolean}  是否获取功能开关  
+args.getRelationSearch  {boolean}  获取查下记录控件  
+args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式 3:严格鉴权  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.deleteWorksheetAutoID(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editControlsStatus
+
+编辑控件状态
+
+### 参数
+
+args.sourceId  {string}  兼容老数据  
+args.worksheetId  {string}  WorksheetId  
+args.version  {integer}  版本号  
+args.controls  {array}  控件集合  
+args.appId  {string}  应用ID  
+args.controlId  {string}  控件ID  
+args.controlIds  {array}  控件IDs  
+args.status  {integer}  状态 1:恢复 999：彻底删除  
+args.initNum  {integer}  初始化编号  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editControlsStatus(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetReferences
+
+获取字段和表引用关系
+
+### 参数
+
+args.worksheetId  {string}  工作表id  
+args.controlId  {string}  字段ID  
+args.type  {integer}  类型 1：字段引用关系 2：工作表引用关系  
+args.module  {integer}  模块 1：工作表 2：工作流  
+args.subModule  {integer}  子模块 0：表示获取全部 101：字段 102：视图 103：业务规则 201：流程节点  
+args.isRefresh  {boolean}  刷新引用关系  
+args.appId  {string}  空表示所有引用，默认传当前应用ID  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getWorksheetReferences(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getPrintList
+
+获取系统打印列表
+
+### 参数
+
+args.worksheetId  {string}    
+args.viewId  {string}    
+args.rowIds  {array}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getPrintList(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getFormComponent
+
+获取 表单组件
+
+### 参数
+
+args.worksheetId  {string}  工作表Id  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getFormComponent(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getPrint
+
+获取单个打印模板
+
+### 参数
+
+args.id  {string}    
+args.projectId  {string}    
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.pageIndex  {integer}  页码  
+args.pageSize  {integer}  页大小  
+args.sortId  {string}    
+args.isAsc  {boolean}    
+args.keywords  {string}  关键词  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  通过工作流审批打印时必传  
+args.workId  {string}  通过工作流审批打印时必传  
+args.filterControls  {array}    
+args.fastFilters  {array}  快递筛选  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getPrint(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getCodePrint
+
+获取单个打印模板
+
+### 参数
+
+args.id  {string}    
+args.projectId  {string}    
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.pageIndex  {integer}  页码  
+args.pageSize  {integer}  页大小  
+args.sortId  {string}    
+args.isAsc  {boolean}    
+args.keywords  {string}  关键词  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  通过工作流审批打印时必传  
+args.workId  {string}  通过工作流审批打印时必传  
+args.filterControls  {array}    
+args.fastFilters  {array}  快递筛选  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getCodePrint(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getPrintTemplate
+
+新建生成打印模板
+
+### 参数
+
+args.id  {string}    
+args.projectId  {string}    
+args.worksheetId  {string}  工作表id  
+args.rowId  {string}  行id  
+args.pageIndex  {integer}  页码  
+args.pageSize  {integer}  页大小  
+args.sortId  {string}    
+args.isAsc  {boolean}    
+args.keywords  {string}  关键词  
+args.viewId  {string}  视图Id  
+args.appId  {string}  应用Id  
+args.instanceId  {string}  通过工作流审批打印时必传  
+args.workId  {string}  通过工作流审批打印时必传  
+args.filterControls  {array}    
+args.fastFilters  {array}  快递筛选  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.getPrintTemplate(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editPrint
+
+保存系统打印模板
+
+### 参数
+
+args.id  {string}  模板id (空=新建 非空=修改)  
+args.saveControls  {array}  勾选保存的控件  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editPrint(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editPrintFile
+
+编辑打印模板文件属性
+
+### 参数
+
+args.id  {string}  模板id  
+args.name  {string}  模板名称  
+args.allowEditAfterPrint  {boolean}  允许编辑后打印  
+args.advanceSettings  {array}  额外配置数据  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editPrintFile(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## saveRecordCodePrintConfig
+
+保存记录二维码打印模板配置
+
+### 参数
+
+args.id  {string}  模板id  
+args.projectId  {string}  组织id  
+args.worksheetId  {string}  工作表id  
+args.name  {string}  模板名称  
+args.type  {integer}  3-二维码打印 4-条码打印  
+args.range  {integer}  使用范围  
+args.views  {array}  视图id  
+args.advanceSettings  {array}  额外配置  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.saveRecordCodePrintConfig(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editPrintName
+
+修改打印模板名称
+
+### 参数
+
+args.id  {string}    
+args.name  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editPrintName(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editPrintRange
+
+修改打印模板范围
+
+### 参数
+
+args.id  {string}    
+args.worksheetId  {string}    
+args.viewsIds  {array}  视图Ids  
+
+```js
+import { apis } from "mdye";
+
+apis.worksheet.editPrintRange(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## editPrintFilter
 
 修改打印模板筛选条件
@@ -17,24 +2508,6 @@ args.filters  {array}  筛选条件
 import { apis } from "mdye";
 
 apis.worksheet.editPrintFilter(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editTemplateDownloadPermission
-
-修改模板下载权限
-
-### 参数
-
-args.id  {string}  打印模板id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editTemplateDownloadPermission(args)
   .then(res => {
     console.log(res);
   });
@@ -241,7 +2714,9 @@ apis.worksheet.getFormSubmissionSettings(args)
 
 args.workSheetId  {string}  工作表id  
 args.appId  {string}  应用id  
+args.projectId  {string}  组织id  
 args.advancedSetting  {object}  配置项数据  
+args.editAdKeys  {array}  编辑AdvancedSetting属性keys  
 
 ```js
 import { apis } from "mdye";
@@ -740,6 +3215,7 @@ args.apkId  {string}  应用id
 args.formId  {string}  公开表单id  
 args.apiEventId  {string}  动作事件id（不传默认识别为api查询字段）  
 args.authId  {string}  授权账户Id  
+args.actionType  {integer}  事件执行类型 调用api 8 调用封装业务流程 13  
 
 ```js
 import { apis } from "mdye";
@@ -759,6 +3235,7 @@ apis.worksheet.excuteApiQuery(args)
 
 args.apiTemplateId  {string}  api模板id  
 args.type  {integer}  是否为请求参数模板 1-请求模板 2-响应模板 不传-请求响应  
+args.actionType  {integer}  事件执行类型 调用api 8 调用封装业务流程 13  
 
 ```js
 import { apis } from "mdye";
@@ -808,6 +3285,7 @@ args.getTemplate  {boolean}  是否获取模板
 args.shareId  {string}  分享页获取关联记录iD  
 args.checkView  {boolean}  是否验证视图  
 args.relationWorksheetId  {string}  关联控件ID  
+args.discussId  {string}  讨论ID  
 args.fileId  {string}    
 args.fileName  {string}    
 args.controlId  {string}  附件的控件id  
@@ -853,6 +3331,8 @@ args.exportExtIds  {array}  导出特殊列配置
 args.controlIds  {array}  需要导出的控件ids  
 args.getColumnRpt  {boolean}  是否导出列统计  
 args.edited  {boolean}  是否允许修改  
+args.sortRelationCids  {array}  强制排序导出的关联控件id集合  
+args.isNumber  {boolean}  控件是否以数值格式导出  
 
 ```js
 import { apis } from "mdye";
@@ -864,2129 +3344,17 @@ apis.worksheet.saveExportConfig(args)
 ```
 ---
 
-## getViewPermission
+## getWorksheetCurrencyInfos
 
-获取视图权限
+获取工作表币种类型
 
 ### 参数
 
-args.worksheetId  {string}  工作表id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
 
 ```js
 import { apis } from "mdye";
 
-apis.worksheet.getViewPermission(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAppExtendAttr
-
-获取应用角色用户扩展属性
-
-### 参数
-
-args.appId  {string}  AppId  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getAppExtendAttr(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getExtendAttrOptionalControl
-
-获取工作表的扩展属性选项控件信息
-
-### 参数
-
-args.worksheetId  {string}  工作表Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getExtendAttrOptionalControl(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveAppExtendAttr
-
-保存应用角色用户扩展属性
-
-### 参数
-
-args.appId  {string}  应用  
-args.worksheetId  {string}  工作表Id  
-args.userControlId  {string}  用户控件  
-args.extendAttrs  {array}  扩展字段属性  
-args.status  {integer}  状态【9：关闭 1：正常】  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveAppExtendAttr(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## copyWorksheet
-
-复制表格
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.name  {string}  名称  
-args.projectId  {string}  网络id  
-args.isCopyBtnName  {boolean}  是否复制按钮名称  
-args.isCopyDesc  {boolean}  是否复制描述  
-args.isCopyAdmin  {boolean}  是否复制管理员  
-args.isCopyRows  {boolean}  是否复制行数据  
-args.appId  {string}  应用id  
-args.appSectionId  {string}  分组id  
-args.relationControlIds  {array}  复制的关联控件ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.copyWorksheet(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateEntityName
-
-修改表格行记录名
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.entityName  {string}  记录名  
-args.appID  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateEntityName(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editDeveloperNotes
-
-修改工作表开发者备注
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.developerNotes  {string}  记录名  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editDeveloperNotes(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateWorksheetAlias
-
-更新 工作表别名
-
-### 参数
-
-args.appId  {string}  AppId  
-args.worksheetId  {string}  工作表Id  
-args.alias  {string}  别名  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateWorksheetAlias(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateWorksheetDec
-
-修改表格描述
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.dec  {string}  描述  
-args.resume  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateWorksheetDec(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateWorksheetShareRange
-
-修改表格视图分享范围
-
-### 参数
-
-args.appId  {string}  应用Id  
-args.rowId  {string}  行Id  
-args.worksheetId  {string}  工作表id  
-args.viewId  {string}  视图Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateWorksheetShareRange(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetInfo
-
-工作表详情
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.relationWorksheetId  {string}  关联表的id  
-args.getTemplate  {boolean}  是否获取Template  
-args.getViews  {boolean}  是否获取Views  
-args.appId  {string}  应用Id  
-args.handleDefault  {boolean}  处理默认值  
-args.worksheetIds  {array}  批量工作表id  
-args.handControlSource  {boolean}  是否处理关联的原始类型  
-args.getRules  {boolean}  是否需要验证规则  
-args.getSwitchPermit  {boolean}  是否获取功能开关  
-args.getRelationSearch  {boolean}  获取查下记录控件  
-args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetInfo(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetInfoByWorkItem
-
-审批、填写获取子表信息及控件权限
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.relationWorksheetId  {string}  关联表的id  
-args.getTemplate  {boolean}  是否获取Template  
-args.getViews  {boolean}  是否获取Views  
-args.appId  {string}  应用Id  
-args.handleDefault  {boolean}  处理默认值  
-args.worksheetIds  {array}  批量工作表id  
-args.handControlSource  {boolean}  是否处理关联的原始类型  
-args.getRules  {boolean}  是否需要验证规则  
-args.getSwitchPermit  {boolean}  是否获取功能开关  
-args.getRelationSearch  {boolean}  获取查下记录控件  
-args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式  
-args.controlId  {string}  子表的控件id  
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-args.linkId  {string}  工作流填写链接id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetInfoByWorkItem(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetShareUrl
-
-获取工作表分享链接
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行Id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.password  {string}  密码code  
-args.validTime  {string}  有效时间  
-args.isEdit  {boolean}  是否为编辑,获取url时不传，编辑时传true  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetShareUrl(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getShareInfoByShareId
-
-根据shareid得到worksheetid
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.shareId  {string}  对外分享标识  
-args.password  {string}  密码  
-args.printId  {string}  打印模板id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getShareInfoByShareId(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getRowByID
-
-行详情
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-args.getTemplate  {boolean}  是否获取模板  
-args.shareId  {string}  分享页获取关联记录iD  
-args.checkView  {boolean}  是否验证视图  
-args.relationWorksheetId  {string}  关联控件ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getRowByID(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAttachmentDetail
-
-获取 附件详情
-
-### 参数
-
-args.attachmentShareId  {string}  附件分享Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getAttachmentDetail(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAttachmentShareId
-
-获取 附件分享Id
-
-### 参数
-
-args.appId  {string}  应用Id  
-args.viewId  {string}  视图Id  
-args.worksheetId  {string}  工作表Id  
-args.rowId  {string}  行记录Id  
-args.controlId  {string}  控件Id  
-args.fileId  {string}  附件Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getAttachmentShareId(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getRowDetail
-
-获取记录详情
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-args.getTemplate  {boolean}  是否获取模板  
-args.shareId  {string}  分享页获取关联记录iD  
-args.checkView  {boolean}  是否验证视图  
-args.relationWorksheetId  {string}  关联控件ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getRowDetail(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorkItem
-
-根据工作流实例信息获取工作表信息
-
-### 参数
-
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorkItem(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getRowRelationRows
-
-获取记录关联记录
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.controlId  {string}  控件id  
-args.pageIndex  {integer}  页码  
-args.pageSize  {integer}  页大小  
-args.getWorksheet  {boolean}  是否获取工作表信息  
-args.sortId  {string}    
-args.isAsc  {boolean}    
-args.shareId  {string}  分享ID  
-args.keywords  {string}  关键词  
-args.linkId  {string}  链接分享id  
-args.viewId  {string}    
-args.filterControls  {array}    
-args.getRules  {boolean}    
-args.fastFilters  {array}  快递筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getRowRelationRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## addWorksheetRow
-
-添加行
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.worksheetId  {string}  工作表id  
-args.receiveControls  {array}  该行所有的cell  
-args.receiveRows  {array}  批量新增所有rows  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.btnId  {string}  自定义按钮ID  
-args.btnRemark  {string}  按钮备注  
-args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
-args.btnRowId  {string}  点击按钮对应的行记录ID  
-args.pushUniqueId  {string}  推送ID  
-args.verifyCode  {string}  验证码【根据配置来校验是否必填】  
-args.rowStatus  {integer}  1：正常 21：草稿箱  
-args.draftRowId  {string}  草稿ID  
-args.clientId  {string}  未登录用户临时登录凭据  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.addWorksheetRow(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## addWSRowsBatch
-
-批量添加行
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.worksheetId  {string}  工作表id  
-args.receiveControls  {array}  该行所有的cell  
-args.receiveRows  {array}  批量新增所有rows  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.btnId  {string}  自定义按钮ID  
-args.btnRemark  {string}  按钮备注  
-args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
-args.btnRowId  {string}  点击按钮对应的行记录ID  
-args.pushUniqueId  {string}  推送ID  
-args.verifyCode  {string}  验证码【根据配置来校验是否必填】  
-args.rowStatus  {integer}  1：正常 21：草稿箱  
-args.draftRowId  {string}  草稿ID  
-args.clientId  {string}  未登录用户临时登录凭据  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.addWSRowsBatch(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateWorksheetRow
-
-修改行
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.newOldControl  {array}  要修改的cell  
-args.viewId  {string}  视图Id  
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-args.btnId  {string}  自定义按钮ID  
-args.btnRemark  {string}  按钮备注  
-args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
-args.btnRowId  {string}  点击按钮对应的行记录ID  
-args.pushUniqueId  {string}  推送ID  
-args.rowStatus  {integer}  1：正常 11：草稿箱  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateWorksheetRow(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## checkFieldUnique
-
-验证字段唯一性
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.controlId  {string}  需要验证的控件id  
-args.controlValue  {string}  新输入的值  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.checkFieldUnique(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateWorksheetRows
-
-批量修改
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.viewId  {string}  视图Id  
-args.rowIds  {array}  行id  
-args.appId  {string}  应用Id  
-args.isAll  {boolean}  是否全部  
-args.excludeRowIds  {array}  需要排除的rowIds  
-args.filterControls  {array}  筛选条件  
-args.keyWords  {string}  搜索关键字  
-args.fastFilters  {array}  快递筛选  
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}    
-args.btnId  {string}  自定义按钮ID  
-args.btnRemark  {string}  按钮备注  
-args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
-args.btnRowId  {string}  点击按钮对应的行记录ID  
-args.pushUniqueId  {string}  推送ID  
-args.controls  {array}  批量编辑  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateWorksheetRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateRowRelationRows
-
-编辑记录关联记录
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.rowIds  {array}  行ids  
-args.isAdd  {boolean}  isAdd  
-args.controlId  {string}  控件Id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateRowRelationRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## replaceRowRelationRows
-
-编辑
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.fromRowId  {string}  老的上级RowId  
-args.toRowId  {string}  新的上级RowId  
-args.rowIds  {array}  行ids  
-args.controlId  {string}  关联控件ID  
-args.viewId  {string}  视图Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.replaceRowRelationRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## refreshSummary
-
-刷新汇总控件
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.rowIds  {array}  行ids  
-args.isAdd  {boolean}  isAdd  
-args.controlId  {string}  控件Id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  流程实例id  
-args.workId  {string}  运行节点id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.refreshSummary(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## refreshWorksheetRows
-
-批量刷新行记录
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.viewId  {string}  视图Id  
-args.rowIds  {array}  行id  
-args.appId  {string}  应用Id  
-args.isAll  {boolean}  是否全部  
-args.excludeRowIds  {array}  需要排除的rowIds  
-args.filterControls  {array}  筛选条件  
-args.keyWords  {string}  搜索关键字  
-args.fastFilters  {array}  快递筛选  
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}    
-args.btnId  {string}  自定义按钮ID  
-args.btnRemark  {string}  按钮备注  
-args.btnWorksheetId  {string}  点击按钮对应的工作表ID  
-args.btnRowId  {string}  点击按钮对应的行记录ID  
-args.pushUniqueId  {string}  推送ID  
-args.controls  {array}  批量编辑  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.refreshWorksheetRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## deleteWorksheetRows
-
-删除行
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowIds  {array}  行id  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.isAll  {boolean}  是否全选  
-args.excludeRowIds  {array}  需要排除的rowIds  
-args.filterControls  {array}  筛选条件  
-args.keyWords  {string}  搜索关键字  
-args.fastFilters  {array}  快速筛选  
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}    
-args.thoroughDelete  {boolean}  彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.deleteWorksheetRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## restoreWorksheetRows
-
-恢复行
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowIds  {array}  行ids  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.restoreRelation  {boolean}  恢复关联  
-args.copyRelationControlId  {string}    
-args.isAll  {boolean}  是否全选  
-args.excludeRowIds  {array}  需要排除的rowIds  
-args.filterControls  {array}  筛选条件  
-args.keyWords  {string}  搜索关键字  
-args.fastFilters  {array}  快速筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.restoreWorksheetRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## removeWorksheetRows
-
-彻底删除
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowIds  {array}  行ids  
-args.appId  {string}  应用Id  
-args.isAll  {boolean}  是否全选  
-args.excludeRowIds  {array}  需要排除的rowIds  
-args.filterControls  {array}  筛选条件  
-args.keyWords  {string}  搜索关键字  
-args.fastFilters  {array}  快速筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.removeWorksheetRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getFilterRows
-
-过滤查找
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.worksheetId  {string}  工作表id  
-args.filterControls  {array}  查询列  
-args.fastFilters  {array}  快速筛选  
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}  筛选组件筛选  
-args.sortControls  {array}  排序列  
-args.keyWords  {string}  关键词  
-args.pageSize  {integer}  页大小  
-args.pageIndex  {integer}  页码  
-args.isUnRead  {boolean}  是否已读  
-args.isGetWorksheet  {boolean}  是否查询工作表的详情  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.relationWorksheetId  {string}  relationWorksheetId  
-args.relationViewId  {string}  RelationViewId  
-args.rowId  {string}  行id  
-args.controlId  {string}  控件Id  
-args.kanbanKey  {string}  全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,  
-args.layer  {integer}  层级视图加载层数  
-args.beginTime  {string}  开始时间 日历视图  
-args.endTime  {string}  结束时间 日历视图  
-args.kanbanSize  {integer}  页大小  
-args.kanbanIndex  {integer}  页码  
-args.formId  {string}  公开表单ID  
-args.linkId  {string}  填写链接id  
-args.reportId  {string}  统计图ID  
-args.notGetTotal  {boolean}  不获取总记录数  
-args.requestParams  {object}  请求参数  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getFilterRows(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getFilterRowsByQueryDefault
-
-工作表查询默认值获取
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.worksheetId  {string}  工作表id  
-args.filterControls  {array}  查询列  
-args.fastFilters  {array}  快速筛选  
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}  筛选组件筛选  
-args.sortControls  {array}  排序列  
-args.keyWords  {string}  关键词  
-args.pageSize  {integer}  页大小  
-args.pageIndex  {integer}  页码  
-args.isUnRead  {boolean}  是否已读  
-args.isGetWorksheet  {boolean}  是否查询工作表的详情  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.relationWorksheetId  {string}  relationWorksheetId  
-args.relationViewId  {string}  RelationViewId  
-args.rowId  {string}  行id  
-args.controlId  {string}  控件Id  
-args.kanbanKey  {string}  全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,  
-args.layer  {integer}  层级视图加载层数  
-args.beginTime  {string}  开始时间 日历视图  
-args.endTime  {string}  结束时间 日历视图  
-args.kanbanSize  {integer}  页大小  
-args.kanbanIndex  {integer}  页码  
-args.formId  {string}  公开表单ID  
-args.linkId  {string}  填写链接id  
-args.reportId  {string}  统计图ID  
-args.notGetTotal  {boolean}  不获取总记录数  
-args.requestParams  {object}  请求参数  
-args.id  {string}  工作表查询id  
-args.getAllControls  {boolean}  是否返回所有控件返回值  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getFilterRowsByQueryDefault(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getFilterRowsTotalNum
-
-获取行记录总数
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.worksheetId  {string}  工作表id  
-args.filterControls  {array}  查询列  
-args.fastFilters  {array}  快速筛选  
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}  筛选组件筛选  
-args.sortControls  {array}  排序列  
-args.keyWords  {string}  关键词  
-args.pageSize  {integer}  页大小  
-args.pageIndex  {integer}  页码  
-args.isUnRead  {boolean}  是否已读  
-args.isGetWorksheet  {boolean}  是否查询工作表的详情  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.relationWorksheetId  {string}  relationWorksheetId  
-args.relationViewId  {string}  RelationViewId  
-args.rowId  {string}  行id  
-args.controlId  {string}  控件Id  
-args.kanbanKey  {string}  全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,  
-args.layer  {integer}  层级视图加载层数  
-args.beginTime  {string}  开始时间 日历视图  
-args.endTime  {string}  结束时间 日历视图  
-args.kanbanSize  {integer}  页大小  
-args.kanbanIndex  {integer}  页码  
-args.formId  {string}  公开表单ID  
-args.linkId  {string}  填写链接id  
-args.reportId  {string}  统计图ID  
-args.notGetTotal  {boolean}  不获取总记录数  
-args.requestParams  {object}  请求参数  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getFilterRowsTotalNum(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getFilterRowsReport
-
-工作表最下方统计
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.filterControls  {array}  查询列  
-args.columnRpts  {array}  列排序  
-args.keyWords  {string}  关键词  
-args.controlId  {string}    
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.fastFilters  {array}    
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}  筛选组件  
-args.requestParams  {object}  请求参数  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getFilterRowsReport(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getLogs
-
-获取日志
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.pageSize  {integer}  页大小  
-args.pageIndex  {integer}  页码  
-args.rowId  {string}  行id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getLogs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetOperationLogs
-
-获取工作表操作日志
-
-### 参数
-
-args.pageSize  {integer}  分页大小  
-args.pageIndex  {integer}  当前页  
-args.objectType  {integer}  日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他  
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  记录id  
-args.filterUniqueIds  {array}  根据唯一码筛选  
-args.controlIds  {array}  筛选控件或属性ID  
-args.opeartorIds  {array}  筛选操作人  
-args.startDate  {string}  开始时间  
-args.endDate  {string}  结束时间  
-args.lastMark  {string}  最后标记时间  
-args.isGlobaLog  {boolean}  是否为全局日志获取记录日志  
-args.requestType  {integer}  日志操作类型 1：手动 2：工作流 3：按钮  
-args.archiveId  {string}  归档ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetOperationLogs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getDetailTableLog
-
-获取子表日志详情
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行记录id  
-args.uniqueId  {string}  唯一id  
-args.createTime  {string}  创建时间  
-args.lastMark  {string}  最后标记时间  
-args.objectType  {integer}  对象类型  
-args.requestType  {integer}  请求类型  
-args.pageIndex  {integer}  当前页  
-args.pageSize  {integer}  页大小  
-args.archiveId  {string}  归档ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getDetailTableLog(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## batchGetWorksheetOperationLogs
-
-批量获取工作表日志
-
-### 参数
-
-args.pageSize  {integer}  分页大小  
-args.pageIndex  {integer}  当前页  
-args.objectType  {integer}  日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他  
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  记录id  
-args.filterUniqueIds  {array}  根据唯一码筛选  
-args.controlIds  {array}  筛选控件或属性ID  
-args.opeartorIds  {array}  筛选操作人  
-args.startDate  {string}  开始时间  
-args.endDate  {string}  结束时间  
-args.lastMark  {string}  最后标记时间  
-args.isGlobaLog  {boolean}  是否为全局日志获取记录日志  
-args.requestType  {integer}  日志操作类型 1：手动 2：工作流 3：按钮  
-args.archiveId  {string}  归档ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.batchGetWorksheetOperationLogs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## updateWorksheetRowShareRange
-
-工作表记录分享范围修改
-
-### 参数
-
-args.appId  {string}  应用Id  
-args.worksheetId  {string}  工作表id  
-args.viewId  {string}  视图Id  
-args.rowId  {string}  行id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.updateWorksheetRowShareRange(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getRowsShortUrl
-
-获取记录短链
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowIds  {array}  行ids  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getRowsShortUrl(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## copyRow
-
-复制行记录
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.rowIds  {array}  行ids  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.restoreRelation  {boolean}  恢复关联  
-args.copyRelationControlId  {string}    
-args.isAll  {boolean}  是否全选  
-args.excludeRowIds  {array}  需要排除的rowIds  
-args.filterControls  {array}  筛选条件  
-args.keyWords  {string}  搜索关键字  
-args.fastFilters  {array}  快速筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.copyRow(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getNavGroup
-
-获取分组导航
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.filterControls  {array}  查询列  
-args.columnRpts  {array}  列排序  
-args.keyWords  {string}  关键词  
-args.controlId  {string}    
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.fastFilters  {array}    
-args.navGroupFilters  {array}  导航分组筛选  
-args.filtersGroup  {array}  筛选组件  
-args.requestParams  {object}  请求参数  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getNavGroup(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetArchives
-
-获取工作表归档列表
-
-### 参数
-
-args.type  {integer}  1：行记录日志  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetArchives(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveWorksheetFilter
-
-保存筛选器
-
-### 参数
-
-args.name  {string}  筛选器名称  
-args.worksheetId  {string}  工作表id  
-args.type  {integer}  视图类型 1：个人 2：公共  
-args.items  {array}    
-args.filterId  {string}  筛选条件编号  
-args.appId  {string}  应用Id  
-args.module  {integer}  1:工作表 2:统计  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveWorksheetFilter(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetFilters
-
-获取可见筛选器
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.controlId  {string}  控件ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetFilters(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetFilterById
-
-获取筛选器详情
-
-### 参数
-
-args.filterId  {string}  筛选器Id  
-args.items  {array}  FilterSort  
-args.projectId  {string}  网络Id  
-args.worksheetId  {string}  工作表ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetFilterById(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## deleteWorksheetFilter
-
-删除筛选器
-
-### 参数
-
-args.filterId  {string}  筛选器Id  
-args.appId  {string}  应用ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.deleteWorksheetFilter(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## sortWorksheetFilters
-
-筛选器排序
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.filterIds  {array}  筛选器Id  
-args.appId  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.sortWorksheetFilters(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveWorksheetView
-
-保存视图
-
-### 参数
-
-args.name  {string}  视图名称  
-args.worksheetId  {string}  工作表Id  
-args.sortCid  {string}  排序字段Id  
-args.sortType  {integer}  排序类型  
-args.rowHeight  {integer}  行高 0：紧凑 1：中等 2：高 3：超高  
-args.controls  {array}  controls  
-args.filters  {array}  filters  
-args.fastFilters  {array}  fastfilters  
-args.moreSort  {array}  排序  
-args.navGroup  {array}  导航分组  
-args.displayControls  {array}  显示字段  
-args.showControls  {array}  Web显示字段  
-args.controlsSorts  {array}  字段排序  
-args.layersName  {array}  层级名称  
-args.customDisplay  {boolean}  是否配置自定义显示列  
-args.viewId  {string}  视图id  
-args.appId  {string}  应用Id  
-args.unRead  {boolean}  unRead  
-args.viewType  {integer}  0:列表 1：看板 2：层级  
-args.childType  {integer}  1：单表层级 2：多表层级  
-args.viewControl  {string}  视图维度ID(分组ID)  
-args.viewControls  {array}  多表层级视图控件  
-args.coverCid  {string}  封面字段  
-args.coverType  {integer}  0：填满 1：完整显示  
-args.showControlName  {boolean}  显示控件名称  
-args.advancedSetting  {object}  视图高级配置  
-args.editAttrs  {array}  编辑属性  
-args.editAdKeys  {array}  编辑AdvancedSetting属性keys  
-args.pluginId  {string}  视图插件id  
-args.pluginName  {string}  视图插件名称  
-args.pluginIcon  {string}  视图插件图标  
-args.pluginIconColor  {string}  插件插件图标颜色  
-args.pluginSource  {integer}  插件来源  
-args.projectId  {string}  组织id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveWorksheetView(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetViews
-
-获取可见视图
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.appId  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetViews(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## deleteWorksheetView
-
-删除视图
-
-### 参数
-
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.deleteWorksheetView(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## copyWorksheetView
-
-获取工作表API
-
-### 参数
-
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.copyWorksheetView(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## sortWorksheetViews
-
-视图排序
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.viewIds  {array}  视图Id  
-args.appId  {string}  应用Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.sortWorksheetViews(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetBtns
-
-获取按钮列表
-
-### 参数
-
-args.appId  {string}  应用ID  
-args.viewId  {string}  视图ID  
-args.rowId  {string}  行记录ID  
-args.worksheetId  {string}  工作表ID  
-args.btnId  {string}    
-args.status  {integer}  状态 1：正常 9：回收站  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetBtns(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetBtnByID
-
-获取按钮详情
-
-### 参数
-
-args.appId  {string}  应用ID  
-args.viewId  {string}  视图ID  
-args.rowId  {string}  行记录ID  
-args.worksheetId  {string}  工作表ID  
-args.btnId  {string}    
-args.status  {integer}  状态 1：正常 9：回收站  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetBtnByID(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## optionWorksheetBtn
-
-操作按钮
-
-### 参数
-
-args.appId  {string}  应用iD  
-args.viewId  {string}  视图ID  
-args.btnId  {string}  按钮ID  
-args.worksheetId  {string}  工作表ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.optionWorksheetBtn(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveWorksheetBtn
-
-保存按钮
-
-### 参数
-
-args.btnId  {string}    
-args.name  {string}    
-args.worksheetId  {string}    
-args.showType  {integer}  1:一直 2：满足筛选条件  
-args.filters  {array}  筛选条件  
-args.displayViews  {array}  显示视图  
-args.clickType  {integer}  1：立即执行 2：二次确认 3：填写  
-args.confirmMsg  {string}  确认信息  
-args.sureName  {string}  确认按钮  
-args.cancelName  {string}  取消按钮  
-args.writeObject  {integer}  对象 1：本记录 2：关联记录  
-args.writeType  {integer}  类型 1：填写字段 2：新建关联记录  
-args.relationControl  {string}  关联记录ID  
-args.addRelationControlId  {string}  新建关联记录ID  
-args.workflowType  {integer}  1:执行 2：不执行  
-args.workflowId  {string}  工作流ID  
-args.writeControls  {array}  填写控件 type - 1：只读 2：填写 3：必填  
-args.appId  {string}  应用ID  
-args.color  {string}  颜色  
-args.icon  {string}  图标  
-args.desc  {string}  描述  
-args.isAllView  {integer}    
-args.editAttrs  {array}  编辑属性  
-args.verifyPwd  {boolean}    
-args.enableConfirm  {boolean}    
-args.advancedSetting  {object}    
-args.isBatch  {boolean}    
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveWorksheetBtn(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## copyWorksheetBtn
-
-复制按钮
-
-### 参数
-
-args.appId  {string}  应用iD  
-args.viewId  {string}  视图ID  
-args.btnId  {string}  按钮ID  
-args.worksheetId  {string}  工作表ID  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.copyWorksheetBtn(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getControlRules
-
-获取规则列表
-
-### 参数
-
-args.worksheetId  {string}    
-args.ruleId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getControlRules(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveControlRule
-
-保存规则
-
-### 参数
-
-args.worksheetId  {string}    
-args.ruleId  {string}    
-args.ruleIds  {array}    
-args.name  {string}    
-args.disabled  {boolean}    
-args.filters  {array}    
-args.ruleItems  {array}    
-args.editAttrs  {array}    
-args.type  {integer}  0:交互  1：验证 2：锁定  
-args.checkType  {integer}  0：前端  1：前后端  
-args.hintType  {integer}  0：输入和提交 1：仅提交  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveControlRule(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## sortControlRules
-
-@param {Object} args 请求参数
-
-### 参数
-
-args.worksheetId  {string}    
-args.ruleId  {string}    
-args.ruleIds  {array}    
-args.name  {string}    
-args.disabled  {boolean}    
-args.filters  {array}    
-args.ruleItems  {array}    
-args.editAttrs  {array}    
-args.type  {integer}  0:交互  1：验证 2：锁定  
-args.checkType  {integer}  0：前端  1：前后端  
-args.hintType  {integer}  0：输入和提交 1：仅提交  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.sortControlRules(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveWorksheetControls
-
-保存表控件
-
-### 参数
-
-args.sourceId  {string}  兼容老数据  
-args.worksheetId  {string}  WorksheetId  
-args.version  {integer}  版本号  
-args.controls  {array}  控件集合  
-args.appId  {string}  应用ID  
-args.controlId  {string}  控件ID  
-args.controlIds  {array}  控件IDs  
-args.status  {integer}  状态 1:恢复 999：彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveWorksheetControls(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## addWorksheetControls
-
-添加表控件
-
-### 参数
-
-args.sourceId  {string}  兼容老数据  
-args.worksheetId  {string}  WorksheetId  
-args.version  {integer}  版本号  
-args.controls  {array}  控件集合  
-args.appId  {string}  应用ID  
-args.controlId  {string}  控件ID  
-args.controlIds  {array}  控件IDs  
-args.status  {integer}  状态 1:恢复 999：彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.addWorksheetControls(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetControls
-
-获取表控件
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.relationWorksheetId  {string}  关联表的id  
-args.getTemplate  {boolean}  是否获取Template  
-args.getViews  {boolean}  是否获取Views  
-args.appId  {string}  应用Id  
-args.handleDefault  {boolean}  处理默认值  
-args.worksheetIds  {array}  批量工作表id  
-args.handControlSource  {boolean}  是否处理关联的原始类型  
-args.getRules  {boolean}  是否需要验证规则  
-args.getSwitchPermit  {boolean}  是否获取功能开关  
-args.getRelationSearch  {boolean}  获取查下记录控件  
-args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetControls(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAiFieldRecommendation
-
-获取工作表字段智能建议
-
-### 参数
-
-args.prompt  {string}  提示词  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getAiFieldRecommendation(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetsControls
-
-批量获取表控件
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.relationWorksheetId  {string}  关联表的id  
-args.getTemplate  {boolean}  是否获取Template  
-args.getViews  {boolean}  是否获取Views  
-args.appId  {string}  应用Id  
-args.handleDefault  {boolean}  处理默认值  
-args.worksheetIds  {array}  批量工作表id  
-args.handControlSource  {boolean}  是否处理关联的原始类型  
-args.getRules  {boolean}  是否需要验证规则  
-args.getSwitchPermit  {boolean}  是否获取功能开关  
-args.getRelationSearch  {boolean}  获取查下记录控件  
-args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getWorksheetsControls(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editControlsAlias
-
-编辑控件别名
-
-### 参数
-
-args.sourceId  {string}  兼容老数据  
-args.worksheetId  {string}  WorksheetId  
-args.version  {integer}  版本号  
-args.controls  {array}  控件集合  
-args.appId  {string}  应用ID  
-args.controlId  {string}  控件ID  
-args.controlIds  {array}  控件IDs  
-args.status  {integer}  状态 1:恢复 999：彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editControlsAlias(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editGenerateControlsDefaultAlias
-
-生成控件默认别名
-
-### 参数
-
-args.appId  {string}  应用id  
-args.worksheetId  {string}  工作表id  
-args.version  {integer}  版本号  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editGenerateControlsDefaultAlias(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editWorksheetControls
-
-保存表控件
-
-### 参数
-
-args.sourceId  {string}  兼容老数据  
-args.worksheetId  {string}  WorksheetId  
-args.version  {integer}  版本号  
-args.controls  {array}  控件集合  
-args.appId  {string}  应用ID  
-args.controlId  {string}  控件ID  
-args.controlIds  {array}  控件IDs  
-args.status  {integer}  状态 1:恢复 999：彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editWorksheetControls(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## resetControlIncrease
-
-重置自动编号
-
-### 参数
-
-args.sourceId  {string}  兼容老数据  
-args.worksheetId  {string}  WorksheetId  
-args.version  {integer}  版本号  
-args.controls  {array}  控件集合  
-args.appId  {string}  应用ID  
-args.controlId  {string}  控件ID  
-args.controlIds  {array}  控件IDs  
-args.status  {integer}  状态 1:恢复 999：彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.resetControlIncrease(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## deleteWorksheetAutoID
-
-删除autoid
-
-### 参数
-
-args.worksheetId  {string}  工作表id  
-args.relationWorksheetId  {string}  关联表的id  
-args.getTemplate  {boolean}  是否获取Template  
-args.getViews  {boolean}  是否获取Views  
-args.appId  {string}  应用Id  
-args.handleDefault  {boolean}  处理默认值  
-args.worksheetIds  {array}  批量工作表id  
-args.handControlSource  {boolean}  是否处理关联的原始类型  
-args.getRules  {boolean}  是否需要验证规则  
-args.getSwitchPermit  {boolean}  是否获取功能开关  
-args.getRelationSearch  {boolean}  获取查下记录控件  
-args.resultType  {integer}  获取类型 0或者1：常规 2：简易模式  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.deleteWorksheetAutoID(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editControlsStatus
-
-编辑控件状态
-
-### 参数
-
-args.sourceId  {string}  兼容老数据  
-args.worksheetId  {string}  WorksheetId  
-args.version  {integer}  版本号  
-args.controls  {array}  控件集合  
-args.appId  {string}  应用ID  
-args.controlId  {string}  控件ID  
-args.controlIds  {array}  控件IDs  
-args.status  {integer}  状态 1:恢复 999：彻底删除  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editControlsStatus(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getPrintList
-
-获取系统打印列表
-
-### 参数
-
-args.worksheetId  {string}    
-args.viewId  {string}    
-args.rowIds  {array}    
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getPrintList(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getFormComponent
-
-获取 表单组件
-
-### 参数
-
-args.worksheetId  {string}  工作表Id  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getFormComponent(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getPrint
-
-获取单个打印模板
-
-### 参数
-
-args.id  {string}    
-args.projectId  {string}    
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.pageIndex  {integer}  页码  
-args.pageSize  {integer}  页大小  
-args.sortId  {string}    
-args.isAsc  {boolean}    
-args.keywords  {string}  关键词  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  通过工作流审批打印时必传  
-args.workId  {string}  通过工作流审批打印时必传  
-args.filterControls  {array}    
-args.fastFilters  {array}  快递筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getPrint(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getCodePrint
-
-获取单个打印模板
-
-### 参数
-
-args.id  {string}    
-args.projectId  {string}    
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.pageIndex  {integer}  页码  
-args.pageSize  {integer}  页大小  
-args.sortId  {string}    
-args.isAsc  {boolean}    
-args.keywords  {string}  关键词  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  通过工作流审批打印时必传  
-args.workId  {string}  通过工作流审批打印时必传  
-args.filterControls  {array}    
-args.fastFilters  {array}  快递筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getCodePrint(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getPrintTemplate
-
-新建生成打印模板
-
-### 参数
-
-args.id  {string}    
-args.projectId  {string}    
-args.worksheetId  {string}  工作表id  
-args.rowId  {string}  行id  
-args.pageIndex  {integer}  页码  
-args.pageSize  {integer}  页大小  
-args.sortId  {string}    
-args.isAsc  {boolean}    
-args.keywords  {string}  关键词  
-args.viewId  {string}  视图Id  
-args.appId  {string}  应用Id  
-args.instanceId  {string}  通过工作流审批打印时必传  
-args.workId  {string}  通过工作流审批打印时必传  
-args.filterControls  {array}    
-args.fastFilters  {array}  快递筛选  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.getPrintTemplate(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editPrint
-
-保存系统打印模板
-
-### 参数
-
-args.id  {string}  模板id (空=新建 非空=修改)  
-args.saveControls  {array}  勾选保存的控件  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editPrint(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## saveRecordCodePrintConfig
-
-保存记录二维码打印模板配置
-
-### 参数
-
-args.id  {string}  模板id  
-args.projectId  {string}  组织id  
-args.worksheetId  {string}  工作表id  
-args.name  {string}  模板名称  
-args.type  {integer}  3-二维码打印 4-条码打印  
-args.range  {integer}  使用范围  
-args.views  {array}  视图id  
-args.advanceSettings  {array}  额外配置  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.saveRecordCodePrintConfig(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editPrintName
-
-修改打印模板名称
-
-### 参数
-
-args.id  {string}    
-args.name  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editPrintName(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editPrintRange
-
-修改打印模板范围
-
-### 参数
-
-args.id  {string}    
-args.viewsIds  {array}  视图Ids  
-
-```js
-import { apis } from "mdye";
-
-apis.worksheet.editPrintRange(args)
+apis.worksheet.getWorksheetCurrencyInfos(args)
   .then(res => {
     console.log(res);
   });
@@ -2997,654 +3365,6 @@ apis.worksheet.editPrintRange(args)
 ---
 
 # 应用管理
-
-## restoreData
-
-还原数据
-
-### 参数
-
-args.id  {string}  任务id  
-args.projectId  {string}  组织id  
-args.appId  {string}  应用id  
-args.fileUrl  {string}  文件链接  
-args.fileName  {string}  文件名称  
-args.backupCurrentVersion  {boolean}  备份当前版本  
-args.dbInstanceId  {string}  数据库实例id  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.restoreData(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## backup
-
-备份应用
-
-### 参数
-
-args.appId  {string}  应用Id  
-args.containData  {boolean}  是否备份数据  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.backup(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## checkRestoreFile
-
-校验还原文件
-
-### 参数
-
-args.appId  {string}  应用id  
-args.fileUrl  {string}  文件url  
-args.fileName  {string}  文件名称  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.checkRestoreFile(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getTarTaskInfo
-
-获取tar文件上传状态
-
-### 参数
-
-args.id  {string}  任务id  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getTarTaskInfo(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## allUsageOverviewStatistics
-
-使用情况统计分析
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.departmentId  {string}  部门id  
-args.depFlag  {boolean}  true表示仅当强部门，false表示部门树  
-args.appId  {string}  应用id  
-args.dayRange  {integer}  天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年  
-args.dateDemension  {string}  &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年  
-args.isApp  {boolean}  表示是否是应用的使用分析  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.allUsageOverviewStatistics(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## appUsageOverviewStatistics
-
-应用汇总概览
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.keyWord  {string}  关键字搜索  
-args.pageIndex  {integer}  当前页  
-args.pageSize  {integer}  页大小  
-args.sortFiled  {string}  排序字段  
-args.sorted  {boolean}  排序方式 true--asc false--desc  
-args.appId  {string}  应用id  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.appUsageOverviewStatistics(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## usageStatisticsForDimension
-
-不同维度使用情况统计(按应用，按成员)
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.dayRange  {integer}  天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年  
-args.pageIndex  {integer}  当前页  
-args.pageSize  {integer}  页大小  
-args.dimension  {integer}  维度 1-应用 2-用户  
-args.sortFiled  {string}  排序字段（返回结果的列名，例如:appAccess）  
-args.sorted  {boolean}  排序方式  
-args.keyword  {string}  关键词查询  
-args.appId  {string}  应用id  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.usageStatisticsForDimension(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getGlobalLogs
-
-获取应用日志
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.operators  {array}  操作人id数组  
-args.appIds  {array}  应用id数组  
-args.worksheetIds  {array}  工作表id数组  
-args.modules  {array}  所属日志模块  
-args.operationTypes  {array}  操作类型  
-args.pageIndex  {integer}  当前页  
-args.pageSize  {integer}  页大小  
-args.columnNames  {array}  列名称  
-args.menuName  {string}  菜单名称  
-args.startDateTime  {string}  开始时间  
-args.endDateTime  {string}  结束时间  
-args.confirmExport  {boolean}  是否确认导出(超量的情况下传)  
-args.isSingle  {boolean}  是否是单个应用  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getGlobalLogs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetsUnderTheApp
-
-获取应用下工作表信息
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.appIds  {array}  应用ids  
-args.isFilterCustomPage  {boolean}  是否过滤自定义页面  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getWorksheetsUnderTheApp(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## addLock
-
-开启密码锁
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.appId  {string}    
-args.password  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.addLock(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## unlock
-
-map解锁
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.appId  {string}    
-args.password  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.unlock(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editLockPassword
-
-修改锁定密码
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.appId  {string}    
-args.password  {string}    
-args.newPassword  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.editLockPassword(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## resetLock
-
-重新锁定
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.appId  {string}  应用id  
-args.getSection  {boolean}  是否获取分组信息  
-args.getManager  {boolean}  是否获取管理员列表信息  
-args.getProject  {boolean}  获取组织信息  
-args.getLang  {boolean}  是否获取应用语种信息  
-args.isMobile  {boolean}  是否是移动端  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.resetLock(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## closeLock
-
-关闭应用锁
-
-### 参数
-
-args.ticket  {string}  验证码返票据  
-args.randStr  {string}  票据随机字符串  
-args.clientId  {string}  客户端标识  
-args.appId  {string}  应用id  
-args.getSection  {boolean}  是否获取分组信息  
-args.getManager  {boolean}  是否获取管理员列表信息  
-args.getProject  {boolean}  获取组织信息  
-args.getLang  {boolean}  是否获取应用语种信息  
-args.isMobile  {boolean}  是否是移动端  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.closeLock(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## checkUpgrade
-
-校验升级文件
-
-### 参数
-
-args.appId  {string}  应用id  
-args.url  {string}  文件url  
-args.password  {string}  密码  
-args.fileName  {string}  文件名  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.checkUpgrade(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getWorksheetUpgrade
-
-获取表升级详情
-
-### 参数
-
-args.id  {string}    
-args.worksheetId  {string}  工作表id  
-args.appId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getWorksheetUpgrade(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## upgrade
-
-升级
-
-### 参数
-
-args.id  {string}  批次id  
-args.appId  {string}  应用id  
-args.url  {string}  导入文件链接（不带token的）  
-args.worksheets  {array}  勾选的升级的表  
-args.workflows  {array}  勾选升级的流  
-args.pages  {array}  勾选升级的页面  
-args.roles  {array}  勾选升级的角色  
-args.backupCurrentVersion  {boolean}  备份当前版本  
-args.matchOffice  {boolean}  是否匹配用户  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.upgrade(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getUpgradeLogs
-
-获取应用升级记录
-
-### 参数
-
-args.appId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getUpgradeLogs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getMdyInfo
-
-获取mdy文件相关密码
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.url  {string}  文件url不带token  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getMdyInfo(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAppLangs
-
-获取应用语种列表
-
-### 参数
-
-args.appId  {string}    
-args.projectId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getAppLangs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## createAppLang
-
-创建应用语言
-
-### 参数
-
-args.appId  {string}    
-args.langTypes  {array}    
-args.projectId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.createAppLang(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## deleteAppLang
-
-删除应用语言
-
-### 参数
-
-args.appId  {string}    
-args.id  {string}    
-args.projectId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.deleteAppLang(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAppLangDetail
-
-获取应用语言详情
-
-### 参数
-
-args.appId  {string}    
-args.appLangId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getAppLangDetail(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editAppLang
-
-编辑应用语言详情
-
-### 参数
-
-args.appId  {string}    
-args.langId  {string}    
-args.id  {string}    
-args.parentId  {string}    
-args.correlationId  {string}    
-args.data  {object}    
-args.projectId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.editAppLang(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## machineTranslation
-
-机器翻译
-
-### 参数
-
-args.appId  {string}    
-args.comparisonLangId  {string}    
-args.targetLangId  {string}    
-args.projectId  {string}    
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.machineTranslation(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getAppStructureForER
-
-@param {Object} args 请求参数
-
-### 参数
-
-args.appId  {string}  应用id  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getAppStructureForER(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getProjectLangs
-
-获取组织语言
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.correlationIds  {array}  业务模块id（不需要筛选业务，不传就行）  
-args.type  {integer}  业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行）  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getProjectLangs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getsByProjectIds
-
-批量获取业务类型组织语言
-
-### 参数
-
-args.projectIds  {array}    
-args.type  {integer}  业务模块，0 = 组织名称，20 = 应用分组  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getsByProjectIds(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## editProjectLangs
-
-编辑组织语言
-
-### 参数
-
-args.projectId  {string}  组织id  
-args.correlationId  {string}  业务模块id  
-args.type  {integer}  业务模块，0 = 组织名称，20 = 应用分组  
-args.data  {array}  翻译数据  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.editProjectLangs(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
-
-## getProjectLang
-
-获取组织名称多语言(只能获取名称)
-
-### 参数
-
-args.projectId  {string}  网络id  
-
-```js
-import { apis } from "mdye";
-
-apis.appManagement.getProjectLang(args)
-  .then(res => {
-    console.log(res);
-  });
-```
----
 
 ## addRole
 
@@ -4050,7 +3770,7 @@ apis.appManagement.getAppRoleSetting(args)
 
 ## getRolesWithUsers
 
-获取应用下所用角色基本信息（不含具体权限）
+获取 应用角色基本信息 列表（不含具体权限，包含  成员、职位等信息）
 
 ### 参数
 
@@ -4060,6 +3780,24 @@ args.appId  {string}  应用id
 import { apis } from "mdye";
 
 apis.appManagement.getRolesWithUsers(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getSimpleRoles
+
+获取 应用下所有角色信息（简要信息：含应用Id、角色Id、角色名称、是否为管理员）
+
+### 参数
+
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getSimpleRoles(args)
   .then(res => {
     console.log(res);
   });
@@ -4236,6 +3974,7 @@ apis.appManagement.batchMemberQuitApp(args)
 
 args.appId  {string}  应用id  
 args.roleId  {string}  角色id  
+args.isPortal  {boolean}  是否外部门户 角色  
 
 ```js
 import { apis } from "mdye";
@@ -4254,6 +3993,7 @@ apis.appManagement.getRoleDetail(args)
 ### 参数
 
 args.appId  {string}  应用id  
+args.isPortal  {boolean}  是否外部门户 角色  
 
 ```js
 import { apis } from "mdye";
@@ -4310,7 +4050,8 @@ apis.appManagement.getManagerApps(args)
 
 ### 参数
 
-args.appId  {string}    
+args.appId  {string}  应用id  
+args.tradeId  {string}  交易id  
 
 ```js
 import { apis } from "mdye";
@@ -4349,13 +4090,51 @@ apis.appManagement.getUserIdApps(args)
 
 args.projectId  {string}  组织id  
 args.removeUserId  {string}  要移除的 用户Id  
-args.addUserId  {string}  &gt;新添加的用户Id（可空，空时 = 仅移除）  
+args.addUserId  {string}  新添加的用户Id（可空，空时 = 仅移除）  
 args.roles  {array}    
 
 ```js
 import { apis } from "mdye";
 
 apis.appManagement.replaceRoleMemberForApps(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getUserApp
+
+组织下加入的应用
+
+### 参数
+
+args.projectId  {string}  网络id  
+args.userId  {string}  用户id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getUserApp(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getMyApp
+
+我加入的应用
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.noCache  {boolean}  不走缓存  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getMyApp(args)
   .then(res => {
     console.log(res);
   });
@@ -4377,6 +4156,7 @@ args.sourceType  {integer}  来源 默认0=全部，2=过滤分发平台
 args.containsLinks  {boolean}  是否包含链接类型  
 args.filterDBType  {integer}  数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）  
 args.dbInstanceId  {string}  数据库实例id  
+args.createrIds  {array}  创建者ids  
 
 ```js
 import { apis } from "mdye";
@@ -4403,6 +4183,7 @@ args.sourceType  {integer}  来源 默认0=全部，2=过滤分发平台
 args.containsLinks  {boolean}  是否包含链接类型  
 args.filterDBType  {integer}  数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）  
 args.dbInstanceId  {string}  数据库实例id  
+args.createrIds  {array}  创建者ids  
 
 ```js
 import { apis } from "mdye";
@@ -4752,8 +4533,10 @@ apis.appManagement.copyCustomPage(args)
 ### 参数
 
 args.appId  {string}  应用id  
-args.type  {integer}  权限范围类型 1=全部，2=只读  
+args.name  {string}  名称  
+args.type  {integer}  权限范围类型 1=全部，2=只读，10=自定义  
 args.viewNull  {boolean}  不传视图id不返回数据配置  
+args.sheets  {array}  工作表权限集（内含视图权限）  
 
 ```js
 import { apis } from "mdye";
@@ -4783,6 +4566,44 @@ apis.appManagement.getAuthorizes(args)
 ```
 ---
 
+## getAuthorizeSheet
+
+获取单个授权的工作表配置
+
+### 参数
+
+args.appId  {string}  应用id  
+args.appKey  {string}  应用key  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getAuthorizeSheet(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAuthorizeSheetTemple
+
+新增授权是获取工作表配置模板
+
+### 参数
+
+args.appId  {string}  AppId  
+args.customLink  {string}  客户自定义登录链接参数值  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getAuthorizeSheetTemple(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## editAuthorizeStatus
 
 编辑应用授权类型
@@ -4791,9 +4612,11 @@ apis.appManagement.getAuthorizes(args)
 
 args.appId  {string}  应用id  
 args.appKey  {string}  应用key  
+args.name  {string}  名称  
 args.type  {integer}  权限范围类型 1=全部，2=只读  
 args.viewNull  {boolean}  不传视图id不返回数据配置  
 args.status  {integer}  授权状态 1-开启 2-关闭 3-删除  
+args.sheets  {array}  工作表权限集（内含视图权限）  
 
 ```js
 import { apis } from "mdye";
@@ -4851,11 +4674,32 @@ apis.appManagement.editAuthorizeRemark(args)
 ### 参数
 
 args.appId  {string}  AppId  
+args.customLink  {string}  客户自定义登录链接参数值  
 
 ```js
 import { apis } from "mdye";
 
 apis.appManagement.getWeiXinBindingInfo(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## migrate
+
+迁移应用
+
+### 参数
+
+args.appId  {string}  应用id  
+args.dbInstanceId  {string}  专属数据库id (迁出为空）  
+args.projectId  {string}  组织id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.migrate(args)
   .then(res => {
     console.log(res);
   });
@@ -5172,6 +5016,7 @@ apis.appManagement.getExportPassword(args)
 ### 参数
 
 args.projectId  {string}  网络id  
+args.name  {string}  实体名称  
 
 ```js
 import { apis } from "mdye";
@@ -5213,6 +5058,7 @@ args.sourceType  {integer}  分享类型  21 =自定义页面，31 = 图表
 args.status  {integer}  状态  0 = 关闭，1 =启用  
 args.password  {string}  密码  
 args.validTime  {string}  有效时间  
+args.pageTitle  {string}  页面标题  
 
 ```js
 import { apis } from "mdye";
@@ -5299,6 +5145,7 @@ apis.appManagement.pageGetBackupRestoreOperationLog(args)
 ### 参数
 
 args.appId  {string}  AppId  
+args.customLink  {string}  客户自定义登录链接参数值  
 
 ```js
 import { apis } from "mdye";
@@ -5372,6 +5219,1013 @@ args.dbInstanceId  {string}  数据库实例id
 import { apis } from "mdye";
 
 apis.appManagement.restore(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## restoreData
+
+还原数据
+
+### 参数
+
+args.id  {string}  任务id  
+args.projectId  {string}  组织id  
+args.appId  {string}  应用id  
+args.fileUrl  {string}  文件链接  
+args.fileName  {string}  文件名称  
+args.backupCurrentVersion  {boolean}  备份当前版本  
+args.dbInstanceId  {string}  数据库实例id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.restoreData(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## backup
+
+备份应用
+
+### 参数
+
+args.appId  {string}  应用Id  
+args.containData  {boolean}  是否备份数据  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.backup(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkRestoreFile
+
+校验还原文件
+
+### 参数
+
+args.appId  {string}  应用id  
+args.fileUrl  {string}  文件url  
+args.fileName  {string}  文件名称  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.checkRestoreFile(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getTarTaskInfo
+
+获取tar文件上传状态
+
+### 参数
+
+args.id  {string}  任务id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getTarTaskInfo(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## allUsageOverviewStatistics
+
+使用情况统计分析
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.departmentId  {string}  部门id  
+args.depFlag  {boolean}  true表示仅当强部门，false表示部门树  
+args.appId  {string}  应用id  
+args.dayRange  {integer}  天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年  
+args.dateDemension  {string}  &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年  
+args.isApp  {boolean}  表示是否是应用的使用分析  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.allUsageOverviewStatistics(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## appUsageOverviewStatistics
+
+应用汇总概览
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.keyWord  {string}  关键字搜索  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+args.sortFiled  {string}  排序字段  
+args.sorted  {boolean}  排序方式 true--asc false--desc  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.appUsageOverviewStatistics(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## usageStatisticsForDimension
+
+不同维度使用情况统计(按应用，按成员)
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.dayRange  {integer}  天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+args.dimension  {integer}  维度 1-应用 2-用户  
+args.sortFiled  {string}  排序字段（返回结果的列名，例如:appAccess）  
+args.sorted  {boolean}  排序方式  
+args.keyword  {string}  关键词查询  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.usageStatisticsForDimension(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getGlobalLogs
+
+获取应用日志
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.operators  {array}  操作人id数组  
+args.appIds  {array}  应用id数组  
+args.worksheetIds  {array}  工作表id数组  
+args.modules  {array}  所属日志模块  
+args.operationTypes  {array}  操作类型  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+args.columnNames  {array}  列名称  
+args.menuName  {string}  菜单名称  
+args.startDateTime  {string}  开始时间  
+args.endDateTime  {string}  结束时间  
+args.confirmExport  {boolean}  是否确认导出(超量的情况下传)  
+args.isSingle  {boolean}  是否是单个应用  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getGlobalLogs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getArchivedGlobalLogs
+
+归档日志查询
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.operators  {array}  操作人id数组  
+args.appIds  {array}  应用id数组  
+args.worksheetIds  {array}  工作表id数组  
+args.modules  {array}  所属日志模块  
+args.operationTypes  {array}  操作类型  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+args.columnNames  {array}  列名称  
+args.menuName  {string}  菜单名称  
+args.startDateTime  {string}  开始时间  
+args.endDateTime  {string}  结束时间  
+args.confirmExport  {boolean}  是否确认导出(超量的情况下传)  
+args.isSingle  {boolean}  是否是单个应用  
+args.archivedId  {string}  归档id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getArchivedGlobalLogs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getArchivedList
+
+获取归档
+
+### 参数
+
+args.projectId  {string}    
+args.appId  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getArchivedList(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetsUnderTheApp
+
+获取应用下工作表信息
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.appIds  {array}  应用ids  
+args.isFilterCustomPage  {boolean}  是否过滤自定义页面  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getWorksheetsUnderTheApp(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## addLock
+
+开启密码锁
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.appId  {string}    
+args.password  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.addLock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## unlock
+
+map解锁
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.appId  {string}    
+args.password  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.unlock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editLockPassword
+
+修改锁定密码
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.appId  {string}    
+args.password  {string}    
+args.newPassword  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editLockPassword(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## resetLock
+
+重新锁定
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.appId  {string}  应用id  
+args.getSection  {boolean}  是否获取分组信息  
+args.getManager  {boolean}  是否获取管理员列表信息  
+args.getProject  {boolean}  获取组织信息  
+args.getLang  {boolean}  是否获取应用语种信息  
+args.isMobile  {boolean}  是否是移动端  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.resetLock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## closeLock
+
+关闭应用锁
+
+### 参数
+
+args.ticket  {string}  验证码返票据  
+args.randStr  {string}  票据随机字符串  
+args.clientId  {string}  客户端标识  
+args.appId  {string}  应用id  
+args.getSection  {boolean}  是否获取分组信息  
+args.getManager  {boolean}  是否获取管理员列表信息  
+args.getProject  {boolean}  获取组织信息  
+args.getLang  {boolean}  是否获取应用语种信息  
+args.isMobile  {boolean}  是否是移动端  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.closeLock(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## marketAppUpgrade
+
+市场已安装应用升级校验
+
+### 参数
+
+args.tradeId  {string}  已购应用详情id  
+args.id  {string}  历史版本id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.marketAppUpgrade(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## marketUpgrade
+
+执行市场已安装应用升级
+
+### 参数
+
+args.id  {string}  批次id  
+args.worksheets  {array}  勾选的升级的表  
+args.workflows  {array}  勾选升级的流  
+args.pages  {array}  勾选升级的页面  
+args.roles  {array}  勾选升级的角色  
+args.backupCurrentVersion  {boolean}  备份当前版本  
+args.matchOffice  {boolean}  是否匹配用户  
+args.upgradeStyle  {boolean}  是否升级应用外观导航  
+args.upgradeLang  {boolean}  是否升级语言  
+args.upgradeTimeZone  {boolean}  是否升级时区  
+args.upgradeName  {boolean}  是否升级名称  
+args.upgradeHide  {boolean}  是否升级显影配置  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.marketUpgrade(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkUpgrade
+
+校验升级文件
+
+### 参数
+
+args.appId  {string}  应用id  
+args.url  {string}  文件url  
+args.password  {string}  密码  
+args.fileName  {string}  文件名  
+args.batchId  {string}  批量导入升级的批次id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.checkUpgrade(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getWorksheetUpgrade
+
+获取表升级详情
+
+### 参数
+
+args.id  {string}    
+args.worksheetId  {string}  工作表id  
+args.appId  {string}    
+args.batchId  {string}  批量升级批次id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getWorksheetUpgrade(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## upgrade
+
+升级
+
+### 参数
+
+args.id  {string}  批次id  
+args.appId  {string}  应用id  
+args.url  {string}  导入文件链接（不带token的）  
+args.worksheets  {array}  勾选的升级的表  
+args.workflows  {array}  勾选升级的流  
+args.pages  {array}  勾选升级的页面  
+args.roles  {array}  勾选升级的角色  
+args.backupCurrentVersion  {boolean}  备份当前版本  
+args.matchOffice  {boolean}  是否匹配用户  
+args.upgradeStyle  {boolean}  是否升级应用外观导航  
+args.upgradeLang  {boolean}  是否升级语言  
+args.upgradeTimeZone  {boolean}  是否升级时区  
+args.upgradeName  {boolean}  是否升级名称  
+args.upgradeHide  {boolean}  是否升级显影配置  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.upgrade(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getUpgradeLogs
+
+获取应用升级记录
+
+### 参数
+
+args.appId  {string}  应用id  
+args.tradeId  {string}  交易id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getUpgradeLogs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getMdyInfo
+
+获取mdy文件相关密码
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.url  {string}  文件url不带token  
+args.name  {string}  文件名称  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getMdyInfo(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## batchExportApp
+
+批量导出应用
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.password  {string}  密码  
+args.locked  {boolean}  是否加锁  
+args.lockPassword  {string}  锁密码  
+args.appConfigs  {array}  导出应用配置  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.batchExportApp(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getsByUnionId
+
+获取组织下同源应用列表
+
+### 参数
+
+args.projectId  {string}  网络id  
+args.unionId  {string}  同源id  
+args.status  {integer}  应用状态  0=关闭 1=启用  （可空 ，不传查全部）  
+args.pageIndex  {integer}  页数（从1开始）  
+args.pageSize  {integer}  每页显示数  
+args.keyword  {string}  搜索关键字（支持名称和拥有者名称）  
+args.filterDBType  {integer}  数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）  
+args.dbInstanceId  {string}  数据库实例id  
+args.excludeAppIds  {array}  需要排除的应用id数组  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getsByUnionId(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getBatchId
+
+获取批量导入升级批次id
+
+### 参数
+
+args.projectId  {string}  组织id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getBatchId(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## batchImportCheck
+
+校验批量升级mdy文件
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.batchId  {string}    
+args.url  {string}  mdy链接（不要带token）  
+args.password  {string}  mdy密码  
+args.removed  {boolean}  是否是移除mdy操作  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.batchImportCheck(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## batchImport
+
+批量导入升级
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.batchId  {string}  批次id  
+args.datas  {array}  批量导入升级业务数据  
+args.matchOffice  {boolean}  是否匹配组织人员等信息  
+args.backupCurrentVersion  {boolean}  是否备份当前应用  
+args.upgradeStyle  {boolean}  是否升级应用外观导航  
+args.upgradeLang  {boolean}  是否升级语言  
+args.upgradeTimeZone  {boolean}  是否升级时区  
+args.upgradeName  {boolean}  是否升级名称  
+args.upgradeHide  {boolean}  是否升级显影配置  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.batchImport(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAppLangs
+
+获取应用语种列表
+
+### 参数
+
+args.appId  {string}  应用id  
+args.projectId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getAppLangs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## createAppLang
+
+创建应用语言
+
+### 参数
+
+args.appId  {string}  应用id  
+args.langCode  {array}  应用语种数组  
+args.projectId  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.createAppLang(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## deleteAppLang
+
+删除应用语言
+
+### 参数
+
+args.appId  {string}  应用id  
+args.id  {string}  应用语种id  
+args.projectId  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.deleteAppLang(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAppLangDetail
+
+获取应用语言详情
+
+### 参数
+
+args.appId  {string}    
+args.appLangId  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getAppLangDetail(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editAppLang
+
+编辑应用语言详情
+
+### 参数
+
+args.appId  {string}  应用id  
+args.langId  {string}  语种id  
+args.id  {string}  节点id  
+args.parentId  {string}  父级节点id  
+args.correlationId  {string}  关联id(应用id，分组id，工作表id等等)  
+args.data  {object}  翻译数据  
+args.projectId  {string}    
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editAppLang(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## machineTranslation
+
+机器翻译
+
+### 参数
+
+args.appId  {string}  应用id  
+args.comparisonLangId  {string}  对照语种id  
+args.targetLangId  {string}  目标语种id  
+args.projectId  {string}  组织id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.machineTranslation(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAppStructureForER
+
+@param {Object} args 请求参数
+
+### 参数
+
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getAppStructureForER(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getProjectLangs
+
+获取组织语言
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.correlationIds  {array}  业务模块id（不需要筛选业务，不传就行）  
+args.type  {integer}  业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行），30 = 密码提示  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getProjectLangs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getsByProjectIds
+
+批量获取业务类型组织语言
+
+### 参数
+
+args.projectIds  {array}    
+args.type  {integer}  业务模块，0 = 组织名称，20 = 应用分组  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getsByProjectIds(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editProjectLangs
+
+编辑组织语言
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.correlationId  {string}  业务模块id  
+args.type  {integer}  业务模块，0 = 组织名称，20 = 应用分组  
+args.data  {array}  翻译数据  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editProjectLangs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editPasswordRegexTipLangs
+
+编辑密码规则提示多语言
+
+### 参数
+
+args.data  {array}  翻译数据  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editPasswordRegexTipLangs(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getProjectLang
+
+获取组织名称多语言(只能获取名称)
+
+### 参数
+
+args.projectId  {string}  网络id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getProjectLang(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## addOfflineItem
+
+添加离线应用项
+
+### 参数
+
+args.appId  {string}  应用Id  
+args.worksheetId  {string}  工作表Id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.addOfflineItem(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editOfflineItemStatus
+
+编辑离线应用项
+
+### 参数
+
+args.appId  {string}  应用id  
+args.worksheetId  {string}  工作表Id  
+args.status  {integer}  状态 （0 = 关闭，1 = 启用，2 = 删除）  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editOfflineItemStatus(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getOfflineItems
+
+获取离线应用项
+
+### 参数
+
+args.appId  {string}  应用id  
+args.tradeId  {string}  交易id  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getOfflineItems(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getBackupTask
+
+获取备份定时任务
+
+### 参数
+
+args.appId  {string}  AppId  
+args.customLink  {string}  客户自定义登录链接参数值  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.getBackupTask(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editBackupTaskStatus
+
+修改定时备份任务状态
+
+### 参数
+
+args.appId  {string}  应用id  
+args.status  {integer}  状态 （0 = 关闭，1 = 启用，2 = 删除）  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editBackupTaskStatus(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## editBackupTaskInfo
+
+修改定时备份任务信息
+
+### 参数
+
+args.appId  {string}  应用id  
+args.cycleType  {integer}  周期类型 (1= 每天，2 = 每周，3 = 每月)  
+args.cycleValue  {integer}  具体周期值 （日期（1-31），星期（0 = 星期天））  
+args.datum  {boolean}  备份数据  
+args.status  {integer}  状态 （0 = 关闭，1 = 启用，2 = 删除）  
+
+```js
+import { apis } from "mdye";
+
+apis.appManagement.editBackupTaskInfo(args)
   .then(res => {
     console.log(res);
   });
@@ -5514,6 +6368,25 @@ apis.homeApp.editAppTimeZones(args)
 ```
 ---
 
+## editAppOriginalLang
+
+编辑原始语言
+
+### 参数
+
+args.appId  {string}    
+args.originalLang  {string}  原始语言code  
+
+```js
+import { apis } from "mdye";
+
+apis.homeApp.editAppOriginalLang(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## markApp
 
 标星应用或应用项
@@ -5565,6 +6438,7 @@ args.pcNaviDisplayType  {integer}  导航分组展开样式（10.2去掉了）
 args.displayIcon  {string}  显示图标,目前只有三级（000，111，，0=不勾选，1=勾选）  
 args.expandType  {integer}  展开方式  0 = 默认，1 = 手风琴  
 args.hideFirstSection  {boolean}  隐藏首个分组  
+args.appNavItemIds  {array}  移动端导航应用项ids  
 
 ```js
 import { apis } from "mdye";
@@ -5828,7 +6702,8 @@ apis.homeApp.getApp(args)
 
 ### 参数
 
-args.appId  {string}    
+args.appId  {string}  应用id  
+args.tradeId  {string}  交易id  
 
 ```js
 import { apis } from "mdye";
@@ -6331,6 +7206,44 @@ apis.homeApp.myPlatform(args)
 ```
 ---
 
+## marketApps
+
+收藏的应用
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.noCache  {boolean}  不走缓存  
+
+```js
+import { apis } from "mdye";
+
+apis.homeApp.marketApps(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## recentApps
+
+最近访问应用
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.noCache  {boolean}  不走缓存  
+
+```js
+import { apis } from "mdye";
+
+apis.homeApp.recentApps(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## getAppIdsAndItemIdsTest
 
 获取工作台ids（测试用）
@@ -6373,7 +7286,8 @@ apis.homeApp.myPlatformLang(args)
 
 ### 参数
 
-args.appId  {string}    
+args.appId  {string}  应用id  
+args.tradeId  {string}  交易id  
 
 ```js
 import { apis } from "mdye";
@@ -6563,7 +7477,7 @@ apis.instance.count(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6659,6 +7573,45 @@ apis.instance.getInstance(args)
 ```
 ---
 
+## getOperationDetail
+
+获取操作窗口详情
+
+### 参数
+
+args.access_token  {string}  令牌  
+args.id  {string}  *流程实例id  
+args.workId  {string}  *工作Id  
+
+```js
+import { apis } from "mdye";
+
+apis.instance.getOperationDetail(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getOperationHistoryList
+
+获取操作历史
+
+### 参数
+
+args.access_token  {string}  令牌  
+args.instanceId  {String}  *流程实例ID  
+
+```js
+import { apis } from "mdye";
+
+apis.instance.getOperationHistoryList(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## operation
 
 对应各种操作
@@ -6666,7 +7619,7 @@ apis.instance.getInstance(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {各种操作类型}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),operationType:操作类型 3撤回 4通过申请 5拒绝申请 6转审 7加签 9提交 10转交 16添加审批人 18催办(integer),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {各种操作类型}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),operationType:操作类型 3撤回 4通过申请 5拒绝申请 6转审 7加签 9提交 10转交 16添加审批人 18催办(integer),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6685,7 +7638,7 @@ apis.instance.operation(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6704,7 +7657,7 @@ apis.instance.overrule(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6723,7 +7676,7 @@ apis.instance.pass(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6742,7 +7695,7 @@ apis.instance.restart(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6761,7 +7714,7 @@ apis.instance.revoke(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6780,7 +7733,7 @@ apis.instance.signTask(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6799,7 +7752,7 @@ apis.instance.submit(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6818,7 +7771,7 @@ apis.instance.taskRevoke(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}  
+requestWork  {审批动作}  {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -6834,6 +7787,26 @@ apis.instance.transfer(args)
 ---
 
 # 工作流-流程实例版本
+
+## cover
+
+用扩展表覆盖
+
+### 参数
+
+args.access_token  {string}  令牌  
+args.id  {string}  *流程实例id  
+args.workId  {string}  *工作Id  
+
+```js
+import { apis } from "mdye";
+
+apis.instanceVersion.cover(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
 
 ## get2
 
@@ -6952,7 +7925,7 @@ apis.instanceVersion.endInstance(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-request  {RequestStartProcess}  {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}  
+request  {RequestStartProcess}  {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),filtersGroup:自定义页面筛选组(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -7087,7 +8060,7 @@ apis.instanceVersion.resetInstance(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-request  {RequestStartProcess}  {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}  
+request  {RequestStartProcess}  {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),filtersGroup:自定义页面筛选组(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -7444,7 +8417,7 @@ apis.process.publish(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-saveProcessConfigRequest  {保存流程配置}  {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowTaskRevoke:允许审批人撤回(boolean),allowUrge:允许触发者催办(boolean),callBackType:允许触发者撤回后重新发起 -1: 无配置 0:重新执行  1:直接返回审批节点(integer),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultCandidateUser:candidateUser获取为空时的默认处理(boolean),defaultErrorCandidateUsers:null(string),disabledPrint:是否关闭系统打印(boolean),endContentType:异常结束返回的contentType(integer),endValue:异常结束返回的配置(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),permissionLevel:操作时验证用户权限级别 默认 0不需要验证 1查看权限(integer),printIds:打印模版id列表(array),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),recordTitle:待办标题(string),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),viewNodeIds:可查看意见节点(array),}  
+saveProcessConfigRequest  {保存流程配置}  {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowTaskRevoke:允许审批人撤回(boolean),allowUrge:允许触发者催办(boolean),callBackType:允许触发者撤回后重新发起 -1: 无配置 0:重新执行  1:直接返回审批节点(integer),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultCandidateUser:candidateUser获取为空时的默认处理(boolean),defaultErrorCandidateUsers:null(string),disabledPrint:是否关闭系统打印(boolean),dotType:小数位数：0 : 取所有小数位数， 1:根据字段上面配置的小数位数(integer),endContentType:异常结束返回的contentType(integer),endValue:异常结束返回的配置(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),permissionLevel:操作时验证用户权限级别 默认 0不需要验证 1查看权限(integer),printIds:打印模版id列表(array),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),recordTitle:待办标题(string),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),viewNodeIds:可查看意见节点 null为默认全可见 空数组就是全不可见(array),}  
 
 ```js
 import { apis } from "mdye";
@@ -7463,7 +8436,7 @@ apis.process.saveProcessConfig(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-startProcess  {RequestStartProcess}  {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}  
+startProcess  {RequestStartProcess}  {appId:表id(string),dataLog:扩展触发值(string),fastFilters:快速筛选条件(array),filterControls:筛选条件(array),filtersGroup:自定义页面筛选组(array),isAll:是否全选(boolean),keyWords:搜索框(string),navGroupFilters:分组筛选(array),pushUniqueId:push唯一id 客户端使用(string),sources:行ids(array),triggerId:按钮id(string),viewId:视图id(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -7482,7 +8455,7 @@ apis.process.startProcess(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-startProcess  {RequestStartProcessByProcessId}  {dataLog:扩展触发值(string),debugEvents:调试事件(动态人员赋值测试人) 1审批 2短信 3邮件(array),processId:流程id(string),sourceId:行记录id(string),}  
+startProcess  {RequestStartProcessByProcessId}  {dataLog:扩展触发值(string),debugEvents:调试事件(动态人员赋值测试人) 1审批 2短信 3邮件(array),fields:参数(array),processId:流程id(string),pushUniqueId:推送唯一标识(string),sourceId:行记录id(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -7870,7 +8843,7 @@ apis.processVersion.updateWaiting(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-request  {RequestInstanceWarning}  {accountIds:通知人(array),companyId:网络id(string),value:预警值(integer),}  
+request  {RequestInstanceWarning}  {accountIds:通知人(array),companyId:网络id(string),enableEmail:邮件(boolean),enableSms:短信(boolean),value:预警值(integer),}  
 
 ```js
 import { apis } from "mdye";
@@ -7911,6 +8884,7 @@ apis.processVersion.count(args)
 args.access_token  {string}  令牌  
 args.apkId  {string}  应用ID  
 args.companyId  {string}  网络id  
+args.createrIds  {string}  创建者  
 args.enabled  {string}  开启状态 0 全部，1：开启，2：关闭  
 args.isAsc  {string}  是否升序  
 args.keyWords  {string}  搜索框  
@@ -7991,6 +8965,28 @@ apis.processVersion.list(args)
 ```
 ---
 
+## listAll
+
+应用下所有流程接口
+
+### 参数
+
+args.access_token  {string}  令牌  
+args.keyWords  {string}  keyWords  
+args.pageIndex  {integer}  pageIndex  
+args.pageSize  {integer}  pageSize  
+args.relationId  {string}  应用ID 或者 网络ID  
+
+```js
+import { apis } from "mdye";
+
+apis.processVersion.listAll(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## removeProcess
 
 切底删除流程
@@ -8041,7 +9037,7 @@ apis.processVersion.restoreProcess(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-request  {添加委托}  {companyId:公司ID(string),endDate:结束时间 yyyy-MM-dd HH:mm(string),startDate:开始时间 yyyy-MM-dd HH:mm(string),trustee:受委托人(string),}  
+request  {添加委托}  {apkIds:应用ids(array),companyId:公司ID(string),endDate:结束时间 yyyy-MM-dd HH:mm(string),principal:委托人(string),startDate:开始时间 yyyy-MM-dd HH:mm(string),trustee:受委托人(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -8071,6 +9067,25 @@ apis.delegation.getList(args)
 ```
 ---
 
+## getListByCompanyId
+
+获取组织下所有委托列表
+
+### 参数
+
+args.access_token  {string}  令牌  
+request  {获取委托列表}  {companyId:公司ID(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),principals:多个委托人(array),sorter:排序字段 正序{'createDate':'ascend'} 倒序{'createDate':'descend'}(object),}  
+
+```js
+import { apis } from "mdye";
+
+apis.delegation.getListByCompanyId(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
 ## getListByPrincipals
 
 根据委托人获取委托列表
@@ -8078,7 +9093,7 @@ apis.delegation.getList(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-request  {获取委托列表}  {companyId:公司ID(string),principals:多个委托人(array),}  
+request  {获取委托列表}  {companyId:公司ID(string),keyword:null(string),pageIndex:null(integer),pageSize:null(integer),principals:多个委托人(array),sorter:排序字段 正序{'createDate':'ascend'} 倒序{'createDate':'descend'}(object),}  
 
 ```js
 import { apis } from "mdye";
@@ -8097,7 +9112,7 @@ apis.delegation.getListByPrincipals(args)
 ### 参数
 
 args.access_token  {string}  令牌  
-request  {编辑委托}  {companyId:公司ID(string),endDate:结束时间 yyyy-MM-dd HH:mm(string),id:委托ID(string),startDate:开始时间 yyyy-MM-dd HH:mm(string),status:状态 1正常，0结束(integer),trustee:受委托人(string),}  
+request  {编辑委托}  {apkIds:应用ids(array),companyId:公司ID(string),endDate:结束时间 yyyy-MM-dd HH:mm(string),id:委托ID(string),principal:委托人(string),startDate:开始时间 yyyy-MM-dd HH:mm(string),status:状态 1正常，0结束(integer),trustee:受委托人(string),}  
 
 ```js
 import { apis } from "mdye";
@@ -8152,6 +9167,444 @@ args.extend  {string}  扩展参数
 import { apis } from "mdye";
 
 apis.qiniu.getFileUploadToken(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+
+---
+
+# 插件
+
+## create
+
+创建
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.name  {string}  插件名称  
+args.icon  {string}  图标  
+args.iconColor  {string}  图标颜色  
+args.debugEnvironments  {array}  调试环境  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.create(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## edit
+
+编辑
+
+### 参数
+
+args.id  {string}  插件id  
+args.name  {string}  插件名称  
+args.icon  {string}  图标  
+args.iconColor  {string}  图标颜色  
+args.debugEnvironments  {array}  调试环境  
+args.paramSettings  {array}  参数设置  
+args.switchSettings  {object}  功能开关配置  
+args.configuration  {object}  配置  
+args.stepState  {integer}  步骤状态（前端自己决定,前提时值必须大于等于0）  
+args.state  {integer}  插件状态  
+args.templateType  {integer}  模板类型  
+args.viewId  {string}  视图id  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.edit(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getDetail
+
+获取单个插件详情
+
+### 参数
+
+args.id  {string}  插件id  
+args.appId  {string}  应用id  
+args.projectId  {string}  组织id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getDetail(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## checkExists
+
+判断插件是否存在
+
+### 参数
+
+args.id  {string}  插件id  
+args.appId  {string}  应用id  
+args.projectId  {string}  组织id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.checkExists(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getList
+
+获取插件列表
+
+### 参数
+
+args.creator  {string}  创建者，默认为当前登录账号  
+args.projectId  {string}  组织id  
+args.keywords  {string}  关键字搜索（插件名称）  
+args.state  {integer}  是否启用状态  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getList(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getAll
+
+获取所有插件
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getAll(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## remove
+
+删除
+
+### 参数
+
+args.id  {string}  插件id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.remove(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## release
+
+发布插件的新版本
+
+### 参数
+
+args.id  {string}  提交历史记录id  
+args.versionCode  {string}  版本号  
+args.description  {string}  说明  
+args.configuration  {object}  配置  
+args.pluginId  {string}  插件id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.release(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## rollback
+
+回滚到某一个版本
+
+### 参数
+
+args.releaseId  {string}  版本id  
+args.pluginId  {string}  插件id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.rollback(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getReleaseHistory
+
+获取版本历史
+
+### 参数
+
+args.id  {string}  插件id  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getReleaseHistory(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## removeRelease
+
+删除版本
+
+### 参数
+
+args.id  {string}  版本id  
+args.pluginId  {string}  插件id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.removeRelease(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## commit
+
+创建提交历史记录
+
+### 参数
+
+args.pluginId  {string}  插件id  
+args.message  {string}  提交消息  
+args.worksheetId  {string}  工作表id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.commit(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## removeCommit
+
+删除提交历史记录
+
+### 参数
+
+args.id  {string}  提交记录id  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.removeCommit(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getCommitHistory
+
+获取提交历史列表
+
+### 参数
+
+args.id  {string}  插件id  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  当前页  
+args.appId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getCommitHistory(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getUseDetail
+
+获取插件使用明细
+
+### 参数
+
+args.id  {string}  插件id  
+args.pageSize  {integer}  分页大小  
+args.pageIndex  {integer}  当前页  
+args.keywords  {string}  关键字  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getUseDetail(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## import
+
+插件导入
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.url  {string}  插件文件url  
+args.pluginId  {string}  插件来源id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.import(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## export
+
+插件导出
+
+### 参数
+
+args.id  {string}  插件id  
+args.releaseId  {string}  版本id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.export(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getExportHistory
+
+插件导出历史
+
+### 参数
+
+args.id  {string}  插件id  
+args.pageIndex  {integer}  当前页  
+args.pageSize  {integer}  页大小  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getExportHistory(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## getPluginListBySourece
+
+根据来源获取插件
+
+### 参数
+
+args.projectId  {string}  组织id  
+args.sourceId  {string}  应用id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.getPluginListBySourece(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## stateSave
+
+保存插件视图使用状态
+
+### 参数
+
+args.viewId  {string}  视图id  
+args.accountId  {string}  用户Id  
+args.data  {object}  插件数据  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.stateSave(args)
+  .then(res => {
+    console.log(res);
+  });
+```
+---
+
+## stateRead
+
+获取插件视图使用状态
+
+### 参数
+
+args.viewId  {string}  视图id  
+args.accountId  {string}  用户Id  
+
+```js
+import { apis } from "mdye";
+
+apis.plugin.stateRead(args)
   .then(res => {
     console.log(res);
   });

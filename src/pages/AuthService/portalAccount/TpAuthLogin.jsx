@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
@@ -36,7 +36,7 @@ const WrapCon = styled.div`
   }
 `;
 
-export default function (props) {
+export default function () {
   const [{ url, loading, appName, documentTitle }, setState] = useSetState({
     url: '',
     loading: true,
@@ -69,7 +69,7 @@ export default function (props) {
 
   const login = () => {
     const request = getRequest();
-    const { state = '', appid = '', code = '', ReturnUrl = '' } = request;
+    const { state = '', appid = '', code = '' } = request;
     const pcScan = !!localStorage.getItem('pcScan'); //是否是pc端的扫码登录
     externalPortalAjax
       .tpLogin({
@@ -80,7 +80,7 @@ export default function (props) {
       })
       .then(function (res) {
         window.localStorage.removeItem('pcScan');
-        const { accountResult, sessionId, state, accountId, appName } = res;
+        const { accountResult, state, accountId, appName } = res;
         let mdAppId = res.appId;
         const customLink = window.isWeiXin && mdAppId ? localStorage.getItem(`${mdAppId}_portalCustomLink`) : '';
         window.localStorage.removeItem(`${mdAppId}_portalCustomLink`);

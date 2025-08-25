@@ -7,6 +7,7 @@ import { Icon, ScrollView } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
+import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 import withoutRows from '../../../../SheetRows/assets/withoutRows.png';
 import { dateFormat } from '../util.js';
 import './index.less';
@@ -63,6 +64,8 @@ class CurrentDateInfo extends Component {
       visible,
       controls = [],
       worksheetInfo = {},
+      view = {},
+      isCharge,
     } = this.props;
     let listData =
       isSearch && searchResultData.length
@@ -81,7 +84,9 @@ class CurrentDateInfo extends Component {
           <div className="modalContentBox flexColumn">
             <div className="header">
               {mobileCurrentDate}
-              <Icon icon="close" className="closeIcon" onClick={this.close} />
+              <div className="closeIcon">
+                <Icon icon="close" onClick={this.close} />
+              </div>
             </div>
             {listData.length ? (
               <div className="searchWrapper">
@@ -107,14 +112,14 @@ class CurrentDateInfo extends Component {
               </div>
             ) : null}
             {(listData.length && (
-              <ScrollView className="flex">
+              <ScrollView className="flex listBox">
                 {listData.map(item => {
                   let controlItem = {},
                     keyFields = '',
                     value = '',
                     flag = false;
                   controls.forEach(it => {
-                    if (item.extendedProps.hasOwnProperty(it.controlId) && it.type === 11) {
+                    if (_.has(item.extendedProps, it.controlId) && it.type === 11) {
                       controlItem = it;
                       keyFields = item.extendedProps[it.controlId];
                       flag = true;
@@ -139,15 +144,33 @@ class CurrentDateInfo extends Component {
                     borderColor: item.borderColor,
                     color: item.textColor,
                   };
+
+                  const recordColorConfig = getRecordColorConfig(view);
+                  const recordColor =
+                    recordColorConfig &&
+                    getRecordColor({
+                      controlId: recordColorConfig.controlId,
+                      colorItems: recordColorConfig.colorItems,
+                      controls,
+                      row: item.extendedProps,
+                    });
                   return (
                     <div
-                      className="listItem"
+                      className="listItem Relative"
                       key={item.extendedProps.rowid}
+                      style={{
+                        backgroundColor: recordColor && recordColorConfig.showBg ? recordColor.lightColor : undefined,
+                        border:
+                          recordColor && recordColorConfig.showBg ? `1px solid ${recordColor.lightColor}` : undefined,
+                      }}
                       onClick={() => {
                         this.navigateToDetail(item.extendedProps.rowid);
                         addBehaviorLog('worksheetRecord', base.worksheetId, { rowId: item.extendedProps.rowid }); // 埋点
                       }}
                     >
+                      {recordColor && recordColorConfig.showLine && (
+                        <div className="colorTag" style={{ backgroundColor: recordColor.color }}></div>
+                      )}
                       <div
                         className="title Font14 Bold ellipsis"
                         title={item.title}
@@ -185,6 +208,7 @@ class CurrentDateInfo extends Component {
           worksheetId={base.worksheetId}
           viewId={base.viewId}
           rowId={previewRecordId}
+          isCharge={isCharge}
           onClose={() => {
             this.setState({
               previewRecordId: undefined,
@@ -203,6 +227,7 @@ export default connect(
     base: state.sheet.base,
     controls: state.sheet.controls,
     worksheetInfo: state.mobile.worksheetInfo,
+    isCharge: state.mobile.isCharge,
   }),
   dispatch => bindActionCreators(_.pick(actions, ['mobileIsShowMoreClick', 'changeMobileCurrentData']), dispatch),
 )(CurrentDateInfo);

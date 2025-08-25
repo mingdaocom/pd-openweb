@@ -1,10 +1,10 @@
-﻿import { APP_TYPE } from '../WorkflowSettings/enum';
+﻿import _ from 'lodash';
 import flowNode from '../api/flowNode';
 import process from '../api/process';
-import _ from 'lodash';
+import { APP_TYPE } from '../WorkflowSettings/enum';
 
 // 获取工作流基础信息
-export const getFlowInfo = processId => (dispatch, getState) => {
+export const getFlowInfo = processId => dispatch => {
   process
     .getProcessPublish({ processId }, { isIntegration: location.href.indexOf('integration') > -1 })
     .then(result => {
@@ -16,7 +16,7 @@ export const getFlowInfo = processId => (dispatch, getState) => {
 };
 
 // 更新工作流基础信息
-export const updateProcess = (companyId, processId, obj) => (dispatch, getState) => {
+export const updateProcess = (companyId, processId, obj) => dispatch => {
   process
     .updateProcess({
       companyId,
@@ -48,7 +48,7 @@ export const updatePublishState = obj => (dispatch, getState) => {
 // 获取工作流配置详情
 export const getProcessById =
   (processId, count = 200) =>
-  (dispatch, getState) => {
+  dispatch => {
     flowNode.get({ processId, count }, { isIntegration: location.href.indexOf('integration') > -1 }).then(result => {
       const isSimple = count && Object.keys(result.flowNodeMap).length > count;
 
@@ -64,7 +64,7 @@ export const getProcessById =
   };
 
 // 清除工作流数据
-export const clearSource = () => (dispatch, getState) => {
+export const clearSource = () => dispatch => {
   dispatch({
     type: 'CLEAR_FLOW_SOURCE',
   });
@@ -190,7 +190,7 @@ export const updateFlowNodeName = (processId, nodeId, name) => (dispatch, getSta
       processId,
       name,
     })
-    .then(result => {
+    .then(() => {
       const { workflowDetail } = _.cloneDeep(getState().workflow);
 
       if (workflowDetail.id !== processId) {
@@ -276,7 +276,7 @@ export const updateBranchGatewayType = (processId, nodeId, gatewayType) => (disp
       processId,
       gatewayType,
     })
-    .then(result => {
+    .then(() => {
       const { workflowDetail } = _.cloneDeep(getState().workflow);
 
       if (workflowDetail.id !== processId) {
@@ -309,7 +309,7 @@ export const updateBranchSort = (processId, nodeId, flowIds) => (dispatch, getSt
       processId,
       flowIds,
     })
-    .then(result => {
+    .then(() => {
       const { workflowDetail } = _.cloneDeep(getState().workflow);
 
       if (workflowDetail.id !== processId) {

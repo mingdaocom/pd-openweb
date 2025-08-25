@@ -8,9 +8,16 @@ import styled from 'styled-components';
 import { Dialog, Icon, Input, Radio, SvgIcon, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
-import { getTranslateInfo } from 'src/utils/app';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
-import { COPY_CONFIGS, TITLE_ENUM, VIEW_TYPE_FILTER_CONFIG, VIEW_TYPE_OPTIONS } from './config';
+import { getTranslateInfo } from 'src/utils/app';
+import {
+  COPY_CONFIGS,
+  COPY_CONFIGS_BY_GROUP,
+  DEFAULT_KEYS,
+  TITLE_ENUM,
+  VIEW_TYPE_FILTER_CONFIG,
+  VIEW_TYPE_OPTIONS,
+} from './config';
 
 const ContentWrap = styled.div`
   display: flex;
@@ -97,17 +104,23 @@ const DialogWrap = styled(Dialog)`
 export default function CopyViewConfig(props) {
   const { visible, type = 1, appId, view = {}, views = [], onClose = () => {}, updateViews } = props;
   const isCopyFrom = type === 1;
-  const otherViews = views.map(view => {
-    return {
-      ...view,
-      name: getTranslateInfo(appId, null, view.viewId).name || view.name
-    }
-  }).filter(l => l.viewId !== view.viewId);
+  const otherViews = views
+    .map(view => {
+      return {
+        ...view,
+        name: getTranslateInfo(appId, null, view.viewId).name || view.name,
+      };
+    })
+    .filter(l => l.viewId !== view.viewId);
   const inputRef = useRef();
 
   const getFilters = filterView => {
     const filterList = _.get(VIEW_TYPE_FILTER_CONFIG, VIEW_DISPLAY_TYPE[filterView.viewType]);
-
+    const { worksheetId, viewId } = filterView;
+    if (worksheetId === viewId) {
+      //管理视图
+      return filterList.concat(['CardSet', 'Filter', 'Controls', 'Print', 'MobileSet', 'urlParams']);
+    }
     switch (VIEW_DISPLAY_TYPE[filterView.viewType]) {
       case 'detail':
         return filterView.childType === 1 ? filterList.concat(['FastFilter', 'CardSet']) : filterList;
@@ -142,11 +155,17 @@ export default function CopyViewConfig(props) {
     );
   };
 
+  const getDefaultConfig = viewId => {
+    return getConfigs(viewId)
+      .filter(l => DEFAULT_KEYS.includes(l.key))
+      .map(l => l.key);
+  };
+
   const [{ keywords, viewType, selectViewId, selectConfigs, saveLoading }, setState] = useSetState({
     keywords: undefined,
     viewType: isCopyFrom ? undefined : 0,
     selectViewId: [],
-    selectConfigs: isCopyFrom ? [] : getConfigs(view.viewId).map(l => l.key),
+    selectConfigs: isCopyFrom ? [] : getDefaultConfig(view.viewId),
     saveLoading: false,
   });
 
@@ -170,7 +189,7 @@ export default function CopyViewConfig(props) {
 
     if (isCopyFrom) {
       setState({
-        selectConfigs: getConfigs(value).map(l => l.key),
+        selectConfigs: getDefaultConfig(value),
       });
     }
   };
@@ -202,6 +221,7 @@ export default function CopyViewConfig(props) {
   const renderSelectViews = list => {
     return list.map(item => {
       const isCustomize = VIEW_DISPLAY_TYPE[item.viewType] === 'customize';
+      const isManageView = item.worksheetId === item.viewId;
       const viewInfo = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[item.viewType]) || {};
 
       return (
@@ -216,7 +236,9 @@ export default function CopyViewConfig(props) {
             ) : (
               <Icon style={{ color: viewInfo.color, fontSize: '18px' }} icon={viewInfo.icon} />
             )}
-            <span className="overflow_ellipsis flex mLeft8">{item.name}</span>
+            <span className="overflow_ellipsis flex mLeft8">
+              {item.name || (isManageView ? _l('数据管理') : _l('未命名'))}
+            </span>
           </SelectItem>
         </Select.Option>
       );
@@ -260,7 +282,7 @@ export default function CopyViewConfig(props) {
               dropdownRender={menu => (
                 <div style={{ width: 512 }}>
                   <SearchCon className="searchCon">
-                    <Icon icon="search1" className="Font16 Gray" />
+                    <Icon icon="search" className="Font16 Gray" />
                     <Input
                       className="Gray"
                       value={keywords}
@@ -318,23 +340,35 @@ export default function CopyViewConfig(props) {
             {_l('清除全部')}
           </span>
         </div>
-        {configs.map(l => (
-          <div className="valignWrapper mBottom14">
-            <Switch
-              size="small"
-              className="mRight8"
-              disabled={disabledBtn}
-              checked={selectConfigs.includes(l.key)}
-              onClick={value =>
-                setState({
-                  selectConfigs: value ? selectConfigs.filter(m => m !== l.key) : selectConfigs.concat(l.key),
-                })
-              }
-            />
-            <Icon icon={l.icon} className="Font20 mRight8 Gray_9e" />
-            <span className="Gray_15 Font13">{l.label}</span>
-          </div>
-        ))}
+        {COPY_CONFIGS_BY_GROUP.map(o => {
+          let list = configs.filter(it => o.types.includes(it.key));
+          if (list.length > 0) {
+            return (
+              <>
+                <div className="mTop20 pBottom10 Gray_75">{o.title}</div>
+                {list.map(l => {
+                  return (
+                    <div className="valignWrapper mBottom14">
+                      <Switch
+                        size="small"
+                        className="mRight8"
+                        disabled={disabledBtn}
+                        checked={selectConfigs.includes(l.key)}
+                        onClick={value =>
+                          setState({
+                            selectConfigs: value ? selectConfigs.filter(m => m !== l.key) : selectConfigs.concat(l.key),
+                          })
+                        }
+                      />
+                      <Icon icon={l.icon} className="Font20 mRight8 Gray_9e" />
+                      <span className="Gray_15 Font13">{l.label}</span>
+                    </div>
+                  );
+                })}
+              </>
+            );
+          }
+        })}
       </div>
     );
   };

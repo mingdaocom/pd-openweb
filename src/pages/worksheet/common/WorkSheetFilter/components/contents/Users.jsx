@@ -27,6 +27,7 @@ export default class Users extends Component {
           try {
             user = JSON.parse(value);
           } catch (err) {
+            console.log(err);
             return undefined;
           }
           return {
@@ -64,6 +65,14 @@ export default class Users extends Component {
   addUser = () => {
     const { projectId, from = '', control = {}, appId, filterResigned } = this.props;
     const tabType = getTabTypeBySelectUser(control);
+    if (
+      tabType === 1 &&
+      md.global.Account.isPortal &&
+      !find(md.global.Account.projects, item => item.projectId === projectId)
+    ) {
+      alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
+      return;
+    }
     const _this = this;
 
     if (this.props.disabled) {
@@ -156,7 +165,7 @@ export default class Users extends Component {
     if (user.accountId === 'user-self') {
       return (
         <span className="iconCon">
-          <i className="icon icon-self filterCustomUserHead"></i>
+          <i className="icon icon-task_custom_personnel filterCustomUserHead"></i>
         </span>
       );
     } else if (user.accountId === 'user-sub') {

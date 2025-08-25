@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Icon } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import { enumWidgetType } from '../../../../util';
-import { DEFAULT_CONFIG, SYS, SYS_CONTROLS } from '../../../../config/widget';
-import { DynamicBtn } from '../style';
-import { DropdownOverlay } from '../../../../styled';
 import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Icon } from 'ming-ui';
+import { DEFAULT_CONFIG, SYS, SYS_CONTROLS } from '../../../../config/widget';
+import { DropdownOverlay } from '../../../../styled';
+import { enumWidgetType } from '../../../../util';
+import { DynamicBtn } from '../style';
 
 export default function AddFields(props) {
   const { handleClick, selectControls, text, disabled, showSys = false } = props;

@@ -1,4 +1,4 @@
-import { PAGE_SIZE, COMPANY_DEPARMENTID } from '../constant';
+import { PAGE_SIZE } from '../constant';
 import { CALL_API } from '../middleware/api';
 
 export const JOB_CURSOR = 'JOB_CURSOR';

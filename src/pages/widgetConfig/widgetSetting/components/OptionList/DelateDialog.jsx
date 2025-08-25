@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
 import { isLightColor } from 'src/utils/control';
@@ -40,7 +41,7 @@ const DelateDialogWrap = styled.ul`
       cursor: pointer;
       color: #9e9e9e;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

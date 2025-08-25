@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Amap from 'ming-ui/components/amap/Amap';
-import cx from 'classnames';
 import './index.less';
 
 export default class MapMessage extends Component {

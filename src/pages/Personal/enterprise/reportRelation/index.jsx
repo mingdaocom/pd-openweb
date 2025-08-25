@@ -5,7 +5,6 @@ import { navigateTo } from 'router/navigateTo';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import projectSettingController from 'src/api/projectSetting';
-import roleController from 'src/api/role';
 import structureController from 'src/api/structure';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 import Relation from 'src/pages/Admin/user/reportRelation';

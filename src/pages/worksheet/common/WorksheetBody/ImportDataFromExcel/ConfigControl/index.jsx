@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import filterXSS from 'xss';
 import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, ScrollView, Tooltip } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import DropDownItem from './DropDownItem';
 import './index.less';
@@ -28,7 +29,6 @@ export default class ConfigControl extends Component {
     worksheetId: PropTypes.string,
     onSave: PropTypes.func,
     onCancel: PropTypes.func,
-    worksheetId: PropTypes.string,
     selectRow: PropTypes.object,
     onPrevious: PropTypes.func,
     importSheetInfo: PropTypes.object,
@@ -119,26 +119,7 @@ export default class ConfigControl extends Component {
     });
 
     // 过滤掉系统字段
-    data.template.controls = data.template.controls.filter(
-      item =>
-        !_.includes(
-          [
-            'rowid',
-            'caid',
-            'ctime',
-            'utime',
-            'uaid',
-            'wfname',
-            'wfcuaids',
-            'wfcaid',
-            'wfctime',
-            'wfrtime',
-            'wfftime',
-            'wfstatus',
-          ],
-          item.controlId,
-        ),
-    );
+    data.template.controls = data.template.controls.filter(item => !_.includes(ALL_SYS, item.controlId));
 
     // 处理关联表数据
     if (isRelate) {
@@ -802,6 +783,7 @@ export default class ConfigControl extends Component {
                   }}
                 />
                 <Tooltip
+                  autoCloseDelay={0}
                   text={
                     <span>
                       {_l(
@@ -810,7 +792,7 @@ export default class ConfigControl extends Component {
                     </span>
                   }
                 >
-                  <i className="icon-workflow_help Gray_9e Font16 mLeft8 LineHeight36" />
+                  <i className="icon-help Gray_9e Font16 mLeft8 LineHeight36" />
                 </Tooltip>
               </Fragment>
             )}
@@ -833,13 +815,14 @@ export default class ConfigControl extends Component {
                   }
                 />
                 <Tooltip
+                  autoCloseDelay={0}
                   text={
                     <span>
                       {_l('未勾选时，对于错误的数据仅跳过错误字段，其他字段仍然导入。勾选后将跳过整行数据。')}
                     </span>
                   }
                 >
-                  <i className="icon-workflow_help Gray_9e Font16 mLeft5" />
+                  <i className="icon-help Gray_9e Font16 mLeft5" />
                 </Tooltip>
                 {!!skipSize && (
                   <div
@@ -952,14 +935,12 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
-            {(showStar === controlItem.controlId ||
-              (controlItem.advancedSetting && controlItem.advancedSetting.required === '1')) && (
-              <span className="mLeft3 star">*</span>
-            )}
+            {(showStar === controlItem.controlId || controlItem.required) && <span className="mLeft3 star">*</span>}
           </div>
 
           {/** 提示文字 */}
           <Tooltip
+            autoCloseDelay={0}
             text={
               <span>
                 {controlItem.type === 26
@@ -968,7 +949,7 @@ export default class ConfigControl extends Component {
               </span>
             }
           >
-            <i className="icon-workflow_help Gray_9e Font16" />
+            <i className="icon-help Gray_9e Font16" />
           </Tooltip>
           <div className="Gray_9e mLeft5">{_l('匹配：')}</div>
 
@@ -994,7 +975,7 @@ export default class ConfigControl extends Component {
 
     // 关联表
     else if (controlItem.type == 29 && relateSource[worksheetId]) {
-      const { controls, name } = relateSource[worksheetId];
+      const { controls } = relateSource[worksheetId];
 
       let currentItem = selectItem.sourceConfig.controlId;
       const defaultItem = controls.find(item => item.attribute) || {};
@@ -1016,6 +997,7 @@ export default class ConfigControl extends Component {
 
           {/** 提示文字 */}
           <Tooltip
+            autoCloseDelay={0}
             text={
               <span>
                 {_l(
@@ -1024,7 +1006,7 @@ export default class ConfigControl extends Component {
               </span>
             }
           >
-            <i className="icon-workflow_help Gray_9e Font16" />
+            <i className="icon-help Gray_9e Font16" />
           </Tooltip>
           <div className="Gray_9e mLeft5">{_l('匹配：')}</div>
 
@@ -1214,9 +1196,10 @@ export default class ConfigControl extends Component {
                               {[9, 10, 11].includes(controlItem.type) && !isHiddenConfig && (
                                 <Fragment>
                                   <Tooltip
+                                    autoCloseDelay={0}
                                     text={_l('勾选后，当匹配不到已有选项时会添加为新的选项。未勾选时，则导入为空')}
                                   >
-                                    <i className="icon-workflow_help Gray_9e Font16" />
+                                    <i className="icon-help Gray_9e Font16" />
                                   </Tooltip>
                                   <span className="Gray_75 mRight8 mLeft5">{_l('添加选项')}</span>
                                   <Checkbox

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
-import styled from 'styled-components';
-import _ from 'lodash';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 import { defaultDoubleConfirm } from './config';
 
 const Wrap = styled.div`

@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 import { dialogSelectUser } from 'ming-ui/functions';
 import Config from '../../../config';
 

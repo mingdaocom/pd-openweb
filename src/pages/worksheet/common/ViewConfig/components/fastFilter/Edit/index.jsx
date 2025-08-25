@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { Checkbox, Icon, Input } from 'ming-ui';
@@ -96,7 +96,7 @@ function Edit(params) {
     updateCurrentView(
       Object.assign(view, {
         fastFilters: formatFastFilterData(
-          fastFilters.map((o, i) => {
+          fastFilters.map(o => {
             if (o.controlId === activeFastFilterId) {
               let filters = o;
               Object.keys(data).map(ii => {
@@ -124,8 +124,9 @@ function Edit(params) {
   const getDaterange = () => {
     let { daterange } = advancedSetting;
     try {
-      daterange = JSON.parse(daterange);
+      daterange = safeParse(daterange, 'array');
     } catch (error) {
+      console.log(error);
       daterange = [];
     }
     return daterange;
@@ -136,7 +137,7 @@ function Edit(params) {
     return (
       <Checkbox
         className="checkBox InlineBlock mTop18"
-        text={_l('App支持扫码查询')}
+        text={_l('移动端支持扫码查询')}
         checked={allowscan === '1'}
         onClick={() => {
           updateViewSet({ allowscan: allowscan === '1' ? '' : '1' });

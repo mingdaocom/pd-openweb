@@ -1,17 +1,17 @@
-import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Icon, SvgIcon, Tooltip } from 'ming-ui';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
+import downloadAjax from 'src/api/download';
+import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
 import Search from 'src/pages/workflow/components/Search';
 import { formatFileSize } from 'src/utils/common';
 import { formatter, selectDateList } from '../../util';
 import TableCom from '../TableCom';
-
-const { Option } = Select;
 
 const ByAppWrap = styled.div`
   background-color: #fff;
@@ -38,24 +38,19 @@ const ByAppWrap = styled.div`
         border-radius: 3px;
       }
       .currentTab {
-        color: #2196f3;
+        color: #1677ff;
         background-color: #fff;
       }
     }
     .searchWrap {
       padding-right: 24px;
-      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-        height: 36px;
-        border-radius: 3px;
-        .ant-select-selection-item {
-          line-height: 34px;
-        }
+      .w200 {
+        width: 200px;
       }
-      .ant-select-arrow {
-        margin-top: -9px;
-        top: 50%;
-        width: 18px;
-        height: 18px;
+      .export {
+        margin-left: 26px;
+        min-width: 76px;
+        padding: 0 16px;
       }
     }
   }
@@ -89,7 +84,7 @@ const ByAppWrap = styled.div`
       &:hover {
         background: #f5f5f5;
         .nameBox {
-          color: #2196f3;
+          color: #1677ff;
         }
         .chartIcon {
           display: inline-block;
@@ -97,7 +92,7 @@ const ByAppWrap = styled.div`
           cursor: pointer;
         }
         .chartIcon:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -123,6 +118,9 @@ export default class ByApp extends Component {
       useageLoading: false,
       useagePageIndex: 1,
       currentAppInfo: {},
+      disabledExportBtn: true,
+      startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      endTime: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
     };
     this.columns = [
       {
@@ -375,34 +373,66 @@ export default class ByApp extends Component {
     );
   };
 
-  getList = () => {
+  getParams = () => {
     const { projectId } = this.props;
-    const { pageIndex, sorterInfo = {}, keyword } = this.state;
-    const { sortFiled, order } = sorterInfo;
 
+    const {
+      currentTab,
+      pageIndex,
+      sorterInfo = {},
+      keyword,
+      useagePageIndex,
+      selectedDate,
+      startTime,
+      endTime,
+    } = this.state;
+    const { sortFiled, order } = sorterInfo;
+    if (currentTab === 1) {
+      return {
+        projectId,
+        keyWord: keyword,
+        appId: '',
+        pageIndex,
+        pageSize: 50,
+        sortFiled,
+        sorted: sortFiled ? (order === 'asc' ? true : false) : undefined,
+      };
+    } else {
+      return {
+        projectId,
+        appId: '',
+        userId: '',
+        keyword: keyword,
+        dayRange: selectedDate,
+        pageIndex: useagePageIndex,
+        pageSize: 50,
+        dimension: 1,
+        sortFiled: sortFiled || '',
+        sorted: order === 'asc' ? true : false,
+        startTime,
+        endTime,
+      };
+    }
+  };
+
+  getList = () => {
     this.setState({ loading: true });
 
     if (this.ajaxRequst) {
       this.ajaxRequst.abort();
     }
-    this.ajaxRequst = appManagementAjax.appUsageOverviewStatistics({
-      projectId,
-      keyWord: keyword,
-      appId: '',
-      pageIndex,
-      pageSize: 50,
-      sortFiled,
-      sorted: sortFiled ? (order === 'asc' ? true : false) : undefined,
-    });
+    const params = this.getParams();
+    this.ajaxRequst = appManagementAjax.appUsageOverviewStatistics(params);
     this.ajaxRequst
       .then(({ list, allCount }) => {
         this.setState({
           list,
           total: allCount,
           loading: false,
+          disabledExportBtn: _.isEmpty(list),
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({
           pageIndex: 1,
           loading: false,
@@ -410,38 +440,28 @@ export default class ByApp extends Component {
       });
   };
   getUseageList = () => {
-    const { projectId } = this.props;
-    const { useagePageIndex, sorterInfo = {}, keyword, selectedDate } = this.state;
-    const { sortFiled, order } = sorterInfo;
-
     this.setState({ useageLoading: true });
 
     if (this.useageRequest) {
       this.useageRequest.abort();
     }
-    this.useageRequest = appManagementAjax.usageStatisticsForDimension({
-      projectId,
-      appId: '',
-      userId: '',
-      keyword: keyword,
-      dayRange: selectedDate,
-      pageIndex: useagePageIndex,
-      pageSize: 50,
-      dimension: 1,
-      sortFiled: sortFiled || '',
-      sorted: order === 'asc' ? true : false,
-    });
+    const params = this.getParams();
+    this.useageRequest = appManagementAjax.usageStatisticsForDimension(params);
     this.useageRequest
       .then(({ list, allCount }) => {
         this.setState({
           useageList: list,
           total: allCount,
           useageLoading: false,
+          disabledExportBtn: _.isEmpty(list),
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({
           useageLoading: false,
+          useageList: [],
+          total: 0,
+          disabledExportBtn: true,
         });
       });
   };
@@ -460,13 +480,23 @@ export default class ByApp extends Component {
   };
 
   changeTab = item => {
-    const { pageIndex, useagePageIndex } = this.state;
+    const { pageIndex, useagePageIndex, list = [], useageList = [] } = this.state;
+
+    if (
+      (item.tab === 1 && pageIndex === 1 && !_.isEmpty(list)) ||
+      (item.tab === 2 && useagePageIndex === 1 && !_.isEmpty(useageList))
+    ) {
+      this.setState({ currentTab: item.tab });
+      return;
+    }
+
     this.setState(
       {
         currentTab: item.tab,
         pageIndex: item.tab === 1 ? 1 : pageIndex,
         useagePageIndex: item.tab === 2 ? 1 : useagePageIndex,
         sorterInfo: item.tab === 2 ? { sortFiled: 'appAccessNumber', order: 'desc' } : { sortFiled: '', order: '' },
+        total: 0,
       },
       () => {
         if (item.tab === 1) {
@@ -478,6 +508,25 @@ export default class ByApp extends Component {
     );
   };
 
+  exportListData = () => {
+    this.setState({ disabledExportBtn: true });
+    const { currentTab } = this.state;
+    const params = this.getParams();
+
+    const promise =
+      currentTab === 2
+        ? downloadAjax.exportUsageStatisticsForDimensionLog(params)
+        : downloadAjax.exportAppUsageOverviewStatisticsLog(params);
+
+    promise
+      .then(() => {
+        this.setState({ disabledExportBtn: false });
+      })
+      .catch(() => {
+        this.setState({ disabledExportBtn: false });
+      });
+  };
+
   render() {
     let {
       currentTab,
@@ -487,8 +536,9 @@ export default class ByApp extends Component {
       useageList = [],
       useageLoading,
       useagePageIndex,
-      selectedDate,
       total,
+      disabledExportBtn,
+      dateInfo = {},
     } = this.state;
 
     return (
@@ -509,32 +559,45 @@ export default class ByApp extends Component {
           </div>
           <div className="searchWrap flexRow">
             {currentTab === 2 && (
-              <Select
-                className="mRight10 mdAntSelect"
-                style={{ width: '200px' }}
-                placeholder={_l('最近30天')}
-                suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
-                value={selectedDate}
-                onChange={value => {
-                  this.setState({ selectedDate: value, useagePageIndex: 1 }, () => this.getUseageList());
+              <CustomSelectDate
+                className="mdAntSelect mRight10 w200"
+                dateFormat={'YYYY-MM-DD HH:mm:ss'}
+                searchDateList={selectDateList}
+                dateInfo={dateInfo}
+                min={moment().subtract(1, 'year')}
+                changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
+                  this.setState(
+                    {
+                      dateInfo: { startDate, endDate, searchDateStr },
+                      selectedDate: dayRange,
+                      startTime: startDate,
+                      endTime: endDate,
+                    },
+                    this.getUseageList,
+                  );
                 }}
-              >
-                {selectDateList.map(item => (
-                  <Option key={item.value} value={item.value}>
-                    {item.label}
-                  </Option>
-                ))}
-              </Select>
+              />
             )}
             <Search
               className="appSearch"
               placeholder={_l('应用名称')}
               handleChange={_.debounce(keyword => this.updateState(keyword.trim()), 500)}
             />
+            <Button
+              type="primary"
+              className="export"
+              disabled={disabledExportBtn}
+              onClick={() => {
+                if (disabledExportBtn) return;
+                this.exportListData();
+              }}
+            >
+              {_l('导出')}
+            </Button>
           </div>
         </div>
         {currentTab === 1 && (
-          <div className="summary flex flexColumn">
+          <div className="summary flex flexColumn overflowHidden">
             <TableCom
               dataSource={list}
               columns={this.columns}

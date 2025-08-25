@@ -33,7 +33,6 @@ function Preview(props) {
       keyWords,
       count,
       controlList,
-      time,
       worksheetId,
       syncTaskStatus,
       hasChange,
@@ -405,6 +404,8 @@ function Preview(props) {
       changeInfoWithWorksheetId(data);
       refresh(data.worksheetId); //发布成功开始轮询
     } catch (error) {
+      console.log(error);
+
       if (cache.current.syncTaskStatus !== 'STOP') {
         onChangeStatus('ERROR');
         setState({
@@ -497,7 +498,7 @@ function Preview(props) {
         {showChange ? (
           <Icon icon="error" className="Font20 mRight10" />
         ) : ['ERROR', 'UN_PUBLIC'].includes(syncTaskStatus) ? (
-          <Icon icon="cancel1" className="Font20 mRight10 Red" />
+          <Icon icon="cancel" className="Font20 mRight10 Red" />
         ) : hsFinished ? (
           <React.Fragment>
             <Icon icon="check_circle" className="Font20 mRight10 finished" />
@@ -533,6 +534,7 @@ function Preview(props) {
                   {(errorMsgList || []).length > 0 && (
                     <Tooltip
                       placement="bottom"
+                      autoCloseDelay={0}
                       tooltipStyle={{
                         maxWidth: 350,
                         maxHeight: 300,
@@ -655,7 +657,7 @@ function Preview(props) {
                               className={cx('previewBtn', {
                                 disable,
                               })}
-                              onClick={e => {
+                              onClick={() => {
                                 if (disable || props.updateLoading) return;
                                 onPreview(flowData);
                               }}

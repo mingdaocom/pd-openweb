@@ -1,9 +1,8 @@
 import React from 'react';
-
+import _ from 'lodash';
 import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import API, { editAgreeFriend, editRefuseFriend } from '../api';
-import _ from 'lodash';
 
 export default class NewFriendsList extends React.Component {
   constructor() {
@@ -27,7 +26,7 @@ export default class NewFriendsList extends React.Component {
           hasMore: true,
           listData: null,
         },
-        this.fetch
+        this.fetch,
       );
     }
   }
@@ -65,7 +64,7 @@ export default class NewFriendsList extends React.Component {
   updateListData(accountId, isAdd) {
     const { listData } = this.state;
     this.setState({
-      listData: _.map(listData, (item) => {
+      listData: _.map(listData, item => {
         if (item.createAccount.accountId === accountId) {
           return {
             ...item,
@@ -79,7 +78,7 @@ export default class NewFriendsList extends React.Component {
   }
 
   add(accountId) {
-    return editAgreeFriend(accountId).then((data) => {
+    return editAgreeFriend(accountId).then(data => {
       if (data) {
         this.updateListData(accountId, true);
       } else {
@@ -89,7 +88,7 @@ export default class NewFriendsList extends React.Component {
   }
 
   refuse(accountId) {
-    return editRefuseFriend(accountId).then((data) => {
+    return editRefuseFriend(accountId).then(data => {
       if (data) {
         this.updateListData(accountId, false);
       } else {
@@ -118,14 +117,22 @@ export default class NewFriendsList extends React.Component {
           </thead>
           <tbody className="Gray_6">
             {listData.length &&
-              listData.map((item) => {
+              listData.map(item => {
                 return (
                   <tr key={item.createAccount.accountId}>
                     <td className="pRight24 userItem">
-                      <a href={'/user_' + item.createAccount.accountId} className="Hand NoUnderline TxtMiddle" target="_blank">
+                      <a
+                        href={'/user_' + item.createAccount.accountId}
+                        className="Hand NoUnderline TxtMiddle"
+                        target="_blank"
+                      >
                         <img className="circle avatar" src={item.createAccount.avatar} />
                       </a>
-                      <a href={'/user_' + item.createAccount.accountId} className="Bold Hand overflow_ellipsis Gray mLeft8" title={item.createAccount.fullname}>
+                      <a
+                        href={'/user_' + item.createAccount.accountId}
+                        className="Bold Hand overflow_ellipsis Gray mLeft8"
+                        title={item.createAccount.fullname}
+                      >
                         {item.createAccount.fullname || ''}
                       </a>
                     </td>

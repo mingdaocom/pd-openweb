@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import store from 'redux/configureStore';
-import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
@@ -62,7 +62,11 @@ function FiltersGroupPreview(props) {
             filters: filtersGroup.filters.map(f => {
               const values = formatFilterValues(f.dataType, f.values);
               f.objectControls.forEach(item => {
-                item.control = replaceControlsTranslateInfo(appId, item.worksheetId, item.control ? [item.control] : [])[0];
+                item.control = replaceControlsTranslateInfo(
+                  appId,
+                  item.worksheetId,
+                  item.control ? [item.control] : [],
+                )[0];
               });
               return {
                 ...f,
@@ -93,7 +97,7 @@ function FiltersGroupPreview(props) {
             loadFilterComponentCount: loadFilterComponentCount + 1,
           });
         })
-        .catch(error => {
+        .catch(() => {
           const customPage = store.getState().customPage;
           const { loadFilterComponentCount } = customPage;
           updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });

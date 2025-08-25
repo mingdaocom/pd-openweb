@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getTitleControlForCard } from 'src/pages/worksheet/views/util.js';
 import { getAdvanceSetting } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
 import {
   filterAndFormatterControls,
   getMultiRelateViewConfig,
@@ -44,7 +43,7 @@ export const dealHierarchyData = (
   { worksheetControls, currentView, stateData = {}, hierarchyRelateSheetControls },
 ) => {
   let { displayControls, coverCid, childType, viewControl, viewControls = [] } = currentView;
-  const { abstract = '', viewtitle = '' } = getAdvanceSetting(getMultiRelateViewConfig(currentView, stateData));
+  const { viewtitle = '' } = getAdvanceSetting(getMultiRelateViewConfig(currentView, stateData));
 
   if (String(childType) === '2') {
     const { path = [] } = stateData;
@@ -63,7 +62,7 @@ export const dealHierarchyData = (
   // const selectControl = getControlById(viewControl);
   const titleControl = getTitleControlForCard({ advancedSetting: { viewtitle } }, worksheetControls);
   // if (selectControl) {
-  const { pid, rowid: rowId, allowedit: allowEdit, allowdelete: allowDelete, childrenids = '', ...rest } = item;
+  const { rowid: rowId, allowedit: allowEdit, allowdelete: allowDelete } = item;
   const items = [];
   if (titleControl) {
     items.push({
@@ -90,12 +89,6 @@ export const dealHierarchyData = (
     ...getRecordAttachments(item[coverCid]),
     coverData: { ...(worksheetControls.find(it => it.controlId === coverCid) || {}), value: item[coverCid] },
     formData,
-    abstractValue: abstract
-      ? renderCellText({
-          ...(worksheetControls.find(it => it.controlId === abstract) || {}),
-          value: item[abstract],
-        })
-      : '',
   };
   // }
 };

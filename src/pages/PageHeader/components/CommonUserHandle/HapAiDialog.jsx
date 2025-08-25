@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import _ from 'lodash';
 
 const DialogWrap = styled(Dialog)`
   position: fixed !important;
@@ -27,7 +26,7 @@ const DialogWrap = styled(Dialog)`
     .Icon {
       color: #757575 !important;
       &:hover {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
   }

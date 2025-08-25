@@ -192,28 +192,6 @@ export default {
   /**
    * 提醒填写工作电话
    * @param {Object} args 请求参数
-   * @param {string} args.fullname 姓名
-   * @param {string} args.email 邮箱
-   * @param {string} args.mobilePhone 手机号
-   * @param {string} args.projectId 组织编号
-   * @param {string} args.accountId 账号Id
-   * @param {string} args.companyName 公司名
-   * @param {string} args.jobNumber Job号
-   * @param {string} args.contactPhone 联系号码
-   * @param {string} args.workSiteId 工作地点
-   * @param {array} args.departmentIds 部门Id（第一个为主部门）
-   * @param {array} args.jobIds 职位Id
-   * @param {array} args.orgRoleIds 组织角色ids
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  updateUser: function (args, options = {}) {
-    return mdyAPI('User', 'UpdateUser', args, options);
-  },
-  /**
-   * 设置用户信息
-   * @param {Object} args 请求参数
    * @param {array} args.accountIds 账户Ids
    * @param {} args.type
    * @param {string} args.projectId 网络Id
@@ -353,6 +331,56 @@ export default {
     return mdyAPI('User', 'GetApprovalUser', args, options);
   },
   /**
+   * 重置员工密码
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {string} args.accountId 账号Id
+   * @param {string} args.password 密码
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  resetPassword: function (args, options = {}) {
+    return mdyAPI('User', 'ResetPassword', args, options);
+  },
+  /**
+   * 批量重置员工密码
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {array} args.accountIds 账号Id
+   * @param {string} args.password 密码
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  batchResetPassword: function (args, options = {}) {
+    return mdyAPI('User', 'BatchResetPassword', args, options);
+  },
+  /**
+   * 设置用户信息
+   * @param {Object} args 请求参数
+   * @param {string} args.fullname 姓名
+   * @param {string} args.email 邮箱
+   * @param {string} args.mobilePhone 手机号
+   * @param {string} args.projectId 组织编号
+   * @param {string} args.accountId 账号Id
+   * @param {string} args.companyName 公司名
+   * @param {string} args.jobNumber Job号
+   * @param {string} args.contactPhone 联系号码
+   * @param {string} args.workSiteId 工作地点
+   * @param {array} args.departmentIds 部门Id（第一个为主部门）
+   * @param {array} args.jobIds 职位Id
+   * @param {array} args.orgRoleIds 组织角色ids
+   * @param {boolean} args.useMultiJobs 使用 多职位（false 则 未使用；true 代表使用，则 只使用新 部门职位关系属性 入库）
+   * @param {array} args.departmentJobIdMaps 任职信息（第一个 代表主部门）
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateUser: function (args, options = {}) {
+    return mdyAPI('User', 'UpdateUser', args, options);
+  },
+  /**
    * 设置 用户信息
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络Id
@@ -361,8 +389,10 @@ export default {
    * @param {string} args.jobNumber Job号
    * @param {string} args.contactPhone 联系号码
    * @param {string} args.workSiteId 工作地点
+   * @param {boolean} args.useMultiJobs 使用 多职位（false 则 未使用；true 代表使用，则 只使用新 部门职位关系属性 入库）
    * @param {array} args.departmentIds 部门（第一个为主部门）
    * @param {array} args.jobIds 职位ids
+   * @param {array} args.departmentJobIdMaps 任职信息（第一个 代表主部门）
    * @param {array} args.orgRoleIds 组织角色ids
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -406,32 +436,6 @@ export default {
    **/
   recoveryUser: function (args, options = {}) {
     return mdyAPI('User', 'RecoveryUser', args, options);
-  },
-  /**
-   * 重置员工密码
-   * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络Id
-   * @param {string} args.accountId 账号Id
-   * @param {string} args.password 密码
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  resetPassword: function (args, options = {}) {
-    return mdyAPI('User', 'ResetPassword', args, options);
-  },
-  /**
-   * 批量重置员工密码
-   * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络Id
-   * @param {array} args.accountIds 账号Id
-   * @param {string} args.password 密码
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  batchResetPassword: function (args, options = {}) {
-    return mdyAPI('User', 'BatchResetPassword', args, options);
   },
   /**
    * 批量更新 用户部门
@@ -485,6 +489,8 @@ export default {
    * @param {array} args.orgRoleIds 组织角色Id
    * @param {string} args.jobNumber 工号
    * @param {string} args.contactPhone 联系号码
+   * @param {boolean} args.useMultiJobs 使用 多职位（false 则 未使用；true 代表使用，则 只使用新 部门职位关系属性 入库）
+   * @param {array} args.departmentJobIdMaps 任职信息（第一个 代表主部门）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

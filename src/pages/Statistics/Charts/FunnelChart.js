@@ -131,7 +131,7 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
 const getControlMinAndMax = (yaxisList, data) => {
   const result = {};
 
-  const get = id => {
+  const get = () => {
     let values = [];
     for (let i = 0; i < data.length; i++) {
       values.push(data[i].value);
@@ -176,7 +176,7 @@ export default class extends Component {
     this.FunnelChart && this.FunnelChart.destroy();
   }
   componentWillReceiveProps(nextProps) {
-    const { map, displaySetup, style } = nextProps.reportData;
+    const { displaySetup, style } = nextProps.reportData;
     const { displaySetup: oldDisplaySetup, style: oldStyle } = this.props.reportData;
     // 显示设置
     if (
@@ -188,6 +188,7 @@ export default class extends Component {
       style.funnelShape !== oldStyle.funnelShape ||
       style.funnelCurvature !== oldStyle.funnelCurvature ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
+      style.funnelConversionText !== oldStyle.funnelConversionText ||
       !_.isEqual(
         _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
@@ -226,7 +227,7 @@ export default class extends Component {
     }
   }
   handleClick = ({ data, gEvent }) => {
-    const { xaxes, split, displaySetup, appId, reportId, name, reportType, style } = this.props.reportData;
+    const { xaxes, displaySetup, appId, reportId, name, reportType, style } = this.props.reportData;
     const { contrastType } = displaySetup;
     const currentData = data.data;
     const param = {};
@@ -401,33 +402,33 @@ export default class extends Component {
             radio: { style: { r: 6 } },
             itemName: {
               style: {
-                fill: isDark ? '#ffffffcc' : undefined,
+                fill: isDark ? '#ffffffb0' : undefined,
               },
             },
           }
         : false,
-      conversionTag:
-        displaySetup.showNumber && style.funnelCurvature !== 1
-          ? {
-              formatter: data => {
-                const { CONVERSATION_FIELD, PERCENT_FIELD } = this.FunnelComponent;
-                let percentage = 0;
-                if (displaySetup.isAccumulate) {
-                  percentage = data[PERCENT_FIELD] * 100;
+      conversionTag: displaySetup.showNumber
+        ? {
+            formatter: data => {
+              const { CONVERSATION_FIELD, PERCENT_FIELD } = this.FunnelComponent;
+              let percentage = 0;
+              if (displaySetup.isAccumulate) {
+                percentage = data[PERCENT_FIELD] * 100;
+              } else {
+                if (data[CONVERSATION_FIELD][0] === 0) {
+                  percentage = 0;
                 } else {
-                  if (data[CONVERSATION_FIELD][0] === 0) {
-                    percentage = 0;
-                  } else {
-                    percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
-                  }
+                  percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
                 }
-                return _l('转化率%0', `${toFixed(percentage, 2)}%`);
-              },
-              style: {
-                fill: isDark ? '#ffffffcc' : undefined,
-              },
-            }
-          : false,
+              }
+              const conversionText = style.funnelConversionText || _l('转化率');
+              return conversionText + `${toFixed(percentage, 2)}%`;
+            },
+            style: {
+              fill: isDark ? '#ffffffb0' : undefined,
+            },
+          }
+        : false,
       label: {
         callback: (xField, yField) => {
           if (style.funnelCurvature == 1) {

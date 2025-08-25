@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import '@mdfe/nanoscroller';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { ScrollView } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import 'src/components/createTask/createTask';
 import { getAppFeaturesPath } from 'src/utils/app';
@@ -66,9 +65,9 @@ const getStateIsShowUpdateBar = (oldState, state) => {
   const isRecurChange = getStateIsRecurChange(oldState, state);
   if (isRecurChange) return true;
   const keys = ['title', 'address', 'start', 'end', 'allDay', 'description'];
-  const stateA = _(oldState).pick(keys);
-  const stateB = _(state).pick(keys);
-  return !_(stateA).isEqual(stateB);
+  const stateA = _.pick(oldState, keys);
+  const stateB = _.pick(state, keys);
+  return !_.isEqual(stateA, stateB);
 };
 
 export default class CalendarDetail extends Component {
@@ -126,17 +125,14 @@ export default class CalendarDetail extends Component {
   }
 
   scrollToListTop() {
-    if (this.scrollView && this.scrollView.nanoScroller && this.commentList) {
-      var $nano = $(this.scrollView.nanoScroller);
-      var $nanoContent = $nano.find('.nano-content');
-      var $commentList = $nano.find('.calendarComments');
-      if (
-        $nanoContent.get(0).scrollTop > $commentList.get(0).offsetTop ||
-        $nanoContent.get(0).scrollTop + $nanoContent.height() < $commentList.get(0).offsetTop
-      ) {
-        $(this.scrollView.nanoScroller).nanoScroller({
-          scrollTo: $commentList,
-        });
+    if (this.scrollView && this.commentList) {
+      var scrollViewContainer = $('.scrollViewContainer');
+      var scrollInfo = this.scrollView.getScrollInfo();
+      const { scrollTop, clientHeight } = scrollInfo;
+      var $commentList = scrollViewContainer.find('.calendarComments');
+      const commentListOffsetTop = $commentList.get(0).offsetTop;
+      if (scrollTop > commentListOffsetTop || scrollTop + clientHeight < commentListOffsetTop) {
+        this.scrollView.scrollTo({ top: commentListOffsetTop });
       }
     }
   }
@@ -568,7 +564,7 @@ export default class CalendarDetail extends Component {
         <div className="calendarMainContent Relative">
           <ScrollView
             className="Absolute"
-            updateEvent={this.handleScroll.bind(this)}
+            onScrollEnd={this.handleScroll.bind(this)}
             preserveScrollTop={true}
             ref={el => {
               this.scrollView = el;
@@ -583,10 +579,9 @@ export default class CalendarDetail extends Component {
     );
   }
 
-  handleScroll(event, values) {
-    const { direction, maximum, position } = values;
+  handleScroll() {
     // filelist ignore event
-    if (direction === 'down' && maximum - position < 20 && this.commentList) {
+    if (this.commentList) {
       // method of child component
       const { updatePageIndex } = this.commentList;
       updatePageIndex();

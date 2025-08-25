@@ -1,17 +1,17 @@
 import React, { Fragment } from 'react';
+import cx from 'classnames';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import moment from 'moment';
+import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import account from 'src/api/account';
+import fixedDataAjax from 'src/api/fixedData.js';
+import CertificationButton from 'src/pages/certification/CertificationButton';
+import AddOrEditItem from './modules/AddOrEditItem';
 import AvatorInfo from './modules/AvatorInfo';
 import EditDetail from './modules/EditDetail';
 import EditInfo from './modules/EditInfo';
-import AddOrEditItem from './modules/AddOrEditItem';
-import { Tooltip, LoadDiv, Dialog, Icon } from 'ming-ui';
-import account from 'src/api/account';
 import './index.less';
-import fixedDataAjax from 'src/api/fixedData.js';
-import cx from 'classnames';
-import _ from 'lodash';
-import moment from 'moment';
-import CertificationButton from 'src/pages/certification/CertificationButton';
 
 const detailList = [
   { label: _l('生日'), key: 'birthdate', filter: 'transFromDate' },
@@ -113,7 +113,7 @@ export default class PersonalInfo extends React.Component {
 
   //账户信息
   renderAccountInfo() {
-    const { accountInfo, dataUsage, dataPlan, percent } = this.state;
+    const { accountInfo } = this.state;
     return (
       <div className="detailContainer pTop0 pBottom0 w100">
         <div className="flexRow alignItemsCenter">
@@ -125,7 +125,7 @@ export default class PersonalInfo extends React.Component {
               <span className="accountTag">{_l('付费版')}</span>
               <span className="Gray_9e mLeft10 mRight5">{_l('剩余 %0 天', accountInfo.expireDays)}</span>
               <Tooltip popupPlacement="top" text={<span>{_l('到期时间：根据您所在组织最晚到期时间为准。')}</span>}>
-                <span className="icon-novice-circle Font15 Gray_bd mLeft2 Hand" />
+                <span className="icon-help Font15 Gray_bd mLeft2 Hand" />
               </Tooltip>
             </Fragment>
           )}
@@ -232,7 +232,7 @@ export default class PersonalInfo extends React.Component {
     const { educationList } = this.state;
     return (
       <Fragment>
-        {educationList.map((item, index) => {
+        {educationList.map(item => {
           return this.getEduOrWorkItem(2, item);
         })}
       </Fragment>
@@ -244,7 +244,7 @@ export default class PersonalInfo extends React.Component {
     const { workList } = this.state;
     return (
       <Fragment>
-        {workList.map((item, index) => {
+        {workList.map(item => {
           return this.getEduOrWorkItem(1, item);
         })}
       </Fragment>
@@ -351,7 +351,8 @@ export default class PersonalInfo extends React.Component {
 
   //修改姓名
   setFullName() {
-    const { fullname } = this.state.baseDetail;
+    const { baseDetail = {} } = this.state;
+    const fullname = _.trim(baseDetail.fullname);
     fixedDataAjax.checkSensitive({ content: fullname }).then(res => {
       if (res) {
         this.setState({
@@ -363,10 +364,10 @@ export default class PersonalInfo extends React.Component {
           isErr: false,
         });
         account
-          .editAccountBasicInfo(this.state.baseDetail)
+          .editAccountBasicInfo({ ...this.state.baseDetail, fullname })
           .then(data => {
             if (data) {
-              this.setState({ editFullName: false });
+              this.setState({ editFullName: false, baseDetail: { ...baseDetail, fullname } });
             } else {
               this.setState({ editFullName: false });
             }

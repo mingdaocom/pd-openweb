@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import fixedDataApi from 'src/api/fixedData';
 import worksheetApi from 'src/api/worksheet';
+import workflowTranslatorApi from 'src/pages/workflow/api/translator';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import EditLingual from './EditLingual';
@@ -20,8 +22,9 @@ export default function MultiLingual(props) {
   const { id, projectId } = data;
   const [loading, setLoading] = useState(true);
   const [langs, setLangs] = useState([]);
-  const [collections, setCollections] = useState([]);
   const [langInfo, setLangInfo] = useState(null);
+  const [collections, setCollections] = useState([]);
+  const [workflows, setWorkflows] = useState([]);
   const [allLangList, setAllLangList] = useState([]);
   const { langId, flag } = getRequest();
   const currentLangKey = keys[getCookie('i18n_langtag')];
@@ -29,17 +32,22 @@ export default function MultiLingual(props) {
   const handleGetAppLangs = () => {
     setLoading(true);
     Promise.all([
-      worksheetApi.getCollectionsByAppId({
-        appId: id,
-        status: 1,
-      }),
       appManagementApi.getAppLangs({
         projectId,
         appId: id,
       }),
-    ]).then(([collectionsData, appLangsData]) => {
-      setCollections(collectionsData.data);
+      worksheetApi.getCollectionsByAppId({
+        appId: id,
+        status: 1,
+      }),
+      workflowTranslatorApi.getProcessTranslatorList({
+        apkId: id,
+        all: false,
+      }),
+    ]).then(([appLangsData, collectionsData, workflowData]) => {
       setLangs(appLangsData);
+      setCollections(collectionsData.data);
+      setWorkflows(workflowData);
       setLangInfo(_.find(appLangsData, { id: langId }));
       setLoading(false);
     });
@@ -72,6 +80,7 @@ export default function MultiLingual(props) {
         app={{
           ...data,
           collections,
+          workflows,
         }}
         currentLangKey={currentLangKey}
         langs={langs}

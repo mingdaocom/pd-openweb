@@ -1,16 +1,17 @@
-import React, { Fragment, useState, useRef } from 'react';
-import { Dialog, Support } from 'ming-ui';
+import React, { Fragment, useRef, useState } from 'react';
 import { isEmpty, isEqual } from 'lodash';
+import _ from 'lodash';
+import { Dialog, Support } from 'ming-ui';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { CONTROL_FILTER_WHITELIST } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import {
   filterUnavailableConditions,
   getTypeKey,
   redefineComplexControl,
 } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { getAdvanceSetting, isSingleRelateSheet } from '../../../util/setting';
+import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { filterControlsFromAll } from '../../../util';
+import { getAdvanceSetting, isSingleRelateSheet } from '../../../util/setting';
 import EmptyRuleConfig from '../EmptyRuleConfig';
 import './filterDialog.less';
 

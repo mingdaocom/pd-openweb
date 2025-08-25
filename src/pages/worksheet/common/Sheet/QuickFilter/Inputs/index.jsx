@@ -1,21 +1,21 @@
 import React from 'react';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import Text from './Text';
-import Number from './Number';
-import RelateRecord from './RelateRecord';
-import Cascader from './Cascader';
-import Options from './Options';
-import DateTime from './DateTime';
-import Time from './Time';
-import CheckboxComp from './CheckboxComp';
-import Users from './Users';
-import Departments from './Departments';
-import OrgRole from './OrgRole';
-import Areas from './Areas';
-import UnNormal from './UnNormal';
-import { getType } from '../utils';
 import _ from 'lodash';
 import { shape } from 'prop-types';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { getType } from '../utils';
+import Areas from './Areas';
+import Cascader from './Cascader';
+import CheckboxComp from './CheckboxComp';
+import DateTime from './DateTime';
+import Departments from './Departments';
+import Number from './Number';
+import Options from './Options';
+import OrgRole from './OrgRole';
+import RelateRecord from './RelateRecord';
+import Text from './Text';
+import Time from './Time';
+import UnNormal from './UnNormal';
+import Users from './Users';
 
 const Comps = {};
 

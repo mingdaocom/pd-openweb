@@ -17,15 +17,18 @@
     display: flex;
     flex-direction: row;
     border-radius: 5px;
+    position: relative;
   }
 
   .disable {
     position: relative;
     background-color: @disableBgColor !important;
-    .addToolbarHover:not(:hover), textarea, .mentions-input-box {
+    .addToolbarHover:not(:hover),
+    textarea,
+    .mentions-input-box {
       background-color: @disableBgColor !important;
     }
-    [class^="icon-"] {
+    [class^='icon-'] {
       opacity: 0.5;
     }
     .mask {

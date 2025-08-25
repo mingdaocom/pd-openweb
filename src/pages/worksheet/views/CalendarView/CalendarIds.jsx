@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import moment from 'moment';
@@ -41,7 +41,7 @@ export default function (props) {
       defaultFormData,
       defaultFormDataEditable: true,
       directAdd: true,
-      onAdd: record => {
+      onAdd: () => {
         $('.fc-highlight').remove();
         getEventsFn();
         updateCalendarEventIsAdd(true);

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
@@ -83,7 +83,7 @@ export default function DelDialog(props) {
         setShow(false);
       }}
       onOk={() => {
-        if (!!code) {
+        if (code) {
           verificationOld();
         } else {
           alert(_l('请输入验证码'), 3);

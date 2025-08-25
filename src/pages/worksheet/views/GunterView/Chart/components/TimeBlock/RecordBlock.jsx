@@ -128,7 +128,6 @@ export default class RowBlock extends Component {
     }
   }
   closeScroll() {
-    const { row } = this.props;
     this.isScroll = false;
     this.setState({ dragStartTime: null, dragEndTime: null });
     clearInterval(this.timer);
@@ -139,7 +138,6 @@ export default class RowBlock extends Component {
     this.props.updateRecordDragTime(row, dragStartTime, dragEndTime, value);
   };
   handleUpdateRecordTime = (start, end) => {
-    const { dragStartTime, dragEndTime } = this.state;
     const { row, updateRecordTime } = this.props;
     // if (this.isScroll) {
     //   this.setState({ dragStartTime: start, dragEndTime: end });
@@ -213,11 +211,11 @@ export default class RowBlock extends Component {
         return [startTime, endTime];
       } else if ((startType === 16 || endType === 16) && periodType === PERIOD_TYPE.day) {
         if (isStartHour && !isStartDayOff) {
-          const [day, hour] = row.startTime.split(' ');
+          const [, hour] = row.startTime.split(' ');
           startTime = `${startTime} ${hour}`;
         }
         if (isEndHour && !isEndDayOff) {
-          const [day, hour] = row.endTime.split(' ');
+          const [, hour] = row.endTime.split(' ');
           endTime = `${endTime} ${hour}`;
         }
         return [startTime, endTime];
@@ -470,16 +468,25 @@ export default class RowBlock extends Component {
     });
   };
   renderPopoverContent() {
-    const { row, base, isCharge, groupKey, controls, worksheetInfo, views, removeRecord = () => {} } = this.props;
+    const {
+      viewConfig,
+      row,
+      base,
+      isCharge,
+      groupKey,
+      controls,
+      worksheetInfo,
+      views,
+      removeRecord = () => {},
+    } = this.props;
     const { appId, projectId } = worksheetInfo;
     const view = _.find(views, { viewId: base.viewId }) || {};
-    const { advancedSetting = {} } = view;
     const titleId = view.viewtitle ? view.viewtitle : _.get(_.find(controls, { attribute: 1 }), 'controlId');
     const coverControl = view.coverCid
       ? _.find(controls, { controlId: view.coverCid }) || {}
       : _.find(controls, { type: 14 }) || {};
-    const abstractField = _.find(controls, { controlId: advancedSetting.abstract }) || {};
     const cover = row[coverControl.controlId];
+    const showControls = _.isEmpty(view.showControls) ? [viewConfig.startId, viewConfig.endId] : view.showControls;
     const formData = sortControlByIds(
       controls.map(c => {
         return {
@@ -492,7 +499,9 @@ export default class RowBlock extends Component {
     let coverUrl;
     try {
       coverUrl = safeParse(cover, 'array')[0] ? safeParse(cover, 'array')[0].previewUrl : '';
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
 
     return (
       <EditableCard
@@ -501,7 +510,6 @@ export default class RowBlock extends Component {
         hoverShowAll={true}
         canDrag={false}
         data={{
-          abstractValue: renderCellText({ ...abstractField, value: row[advancedSetting.abstract] }),
           allAttachments: safeParse(cover, 'array'),
           allowDelete: row.allowdelete,
           allowEdit: false,
@@ -511,7 +519,10 @@ export default class RowBlock extends Component {
               ? coverUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0/h/200')
               : `${coverUrl}&imageView2/0/h/200`
             : '',
-          fields: view.showControls.concat([titleId]).map(id => _.find(formData, { controlId: id })).filter(_ => _),
+          fields: showControls
+            .concat([titleId])
+            .map(id => _.find(formData, { controlId: id }))
+            .filter(_ => _),
           rawRow: row,
           rowId: row.rowid,
           formData,
@@ -526,7 +537,7 @@ export default class RowBlock extends Component {
         allowCopy={worksheetInfo.allowAdd}
         allowRecreate={worksheetInfo.allowAdd}
         sheetSwitchPermit={[]}
-        onUpdate={(updated, item) => {}}
+        onUpdate={() => {}}
         updateTitleData={() => {}}
         onDelete={({ recordId }) => {
           removeRecord(recordId);

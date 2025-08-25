@@ -1,22 +1,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
 import { Tree } from 'antd';
+import _ from 'lodash';
+import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import departmentController from 'src/api/department';
+import { updateCursor } from '../../actions/current';
 import {
+  departmentUpdate,
+  expandedKeysUpdate,
   initRoot,
   loadDepartments,
   loadUsers,
-  departmentUpdate,
-  expandedKeysUpdate,
-  updateShowExport,
   updateImportType,
+  updateShowExport,
 } from '../../actions/entities';
-import { updateCursor } from '../../actions/current';
-import departmentController from 'src/api/department'; //moveDepartment
+import { getParentsId } from '../../modules/util';
+//moveDepartment
 import DiaActionTree from './diaActionTree';
 import './departmentTree.less';
-import { getParentsId } from '../../modules/util';
-import _ from 'lodash';
 
 const loop = (data, key, callback) => {
   data.forEach((item, index, arr) => {
@@ -287,7 +288,7 @@ class DepartmentTree extends React.Component {
     });
   };
 
-  onSelect = (selectedKeys = [], info) => {
+  onSelect = (selectedKeys = []) => {
     let id = selectedKeys[0];
     if (!id || id.indexOf('more_') >= 0) {
       return;
@@ -446,7 +447,7 @@ class DepartmentTree extends React.Component {
           {_l('暂无部门，可')}
           <span
             className="Hand mLeft3"
-            style={{ color: '#2196F3' }}
+            style={{ color: '#1677ff' }}
             onClick={() => {
               this.props.updateShowExport(true);
               this.props.updateImportType('importDepartment');

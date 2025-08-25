@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Button, Icon, Tooltip } from 'ming-ui';
 
 const PopupCon = styled.div`

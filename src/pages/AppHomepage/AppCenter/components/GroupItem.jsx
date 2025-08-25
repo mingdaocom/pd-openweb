@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { string, number, bool, func } from 'prop-types';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Menu, MenuItem, Icon, Tooltip, MdLink, SvgIcon } from 'ming-ui';
-import { VerticalMiddle, FlexSpacer } from 'worksheet/components/Basics';
 import _ from 'lodash';
+import { bool, func, number, string } from 'prop-types';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Icon, MdLink, Menu, MenuItem, SvgIcon, Tooltip } from 'ming-ui';
+import { FlexSpacer, VerticalMiddle } from 'worksheet/components/Basics';
 
 const GroupItemLink = styled(MdLink)`
   display: block;
@@ -27,7 +27,8 @@ const GroupItemCon = styled.div`
   margin: 0 -14px;
   border-radius: 6px;
   background: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   .name {
     margin-right: 4px;
@@ -94,13 +95,6 @@ const MenuWrap = styled(Menu)`
     color: #f44336 !important;
     .Icon {
       color: #f44336 !important;
-    }
-    &:not(.disabled):hover {
-      background: #f51744 !important;
-      color: #fff !important;
-      .Icon {
-        color: #fff !important;
-      }
     }
   }
 `;

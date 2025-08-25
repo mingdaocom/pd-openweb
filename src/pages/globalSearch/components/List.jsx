@@ -84,7 +84,6 @@ export default function List(props) {
   const {
     data = { count: 0 },
     needTitle = false,
-    needShowMore = false,
     dataKey = '',
     viewAll = false,
     searchKeyword = '',
@@ -262,7 +261,7 @@ export default function List(props) {
       </ul>
       {viewAll && data.count > 5 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon="task-point-more" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="Gray_9e Font18" />
           <a
             href={`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}`}
             className="text mLeft24 Gray_9e"

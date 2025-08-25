@@ -65,7 +65,7 @@ function getVisibleControls(data) {
 
 function getThemeBgColor(themeIndex, themeBgColor) {
   if (!themeBgColor) {
-    return !themes[themeIndex] ? '#2196f3' : (themes[themeIndex] || {}).main;
+    return !themes[themeIndex] ? '#1677ff' : (themes[themeIndex] || {}).main;
   } else {
     return themeBgColor;
   }
@@ -348,7 +348,7 @@ export async function getFormData(data, status) {
     const localForageCache = await localForage.getItem(`cacheDraft_${shareId}`);
     const cacheFormData = localForageCache || [];
 
-    if (!!cacheFormData.length) {
+    if (cacheFormData.length) {
       let formData = controls.map(item => {
         const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
         return item.type !== 29 ? { ...item, value: cacheField.value } : item;
@@ -412,7 +412,7 @@ export async function getFormData(data, status) {
     const localForageCache = await localForage.getItem(`cacheFieldData_${shareId}`);
     const cacheFormData = localForageCache || [];
 
-    if (!!cacheFormData.length) {
+    if (cacheFormData.length) {
       let formData = controls.map(item => {
         if (_.includes(cacheFieldData.cacheField, item.controlId) && item.type !== 29) {
           const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
@@ -436,7 +436,7 @@ export async function getFormData(data, status) {
   return controls;
 }
 
-export function getPublicWorksheet(params, cb = info => {}) {
+export function getPublicWorksheet(params, cb = () => {}) {
   publicWorksheetAjax
     .getPublicWorksheet(params)
     .then(async data => {
@@ -492,7 +492,7 @@ export function getPublicWorksheet(params, cb = info => {}) {
         return;
       }
 
-      const lang = await shareGetAppLangDetail({
+      await shareGetAppLangDetail({
         projectId: data.projectId,
         appId: data.appId,
       });
@@ -526,7 +526,7 @@ export function getPublicWorksheet(params, cb = info => {}) {
           });
         });
     })
-    .catch(err => {
+    .catch(() => {
       cb(false);
     });
 }
@@ -564,6 +564,7 @@ function fillReportSource(receiveControls, publicWorksheetInfo) {
     try {
       fromurl = qs.parse(decodeURIComponent(location.search.slice(1))).from;
     } catch (err) {
+      console.log(err);
       return receiveControls;
     }
     if (!fromurl) {
@@ -608,6 +609,7 @@ export function addWorksheetRow(
     setSubListUniqueError = () => {},
     setRuleError = () => {},
     setServiceError = () => {},
+    alertLockError = () => {},
   },
   cb = () => {},
 ) {
@@ -652,6 +654,9 @@ export function addWorksheetRow(
               break;
             case 32:
               setRuleError(data.badData);
+              break;
+            case 72:
+              alertLockError();
               break;
             case 14:
               alert(_l('验证码错误'), 3);

@@ -1,14 +1,14 @@
-import React, { Component, Fragment, createRef } from 'react';
-import cx from 'classnames';
+import React, { Component, createRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
-import * as actions from 'worksheet/redux/actions/gunterview';
 import { Icon, Skeleton } from 'ming-ui';
+import * as actions from 'worksheet/redux/actions/gunterview';
 import IScroll from 'worksheet/views/GunterView/components/Iscroll';
 import GroupItem from '../GroupItem';
 import { RecordWrapper } from '../Record';
-import _ from 'lodash';
 
 const GroupingTotalWrapper = styled.div`
   height: 100%;
@@ -21,7 +21,6 @@ const GroupingTotalWrapper = styled.div`
     right: 0;
   }
 `;
-
 
 const GroupingChildWrapper = styled.div`
   height: 29px;
@@ -63,8 +62,8 @@ export default class GroupWrap extends Component {
     this.state = {
       dragValue: 0,
       groupingScrollX: 0,
-      widthConfig: config ? JSON.parse(config) : { 0: 200 }
-    }
+      widthConfig: config ? JSON.parse(config) : { 0: 200 },
+    };
   }
   componentDidMount() {
     const scroll = new IScroll(this.$groupingWrapperRef.current, {
@@ -107,7 +106,7 @@ export default class GroupWrap extends Component {
       this.props.updateGroupingScroll(null);
     }
   }
-  linkageScroll = event => {
+  linkageScroll = () => {
     if (window.chartScrollLock) {
       return;
     }
@@ -115,49 +114,52 @@ export default class GroupWrap extends Component {
     this.setState({ groupingScrollX: Math.abs(groupingScroll.x) });
     chartScroll.scrollTo(chartScroll.x, groupingScroll.y);
     chartScroll._execEvent('scroll');
-  }
+  };
   handleMouseDown = (event, index) => {
     const { target } = event;
     const startClientX = event.clientX;
     const startDragValue = target.parentElement.offsetLeft + target.parentElement.clientWidth;
     const minWidth = 80;
     this.setState({
-      dragValue: startDragValue
+      dragValue: startDragValue,
     });
     const setColumnWidth = width => {
       const { widthConfig } = this.state;
       const data = {
         ...widthConfig,
-        [index]: width
-      }
-      this.setState({
-        widthConfig: data
-      }, () => {
-        const { base, groupingScroll } = this.props;
-        localStorage.setItem(`gunterViewColumnWidthConfig-${base.viewId}`, JSON.stringify(data));
-        groupingScroll.refresh();
-      });
-    }
+        [index]: width,
+      };
+      this.setState(
+        {
+          widthConfig: data,
+        },
+        () => {
+          const { base, groupingScroll } = this.props;
+          localStorage.setItem(`gunterViewColumnWidthConfig-${base.viewId}`, JSON.stringify(data));
+          groupingScroll.refresh();
+        },
+      );
+    };
     document.onmousemove = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
       if (width >= minWidth) {
         this.setState({
-          dragValue: startDragValue + x
+          dragValue: startDragValue + x,
         });
       }
-    }
-    document.onmouseup = (event) => {
+    };
+    document.onmouseup = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
       setColumnWidth(width >= minWidth ? width : minWidth);
       this.setState({
-        dragValue: 0
+        dragValue: 0,
       });
       document.onmousemove = null;
       document.onmouseup = null;
-    }
-  }
+    };
+  };
   renderGroupingTotal() {
     const { grouping } = this.props;
     return (
@@ -198,7 +200,12 @@ export default class GroupWrap extends Component {
   }
   renderDrag(index) {
     return (
-      <div onMouseDown={(event) => { this.handleMouseDown(event, index) }} className="drag" />
+      <div
+        onMouseDown={event => {
+          this.handleMouseDown(event, index);
+        }}
+        className="drag"
+      />
     );
   }
   renderControlName() {
@@ -247,12 +254,7 @@ export default class GroupWrap extends Component {
       <div>
         {this.renderControlName()}
         {grouping.map(item => (
-          <GroupItem
-            key={item.key}
-            group={item}
-            width={width + groupingScrollX}
-            widthConfig={widthConfig}
-          />
+          <GroupItem key={item.key} group={item} width={width + groupingScrollX} widthConfig={widthConfig} />
         ))}
       </div>
     );

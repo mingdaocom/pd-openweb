@@ -1,11 +1,13 @@
-import React, { useEffect, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { string, bool, element, arrayOf, shape, number } from 'prop-types';
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
+import { arrayOf, bool, element, number, shape, string } from 'prop-types';
 import { updateBase } from 'worksheet/redux/actions';
+import { configureStore } from 'src/redux/configureStore';
 import ViewComp from './ViewComp';
+
 function SingleView(props, ref) {
   const {
+    allowOpenRecord,
     config = {},
     showPageTitle,
     showHeader,
@@ -44,7 +46,10 @@ function SingleView(props, ref) {
   return (
     <Provider store={store}>
       <ViewComp
-        config={config}
+        config={{
+          ...config,
+          allowOpenRecord,
+        }}
         authRefreshTime={authRefreshTime}
         showPageTitle={showPageTitle}
         chartId={chartId}

@@ -15,6 +15,9 @@ const SearchRowsWrapper = styled.div`
   background-color: #fff;
   border-radius: 24px;
   padding: 2px 3px 2px 10px;
+  input {
+    height: 32px;
+  }
   .cuttingLine {
     height: 16px;
     width: 1px;
@@ -30,7 +33,6 @@ const SearchRowsWrapper = styled.div`
   .caseSensitive {
     width: 32px;
     height: 32px;
-    margin-left: 6px;
     background: #f2f2f3;
     text-align: center;
     border-radius: 50%;
@@ -69,7 +71,7 @@ class Search extends Component {
     if (textFilters.length) {
       // 快速搜索
       const quickFilter = [textFilters[filterIndex]]
-        .map((filter, i) => ({
+        .map(filter => ({
           ...filter,
           filterType: filter.filterType || 1,
           spliceType: filter.spliceType || 1,
@@ -94,7 +96,7 @@ class Search extends Component {
             {textFilters.map((item, index) => (
               <div
                 key={item.control.controlId}
-                style={{ color: index === filterIndex ? '#2196F3' : null }}
+                style={{ color: index === filterIndex ? '#1677ff' : null }}
                 className="pTop5 pBottom5 Font14 ellipsis"
                 onClick={() => {
                   this.setState({
@@ -113,7 +115,8 @@ class Search extends Component {
   }
   render() {
     const { filterIndex } = this.state;
-    const { updateFilters, updateQuickFilter, filters, sheetView, textFilters, viewType } = this.props;
+    const { updateFilters, updateQuickFilter, filters, sheetView, textFilters, viewType, base, inputPlaceholder } =
+      this.props;
     const searchValue = textFilters.length ? filters.quickFilterKeyWords : filters.keyWords;
     const { ignorecase } = filters.requestParams || {};
     return (
@@ -152,7 +155,13 @@ class Search extends Component {
             <input
               type="search"
               className="pAll0 Border0 w100"
-              placeholder={_.includes([1, 7], viewType) ? _l('搜索') : _l('搜索共%0条', sheetView.count)}
+              placeholder={
+                inputPlaceholder
+                  ? inputPlaceholder
+                  : _.includes([1, 7], viewType)
+                    ? _l('搜索')
+                    : _l('搜索共%0条', sheetView.count)
+              }
               value={searchValue}
               onChange={e => {
                 const { value } = e.target;
@@ -175,7 +184,7 @@ class Search extends Component {
 
           {searchValue && (
             <Icon
-              className="Gray_bd Font16"
+              className="Gray_bd Font16 mRight6"
               icon="workflow_cancel"
               onClick={() => {
                 if (textFilters.length) {
@@ -188,25 +197,27 @@ class Search extends Component {
               }}
             />
           )}
-          <div
-            className="caseSensitive"
-            onClick={() => {
-              const newIgnorecase = ignorecase === '0' ? '1' : '0';
-              updateFilters({ requestParams: { ignorecase: newIgnorecase } });
-              if (newIgnorecase === '0') {
-                alert(_l('已开启区分大小写'));
-              }
-              this.handleSearch();
-            }}
-          >
-            <Icon
-              icon="case"
-              className={cx('LineHeight32 Font24', {
-                Gray_75: !ignorecase || ignorecase === '1',
-                ThemeColor: ignorecase === '0',
-              })}
-            />
-          </div>
+          {base.type !== 'single' && (
+            <div
+              className="caseSensitive"
+              onClick={() => {
+                const newIgnorecase = ignorecase === '0' ? '1' : '0';
+                updateFilters({ requestParams: { ignorecase: newIgnorecase } });
+                if (newIgnorecase === '0') {
+                  alert(_l('已开启区分大小写'));
+                }
+                this.handleSearch();
+              }}
+            >
+              <Icon
+                icon="case"
+                className={cx('LineHeight32 Font24', {
+                  Gray_75: !ignorecase || ignorecase === '1',
+                  ThemeColor: ignorecase === '0',
+                })}
+              />
+            </div>
+          )}
         </div>
       </SearchRowsWrapper>
     );
@@ -217,6 +228,7 @@ export default connect(
   state => ({
     filters: state.mobile.filters,
     sheetView: state.mobile.sheetView,
+    base: state.mobile.base,
   }),
   dispatch =>
     bindActionCreators(

@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
 import customApi from 'statistics/api/custom';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
@@ -47,7 +48,9 @@ export default function CustomPageButton(props) {
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
         $(this).removeClass(className);
       });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
   };
 
   const renderNav = (item, index) => {
@@ -151,9 +154,9 @@ export default function CustomPageButton(props) {
   return (
     <div className="flexRow pAll10 h100">
       <div className="nav flexColumn">
-        <ScrollView className="flex">{list.map((item, index) => renderNav(item, index + 1))}</ScrollView>
+        <ScrollView className="h100">{list.map((item, index) => renderNav(item, index + 1))}</ScrollView>
       </div>
-      <ScrollView className="flex" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">{list.map((item, index) => renderContent(item, index + 1))}</div>
       </ScrollView>
     </div>

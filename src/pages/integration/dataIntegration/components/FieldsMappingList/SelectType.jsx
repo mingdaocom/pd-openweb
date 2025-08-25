@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
+import { Select, Tooltip } from 'antd';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Select, Tooltip } from 'antd';
-import { Input, Icon } from 'ming-ui';
-import { enumWidgetType, canSetAsTitle } from 'src/pages/widgetConfig/util';
-import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
+import { Icon, Input } from 'ming-ui';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
-import _ from 'lodash';
+import { canSetAsTitle, enumWidgetType } from 'src/pages/widgetConfig/util';
+import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 
 const Wrapper = styled.div`
   width: 348px;
@@ -169,8 +169,8 @@ export default function SelectType(props) {
                         parseInt(value) > currentOption.maxLength
                           ? currentOption.maxLength
                           : parseInt(value) < 1
-                          ? 1
-                          : parseInt(value);
+                            ? 1
+                            : parseInt(value);
 
                       updateFieldsMapping({
                         ...itemData,
@@ -195,8 +195,8 @@ export default function SelectType(props) {
                         parseInt(value) > currentOption.maximumScale
                           ? currentOption.maximumScale
                           : parseInt(value) < currentOption.minimumScale
-                          ? 0
-                          : parseInt(value);
+                            ? 0
+                            : parseInt(value);
                       updateFieldsMapping({
                         ...itemData,
                         destField: {
@@ -262,7 +262,7 @@ export default function SelectType(props) {
       <div className="numberTips">
         {!isDestDbType && destField.mdType === 6 && (
           <Tooltip title={_l('数值最大支持16位数字')} placement="top">
-            <Icon icon="info1" className="Gray_bd mLeft5" />
+            <Icon icon="info" className="Gray_bd mLeft5" />
           </Tooltip>
         )}
       </div>

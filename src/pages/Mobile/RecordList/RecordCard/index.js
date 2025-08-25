@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -14,13 +14,14 @@ import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { getControlStyles } from 'src/utils/control';
+import { checkCellIsEmpty, getControlStyles } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 import './index.less';
 
 const Con = styled.div`
+  width: 100%;
   ${({ controlStyles }) => controlStyles || ''}
 `;
 
@@ -42,7 +43,7 @@ export default class RecordCard extends Component {
     this.state = {
       checked: data[view.advancedSetting.checkradioid] === '1',
       coverError: false,
-      appshowtype: view.viewType === 6 ? '1' : _.get(view, 'advancedSetting.appshowtype') || '0',
+      appshowtype: _.includes([1, 3, 6], view.viewType) ? '1' : _.get(view, 'advancedSetting.appshowtype') || '0',
     };
   }
   componentDidMount() {
@@ -69,6 +70,7 @@ export default class RecordCard extends Component {
     try {
       coverControlData = getCoverControlData(JSON.parse(data[coverCid]) || []);
     } catch (err) {
+      console.log(err);
       return null;
     }
     return coverControlData;
@@ -88,7 +90,7 @@ export default class RecordCard extends Component {
     const { coverError } = this.state;
     const { coverType, coverFillType = 0 } = getCoverStyle(this.props.view);
     const { cover } = this;
-    const imageView2 = coverType === 0 && coverFillType === 1 ? `imageView2/2/w/120` : `imageView2/1/w/120/h/120`;
+    const imageView2 = coverType === 0 && coverFillType === 1 ? `imageView2/2/w/750` : `imageView2/1/w/750/h/750`;
     const url =
       cover && cover.previewUrl
         ? cover.previewUrl.indexOf('imageView2') > -1
@@ -158,6 +160,7 @@ export default class RecordCard extends Component {
     try {
       coverControlData = JSON.parse(data[view.coverCid]);
     } catch (err) {
+      console.log(err);
       return;
     }
     this.previewAttachment(
@@ -166,7 +169,7 @@ export default class RecordCard extends Component {
     );
     e.stopPropagation();
   };
-  handleChangeCheckbox = e => {
+  handleChangeCheckbox = () => {
     const { checked } = this.state;
     const { appId, data, view, controls } = this.props;
     const control = _.find(controls, { controlId: view.advancedSetting.checkradioid });
@@ -186,7 +189,7 @@ export default class RecordCard extends Component {
           },
         ],
       })
-      .then(result => {
+      .then(() => {
         this.setState({
           checked: newChecked,
         });
@@ -236,7 +239,7 @@ export default class RecordCard extends Component {
     return (
       <div className="controlWrapper" key={id}>
         {(nameVisible || visibleControl.desc) && (
-          <div className="controlName ellipsis Gray_9e">
+          <div className="controlName ellipsis">
             {visibleControl.desc ? (
               <Tooltip
                 text={
@@ -253,12 +256,13 @@ export default class RecordCard extends Component {
                     {visibleControl.desc}
                   </span>
                 }
+                autoCloseDelay={0}
                 action={['click']}
                 popupPlacement={'topLeft'}
                 offset={[-12, 0]}
               >
                 <i
-                  className="icon-workflow_error descBoxInfo pointer Font16 Gray_9e mRight5"
+                  className="icon-info_outline descBoxInfo pointer Font16 Gray_9e mRight5"
                   onClick={e => e.stopPropagation()}
                 />
               </Tooltip>
@@ -269,7 +273,7 @@ export default class RecordCard extends Component {
           </div>
         )}
         <div className="controlContent">
-          {data[visibleControl.controlId] || visibleControl.type === 47 ? (
+          {!checkCellIsEmpty(data[visibleControl.controlId]) || visibleControl.type === 47 ? (
             <CellControl
               className={`control-val-${visibleControl.controlId} maxLine${maxLine} w100`}
               worksheetId={view.worksheetId}
@@ -288,8 +292,8 @@ export default class RecordCard extends Component {
     );
   }
   renderContent() {
-    const { data, view, allowAdd, controls, sheetSwitchPermit } = this.props;
-    const { viewType, advancedSetting, coverCid, showControlName, viewId } = view;
+    const { data, view, controls, sheetSwitchPermit } = this.props;
+    const { advancedSetting, showControlName, viewId } = view;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let titleControl = _.find(controls, control => control.attribute === 1) || {};
     const titleText = getTitleTextFromControls(controls, data);
@@ -304,6 +308,7 @@ export default class RecordCard extends Component {
         (isShowWorkflowSys || !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, id))
       );
     });
+    const fieldShowCount = appshowtype === '0' ? 3 : _.get(view, 'advancedSetting.showcount');
     const recordColorConfig = getRecordColorConfig(view);
     const recordColor =
       recordColorConfig &&
@@ -350,13 +355,13 @@ export default class RecordCard extends Component {
               }}
             />
           )}
-          <div className="titleText Gray bold Font14 ellipsis">{titleText}</div>
+          <div className="titleText Gray bold ellipsis">{titleText}</div>
         </div>
         {advancedSetting.abstract && (
-          <div className="Gray_9e Font12 mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>
+          <div className="Gray_9e mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>
         )}
         <div className={cx(`cardContent${appshowtype}`)}>
-          {(appshowtype === '0' ? displayControls.slice(0, 3) : displayControls).map(id =>
+          {(fieldShowCount ? displayControls.slice(0, fieldShowCount) : displayControls).map(id =>
             this.renderControl(id, ['0', '2'].includes(appshowtype) ? true : showControlName),
           )}
         </div>

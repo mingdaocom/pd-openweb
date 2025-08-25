@@ -10,7 +10,6 @@ const Con = styled.div`
   background: #f7f7f7;
   border: 2px dashed #e0e0e0;
   border-radius: 4px;
-  margin-top: 32px;
   color: #bdbdbd;
   font-size: 20px;
   text-align: center;
@@ -29,7 +28,6 @@ const Con = styled.div`
 const ImgCon = styled.div`
   position: relative;
   display: inline-block;
-  margin-top: 32px;
   img {
     height: 59px;
     max-width: 100%;
@@ -70,7 +68,7 @@ export default class Logo extends React.Component {
     onChange(file.url);
   };
 
-  handleRemove = e => {
+  handleRemove = () => {
     const { onChange } = this.props;
     this.setState({ logourl: '' });
     onChange('');
@@ -93,7 +91,7 @@ export default class Logo extends React.Component {
             }}
             bucket={4}
             onUploaded={this.handleUploaded}
-            onAdd={(up, files) => {
+            onAdd={up => {
               this.setState({ isUploading: true });
               up.disableBrowse();
             }}
@@ -105,7 +103,7 @@ export default class Logo extends React.Component {
         {url && (
           <ImgCon>
             <img src={url} />
-            <i className="icon icon-closeelement-bg-circle" onClick={this.handleRemove}></i>
+            <i className="icon icon-cancel" onClick={this.handleRemove}></i>
           </ImgCon>
         )}
       </React.Fragment>

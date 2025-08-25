@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Button, Icon, Radio, Dialog, ScrollView, Tooltip } from 'ming-ui';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Dialog, Icon, Radio, ScrollView, Tooltip } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './index.less';
-import _ from 'lodash';
 
 const titleLineArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -177,6 +177,7 @@ export default class ImportConfig extends Component {
   renderTooltip(item) {
     return (
       <Tooltip
+        autoCloseDelay={0}
         text={
           <span>
             {item.state
@@ -267,7 +268,7 @@ export default class ImportConfig extends Component {
                         '只有表头下方的数据才会被导入;表头字段不得为空，否则将导致空值字段之后的字段无法被导入。',
                       )}
                     >
-                      <Icon icon="Import-failure" className="Font15 Gray_9e" />
+                      <Icon icon="error1" className="Font15 Gray_9e" />
                     </span>
                     {this.renderSelectLine()}
                   </div>

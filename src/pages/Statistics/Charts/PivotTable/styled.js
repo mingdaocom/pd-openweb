@@ -18,7 +18,7 @@ const PivotTableContent = styled.div`
       overflow: auto !important;
     }
     .ant-table {
-      height: ${props => props.paginationVisible ? 'calc(100% - 45px)' : '100%'};
+      height: ${props => (props.paginationVisible ? 'calc(100% - 45px)' : '100%')};
     }
   }
   &.contentXAuto {
@@ -89,7 +89,8 @@ const PivotTableContent = styled.div`
       overflow-wrap: break-word;
       z-index: 2;
     }
-    .data-bar, .data-bg {
+    .data-bar,
+    .data-bg {
       position: absolute;
       top: 0;
       width: 100%;
@@ -98,7 +99,8 @@ const PivotTableContent = styled.div`
     .data-bg {
       z-index: 0;
     }
-    .data-bar, .data-axis {
+    .data-bar,
+    .data-axis {
       z-index: 1;
     }
     .data-axis {
@@ -116,7 +118,8 @@ const PivotTableContent = styled.div`
     color: ${props => props.pivotTableStyle.lineTextColor || '#000000d9'};
     background-color: ${props => props.pivotTableStyle.lineBgColor || '#ffffffcc'} !important;
   }
-  .line-content, .cell-content {
+  .line-content,
+  .cell-content {
     white-space: pre-wrap;
   }
   .ant-table-container {
@@ -133,7 +136,8 @@ const PivotTableContent = styled.div`
   }
   .ant-pagination,
   .ant-pagination-item:not(.ant-pagination-item-active) a,
-  .ant-pagination-prev button, .ant-pagination-next button {
+  .ant-pagination-prev button,
+  .ant-pagination-next button {
     color: var(--title-color);
   }
   .ant-pagination-options {
@@ -145,34 +149,39 @@ const PivotTableContent = styled.div`
       border-radius: 4px;
     }
   }
-  .ant-table-container, table, tr>th, tr>td {
-    border-color: #E0E0E0 !important;
+  .ant-table-container,
+  table,
+  tr > th,
+  tr > td {
+    border-color: #e0e0e0 !important;
   }
   .ant-table-tbody > tr.ant-table-row:hover > td {
     background: initial;
   }
-  .ant-table-tbody > tr.ant-table-row:nth-child(${props => props.isFreeze ? 'odd' : 'even'}) {
+  .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'odd' : 'even')}) {
     .cell-content {
       color: ${props => props.pivotTableStyle.evenTextColor} !important;
     }
     background-color: ${props => props.pivotTableStyle.evenBgColor || '#fafcfd'};
     &:hover {
-      background-color: ${props => props.pivotTableStyle.evenBgColor ? `${props.pivotTableStyle.evenBgColor}e8` : '#fafafa'};
+      background-color: ${props =>
+        props.pivotTableStyle.evenBgColor ? `${props.pivotTableStyle.evenBgColor}e8` : '#fafafa'};
     }
   }
-  .ant-table-tbody > tr.ant-table-row:nth-child(${props => props.isFreeze ? 'even' : 'odd'}) {
+  .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'even' : 'odd')}) {
     .cell-content {
       color: ${props => props.pivotTableStyle.oddTextColor} !important;
     }
     background-color: ${props => props.pivotTableStyle.oddBgColor || 'transparent'};
     &:hover {
-      background-color: ${props => props.pivotTableStyle.oddBgColor ? `${props.pivotTableStyle.oddBgColor}e8` : '#fafafa'};
+      background-color: ${props =>
+        props.pivotTableStyle.oddBgColor ? `${props.pivotTableStyle.oddBgColor}e8` : '#fafafa'};
     }
   }
   .ant-table-tbody tr:not(tr.sum-content) .contentValue {
     cursor: pointer;
     &:hover {
-      color: ${props => props.pivotTableStyle.lineTextColor || '#2196f3'} !important;
+      color: ${props => props.pivotTableStyle.lineTextColor || '#1677ff'} !important;
       background-color: ${props => props.pivotTableStyle.lineBgColor || '#E3F2FD'} !important;
     }
   }
@@ -200,12 +209,14 @@ const PivotTableContent = styled.div`
     background-color: #0f8df2;
   }
   thead {
-    th, td {
+    th,
+    td {
       text-align: left !important;
     }
   }
-  th, td {
-    min-width: ${props => props.isMobile ? '60px' : '100px'};
+  th,
+  td {
+    min-width: ${props => (props.isMobile ? '60px' : '100px')};
   }
   .ant-table-cell-scrollbar {
     display: none;

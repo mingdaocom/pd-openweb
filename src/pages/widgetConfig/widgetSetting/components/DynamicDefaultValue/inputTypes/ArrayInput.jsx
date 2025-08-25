@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { string, arrayOf, shape, func } from 'prop-types';
+import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
 import { TagTextarea } from 'ming-ui';
-import { SelectOtherField, OtherField, DynamicInput } from '../components';
+import { DynamicInput, OtherField, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import { transferValue } from '../util';
-import _ from 'lodash';
 
 export default class ArrayInput extends Component {
   static propTypes = {
@@ -87,12 +87,12 @@ export default class ArrayInput extends Component {
           <TagTextarea
             className="tagTextAreaWrap"
             placeholder={_l('如：A,B,C')}
-            renderTag={(tag, options) => {
+            renderTag={tag => {
               const [cid = '', rcid = ''] = tag.split('~');
               return <OtherField className="tagTextField overflow_ellipsis" item={{ cid, rcid }} {...this.props} />;
             }}
             getRef={tagtextarea => (this.$tagtextarea = tagtextarea)}
-            onChange={(err, value, obj) => {
+            onChange={(err, value) => {
               this.transferValue(value.trim());
             }}
           />

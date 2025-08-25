@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Modal } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
+import { func, number, string } from 'prop-types';
+import styled from 'styled-components';
+import { Modal } from 'ming-ui';
+import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES } from 'worksheet/constants/enum';
 import ImportData from './ImportData';
 import PreviewData from './PreviewData';
-import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES } from 'worksheet/constants/enum';
-import { func, number, string } from 'prop-types';
 
 const Con = styled.div`
   width: 100%;

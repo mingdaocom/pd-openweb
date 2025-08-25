@@ -32,17 +32,28 @@ import { CALENDAR_BUTTON_TEXT, CALENDAR_VIEW_FORMATS, TAB_LIST } from './constan
 import External from './External';
 import { Wrap, WrapNum } from './styles';
 import { getCalendartypeData, getHoverColor, getRows, getShowExternalData, isIllegalFormat, isTimeStyle } from './util';
-import { changeEndStr, getCurrentView, getTimeControls, renderLine } from './util';
+import {
+  changeEndStr,
+  getCurrentView,
+  getTimeControls,
+  renderLine,
+  resetFcEventDraggingPoint,
+  setShowTip,
+} from './util';
 import './index.less';
 
 let time;
 let clickData = null;
+
+const getCanNew = props => {
+  const { worksheetInfo = {}, allowAddNewRecord = true, sheetSwitchPermit } = props;
+  return isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && worksheetInfo.allowAdd && allowAddNewRecord;
+};
 @autoSize
 class RecordCalendar extends Component {
   constructor(props) {
     super(props);
     this.calendarComponentRef = React.createRef();
-    const { allowAdd } = props.worksheetInfo;
     this.state = {
       showExternal: false,
       recordInfoVisible: false,
@@ -51,7 +62,7 @@ class RecordCalendar extends Component {
       isSearch: false,
       isLoading: false,
       height: props.height,
-      canNew: isOpenPermit(permitList.createButtonSwitch, props.sheetSwitchPermit) && allowAdd,
+      canNew: getCanNew(props),
       calendarFormatData: [],
       showChoose: false,
       selectTimeInfo: {},
@@ -64,9 +75,8 @@ class RecordCalendar extends Component {
     };
   }
   componentDidMount() {
-    const { allowAdd } = this.props.worksheetInfo;
     this.setState({
-      canNew: isOpenPermit(permitList.createButtonSwitch, this.props.sheetSwitchPermit) && allowAdd,
+      canNew: getCanNew(this.props),
     });
     this.getFormatData(this.props);
     this.props.getCalendarData();
@@ -81,9 +91,7 @@ class RecordCalendar extends Component {
       _.get(nextProps, 'worksheetInfo.allowAdd') !== _.get(this.props, 'worksheetInfo.allowAdd')
     ) {
       this.setState({
-        canNew:
-          isOpenPermit(permitList.createButtonSwitch, nextProps.sheetSwitchPermit) &&
-          _.get(nextProps, 'worksheetInfo.allowAdd'),
+        canNew: getCanNew(nextProps),
       });
     }
     const { calendarData = {}, calendarFormatData } = calendarview;
@@ -155,7 +163,7 @@ class RecordCalendar extends Component {
   calendarActionOff = () => {
     const { random } = this.state;
     const $el = document.querySelector(`.boxCalendar_${random} .fc-view-harness-active`);
-    if (!!$el) {
+    if ($el) {
       $el.removeEventListener('dblclick', this.dbClickDay);
     }
     $(`.boxCalendar_${random} .fc-toolbar-chunk`).off('click');
@@ -297,22 +305,7 @@ class RecordCalendar extends Component {
   };
 
   showTip = (event, flag) => {
-    if (!this.state.canNew) {
-      return;
-    }
-    if ($('.customPageContent').length) {
-      return;
-    }
-    let my_tips = $('#mytips');
-    if (flag) {
-      my_tips.css({
-        left: event.clientX + 10,
-        top: event.clientY + 10,
-      });
-      my_tips.show();
-    } else {
-      my_tips.hide();
-    }
+    setShowTip(event, flag, this.state.canNew);
   };
 
   selectFn = info => {
@@ -369,7 +362,7 @@ class RecordCalendar extends Component {
     this.props.changeMobileCurrentData(tempData);
   };
 
-  showChooseTrigger = (data, type) => {
+  showChooseTrigger = data => {
     setTimeout(() => {
       const { random, canNew } = this.state;
       if (!canNew) {
@@ -416,7 +409,7 @@ class RecordCalendar extends Component {
       mobileCalendarSetting = {},
       setViewConfigVisible,
     } = this.props;
-    const { calendarData = {}, editable, calenderEventList = {} } = calendarview;
+    const { calendarData = {}, calenderEventList = {} } = calendarview;
     const { eventScheduled = [] } = calenderEventList;
     const { appId, worksheetId, viewId } = base;
     const currentView = getCurrentView(this.props);
@@ -425,7 +418,6 @@ class RecordCalendar extends Component {
       enddate = '',
       colorid = '',
       hour24 = '0',
-      calendarType = '0',
       calendarcids = '[]',
       weekbegin,
       showall = '0',
@@ -434,6 +426,7 @@ class RecordCalendar extends Component {
       calendarcids = JSON.parse(calendarcids);
     } catch (error) {
       calendarcids = [];
+      console.log(error);
     }
     if (calendarcids.length <= 0) {
       calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
@@ -441,7 +434,7 @@ class RecordCalendar extends Component {
     const { recordInfoVisible, recordId, isLoading, rows = [], showPrevNext = false, random } = this.state;
     const typeEvent = this.props.getInitType();
     const eventData = calenderEventList[`${typeEvent}Dt`] || [];
-    const { startFormat, endFormat, calendarInfo = [], unweekday = '', btnList, initialView } = calendarData;
+    const { startFormat, calendarInfo = [], unweekday = '', btnList, initialView } = calendarData;
     const { height, calendarFormatData } = this.state;
     let isDelete =
       calendarcids[0].begin &&
@@ -591,7 +584,10 @@ class RecordCalendar extends Component {
                 center: this.browserIsMobile() ? 'prev,title next' : 'title',
                 left: '',
               }}
-              eventDragStart={() => this.setState({ isMove: true })}
+              eventDragStart={() => {
+                this.setState({ isMove: true });
+                resetFcEventDraggingPoint();
+              }}
               eventDragStop={() => this.setState({ isMove: false })}
               views={CALENDAR_VIEW_FORMATS}
               dayCellContent={item => {
@@ -614,7 +610,7 @@ class RecordCalendar extends Component {
                     if ($('.fc-more-popover').length > 0) return;
                     this.showTip(event, true);
                   },
-                  mouseout: event => {
+                  mouseout: () => {
                     this.showTip(null, false);
                   },
                 });
@@ -676,7 +672,7 @@ class RecordCalendar extends Component {
               timeZone="local"
               defaultTimedEventDuration={'00:00:01'}
               events={calendarFormatData}
-              viewDidMount={info => {
+              viewDidMount={() => {
                 this.calendarActionFn();
                 this.getEventsFn();
               }}
@@ -923,7 +919,7 @@ class RecordCalendar extends Component {
             recordId={recordId}
             worksheetId={worksheetId}
             rules={worksheetInfo.rules}
-            updateSuccess={(ids, updated, data) => {
+            updateSuccess={(ids, updated) => {
               let attribute = controls.find(o => o.attribute === 1);
               // 更改了 开始时间/结束时间/标题字段/颜色 =>更新日历视图数据
               if (
@@ -957,7 +953,7 @@ class RecordCalendar extends Component {
                 showPrevNext: false,
               });
             }}
-            handleAddSheetRow={data => {
+            handleAddSheetRow={() => {
               this.getEventsFn();
               this.props.refreshEventList();
               this.props.fetchExternal();
@@ -966,7 +962,9 @@ class RecordCalendar extends Component {
           />
         )}
         {!this.browserIsMobile() && this.state.canNew && <div id="mytips">{_l('双击创建记录')}</div>}
-        {this.props.mobileMoreClickVisible && <CurrentDateInfo visible={this.props.mobileMoreClickVisible} />}
+        {this.props.mobileMoreClickVisible && (
+          <CurrentDateInfo visible={this.props.mobileMoreClickVisible} view={currentView} />
+        )}
       </div>
     );
   }

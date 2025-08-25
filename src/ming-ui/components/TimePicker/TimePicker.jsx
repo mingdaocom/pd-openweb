@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import moment from 'moment';
-import Panel from './Panel';
+import PropTypes from 'prop-types';
 import PositionContainer from 'ming-ui/components/PositionContainer';
+import Panel from './Panel';
 import '../less/TimePicker.less';
 
 const getComputedStyle = (element, attr) => {
@@ -59,7 +59,7 @@ class TimePicker extends Component {
     /**
      * 用于弹出层随此节点滚动
      */
-    popupParentNode: PropTypes.any, // eslint-disable-line
+    popupParentNode: PropTypes.any,
     /**
      * 禁用
      */

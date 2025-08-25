@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Checkbox, Dropdown, Icon } from 'ming-ui';
 import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
-import { DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
+import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import AttachmentConfig from '../AttachmentConfig';
 import WidgetRowHeight from '../WidgetRowHeight';
@@ -16,25 +17,6 @@ const DISPLAY_LIST = [
   {
     text: _l('分页'),
     value: '2',
-  },
-];
-
-const DISPLAY_FROZEN_LIST = [
-  {
-    text: _l('不冻结'),
-    value: '0',
-  },
-  {
-    text: _l('1列'),
-    value: '1',
-  },
-  {
-    text: _l('2列'),
-    value: '2',
-  },
-  {
-    text: _l('3列'),
-    value: '3',
   },
 ];
 
@@ -154,6 +136,7 @@ export default function SubListStyle(props) {
           {_l('默认空行')}
           <Tooltip
             placement={'bottom'}
+            autoCloseDelay={0}
             title={_l('开启后无论子表中是否存在记录，都会显示固定数量的行数。当子表没有记录时，将显示空白行。')}
           >
             <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>

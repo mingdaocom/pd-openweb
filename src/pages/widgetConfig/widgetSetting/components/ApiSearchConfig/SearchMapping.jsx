@@ -1,10 +1,10 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import DropdownWrapper from '../../../components/Dropdown';
-import styled from 'styled-components';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
-import { SettingItem, SetConfig } from '../../../styled';
-import DialogMapping from './DaialogMapping';
+import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import DropdownWrapper from '../../../components/Dropdown';
+import { SetConfig, SettingItem } from '../../../styled';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import DialogMapping from './DaialogMapping';
 
 const SELECT_OPTIONS = [
   {
@@ -157,7 +157,7 @@ export default function SearchMapping(props) {
         <SetConfig hasSet={responsemap.length} onClick={() => setMapVisible(true)}>
           {responsemap.length ? (
             <span>
-              <i className="icon-check_circle1"></i>
+              <i className="icon-check_circle"></i>
               {_l('已设置')}
             </span>
           ) : (

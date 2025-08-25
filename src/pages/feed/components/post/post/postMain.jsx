@@ -1,12 +1,12 @@
-﻿import cx from 'classnames';
+﻿import React from 'react';
+import { Tooltip } from 'antd';
+import cx from 'classnames';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { UserName } from 'ming-ui';
 import postAjax from 'src/api/post';
-import PostMessage from './postMessage';
 import PostComponent from '../postComponent';
 import FastCreateTaskSchedule from './fastCreateTaskSchedule';
-import { Tooltip } from 'antd';
+import PostMessage from './postMessage';
 
 /**
  * 动态主体内容，包括动态内容和用户头像、姓名和发布到的群组
@@ -38,10 +38,6 @@ class PostMain extends React.Component {
 
   hideMore = () => {
     this.setState({ isFullHeight: false });
-    $('.feedAppScroll.nano').nanoScroller();
-    $('.feedAppScroll.nano').nanoScroller({
-      scrollTop: $('.feedAppScroll.nano .nano-content').scrollTop() - ($(this.postContent).height() - 330),
-    });
   };
 
   getReplyMessage() {

@@ -1,15 +1,15 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
-import { Icon, Tooltip, Checkbox, Dropdown } from 'ming-ui';
-import './index.less';
-import { getSetDefault, formatFastFilterData } from './util';
-import bgFastFilters from './img/bgFastFilters.png';
-import FastFilterCon from './fastFilterCon';
-import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, Icon, Tooltip } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import { formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import FastFilterCon from './fastFilterCon';
+import bgFastFilters from './img/bgFastFilters.png';
+import { formatFastFilterData, getSetDefault } from './util';
+import './index.less';
 
 const Wrap = styled.div`
   .hasData {
@@ -204,11 +204,12 @@ export default function FastFilter(params) {
               }}
             />
             <Tooltip
+              autoCloseDelay={0}
               popupPlacement="bottom"
               text={<span>{_l('启用按钮后，点击查询按钮执行筛选。当筛选字段超过3个时必须启用。')}</span>}
             >
               <div className="iconWrap pointer">
-                <Icon icon="workflow_help" className="Gray_9e helpIcon Font18" />
+                <Icon icon="help" className="Gray_9e helpIcon Font18" />
               </div>
             </Tooltip>
           </div>
@@ -245,7 +246,7 @@ export default function FastFilter(params) {
                         >
                           <Icon icon={getIconByType(item.type)} className="Font18 Relative" />
                           <span className="mLeft10 flex Gray">{item.text}</span>
-                          {isCur && <Icon icon="done_2" className="Relative ThemeColor3 Font18" />}
+                          {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" />}
                         </div>
                       );
                     }}
@@ -330,11 +331,12 @@ export default function FastFilter(params) {
             />
 
             <Tooltip
+              autoCloseDelay={0}
               popupPlacement="bottom"
               text={<span>{_l('勾选后，进入视图初始不显示数据，查询后显示符合筛选条件的数据。')}</span>}
             >
               <div className="iconWrap pointer">
-                <Icon icon="workflow_help " className="Gray_9e helpIcon Font18" />
+                <Icon icon="help " className="Gray_9e helpIcon Font18" />
               </div>
             </Tooltip>
           </div>

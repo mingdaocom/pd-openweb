@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
 import { FILLLIMIT_TYPE } from 'src/pages/publicWorksheetConfig/enum';
@@ -7,17 +8,17 @@ const userAgent = navigator.userAgent;
 function getBrowserInfo() {
   let browser = _l('未知');
   const browsers = [
-    ['Android', /Android\s([0-9\.]+)/],
-    ['iOS', /Version\/([0-9\._]+).*Mobile.*Safari.*/],
-    ['Firefox', /Firefox\/([0-9\.]+)(?:\s|$)/],
-    ['Opera', /Opera\/([0-9\.]+)(?:\s|$)/],
-    ['Opera', /OPR\/([0-9\.]+)(:?\s|$)$/],
-    ['Edge', /(Edge|Edg)\/([0-9\._]+)/],
-    ['IE', /Trident\/7\.0.*rv\:([0-9\.]+)\).*Gecko$/],
-    ['IE', /MSIE\s([0-9\.]+);.*Trident\/[4-7].0/],
+    ['Android', /Android\s([0-9.]+)/],
+    ['iOS', /Version\/([0-9._]+).*Mobile.*Safari.*/],
+    ['Firefox', /Firefox\/([0-9.]+)(?:\s|$)/],
+    ['Opera', /Opera\/([0-9.]+)(?:\s|$)/],
+    ['Opera', /OPR\/([0-9.]+)(:?\s|$)$/],
+    ['Edge', /(Edge|Edg)\/([0-9._]+)/],
+    ['IE', /Trident\/7\.0.*rv:([0-9.]+)\).*Gecko$/],
+    ['IE', /MSIE\s([0-9.]+);.*Trident\/[4-7].0/],
     ['IE', /MSIE\s(7\.0)/],
-    ['Safari', /Version\/([0-9\._]+).*Safari/],
-    ['Chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9\.]+)(:?\s|$)/],
+    ['Safari', /Version\/([0-9._]+).*Safari/],
+    ['Chrome', /(?!Chrom.*OPR)Chrom(?:e|ium)\/([0-9.]+)(:?\s|$)/],
   ];
   for (let i = 0; i < browsers.length; i++) {
     if (browsers[i][1].test(userAgent)) {

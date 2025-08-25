@@ -1,15 +1,16 @@
-import React, { useState, useRef, Fragment } from 'react';
-import { DatePicker, TagTextarea } from 'ming-ui';
-import { includes, get, find } from 'lodash';
-import styled from 'styled-components';
+import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import 'moment/locale/zh-cn';
-import { ControlTag } from '../../styled';
-import { SYSTEM_DATE_CONTROL } from '../../config/widget';
-import SelectControl from './SelectControl';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { find, get, includes } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
+import 'moment/locale/zh-cn';
+import styled from 'styled-components';
+import { DatePicker } from 'ming-ui';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { SYSTEM_DATE_CONTROL } from '../../config/widget';
+import { ControlTag } from '../../styled';
+import SelectControl from './SelectControl';
 
 const DateInfoWrap = styled.div`
   display: flex;
@@ -49,7 +50,7 @@ const DateInfoWrap = styled.div`
     color: #9e9e9e;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

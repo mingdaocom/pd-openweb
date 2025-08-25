@@ -50,7 +50,7 @@ const formatMessage = (id, res) => {
 
 export const handleMessageFilePreview = function () {
   const { message, session } = this.props;
-  const { id, to } = message;
+  const { id } = message;
 
   const params = {
     id: session.id,
@@ -74,7 +74,7 @@ export const handleMessageFilePreview = function () {
         },
         {
           preLoadMoreAttachments() {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
               ajax
                 .getImageContext({
                   ...params,
@@ -91,7 +91,7 @@ export const handleMessageFilePreview = function () {
             });
           },
           loadMoreAttachments() {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
               ajax
                 .getImageContext({
                   ...params,
@@ -241,7 +241,7 @@ export default class MessageToolbar extends Component {
         params.node = attachment;
       }
       share.default(params, {
-        performUpdateItem: visibleType => {},
+        performUpdateItem: () => {},
       });
     });
   }
@@ -285,11 +285,11 @@ export default class MessageToolbar extends Component {
       id: fromAccount.id,
       logo: fromAccount.logo,
       name: fromAccount.name,
-      value: fromAccount.name,
+      fullname: fromAccount.name,
       chatAt: true,
     };
     setTimeout(() => {
-      textarea.wcMentionsInput('addMention', at);
+      textarea.get(0).addMention(at);
     }, 0);
   };
   handleCopyText() {
@@ -357,7 +357,7 @@ export default class MessageToolbar extends Component {
             this.renderBtn({
               className: isFileTransfer ? 'deleteBtn' : '',
               name: isFileTransfer ? _l('删除') : _l('撤回'),
-              icon: isFileTransfer ? 'icon-delete2' : 'icon-back',
+              icon: isFileTransfer ? 'icon-trash' : 'icon-back',
               fn: this.handleWithdraw.bind(this),
             })}
         </div>

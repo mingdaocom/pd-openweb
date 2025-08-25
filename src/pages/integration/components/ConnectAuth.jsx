@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Checkbox, Dropdown, Icon, LoadDiv, Support } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
@@ -76,7 +77,7 @@ const Wrap = styled.div`
   .showRefreshLogBtn {
     padding: 0 10px;
     &:hover {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
     }
   }
 `;
@@ -219,7 +220,7 @@ function ConnectAuth(props) {
         },
         { isIntegration: true },
       )
-      .then(res => {
+      .then(() => {
         setState({ node: { ...node, ...obj } });
       });
   };
@@ -441,7 +442,7 @@ function ConnectAuth(props) {
     if (node.appType === 31) {
       return node.appId ? (
         (node.fields || []).filter(o => !!o.fieldValue).length >= 2 ? (
-          <Icon icon="check_circle1" className="Green_right tip" />
+          <Icon icon="check_circle" className="Green_right tip" />
         ) : (
           <Icon icon="error1" className="Red tip" />
         )
@@ -453,7 +454,7 @@ function ConnectAuth(props) {
         return;
       }
       return (node.controls || []).length > 0 ? (
-        !!node && <Icon icon="check_circle1" className="Green_right tip" />
+        !!node && <Icon icon="check_circle" className="Green_right tip" />
       ) : (
         <Icon icon="error1" className="Red tip" />
       );
@@ -521,7 +522,7 @@ function ConnectAuth(props) {
             hasAuth={props.hasAuth}
             customNodeName={_l('鉴权方式')}
             isIntegration
-            updateNodeData={data => {
+            updateNodeData={() => {
               getInfo();
             }}
           />

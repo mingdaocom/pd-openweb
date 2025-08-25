@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Input, Radio, Button, LoadDiv, Dropdown, Icon } from 'ming-ui';
-import CommonSelect from '../CommonSelect';
-import cx from 'classnames';
-import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig';
-import _ from 'lodash';
-import datasourceApi from 'src/pages/integration/api/datasource';
-import { navigateTo } from 'src/router/navigateTo';
-import { Tooltip, TimePicker } from 'antd';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import { TimePicker, Tooltip } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import cx from 'classnames';
 import dayjs from 'dayjs';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dropdown, Icon, Input, LoadDiv, Radio } from 'ming-ui';
+import datasourceApi from 'src/pages/integration/api/datasource';
+import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig';
+import { navigateTo } from 'src/router/navigateTo';
+import CommonSelect from '../CommonSelect';
 
 const SettingWrapper = styled.div`
   height: 100%;
@@ -60,10 +60,10 @@ const SettingWrapper = styled.div`
       transition: unset;
       box-shadow: none;
       &:hover {
-        border-color: #2196f3;
+        border-color: #1677ff;
       }
       &.ant-picker-focused {
-        border-color: #2196f3;
+        border-color: #1677ff;
       }
     }
   }
@@ -145,7 +145,7 @@ export default function TimingSetting(props) {
           alert((res || {}).errorMsgList[0] || res.errorMsg || _l('获取失败'), 2);
         }
       })
-      .catch(error => {
+      .catch(() => {
         setLoading(false);
         forTaskNode && onChangeSetting({ readTime: null, isUpdate: false, ...setting }, true);
       });
@@ -275,7 +275,7 @@ export default function TimingSetting(props) {
               placeholder={_l('请选择')}
               value={_.get(setting, 'config.basisField.id')}
               options={
-                !!(fields || []).length
+                (fields || []).length
                   ? [
                       {
                         label: _l('有序主键'),
@@ -333,6 +333,7 @@ export default function TimingSetting(props) {
               />
               {_.get(setting, 'config.basisField.basisFieldType') === 'date' && (
                 <Tooltip
+                  autoCloseDelay={0}
                   title={
                     <React.Fragment>
                       <div>{_l('YYYY 表示四位数的年份')}</div>

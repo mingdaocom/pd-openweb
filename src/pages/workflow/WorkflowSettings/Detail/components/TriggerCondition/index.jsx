@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import './index.less';
 import Condition from './Condition';
+import './index.less';
 
 export default props => {
   const updateConditions = (conditions, i) => {

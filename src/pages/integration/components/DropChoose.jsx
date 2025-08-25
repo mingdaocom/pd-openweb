@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
@@ -52,7 +52,7 @@ export default function DropChoose(props) {
   }, [props]);
   useEffect(() => {
     setState({
-      list: !!keywords
+      list: keywords
         ? props.list.filter(o => (o.alias || '').toLocaleLowerCase().indexOf((keywords || '').toLocaleLowerCase()) >= 0)
         : props.list,
     });
@@ -65,7 +65,7 @@ export default function DropChoose(props) {
         return (
           <WrapChoose className="WrapChoose flexColumn">
             <div className="search flexRow alignItemsCenter">
-              <i className="icon icon-search1 Gray_9d Hand Font16 mRight5"></i>
+              <i className="icon icon-search Gray_9d Hand Font16 mRight5"></i>
               <input
                 type="text"
                 className="flex"
@@ -94,7 +94,7 @@ export default function DropChoose(props) {
                       }}
                       className={`flexRow alignItemsCenter ${o.disabled ? 'disabled' : 'Hand'} flexRow`}
                     >
-                      {!!o.mdType ? (
+                      {o.mdType ? (
                         <Icon
                           icon={getIconByType(o.mdType, false)}
                           className={cx('Font16 Gray_bd customIcon TxtMiddle')}

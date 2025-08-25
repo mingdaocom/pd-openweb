@@ -1,4 +1,6 @@
-import React, { useLayoutEffect, Fragment } from 'react';
+import React, { Fragment, useLayoutEffect } from 'react';
+import _ from 'lodash';
+import { browserIsMobile } from 'src/utils/common';
 import StepItem from './components/StepItem';
 
 export default ({
@@ -15,10 +17,10 @@ export default ({
   controls,
 }) => {
   useLayoutEffect(() => {
-    if (currentWork) {
+    if (currentWork && !browserIsMobile()) {
       const $el = $(`#workflowStep_${currentWork.workId}`);
 
-      $el.closest('.nano').nanoScroller({ scrollTo: $el });
+      if ($el[0]) $el[0].scrollIntoView();
     }
   }, []);
 

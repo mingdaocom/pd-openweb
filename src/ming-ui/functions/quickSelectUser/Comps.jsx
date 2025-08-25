@@ -30,7 +30,7 @@ export const Content = styled.div`
     border-top: 1px solid #f0f0f0;
   }
   .moreBtn {
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
     padding: 4px 0 0 16px;
   }
@@ -95,7 +95,7 @@ export const SearchUsers = styled.div`
     color: #757575;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   input {
@@ -151,7 +151,6 @@ export function UserItem(props) {
 
 export function UserList(props) {
   const {
-    notShowCurrentUserName,
     keywords,
     activeIndex,
     loading,
@@ -246,7 +245,7 @@ export function Search(props) {
         onChange={e => setKeywords(e.target.value)}
         onKeyDown={onKeyDown}
       />
-      {keywords && <i className="icon icon-closeelement-bg-circle close" onClick={() => setKeywords('')} />}
+      {keywords && <i className="icon icon-cancel close" onClick={() => setKeywords('')} />}
       {!isHidAddUser && type !== 'external' && type !== 'range' && (
         <Tooltip zIndex={10002} destroyPopupOnHide popupPlacement="bottom" text={_l('从通讯录中选择')}>
           <i
@@ -287,10 +286,10 @@ const TabsCon = styled.div`
     line-height: 32px;
     font-weight: 500;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
     &.active {
-      color: #2196f3;
+      color: #1677ff;
       background: #fff;
     }
   }

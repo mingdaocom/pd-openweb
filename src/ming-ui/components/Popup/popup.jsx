@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './popup.less';
-import _ from 'lodash';
 
 const ClickAway = createDecoratedComponent(withClickAway);
 
@@ -44,7 +44,7 @@ class Popup extends React.Component {
     const withMask = this.props.withMask;
     const popup = withMask ? (
       <div>
-        <div className={cx('mingPopup', this.props.className)} ref={(ref) => (this.popup = ref)} style={this.state.style}>
+        <div className={cx('mingPopup', this.props.className)} ref={ref => (this.popup = ref)} style={this.state.style}>
           <span className="arrow" style={this.state.arrowStyle} />
           {this.props.children}
         </div>

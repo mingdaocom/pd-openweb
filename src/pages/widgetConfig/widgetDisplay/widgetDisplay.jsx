@@ -1,7 +1,10 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { includes } from 'lodash';
+import _ from 'lodash';
 import { NEED_SPECIAL_DISPLAY_CONTROLS } from '../config';
+import { TITLE_SIZE_OPTIONS } from '../config/setting';
+import { CommonDisplay, TitleContentWrap } from '../styled';
 import {
   enumWidgetType,
   fixedBottomWidgets,
@@ -10,12 +13,10 @@ import {
   isSheetDisplay,
   supportDisplayRow,
 } from '../util';
-import displayTypes from './displayTypes';
-import { CommonDisplay, TitleContentWrap } from '../styled';
-import WidgetStatus from './components/WidgetStatus';
 import { getTitleStyle, getVerifyInfo } from '../util/setting';
+import WidgetStatus from './components/WidgetStatus';
 import { TabHeaderItem } from './displayTabs/tabHeader';
-import { TITLE_SIZE_OPTIONS } from '../config/setting';
+import displayTypes from './displayTypes';
 
 export default function WidgetDisplay(props) {
   const {

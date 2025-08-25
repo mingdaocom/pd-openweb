@@ -1,17 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, LoadDiv } from 'ming-ui';
 import AppAjax from 'src/api/appManagement';
-import { navigateTo } from 'src/router/navigateTo';
-import RoleNav from './RoleNav';
 import DeleRoleDialog from 'src/pages/Role/AppRoleCon/component/DeleRoleDialog.jsx';
-import UserListCon from './UserListCon';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { navigateTo } from 'src/router/navigateTo';
+import RoleNav from './RoleNav';
+import UserListCon from './UserListCon';
 
 const Wrap = styled.div`
   height: 100%;
@@ -33,7 +33,7 @@ const Wrap = styled.div`
   .isMyRole {
     width: 4px;
     height: 4px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 50%;
     position: absolute;
     left: 10px;
@@ -79,7 +79,7 @@ const Wrap = styled.div`
   .iconBG {
     width: 32px;
     height: 32px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 20px;
   }
   .memberInfo {
@@ -88,7 +88,7 @@ const Wrap = styled.div`
     }
     .memberTag {
       font-size: 12px;
-      color: #2196f3;
+      color: #1677ff;
       padding: 2px 6px;
       border-radius: 12px;
       background: #f3faff;
@@ -97,7 +97,7 @@ const Wrap = styled.div`
     }
     .ownerTag {
       color: #fff;
-      background: #2196f3;
+      background: #1677ff;
       font-weight: bold;
       padding: 2px 6px;
       font-size: 12px;
@@ -128,7 +128,6 @@ class Con extends React.Component {
   componentDidMount() {
     const {
       setRoleId,
-      isAdmin,
       appRole = {},
       match: {
         params: { editType },
@@ -207,7 +206,7 @@ class Con extends React.Component {
     }
   };
   onRemoveRole = data => {
-    const { appId, projectId, getRoleSummary, setRoleId } = this.props;
+    const { appId, projectId, getRoleSummary, setRoleId, setQuickTag } = this.props;
     const { resultRoleId = '' } = data;
     AppAjax.removeRole({
       appId,
@@ -224,6 +223,7 @@ class Con extends React.Component {
           roleList: list,
         });
         getRoleSummary(appId);
+        setQuickTag({ roleId: 'all', tab: 'user' });
         alert(_l('删除成功'));
       } else {
         alert(_l('操作失败，请刷新页面重试'), 2);
@@ -264,7 +264,7 @@ class Con extends React.Component {
   };
 
   freshNum = () => {
-    const { appId = '', getUserList, getUserAllCount, fetchAllNavCount, isAdmin, canEditUser } = this.props;
+    const { appId = '', getUserList, getUserAllCount, fetchAllNavCount, canEditUser } = this.props;
     fetchAllNavCount({
       appId,
       canEditUser,

@@ -139,6 +139,7 @@ const apiControllers = [
   { name: 'processVersion', description: '工作流-流程版本', relativePath: 'src/pages/workflow/api/processVersion' },
   { name: 'delegation', description: '工作流-委托', relativePath: 'src/pages/workflow/api/delegation' },
   { name: 'qiniu', description: '七牛', relativePath: 'src/api/qiniu' },
+  { name: 'plugin', description: '插件', relativePath: 'src/api/plugin' },
 ];
 
 function generateControllerType(controllerData) {

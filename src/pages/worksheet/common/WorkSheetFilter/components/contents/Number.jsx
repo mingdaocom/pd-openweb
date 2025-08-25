@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { FILTER_CONDITION_TYPE } from '../../enum';
-import _ from 'lodash';
 
 export default class Number extends Component {
   static propTypes = {

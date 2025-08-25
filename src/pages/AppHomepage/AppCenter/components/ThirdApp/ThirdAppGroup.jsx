@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { string, shape, array } from 'prop-types';
 import cx from 'classnames';
-import placeholderPic from '../../assets/thirdAppPlaceholder.png';
+import { array, shape, string } from 'prop-types';
 import { Icon } from 'ming-ui';
+import placeholderPic from '../../assets/thirdAppPlaceholder.png';
 
 const TYPE_TO_TITLE = {
   account: _l('个人应用'),

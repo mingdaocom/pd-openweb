@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { Icon, Tooltip } from 'ming-ui';
 
 export default class Support extends Component {
@@ -47,7 +47,7 @@ export default class Support extends Component {
       >
         {type < 3 && (
           <Tooltip disable={type > 1} popupPlacement="bottom" text={<span>{title || _l('使用帮助')}</span>}>
-            <Icon icon="workflow_help" className="Font16" />
+            <Icon icon="help" className="Font16" />
           </Tooltip>
         )}
         {type > 1 && <span className="mLeft5 Font13">{text}</span>}

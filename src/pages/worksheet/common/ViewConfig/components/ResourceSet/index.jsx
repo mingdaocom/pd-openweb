@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Select } from 'antd';
 import cx from 'classnames';
@@ -238,7 +238,7 @@ export default function ResourceSet(props) {
         <Checkbox
           checked={!!_.get(props, 'view.advancedSetting.unweekday')}
           className="mTop16"
-          onClick={e => {
+          onClick={() => {
             updateCurrentView({
               ...view,
               appId,
@@ -258,7 +258,7 @@ export default function ResourceSet(props) {
                   className={cx('animaItem overflow_ellipsis', {
                     active: (_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) < 0,
                   })}
-                  onClick={e => {
+                  onClick={() => {
                     let str = _.get(props, 'view.advancedSetting.unweekday');
                     if ((_.get(props, 'view.advancedSetting.unweekday') || '').indexOf(n) >= 0) {
                       str = str.replace(n, '');
@@ -288,7 +288,7 @@ export default function ResourceSet(props) {
       <Checkbox
         checked={!!_.get(props, 'view.advancedSetting.showtime')}
         className="mTop16"
-        onClick={e => {
+        onClick={() => {
           if (!_.get(props, 'view.advancedSetting.showtime')) {
             return setState({ show: true });
           }
@@ -318,7 +318,7 @@ export default function ResourceSet(props) {
       <Checkbox
         checked={_.get(props, 'view.advancedSetting.hour24') === '1'}
         className="mTop16"
-        onClick={e => {
+        onClick={() => {
           updateCurrentView({
             ...view,
             appId,

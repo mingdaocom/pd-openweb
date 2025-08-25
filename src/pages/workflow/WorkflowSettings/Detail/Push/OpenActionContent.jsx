@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Radio } from 'ming-ui';
 import cx from 'classnames';
-import { CustomTextarea, SelectNodeObject } from '../components';
-import { PUSH_TYPE } from '../../enum';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import _ from 'lodash';
-import worksheet from 'src/api/worksheet';
+import { Dropdown, Radio } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
+import worksheet from 'src/api/worksheet';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { PUSH_TYPE } from '../../enum';
+import { CustomTextarea, SelectNodeObject } from '../components';
 
 export default class OpenActionContent extends Component {
   state = {
@@ -89,17 +89,17 @@ export default class OpenActionContent extends Component {
             !data.appId || worksheetInfo === null
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && _.isEmpty(worksheetInfo)
-              ? () => (
-                  <span className="errorColor">
-                    {isCustomPage ? _l('自定义页面无效或已删除') : _l('工作表无效或已删除')}
-                  </span>
-                )
-              : () => (
-                  <Fragment>
-                    <span>{worksheetInfo.name}</span>
-                    {otherAppName && <span className="Gray_75">（{otherAppName}）</span>}
-                  </Fragment>
-                )
+                ? () => (
+                    <span className="errorColor">
+                      {isCustomPage ? _l('自定义页面无效或已删除') : _l('工作表无效或已删除')}
+                    </span>
+                  )
+                : () => (
+                    <Fragment>
+                      <span>{worksheetInfo.name}</span>
+                      {otherAppName && <span className="Gray_75">（{otherAppName}）</span>}
+                    </Fragment>
+                  )
           }
           border
           openSearch
@@ -156,8 +156,8 @@ export default class OpenActionContent extends Component {
             !data.viewId
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.viewId && !selectView
-              ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
-              : () => <span>{selectView.text}</span>
+                ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
+                : () => <span>{selectView.text}</span>
           }
           border
           onChange={viewId => updateSource({ viewId })}
@@ -254,7 +254,7 @@ export default class OpenActionContent extends Component {
         type={2}
         content={data.content}
         formulaMap={formulaMap}
-        onChange={(err, value, obj) => updateSource({ [key]: value })}
+        onChange={(err, value) => updateSource({ [key]: value })}
         updateSource={updateRootSource}
       />
     );

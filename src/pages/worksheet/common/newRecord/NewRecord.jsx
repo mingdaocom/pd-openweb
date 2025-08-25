@@ -33,6 +33,8 @@ function NewRecord(props) {
 
   const newRecordContent = useRef(null);
   const cache = useRef({});
+  const scrollViewRef = useRef(null);
+  const recordContentRef = useRef(null);
   const [shareVisible, setShareVisible] = useState();
   const [modalClassName] = useState(Math.random().toString().slice(2));
   const [abnormal, setAbnormal] = useState();
@@ -103,6 +105,7 @@ function NewRecord(props) {
   ) : (
     <NewRecordContent
       {...props}
+      ref={recordContentRef}
       maskLoading={loading}
       registerFunc={funcs => (newRecordContent.current = funcs)}
       title={advancedSetting.title || title}
@@ -164,9 +167,9 @@ function NewRecord(props) {
                 rowStatus: 1,
               });
               if (notDialog) {
-                $('.nano').nanoScroller({ scrollTop: 0 });
+                scrollViewRef.current?.scrollTo({ top: 0 });
               } else {
-                $(`.${modalClassName}`).find('.nano').nanoScroller({ scrollTop: 0 });
+                $(`.${modalClassName}`).find('.scrollViewContainer .scroll-viewport')[0]?.scrollTo({ top: 0 });
               }
             }
             if (needConfirm) {
@@ -232,7 +235,7 @@ function NewRecord(props) {
     type: 'fixed',
     verticalAlign: 'bottom',
     width: browserIsMobile() ? window.innerWidth - 20 : 960,
-    onCancel: e => {
+    onCancel: () => {
       function handleClose() {
         removePromptCancelAddRecordDialog();
         onCloseDialog();
@@ -292,7 +295,7 @@ function NewRecord(props) {
     <Fragment>
       {notDialog ? (
         <div className={cx('workSheetNewRecord', className, modalClassName)} onClick={e => e.stopPropagation()}>
-          <ScrollView>{content}</ScrollView>
+          <ScrollView options={{ overflow: { x: 'hidden' } }}>{content}</ScrollView>
           {footer}
         </div>
       ) : (

@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Button, Dialog, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, Icon, LoadDiv } from 'ming-ui';
+import dataSourceApi from '../../../../api/datasource';
+import syncTaskApi from '../../../../api/syncTask';
+import taskFlowApi from '../../../../api/taskFlow';
+import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
-import CreateSyncTask from '../CreateSyncTask';
 import { CREATE_CONNECTOR_STEP_LIST, CREATE_TYPE, DATABASE_TYPE, ROLE_TYPE } from '../../../constant';
-import dataSourceApi from '../../../../api/datasource';
-import taskFlowApi from '../../../../api/taskFlow';
-import syncTaskApi from '../../../../api/syncTask';
-import { upgradeVersionDialog } from 'src/components/upgradeVersion';
-import _ from 'lodash';
-import '../../style.less';
 import { getExtraParams } from '../../../utils';
+import CreateSyncTask from '../CreateSyncTask';
+import '../../style.less';
 
 const ConnectorAddWrapper = styled.div`
   position: fixed;
@@ -75,7 +75,7 @@ const HeaderWrapper = styled.div`
 
         &.isActive {
           .stepIcon {
-            background: #2196f3;
+            background: #1677ff;
             color: #fff;
           }
           span {
@@ -85,13 +85,13 @@ const HeaderWrapper = styled.div`
         &.isComplete {
           .stepIcon {
             background-color: #ecf6fe;
-            color: #2196f3;
+            color: #1677ff;
           }
           span {
             color: #9e9e9e;
           }
           .connectLine {
-            background-color: #2196f3;
+            background-color: #1677ff;
           }
         }
       }
@@ -110,9 +110,9 @@ const HeaderWrapper = styled.div`
     }
     .lastStepButton {
       margin-right: 16px;
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       background: #fff;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -472,7 +472,7 @@ export default function AddConnector(props) {
     <ConnectorAddWrapper>
       <HeaderWrapper>
         <div className="headerLeft" onClick={onClose}>
-          <Icon icon="arrow_back" className="Gray_75 Font22 bold" />
+          <Icon icon="backspace" className="Gray_75 Font22 bold" />
           <span className="Gray Font16 bold pLeft10">{_l('创建连接器')}</span>
         </div>
 

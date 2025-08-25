@@ -1,8 +1,9 @@
-import React, { Component, useState, useEffect, createRef } from 'react';
-import { Icon, Dialog, Input, Textarea, Tooltip } from 'ming-ui';
+import React, { Component, createRef, useEffect, useState } from 'react';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon, Input, Textarea, Tooltip } from 'ming-ui';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { encryptList } from './constant';
-import styled from 'styled-components';
 
 const BaseInfoWrap = styled(Dialog)`
   .ming.Input {

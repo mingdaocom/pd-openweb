@@ -2,6 +2,7 @@ import update from 'immutability-helper';
 import _, { find, flatten, get, includes, some, values } from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
+import { initBoardViewData as mobileInitBoardViewData } from 'mobile/RecordList/redux/actions';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import {
   formatFilterValues,
@@ -15,7 +16,9 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { refreshBtnData } from 'src/pages/FormSet/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
 import { getTranslateInfo } from 'src/utils/app';
+import { browserIsMobile } from 'src/utils/common';
 import { getHighAuthControls } from 'src/utils/control';
 import { needHideViewFilters } from 'src/utils/filter';
 import { addBehaviorLog } from 'src/utils/project';
@@ -32,7 +35,7 @@ import { refresh as detailViewRefresh } from './detailView';
 import { refresh as galleryViewRefresh } from './galleryview';
 import { addNewRecord as addGunterNewRecord, resetLoadGunterView } from './gunterview';
 import { updateGunterSearchRecord } from './gunterview';
-import { getDefaultHierarchyData, updateHierarchySearchRecord } from './hierarchy';
+import { getDefaultHierarchyData, resetHierarchyViewData, updateHierarchySearchRecord } from './hierarchy';
 import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
 import { getNavGroupCount, updateNavGroup } from './navFilter.js';
 import { refresh as resourceViewRefresh } from './resourceview';
@@ -79,9 +82,7 @@ export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
 }
 
 export function handleLoadOperateButtons({ worksheetInfo }) {
-  return (dispatch, getState) => {
-    const sheet = getState().sheet;
-    const { base } = sheet;
+  return dispatch => {
     const actionColumn = flatten(
       worksheetInfo.views.map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
     );
@@ -141,6 +142,10 @@ export const updateBase = base => {
       if (view && needHideViewFilters(view)) {
         dispatch(clearFilters());
       }
+      // 层级视图切换视图时清空数据，避免显示上一视图的旧数据
+      if (view?.viewType === 2) {
+        dispatch(resetHierarchyViewData());
+      }
     }
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
@@ -153,6 +158,10 @@ export const updateBase = base => {
       dispatch({
         type: 'WORKSHEET_SHEETVIEW_CLEAR',
       });
+      dispatch({
+        type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING',
+        value: false,
+      });
       if (view) {
         dispatch(fireWhenViewLoaded(view, { controls: sheet.controls }));
       }
@@ -160,8 +169,8 @@ export const updateBase = base => {
   };
 };
 
-export const clearChartId = base => {
-  return (dispatch, getState) => {
+export const clearChartId = () => {
+  return dispatch => {
     dispatch({
       type: 'WORKSHEET_UPDATE_BASE',
       base: { chartId: undefined },
@@ -484,7 +493,7 @@ export function saveView(viewId, newConfig, cb) {
         }
         dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('视图配置保存失败'), 3);
         dispatch({ type: 'VIEW_UPDATE_VIEW_SET_LOADING', saveViewSetLoading: false });
       });
@@ -517,7 +526,10 @@ export function refreshSheet(view, options) {
       dispatch(detailViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.resource) {
       dispatch(resourceViewRefresh());
-    } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.customize && _.get(options, 'isRefreshBtn')) {
+    } else if (
+      String(view.viewType) === VIEW_DISPLAY_TYPE.customize &&
+      (_.get(options, 'isRefreshBtn') || _.get(options, 'isAutoRefresh'))
+    ) {
       dispatch(customWidgetViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
       dispatch(initMapViewData(undefined, true));
@@ -536,8 +548,12 @@ export function addNewRecord(data, view) {
       dispatch(sheetViewAddRecord(data));
       dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
-      dispatch(initBoardViewData());
-      dispatch(updateNavGroup());
+      if (browserIsMobile()) {
+        dispatch(mobileInitBoardViewData());
+      } else {
+        dispatch(initBoardViewData());
+        dispatch(updateNavGroup());
+      }
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
       dispatch(getDefaultHierarchyData());
       dispatch(updateNavGroup());
@@ -632,7 +648,13 @@ export function openNewRecord({ isDraft } = {}) {
     if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
       let defaultFormData;
       let data = navGroupFilters[0];
-      if ([9, 10, 11, 28].includes(data.dataType)) {
+      if (AREA.includes(data.dataType)) {
+        defaultFormData = { [data.controlId]: data.navNames };
+        handleAdd({
+          defaultFormData,
+          defaultFormDataEditable: true,
+        });
+      } else if ([9, 10, 11, 28].includes(data.dataType)) {
         defaultFormData = {
           [data.controlId]: data.dataType === 28 ? data.values[0] : JSON.stringify([data.values[0]]),
         };
@@ -693,7 +715,7 @@ export const updateWorksheetControls = controls => ({
 });
 
 // 更新字段
-export const refreshWorksheetControls = controls => {
+export const refreshWorksheetControls = () => {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
     const { worksheetId } = sheet.base;
@@ -718,7 +740,7 @@ export function updateFilters(filters, view) {
 }
 
 // 清空筛选条件
-export function clearFilters(filters, view) {
+export function clearFilters() {
   return dispatch => {
     dispatch({
       type: 'WORKSHEET_CLEAR_FILTERS',
@@ -728,7 +750,7 @@ export function clearFilters(filters, view) {
 
 // 更新快速筛选条件
 export function updateQuickFilter(filter = [], view, { noLoad } = {}) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'WORKSHEET_UPDATE_QUICK_FILTER',
       filter: filter,
@@ -768,7 +790,7 @@ export function resetQuickFilter(view) {
 
 // 更新分组筛选条件
 export function updateGroupFilter(navGroupFilters = [], view) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'WORKSHEET_UPDATE_GROUP_FILTER',
       navGroupFilters,

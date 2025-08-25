@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { bool, func, string } from 'prop-types';
+import { func, string } from 'prop-types';
 import { Icon, LoadDiv } from 'ming-ui';
 import api from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';

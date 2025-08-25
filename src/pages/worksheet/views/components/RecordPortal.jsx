@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { string } from 'prop-types';
-import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import _ from 'lodash';
 
 export default function RecordPortal({ children, closeEdit = _.noop }) {

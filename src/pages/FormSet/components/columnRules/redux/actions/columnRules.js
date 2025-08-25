@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
-import { originRuleItem } from '../../config';
 import {
   checkConditionCanSave,
   checkConditionError,
@@ -8,6 +7,8 @@ import {
   formatValues,
   getActionError,
   getDefaultRuleName,
+  originRuleItem,
+  TAB_TYPES,
 } from '../../config';
 
 /**
@@ -15,7 +16,7 @@ import {
  */
 export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
   const worksheetId = _.get(worksheetInfo, 'worksheetId');
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'COLUMNRULES_FETCH_START',
     });
@@ -54,7 +55,7 @@ export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
         });
         dispatch(clearColumnRules()); //清除state历史数据
       })
-      .then(err => {});
+      .then(() => {});
   };
 }
 
@@ -72,9 +73,9 @@ export function addColumnRules() {
     }
 
     let selectRulesNew = Object.assign({}, originRuleItem);
+    selectRulesNew.type = activeTab;
     // 验证规则
-    if (activeTab === 1) {
-      selectRulesNew.type = 1;
+    if (activeTab === TAB_TYPES.CHECK_RULE) {
       selectRulesNew.checkType = 0;
       selectRulesNew.hintType = 0;
     }
@@ -110,7 +111,7 @@ export function updateActiveTab(value) {
 export function saveControlRules() {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
-    const { worksheetId = '', selectRules = {}, columnRulesListData = [], worksheetControls, activeTab } = stateList;
+    const { worksheetId = '', selectRules = {}, columnRulesListData = [], worksheetControls } = stateList;
     const { filters = [], name = '', ruleItems = [] } = selectRules;
     // 没有配置任何东西，直接关闭弹层
     if (!ruleItems.length && !filters.length) {
@@ -210,7 +211,7 @@ export function copyControlRules(rule) {
       .then(data => {
         if (data) {
           const index = _.findIndex(columnRulesListData, item => item.ruleId === rule.ruleId);
-          columnRulesListData.splice(index + 1, 0, { ...rule, name: `${rule.name}-复制`, ruleId: data });
+          columnRulesListData.splice(index + 1, 0, { ...rule, name: `${rule.name}-${_l('复制')}`, ruleId: data });
           dispatch(clearColumnRules());
           dispatch({
             type: 'COLUMNRULES_LIST',
@@ -258,7 +259,7 @@ export function updateSelectRule(attr, value) {
 export function updateError(attr, value, index) {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
-    const { ruleError = {}, activeTab } = stateList;
+    const { ruleError = {} } = stateList;
     // 筛选校验
     if (attr === 'filters') {
       let filterError = [];

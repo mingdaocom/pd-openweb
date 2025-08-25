@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { func, number } from 'prop-types';
-import { Input } from 'ming-ui';
 import cx from 'classnames';
-import styled from 'styled-components';
 import { isNaN } from 'lodash';
+import { func, number } from 'prop-types';
+import styled from 'styled-components';
+import { Input } from 'ming-ui';
 
 const Con = styled.div`
   display: flex;
@@ -36,7 +36,7 @@ const Con = styled.div`
     text-align: center;
     font-size: 13px !important;
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .pageNumber {

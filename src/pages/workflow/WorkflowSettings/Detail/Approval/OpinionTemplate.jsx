@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Radio, Dialog, Textarea, Checkbox, SortableList } from 'ming-ui';
 import { Tooltip } from 'antd';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import { Checkbox, Dialog, Radio, SortableList, Textarea } from 'ming-ui';
 
 const SortableItemBox = styled.div`
   padding: 1px 0;
@@ -13,7 +13,7 @@ const SortableItemBox = styled.div`
   .Radio-box {
     margin-right: 0 !important;
   }
-  .icon-delete2 {
+  .icon-trash {
     &:hover {
       color: #f44336 !important;
     }
@@ -31,7 +31,7 @@ const Btn = styled.div`
   cursor: pointer;
   color: #757575;
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -98,7 +98,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
 
         <Tooltip title={_l('删除')}>
           <i
-            className="icon-delete2 Font16 Gray_75 pointer mLeft10"
+            className="icon-trash Font16 Gray_75 pointer mLeft10"
             onClick={() => {
               const newSource = _.cloneDeep(items);
               _.remove(newSource, (o, i) => i === index);

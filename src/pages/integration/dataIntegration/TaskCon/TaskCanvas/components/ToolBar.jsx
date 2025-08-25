@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
+
 const SCALE_LIMIT = {
   min: 50,
   max: 100,

@@ -10,4 +10,4 @@ export default () => {
       </section>
     </div>
   );
-}
+};

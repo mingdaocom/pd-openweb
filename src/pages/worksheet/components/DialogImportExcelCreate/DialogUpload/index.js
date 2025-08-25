@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
 import UploadFile from './UploadFile';
 import './index.less';

@@ -1,7 +1,8 @@
 import externalPortalAjax from 'src/api/externalPortal';
+
 const pageSize = 100;
 export const getControls = (appId, projectId) => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch(
       setBaseInfo({
         appId,
@@ -15,7 +16,7 @@ export const getControls = (appId, projectId) => {
 };
 
 export const getCount = appId => {
-  return (dispatch, getState) => {
+  return dispatch => {
     externalPortalAjax.getExAccountCategoryCount({ appId }).then(res => {
       const { commonCount = 0, unApproveCount = 0, roleMemberStatistics } = res;
       dispatch({
@@ -49,27 +50,27 @@ export const setBaseInfo = data => {
 };
 //控件
 export const setControls = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_CONTROLS', data });
   };
 };
 //设置
 export const setControlsSetting = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_CONTROLS_SETTING', data });
   };
 };
 
 //成员
 export const setList = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_LIST', data });
   };
 };
 
 //成员count
 export const setCount = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_LIST_COUNT', data });
   };
 };
@@ -78,7 +79,7 @@ export const setCount = data => {
 export const updateListByRoleid = ({ roleId = '', rowIds = [] }, cb) => {
   return (dispatch, getState) => {
     const { portal = {} } = getState();
-    const { filters = [], keyWords, pageIndex, fastFilters = [], baseInfo = {}, list } = portal;
+    const { baseInfo = {}, list } = portal;
     const { appId = '' } = baseInfo;
     externalPortalAjax
       .editExAccountsRole({
@@ -108,11 +109,44 @@ export const updateListByRoleid = ({ roleId = '', rowIds = [] }, cb) => {
   };
 };
 
+//激活用户
+export const activatExAccounts = ({ rowIds, cb }) => {
+  return (dispatch, getState) => {
+    const { portal = {} } = getState();
+    const { baseInfo = {}, list = [] } = portal;
+    const { appId = '' } = baseInfo;
+    externalPortalAjax
+      .activatExAccounts({
+        appId,
+        rowIds,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('激活成功'));
+          dispatch(
+            setList(
+              list.map(o => {
+                if (rowIds.includes(o.rowid)) {
+                  return { ...o, portal_status: JSON.stringify([`1`]) };
+                } else {
+                  return o;
+                }
+              }),
+            ),
+          );
+          cb && cb();
+        } else {
+          alert(_l('激活失败'), 2);
+        }
+      });
+  };
+};
+
 //更新用户数据 状态
 export const updateListByStatus = ({ newState, rowIds, cb }) => {
   return (dispatch, getState) => {
     const { portal = {} } = getState();
-    const { filters = [], keyWords, pageIndex, fastFilters = [], baseInfo = {}, list } = portal;
+    const { baseInfo = {}, list = [] } = portal;
     const { appId = '' } = baseInfo;
     externalPortalAjax
       .editExAccountState({
@@ -142,7 +176,7 @@ export const updateListByStatus = ({ newState, rowIds, cb }) => {
 };
 
 export const changePageIndex = index => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_INDEX', data: index });
     if (index === 1) {
       dispatch(setList([]));
@@ -152,7 +186,7 @@ export const changePageIndex = index => {
 };
 
 export const getPortalRoleList = appId => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_LOADING', data: true });
     externalPortalAjax
       .getExRoles({
@@ -166,31 +200,31 @@ export const getPortalRoleList = appId => {
 };
 
 export const setPortalRoleList = res => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_ROLELIST', data: res });
   };
 };
 
 export const setDefaultRole = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_DEFAULTROLE', data: data });
   };
 };
 
 export const setHideIds = list => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_HIDEIDS', data: list });
   };
 };
 
 export const setFilter = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_FILTERS', data });
   };
 };
 //快速筛选
 export const setFastFilters = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch(setFastFiltersData(data));
     dispatch(changePageIndex(1));
     dispatch(getList());
@@ -232,7 +266,7 @@ export const setFastFiltersData = data => {
   };
 };
 export const setDefaultFastFilters = () => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({
       type: 'UPDATE_FASTFILTERS',
       data: [],
@@ -240,24 +274,24 @@ export const setDefaultFastFilters = () => {
   };
 };
 export const setSortControls = (data, cb) => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_SORTCONTROLS', data });
     cb && cb();
   };
 };
 export const setKeyWords = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_KEYWORDS', data });
   };
 };
 export const setTelFilters = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_TELFILTERS', data });
   };
 };
 //排序
 export const handleChangeSort = (sorter, PotralStatus = 0) => {
-  return (dispatch, getState) => {
+  return dispatch => {
     const { field, column, order } = sorter;
     if (!order) {
       dispatch(
@@ -322,16 +356,16 @@ export const getList = (PotralStatus = 0, cb) => {
       fastFilters:
         PotralStatus === 3
           ? []
-          : !!telFilters
-          ? fastFilters.concat({
-              controlId: 'portal_mobile',
-              dataType: 3,
-              dynamicSource: [],
-              filterType: 1,
-              spliceType: 1,
-              values: getFilterTels(telFilters),
-            })
-          : fastFilters,
+          : telFilters
+            ? fastFilters.concat({
+                controlId: 'portal_mobile',
+                dataType: 3,
+                dynamicSource: [],
+                filterType: 1,
+                spliceType: 1,
+                values: getFilterTels(telFilters),
+              })
+            : fastFilters,
       appId,
       PotralStatus, //3待审核
       sortControls,
@@ -343,7 +377,9 @@ export const getList = (PotralStatus = 0, cb) => {
           ...res.worksheet,
         }),
       );
-      dispatch(setList(pageIndex > 1 ? list.concat(res.data) : res.data));
+      if (!(location.href.indexOf('/role/external/pending') >= 0 && PotralStatus !== 3)) {
+        dispatch(setList(pageIndex > 1 ? list.concat(res.data) : res.data));
+      }
       dispatch(setCount(res.count));
       dispatch({ type: 'UPDATE_LOADING', data: false });
       cb && cb();
@@ -352,14 +388,14 @@ export const getList = (PotralStatus = 0, cb) => {
 };
 
 export const setQuickTag = (data = {}) => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_QUICKTAG', data });
     dispatch(setRoleId(data.roleId || 'all'));
   };
 };
 
 export const setRoleId = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_DEFAULT_ROLEID', data });
   };
 };

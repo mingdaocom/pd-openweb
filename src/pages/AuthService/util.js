@@ -15,18 +15,22 @@ export const hasCaptcha = () => {
 
 export const getDataByFilterXSS = url => {
   if (!url) return '/dashboard';
-  const data = new URL(decodeURIComponent(url));
-  const summary = data.href;
-  let domain = summary.split('/'); //以“/”进行分割
-  if (domain[2]) {
-    domain = domain[2];
-  } else {
-    domain = ''; //如果url不正确就取空
-  }
-  if (summary.indexOf('javascript:') >= 0 || (domain.indexOf('mingdao') < 0 && domain !== location.host)) {
+  try {
+    const decodedUrl = decodeURIComponent(url);
+    if (decodedUrl.toLowerCase().indexOf('javascript:') >= 0) {
+      return '/dashboard';
+    }
+    const data = new URL(decodedUrl);
+    const domain = data.hostname;
+    // 检查域名是否包含mingdao或者是否与当前域名相同
+    if (domain.indexOf('mingdao') < 0 && domain !== location.hostname) {
+      return '/dashboard';
+    }
+    return filterXSS(data.href);
+  } catch (error) {
+    console.error(error);
     return '/dashboard';
   }
-  return filterXSS(summary);
 };
 
 //  注册流程后登录成功跳转
@@ -132,7 +136,7 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
   let warnList = [];
 
   if (keys.includes('emailOrTel') || keys.includes('tel') || keys.includes('email')) {
-    if (!!emailOrTel.replace(/\s*/g, '')) {
+    if (emailOrTel.replace(/\s*/g, '')) {
       //手机号或者邮箱 不为空
       const iti = initIntlTelInput();
       iti.setNumber(emailOrTel);
@@ -233,20 +237,4 @@ export const validation = ({ isForSendCode, keys = [], type, info }) => {
     }
   }
   return { isRight, warnList };
-};
-
-export const renderClassName = (warnList, key, value) => {
-  const warn = warnList.find(o => o.tipDom === key);
-  return {
-    hasValue: !!value || focusDiv === key,
-    errorDiv: warn,
-    warnDiv: warn && warn.noErr,
-    errorDivCu: !!focusDiv && focusDiv === key,
-  };
-};
-
-export const renderWarn = (warnList, key) => {
-  const warn = warnList.find(o => o.tipDom === key);
-  if (!warn) return;
-  return <div className={cx('warnTips')}>{warn.warnTxt}</div>;
 };

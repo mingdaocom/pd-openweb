@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import roleAjax from 'src/api/role.js';
 import workwxAjax from 'src/api/workWeiXin';
 import { checkClearIntegrationDialog } from './components/ClearISaventergrationModal';

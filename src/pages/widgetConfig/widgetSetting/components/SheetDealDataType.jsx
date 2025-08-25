@@ -1,8 +1,6 @@
-import React, { Component, Fragment } from 'react';
-import { string } from 'prop-types';
-import { Checkbox } from 'ming-ui';
-import styled from 'styled-components';
+import React, { Fragment } from 'react';
 import { Tooltip } from 'antd';
+import { Checkbox } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
 const TIPS = {

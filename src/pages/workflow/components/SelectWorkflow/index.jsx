@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { string, func, bool, array } from 'prop-types';
-import { Icon, Dialog, ScrollView, LoadDiv, Checkbox } from 'ming-ui';
-import './index.less';
-import process from '../../api/process';
 import _ from 'lodash';
+import { array, bool, func, string } from 'prop-types';
+import { Checkbox, Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import process from '../../api/process';
+import './index.less';
 
 export default class SelectWorkflow extends Component {
   static propTypes = {
@@ -38,7 +38,7 @@ export default class SelectWorkflow extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!this.props.visible && nextProps.visible) {
       this.getData();
     }
@@ -157,9 +157,9 @@ export default class SelectWorkflow extends Component {
               className="selectWorkflowInput"
               onChange={e => this.setState({ keywords: e.target.value })}
             />
-            <Icon icon="workflow_find" className="selectWorkflowSearch Gray_75 Font16" />
+            <Icon icon="search" className="selectWorkflowSearch Gray_75 Font16" />
           </div>
-          <div className="flex mTop15">
+          <div className="flex mTop15 minHeight0">
             {data === null ? (
               <LoadDiv />
             ) : !data.length ? (

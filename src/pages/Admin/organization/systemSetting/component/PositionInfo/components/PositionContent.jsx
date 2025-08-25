@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { LoadDiv } from 'ming-ui';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as actions from '../../../../../redux/position/action';
-import RoleUserList from './RoleUserList';
-import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
-import { dialogSelectUser } from 'ming-ui/functions';
-import jobAjax from 'src/api/job';
+import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import jobAjax from 'src/api/job';
+import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import { dialogUserBoard } from 'src/pages/Admin/components/userBoardDialog';
+import * as actions from '../../../../../redux/position/action';
+import RoleUserList from './RoleUserList';
 
 const PAGE_SIZE = 50;
 
@@ -21,7 +21,7 @@ class PositionContent extends Component {
   componentDidMount() {}
   // 添加成员
   addUser = () => {
-    const { projectId, currentPosition = {}, selectUserIds = [] } = this.props;
+    const { projectId, currentPosition = {} } = this.props;
     const SelectUserSettingsForAdd = {
       unique: false,
       projectId: projectId,

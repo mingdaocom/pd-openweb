@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Immutable from 'immutable';
-import moment from 'moment';
-import _ from 'lodash';
 import cx from 'classnames';
+import Immutable from 'immutable';
+import _ from 'lodash';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import { navigateTo } from 'src/router/navigateTo';
-import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
-import { List, Item, Menu, MenuItem, Input, Icon, Splitter, ScrollView, Dialog, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Input, Item, List, Menu, MenuItem, ScrollView, Splitter, Tooltip } from 'ming-ui';
 import service from '../../api/service';
+import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
+import { navigateTo } from 'src/router/navigateTo';
+import { PICK_TYPE, ROOT_FILTER_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
 import * as kcActions from '../../redux/actions/kcAction';
-import { ROOT_FILTER_TYPE, ROOT_PERMISSION_TYPE, PICK_TYPE } from '../../constant/enum';
-import { getRootByPath, shallowEqual, humanFileSize } from '../../utils';
-import { getRootLog } from './rootLog';
+import { getRootByPath, humanFileSize, shallowEqual } from '../../utils';
 import { addNewRoot, editRoot, removeRoot } from './rootHandler';
+import { getRootLog } from './rootLog';
 import './KcLeft.less';
 
 class KcLeft extends Component {
@@ -31,7 +31,7 @@ class KcLeft extends Component {
 
   constructor(props) {
     super(props);
-    const allProjects = _(md.global.Account.projects)
+    const allProjects = _.chain(md.global.Account.projects)
       .map(p => p.projectId)
       .unshift('');
     let foldedProjects;
@@ -112,7 +112,7 @@ class KcLeft extends Component {
       nextState.roots === this.state.roots
     );
   }
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     safeLocalStorageSetItem(
       'foldedProjects_' + md.global.Account.accountId + '_kc',
       this.state.foldedProjects.join(','),
@@ -151,7 +151,7 @@ class KcLeft extends Component {
     if (projectId) {
       query.projectId = projectId;
     } else {
-      query.excludeProjectIds = _(md.global.Account.projects)
+      query.excludeProjectIds = _.chain(md.global.Account.projects)
         .map(p => p.projectId)
         .unshift('')
         .reject(ex => ex === projectId)
@@ -360,6 +360,7 @@ class KcLeft extends Component {
           <span>
             {_l('本月上传流量已用')}
             <Tooltip
+              autoCloseDelay={0}
               text={
                 <span>
                   {_l(
@@ -534,7 +535,7 @@ class KcLeft extends Component {
                               {_l('回收站')}
                             </MenuItem>
                             <MenuItem
-                              icon={<Icon icon={cx(this.state.isCreator ? 'task-new-delete' : 'task-new-exit')} />}
+                              icon={<Icon icon={cx(this.state.isCreator ? 'trash' : 'groupExit')} />}
                               className="settingItem ThemeHoverColor3"
                               onClick={() => this.handleRemoveRoot(root, this.state.isCreator, false)}
                             >
@@ -581,9 +582,7 @@ class KcLeft extends Component {
   };
 
   render() {
-    const { usage } = this.props;
     const { searchName, keywords } = this.state;
-    const percent = usage ? (usage.used / usage.total) * 100 : '';
 
     const selectOptions = this.state.selectOptions && (
       <Menu className="optionsLayer" onClickAway={() => this.setState({ selectOptions: false })}>
@@ -699,7 +698,7 @@ class KcLeft extends Component {
                   )}
                 </Item>
                 <Item
-                  icon={<Icon icon="clock" className="ThemeColor9 ThemeHoverColor3 LineHeight40" />}
+                  icon={<Icon icon="access_time" className="ThemeColor9 ThemeHoverColor3 LineHeight40" />}
                   onClick={() => navigateTo('/apps/kc/recent')}
                   className={cx('ThemeHoverBGColor7', { ThemeBGColor8: this.getType() === PICK_TYPE.RECENT })}
                 >
@@ -727,13 +726,13 @@ class KcLeft extends Component {
                 </span>
               </span>
             </div>
-            <div className="folderList flex">
+            <div className="folderList flex minHeight0">
               <ScrollView
-                scrollEvent={() => {
+                onScrollEnd={() => {
                   this.setState({ settingsOption: '' });
                 }}
               >
-                {_(md.global.Account.projects)
+                {_.chain(md.global.Account.projects)
                   .filter(ele => ele.licenseType !== 0)
                   .concat(md.global.Account.projects.filter(ele => ele.licenseType === 0))
                   .map(p => p.projectId)

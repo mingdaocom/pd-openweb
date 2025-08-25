@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Menu, MenuItem, Checkbox, Tooltip } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
 
 const SheetTabWrap = styled.div`
   padding: ${props => (props.disabled ? '' : '0 20px')};
@@ -122,7 +122,7 @@ export default class WorksheetItem extends Component {
     viewsScrollEl.scrollLeft = scrollLeft + distance;
   };
   // 点击编辑表名称
-  editCurrentSheetName = item => {
+  editCurrentSheetName = () => {
     const { currentSheetInfo } = this.props;
     this.props.updateCurrentSheetInfo({ ...currentSheetInfo, isEditSheetName: true });
     this.setState({ sheetItemOperateVisible: false }, () => {
@@ -163,12 +163,12 @@ export default class WorksheetItem extends Component {
                       item.total - 1 > 20000
                         ? _l('该sheet超过导入上限（上限20000行）')
                         : cellsLength > 200
-                        ? _l('该sheet超过导入上限（上限200列）')
-                        : item.isMerge
-                        ? _l('Sheet内不可以有合并单元格')
-                        : !item.rows || _.isEmpty(item.rows)
-                        ? _l('该sheet为空')
-                        : _l('该sheet超过导入上限（上限%0张表）', versionLimitSheetCount);
+                          ? _l('该sheet超过导入上限（上限200列）')
+                          : item.isMerge
+                            ? _l('Sheet内不可以有合并单元格')
+                            : !item.rows || _.isEmpty(item.rows)
+                              ? _l('该sheet为空')
+                              : _l('该sheet超过导入上限（上限%0张表）', versionLimitSheetCount);
                     return (
                       <div key={item.sheetId} className="pTop20 flexRow alignItemsCenter">
                         <Checkbox
@@ -183,7 +183,7 @@ export default class WorksheetItem extends Component {
                                 versionLimitSheetCount !== 0 &&
                                 copySelectedSheetIds.length > versionLimitSheetCount - currentSheetCount - 1
                               ) {
-                                copySheetList = [...sheetList].map((m, n) => {
+                                copySheetList = [...sheetList].map(m => {
                                   if (!_.includes(copySelectedSheetIds, m.sheetId)) {
                                     return { ...m, disabled: true };
                                   }
@@ -199,7 +199,7 @@ export default class WorksheetItem extends Component {
                                 versionLimitSheetCount !== 0 &&
                                 copySelectedSheetIds.length < versionLimitSheetCount - currentSheetCount
                               ) {
-                                copySheetList = [...sheetList].map((m, n) => {
+                                copySheetList = [...sheetList].map(m => {
                                   if (
                                     !_.includes(copySelectedSheetIds, m.sheetId) &&
                                     !(
@@ -232,7 +232,7 @@ export default class WorksheetItem extends Component {
                         <span className={cx('flex ellipsis', { Gray_bd: item.disabled })}>
                           {item.sheetName}
                           {item.disabled && (
-                            <Tooltip placement="bottom" text={<span>{tipsTxt}</span>}>
+                            <Tooltip placement="bottom" autoCloseDelay={0} text={<span>{tipsTxt}</span>}>
                               <Icon
                                 icon="info_outline"
                                 className={cx('mLeft2 Font16', {
@@ -265,7 +265,7 @@ export default class WorksheetItem extends Component {
             <div className="stance"></div>
             {sheetList
               .filter(it => _.includes(selectedImportSheetIds, it.sheetId))
-              .map((item, index) => {
+              .map(item => {
                 return item.sheetId === currentSheetInfo.sheetId ? (
                   <div
                     key={item.id}

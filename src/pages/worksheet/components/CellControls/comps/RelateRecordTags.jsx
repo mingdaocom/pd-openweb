@@ -83,7 +83,7 @@ const Tag = styled.div`
     padding-right: 24px;
   }
   &.allowOpenRecord:hover {
-    color: #2196f3;
+    color: #1677ff;
     background-color: rgba(33, 150, 243, 0.16);
     cursor: pointer;
   }
@@ -132,6 +132,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
         const cellData = JSON.parse(titleControl.value);
         defaultRelatedSheetValue.name = cellData[0].name;
       } catch (err) {
+        console.log(err);
         defaultRelatedSheetValue.name = '';
       }
     }
@@ -141,6 +142,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
       value: defaultRelatedSheetValue,
     };
   } catch (err) {
+    console.log(err);
     return;
   }
 }
@@ -149,6 +151,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
   const {
     from,
     appId,
+    projectId,
     isDraft,
     disabled,
     isediting,
@@ -181,7 +184,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     records.map(r => getTitleTextFromRelateControl(control, r)),
     { width: style.width, maxHeight: style.height },
   );
-  useClickAway(conRef, e => {
+  useClickAway(conRef, () => {
     if (!cache.current.isActive) {
       onClose({ deletedIds, addedIds, records, count, changed });
     }
@@ -258,6 +261,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
     selectRecords({
       // canSelectAll: true,
       appId,
+      projectId,
       multiple,
       control,
       allowNewRecord,

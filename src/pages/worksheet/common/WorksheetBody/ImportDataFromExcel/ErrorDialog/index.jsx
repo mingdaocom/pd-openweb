@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Icon, Dialog, ScrollView } from 'ming-ui';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Dialog, Icon, ScrollView } from 'ming-ui';
 import WorksheetItem from 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/WorksheetItem';
 import './index.less';
-import _ from 'lodash';
 
 class ErrorDialog extends Component {
   static propTypes = {
@@ -106,10 +106,10 @@ class ErrorDialog extends Component {
       sCount && rCount && sCount - rCount
         ? '；' + _l('跳过%0行（%1行重复，%2行错误）', formatNum(sCount), formatNum(rCount), formatNum(sCount - rCount))
         : sCount && rCount
-        ? '；' + _l('跳过%0行重复', formatNum(sCount))
-        : sCount
-        ? '；' + _l('跳过%0行错误', formatNum(sCount))
-        : '';
+          ? '；' + _l('跳过%0行重复', formatNum(sCount))
+          : sCount
+            ? '；' + _l('跳过%0行错误', formatNum(sCount))
+            : '';
 
     return txt1 + txt2;
   };
@@ -147,7 +147,7 @@ class ErrorDialog extends Component {
             className="successText"
             data-tip={_l('错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示')}
           >
-            <Icon icon="novice-circle" className="Font14 pointer Gray_9e mLeft5" />
+            <Icon icon="help" className="Font14 pointer Gray_9e mLeft5" />
           </div>
           <div className="flex" />
           <a

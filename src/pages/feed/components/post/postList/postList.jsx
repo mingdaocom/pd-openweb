@@ -1,16 +1,15 @@
-﻿import _ from 'lodash';
+﻿import React from 'react';
+import { connect } from 'react-redux';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import postEnum from '../../../constants/postEnum';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { loadMore, focusUpdater } from '../../../redux/postActions';
-import { connect } from 'react-redux';
-import PostCard from '../post/postCard';
+import { focusUpdater, loadMore } from '../../../redux/postActions';
 import PostBody from '../post/postBody';
+import PostCard from '../post/postCard';
 import PostIReply from '../post/postIReply';
 import { HomePostFilter } from '../postListHead';
 import PostMoreLoader from './postLoader';
-
 import './postList.css';
 
 class PostList extends React.Component {
@@ -44,11 +43,11 @@ class PostList extends React.Component {
   render() {
     const postList =
       this.props.options.listType === 'ireply'
-        ? _(this.props.ireplyPostIds)
+        ? _.chain(this.props.ireplyPostIds)
             .map(id => this.props.ireplyPostsById[id])
             .compact()
             .value()
-        : _(this.props.postIds)
+        : _.chain(this.props.postIds)
             .map(id => this.props.postsById[id])
             .compact()
             .value();
@@ -67,8 +66,8 @@ class PostList extends React.Component {
       this.props.options.keywords || (this.props.options.postType && this.props.options.postType !== -1)
         ? 'search'
         : this.props.options.listType === postEnum.LIST_TYPE.fav
-        ? 'star'
-        : 'normal';
+          ? 'star'
+          : 'normal';
     if (this.props.loading) {
       posts = (
         <PostCard key={0} {...commonProps}>

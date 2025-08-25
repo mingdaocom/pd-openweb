@@ -9,13 +9,13 @@ trim_trailing_white_space_on_save = true
 charset = utf-8-bom
 indent_style = space
 
-[*.{cs,aspx,ascx,html,htm,tpl}]
+[*.{html,htm,tpl}]
 indent_size = 4
-[*.{js,jsx,ts,tsx,css,less}]
+[*.{js,jsx,css,less}]
 indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
 
-[{**/*.json,Jenkinsfile}]
+[{**/*.json}]
 charset = utf-8

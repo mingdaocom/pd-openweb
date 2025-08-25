@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { string, arrayOf, shape, func } from 'prop-types';
+import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
 import { TagTextarea } from 'ming-ui';
-import { SelectOtherField, OtherField, DynamicInput } from '../components';
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { handleAdvancedSettingChange } from '../../../../util/setting';
+import { DynamicInput, OtherField, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import { transferValue } from '../util';
-import { handleAdvancedSettingChange } from '../../../../util/setting';
-import _ from 'lodash';
-import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+
 export default class TextInput extends Component {
   static propTypes = {
     dynamicValue: arrayOf(shape({ cid: string, rcid: string, staticValue: string })),
@@ -111,12 +112,12 @@ export default class TextInput extends Component {
           <TagTextarea
             className="tagTextAreaWrap"
             placeholder={_l('请输入')}
-            renderTag={(tag, options) => {
+            renderTag={tag => {
               const [cid = '', rcid = ''] = tag.split('~');
               return <OtherField className="tagTextField overflow_ellipsis" item={{ cid, rcid }} {...this.props} />;
             }}
             getRef={tagtextarea => (this.$tagtextarea = tagtextarea)}
-            onChange={(err, value, obj) => {
+            onChange={(err, value) => {
               from !== DYNAMIC_FROM_MODE.FAST_FILTER && this.transferValue(value.trim());
             }}
             onBlur={() => {

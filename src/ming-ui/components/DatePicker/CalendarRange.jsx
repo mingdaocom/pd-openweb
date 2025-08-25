@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import moment from 'moment';
 import classNames from 'classnames';
+import moment from 'moment';
+import PropTypes from 'prop-types';
 import CalendarPart from './CalendarPart';
+import defaultLocale from './locale/zh_CN';
 import RangeFooter from './RangeFooter';
 import TaskHeader from './TaskHeader';
-import defaultLocale from './locale/zh_CN';
 import '../less/dateRangePicker.less';
 
 function noop() {}
@@ -114,19 +114,19 @@ class CalendarRange extends Component {
     this.props.onSelect(selectedValue, options);
   }
 
-  onStartTimeSelect = (leftValue) => {
+  onStartTimeSelect = leftValue => {
     this.onDateSelect(0, leftValue, { source: 'timePicker' });
   };
 
-  onEndTimeSelect = (rightValue) => {
+  onEndTimeSelect = rightValue => {
     this.onDateSelect(1, rightValue, { source: 'timePicker' });
   };
 
-  onStartDateSelect = (leftValue) => {
+  onStartDateSelect = leftValue => {
     this.onDateSelect(0, leftValue);
   };
 
-  onEndDateSelect = (rightValue) => {
+  onEndDateSelect = rightValue => {
     this.onDateSelect(1, rightValue);
   };
 
@@ -141,14 +141,14 @@ class CalendarRange extends Component {
     this.props.onOk(selectedValue, this.halfData);
   };
 
-  onStartValueChange = (leftValue) => {
+  onStartValueChange = leftValue => {
     const state = this.state;
     const value = [...state.value];
     value[0] = leftValue;
     return this.fireValueChange(value);
   };
 
-  onEndValueChange = (rightValue) => {
+  onEndValueChange = rightValue => {
     const state = this.state;
     const value = [...state.value];
     value[1] = rightValue;
@@ -159,9 +159,7 @@ class CalendarRange extends Component {
     let startValue = this.state.value[0].clone();
     const selectedValue = this.state.selectedValue;
     if (this.props.mode === 'task') {
-      startValue = moment(startValue)
-        .startOf('day')
-        .add(9, 'hour');
+      startValue = moment(startValue).startOf('day').add(9, 'hour');
     }
     if (selectedValue[0] && this.props.timePicker) {
       syncTime(selectedValue[0], startValue);
@@ -173,9 +171,7 @@ class CalendarRange extends Component {
     let endValue = this.state.value[1].clone();
     const selectedValue = this.state.selectedValue;
     if (this.props.mode === 'task') {
-      endValue = moment(endValue)
-        .startOf('day')
-        .add(18, 'hour');
+      endValue = moment(endValue).startOf('day').add(18, 'hour');
     }
     if (selectedValue[1] && this.props.timePicker) {
       syncTime(selectedValue[1], endValue);
@@ -211,7 +207,7 @@ class CalendarRange extends Component {
     }
   };
 
-  fireValueChange = (value) => {
+  fireValueChange = value => {
     const props = this.props;
     if (!('value' in props)) {
       this.setState({
@@ -257,7 +253,7 @@ class CalendarRange extends Component {
     const props = this.props;
     const state = this.state;
     const { prefixCls, timePicker, className, locale } = props;
-    const { selectedValue, rememberedValue } = state;
+    const { selectedValue } = state;
     const classes = classNames({
       [className]: !!className,
       [prefixCls]: true,

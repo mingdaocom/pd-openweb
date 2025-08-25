@@ -1,4 +1,5 @@
-﻿import qs from 'query-string';
+﻿import _ from 'lodash';
+import qs from 'query-string';
 import { downloadFile } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { NODE_VIEW_TYPE } from '../../../constant/enum';
@@ -46,7 +47,7 @@ function canDownload(attachment) {
 }
 
 function showKcVersionPanel(attachment, options) {
-  const { hideFunctions, fromType } = options;
+  const { hideFunctions } = options;
   if (_.get(window, 'shareState.shareId')) {
     return false;
   }
@@ -63,7 +64,7 @@ function showKcVersionPanel(attachment, options) {
 }
 
 function showDownload(attachment, options) {
-  const { hideFunctions, fromType } = options;
+  const { hideFunctions } = options;
   if (hideFunctions && hideFunctions.indexOf('download') > -1) {
     return false;
   }
@@ -140,7 +141,6 @@ export function getDownloadUrl(attachment, extra) {
       '&attname=' +
       encodeURIComponent(attachmentsName);
   } else if (attachment.previewAttachmentType === 'COMMON') {
-    const downloadParams = extra ? extra.downloadParams : undefined;
     if (attachment.previewAttachmentType === PREVIEW_TYPE.PICTURE) {
       const { viewUrl, sourceNode } = attachment;
       const fileName = RegExpValidator.fileIsPicture(sourceNode.originalFilename)

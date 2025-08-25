@@ -1,14 +1,15 @@
 import _ from 'lodash';
+
 const NUM_5 = 5;
 const COLOR_FED156 = '#FED156';
 const COLOR_FF9300 = '#FF9300';
 const COLOR_F52222 = '#F52222';
 const COLOR_EB2F96 = '#EB2F96';
-const COLOR_2196F3 = '#2196F3';
+const COLOR_1677ff = '#1677ff';
 const COLOR_00C345 = '#00C345';
 
 export const SCORE_COLORS_LIST = [
-  '#2196F3',
+  '#1677ff',
   '#08C9C9',
   '#00C345',
   '#FAD714',
@@ -136,7 +137,7 @@ export const DISPLAY_ICON = [
     defaultNum: NUM_5,
   },
   {
-    name: 'folder-top',
+    name: 'set_top',
     defaultColor: COLOR_F52222,
     defaultNum: NUM_5,
   },
@@ -162,22 +163,22 @@ export const DISPLAY_ICON = [
   },
   {
     name: 'inbox',
-    defaultColor: COLOR_2196F3,
+    defaultColor: COLOR_1677ff,
     defaultNum: NUM_5,
   },
   {
     name: 'snow',
-    defaultColor: COLOR_2196F3,
+    defaultColor: COLOR_1677ff,
     defaultNum: NUM_5,
   },
   {
     name: 'shield',
-    defaultColor: COLOR_2196F3,
+    defaultColor: COLOR_1677ff,
     defaultNum: NUM_5,
   },
   {
     name: 'rectangle',
-    defaultColor: COLOR_2196F3,
+    defaultColor: COLOR_1677ff,
     defaultNum: NUM_5,
   },
   {

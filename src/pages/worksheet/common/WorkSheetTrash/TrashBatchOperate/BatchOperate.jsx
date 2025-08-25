@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Dialog } from 'ming-ui';
 import PropTypes from 'prop-types';
-import IconText from '../../../components/IconText';
+import { Dialog } from 'ming-ui';
 import DropMotion from 'worksheet/components/Animations/DropMotion';
+import IconText from '../../../components/IconText';
 import './BatchOperate.less';
 
 export default function BatchOperate(props) {
@@ -42,7 +42,7 @@ export default function BatchOperate(props) {
             }
           }}
         />
-        {isCharge && <IconText className="delete" icon="delete2" text={_l('彻底删除')} onClick={onHardDelete} />}
+        {isCharge && <IconText className="delete" icon="trash" text={_l('彻底删除')} onClick={onHardDelete} />}
         <span className="Right cancelSelect ThemeColor3 Hand Font14" onClick={onCancel}>
           {_l('取消')}
         </span>

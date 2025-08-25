@@ -7,7 +7,6 @@ import { Icon, MobileRadio } from 'ming-ui';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import { browserIsMobile } from 'src/utils/common';
 import { isLightColor } from 'src/utils/control';
-import { FROM } from '../../tools/config';
 import { getCheckAndOther } from '../../tools/utils';
 import OtherInput from '../Checkbox/OtherInput';
 
@@ -112,8 +111,6 @@ export default class Widgets extends Component {
       advancedSetting,
       disableCustom,
       hint,
-      from,
-      flag,
     } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
     const delOptions = options.filter(item => item.isDeleted || item.hide);
@@ -123,7 +120,7 @@ export default class Widgets extends Component {
 
     checkIds.forEach(item => {
       if ((item || '').toString().indexOf('add_') > -1 && !selectProps.noPushAdd_) {
-        noDelOptions.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
+        noDelOptions.push({ key: item, color: '#1677ff', value: item.split('add_')[1] });
       }
     });
     const mobileCheckItems = noDelOptions.concat(delOptions).filter(i => _.includes(checkIds, i.key));
@@ -178,7 +175,7 @@ export default class Widgets extends Component {
       noDelOptions = noDelOptions.filter(
         item =>
           `${item.value || ''}|${item.pinYin || ''}`.search(
-            new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+            new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
           ) !== -1,
       );
     }

@@ -1,11 +1,9 @@
 ﻿import React from 'react';
-import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Dropdown, Tooltip, UserHead, UserName } from 'ming-ui';
 import userAjax from 'src/api/user';
 import { hasPermission } from 'src/components/checkPermission';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { getCurrentProject } from 'src/utils/project';
 import PageTableCon from '../../../components/PageTableCon';
@@ -95,6 +93,7 @@ export default class extends React.Component {
                 />
                 <UserName
                   className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  projectId={props.projectId}
                   user={{
                     userName: fullname,
                     accountId: accountId,
@@ -204,7 +203,7 @@ export default class extends React.Component {
           loading: false,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({
           dataSource: [],
           count: 0,
@@ -218,8 +217,7 @@ export default class extends React.Component {
     const { projectId } = this.props;
 
     Dialog.confirm({
-      title: _l('确认框'),
-      description: _l('确定恢复[%0]权限吗？', fullName),
+      title: _l('确定恢复 %0 权限吗？', fullName),
       onOk: () => {
         userAjax
           .recoveryUser({
@@ -231,20 +229,12 @@ export default class extends React.Component {
               this.getData();
               alert(_l('恢复成功'));
             } else if (data == 4) {
-              const { licenseType, version } = getCurrentProject(projectId, true);
+              const { licenseType } = getCurrentProject(projectId, true);
               let link = '';
               if (licenseType === 0) {
-                link = (
-                  <span>
-                    {_l('当前用户数已超出人数限制')}
-                  </span>
-                );
+                link = <span>{_l('当前用户数已超出人数限制')}</span>;
               } else {
-                link = (
-                  <span>
-                    {_l('当前用户数已超出人数限制')}
-                  </span>
-                );
+                link = <span>{_l('当前用户数已超出人数限制')}</span>;
               }
               alert(link, 3);
             } else {

@@ -1,9 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import { Icon, Tooltip } from 'ming-ui';
+import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
-import { sysRoleType, ICON_ROLE_TYPE } from 'src/pages/Role/config.js';
 
 export default class Con extends React.Component {
   render() {
@@ -15,7 +14,7 @@ export default class Con extends React.Component {
       >
         {!sysRoleType.includes(item.roleType) || !item.roleId ? (
           <DragHandle className="alignItemsCenter flexRow">
-            <Icon className="Font12 mLeft3 Hand" icon="drag_indicator" />
+            <Icon className="Font12 mLeft3 Hand" icon="drag" />
           </DragHandle>
         ) : (
           <span className="InlineBlock mLeft5" style={{ width: 10 }}></span>

@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import _ from 'lodash';
 import collectRecordEmptyPng from 'staticfiles/images/collect_list.png';
 import styled from 'styled-components';
 import { Icon, ScrollView, SortableList, SvgIcon } from 'ming-ui';
@@ -52,7 +51,7 @@ const Con = styled.div`
       .scrollList {
         overflow: auto;
       }
-      .scrollListCon,
+      .scrollViewContainer,
       .hed {
         min-width: 300px;
         margin: 0 auto;
@@ -62,11 +61,8 @@ const Con = styled.div`
       .hed {
         ${({ forCard }) => !forCard && 'padding: 0 76px;'}
       }
-      .scrollListCon {
-        .nano-content {
-          ${({ forCard }) => !forCard && 'padding: 0 80px;'}
-        }
-        min-height: 100%;
+      .scrollViewContainer {
+        ${({ forCard }) => !forCard && 'padding: 0 80px;'}
       }
     }
     .nullCon {
@@ -171,7 +167,7 @@ function RecordFav(props) {
   }, [keywords, appId]);
 
   const getList = data => {
-    return (!!data ? data : recordListAll)
+    return (data || recordListAll)
       .filter(
         o =>
           (o.title || '').toLowerCase().indexOf((keywords || '').toLowerCase()) >= 0 &&
@@ -281,7 +277,7 @@ function RecordFav(props) {
                   {favApps.length > 0 && (
                     <React.Fragment>
                       <div className="Font15 Bold mLeft15 mTop30">{_l('按应用')}</div>
-                      <ScrollView className="navList flex mTop15 pRight24 Block">
+                      <ScrollView className="navList flex mTop15 pRight24">
                         {[...favApps.map(o => o[0])].map(o => {
                           return <div className="mBottom10">{renderNavItem(o)}</div>;
                         })}
@@ -297,7 +293,7 @@ function RecordFav(props) {
     );
   };
   const nullCon = () => {
-    if (!!keywords) {
+    if (keywords) {
       return <div className="nullCon mTop40">{_l('无搜索结果')}</div>;
     }
     return (
@@ -441,9 +437,7 @@ function RecordFav(props) {
                   <Icon className="Font20 Gray_9e Hand" icon="refresh1" />
                 </BaseBtnCon>
               </div>
-              <div className="scrollList flex">
-                <ScrollView className="scrollListCon">{loading ? renderSkeleton(50) : list}</ScrollView>
-              </div>
+              <ScrollView className="flex">{loading ? renderSkeleton(50) : list}</ScrollView>
             </React.Fragment>
           )}
 

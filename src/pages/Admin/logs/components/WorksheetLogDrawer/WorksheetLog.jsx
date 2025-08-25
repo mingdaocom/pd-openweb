@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import moment from 'moment';
 import PropTypes from 'prop-types';
 import { filterXSS } from 'xss';
 import { Icon, LoadDiv, PreferenceTime, ScrollView } from 'ming-ui';
@@ -100,7 +99,7 @@ export default class Discuss extends Component {
 
           return (
             <div className="logItem" key={index}>
-              <Icon icon={[undefined, 'plus', 'edit', 'task-new-delete', 'restart', 'download', 'reply'][item.type]} />
+              <Icon icon={[undefined, 'plus', 'edit', 'trash', 'restart', 'download', 'reply'][item.type]} />
               <span className="logContent" dangerouslySetInnerHTML={{ __html: filterXSS(message) }} />
               <span className="logTime">
                 <PreferenceTime value={item.createTime} className="Normal Hand Hover_21 logTimeTip" />
@@ -113,7 +112,7 @@ export default class Discuss extends Component {
 
     return disableScroll || (loading && pageIndex === 1) ? (
       <div
-        className="logScroll flex"
+        className="logScroll flex overflowHidden"
         ref={scrollView => {
           this.scrollView = scrollView;
         }}
@@ -122,7 +121,7 @@ export default class Discuss extends Component {
         {loading && <LoadDiv className="mBottom20" />}
       </div>
     ) : (
-      <ScrollView className="logScroll flex" onScrollEnd={this.handleScroll}>
+      <ScrollView className="logScroll h100" onScrollEnd={this.handleScroll}>
         {children}
         {loading && <LoadDiv className="mBottom20" />}
       </ScrollView>

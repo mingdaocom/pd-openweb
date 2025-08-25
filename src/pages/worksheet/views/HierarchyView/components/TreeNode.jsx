@@ -1,9 +1,8 @@
-import React, { Component, createRef, Fragment } from 'react';
-import { string } from 'prop-types';
+import React, { Component } from 'react';
 import _ from 'lodash';
-import SortableNode from './SortableNode';
 import CreateRecord from '../../components/createRecord';
-import { dealHierarchyData, getRelateDefaultValue } from '../util';
+import { getRelateDefaultValue } from '../util';
+import SortableNode from './SortableNode';
 
 export default class TreeNode extends Component {
   static propTypes = {};

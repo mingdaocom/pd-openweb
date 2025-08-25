@@ -56,6 +56,22 @@
           color: rgba(51, 51, 51, 0.6);
         }
       }
+      .settingIcon {
+        padding: 0 8px;
+        font-size: 16px;
+        height: inherit;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid rgba(0, 0, 0, 0.16);
+        i {
+          margin-left: 0px;
+        }
+        &.active {
+          i {
+            color: #1677ff;
+          }
+        }
+      }
     }
   }
 }
@@ -144,12 +160,18 @@
     flex-shrink: 0;
     &:hover {
       background: #f5f5f5;
+      .selectAllBox {
+        visibility: visible;
+      }
+    }
+    .selectAllBox {
+      visibility: hidden;
     }
     &.active {
       background: #c4e5ff;
-      color: #2196f3 !important;
+      color: #1677ff !important;
       i {
-        color: #2196f3 !important;
+        color: #1677ff !important;
       }
     }
     .iconDown {
@@ -173,7 +195,7 @@
       background: #f5f5f5;
     }
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 }
@@ -190,10 +212,10 @@
   }
   .ant-dropdown-menu-item-active {
     color: #fff;
-    background-color: #2196f3 !important;
+    background-color: #1677ff !important;
   }
   .ant-dropdown-menu-item-selected {
-    color: #2196f3 !important;
+    color: #1677ff !important;
     background-color: #fff !important;
   }
 }

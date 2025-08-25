@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
@@ -7,6 +8,7 @@ import { getFeatureStatus } from 'src/utils/project';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
 import WidgetAiRecommend from '../Header/WidgetAiRecommend';
 import { notInsetSectionTab } from '../util';
+import { FixedIcon } from '../widgetDisplay/components/WidgetStyle';
 import DraggableItem from './draggableItem';
 import ListItemLayer from './ListItemLayer';
 
@@ -28,8 +30,9 @@ const WidgetList = styled.div`
         font-weight: 700;
       }
       .supportBox i {
+        margin-left: 8px;
         color: #9e9e9e;
-        font-size: 14px !important;
+        font-size: 16px !important;
       }
     }
   }
@@ -143,19 +146,17 @@ export default function List(props) {
 
   return (
     <WidgetList>
-      <ListItemLayer />
+      <ListItemLayer {..._.pick(props, ['listPanelVisible', 'setPanelVisible'])} />
       <ScrollView>
         <div className="groupList">
           {!md.global.SysSettings.hideAIBasicFun && (
             <Fragment>
               <div className="addWidgetCon">
-                <span className="title">{_l('添加字段')}</span>
-                <Support
-                  className="supportBox"
-                  type={2}
-                  href="https://help.mingdao.com/worksheet/controls"
-                  text={_l('帮助')}
-                />
+                <div className="flexCenter">
+                  <span className="title">{_l('添加字段')}</span>
+                  <Support className="supportBox" type={1} href="https://help.mingdao.com/worksheet/controls" />
+                </div>
+                <FixedIcon {...props} fixedKey="widgetPanelFixed" />
               </div>
               <div className="mTop12">
                 <span className="Gray_75">{_l('点击或拖拽添加，或通过')}</span>

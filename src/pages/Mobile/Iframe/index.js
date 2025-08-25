@@ -1,13 +1,13 @@
-import React, { Fragment, Component } from 'react';
-import Back from '../components/Back';
+import React, { Component, Fragment } from 'react';
 import DocumentTitle from 'react-document-title';
+import Back from '../components/Back';
 
 const data = {
   help: {
     url: 'https://help.mingdao.com',
-    title: _l('帮助中心')
-  }
-}
+    title: _l('帮助中心'),
+  },
+};
 
 export default class Iframe extends Component {
   constructor(props) {
@@ -24,8 +24,7 @@ export default class Iframe extends Component {
           width="100%"
           height={document.documentElement.clientHeight}
           src={url}
-        >
-        </iframe>
+        ></iframe>
         <Back
           className="low"
           onClick={() => {
@@ -33,6 +32,6 @@ export default class Iframe extends Component {
           }}
         />
       </Fragment>
-  	);
+    );
   }
 }

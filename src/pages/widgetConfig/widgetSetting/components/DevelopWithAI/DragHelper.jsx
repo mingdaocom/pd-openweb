@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import DragMask from 'worksheet/common/DragMask';
+import _ from 'lodash';
 import styled from 'styled-components';
+import DragMask from 'worksheet/common/DragMask';
 
 const DragLine = styled.div`
   position: absolute;

@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
-import styled from 'styled-components';
-import { arrayOf, number, shape, string, bool, func } from 'prop-types';
-import { Modal, Slider, Input } from 'ming-ui';
-import { Tip9e } from 'worksheet/components/Basics';
 import _ from 'lodash';
+import { arrayOf, func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Input, Modal, Slider } from 'ming-ui';
+import { Tip9e } from 'worksheet/components/Basics';
 
 const SliderCon = styled.div`
   margin-top: 30px;
@@ -111,7 +111,7 @@ export default function SliderScaleDialog(props) {
                 }
               ></i>
               <i
-                className={'icon-control_point Font18 mRight12 Gray_9e Hand'}
+                className={'icon-add_circle_outline Font18 mRight12 Gray_9e Hand'}
                 onClick={() =>
                   setScales(oldScales => [
                     ...oldScales.slice(0, i + 1),

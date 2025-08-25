@@ -1,5 +1,5 @@
-import { WIDGETS_TO_API_TYPE_ENUM, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
+import { DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
 export function getControlTypeInfo(type) {
   const key = _.findKey(WIDGETS_TO_API_TYPE_ENUM, o => o === type);

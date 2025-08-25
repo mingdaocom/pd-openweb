@@ -1,8 +1,8 @@
-﻿import chatController from 'src/api/chat';
-import taskCenterController from 'src/api/taskCenter';
+﻿import { dialogSelectUser } from 'ming-ui/functions';
+import chatController from 'src/api/chat';
 import groupController from 'src/api/group';
+import taskCenterController from 'src/api/taskCenter';
 import 'src/components/createTask/createTask';
-import { dialogSelectUser } from 'ming-ui/functions';
 
 export function _getMyTaskList(params) {
   return new Promise((resolve, reject) => {
@@ -30,6 +30,7 @@ export function _getChatList(params) {
         resolve(res);
       })
       .catch(function (err) {
+        console.log(err);
         reject(_l('获取数据失败'));
       });
   });
@@ -50,13 +51,14 @@ export function _convertToOtherAttachment(params) {
         resolve({ data: res });
       })
       .catch(function (err) {
+        console.log(err);
         reject(_l('获取数据失败'));
       });
   });
 }
 
 export function createNewTask() {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     $.CreateTask({
       relationCallback: function (result) {
         resolve({

@@ -1,8 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import styled from 'styled-components';
+import { LoadDiv } from 'ming-ui';
 
 const StatusWrap = styled.span`
   display: flex;
@@ -31,7 +31,7 @@ const STATUS_CONFIG = {
     text: _l('创建失败'),
     textColor: '#F51744',
     loading: false,
-    icon: 'icon-cancel1',
+    icon: 'icon-cancel',
     color: '#F51744',
   },
   2: {
@@ -87,7 +87,7 @@ const STATUS_CONFIG = {
     text: _l('销毁失败'),
     textColor: '#F51744',
     loading: false,
-    icon: 'icon-cancel1',
+    icon: 'icon-cancel',
     color: '#F51744',
   },
 };

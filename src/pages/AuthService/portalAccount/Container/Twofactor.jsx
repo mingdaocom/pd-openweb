@@ -76,17 +76,6 @@ export default function (props) {
         keys={[way, 'code']}
         key={'phone_con'}
         canChangeEmailOrTel={email && mobilephone}
-        onChangeEmailOrTel={() => {
-          let mobile = mobilephone;
-          if (props.dialCode) {
-            mobile = mobilephone.replace(props.dialCode, '');
-          }
-          const { emailOrTel } = props;
-          setState({
-            emailOrTel: emailOrTel === email ? mobile : email,
-            dialCode: emailOrTel === email ? props.dialCode : '',
-          });
-        }}
         appId={appId}
         sendVerifyCode={externalPortalAjax.sendVerifyCode}
       />

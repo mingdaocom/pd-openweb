@@ -1,4 +1,4 @@
-import React, { Component,Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import DocumentTitle from 'react-document-title';
 import './index.less';
@@ -15,7 +15,11 @@ export default class FullScreenCurtain extends Component {
   }
   render() {
     const { children, documentTitle } = this.props;
-    const Curtain = documentTitle ? <DocumentTitle title={documentTitle}>{children}</DocumentTitle> :<Fragment>{ children }</Fragment> ;
+    const Curtain = documentTitle ? (
+      <DocumentTitle title={documentTitle}>{children}</DocumentTitle>
+    ) : (
+      <Fragment>{children}</Fragment>
+    );
     return createPortal(Curtain, this.container);
   }
 }

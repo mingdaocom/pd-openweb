@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdAntDateRangePicker } from 'ming-ui';
-import PorTalTable from 'src/pages/Role/PortalCon/tabCon/portalComponent/PortalTable';
 import autoSize from 'ming-ui/decorators/autoSize';
-const AutoSizePorTalTable = autoSize(PorTalTable);
 import externalPortalAjax from 'src/api/externalPortal';
+import PorTalTable from 'src/pages/Role/PortalCon/tabCon/portalComponent/PortalTable';
 import { pageSize } from '../tabCon/util';
-import _ from 'lodash';
+
+const AutoSizePorTalTable = autoSize(PorTalTable);
 
 const Wrap = styled.div`
   .con {
@@ -71,7 +72,7 @@ function LoginInfo(props) {
   const [loading, setloading] = useState(false);
   const [list, setList] = useState([]);
   const [count, setCount] = useState(0);
-  const [columns, setColumns] = useState([
+  const columns = [
     {
       id: 'accountId',
       width: 150,
@@ -124,7 +125,7 @@ function LoginInfo(props) {
         return data.date;
       },
     },
-  ]);
+  ];
   const getList = (dataInfo = {}) => {
     if (loading) {
       return;
@@ -195,7 +196,7 @@ function LoginInfo(props) {
           defaultValue={[]}
           showTime={{ format: 'HH:mm' }}
           format="YYYY-MM-DD HH:mm"
-          onChange={(moments, dateString) => {
+          onChange={moments => {
             getList({
               startDate: !moments || !moments[0] ? '' : moments[0].format('YYYY-MM-DD HH:mm'),
               endDate: !moments || !moments[1] ? '' : moments[1].format('YYYY-MM-DD HH:mm'),

@@ -1,16 +1,15 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes from 'prop-types';
-import { addWorkSheet, getSheetList, createAppItem } from 'src/pages/worksheet/redux/actions/sheetList.js';
-import Trigger from 'rc-trigger';
-import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
-import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
-import Input from 'ming-ui/components/Input';
-import { Button, Icon } from 'ming-ui';
 import store from 'redux/configureStore';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
+import { Button, Icon } from 'ming-ui';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
+import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
+import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
+import { addWorkSheet, createAppItem, getSheetList } from 'src/pages/worksheet/redux/actions/sheetList.js';
 import './WorksheetEmpty.less';
 
 const createWorksheetList = [

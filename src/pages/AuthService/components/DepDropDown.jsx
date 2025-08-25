@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import departmentAjax from 'src/api/department';
-import { Icon } from 'ming-ui';
-import cx from 'classnames';
 import { TreeSelect } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon } from 'ming-ui';
+import departmentAjax from 'src/api/department';
 
 export default class DepDropDown extends Component {
   static propTypes = {
@@ -72,9 +72,9 @@ export default class DepDropDown extends Component {
     });
 
     this.ajax.then(result => {
-      if (!!result) {
+      if (result) {
         this.cachePath = {};
-        if (!!keywords) {
+        if (keywords) {
           // let list = [];
           // const getItem = (item, path) => {
           //   item.map(o => {
@@ -114,7 +114,7 @@ export default class DepDropDown extends Component {
               let text = nameArr.map((item, index) => {
                 if (item === keywords) {
                   return (
-                    <span key={item + index} style={{ color: '#2196f3' }}>
+                    <span key={item + index} style={{ color: '#1677ff' }}>
                       {item}
                     </span>
                   );
@@ -192,7 +192,7 @@ export default class DepDropDown extends Component {
   };
 
   render() {
-    const { popupClassName, treePopupAlign, onPopupVisibleChange } = this.props;
+    const { popupClassName, treePopupAlign } = this.props;
     const { options, searchOptions, keywords, isError, value } = this.state;
     return (
       <TreeSelect

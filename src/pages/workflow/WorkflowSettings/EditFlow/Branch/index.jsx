@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import './index.less';
-import cx from 'classnames';
-import BranchItem from './BranchItem';
-import { CreateNode } from '../components';
 import { Tooltip } from 'antd';
+import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, Radio } from 'ming-ui';
+import { CreateNode } from '../components';
+import BranchItem from './BranchItem';
+import './index.less';
 
 export default class Branch extends Component {
   constructor(props) {

@@ -1,4 +1,3 @@
-
 .textEllipsis() {
   word-break: break-all;
   overflow: hidden;
@@ -11,12 +10,14 @@
 }
 
 .attachmentFilesWrap {
-  &.imageFilesWrap, &.smallFilesWrap {
+  &.imageFilesWrap,
+  &.smallFilesWrap {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
   }
-  &.imageFilesWrap.smallSize, &.smallFilesWrap.smallSize {
+  &.imageFilesWrap.smallSize,
+  &.smallFilesWrap.smallSize {
     flex-wrap: inherit;
     justify-content: inherit;
     flex-direction: column;
@@ -26,7 +27,7 @@
     flex-direction: column;
   }
   .textEllipsis {
-    .textEllipsis;
+    .textEllipsis();
   }
   .fileEmpty {
     height: 0;
@@ -40,7 +41,8 @@
   .cancelBtn {
     background-color: #fff;
   }
-  .deleteBtn, .cancelBtn {
+  .deleteBtn,
+  .cancelBtn {
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Dialog, Button, Dropdown, RadioGroup, Support } from 'ming-ui';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
+import { Button, Dialog, RadioGroup, Support } from 'ming-ui';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 
 const AddSubListWrap = styled.div`
@@ -9,7 +9,7 @@ const AddSubListWrap = styled.div`
     color: #9e9e9e;
     span {
       margin-left: 6px;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   label {

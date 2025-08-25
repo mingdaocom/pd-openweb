@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
 

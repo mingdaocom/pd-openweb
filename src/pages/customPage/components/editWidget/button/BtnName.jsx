@@ -1,8 +1,8 @@
-import React, { Fragment, useState } from 'react';
-import { Icon, SvgIcon } from 'ming-ui';
-import { Input, Button, ConfigProvider } from 'antd';
+import React, { useState } from 'react';
+import { Button, Input } from 'antd';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 
 const ButtonWrap = styled.div`
@@ -49,6 +49,7 @@ export default function BtnName(props) {
     btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}customIcon/custom_actions.svg` } : {};
   const { icon, iconUrl } = config || defaultConfig;
 
+  // eslint-disable-next-line no-unused-vars
   const [visible, setVisible] = useState(false);
 
   const onCancel = () => {

@@ -1,9 +1,9 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import customApi from 'statistics/api/custom';
-import reportApi from 'statistics/api/report';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
 import EditInput from './EditInput';
@@ -49,7 +49,9 @@ export default function CustomPageView(props) {
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
         $(this).removeClass(className);
       });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
   };
 
   const renderNav = item => {
@@ -141,15 +143,13 @@ export default function CustomPageView(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
         </div>
-        <ScrollView className="flex">
+        <ScrollView className="h100">
           {list.filter(item => item.config.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
-      <ScrollView className="flex" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">{list.map(item => renderContent(item))}</div>
       </ScrollView>
     </div>

@@ -6,6 +6,7 @@ import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import * as actions from 'mobile/RecordList/redux/actions';
+import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
@@ -53,6 +54,7 @@ class View extends Component {
     } else {
       window.APP_OPEN_NEW_PAGE = base.type === 'single';
     }
+    loadSDK();
     if (getFilters === 'true') {
       mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
         const { value = [] } = data;
@@ -61,7 +63,7 @@ class View extends Component {
       });
     }
 
-    if (_.includes([0, 6], view.viewType)) {
+    if (_.includes([0, 3, 6], view.viewType)) {
       if (this.props.mobileNavGroupFilters.length) {
         this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
       } else {
@@ -117,7 +119,6 @@ class View extends Component {
   render() {
     const {
       view,
-      viewResultCode,
       base,
       isCharge,
       appNaviStyle,
@@ -132,6 +133,7 @@ class View extends Component {
       batchOptVisible,
       batchOptCheckedData,
       batchCheckAll,
+      filterControls,
       updateFilters = () => {},
       updateActiveSavedFilter = () => {},
     } = this.props;
@@ -180,9 +182,7 @@ class View extends Component {
 
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
 
-    const quickFilter = _.includes([customize, board], String(viewType))
-      ? this.props.pcQuickFilter
-      : this.props.quickFilter;
+    const quickFilter = _.includes([customize], String(viewType)) ? this.props.pcQuickFilter : this.props.quickFilter;
     const isFilter = quickFilter.length;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
     const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航
@@ -213,7 +213,7 @@ class View extends Component {
                 this.props.changeBatchOptData([]);
               }}
             >
-              {_l('完成')}
+              {_l('取消')}
             </a>
             {_.isEmpty(batchOptCheckedData) && <span>{_l('请选择')}</span>}
             {!_.isEmpty(batchOptCheckedData) && <span>{_l(`已选中%0条`, checkedCount)}</span>}
@@ -233,6 +233,7 @@ class View extends Component {
             detail={detail}
             view={view}
             worksheetInfo={worksheetInfo}
+            filterControls={filterControls}
             sheetControls={sheetControls}
             updateFilters={updateFilters}
             quickFilterWithDefault={quickFilterWithDefault}
@@ -294,6 +295,7 @@ export default connect(
       'activeSavedFilter',
       'batchCheckAll',
       'batchOptCheckedData',
+      'filterControls',
     ]),
   }),
   dispatch =>

@@ -1,5 +1,5 @@
 import React from 'react';
-import _, { find } from 'lodash';
+import _, { find, get } from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import ChildTable from 'worksheet/components/ChildTable';
@@ -22,7 +22,7 @@ export default class SubList extends React.Component {
 
   constructor(props) {
     super(props);
-    this.debounceChange = _.debounce(this.props.onChange, 500);
+    this.debounceChange = _.debounce(this.props.onChange, 300);
   }
 
   handleChange = ({ rows, originRows = [], lastAction = {} }, mode) => {
@@ -34,9 +34,11 @@ export default class SubList extends React.Component {
         rows,
       });
     }
-    const { value, recordId, from, controlId } = this.props;
+    const { value, recordId } = this.props;
+    // 子表导入场景这里可以异化，导入完成再调用 onChange
     const onChange =
       lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? this.debounceChange : this.props.onChange;
+
     const isAdd = !recordId;
     if (
       !_.includes(
@@ -55,6 +57,8 @@ export default class SubList extends React.Component {
           'UPDATE_TREE_TABLE_VIEW_ITEM',
           'UPDATE_TREE_TABLE_VIEW_TREE_MAP',
           'WORKSHEET_SHEETVIEW_APPEND_ROWS',
+          'UPDATE_PAGINATION',
+          'RESET_CHANGES',
         ],
         lastAction.type,
       ) &&
@@ -70,7 +74,9 @@ export default class SubList extends React.Component {
         });
       } else if (lastAction.type === 'CLEAR_AND_SET_ROWS') {
         onChange({
-          deleted: originRows.map(r => r.rowid),
+          deleted: get(lastAction, 'isSetValueFromEvent')
+            ? value.deleted || lastAction.deleted || []
+            : originRows.map(r => r.rowid),
           updated: rows.map(r => r.rowid),
           rows: rows,
         });
@@ -80,7 +86,9 @@ export default class SubList extends React.Component {
         try {
           deleted = value.deleted || lastAction.deleted || [];
           updated = value.updated || lastAction.updated || [];
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         if (lastAction.type === 'DELETE_ROW') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'DELETE_ROWS') {

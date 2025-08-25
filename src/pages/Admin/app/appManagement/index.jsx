@@ -149,7 +149,7 @@ export default class AppManagement extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(nextProps, this.props)) {
       this.setState({
         list: null,
@@ -264,7 +264,7 @@ export default class AppManagement extends Component {
    * 渲染列表
    */
   renderList() {
-    const { list, pageIndex, loading, hiddenIds } = this.state;
+    const { list, loading, hiddenIds } = this.state;
 
     if (list === null) return;
 
@@ -272,7 +272,7 @@ export default class AppManagement extends Component {
       return (
         <div className="manageListNull flex flexColumn">
           <div className="iconWrap">
-            <Icon icon="widgets2" />
+            <Icon icon="widgets" />
           </div>
           <div className="emptyExplain">{_l('暂无应用')}</div>
         </div>
@@ -292,7 +292,7 @@ export default class AppManagement extends Component {
    */
   renderListItem(item) {
     const { projectId } = this.props.match.params;
-    const { list, hiddenIds, hasDataBase, allowDelete } = this.state;
+    const { hiddenIds, hasDataBase, allowDelete } = this.state;
     const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
     return (
       <div className="flexRow manageList overflowHidden" key={item.appId}>
@@ -717,7 +717,6 @@ export default class AppManagement extends Component {
       userInfo,
     } = this.state;
     const projectId = this.props.match.params.projectId;
-    const { authority = [] } = this.props;
     const { version = {}, licenseType } = getCurrentProject(projectId, true);
     const statusList = [
       { text: _l('全部状态'), value: '' },
@@ -890,7 +889,7 @@ export default class AppManagement extends Component {
 
         {loading && <LoadDiv className="mTop15" />}
 
-        <div className="flex flexColumn mTop16">{this.renderList()}</div>
+        <div className="flex flexColumn mTop16 overflowHidden">{this.renderList()}</div>
 
         <PaginationWrap
           total={total}

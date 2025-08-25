@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 function withHoverState(Component) {
   class HoverStateComponent extends React.Component {
@@ -18,8 +18,15 @@ function withHoverState(Component) {
       this.props.thisArg.setState(state);
     }
     render() {
-      const { thisArg, hoverStateName, ...rest } = this.props;
-      return <Component {...rest} onMouseEnter={() => this.handleMouseEnter()} onMouseLeave={() => this.handleMouseLeave()} />;
+      const { ...rest } = this.props;
+
+      return (
+        <Component
+          {...rest}
+          onMouseEnter={() => this.handleMouseEnter()}
+          onMouseLeave={() => this.handleMouseLeave()}
+        />
+      );
     }
   }
 

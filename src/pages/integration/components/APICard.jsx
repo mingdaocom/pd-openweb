@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { Icon, SvgIcon } from 'ming-ui';
-import { publishStatus2Text, formatDate } from 'src/pages/integration/config';
+import React from 'react';
 import { Switch } from 'antd';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, SvgIcon } from 'ming-ui';
 import { LogoWrap } from 'src/pages/integration/apiIntegration/style';
+import { formatDate, publishStatus2Text } from 'src/pages/integration/config';
+
 const Wrap = styled.div`
   z-index: 11111;
   p {
@@ -30,7 +31,7 @@ const Wrap = styled.div`
     .icon {
       color: #9e9e9e;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .del {
@@ -47,7 +48,7 @@ const Wrap = styled.div`
   &:hover {
     border: 1px solid #e8e8e8;
     .name {
-      color: #2196f3;
+      color: #1677ff;
     }
     .optionCon {
       opacity: 1;
@@ -140,7 +141,7 @@ function APICard(props) {
           <span data-tip={_l('删除')} className="mLeft25">
             <Icon
               className={cx('Font18 InlineBlock del', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
-              icon="delete1"
+              icon="trash"
               onClick={() => {
                 if (!props.canEdit) {
                   return;

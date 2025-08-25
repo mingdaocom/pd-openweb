@@ -51,7 +51,7 @@ const IncomeWrap = styled.div`
   }
   .dateTxt:hover {
     .icon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -96,7 +96,7 @@ export default class TransactionDetails extends Component {
         title: _l('交易金额'),
         dataIndex: 'amount',
         width: 170,
-        render: (text, record) => {
+        render: text => {
           return text <= 0 ? 0 : text;
         },
       },
@@ -160,7 +160,7 @@ export default class TransactionDetails extends Component {
         title: _l('订单来源'),
         dataIndex: 'sourceType',
         width: 150,
-        render: (text = 1, record) => {
+        render: (text = 1) => {
           return (_.find(ORDER_SOURCE, v => v.value === text) || {}).label;
         },
       },
@@ -171,7 +171,7 @@ export default class TransactionDetails extends Component {
         render: (text, record) => {
           const { payAccountInfo = {}, sourceType } = record;
           const { accountId, fullname, avatar, isPortal } = payAccountInfo;
-          if (sourceType === 6) {
+          if (sourceType === 6 || accountId === 'user-workflow') {
             return '-';
           }
           return (
@@ -190,6 +190,7 @@ export default class TransactionDetails extends Component {
               ) : (
                 <UserName
                   className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  projectId={props.projectId}
                   user={{
                     userName: fullname,
                     accountId: accountId,
@@ -217,7 +218,7 @@ export default class TransactionDetails extends Component {
         dataIndex: 'paidTime',
         width: 220,
         render: (text, record) => {
-          return _.includes([0, 4, 8], record.status) ? '-' : text;
+          return _.includes([0, 4, 7], record.status) ? '-' : text;
         },
       },
       { title: _l('收款商户'), dataIndex: 'shortName', width: 300, ellipsis: true },
@@ -289,7 +290,7 @@ export default class TransactionDetails extends Component {
         render: (text, record) => {
           // 开票： 已开票、开票中不展示，同时申请退款、退款中、已退款不展示开票按钮；状态是申请开票、开票失败、已支付才可点击开票
           // 退款：已退款、退款中、订单状态（已完结）也不展示此操作项；订单状态已支付、退款失败才可点击退款
-          const { status, amount, refundAmount, taxAmount } = record;
+          const { status, amount, refundAmount } = record;
           return (
             <Fragment>
               <span
@@ -376,7 +377,7 @@ export default class TransactionDetails extends Component {
           merchantListLoading: false,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ merchantListLoading: false });
       });
   };
@@ -451,7 +452,7 @@ export default class TransactionDetails extends Component {
           pageIndex,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   };
@@ -491,7 +492,7 @@ export default class TransactionDetails extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingApp: false });
       });
   };
@@ -521,7 +522,7 @@ export default class TransactionDetails extends Component {
           if (res) {
             const index = _.findIndex(copyList, v => v.orderId === orderId);
             if (index > -1) {
-              copyList[index] = { ...copyList[index], status: 8 };
+              copyList[index] = { ...copyList[index], status: 7 };
             }
             this.setState({ list: copyList });
             alert(_l('取消成功'));
@@ -780,11 +781,11 @@ export default class TransactionDetails extends Component {
           pageSize: 50, //每页条数
         },
       })
-      .then(res => {
+      .then(() => {
         this.setState({ isExport: false });
         this.props.updateDisabledExportBtn(false);
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ isExport: false });
         this.props.updateDisabledExportBtn(false);
       });
@@ -885,6 +886,7 @@ export default class TransactionDetails extends Component {
                     {text}
                     {_.includes(['totalAmount', 'realAmount'], id) && (
                       <Tooltip
+                        autoCloseDelay={0}
                         text={
                           id === 'totalAmount'
                             ? _l('交易金额的总和')
@@ -922,7 +924,10 @@ export default class TransactionDetails extends Component {
             paginationInfo={{ pageIndex, pageSize: 50 }}
             ref={node => (this.tableWrap = node)}
             loading={loading}
-            columns={this.columns}
+            columns={this.columns.map(item => ({
+              ...item,
+              width: _.isEmpty(list) && item.dataIndex === 'action' ? 150 : item.width,
+            }))}
             dataSource={list}
             count={count}
             getDataSource={this.getDataList}

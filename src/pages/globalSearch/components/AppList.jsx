@@ -28,7 +28,7 @@ const Box = styled.div`
     align-items: center;
   }
   .noData .icon {
-    color: #2196f3 !important;
+    color: #1677ff !important;
   }
   .list .listItem {
     width: 100%;
@@ -153,7 +153,7 @@ const MoreOperateMenu = styled.ul`
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
     }
   }
@@ -172,7 +172,6 @@ export default function AppList(props) {
     currentProjectName = '',
     className = '',
     extendButtons = null,
-    explore = false,
     title = undefined,
     resultCode = null,
     start = false,
@@ -359,7 +358,7 @@ export default function AppList(props) {
         itemId: isApp ? appId : itemId,
       })
       .then(res => {
-        if (!!res) {
+        if (res) {
           alert(_l('成功'));
           update();
         } else alert(_l('失败'), 2);
@@ -493,7 +492,7 @@ export default function AppList(props) {
       </ul>
       {needShowMore && data.total > 5 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon={expand ? 'expand_less' : 'task-point-more'} className="Gray_9e Font18" />
+          <Icon icon={expand ? 'expand_less' : 'more_horiz'} className="Gray_9e Font18" />
           <a className="text mLeft24 Gray_9e" onClick={expandHandle}>
             {expand ? _l('收起') : _l('显示更多')}
           </a>
@@ -501,7 +500,7 @@ export default function AppList(props) {
       )}
       {viewAll && data.total > 5 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon="task-point-more" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="Gray_9e Font18" />
           <a
             href={`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}&appId=${id}`}
             className="text mLeft24 Gray_9e"
@@ -513,7 +512,7 @@ export default function AppList(props) {
       )}
       {loadMore && nextPage && list.length < 10 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon="task-point-more" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="Gray_9e Font18" />
           <a className="text mLeft24 Gray_9e" onClick={getNextPage}>
             {_l('加载更多')}
           </a>

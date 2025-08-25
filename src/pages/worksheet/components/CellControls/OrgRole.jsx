@@ -1,14 +1,15 @@
 import React, { Fragment } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import cx from 'classnames';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import { quickSelectRole } from 'ming-ui/functions';
 import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
-import _ from 'lodash';
+
+const ClickAwayable = createDecoratedComponent(withClickAway);
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
@@ -49,7 +50,6 @@ export default class Text extends React.Component {
   cell = React.createRef();
 
   handleTableKeyDown = e => {
-    const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Escape':
         // updateEditingStatus(false);
@@ -72,7 +72,7 @@ export default class Text extends React.Component {
     });
   };
 
-  handleSelect = e => {
+  handleSelect = () => {
     const { projectId, cell, rowFormData, masterData = () => {} } = this.props;
     const target = (this.cell && this.cell.current) || (event || {}).target;
 
@@ -133,7 +133,9 @@ export default class Text extends React.Component {
         newData = isCancel
           ? value.filter(l => l.organizeId !== filterData[0].organizeId)
           : _.uniqBy(value.concat(filterData), 'organizeId');
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
       this.setState(
         {
           value: newData,
@@ -188,7 +190,7 @@ export default class Text extends React.Component {
             minHeight: rowHeight,
           }}
         >
-          {value.map((organize, index) => (
+          {value.map(organize => (
             <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
               <div className="flexRow">
                 <div className="departmentName flex ellipsis">
@@ -239,7 +241,7 @@ export default class Text extends React.Component {
           >
             {!!value && (
               <div className={cx('cellDepartments cellControl', { singleLine })}>
-                {value.map((organize, index) => (
+                {value.map(organize => (
                   <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
                     <div className="flexRow">
                       <div className="departmentName flex ellipsis">

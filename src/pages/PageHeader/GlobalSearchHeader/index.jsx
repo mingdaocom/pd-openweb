@@ -21,7 +21,7 @@ const HomeEntry = styled.div`
   cursor: pointer;
   &:hover {
     border-color: #ddd;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -108,7 +108,7 @@ export default class GlobalSearchHeader extends Component {
                 }
               }}
             />
-            {searchValue && <Icon icon="delete_out" className="Gray_bd Font14" onClick={this.onClearSearch} />}
+            {searchValue && <Icon icon="cancel" className="Gray_bd Font14" onClick={this.onClearSearch} />}
           </div>
         </div>
         <CommonUserHandle />

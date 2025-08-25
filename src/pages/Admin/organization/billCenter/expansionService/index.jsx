@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Checkbox } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
@@ -319,8 +318,6 @@ export default class ExpansionService extends Component {
           () => this.computePrince(),
         );
       });
-    } else if (expandType === EXPAND_TYPE.AGGREGATIONTABLE) {
-      this.setState({ addUserCount: 5, addUserStep: 5, loading: false });
     } else if (expandType === EXPAND_TYPE.MERCHANT) {
       Promise.all([
         projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }),
@@ -418,17 +415,20 @@ export default class ExpansionService extends Component {
     const { merchantType, licenseInfo, merchantInfo, addUserCount } = this.state;
     const isTrial = Config.params[5] === 'trial';
     const startDate =
-      !merchantInfo.subscribeMerchant || isTrial
-        ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
-        : moment(merchantInfo.planExpiredTime).isBefore(new Date())
+      _.get(licenseInfo, 'currentLicense.expireDays') === 1
+        ? moment().startOf('day').format('YYYY-MM-DDTHH:mm:ssZ')
+        : !merchantInfo.subscribeMerchant || isTrial
           ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
-          : moment(merchantInfo.planExpiredTime).add(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ');
+          : moment(merchantInfo.planExpiredTime).isBefore(new Date())
+            ? moment().format('YYYY-MM-DDTHH:mm:ssZ')
+            : moment(merchantInfo.planExpiredTime).add(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ');
 
     return {
       startDate,
-      endDate: merchantType
-        ? moment(startDate).add(addUserCount, 'months').subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ')
-        : moment(licenseInfo.currentLicense.endDate).format('YYYY-MM-DDTHH:mm:ssZ'),
+      endDate:
+        _.get(licenseInfo, 'currentLicense.expireDays') > 1 && merchantType
+          ? moment(startDate).add(addUserCount, 'months').subtract(1, 'days').format('YYYY-MM-DDTHH:mm:ssZ')
+          : moment(licenseInfo.currentLicense.endDate).format('YYYY-MM-DDTHH:mm:ssZ'),
     };
   }
 
@@ -1174,17 +1174,7 @@ export default class ExpansionService extends Component {
   }
 
   render() {
-    const {
-      step,
-      totalPrince,
-      needSalesAssistance,
-      isPay,
-      workflowType,
-      showWorkflowExtPack,
-      showDataSyncExtPack,
-      loading,
-      dataSyncType,
-    } = this.state;
+    const { step, totalPrince, isPay, showWorkflowExtPack, showDataSyncExtPack, loading } = this.state;
 
     const expandType = this.expandType;
 

@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Progress } from 'antd';
 import cx from 'classnames';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, QiniuUpload, Support } from 'ming-ui';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
@@ -73,7 +72,7 @@ const Wrap = styled.div`
         width: 95px;
         height: 36px;
         line-height: 36px;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 18px;
         &:hover {
           background: #0073ce;
@@ -83,7 +82,7 @@ const Wrap = styled.div`
       .passwordInputBox {
         width: 250px;
         line-height: 34px;
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
         border-radius: 3px;
         padding: 0 12px;
         box-sizing: border-box;
@@ -93,7 +92,7 @@ const Wrap = styled.div`
         width: 95px;
         height: 36px;
         line-height: 36px;
-        background: #2196f3;
+        background: #1677ff;
         &.disabled {
           background: #bdbdbd !important;
         }
@@ -123,7 +122,7 @@ const Wrap = styled.div`
 export default function ImportDialog(props) {
   const uploaderWrap = useRef();
   const { projectId, onFresh, onClose } = props;
-  const [{ file, errTip, url, analyzeLoading, upgradeId }, setState] = useSetState({
+  const [{ file, errTip, analyzeLoading, upgradeId }, setState] = useSetState({
     file: {},
     errTip: '',
     url: '',
@@ -143,7 +142,7 @@ export default function ImportDialog(props) {
         id: upgradeId,
       },
       { isIntegration: true },
-    ).then(res => {
+    ).then(() => {
       onFresh();
       onClose();
     });
@@ -205,7 +204,7 @@ export default function ImportDialog(props) {
           alert(UPGRADE_ERRORMSG[resultCode], 2);
         }
       })
-      .catch(err => {
+      .catch(() => {
         setState({ analyzeLoading: false, upgradeId: '' });
       });
   };
@@ -233,7 +232,7 @@ export default function ImportDialog(props) {
               mime_types: [{ extensions: 'mdy' }],
             },
           }}
-          onAdd={(up, files) => {
+          onAdd={() => {
             setState({ errTip: '', upgradeId: '' });
           }}
           onBeforeUpload={(up, file) => {
@@ -269,12 +268,12 @@ export default function ImportDialog(props) {
             <Progress
               style={{ width: 250 }}
               trailColor="#eaeaea"
-              strokeColor="#2196f3"
+              strokeColor="#1677ff"
               strokeWidth={8}
               percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
             />
             <span
-              className="icon-cancel1 Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
+              className="icon-cancel Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
               onClick={() => {
                 uploaderWrap.current.uploader.stop();
                 uploaderWrap.current.uploader.removeFile(file);

@@ -24,7 +24,7 @@ const Content = styled.div`
   height: calc(100% - 50px);
   background-color: #f7f7f7;
   padding: 16px 0;
-  overflow-y: auto;
+  overflow: hidden;
 `;
 
 const SelectCon = styled.div`
@@ -45,7 +45,7 @@ const SelectCon = styled.div`
     display: inline-block;
     text-align: center;
   }
-  .icon-cancel1 {
+  .icon-cancel {
     display: none;
   }
   .selectUser,
@@ -60,7 +60,7 @@ const SelectCon = styled.div`
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     &:hover {
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
-      .icon-cancel1 {
+      .icon-cancel {
         display: inline-block;
       }
       .icon-arrow-down {
@@ -75,9 +75,9 @@ const SelectCon = styled.div`
     margin: 0 4px;
   }
   .selectLight {
-    color: #2196f3;
+    color: #1677ff;
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .left {
@@ -252,14 +252,14 @@ export default function ActionLogs(props) {
         <Icon icon="close" className="Hand Font18" onClick={onClose} />
       </Header>
       <Content>
-        <ScrollView onScrollEnd={onScrollEnd}>
+        <ScrollView className="h100" onScrollEnd={onScrollEnd}>
           <SelectCon>
             <div className="left">
               <span className={cx({ selectLight: selectUser }, 'selectUser')} onClick={pickUser} ref={selectUserRef}>
                 <Icon icon="person" />
                 <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
                 <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
-                {selectUser && <Icon onClick={clearSelectUser} icon="cancel1" />}
+                {selectUser && <Icon onClick={clearSelectUser} icon="cancel" />}
               </span>
             </div>
             <Trigger
@@ -304,14 +304,14 @@ export default function ActionLogs(props) {
                 <Icon icon="event" />
                 {selectDate.range && <span className="selectConText">{selectDate.range.label}</span>}
                 {selectDate.range && <Icon icon="arrow-down" />}
-                {selectDate.range && <Icon icon="cancel1" onClick={clearSelectDate} />}
+                {selectDate.range && <Icon icon="cancel" onClick={clearSelectDate} />}
               </span>
             </Trigger>
           </SelectCon>
 
           {_.isEmpty(actLogList) ? (
             <EmptyStatus
-              icon="sp_assignment_white"
+              icon="assignment"
               radiusSize={100}
               iconClassName="Font36"
               emptyTxt={_l('暂无日志信息')}

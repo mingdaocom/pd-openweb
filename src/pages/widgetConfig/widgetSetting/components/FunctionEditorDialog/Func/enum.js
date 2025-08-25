@@ -2,9 +2,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import _ from 'lodash';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
-import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { calcDate, countChar } from 'src/utils/common';
+import { calcDate, countChar } from 'src/utils/function-library';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
@@ -475,7 +473,9 @@ export const functions = {
             } else if (typeof item === 'object') {
               str = item.text || '';
             }
-          } catch (err) {}
+          } catch (err) {
+            console.log(err);
+          }
           return str;
         })
         .join(',');
@@ -1787,50 +1787,3 @@ export const functionDetails = _.pick(
     ].concat(Object.keys(functionDetailsMap)),
   ),
 );
-
-// 支持参与函数计算的字段
-export function checkTypeSupportForFunction(control) {
-  if (
-    [
-      1,
-      WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本 2
-      WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值 6
-      WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额 8
-      WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮箱 5
-      WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 座机 4
-      WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机 3
-      WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期 15
-      WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期 16
-      WIDGETS_TO_API_TYPE_ENUM.TIME, // 时间 46
-      WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选 9
-      WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选 10
-      WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉 11
-      WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员 26
-      WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门 27
-      WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色 48
-      WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 省 19
-      WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 省市 23
-      WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
-      WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
-      WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 31 公式数值
-      WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE, // 38 公式日期
-      WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
-      WIDGETS_TO_API_TYPE_ENUM.LOCATION, // 定位 40
-      WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件 7
-      WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC, // 公式函数 53
-      WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL, // 汇总 37
-      WIDGETS_TO_API_TYPE_ENUM.SCORE, // 等级 28
-    ].indexOf(control.type) > -1
-  ) {
-    return true;
-  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
-    // 关联记录 29
-    return !isSheetDisplay(control);
-  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
-    // 他表存储 30
-    return (
-      (_.get(control, 'strDefault') || '10')[0] !== '1' &&
-      checkTypeSupportForFunction({ ...control, type: control.sourceControlType })
-    );
-  }
-}

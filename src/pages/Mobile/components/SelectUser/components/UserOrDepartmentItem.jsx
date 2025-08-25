@@ -1,8 +1,8 @@
 import React from 'react';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
 import { Checkbox } from 'antd-mobile';
+import cx from 'classnames';
 import _ from 'lodash';
+import { Icon } from 'ming-ui';
 
 const isChecked = (id, ids) => {
   let result = false;

@@ -1,10 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { formatSearchDeptData } from '../../modules/util';
-import { LoadDiv } from 'ming-ui';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import _ from 'lodash';
 import filterXSS from 'xss';
+import { LoadDiv } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { formatSearchDeptData } from '../../modules/util';
 
 @withClickAway
 class Result extends React.Component {

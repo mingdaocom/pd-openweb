@@ -23,7 +23,7 @@ function OptionButtonGroup({ value, currentControl, onChange }) {
         <button
           key={option.key}
           className={`flex-1 h-10 border rounded-md ${
-            selectedValue.includes(option.key) ? 'bg-[#2196f3] text-white' : 'bg-white text-[#151515] border-gray-300'
+            selectedValue.includes(option.key) ? 'bg-[#1677ff] text-white' : 'bg-white text-[#151515] border-gray-300'
           }`}
           onClick={() => handleToggle(option.key)}
         >

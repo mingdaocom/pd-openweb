@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
-import { Dialog, Dropdown, Checkbox, Icon, Input } from 'ming-ui';
-import { Tooltip } from 'antd';
 import { useSetState } from 'react-use';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { DISPLAY_MASK, CUSTOM_DISPLAY } from 'src/pages/widgetConfig/config/setting';
+import { Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
+import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import { dealMaskValue } from './util';
-import cx from 'classnames';
 
 const Setting_Config = [
   {
@@ -84,7 +84,7 @@ const SelectItem = styled.div`
     margin-left: 11px;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #fafafa;
     }
   }
@@ -97,7 +97,7 @@ const SelectItem = styled.div`
       color: #bdbdbd;
     }
     &:focus {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
     }
     &.err {
       border-color: #ff0000;
@@ -298,6 +298,7 @@ export default function MaskSettingDialog(props) {
               <span style={{ marginRight: '4px' }}>{_l('虚拟掩码长度')}</span>
               <Tooltip
                 placement="bottom"
+                autoCloseDelay={0}
                 title={_l('未勾选时，按照真实字数显示掩码；勾选后，按照虚拟字数显示掩码，不暴露真实长度')}
               >
                 <Icon icon="help" className="Font15 Gray_9e TxtMiddle" />

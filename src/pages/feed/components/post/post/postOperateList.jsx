@@ -142,20 +142,20 @@ class PostOperateList extends React.Component {
       noLink: true,
     });
     createCalendar({
-      MemberArray: _(postItem.rUserList)
+      MemberArray: _.chain(postItem.rUserList)
         .filter(a => a)
         .map(a => ({ accountId: a.aid, avatar: a.userMiddleHead, fullname: a.name }))
         .concat(
-          _(postItem.comments)
+          _.chain(postItem.comments)
             .map(c => c.user)
             .filter(a => a)
             .map(a => ({ accountId: a.accountId, avatar: a.userMiddleHead, fullname: a.userName }))
             .value(),
         )
         .concat(
-          _(postItem.comments)
+          _.chain(postItem.comments)
             .map(c =>
-              _(c.rUserList)
+              _.chain(c.rUserList)
                 .filter(a => a)
                 .map(a => ({ accountId: a.aid, avatar: a.userMiddleHead, fullname: a.name }))
                 .value(),
@@ -182,7 +182,7 @@ class PostOperateList extends React.Component {
     });
     if (param === 1) {
       createTask({
-        MemberArray: _(postItem.rUserList)
+        MemberArray: _.chain(postItem.rUserList)
           .uniq('aid')
           .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
           .value(),
@@ -193,7 +193,7 @@ class PostOperateList extends React.Component {
       });
     } else if (param === 2) {
       addOldTask({
-        MemberArray: _(postItem.rUserList)
+        MemberArray: _.chain(postItem.rUserList)
           .uniq('aid')
           .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
           .value(),
@@ -264,7 +264,7 @@ class PostOperateList extends React.Component {
             {_l('加入任务')}
           </MenuItem>
         );
-      } else if (!postItem.source) {
+      } else {
         taskHtml = (
           <MenuItem
             target="_blank"

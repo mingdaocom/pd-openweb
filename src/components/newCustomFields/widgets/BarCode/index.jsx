@@ -1,12 +1,13 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BarCode, Qr } from 'ming-ui';
-import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-import { getBarCodeValue } from '../../tools/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { parseDataSource } from 'src/pages/widgetConfig/util';
+import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { FROM } from '../../tools/config';
+import { getBarCodeValue } from '../../tools/utils';
 
 const QRErrorCorrectLevel = {
   '7%': 1,

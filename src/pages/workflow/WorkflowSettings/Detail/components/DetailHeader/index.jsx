@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Support, SvgIcon } from 'ming-ui';
-import NodeNameInput from '../NodeNameInput';
-import { APP_TYPE, NODE_TYPE, PUSH_TYPE, SUPPORT_HREF } from '../../../enum';
 import _ from 'lodash';
+import { Support, SvgIcon } from 'ming-ui';
+import { APP_TYPE, NODE_TYPE, PUSH_TYPE, SUPPORT_HREF } from '../../../enum';
+import NodeNameInput from '../NodeNameInput';
 
 // 获取当前打开节点的详细类型
 const getNodeTypeForSupportHref = ({ actionId, appType, pushType }, selectNodeType) => {
@@ -65,7 +65,7 @@ export default function DetailHeader({
   return (
     <div
       className={cx('workflowDetailHeader flexRow', bg)}
-      style={appType === APP_TYPE.PLUGIN ? { background: app.iconColor || '#2196f3' } : {}}
+      style={appType === APP_TYPE.PLUGIN ? { background: app.iconColor || '#1677ff' } : {}}
     >
       {removeNodeName ? (
         <div className="flex" />

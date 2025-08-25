@@ -7,6 +7,8 @@ import { Button, Modal, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Bold600, Hr, Tip99 } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
+import { checkCertification } from 'src/components/checkCertification';
+import { getCurrentProjectId } from 'src/pages/globalSearch/utils';
 import { getPublicShare, getUrl, updatePublicShareStatus } from './controller';
 import Validity from './Validity';
 
@@ -39,7 +41,6 @@ export default function Share(props) {
     from,
     title,
     isCharge,
-    card,
     params = {},
     onUpdate = () => {},
     onClose,
@@ -203,12 +204,17 @@ export default function Share(props) {
                   )}
                   <Button
                     className="Right"
-                    onClick={async () => {
-                      if (includes(['recordInfo', 'view'], from)) {
-                        await getPublicShareInfo();
-                      }
-                      setUrlVisible(true);
-                    }}
+                    onClick={() =>
+                      checkCertification({
+                        projectId: getCurrentProjectId(),
+                        checkSuccess: async () => {
+                          if (includes(['recordInfo', 'view'], from)) {
+                            await getPublicShareInfo();
+                          }
+                          setUrlVisible(true);
+                        },
+                      })
+                    }
                   >
                     {getShareLinkTxt || _l('获取分享链接')}
                   </Button>

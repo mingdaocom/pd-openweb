@@ -1,59 +1,72 @@
 import React, { Component, Fragment } from 'react';
+import { Dropdown, Menu, Tooltip } from 'antd';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Menu, Dropdown, Tooltip } from 'antd';
-import WithoutFidldItem from './WithoutFidldItem';
-import RenameModal from './RenameModal';
-import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
+import { reportTypes } from 'statistics/Charts/common';
 import {
-  timeFormats,
-  formatTimeFormats,
-  timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
-  timeDataParticle,
-  timeGatherParticle,
+  filterAreaParticleSizeDropdownData,
   filterTimeData,
   filterTimeGatherParticle,
-  isXAxisControl,
+  formatTimeFormats,
   isAreaControl,
+  isOptionControl,
   isTimeControl,
-  isOptionControl
+  isXAxisControl,
+  timeDataParticle,
+  timeFormats,
+  timeGatherParticle,
+  timeParticleSizeDropdownData,
 } from 'statistics/common';
-import { reportTypes } from 'statistics/Charts/common';
-import _ from 'lodash';
+import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
+import RenameModal from './RenameModal';
+import WithoutFidldItem from './WithoutFidldItem';
 
-const emptyTypes = [{
-  value: 0,
-  name: _l('隐藏')
-}, {
-  value: 1,
-  name: _l('显示为 0')
-}, {
-  value: 2,
-  name: _l('显示为 --')
-}];
+const emptyTypes = [
+  {
+    value: 0,
+    name: _l('隐藏'),
+  },
+  {
+    value: 1,
+    name: _l('显示为 0'),
+  },
+  {
+    value: 2,
+    name: _l('显示为 --'),
+  },
+];
 
-const numberChartEmptyTypes = [{
-  value: 0,
-  name: _l('隐藏')
-}, {
-  value: 1,
-  name: _l('显示')
-}];
+const numberChartEmptyTypes = [
+  {
+    value: 0,
+    name: _l('隐藏'),
+  },
+  {
+    value: 1,
+    name: _l('显示'),
+  },
+];
 
-const lineChartEmptyTypes = [{
-  value: 0,
-  name: _l('隐藏')
-}, {
-  value: 1,
-  name: _l('显示为 0')
-}, {
-  value: 2,
-  name: _l('显示为 -- (连续)')
-}, {
-  value: 3,
-  name: _l('显示为 -- (中断)')
-}];
+const lineChartEmptyTypes = [
+  {
+    value: 0,
+    name: _l('隐藏'),
+  },
+  {
+    value: 1,
+    name: _l('显示为 0'),
+  },
+  {
+    value: 2,
+    name: _l('显示为 -- (连续)'),
+  },
+  {
+    value: 3,
+    name: _l('显示为 -- (中断)'),
+  },
+];
 
 const getEmptyTypes = reportType => {
   if (reportType === reportTypes.LineChart) {
@@ -63,17 +76,20 @@ const getEmptyTypes = reportType => {
     return numberChartEmptyTypes;
   }
   return emptyTypes;
-}
+};
 
 const getIsEmptyType = (reportType, { isTime, isOption }) => {
-  if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (isTime || isOption)) {
+  if (
+    [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) &&
+    (isTime || isOption)
+  ) {
     return true;
   }
   if ([reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) && isOption) {
     return true;
   }
   return false;
-}
+};
 
 export default class XAxis extends Component {
   constructor(props) {
@@ -82,17 +98,8 @@ export default class XAxis extends Component {
     this.state = {
       dialogVisible: false,
       showFormat: _.find(timeFormats, { value: xaxes.showFormat }) ? '' : xaxes.showFormat,
-      showFormatDialogVisible: false
+      showFormatDialogVisible: false,
     };
-  }
-  getAreaParticleSizeDropdownData(type) {
-    if (type === 19) {
-      return areaParticleSizeDropdownData.filter(a => ![2, 3].includes(a.value));
-    }
-    if (type === 23) {
-      return areaParticleSizeDropdownData.filter(a => ![3].includes(a.value));
-    }
-    return areaParticleSizeDropdownData;
   }
   handleUpdateTimeParticleSizeType = value => {
     const { xaxes, sorts } = this.props.currentReport;
@@ -102,25 +109,25 @@ export default class XAxis extends Component {
         xaxes: {
           ...xaxes,
           particleSizeType: value,
-          showFormat: '0'
+          showFormat: '0',
         },
-        sorts: sorts.filter(item => _.findKey(item) !== id)
+        sorts: sorts.filter(item => _.findKey(item) !== id),
       },
       true,
     );
-  }
+  };
   handleChangeXaxes = data => {
     const { xaxes } = this.props.currentReport;
     this.props.onChangeCurrentReport(
       {
         xaxes: {
           ...xaxes,
-          ...data
+          ...data,
         },
       },
       true,
     );
-  }
+  };
   handleVerification = (data, isAlert = false) => {
     const { reportType, split, yaxisList } = this.props.currentReport;
     if ([reportTypes.CountryLayer].includes(reportType) && !isAreaControl(data.type)) {
@@ -135,7 +142,11 @@ export default class XAxis extends Component {
       isAlert && alert(_l('多数值时不能同时配置维度'), 2);
       return false;
     }
-    if ([reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) && split.controlId && yaxisList.length > 1) {
+    if (
+      [reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) &&
+      split.controlId &&
+      yaxisList.length > 1
+    ) {
       isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);
       return false;
     }
@@ -145,13 +156,12 @@ export default class XAxis extends Component {
       isAlert && alert(_l('该字段不能作为x轴维度'), 2);
       return false;
     }
-  }
+  };
   handleAddControl = data => {
-    const { reportType, xaxes, displaySetup } = this.props.currentReport;
     if (this.handleVerification(data, true)) {
       this.props.addXaxes(data);
     }
-  }
+  };
   renderModal() {
     const { dialogVisible, showFormat, showFormatDialogVisible } = this.state;
     const { xaxes } = this.props.currentReport;
@@ -160,7 +170,7 @@ export default class XAxis extends Component {
         <RenameModal
           dialogVisible={dialogVisible}
           rename={xaxes.rename || xaxes.controlName}
-          onChangeRename={(rename) => {
+          onChangeRename={rename => {
             this.handleChangeXaxes({ rename });
             this.setState({ dialogVisible: false });
           }}
@@ -192,8 +202,11 @@ export default class XAxis extends Component {
     const isLineChart = reportType === reportTypes.LineChart;
     const showtype = _.get(axis, 'advancedSetting.showtype');
     const timeDataList = isTime ? filterTimeData(timeDataParticle, { showtype, controlType: xaxes.controlType }) : [];
-    const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, { showtype, controlType: xaxes.controlType });
-    const areaParticleSizeDropdownData = this.getAreaParticleSizeDropdownData(axis.type);
+    const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, {
+      showtype,
+      controlType: xaxes.controlType,
+    });
+    const areaParticleSizeDropdownData = filterAreaParticleSizeDropdownData(axis);
 
     if (!isLineChart && xaxes.emptyType === 3) {
       xaxes.emptyType = 2;
@@ -215,7 +228,9 @@ export default class XAxis extends Component {
                 {timeDataList.map(item => (
                   <Menu.Item
                     className="valignWrapper"
-                    disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
+                    disabled={
+                      item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)
+                    }
                     style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
                     key={item.value}
                     onClick={() => {
@@ -234,7 +249,9 @@ export default class XAxis extends Component {
                     {timeGatherParticleList.map(item => (
                       <Menu.Item
                         className="valignWrapper"
-                        disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
+                        disabled={
+                          item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)
+                        }
                         style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
                         key={item.value}
                         onClick={() => {
@@ -312,27 +329,25 @@ export default class XAxis extends Component {
         {getIsEmptyType(reportType, { isTime, isOption }) && (
           <Menu.SubMenu
             popupClassName="chartMenu"
-            title={(
+            title={
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('无记录的项目')}</div>
                 <div className="Font12 Gray_75 emptyTypeName">{xaxes.emptyType ? _l('显示') : _l('隐藏')}</div>
               </div>
-            )}
+            }
             popupOffset={[0, -15]}
           >
-            {
-              getEmptyTypes(reportType).map(item => (
-                <Menu.Item
-                  key={item.value}
-                  style={{ color: item.value === xaxes.emptyType ? '#1e88e5' : null }}
-                  onClick={() => {
-                    this.handleChangeXaxes({ emptyType: item.value });
-                  }}
-                >
-                  {item.name}
-                </Menu.Item>
-              ))
-            }
+            {getEmptyTypes(reportType).map(item => (
+              <Menu.Item
+                key={item.value}
+                style={{ color: item.value === xaxes.emptyType ? '#1e88e5' : null }}
+                onClick={() => {
+                  this.handleChangeXaxes({ emptyType: item.value });
+                }}
+              >
+                {item.name}
+              </Menu.Item>
+            ))}
           </Menu.SubMenu>
         )}
         {!isTime && (
@@ -343,7 +358,7 @@ export default class XAxis extends Component {
             }}
           >
             <div className="flex">{_l('统计空值')}</div>
-            {xaxes.xaxisEmpty && <Icon icon="done" className="Font17"/>}
+            {xaxes.xaxisEmpty && <Icon icon="done" className="Font17" />}
           </Menu.Item>
         )}
       </Menu>
@@ -367,18 +382,12 @@ export default class XAxis extends Component {
               {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
             </span>
           </Tooltip>
+        ) : control.strDefault === '10' ? (
+          <span className="Red flex ellipsis">{`${control.controlName} (${_l('无效类型')})`}</span>
         ) : (
-          control.strDefault === '10' ? (
-            <span className="Red flex ellipsis">
-              {`${control.controlName} (${_l('无效类型')})`}
-            </span>
-          ) : (
-            <Tooltip title={`ID: ${xaxes.controlId}`}>
-              <span className="Red flex ellipsis">
-                {_l('字段已删除')}
-              </span>
-            </Tooltip>
-          )
+          <Tooltip title={`ID: ${xaxes.controlId}`}>
+            <span className="Red flex ellipsis">{_l('字段已删除')}</span>
+          </Tooltip>
         )}
         <Dropdown overlay={this.renderOverlay(axis || {})} trigger={['click']} placement="bottomRight">
           <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />

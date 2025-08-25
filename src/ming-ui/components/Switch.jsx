@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './less/Switch.less';
 
 class Switch extends Component {
@@ -64,6 +64,18 @@ class Switch extends Component {
 
   handleClick() {
     if (this.props.disabled) return false;
+    this.setState(
+      {
+        needAnimate: true,
+      },
+      () => {
+        setTimeout(() => {
+          this.setState({
+            needAnimate: false,
+          });
+        }, 200);
+      },
+    );
     if (this.props.checked !== undefined) {
       this.props.onClick(this.props.checked, this.props.value);
     } else {
@@ -77,7 +89,7 @@ class Switch extends Component {
 
   render() {
     const { disabled, text, size, primaryColor } = this.props;
-    const { checked } = this.state;
+    const { checked, needAnimate } = this.state;
     return (
       <label
         className={cx(
@@ -88,6 +100,7 @@ class Switch extends Component {
           this.props.className,
           {
             'Switch--disabled': disabled,
+            animate: needAnimate,
           },
         )}
         onClick={e => {

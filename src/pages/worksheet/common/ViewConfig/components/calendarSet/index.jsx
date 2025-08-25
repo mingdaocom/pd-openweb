@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useSetState } from 'react-use';
 import { Select } from 'antd';
 import { TimePicker } from 'antd';
 import localeEn from 'antd/es/date-picker/locale/en_US';
@@ -61,16 +60,16 @@ const ShowChoose = styled.div`
         overflow: hidden;
       }
       &.checked {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
-        border-top: 1px solid #2196f3;
-        border-bottom: 1px solid #2196f3;
+        border-top: 1px solid #1677ff;
+        border-bottom: 1px solid #1677ff;
         z-index: 1;
         &:last-child {
-          border-right: 1px solid #2196f3;
+          border-right: 1px solid #1677ff;
         }
         &:first-child {
-          border-left: 1px solid #2196f3;
+          border-left: 1px solid #1677ff;
         }
       }
     }
@@ -87,9 +86,6 @@ export default function CalendarSet(props) {
     rowHeight = '0',
   } = advancedSetting;
   let [checkedWorkDate, setCheckedWorkDate] = useState(unweekday === '');
-  const [{ show }, setState] = useSetState({
-    show: false,
-  });
   useEffect(() => {
     changePickerContainerLeft();
   }, []);
@@ -124,8 +120,9 @@ export default function CalendarSet(props) {
   let { begindate = '', hour24 = '0', enddate, weekbegin = '1', showall = '0' } = getAdvanceSetting(view);
   let calendarcids = [];
   try {
-    calendarcids = JSON.parse(_.get(view, ['advancedSetting', 'calendarcids']));
+    calendarcids = safeParse(_.get(view, ['advancedSetting', 'calendarcids']), 'array');
   } catch (error) {
+    console.log(error);
     calendarcids = [];
   }
   if (calendarcids.length <= 0) {
@@ -278,7 +275,7 @@ export default function CalendarSet(props) {
               return (
                 <div
                   className={cx('animaItem overflow_ellipsis', { active: unweekday.indexOf(n) < 0 })}
-                  onClick={e => {
+                  onClick={() => {
                     let str = unweekday;
                     if (unweekday.indexOf(n) >= 0) {
                       str = str.replace(n, '');
@@ -301,10 +298,7 @@ export default function CalendarSet(props) {
         <Checkbox
           checked={!!_.get(props, 'view.advancedSetting.showtime')}
           className="mTop16"
-          onClick={e => {
-            // if (!_.get(props, 'view.advancedSetting.showtime')) {
-            //   return setState({ show: true });
-            // }
+          onClick={() => {
             updateCurrentView({
               ...view,
               appId,

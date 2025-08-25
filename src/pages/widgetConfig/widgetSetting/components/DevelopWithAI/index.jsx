@@ -1,22 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Modal } from 'ming-ui';
-import { IconButton, Icon } from './styled';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { WORKFLOW_SYSTEM_CONTROL, SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import functionWrap from 'ming-ui/components/FunctionWrap';
-import ReactCodeEditor from './ChatBot/ReactCodeEditor';
-import ChatLLM from './ChatBot/ChatLLM';
-import ControlPreview from './ControlPreview';
-import EnvConfig from './EnvConfig';
-import EmptyHolder from './EmptyHolder';
 import { get, isFunction } from 'lodash';
-import { getEnvControls, getFormData, getDefaultCompCode } from './util';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import EditableText from './EditableText';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Modal } from 'ming-ui';
+import functionWrap from 'ming-ui/components/FunctionWrap';
+import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
+import noAiPng from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/assets/noAi.png';
+import ChatLLM from './ChatBot/ChatLLM';
+import ReactCodeEditor from './ChatBot/ReactCodeEditor';
+import ControlPreview from './ControlPreview';
 import DevelopGuide from './DevelopGuide';
 import DragHelper from './DragHelper';
-import noAiPng from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/assets/noAi.png';
+import EditableText from './EditableText';
+import EmptyHolder from './EmptyHolder';
+import EnvConfig from './EnvConfig';
+import { Icon, IconButton } from './styled';
+import { getDefaultCompCode, getEnvControls, getFormData } from './util';
 
 const Con = styled.div`
   height: 100vh;
@@ -147,7 +148,7 @@ const ExitButton = styled.div`
   height: 34px;
   line-height: 34px;
   font-size: 13px;
-  color: #2196f3;
+  color: #1677ff;
   &:hover {
     background: #efefef;
   }
@@ -221,7 +222,7 @@ export default function DevelopWithAI(props) {
     <Modal visible fullScreen bodyStyle={{ padding: 0 }} closeIcon={<span />}>
       <Con>
         <Header>
-          <i className="icon-knowledge-return Font16 mRight12 Gray_75 ThemeHoverColor3 pointer" onClick={handleExit} />
+          <i className="icon-backspace Font16 mRight12 Gray_75 ThemeHoverColor3 pointer" onClick={handleExit} />
           <EditableText
             value={control.controlName}
             onChange={(newName = '') => {
@@ -294,10 +295,10 @@ export default function DevelopWithAI(props) {
                 </IconButton>
                 <IconButton
                   className="mLeft15"
-                  textColor={terminalVisible ? '#2196f3' : '#151515'}
+                  textColor={terminalVisible ? '#1677ff' : '#151515'}
                   onClick={() => setTerminalVisible(prevVisible => !prevVisible)}
                 >
-                  <Icon className="icon icon-fact_check_black" color={terminalVisible ? '#2196f3' : '#9e9e9e'} />
+                  <Icon className="icon icon-fact_check_black" color={terminalVisible ? '#1677ff' : '#9e9e9e'} />
                   <span className="text">{_l('控制台')} </span>
                 </IconButton>
                 <DevelopGuide />
@@ -313,7 +314,7 @@ export default function DevelopWithAI(props) {
                     <div className="flex"></div>
                     <IconButton
                       textColor="#757575"
-                      className={!!error ? '' : 'disabled'}
+                      className={error ? '' : 'disabled'}
                       onClick={() => {
                         if (!error) {
                           return;
@@ -409,7 +410,9 @@ export default function DevelopWithAI(props) {
                   {md.global.Account.superAdmin && (
                     <span
                       className="ThemeColor3 ThemeHoverColor3 Hand mLeft8"
-                      onClick={() => window.open('/privateDeployment/hub')}
+                      onClick={() => {
+                        location.href = md.global.Config.WebUrl + 'pm/sysconfig/hub';
+                      }}
                     >
                       {_l('去配置')}
                     </span>

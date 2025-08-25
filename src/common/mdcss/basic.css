@@ -576,6 +576,10 @@ body .Hidden {
   margin-top: 13px !important;
 }
 
+.mTop14 {
+  margin-top: 14px !important;
+}
+
 .mTop15 {
   margin-top: 15px !important;
 }
@@ -950,6 +954,10 @@ body .Hidden {
 
 .mLeft40 {
   margin-left: 40px !important;
+}
+
+.mLeft42 {
+  margin-left: 42px !important;
 }
 
 .mLeft48 {
@@ -1565,11 +1573,11 @@ body .Hidden {
 }
 
 .ThemeColor {
-  color: #2196f3;
+  color: #1677ff;
 }
 
 .Hover_21:hover {
-  color: #2196f3 !important;
+  color: #1677ff !important;
 }
 
 .Hover_9e:hover {
@@ -2182,7 +2190,7 @@ input[type='text']::-ms-clear {
 .tgl *,
 .tgl *:after,
 .tgl *:before,
-.tgl+.tgl-btn {
+.tgl + .tgl-btn {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -2194,7 +2202,7 @@ input[type='text']::-ms-clear {
 .tgl *::-moz-selection,
 .tgl *:after::-moz-selection,
 .tgl *:before::-moz-selection,
-.tgl+.tgl-btn::-moz-selection {
+.tgl + .tgl-btn::-moz-selection {
   background: none;
 }
 
@@ -2204,11 +2212,11 @@ input[type='text']::-ms-clear {
 .tgl *::selection,
 .tgl *:after::selection,
 .tgl *:before::selection,
-.tgl+.tgl-btn::selection {
+.tgl + .tgl-btn::selection {
   background: none;
 }
 
-.tgl+.tgl-btn {
+.tgl + .tgl-btn {
   position: relative;
 
   display: block;
@@ -2221,8 +2229,8 @@ input[type='text']::-ms-clear {
   outline: 0;
 }
 
-.tgl+.tgl-btn:after,
-.tgl+.tgl-btn:before {
+.tgl + .tgl-btn:after,
+.tgl + .tgl-btn:before {
   position: relative;
 
   display: block;
@@ -2233,19 +2241,19 @@ input[type='text']::-ms-clear {
   content: '';
 }
 
-.tgl+.tgl-btn:after {
+.tgl + .tgl-btn:after {
   left: 0;
 }
 
-.tgl+.tgl-btn:before {
+.tgl + .tgl-btn:before {
   display: none;
 }
 
-.tgl:checked+.tgl-btn:after {
+.tgl:checked + .tgl-btn:after {
   left: 23px;
 }
 
-.tgl-light+.tgl-btn {
+.tgl-light + .tgl-btn {
   padding: 1px;
 
   -webkit-transition: all 0.4s ease;
@@ -2257,7 +2265,7 @@ input[type='text']::-ms-clear {
   background: #dbdbdb;
 }
 
-.tgl-light+.tgl-btn:after {
+.tgl-light + .tgl-btn:after {
   /*background: #4caf5/*0;*/
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
@@ -2268,11 +2276,11 @@ input[type='text']::-ms-clear {
   background: #fff;
 }
 
-.tgl-light:checked+.tgl-btn {
+.tgl-light:checked + .tgl-btn {
   background: #4caf50;
 }
 
-.tgl-light:checked+.tgl-btn:after {
+.tgl-light:checked + .tgl-btn:after {
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
   -o-transition: all 0.2s ease;
@@ -2282,7 +2290,7 @@ input[type='text']::-ms-clear {
   background: #fff;
 }
 
-.tgl-ios+.tgl-btn {
+.tgl-ios + .tgl-btn {
   padding: 2px;
 
   -webkit-transition: all 0.4s ease;
@@ -2295,7 +2303,7 @@ input[type='text']::-ms-clear {
   background: #fbfbfb;
 }
 
-.tgl-ios+.tgl-btn:after {
+.tgl-ios + .tgl-btn:after {
   -webkit-transition:
     left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
     padding 0.3s ease,
@@ -2323,40 +2331,23 @@ input[type='text']::-ms-clear {
     0 4px 0 rgba(0, 0, 0, 0.08);
 }
 
-.tgl-ios+.tgl-btn:active {
+.tgl-ios + .tgl-btn:active {
   -webkit-box-shadow: inset 0 0 0 2em #e8eae9;
   box-shadow: inset 0 0 0 2em #e8eae9;
 }
 
-.tgl-ios+.tgl-btn:active:after {
+.tgl-ios + .tgl-btn:active:after {
   padding-right: 0.8em;
 }
 
-.tgl-ios:checked+.tgl-btn {
+.tgl-ios:checked + .tgl-btn {
   background: #86d993;
 }
 
 /* 刷新时白块 */
-body>object {
+body > object {
   width: 1px;
   height: 1px;
-}
-
-/* nanoscroller css override */
-.nano>.nano-pane {
-  background: transparent !important;
-  width: 10px !important;
-}
-
-.nano>.nano-pane>.nano-slider {
-  background: rgba(187, 187, 187, 0.8) !important;
-  width: 6px !important;
-  margin: 0 2px !important;
-}
-
-.nano>.nano-pane>.nano-slider:hover,
-.nano>.nano-pane.active>.nano-slider {
-  background: rgba(125, 125, 125, 0.8) !important;
 }
 
 .iti .iti__country-container .iti__selected-country,
@@ -2938,7 +2929,7 @@ html:not(.appHomeMobile) .ant-message {
   margin-bottom: 10px;
 }
 
-.ant-select-dropdown.withIsEmpty .ant-select-item.isEmpty .ant-select-item-option-content>span {
+.ant-select-dropdown.withIsEmpty .ant-select-item.isEmpty .ant-select-item-option-content > span {
   padding: 0 !important;
   color: inherit !important;
 }
@@ -2962,12 +2953,13 @@ html:not(.appHomeMobile) .ant-message {
 }
 
 .mdAntSelect.ant-select-open .ant-select-selector {
-  border-color: #2196f3;
+  border-color: #1677ff;
   box-shadow: none;
 }
 
-.mdAntSelect.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-  border: 1px solid #2196f3;
+.mdAntSelect.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input)
+  .ant-select-selector {
+  border: 1px solid #1677ff;
   box-shadow: none;
 }
 
@@ -3029,14 +3021,13 @@ html:not(.appHomeMobile) .ant-message {
   line-height: 26px;
 }
 
-.mdAntSelectOption.ant-select-item:hover {
+.mdAntSelectOption.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  font-weight: unset;
   color: #fff;
-  background-color: #2196f3;
-}
-
-.mdAntSelectOption.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-  color: #fff;
-  background-color: #2196f3;
+  background-color: #1677ff;
+  .icon {
+    color: #fff !important;
+  }
 }
 
 /* ----> antd Select 样式 end */
@@ -3059,11 +3050,11 @@ html:not(.appHomeMobile) .ant-message {
 
 .hoverText:hover {
   cursor: pointer;
-  color: #2196f3 !important;
+  color: #1677ff !important;
 }
 
 .hoverText:hover i {
-  color: #2196f3;
+  color: #1677ff;
 }
 
 .fixedScreen {
@@ -3075,7 +3066,8 @@ html:not(.appHomeMobile) .ant-message {
 
 #kf5-support-btn,
 .fullWrapper .appPkgHeaderWrap,
-.fullWrapper .workSheetLeft {
+.fullWrapper .workSheetLeft,
+.fullWrapper .appNavWidthDrag {
   display: none !important;
 }
 
@@ -3112,4 +3104,67 @@ input::-webkit-contacts-auto-fill-button {
   border-radius: 4px;
   font-size: 13px;
   line-height: 36px;
+}
+
+.t-flex {
+  display: flex;
+}
+
+.t-flex-1 {
+  flex: 1;
+}
+
+.t-flex-col {
+  flex-direction: column;
+}
+
+.t-flex-row {
+  flex-direction: row;
+}
+
+.t-space-between {
+  justify-content: space-between;
+}
+
+.t-content-center {
+  justify-content: center;
+}
+
+.t-justify-center {
+  justify-content: center;
+}
+
+.t-justify-between {
+  justify-content: space-between;
+}
+
+.t-justify-end {
+  justify-content: flex-end;
+}
+
+.t-items-center {
+  align-items: center;
+}
+
+.t-items-end {
+  align-items: flex-end;
+}
+
+.t-overflow-hidden {
+  overflow: hidden;
+}
+
+:root {
+  --mingdao-primary-color: #1677ff;
+  --ai-primary-color: #6e09f9;
+}
+
+/* 选择所有不在 .ck（富文本） 且不在 .vditor-content（markdown） 内的 a */
+:not(.ck):not(.vditor-content) a,
+:not(.ck):not(.vditor-content) a:visited,
+:not(.ck):not(.vditor-content) a:focus,
+:not(.ck):not(.vditor-content) a:active,
+:not(.ck):not(.vditor-content) a:hover {
+  text-decoration: none;
+  outline: none;
 }

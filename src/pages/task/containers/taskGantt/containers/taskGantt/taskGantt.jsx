@@ -1,26 +1,26 @@
 ﻿import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { DragDropContext } from 'react-dnd';
 import MouseBackEnd from '@mdfe/react-dnd-mouse-backend';
-import { connect } from 'react-redux';
-import './taskGantt.less';
+import _ from 'lodash';
+import moment from 'moment';
+import { LoadDiv } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import config from '../../config/config';
+import {
+  changeTaskStatus,
+  getTimeAxisSource,
+  moreSubordinateTasks,
+  updateDataSource,
+  updateFolderSocketSource,
+  updateSubordinateSocketSource,
+} from '../../redux/actions';
 import FolderToolbar from '../folderToolbar/folderToolbar';
 import Members from '../members/members';
 import SubordinateMembers from '../subordinateMembers/subordinateMembers';
 import TimeAxis from '../timeAxis/timeAxis';
 import TimeBarContainer from '../timeBarContainer/timeBarContainer';
-import config from '../../config/config';
-import {
-  getTimeAxisSource,
-  updateDataSource,
-  updateFolderSocketSource,
-  updateSubordinateSocketSource,
-  changeTaskStatus,
-  moreSubordinateTasks,
-} from '../../redux/actions';
-import ajaxRequest from 'src/api/taskCenter';
-import _ from 'lodash';
-import moment from 'moment';
-import { LoadDiv } from 'ming-ui';
+import './taskGantt.less';
 
 class TaskGantt extends Component {
   constructor(props) {

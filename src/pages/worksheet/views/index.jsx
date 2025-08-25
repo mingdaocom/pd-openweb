@@ -13,7 +13,6 @@ import GunterView from 'worksheet/views/GunterView/enter';
 import SheetView from 'worksheet/views/SheetView';
 import TreeTableView from 'worksheet/views/TreeTableView';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
-import { navigateTo } from 'src/router/navigateTo';
 import BoardView from './BoardView';
 import CustomWidgetView from './CustomWidgetView';
 import DetailView from './DetailView';
@@ -23,7 +22,6 @@ import HierarchyView from './HierarchyView';
 import MapView from './MapView';
 import ResourceView from './ResourceView';
 import ViewContext from './ViewContext';
-
 
 const { board, sheet, calendar, gallery, structure, gunter, detail, customize, resource, map } = VIEW_DISPLAY_TYPE;
 
@@ -70,44 +68,17 @@ export function updateHierarchyConfigLevel(view) {
   }
 }
 function View(props) {
-  const { loading, error, view, views, showAsSheetView, refreshSheet } = props;
+  const { error, view, showAsSheetView, refreshSheet } = props;
   const { advancedSetting = {} } = view;
   const authRefreshTime = props.authRefreshTime || get(view, 'advancedSetting.refreshtime');
   const cache = useRef({});
 
   let activeViewStatus = props.activeViewStatus;
-  if (loading) {
-    return (
-      <Con>
-        <Loading>
-          <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['30%', '40%', '90%', '60%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-          <Skeleton
-            style={{ flex: 1 }}
-            direction="column"
-            widths={['40%', '55%', '100%', '80%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-          <Skeleton
-            style={{ flex: 2 }}
-            direction="column"
-            widths={['45%', '100%', '100%', '100%']}
-            active
-            itemStyle={{ marginBottom: '10px' }}
-          />
-        </Loading>
-      </Con>
-    );
-  }
 
   const viewProps = _.pick(props, [
     'isCharge',
+    'allowOpenRecord',
+    'allowAddNewRecord',
     'isDevAndOps',
     'appPkg',
     'appId',
@@ -127,11 +98,7 @@ function View(props) {
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {
-    if (views.length && viewProps.appId && viewProps.groupId && viewProps.worksheetId) {
-      navigateTo(`/app/${viewProps.appId}/${viewProps.groupId}/${viewProps.worksheetId}`, true);
-    } else {
-      activeViewStatus = -10000;
-    }
+    activeViewStatus = -10000;
   }
 
   let viewType = String(showAsSheetView ? sheet : view.viewType);
@@ -216,4 +183,38 @@ View.propTypes = {
   refreshSheet: PropTypes.func,
 };
 
-export default errorBoundary(View);
+function ViewWithLoading(props) {
+  const { loading } = props;
+  if (loading) {
+    return (
+      <Con>
+        <Loading>
+          <Skeleton
+            style={{ flex: 1 }}
+            direction="column"
+            widths={['30%', '40%', '90%', '60%']}
+            active
+            itemStyle={{ marginBottom: '10px' }}
+          />
+          <Skeleton
+            style={{ flex: 1 }}
+            direction="column"
+            widths={['40%', '55%', '100%', '80%']}
+            active
+            itemStyle={{ marginBottom: '10px' }}
+          />
+          <Skeleton
+            style={{ flex: 2 }}
+            direction="column"
+            widths={['45%', '100%', '100%', '100%']}
+            active
+            itemStyle={{ marginBottom: '10px' }}
+          />
+        </Loading>
+      </Con>
+    );
+  }
+  return <View {...props} />;
+}
+
+export default errorBoundary(ViewWithLoading);

@@ -1,4 +1,4 @@
-import React, { setState, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _, { includes } from 'lodash';
 import moment from 'moment';
@@ -51,7 +51,7 @@ const Con = styled.div`
     border-color: var(--border-color);
   }
   &.active {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
   &:not(.isEmpty):hover {
     .icon-event {
@@ -151,8 +151,10 @@ export default function DateTime(props) {
   let allowedDateRange = [];
   try {
     allowedDateRange = JSON.parse(advancedSetting.daterange);
-  } catch (err) {}
-  const showDatePicker = dateRange === 18 || _.isEmpty(allowedDateRange);
+  } catch (err) {
+    console.log(err);
+  }
+  const showDatePicker = dateRange === 18 || (_.isEmpty(allowedDateRange) && dateRange === 0);
   const isEmpty =
     dateRange === 18
       ? filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN
@@ -171,6 +173,7 @@ export default function DateTime(props) {
       )
       .filter(options => options.length);
   }
+  const dropdownData = dateOptions.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)));
   let pickerComp = null;
   if (showDatePicker) {
     if (filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
@@ -222,24 +225,29 @@ export default function DateTime(props) {
   return (
     <Con className={cx({ active, isEmpty })}>
       <Content className={cx({ isEmpty })}>
-        {pickerComp || (
-          <Dropdown
-            isAppendToBody
-            value={dateRange}
-            data={dateOptions.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))}
-            onChange={newValue => {
-              const change = {
-                filterType: props.originalFilterType || filterType || FILTER_CONDITION_TYPE.DATEENUM,
-                dateRange: newValue,
-                minValue: undefined,
-                maxValue: undefined,
-                dateRangeType,
-              };
-              onChange(change);
-            }}
-            onVisibleChange={setActive}
-          />
-        )}
+        {pickerComp ||
+          (_.find(_.flatten(dropdownData), o => o.value === dateRange) || isEmpty ? (
+            <Dropdown
+              isAppendToBody
+              value={dateRange}
+              data={dropdownData}
+              onChange={newValue => {
+                const change = {
+                  filterType: props.originalFilterType || filterType || FILTER_CONDITION_TYPE.DATEENUM,
+                  dateRange: newValue,
+                  minValue: undefined,
+                  maxValue: undefined,
+                  dateRangeType,
+                };
+                onChange(change);
+              }}
+              onVisibleChange={setActive}
+            />
+          ) : (
+            <span className="mLeft8" style={{ color: 'red' }}>
+              {_l('已删除')}
+            </span>
+          ))}
         <TimeZoneTag appId={appId} />
       </Content>
       {pickerComp && (

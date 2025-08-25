@@ -1,0 +1,63 @@
+.mobileCommonBoardWrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f2f2f3;
+
+  .commonBoardScroll {
+    padding: 0 10px 12px 0;
+
+    .scaleContent {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .commonBoardHeader {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 24px;
+      width: max-content;
+      background-color: #f2f2f3;
+
+      .groupHeaderItemWrap {
+        flex-shrink: 0;
+      }
+    }
+
+    .commonBoardContent {
+      display: flex;
+      gap: 24px;
+      flex: 1;
+      padding: 0 10px;
+      width: max-content;
+      min-height: 0;
+
+      .commonGroupItemWrap {
+        display: flex;
+        flex-direction: column;
+        max-height: 100%;
+      }
+
+      .commonGroupItemScrollBox {
+        &.noAddBtn {
+          height: 100%;
+        }
+        &.hasAddBtn {
+          max-height: calc(100% - 48px);
+        }
+        .commonGroupItemScroll {
+          padding-right: 10px;
+
+          .scroll-viewport {
+            padding-bottom: 2px !important;
+          }
+        }
+      }
+    }
+  }
+}

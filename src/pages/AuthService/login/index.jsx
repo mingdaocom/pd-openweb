@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import { initIntlTelInput } from 'ming-ui/components/intlTelInput';
 import appManagementController from 'src/api/appManagement';
 import loginController from 'src/api/login';
@@ -8,7 +9,7 @@ import privateSysSetting from 'src/api/privateSysSetting';
 import projectApi from 'src/api/project';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
-import { browserIsMobile, checkLogin, getRequest } from 'src/utils/sso';
+import { browserIsMobile, getRequest } from 'src/utils/sso';
 import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
@@ -16,7 +17,7 @@ import { checkReturnUrl, getDataByFilterXSS, isTel } from '../util';
 import Container from './Container';
 import { loginCallback, ssoLogin } from './util';
 
-export default function Login(props) {
+export default function Login() {
   const request = getRequest();
   const [state, setState] = useSetState({
     modeType: 1, // 1:手机号邮箱 2:用户名登录 其他:不使用账户登录方式
@@ -24,7 +25,7 @@ export default function Login(props) {
     step: '', //verifyCode 验证码 默认账户
     isNetwork: location.href.indexOf('network') >= 0 || md.global.Config.IsLocal,
     hideOther:
-      isMiniProgram || // 小程序隐藏第三方登录入口
+      window.isMiniProgram || // 小程序隐藏第三方登录入口
       !!request.unionId || //第三方
       request.loginMode === 'systemLogin' || //  指定进到平台登陆,隐藏其他登陆方式
       window.isMingDaoApp, //  移动端app登录,隐藏其他登陆方式
@@ -82,6 +83,7 @@ export default function Login(props) {
       projectId = '',
       loginType = 0,
       time,
+      ua,
     } = JSON.parse(window.localStorage.getItem('LoginCheckList') || '{}');
 
     const toAutoLogin =
@@ -95,6 +97,12 @@ export default function Login(props) {
       }
       loginController.mDAccountAutoLogin({ ...param, regFrom: request.s }).then(data => {
         const { projectId, modeType, isNetwork } = state;
+        //自动登录失败后，直接进入到登录界面
+        if (data.accountResult !== 1) {
+          setState({ loading: false });
+          console.log(ua, data);
+          return;
+        }
         loginCallback({
           data: { ...data, projectId, modeType, isNetwork },
           onChange: data => setState(data),
@@ -148,7 +156,7 @@ export default function Login(props) {
         isDefaultLogo: res.isDefaultLogo,
         hasGetLogo: true,
       });
-      if (!!res.projectId) {
+      if (res.projectId) {
         getProjectLang(res.projectId);
       } else {
         setState({ loading: false });

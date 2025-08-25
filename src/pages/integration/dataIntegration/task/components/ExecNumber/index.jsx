@@ -1,6 +1,6 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Switch, Dialog } from 'ming-ui';
+import { Dialog, Switch } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
@@ -31,7 +31,8 @@ export default ({ projectId }) => {
   };
 
   const getArithmetic = () => {
-    monitorAjax.getArithmetic({ projectId }).then(res => {
+    ajaxPromise.getArithmetic = monitorAjax.getArithmetic({ projectId });
+    ajaxPromise.getArithmetic.then(res => {
       if (res) {
         const { arithmetic = {} } = res;
         setArithmetic(arithmetic);

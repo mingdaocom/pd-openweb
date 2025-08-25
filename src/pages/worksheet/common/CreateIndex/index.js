@@ -309,6 +309,7 @@ export default class CreateIndex extends Component {
           <div className="minBold sunTitle">
             <span>{_l('选择索引字段')}</span>
             <Tooltip
+              autoCloseDelay={0}
               title={_l(
                 '每张工作表只能创建一个「文本索引」或者「文本字段全文索引」；创建「文本索引」时，不能包含「选项字段」；每个索引只能包含一个「选项字段」',
               )}
@@ -383,7 +384,7 @@ export default class CreateIndex extends Component {
                     onClick={() => this.removeCurrentField(index)}
                   />
                   <Icon
-                    icon="create-network"
+                    icon="add_circle_outline"
                     className={cx('Font16 Hand Gray_9d', {
                       disabledAct: selectedIndexList.length >= worksheetRowIndexLimit || maxWorksheetAvailableFields,
                     })}
@@ -403,6 +404,7 @@ export default class CreateIndex extends Component {
               {_l('唯一索引')}
             </Checkbox>
             <Tooltip
+              autoCloseDelay={0}
               title={_l(
                 '建立唯一索引后，字段的值不允许重复。如果字段为非必填，则整个工作表只能有一条为空的数据，以保证数据的唯一性',
               )}
@@ -418,6 +420,7 @@ export default class CreateIndex extends Component {
               {_l('所有文本字段全文索引')}
             </Checkbox>
             <Tooltip
+              autoCloseDelay={0}
               title={_l('支持所有文本字段全文检索。工作表创建文本索引后不可再创建此类型索引')}
               placement="bottom"
             >

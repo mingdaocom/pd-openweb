@@ -1,22 +1,22 @@
 ﻿import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import './css/folderChart.less';
-import { Icon } from 'ming-ui';
+import { renderToString } from 'react-dom/server';
 import { connect } from 'react-redux';
-import ajaxRequest from 'src/api/taskFolderStatistics';
 import doT from 'dot';
-import filterXss from 'xss';
-import { listLoadingContent } from '../../utils/taskComm';
-import config from '../../config/config';
-import folderChart from './tpl/folderChart.html';
-import folderChartMaxView from './tpl/folderChartMaxView.html';
-import chargeList from './tpl/chargeList.html';
-import customDom from './tpl/customDom.html';
-import DateFilter from 'src/components/DateFilter';
 import _ from 'lodash';
 import moment from 'moment';
+import filterXss from 'xss';
+import { Icon } from 'ming-ui';
 import { Dialog, LoadDiv } from 'ming-ui';
-import { renderToString } from 'react-dom/server';
+import ajaxRequest from 'src/api/taskFolderStatistics';
+import DateFilter from 'src/components/DateFilter';
+import config from '../../config/config';
+import { listLoadingContent } from '../../utils/taskComm';
+import chargeList from './tpl/chargeList.html';
+import customDom from './tpl/customDom.html';
+import folderChart from './tpl/folderChart.html';
+import folderChartMaxView from './tpl/folderChartMaxView.html';
+import './css/folderChart.less';
 
 const loading = renderToString(<LoadDiv />);
 
@@ -161,9 +161,6 @@ class FolderChart extends Component {
     $('body').on('click.folderChart', '.folderChartTime li:not(.activeClass):not([data-type=custom])', function () {
       const date = $(this).data('type');
       const isDialog = $(this).closest('.folderChartMaxView').length;
-      const $el = isDialog
-        ? $('.folderChartMaxView .folderChartTime li[data-type=custom]')
-        : $('.folderChartNavBox .folderChartTime li[data-type=custom]');
 
       $(this).addClass('activeClass ThemeBorderColor3 ThemeBGColor3').siblings('li').removeClass();
 
@@ -486,7 +483,6 @@ class FolderChart extends Component {
           this.folderChartsBar('folderChartsMax', source);
         }
       } else {
-        const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
         this.renderMaxCustomTime();
         // 渲染图表
         this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');

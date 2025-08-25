@@ -1,5 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { getButtonColor } from 'src/utils/control';
@@ -32,7 +33,17 @@ export default class CustomButtons extends Component {
   }
 
   render() {
-    const { classNames, customBtns = [], isSlice, handleClick = () => {}, btnDisable = {}, isBatch } = this.props;
+    const {
+      classNames,
+      customBtns = [],
+      isSlice,
+      handleClick = () => {},
+      btnDisable = {},
+      isBatch,
+      isEditLock,
+      isRecordLock,
+      entityName = _l('记录'),
+    } = this.props;
     const buttons = isSlice ? customBtns.slice(0, 2) : customBtns;
 
     return buttons
@@ -44,6 +55,13 @@ export default class CustomButtons extends Component {
             style={{ ...getButtonColor(btn.color) }}
             onClick={() => {
               if (btnDisable[btn.btnId] || btn.disabled) return;
+              if (
+                (isRecordLock && !_.includes(['copy', 'print', 'sysprint', 'share'], btn.type)) ||
+                (isEditLock && btn.clickType === 3)
+              ) {
+                alert(isRecordLock ? _l('%0已锁定', entityName) : _l('不允许多人同时编辑，稍后重试'), 3);
+                return;
+              }
               handleClick(btn);
             }}
           >
@@ -64,7 +82,7 @@ export default class CustomButtons extends Component {
             ) : (
               <Icon
                 icon={btn.icon || 'custom_actions'}
-                className={cx('mRight6 Font15', {
+                className={cx('mRight6 Font20', {
                   opcIcon: (!btn.icon && (!btn.color || btn.color === 'transparent')) || btn.disabled,
                 })}
               />

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { string } from 'prop-types';
-import { Input } from 'ming-ui';
-import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Input } from 'ming-ui';
 
 const EmptyHierarchyWrap = styled.div`
   .ming.Input {
@@ -10,7 +10,7 @@ const EmptyHierarchyWrap = styled.div`
     padding: 0;
     height: 28px;
     border-radius: 0;
-    border-bottom: 2px solid #2196f3;
+    border-bottom: 2px solid #1677ff;
     background-color: transparent;
     font-size: 14px;
     font-weight: bold;
@@ -42,7 +42,7 @@ const EmptyHierarchyWrap = styled.div`
     &.allowAdd {
       cursor: pointer;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

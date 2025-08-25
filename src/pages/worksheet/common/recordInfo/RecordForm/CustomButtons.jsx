@@ -29,12 +29,22 @@ const MenuItemWrap = styled(MenuItem)`
   }
   &.disabled {
     cursor: not-allowed !important;
-    opacity: 0.5;
-  }
-  &:not(.disabled):hover {
-    .Icon {
-      color: #fff !important;
+    svg {
+      opacity: 0.8;
+      filter: grayscale(1);
     }
+    .Item-content .icon {
+      color: #ddd !important;
+    }
+    .Item-content .btnName {
+      color: #bdbdbd !important;
+    }
+  }
+  &.ming.MenuItem:not(.disabled) .Item-content:not(.disabled):hover {
+    .btnName {
+      color: #151515 !important;
+    }
+    background-color: #f2f2f2 !important;
   }
 `;
 
@@ -70,6 +80,10 @@ const HoverButton = styled(Button)`
       i {
         line-height: ${props.operateHeight - 2}px !important;
       }
+    }
+    .svgIcon.disabled {
+      opacity: 0.8;
+      filter: grayscale(1);
     }
     &.operates-showIcon-false:not(.operates-icon) {
       .icon, .icon.InlineBlock {
@@ -365,7 +379,7 @@ export default class CustomButtons extends React.Component {
       });
   };
 
-  handleAddRecordCallback = recordItem => {
+  handleAddRecordCallback = () => {
     const { reloadRecord, loadBtns, triggerCallback } = this.props;
     const { activeBtn = {} } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -389,9 +403,6 @@ export default class CustomButtons extends React.Component {
       onUpdateRow,
       loadBtns,
       triggerCallback,
-      isFromBatchEdit,
-      isAll,
-      selectedRows,
       handleUpdateWorksheetRow,
       setCustomButtonActive = () => {},
     } = this.props;
@@ -562,7 +573,9 @@ export default class CustomButtons extends React.Component {
             });
             return;
           }
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         this.btnAddRelateWorksheetId = addRelationControl.dataSource;
         this.masterRecord = {
           rowId: recordId,
@@ -587,6 +600,7 @@ export default class CustomButtons extends React.Component {
             widgetStyle: rowInfo.advancedSetting,
           };
         } catch (err) {
+          console.log(err);
           Dialog.confirm({
             title: _l('无法执行按钮“%0”', btn.name),
             description: _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
@@ -608,6 +622,7 @@ export default class CustomButtons extends React.Component {
           this.fillRecordId = controldata[0].sid;
           this.addRelateRecordRelateRecord(relationControl, btn.addRelationControl);
         } catch (err) {
+          console.log(err);
           Dialog.confirm({
             title: _l('无法执行按钮“%0”', btn.name),
             description: _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
@@ -625,6 +640,7 @@ export default class CustomButtons extends React.Component {
     try {
       controldata = JSON.parse(relationControl.value);
     } catch (err) {
+      console.log(err);
       return;
     }
     getRowDetail({
@@ -657,7 +673,9 @@ export default class CustomButtons extends React.Component {
           });
           return;
         }
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
       this.masterRecord = {
         rowId: controldata[0].sid,
         controlId: relationControlrelationControl.controlId,
@@ -686,11 +704,21 @@ export default class CustomButtons extends React.Component {
   };
 
   renderDialogs() {
-    const { isCharge, viewId, appId, projectId, isBatchOperate, triggerCallback, sheetSwitchPermit, isDraft } =
-      this.props;
+    const {
+      isCharge,
+      viewId,
+      appId,
+      projectId,
+      isBatchOperate,
+      triggerCallback,
+      sheetSwitchPermit,
+      isDraft,
+      selectedRows = [],
+    } = this.props;
     const { fillRecordControlsVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
+    const isBatchRecordLock = selectedRows.some(s => s.sys_lock);
     return (
       <React.Fragment key="dialogs">
         {fillRecordControlsVisible && (
@@ -698,6 +726,7 @@ export default class CustomButtons extends React.Component {
             isDraft={isDraft}
             isCharge={isCharge}
             isBatchOperate={isBatchOperate}
+            isBatchRecordLock={isBatchRecordLock}
             className="recordOperateDialog"
             title={activeBtn.name}
             loadWorksheetRecord={btnTypeStr === '21'}
@@ -726,8 +755,22 @@ export default class CustomButtons extends React.Component {
   }
 
   handleButtonClick = button => {
-    const { isOperates, btnDisable = {}, onButtonClick = () => {} } = this.props;
+    const {
+      isOperates,
+      isRecordLock,
+      btnDisable = {},
+      onButtonClick = () => {},
+      isEditLock,
+      entityName = _l('记录'),
+    } = this.props;
     if (button.disabled || btnDisable[button.btnId]) {
+      return true;
+    }
+    if (
+      (isRecordLock && !includes(['copy', 'print', 'sysprint', 'share'], button.type)) ||
+      (isEditLock && button.clickType === 3)
+    ) {
+      alert(isRecordLock ? _l('%0已锁定', entityName) : _l('不允许多人同时编辑，稍后重试'), 3);
       return true;
     }
     if (isUndefined(button.type) || button.type === 'custom_button') {
@@ -825,7 +868,7 @@ export default class CustomButtons extends React.Component {
                   }),
               }}
               isOperates={isOperates}
-              primaryColor={button.color !== 'transparent' && (button.color || '#2196f3')}
+              primaryColor={button.color !== 'transparent' && (button.color || '#1677ff')}
               onClick={evt => {
                 if (this.handleButtonClick(button)) {
                   return;
@@ -838,8 +881,9 @@ export default class CustomButtons extends React.Component {
                 <Fragment>
                   {!!button.iconUrl && !!button.icon && button.icon.endsWith('_svg') ? (
                     <SvgIcon
-                      className={cx('InlineBlock icon', {
+                      className={cx('InlineBlock icon svgIcon', {
                         LineHeight30: !isOperates,
+                        disabled: btnDisable[button.btnId] || button.disabled,
                       })}
                       addClassName="TxtMiddle"
                       url={button.iconUrl}
@@ -855,7 +899,7 @@ export default class CustomButtons extends React.Component {
                         })}
                         style={
                           isOperates && !button.showAsPrimary && !(btnDisable[button.btnId] || button.disabled)
-                            ? { color: button.color || '#2196f3' }
+                            ? { color: button.color || '#1677ff' }
                             : {}
                         }
                       />
@@ -884,7 +928,7 @@ export default class CustomButtons extends React.Component {
         }
       });
     } else if (type === 'iconText') {
-      buttonComponents = buttons.map((button, i) => (
+      buttonComponents = buttons.map(button => (
         <Tooltip mouseEnterDelay={0} placement="bottom" title={button.desc && <span>{button.desc}</span>}>
           <span>
             <IconText
@@ -932,7 +976,7 @@ export default class CustomButtons extends React.Component {
             )
           }
           className={cx({ disabled: btnDisable[button.btnId] || button.disabled })}
-          onClick={evt => {
+          onClick={() => {
             if (this.handleButtonClick(button)) {
               return;
             }
@@ -942,6 +986,7 @@ export default class CustomButtons extends React.Component {
           <span className="btnName mLeft15 ellipsis">{button.name}</span>
           {button.desc && (
             <Tooltip
+              autoCloseDelay={0}
               destroyPopupOnHide
               placement="bottom"
               overlayStyle={{ maxWidth: 350 }}

@@ -144,10 +144,12 @@ export const SYSTEM_FIELD_IDS = [
   'wfrtime',
   'wfftime',
   'wfstatus',
+  'wfcotime',
+  'wfdtime',
 ];
 
 export const sourceNamePattern = /[\r\n\s-]/g;
-export const namePattern = /[`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]/g;
+export const namePattern = /[`~!@#$%^&*()\-+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]/g;
 
 export const SORT_TYPE = {
   ASC: 'ASC',
@@ -155,7 +157,7 @@ export const SORT_TYPE = {
 };
 
 export const isValidName = name => {
-  return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
+  return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
 };
 
 export const TRIGGER_WORKFLOW_CHECKBOX_OPTIONS = [

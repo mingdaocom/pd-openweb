@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Collapse } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
-import CollapseComponents from '../components/index';
+import { Collapse } from 'antd';
 import { EXPAND_ITEMS } from '../../config/widget';
-import { SettingCollapseWrap } from './styled';
 import { supportSettingCollapse } from '../../util';
-import _ from 'lodash';
+import CollapseComponents from '../components/index';
 import WorksheetReference from '../components/WorksheetReference';
+import { SettingCollapseWrap } from './styled';
 
 const { Panel } = Collapse;
 
 const totalExpandKeys = EXPAND_ITEMS.map(i => i.key);
 
 export default function SettingContent(props) {
-  const { data: { controlId } = {}, mode, from } = props;
+  const { data: { controlId } = {}, from } = props;
   const [expandKeys, setExpandKeys] = useState([]);
 
   const getPanelData = () => {

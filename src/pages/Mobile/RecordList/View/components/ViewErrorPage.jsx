@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui'; 
+import { Icon } from 'ming-ui';
 
 const ViewErrorPageContainer = styled.div`
   width: 100%;
@@ -21,24 +21,24 @@ const ViewErrorPageContainer = styled.div`
     color: #757575;
     font-size: 14px;
   }
-  .setViewBtn{
+  .setViewBtn {
     width: 110px;
     height: 40px;
     line-height: 40px;
     text-align: center;
-    border :1px solid #2196F3;
+    border: 1px solid #1677ff;
     margin-top: 30px;
-    color: #2196F3;
+    color: #1677ff;
   }
 `;
 
-export default function ViewErrorPage(props){
+export default function ViewErrorPage(props) {
   const { icon, viewName, color } = props;
   return (
-    <ViewErrorPageContainer className='flexColumn valignWrapper'>
+    <ViewErrorPageContainer className="flexColumn valignWrapper">
       <Icon className="errorIcon" icon={icon} style={{ color }} />
-      <div className="errorTitle" >{viewName}</div>
-      <div className="errorInfo" >{_l('视图配置错误，请联系管理员')}</div>
+      <div className="errorTitle">{viewName}</div>
+      <div className="errorInfo">{_l('视图配置错误，请联系管理员')}</div>
     </ViewErrorPageContainer>
   );
 }

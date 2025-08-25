@@ -1,13 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
-import ScrollView from 'ming-ui/components/ScrollView';
-import Icon from 'ming-ui/components/Icon';
-import Button from 'ming-ui/components/Button';
-import addFriends from 'src/components/addFriends';
-import SiderBarTabList from '../components/SiderBarTabList';
-import SiderBarTabItem from '../components/SiderBarTabItem';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Button, Icon, ScrollView } from 'ming-ui';
+import addFriends from 'src/components/addFriends';
+import SiderBarTabItem from '../components/SiderBarTabItem';
+import SiderBarTabList from '../components/SiderBarTabList';
 
 export default class SideBar extends React.Component {
   static propTypes = {
@@ -87,7 +84,7 @@ export default class SideBar extends React.Component {
             <span className="TxtMiddle">{_l('添加联系人')}</span>
           </Button>
         </div>
-        <div className="contacts-tabs">
+        <div className="contacts-tabs minHeight0">
           <ScrollView>
             {_.map(list, (item, index) => {
               return this.renderTabs(item, index);

@@ -170,7 +170,7 @@ export const checkLogin = () => {
 };
 
 export const getGlobalMeta = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     ajax.post({
       url: __api_server__.main + 'Global/GetGlobalMeta',
       data: {},
@@ -236,12 +236,4 @@ export const setCookie = (name, value, expire) => {
   } else {
     document.cookie = name + '=' + escape(value) + ';expires=' + expireDate + ';path=/;domain=.mingdao.com';
   }
-};
-
-const getCookie = name => {
-  var arr = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'));
-  if (arr != null) {
-    return unescape(arr[2]);
-  }
-  return null;
 };

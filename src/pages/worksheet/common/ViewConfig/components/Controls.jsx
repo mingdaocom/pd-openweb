@@ -25,7 +25,7 @@ export default class Controls extends React.Component {
   };
 
   // sysids：显示的系统字段 syssort：系统字段顺序
-  columnChange = ({ newShowControls, newControlSorts }) => {
+  columnChange = ({ newShowControls }) => {
     const { view, appId, updateCurrentView, sheetSwitchPermit, formatColumnsListForControls } = this.props;
     const { showControls = [] } = view;
 

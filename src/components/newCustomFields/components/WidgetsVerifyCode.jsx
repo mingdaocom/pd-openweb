@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Button } from 'ming-ui';
 import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
 import { captcha } from 'ming-ui/functions';

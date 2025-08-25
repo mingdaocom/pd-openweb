@@ -1,20 +1,19 @@
-import React, { useRef, useState, Fragment, useLayoutEffect } from 'react';
-import { Dropdown, TagTextarea } from 'ming-ui';
+import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
 import { Tooltip } from 'antd';
-import InputSuffix from '../components/formula/InputSuffix';
-import SwitchType from '../components/formula/SwitchType';
-import ToTodaySetting from '../components/formula/toTodaySetting';
-import DynamicSelectDateControl from '../components/DynamicSelectDateControl';
-import SelectControl from '../components/SelectControl';
-import PreSuffix from '../components/PreSuffix';
-import PointerConfig from '../components/PointerConfig';
-import { SettingItem, ControlTag } from '../../styled';
+import _ from 'lodash';
+import { Dropdown, TagTextarea } from 'ming-ui';
+import { CALC_TYPE, OUTPUT_FORMULA_DATE } from '../../config/setting';
+import { ControlTag, SettingItem } from '../../styled';
 import { getAdvanceSetting, getControlByControlId, parseDataSource } from '../../util';
 import { getFormulaControls } from '../../util/data';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import { CALC_TYPE, OUTPUT_FORMULA_DATE } from '../../config/setting';
-
-import _ from 'lodash';
+import DynamicSelectDateControl from '../components/DynamicSelectDateControl';
+import InputSuffix from '../components/formula/InputSuffix';
+import SwitchType from '../components/formula/SwitchType';
+import ToTodaySetting from '../components/formula/toTodaySetting';
+import PointerConfig from '../components/PointerConfig';
+import PreSuffix from '../components/PreSuffix';
+import SelectControl from '../components/SelectControl';
 
 const FORMAT_TYPE = [
   { text: _l('开始日期 00:00，结束日期 24:00'), value: '1' },
@@ -22,7 +21,7 @@ const FORMAT_TYPE = [
 ];
 
 export default function FormulaDate(props) {
-  const { allControls, data, onChange, ...rest } = props;
+  const { allControls, data, onChange } = props;
   const { strDefault, enumDefault, unit, controlId } = data;
   const isSaved = controlId && !controlId.includes('-');
   const { autocarry = '0' } = getAdvanceSetting(data);
@@ -114,6 +113,7 @@ export default function FormulaDate(props) {
             <p className="Font12 Gray_9e">
               {_l('输入你想要 添加/减去 的时间。如：+8h+1m，-1d+8h。当使用数值类型的字段运算时，请不要忘记输入单位。')}
               <Tooltip
+                autoCloseDelay={0}
                 title={
                   <Fragment>
                     <div>{_l('年：Y（大写)')}</div>
@@ -124,7 +124,7 @@ export default function FormulaDate(props) {
                   </Fragment>
                 }
               >
-                <span className="pointer" style={{ color: '#2196f3' }}>
+                <span className="pointer" style={{ color: '#1677ff' }}>
                   {_l('查看时间单位')}
                 </span>
               </Tooltip>
@@ -137,11 +137,11 @@ export default function FormulaDate(props) {
               getRef={tagtextarea => {
                 $ref.current = tagtextarea;
               }}
-              renderTag={(id, options) => {
+              renderTag={id => {
                 return <ControlTag>{getControlByControlId(allControls, id).controlName}</ControlTag>;
               }}
               onAddClick={() => setVisible(true)}
-              onChange={(err, value, obj) => {
+              onChange={(err, value) => {
                 if (err) {
                   return;
                 }

@@ -1,15 +1,15 @@
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import { Icon, ScrollView, Dialog, Radio, LoadDiv, UserHead } from 'ming-ui';
-import _ from 'lodash';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, Radio, ScrollView, UserHead } from 'ming-ui';
 import pluginAjax from 'src/api/plugin';
-import PublishVersion from 'src/pages/plugin/pluginComponent/PublishVersion.jsx';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import PublishVersion from 'src/pages/plugin/pluginComponent/PublishVersion.jsx';
 
 const Wrap = styled.div`
   height: 100%;
@@ -85,7 +85,7 @@ const WrapPopup = styled.div`
     }
     &:hover {
       color: #fff;
-      background: #2196f3;
+      background: #1677ff;
       .icon {
         color: #fff;
       }
@@ -101,11 +101,11 @@ const actionTypes = [
   },
   {
     txt: _l('删除'),
-    icon: 'delete1',
+    icon: 'trash',
     key: 'delete',
   },
 ];
-function AcitonCon(props) {
+function ActionCon(props) {
   const { onDel, setPublish, id, projectId, view } = props;
   const [{ visible }, setState] = useSetState({
     visible: false,
@@ -126,11 +126,11 @@ function AcitonCon(props) {
         <WrapPopup>
           {actionTypes
             .filter(o =>
-              _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId && hasPluginAuth
+              _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId || hasPluginAuth
                 ? true
                 : o.key !== 'publish',
             )
-            .map((a, n) => {
+            .map(a => {
               return (
                 <div
                   className={cx('Hand Font14 flexRow alignItemsCenter pLeft12', { del: a.key === 'delete' })}
@@ -318,7 +318,7 @@ export default function SubmitConfig(params) {
                       className=""
                       // text={o.name}
                       checked={o.id === CommitId}
-                      onClick={value => {
+                      onClick={() => {
                         const { plugin_attachement_info } = _.get(view, 'advancedSetting');
                         if (o.id === CommitId) {
                           return;
@@ -355,7 +355,7 @@ export default function SubmitConfig(params) {
                         }}
                         projectId={projectId}
                       />
-                      <AcitonCon
+                      <ActionCon
                         {...o}
                         projectId={projectId}
                         view={view}

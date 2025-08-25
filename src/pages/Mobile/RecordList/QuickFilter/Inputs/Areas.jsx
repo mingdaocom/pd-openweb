@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { CityPicker, Icon } from 'ming-ui';

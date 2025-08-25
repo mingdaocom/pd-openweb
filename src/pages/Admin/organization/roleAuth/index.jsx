@@ -1,13 +1,13 @@
 import React from 'react';
-import { Button, Checkbox, Icon, Tooltip } from 'ming-ui';
-import './index.less';
 import _ from 'lodash';
-import RoleList from './roleList';
-import CreateEditRole from './createEditRole';
-import ApplyRole from './applyForRole';
+import { Button, Checkbox, Icon, Tooltip } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
-import Config from '../../config';
 import roleApi from 'src/api/role';
+import Config from '../../config';
+import ApplyRole from './applyForRole';
+import CreateEditRole from './createEditRole';
+import RoleList from './roleList';
+import './index.less';
 
 export default class RoleAuth extends React.Component {
   constructor(props) {
@@ -76,8 +76,11 @@ export default class RoleAuth extends React.Component {
         <Checkbox className="LineHeight36 mRight5" checked={allowApplyManage} onClick={this.allowApplyAdmin}>
           {_l('允许申请管理员')}
         </Checkbox>
-        <Tooltip text={_l('勾选后，组织下所有人都可查看组织中的管理员角色（除超级管理员外），并申请加入')}>
-          <Icon icon="workflow_help" className="Font16 Gray_9e" />
+        <Tooltip
+          text={_l('勾选后，组织下所有人都可查看组织中的管理员角色（除超级管理员外），并申请加入')}
+          autoCloseDelay={0}
+        >
+          <Icon icon="help" className="Font16 Gray_9e" />
         </Tooltip>
         <div className="Hand Gray_75 bold mRight32 mLeft32" onClick={() => this.setState({ showApplyForRole: true })}>
           {_l('申请角色请求')}
@@ -126,7 +129,7 @@ export default class RoleAuth extends React.Component {
           <div>{isSuperAdmin ? _l('管理员') : _l('我的角色')}</div>
           {this.renderMenu()}
         </div>
-        <div className='explainCon'>
+        <div className="explainCon">
           {_l(
             '超级管理员可创建和分配角色权限，管理角色下的成员。其他管理员只能看到自己加入的角色或添加同角色成员（按配置）',
           )}

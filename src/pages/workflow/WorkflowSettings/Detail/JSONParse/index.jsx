@@ -1,24 +1,24 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog, Support, Icon, Menu, MenuItem, Radio } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SelectNodeObject,
-  JSONAnalysis,
-  FindResult,
-  TriggerCondition,
-  CustomTextarea,
-  OutputList,
-} from '../components';
-import { FIELD_TYPE_LIST } from '../../enum';
-import styled from 'styled-components';
-import cx from 'classnames';
 import JsonView from 'react-json-view';
+import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
+import { Dialog, Icon, LoadDiv, Menu, MenuItem, Radio, ScrollView, Support } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import { FIELD_TYPE_LIST } from '../../enum';
 import { checkConditionsIsNull } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  FindResult,
+  JSONAnalysis,
+  OutputList,
+  SelectNodeObject,
+  TriggerCondition,
+} from '../components';
 
 const List = styled.div(
   ({ isHeader }) => `
@@ -71,13 +71,6 @@ const List = styled.div(
     left: inherit !important;
     right: 0 !important;
     width: 450px !important;
-    .Item-content {
-      &:hover {
-        .Gray_75 {
-          color: #fff !important;
-        }
-      }
-    }
   }
 `,
 );
@@ -108,7 +101,7 @@ export default class JSONParse extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -303,7 +296,7 @@ export default class JSONParse extends Component {
                   height={0}
                   content={data.errorMessage}
                   formulaMap={data.formulaMap}
-                  onChange={(err, value, obj) => this.updateSource({ errorMessage: value })}
+                  onChange={(err, value) => this.updateSource({ errorMessage: value })}
                   updateSource={this.updateSource}
                 />
                 {!isIntegration && (
@@ -604,7 +597,7 @@ export default class JSONParse extends Component {
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

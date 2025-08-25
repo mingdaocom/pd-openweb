@@ -1,33 +1,35 @@
-import React, { useState, useRef, Fragment, useLayoutEffect } from 'react';
-import GridLayout from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { Fragment, useLayoutEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import GridLayout from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import cx from 'classnames';
 import { get, max, throttle } from 'lodash';
+import _ from 'lodash';
+import styled from 'styled-components';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
+import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import { COLUMN_HEIGHT } from '../../config';
 import * as actions from '../../redux/action';
-import WidgetDisplay from './WidgetDisplay';
 import { getEnumType, getLayout } from '../../util';
+import WidgetDisplay from './WidgetDisplay';
 import WidgetTools from './WidgetTools';
 import WidthProvider from './widthProvider';
-import { COLUMN_HEIGHT } from '../../config';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 
 const AutoWidthGridLayout = WidthProvider(GridLayout);
 
 export const LayoutContent = styled.div`
   &:hover {
     z-index: 1;
-    >.widgetContentTools {
+    > .widgetContentTools {
       visibility: visible;
     }
   }
   &[richText-offset-top] {
     top: 25px;
   }
-  .widgetContentTools, &.resizing .widgetContentTools {
+  .widgetContentTools,
+  &.resizing .widgetContentTools {
     visibility: hidden;
   }
   .widgetContent {
@@ -48,7 +50,8 @@ export const LayoutContent = styled.div`
         border: none;
       }
     }
-    &.analysis, &.embedUrl {
+    &.analysis,
+    &.embedUrl {
       // overflow: visible;
     }
     &.filter {
@@ -67,13 +70,15 @@ export const LayoutContent = styled.div`
       background-color: transparent;
       box-shadow: none;
       padding: 0;
-      +span.react-resizable-handle {
+      + span.react-resizable-handle {
         display: none;
       }
     }
-    &.tabs, &.image {
+    &.tabs,
+    &.image {
       background: transparent !important;
-      >div {
+      > div,
+      .image {
         padding: 0;
       }
     }
@@ -83,7 +88,7 @@ export const LayoutContent = styled.div`
         border-radius: 0 !important;
         background-color: transparent !important;
       }
-      >div {
+      > div {
         padding: 0;
       }
     }
@@ -124,7 +129,7 @@ export const LayoutContent = styled.div`
         color: #bdbdbd;
       }
       &:focus {
-        border-bottom: 2px solid #2196f3;
+        border-bottom: 2px solid #1677ff;
       }
     }
   }
@@ -161,7 +166,6 @@ function WidgetContent(props) {
     layoutType = 'web',
     ids = {},
     editable = true,
-    chatVisible = false,
     sheetListVisible = false,
     updateLayout = _.noop,
     addRecord = _.noop,
@@ -173,7 +177,7 @@ function WidgetContent(props) {
     widgetIsDark,
     apk,
     isCharge,
-    appPkg
+    appPkg,
   } = props;
   const components = props.components.filter(c => !c.sectionId);
   const [windowHeight, setHeight] = useState(window.innerHeight);
@@ -203,14 +207,13 @@ function WidgetContent(props) {
     <Fragment>
       <AutoWidthGridLayout
         className="layout"
-        chatVisible={chatVisible}
         sheetListVisible={sheetListVisible}
         isDraggable={editable}
         isResizable={editable}
         isFullscreen={isFullscreen}
         layoutType={layoutType}
         draggableCancel=".disableDrag,.chartWrapper .drag"
-        onResizeStop={(layout, oldItem = {}, newItem = {}) => {
+        onResizeStop={(layout, oldItem = {}) => {
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
           if (getData && typeof getData === 'function') {
@@ -219,7 +222,7 @@ function WidgetContent(props) {
         }}
         layout={layout}
         onLayoutChange={layouts => {
-          setTimeout(() => updateLayout({ layouts, layoutType, components, adjustScreen }))
+          setTimeout(() => updateLayout({ layouts, layoutType, components, adjustScreen }));
         }}
         {...getLayoutConfig()}
       >
@@ -244,10 +247,10 @@ function WidgetContent(props) {
                 className={cx('widgetContent', enumType, layoutType, {
                   haveTitle: titleVisible,
                   iframeNoneEvent: enumType === 'embedUrl' && editable,
-                  widgetIsDark
+                  widgetIsDark,
                 })}
                 style={{
-                  backgroundColor: config.widgetBgColor
+                  backgroundColor: config.widgetBgColor,
                 }}
               >
                 <WidgetDisplay
@@ -281,7 +284,6 @@ function WidgetContent(props) {
 export default errorBoundary(
   connect(
     state => ({
-      chatVisible: state.chat.visible,
       sheetListVisible: state.sheetList.isUnfold,
       isCharge: state.sheet.isCharge || state.appPkg.permissionType === 2,
       appPkg: state.appPkg,

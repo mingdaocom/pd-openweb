@@ -23,6 +23,8 @@ export default function RecordInfoRight(props) {
     payConfig,
     instanceId,
     workId,
+    isCharge,
+    updatePayConfig = () => {},
   } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
   let hiddenTabs = [];
@@ -90,6 +92,9 @@ export default function RecordInfoRight(props) {
         roleType={roleType}
         instanceId={instanceId}
         workId={workId}
+        isCharge={isCharge}
+        updatePayConfig={updatePayConfig}
+        isHide={props.isHide}
       />
     </div>
   );

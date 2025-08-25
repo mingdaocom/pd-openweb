@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon, Tooltip } from 'ming-ui';
@@ -61,7 +62,7 @@ const SwitchStyle = styled.div`
 const SelectValue = styled(DisplayControlOption)`
   &：hover {
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -71,7 +72,7 @@ export default class CardAppearance extends Component {
   static defaultProps = {};
   constructor(props) {
     super(props);
-    const { advancedSetting = {} } = props.view;
+
     this.state = {
       relateControls: [],
       emptyname: '',
@@ -111,13 +112,13 @@ export default class CardAppearance extends Component {
     const { viewControl, childType, viewType, advancedSetting } = view;
     const viewControlData = worksheetControls.find(o => o.controlId === viewControl) || {};
     const {
-      hidenone = '0',
       navshow = [26, 27, 48].includes(viewControlData.type) ||
       (viewControlData.type === 30 && [26, 27, 48].includes(viewControlData.sourceControlType))
         ? '1'
         : '0',
       navempty = '1', //默认显示
       freezenav = '0', //默认关闭
+      groupsetting,
     } = getAdvanceSetting(view);
     const isBoardView = String(viewType) === '1';
     const isHierarchyView = String(viewType) === '2';
@@ -161,10 +162,12 @@ export default class CardAppearance extends Component {
                 hoverTheme
                 renderTitle={obj => {
                   const { icon, text } = obj || {};
+                  const groupControl = worksheetControls.find(o => o.controlId === viewControl);
+                  const isErr = viewControl && !groupControl;
                   return (
-                    <SelectValue>
-                      <Icon icon={icon} />
-                      <span>{text}</span>
+                    <SelectValue className={cx({ Red: isErr })}>
+                      <Icon icon={!isErr ? icon : 'error1'} className={cx({ Red: isErr })} />
+                      <span>{!isErr ? text : _l('字段已删除')}</span>
                     </SelectValue>
                   );
                 }}
@@ -233,6 +236,7 @@ export default class CardAppearance extends Component {
                       <div className="switchText InlineBlock Normal mLeft12 mTop8">
                         {_l('启用“未指定”看板')}
                         <Tooltip
+                          autoCloseDelay={0}
                           text={
                             <span>
                               {_l(
@@ -262,8 +266,12 @@ export default class CardAppearance extends Component {
                 <SwitchStyle>
                   <Icon
                     icon={freezenav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                    className="Font28 Hand"
+                    className={cx(
+                      'Font28',
+                      _.get(safeParse(groupsetting, 'array'), '[0].controlId') ? 'cursorNotAllowed' : 'Hand',
+                    )}
                     onClick={() => {
+                      if (_.get(safeParse(groupsetting, 'array'), '[0].controlId')) return;
                       updateCurrentView({
                         ...view,
                         appId,
@@ -276,6 +284,7 @@ export default class CardAppearance extends Component {
                   <div className="switchText InlineBlock Normal mLeft12">
                     {_l('固定第1个看板')}
                     <Tooltip
+                      autoCloseDelay={0}
                       text={<span>{_l('当看板滚动时，始终固定第1个看板在左侧，方便向其他看板中拖拽记录。')} </span>}
                       popupPlacement="top"
                     >

@@ -9,7 +9,7 @@ const currentReport = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 const axisControls = (state = [], action) => {
   switch (action.type) {
@@ -20,7 +20,7 @@ const axisControls = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 const worksheetInfo = (state = {}, action) => {
   switch (action.type) {
@@ -31,7 +31,7 @@ const worksheetInfo = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 const reportData = (state = {}, action) => {
   switch (action.type) {
@@ -42,7 +42,7 @@ const reportData = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 const tableData = (state = {}, action) => {
   switch (action.type) {
@@ -53,7 +53,7 @@ const tableData = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 const filterItem = (state = [], action) => {
   switch (action.type) {
@@ -64,7 +64,7 @@ const filterItem = (state = [], action) => {
     default:
       return state;
   }
-}
+};
 
 const detailLoading = (state = true, action) => {
   switch (action.type) {
@@ -75,7 +75,7 @@ const detailLoading = (state = true, action) => {
     default:
       return state;
   }
-}
+};
 
 const loading = (state = true, action) => {
   switch (action.type) {
@@ -86,7 +86,7 @@ const loading = (state = true, action) => {
     default:
       return state;
   }
-}
+};
 
 const reportSingleCacheLoading = (state = true, action) => {
   switch (action.type) {
@@ -97,16 +97,16 @@ const reportSingleCacheLoading = (state = true, action) => {
     default:
       return state;
   }
-}
+};
 
-const direction = (state = (sessionStorage.getItem('chartSheetDirection') || 'horizontal'), action) => {
+const direction = (state = sessionStorage.getItem('chartSheetDirection') || 'horizontal', action) => {
   switch (action.type) {
     case 'CHANGE_STATISTICS_DIRECTION':
       return action.data;
     default:
       return state;
   }
-}
+};
 
 const base = (state = {}, action) => {
   switch (action.type) {
@@ -117,7 +117,7 @@ const base = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 export default combineReducers({
   currentReport,
@@ -130,6 +130,5 @@ export default combineReducers({
   loading,
   reportSingleCacheLoading,
   direction,
-  base
+  base,
 });
-

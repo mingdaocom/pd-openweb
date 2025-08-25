@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import fixedDataAjax from 'src/api/fixedData';
 import worksheetAjax from 'src/api/worksheet';
 import { AnimationWrap, DropdownContentWrap, DropdownPlaceholder, SettingItem } from '../../styled';
@@ -159,7 +160,7 @@ export default function Money(props) {
           <DropdownPlaceholder cancelAble={!!currentCurrency}>
             {renderPlaceholder()}
             <i
-              className="icon-cancel1 Gray_9e Font14 clearIcon"
+              className="icon-cancel Gray_9e Font14 clearIcon"
               onClick={e => {
                 e.stopPropagation();
                 onChange(

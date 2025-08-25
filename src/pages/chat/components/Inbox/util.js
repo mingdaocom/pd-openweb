@@ -1,15 +1,14 @@
 import moment from 'moment';
 import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import { browserIsMobile } from 'src/utils/common';
-import { APPID, MSGTYPES, SOURCE_TYPE } from './constants';
+import { MSGTYPES, SOURCE_TYPE } from './constants';
 
 export const formatInboxItem = function (inboxItem) {
   const createUser = inboxItem.CreateUser || {};
   const { accountId, fullname, avatar } = createUser;
   const { discussion } = inboxItem;
 
-  let typeName = '',
-    isReply = false;
+  let typeName = '';
   const inboxType = parseInt(inboxItem.inboxType, 10);
 
   switch (inboxType) {
@@ -25,7 +24,6 @@ export const formatInboxItem = function (inboxItem) {
     case MSGTYPES.KCMessage:
     case MSGTYPES.ApprovalMessage:
     case MSGTYPES.WorkSheetMessage:
-    // 工作流消息
     case MSGTYPES.WorkFlowMessage:
     case MSGTYPES.WorkFlowTaskMessage:
     case MSGTYPES.WorkFlowUserTaskMessage:
@@ -218,7 +216,7 @@ export const splitSourceId = sourceId => {
   };
 };
 
-export const buildSourceLink = function (type, _sourceId, _extendsId) {
+export const buildSourceLink = function (type, _sourceId, _extendsId, inboxId) {
   var linkUrl = '';
   const { sourceId, childId } = splitSourceId(_sourceId);
   switch (type) {
@@ -242,14 +240,14 @@ export const buildSourceLink = function (type, _sourceId, _extendsId) {
       if (_extendsId && _extendsId.indexOf('undefined') < 0 && _extendsId.indexOf('null') < 0) {
         const [appId, viewId] = _extendsId.split('|');
         if (!appId || !viewId) {
-          linkUrl = ' /worksheet/' + sourceId + '/row/' + childId + '?share';
+          linkUrl = `/worksheet/${sourceId}/row/${childId}?inboxId=${inboxId}`;
         } else {
           linkUrl = !browserIsMobile()
-            ? replacePorTalUrl(`/app/${appId}/${sourceId}/${viewId}/row/${childId}?share`)
-            : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}?share`; //h5跳到记录详情
+            ? replacePorTalUrl(`/app/${appId}/${sourceId}/${viewId}/row/${childId}?inboxId=${inboxId}`)
+            : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}?inboxId=${inboxId}`; //h5跳到记录详情
         }
       } else {
-        linkUrl = ' /worksheet/' + sourceId + '/row/' + childId + '?share';
+        linkUrl = `/worksheet/${sourceId}/row/${childId}?inboxId=${inboxId}`;
       }
       break;
     default:

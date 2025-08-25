@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Checkbox } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Button, Icon, LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
 import orderController from 'src/api/order';
 import { checkPermission } from 'src/components/checkPermission';
@@ -288,9 +289,6 @@ export default class WaitingPay extends Component {
       window.open(
         addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId),
       );
-      const setting = {
-        url: '/admin/billinfo/' + Config.projectId,
-      };
       payDialogFunc({ url: '/admin/billinfo/' + Config.projectId });
       //操作日志
       orderController.addThreePartPayOrderLog({

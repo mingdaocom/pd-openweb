@@ -1,4 +1,5 @@
-import { APP_ROLE_TYPE, VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import _ from 'lodash';
+import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 
 // 获取应用配置列表
 export const getAppConfig = (menus, permissionType) => {
@@ -24,16 +25,6 @@ export const getAppConfig = (menus, permissionType) => {
   }
 
   return menus;
-};
-
-export const getCheckedInfo = ({ typeList = [], defaultCheckedAll = false, source = {} }) => {
-  let obj = {};
-  typeList.forEach(item => {
-    const ids = (source[item] || []).map(({ id }) => id);
-    obj[`${item}CheckAll`] = defaultCheckedAll;
-    obj[`${item}CheckIds`] = ids;
-  });
-  return obj;
 };
 
 export const getViewIcon = type => {

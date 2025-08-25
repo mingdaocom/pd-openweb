@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { string, func } from 'prop-types';
-import FullScreenCurtain from '../FullScreenCurtain';
+import { func, string } from 'prop-types';
 import WorkflowSettings from '../../WorkflowSettings';
+import FullScreenCurtain from '../FullScreenCurtain';
 
 export default class WorkflowDialog extends Component {
   static propTypes = {

@@ -1,7 +1,5 @@
 import React from 'react';
-import { Icon, ColorPicker } from 'ming-ui';
 import { Input } from 'antd';
-import cx from 'classnames';
 import { defaultTitleStyles, replaceTitleColor } from 'src/pages/customPage/components/ConfigSideWrap/util';
 
 export default props => {
@@ -10,16 +8,18 @@ export default props => {
   const { name, desc, style } = currentReport;
   const { titleStyles = defaultTitleStyles } = style;
   const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
+  // eslint-disable-next-line no-unused-vars
   const { color } = replaceTitleColor(newTitleStyles, themeColor);
+  // eslint-disable-next-line no-unused-vars
   const handleChange = data => {
     onChangeStyle({
       titleStyles: {
         ...newTitleStyles,
         ...data,
-        index: Date.now()
-      }
+        index: Date.now(),
+      },
     });
-  }
+  };
   return (
     <div className="mBottom12">
       <div className="mBottom8">{_l('显示标题')}</div>
@@ -28,9 +28,12 @@ export default props => {
         className="chartInput w100 mBottom12"
         placeholder={_l('添加图表标题')}
         onChange={event => {
-          onChangeCurrentReport({
-            name: event.target.value
-          }, false);
+          onChangeCurrentReport(
+            {
+              name: event.target.value,
+            },
+            false,
+          );
         }}
       />
       {/*
@@ -115,11 +118,14 @@ export default props => {
         placeholder={_l('添加图表描述')}
         value={desc}
         onChange={event => {
-          onChangeCurrentReport({
-            desc: event.target.value
-          }, false);
+          onChangeCurrentReport(
+            {
+              desc: event.target.value,
+            },
+            false,
+          );
         }}
       />
     </div>
   );
-}
+};

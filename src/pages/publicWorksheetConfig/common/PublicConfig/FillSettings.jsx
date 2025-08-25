@@ -1,8 +1,9 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Dropdown, Icon, Input, RichText } from 'ming-ui';
+import SmsSignSet from 'src/components/SmsSignSet';
 import CommonFieldDropdown from './CommonFieldDropdown';
 import CommonSwitch from './CommonSwitch';
 import SectionTitle from './SectionTitle';
@@ -17,7 +18,7 @@ const PreFillWrap = styled.div`
   margin-left: 44px;
   &:hover {
     .Icon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -44,7 +45,7 @@ const ALERT_TEXT = {
 };
 
 export default function FillSettings(props) {
-  const { data, setState } = props;
+  const { data, setState, projectId } = props;
   const {
     needCaptcha,
     smsVerification,
@@ -60,7 +61,6 @@ export default function FillSettings(props) {
     extendDatas = {},
   } = data;
   const preFillDesc = safeParse(extendDatas.preFillDesc || '{}', 'object');
-  const inputRef = useRef();
 
   const [preFillDescVisible, setPreFillDescVisible] = useState(false);
   const [preFillDescData, setPreFillDescData] = useState(preFillDesc);
@@ -100,35 +100,6 @@ export default function FillSettings(props) {
   const handleCancel = () => {
     setPreFillDescData(preFillDesc);
     setPreFillDescVisible(false);
-  };
-
-  const editSmsSignature = () => {
-    Dialog.confirm({
-      title: <span className="Font16 Bold">{_l('自定义验证码签名')}</span>,
-      width: 480,
-      description: (
-        <Fragment>
-          <div className="Gray_9e Font12 mBottom20">
-            <div>{_l('自定义签名仅支持国内号码')}</div>
-            <div className="mTop8 ">
-              {_l('请谨慎填写您的组织简称、网站名、品牌名，2-20个汉字。如签名不符合规范，将会被运营商拦截')}
-            </div>
-          </div>
-          <input maxLength={20} className="ming Input w100" defaultValue={smsSignature} ref={inputRef} />
-        </Fragment>
-      ),
-      onOk: () => {
-        return new Promise((resolve, reject) => {
-          if (!/^[a-zA-z\u4e00-\u9fa5]{2,20}$/.test(inputRef.current.value)) {
-            alert(_l('签名需要控制在2-20个中英文字符'), 2);
-            reject(false);
-          } else {
-            setState({ smsSignature: inputRef.current.value || smsSignature });
-            resolve();
-          }
-        });
-      },
-    });
   };
 
   const renderPreFillDialog = () => {
@@ -238,13 +209,12 @@ export default function FillSettings(props) {
                       }
                     : {})}
                 />
-                <span className="mLeft20">
-                  <span className="Gray_9e">{_l('短信签名：')}</span>
-                  <span>{_l('【%0】', smsSignature)}</span>
-                  <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={editSmsSignature}>
-                    {_l('修改')}
-                  </span>
-                </span>
+                <span className="mLeft20 Gray_9e">{_l('短信签名：')}</span>
+                <SmsSignSet
+                  projectId={projectId}
+                  onOk={value => setState({ smsSignature: value })}
+                  sign={smsSignature}
+                />
               </div>
             )}
           </div>

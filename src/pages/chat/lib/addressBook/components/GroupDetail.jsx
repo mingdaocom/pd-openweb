@@ -1,15 +1,12 @@
 import React from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
-import Icon from 'ming-ui/components/Icon';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { Icon, ScrollView } from 'ming-ui';
 import settingGroup from 'src/pages/Group/settingGroup';
-import API, { closeGroup, openGroup } from '../api';
+import { closeGroup, openGroup } from '../api';
 import { config } from '../config';
 
 export default class GroupDetail extends React.Component {
   constructor(props) {
-    super();
+    super(props);
 
     this.openSettingDialog = this.openSettingDialog.bind(this);
   }
@@ -147,7 +144,7 @@ export default class GroupDetail extends React.Component {
 
   renderDetail() {
     const {
-      group: { groupMemberCount, createTime, isAdmin, isOpen, createAccount },
+      group: { groupMemberCount, createTime, isOpen, createAccount },
     } = this.props;
     return (
       <div className="Font13 mTop24">

@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { DropTarget } from 'react-dnd';
+import PropTypes from 'prop-types';
 import config from './config';
 
 const cardTarget = {
-  hover(props, monitor, component) {
+  hover(props, monitor) {
     if (!monitor.isOver({ shallow: true })) {
       props.checklistItemHover(props.index, props.topIndex);
     }

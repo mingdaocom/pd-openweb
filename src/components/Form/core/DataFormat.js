@@ -7,10 +7,11 @@ import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
 import { createRequestPool } from 'worksheet/api/standard';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
+import { setRowsFromStaticRows } from 'worksheet/components/ChildTable/redux/actions';
+import generateSubListStore from 'worksheet/components/ChildTable/redux/store';
 import generateRelateRecordTableStore from 'worksheet/components/RelateRecordTable/redux/store.js';
 import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { setRowsFromStaticRows } from 'src/components/Form/MobileForm/components/ChildTable/redux/actions.js';
-import generateSubListStore from 'src/components/Form/MobileForm/components/ChildTable/redux/store';
+import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
@@ -42,7 +43,7 @@ import {
   parseNewFormula,
   parseValueIframe,
 } from './formUtils';
-import { getArrBySpliceType, halfSwitchSize, isUnTextWidget } from './utils';
+import { calcSubTotalCount, getArrBySpliceType, halfSwitchSize, isUnTextWidget } from './utils';
 
 /**
  * 自定义字段数据格式化
@@ -52,6 +53,7 @@ import { getArrBySpliceType, halfSwitchSize, isUnTextWidget } from './utils';
  * @param {boolean} isCreate 是否创建
  * @param {boolean} disabled 是否全部禁用
  * @param {boolean} ignoreLock 去除锁定
+ * @param {boolean} isRecordLock 记录锁定
  * @param {boolean} ignoreRequired 去除其他选项的必填
  * @param {boolean} verifyAllControls 验证所有可见控件
  * @param {string} recordCreateTime 记录创建时间，编辑的时候会用到
@@ -94,6 +96,7 @@ export default class DataFormat {
     embedData = {},
     onAsyncChange = () => {},
     updateLoadingItems = () => {},
+    updateLoadingItemsWithAutoSubmit = () => {},
     activeTrigger = () => {},
   }) {
     this.abortController = abortController;
@@ -121,6 +124,7 @@ export default class DataFormat {
       onAsyncChange(...args, this);
     };
     this.updateLoadingItems = updateLoadingItems;
+    this.updateLoadingItemsWithAutoSubmit = updateLoadingItemsWithAutoSubmit;
     this.activeTrigger = activeTrigger;
     this.loopList = [];
     this.isMobile = browserIsMobile();
@@ -171,6 +175,16 @@ export default class DataFormat {
           !item.store
         ) {
           item.store = this.getControlStore(item);
+        }
+        try {
+          if (item.store) {
+            item.store.setLoadingInfo = (key, status) => {
+              this.loadingInfo[key] = status;
+              this.updateLoadingItemsWithAutoSubmit(this.loadingInfo);
+            };
+          }
+        } catch (err) {
+          console.error('init store fail!', err);
         }
       });
     };
@@ -301,9 +315,13 @@ export default class DataFormat {
       item.advancedSetting = item.advancedSetting || {};
       item.dataSource = item.dataSource || '';
       item.disabled = (item.ignoreDisabled ? false : !!disabled) || item.disabled;
+      item.controlPermissions =
+        item.type === 52 ? _.replace(item.controlPermissions || '111', /^(.)(.)/, '$1' + '1') : item.controlPermissions;
       item.fieldPermission = _.includes(SYSTEM_ENUM, item.controlId)
         ? '0' + (item.fieldPermission || '111').slice(-2)
-        : item.fieldPermission;
+        : item.type === 52 && instanceId && workId
+          ? _.replace(item.fieldPermission || '111', /^(.)(.)/, '$1' + '1')
+          : item.fieldPermission;
       item.defaultState = {
         required: item.required,
         controlPermissions: item.controlPermissions,
@@ -470,7 +488,9 @@ export default class DataFormat {
               let loading = true;
               try {
                 loading = item.store.getState().baseLoading;
-              } catch (err) {}
+              } catch (err) {
+                console.log(err);
+              }
               const params = {
                 recordId: this.recordId,
                 masterData: {
@@ -556,6 +576,7 @@ export default class DataFormat {
                     value: { count: records.length },
                   });
                 } catch (err) {
+                  console.log(err);
                   value = '';
                 }
               } else if (value === 'deleteRowIds: all') {
@@ -827,7 +848,9 @@ export default class DataFormat {
                       records = parsedValue;
                     }
                   }
-                } catch (err) {}
+                } catch (err) {
+                  console.log(err);
+                }
               } else if (sourceSheetControl.type === 34) {
                 if (sourceSheetControl.store) {
                   records = sourceSheetControl.store.getState().rows || [];
@@ -844,7 +867,7 @@ export default class DataFormat {
               value = records.length;
             } else {
               const sourceControl = _.find(
-                sourceSheetControl.relationControls,
+                sourceSheetControl.relationControls.concat(SYSTEM_CONTROL_WITH_UAID),
                 c => c.controlId === currentItem.sourceControlId,
               );
               if (sourceControl) {
@@ -856,14 +879,33 @@ export default class DataFormat {
                     (currentItem.type === 37 && _.includes([15, 16, 46], currentItem.enumDefault2));
                   switch (currentItem.enumDefault) {
                     case 13: // 已填
-                      value = valuesOfRecords.filter(c =>
-                        sourceControl.type === 36 ? c === '1' : !checkCellIsEmpty(c),
-                      ).length;
+                      value = valuesOfRecords.filter(c => {
+                        if (sourceControl.type === 36) {
+                          return c === '1';
+                        } else if (_.includes([29, 34], sourceControl.type) && _.isNumber(c)) {
+                          return !!c;
+                        } else {
+                          return !checkCellIsEmpty(c);
+                        }
+                      }).length;
                       break;
                     case 14: // 未填
-                      value = valuesOfRecords.filter(c =>
-                        sourceControl.type === 36 ? c !== '1' : checkCellIsEmpty(c),
-                      ).length;
+                      value = valuesOfRecords.filter(c => {
+                        if (sourceControl.type === 36) {
+                          return c !== '1';
+                        } else if (_.includes([29, 34], sourceControl.type) && _.isNumber(c)) {
+                          return !c;
+                        } else {
+                          return checkCellIsEmpty(c);
+                        }
+                      }).length;
+                      break;
+                    case 21: // 唯一值计数
+                    case 22: // 所有值计数
+                      // 子表、关联多条存在计算有误的情况，不计算
+                      if (sourceControl.type === 34 || (sourceControl.type === 29 && sourceControl.enumDefault === 2))
+                        return;
+                      value = calcSubTotalCount(valuesOfRecords, sourceControl, currentItem);
                       break;
                     case 5: // 求和
                       value = _.sum(
@@ -894,7 +936,7 @@ export default class DataFormat {
                           const maxDate = _.max(
                             noUndefinedValues.filter(_.identity).map(c => new Date(c || 0).getTime()),
                           );
-                          const { formatMode, mode } = getDatePickerConfigs({
+                          const { formatMode } = getDatePickerConfigs({
                             type: currentItem.enumDefault2,
                             advancedSetting: { showtype: currentItem.unit },
                           });
@@ -1083,6 +1125,7 @@ export default class DataFormat {
           showError: ruleItem.hintType !== 1,
           errorMessage,
           ruleId: ruleItem.ruleId,
+          ignoreErrorMessage: ruleItem.checkType === 3,
         });
       }
     }
@@ -1098,21 +1141,27 @@ export default class DataFormat {
   /**
    * 设置控件loading状态
    */
-  setLoadingInfo(controlIds, status) {
-    (_.isArray(controlIds) ? controlIds : [controlIds]).map(controlId => {
-      if (_.find(this.data, item => item.controlId === controlId)) {
+  setLoadingInfo(controlIds, status, autoSubmit) {
+    const newIds = _.isArray(controlIds) ? controlIds : [controlIds];
+    newIds.map((controlId, index) => {
+      if (_.find(this.data, item => controlId.includes(item.controlId))) {
         this.loadingInfo[controlId] = status;
       } else {
         // 子表内控件更新时，loading状态挂到父级
         const parentControl = _.find(this.data, item =>
-          _.find(item.relationControls || [], i => i.controlId === controlId),
+          _.find(item.relationControls || [], i => controlId.includes(i.controlId)),
         );
         if (parentControl) {
           this.loadingInfo[parentControl.controlId] = status;
         }
       }
+
+      if (index === newIds.length - 1) {
+        autoSubmit
+          ? this.updateLoadingItemsWithAutoSubmit(this.loadingInfo)
+          : this.updateLoadingItems(this.loadingInfo);
+      }
     });
-    this.updateLoadingItems(this.loadingInfo);
   }
 
   /**
@@ -1502,7 +1551,7 @@ export default class DataFormat {
   getFilterRowsData = (searchControl, para, controlId, effectControlId) => {
     const formatFilters = getFilter({ control: searchControl, formData: this.data });
 
-    if (!formatFilters) return Promise.reject();
+    if (!formatFilters) return Promise.resolve(null);
 
     // 增加查询条件对比，由于一些异步更新，未完成时已被记录id,导致更新完被循环拦截(纯id拦截不准确)
     const tempFilterValue = getItemFilters(formatFilters).map(i =>
@@ -1510,7 +1559,7 @@ export default class DataFormat {
     );
     const existFilters = this.loopList.filter(i => i.loopId === `${effectControlId}-${controlId}`);
     if (_.some(existFilters, e => _.isEqual(tempFilterValue, e.loopFilter))) {
-      return Promise.reject();
+      return Promise.resolve(null);
     }
     this.setLoadingInfo(controlId, true);
     this.loopList.push({ loopId: `${effectControlId}-${controlId}`, loopFilter: tempFilterValue });
@@ -1577,198 +1626,219 @@ export default class DataFormat {
    */
   updateDataBySearchConfigs = ({ control = {}, searchType }) => {
     const filterSearchConfig = this.getFilterConfigs(control, searchType);
-    filterSearchConfig.forEach(currentConfig => {
+
+    if (_.isEmpty(filterSearchConfig)) return;
+
+    filterSearchConfig.forEach(async currentConfig => {
+      this.setLoadingInfo(currentConfig.controlId, true);
+
       const updateData = value => {
         this.updateDataSource({
           controlId: currentConfig.controlId,
           value,
         });
+
         this.onAsyncChange({
           controlId: currentConfig.controlId,
           value,
         });
+
         // 初始时由工作表查询引起的变更遗漏
         if (!_.includes(this.ruleControlIds, currentConfig.controlId) && searchType === 'init') {
           this.ruleControlIds.push(currentConfig.controlId);
         }
+
+        this.setLoadingInfo(currentConfig.controlId, false, true);
       };
-      if (currentConfig) {
-        const {
-          items = [],
-          configs = [],
-          templates = [],
-          moreType,
-          moreSort,
-          sourceId,
-          controlType,
-          controlId,
-          id,
-        } = currentConfig;
-        const controls = _.get(templates[0] || {}, 'controls') || [];
-        //当前配置查询的控件
-        const currentControl = _.find(this.data, da => da.controlId === controlId);
-        if (!currentControl) {
-          return;
-        }
-        // 表单类型转换，矫正数量配置
-        let queryCount = getDefaultCount(currentControl, currentConfig.queryCount);
-        // 满足查询时机
-        const canSearch = this.getSearchStatus(items, controls);
-        // 能配查询多条的是否赋值的控件
-        const canSearchMore =
-          !_.includes([29, 34], currentControl.type) ||
-          (currentControl.type === 29 && currentControl.enumDefault === 1);
-        const searchControl = {
-          ...currentControl,
-          advancedSetting: { filters: JSON.stringify(items) },
-          recordId: this.recordId,
-          relationControls: controls,
-        };
-        //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
-        if (
-          templates.length > 0 &&
-          controls.length > 0 &&
-          canSearch &&
-          currentControl &&
-          !_.includes(this.loopList, `${control.controlId}-${controlId}`)
-        ) {
-          //关联记录、或同源级联直接查询赋值
-          if (_.includes([29], controlType) || (controlType === 35 && currentControl.dataSource === sourceId)) {
-            this.debounceGetFilterRowsData(
+
+      const {
+        items = [],
+        configs = [],
+        templates = [],
+        moreType,
+        moreSort,
+        sourceId,
+        controlType,
+        controlId,
+        id,
+      } = currentConfig;
+      const controls = _.get(templates[0] || {}, 'controls') || [];
+      //当前配置查询的控件
+      const currentControl = _.find(this.data, da => da.controlId === controlId);
+      if (!currentControl) {
+        this.setLoadingInfo(controlId, false, true);
+        return;
+      }
+      // 表单类型转换，矫正数量配置
+      let queryCount = getDefaultCount(currentControl, currentConfig.queryCount);
+      // 满足查询时机
+      const canSearch = this.getSearchStatus(items, controls);
+      // 能配查询多条的是否赋值的控件
+      const canSearchMore =
+        !_.includes([29, 34], currentControl.type) || (currentControl.type === 29 && currentControl.enumDefault === 1);
+      const searchControl = {
+        ...currentControl,
+        advancedSetting: { filters: JSON.stringify(items) },
+        recordId: this.recordId,
+        relationControls: controls,
+      };
+
+      //表删除、没有控件、不符合查询时机、当前配置控件已删除等不执行
+      if (
+        templates.length > 0 &&
+        controls.length > 0 &&
+        canSearch &&
+        currentControl &&
+        !_.includes(this.loopList, `${control.controlId}-${controlId}`)
+      ) {
+        //关联记录、或同源级联直接查询赋值
+        if (_.includes([29], controlType) || (controlType === 35 && currentControl.dataSource === sourceId)) {
+          const res = await this.debounceGetFilterRowsData(
+            id,
+            searchControl,
+            {
+              worksheetId: sourceId,
+              pageSize: currentControl.enumDefault === 1 ? 1 : queryCount,
               id,
-              searchControl,
-              {
-                worksheetId: sourceId,
-                pageSize: currentControl.enumDefault === 1 ? 1 : queryCount,
-                id,
-                getAllControls: true,
-                sortControls: moreSort,
-                ...(get(window, 'shareState.shareId') ? { relationWorksheetId: currentConfig.worksheetId } : {}),
-              },
-              controlId,
-              control.controlId,
-            ).then(res => {
-              this.setLoadingInfo(controlId, false);
-              if (res.resultCode === 1) {
-                // 查询多条不赋值
-                if (canSearchMore && res.count > 1 && moreType === 1) return;
-                const titleControl = _.find(_.get(currentControl, 'relationControls'), i => i.attribute === 1);
-                const newValue = (res.data || []).map(item => {
-                  const nameValue = titleControl ? item[titleControl.controlId] : undefined;
-                  return {
-                    isNew: true,
-                    isWorksheetQueryFill: _.get(currentControl.advancedSetting || {}, 'showtype') === '1',
-                    sourcevalue: JSON.stringify(item),
-                    row: item,
-                    type: 8,
-                    sid: item.rowid,
-                    name: getCurrentValue(titleControl, nameValue, { type: 2 }),
-                  };
-                });
-                if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
-                  updateData('');
-                  return;
-                }
-                if (_.isEmpty(newValue) && _.includes([29], controlType)) {
-                  updateData('deleteRowIds: all');
-                } else {
-                  updateData(JSON.stringify(newValue));
-                }
-              }
-            });
+              getAllControls: true,
+              sortControls: moreSort,
+              ...(get(window, 'shareState.shareId') ? { relationWorksheetId: currentConfig.worksheetId } : {}),
+            },
+            controlId,
+            control.controlId,
+          );
+
+          // 查询失败、查询多条不赋值
+          if (!res || res.resultCode !== 1 || (canSearchMore && res.count > 1 && moreType === 1)) {
+            this.setLoadingInfo(controlId, false, true);
+            return;
+          }
+
+          const titleControl = _.find(_.get(currentControl, 'relationControls'), i => i.attribute === 1);
+          const newValue = (res.data || []).map(item => {
+            const nameValue = titleControl ? item[titleControl.controlId] : undefined;
+            return {
+              isNew: true,
+              isWorksheetQueryFill: _.get(currentControl.advancedSetting || {}, 'showtype') === '1',
+              sourcevalue: JSON.stringify(item),
+              row: item,
+              type: 8,
+              sid: item.rowid,
+              name: getCurrentValue(titleControl, nameValue, { type: 2 }),
+            };
+          });
+          if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
+            updateData('');
+            return;
+          }
+          if (_.isEmpty(newValue) && _.includes([29], controlType)) {
+            updateData('deleteRowIds: all');
           } else {
-            //子表和普通字段需判断映射字段存在与否
-            const canMapConfigs = configs.filter(({ cid, subCid }) => {
-              return (_.find(controls, c => c.controlId === subCid) || subCid === 'rowid') && currentControl.type === 34
-                ? _.find(currentControl.relationControls || [], re => re.controlId === cid)
-                : currentControl.controlId === cid;
-            });
-            if (canMapConfigs.length > 0) {
-              this.debounceGetFilterRowsData(
-                id,
-                searchControl,
-                {
-                  worksheetId: sourceId,
-                  pageSize: controlType === 34 ? queryCount : 1,
-                  id,
-                  getAllControls: controlType === 34,
-                  sortControls: moreSort,
-                },
-                controlId,
-                control.controlId,
-              ).then(res => {
-                this.setLoadingInfo(controlId, false);
-                if (res.resultCode === 1) {
-                  const filterData = res.data || [];
-                  // 查询多条不赋值
-                  if (canSearchMore && res.count > 1 && moreType === 1) return;
-                  //子表
-                  if (controlType === 34) {
-                    const newValue = [];
-                    if (filterData.length) {
-                      filterData.forEach(item => {
-                        let row = {};
-                        canMapConfigs.map(({ cid = '', subCid = '' }) => {
-                          const controlVal = _.find(currentControl.relationControls || [], re => re.controlId === cid);
-                          if (controlVal) {
-                            if (subCid === 'rowid') {
-                              row[cid] =
-                                controlVal.type === 29
-                                  ? JSON.stringify([
-                                      {
-                                        sourcevalue: JSON.stringify(item),
-                                        row: item,
-                                        type: 8,
-                                        sid: item.rowid,
-                                      },
-                                    ])
-                                  : item.rowid;
-                              return;
-                            }
-                            row[cid] = formatSearchResultValue({
-                              targetControl: _.find(controls, s => s.controlId === subCid),
-                              currentControl: controlVal,
-                              controls,
-                              searchResult: item[subCid] || '',
-                            });
-                          }
-                        });
-                        //映射明细所有字段值不为空
-                        if (_.some(Object.values(row), i => !_.isUndefined(i))) {
-                          newValue.push({
-                            ...row,
-                            rowid: `temprowid-${uuidv4()}`,
-                            allowedit: true,
-                            addTime: new Date().getTime(),
-                          });
-                        }
-                      });
+            updateData(JSON.stringify(newValue));
+          }
+        } else {
+          //子表和普通字段需判断映射字段存在与否
+          const canMapConfigs = configs.filter(({ cid, subCid }) => {
+            return (_.find(controls, c => c.controlId === subCid) || subCid === 'rowid') && currentControl.type === 34
+              ? _.find(currentControl.relationControls || [], re => re.controlId === cid)
+              : currentControl.controlId === cid;
+          });
+
+          if (!canMapConfigs.length) {
+            this.setLoadingInfo(controlId, false, true);
+            return;
+          }
+
+          const res = await this.debounceGetFilterRowsData(
+            id,
+            searchControl,
+            {
+              worksheetId: sourceId,
+              pageSize: controlType === 34 ? queryCount : 1,
+              id,
+              getAllControls: controlType === 34,
+              sortControls: moreSort,
+              ...(get(window, 'shareState.shareId') ? { relationWorksheetId: currentConfig.worksheetId } : {}),
+            },
+            controlId,
+            control.controlId,
+          );
+
+          // 失败、查询多条不赋值
+          if (!res || res.resultCode !== 1 || (canSearchMore && res.count > 1 && moreType === 1)) {
+            this.setLoadingInfo(controlId, false, true);
+            return;
+          }
+
+          const filterData = res.data || [];
+          //子表
+          if (controlType === 34) {
+            const newValue = [];
+            if (filterData.length) {
+              filterData.forEach(item => {
+                let row = {};
+                canMapConfigs.map(({ cid = '', subCid = '' }) => {
+                  const controlVal = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+                  if (controlVal) {
+                    if (subCid === 'rowid') {
+                      row[cid] =
+                        controlVal.type === 29
+                          ? JSON.stringify([
+                              {
+                                sourcevalue: JSON.stringify(item),
+                                row: item,
+                                type: 8,
+                                sid: item.rowid,
+                              },
+                            ])
+                          : item.rowid;
+                      return;
                     }
-                    updateData({
-                      action: 'clearAndSet',
-                      isDefault: true,
-                      rows: newValue,
-                    });
-                  } else {
-                    //普通字段取第一条
-                    const currentId = _.get(canMapConfigs[0] || {}, 'subCid');
-                    //取该控件值去填充
-                    const item = _.find(controls, c => c.controlId === currentId);
-                    const value = formatSearchResultValue({
-                      targetControl: item,
-                      currentControl,
+                    row[cid] = formatSearchResultValue({
+                      targetControl: _.find(controls, s => s.controlId === subCid),
+                      currentControl: controlVal,
                       controls,
-                      searchResult: (filterData[0] || {})[currentId],
+                      searchResult: item[subCid] || '',
                     });
-                    // 防止新建的时候无效变更引起的报错提示
-                    if (searchType === 'init' && _.isEqual(value, currentControl.value)) return;
-                    updateData(value);
                   }
+                });
+                //映射明细所有字段值不为空
+                if (_.some(Object.values(row), i => !_.isUndefined(i))) {
+                  newValue.push({
+                    ...row,
+                    rowid: `temprowid-${uuidv4()}`,
+                    allowedit: true,
+                    addTime: new Date().getTime(),
+                  });
                 }
               });
             }
+            updateData({
+              action: 'clearAndSet',
+              isDefault: true,
+              rows: newValue,
+            });
+          } else {
+            //普通字段取第一条
+            const currentId = _.get(canMapConfigs[0] || {}, 'subCid');
+            //取该控件值去填充
+            const item = _.find(controls, c => c.controlId === currentId);
+            const value = formatSearchResultValue({
+              targetControl: item,
+              currentControl,
+              controls,
+              searchResult: (filterData[0] || {})[currentId],
+            });
+            // 防止新建的时候无效变更引起的报错提示
+            if (searchType === 'init' && _.isEqual(value, currentControl.value)) {
+              this.setLoadingInfo(controlId, false, true);
+              return;
+            }
+            updateData(value);
           }
         }
+      } else {
+        this.setLoadingInfo(controlId, false, true);
       }
     });
   };

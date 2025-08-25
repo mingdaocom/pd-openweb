@@ -1,19 +1,19 @@
-import { navigateTo } from 'src/router/navigateTo';
+import _ from 'lodash';
 import kcService from '../../api/service';
-import { PICK_TYPE, NODE_STATUS, NODE_SORT_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
-import { getRootByPath, validateFileName, getRootId, getParentId, IdItem, getDefaultSortType } from '../../utils';
+import { navigateTo } from 'src/router/navigateTo';
+import { NODE_SORT_TYPE, NODE_STATUS, PICK_TYPE, ROOT_PERMISSION_TYPE } from '../../constant/enum';
+import { getDefaultSortType, getParentId, getRootByPath, getRootId, IdItem, validateFileName } from '../../utils';
 import {
-  handleOpenUploadAssistant,
   handleAddLinkFile,
-  handleShareNode,
+  handleBatchDownload,
   handleMoveOrCopy,
   handleMoveOrCopyClick,
+  handleOpenUploadAssistant,
   handleRemoveNode,
   handleRestoreNode,
-  handleBatchDownload,
+  handleShareNode,
 } from '../../utils/common';
 import { clearSelect } from './selectAction';
-import _ from 'lodash';
 
 export function updateKcListElement(ele) {
   return {
@@ -50,7 +50,7 @@ export function changeFolder(path) {
 }
 
 export function loadListById(id) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'KC_CLEAR_KC' });
     dispatch(clearSelect());
     dispatch(
@@ -170,7 +170,7 @@ export function triggerLoadMoreNodes() {
     if (!kcListElement) {
       return;
     }
-    const el = kcListElement.getElementsByClassName('kclistScrollContent')[0];
+    const el = kcListElement.querySelector('.kclistScrollContent .scroll-viewport');
     if (list.size < totalCount && el && el.scrollTop + $(el).height() + 40 > el.scrollHeight) {
       dispatch(loadMoreKcNodes());
     }
@@ -178,7 +178,7 @@ export function triggerLoadMoreNodes() {
 }
 
 export function searchNodes(keywords) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'KC_CLEAR_KC' });
     dispatch({
       type: 'KC_UPDATE_PARAMS',
@@ -193,7 +193,7 @@ export function searchNodes(keywords) {
 }
 
 export function startGlobalSearch(keywords) {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'KC_CLEAR_KC' });
     dispatch({
       type: 'KC_UPDATE_PARAMS',
@@ -491,7 +491,7 @@ export function removeNode(nodeStatus) {
 }
 
 export function shareNode(item) {
-  return (dispatch, getState) => {
+  return dispatch => {
     handleShareNode(item, newItem => {
       dispatch(updateNodeItem(newItem));
     });
@@ -499,7 +499,7 @@ export function shareNode(item) {
 }
 
 export function starNode(item) {
-  return (dispatch, getState) => {
+  return dispatch => {
     const isStared = !item.isStared;
     kcService
       .starNode({ id: item.id, star: isStared })

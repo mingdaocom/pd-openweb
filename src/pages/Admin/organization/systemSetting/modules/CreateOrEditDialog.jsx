@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
-import workSiteController from 'src/api/workSite';
 import fixedDataAjax from 'src/api/fixedData.js';
+import workSiteController from 'src/api/workSite';
 
 export default class SiteName extends Component {
   constructor(props) {

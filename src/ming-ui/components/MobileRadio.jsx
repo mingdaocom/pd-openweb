@@ -84,7 +84,7 @@ export default class MobileRadio extends Component {
                 .filter(
                   item =>
                     `${item.value || ''}|${item.pinYin || ''}`.search(
-                      new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                      new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i'),
                     ) !== -1,
                 )
                 .map(item => (

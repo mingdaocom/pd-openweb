@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import homeAppApi from 'api/homeApp';
+import _ from 'lodash';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import Info from 'src/pages/AppSettings/components/Aggregation/components/Info';
 import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';

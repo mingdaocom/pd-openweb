@@ -13,7 +13,6 @@ const Item = ({
   icon = '',
   color = '',
   btnId = '',
-  appId,
   editBtn,
   clickType,
   writeType,
@@ -39,7 +38,11 @@ const Item = ({
       >
         <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
           {disable ? (
-            <Tooltip placement="bottom" text={<span>{_l('批量操作的按钮不支持关联形态表单填写')}</span>}>
+            <Tooltip
+              placement="bottom"
+              autoCloseDelay={0}
+              text={<span>{_l('批量操作的按钮不支持关联形态表单填写')}</span>}
+            >
               <Icon icon={'error1'} style={{ color: 'red' }} className={cx('mRight12 Font18')} />
             </Tooltip>
           ) : !!iconUrl && !!icon && icon.endsWith('_svg') ? (
@@ -47,7 +50,7 @@ const Item = ({
               className="mRight12"
               addClassName="TxtMiddle"
               url={iconUrl}
-              fill={!icon ? '#bdbdbd' : !color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
+              fill={!icon ? '#bdbdbd' : !color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
               size={18}
             />
           ) : (
@@ -76,11 +79,11 @@ const Item = ({
             });
           }}
         />
-        <Icon className="Font16 Hand editIcon mLeft15" icon="new_mail" />
+        <Icon className="Font16 Hand editIcon mLeft15" icon="edit" />
       </span>
       <Icon
         className="Font16 Hand mLeft15 mRight15"
-        icon="delete2"
+        icon="trash"
         onClick={() => {
           deleteBtn(btnId, isAllView);
         }}
@@ -143,7 +146,7 @@ class CustomBtnCon extends Component {
   };
 
   optionWorksheetBtn = (btnId, optionType, callback) => {
-    const { worksheetId, appId, viewId, rowId } = this.props;
+    const { worksheetId, appId, viewId } = this.props;
     let worksheetIdN = '';
     if (this.state.optionType === 9) {
       worksheetIdN = '';
@@ -168,7 +171,7 @@ class CustomBtnCon extends Component {
     const { onSortBtns } = this.props;
     let displaySort = [];
     let btnIds = [];
-    list.map((item, i) => {
+    list.map(item => {
       displaySort.push(item);
       btnIds.push(item.btnId);
     });
@@ -239,7 +242,7 @@ class CustomBtnCon extends Component {
                 ? 24
                 : 22
               : 9,
-            data => {
+            () => {
               this.setState(
                 {
                   showDeleteDialog: false,
@@ -252,7 +255,7 @@ class CustomBtnCon extends Component {
           );
         }}
         visible={this.state.showDeleteDialog}
-        updateTrigger="fasle"
+        updateTrigger="false"
       >
         <RadioGroup
           data={deleteStr(isAllView)}
@@ -330,7 +333,7 @@ class CustomBtnCon extends Component {
                   this.optionWorksheetBtn(
                     item.btnId, //按钮id
                     this.props.isListOption ? 23 : 21, //添加到详情还是批量操作
-                    data => {
+                    () => {
                       this.setState(
                         {
                           showBtn: false,

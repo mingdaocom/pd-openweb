@@ -1,8 +1,7 @@
-import React, { useEffect, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { string, bool, element, arrayOf, number } from 'prop-types';
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
 import { updateBase } from 'mobile/RecordList/redux/actions';
+import { configureStore } from 'src/redux/configureStore';
 import ViewComp from './ViewComp';
 
 function SingleView(props, ref) {
@@ -18,7 +17,7 @@ function SingleView(props, ref) {
         viewId,
         worksheetId,
         maxCount,
-        type: 'single'
+        type: 'single',
       }),
     );
   }, []);

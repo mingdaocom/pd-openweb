@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+
 export default ({ width, left, state, className, status }) => {
   return (
     <div style={{ marginLeft: left }} className={cx('processBar flexRow', className, state)}>

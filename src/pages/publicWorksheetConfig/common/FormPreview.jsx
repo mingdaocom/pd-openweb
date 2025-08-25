@@ -1,8 +1,9 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
-import PublicFormDisplay from '../../widgetConfig/widgetDisplay/publicFormDisplay';
 import { isOldSheetList } from 'src/pages/widgetConfig/util';
+import PublicFormDisplay from '../../widgetConfig/widgetDisplay/publicFormDisplay';
 
 export default class FormPreview extends React.Component {
   static propTypes = {

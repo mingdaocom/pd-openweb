@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import classNames from 'classnames';
-import { Icon, Checkbox, Tooltip, SvgIcon } from 'ming-ui';
-import ViewGroup from './ViewGroup';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, SvgIcon, Tooltip } from 'ming-ui';
 import RoleSetTool from 'src/pages/Role/component/RoleSet/TooltipSetting';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import styled from 'styled-components';
-import _ from 'lodash';
+import ViewGroup from './ViewGroup';
+
 const Wrap = styled.div`
   flex: 52;
 `;
@@ -88,7 +89,7 @@ export default class extends PureComponent {
     });
   }
 
-  componentWillReceiveProps(prevProps, prevState) {
+  componentWillReceiveProps(prevProps) {
     if (this.props.isShow !== prevProps.isShow) {
       this.setState({
         show: prevProps.isShow,
@@ -224,7 +225,7 @@ export default class extends PureComponent {
                   <Checkbox
                     className="InlineBlock"
                     checked={sheet.checked}
-                    onClick={checked => updateLookPages(sheet.pageId, !sheet.checked)}
+                    onClick={() => updateLookPages(sheet.pageId, !sheet.checked)}
                   />
                 </div>
               )}

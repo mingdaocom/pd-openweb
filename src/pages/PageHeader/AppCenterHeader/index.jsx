@@ -6,7 +6,6 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, ScrollView } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import CommonUserHandle from '../components/CommonUserHandle';
@@ -54,9 +53,6 @@ const ProjectsMenuCon = styled.div`
   box-shadow:
     0 4px 20px rgb(0 0 0 / 13%),
     0 2px 6px rgb(0 0 0 / 10%);
-  .nano-pane {
-    z-index: 20;
-  }
 `;
 
 const ProjectsMenu = styled.div`
@@ -72,7 +68,7 @@ const ProjectItem = styled.div`
   height: 40px;
   line-height: 40px;
   &.active {
-    color: #2196f3;
+    color: #1677ff;
     background: rgb(33, 150, 243, 0.08);
   }
   &:not(.active):hover {
@@ -149,9 +145,8 @@ const UpgradeWrap = styled.div`
 
 function AppCenterHeader(props) {
   const projectId = _.get(props, 'match.params.projectId');
-  const [projects, setProjects] = useState(md.global.Account.projects);
+  const projects = md.global.Account.projects;
   const createRef = useRef();
-  const commonUserHandleRef = useRef();
   const [currentProject, setCurrentProject] = useState(
     getCurrentProject(projectId || localStorage.getItem('currentProjectId')),
   );
@@ -168,7 +163,6 @@ function AppCenterHeader(props) {
     }
   }, []);
   const [popupVisible, setPopupVisible] = useState();
-  const [globalSearchVisible, setGlobalSearchVisible] = useState(false);
   let menuContent = (
     <ProjectsMenu>
       {[
@@ -276,10 +270,8 @@ function AppCenterHeader(props) {
       <Flex>
         <DashboardSearch
           onClick={() => {
-            setGlobalSearchVisible(true);
             GlobalSearch({
               match: props.match,
-              onClose: () => setGlobalSearchVisible(false),
             });
           }}
         >

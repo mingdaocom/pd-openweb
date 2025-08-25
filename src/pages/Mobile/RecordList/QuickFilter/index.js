@@ -1,19 +1,22 @@
-import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import * as actions from 'mobile/RecordList/redux/actions';
-import * as sheetActions from 'src/pages/worksheet/redux/actions';
 import { bindActionCreators } from 'redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import FilterInput, { NumberTypes, TextTypes } from './Inputs';
-import { validate, conditionAdapter, turnControl } from './utils';
+import * as actions from 'mobile/RecordList/redux/actions';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
-import cx from 'classnames';
-import _ from 'lodash';
+import * as sheetActions from 'src/pages/worksheet/redux/actions';
+import { compatibleMDJS } from 'src/utils/project';
+import FilterInput, { NumberTypes, TextTypes } from './Inputs';
+import { conditionAdapter, turnControl, validate } from './utils';
 
 const Con = styled.div`
+  padding-bottom: calc(constant(safe-area-inset-bottom) - 20px);
+  padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   .header {
     padding: 10px 15px;
     justify-content: flex-end;
@@ -31,7 +34,7 @@ const Con = styled.div`
       margin-bottom: 20px;
     }
     .selected {
-      color: #2196f3;
+      color: #1677ff;
       max-width: 100px;
       padding-left: 10px;
       font-weight: 500;
@@ -46,7 +49,7 @@ const Con = styled.div`
     }
     .query {
       color: #fff;
-      background-color: #2196f3;
+      background-color: #1677ff;
     }
   }
 `;
@@ -77,7 +80,7 @@ const SavedItem = styled.div`
   background-color: #f5f5f5;
   word-break: break-all;
   &.active {
-    background-color: #2196f3;
+    background-color: #1677ff;
     color: #fff;
   }
 `;
@@ -85,10 +88,12 @@ const SavedItem = styled.div`
 export function QuickFilter(props) {
   const {
     view,
+    worksheetInfo,
     filters,
     controls,
     pcUpdateQuickFilter,
     onHideSidebar,
+    base = {},
     mobileNavGroupFilters = [],
     quickFilter = [],
     savedFilters = [],
@@ -96,9 +101,9 @@ export function QuickFilter(props) {
     updateQuickFilterWithDefault = () => {},
     updateActiveSavedFilter = () => {},
     pcUpdateFilters = () => {},
-    base = {},
+    updateFilterControls = () => {},
   } = props;
-  const updateQuickFilter = _.includes([21, 1], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
+  const updateQuickFilter = _.includes([21], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
   const width = document.documentElement.clientWidth - 60;
   const store = useRef({});
   const [values, setValues] = useState({});
@@ -106,12 +111,13 @@ export function QuickFilter(props) {
   const [filterControls, setFilterControls] = useState([]);
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
   const showSavedFilter = !_.get(window, 'shareState.shareId') && base.type !== 'single';
+  const [appFilterId, setAppFilterId] = useState('');
 
   const items = useMemo(
     () =>
       filters
         .map(filter => {
-          const controlObj = _.find(controls, c => c.controlId === filter.controlId);
+          const controlObj = _.find(_.cloneDeep(controls), c => c.controlId === filter.controlId);
           const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
           const isRequired =
             _.get(view, 'advancedSetting.fastrequired') === '1' &&
@@ -173,7 +179,7 @@ export function QuickFilter(props) {
       updateQuickFilter([], view);
     }
 
-    if (_.includes([21, 1], view.viewType)) {
+    if (_.includes([21], view.viewType)) {
       pcUpdateFilters({ filterControls }, view);
     }
     onHideSidebar();
@@ -188,7 +194,8 @@ export function QuickFilter(props) {
     updateActiveSavedFilter({}, view);
     updateQuickFilter([], view);
     setFilterControls([]);
-    if (_.includes([21, 1], view.viewType)) {
+    updateFilterControls([]);
+    if (_.includes([21], view.viewType)) {
       pcUpdateFilters({ filterControls: [] }, view);
     }
     onHideSidebar();
@@ -261,9 +268,10 @@ export function QuickFilter(props) {
             />
           </Item>
         ))}
-        {showSavedFilter && !_.isEmpty(items) && !_.isEmpty(savedFilters) && <SpaceLine></SpaceLine>}
+
         {showSavedFilter && !_.isEmpty(savedFilters) && (
           <Fragment>
+            <SpaceLine></SpaceLine>
             <div className="Font14 Gray bold pTop16 pBottom16">{_l('常用筛选')}</div>
             {[
               { title: _l('个人'), data: savedFilters.filter(s => s.type === 1) },
@@ -289,6 +297,39 @@ export function QuickFilter(props) {
             })}
           </Fragment>
         )}
+
+        {/* APP网页集成自定义筛选 */}
+        {window.isMingDaoApp && (
+          <Fragment>
+            <SpaceLine></SpaceLine>
+            <div
+              className="flexRow alignCenter Font14 pTop16 pBottom16"
+              onClick={() => {
+                compatibleMDJS('customizeFilterForWorksheet', {
+                  filterId: appFilterId, // 初次使用传空, App随机生成, 需要H5临时存储在对应场景下
+                  item: worksheetInfo, // 工作表详细
+                  viewId: view.viewId, // 当前视图ID, 可能影响关联记录, 待确认是否需要
+                  success: function (res) {
+                    // filter 对应API使用的filterControls, 直接使用即可
+                    const filterId = res.filterId; // 本地存储, 非API使用参数
+                    const filter = res.filter && JSON.parse(res.filter);
+                    setAppFilterId(filterId);
+                    filter && updateFilterControls(filter);
+                  },
+                  cancel: function (res) {
+                    console.log('cancel', res);
+                  },
+                });
+              }}
+            >
+              <span className="bold Gray">{_l('自定义筛选')}</span>
+              <div className="flex"></div>
+              {!!props.filterControls.length && (
+                <span className="ThemeColor">{_l('选中 %0 项', props.filterControls.length)}</span>
+              )}
+            </div>
+          </Fragment>
+        )}
       </div>
       <div className="footer flexRow valignWrapper">
         <div className="flex Font16 centerAlign" onClick={handleReset}>
@@ -311,7 +352,7 @@ export default connect(
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick(actions, ['updateQuickFilter', 'updateActiveSavedFilter']),
+        ..._.pick(actions, ['updateQuickFilter', 'updateActiveSavedFilter', 'updateFilterControls']),
         pcUpdateQuickFilter: sheetActions.updateQuickFilter,
         pcUpdateFilters: sheetActions.updateFilters,
       },

@@ -46,7 +46,7 @@ class TaskComment extends Component {
             }}
           >
             <span className="taskTopicCount ThemeHoverColor3">
-              <Icon icon={'ic_textsms_black'} className="Font20 TxtMiddle Hand" />
+              <Icon icon="textsms" className="Font20 TxtMiddle Hand" />
             </span>
           </div>
         ) : null}
@@ -58,6 +58,7 @@ class TaskComment extends Component {
             remark={taskId + '|' + htmlDecodeReg(data.taskName) + '|' + _l('任务')}
             storageId={taskId}
             mentionsOptions={{ position: 'top' }}
+            projectId={data.projectID}
             selectGroupOptions={{ projectId: data.projectID, position: 'top' }}
             onSubmit={this.onSubmit}
             onFocusStateChange={isFocus => this.setState({ showCount: !isFocus })}

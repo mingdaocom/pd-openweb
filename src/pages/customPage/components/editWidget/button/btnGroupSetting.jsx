@@ -1,20 +1,19 @@
 import React, { Fragment } from 'react';
-import { string } from 'prop-types';
-import { Button } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import SelectCount from './SelectCount';
+import { Button } from 'ming-ui';
 import BtnListSort from './BtnListSort';
+import SelectCount from './SelectCount';
 
 const BTN_TYPE = [
   {
     value: 1,
-    text: _l('按钮')
+    text: _l('按钮'),
   },
   {
     value: 2,
-    text: _l('图形')
-  }
+    text: _l('图形'),
+  },
 ];
 const BTN_STYLE = [
   {
@@ -87,7 +86,7 @@ const SettingWrap = styled.div`
     border-radius: 18px;
     background-color: #fff;
     font-weight: bold;
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       background-color: rgba(255, 255, 255, 1);
       color: #1079cc;
@@ -122,7 +121,7 @@ const SettingWrap = styled.div`
           border: none;
         }
         &.active {
-          color: #2196f3;
+          color: #1677ff;
           border-radius: 3px;
           background-color: #fff;
         }
@@ -156,7 +155,8 @@ export default function BtnGroupSetting(props) {
               className={cx({ active: value === style })}
               key={value}
               data-tip={tip}
-              onClick={() => setSetting({ style: value })}>
+              onClick={() => setSetting({ style: value })}
+            >
               <i className={`icon-${icon}`}></i>
             </li>
           ))}
@@ -170,7 +170,8 @@ export default function BtnGroupSetting(props) {
                   className={cx({ active: value === width })}
                   key={value}
                   data-tip={tip}
-                  onClick={() => setSetting({ width: value })}>
+                  onClick={() => setSetting({ width: value })}
+                >
                   <i className={`icon-${icon}`}></i>
                 </li>
               ))}
@@ -188,7 +189,7 @@ export default function BtnGroupSetting(props) {
                   onClick={() => {
                     setSetting({
                       config: { ...config, direction: value },
-                      mobileCount: value === 1 ? 4 : 2
+                      mobileCount: value === 1 ? 4 : 2,
                     });
                   }}
                 >

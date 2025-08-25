@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem, Tooltip, UserHead } from 'ming-ui';
@@ -28,7 +27,7 @@ const Wrap = styled.div`
   .toRole {
     color: #5a5a5a;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -46,13 +45,13 @@ const Wrap = styled.div`
     padding: 0 !important;
   }
   .isCurmemberType {
-    color: #2196f3;
+    color: #1677ff;
   }
   .isMyRoleW {
     padding: 0px 7px;
     line-height: 18px;
     height: 18px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 9px 9px 9px 9px;
     color: #fff;
     .tag {
@@ -80,13 +79,13 @@ const WrapBar = styled.div`
     line-height: 34px;
     display: inline-block;
     &:hover {
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
     }
   }
   .addUser {
     line-height: 36px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px;
     color: #fff;
     padding: 0 12px;
@@ -268,7 +267,7 @@ function User(props) {
           </div>
         );
       },
-      render: (text, data, index) => {
+      render: (text, data) => {
         const isHead = data.isRoleCharger; // 角色负责人
         return (
           <div className={cx('name flexRow alignItemsCenter', { pLeft40: !canEdit })}>
@@ -349,7 +348,7 @@ function User(props) {
         );
       },
 
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <div className="flex">
             <span className="memberType">{userStatusList.find(o => o.value === data.memberType).text}</span>
@@ -362,7 +361,7 @@ function User(props) {
       name: _l('角色'),
       className: 'nameWrapTr roleTr',
       minW: 240,
-      render: (text, data, index) => {
+      render: (text, data) => {
         return (
           <div className="flex flexRow">
             <span className="roleName overflow_ellipsis breakAll" title={data.roleName.join('；')}>
@@ -375,7 +374,7 @@ function User(props) {
     {
       id: 'operater',
       name: _l('操作人'),
-      render: (text, data, index) => {
+      render: (text, data) => {
         return <div className="WordBreak ellipsis">{data.operater}</div>;
       },
     },
@@ -386,7 +385,7 @@ function User(props) {
       // sorterType: 'ascend',
       className: 'operateTime timeTr',
       minW: 130,
-      render: (text, data, index) => {
+      render: (text, data) => {
         return createTimeSpan(dateConvertToUserZone(data.operateTime));
       },
     },
@@ -394,7 +393,7 @@ function User(props) {
       id: 'option',
       className: 'optionWrapTr',
       name: '',
-      render: (text, data, index) => {
+      render: (text, data) => {
         const isHead = data.isRoleCharger; // 角色负责人
         let dataList = [
           {
@@ -506,7 +505,7 @@ function User(props) {
     } else {
       Ajax = AppManagement.setRoleCharger(param);
     }
-    Ajax.then(res => {
+    Ajax.then(() => {
       //取消当前用户的负责人，刷新页面
       if (param.memberId === md.global.Account.accountId && !isRoleCharger) {
         location.reload();
@@ -639,6 +638,7 @@ function User(props) {
                     {_l('开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。')}
                   </span>
                 }
+                autoCloseDelay={0}
                 popupPlacement={'top'}
               >
                 <span className="InlineBlock mRight20 LineHeight36 TxtTop">

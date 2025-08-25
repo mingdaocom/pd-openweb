@@ -111,7 +111,7 @@ function Hierarchy(props) {
     createRecordVisible: false,
     addRecordPath: {},
   });
-  const [collect, drop] = useDrop({
+  const [, drop] = useDrop({
     accept: ITEM_TYPE.ITEM,
     hover(item, monitor) {
       function scroll() {
@@ -198,6 +198,7 @@ function Hierarchy(props) {
         document.querySelector('body').removeChild(copyDom);
       });
     } catch (error) {
+      console.log(error);
       alert(_l('生成失败'), 2);
       document.querySelector('body').removeChild(copyDom);
     }
@@ -402,7 +403,7 @@ function Hierarchy(props) {
     }
   };
   let pending = false;
-  const handleScroll = e => {
+  const handleScroll = () => {
     const $wrap = $wrapRef.current;
     const $bottom = $wrap.scrollHeight - $wrap.scrollTop - $wrap.clientHeight;
     if ($bottom < Math.min(280, $wrap.clientHeight / 2)) {
@@ -534,6 +535,7 @@ function Hierarchy(props) {
                       'worksheetInfo',
                       'sheetSwitchPermit',
                       'sheetButtons',
+                      'hierarchyTopLevelDataCount',
                     ])}
                     {...rest}
                     uniqId={uniqId}
@@ -613,6 +615,7 @@ function Hierarchy(props) {
           updateSearchRecord={props.updateSearchRecord}
           view={view}
           mobileViewType={mobileViewType}
+          hierarchyTopLevelDataCount={hierarchyTopLevelDataCount}
         />
       )}
       {renderContent()}

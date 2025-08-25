@@ -81,121 +81,112 @@ SessionWeb:string，Web（PC/H5) 内部用户会话有效期设置（格式：{t
 SessionApp:string，APP 内部用户会话有效期设置（格式：{t:1,v:5,r:true}）
 SessionWebPortal:string，Web（PC/H5) 外部门户用户会话有效期设置（格式：{t:1,v:5,r:true}）
 SessionExpireRedirectType:int，会话过期后跳转方式 1:停留在原页面（默认） 2:跳转到登录页面
+GeoCountryRegionCode:string，国家与地区
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   editSysSettings: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'EditSysSettings', args, options);
-   },
+  editSysSettings: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'EditSysSettings', args, options);
+  },
   /**
-  * 获取组织列表
-  * @param {Object} args 请求参数
-  * @param {string} args.keywords 关键词
-  * @param {integer} args.pageSize 数量
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjects: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'GetProjects', args, options);
-   },
+   * 获取组织列表
+   * @param {Object} args 请求参数
+   * @param {string} args.keywords 关键词
+   * @param {integer} args.pageSize 数量
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getProjects: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'GetProjects', args, options);
+  },
   /**
-  * 获取组织
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProject: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'GetProject', args, options);
-   },
+   * 获取组织
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getProject: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'GetProject', args, options);
+  },
   /**
-  * 配置 SSO 信息
-  * @param {Object} args 请求参数
-  * @param {string} args.clientId 客户端Id
-  * @param {string} args.clientSecret 客户端密钥
-  * @param {string} args.redirectUri 回调地址（废弃，改成服务端固定地址，前端只作为显示）
-  * @param {} args.tpType
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   setSso: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'SetSso', args, options);
-   },
+   * 配置 SSO 信息
+   * @param {Object} args 请求参数
+   * @param {string} args.clientId 客户端Id
+   * @param {string} args.clientSecret 客户端密钥
+   * @param {string} args.redirectUri 回调地址（废弃，改成服务端固定地址，前端只作为显示）
+   * @param {} args.tpType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setSso: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'SetSso', args, options);
+  },
   /**
-  * 配置 SSO 启用状态
-  * @param {Object} args 请求参数
-  * @param {} args.tpType
-  * @param {} args.status
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   setSsoStatus: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'SetSsoStatus', args, options);
-   },
+   * 配置 SSO 启用状态
+   * @param {Object} args 请求参数
+   * @param {} args.tpType
+   * @param {} args.status
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setSsoStatus: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'SetSsoStatus', args, options);
+  },
   /**
-  * 删除 SSO 配置
-  * @param {Object} args 请求参数
-  * @param {} args.tpType
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeSso: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'RemoveSso', args, options);
-   },
+   * 删除 SSO 配置
+   * @param {Object} args 请求参数
+   * @param {} args.tpType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  removeSso: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'RemoveSso', args, options);
+  },
   /**
-  * 获取 SSO 配置信息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSsoSettings: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'GetSsoSettings', args, options);
-   },
+   * 获取 SSO 配置信息
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getSsoSettings: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'GetSsoSettings', args, options);
+  },
   /**
-  * 登录页获取 SSO 配置信息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSsonSettingsFroLogin: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'GetSsonSettingsFroLogin', args, options);
-   },
+   * 登录页获取 SSO 配置信息
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getSsonSettingsFroLogin: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'GetSsonSettingsFroLogin', args, options);
+  },
   /**
-  * 发送 CsmWebhook 测试消息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   sendCsmWebhookTest: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'SendCsmWebhookTest', args, options);
-   },
+   * 发送 CsmWebhook 测试消息
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  sendCsmWebhookTest: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'SendCsmWebhookTest', args, options);
+  },
   /**
-  * 获取最新版本信息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getNewVersionInfo: function (args, options = {}) {
-     
-     return mdyAPI('PrivateSysSetting', 'GetNewVersionInfo', args, options);
-   },
+   * 获取最新版本信息
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getNewVersionInfo: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'GetNewVersionInfo', args, options);
+  },
 };

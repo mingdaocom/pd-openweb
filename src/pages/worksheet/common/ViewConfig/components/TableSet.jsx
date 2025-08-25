@@ -107,7 +107,7 @@ export default function TableSet(props) {
               className=""
               text={_l('经典模式')}
               checked={_.get(view, 'advancedSetting.sheettype') !== '1'}
-              onClick={value => {
+              onClick={() => {
                 handleChange({ sheettype: '0' }); ////表格交互
               }}
             />
@@ -120,7 +120,7 @@ export default function TableSet(props) {
               className=""
               text={_l('电子表格模式')}
               checked={_.get(view, 'advancedSetting.sheettype') === '1'}
-              onClick={value => {
+              onClick={() => {
                 handleChange({ sheettype: '1' });
               }}
             />

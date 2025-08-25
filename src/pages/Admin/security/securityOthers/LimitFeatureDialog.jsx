@@ -35,7 +35,7 @@ function LimitFeatureDialog(props) {
         }
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setLoading(false);
       });
     onCancel();

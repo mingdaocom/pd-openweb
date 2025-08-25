@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Dropdown from './dropdown';
 import { Steps } from 'ming-ui';
+import Dropdown from './dropdown';
 
 export default class Widgets extends Component {
   render() {

@@ -1,16 +1,16 @@
-import './css/quickCreateTask.less';
-import doT from 'dot';
-import ajaxRequest from 'src/api/taskCenter';
-import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import { expireDialogAsync } from 'src/components/upgradeVersion';
-import quickCreateTask from './tpl/quickCreateTask.html';
-import { errorMessage, checkIsProject } from '../../utils/utils';
-import Store from 'redux/configureStore';
-import { addTask } from 'src/pages/task/redux/actions';
-import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import Store from 'redux/configureStore';
+import doT from 'dot';
 import { UserHead } from 'ming-ui';
+import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
+import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
+import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { addTask } from 'src/pages/task/redux/actions';
+import { checkIsProject, errorMessage } from '../../utils/utils';
+import quickCreateTask from './tpl/quickCreateTask.html';
+import './css/quickCreateTask.less';
 
 class QuickCreateTask {
   init(settings) {
@@ -308,8 +308,8 @@ class QuickCreateTask {
               contentHtml +
               `
             <li data-stageid="${stage.id}" class="overflow_ellipsis boxSizing ${i === 0 ? 'selected' : ''}" title="${
-                stage.name
-              }">
+              stage.name
+            }">
             ${stage.name}
             </li>
             `;
@@ -338,7 +338,6 @@ class QuickCreateTask {
 
   // 更换负责人
   updateCharge(uid, uHead) {
-    let accountId = $('.createNewSingle .chargeImgWrapQuick').data('id');
     $('.createNewSingle .chargeImgWrapQuick').data('avatar', uHead).data('id', uid).data('hasbusinesscard', false);
     this.renderReactUserCard();
   }

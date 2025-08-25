@@ -1,9 +1,9 @@
-import React, { Component, cloneElement } from 'react';
+import React, { cloneElement, Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes, { arrayOf, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import './less/Tooltip.less';
-import _ from 'lodash';
 
 const builtinPlacements = {
   left: {
@@ -88,21 +88,27 @@ class Tooltip extends Component {
      * 是否禁用动画
      */
     disableAnimation: PropTypes.bool,
+    /**
+     * 自动关闭的时间
+     */
+    autoCloseDelay: PropTypes.number,
   };
   static defaultProps = {
     action: ['hover'],
     text: <span />,
     popupPlacement: 'top',
     themeColor: 'black',
-    offset: [1, 3],
+    offset: [1, 0],
     overflow: [1, 1],
     disable: false,
     tooltipStyle: {},
+    autoCloseDelay: 2000,
   };
   constructor(props) {
     super(props);
     this.contentIsFunction = _.isFunction(props.text);
     this.state = {
+      popupVisible: false,
       loading: this.contentIsFunction,
     };
   }
@@ -144,11 +150,12 @@ class Tooltip extends Component {
       offset,
       overflow,
       disable,
+      autoCloseDelay,
       destroyPopupOnHide,
       disableAnimation,
       onToolTipVisibleChange,
     } = this.props;
-    const { loading } = this.state;
+    const { popupVisible, loading } = this.state;
     const [adjustX, adjustY] = overflow;
     if (!text) {
       return children;
@@ -170,6 +177,7 @@ class Tooltip extends Component {
             adjustY,
           },
         },
+        popupVisible,
         onPopupVisibleChange: visible => {
           if (visible && this.contentIsFunction && loading && _.isFunction(text)) {
             const result = text();
@@ -184,12 +192,26 @@ class Tooltip extends Component {
           if (_.isFunction(onToolTipVisibleChange)) {
             onToolTipVisibleChange(visible);
           }
+          if (!loading && autoCloseDelay) {
+            if (visible) {
+              this.timeoutId = setTimeout(() => {
+                this.setState({
+                  popupVisible: false,
+                });
+              }, autoCloseDelay);
+            } else {
+              this.timeoutId && clearTimeout(this.timeoutId);
+            }
+          }
+          this.setState({
+            popupVisible: visible,
+          });
         },
       },
       this.props,
     );
     if (disable) {
-      props.popupVisible = false;
+      return cloneElement(children);
     }
 
     return <Trigger {...props}>{cloneElement(children)}</Trigger>;

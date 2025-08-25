@@ -76,9 +76,10 @@ export const fetchRows = callBackFun => {
           relationWorksheetId: selectControl && selectControl.type === 29 ? selectControl.dataSource : null,
           ...filters,
           fastFilters: formatQuickFilter(quickFilter),
+          langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
         }),
       )
-      .then(({ data, count, resultCode }) => {
+      .then(({ data }) => {
         const isLocalhost = location.href.includes('localhost');
         const isGunterExport = location.href.includes('gunterExport');
         setTimeout(
@@ -155,7 +156,7 @@ export const fetchRows = callBackFun => {
  */
 export const updateGroupingData = grouping => {
   return (dispatch, getState) => {
-    const { gunterView, views = [], controls = [], base = {} } = getState().sheet;
+    const { gunterView } = getState().sheet;
     const { viewConfig, withoutArrangementVisible } = gunterView;
     const { viewControl } = viewConfig;
     grouping.forEach((item, index) => {
@@ -202,19 +203,19 @@ export const updateGroupingVisible = () => {
 };
 
 export const updateGroupingScroll = scroll => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_GUNTER_GROUPING_SCROLL', data: scroll });
   };
 };
 
 export const updateChartScroll = scroll => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_GUNTER_CHART_SCROLL', data: scroll });
   };
 };
 
 export const destroyGunterView = () => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: null });
     dispatch({ type: 'CHANGE_GUNTER_PERIOD_LIST', data: [] });
     dispatch({ type: 'CHANGE_GUNTER_PERIOD_PARENT_LIST', data: [] });
@@ -278,7 +279,7 @@ export const updataPeriodType = (value, time) => {
   };
 };
 
-export const updateViewConfig = view => {
+export const updateViewConfig = () => {
   return (dispatch, getState) => {
     const { base, views, gunterView, controls } = getState().sheet;
     const {
@@ -346,7 +347,6 @@ export const createRecord = (id, isMilepost = false) => {
     let editIndex = null;
     const newGrouping = grouping.map(group => {
       if (group.key === id) {
-        const row = group.rows[0];
         editIndex = group.openCount;
         const record = {
           isEdit: true,
@@ -545,7 +545,7 @@ export const removeRecord = id => {
 
 export const hideRecord = id => {
   return (dispatch, getState) => {
-    const { base, gunterView } = getState().sheet;
+    const { gunterView } = getState().sheet;
     const newGrouping = gunterView.grouping.map(item => {
       const newRows = item.rows.filter(row => row.rowid !== id);
       const times = getRowsTime(newRows);
@@ -594,7 +594,7 @@ export const updateRecord = (row, updateControls, newItem) => {
 export const updateRecordTime = (row, start, end) => {
   return (dispatch, getState) => {
     const { base, gunterView, controls } = getState().sheet;
-    const { startId, endId, milepost } = gunterView.viewConfig;
+    const { startId, endId } = gunterView.viewConfig;
     const startControl = _.find(controls, { controlId: startId });
     const endControl = _.find(controls, { controlId: endId });
     const { allowweek: startAllowweek } = startControl.advancedSetting || {};
@@ -650,24 +650,18 @@ export const updateRecordTime = (row, start, end) => {
 
     dispatch(updateGroupingRow(formatRecordTime(row, gunterView.viewConfig), row.rowid));
 
-    sheetAjax
-      .updateWorksheetRow({
-        appId: base.appId,
-        rowId: row.rowid,
-        viewId: base.viewId,
-        worksheetId: base.worksheetId,
-        newOldControl: newOldControl,
-      })
-      .then(({ data, resultCode }) => {
-        if (resultCode) {
-        }
-      });
+    sheetAjax.updateWorksheetRow({
+      appId: base.appId,
+      rowId: row.rowid,
+      viewId: base.viewId,
+      worksheetId: base.worksheetId,
+      newOldControl: newOldControl,
+    });
   };
 };
 
 export const updateRecordDragTime = (row, start, end, value) => {
-  return (dispatch, getState) => {
-    const { gunterView } = getState().sheet;
+  return dispatch => {
     if (row.dragStartTime) {
       row.dragStartTime = moment(row.dragStartTime).add(value, 'd').format('YYYY-MM-DD');
     } else {
@@ -692,8 +686,8 @@ export const updateRecordDragTime = (row, start, end, value) => {
 
 export const updateRecordTitle = (control, record) => {
   return (dispatch, getState) => {
-    const { base, gunterView } = getState().sheet;
-    const { startId, endId, colorId, milepost } = gunterView.viewConfig;
+    const { base } = getState().sheet;
+
     dispatch(
       updateGroupingRow(
         {
@@ -711,7 +705,7 @@ export const updateRecordTitle = (control, record) => {
         worksheetId: base.worksheetId,
         newOldControl: [control],
       })
-      .then(({ data, resultCode }) => {
+      .then(({ data }) => {
         if (!data) {
           handleRecordError(data.resultCode, control);
           dispatch(
@@ -781,16 +775,6 @@ export const moveGroupingRow = (data, newKey, oldKey) => {
     });
     groupingTimeBlock(newGrouping, periodList, viewConfig);
     dispatch(updateGroupingData(newGrouping));
-  };
-};
-
-export const handleCopySuccess = (data, addIndex) => {
-  return (dispatch, getState) => {
-    const { gunterView } = getState().sheet;
-    const { grouping } = gunterView;
-    const { rows } = _.find(grouping, { key: groupKey });
-    const index = _.findIndex(rows, { rowid: row.rowid });
-    this.props.addNewRecord(data, index + 1);
   };
 };
 

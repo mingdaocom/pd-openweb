@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
-import styled from 'styled-components';
+import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { getTranslateInfo } from 'src/utils/app';
@@ -51,7 +51,9 @@ export default function ControlRules(props) {
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
         $(this).removeClass(className);
       });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
   };
 
   const renderNav = item => {
@@ -119,15 +121,13 @@ export default function ControlRules(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
         </div>
-        <ScrollView className="flex">
+        <ScrollView className="h100">
           {rules.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}
         </ScrollView>
       </div>
-      <ScrollView className="flex" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">{rules.map(item => renderContent(item))}</div>
       </ScrollView>
     </div>

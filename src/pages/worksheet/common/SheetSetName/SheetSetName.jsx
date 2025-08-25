@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
+import { Dialog } from 'ming-ui';
 import Input from 'ming-ui/components/Input';
-import { Dialog, Checkbox } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import './SheetSetName.less';
 
@@ -13,7 +11,7 @@ export default class SheetSetName extends Component {
     this.state = {
       entityName: entityName || '',
       btnName: btnName || '',
-    }
+    };
   }
   handleSave() {
     const { entityName } = this.state;
@@ -30,14 +28,14 @@ export default class SheetSetName extends Component {
           entityName: name,
           projectId: this.props.projectId,
         })
-        .then((data) => {
+        .then(() => {
           const args = {
             entityName: name,
           };
           this.props.updateSheetInfo(this.props.worksheetId, args);
           alert(_l('修改成功'));
         })
-        .catch((err) => {
+        .catch(() => {
           alert(_l('修改失败'), 2);
         });
     }
@@ -45,7 +43,7 @@ export default class SheetSetName extends Component {
   }
   render() {
     const { visible } = this.props;
-    const { entityName, btnName } = this.state;
+    const { entityName } = this.state;
     return (
       <Dialog
         className="SheetSetName"
@@ -57,7 +55,9 @@ export default class SheetSetName extends Component {
         onCancel={this.props.onHide}
         onOk={this.handleSave.bind(this)}
       >
-        <div className="Gray_75">{_l('修改添加按钮、消息通知等指代记录时所使用的名称。例如：可以修改“客户管理”表的记录名称为“客户”')}</div>
+        <div className="Gray_75">
+          {_l('修改添加按钮、消息通知等指代记录时所使用的名称。例如：可以修改“客户管理”表的记录名称为“客户”')}
+        </div>
         <div className="inputItem flexRow valignWrapper mTop25">
           <span className="Gray_75">{_l('记录名称')}</span>
           <Input
@@ -65,8 +65,8 @@ export default class SheetSetName extends Component {
             value={entityName}
             onChange={value => {
               this.setState({
-                entityName: value
-              })
+                entityName: value,
+              });
             }}
           />
         </div>

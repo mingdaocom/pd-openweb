@@ -173,7 +173,7 @@ export const getViewTimesList = (view = {}, time) => {
 /**
  * 处理记录时间
  */
-export const formatRecordTime = (row, view, controls) => {
+export const formatRecordTime = (row, view) => {
   const { advancedSetting } = view;
   const { begindate, enddate } = advancedSetting;
   let startTime = dateConvertToUserZone(moment(row[begindate]));
@@ -190,7 +190,7 @@ export const formatRecordTime = (row, view, controls) => {
  * 处理记录位置
  */
 export const formatRecordPoint = (row, view, list = [], controls, currentTime) => {
-  let { startTime, endTime, diff } = row;
+  let { startTime, endTime } = row;
   const type =
     localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
   const getTimeConfig = (time, isEnd) => {

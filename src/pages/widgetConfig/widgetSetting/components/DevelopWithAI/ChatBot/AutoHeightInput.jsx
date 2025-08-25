@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 const AutoHeightInput = ({ className, value, onChange, maxRows = 5, minRows = 1, placeholder, setRef, ...props }) => {

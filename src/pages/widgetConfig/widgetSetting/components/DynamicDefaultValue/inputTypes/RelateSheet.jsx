@@ -35,6 +35,7 @@ export default class RelateSheet extends Component {
       multiple,
       filterRowIds,
       worksheetId: data.dataSource,
+      projectId: _.get(this.props, 'globalSheetInfo.projectId'),
       onClose: () => this.setState({ recordListVisible: false }),
       onOk: records => {
         const newValue = records.map(item => {

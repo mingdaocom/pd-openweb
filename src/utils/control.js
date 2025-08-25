@@ -5,7 +5,6 @@ import update from 'immutability-helper';
 import _, { filter, find, get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import nzh from 'nzh';
-import { func } from 'prop-types';
 import { ToWords } from 'to-words';
 import { v4 as uuidv4 } from 'uuid';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
@@ -15,6 +14,7 @@ import { FROM } from 'src/components/newCustomFields/tools/config';
 import { TITLE_SIZE_OPTIONS, UNIT_TO_TEXT, UNIT_TYPE } from 'src/pages/widgetConfig/config/setting';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { canSetWidgetStyle, getDateToEn, getShowFormat, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { RELATION_TYPE_NAME } from 'src/pages/worksheet/components/CellControls/enum';
@@ -43,6 +43,19 @@ export const controlState = (data, from) => {
   }
 
   return state;
+};
+
+export const getControlStateAndCheckSectionControl = (data, from, formData) => {
+  const sectionControl = data.sectionId && _.find(formData, c => c.controlId === data.sectionId);
+  if (!sectionControl) {
+    return controlState(data, from);
+  }
+  const stateOfControl = controlState(data, from);
+  const stateOfSectionControl = controlState(sectionControl, from);
+  return {
+    ...stateOfControl,
+    editable: stateOfControl.editable && stateOfSectionControl.editable,
+  };
 };
 
 const stringCellList = [2, 3, 4, 25, 7, 19, 23, 24, 10010, 32, 33, 41, 15, 16, 5, 17, 18];
@@ -274,7 +287,7 @@ export function sortControlByIds(controls = [], sortedIds = []) {
 /** 获取控件默认排序 */
 export function getControlsSorts(controls = [], sortedIds = []) {
   if (!sortedIds.length) {
-    return controls.map(c => c.controlId || c.data.controlId).filter(id => _.identity);
+    return controls.map(c => c.controlId || c.data.controlId).filter(() => _.identity);
   }
   sortedIds = sortedIds
     .filter(id => _.find(controls, control => (control.controlId || control.data.controlId) === id))
@@ -282,7 +295,7 @@ export function getControlsSorts(controls = [], sortedIds = []) {
   const leftControlIds = controls
     .filter(c => !_.find(sortedIds, id => (c.controlId || c.data.controlId) === id))
     .map(c => c.controlId || c.data.controlId)
-    .filter(id => _.identity);
+    .filter(() => _.identity);
   return sortedIds.concat(leftControlIds);
 }
 
@@ -335,7 +348,7 @@ export function updateOptionsOfControl(control, value, realValue) {
         index: control.options.length + i + 1,
         isDeleted: false,
         key: parsedRealValue[i],
-        color: '#2196f3',
+        color: '#1677ff',
         value: v && (v.match(/add_(.*)/) || '')[1],
       }))
       .filter(v => v.value);
@@ -344,7 +357,7 @@ export function updateOptionsOfControl(control, value, realValue) {
       index: control.options.length + 1,
       isDeleted: false,
       key: _.last(JSON.parse(realValue)),
-      color: '#2196f3',
+      color: '#1677ff',
       value: value && (value.match(/"add_(.*)"]/) || '')[1],
     };
   }
@@ -361,7 +374,10 @@ export function updateOptionsOfControls(controls, data) {
     newOptionControls = _.filter(controls, item => _.includes([10, 11], item.type) && /"add_/.test(item.value)).map(c =>
       updateOptionsOfControl(c, c.value, data[c.controlId]),
     );
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+  }
+
   return newOptionControls;
 }
 
@@ -501,7 +517,13 @@ export function formatControlValue(cell) {
       case 10: // MULTI_SELECT 多选
       case 11: // OPTIONS 单选 下拉
         selectedOptions = getSelectedOptions(cell.options, cell.value, cell);
-        return selectedOptions.map((option, index) => option.value);
+        return selectedOptions.map(option => {
+          if (_.get(option, 'key') === 'other') {
+            const matchText = safeParse(cell.value || '[]').find(i => i.indexOf('other:') > -1);
+            return matchText ? matchText.replace('other:', '') : option.value;
+          }
+          return option.value;
+        });
       case 26: // USER_PICKER 成员
         parsedData = JSON.parse(value);
         if (!_.isArray(parsedData)) {
@@ -509,14 +531,14 @@ export function formatControlValue(cell) {
         }
         return parsedData.filter(user => !!user).map(user => (typeof user === 'string' ? user : user.fullname));
       case 27: // GROUP_PICKER 部门
-        return JSON.parse(cell.value).map((department, index) => {
+        return JSON.parse(cell.value).map(department => {
           if (typeof department === 'string') {
             return department;
           }
           return department.departmentName ? department.departmentName : _l('该部门已删除');
         });
       case 48: // ORG_ROLE 组织角色
-        return JSON.parse(cell.value).map((organization, index) => {
+        return JSON.parse(cell.value).map(organization => {
           if (typeof organization === 'string') {
             return organization;
           }
@@ -572,8 +594,6 @@ export function formatControlValue(cell) {
 
 function transformLat(lng, lat) {
   var pi = 3.14159265358979324;
-  var a = 6378245.0;
-  var ee = 0.00669342162296594323;
   var dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
   dLat += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLat += ((20.0 * Math.sin(lat * pi) + 40.0 * Math.sin((lat / 3.0) * pi)) * 2.0) / 3.0;
@@ -583,8 +603,6 @@ function transformLat(lng, lat) {
 
 function transformLng(lng, lat) {
   var pi = 3.14159265358979324;
-  var a = 6378245.0;
-  var ee = 0.00669342162296594323;
   var dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
   dLng += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLng += ((20.0 * Math.sin(lng * pi) + 40.0 * Math.sin((lng / 3.0) * pi)) * 2.0) / 3.0;
@@ -634,13 +652,38 @@ export const getValueStyle = data => {
 
 export function getControlStyles(controls) {
   return controls
-    .filter(c => canSetWidgetStyle({ ...c, type: c.type === 30 ? c.sourceControlType : c.type }))
-    .map(c => ({ controlId: c.controlId, valueStyle: getValueStyle({ ...c, value: '_' }).valueStyle }))
-    .filter(c => c.valueStyle)
+    .map(c => ({
+      controlId: c.controlId,
+      valueStyle: getValueStyle({ ...c, value: '_' }).valueStyle,
+      titleStyle: getValueStyle({
+        ...c,
+        type: 2,
+        enumDefault: 1,
+        advancedSetting: {
+          ...(c.advancedSetting || {}),
+          valuecolor: get(c, 'advancedSetting.titlecolor'),
+          valuesize: get(c, 'advancedSetting.titlesize'),
+          valuestyle: get(c, 'advancedSetting.titlestyle'),
+        },
+        value: '_',
+      }).valueStyle,
+    }))
+    .filter(c => c.valueStyle || c.titleStyle)
     .map(
       item => `
+    .control-head-${item.controlId} .controlName .text {
+      ${item.titleStyle}
+    }
     .control-val-${item.controlId} {
       > span:not(.editIcon), > a, .worksheetCellPureString, .titleText, &.titleText {
+        ${item.valueStyle}
+      }
+    }
+     .control-head-${item.controlId} .controlName {
+      ${item.titleStyle}
+    }
+      .control-val-${item.controlId}.mobileTableItem  .editableCellCon {
+        span, a, .worksheetCellPureString, .titleText, &.titleText {
         ${item.valueStyle}
       }
     }
@@ -666,6 +709,7 @@ function parseCardStyle(control, value, type) {
       direction: parsedValue.direction,
     };
   } catch (err) {
+    console.log(err);
     return {};
   }
 }
@@ -751,7 +795,7 @@ export function renderText(cell, options = {}) {
     if (!cell) {
       return '';
     }
-    if (cell.controlId === 'rowid' && !/^\w{8}(-\w{4}){3}-\w{12}$/.test(cell.value)) {
+    if (cell.controlId === 'rowid' && /^(temp|default|public-temp|deleterowids)/.test(cell.value)) {
       return '';
     }
     let { type, value = '', unit, advancedSetting = {} } = cell;
@@ -821,6 +865,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value = parsedData.name;
@@ -903,6 +948,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value = parsedData
@@ -917,6 +963,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value) || {};
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value =
@@ -930,7 +977,7 @@ export function renderText(cell, options = {}) {
       case 11: // OPTIONS 单选 下拉
         selectedOptions = getSelectedOptions(cell.options, cell.value, cell);
         value = selectedOptions
-          .map((option, index) => {
+          .map(option => {
             if (option.key === 'other') {
               const otherValue = _.find(JSON.parse(cell.value || '[]'), i => i.includes(option.key));
               return otherValue === 'other' ? option.value : _.replace(otherValue, 'other:', '') || option.value;
@@ -943,6 +990,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         if (!_.isArray(parsedData)) {
@@ -957,10 +1005,11 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(cell.value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value = parsedData
-          .map((department, index) => (department.departmentName ? department.departmentName : _l('该部门已删除')))
+          .map(department => (department.departmentName ? department.departmentName : _l('该部门已删除')))
           .join('、');
         break;
       case 36: // SWITCH 检查框
@@ -975,6 +1024,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value = parsedData.map(attachment => `${attachment.originalFilename + attachment.ext}`).join('、');
@@ -983,6 +1033,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           parsedData = [];
         }
         if (!_.isArray(parsedData)) {
@@ -994,6 +1045,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           parsedData = [];
         }
         if (!_.isArray(parsedData)) {
@@ -1037,6 +1089,7 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value = parsedData.map(relation => `[${RELATION_TYPE_NAME[relation.type]}]${relation.name}`).join('、');
@@ -1061,10 +1114,11 @@ export function renderText(cell, options = {}) {
         try {
           parsedData = JSON.parse(cell.value);
         } catch (err) {
+          console.log(err);
           value = '';
         }
         value = parsedData
-          .map((organize, index) => (organize.organizeName ? organize.organizeName : _l('该组织角色已删除')))
+          .map(organize => (organize.organizeName ? organize.organizeName : _l('该组织角色已删除')))
           .join('、');
         break;
       default:
@@ -1225,7 +1279,7 @@ export function toFixed(num, dot = 0) {
  * @returns {string} - 格式化后的字符串。
  */
 export function formatStrZero(str = '') {
-  const numStr = String(str).match(/[,\.\d]+/) || [''];
+  const numStr = String(str).match(/[,.\d]+/) || [''];
   const num = numStr[0].replace(/(?:\.0*|(\.\d+?)0+)$/, '$1');
 
   return String(str).replace(numStr[0], num);
@@ -1234,11 +1288,17 @@ export function formatStrZero(str = '') {
 // 获取advancedSetting属性转化为对象
 export const getAdvanceSetting = (data, key) => {
   const setting = get(data, ['advancedSetting']) || {};
+
   if (!key) return setting;
+
   let value = get(setting, key);
+
+  if (!value) return '';
+
   try {
     return JSON.parse(value);
   } catch (error) {
+    console.log(error);
     return '';
   }
 };
@@ -1350,6 +1410,7 @@ function hexWithAlphaMixWhiteToHex(hex) {
     const finalB = Math.round(b * a + 255 * (1 - a));
     return `#${((1 << 24) + (finalR << 16) + (finalG << 8) + finalB).toString(16).slice(1).toUpperCase()}`;
   } catch (err) {
+    console.log(err);
     return hex;
   }
 }
@@ -1366,8 +1427,8 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
         'transparent',
         '#60292A',
         '#60292AFF',
-        '#2196F3',
-        '#2196F3FF',
+        '#1677ff',
+        '#1677ffFF',
         '#00BCD4',
         '#00BCD4FF',
         '#4CAF50',
@@ -1397,7 +1458,7 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
   }
   return showAsPrimary
     ? {
-        backgroundColor: mainColor || '#2196f3',
+        backgroundColor: mainColor || '#1677ff',
         border: `1px solid ${borderColor}`,
         color: fontColor,
       }
@@ -1439,7 +1500,10 @@ export function getCopyControlText(control) {
     } else {
       content = renderText(control);
     }
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+  }
+
   return content;
 }
 
@@ -1447,4 +1511,51 @@ export function handleCopyControlText(control, tableId) {
   const content = getCopyControlText(control);
   window.tempCopyForSheetView = JSON.stringify({ type: 'text', value: content, controlType: control.type, tableId });
   copy(content);
+}
+
+// 支持参与函数计算的字段
+export function checkTypeSupportForFunction(control) {
+  if (
+    [
+      1,
+      WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本 2
+      WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值 6
+      WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额 8
+      WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮箱 5
+      WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 座机 4
+      WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机 3
+      WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期 15
+      WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期 16
+      WIDGETS_TO_API_TYPE_ENUM.TIME, // 时间 46
+      WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 单选 9
+      WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 多选 10
+      WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 下拉 11
+      WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 成员 26
+      WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 部门 27
+      WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 组织角色 48
+      WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 省 19
+      WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 省市 23
+      WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24
+      WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 检查框 36
+      WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 31 公式数值
+      WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE, // 38 公式日期
+      WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 子表 34
+      WIDGETS_TO_API_TYPE_ENUM.LOCATION, // 定位 40
+      WIDGETS_TO_API_TYPE_ENUM.CRED, // 证件 7
+      WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC, // 公式函数 53
+      WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL, // 汇总 37
+      WIDGETS_TO_API_TYPE_ENUM.SCORE, // 等级 28
+    ].indexOf(control.type) > -1
+  ) {
+    return true;
+  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
+    // 关联记录 29
+    return !isSheetDisplay(control);
+  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
+    // 他表存储 30
+    return (
+      (_.get(control, 'strDefault') || '10')[0] !== '1' &&
+      checkTypeSupportForFunction({ ...control, type: control.sourceControlType })
+    );
+  }
 }

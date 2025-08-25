@@ -1,6 +1,7 @@
 import React from 'react';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import registerAjax from 'src/api/register';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
@@ -189,7 +190,7 @@ export default class ResetPassword extends React.Component {
               value={password}
               autoComplete="new-password"
             />
-            <div className="title" onClick={e => this.setState({ focusDiv: 'passwordIcon' })}>
+            <div className="title" onClick={() => this.setState({ focusDiv: 'passwordIcon' })}>
               {_l('请设置密码')}
             </div>
             {renderWarn('passwordIcon')}
@@ -210,7 +211,7 @@ export default class ResetPassword extends React.Component {
               value={passwordCopy}
               autoComplete="new-password"
             />
-            <div className="title" onClick={e => this.setState({ focusDiv: 'passwordCopy' })}>
+            <div className="title" onClick={() => this.setState({ focusDiv: 'passwordCopy' })}>
               {_l('请确认密码')}
             </div>
             {renderWarn('passwordCopy')}

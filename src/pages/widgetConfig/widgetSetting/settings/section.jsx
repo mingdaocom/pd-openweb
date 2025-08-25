@@ -1,8 +1,8 @@
 import React from 'react';
 import { SettingItem } from '../../styled';
-import { SectionItem } from '../components/SplitLineConfig/style';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import IconSetting from '../components/SplitLineConfig/IconSetting';
+import { SectionItem } from '../components/SplitLineConfig/style';
 
 export default function Section(props) {
   const { data, globalSheetInfo, onChange } = props;

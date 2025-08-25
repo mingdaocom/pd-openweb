@@ -10,7 +10,7 @@ var ACTIONRESULTS = {
   BoundEmail: 3, // 已经验证过邮箱
 };
 
-function Comp(props) {
+function Comp() {
   const [result, setState] = useState(ACTIONRESULTS.LinkAuthInvalid);
   const getEmailValidate = () => {
     let token = getRequest()['token'];
@@ -48,9 +48,11 @@ function Comp(props) {
           </div>
         );
       case ACTIONRESULTS.BoundEmail:
-        <div>
-          <div class="Font17 mTop40 mBottom40">{_l('绑定失败，该邮箱已被其他账号绑定')}</div>
-        </div>;
+        return (
+          <div>
+            <div class="Font17 mTop40 mBottom40">{_l('绑定失败，该邮箱已被其他账号绑定')}</div>
+          </div>
+        );
       default:
         return (
           <div>

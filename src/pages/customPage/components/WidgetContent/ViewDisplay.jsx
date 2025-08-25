@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View } from '../editWidget/view/Preview';
-import { LoadDiv } from 'ming-ui';
 import { connect } from 'react-redux';
-import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
 import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
+import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
+import { View } from '../editWidget/view/Preview';
 
 const emptyArray = [];
 
@@ -20,7 +20,7 @@ const ViewDisplay = props => {
       setTimeout(() => {
         setVisible(true);
       }, 100);
-    }
+    };
     if (!customPageContent || customPageContent.classList.contains('adjustScreen')) {
       setVisible(true);
       return;
@@ -37,16 +37,20 @@ const ViewDisplay = props => {
         const value = rect.top <= pageRect.bottom;
         value && setVisible(value);
       }
-    }
+    };
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
       delete window[`refresh-${objectId}`];
-    }
+    };
   }, []);
 
-  if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
+  if (
+    !_.get(window, 'shareState.shareId') &&
+    filterComponents.length &&
+    loadFilterComponentCount < filterComponents.length
+  ) {
     return (
       <div className="w100 h100 flexRow alignItemsCenter justifyContentCenter">
         <LoadDiv />
@@ -54,11 +58,13 @@ const ViewDisplay = props => {
     );
   }
 
-  const isClickSearch = !!filterComponents.map(data => {
-    const { filters, advancedSetting = {} } = data;
-    const result = _.find(filters, { objectId });
-    return result && advancedSetting.clicksearch === '1';
-  }).filter(n => n).length;
+  const isClickSearch = !!filterComponents
+    .map(data => {
+      const { filters, advancedSetting = {} } = data;
+      const result = _.find(filters, { objectId });
+      return result && advancedSetting.clicksearch === '1';
+    })
+    .filter(n => n).length;
 
   if (isClickSearch && !filtersGroup.length) {
     return (
@@ -75,16 +81,14 @@ const ViewDisplay = props => {
       </div>
     );
   }
-  
-  return (
-    <View {...props} filtersGroup={filtersGroup.length ? filtersGroup : emptyArray} />
-  );
-}
 
-export default connect(
-  (state, ownProps) => ({
-    filtersGroup: state.customPage.filtersGroup,
-    filterComponents: state.customPage.filterComponents.filter(n => ownProps.layoutType === 'mobile' ? n.mobileVisible : true),
-    loadFilterComponentCount: state.customPage.loadFilterComponentCount,
-  })
-)(ViewDisplay);
+  return <View {...props} filtersGroup={filtersGroup.length ? filtersGroup : emptyArray} />;
+};
+
+export default connect((state, ownProps) => ({
+  filtersGroup: state.customPage.filtersGroup,
+  filterComponents: state.customPage.filterComponents.filter(n =>
+    ownProps.layoutType === 'mobile' ? n.mobileVisible : true,
+  ),
+  loadFilterComponentCount: state.customPage.loadFilterComponentCount,
+}))(ViewDisplay);

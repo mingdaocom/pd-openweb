@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
+import _ from 'lodash';
 import { arrayOf, func, string } from 'prop-types';
+import styled from 'styled-components';
 import { quickSelectRole } from 'ming-ui/functions';
 import { BaseSelectedItem } from './Styles';
-import _ from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -12,7 +12,7 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -62,6 +62,10 @@ export default function Departments(props) {
       isEmpty={!values.length}
       active={active}
       onClick={e => {
+        if (md.global.Account.isPortal && !find(md.global.Account.projects, item => item.projectId === projectId)) {
+          alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
+          return;
+        }
         setActive(true);
         quickSelectRole(e.target, {
           projectId,

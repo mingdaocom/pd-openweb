@@ -54,7 +54,7 @@ export default function DraggableItem(props) {
     addWidget(data, para);
   };
 
-  const [collectDrag, drag, preview] = useDrag({
+  const [, drag, preview] = useDrag({
     item: {
       enumType: enumType,
       type: _.includes(['SECTION'], enumType) ? DRAG_ITEMS.LIST_TAB : DRAG_ITEMS.LIST_ITEM,

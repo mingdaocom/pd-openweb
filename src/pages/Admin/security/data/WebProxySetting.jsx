@@ -6,7 +6,7 @@ import projectSettingController from 'src/api/projectSetting';
 import { encrypt } from 'src/utils/common';
 
 const ipRegExp =
-  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$/;
+  /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9])$/;
 const portRegExp = new RegExp(
   /^([1-9](\d{0,3}))$|^([1-5]\d{4})$|^(6[0-4]\d{3})$|^(65[0-4]\d{2})$|^(655[0-2]\d)$|^(6553[0-5])$/,
 );
@@ -96,7 +96,7 @@ export default class WebProxySetting extends Component {
         }
         this.setState({ loading: false });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   }
@@ -133,7 +133,7 @@ export default class WebProxySetting extends Component {
           alert(_l('保存失败'), 2);
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ saveDisabled: false });
       });
   };

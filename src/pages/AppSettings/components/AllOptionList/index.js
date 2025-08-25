@@ -4,6 +4,7 @@ import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { groupBy, head, isEmpty, keys, maxBy, sortBy } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
@@ -219,7 +220,7 @@ export default function AllOptionList(props) {
 
   const handleSearch = (value, data = []) => {
     data = !_.isEmpty(data) ? data : originalItems;
-    if (!!_.trim(value)) {
+    if (_.trim(value)) {
       const temp = _.filter(data, v => v.name.indexOf(_.trim(value)) > -1);
       setItems(temp);
       waterfallList(temp);

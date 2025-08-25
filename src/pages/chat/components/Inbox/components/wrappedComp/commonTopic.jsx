@@ -5,7 +5,7 @@ import { buildSourceLink, formatInboxItem } from '../../util';
 import BaseMessageComponent from '../baseComponent/messageContent';
 
 function mergeFromSourceState(inboxItem) {
-  let { discussion: { name, entityName, sourceId, extendsId, sourceType } = {} } = inboxItem;
+  let { discussion: { name, entityName, sourceId, extendsId, sourceType } = {}, inboxId } = inboxItem;
 
   switch (sourceType) {
     case SOURCE_TYPE.CALENDAR:
@@ -36,7 +36,7 @@ function mergeFromSourceState(inboxItem) {
       return {
         fromMessage: name,
         fromTitle: _l('来自%0', entityName),
-        fromLink: buildSourceLink(sourceType, sourceId, extendsId),
+        fromLink: buildSourceLink(sourceType, sourceId, extendsId, inboxId),
         appId: extendsId ? extendsId.split('|')[0] : undefined,
       };
     default:

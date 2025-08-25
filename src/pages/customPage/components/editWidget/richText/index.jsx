@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import cx from 'classnames';
-import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { RichText as RichTextComponent } from 'ming-ui';
 import { updateWidget } from 'src/pages/customPage/redux/action';
 
@@ -28,10 +29,10 @@ const ContentWrap = styled.div`
   }
   .ck.ck-content {
     border-radius: 6px !important;
-    background: #fff !important;
+    background: var(--widget-color) !important;
   }
   &.focusedWrap {
-    border-color: #2196f3 !important;
+    border-color: #1677ff !important;
   }
   &.transparent {
     .ck.ck-content {
@@ -48,7 +49,7 @@ const getContainerForCard = (event, widgetId) => {
     }
   }
   return null;
-}
+};
 
 export const EditRichText = props => {
   const { editable, value, widget, updateWidget } = props;
@@ -63,18 +64,24 @@ export const EditRichText = props => {
   useEffect(() => {
     const isFocus = !!widget.editRichText;
     const rect = elementRef.current ? elementRef.current.getBoundingClientRect() : {};
-    const parentNodeEl = _.get(document.querySelector(`.richText-${widget.id || widget.uuid}`), 'parentNode.parentNode');
+    const parentNodeEl = _.get(
+      document.querySelector(`.richText-${widget.id || widget.uuid}`),
+      'parentNode.parentNode',
+    );
+
     if (isFocus && parentNodeEl && rect.top < 100) {
       parentNodeEl.setAttribute('richText-offset-top', 'true');
     } else if (parentNodeEl) {
       parentNodeEl.removeAttribute('richText-offset-top');
     }
+
     if (isFocus) {
       setTimeout(() => {
         const ref = _.get(richTextRef, 'current.table');
         ref && ref.focus();
       }, 0);
     }
+
     setIsFocus(isFocus);
   }, [widget.editRichText]);
 
@@ -86,14 +93,14 @@ export const EditRichText = props => {
         setIsFocus(false);
         updateWidget({
           widget,
-          editRichText: false
+          editRichText: false,
         });
       }
-    }
+    };
     editable && componentsWrap.addEventListener('click', handleClickActiveWrap);
     return () => {
       editable && componentsWrap.removeEventListener('click', handleClickActiveWrap);
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -102,7 +109,7 @@ export const EditRichText = props => {
         setHeight(elementRef.current.offsetHeight);
         setWidth(elementRef.current.offsetWidth);
       }
-    }
+    };
     const resizeObserver = new ResizeObserver(handleResize);
     if (elementRef.current) {
       resizeObserver.observe(elementRef.current);
@@ -111,7 +118,7 @@ export const EditRichText = props => {
       if (elementRef.current) {
         resizeObserver.unobserve(elementRef.current);
       }
-    }
+    };
   }, []);
 
   return (
@@ -120,17 +127,17 @@ export const EditRichText = props => {
         transparent: showType === 1,
         focusedWrap: editable && widget.editRichText && isFocus,
         disableDrag: widget.editRichText,
-        childrenDisableDrag: widget.editRichText
+        childrenDisableDrag: widget.editRichText,
       })}
       ref={elementRef}
       onMouseEnter={() => setIsFocus(true)}
       style={{
         '--tool-show': isFocus ? 'block' : 'none',
-        '--test-height': height
+        '--test-height': height,
       }}
     >
-      {!!height && (
-        editable ? (
+      {!!height &&
+        (editable ? (
           <RichTextComponent
             ref={richTextRef}
             data={widget.value || ''}
@@ -140,35 +147,32 @@ export const EditRichText = props => {
             maxWidth={width || undefined}
             minHeight={height - 2}
             maxHeight={height - 2}
-            onActualSave={(value) => {
+            onActualSave={value => {
               updateWidget({
                 widget,
-                value
+                value,
               });
             }}
             backGroundColor={showType === 1 ? 'transparent' : undefined}
           />
+        ) : value ? (
+          <RichTextComponent
+            data={value}
+            minHeight={height - 2}
+            maxHeight={height - 2}
+            disabled={true}
+            backGroundColor={showType === 1 ? 'transparent' : undefined}
+          />
         ) : (
-          value ? (
-            <RichTextComponent
-              data={value}
-              minHeight={height - 2}
-              maxHeight={height - 2}
-              disabled={true}
-              backGroundColor={showType === 1 ? 'transparent' : undefined}
-            />
-          ) : (
-            <div className="h100 flexColumn alignItemsCenter justifyContentCenter Gray_9e">
-              <div className="Font17">{_l('暂无内容')}</div>
-            </div>
-          )
-        )
-      )}
+          <div className="h100 flexColumn alignItemsCenter justifyContentCenter Gray_9e">
+            <div className="Font17">{_l('暂无内容')}</div>
+          </div>
+        ))}
     </ContentWrap>
   );
-}
+};
 
 export default connect(
-  (state) => ({}),
-  dispatch => bindActionCreators({ updateWidget }, dispatch)
+  () => ({}),
+  dispatch => bindActionCreators({ updateWidget }, dispatch),
 )(EditRichText);

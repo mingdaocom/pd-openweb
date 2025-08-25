@@ -1,16 +1,16 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useSetState } from 'react-use';
-import departmentController from 'src/api/department';
-import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
-import { LoadDiv, Icon, ScrollView } from 'ming-ui';
+import { useClickAway } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import dialogSelectDept from '../dialogSelectDept';
-import { useClickAway } from 'react-use';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
+import departmentController from 'src/api/department';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import dialogSelectDept from '../dialogSelectDept';
 
 const PAGE_SIZE = 100;
 
@@ -78,21 +78,16 @@ const DeptSelectWrap = styled.div`
 export function DeptSelect(props) {
   const {
     projectId = '',
-    title = _l('选择部门'),
     unique = true,
     fromAdmin = false,
     isAnalysis,
     returnCount,
-    showCreateBtn = true,
-    includeProject = false,
     checkIncludeChilren = false,
-    allProject = false,
     minHeight = 358,
     allPath,
     departrangetype = '0',
     appointedDepartmentIds = [],
     appointedUserIds = [],
-    data = [],
     immediate = true,
     onClose = () => {},
     selectFn = () => {},
@@ -106,9 +101,6 @@ export function DeptSelect(props) {
       keywords,
       selectedDepartment,
       departmentMoreIds,
-      showProjectAll,
-      activeIds,
-      activeIndex,
       list,
       rootPageIndex,
       rootPageAll,
@@ -129,14 +121,13 @@ export function DeptSelect(props) {
     activeIndex: 0,
   });
 
-  const [project, setProject] = useState(
+  const projectInfo =
     ((md.global.Account.projects || []).filter(project => project.projectId === props.projectId).length &&
       md.global.Account.projects.filter(project => project.projectId === props.projectId)[0]) ||
-      {},
-  );
+    {};
   let promiseFn = null;
 
-  useClickAway(conRef, e => {
+  useClickAway(conRef, () => {
     onSelect();
     onClose(true);
   });
@@ -268,27 +259,29 @@ export function DeptSelect(props) {
       departrangetype !== '0'
         ? 'appointedDepartment'
         : isAnalysis && isAdmin
-        ? 'pagedProjectDepartmentTrees'
-        : isAnalysis
-        ? 'pagedDepartmentTrees'
-        : isAdmin
-        ? 'searchProjectDepartment2'
-        : 'searchDepartment2'
+          ? 'pagedProjectDepartmentTrees'
+          : isAnalysis
+            ? 'pagedDepartmentTrees'
+            : isAdmin
+              ? 'searchProjectDepartment2'
+              : 'searchDepartment2'
     ](param)
-      .then(data => {
+      .then(res => {
         let showProjectAll = true;
+        let data = res;
+
         if (isAnalysis || departrangetype !== '0') {
-          data = data;
+          data = res;
         } else if (!isAdmin) {
-          showProjectAll = !data.item1;
-          data = data.item2;
+          showProjectAll = !res.item1;
+          data = res.item2;
         }
 
         let _list = !usePageDepartment
           ? getTree(data)
           : usePageDepartment && rootPageIndex <= 1
-          ? getTree(data)
-          : list.concat(getTree(data));
+            ? getTree(data)
+            : list.concat(getTree(data));
 
         if (departrangetype === '3') {
           _list = _list.map(l => ({ ...l, disabled: appointedDepartmentIds.includes(l.departmentId) }));
@@ -314,7 +307,7 @@ export function DeptSelect(props) {
           ...states,
         });
       })
-      .catch(error => {
+      .catch(() => {
         setState({
           loading: false,
           rootLoading: false,
@@ -375,10 +368,10 @@ export function DeptSelect(props) {
           isAnalysis && location.href.indexOf('admin') > -1
             ? 'pagedProjectDepartmentTrees'
             : isAnalysis
-            ? 'pagedDepartmentTrees'
-            : location.href.indexOf('admin') > -1
-            ? 'pagedSubDepartments'
-            : 'getProjectSubDepartmentByDepartmentId'
+              ? 'pagedDepartmentTrees'
+              : location.href.indexOf('admin') > -1
+                ? 'pagedSubDepartments'
+                : 'getProjectSubDepartmentByDepartmentId'
         ](param).then(data => {
           localStorage.removeItem('parentId');
           department.subDepartments =
@@ -455,8 +448,8 @@ export function DeptSelect(props) {
             notIncludeChilren === true
               ? false
               : department.checkIncludeChilren === undefined
-              ? true
-              : department.checkIncludeChilren,
+                ? true
+                : department.checkIncludeChilren,
         }
       : department;
     if (selectedDepartment.filter(dept => dept.departmentId === department.departmentId).length) {
@@ -476,7 +469,7 @@ export function DeptSelect(props) {
       } else {
         let selectedDepartments = _.cloneDeep(selectedDepartment);
         if (checkIncludeChilren) {
-          if (department.departmentId === 'orgs_' + project.projectId) {
+          if (department.departmentId === 'orgs_' + projectInfo.projectId) {
             //选中的是组织
             selectedDepartments = [];
           } else {
@@ -587,7 +580,7 @@ export function DeptSelect(props) {
                   <div className={cx('quick-department__name mLeft4 overflow_ellipsis w100')}>
                     {item.departmentName}
                   </div>
-                  {checked && <Icon icon="done_2" className="ThemeColor Font13 mRight13" />}
+                  {checked && <Icon icon="done" className="ThemeColor Font13 mRight13" />}
                 </div>
               </div>
               {!item.haveSubDepartment || !item.open ? null : (
@@ -641,17 +634,13 @@ export function DeptSelect(props) {
           onChange={handleSearch}
         />
         {keywords && (
-          <Icon
-            icon="closeelement-bg-circle"
-            className="Font16 mLeft4 Gray_9e hand"
-            onClick={() => setState({ keywords: '' })}
-          />
+          <Icon icon="cancel" className="Font16 mLeft4 Gray_9e hand" onClick={() => setState({ keywords: '' })} />
         )}
         {departrangetype === '0' && (
           <Icon icon="department" className="Hand Gray_75 Hover_21 Font18" onClick={openDialog} />
         )}
       </div>
-      <ScrollView className="quickDeptContent" style={{ minHeight }}>
+      <ScrollView className="quickDeptContent" style={{ height: minHeight }}>
         <div className="selectDepartmentContent">{renderContent()}</div>
       </ScrollView>
     </DeptSelectWrap>

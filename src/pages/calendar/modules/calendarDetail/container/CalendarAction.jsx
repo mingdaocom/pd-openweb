@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Button from 'ming-ui/components/Button';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import Button from 'ming-ui/components/Button';
 
 export default class CalendarAction extends Component {
   static propTypes = {
@@ -38,7 +38,11 @@ export default class CalendarAction extends Component {
         }}
       >
         <div className="calendarActionWrapper">
-          {type === 'update' ? <span className="actionHint">{_l('日程内容已更改')}</span> : <span className="actionHint">{_l('邀请您参加此日程')}</span>}
+          {type === 'update' ? (
+            <span className="actionHint">{_l('日程内容已更改')}</span>
+          ) : (
+            <span className="actionHint">{_l('邀请您参加此日程')}</span>
+          )}
           {(() => {
             switch (type) {
               case 'update':

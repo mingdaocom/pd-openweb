@@ -10,7 +10,7 @@ export const fetchRows = (pageIndex, keyWords) => {
   return (dispatch, getState) => {
     const { base, filters, detailView, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
-    let { detailViewRows, detailViewLoading } = detailView;
+    let { detailViewRows } = detailView;
 
     if (detailRowsRequest && detailRowsRequest.abort && requestViewIds.includes(viewId)) {
       detailRowsRequest.abort();
@@ -31,6 +31,7 @@ export const fetchRows = (pageIndex, keyWords) => {
       ...{ ...filters, keyWords: keyWords || filters.keyWords },
       fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
     detailRowsRequest = worksheetApi.getFilterRows(getFilledRequestParams(args));
     detailRowsRequest.then(res => {
@@ -57,7 +58,7 @@ export const refresh = () => {
 };
 
 export const clearData = () => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'CHANGE_DETAIL_VIEW_ROWS', list: [] });
     dispatch({ type: 'CHANGE_DETAIL_VIEW_KEYWORDS', keyWords: '' });
   };

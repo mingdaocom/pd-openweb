@@ -243,8 +243,6 @@ $.extend(CreateCalendar.prototype, {
 
   // 初始化分类事件
   initCategoryEvent: function () {
-    var settings = this.settings;
-
     // 更改日程分类
     $('#createCategoryID').on('click', function () {
       var $calendarColorMain = $('#calendarColorMain');
@@ -404,7 +402,6 @@ $.extend(CreateCalendar.prototype, {
 
   // 初始化重复事件
   initRepeatEvent: function () {
-    var settings = this.settings;
     // 重复类型
     const root = createRoot($('.repeatDialogConfirm #tab_repeatTypeBox')[0]);
     root.render(
@@ -599,11 +596,8 @@ $.extend(CreateCalendar.prototype, {
   // 初始化成员事件
   initMemberEvent: function () {
     var settings = this.settings;
-    var memberList = '';
     var newMembers = [];
     var memberArr = settings.MemberArray;
-    var has;
-    var i;
 
     // hover移除成员
     $('#addCalendarMembers').on('click', '.imgMemberBox .removeMember', function (event) {
@@ -996,7 +990,7 @@ CreateCalendar.methods = {
     if (recurType == 1) {
       messages += '，' + _l('共 %0 次', count);
     } else if (recurType == 2) {
-      var day = moment(settings.overTime).format(_l('YYYY年MM月DD日'));
+      day = moment(settings.overTime).format(_l('YYYY年MM月DD日'));
       messages += '，' + _l('截止到 %0', day);
     }
 
@@ -1048,7 +1042,6 @@ CreateCalendar.methods = {
     if (!md.global.Account.projects.length) {
       return;
     }
-    var settings = CreateCalendar.settings;
     var selectedDate = CreateCalendar.methods.getDialogTime();
     var start = selectedDate.start;
     var end = selectedDate.end;
@@ -1087,6 +1080,7 @@ CreateCalendar.methods = {
                 tooltipStyle={{
                   width: 280,
                 }}
+                autoCloseDelay={0}
                 text={
                   <div className="memberBusyCalendarsWrap">
                     <div

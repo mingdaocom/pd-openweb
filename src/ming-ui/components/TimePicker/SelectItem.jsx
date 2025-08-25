@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 class SelectItem extends Component {
   static propTypes = {
@@ -11,7 +11,7 @@ class SelectItem extends Component {
     disabled: PropTypes.bool,
   };
 
-  handleClick = (event) => {
+  handleClick = event => {
     this.props.onClick(this.props.value, event.target.offsetTop);
   };
 

@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
-import { CityPicker, Input, Icon } from 'ming-ui';
-import { Select, Checkbox } from 'antd';
+import { Checkbox, Select } from 'antd';
 import _ from 'lodash';
+import { CityPicker, Icon, Input } from 'ming-ui';
 
-const area = [{
-  text: _l('全国'),
-  value: '',
-}, {
-  text: _l('省'),
-  value: 2,
-}, {
-  text: _l('市'),
-  value: 3,
-}];
+const area = [
+  {
+    text: _l('全国'),
+    value: '',
+  },
+  {
+    text: _l('省'),
+    value: 2,
+  },
+  {
+    text: _l('市'),
+    value: 3,
+  },
+];
 
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
@@ -36,16 +40,19 @@ export default class extends Component {
       return area;
     }
     return area;
-  }
+  };
   handleChangeParticleSizeType = value => {
-    this.props.onChangeCurrentReport({
-      country: {
-        filterCode: '',
-        particleSizeType: value ? value : 1,
-        filterCodeName: '',
-      }
-    }, value ? false : true);
-  }
+    this.props.onChangeCurrentReport(
+      {
+        country: {
+          filterCode: '',
+          particleSizeType: value ? value : 1,
+          filterCodeName: '',
+        },
+      },
+      value ? false : true,
+    );
+  };
   handleChangeFilterCode = data => {
     const { country } = this.props;
     const last = data[data.length - 1];
@@ -54,14 +61,17 @@ export default class extends Component {
       return;
     }
 
-    this.props.onChangeCurrentReport({
-      country: {
-        ...country,
-        filterCode: last.id,
-        filterCodeName: data.map(item => item.name).join('/'),
-      }
-    }, true);
-  }
+    this.props.onChangeCurrentReport(
+      {
+        country: {
+          ...country,
+          filterCode: last.id,
+          filterCodeName: data.map(item => item.name).join('/'),
+        },
+      },
+      true,
+    );
+  };
   render() {
     const { country, style, onChangeCurrentReport } = this.props;
     const level = country.particleSizeType - 1;
@@ -76,11 +86,11 @@ export default class extends Component {
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={this.handleChangeParticleSizeType}
           >
-            {
-              this.filterArea().map(item => (
-                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>{item.text}</Select.Option>
-              ))
-            }
+            {this.filterArea().map(item => (
+              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                {item.text}
+              </Select.Option>
+            ))}
           </Select>
         </div>
         {country.particleSizeType > 1 && (
@@ -96,12 +106,12 @@ export default class extends Component {
           <Checkbox
             className="mLeft0 mBottom16 Font13"
             checked={style.isDrillDownLayer}
-            onChange={(event) => {
+            onChange={() => {
               onChangeCurrentReport({
                 style: {
                   ...style,
-                  isDrillDownLayer: !style.isDrillDownLayer
-                }
+                  isDrillDownLayer: !style.isDrillDownLayer,
+                },
               });
             }}
           >
@@ -109,6 +119,6 @@ export default class extends Component {
           </Checkbox>
         </div>
       </div>
-    )
+    );
   }
 }

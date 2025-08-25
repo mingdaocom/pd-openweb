@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'worksheet/redux/actions/gunterview';
-import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
+import * as actions from 'worksheet/redux/actions/gunterview';
 
 const TimeDotWrapper = styled.div`
   position: relative;
@@ -18,7 +18,7 @@ const DotWrapper = styled.div`
   border-radius: 50%;
   cursor: pointer;
   z-index: 1;
-  background-color: #2196f3;
+  background-color: #1677ff;
 `;
 
 const lineHeight = 32;
@@ -44,7 +44,7 @@ class MonitorTimeDot extends Component {
   }
   handleScroll = () => {
     const { row, chartScroll } = this.props;
-    const { left, right, width } = row;
+    const { left, width } = row;
     const x = Math.abs(chartScroll.x);
 
     if (left + width <= x) {

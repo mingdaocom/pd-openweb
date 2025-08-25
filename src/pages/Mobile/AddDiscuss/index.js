@@ -21,7 +21,7 @@ const formatEmpty = value => {
   return value || '';
 };
 
-@connect(state => ({}))
+@connect()
 class AddDiscuss extends Component {
   constructor(props) {
     super(props);
@@ -173,7 +173,7 @@ class AddDiscuss extends Component {
           ) : (
             <div className="flex Gray_75">{_l('发表讨论')}</div>
           )}
-          <Icon icon="closeelement-bg-circle" className="close Font22 Gray_9e" onClick={this.props.onClose} />
+          <Icon icon="cancel" className="close Font22 Gray_9e" onClick={this.props.onClose} />
         </div>
         <Textarea
           manualRef={ele => (this.textarea = ele)}

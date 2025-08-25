@@ -9,7 +9,6 @@ import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
-import { getAppFeaturesPath } from 'src/utils/app';
 import { postWithToken } from 'src/utils/common';
 import { getRecordLandUrl, handleRecordError } from 'src/utils/record';
 import { replaceBtnsTranslateInfo, replaceRulesTranslateInfo } from 'src/utils/translate';
@@ -29,6 +28,7 @@ export function loadRecord({
   workId,
   getRules,
   controls,
+  discussId,
 }) {
   return new Promise((resolve, reject) => {
     let apiargs = {
@@ -39,6 +39,7 @@ export function loadRecord({
       viewId,
       relationWorksheetId,
       checkView: !!viewId,
+      langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
     if (instanceId && workId) {
       apiargs.getType = 9;
@@ -48,6 +49,10 @@ export function loadRecord({
 
     if (_.get(window, 'shareState.isPublicWorkflowRecord') && _.get(window, 'shareState.shareId')) {
       apiargs.shareId = _.get(window, 'shareState.shareId');
+    }
+
+    if (discussId) {
+      apiargs.discussId = discussId;
     }
 
     let promise;
@@ -89,8 +94,10 @@ export function updateRecord(
     projectId,
     instanceId,
     workId,
+    rowIds,
     data,
     updateControlIds,
+    updateType,
     isDraft,
     triggerUniqueError,
     updateSuccess,
@@ -98,6 +105,7 @@ export function updateRecord(
     setSubListUniqueError = () => {},
     setRuleError = () => {},
     setServiceError = () => {},
+    alertLockError = () => {},
   },
   callback = () => {},
 ) {
@@ -117,9 +125,11 @@ export function updateRecord(
     getType,
     worksheetId,
     rowId: recordId,
+    rowIds,
     newOldControl: updatedControls,
     projectID: projectId,
     pushUniqueId: md.global.Config.pushUniqueId,
+    ...(updateType ? { updateType } : {}),
   };
   if (instanceId && workId) {
     apiargs.getType = 9;
@@ -162,7 +172,10 @@ export function updateRecord(
           );
         }
       } else {
-        if (res.resultCode === 11) {
+        if (res.resultCode === 6) {
+          const lockText = updateType === 41 ? _l('锁定') : _l('解锁');
+          alert(_l('记录已%0，请勿重复操作', lockText), 3);
+        } else if (res.resultCode === 11) {
           triggerUniqueError(res.badData);
         } else if (res.resultCode === 22) {
           setSubListUniqueError(res.badData);
@@ -170,6 +183,8 @@ export function updateRecord(
           setServiceError(res.badData);
         } else if (res.resultCode === 32) {
           setRuleError(res.badData);
+        } else if (res.resultCode === 72) {
+          alertLockError();
         } else {
           handleRecordError(res.resultCode);
         }
@@ -195,8 +210,10 @@ export function handleSubmitDraft(
     setSubListUniqueError = () => {},
     handleRecordError = () => {},
     setRuleError = () => {},
+    alertLockError = () => {},
     onSubmitEnd = () => {},
     onSubmitSuccess = () => {},
+    setServiceError = () => {},
   },
   callback = () => {},
 ) {
@@ -268,6 +285,8 @@ export function handleSubmitDraft(
           setServiceError(res.badData);
         } else if (res.resultCode === 32) {
           setRuleError(res.badData);
+        } else if (res.resultCode === 72) {
+          alertLockError();
         } else {
           handleRecordError(res.resultCode);
         }
@@ -409,7 +428,9 @@ export function isOwner(ownerAccount, formdata) {
       .filter(c => c.type === 26 && c.userPermission === 2)
       .map(u => JSON.parse(u.value))
       .filter(c => c && c.length);
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
   accountsOfOwner.forEach(accounts => {
     accounts.forEach(account => {
       if (account.accountId === md.global.Account.accountId) {
@@ -437,7 +458,7 @@ export function updateRecordOwner({ worksheetId, recordId, accountId }) {
             record: res.data,
           });
         } else {
-          reject();
+          reject(res);
         }
       })
       .catch(reject);
@@ -532,4 +553,16 @@ export async function exportRelateRecordRecords({
   } else {
     exportSheet({ worksheetId, rowId, controlId, fileName, filterControls, onDownload })();
   }
+}
+
+// 更新记录锁定状态
+export function updateRecordLockStatus(args, callback) {
+  updateRecord(
+    {
+      ...args,
+      allowEmptySubmit: true,
+      data: [],
+    },
+    callback,
+  );
 }

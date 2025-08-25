@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+
 const DropWrap = styled.div`
   padding: 5px 0;
   border-radius: 3px;
   width: 360px;
   z-index: 1000;
   background: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   .dropLi {
     line-height: 32px;
     padding: 0 12px;
@@ -19,7 +22,7 @@ const DropWrap = styled.div`
     &.cur {
       background: rgba(33, 150, 243, 0.2);
       .icon {
-        color: #2196f3;
+        color: #1677ff;
         display: inline-block;
         line-height: 32px;
       }
@@ -93,7 +96,7 @@ export default function ScoreInput(props) {
                 }}
               >
                 <span className="flex">{_l('%0 级', parseInt(num, 10))}</span>
-                {(props.values || []).includes(num + '') && <i className="icon icon-done_2" />}
+                {(props.values || []).includes(num + '') && <i className="icon icon-done" />}
               </div>
             );
           })}
@@ -115,7 +118,7 @@ export default function ScoreInput(props) {
         <div className="iconBox">
           <i className="icon icon-arrow-down-border dropIcon TxtCenter Gray_9e" />
           <i
-            className="icon icon-closeelement-bg-circle Hand clearIcon TxtCenter "
+            className="icon icon-cancel Hand clearIcon TxtCenter "
             onClick={() => {
               onChange([]);
             }}

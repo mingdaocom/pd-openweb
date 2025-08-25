@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import Constant from '../../utils/constant';
+import { ScrollView } from 'ming-ui';
 import Dropdown from 'ming-ui/components/Dropdown';
-import GroupController from 'src/api/group';
-import ScrollView from 'ming-ui/components/ScrollView';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import GroupController from 'src/api/group';
 import InviteOrAddUsers from './InviteOrAddUsers';
 
 export class Member extends Component {

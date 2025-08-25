@@ -72,7 +72,6 @@ function FixedTable(props, ref) {
     showFoot,
     width,
     columnHeadHeight = 34,
-    setHeightAsRowCount,
     rowCount,
     disableYScroll,
     columnCount,
@@ -80,6 +79,7 @@ function FixedTable(props, ref) {
     sheetColumnWidths = {},
     rowHeight = 34,
     getColumnWidth,
+    getRowHeight = () => props.rowHeight || 34,
     leftFixedCount = 0,
     rightFixedCount = 0,
     hasSubListFooter,
@@ -110,9 +110,9 @@ function FixedTable(props, ref) {
   const tableSize = useMemo(
     () => ({
       width: sum([...new Array(columnCount)].map((a, i) => getColumnWidth(i) || 200)),
-      height: rowHeight * rowCount - (hasSubListFooter ? 8 : 0),
+      height: sum([...new Array(rowCount)].map((a, i) => getRowHeight(i) || 34)) - (hasSubListFooter ? 8 : 0),
     }),
-    [rowHeight, columnCount, rowCount, sheetColumnWidths, width],
+    [getRowHeight, columnCount, rowCount, sheetColumnWidths, width],
   );
   const XIsScroll = useMemo(
     () => tableSize.width > width,
@@ -192,6 +192,7 @@ function FixedTable(props, ref) {
           rowHeight,
           cache, // 用来更新指定位置
           getColumnWidth,
+          getRowHeight,
           Cell,
           tableData,
           setRef: ref => {
@@ -252,43 +253,79 @@ function FixedTable(props, ref) {
     ),
     [tableSize.width, YIsScroll, leftFixedCount],
   );
+  // 缓存滚动元素引用，避免重复查询
+  const scrollElementsRef = useRef({ $scrollX: null, $scrollY: null });
+
+  // 更新滚动元素缓存
+  const updateScrollElements = useCallback(() => {
+    if (conRef.current) {
+      scrollElementsRef.current.$scrollX = conRef.current.querySelector('.scroll-x');
+      scrollElementsRef.current.$scrollY = conRef.current.querySelector('.scroll-y');
+    }
+  }, []);
+
+  // 原始的滚轮处理逻辑
+  const performMouseWheel = useCallback(
+    e => {
+      if (e.target.closest('.scrollInTable')) {
+        return;
+      }
+
+      let direction = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
+      if (window.isWindows && e.shiftKey) {
+        direction = 'x';
+      }
+
+      const { $scrollX, $scrollY } = scrollElementsRef.current;
+
+      if (direction === 'x') {
+        let newLeft = cache.left + (window.isWindows && e.shiftKey ? e.deltaY : e.deltaX);
+        if ($scrollX) {
+          $scrollX.scrollLeft = newLeft;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+      } else if (direction === 'y') {
+        let newTop = cache.top + e.deltaY;
+        if ($scrollY) {
+          $scrollY.scrollTop = newTop;
+        }
+      }
+
+      if (!$scrollY) {
+        return;
+      }
+
+      if (
+        isSubList &&
+        (!$scrollY ||
+          ($scrollY &&
+            ((e.deltaY < 0 && $scrollY.scrollTop === 0) ||
+              (e.deltaY > 0 && $scrollY.scrollTop + $scrollY.clientHeight === $scrollY.scrollHeight))))
+      ) {
+        return;
+      }
+
+      e.preventDefault();
+      e.stopPropagation();
+    },
+    [cache.left, cache.top, isSubList],
+  );
+
+  // 节流的滚轮处理函数 - 优化为8ms以获得更流畅的体验
+  const throttledMouseWheel = useMemo(
+    () => _.throttle(performMouseWheel, 8), // 约120fps，更流畅的滚动体验
+    [performMouseWheel],
+  );
+
   function handleMouseWheel(e) {
+    // 对于立即需要阻止默认行为的情况，先处理
     if (e.target.closest('.scrollInTable')) {
       return;
     }
-    let direction = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? 'x' : 'y';
-    if (window.isWindows && e.shiftKey) {
-      direction = 'x';
-    }
-    const $scrollX = conRef.current.querySelector('.scroll-x');
-    const $scrollY = conRef.current.querySelector('.scroll-y');
-    if (direction === 'x') {
-      let newLeft = cache.left + (window.isWindows && e.shiftKey ? e.deltaY : e.deltaX);
-      if ($scrollX) {
-        $scrollX.scrollLeft = newLeft;
-      }
-      e.preventDefault();
-      e.stopPropagation();
-    } else if (direction === 'y') {
-      let newTop = cache.top + e.deltaY;
-      if ($scrollY) {
-        $scrollY.scrollTop = newTop;
-      }
-    }
-    if (!$scrollY) {
-      return;
-    }
-    if (
-      isSubList &&
-      (!$scrollY ||
-        ($scrollY &&
-          ((e.deltaY < 0 && $scrollY.scrollTop === 0) ||
-            (e.deltaY > 0 && $scrollY.scrollTop + $scrollY.clientHeight === $scrollY.scrollHeight))))
-    ) {
-      return;
-    }
-    e.preventDefault();
-    e.stopPropagation();
+
+    // 然后通过节流函数处理滚动逻辑
+    throttledMouseWheel(e);
   }
   // hammer event
   function handlePanMove(e) {
@@ -314,7 +351,7 @@ function FixedTable(props, ref) {
   }
 
   // hammer event
-  function handlePanEnd(e) {
+  function handlePanEnd() {
     setHammer('lastPandeltaX', 0);
     setHammer('lastPandeltaY', 0);
   }
@@ -333,15 +370,27 @@ function FixedTable(props, ref) {
       }
     },
   }));
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (get(cache, 'scrollX.scrollLeft')) {
-      setScrollX(cache, get(cache, 'scrollX.scrollLeft'));
+      setTimeout(() => {
+        setScrollX(cache, get(cache, 'scrollX.scrollLeft'));
+      }, 10);
     }
   }, [loading]);
   useEffect(forceUpdate, [tableSize.width]);
+
+  // 当表格结构变化时更新滚动元素缓存
+  useEffect(() => {
+    updateScrollElements();
+  }, [updateScrollElements, loading, rowCount]);
+
   useLayoutEffect(() => {
     cache.didMount = true;
     document.body.style.overscrollBehaviorX = 'none';
+
+    // 初始化滚动元素缓存
+    updateScrollElements();
+
     conRef.current.addEventListener('wheel', handleMouseWheel);
     // --- 表格触摸事件处理 ---
     tablehammer.current = new Hammer(conRef.current, { inputClass: Hammer.TouchInput });
@@ -367,8 +416,10 @@ function FixedTable(props, ref) {
         tablehammer.current.off('panend', handlePanEnd);
         tablehammer.current.destroy();
       }
+      // 清理节流函数
+      throttledMouseWheel.cancel();
     };
-  }, []);
+  }, [updateScrollElements, throttledMouseWheel]);
   return (
     <Con ref={conRef} className={className} style={{ width, height: hasFooter ? withFooterHeight : height }}>
       <TableBorder

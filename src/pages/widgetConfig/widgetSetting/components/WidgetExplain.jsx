@@ -1,6 +1,6 @@
 import React from 'react';
-import { string } from 'prop-types';
 import { Input } from 'antd';
+import _ from 'lodash';
 import { SettingItem } from '../../styled';
 
 export default ({ data, onChange }) => {

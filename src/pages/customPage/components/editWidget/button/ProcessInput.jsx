@@ -1,7 +1,7 @@
 import React from 'react';
-import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue';
 
 const ProcessWrap = styled.div`
   .Menu.List {
@@ -30,7 +30,7 @@ export default function ProcessInput(props) {
         from={5} // 为了异化默认值其他字段配置
         allControls={[]}
         globalSheetInfo={{
-          projectId
+          projectId,
         }}
         hideTitle={true}
         totalWidth={hideDynamicValue}

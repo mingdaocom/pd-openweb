@@ -1,19 +1,17 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
+import { Drawer, Rate } from 'antd';
 import cx from 'classnames';
-import { Rate, Drawer } from 'antd';
-import filterXSS from 'xss';
-import { whiteList } from 'xss/lib/default';
-import { Checkbox, ScrollView, Dropdown } from 'ming-ui';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
+import { Checkbox, Dropdown, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import AiLoading from './AiLoading';
-import { OPTION_COLORS_LIST } from '../config';
-import { enumWidgetType } from '../util';
+import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
-import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
-import _ from 'lodash';
+import { OPTION_COLORS_LIST } from '../config';
+import { enumWidgetType } from '../util';
+import AiLoading from './AiLoading';
 
 const RECOMMEND_TYPES = [2, 3, 5, 6, 7, 8, 10, 11, 14, 15, 16, 26, 27, 33, 36];
 
@@ -52,13 +50,10 @@ const DrawerWrap = styled(Drawer)`
     display: none;
   }
   .ant-drawer-body {
-    padding: 12px 0 12px 12px;
+    padding: 0;
   }
   .ant-drawer-content {
     background: transparent;
-  }
-  .ant-drawer-mask {
-    background: transparent !important;
   }
 `;
 
@@ -82,7 +77,7 @@ const AiWidgetWrap = styled.div`
     text-align: center;
     background: rgba(33, 150, 243, 0.12);
     border-radius: 32px;
-    color: #2196f3;
+    color: #1677ff;
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
@@ -160,7 +155,7 @@ const AiWidgetWrap = styled.div`
         height: 36px;
         text-align: center;
         line-height: 36px;
-        background: #2196f3;
+        background: #1677ff;
         border-radius: 32px;
         color: #fff;
         font-size: 14px;
@@ -196,6 +191,7 @@ const STATUS_TYPES = [
 
 export default function WidgetAiRecommend(props) {
   const worksheetName = _.get(props, 'globalSheetInfo.name');
+  const { widgetPanelFixed, setPanelVisible } = props;
   const [visible, setVisible] = useState(false);
   const [status, setStatus] = useState(0); // -1报错，0默认，1搜索中，2搜索成功
   const [rate, setRate] = useState(0);
@@ -313,8 +309,8 @@ export default function WidgetAiRecommend(props) {
         </div>
 
         {status === 2 ? (
-          <div className="w100 recommendControls">
-            <SettingItem className="flexColumn flex">
+          <div className="w100 recommendControls minHeight0">
+            <SettingItem className="flexColumn flex minWidth0">
               <div className="Font17 settingItemTitle">{_l('推荐字段')}</div>
               <div className="flexCenter">
                 <Checkbox
@@ -390,30 +386,13 @@ export default function WidgetAiRecommend(props) {
           </div>
         ) : (
           <div className="searchBox">
-            <span className="searchIcon icon-search1"></span>
+            <span className="searchIcon icon-search"></span>
             <input value={keywords} disabled={isSearching} onChange={e => setKeywords(e.target.value)} />
             <div className={cx('searchBtn btnStyle', { Hidden: isSearching })} onClick={() => handleSearch()}>
               {_l('获取')}
             </div>
           </div>
         )}
-
-        {status === -1 && resultData ? (
-          <div className="w100 recommendControls">
-            <SettingItem className="flexColumn flex">
-              <div className="Font17 settingItemTitle">{_l('AI 建议的字段')}</div>
-              <ScrollView className="flex">
-                <span
-                  dangerouslySetInnerHTML={{
-                    __html: filterXSS(resultData, {
-                      whiteList: whiteList,
-                    }),
-                  }}
-                ></span>
-              </ScrollView>
-            </SettingItem>
-          </div>
-        ) : null}
       </AiWidgetWrap>
     );
   };
@@ -422,7 +401,14 @@ export default function WidgetAiRecommend(props) {
     <Fragment>
       <AiWrap
         onClick={() => {
-          setVisible(true);
+          if (!widgetPanelFixed) {
+            setPanelVisible({ widgetVisible: false });
+            setTimeout(() => {
+              setVisible(true);
+            }, 300);
+          } else {
+            setVisible(true);
+          }
           if (status === 0) {
             setKeywords(worksheetName);
           }
@@ -431,7 +417,17 @@ export default function WidgetAiRecommend(props) {
         <span className="mLeft3 Bold">{_l('AI建议字段')}</span>
         <i className="icon-auto_awesome mLeft3"></i>
       </AiWrap>
-      <DrawerWrap title={null} width={670} visible={visible} placement="left" onClose={() => setVisible(false)}>
+      <DrawerWrap
+        title={null}
+        width={670}
+        visible={visible}
+        mask={false}
+        closeIcon={null}
+        footer={null}
+        placement="left"
+        onClose={() => setVisible(false)}
+        getContainer={() => document.querySelector('.customWidgetContainer')}
+      >
         {renderContent()}
       </DrawerWrap>
     </Fragment>

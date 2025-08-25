@@ -31,12 +31,12 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       title: _l('应用'),
     },
     processMatters: {
-      path: '/mobile/processMatters',
+      path: '/mobile/processMatters/:tab?',
       component: () => import('mobile/Process/ProcessMatters'),
       title: _l('流程待办'),
     },
     processInform: {
-      path: '/mobile/processInform',
+      path: '/mobile/processInform/:tab?',
       component: () => import('mobile/Process/ProcessInform'),
       title: _l('流程通知'),
     },

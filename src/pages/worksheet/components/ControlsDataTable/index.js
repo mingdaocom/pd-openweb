@@ -1,10 +1,11 @@
-import { arrayOf, bool, func, number, shape } from 'prop-types';
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import WorksheetTable from 'worksheet/components/WorksheetTable';
-import { Icon } from 'ming-ui';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, bool, func, number, shape } from 'prop-types';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import WorksheetTable from 'worksheet/components/WorksheetTable';
 
 const ColumnHead = styled.div`
   background-color: #fafafa !important;
@@ -60,7 +61,7 @@ export default function ControlsDataTable(props) {
     canSort,
     wrapControlName,
   } = props;
-  const [{ isAsc, controlId, datatype }, setState] = useSetState({
+  const [{ isAsc, controlId }, setState] = useSetState({
     isAsc: undefined,
     controlId: '',
     datatype: '',
@@ -143,7 +144,7 @@ export default function ControlsDataTable(props) {
           )}
         </ColumnHead>
       )}
-      renderRowHead={({ className, style, rowIndex, row }) => (
+      renderRowHead={({ className, style, rowIndex }) => (
         <RowHead style={style} className={className}>
           {rowIndex >= 0 && <span className="ellipsis"> {lineNumberBegin + rowIndex + 1}</span>}
         </RowHead>

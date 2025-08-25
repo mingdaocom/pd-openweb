@@ -1,8 +1,8 @@
 import React from 'react';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import sheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
-import _ from 'lodash';
 
 export default Component =>
   class WorksheetRecordProvider extends React.Component {

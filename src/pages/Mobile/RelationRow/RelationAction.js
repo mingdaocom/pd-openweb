@@ -1,15 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
-import { Button, Dialog } from 'antd-mobile';
+import { Button } from 'antd-mobile';
 import _ from 'lodash';
 import { Icon, MobileConfirmPopup } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
+import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
+import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobile';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import RegExpValidator from 'src/utils/expression';
@@ -77,7 +76,7 @@ class RelationAction extends Component {
             alert(_l('取消关联失败！'), 2);
           }
         })
-        .catch(err => {
+        .catch(() => {
           alert(_l('取消关联失败！'), 2);
         });
     }
@@ -119,7 +118,7 @@ class RelationAction extends Component {
           alert(_l('添加记录失败！'), 2);
         }
       })
-      .catch(err => {
+      .catch(() => {
         alert(_l('添加记录失败！'), 2);
       });
   }
@@ -160,7 +159,9 @@ class RelationAction extends Component {
           rowid: rowId,
         }),
       };
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
 
     const currentControl = _.find(formData, v => v.controlId === controlId) || {};
 
@@ -169,6 +170,7 @@ class RelationAction extends Component {
         {showRelevanceRecord && (
           <MobileRecordCardListDialog
             multiple
+            isScan={true}
             control={_.find(rowInfo.templateControls, { controlId: controlId })}
             formData={formData}
             visible={showRelevanceRecord}
@@ -269,7 +271,7 @@ class RelationAction extends Component {
   renderEdit() {
     const { actionParams, permissionInfo } = this.props;
     const { showConfirmPopup } = this.state;
-    const { isEdit, selectedRecordIds } = actionParams;
+    const { selectedRecordIds } = actionParams;
     const { isRelevance, isSubList } = permissionInfo;
     return (
       <Fragment>
@@ -309,7 +311,16 @@ class RelationAction extends Component {
     );
   }
   renderContent() {
-    const { relationRows, permissionInfo, relationRow, rowInfo = {}, controlId, base, rulesLocked } = this.props;
+    const {
+      relationRows,
+      permissionInfo,
+      relationRow,
+      rowInfo = {},
+      controlId,
+      base,
+      rulesLocked,
+      isRecordLock,
+    } = this.props;
     const { isCreate, isRelevance, allowRemoveRelation, onlyRelateByScanCode, activeRelateSheetControl, hasEdit } =
       permissionInfo;
     const disabledManualWrite =
@@ -330,7 +341,7 @@ class RelationAction extends Component {
       <Fragment>
         {control.type !== 51 && allowRemoveRelation && hasEdit && !rulesLocked && (
           <Button
-            disabled={!relationRows.length}
+            disabled={!relationRows.length || isRecordLock}
             className="flex mLeft6 mRight6 edit Gray_75 bold Font13 pLeft0 pRight0 TxtCenter"
             onClick={() => {
               this.handleSetEdit(true);
@@ -346,6 +357,7 @@ class RelationAction extends Component {
               <Button
                 color="primary"
                 className="flex mLeft6 mRight6 bold Font13 pLeft0 pRight0 TxtCenter"
+                disabled={isRecordLock}
                 onClick={() => {
                   if (control.type === 51) {
                     this.setState({ showCreateRecord: true });

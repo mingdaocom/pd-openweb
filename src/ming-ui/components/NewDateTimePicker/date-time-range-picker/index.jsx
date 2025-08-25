@@ -1,16 +1,14 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import moment from 'moment';
-
-import './style.less';
-
-import DatePickerBase from '../date-picker-base/index';
-import Time from '../../NewTimePicker/index';
-import LibCalender from '../lib/calender';
-import Checkbox from '../../Checkbox';
-import Button from '../../Button';
-import Dropdown from '../../Dropdown';
 import _ from 'lodash';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import Button from '../../Button';
+import Checkbox from '../../Checkbox';
+import Dropdown from '../../Dropdown';
+import Time from '../../NewTimePicker/index';
+import DatePickerBase from '../date-picker-base/index';
+import LibCalender from '../lib/calender';
+import './style.less';
 
 class DateTimeRangeDoublePicker extends Component {
   constructor(props) {
@@ -651,18 +649,10 @@ DateTimeRangeDoublePicker.defaultProps = {
   value: [new Date(), new Date()],
   min: null,
   max: null,
-  onChange: (event, time) => {
-    //
-  },
-  onOk: time => {
-    //
-  },
-  onClear: () => {
-    //
-  },
-  onSelect: time => {
-    //
-  },
+  onChange: () => {},
+  onOk: () => {},
+  onClear: () => {},
+  onSelect: () => {},
 };
 
 export default DateTimeRangeDoublePicker;

@@ -35,8 +35,8 @@ const Wrap = styled.div`
       height: 36px;
       background: #ffffff;
       border-radius: 18px;
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
       margin: 0 auto;
       line-height: 34px;
     }

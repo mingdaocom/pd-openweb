@@ -1,17 +1,16 @@
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import _ from 'lodash';
+import LoadDiv from 'ming-ui/components/LoadDiv';
 import preall from 'src/common/preall';
-import '../ChatPanel/index.less';
+import { socketInit } from 'src/socket';
 import * as actions from '../../redux/actions';
 import * as utils from '../../utils/';
 import * as ajax from '../../utils/ajax';
-import ChatPanelSession from '../ChatPanelSession';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import { socketInit } from 'src/socket';
+import Constant from '../../utils/constant';
 import * as socket from '../../utils/socket';
 import * as socketEvent from '../../utils/socketEvent';
-import Constant from '../../utils/constant';
+import ChatPanelSession from '../ChatPanelSession';
+import '../ChatPanel/index.less';
 
 let hasMounted = false;
 
@@ -26,7 +25,7 @@ class ChatWindow extends Component {
   componentDidMount() {
     const { session } = this.props;
     const { id, type } = session;
-    
+
     if (hasMounted) return;
     hasMounted = true;
     ajax
@@ -96,9 +95,7 @@ class ChatWindow extends Component {
             <LoadDiv size="middle" />
           </div>
         ) : (
-          currentSessionList.map(item => (
-            <ChatPanelSession session={item} key={item.accountId || item.groupId} />
-          ))
+          currentSessionList.map(item => <ChatPanelSession session={item} key={item.accountId || item.groupId} />)
         )}
       </div>
     );

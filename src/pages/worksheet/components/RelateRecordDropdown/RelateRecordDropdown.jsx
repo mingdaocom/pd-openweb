@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import _, { find, get, uniq } from 'lodash';
 import PropTypes from 'prop-types';
@@ -211,6 +211,7 @@ export default class RelateRecordDropdown extends React.Component {
           const cellData = JSON.parse(titleControl.value);
           defaultRelatedSheetValue.name = cellData[0].name;
         } catch (err) {
+          console.log(err);
           defaultRelatedSheetValue.name = '';
         }
       }
@@ -220,6 +221,7 @@ export default class RelateRecordDropdown extends React.Component {
         value: defaultRelatedSheetValue,
       };
     } catch (err) {
+      console.log(err);
       return;
     }
   }
@@ -254,17 +256,17 @@ export default class RelateRecordDropdown extends React.Component {
 
   handleAdd = (record, cb = () => {}) => {
     const { multiple } = this.props;
-    const { selected, addedIds = [] } = this.state;
+    const { selected } = this.state;
     if (multiple && selected.length >= MAX_COUNT) {
       alert(_l('最多关联%0条', MAX_COUNT), 3);
       return;
     }
     if (!_.find(selected, r => r.rowid === record.rowid)) {
       this.setState(
-        {
-          selected: multiple ? selected.concat(record) : [record],
-          addedIds: addedIds.concat(record.rowid),
-        },
+        oldState => ({
+          selected: multiple ? oldState.selected.concat(record) : [record],
+          addedIds: oldState.addedIds.concat(record.rowid),
+        }),
         () => {
           this.handleChange();
           cb();
@@ -275,7 +277,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   handleClear = () => {
     const { onVisibleChange } = this.props;
-    const { selected, addedIds = [] } = this.state;
+    const { selected } = this.state;
     selected.forEach(this.handleDelete);
     this.setState(
       {
@@ -334,7 +336,7 @@ export default class RelateRecordDropdown extends React.Component {
     } else if (e.key === 'Enter') {
       this.list.current.handleEnter();
     } else if (e.key === 'Backspace') {
-      if (_.get(this, 'inputRef.current.value')) {
+      if (_.get(this, 'inputRef.current.value') || !this.allowRemove) {
         return;
       }
       const needDelete = selected.slice(-1)[0];
@@ -379,8 +381,7 @@ export default class RelateRecordDropdown extends React.Component {
   };
 
   renderSingle() {
-    const { appId, insheet, isediting, isQuickFilter, control, allowOpenRecord, staticRecords, isMobileTable } =
-      this.props;
+    const { insheet, isediting, isQuickFilter, control, allowOpenRecord, staticRecords, isMobileTable } = this.props;
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
     const title = getTitleTextFromRelateControl(this.control, selected[0]);
@@ -453,7 +454,7 @@ export default class RelateRecordDropdown extends React.Component {
       recordId,
     } = this.props;
     const canDrag = get(control, 'advancedSetting.allowdrag') === '1';
-    const { selected, keywords, activeIndex } = this.state;
+    const { selected, keywords } = this.state;
     const { active } = this;
     const length = selected.length;
     return (
@@ -487,7 +488,7 @@ export default class RelateRecordDropdown extends React.Component {
               }
             }}
             renderItem={options => {
-              const { index, dragging, isLayer } = options;
+              const { index } = options;
               const record = options.item;
               const title = getTitleTextFromRelateControl(this.control, record);
               return active || insheet ? (
@@ -564,7 +565,6 @@ export default class RelateRecordDropdown extends React.Component {
   renderPopup({ disabledManualWrite }) {
     const {
       appId,
-      from,
       isSubList,
       isQuickFilter,
       getFilterRowsGetType,
@@ -576,6 +576,7 @@ export default class RelateRecordDropdown extends React.Component {
       prefixRecords,
       staticRecords,
       onVisibleChange,
+      onChange,
     } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
     const {
@@ -592,6 +593,7 @@ export default class RelateRecordDropdown extends React.Component {
     const xOffset = this.isMobile ? 0 : this.getXOffset();
     return (
       <ClickAway
+        onClickAwayExceptions={['.selectRecordsDialog', '.worksheetRelateNewRecordFromSelectRelateRecord']}
         onClickAway={() => {
           if (!newrecordVisible) {
             onVisibleChange(false);
@@ -660,6 +662,17 @@ export default class RelateRecordDropdown extends React.Component {
             isMobile={this.isMobile}
             selectedIds={selected.map(r => r.rowid)}
             onItemClick={this.handleItemClick}
+            onChange={records => {
+              this.setState({ keywords: '' });
+              if (multiple) {
+                records.forEach(record => {
+                  this.handleAdd(_.assign({}, record, { isNewAdd: true }));
+                });
+              } else {
+                onChange(records);
+                onVisibleChange(false);
+              }
+            }}
             onClear={this.handleClear}
             allowNewRecord={this.props.enumDefault2 !== 1 && this.props.enumDefault2 !== 11 && !disableNewRecord}
             onNewRecord={() => {
@@ -668,6 +681,9 @@ export default class RelateRecordDropdown extends React.Component {
                 return;
               }
               this.setState({ newrecordVisible: true, listvisible: false });
+            }}
+            focusInput={() => {
+              this.focusInput();
             }}
           />
         )}
@@ -678,7 +694,6 @@ export default class RelateRecordDropdown extends React.Component {
   renderSelected(free) {
     const {
       isDark,
-      control = {},
       isQuickFilter,
       isediting,
       insheet,
@@ -719,7 +734,7 @@ export default class RelateRecordDropdown extends React.Component {
         )}
         {!disabled && this.allowRemove && (!!selected.length || keywords) && (!insheet || this.active) && (
           <i
-            className="icon icon-closeelement-bg-circle Hand clearIcon"
+            className="icon icon-cancel Hand clearIcon"
             onClick={e => {
               e.stopPropagation();
               if (keywords) {
@@ -752,7 +767,6 @@ export default class RelateRecordDropdown extends React.Component {
       popupClassName,
       disabled,
       dataSource,
-      enumDefault2,
       allowOpenRecord,
       isQuickFilter,
       popupContainer,
@@ -889,11 +903,11 @@ export default class RelateRecordDropdown extends React.Component {
             isRelateRecord={true}
             updateRows={(rowIds = [], updatedRow = {}) => {
               if (rowIds[0]) {
-                this.setState({
-                  selected: selected.map(item =>
+                this.setState(oldState => ({
+                  selected: oldState.selected.map(item =>
                     item.rowid === rowIds[0] ? { ...item, ..._.omit(updatedRow, ['allowdelete', 'allowedit']) } : item,
                   ),
-                });
+                }));
               }
             }}
           />

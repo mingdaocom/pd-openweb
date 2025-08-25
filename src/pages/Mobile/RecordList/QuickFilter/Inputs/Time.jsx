@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { func, shape, string, number } from 'prop-types';
-import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import { Input, TimeZoneTag } from 'ming-ui';
-import moment from 'moment';
 import _ from 'lodash';
+import moment from 'moment';
+import { func, number, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Input, TimeZoneTag } from 'ming-ui';
+import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 
 const InputCon = styled(Input)`
   width: 100%;
@@ -20,7 +19,7 @@ const dealDate = date => {
 };
 
 export default function Time(props) {
-  const { dateRange, minValue, maxValue, appId, onChange = () => {}, control } = props;
+  const { minValue, maxValue, appId, onChange = () => {}, control } = props;
   const [startDateVisible, setStartDateVisible] = useState(false);
   const [endDateVisible, setEndDateVisible] = useState(false);
   const unit = String(control.unit);
@@ -42,9 +41,6 @@ export default function Time(props) {
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
         <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
-        {!!dateRange && dateRange !== 18 && (
-          <div className="selected ellipsis">{_.find(optionDate, { value: dateRange }).text}</div>
-        )}
         <TimeZoneTag
           appId={appId}
           position={{

@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback, Fragment } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, ScrollView, Tooltip, SvgIcon } from 'ming-ui';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
-import OptionColumn from './OptionColumn';
-import { SORT_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import { formatDate } from 'src/pages/integration/config.js';
+import styled from 'styled-components';
+import { Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
 import dataMirrorApi from 'src/pages/integration/api/dw.js';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { formatDate } from 'src/pages/integration/config.js';
+import { SORT_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
+import OptionColumn from './OptionColumn';
 
 const FilterContent = styled.div`
   margin-top: 16px;
@@ -30,11 +30,11 @@ const FilterContent = styled.div`
     cursor: pointer;
 
     &:hover {
-      // color: #2196f3;
+      // color: #1677ff;
       background: #f5f5f5;
     }
     &.isActive {
-      // color: #2196f3;
+      // color: #1677ff;
       background: rgba(33, 150, 243, 0.07);
     }
   }
@@ -54,7 +54,7 @@ const ListBox = styled.div`
       color: #bfbfbf;
       height: 8px;
       &.selected {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -73,7 +73,7 @@ const ListBox = styled.div`
     &:hover {
       background: rgba(247, 247, 247, 1);
       .titleText {
-        color: #2196f3;
+        color: #1677ff;
       }
       .optionIcon {
         background: rgba(247, 247, 247, 1);
@@ -121,7 +121,7 @@ const ListBox = styled.div`
     background: #fff;
 
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       background: #fff !important;
     }
   }
@@ -314,7 +314,7 @@ export default function MirrorList(props) {
       render: item => {
         return (
           <div className="flexRow alignItemsCenter Hand">
-            <Tooltip text={_.get(item, 'dataSourceInfo')}>
+            <Tooltip text={_.get(item, 'dataSourceInfo')} autoCloseDelay={0}>
               <div
                 className="titleIcon Relative"
                 style={{ background: _.get(item, 'dataSourceIcon.iconBgColor') }}
@@ -332,6 +332,7 @@ export default function MirrorList(props) {
             </span>
             {item.errorInfo && (
               <Tooltip
+                autoCloseDelay={0}
                 tooltipStyle={{
                   maxWidth: 350,
                   maxHeight: 300,

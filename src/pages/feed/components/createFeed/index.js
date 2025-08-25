@@ -1,19 +1,19 @@
-﻿import postAjax from 'src/api/post';
-import Emotion from 'src/components/emotion/emotion';
-import './style.css';
-import tpl from './s.html';
-import React from 'react';
+﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
-import UploadFiles from 'src/components/UploadFiles';
-import VoteUpdater from '../voteUpdater/voteUpdater';
-import 'src/components/mentioninput/mentionsInput';
-import LinkView from '../linkView/linkView';
-import createShare from 'src/components/createShare/createShare';
 import doT from 'dot';
-import 'src/components/autoTextarea/autoTextarea';
 import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import postAjax from 'src/api/post';
+import 'src/components/autoTextarea/autoTextarea';
+import createShare from 'src/components/createShare/createShare';
+import Emotion from 'src/components/emotion/emotion';
+import MentionsInput from 'src/components/MentionsInput';
+import UploadFiles from 'src/components/UploadFiles';
+import LinkView from '../linkView/linkView';
+import VoteUpdater from '../voteUpdater/voteUpdater';
+import tpl from './s.html';
+import './style.css';
 
 var langUploadFiles = _l('上传附件');
 var langShareLink = _l('分享网站') + '...';
@@ -163,8 +163,7 @@ export default function (options) {
     // 发布动态
     postUpdater: function (obj) {
       var $mdUpdaterTextareaUpdater = $('#MDUpdater_textarea_Updater');
-
-      $mdUpdaterTextareaUpdater.mentionsInput('val', function (data) {
+      $mdUpdaterTextareaUpdater.get(0).val(data => {
         var postMsg = data;
         if (
           !$.trim(postMsg) ||
@@ -290,7 +289,8 @@ export default function (options) {
               alert(_l('分享成功'));
             }
             $mdUpdaterTextareaUpdater.val('');
-            $mdUpdaterTextareaUpdater.mentionsInput('reset').mentionsInput('clearStore');
+            $mdUpdaterTextareaUpdater.get(0).reset();
+            $mdUpdaterTextareaUpdater.get(0).clearStore();
             MDUpdater.resetUpdater(null, true);
             MDUpdater.renderSelectGroup(MDUpdater.options.selectGroupOptions);
           })
@@ -354,9 +354,10 @@ export default function (options) {
       }
 
       var $mdUpdaterTextareaUpdater = $('#MDUpdater_textarea_Updater');
+      var mdUpdaterTextareaUpdaterEl = $mdUpdaterTextareaUpdater.get(0);
 
       $mdUpdaterTextareaUpdater
-        .focus(function (ev) {
+        .focus(function () {
           var msg = $mdUpdaterTextareaUpdater.val();
           if (
             msg == _l('知会工作是一种美德') + '...' ||
@@ -369,7 +370,7 @@ export default function (options) {
           $mdUpdaterTextareaUpdater.removeClass('Gray_a');
         })
         .blur(function () {
-          $mdUpdaterTextareaUpdater.mentionsInput('store');
+          mdUpdaterTextareaUpdaterEl.store();
           if (!$.trim($(this).val())) {
             $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
           }
@@ -379,24 +380,27 @@ export default function (options) {
           minHeight: 72,
         });
 
-      $mdUpdaterTextareaUpdater.mentionsInput({
+      MentionsInput({
+        input: mdUpdaterTextareaUpdaterEl,
         submitBtn: 'MDUpdater_button_Share',
         showCategory: true,
         cacheKey: 'updatertext',
         reset: false,
-      });
-      if (!MDUpdater.options.postMsg) {
-        $mdUpdaterTextareaUpdater.mentionsInput('restore', function (success) {
-          if (success) {
-            $mdUpdaterTextareaUpdater.removeClass('Gray_a');
-            $('#myupdaterOP').show();
-          } else {
-            if (!MDUpdater.options.postMsg) {
-              $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
-            }
+        initCallback: () => {
+          if (!MDUpdater.options.postMsg) {
+            mdUpdaterTextareaUpdaterEl.restore(success => {
+              if (success) {
+                $mdUpdaterTextareaUpdater.removeClass('Gray_a');
+                $('#myupdaterOP').show();
+              } else {
+                if (!MDUpdater.options.postMsg) {
+                  $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+                }
+              }
+            });
           }
-        });
-      }
+        },
+      });
 
       if (_.includes(MDUpdater.options.showType, 'post')) {
         // 右上角关闭

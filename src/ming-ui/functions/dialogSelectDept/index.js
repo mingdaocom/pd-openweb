@@ -57,7 +57,7 @@ class DialogSelectDept extends React.Component {
     if (!_.includes(['ArrowUp', 'ArrowDown', 'Enter'], e.key)) {
       return;
     }
-    const { activeIds, activeIndex, list } = this.state;
+    const { activeIndex, list } = this.state;
     e.stopPropagation();
     e.preventDefault();
     if (e.key === 'Enter') {
@@ -137,7 +137,7 @@ class DialogSelectDept extends React.Component {
           )
         : null,
     );
-    onClose();
+    onClose(true);
   }
 
   async hasUser() {
@@ -239,9 +239,8 @@ class DialogSelectDept extends React.Component {
     ](param)
       .then(data => {
         let showProjectAll = true;
-        if (isAnalysis || departrangetype !== '0') {
-          data = data;
-        } else if (!isAdmin) {
+
+        if (!isAdmin) {
           showProjectAll = !data.item1;
           data = data.item2;
         }
@@ -274,7 +273,7 @@ class DialogSelectDept extends React.Component {
           ...states,
         });
       })
-      .catch(error => {
+      .catch(() => {
         this.setState({
           loading: false,
           rootLoading: false,
@@ -484,7 +483,7 @@ class DialogSelectDept extends React.Component {
     this.search();
   }
 
-  clearKeywords(evt) {
+  clearKeywords() {
     this.setState({ keywords: '' });
   }
 
@@ -601,7 +600,7 @@ class DialogSelectDept extends React.Component {
                 value={this.state.keywords}
                 onChange={this.handleChange.bind(this)}
               />
-              <span className="searchClose icon-closeelement-bg-circle" onClick={this.clearKeywords.bind(this)} />
+              <span className="searchClose icon-cancel" onClick={this.clearKeywords.bind(this)} />
             </div>
             {this.props.showCurrentUserDept && (
               <div
@@ -694,6 +693,7 @@ export default function (opts) {
     unique: true,
     includeProject: false,
     checkIncludeChilren: false,
+    showCreateBtn: false,
     allProject: false,
     fetchCount: false,
     departrangetype: '0',

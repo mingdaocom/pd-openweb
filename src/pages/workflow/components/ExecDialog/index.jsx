@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { bool, func, string } from 'prop-types';
-import { Icon } from 'ming-ui';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { Icon, ScrollView } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import instance from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';
@@ -20,6 +19,7 @@ const WorkflowHistory = props => {
   return (
     <div className="flexColumn h100">
       <StepHeader
+        appId={props.data.app.id}
         processId={props.data.processId}
         instanceId={props.instanceId}
         processName={props.data.processName}
@@ -104,13 +104,26 @@ export default class ExecDialog extends Component {
         }
         this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status], nodeLoading: false });
       } else {
-        const { app } = rest;
+        const { app, flowNode } = rest;
         app.name = getTranslateInfo(app.id, null, app.id).name || app.name;
+        flowNode.name = getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name;
+        rest.processName = getTranslateInfo(app.id, null, rest.parentId).name || rest.processName;
+
         this.setState({
           data: Object.assign({}, rest, { status }),
           currentWork,
           currentWorkItem,
-          works,
+          works: works.map(work => {
+            const { flowNode, explain, explainMap } = work;
+            return {
+              ...work,
+              explain: explainMap ? explainMap[md.global.Account.lang] || explain : explain,
+              flowNode: {
+                ...flowNode,
+                name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
+              },
+            };
+          }),
           projectId: companyId,
           nodeLoading: false,
         });
@@ -122,7 +135,7 @@ export default class ExecDialog extends Component {
     });
   };
   getPermit = () => {
-    const { id, workId, onError } = this.props;
+    const { id, workId, onError, onClose } = this.props;
 
     worksheetAjax
       .getWorkItem({
@@ -146,7 +159,7 @@ export default class ExecDialog extends Component {
           addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
         });
       })
-      .catch(res => {
+      .catch(() => {
         onError();
       });
   };
@@ -209,7 +222,7 @@ export default class ExecDialog extends Component {
         recordId={rowId}
         worksheetId={worksheetId}
         recordTitle={data.recordTitle ? data.title.replace(/(<([^>]+)>)/gi, '') : ''}
-        renderHeader={({ resultCode, isLoading, onRefresh }) => {
+        renderHeader={({ resultCode, isLoading, onRefresh, isRecordLock }) => {
           return (
             <Header
               projectId={projectId}
@@ -221,7 +234,7 @@ export default class ExecDialog extends Component {
               viewId={viewId}
               rowId={rowId}
               worksheetId={worksheetId}
-              noAuth={resultCode === 7}
+              noAuth={resultCode === 7 || isRecordLock}
               instanceId={id}
               isLoading={isLoading}
               onRefresh={() => {

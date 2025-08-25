@@ -1,25 +1,25 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
-import { NODE_TYPE_LIST, ACTION_LIST, JOIN_TYPE, UNION_TYPE_LIST } from '../config';
-import CellEdit from './CellEdit';
-import TaskFlow from 'src/pages/integration/api/taskFlow.js';
-import SourceDest from './SourceDest';
-import Union from './Union';
-import Join from './Join';
-import Filter from './Filter';
-import Aggregate from './Aggregate';
-import AddSourceOrDest from '../components/AddSourceOrDest';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import TaskFlow from 'src/pages/integration/api/taskFlow.js';
+import CellControl from 'worksheet/components/CellControls';
+import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import EditFeildsName from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/EditFeildsName';
-import 'src/pages/integration/svgIcon.js';
-import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import sheetAjax from 'src/api/worksheet';
-import CellControl from 'worksheet/components/CellControls';
-import 'src/pages/worksheet/components/CellControls/CellControls.less';
 import { formatControls, getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+import 'src/pages/integration/svgIcon.js';
+import 'src/pages/worksheet/components/CellControls/CellControls.less';
+import AddSourceOrDest from '../components/AddSourceOrDest';
+import { ACTION_LIST, JOIN_TYPE, NODE_TYPE_LIST, UNION_TYPE_LIST } from '../config';
+import Aggregate from './Aggregate';
+import CellEdit from './CellEdit';
+import Filter from './Filter';
+import Join from './Join';
+import SourceDest from './SourceDest';
+import Union from './Union';
 
 const Wrap = styled.div`
   height: 100%;
@@ -101,17 +101,17 @@ const WrapR = styled.div`
     .icon {
       color: #9e9e9e;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
   .editControl {
     padding: 6px 16px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 4px;
     color: #ffffff;
     font-weight: 400;
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
     .icon,
     .icon:hover {
       color: #fff;
@@ -130,11 +130,11 @@ const WrapR = styled.div`
     padding: 6px 16px;
     background: #fff;
     border-radius: 4px;
-    border: 1px solid #2196f3;
-    color: #2196f3;
+    border: 1px solid #1677ff;
+    color: #1677ff;
     font-weight: 400;
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
     &.disable {
       border: 1px solid #bdbdbd;
@@ -194,7 +194,7 @@ export default class EditorCon extends Component {
       loading: false,
     };
   }
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.node, nextProps.node)) {
       this.setState(
         {
@@ -212,7 +212,7 @@ export default class EditorCon extends Component {
   }
 
   isShowMDCell = () => {
-    const { node, list } = this.props;
+    const { node } = this.props;
     // const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
     //源节点 且是工作表
     return (
@@ -227,7 +227,7 @@ export default class EditorCon extends Component {
   };
   //预览节点数据 每次需要手动预览数据
   getNodeDataPreview = () => {
-    const { currentProjectId: projectId, flowId, node, list } = this.props;
+    const { currentProjectId: projectId, flowId, node } = this.props;
     const { nodeId } = node;
     this.setState({ loading: true });
     if (this.isShowMDCell()) {
@@ -432,7 +432,7 @@ export default class EditorCon extends Component {
           let items = _.get(node, ['nodeConfig', 'config', 'items']) || [];
           let data = [];
           (items || []).map(o => {
-            if (!!o.isGroup) {
+            if (o.isGroup) {
               data = [...data, ...o.groupFilters];
             } else {
               data = [...data, o];
@@ -488,8 +488,9 @@ export default class EditorCon extends Component {
                   <Tooltip
                     text={_l('由于预览数据基于流式实时传输，显示的数据可能与实际入库的数据部分不一致，仅供参考')}
                     popupPlacement="top"
+                    autoCloseDelay={0}
                   >
-                    <Icon icon="info1" className="Gray_bd mLeft5 Font18" />
+                    <Icon icon="info" className="Gray_bd mLeft5 Font18" />
                   </Tooltip>
                 )}
               </span>

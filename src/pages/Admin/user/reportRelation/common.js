@@ -1,7 +1,7 @@
-import structureController from 'src/api/structure';
-import projectSettingController from 'src/api/projectSetting';
-import Config from '../../config';
 import { dialogSelectUser } from 'ming-ui/functions';
+import projectSettingController from 'src/api/projectSetting';
+import structureController from 'src/api/structure';
+import Config from '../../config';
 
 export function setStructureForAll(params) {
   return projectSettingController
@@ -37,10 +37,11 @@ export function setStructureSelfEdit(params) {
     );
 }
 
-export function selectUser({ title, accountId, unique, isSetParent, callback }) {
+export function selectUser({ accountId, unique, isSetParent, callback }) {
   dialogSelectUser({
     fromAdmin: true,
     SelectUserSettings: {
+      projectId: Config.projectId,
       filterAll: true,
       filterFriend: true,
       filterOthers: true,

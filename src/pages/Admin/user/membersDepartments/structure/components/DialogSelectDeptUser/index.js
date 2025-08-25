@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Dialog, ScrollView, LoadDiv } from 'ming-ui';
+import _ from 'lodash';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import Checkbox from 'ming-ui/components/Checkbox';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import departmentController from 'src/api/department';
 import './index.less';
-import _ from 'lodash';
 
 export default class SelectDeptUser extends Component {
   constructor(props) {
@@ -82,7 +82,7 @@ export default class SelectDeptUser extends Component {
 
     return (
       <Dialog title={_l('设置部门负责人')} visible={visible} onCancel={onCancel} onOk={this.onOk}>
-        <div className="selectDepartmentUserContainer">
+        <div className="selectDepartmentUserContainer overflowHidden">
           <div className="selectDepartmentUserContainer_search">
             <span className="searchIcon icon-search"></span>
             <input
@@ -92,11 +92,11 @@ export default class SelectDeptUser extends Component {
               onChange={e =>
                 this.setState(
                   { keywords: e.target.value, pageIndex: 1 },
-                  _.debounce(e => this.getData(), 500),
+                  _.debounce(() => this.getData(), 500),
                 )
               }
             />
-            <span className="searchClose icon-closeelement-bg-circle"></span>
+            <span className="searchClose icon-cancel"></span>
           </div>
           {!loading && _.isEmpty(dataList) ? (
             <div className="selectDepartmentUserContent emptyUserWrap flexColumn justifyContentCenter alignItemsCenter">
@@ -107,7 +107,7 @@ export default class SelectDeptUser extends Component {
             </div>
           ) : (
             <div className="selectDepartmentUserContent">
-              <ScrollView onScrollEnd={this.onScrollEnd}>
+              <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
                 {dataList.map(item => {
                   const { accountId, avatar, fullname, job } = item;
                   return (

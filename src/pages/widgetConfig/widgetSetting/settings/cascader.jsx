@@ -1,13 +1,13 @@
-import React, { useEffect, Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { RadioGroup } from 'ming-ui';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { RadioGroup } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import SelectDataSource from '../components/SelectDataSource';
 import RelateDetailInfo from '../components/RelateDetailInfo';
-import _ from 'lodash';
+import SelectDataSource from '../components/SelectDataSource';
 
 export const MENU_STYLE = [
   {
@@ -41,7 +41,7 @@ const DataSourceWrap = styled.div`
         color: #151515;
       }
       .viewName {
-        color: #2196f3;
+        color: #1677ff;
         max-width: 200px;
         margin-left: 6px;
         margin-top: -2px;
@@ -65,10 +65,9 @@ const DataSourceWrap = styled.div`
 `;
 export default function Cascader(props) {
   const { data, globalSheetInfo, onChange, deleteWidget } = props;
-  const { projectId, appId: currentAppId, groupId } = globalSheetInfo;
-  const { advancedSetting = {}, appId = currentAppId, controlId, sourceControlId, dataSource, viewId } = data;
-  const { showtype = '3', filters } = getAdvanceSetting(data);
-  const [filterVisible, setFilterVisible] = useState(false);
+  const { appId: currentAppId, groupId } = globalSheetInfo;
+  const { appId = currentAppId, controlId, dataSource, viewId } = data;
+  const { showtype = '3' } = getAdvanceSetting(data);
   const [{ sheetInfo, viewInfo, hasError }, setInfo] = useSetState({
     sheetInfo: {},
     viewInfo: {},

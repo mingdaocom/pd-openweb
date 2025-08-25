@@ -280,7 +280,7 @@ export default class WorkPlace extends Component {
                       className="iconText mLeft24 adminHoverDeleteColor"
                       onClick={this.deleteSite.bind(this, selectedRowKeys)}
                     >
-                      <span className="icon icon-delete2"></span>
+                      <span className="icon icon-trash"></span>
                       <span>{_l('删除')}</span>
                     </div>
                   </div>
@@ -309,7 +309,7 @@ export default class WorkPlace extends Component {
                 />
                 {keywords && (
                   <span
-                    className="Font14 icon-closeelement-bg-circle Gray_c Hand Absolute"
+                    className="Font14 icon-cancel Gray_c Hand Absolute"
                     style={{
                       top: '8px',
                       right: '8px',

@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, Linkify, Textarea } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project.js';
 import { getIsScanQR } from '../../components/ScanQRCode';
 import TextScanQRCode from '../../components/TextScanQRCode';
 import TextMarkdown from './TextMarkdown';
@@ -163,7 +165,7 @@ export default class Widgets extends Component {
    * 多行文本进入编辑
    */
   joinTextareaEdit = evt => {
-    const { disabled, advancedSetting, value } = this.props;
+    const { disabled, advancedSetting } = this.props;
     const href = evt.target.getAttribute('href');
 
     // 复制中的时候不进入编辑
@@ -258,7 +260,13 @@ export default class Widgets extends Component {
               className={cx('WordBreak', { maskHoverTheme: disabled && this.isMask })}
               style={isMobile ? { wordWrap: 'break-word' } : {}}
               onClick={() => {
-                if (disabled && this.isMask) this.setState({ maskStatus: false });
+                if (disabled && this.isMask) {
+                  addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+                    rowId: this.props.recordId,
+                    controlId: this.props.controlId,
+                  });
+                  this.setState({ maskStatus: false });
+                }
               }}
             >
               {this.getShowValue(hint)}

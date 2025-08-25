@@ -1,25 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useDrop, useDrag } from 'react-dnd-latest';
-import update from 'immutability-helper';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDrag, useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
-import _, { includes, head, some, pick, get, last, isEmpty, find, flatten } from 'lodash';
-import { DRAG_ITEMS, WHOLE_SIZE, DRAG_MODE, DRAG_DISTANCE, DRAG_ACCEPT } from '../config/Drag';
+import update from 'immutability-helper';
+import _, { find, flatten, get, head, includes, last, pick, some } from 'lodash';
+import styled from 'styled-components';
+import { SUPPORT_RELATE_SEARCH } from '../config';
+import { DRAG_ACCEPT, DRAG_DISTANCE, DRAG_ITEMS, DRAG_MODE, WHOLE_SIZE } from '../config/Drag';
 import {
-  resetWidgets,
+  genWidgetRowAndCol,
   getDefaultSizeByData,
+  isTabSheetList,
   notInsetSectionTab,
   putControlByOrder,
-  genWidgetRowAndCol,
-  isTabSheetList,
+  resetWidgets,
 } from '../util';
-import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem, batchRemoveItems } from '../util/drag';
-import { getPathById, isFullLineControl } from '../util/widgets';
+import { batchCopyWidgets, batchShiftWidgets, deleteSection, handleAddWidgets } from '../util/data';
+import { batchRemoveItems, insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
 import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
-import { batchCopyWidgets, deleteSection, batchShiftWidgets, handleAddWidgets } from '../util/data';
+import { getPathById, isFullLineControl } from '../util/widgets';
 import WidgetOperation from './components/WidgetOperation';
 import WidgetDisplay from './widgetDisplay';
-import { SUPPORT_RELATE_SEARCH } from '../config';
 
 const DisplayItemWrap = styled.div`
   align-self: stretch;
@@ -58,7 +58,7 @@ const DisplayItemWrap = styled.div`
   .verticalDragDir {
     position: absolute;
     height: 4px;
-    background: #2196f3;
+    background: #1677ff;
   }
   .drag-top,
   .drag-view_top {
@@ -72,7 +72,7 @@ const DisplayItemWrap = styled.div`
     top: 0;
     width: 4px;
     height: 100%;
-    background: #2196f3;
+    background: #1677ff;
   }
   .drag-left {
     left: -2px;
@@ -105,6 +105,9 @@ export default function DisplayItem(props) {
     setStyleInfo = () => {},
     batchDrag,
     setBatchDrag = () => {},
+    settingPanelFixed,
+    settingPanelVisible,
+    setPanelVisible = () => {},
     styleInfo = {},
   } = props;
   const { type, controlId, dataSource, sourceControlId } = data;
@@ -239,7 +242,7 @@ export default function DisplayItem(props) {
       let nextLocation = '';
 
       const $contentWrap = document.getElementById('widgetDisplayWrap');
-      const $scrollWrap = $contentWrap && $contentWrap.querySelector('.nano-content');
+      const $scrollWrap = $contentWrap && $contentWrap.querySelector('.scroll-viewport');
 
       if ($scrollWrap) {
         if (clientY <= 60) {
@@ -289,7 +292,7 @@ export default function DisplayItem(props) {
         }
       }
     },
-    drop(item, monitor) {
+    drop() {
       if (!location) return;
       const sectionId = type === 52 && !_.includes(['view_top'], location) ? controlId : data.sectionId || '';
 
@@ -372,7 +375,7 @@ export default function DisplayItem(props) {
                 : ''
               : get(widgets, [row, col + 1]);
         }
-        setActiveWidget(nextActiveWidget);
+        settingPanelFixed && setActiveWidget(nextActiveWidget);
       }
 
       // 如果当前行只有一个控件 直接删掉当前行
@@ -441,6 +444,7 @@ export default function DisplayItem(props) {
     if (mode === 'batch') {
       // 批量操作连选暂不支持选标签页本身
       if (data.type === 52) return;
+      !settingPanelVisible && setPanelVisible({ settingVisible: true });
       if (batchActive.length > 0) {
         // 区域连选
         if (option.shiftKey) {

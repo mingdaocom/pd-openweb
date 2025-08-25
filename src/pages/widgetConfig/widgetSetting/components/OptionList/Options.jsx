@@ -3,6 +3,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { every } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { ColorPicker, SortableList, Tooltip } from 'ming-ui';
@@ -43,14 +44,14 @@ const HandleOption = styled.div`
     color: #757575;
     cursor: pointer;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 
   .addOptions {
     display: flex;
     align-items: center;
-    color: #2196f3;
+    color: #1677ff;
     cursor: pointer;
     &:hover {
       color: #2b65c4;
@@ -102,7 +103,7 @@ const DragItem = styled.div`
     flex: 1;
     align-items: center;
     border-bottom: 1px solid #f0f0f0;
-    border-color: ${props => (props.isFocus ? '#2196f3' : '#f0f0f0')};
+    border-color: ${props => (props.isFocus ? '#1677ff' : '#f0f0f0')};
   }
 
   .checkWrap {
@@ -169,7 +170,7 @@ function OptionItem({
       return false;
     }
     const exitsOptions = options.filter(o => o.key !== key && o.value === value);
-    if (!!exitsOptions.length) {
+    if (exitsOptions.length) {
       alert(_l('不得与已有选项（包括回收站）重复'), 3);
       return false;
     }
@@ -198,7 +199,7 @@ function OptionItem({
             )}
             <div
               className={cx('optionName', { repeatError: !!noDelRepeat.length })}
-              {...(!!noDelRepeat.length ? { 'data-tip': _l('选项重复') } : {})}
+              {...(noDelRepeat.length ? { 'data-tip': _l('选项重复') } : {})}
             >
               <input
                 id={key}
@@ -250,18 +251,7 @@ function OptionItem({
 }
 
 export default function SelectOptions(props) {
-  const {
-    mode = 'add',
-    onChange,
-    options,
-    isMulti,
-    data = {},
-    showAssign = false,
-    fromPortal,
-    enableScore,
-    className,
-    isDialog,
-  } = props;
+  const { onChange, options, data = {}, showAssign = false, fromPortal, enableScore, className, isDialog } = props;
   const [focusIndex, setIndex] = useState(-1);
   const { showtype } = getAdvanceSetting(data);
   const [isDrag, setIsDrag] = useState(false);

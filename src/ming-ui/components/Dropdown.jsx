@@ -1,45 +1,15 @@
-﻿/* eslint-disable */
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import Icon from './Icon';
 import LoadDiv from './LoadDiv';
-// eslint-disable-line
 import Menu from './Menu';
 import MenuItem from './MenuItem';
 import './less/Dropdown.less';
 
-const builtinPlacements = {
-  left: {
-    points: ['cr', 'cl'],
-  },
-  right: {
-    points: ['cl', 'cr'],
-  },
-  top: {
-    points: ['bc', 'tc'],
-  },
-  bottom: {
-    points: ['tc', 'bc'],
-  },
-  topLeft: {
-    points: ['bl', 'tl'],
-  },
-  topRight: {
-    points: ['br', 'tr'],
-  },
-  bottomRight: {
-    points: ['tr', 'br'],
-  },
-  bottomLeft: {
-    points: ['tl', 'bl'],
-  },
-};
-
 class Dropdown extends Component {
-  /* eslint-disable */
   static propTypes = {
     /**
      * 未选择时的默认提示
@@ -189,7 +159,7 @@ class Dropdown extends Component {
     renderItem: PropTypes.func,
     onSearch: PropTypes.func, // 搜索
   };
-  /* eslint-enable */
+
   static defaultProps = {
     noData: _l('无数据'),
     placeholder: _l('请选择'),
@@ -220,7 +190,6 @@ class Dropdown extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.value !== this.props.value) {
-      // eslint-disable-line eqeqeq
       this.setState({
         value: nextProps.value,
       });
@@ -229,13 +198,12 @@ class Dropdown extends Component {
       this.setState({ showMenu: nextProps.popupVisible });
     }
   }
-  /* eslint-disable */
+
   getTextFromDataById(data, value) {
     let text = this.props.placeholder;
     const getTextFromList = list => {
       list.forEach(item => {
         if (item.value != undefined && item.value === value) {
-          // eslint-disable-line eqeqeq
           text = item.text;
           return false;
         } else if (item.children) {
@@ -248,9 +216,8 @@ class Dropdown extends Component {
     getTextFromList(data);
     return text;
   }
-  /* eslint-enable */
+
   handleClick() {
-    // Dropdown disabled
     if (this.props.disabled) {
       return;
     } else {
@@ -276,7 +243,6 @@ class Dropdown extends Component {
       return;
     }
     if (this.props.value == undefined && !this.props.noChangeValue) {
-      // eslint-disable-line eqeqeq
       this.setState({
         value: item.value,
       });
@@ -484,7 +450,7 @@ class Dropdown extends Component {
           renderPointer()
         ) : (
           <React.Fragment>
-            {value != undefined ? ( // eslint-disable-line eqeqeq
+            {value != undefined ? (
               <span
                 className={cx('value', {
                   ThemeHoverColor3: this.props.hoverTheme,
@@ -506,7 +472,7 @@ class Dropdown extends Component {
             {cancelAble && value != undefined ? (
               <Fragment>
                 <Icon
-                  icon="cancel1"
+                  icon="cancel"
                   className="Gray_9e mLeft8 clearIcon"
                   onClick={e => {
                     e.stopPropagation();
@@ -538,7 +504,7 @@ class Dropdown extends Component {
   };
 
   render() {
-    const { isAppendToBody, className, menuClass, disabled, style, onVisibleChange, points, offset } = this.props;
+    const { isAppendToBody, className, menuClass, disabled, style, points, offset } = this.props;
     return (
       <div className={`ming Dropdown pointer ${className || ''} ${disabled ? 'disabled' : ''}`} style={style}>
         {isAppendToBody ? (

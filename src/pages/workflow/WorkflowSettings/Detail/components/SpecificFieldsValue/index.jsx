@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import moment from 'moment';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
+import { handleGlobalVariableName } from '../../../utils';
 import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
-import moment from 'moment';
-import { handleGlobalVariableName } from '../../../utils';
 
 export default class SpecificFieldsValue extends Component {
   constructor(props) {

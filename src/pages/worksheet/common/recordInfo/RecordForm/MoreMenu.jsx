@@ -21,9 +21,11 @@ export default function MoreMenu(props) {
     hideFav,
     isDraft,
     printCharge,
+    isRecordLock,
+    updateRecordLock,
   } = props;
   const { from, isCharge, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
-  const { allowDelete, formData, projectId, allowAdd, rowData } = recordinfo;
+  const { allowDelete, formData, projectId, allowAdd, roleType } = recordinfo;
 
   return (
     <RecordOperate
@@ -31,8 +33,9 @@ export default function MoreMenu(props) {
       from={from}
       hideFav={hideFav}
       showDeleteHr={false}
-      shows={['share', 'share', 'print', 'copy', 'copyId', 'editform', 'recreate', 'openinnew', 'fav']}
+      shows={['share', 'share', 'print', 'copy', 'copyId', 'editform', 'recreate', 'openinnew', 'fav', 'lock']}
       isCharge={isCharge}
+      isAdmin={roleType === 2}
       allowDelete={allowDelete}
       allowCopy={allowAdd && recordinfo.allowEdit}
       allowRecreate={allowAdd}
@@ -55,6 +58,8 @@ export default function MoreMenu(props) {
       hideRecordInfo={hideRecordInfo}
       isDraft={isDraft}
       printBtnType={2}
+      isRecordLock={isRecordLock}
+      updateRecordLock={updateRecordLock}
       onRecreate={() => {
         handleRowData({
           rowId: recordId,
@@ -80,7 +85,7 @@ export default function MoreMenu(props) {
       }}
     >
       <IconBtn className="moreBtn Hand Font22 mLeft10">
-        <Icon icon="task-point-more" className="ThemeHoverColor3" />
+        <Icon icon="more_horiz" className="ThemeHoverColor3" />
       </IconBtn>
     </RecordOperate>
   );

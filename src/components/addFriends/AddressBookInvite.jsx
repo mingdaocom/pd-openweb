@@ -91,7 +91,7 @@ export default class AddressBookInvite extends Component {
           <div className="addBox Gray_9e">
             {showInviteRules && (
               <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
-                <Icon icon="settings1" />
+                <Icon icon="settings" />
                 {_l('邀请设置')}
               </span>
             )}

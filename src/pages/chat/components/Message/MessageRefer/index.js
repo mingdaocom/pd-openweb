@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import Constant from '../../../utils/constant';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import kc from 'src/api/kc';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import Constant from '../../../utils/constant';
 import './index.less';
 
 export default class MessageRefer extends Component {

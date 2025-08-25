@@ -192,7 +192,7 @@ const AppSectionItem = props => {
         <hr className="splitter" />
         <MenuItem
           data-event="delGroup"
-          icon={<Icon icon="delete2" className="Font16" />}
+          icon={<Icon icon="trash" className="Font16" />}
           className="delete"
           onClick={() => {
             if (appSectionDetail.length === 1 || _.isEmpty(item.items)) {
@@ -453,13 +453,12 @@ const LeftAppGroup = props => {
     });
     if (sectionRes.length === 1) {
       updateALLSheetList(sectionRes.map(data => Object.assign({}, data, { workSheetName: '' })));
-      homeAppApi
-        .updateAppSectionName({
-          appId: ids.appId,
-          appSectionId: workSheetId,
-          name: '',
-        })
-        .then(data => {});
+      homeAppApi.updateAppSectionName({
+        appId: ids.appId,
+        appSectionId: workSheetId,
+        name: '',
+      });
+
       return;
     }
     const { items = [] } = _.find(sectionRes, { workSheetId });
@@ -502,8 +501,8 @@ const LeftAppGroup = props => {
 
   return (
     <React.Fragment>
-      <div className="LeftAppGroupWrap flex w100 flexColumn Relative">
-        {loading ? (
+      <div className="LeftAppGroupWrap flex w100 flexColumn Relative minHeight0">
+        {loading || _.isEmpty(appPkg.id) ? (
           <Skeleton className="w100 h100" active={true} />
         ) : (
           <Fragment>
@@ -536,7 +535,7 @@ const LeftAppGroup = props => {
         <div className="mBottom2 pLeft12 pRight12 w100">
           <RoleSelectWrap
             className={cx('pLeft16 pRight12 valignWrapper roleSelectCon Hand', { active: roleDebugVisible })}
-            onClick={e => showRoleDebug()}
+            onClick={() => showRoleDebug()}
             borderColor={getBorderColor()}
           >
             <span className="overflow_ellipsis flex bold valignWrapper LineHeight20">
@@ -551,7 +550,7 @@ const LeftAppGroup = props => {
             </span>
             <Tooltip disable={!roleSelectValue.length} placement="bottom" text={_l('清空调试')}>
               <Icon
-                icon={!!roleSelectValue.length ? 'cancel' : 'expand_more'}
+                icon={roleSelectValue.length ? 'cancel' : 'expand_more'}
                 className="Font16 roleSelectIcon"
                 onClick={e => {
                   !!roleSelectValue.length && e.stopPropagation();

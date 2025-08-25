@@ -15,7 +15,9 @@ const taskConfig = (state = config.defaultState, action) => {
     case 'UPDATE_TASK_STATUS':
       return Object.assign({}, state, { listStatus: action.listStatus });
     case 'UPDATE_FOLDER_RANGE':
-      return Object.assign({}, state, { filterSettings: Object.assign({}, state.filterSettings, { folderSearchRange: action.folderSearchRange }) });
+      return Object.assign({}, state, {
+        filterSettings: Object.assign({}, state.filterSettings, { folderSearchRange: action.folderSearchRange }),
+      });
     case 'UPDATE_FOLDER_KEYWORDS':
       return Object.assign({}, state, { searchKeyWords: action.searchKeyWords });
     case 'UPDATE_COMPLETE_TIME':
@@ -25,11 +27,17 @@ const taskConfig = (state = config.defaultState, action) => {
     case 'UPDATE_TASK_ASCRIPTION':
       return Object.assign({}, state, { taskFilter: action.taskFilter });
     case 'UPDATE_TASK_TAGS':
-      return Object.assign({}, state, { filterSettings: Object.assign({}, state.filterSettings, { tags: action.tags }) });
+      return Object.assign({}, state, {
+        filterSettings: Object.assign({}, state.filterSettings, { tags: action.tags }),
+      });
     case 'UPDATE_CUSTOM_FILTER':
-      return Object.assign({}, state, { filterSettings: Object.assign({}, state.filterSettings, { customFilter: action.customFilter }) });
+      return Object.assign({}, state, {
+        filterSettings: Object.assign({}, state.filterSettings, { customFilter: action.customFilter }),
+      });
     case 'UPDATE_CHARGE_IDS':
-      return Object.assign({}, state, { filterSettings: Object.assign({}, state.filterSettings, { selectChargeIds: action.selectChargeIds }) });
+      return Object.assign({}, state, {
+        filterSettings: Object.assign({}, state.filterSettings, { selectChargeIds: action.selectChargeIds }),
+      });
     default:
       return state;
   }

@@ -1,14 +1,15 @@
-import _ from 'lodash';
-import React, { createRef, useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import CustomFields from 'src/components/newCustomFields';
-import { Icon, Dropdown } from 'ming-ui';
 import cx from 'classnames';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import RefreshTime from 'src/pages/worksheet/common/ViewConfig/components/RefreshTime.jsx';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dropdown, Icon } from 'ming-ui';
+import CustomFields from 'src/components/newCustomFields';
 import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils.js';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import RefreshTime from 'src/pages/worksheet/common/ViewConfig/components/RefreshTime.jsx';
+import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
+
 const Wrap = styled.div`
   .emptyCon {
     width: 130px;
@@ -72,9 +73,7 @@ const Wrap = styled.div`
   }
 `;
 
-const CustomControlDrop = props => {
-  let { value, advancedSetting = {}, controls = [], worksheetControls = [] } = props;
-  const { max } = advancedSetting;
+const getAllTypes = (controls = []) => {
   let allTypes = [];
   controls.map(o => {
     switch (o) {
@@ -99,79 +98,123 @@ const CustomControlDrop = props => {
         break;
     }
   });
+  return allTypes;
+};
+const ColumnDrop = props => {
+  let { value, advancedSetting = {}, controls = [], worksheetControls = [] } = props;
+  const { max } = advancedSetting;
+  const allTypes = getAllTypes(controls);
   const allColumns = worksheetControls.filter(o => allTypes.includes(o.type));
+
+  return (
+    <div className="">
+      <SortColumns
+        //关联表的设置 可拖拽排序
+        sortAutoChange
+        isShowColumns
+        noempty={false} //不需要至少显示一列
+        controlsSorts={value}
+        showControls={value}
+        columns={allColumns}
+        empty={<div className="Gray_9e">{_l('请选择')}</div>}
+        placeholder={_l('搜索')}
+        onChange={({ newControlSorts, newShowControls }) => {
+          let data = [];
+          newControlSorts.map(it => {
+            data = data.concat(allColumns.find(o => it === o.controlId));
+          });
+          let showControls = max ? newShowControls.slice(0, max) : newShowControls;
+          data = data.filter(o => showControls.includes(o.controlId));
+          props.onChange(data.map(o => o.controlId));
+          if (max && newShowControls.length > max) {
+            alert(_l('显示字段最多只能设置%0个', max), 3);
+          }
+        }}
+      />
+    </div>
+  );
+};
+
+const CustomControlDrop = props => {
+  let { value, worksheetControls = [] } = props;
+
   //多选
   if (_.get(props, 'advancedSetting.allowitem') === '1') {
-    return (
-      <div className="">
-        <SortColumns
-          //关联表的设置 可拖拽排序
-          sortAutoChange
-          isShowColumns
-          noempty={false} //不需要至少显示一列
-          controlsSorts={value}
-          showControls={value}
-          columns={allColumns}
-          empty={<div className="Gray_9e">{_l('请选择')}</div>}
-          placeholder={_l('搜索')}
-          onChange={({ newControlSorts, newShowControls }) => {
-            let data = [];
-            newControlSorts.map(it => {
-              data = data.concat(allColumns.find(o => it === o.controlId));
-            });
-            let showControls = max ? newShowControls.slice(0, max) : newShowControls;
-            data = data.filter(o => showControls.includes(o.controlId));
-            props.onChange(data.map(o => o.controlId));
-            if (max && newShowControls.length > max) {
-              alert(_l('显示字段最多只能设置%0个', max), 3);
-            }
-          }}
-        />
-      </div>
-    );
+    return <ColumnDrop {...props} />;
   }
+
+  const allTypes = props.sourceControlType === 29 ? [29, 34] : getAllTypes(props.controls);
+  const allColumns = worksheetControls.filter(o => allTypes.includes(o.type));
   return (
-    <Dropdown
-      placeholder={_l('请选择')}
-      className={cx('w100 paramControlDropdown')}
-      renderItem={(item = {}) => {
-        return (
-          <div className={cx('itemText', { isCur: allColumns.find(it => it.controlId === item.controlId) })}>
-            <Icon icon={getIconByType(item.type, false)} className="Font18" />
-            <span className="mLeft20">{item.controlName}</span>
-          </div>
-        );
-      }}
-      noData={_l('当前工作表中没有可选字段，请先去添加一个')}
-      value={!value || value.length <= 0 ? undefined : value[0]}
-      onChange={value => {
-        let data = [];
-        if (!value) {
-          data = [];
-        } else {
-          data = [value];
+    <div className="flexRow">
+      <Dropdown
+        placeholder={_l('请选择')}
+        className={cx('paramControlDropdown', props.sourceControlType === 29 ? 'flex' : 'w100')}
+        renderItem={(item = {}) => {
+          return (
+            <div className={cx('itemText', { isCur: allColumns.find(it => it.controlId === item.controlId) })}>
+              <Icon icon={getIconByType(item.type, false)} className="Font18" />
+              <span className="mLeft20">{item.controlName}</span>
+            </div>
+          );
+        }}
+        noData={_l('当前工作表中没有可选字段，请先去添加一个')}
+        value={
+          !value || value.length <= 0
+            ? undefined
+            : props.sourceControlType === 29
+              ? _.get(value, 'value.cid')
+              : value[0]
         }
-        props.onChange(data);
-      }}
-      renderTitle={() => {
-        let data = (value || [])[0];
-        let item = allColumns.find(it => it.controlId === data);
-        return (
-          <div className="flexRow alignItemsCenter">
-            <Icon icon={getIconByType((item || {}).type, false)} className="Font16 Gray_9e" />
-            <span className="mLeft5">{(item || {}).controlName}</span>
-          </div>
-        );
-      }}
-      border
-      menuClass={'paramControlDropdownMenu'}
-      cancelAble
-      isAppendToBody
-      openSearch
-      data={allColumns.map(o => {
-        return { ..._.omit(o, ['icon']), value: o.controlId, text: o.controlName };
-      })}
-    />
+        onChange={value => {
+          let data = [];
+          if (!value) {
+            data = [];
+          } else {
+            data = [value];
+          }
+          if (props.sourceControlType === 29) {
+            const info = worksheetControls.find(o => o.controlId === value) || {};
+            props.onChange({ type: info.type, value: { cid: value, showControls: [] } });
+            return;
+          }
+          props.onChange(data);
+        }}
+        renderTitle={() => {
+          let data = props.sourceControlType === 29 ? _.get(value, 'value.cid') : (value || [])[0];
+          let item = allColumns.find(it => it.controlId === data);
+          return (
+            <div className="flexRow alignItemsCenter">
+              <Icon icon={getIconByType((item || {}).type, false)} className="Font16 Gray_9e" />
+              <span className="mLeft5">{(item || {}).controlName}</span>
+            </div>
+          );
+        }}
+        border
+        menuClass={'paramControlDropdownMenu'}
+        cancelAble
+        isAppendToBody
+        openSearch
+        data={allColumns.map(o => {
+          return { ..._.omit(o, ['icon']), value: o.controlId, text: o.controlName };
+        })}
+      />
+      {props.sourceControlType === 29 && (
+        <div className="flex mLeft10">
+          <ColumnDrop
+            {...props}
+            value={_.get(value, 'value.showControls') || []}
+            worksheetControls={
+              (allColumns.find(it => it.controlId === _.get(value, 'value.cid')) || {}).relationControls
+            }
+            controls={props.showControls}
+            onChange={data =>
+              props.onChange({ type: 29, value: { cid: _.get(value, 'value.cid'), showControls: data } })
+            }
+          />
+        </div>
+      )}
+    </div>
   );
 };
 export default function ParameterSet(params) {

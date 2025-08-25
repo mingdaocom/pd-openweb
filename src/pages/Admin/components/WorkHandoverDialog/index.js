@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Dialog, LoadDiv, Checkbox, Button, SvgIcon, Tooltip, Icon } from 'ming-ui';
-import transferAjax from 'src/pages/workflow/api/transfer';
-import appManagementAjax from 'src/api/appManagement';
-import { dialogSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { Button, Checkbox, Dialog, LoadDiv, SvgIcon, Tooltip } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import appManagementAjax from 'src/api/appManagement';
+import transferAjax from 'src/pages/workflow/api/transfer';
+import './index.less';
 
 const TAB_LIST = [
   { tab: 1, tabName: _l('流程待办') },
@@ -136,7 +136,7 @@ export default class WorkHandoverDialog extends Component {
           appsMemberData: res,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ countInfo: { ...countInfo, 3: 0 } });
       });
   };
@@ -153,7 +153,7 @@ export default class WorkHandoverDialog extends Component {
       .then(res => {
         this.setState({ countInfo: res });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ countInfo: {} });
       });
   };
@@ -191,7 +191,7 @@ export default class WorkHandoverDialog extends Component {
           workflowList: getData(2),
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({
           loading: false,
           currentAppId: '',
@@ -261,7 +261,6 @@ export default class WorkHandoverDialog extends Component {
   transfer = () => {
     const { projectId, transferor = {} } = this.props;
     const { todoCheckedInfo, workflowCheckedInfo, selectAppMemberData } = this.state;
-    const _this = this;
 
     if (_.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo) && _.isEmpty(selectAppMemberData)) {
       alert(_l('请选择交接内容'), 3);
@@ -468,8 +467,8 @@ export default class WorkHandoverDialog extends Component {
             {activeTab === 1
               ? _l('交接当前用户未处理的流程待办')
               : activeTab === 2
-              ? _l('交接当前用户作为流程拥有者、通知人和节点负责人的工作流')
-              : _l('移除或交接当前用户作为成员直接加入的应用（不包含通过部门、组织角色、职位加入的应用）')}
+                ? _l('交接当前用户作为流程拥有者、通知人和节点负责人的工作流')
+                : _l('移除或交接当前用户作为成员直接加入的应用（不包含通过部门、组织角色、职位加入的应用）')}
           </div>
           {loading ? (
             <div className="mTop40 TxtCenter flex">

@@ -1,21 +1,21 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Checkbox, Radio } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import {
-  DetailHeader,
-  DetailFooter,
-  SingleControlValue,
-  SelectNodeObject,
-  FilterAndSort,
-  FindResult,
-  CustomTextarea,
-  UpdateFields,
-} from '../components';
-import { RELATION_TYPE, ACTION_ID, OPERATION_TYPE } from '../../enum';
-import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { checkConditionsIsNull, getControlTypeName, clearFlowNodeMapParameter } from '../../utils';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
+import { ACTION_ID, OPERATION_TYPE, RELATION_TYPE } from '../../enum';
+import { checkConditionsIsNull, clearFlowNodeMapParameter, getControlTypeName } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  FilterAndSort,
+  FindResult,
+  SelectNodeObject,
+  SingleControlValue,
+  UpdateFields,
+} from '../components';
 
 export default class Search extends Component {
   constructor(props) {
@@ -32,7 +32,7 @@ export default class Search extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -456,13 +456,13 @@ export default class Search extends Component {
           !data.appId
             ? () => <span className="Gray_75">{_l('请选择工作表')}</span>
             : data.appId && !selectAppItem
-            ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
-            : () => (
-                <Fragment>
-                  <span>{selectAppItem.name}</span>
-                  {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
-                </Fragment>
-              )
+              ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+              : () => (
+                  <Fragment>
+                    <span>{selectAppItem.name}</span>
+                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
+                  </Fragment>
+                )
         }
         border
         openSearch
@@ -625,7 +625,7 @@ export default class Search extends Component {
             height={0}
             content={data.link}
             formulaMap={data.formulaMap}
-            onChange={(err, value, obj) => this.updateSource({ link: value })}
+            onChange={(err, value) => this.updateSource({ link: value })}
             updateSource={this.updateSource}
           />
         </div>
@@ -695,7 +695,7 @@ export default class Search extends Component {
           bg="BGYellow"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
@@ -706,8 +706,8 @@ export default class Search extends Component {
             _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId)
               ? !!data.appId
               : data.actionId === ACTION_ID.BATCH_FIND
-              ? !!data.selectNodeId
-              : !!data.appId && !!data.link.trim()
+                ? !!data.selectNodeId
+                : !!data.appId && !!data.link.trim()
           }
           onSave={this.onSave}
         />

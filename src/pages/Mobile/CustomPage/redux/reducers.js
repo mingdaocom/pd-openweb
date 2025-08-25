@@ -1,8 +1,7 @@
-
 export const filtersGroup = (state = {}, action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_ALL_FILTERS_GROUP':
-      return { ...state, [action.id]: action.filters }
+      return { ...state, [action.id]: action.filters };
     default:
       return state;
   }
@@ -22,7 +21,6 @@ export const linkageFiltersGroup = (state = {}, action) => {
   }
 };
 
-
 export const filterComponents = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_FILTER_COMPONENTS':
@@ -32,7 +30,6 @@ export const filterComponents = (state = [], action) => {
   }
 };
 
-
 export const loadFilterComponentCount = (state = 0, action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_LOAD_FILTER_COMPONENT_COUNT':
@@ -41,4 +38,3 @@ export const loadFilterComponentCount = (state = 0, action) => {
       return state;
   }
 };
-

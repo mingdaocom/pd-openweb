@@ -1,7 +1,5 @@
 ﻿import _ from 'lodash';
-import departmentController from 'src/api/department';
 import { htmlEncodeReg } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
 
 const keyName = 'departmentId';
 const childCollectionName = 'subDepartments';
@@ -207,7 +205,7 @@ export const updateTreeData = (newDepartments = [], departmentId, departmentName
     return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
   }
 
-  if (path[parentDepartment]) {
+  if (path[parentDepartment] && arr[getCurrentPath(path[parentDepartment])]) {
     _.update(arr, getCurrentPath(path[parentDepartment]), data => {
       if (data.subDepartments && data.subDepartments.length) {
         data.subDepartments = data.subDepartments.concat([currentEditNode]);

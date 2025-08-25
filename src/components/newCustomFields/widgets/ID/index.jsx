@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { browserIsMobile } from 'src/utils/common';
+import { addBehaviorLog } from 'src/utils/project.js';
 
 const IDWrap = styled.div`
   position: absolute;
@@ -31,7 +32,7 @@ export default class Widgets extends Component {
     maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = this.formatValue(nextProps.value || '');
     }
@@ -76,7 +77,6 @@ export default class Widgets extends Component {
     const { originValue, isEditing, maskStatus } = this.state;
     const isMask = maskPermissions && value && maskStatus;
     const defaultValue = this.formatValue(value);
-    const isMobile = browserIsMobile();
 
     return (
       <Fragment>
@@ -96,7 +96,13 @@ export default class Widgets extends Component {
           <span
             className={cx({ maskHoverTheme: disabled && isMask })}
             onClick={() => {
-              if (disabled && isMask) this.setState({ maskStatus: false });
+              if (disabled && isMask) {
+                addBehaviorLog('worksheetDecode', this.props.worksheetId, {
+                  rowId: this.props.recordId,
+                  controlId: this.props.controlId,
+                });
+                this.setState({ maskStatus: false });
+              }
             }}
           >
             {this.getShowValue()}

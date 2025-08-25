@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate, MembersName } from '../components';
+import _ from 'lodash';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import { getIcons } from '../../utils';
-import _ from 'lodash';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class Action extends Component {
   constructor(props) {
@@ -58,7 +58,7 @@ export default class Action extends Component {
 
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );
@@ -92,7 +92,7 @@ export default class Action extends Component {
 
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('工作表已删除')}
         </div>
       );
@@ -113,7 +113,7 @@ export default class Action extends Component {
 
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );
@@ -125,7 +125,7 @@ export default class Action extends Component {
         if (!item.controlName || !item.sourceEntityName) {
           return (
             <div className="pLeft8 pRight8 red">
-              <i className="icon-workflow_info Font18 mRight5" />
+              <i className="icon-report Font18 mRight5" />
               {_l('未设置关联他表字段')}
             </div>
           );
@@ -146,7 +146,7 @@ export default class Action extends Component {
 
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );
@@ -172,7 +172,7 @@ export default class Action extends Component {
 
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('项目已删除')}
         </div>
       );
@@ -214,7 +214,7 @@ export default class Action extends Component {
 
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('工作表已删除')}
         </div>
       );
@@ -272,10 +272,10 @@ export default class Action extends Component {
     const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType)
       ? 'BGBlueAsh'
       : item.appType === APP_TYPE.TASK || item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
-      ? 'BGGreen'
-      : item.appType === APP_TYPE.CALENDAR
-      ? 'BGRed'
-      : 'BGYellow';
+        ? 'BGGreen'
+        : item.appType === APP_TYPE.CALENDAR
+          ? 'BGRed'
+          : 'BGYellow';
 
     return (
       <div className="flexColumn">

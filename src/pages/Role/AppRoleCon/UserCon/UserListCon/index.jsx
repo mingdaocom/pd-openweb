@@ -62,7 +62,7 @@ export default class UserListCon extends React.Component {
               return o.id === item && o.memberType === type;
             }
           });
-          if (!!data) {
+          if (data) {
             return true;
           }
         })
@@ -174,7 +174,7 @@ export default class UserListCon extends React.Component {
   };
   //退出应用
   delFromApp = () => {
-    const { userIds = [], isAll = false } = this.state;
+    const { userIds = [] } = this.state;
     const { appRole = {}, appId, setSelectedIds, freshNum } = this.props;
     const { outsourcing = {}, userList = [] } = appRole;
     const { memberModels = [] } = outsourcing;
@@ -200,7 +200,7 @@ export default class UserListCon extends React.Component {
     });
   };
   delFromRole = () => {
-    const { userIds = [], isAll = false } = this.state;
+    const { userIds = [] } = this.state;
     const { appRole = {}, appId = '', SetAppRolePagingModel, setSelectedIds, freshNum, roleId } = this.props;
     const { outsourcing = {}, userList = [] } = appRole;
     const { memberModels = [] } = outsourcing;
@@ -459,7 +459,7 @@ export default class UserListCon extends React.Component {
 
   render() {
     const { show, userIds = [] } = this.state;
-    const { roleId, appRole = {}, projectId, canEditUser, isExternal, appId } = this.props;
+    const { roleId, appRole = {}, projectId, canEditUser, appId } = this.props;
     const { outsourcing = {}, userList = [], roleInfos = [] } = appRole;
     const { memberModels = [] } = outsourcing;
 

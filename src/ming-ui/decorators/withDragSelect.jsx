@@ -1,23 +1,7 @@
-﻿/**
- * 拖拽框选
- * 部分代码来自 https://github.com/unclecheese/react-selectable
- */
-/**
- * 拖拽框选
- * 部分代码来自 https://github.com/unclecheese/react-selectable
- */
-/**
- * 拖拽框选
- * 部分代码来自 https://github.com/unclecheese/react-selectable
- */
-/**
- * 拖拽框选
- * 部分代码来自 https://github.com/unclecheese/react-selectable
- */
-import PropTypes from 'prop-types';
-import React from 'react';
+﻿import React from 'react';
 import ReactDom from 'react-dom';
 import { assign } from 'lodash';
+import PropTypes from 'prop-types';
 
 function execFunc(func, ...args) {
   if (typeof func === 'function') {
@@ -79,7 +63,17 @@ function objectsCollide(a, b, tolerance) {
   const aObj = a instanceof HTMLElement ? getBoundsForNode(a) : a;
   const bObj = b instanceof HTMLElement ? getBoundsForNode(b) : b;
 
-  return coordsCollide(aObj.top, aObj.left, bObj.top, bObj.left, aObj.offsetWidth, aObj.offsetHeight, bObj.offsetWidth, bObj.offsetHeight, tolerance);
+  return coordsCollide(
+    aObj.top,
+    aObj.left,
+    bObj.top,
+    bObj.left,
+    aObj.offsetWidth,
+    aObj.offsetHeight,
+    bObj.offsetWidth,
+    bObj.offsetHeight,
+    tolerance,
+  );
 }
 
 function withDragSelect(Component) {
@@ -116,7 +110,7 @@ function withDragSelect(Component) {
       }
       return container;
     };
-    handleMouseMove = (evt) => {
+    handleMouseMove = evt => {
       if (this.started) {
         const rect = ReactDom.findDOMNode(this).getBoundingClientRect();
         this.endPos = {
@@ -147,7 +141,7 @@ function withDragSelect(Component) {
               boxSizing: 'border-box',
               border: '1px solid #3a96dd',
               backgroundColor: 'rgba(58,150,221,.1)',
-            }
+            },
           );
           assign(this.selectionEl.style, style);
 
@@ -177,13 +171,13 @@ function withDragSelect(Component) {
       }
       execFunc(this.props.onDragSelectEnd);
     };
-    cancelDragSelect = (evt) => {
+    cancelDragSelect = evt => {
       if (evt.which !== 27 /* Esc*/) {
         return;
       }
       this.clear();
     };
-    finishDragSelect = (evt) => {
+    finishDragSelect = evt => {
       if (evt.button !== 0) {
         return;
       }
@@ -203,7 +197,7 @@ function withDragSelect(Component) {
       }
       this.clear();
     };
-    startDragSelect = (evt) => {
+    startDragSelect = evt => {
       this.started = true;
       if (evt.button !== 0) {
         return;
@@ -236,7 +230,7 @@ function withDragSelect(Component) {
           top: 0,
           bottom: 0,
         },
-        range
+        range,
       );
 
       left = left < range.left ? range.left : left + 'px';
@@ -251,23 +245,14 @@ function withDragSelect(Component) {
       execFunc(this.props.onMouseDown, ...args);
     }
     render() {
-      const {
-        selectionStyle,
-        manuallyStart,
-        onDragSelectStart,
-        onDragSelect,
-        onClickOnly,
-        onDragSelectEnd,
-        onMouseDown,
-        clickOnlyDistance,
-        tolerance,
-        containerSelector,
-        children,
-        ...rest
-      } = this.props;
+      const { children, ...rest } = this.props;
       return (
         <Component {...rest}>
-          {React.Children.map(children, (child, i) => (React.isValidElement(child) ? React.cloneElement(child, { ref: ref => (this['dragSelectItem$' + i] = ref) }) : child))}
+          {React.Children.map(children, (child, i) =>
+            React.isValidElement(child)
+              ? React.cloneElement(child, { ref: ref => (this['dragSelectItem$' + i] = ref) })
+              : child,
+          )}
         </Component>
       );
     }

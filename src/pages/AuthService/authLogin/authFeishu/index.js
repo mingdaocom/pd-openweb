@@ -17,9 +17,9 @@ const isMobile = browserIsMobile();
 if (code) {
   if (checkLogin()) {
     if (checkOriginUrl(url)) {
-      location.href = decodeURIComponent(url);
+      location.replace(decodeURIComponent(url));
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     ajax.post({
@@ -35,9 +35,9 @@ if (code) {
           getGlobalMeta().then(() => {
             setPssId(sessionId);
             if (checkOriginUrl(url)) {
-              location.href = decodeURIComponent(url);
+              location.replace(decodeURIComponent(url));
             } else {
-              location.href = isMobile ? `/mobile` : `/app`;
+              location.replace(isMobile ? `/mobile` : `/app`);
             }
           });
         }
@@ -50,9 +50,9 @@ if (code) {
   const newUrl = addOtherParam(url, otherParamString);
   if (checkLogin()) {
     if (checkOriginUrl(newUrl)) {
-      location.href = newUrl;
+      location.replace(decodeURIComponent(newUrl));
     } else {
-      location.href = isMobile ? `/mobile` : `/app`;
+      location.replace(isMobile ? `/mobile` : `/app`);
     }
   } else {
     const hosts = location.host.split('.');
@@ -69,9 +69,11 @@ if (code) {
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );
-        location.href = `${
-          callBackUrl || defaultCallBackUrl
-        }/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${agentId}&state=${state}`;
+        location.replace(
+          `${
+            callBackUrl || defaultCallBackUrl
+          }/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${agentId}&state=${state}`,
+        );
       },
       error: login,
     });

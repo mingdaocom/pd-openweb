@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Button, Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, LoadDiv, Button, ScrollView, SortableList } from 'ming-ui';
-import { Tooltip } from 'antd';
-import Card from './Card';
-import ChartDialog from './ChartDialog';
-import reportConfig from './api/reportConfig';
 import report from './api/report';
 import reportSort from './api/reportSort';
-import { reportTypes } from 'statistics/Charts/common';
-import './index.less';
-import _ from 'lodash';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import Card from './Card';
+import ChartDialog from './ChartDialog';
+import './index.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 let root;
@@ -24,7 +22,6 @@ const exceptions = [
   '.dropdownTrigger',
   '.openStatisticsBtn',
   '.selectUserBox',
-  '.mdAlertDialog',
   '.PositionContainer-active',
   '.addFilterPopup',
   '#dialogBoxSelectUser_container',
@@ -78,7 +75,7 @@ export default class Statistics extends Component {
   componentDidMount() {
     setTimeout(this.getReportConfigList.bind(this), 250);
   }
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps() {
     this.setState({
       chartWidth: window.innerWidth - 230 - 120,
     });
@@ -95,7 +92,7 @@ export default class Statistics extends Component {
   }
   getReportConfigList() {
     const { worksheetId, isFullScreen } = this.props;
-    const { ownerId, pageIndex, reports, pageLoading, loading } = this.state;
+    const { ownerId, pageIndex, reports, pageLoading } = this.state;
     const loadingKey = pageIndex > 1 ? 'pageLoading' : 'loading';
     if ((pageIndex > 1 ? pageLoading : false) || !pageIndex) {
       return;
@@ -176,8 +173,8 @@ export default class Statistics extends Component {
         reportIds: newReports.map(item => item.id),
       })
       .then(
-        result => {},
-        error => {
+        () => {},
+        () => {
           this.setState({
             reports,
           });
@@ -195,7 +192,7 @@ export default class Statistics extends Component {
   }
   renderHeader() {
     const { ownerId, showSelf, showPublic } = this.state;
-    const { isFullScreen, roleType, isCharge } = this.props;
+    const { isFullScreen, isCharge } = this.props;
     return (
       <div className="StatisticsPanel-header">
         <div className="title">{!showPublic ? _l('个人统计') : !showSelf ? _l('公共统计') : _l('统计')}</div>
@@ -301,7 +298,7 @@ export default class Statistics extends Component {
   renderPersonageNoData() {
     return (
       <div className="StatisticsPanel-nodata">
-        <Icon icon="person1" />
+        <Icon icon="person" />
         <div className="prompt Font17 TxtCenter">{_l('还没有个人图表')}</div>
         <Button
           onClick={() => {
@@ -317,7 +314,7 @@ export default class Statistics extends Component {
   }
   render() {
     const { dialogVisible, newReport, loading, reports, ownerId } = this.state;
-    const { worksheetId, viewId, appId, projectId } = this.props;
+    const { worksheetId, viewId, appId, projectId, permissionType } = this.props;
     return (
       <div className="StatisticsPanel">
         <ClickAwayable onClickAway={this.props.onClose.bind(this)} onClickAwayExceptions={exceptions}>
@@ -343,6 +340,7 @@ export default class Statistics extends Component {
               settingVisible={true}
               ownerId={ownerId}
               permissions={true}
+              permissionType={permissionType}
               report={newReport}
               updateDialogVisible={this.handleUpdateDialogVisible.bind(this)}
             />

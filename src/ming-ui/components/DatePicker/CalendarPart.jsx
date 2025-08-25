@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import DateTable from './DateTable';
+import PropTypes from 'prop-types';
 import CalendarHeader from './CalendarHeaderOld';
+import DateTable from './DateTable';
 
 class CalendarPart extends Component {
   static propTypes = {
@@ -31,7 +31,12 @@ class CalendarPart extends Component {
         <div style={{ outline: 'none' }}>
           <CalendarHeader {...newProps} direction={direction} onValueChange={props.onValueChange} />
           <div className={`${prefixCls}-body`}>
-            <DateTable {...newProps} disabledDate={disabledDate} selectedValue={selectedValue} onSelect={props.onSelect} />
+            <DateTable
+              {...newProps}
+              disabledDate={disabledDate}
+              selectedValue={selectedValue}
+              onSelect={props.onSelect}
+            />
           </div>
         </div>
       </div>

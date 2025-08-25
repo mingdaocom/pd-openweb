@@ -1,4 +1,4 @@
-import React, { memo, useContext, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import update from 'immutability-helper';
@@ -15,6 +15,7 @@ import { FlexCenter, Text } from 'worksheet/styled';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import { browserIsMobile } from 'src/utils/common';
@@ -22,6 +23,7 @@ import { getAdvanceSetting } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
 import { getControlStyles } from 'src/utils/control';
 import { checkCellIsEmpty } from 'src/utils/control';
+import { addBehaviorLog } from 'src/utils/project';
 import { handleRowData } from 'src/utils/record';
 import { getRecordColor } from 'src/utils/record';
 import { getCardDisplayPara, getMultiRelateViewConfig } from '../util';
@@ -157,7 +159,7 @@ const RecordItemWrap = styled.div`
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
       background-color: #fff;
       i {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -246,9 +248,16 @@ const BaseCard = props => {
     hoverShowAll,
     fieldShowCount,
     isQuickEditing,
+    allowEditForGroup,
+    groups,
+    groupControl,
+    currentGroupKey,
+    entityName,
+    roleType,
   } = props;
   const isMobile = browserIsMobile();
-  let { rowId, coverImage, allowEdit, allowDelete, abstractValue, allowAdd } = data;
+  let { rowId, coverImage, allowEdit, allowDelete, allowAdd, rawRow } = data;
+  const row = _.isObject(rawRow) ? rawRow : safeParse(rawRow);
   const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
   const fields = data.fields
     ? !isShowWorkflowSys && _.isArray(data.fields)
@@ -273,12 +282,21 @@ const BaseCard = props => {
     return currentView;
   };
 
+  const multiRelateViewConfig = getMultiRelateViewConfig(currentView, stateData);
+  const { abstract, checkradioid } = getAdvanceSetting(multiRelateViewConfig);
+  const { coverPosition = '0' } = getCoverStyle(multiRelateViewConfig);
+  const showCover = !!currentView.coverCid;
+
   const viewtitle = _.get(getCurrentView(), 'advancedSetting.viewtitle');
   const viewtitleControlIndex = findIndex(fields, item => item.controlId === viewtitle);
   const titleIndex =
     viewtitleControlIndex < 0 ? findIndex(fields, item => item.attribute === 1) : viewtitleControlIndex;
   const titleField = fields[titleIndex] || {};
+  const abstractControl = _.find(data.formData, f => f.controlId === abstract) || {};
   const [forceShowFullValue, setForceShowFullValue] = useState(_.get(titleField, 'advancedSetting.datamask') !== '1');
+  const [absShowFullValue, setAbsShowFullValue] = useState(
+    _.get(abstractControl || {}, 'advancedSetting.datamask') !== '1',
+  );
   let viewId, worksheetId;
   let paramForOperatePrint = {};
   if (viewParaOfRecord) {
@@ -293,11 +311,6 @@ const BaseCard = props => {
   }
   const $ref = useRef(null);
 
-  const multiRelateViewConfig = getMultiRelateViewConfig(currentView, stateData);
-  const { abstract, checkradioid } = getAdvanceSetting(multiRelateViewConfig);
-  const { coverPosition = '0' } = getCoverStyle(multiRelateViewConfig);
-  const showCover = !!currentView.coverCid;
-
   if (isEmpty(data)) return null;
 
   const isGalleryView = String(viewType) === '3';
@@ -306,13 +319,23 @@ const BaseCard = props => {
 
   const showControlStyle =
     _.get(para, 'advancedSetting.controlstyle') === '1' || _.get(para, 'advancedSetting.controlstyleapp') === '1';
-  abstractValue = abstract ? abstractValue : '';
+  const abstractValue = abstract ? renderCellText(abstractControl, { noMask: absShowFullValue }) : '';
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
-  const titleMasked =
-    (isCharge || _.get(titleField, 'advancedSetting.isdecrypt') === '1') &&
-    _.get(titleField, 'advancedSetting.datamask') === '1' &&
-    !forceShowFullValue &&
-    ((titleField.type === 2 && titleField.enumDefault === 2) || _.includes([6, 8, 3, 5, 7], titleField.type));
+  const titleMasked = key => {
+    const controlField = key === 'title' ? titleField : abstractControl;
+    const fullValue = key === 'title' ? forceShowFullValue : absShowFullValue;
+    return (
+      (isCharge || _.get(controlField, 'advancedSetting.isdecrypt') === '1') &&
+      _.get(controlField, 'advancedSetting.datamask') === '1' &&
+      !fullValue &&
+      ((controlField.type === 2 && controlField.enumDefault === 2) || _.includes([6, 8, 3, 5, 7], controlField.type)) &&
+      !(
+        _.get(window, 'shareState.isPublicView') ||
+        _.get(window, 'shareState.isPublicPage') ||
+        _.get(window, 'shareState.isPublicRecord')
+      )
+    );
+  };
 
   const isShowControlName = () => {
     if (String(viewType) === '2' && String(childType) === '2') {
@@ -348,13 +371,14 @@ const BaseCard = props => {
           haveOtherField: !isEmpty(otherFields),
           overflow_ellipsis: titleField.type === 2,
           isGalleryView,
-          maskHoverTheme: titleMasked,
+          maskHoverTheme: titleMasked('title'),
         })}
         title={content}
         onClick={e => {
-          if (!titleMasked) return;
+          if (!titleMasked('title')) return;
           e.stopPropagation();
           setForceShowFullValue(true);
+          addBehaviorLog('worksheetDecode', worksheetId, { rowId, controlId: titleField.controlId });
         }}
       >
         {isMobile && checkradioid && !_.isEmpty(showCheckItem) && (
@@ -370,7 +394,7 @@ const BaseCard = props => {
           />
         )}
         {content}
-        {titleMasked && titleValue && (
+        {titleMasked('title') && titleValue && (
           <i
             className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
             style={{ verticalAlign: 'middle' }}
@@ -428,19 +452,31 @@ const BaseCard = props => {
   };
 
   const renderAbstract = () => {
-    const maxLine = _.get(getCurrentView(), 'advancedSetting.maxlinenum');
-    const isShowAbstract = abstract && !!(data.formData || []).filter(item => item.controlId === abstract).length;
+    const maxLine = _.get(getCurrentView(), 'advancedSetting.maxlinenum') || 3;
+    const isShowAbstract = abstract && !_.isEmpty(abstractControl);
     if (isEmptyCell({ value: abstractValue }) && !isGalleryView && !showNull) return null;
     return isShowAbstract ? (
       <div
         className={cx(
           'abstractWrap',
-          { galleryViewAbstract: isGalleryView || isVerticalHierarchy },
+          { galleryViewAbstract: isGalleryView || isVerticalHierarchy, maskHoverTheme: titleMasked() },
           `maxLine${maxLine}`,
         )}
         title={abstractValue}
+        onClick={e => {
+          if (!titleMasked()) return;
+          e.stopPropagation();
+          setAbsShowFullValue(true);
+          addBehaviorLog('worksheetDecode', worksheetId, { rowId, controlId: abstractControl.controlId });
+        }}
       >
         {abstractValue || <div className="emptyHolder"></div>}
+        {titleMasked() && abstractValue && (
+          <i
+            className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+            style={{ verticalAlign: 'middle' }}
+          />
+        )}
       </div>
     ) : null;
   };
@@ -465,14 +501,14 @@ const BaseCard = props => {
     };
   };
   const hideOperate = isMobile || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
-  const { recordColorConfig, rawRow } = data;
+  const { recordColorConfig } = data;
   const recordColor =
     recordColorConfig &&
     getRecordColor({
       controlId: recordColorConfig.controlId,
       colorItems: recordColorConfig.colorItems,
       controls: data.formData,
-      row: _.isObject(rawRow) ? rawRow : safeParse(rawRow),
+      row: row,
     });
   let fieldList = otherFields;
   if (!isGalleryView && !showNull) {
@@ -489,7 +525,7 @@ const BaseCard = props => {
     fieldShowCount !== 'undefined' &&
     hoverShowAll &&
     !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage'));
-  const renderCell = (item, i) => {
+  const renderCell = item => {
     if (isEmptyCell(item) && !isGalleryView && !showNull) return null;
     const cell = _.find(data.formData, c => c.controlId === item.controlId) || item;
 
@@ -572,12 +608,15 @@ const BaseCard = props => {
         {!hideOperate && (
           <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
             <RecordOperate
+              view={currentView}
               isCharge={isCharge}
               isDevAndOps={isDevAndOps}
-              shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
+              shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav', 'lock']}
               popupAlign={getPopAlign()}
               allowDelete={allowDelete}
               allowCopy={allowCopy}
+              isRecordLock={row.sys_lock}
+              isAdmin={roleType === 2}
               allowRecreate={allowAdd || allowRecreate}
               projectId={projectId}
               formdata={fields}
@@ -589,6 +628,32 @@ const BaseCard = props => {
               onUpdate={onUpdate}
               onDelete={onDelete}
               onCopySuccess={onCopySuccess}
+              entityName={entityName}
+              updateRecordLock={() => {
+                updateRecordLockStatus(
+                  {
+                    ..._.pick(currentView, ['appId']),
+                    recordId: rowId,
+                    viewId,
+                    worksheetId,
+                    updateType: row.sys_lock ? 42 : 41,
+                  },
+                  (err, resdata) => {
+                    if (resdata) {
+                      onUpdate({
+                        // 层级只更新锁定属性
+                        ...(String(viewType) === '2' ? { rowid: rowId } : row),
+                        sys_lock: resdata.sys_lock,
+                      });
+                      if (resdata.sys_lock) {
+                        alert(_l('%0锁定成功', entityName));
+                      } else {
+                        alert(_l('%0已解锁', entityName));
+                      }
+                    }
+                  },
+                );
+              }}
               onRecreate={() => {
                 handleRowData({
                   rowId: rowId,
@@ -610,6 +675,10 @@ const BaseCard = props => {
                   });
                 });
               }}
+              allowEdit={allowEditForGroup}
+              groups={groups}
+              groupControl={groupControl}
+              currentGroupKey={currentGroupKey}
               {...paramForOperatePrint}
             >
               <div
@@ -620,7 +689,7 @@ const BaseCard = props => {
                   }
                 }}
               >
-                <Icon type="link" icon="task-point-more Font18" className="Gray_9e ThemeHoverColor3" />
+                <Icon icon="more_horiz Font18" className="Gray_9e ThemeHoverColor3" />
               </div>
             </RecordOperate>
           </div>
@@ -630,7 +699,9 @@ const BaseCard = props => {
         <OperateButtons
           worksheetId={worksheetId}
           isInCard
-          row={_.isObject(rawRow) ? rawRow : safeParse(rawRow)}
+          isRecordLock={row.sys_lock}
+          row={row}
+          entityName={entityName}
           recordId={rowId}
           onCopySuccess={onCopySuccess}
           onDeleteSuccess={onDelete}

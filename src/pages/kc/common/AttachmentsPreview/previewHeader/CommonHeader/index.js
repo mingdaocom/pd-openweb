@@ -266,7 +266,7 @@ export default function CommonHeader(props) {
         {showRefresh && (
           <div className="refreshNode" onClick={clickRefresh}>
             <span class="normal" data-tip={_l('刷新')}>
-              <Icon icon="task-update1" className="" />
+              <Icon icon="rotate" className="" />
             </span>
           </div>
         )}

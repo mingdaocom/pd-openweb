@@ -57,9 +57,6 @@ const Con = styled.div`
     &.ming .Item .Item-content {
       padding-left: 44px;
     }
-    &.ming .Item .Item-content:hover .detail {
-      color: #fff;
-    }
   }
 `;
 

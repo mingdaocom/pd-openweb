@@ -1,15 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import _ from 'lodash';
-import cx from 'classnames';
-import { getWidgetInfo, toEditWidgetPage } from '../../../util';
-import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { Collapse } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import { Icon, SvgIcon } from 'ming-ui';
+import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
 import { getIcons } from 'src/pages/workflow/WorkflowSettings/utils.js';
+import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
+import { getWidgetInfo, toEditWidgetPage } from '../../../util';
 import { REFERENCE_TYPE } from './config';
 import { ExtraTime } from './styled';
-import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { Icon, SvgIcon } from 'ming-ui';
 
 const { Panel } = Collapse;
 

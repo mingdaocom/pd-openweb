@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { NODE_TYPE_LIST, ACTION_LIST, JOIN_TYPE, UNION_TYPE_LIST } from '../config';
 import _ from 'lodash';
+import { ACTION_LIST, JOIN_TYPE, NODE_TYPE_LIST, UNION_TYPE_LIST } from '../config';
 
 export default function Des(props) {
-  const [{ nodeData, isAct, defaultInfo }, setState] = useSetState({
+  const [{ nodeData, isAct }, setState] = useSetState({
     nodeData: props.nodeData,
     isAct: ACTION_LIST.map(o => o.type).includes(props.nodeData.nodeType),
     defaultInfo: NODE_TYPE_LIST.find(it => it.nodeType === props.nodeData.nodeType),
@@ -33,7 +33,7 @@ export default function Des(props) {
         let items = _.get(nodeData, 'nodeConfig.config.items') || [];
         let data = [];
         (items || []).map(o => {
-          if (!!o.isGroup) {
+          if (o.isGroup) {
             data = [...data, ...o.groupFilters];
           } else {
             data = [...data, o];

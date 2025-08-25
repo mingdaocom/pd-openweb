@@ -63,7 +63,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
           <Checkbox
             checked={selectCells.length}
             clearselected={selectCells.length && selectCells.length !== cells.length}
-            onClick={checked => {
+            onClick={() => {
               if (selectCells.length !== cells.length) {
                 this.props.updateCurrentSheetInfo({
                   ...currentSheetInfo,
@@ -130,7 +130,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
         if (i === 0) {
           return {
             ...v,
-            cells: v.cells.map((m, n) => {
+            cells: v.cells.map(m => {
               if (m.columnNumber === it.columnNumber) {
                 return { ...m, [action]: visible };
               }
@@ -164,7 +164,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                 if (i === 0) {
                   return {
                     ...v,
-                    cells: v.cells.map((m, n) => {
+                    cells: v.cells.map(m => {
                       if (m.columnNumber === it.columnNumber) {
                         return { ...m, cellActVisible: false, editFieldVisible: true };
                       }
@@ -196,7 +196,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                 if (i === 0) {
                   return {
                     ...v,
-                    cells: v.cells.map((m, n) => {
+                    cells: v.cells.map(m => {
                       if (m.columnNumber === it.columnNumber) {
                         return { ...m, cellActVisible: false };
                       }
@@ -225,7 +225,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
               if (i === 0) {
                 return {
                   ...v,
-                  cells: v.cells.map((m, n) => {
+                  cells: v.cells.map(m => {
                     if (m.columnNumber === it.columnNumber) {
                       return { ...m, cellActVisible: false };
                     }
@@ -271,7 +271,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
           rowItemCells.map(it => {
             const control = !_.isEmpty(matchControl) ? matchControl[it.columnNumber] : {};
             const mapFields = _.get(FILEDS_TYPE_INFO, `${control.type}.mapField`);
-            const cellIcon = mapFields ? _.get(DEFAULT_CONFIG, `${mapFields}.icon`) : 'letter_a';
+            const cellIcon = mapFields ? _.get(DEFAULT_CONFIG, `${mapFields}.icon`) : 'text_bold2';
 
             return (
               <td key={'td-' + it.columnNumber}>
@@ -469,6 +469,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                         : ''}
                     </Select>
                     <Tooltip
+                      autoCloseDelay={0}
                       text={
                         <span>
                           {_l(
@@ -521,7 +522,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                             {_.isEmpty(rowCells) ? (
                               <td></td>
                             ) : (
-                              rowCells.map((it, i) => {
+                              rowCells.map(it => {
                                 return (
                                   <td key={'td-' + it.columnNumber} title={it.value}>
                                     {it.value}

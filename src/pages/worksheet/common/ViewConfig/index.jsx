@@ -1,10 +1,10 @@
-import React, { Component, Fragment } from 'react';
-import { Icon, SvgIcon, Tooltip, Support } from 'ming-ui';
+import React, { Fragment } from 'react';
+import _ from 'lodash';
+import { Icon, Support, SvgIcon, Tooltip } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import './ViewConfig.less';
-import _ from 'lodash';
 import ViewConfigCon from './ViewConfig';
+import './ViewConfig.less';
 
 @withClickAway
 export default class ViewConfig extends React.Component {
@@ -75,19 +75,15 @@ export default class ViewConfig extends React.Component {
             <span className="Font16 flex pLeft11">
               {_l('数据管理')}
               <Tooltip
+                autoCloseDelay={0}
                 text={_l(
                   '管理所有工作表数据。所有字段可见、可编辑；所有打印模版、自定义动作均可用；开启所有功能开关。',
                 )}
               >
-                <Icon icon="novice-circle" className="mLeft6 Font16 Gray_9e Hover_21" />
+                <Icon icon="help" className="mLeft6 Font16 Gray_9e Hover_21" />
               </Tooltip>
             </span>
-            <Support
-              className="mRight16"
-              type={3}
-              href="https://help.mingdao.com/view/operations"
-              text={_l('帮助')}
-            />
+            <Support className="mRight16" type={3} href="https://help.mingdao.com/view/operations" text={_l('帮助')} />
           </Fragment>
         ) : (
           <input

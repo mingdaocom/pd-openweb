@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, LoadDiv, Tooltip } from 'ming-ui';
@@ -73,14 +73,14 @@ export default function Set(props) {
         </div>
         <div className="">
           {actionList.length > 0 &&
-            actionList.map((o, i) => {
+            actionList.map(o => {
               return (
                 <div className="subCheckbox mTop20 InlineBlock flexRow alignItemsCenter">
                   <Checkbox
                     className={'InlineBlock TxtMiddle'}
                     checked={(sheet[o.key] || {}).enable}
                     size="small"
-                    onClick={checked => {
+                    onClick={() => {
                       changeSheetOptionInfo({
                         [o.key]: {
                           enable: !(sheet[o.key] || {}).enable,
@@ -128,14 +128,14 @@ export default function Set(props) {
         </div>
         <div className="OptionInfo">
           {actionList.length > 0 &&
-            actionList.map((o, i) => {
+            actionList.map(o => {
               return (
                 <div className="subCheckbox InlineBlock flexRow alignItemsCenter">
                   <Checkbox
                     className={'mTop20 InlineBlock TxtMiddle'}
                     checked={!unableList.includes(o.id)}
                     size="small"
-                    onClick={checked => {
+                    onClick={() => {
                       changeSheetOptionInfo({
                         [key]: (unableList.includes(o.id)
                           ? unableList.filter(it => o.id !== it)
@@ -181,7 +181,7 @@ export default function Set(props) {
               className={'InlineBlock TxtMiddle'}
               checked={_.get(sheet, 'payment.enable')}
               size="small"
-              onClick={checked => {
+              onClick={() => {
                 changeSheetOptionInfo({
                   payment: {
                     enable: !_.get(sheet, 'payment.enable'),

@@ -39,7 +39,7 @@ const MoreOperateMenu = styled.ul`
       color: #151515 !important;
     }
     &:hover {
-      background-color: #2196f3;
+      background-color: #1677ff;
       color: #fff;
       a {
         color: #fff;
@@ -215,6 +215,7 @@ function ExplanList(props) {
 
             <span className="Font15 mRight10">
               <Tooltip
+                autoCloseDelay={0}
                 text={
                   <div>
                     <div className="Gray_bd">{_l('资源ID')}</div>
@@ -251,6 +252,7 @@ function ExplanList(props) {
                   style={{
                     color: '#AEAEAE',
                   }}
+                  projectId={projectId}
                   user={{ userName: item.creator.fullname, accountId: item.creator.accountId }}
                 />
                 <span className="mRight5">{_l('创建于')}</span>

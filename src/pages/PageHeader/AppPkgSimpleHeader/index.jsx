@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
 import { SvgIcon, Tooltip } from 'ming-ui';
@@ -119,6 +120,6 @@ function AppPkgSimpleHeader(props) {
 }
 
 export default connect(
-  state => ({}),
+  () => ({}),
   dispatch => bindActionCreators({ syncAppDetail }, dispatch),
 )(AppPkgSimpleHeader);

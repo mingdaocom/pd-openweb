@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { includes, isFunction } from 'lodash';
+import { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import './less/RadioGroup.less';
 

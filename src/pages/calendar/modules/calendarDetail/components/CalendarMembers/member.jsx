@@ -56,7 +56,7 @@ export default class Member extends Component {
         >
           {!isWxMember ? (
             <img
-              src={head ? head.replace(/\/w\/(\w+)\/h\/(\w+)/, '/w/26/h/26') : ''}
+              src={head ? head.replace(/\/w\/(\w+)\/h\/(\w+)/, '/w/100/h/100') : ''}
               alt={memberName}
               className="memberAvatar"
             />

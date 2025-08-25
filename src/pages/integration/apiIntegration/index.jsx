@@ -46,9 +46,9 @@ const Wrap = styled.div`
           font-size: 16px;
         }
         &.isCur {
-          border-bottom: 4px solid #2196f3;
+          border-bottom: 4px solid #1677ff;
           a {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -99,7 +99,7 @@ function APILibraryCon(props) {
       window.MDAPILibrary({
         DomId: 'containerApiLib',
         featureType: getFeatureStatus(currentProjectId, VersionProductType.apiIntergration),
-        installCallBack: (id, tab) => {
+        installCallBack: id => {
           window.open(`/integrationConnect/${id}`);
         },
         buriedUpgradeVersionDialog: () => {

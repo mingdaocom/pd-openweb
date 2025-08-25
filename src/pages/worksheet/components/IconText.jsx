@@ -1,8 +1,8 @@
 import React from 'react';
-import { string, func, bool, shape, element } from 'prop-types';
-import { SvgIcon } from 'ming-ui';
 import cx from 'classnames';
+import { bool, element, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
+import { SvgIcon } from 'ming-ui';
 
 const Con = styled.div`
   display: inline-block;

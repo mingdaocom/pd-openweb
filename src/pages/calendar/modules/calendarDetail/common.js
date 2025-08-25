@@ -1,10 +1,10 @@
-﻿import AjaxRequest from 'src/api/calendar';
-import { RECURTYPE, FREQUENCY, REMINDTYPE, WEEKDAYS, RECURLAYERS, MEMBER_STATUS } from './constant';
-import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
-import afterRefreshOp from './lib/afterRefreshOp';
-import createShare from 'src/components/createShare/createShare';
-import _ from 'lodash';
+﻿import _ from 'lodash';
 import moment from 'moment';
+import AjaxRequest from 'src/api/calendar';
+import createShare from 'src/components/createShare/createShare';
+import { FREQUENCY, RECURLAYERS, RECURTYPE, REMINDTYPE, WEEKDAYS } from './constant';
+import afterRefreshOp from './lib/afterRefreshOp';
+import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
 
 export let Config = {};
 
@@ -283,7 +283,7 @@ export const shareCalendar = function (params, callback) {
 };
 
 export const addMember = ({ members, users }, { id, recurTime, originRecur, isChildCalendar }) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     var existsIds = [];
     var addMembers = [];
     var existsAccounts = [];
@@ -368,7 +368,6 @@ export const removeMember = function (accountID, { id, recurTime, originRecur, i
         isAllCalendar,
       }).then(function (resource) {
         if (resource.code === 1) {
-          var data = resource.data;
           if (isMe) {
             alert(_l('操作成功'));
           } else {
@@ -408,7 +407,7 @@ export const removeMember = function (accountID, { id, recurTime, originRecur, i
 export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime }) => {
   const { members } = calendar;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const updateFunc = reInvite => {
       return function (isAllCalendar) {
         let {
@@ -574,7 +573,7 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
 export const updateRemind = calendar => {
   const { id, remindTime, remindType } = calendar;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     AjaxRequest.updateMemberRemind({
       remindTime,
       remindType,
@@ -593,7 +592,7 @@ export const updateRemind = calendar => {
 export const updateRemindVoice = calendar => {
   const { id, voiceRemind } = calendar;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     AjaxRequest.updateVoiceRemind({
       voiceRemind,
       calendarID: id,
@@ -613,7 +612,7 @@ export const updateRemindVoice = calendar => {
  * @param { object } calendar
  */
 export const deleteCalendar = function ({ id, recurTime, originRecur, isChildCalendar }) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const deleteCalendarFun = function (isAllCalendar) {
       AjaxRequest.deleteCalendar({
         calendarID: id,
@@ -658,7 +657,7 @@ export const reInvite = function (
   { id, recurTime, originRecur, isChildCalendar },
   { email, mobile } = {},
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const reInviteFun = function (isAllCalendar) {
       AjaxRequest.reInvite({
         accountID,
@@ -694,7 +693,7 @@ export const reInvite = function (
 };
 
 export const removeWxMember = function (thirdId, { id, recurTime, originRecur, isChildCalendar }) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     var removeWeChatMemberFun = function (isAllCalendar) {
       AjaxRequest.removeCalendarWeChatMember({
         calendarID: id,
@@ -733,7 +732,7 @@ export const removeWxMember = function (thirdId, { id, recurTime, originRecur, i
  * @param { bool } isPrivate | 是否是私密日程
  */
 export const updatePrivate = function (calendarId, isPrivate) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     AjaxRequest.updateCalendarIsPrivate({
       calendarID: calendarId,
       isPrivate,

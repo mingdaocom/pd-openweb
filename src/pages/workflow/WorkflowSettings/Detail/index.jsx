@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import './index.less';
-import nodeModules from './nodeModules';
-import { NODE_TYPE } from '../enum';
-import { updateNodeData } from '../../redux/actions';
-import cx from 'classnames';
 import { Drawer } from 'antd';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
+import { updateNodeData } from '../../redux/actions';
+import { NODE_TYPE } from '../enum';
+import nodeModules from './nodeModules';
+import './index.less';
 
 class Detail extends Component {
   static propTypes = {

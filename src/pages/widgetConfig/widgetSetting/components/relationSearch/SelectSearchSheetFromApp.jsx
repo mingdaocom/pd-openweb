@@ -40,11 +40,11 @@ const SelectSheetWrap = styled.div`
     font-size: 14px;
     font-weight: bold;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
     &.active {
-      color: #2196f3;
-      border-bottom-color: #2196f3;
+      color: #1677ff;
+      border-bottom-color: #1677ff;
     }
     &:last-child {
       margin-left: 32px;

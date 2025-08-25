@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import EmptyStatus from './EmptyStatus';
-import * as actions from '../../../../../redux/position/action';
-import { Checkbox, UserHead } from 'ming-ui';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
+import { Checkbox, UserHead } from 'ming-ui';
+import * as actions from '../../../../../redux/position/action';
+import EmptyStatus from './EmptyStatus';
 
 class RoleUserList extends Component {
   constructor(props) {

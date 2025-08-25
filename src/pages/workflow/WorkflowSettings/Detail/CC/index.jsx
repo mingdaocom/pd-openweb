@@ -1,23 +1,23 @@
 import React, { Component, Fragment } from 'react';
-import flowNode from '../../../api/flowNode';
-import { ScrollView, LoadDiv, Dropdown, Checkbox, Support } from 'ming-ui';
 import cx from 'classnames';
-import {
-  SelectUserDropDown,
-  Member,
-  SelectNodeObject,
-  DetailHeader,
-  DetailFooter,
-  CustomTextarea,
-  WriteFields,
-  EmailApproval,
-  PromptSoundDialog,
-} from '../components';
-import worksheet from 'src/api/worksheet';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Checkbox, Dropdown, LoadDiv, ScrollView, Support } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
+import worksheet from 'src/api/worksheet';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  EmailApproval,
+  Member,
+  PromptSoundDialog,
+  SelectNodeObject,
+  SelectUserDropDown,
+  WriteFields,
+} from '../components';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -35,7 +35,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #2196f3;
+      border-bottom: 3px solid #1677ff;
     }
   }
 `;
@@ -57,7 +57,7 @@ export default class CC extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -258,8 +258,8 @@ export default class CC extends Component {
                 !data.viewId || !views.length
                   ? () => <span className="Gray_75">{_l('请选择')}</span>
                   : data.viewId && !selectView
-                  ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
-                  : () => <span>{selectView.text}</span>
+                    ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
+                    : () => <span>{selectView.text}</span>
               }
               border
               onChange={viewId => this.updateSource({ viewId })}
@@ -317,7 +317,7 @@ export default class CC extends Component {
                   type={2}
                   content={data.sendContent}
                   formulaMap={data.formulaMap}
-                  onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
+                  onChange={(err, value) => this.updateSource({ sendContent: value })}
                   updateSource={this.updateSource}
                 />
                 <div className="mTop10">
@@ -372,7 +372,7 @@ export default class CC extends Component {
                   </div>
                 ) : (
                   <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-                    <i className="icon-task-setting_promet Font16 Gray_9e" />
+                    <i className="icon-error1 Font16 Gray_9e" />
                     <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                   </div>
                 )}
@@ -434,11 +434,11 @@ export default class CC extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-workflow_notice"
+          icon="icon-send"
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

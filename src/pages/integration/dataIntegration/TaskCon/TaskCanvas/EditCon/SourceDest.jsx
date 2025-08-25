@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import DataSourceApi from 'src/pages/integration/api/datasource';
-import { WrapL } from './style';
-import AddSourceOrDest from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/AddSourceOrDest';
-import homeAppAjax from 'src/api/homeApp.js';
-import appManagementAjax from 'src/api/appManagement.js';
 import _ from 'lodash';
-import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
-import SheetGroupSelect from 'src/pages/integration/dataIntegration/connector/components/OnlySyncStep/SheetGroupSelect.jsx';
-import SelectTables from 'src/pages/integration/dataIntegration/components/SelectTables/index.jsx';
 import styled from 'styled-components';
+import { Dropdown, Icon } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement.js';
+import homeAppAjax from 'src/api/homeApp.js';
+import DataSourceApi from 'src/pages/integration/api/datasource';
+import SelectTables from 'src/pages/integration/dataIntegration/components/SelectTables/index.jsx';
+import SheetGroupSelect from 'src/pages/integration/dataIntegration/connector/components/OnlySyncStep/SheetGroupSelect.jsx';
+import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
+import AddSourceOrDest from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/AddSourceOrDest';
+import { WrapL } from './style';
 
 const Wrap = styled.div`
   .mTop14 {
@@ -68,7 +68,7 @@ export default class SourceDest extends Component {
   componentDidMount() {
     this.initData(this.props, true);
   }
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (
       _.get(nextProps, ['node', 'nodeConfig', 'config', 'dsType']) !==
         _.get(this.props, ['node', 'nodeConfig', 'config', 'dsType']) ||
@@ -96,7 +96,7 @@ export default class SourceDest extends Component {
   }
 
   initData = async (nextProps, isNext) => {
-    const { currentProjectId: projectId, flowId, node = {} } = nextProps || this.props;
+    const { currentProjectId: projectId, node = {} } = nextProps || this.props;
     if (schemaTypes.length <= 0) {
       const schemaTypesData = await DataSourceApi.getTypes({
         onlyCreated: false,
@@ -139,7 +139,7 @@ export default class SourceDest extends Component {
         this.setState({
           loading: false,
           dbList: res.map(a => {
-            return { ...a, text: a.appName, value: a.appId };
+            return { ...a, text: a.appName, value: a.appId, disabled: !isValidName(a.appName) };
           }),
         });
       });
@@ -220,7 +220,7 @@ export default class SourceDest extends Component {
 
   //获取数据源对应数据库列表
   getDatasourceList = (node, projectId) => {
-    let { datasourceId, dataDestId, dbName, dsType, appId, workSheetId } = _.get(node, ['nodeConfig', 'config']) || {};
+    let { datasourceId, dataDestId, dsType, appId, workSheetId } = _.get(node, ['nodeConfig', 'config']) || {};
     datasourceId = datasourceId || dataDestId;
     if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
       appId && this.getAppInfo(appId);
@@ -238,7 +238,7 @@ export default class SourceDest extends Component {
       }).then(res => {
         this.setState({
           dbList: res.map(a => {
-            return { text: a, value: a };
+            return { text: a, value: a, disabled: !isValidName(a) };
           }),
         });
       });
@@ -246,7 +246,7 @@ export default class SourceDest extends Component {
   };
   //获取数据源对应Schemas列表
   getSchemasList = projectId => {
-    let { datasourceId, dataDestId, dbName, dsType } = _.get(this.state.node, ['nodeConfig', 'config']) || {};
+    let { datasourceId, dataDestId, dbName } = _.get(this.state.node, ['nodeConfig', 'config']) || {};
     datasourceId = datasourceId || dataDestId;
     if (!dbName) {
       this.setState({
@@ -734,7 +734,7 @@ export default class SourceDest extends Component {
                         {item.text}
                         {item.disabled && (
                           <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
-                            <Icon icon="info1" className="Gray_bd mLeft5 disabledIcon" />
+                            <Icon icon="info" className="Gray_bd mLeft5 disabledIcon" />
                           </Tooltip>
                         )}
                       </div>

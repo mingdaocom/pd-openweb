@@ -179,13 +179,12 @@ function WorksheetRecordLog(props, ref) {
 
     return {
       opeartorIds:
-        (param.hasOwnProperty('opeartorIds') ? opeartorIds : selectUsers && selectUsers.map(item => item.accountId)) ||
-        [],
-      controlIds: [param.hasOwnProperty('filedId') ? filedId : selectField && selectField.controlId].filter(l => l),
-      startDate: param.hasOwnProperty('startDateTime') ? startDateTime : selectDate.range && selectDate.range.value[0],
-      endDate: param.hasOwnProperty('endDateTime') ? endDateTime : selectDate.range && selectDate.range.value[1],
-      lastMark: param.hasOwnProperty('lastMark') ? param.lastMark : lastMark,
-      archiveId: param.hasOwnProperty('archiveId') ? archiveId : archivedItem.id,
+        (_.has(param, 'opeartorIds') ? opeartorIds : selectUsers && selectUsers.map(item => item.accountId)) || [],
+      controlIds: [_.has(param, 'filedId') ? filedId : selectField && selectField.controlId].filter(l => l),
+      startDate: _.has(param, 'startDateTime') ? startDateTime : selectDate.range && selectDate.range.value[0],
+      endDate: _.has(param, 'endDateTime') ? endDateTime : selectDate.range && selectDate.range.value[1],
+      lastMark: _.has(param, 'lastMark') ? param.lastMark : lastMark,
+      archiveId: _.has(param, 'archiveId') ? archiveId : archivedItem.id,
       requestType: param.requestType !== undefined ? param.requestType : requestType || 0,
     };
   };
@@ -247,7 +246,7 @@ function WorksheetRecordLog(props, ref) {
           }
         }
       })
-      .catch(err => {
+      .catch(() => {
         setMark({ loading: false, loadingAll: false });
       });
   }
@@ -300,7 +299,7 @@ function WorksheetRecordLog(props, ref) {
       },
       ...para,
     });
-    para.hasOwnProperty('selectField') && setMoreList([]);
+    _.has(para, 'selectField') && setMoreList([]);
     loadNewEdition({ lastMark: undefined, ...loadParam });
   };
 
@@ -336,7 +335,7 @@ function WorksheetRecordLog(props, ref) {
       fullname: item.fullname,
     };
 
-    if (GET_SYSTEM_USER().hasOwnProperty(item.accountId)) {
+    if (_.has(GET_SYSTEM_USER(), item.accountId)) {
       userInfo = GET_SYSTEM_USER()[item.accountId];
     }
 
@@ -498,7 +497,7 @@ function WorksheetRecordLog(props, ref) {
                     <Icon icon="arrow-down" style={selectField ? {} : { display: 'inline-block' }} />
                     {selectField && (
                       <Icon
-                        icon="cancel1"
+                        icon="cancel"
                         onClick={e => changeSelect(e, { selectField: undefined }, { filedId: undefined })}
                       />
                     )}
@@ -528,7 +527,7 @@ function WorksheetRecordLog(props, ref) {
                     <span className="selectConText">{selectDate.range.label}</span>
                     <Icon icon="arrow-down" />
                     <Icon
-                      icon="cancel1"
+                      icon="cancel"
                       onClick={e =>
                         changeSelect(
                           e,
@@ -654,7 +653,7 @@ function WorksheetRecordLog(props, ref) {
 
               return (
                 <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
-                  <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
+                  <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: _.includes([1, 11, 12], item.type) })}>
                     {renderLogCardTitle(item)}
                     {!!ua && (
                       <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
@@ -751,9 +750,10 @@ function WorksheetRecordLog(props, ref) {
             <Divider className="logDivider">
               {_l('以下是旧版日志')}
               <Tooltip
+                autoCloseDelay={0}
                 text={<span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>}
               >
-                <Icon className="Font12" icon="Import-failure" />
+                <Icon className="Font12" icon="error1" />
               </Tooltip>
             </Divider>
           )}

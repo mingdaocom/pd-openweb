@@ -1,7 +1,7 @@
-import React, { useState, Fragment, createRef } from 'react';
+import React, { createRef, Fragment, useState } from 'react';
+import { ClickAwayMenu, DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import { getTypeList } from '../util';
-import { OtherFieldList, SelectOtherField, ClickAwayMenu, DynamicInput } from '../components';
 
 export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], defaultType, data = {} } = props;

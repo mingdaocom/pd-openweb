@@ -36,7 +36,7 @@ export default class Cascader extends React.Component {
   cell = React.createRef();
 
   handleTableKeyDown = e => {
-    const { tableId, recordId, cell, isediting, updateCell, updateEditingStatus } = this.props;
+    const { isediting, updateEditingStatus } = this.props;
     switch (e.key) {
       default:
         (() => {
@@ -66,7 +66,6 @@ export default class Cascader extends React.Component {
       from,
       className,
       style,
-      error,
       cell,
       editable,
       isediting,

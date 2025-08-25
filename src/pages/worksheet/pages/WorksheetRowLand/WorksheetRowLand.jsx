@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import autoSize from 'ming-ui/decorators/autoSize';
+import { connect } from 'react-redux';
+import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
+import FixedContent from 'src/components/FixedContent';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { navigateTo } from 'src/router/navigateTo';
 import RecordInfoWrapper from '../../common/recordInfo/RecordInfoWrapper';
-import FixedContent from 'src/components/FixedContent';
-import { connect } from 'react-redux';
 import './WorksheetRowLand.less';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
 class WorksheetRowLand extends Component {
   constructor(props) {

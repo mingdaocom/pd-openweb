@@ -1,6 +1,7 @@
 import _, { find, get, identity, includes, isArray, isEmpty, sortBy, sum } from 'lodash';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { CARD_WIDTH_SETTING } from 'src/pages/worksheet/common/ViewConfig/config';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 
@@ -138,7 +139,7 @@ export function getSheetOperatesButtons(view, { buttons = [], printList = [] } =
         result.push({
           name: printItem.name,
           icon: 'print',
-          color: '#2196f3',
+          color: '#1677ff',
           type: 'print',
           btnId: printItem.id,
           printItem,
@@ -151,7 +152,7 @@ export function getSheetOperatesButtons(view, { buttons = [], printList = [] } =
         color:
           {
             delete: '#F44336',
-          }[c.type] || '#2196f3',
+          }[c.type] || '#1677ff',
         name: {
           copy: _l('复制'),
           share: _l('分享'),
@@ -327,4 +328,54 @@ export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetIn
     }
   }
   return result;
+}
+
+export function getGroupControlId(view) {
+  const groupId = get(safeParse(get(view, 'advancedSetting.groupsetting'), 'array'), '[0].controlId');
+  return groupId;
+}
+
+export function getFiltersForGroupedView(control, groupKey) {
+  if (String(groupKey) === '-1') {
+    return {
+      controlId: control.controlId,
+      dataType: control.type,
+      spliceType: 1,
+      filterType: 7,
+    };
+  }
+  if (
+    includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU,
+        WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
+        WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN,
+        WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET,
+        WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
+        WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
+        WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
+      ],
+      control.type,
+    )
+  ) {
+    return {
+      controlId: control.controlId,
+      dataType: control.type,
+      spliceType: 1,
+      filterType: 51,
+      dynamicSource: [],
+      values: [groupKey],
+    };
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
+    return {
+      controlId: control.controlId,
+      dataType: control.type,
+      spliceType: 1,
+      filterType: 2,
+      dynamicSource: [],
+      values: [groupKey],
+    };
+  }
+  return {};
 }

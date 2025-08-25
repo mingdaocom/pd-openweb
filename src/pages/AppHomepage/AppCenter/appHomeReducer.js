@@ -1,8 +1,8 @@
 import React from 'react';
-import { Dialog } from 'ming-ui';
-import homeAppAjax from 'src/api/homeApp';
-import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
+import appManagementAjax from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
 
 export const initialState = {
   groupsLoading: true,
@@ -110,7 +110,7 @@ export function reducer(state, action = {}) {
         .filter(
           item =>
             !_.find(action.delData, del =>
-              !!del.type ? del.itemId === item.itemId : del.appId === item.id && del.itemId === item.itemId,
+              del.type ? del.itemId === item.itemId : del.appId === item.id && del.itemId === item.itemId,
             ),
         )
         .concat(addedMarkedApps);
@@ -755,7 +755,7 @@ export class CreateActions {
             break;
         }
       })
-      .catch(err => {
+      .catch(() => {
         !md.global.Config.IsLocal && alert(_l('新建应用失败！'), 2);
       });
   }

@@ -1,7 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
-import ajaxRequest from 'src/api/taskCenter';
 import { dialogSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
+import { errorMessage } from '../../../utils/utils';
 import './less/copyTask.less';
 
 export default class CopyTask extends Component {
@@ -161,7 +162,7 @@ export default class CopyTask extends Component {
                 <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                 {_l('子任务')}
                 <span className="mLeft5 copyTip" data-tip={_l('子任务将包含以上所选的复制内容')}>
-                  <i className="icon-knowledge-message" />
+                  <i className="icon-info" />
                 </span>
               </div>
             </li>

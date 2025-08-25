@@ -1,8 +1,9 @@
 import React from 'react';
 import Clipboard from 'react-clipboard.js';
-import Ajax from 'src/api/workWeiXin';
-import { LoadDiv } from 'ming-ui';
+import moment from 'moment';
 import { compareProps } from 'pages/PageHeader/util.js';
+import { LoadDiv } from 'ming-ui';
+import Ajax from 'src/api/workWeiXin';
 import welinkPng1 from './img/1.png';
 import welinkPng2 from './img/2.png';
 import welinkPng3 from './img/3.png';
@@ -11,7 +12,6 @@ import welinkPng5 from './img/5.png';
 import welinkPng6 from './img/6.png';
 import welinkPng7 from './img/7.png';
 import './style.less';
-import moment from 'moment';
 
 export default class WelinkSyncCourse extends React.Component {
   constructor(props) {
@@ -31,10 +31,10 @@ export default class WelinkSyncCourse extends React.Component {
       projectId: match.params.projectId,
     }).then(result => {
       if (result) {
-          this.setState({
-            loading: false,
-            homeUrl: result,
-          });
+        this.setState({
+          loading: false,
+          homeUrl: result,
+        });
       } else {
         this.setState({
           loading: false,
@@ -48,7 +48,7 @@ export default class WelinkSyncCourse extends React.Component {
   }
 
   renderDing = () => {
-    const { domainName, homeUrl } = this.state;
+    const { homeUrl } = this.state;
 
     return (
       <React.Fragment>
@@ -93,9 +93,7 @@ export default class WelinkSyncCourse extends React.Component {
           </Clipboard>
         </div>
         <img src={welinkPng5} />
-        <p className="Font14 Gray_75 mTop24 LineHeight22">
-          {_l('2.点击”设置接口权限”，开通集成需要用到的接口权限')}
-        </p>
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('2.点击”设置接口权限”，开通集成需要用到的接口权限')}</p>
         <p className="Font14 Gray_75 LineHeight22">{_l('需要开通的授权如图所示')}</p>
         <img src={welinkPng6} />
         <h3 className="Font18 Gray mTop40">{_l('6. 发布应用')}</h3>

@@ -1,14 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import Immutable from 'immutable';
+import _ from 'lodash';
 import { Button, Dialog, Support } from 'ming-ui';
 import createUploader from 'src/library/plupload/createUploader';
+import { UPLOAD_ERROR, UPLOAD_STATUS } from 'src/pages/kc/constant/enum';
 import * as utils from 'src/pages/kc/utils';
-import { UPLOAD_STATUS, UPLOAD_ERROR } from 'src/pages/kc/constant/enum';
-import './index.less';
-import UploadProgress from './UploadProgress';
 import UploadAction from './UploadAction';
+import UploadProgress from './UploadProgress';
+import './index.less';
 
 export default class ImportExcel extends React.Component {
   constructor(props) {
@@ -36,7 +36,7 @@ export default class ImportExcel extends React.Component {
         max_file_size: '10mb',
         prevent_duplicates: true,
       },
-      error_callback(errorType, errorFiles) {
+      error_callback(errorType) {
         if (errorType === UPLOAD_ERROR.TOO_MANY_FILES) {
           alert(_l('只允许上传单个文件'), 2);
         }
@@ -210,7 +210,7 @@ export default class ImportExcel extends React.Component {
                 )}
               >
                 <div
-                  className={cx('uploadIcon icon-knowledge-cloud', this.state.dragOver ? 'ThemeColor3' : 'ThemeColor4')}
+                  className={cx('uploadIcon icon-cloud_upload', this.state.dragOver ? 'ThemeColor3' : 'ThemeColor4')}
                 />
                 <div className="dropDesc">
                   {this.state.dragOver ? _l('松开鼠标开始上传') : _l('拖拽文件到这里上传')}

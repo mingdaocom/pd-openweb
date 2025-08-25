@@ -1,7 +1,9 @@
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import _ from 'lodash';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
+import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
-export function getRowsRelation({ control, recordId, formData, parentWorksheetId }, params = {}) {
+export function getRowsRelation({ control, recordId, formData }, params = {}) {
   const { pageIndex = 1, pageSize = 50, keyWords } = params;
   const filterControls = getFilter({ control: { ...control, recordId }, formData });
   let getFilterRowsPromise, args;

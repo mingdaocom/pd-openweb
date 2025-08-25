@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ActionSheet, List } from 'antd-mobile';
 import localForage from 'localforage';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import login from 'src/api/login';
@@ -133,25 +134,21 @@ class MyHome extends Component {
               </Fragment>
             )}
             <div className="splitter"></div>
-            {localStorage.getItem('PROJECT_NAME') !== 'md' && (
-              <div className="worksheetChange flexRow" onClick={this.handleWorksheetChange}>
-                <div className="worksheetChangeIconBox flexRow">
-                  <Icon icon="calendar-synchronous" className="Font16" />
-                </div>
-                <div className="descBox">
-                  <div className="titleBox flexRow">
-                    <div className="title">{_l('工作表版本切换')}</div>
-                    <div className="worksheetStatus flexCenter">
-                      <div className="status">{isLoadNewForm === 'new' ? _l('新版') : _l('旧版')}</div>
-                      {isLoadNewForm === 'new' && <Icon icon="beta1" className="Font14" />}
-                    </div>
-                  </div>
-                  <div className="desc">
-                    {_l('新版本重构了工作表的架构。如遇问题，可点击按钮返回旧版本，继续使用熟悉的功能和界面。')}
-                  </div>
-                </div>
+            <div className="worksheetChange flexRow" onClick={this.handleWorksheetChange}>
+              <div className="worksheetChangeIconBox flexRow">
+                <Icon icon="calendar-synchronous" className="Font16" />
               </div>
-            )}
+              <div className="descBox">
+                <div className="titleBox flexRow">
+                  <div className="title">{_l('工作表版本切换')}</div>
+                  <div className="worksheetStatus flexCenter">
+                    <div className="status">{isLoadNewForm === 'new' ? _l('新版') : _l('旧版')}</div>
+                    {isLoadNewForm === 'new' && <Icon icon="beta1" className="Font14" />}
+                  </div>
+                </div>
+                <div className="desc">{_l('新版对记录详情界面进行了重构，如遇问题，可点击按钮返回旧版本。')}</div>
+              </div>
+            </div>
           </List>
           <a className="logOutBtn" onClick={this.logout} rel="external">
             {_l('退出登录')}

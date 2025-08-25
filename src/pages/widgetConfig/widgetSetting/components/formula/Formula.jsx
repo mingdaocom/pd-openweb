@@ -1,17 +1,18 @@
 import React from 'react';
-import { Parser } from 'hot-formula-parser';
 import cx from 'classnames';
-import { TagTextarea, Checkbox } from 'ming-ui';
+import { Parser } from 'hot-formula-parser';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, TagTextarea } from 'ming-ui';
+import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { SettingItem } from '../../../styled';
+import { genControlTag, getControlTextValue, getControlValue, getFormulaControls } from '../../../util/data';
+import ColumnListDropdown from '../ColumnListDropdown';
 import PointerConfig from '../PointerConfig';
 import PreSuffix from '../PreSuffix';
-import ColumnListDropdown from '../ColumnListDropdown';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import { getControlValue, getControlTextValue, getFormulaControls, genControlTag } from '../../../util/data';
 import { FORMULA } from './enum';
 import FnList from './FnList';
-import { SettingItem } from '../../../styled';
-import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import styled from 'styled-components';
 
 const CAL_LIST = ['+', '-', '*', '/', '(', ')'];
 
@@ -32,7 +33,7 @@ const CalItem = styled.div`
       margin-right: 0;
     }
     &:hover {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
 `;
@@ -40,7 +41,7 @@ const CalItem = styled.div`
 export default class Formula extends React.Component {
   constructor(props) {
     super(props);
-    const { enumDefault, dataSource } = props.data;
+    const { dataSource } = props.data;
     this.state = {
       calType: FORMULA.CUSTOM.type,
       fnmatch: '',
@@ -55,7 +56,7 @@ export default class Formula extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const { data } = nextProps;
-    const { enumDefault, dataSource, controlId } = data;
+    const { dataSource, controlId } = data;
     const nextCalType = FORMULA.CUSTOM.type;
     if (controlId !== this.props.data.controlId) {
       const newFormulaStr = this.getFormulaFromDataSource(nextCalType, dataSource);
@@ -99,18 +100,13 @@ export default class Formula extends React.Component {
 
   testFormula = dataSource => {
     const parser = new Parser();
-    let { data, allControls, worksheetData } = this.props;
-    const { dot } = data;
+    let { allControls, worksheetData } = this.props;
     let expression = dataSource.replace(
       /\$(.+?)\$/g,
       id => getControlValue(id.slice(1, -1), allControls, worksheetData) || _.uniqueId(),
     );
-    let expressionForShow = dataSource.replace(
-      /\$(.+?)\$/g,
-      id => getControlValue(id.slice(1, -1), allControls, worksheetData) || 'null',
-    );
     expression = expression.replace(/\/0/g, '/1'); // 除数为0 时按照除数为1计算
-    expressionForShow = expressionForShow.replace(/\/0/g, '/1'); // 除数为0 时按照除数为1计算
+
     const result = parser.parse(expression);
     if (/.*undefined.*/.test(expression)) {
       alert(_l('字段存在空值，无法计算'), 3);
@@ -218,7 +214,7 @@ export default class Formula extends React.Component {
     });
   };
 
-  handleFnClick = (key, i) => {
+  handleFnClick = key => {
     const { showInSideFormulaSelect, shoOutSideFormulaSelect, fnmatchPos, fnmatch } = this.state;
     if (showInSideFormulaSelect) {
       this.tagtextarea.cmObj.replaceRange(
@@ -303,7 +299,7 @@ export default class Formula extends React.Component {
                 getRef={tagtextarea => {
                   this.tagtextarea = tagtextarea;
                 }}
-                renderTag={(id, options) => genControlTag(allControls, id)}
+                renderTag={id => genControlTag(allControls, id)}
                 onChange={this.handleChange}
                 onFocus={() => {
                   this.setState({ selectColumnVisible: true });
@@ -327,7 +323,7 @@ export default class Formula extends React.Component {
                       </span>
                     </div>
                   ),
-                  onClick: (id, i) => {
+                  onClick: id => {
                     this.tagtextarea.insertColumnTag(id);
                   },
                 }))}

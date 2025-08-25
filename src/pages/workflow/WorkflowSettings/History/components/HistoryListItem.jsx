@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Icon, Checkbox } from 'ming-ui';
 import cx from 'classnames';
-import HistoryStatus from './HistoryStatus';
-import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from '../config';
-import instanceVersion from '../../../api/instanceVersion';
-import process from '../../../api/process';
 import _ from 'lodash';
 import moment from 'moment';
+import { Checkbox, Icon } from 'ming-ui';
+import instanceVersion from '../../../api/instanceVersion';
+import process from '../../../api/process';
+import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from '../config';
+import HistoryStatus from './HistoryStatus';
 
 export default ({
   status,
@@ -63,10 +63,10 @@ export default ({
             ? cause === 40007
               ? FLOW_FAIL_REASON[cause]
               : !nodeName
-              ? FLOW_FAIL_REASON[cause] || causeMsg
-              : `${_l('节点:')} ${nodeName}, ${
-                  cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
-                }`
+                ? FLOW_FAIL_REASON[cause] || causeMsg
+                : `${_l('节点:')} ${nodeName}, ${
+                    cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
+                  }`
             : ''
         }
       >
@@ -74,10 +74,10 @@ export default ({
           ? cause === 40007
             ? FLOW_FAIL_REASON[cause]
             : !nodeName
-            ? FLOW_FAIL_REASON[cause] || causeMsg
-            : `${_l('节点:')} ${nodeName}, ${
-                cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
-              }`
+              ? FLOW_FAIL_REASON[cause] || causeMsg
+              : `${_l('节点:')} ${nodeName}, ${
+                  cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
+                }`
           : ''}
 
         {isDelete && _l('已删除')}
@@ -118,7 +118,7 @@ export default ({
           >
             <Icon
               className="Font16 pointer ThemeHoverColor3 Block Gray_75"
-              icon={isDelete || showRetry ? 'replay' : 'delete'}
+              icon={isDelete || showRetry ? 'rotate' : 'delete'}
             />
           </span>
         )}
@@ -130,8 +130,8 @@ export default ({
             _.includes(debugEvents, -1)
               ? _l('编辑版测试')
               : versionDate && typeof versionDate === 'string'
-              ? _l('版本：%0', versionDate)
-              : _l('加载中')
+                ? _l('版本：%0', versionDate)
+                : _l('加载中')
           }
           onMouseOver={() => {
             if (versionDate || _.includes(debugEvents, -1)) return;

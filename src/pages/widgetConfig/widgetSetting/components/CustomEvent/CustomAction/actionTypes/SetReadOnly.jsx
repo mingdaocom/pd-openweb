@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, RadioGroup, Checkbox } from 'ming-ui';
+import _ from 'lodash';
+import { Checkbox, Dialog, RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../../../../styled';
-import SelectFields from '../SelectFields';
 import { CustomActionWrap } from '../../style';
+import SelectFields from '../SelectFields';
 
 const DISPLAY_OPTIONS = [
   {

@@ -79,7 +79,7 @@ export const AddNode = styled(Circle)`
     color: #9e9e9e;
     transition: transform 0.25s;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
       transform: rotate(90deg);
     }
   }
@@ -118,7 +118,7 @@ const MoreOperate = styled.span`
   font-size: 18px;
   &:hover {
     background-color: rgba(0, 0, 0, 0.03);
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 const MenuWrap = styled(Menu)`
@@ -138,11 +138,6 @@ const RedMenuItemWrap = styled(MenuItemWrap)`
     color: #f44336 !important;
     .Icon {
       color: #f44336 !important;
-    }
-  }
-  &:not(.disabled):hover {
-    .Icon {
-      color: #fff !important;
     }
   }
 `;
@@ -383,7 +378,7 @@ class TaskNode extends Component {
         >
           <Avator nodeData={nodeData} />
           <div className="flex flexColumn justifyContentCenter mLeft8 overflowHidden">
-            {nodeData.isDel && <div className="name Font13 Bold overflow_ellipsis WordBreak Red">{_('源已删除')}</div>}
+            {nodeData.isDel && <div className="name Font13 Bold overflow_ellipsis WordBreak Red">{_l('源已删除')}</div>}
             {/* 错误提示 */}
             <div className="name Font13 Bold overflow_ellipsis WordBreak">{getNodeName(flowData, nodeData)}</div>
             {isAct ? (
@@ -421,7 +416,7 @@ class TaskNode extends Component {
                   {/* 除了目的地和源，都可删除 */}
                   {!['DEST_TABLE', 'SOURCE_TABLE'].includes(nodeData.nodeType) && (
                     <RedMenuItemWrap
-                      icon={<Icon icon="delete1" className="Font17 mLeft5" />}
+                      icon={<Icon icon="trash" className="Font17 mLeft5" />}
                       onClick={e => {
                         this.setState({ popupVisible: false, showDel: true });
                         e.stopPropagation();
@@ -440,7 +435,7 @@ class TaskNode extends Component {
                   e.stopPropagation();
                 }}
               >
-                <i className="icon icon-task-point-more"></i>
+                <i className="icon icon-more_horiz"></i>
               </MoreOperate>
             </Trigger>
           )}

@@ -99,7 +99,7 @@ export default class User extends Component {
                 <Tooltip text={departmentNames[departmentId] || ''} mouseEnterDelay={0.8}>
                   <span
                     onMouseEnter={() => {
-                      if (!!departmentNames[departmentId]) return;
+                      if (departmentNames[departmentId]) return;
 
                       this.timer = setTimeout(() => this.getFullDepartment(departmentId), 500);
                     }}

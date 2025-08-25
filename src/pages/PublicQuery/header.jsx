@@ -14,7 +14,7 @@ const PublicqueryHeader = styled.div`
     margin-top: 9px;
     height: 36px;
     opacity: 1;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 3px;
     font-size: 13px;
     font-weight: 700;
@@ -120,7 +120,7 @@ class WorksheetShareHeader extends React.Component {
                 <Icon
                   style={{ float: 'right', lineHeight: '100%' }}
                   className="Gray_9e ThemeHoverColor3 pointer"
-                  icon="file_download"
+                  icon="download"
                 ></Icon>
               </div>
             )}

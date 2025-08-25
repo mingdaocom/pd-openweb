@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { ActionSheet, Popup, TextArea } from 'antd-mobile';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
@@ -15,10 +14,9 @@ import './index.less';
 export default class extends Component {
   constructor(props) {
     super(props);
-    const { action, instance } = this.props;
+    const { instance } = this.props;
     const backFlowNodes = (instance || {}).backFlowNodes || [];
-    const { isCallBack } = (instance || {}).flowNode || {};
-    const { inputType, opinions = [] } = (instance || {}).opinionTemplate || {};
+    const { opinions = [] } = (instance || {}).opinionTemplate || {};
     let backNodeId = '';
     let content = '';
 
@@ -250,7 +248,7 @@ export default class extends Component {
           </div>
         </div>
       ),
-      onAction: action => {
+      onAction: () => {
         this.actionHandler.close();
       },
     });
@@ -302,8 +300,8 @@ export default class extends Component {
     );
   }
   renderInfo() {
-    const { backFlowNodes, backNodeId, selectedUser, entrustList } = this.state;
-    const { action, instance } = this.props;
+    const { backFlowNodes, backNodeId, selectedUser } = this.state;
+    const { action } = this.props;
     const currentAction = ACTION_TO_TEXT[action];
 
     if (_.includes(['return'], action) && backFlowNodes.length) {
@@ -507,7 +505,7 @@ export default class extends Component {
   }
   renderContent() {
     const { action, instance, projectId } = this.props;
-    const { content, backNodeId, customApproveContent, files, opinionList = [] } = this.state;
+    const { content, customApproveContent, files, opinionList = [] } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
     const { opinionTemplate, flowNode, app = {}, btnMap = {} } = instance || {};
     const { inputType } = opinionTemplate || {};

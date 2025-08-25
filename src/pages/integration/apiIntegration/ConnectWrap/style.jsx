@@ -81,7 +81,7 @@ export const ConnetWrap = styled.div`
       .icon {
         opacity: 1;
         &:hover {
-          color: #2196f3 !important;
+          color: #1677ff !important;
         }
       }
     }
@@ -101,8 +101,8 @@ export const ConnetWrap = styled.div`
         color: #757575;
       }
       &.isCur {
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -126,7 +126,7 @@ export const ConnetWrap = styled.div`
       .btn {
         margin: 40px auto 0;
         padding: 11px 50px;
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
         line-height: 1em;
         border-radius: 30px;

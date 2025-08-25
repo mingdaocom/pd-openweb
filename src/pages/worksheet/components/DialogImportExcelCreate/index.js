@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { antNotification, LoadDiv } from 'ming-ui';
+import { antNotification } from 'ming-ui';
 import appManagementController from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import { checkPermission } from 'src/components/checkPermission';
@@ -29,7 +29,7 @@ import DialogUpload from './DialogUpload';
 import SetImportExcelCreateWorksheetOrApp from './SetImportExcelCreateWorksheetOrApp';
 
 export const wsexcelbatchSocketInit = () => {
-  IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, appId, appName, errorCount }) => {
+  IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, errorCount }) => {
     antNotification.close(id);
     antNotification.success({
       message: _l('表数据导入完成'),
@@ -152,7 +152,7 @@ class DialogImportExcelCreate extends Component {
         } else {
           _.reduce(
             filterSheets || [],
-            (result, current, index) => {
+            (result, current) => {
               selectedSheetIds.push(current.sheetId);
               return result + current.total;
             },
@@ -307,7 +307,7 @@ class DialogImportExcelCreate extends Component {
           },
           customParseResponse: true,
         })
-        .then(res => {
+        .then(() => {
           this.props.onCancel();
           if (isMore) {
             this.importMore();
@@ -369,7 +369,7 @@ class DialogImportExcelCreate extends Component {
           this.setState({ importLoading: false, createAppStatus: 1 });
           this.props.updateAppInfo({ ...this.props.appInfo, appId: res.data });
         } else {
-          this.setState({ importLoading: false, importLoading: false });
+          this.setState({ importLoading: false });
           this.props.onCancel();
           refreshPage();
         }

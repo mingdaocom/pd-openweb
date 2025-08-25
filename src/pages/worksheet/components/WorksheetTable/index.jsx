@@ -18,7 +18,6 @@ import { checkRulesErrorOfRowControl } from 'src/utils/rule';
 import { Cell, NoRecords, NoSearch } from './components';
 import {
   checkCellFullVisible,
-  columnWidthFactory,
   getControlFieldPermissionsAfterRules,
   getRulePermissions,
   getTableHeadHeight,
@@ -41,6 +40,15 @@ const StyledFixedTable = styled(FixedTable)`
     .cell {
       border-left: 1px solid rgba(0, 0, 0, 0.09) !important;
     }
+  }
+  .cell.cellRight2px {
+    border-right-width: 2px !important;
+  }
+  .cell.loadMoreCell:not(.lastFixedColumn) {
+    border-right: none !important;
+  }
+  .groupLoading {
+    animation: rotate 0.6s infinite linear;
   }
   .cell {
     background-color: #fff;
@@ -70,6 +78,9 @@ const StyledFixedTable = styled(FixedTable)`
       z-index: 2;
     }
     &.treeNode {
+      border-right: none !important;
+    }
+    &.noRightBorder {
       border-right: none !important;
     }
   }
@@ -221,6 +232,7 @@ function WorksheetTable(props, ref) {
     chatButton,
     onColumnHeadHeightUpdate = () => {},
     isDraft,
+    getRowHeight = () => props.rowHeight || 34,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -233,7 +245,7 @@ function WorksheetTable(props, ref) {
     wrapControlName = false,
     headTitleCenter = false,
   } = props; // 显示
-  const { rowHeadWidth = 70, renderRowHead, renderOperates } = props;
+  const { rowHeadWidth = 70, renderRowHead, renderOperates, renderGroupTitle, renderGroupMore } = props;
   const { onColumnWidthChange = () => {}, onCellClick, onFocusCell = () => {} } = props;
   const { masterFormData = () => [], masterData = () => {} } = props; // 获取子表所在记录表单数据
   const { updateCell } = props;
@@ -296,7 +308,8 @@ function WorksheetTable(props, ref) {
   const subListDataLength = isSubList && data.filter(r => r.rowid).length;
   const cellColumnCount = visibleColumns.filter(c => c.type !== 'emptyForResize').length;
   let tableHeight = height;
-  const YIsScroll = tableRowCount * rowHeight > height - 34 - (showSummary ? 28 : 0);
+  const YIsScroll =
+    _.sum(new Array(tableRowCount).fill(0).map((a, i) => getRowHeight(i) || 34)) > height - 34 - (showSummary ? 28 : 0);
   const getColumnWidth = useTableWidth({
     width: width - (YIsScroll ? getScrollBarWidth() : 0),
     visibleControls: visibleColumns,
@@ -317,7 +330,10 @@ function WorksheetTable(props, ref) {
     if (xIsScroll !== XIsScroll) {
       setXIsScroll(XIsScroll);
     }
-    tableHeight = tableRowCount * rowHeight + columnHeadHeight + (XIsScroll ? getScrollBarWidth() : 0);
+    tableHeight =
+      _.sum(new Array(tableRowCount).fill(0).map((a, i) => getRowHeight(i) || 34)) +
+      columnHeadHeight +
+      (XIsScroll ? getScrollBarWidth() : 0);
     if (showSummary) {
       tableHeight += 28;
     }
@@ -325,6 +341,15 @@ function WorksheetTable(props, ref) {
       tableHeight -= rowHeight - 26;
     }
   }
+  const tableDataWithRowFormData = data.map(row => {
+    return (controls || columns)
+      .map(c => ({
+        ...c,
+        value: row[c.controlId],
+        fieldPermission: rulePermissions[`${row.rowid}-${c.controlId}`] || c.fieldPermission,
+      }))
+      .concat(masterFormData().filter(c => c.controlId.length === 24));
+  });
   function showColumnWidthChangeMask({ columnWidth, defaultLeft, maskMinLeft, callback }) {
     setState({
       maskVisible: true,
@@ -356,7 +381,9 @@ function WorksheetTable(props, ref) {
       if (input) {
         try {
           ele.removeChild(input);
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
       }
     });
     if (newIndex === -10000) {
@@ -411,7 +438,8 @@ function WorksheetTable(props, ref) {
           e.target.tagName.toLowerCase() !== 'body' &&
           !e.target.classList.contains('body') &&
           !e.target.classList.contains('mdModalWrap') &&
-          !e.target.classList.contains('nano-content'))) &&
+          !e.target.classList.contains('scrollViewContainer') &&
+          !e.target.classList.contains('scroll-viewport'))) &&
       !(_.includes([26, 27], get(cell, 'props.cell.type')) && e.key !== 'Enter')
     ) {
       return;
@@ -512,7 +540,8 @@ function WorksheetTable(props, ref) {
       !_.intersection(
         propsData.map(c => c.rowid),
         filteredData.map(c => c.rowid),
-      ).length
+      ).length ||
+      (cache.prevColumnsFieldPermission !== columns.map(c => c.fieldPermission).join(',') && cache.didMount)
     ) {
       updatedRows = propsData;
     } else {
@@ -535,9 +564,10 @@ function WorksheetTable(props, ref) {
         }),
       );
     }
-  }, [props.data]);
+  }, [props.data, props.columns.map(c => c.fieldPermission).join(',')]);
   useEffect(() => {
     setCache('prevColumns', columns);
+    setCache('prevColumnsFieldPermission', columns.map(c => c.fieldPermission).join(','));
   }, [columns]);
   useEffect(
     handleLifeEffect.bind(null, tableId, {
@@ -557,6 +587,7 @@ function WorksheetTable(props, ref) {
     if (state.rulesLoading) {
       loadRules();
     }
+    setCache('didMount', true);
   }, []);
   return (
     <React.Fragment>
@@ -585,6 +616,7 @@ function WorksheetTable(props, ref) {
         rowHeight={rowHeight}
         defaultScrollLeft={defaultScrollLeft}
         getColumnWidth={getColumnWidth}
+        getRowHeight={getRowHeight}
         rowCount={(rowCount || data.length) > 0 ? tableRowCount : rowCount || data.length}
         columnCount={visibleColumns.length}
         leftFixedCount={fixedColumnCount + 1}
@@ -593,6 +625,7 @@ function WorksheetTable(props, ref) {
         showHead={showHead}
         showFoot={showSummary}
         tableData={{
+          tableDataWithRowFormData,
           columnStyles,
           triggerClickImmediate,
           chatButton,
@@ -682,7 +715,7 @@ function WorksheetTable(props, ref) {
             tableRef.current.setScroll(left, top);
           },
           // 更新数据
-          updateCell: ({ row, rowIndex, args, options } = {}) => {
+          updateCell: ({ row, args, options } = {}) => {
             const { cell } = args;
             updateCell(args, {
               ...options,
@@ -711,7 +744,10 @@ function WorksheetTable(props, ref) {
             foot: renderFooterCell,
             rowHead: renderRowHead,
             operates: renderOperates,
+            groupTitle: renderGroupTitle,
+            groupMore: renderGroupMore,
           },
+          getColumnWidth,
           actions,
         }}
         // 空状态

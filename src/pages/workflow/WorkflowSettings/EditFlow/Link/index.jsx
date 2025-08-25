@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { ACTION_ID } from '../../enum';
 import { CreateNode, NodeOperate } from '../components';
+
 export default class Link extends Component {
   constructor(props) {
     super(props);
@@ -11,6 +13,12 @@ export default class Link extends Component {
    */
   renderContent() {
     const { item } = this.props;
+    const LINK_TYPE_TEXT = {
+      1: _l('获取记录分享链接'),
+      2: _l('获取记录填写链接'),
+      3: _l('带支付按钮的记录链接'),
+      4: _l('付款链接'),
+    };
 
     if (!item.appId && !item.selectNodeId) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
@@ -19,7 +27,7 @@ export default class Link extends Component {
     if (item.appId && !item.appName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('工作表已删除')}
         </div>
       );
@@ -28,7 +36,7 @@ export default class Link extends Component {
     if (item.selectNodeId && !item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的节点对象已删除')}
         </div>
       );
@@ -42,13 +50,11 @@ export default class Link extends Component {
         <div className={cx('workflowContentInfo ellipsis Gray_75 mTop4 pBottom5', { yellow: item.isException })}>
           {item.isException ? (
             <Fragment>
-              <i className="icon-workflow_error Font18 mRight5" />
+              <i className="icon-info_outline Font18 mRight5" />
               {_l('链接名称存在异常')}
             </Fragment>
-          ) : item.linkType === 1 ? (
-            _l('获取记录分享链接')
           ) : (
-            _l('获取记录填写链接')
+            LINK_TYPE_TEXT[item.linkType]
           )}
         </div>
       </Fragment>
@@ -71,7 +77,13 @@ export default class Link extends Component {
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <i className={cx('workflowAvatar icon-link2', item.appId ? 'BGBlueAsh' : 'BGGray')} />
+              <i
+                className={cx(
+                  'workflowAvatar',
+                  item.appId ? 'BGBlueAsh' : 'BGGray',
+                  item.actionId === ACTION_ID.RECORD_LINK_PAY ? 'icon-Collection' : 'icon-link2',
+                )}
+              />
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
             <div className="workflowContent Font13">

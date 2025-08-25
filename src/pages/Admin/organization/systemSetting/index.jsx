@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import Config from '../../config';
+import CloseNet from './component/CloseNet';
 import CommonInfo from './component/CommonInfo';
+import PositionInfo from './component/PositionInfo';
 import SubDomain from './component/SubDomain';
 import WorkPlace from './component/WorkPlace';
-import CloseNet from './component/CloseNet';
-import PositionInfo from './component/PositionInfo';
-import Config from '../../config';
 
 export default class OrgInfo extends Component {
   constructor() {

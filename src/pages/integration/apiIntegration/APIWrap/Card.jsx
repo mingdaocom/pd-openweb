@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
@@ -99,6 +100,7 @@ function AddNode(props) {
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
         <Tooltip
+          autoCloseDelay={0}
           popupPlacement="bottom"
           text={<span>{_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}</span>}
         >
@@ -109,7 +111,7 @@ function AddNode(props) {
   );
 }
 export default function Card(props) {
-  const [{ info, loading, showEdit, node, nodeInfo }, setState] = useSetState({
+  const [{ info, loading, showEdit, node }, setState] = useSetState({
     info: props.info,
     node: props.nodeInfo,
     loading: true,
@@ -158,7 +160,7 @@ export default function Card(props) {
         },
         { isIntegration: true },
       )
-      .then(res => {
+      .then(() => {
         setState({ node });
       });
   };
@@ -274,7 +276,7 @@ export default function Card(props) {
     switch (props.typeId) {
       case 21:
         if (!!node.appId && !!(node.outputs || []).length > 0) {
-          return <Icon icon={'check_circle1'} className="Green_right tip" />;
+          return <Icon icon="check_circle" className="Green_right tip" />;
         }
         return '';
       case 8:
@@ -282,12 +284,12 @@ export default function Card(props) {
           return <Icon icon="error1" className="Red tip" />;
         }
         if (node.controls) {
-          return <Icon icon={'check_circle1'} className="Green_right tip" />;
+          return <Icon icon="check_circle" className="Green_right tip" />;
         }
         return '';
       default:
-        if (!!node.appId) {
-          return <Icon icon={'check_circle1'} className="Green_right tip" />;
+        if (node.appId) {
+          return <Icon icon="check_circle" className="Green_right tip" />;
         }
         return '';
     }
@@ -321,6 +323,7 @@ export default function Card(props) {
                       }}
                     />
                     <Tooltip
+                      autoCloseDelay={0}
                       popupPlacement="topLeft"
                       text={<span>{_l('安装的API，允许在卡片上修改是否使用网络代理')}</span>}
                     >
@@ -370,7 +373,7 @@ export default function Card(props) {
               }}
               customNodeName={props.title}
               isIntegration
-              updateNodeData={data => {
+              updateNodeData={() => {
                 getCardInfo();
                 props.hasChange();
                 // setState({

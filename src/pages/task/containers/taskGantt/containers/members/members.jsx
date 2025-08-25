@@ -1,12 +1,12 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import './members.less';
-import { dialogSelectUser } from 'ming-ui/functions';
-import config from '../../config/config';
-import { addMembers } from '../../redux/actions';
-import ajaxRequest from 'src/api/taskCenter';
 import _ from 'lodash';
 import { Dialog, UserHead } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
+import config from '../../config/config';
+import { addMembers } from '../../redux/actions';
+import './members.less';
 
 class Members extends Component {
   constructor(props) {
@@ -29,9 +29,8 @@ class Members extends Component {
 
   /**
    * 添加成员
-   * @param {object} evt
    */
-  addMembers(evt) {
+  addMembers() {
     const selectedAccountIds = this.props.accountTasksKV.map(item => item.account.accountId);
 
     dialogSelectUser({

@@ -1,8 +1,9 @@
 import React from 'react';
-import { Dialog, Icon, Checkbox } from 'ming-ui';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon } from 'ming-ui';
 import OpinionTemplate from 'src/pages/workflow/WorkflowSettings/Detail/Approval/OpinionTemplate.jsx';
+
 const Wrap = styled.div`
   .line {
     border-top: 1px solid #eaeaea;
@@ -233,7 +234,7 @@ class DoubleConfirmDialog extends React.Component {
                     this.setState({
                       advancedSetting: {
                         ...advancedSetting,
-                        remarkoptions: !!safeParse(remarkoptions).template ? '' : JSON.stringify({ template: [] }),
+                        remarkoptions: safeParse(remarkoptions).template ? '' : JSON.stringify({ template: [] }),
                       },
                       showApprovalTemplate: !safeParse(remarkoptions).template,
                     });

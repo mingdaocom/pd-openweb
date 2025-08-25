@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Checkbox, Dropdown, Icon, RadioGroup } from 'ming-ui';
 import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
-import { DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
+import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import WidgetRowHeight from '../WidgetRowHeight';
 
@@ -28,7 +29,9 @@ export default function RelateStyle(props) {
     showtype,
     titlewrap,
     rctitlestyle = '0',
+    hidenumber,
   } = getAdvanceSetting(data);
+  const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
   const tableControls = _.get(data, 'relationControls') || [];
   const tableData = tableControls
     .filter(c => c.type === 29 && c.dataSource === data.dataSource && c.enumDefault === 1)
@@ -47,6 +50,7 @@ export default function RelateStyle(props) {
           {_l('交互方式')}{' '}
           <Tooltip
             placement="bottom"
+            autoCloseDelay={0}
             title={
               <span>
                 {_l('经典模式：点整行打开记录')}
@@ -66,6 +70,26 @@ export default function RelateStyle(props) {
         />
       </SettingItem>
       <WidgetRowHeight {...props} />
+
+      <SettingItem>
+        <div className="settingItemTitle">{_l('冻结列')}</div>
+        <AnimationWrap>
+          {DISPLAY_FROZEN_LIST.map(({ text, value }) => {
+            return (
+              <div
+                className={cx('animaItem overflow_ellipsis', { active: (freezeIds[0] || '0') === value })}
+                onClick={() =>
+                  onChange(
+                    handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }),
+                  )
+                }
+              >
+                {text}
+              </div>
+            );
+          })}
+        </AnimationWrap>
+      </SettingItem>
 
       {data.type === 29 && _.includes(['5', '6'], showtype) && (
         <SettingItem>
@@ -109,6 +133,14 @@ export default function RelateStyle(props) {
 
       <SettingItem>
         <div className="settingItemTitle">{_l('其他')}</div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={hidenumber !== '1'}
+            text={_l('显示序号')}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { hidenumber: String(+checked) }))}
+          />
+        </div>
         <div className="labelWrap">
           <Checkbox
             size="small"

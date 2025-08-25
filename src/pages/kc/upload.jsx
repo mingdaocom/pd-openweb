@@ -12,8 +12,6 @@ export default class KcUploadEntrypoint extends Component {
     $('html').removeClass('AppKc AppKcUpload');
   }
   render() {
-    return (
-      <UploadAssistant />
-    );
+    return <UploadAssistant />;
   }
 }

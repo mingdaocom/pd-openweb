@@ -59,7 +59,7 @@ const Wrapper = styled.div`
       position: absolute;
       top: 12px;
       right: 20px;
-      color: #2196f3;
+      color: #1677ff;
     }
 
     &:hover {
@@ -88,7 +88,7 @@ const Wrapper = styled.div`
         &:hover {
           .icon-arrow-right-tip,
           .icon-arrow-down {
-            color: #2196f3;
+            color: #1677ff;
           }
         }
       }
@@ -114,7 +114,7 @@ const Wrapper = styled.div`
         margin-left: 8px;
         cursor: pointer;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -273,7 +273,7 @@ export default function GlobalVarTable(props) {
               featureType === '2'
                 ? buriedUpgradeVersionDialog(projectId, VersionProductType.globalVariable)
                 : variableApi.remove({ id: item.id }).then(res => {
-                    if (!!res) {
+                    if (res) {
                       onRefreshVarList(REFRESH_TYPE.DELETE, item);
                       alert(_l('删除成功'));
                     }

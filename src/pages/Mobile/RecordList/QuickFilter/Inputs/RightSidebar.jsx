@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 
@@ -31,9 +31,7 @@ export default function RightSidebar(props) {
         <div className="flex Gray_9e Font13 mLeft20 ellipsis">{props.name}</div>
         <Icon className="Gray_9e close" icon="close" onClick={onHideSidebar} />
       </div>
-      <div className="rightSidebar-content flex">
-        {children}
-      </div>
+      <div className="rightSidebar-content flex">{children}</div>
     </Con>
   );
 }

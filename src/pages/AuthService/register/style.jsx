@@ -5,7 +5,7 @@ export const Wrap = styled.div`
     margin-top: 13px;
     font-size: 14px;
     .terms {
-      color: #2196f3;
+      color: #1677ff;
       text-decoration: none;
     }
   }
@@ -67,7 +67,7 @@ export const Wrap = styled.div`
       color: #757575;
     }
     .textB {
-      color: #2196f3;
+      color: #1677ff;
     }
 
     .textB:hover {

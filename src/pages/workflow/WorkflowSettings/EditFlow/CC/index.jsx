@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, MembersName, NodeOperate } from '../components';
 import { getIcons } from '../../utils';
+import { CreateNode, MembersName, NodeOperate } from '../components';
 
 export default class CC extends Component {
   constructor(props) {
@@ -22,7 +22,7 @@ export default class CC extends Component {
     if (item.selectNodeId && !item.selectNodeName) {
       return (
         <div className="pLeft8 pRight8 red">
-          <i className="icon-workflow_info Font18 mRight5" />
+          <i className="icon-report Font18 mRight5" />
           {_l('指定的发送记录已删除')}
         </div>
       );
@@ -36,7 +36,7 @@ export default class CC extends Component {
         </div>
         {item.isException && (
           <div className="pLeft8 pRight8 pBottom5 yellow">
-            <i className="icon-workflow_error Font18 mRight5" />
+            <i className="icon-info_outline Font18 mRight5" />
             {_l('通知内容存在异常')}
           </div>
         )}

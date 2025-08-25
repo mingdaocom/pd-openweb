@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 /**
  * @param {目标元素} element
  * @param {目标位置} to
@@ -16,7 +14,7 @@ export const scrollTo = (element, to, duration = 200) => {
     return;
   }
   const difference = to - element.scrollTop;
-  const perTick = difference / duration * 10;
+  const perTick = (difference / duration) * 10;
 
   requestAnimationFrame(() => {
     element.scrollTop = element.scrollTop + perTick;

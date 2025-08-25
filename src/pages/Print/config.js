@@ -1,3 +1,5 @@
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+
 export const fromType = {
   PRINT: 'print', // 打印
   FORM_SET: 'formSet', // 设置
@@ -83,21 +85,7 @@ export const SYST_PRINT_TXT = {
 export const UN_PRINT_CONTROL = [43]; //不支持打印的type 文本识别 43
 
 //打印不支持的系统字段
-export const FILTER_SYS = [
-  'rowid',
-  // 'ownerid',
-  // 'caid',
-  // 'ctime',
-  // 'utime',
-  'uaid',
-  'wfname',
-  'wfcuaids',
-  'wfcaid',
-  'wfctime',
-  'wfrtime',
-  'wfftime',
-  'wfstatus',
-];
+export const FILTER_SYS = ALL_SYS.filter(o => !['ownerid', 'caid', 'ctime', 'utime'].includes(o));
 
 export const APPROVAL_SYS = [
   {
@@ -129,7 +117,7 @@ export const APPROVAL_SYS = [
 export const PRINT_TYPE_STYLE = {
   [PRINT_TYPE.WORD_PRINT]: {
     icon: 'new_word',
-    background: '#2196f3 0% 0% no-repeat padding-box',
+    background: '#1677ff 0% 0% no-repeat padding-box',
     text: _l('Word 模板'),
     fileIcon: 'fileIcon-word',
   }, // word模版打印

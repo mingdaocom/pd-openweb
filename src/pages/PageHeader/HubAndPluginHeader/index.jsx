@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Motion, spring } from 'react-motion';
+import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
@@ -21,7 +22,7 @@ const HomeEntry = styled.div`
   cursor: pointer;
   &:hover {
     border-color: #ddd;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 const Wrap = styled.div`

@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 
 export default class CalendarAddress extends Component {
@@ -35,7 +35,11 @@ export default class CalendarAddress extends Component {
               placeholder={editable ? _l('添加会议地点') : _l('未填写会议地点')}
             />
             {address && canLook ? (
-              <a href={`http://api.map.baidu.com/geocoder?address=${address}&output=html&referer=`} target="_blank" className="pLeft15 pRight15">
+              <a
+                href={`http://api.map.baidu.com/geocoder?address=${address}&output=html&referer=`}
+                target="_blank"
+                className="pLeft15 pRight15"
+              >
                 {_l('地图')}
               </a>
             ) : null}

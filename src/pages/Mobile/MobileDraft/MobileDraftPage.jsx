@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import _ from 'lodash';
+import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import DraftList from './DraftList';
 
@@ -40,7 +41,7 @@ export default class MobileDraftList extends Component {
       .then(res => {
         this.setState({ draftData: res.data, loading: false });
       })
-      .catch(res => {
+      .catch(() => {
         this.setState({ draftData: [], loading: false });
       });
   };
@@ -59,23 +60,25 @@ export default class MobileDraftList extends Component {
 
     return (
       <BrowserRouter>
-        <DraftList
-          draftData={draftData}
-          appId={appId}
-          worksheetId={worksheetId}
-          worksheetInfo={worksheetInfo}
-          getDraftData={this.getDraftData}
-          updateDraftList={(rowId, rowData) => {
-            let data = _.clone(draftData);
-            if (!rowData) {
-              data = data.filter(it => it.rowid !== rowId);
-            } else {
-              const index = _.findIndex(data, it => it.rowid === rowId);
-              data[index] = rowData;
-            }
-            this.setState({ draftData: data });
-          }}
-        />
+        <div className="pTop20 flexColumn h100">
+          <DraftList
+            draftData={draftData}
+            appId={appId}
+            worksheetId={worksheetId}
+            worksheetInfo={worksheetInfo}
+            getDraftData={this.getDraftData}
+            updateDraftList={(rowId, rowData) => {
+              let data = _.clone(draftData);
+              if (!rowData) {
+                data = data.filter(it => it.rowid !== rowId);
+              } else {
+                const index = _.findIndex(data, it => it.rowid === rowId);
+                data[index] = rowData;
+              }
+              this.setState({ draftData: data });
+            }}
+          />
+        </div>
       </BrowserRouter>
     );
   }

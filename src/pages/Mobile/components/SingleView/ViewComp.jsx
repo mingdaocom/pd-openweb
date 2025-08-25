@@ -9,8 +9,14 @@ import styled from 'styled-components';
 import { Button, Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import homeAppAjax from 'src/api/homeApp';
+import { BatchOperationBtn } from 'mobile/components/RecordActions';
 import { openAddRecord } from 'mobile/Record/addRecord';
-import { loadWorksheet, unshiftSheetRow, updateFiltersGroup } from 'mobile/RecordList/redux/actions';
+import {
+  changeBatchOptVisible,
+  loadWorksheet,
+  unshiftSheetRow,
+  updateFiltersGroup,
+} from 'mobile/RecordList/redux/actions';
 import View from 'mobile/RecordList/View';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -32,6 +38,15 @@ const ViewCon = styled.div`
   .toolBarWrap {
     z-index: 100 !important;
   }
+  .batchOptBar {
+    justify-content: space-between;
+    height: 42px;
+    line-height: 42px;
+    padding: 0 15px;
+    background-color: #fff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+  }
 `;
 
 const Header = styled.div`
@@ -42,15 +57,18 @@ const Header = styled.div`
 
 const AddBtn = styled.div`
   position: fixed;
+  right: 20px;
   bottom: 20px;
-  width: 100%;
-  text-align: center;
-  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   button {
-    height: 44px;
+    width: 66px !important;
+    height: 66px !important;
+    min-width: 66px !important;
     display: flex !important;
     align-items: center;
-    border-radius: 24px !important;
+    border-radius: 50% !important;
     padding: 0px 15px !important;
     margin: 0 auto;
     box-shadow: 0 1px 4px #00000029;
@@ -61,6 +79,7 @@ function ViewComp(props) {
   const { showHeader, headerLeft, headerRight } = props;
   const {
     base = {},
+    batchOptVisible,
     workSheetLoading,
     worksheetInfo,
     sheetSwitchPermit,
@@ -85,6 +104,19 @@ function ViewComp(props) {
     _.includes(['0'], String(view.viewType)) &&
     navData &&
     (appNavType === '2' || !appNavType || appNavType === '3' || _.includes([29, 35], navData.type)); // 是否存在分组列表
+  const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
+  const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
+  const canAddRecord =
+    !_.isEmpty(view) &&
+    isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+    allowAdd &&
+    ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) &&
+    ((view.viewType === 2 && _.get(view, 'advancedSetting.hierarchyViewType') !== '3') || view.viewType !== 2);
+  const showBatchBtn =
+    view.viewType === 0 &&
+    (canDelete || showCusTomBtn) &&
+    !batchOptVisible &&
+    (_.isEmpty(view.navGroup) || appNavType !== '1');
 
   useEffect(() => {
     if (appId && worksheetId) {
@@ -103,7 +135,7 @@ function ViewComp(props) {
         updateFiltersGroup(filtersGroup);
         return;
       }
-      if ([0, 6].includes(view.viewType)) {
+      if ([0, 3, 6].includes(view.viewType)) {
         updateFiltersGroup(filtersGroup);
       } else {
         updateFilters({ filtersGroup }, view);
@@ -186,25 +218,24 @@ function ViewComp(props) {
             <View view={view} viewFlag={Date.now()} />
           </ViewCon>
         </Fragment>
-        {!_.isEmpty(view) &&
-          isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
-          allowAdd &&
-          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) &&
-          ((view.viewType === 2 && _.get(view, 'advancedSetting.hierarchyViewType') !== '3') ||
-            view.viewType !== 2) && (
-            <AddBtn>
-              <Button
-                className={cx('valignWrapper flexRow addRecord', {
-                  'Right mRight16': [2, 5, 7].includes(view.viewType),
-                })}
-                style={{ backgroundColor: appColor }}
-                onClick={addRecord}
-              >
-                <Icon icon="add" className="Font22 mRight5" />
-                {_.get(worksheetInfo, 'advancedSetting.btnname') || worksheetInfo.entityName || _l('记录')}
-              </Button>
-            </AddBtn>
+
+        <AddBtn>
+          {showBatchBtn && (
+            <BatchOperationBtn className="Static mTop10" onClick={() => props.changeBatchOptVisible(true)} />
           )}
+          {!batchOptVisible && canAddRecord && (
+            <Button
+              radius
+              className={cx('valignWrapper flexRow addRecord mTop10', {
+                'Right mRight16': [2, 5, 7].includes(view.viewType),
+              })}
+              style={{ backgroundColor: appColor }}
+              onClick={addRecord}
+            >
+              <Icon icon="add" className="Font36 LineHeight60" />
+            </Button>
+          )}
+        </AddBtn>
       </Con>
     )
   );
@@ -212,7 +243,15 @@ function ViewComp(props) {
 
 export default connect(
   state => ({
-    ..._.pick(state.mobile, 'base', 'workSheetLoading', 'worksheetInfo', 'sheetSwitchPermit', 'appColor'),
+    ..._.pick(
+      state.mobile,
+      'base',
+      'workSheetLoading',
+      'worksheetInfo',
+      'sheetSwitchPermit',
+      'appColor',
+      'batchOptVisible',
+    ),
   }),
   dispatch =>
     bindActionCreators(
@@ -222,6 +261,7 @@ export default connect(
         updateFiltersGroup,
         addNewRecord,
         updateFilters,
+        changeBatchOptVisible,
       },
       dispatch,
     ),

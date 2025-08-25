@@ -9,7 +9,7 @@ export default function wrapDisableClick(Comp) {
     };
     render() {
       const { disabled, onClick } = this.props;
-      return <Comp { ...Object.assign({}, this.props, { onClick: disabled ? () => {} : onClick }) } />;
+      return <Comp {...Object.assign({}, this.props, { onClick: disabled ? () => {} : onClick })} />;
     }
   };
 }

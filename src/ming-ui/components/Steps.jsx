@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
-import { arrayOf, bool, func, number, oneOfType, shape, string } from 'prop-types';
+import { bool, func, number, oneOfType, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
@@ -266,7 +266,7 @@ export default function Steps(props) {
     setWidth(currentValue >= 0 ? (currentValue / (filterOptions.length - 1)) * 100 : 0);
   }, [currentValue]);
 
-  const currentColor = enumDefault2 === 1 ? _.get(filterOptions[currentValue], 'color') || '#f1f1f1' : '#2196f3';
+  const currentColor = enumDefault2 === 1 ? _.get(filterOptions[currentValue], 'color') || '#f1f1f1' : '#1677ff';
 
   if (isMobile && direction === '1') {
     return (
@@ -422,7 +422,7 @@ export default function Steps(props) {
           isMobile={isMobile}
           onClick={e => {
             if (disabled) return;
-            const { left, width, height } = barRef.current.getBoundingClientRect();
+            const { left, width } = barRef.current.getBoundingClientRect();
             const index = Math.ceil((e.clientX - left) / (width / (filterOptions.length - 1)));
             const tempVal = (filterOptions[index] || {}).key || '';
             if (tempVal) {

@@ -1,14 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Radio } from 'ming-ui';
 import _ from 'lodash';
+import { Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
-  DetailHeader,
+  CustomTextarea,
   DetailFooter,
+  DetailHeader,
   Member,
   SelectUserDropDown,
   SingleControlValue,
-  CustomTextarea,
 } from '../components';
 
 export default class Template extends Component {
@@ -26,7 +26,7 @@ export default class Template extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -296,7 +296,7 @@ export default class Template extends Component {
                     height={0}
                     content={data.templateNode.url}
                     formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) =>
+                    onChange={(err, value) =>
                       this.updateSource({ templateNode: Object.assign({}, data.templateNode, { url: value }) })
                     }
                     updateSource={this.updateSource}
@@ -317,7 +317,7 @@ export default class Template extends Component {
                     height={0}
                     content={data.templateNode.appId}
                     formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) =>
+                    onChange={(err, value) =>
                       this.updateSource({ templateNode: Object.assign({}, data.templateNode, { appId: value }) })
                     }
                     updateSource={this.updateSource}
@@ -334,7 +334,7 @@ export default class Template extends Component {
                     height={0}
                     content={data.templateNode.pagePath}
                     formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) =>
+                    onChange={(err, value) =>
                       this.updateSource({ templateNode: Object.assign({}, data.templateNode, { pagePath: value }) })
                     }
                     updateSource={this.updateSource}
@@ -364,7 +364,7 @@ export default class Template extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {this.renderDesc()}

@@ -1,17 +1,17 @@
 import React, { Component, Fragment } from 'react';
-import flowNode from '../../../api/flowNode';
-import { ScrollView, LoadDiv } from 'ming-ui';
-import {
-  SelectUserDropDown,
-  Member,
-  DetailHeader,
-  DetailFooter,
-  CustomTextarea,
-  PromptSoundDialog,
-} from '../components';
 import _ from 'lodash';
+import { LoadDiv, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  Member,
+  PromptSoundDialog,
+  SelectUserDropDown,
+} from '../components';
 
 export default class Notice extends Component {
   constructor(props) {
@@ -28,7 +28,7 @@ export default class Notice extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -121,7 +121,7 @@ export default class Notice extends Component {
           type={2}
           content={data.sendContent}
           formulaMap={data.formulaMap}
-          onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
+          onChange={(err, value) => this.updateSource({ sendContent: value })}
           updateSource={this.updateSource}
         />
 
@@ -182,11 +182,11 @@ export default class Notice extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-hr_message_reminder"
+          icon="icon-notifications"
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

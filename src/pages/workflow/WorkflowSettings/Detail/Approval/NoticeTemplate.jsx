@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import moment from 'moment';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import { CustomTextarea } from '../components';
-import styled from 'styled-components';
-import moment from 'moment';
 
 const Preview = styled.div`
   box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.16);
@@ -61,7 +61,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
         height={0}
         content={selectMsg}
         formulaMap={data.formulaMap}
-        onChange={(err, value, obj) => setMsg(value)}
+        onChange={(err, value) => setMsg(value)}
         updateSource={updateSource}
       />
       <div className="mTop20">{_l('预览')}</div>

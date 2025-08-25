@@ -1,10 +1,10 @@
 import React from 'react';
 import cx from 'classnames';
-import { Icon, MdAntDateRangePicker } from 'ming-ui';
-import { quickSelectUser } from 'ming-ui/functions';
-import 'moment/locale/zh-cn';
 import _ from 'lodash';
 import moment from 'moment';
+import 'moment/locale/zh-cn';
+import { Icon, MdAntDateRangePicker } from 'ming-ui';
+import { quickSelectUser } from 'ming-ui/functions';
 
 const customDate = 8;
 
@@ -111,11 +111,7 @@ export default class InboxFilter extends React.Component {
     const that = this;
     const filterAccountIds = [md.global.Account.accountId];
     const projectId = '';
-    const account = {
-      accountId: md.global.Account.accountId,
-      fullname: _l('我自己'),
-      avatar: md.global.Account.avatar,
-    };
+
     quickSelectUser(event.target, {
       showMoreInvite: false,
       isTask: false,

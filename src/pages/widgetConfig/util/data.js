@@ -90,7 +90,7 @@ export const getMsgByCode = ({ code, data, controls }) => {
 };
 
 export function handleExtremeValue(data) {
-  const { advancedSetting = {}, type } = data;
+  const { advancedSetting = {} } = data;
   const { checkrange = '0', min = '', max = '' } = advancedSetting;
   const transferValue = value => (value ? value.toString() : '').replace(/,/g, '');
   const formateMin = parseFloat(transferValue(min));
@@ -135,6 +135,7 @@ export function dealRelateSheetDefaultValue(data) {
             ),
           };
         } catch (error) {
+          console.log(error);
           return data;
         }
       },
@@ -230,6 +231,7 @@ export function handleCondition(condition, isRelate) {
             return value;
           }
         } catch (e) {
+          console.log(e);
           return value;
         }
       }),
@@ -259,6 +261,7 @@ export function handleFilters(data, isRelate = false, filterKey) {
 
     return handleAdvancedSettingChange(data, { [keyName]: JSON.stringify(filtersValue) });
   } catch (err) {
+    console.log(err);
     return data;
   }
 }
@@ -384,7 +387,7 @@ export function getControlTextValue(id, allControls, worksheetData, numberOnly) 
  * @return {element} 返回一个dom元素
  */
 export function createWorksheetColumnTag(id, options) {
-  const { allControls, worksheetData, errorCallback, mode, isLast } = options;
+  const { allControls, errorCallback, mode, isLast } = options;
   const control = getControlByControlId(allControls, id);
   const node = document.createElement('div');
   // const value = getControlTextValue(id, allControls, worksheetData, true) || _l('空');
@@ -877,7 +880,7 @@ export const scrollToVisibleRange = (data, widgetProps) => {
   const rect = $activeWidget.getBoundingClientRect();
   // 如果在可视区外
   if (rect.top < 0 || rect.top > $contentWrap.offsetHeight) {
-    const $scrollWrap = $contentWrap.querySelector('.nano-content');
+    const $scrollWrap = $contentWrap.querySelector('.scroll-viewport');
     if ($scrollWrap) {
       setTimeout(() => {
         const $widget = document.getElementById(`widget-${data.controlId}`);
@@ -992,7 +995,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
     if (isHaveGap(newWidgets[currentRowIndex], item)) {
       // 表单为空，直接添加
-      newWidgets = update(newWidgets, { [_.isEmpty(newWidgets) ? 0 : currentRowIndex]: { $push: [item] } });
+      newWidgets = _.isEmpty(newWidgets) ? [[item]] : update(newWidgets, { [currentRowIndex]: { $push: [item] } });
     } else {
       newWidgets = update(newWidgets, {
         $splice: [[currentRowIndex + 1, 0, [item]]],
@@ -1054,6 +1057,7 @@ export const dealCopyWidgetId = (data = {}) => {
     controlId: uuidv4(),
     alias: '',
     controlName: _l('%0-复制', data.controlName),
+    advancedSetting: { ...data.advancedSetting, custom_event: '' },
   };
 
   let ids = {};
@@ -1115,7 +1119,6 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
   let childCount = 0;
   let newWidgets = widgets;
   let sectionIds = {};
-  let newQueries = [];
   let newActiveWidget = {};
 
   selectWidgets.map(item => {
@@ -1167,7 +1170,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
 };
 
 // 批量设置属性
-export const batchResetWidgets = (props, selectWidgets = [], fieldPermission) => {
+export const batchResetWidgets = (props, selectWidgets = []) => {
   let { widgets, setWidgets } = props;
   selectWidgets.forEach(item => {
     const [row, col] = getPathById(widgets, item.controlId);

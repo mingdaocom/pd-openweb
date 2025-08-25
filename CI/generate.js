@@ -63,6 +63,7 @@ function generate() {
       }
 
       $('head').prepend(`
+      <meta name="format-detection" content="telephone=no, email=no, address=no">
       <link rel="icon" type="image/png" href="/file/mdpic/ProjectLogo/favicon.png" />
       <style>
         ::-webkit-scrollbar {
@@ -173,7 +174,7 @@ function generate() {
         if (!isProduction) {
           // 开发模式
           $entryScript.replaceWith(
-            ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals', moduleName]
+            ['node_modules', 'cookies', 'vendors', 'core', 'common', 'globals', moduleName]
               .map(src => `<script src="${getPublicPath(entry.type) + src}.dev.js"></script>`)
               .join(''),
           );
@@ -183,8 +184,8 @@ function generate() {
             entry.type === 'single'
               ? ['cookies', 'vendors', 'globals']
               : entry.type === 'singleExtractModules'
-                ? ['node_modules', 'cookies', 'common', 'vendors', 'globals']
-                : ['node_modules', 'cookies', 'core', 'common', 'vendors', 'globals'];
+                ? ['node_modules', 'cookies', 'vendors', 'common', 'globals']
+                : ['node_modules', 'cookies', 'vendors', 'core', 'common', 'globals'];
 
           let manifestData = JSON.parse(
             fs

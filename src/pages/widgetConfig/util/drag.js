@@ -1,7 +1,8 @@
+import { enumWidgetType, genWidgetRowAndCol, getDefaultSizeByData } from '.';
 import update from 'immutability-helper';
-import { filter, head, isEmpty, includes, flatten, findIndex, isArray } from 'lodash';
+import { filter, flatten, head, includes, isEmpty } from 'lodash';
+import _ from 'lodash';
 import { DRAG_ITEMS, WHOLE_SIZE } from '../config/Drag';
-import { enumWidgetType, getDefaultSizeByData, genWidgetRowAndCol } from '.';
 import { isFullLineControl } from './widgets';
 
 const removeEmptyRow = widgets => {
@@ -54,7 +55,7 @@ export const batchRemoveItems = (widgets, deleteItems = []) => {
 };
 
 // 添加新行
-export const insertNewLine = ({ widgets, srcPath, srcItem, targetIndex }) => {
+export const insertNewLine = ({ widgets, srcItem, targetIndex }) => {
   const dealWidgets = getDealWidgets(widgets, srcItem);
   const removedSrcItems = removeSrcItems(widgets, flatten(dealWidgets));
 
@@ -112,8 +113,8 @@ export const insertControlInSameLine = ({ widgets, srcItem, srcPath, dropPath, l
                   ? colIndex - 1
                   : colIndex
                 : location === 'left'
-                ? colIndex
-                : colIndex + 1,
+                  ? colIndex
+                  : colIndex + 1,
               0,
               srcItem,
             ],

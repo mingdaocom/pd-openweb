@@ -1,15 +1,15 @@
 import React from 'react';
+import { Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
-import { Tooltip } from 'antd';
-import { SettingItem, NumberRange } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange, canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
-import InputValue from './InputValue';
-import DateVerify from './DateVerify';
-import TextVerify from './TextVerify';
+import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { NumberRange, SettingItem } from '../../../styled';
 import AttachmentVerify from './AttachmentVerify';
+import DateVerify from './DateVerify';
+import InputValue from './InputValue';
 import SubListVerify from './SubListVerify';
-import _ from 'lodash';
+import TextVerify from './TextVerify';
 
 const CompConfig = {
   14: AttachmentVerify,
@@ -75,6 +75,7 @@ export default function WidgetVerify(props) {
     showtype,
     otherrequired = '0',
     required: forceReCheck,
+    chooseothertype,
   } = getAdvanceSetting(data);
   const { title, placeholder = [] } = TYPE_TO_TEXT[type] || {};
   const otherText =
@@ -112,6 +113,7 @@ export default function WidgetVerify(props) {
                 {_l('写入时强制校验必填')}
                 <Tooltip
                   placement={'bottom'}
+                  autoCloseDelay={0}
                   title={_l(
                     '忽略业务规则的配置，在所有写入数据的场景中校验必填，包括工作流、批量导入、API写入、数据集成同步等',
                   )}
@@ -123,7 +125,7 @@ export default function WidgetVerify(props) {
           </div>
         )}
         {/**不允许重复输入 */}
-        {!fromPortal && !isSubList && canAsUniqueWidget(data) && (
+        {!fromPortal && !isSubList && canAsUniqueWidget(data) && !_.includes([9, 10, 11], data.type) && (
           <div className="labelWrap">
             <Checkbox size="small" checked={unique} onClick={checked => onChange({ unique: !checked })}>
               <span>
@@ -131,6 +133,7 @@ export default function WidgetVerify(props) {
                 {!isSubList && (
                   <Tooltip
                     placement={'bottom'}
+                    autoCloseDelay={0}
                     title={
                       <span>
                         {_l(
@@ -226,12 +229,32 @@ export default function WidgetVerify(props) {
             checked={otherrequired === '1'}
             onClick={checked => onChange(handleAdvancedSettingChange(data, { otherrequired: checked ? '0' : '1' }))}
           >
-            <span>
-              {_l('选择“%0”时，补充信息必填', otherText)}
-              <Tooltip placement={'bottom'} title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}>
-                <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
-              </Tooltip>
-            </span>
+            <span>{_l('选择“%0”时，补充信息必填', otherText)}</span>
+            <Tooltip
+              placement={'bottom'}
+              autoCloseDelay={0}
+              title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}
+            >
+              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+            </Tooltip>
+          </Checkbox>
+        </div>
+      )}
+      {_.includes([10], type) && _.find(options, i => i.key === 'other' && !i.isDeleted) && (
+        <div className="labelWrap dropLabel">
+          <Checkbox
+            size="small"
+            checked={chooseothertype === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { chooseothertype: checked ? '0' : '1' }))}
+          >
+            <span>{_l('选择“%0”时，不能选择常规选项', otherText)}</span>
+            <Tooltip
+              placement={'bottom'}
+              autoCloseDelay={0}
+              title={_l('勾选后，选择“其他”时清空常规选项，选择常规选项时清空“其他”。')}
+            >
+              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+            </Tooltip>
           </Checkbox>
         </div>
       )}

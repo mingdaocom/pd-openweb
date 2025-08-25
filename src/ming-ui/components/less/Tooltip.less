@@ -1,5 +1,5 @@
 @tooltip-cls: ~'Tooltip';
-@tooltip-max-width: 250px;
+@tooltip-max-width: 400px;
 
 @tooltip-arrow-width: 5px;
 @tooltip-distance: @tooltip-arrow-width - 1px + 4px;
@@ -112,7 +112,10 @@
 
   &-white .@{tooltip-cls}-wrapper {
     background-color: @tooltip-white-bg;
-    box-shadow: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+    box-shadow:
+      0 3px 6px -4px rgba(0, 0, 0, 0.12),
+      0 6px 16px 0 rgba(0, 0, 0, 0.08),
+      0 9px 28px 8px rgba(0, 0, 0, 0.05);
   }
 
   &-black {

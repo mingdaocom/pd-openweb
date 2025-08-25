@@ -1,7 +1,7 @@
 import React from 'react';
-import { Qr as QrComp } from 'ming-ui';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Qr as QrComp } from 'ming-ui';
 
 const Con = styled.div(
   ({ width }) =>
@@ -29,7 +29,7 @@ const Bulge = styled.span(
 
 export default function Qr(props) {
   const { url, bulge = true, width = 160 } = props;
-  const qrurl = md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${encodeURI(`${url}`)}`;
+
   return (
     <Con width={width}>
       {bulge && <Bulge width={24} />}

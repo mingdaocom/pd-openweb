@@ -1,13 +1,14 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import api from 'api/homeApp';
 import { isEmpty } from 'lodash';
-import { Icon, ScrollView, Skeleton } from 'ming-ui';
+import _ from 'lodash';
+import { Icon, Skeleton } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import SideAppGroup from './SideAppGroup';
 import './index.less';
 
 const NATIVE_MODULES = [
-  { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
+  { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#1677ff', href: '/feed', key: 1 },
   { id: 'task', icon: 'task_basic_application', text: _l('任务'), color: '#3cca8f', href: '/apps/task', key: 2 },
   { id: 'calendar', icon: 'sidebar_calendar', text: _l('日程'), color: '#ff6d6c', href: '/apps/calendar/home', key: 3 },
   { id: 'knowledge', icon: 'sidebar_knowledge', text: _l('文件'), color: '#F89803', href: '/apps/kc', key: 4 },
@@ -87,7 +88,7 @@ export default function SideContent(props) {
 
     allTypes.forEach(type => {
       const group = _.get(getFilterData(), type) || [];
-      if (!!group.length) {
+      if (group.length) {
         ['markedApps', 'externalApps', 'aloneApps'].includes(type)
           ? keys.push(`${type}/@INIT`)
           : group.forEach(({ projectId, projectApps }) => !!projectApps.length && keys.push(`${type}/${projectId}`));
@@ -128,6 +129,19 @@ export default function SideContent(props) {
       expandKeys,
       onExpandCollapse,
     };
+
+    if (
+      !markedApps.length &&
+      !GROUP_TYPES.filter(type => {
+        const group = _.get(getFilterData(), type) || [];
+        return ['validProject', 'expireProject'].includes(type)
+          ? !!group.filter(item => !!item.projectApps?.length).length
+          : !!group.length;
+      }).length
+    ) {
+      return <div className="TxtCenter mTop16 Gray_75">{_l('无搜索结果')}</div>;
+    }
+
     return (
       <Fragment>
         {markedApps && markedApps.length > 0 && (
@@ -197,7 +211,7 @@ export default function SideContent(props) {
       {loading && posX !== 0 ? (
         <Skeleton active widths={['60%', '30%', '40%', '60%', '30%', '40%', '60%', '30%', '40%']} />
       ) : (
-        <ScrollView>{renderAppGroups()}</ScrollView>
+        <div style={{ height: '100%', overflowY: 'auto' }}>{renderAppGroups()}</div>
       )}
     </Fragment>
   );

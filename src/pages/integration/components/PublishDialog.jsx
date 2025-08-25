@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Dialog, Radio, Icon } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import APITable from './APITable';
-import { WrapFooter } from '../apiIntegration/style';
-import { hrefReg } from 'src/pages/customPage/components/previewContent/index.jsx';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, Radio } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import { hrefReg } from 'src/pages/customPage/components/previewContent/index.jsx';
+import { WrapFooter } from '../apiIntegration/style';
+import APITable from './APITable';
+
 const WrapHeader = styled.div`
   .publishInfo {
     height: 72px;
@@ -258,7 +260,7 @@ export default function PublishDialog(props) {
                           type="text"
                           className="mTop20"
                           value={
-                            !!info.accountId
+                            info.accountId
                               ? md.global.Account.fullname
                               : md.global.Account.projects.find(o => o.projectId === currentProjectId).companyName
                           }
@@ -271,7 +273,7 @@ export default function PublishDialog(props) {
                         type="text"
                         value={info[o.key]}
                         placeholder={_l('请输入')}
-                        maxLength={['name', 'company'].includes(o.key) ? '20' : '200'}
+                        maxLength={['name', 'company'].includes(o.key) ? '20' : o.key === 'explain' ? '600' : '200'}
                         onChange={e => {
                           setState({ info: { ...info, [o.key]: e.target.value } });
                         }}

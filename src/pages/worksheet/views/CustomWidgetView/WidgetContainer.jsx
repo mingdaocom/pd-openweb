@@ -77,6 +77,7 @@ export default function WidgetContainer(props) {
       worksheetInfo,
       filters: getFilters(filters, quickFilter, navGroupFilters),
       query: qs.parse(location.search.slice(1)),
+      appLang: getCookie('i18n_langtag') || md.global.Config.DefaultLang,
       currentAccount: pick(get(md, 'global.Account') || {}, [
         'fullname',
         'avatar',

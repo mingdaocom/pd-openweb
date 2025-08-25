@@ -23,16 +23,6 @@ const sortFieldTrans = {
   createTime: 0,
 };
 
-const CONFIRM_CONFIG = {
-  open: {
-    title: _l('开启群组'),
-    description: _l('确认开启所选择的群组?'),
-    success: _l('开启群组成功'),
-    fail: _l('开启群组失败'),
-    func: groupController.openGroup,
-  },
-};
-
 export default class GroupsList extends Component {
   constructor() {
     super();
@@ -421,7 +411,7 @@ export default class GroupsList extends Component {
                   <span className="LineHeight36">{_l('开启')}</span>
                 </div>
                 <div className="mLeft24 Hand pTop3 itemIconBox" onClick={() => this.handleClose()}>
-                  <span className="icon Font14 icon-task-new-locked mRight5"></span>
+                  <span className="icon Font14 icon-lock mRight5"></span>
                   <span className="LineHeight36">{_l('关闭')}</span>
                 </div>
                 <div className="mLeft24 Hand pTop3 itemIconBox" onClick={() => this.handleDissolve()}>
@@ -471,6 +461,7 @@ export default class GroupsList extends Component {
                 dataSource={list}
                 pagination={false}
                 showSorterTooltip={false}
+                sortDirections={['descend', 'ascend']}
                 onChange={this.handleChangeSort.bind(this)}
                 scroll={count == 0 ? {} : { y: count > pageSize ? 'calc(100vh - 300px)' : 'calc(100vh - 260px)' }}
               />

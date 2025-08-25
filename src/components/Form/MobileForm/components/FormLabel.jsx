@@ -29,19 +29,19 @@ const ControlLabel = styled.div`
   }}
   ${({ item, showTitle }) =>
     item.type === 34 && showTitle ? 'margin-bottom: 6px;margin-top:20px;' : 'min-height: 0px !important;'}
-  ${({ withSearchInput,showTitle }) =>
+  ${({ withSearchInput, showTitle }) =>
     withSearchInput && showTitle ? 'margin-bottom: 6px;margin-top:10px;' : 'min-height: 0px !important;'}
   .controlLabelName {
     ${({ displayRow, align_app = '1', showTitle }) => {
       if (displayRow) {
-        return align_app === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
+        return align_app === '1' ? 'text-align: left!important;' : 'text-align: right!important;flex: 1;';
       } else {
         if (!showTitle) {
           return 'visibility: hidden;';
         }
       }
     }}
-    font-size: ${props => props.titleSize || '0.8em'};
+    font-size: ${props => props.titleSize || '0.8em'}!important;
     color: ${props => props.titleColor || 'var(--gray-75)'};
     ${props => props.titleStyle || ''};
   }
@@ -63,6 +63,7 @@ export default ({
   widgetStyle = {},
   disabled,
   formDisabled,
+  updateErrorState = () => {},
 }) => {
   const {
     hinttype = '0',
@@ -143,14 +144,18 @@ export default ({
             action={['click']}
             popupPlacement={'topLeft'}
             offset={[-12, 0]}
+            autoCloseDelay={0}
           >
-            <i className="icon-workflow_error pointer Font16 Gray_9e mBottom10" />
+            <i className="icon-info_outline pointer Font16 Gray_9e mBottom10" />
           </Tooltip>
         )}
 
         {!item.showTitle && errorMessage && (
-          <div className="customFormErrorMessage">
-            <span>{errorMessage}</span>
+          <div className={cx('customFormErrorMessage', { ignoreErrorMessage: currentErrorItem.ignoreErrorMessage })}>
+            <span>
+              {errorMessage}
+              <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
+            </span>
             <i className="customFormErrorArrow" />
           </div>
         )}
@@ -161,8 +166,16 @@ export default ({
   return (
     <Fragment>
       {errorMessage && (
-        <div className={cx('customFormErrorMessage', { isChildTable: item.type === 34 })}>
-          <span>{errorMessage}</span>
+        <div
+          className={cx('customFormErrorMessage', {
+            isChildTable: item.type === 34,
+            ignoreErrorMessage: currentErrorItem.ignoreErrorMessage,
+          })}
+        >
+          <span>
+            {errorMessage}
+            <i className="icon-close mLeft6 Bold delIcon" onClick={() => updateErrorState(false, item.controlId)} />
+          </span>
           <i className="customFormErrorArrow" />
         </div>
       )}

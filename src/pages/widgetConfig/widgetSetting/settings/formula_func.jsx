@@ -1,16 +1,17 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import { Tooltip } from 'antd';
+import { get } from 'lodash';
+import _ from 'lodash';
+import { Dropdown } from 'ming-ui';
+import { DynamicInputStyle } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled.js';
+import { OUTPUT_FORMULA_FUNC, TIME_DISPLAY_TYPE } from '../../config/setting';
+import { SettingItem } from '../../styled';
 import { getAdvanceSetting } from '../../util/setting';
 import SwitchType from '../components/formula/SwitchType';
-import { SettingItem } from '../../styled';
-import { Dropdown } from 'ming-ui';
+import FunctionEditorDialog from '../components/FunctionEditorDialog';
 import PointConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
-import { Tooltip } from 'antd';
 import Date from './date';
-import FunctionEditorDialog from '../components/FunctionEditorDialog';
-import { DynamicInputStyle } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled.js';
-import { TIME_DISPLAY_TYPE, OUTPUT_FORMULA_FUNC } from '../../config/setting';
-import { get } from 'lodash';
 
 export default function FormulaFunc(props) {
   const { data, allControls, onChange } = props;
@@ -31,6 +32,7 @@ export default function FormulaFunc(props) {
     if (i.controlId === controlId) return false;
     if (i.type === 29) return false;
     if (i.type === 30 && (i.strDefault || '')[0] === '1') return false;
+    if (i.type === 38 && i.enumDefault === 3) return false;
     return true;
   });
 
@@ -68,7 +70,8 @@ export default function FormulaFunc(props) {
       );
     }
   };
-
+  let supportDebug = !props.subListData;
+  const targetWorksheetInfo = get(props, 'globalSheetInfo', {});
   return (
     <Fragment>
       <SwitchType {...props} />
@@ -90,7 +93,7 @@ export default function FormulaFunc(props) {
                       onChange({ dataSource: '' });
                     }}
                   >
-                    <i className="icon-cancel1"></i>
+                    <i className="icon-cancel"></i>
                   </div>
                 </Tooltip>
                 <div className="edit">
@@ -134,10 +137,10 @@ export default function FormulaFunc(props) {
 
       {visible && (
         <FunctionEditorDialog
-          supportDebug
-          worksheetId={get(props, 'globalSheetInfo.worksheetId')}
-          projectId={get(props, 'globalSheetInfo.projectId')}
-          appId={get(props, 'globalSheetInfo.appId')}
+          supportDebug={supportDebug}
+          worksheetId={targetWorksheetInfo.worksheetId}
+          projectId={targetWorksheetInfo.projectId}
+          appId={targetWorksheetInfo.appId}
           supportJavaScript={false}
           control={data}
           value={funcObj}

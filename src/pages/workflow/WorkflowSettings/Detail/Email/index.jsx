@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Radio, RichText } from 'ming-ui';
+import copy from 'copy-to-clipboard';
+import _ from 'lodash';
+import { Dropdown, LoadDiv, Radio, RichText, ScrollView } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import { ACTION_ID } from '../../enum';
 import { getControlTypeName } from '../../utils';
-import flowNode from '../../../api/flowNode';
 import {
+  ActionFields,
+  DetailFooter,
+  DetailHeader,
   Member,
   SelectUserDropDown,
   SingleControlValue,
-  DetailHeader,
-  DetailFooter,
-  ActionFields,
 } from '../components';
-import copy from 'copy-to-clipboard';
-import _ from 'lodash';
 
 export default class Email extends Component {
   constructor(props) {
@@ -33,7 +33,7 @@ export default class Email extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -443,7 +443,7 @@ export default class Email extends Component {
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>

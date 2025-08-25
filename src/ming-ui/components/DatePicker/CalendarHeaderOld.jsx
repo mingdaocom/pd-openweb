@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 import Icon from 'ming-ui/components/Icon';
 
 function formatMonth(month) {
@@ -20,12 +20,20 @@ const CalendarHeader = ({ prefixCls, value, onValueChange, locale, direction }) 
   }
   return (
     <div className={`${prefixCls}-header`}>
-      <Icon icon="arrow-left-border" className={`${prefixCls}-prev-month-btn`} onClick={() => onValueChange(value.clone().add(-1, 'months'))} />
+      <Icon
+        icon="arrow-left-border"
+        className={`${prefixCls}-prev-month-btn`}
+        onClick={() => onValueChange(value.clone().add(-1, 'months'))}
+      />
       <div className={`${prefixCls}-title`}>
         {beginEnd && <span className={`${prefixCls}-beginEnd`}>{`${beginEnd}: `}</span>}
         <span className={`${prefixCls}-content`}>{`${value.year()}年${formatMonth(value.month())}月`}</span>
       </div>
-      <Icon icon="arrow-right-border" className={`${prefixCls}-next-month-btn`} onClick={() => onValueChange(value.clone().add(1, 'months'))} />
+      <Icon
+        icon="arrow-right-border"
+        className={`${prefixCls}-next-month-btn`}
+        onClick={() => onValueChange(value.clone().add(1, 'months'))}
+      />
     </div>
   );
 };

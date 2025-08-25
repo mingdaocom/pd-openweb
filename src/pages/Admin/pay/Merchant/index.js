@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, UpgradeIcon } from 'ming-ui';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';

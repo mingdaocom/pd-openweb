@@ -1,8 +1,7 @@
 import React from 'react';
-import { WrapNav } from 'src/pages/Role/style';
-import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
+import { WrapNav } from 'src/pages/Role/style';
 import RoleList from './RoleList';
 
 export default class Con extends React.Component {

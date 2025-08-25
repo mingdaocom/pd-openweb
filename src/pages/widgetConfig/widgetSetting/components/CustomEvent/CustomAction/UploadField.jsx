@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Progress } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import createUploader from 'src/library/plupload/createUploader';
 import { formatFileSize } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -16,10 +16,10 @@ const UploadWrap = styled.div`
   }
   &.active,
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
     background: #f8fcff;
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -63,17 +63,17 @@ const UploadListWrap = styled.div`
       border-radius: 3px;
     }
     .uploadBtn {
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
       margin-right: 20px;
       &:hover {
-        background: #2196f3;
-        border-color: #2196f3;
+        background: #1677ff;
+        border-color: #1677ff;
         color: #fff;
       }
     }
     .submitBtn {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
       &:hover {
         background: #1565c0;
@@ -116,7 +116,7 @@ export default class UploadFile extends Component {
       },
       type: 0,
       init: {
-        Error: (up, err, errTip) => {
+        Error: (up, err) => {
           const {
             file: { name },
             code,
@@ -133,7 +133,7 @@ export default class UploadFile extends Component {
         FilesAdded: up => {
           up.setOption('auto_start', true);
         },
-        UploadProgress: (uploader, file) => {
+        UploadProgress: uploader => {
           let newFiles = _.unionBy(this.state.files.concat(uploader.files), 'key');
           newFiles = newFiles.filter(i => !_.includes(this.deleteFileKey, i.key));
           this.setState({ files: newFiles, dragOver: false });
@@ -179,7 +179,7 @@ export default class UploadFile extends Component {
                     <Progress
                       style={{ width: 196, marginLeft: '36px' }}
                       trailColor="#eaeaea"
-                      strokeColor="#2196f3"
+                      strokeColor="#1677ff"
                       strokeWidth={4}
                       percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
                     />

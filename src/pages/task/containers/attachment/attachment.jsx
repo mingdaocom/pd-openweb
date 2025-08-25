@@ -41,7 +41,6 @@ class Attachment extends Component {
   }
 
   componentDidMount() {
-    const that = this;
     const $taskList = $('#taskList');
 
     // 更多操作
@@ -146,7 +145,7 @@ class Attachment extends Component {
     // 滚动加载更多
     $('#taskList')
       .find('.taskAttachmentScroll')
-      .on('scroll', function (event) {
+      .on('scroll', function () {
         // 项目文件滚动
         if (!attachmentSettings.ajaxPost && that.state.isMore) {
           const $this = $(this);
@@ -274,7 +273,7 @@ class Attachment extends Component {
           <span className="attachmentPerson">
             <img src={item.createUserAvatar} className="taskFolderAvatar pointer" data-accountid={item.accountId} />
             <span
-              className="icon-task-point-more attachmentListOperation Font16 ThemeColor3"
+              className="icon-more_horiz attachmentListOperation Font16 ThemeColor3"
               data-source={JSON.stringify(item)}
             />
           </span>
@@ -336,7 +335,7 @@ class Attachment extends Component {
                 {item.isFolder ? '-' : item.taskName}
               </div>
               <span
-                className="icon-task-point-more taskThumbnailOperation Font16 ThemeColor3"
+                className="icon-more_horiz taskThumbnailOperation Font16 ThemeColor3"
                 data-source={JSON.stringify(item)}
               />
             </div>
@@ -408,10 +407,7 @@ class Attachment extends Component {
         <div className="attachmentBar boxSizing">
           <span className="switchView ThemeColor3">
             <i
-              className={cx(
-                'switchViewBtn pointer',
-                attachmentViewType === 1 ? 'icon-home-navigation' : 'icon-task-list',
-              )}
+              className={cx('switchViewBtn pointer', attachmentViewType === 1 ? 'icon-home-navigation' : 'icon-list')}
               onClick={this.switch}
             />
           </span>

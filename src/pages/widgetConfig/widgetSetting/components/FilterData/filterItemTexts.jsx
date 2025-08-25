@@ -24,7 +24,7 @@ const FilterTextWrap = styled.div`
     background: #f5f5f5;
     border-color: #d8d8d8;
     .editFilter {
-      color: #2196f3;
+      color: #1677ff;
     }
     .clearFilter {
       opacity: 1;
@@ -95,7 +95,7 @@ const FilterTextWrap = styled.div`
 
   .editWorkflow {
     width: auto;
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -212,7 +212,7 @@ export default class FilterItemTexts extends React.Component {
               onClear();
             }}
           >
-            <i className="icon-closeelement-bg-circle Gray_9e Font16 ThemeHoverColor3 TxtMiddle"></i>
+            <i className="icon-cancel Gray_9e Font16 ThemeHoverColor3 TxtMiddle"></i>
           </div>
         )}
         <div className="editFilter">

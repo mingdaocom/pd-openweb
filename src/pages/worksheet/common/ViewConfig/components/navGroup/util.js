@@ -16,9 +16,9 @@ export const GROUPFILTER_CONDITION_TYPE = [
   // 16, // 日期
   // 17, // 时间段 日期17 日期时间18
   // 18, // 时间段 日期17 日期时间18
-  // 19, // 地区 19'省23'省-市'24'省-市-县'
-  // 23, // 地区 19'省23'省-市'24'省-市-县'
-  // 24, // 地区 19'省23'省-市'24'省-市-县'
+  19, // 地区 19'省23'省-市'24'省-市-县'
+  23, // 地区 19'省23'省-市'24'省-市-县'
+  24, // 地区 19'省23'省-市'24'省-市-县'
   // 21, // 自由连接
   // 22, // 分割线
   // 25, // 大写金额
@@ -100,11 +100,22 @@ const RELATE_TYPE = [
   { text: _l('是'), value: 24 },
   { text: _l('属于'), value: 11 },
 ];
+
+export const AREA = {
+  //地区
+  keys: [19, 23, 24],
+  data: [{ key: 'filterType', types: RELATE_TYPE, txt: _l('筛选方式'), default: 11 }],
+};
+
 export const RELATES = {
   //选项
   keys: [29],
   data: [
-    { key: 'viewId', txt: _l('层级视图'), des: _l('当前选择为关联记录字段，可以继续选择关联表中的层级视图生成树状导航') },
+    {
+      key: 'viewId',
+      txt: _l('层级视图'),
+      des: _l('当前选择为关联记录字段，可以继续选择关联表中的层级视图生成树状导航'),
+    },
     { key: 'filterType', types: RELATE_TYPE, txt: _l('筛选方式'), default: 11 },
     { key: 'navshow', types: NAVSHOW_TYPE, txt: _l('显示项'), default: '0' },
   ],
@@ -121,7 +132,7 @@ export const getSetDefault = control => {
     dataType: type,
   };
   let data = {};
-  [OPTIONS, OPTIONSOTHER, RELATES, CASCADER].map(o => {
+  [OPTIONS, OPTIONSOTHER, RELATES, CASCADER, AREA].map(o => {
     if (o.keys.includes(type) || o.keys.includes(sourceControlType)) {
       o.data.map(it => {
         data = {
@@ -140,7 +151,7 @@ export const getSetDefault = control => {
 export const getSetHtmlData = type => {
   let data = [];
   type &&
-    [OPTIONS, OPTIONSOTHER, RELATES, CASCADER].map(it => {
+    [OPTIONS, OPTIONSOTHER, RELATES, CASCADER, AREA].map(it => {
       if (it.keys.includes(type)) {
         it.data.map(o => {
           data.push({

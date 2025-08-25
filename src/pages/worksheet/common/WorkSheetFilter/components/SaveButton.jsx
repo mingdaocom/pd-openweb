@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Menu, MenuItem } from 'ming-ui';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Menu, MenuItem } from 'ming-ui';
 
 const Con = styled.div`
   display: flex;
@@ -26,8 +26,8 @@ const Con = styled.div`
       cursor: pointer;
     }
     &:hover {
-      color: #2196f3;
-      border-color: #2196f3;
+      color: #1677ff;
+      border-color: #1677ff;
     }
   }
   &.disabled {
@@ -64,7 +64,7 @@ const DropdownIcon = styled.div`
   }
   &:hover {
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

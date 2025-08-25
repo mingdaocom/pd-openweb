@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { arrayOf, bool, func, shape } from 'prop-types';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
+import { arrayOf, bool, func, shape } from 'prop-types';
+import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { formatValuesOfCondition } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import Option from './StyledOption';
-import _ from 'lodash';
 
 const Con = styled.div`
   position: relative;
@@ -28,12 +27,10 @@ export default function RelateRecordOptions(props) {
     advancedSetting,
   } = props;
   const [records, setRecords] = useState(staticRecords || []);
-  const [loading, setLoading] = useState(true);
   async function load() {
     if (!_.isEmpty(staticRecords)) {
       return;
     }
-    setLoading(true);
     let filterControls;
     if (control && control.advancedSetting.filters) {
       filterControls = getFilter({ control, formData });
@@ -54,7 +51,6 @@ export default function RelateRecordOptions(props) {
       args.controlId = control.controlId;
     }
     const res = await worksheetAjax.getFilterRows(args);
-    setLoading(false);
     setRecords(res.data);
   }
   useEffect(() => {

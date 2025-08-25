@@ -1,15 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { string } from 'prop-types';
+import React, { useRef, useState } from 'react';
+import store from 'redux/configureStore';
+import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Button, Dialog, Icon } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
-import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import store from 'redux/configureStore';
 import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
-import { Button, Dialog, Icon } from 'ming-ui';
-import cx from 'classnames';
+import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { FlexCenter } from './util';
-import _ from 'lodash';
 
 const DisplayType = [
   { type: 'web', icon: 'desktop', text: _l('桌面配置') },
@@ -50,7 +49,7 @@ const ConfigHeader = styled(FlexCenter)`
     input {
       border: none;
       font-size: 17px;
-      border-bottom: 2px solid #2196f3;
+      border-bottom: 2px solid #1677ff;
     }
   }
   .displayType {
@@ -86,8 +85,8 @@ const ConfigHeader = styled(FlexCenter)`
     }
   }
   .pageSetting {
-    &:hover *{
-      color: #2196f3 !important;
+    &:hover * {
+      color: #1677ff !important;
     }
   }
   .close {
@@ -104,7 +103,7 @@ const ConfigHeader = styled(FlexCenter)`
     cursor: pointer;
   }
 `;
-export default (props) => {
+export default props => {
   const {
     appId,
     groupId,
@@ -129,20 +128,29 @@ export default (props) => {
     onSave();
     const newName = name.trim();
     if (originName !== newName) {
-      appManagementAjax.editWorkSheetInfoForApp({ appId, appSectionId: currentSheet.parentGroupId || groupId, workSheetId: pageId, workSheetName: newName }).then(res => {
-        if (res) {
-          updatePageInfo({ pageName: newName });
-          const { currentPcNaviStyle } = store.getState().appPkg;
-          if ([1, 3].includes(currentPcNaviStyle)) {
-            const singleRef = getAppSectionRef(groupId);
-            singleRef.dispatch(updateSheetListAppItem(pageId, {
-              workSheetName: newName,
-            }));
-          } else {
-            props.updateSheetListAppItem(pageId, { workSheetName: newName });
+      appManagementAjax
+        .editWorkSheetInfoForApp({
+          appId,
+          appSectionId: currentSheet.parentGroupId || groupId,
+          workSheetId: pageId,
+          workSheetName: newName,
+        })
+        .then(res => {
+          if (res) {
+            updatePageInfo({ pageName: newName });
+            const { currentPcNaviStyle } = store.getState().appPkg;
+            if ([1, 3].includes(currentPcNaviStyle)) {
+              const singleRef = getAppSectionRef(groupId);
+              singleRef.dispatch(
+                updateSheetListAppItem(pageId, {
+                  workSheetName: newName,
+                }),
+              );
+            } else {
+              props.updateSheetListAppItem(pageId, { workSheetName: newName });
+            }
           }
-        }
-      });
+        });
     }
   };
   const handleClose = () => {
@@ -215,13 +223,10 @@ export default (props) => {
           {_l('关闭')}
         </Button>
       )}
-      <Button onClick={save} loading={saveLoading}>{_l('保存')}</Button>
-      {configVisible && (
-        <ConfigSideWrap
-          {...props}
-          onClose={() => setConfigVisible(false)}
-        />
-      )}
+      <Button onClick={save} loading={saveLoading}>
+        {_l('保存')}
+      </Button>
+      {configVisible && <ConfigSideWrap {...props} onClose={() => setConfigVisible(false)} />}
     </ConfigHeader>
   );
 };

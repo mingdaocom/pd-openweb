@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
 import { isTel } from 'src/pages/AuthService/util.js';
 import { emitter } from 'src/utils/common';

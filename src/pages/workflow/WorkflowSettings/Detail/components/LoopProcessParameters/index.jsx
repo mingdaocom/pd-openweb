@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
-import { Icon, Dropdown } from 'ming-ui';
-import { FIELD_TYPE_LIST, ACTION_ID } from '../../../enum';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import SingleControlValue from '../SingleControlValue';
-import cx from 'classnames';
 import { v4 as uuidv4, validate } from 'uuid';
+import { Dropdown, Icon } from 'ming-ui';
+import { ACTION_ID, FIELD_TYPE_LIST } from '../../../enum';
+import SingleControlValue from '../SingleControlValue';
 
 const List = styled.div`
   .w120 {
@@ -28,7 +28,7 @@ const List = styled.div`
     line-height: 36px;
     font-size: 13px;
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .fieldDelBtn {
@@ -36,6 +36,9 @@ const List = styled.div`
     &:not(.disabled):hover {
       color: #f44336 !important;
     }
+  }
+  .startConditionWrap.actionFields {
+    width: 752px;
   }
 `;
 
@@ -164,7 +167,7 @@ export default props => {
                       }}
                     />
                     <Icon
-                      icon="task-new-delete"
+                      icon="trash"
                       className={cx('mLeft10 Gray_75 fieldDelBtn', { 'disabled Alpha5': isDisabled })}
                       onClick={() => {
                         if (item.processVariableType !== 3) {

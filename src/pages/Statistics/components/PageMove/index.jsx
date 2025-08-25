@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import cx from 'classnames';
-import { Dialog, Dropdown, Button } from 'ming-ui';
-import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import homeApp from 'src/api/homeApp';
 import store from 'redux/configureStore';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import cx from 'classnames';
+import { Button, Dialog, Dropdown } from 'ming-ui';
 import reportConfig from '../../api/reportConfig';
+import homeApp from 'src/api/homeApp';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 
-const formatApps = function(validProject, projectId, appId) {
+const formatApps = function (validProject, projectId, appId) {
   const appList = [];
   const project = validProject.filter(item => item.projectId === projectId)[0];
   if (project && project.projectApps && project.projectApps.length) {

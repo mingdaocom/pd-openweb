@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import CommonAjax from 'src/api/addressBook';
 import ChatController from 'src/api/chat';
 import GroupController from 'src/api/group';
@@ -266,7 +267,7 @@ export const createDiscussion = param => {
  * @param {*} url
  */
 export const getVideoInfo = url => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     $.ajax({
       url,
     }).then(result => {

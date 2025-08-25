@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
-import styled from 'styled-components';
-import process from 'src/pages/workflow/api/process';
-import { Dialog } from 'ming-ui';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
+import process from 'src/pages/workflow/api/process';
 
 const STATUS_TEXT = {
   1: _l('执行成功'),
@@ -33,8 +33,8 @@ const StatusWrap = styled.ul`
     line-height: 36px;
     &.active,
     &:hover {
-      color: #2196f3;
-      border-bottom-color: #2196f3;
+      color: #1677ff;
+      border-bottom-color: #1677ff;
     }
   }
 `;

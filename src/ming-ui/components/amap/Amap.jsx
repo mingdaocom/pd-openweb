@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
+import Icon from 'ming-ui/components/Icon';
+import Input from 'ming-ui/components/Input';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import Input from 'ming-ui/components/Input';
-import Icon from 'ming-ui/components/Icon';
-import MapLoader from './MapLoader';
 import MapHandler from './MapHandler';
+import MapLoader from './MapLoader';
 import '../less/Amap.less';
 
 /**
@@ -210,7 +210,12 @@ export default class Amap extends Component {
         <span className="Amap-input-search">
           <Icon onClick={this.handleSearch} icon="search" className="Amap-input-search-icon" />
         </span>
-        <Input placeholder={placeholder} value={this.state.searchStr} onKeyUp={this.handleKeydown} onChange={this.handleChange} />
+        <Input
+          placeholder={placeholder}
+          value={this.state.searchStr}
+          onKeyUp={this.handleKeydown}
+          onChange={this.handleChange}
+        />
         {autoCompleteResult && autoCompleteResult.length && autoCompleteVisible ? (
           <Menu className="Amap-autocomplete-list">
             {autoCompleteResult.map((item, index) => {
@@ -235,7 +240,7 @@ export default class Amap extends Component {
         minWidth: 300,
         minHeight: 300,
       },
-      mapStyle
+      mapStyle,
     );
     const mapCls = classNames('ming Amap', {
       'Amap-align-right': inputAlign === 'right',

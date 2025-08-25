@@ -1,10 +1,10 @@
 ﻿import React from 'react';
-import preall from 'src/common/preall';
 import styled from 'styled-components';
-import { getAttachment } from './controller';
 import LoadDiv from 'ming-ui/components/LoadDiv';
+import preall from 'src/common/preall';
 import { NODE_TYPE } from '../../constant/enum';
 import AttachmentsPreview from '../AttachmentsPreview';
+import { getAttachment } from './controller';
 
 const Abnormal = styled.div`
   display: flex;
@@ -45,7 +45,7 @@ class NodeShare extends React.Component {
           this.setState({ node, allowDownload, loading: false });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false });
       });
   }
@@ -61,7 +61,7 @@ class NodeShare extends React.Component {
     } else if (!this.state.node) {
       return (
         <Abnormal>
-          <i className="icon-task-folder-message"></i>
+          <i className="icon-error1"></i>
           <div className="mTop20">{_l('当前文件不存在或您没有权限查看此文件')}</div>
         </Abnormal>
       );

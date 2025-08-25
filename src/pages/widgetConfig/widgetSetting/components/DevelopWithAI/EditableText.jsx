@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Input } from 'ming-ui';
 import styled from 'styled-components';
+import { Input } from 'ming-ui';
 
 const Con = styled.div`
   display: flex;

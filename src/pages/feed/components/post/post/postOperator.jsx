@@ -1,12 +1,12 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
-import cx from 'classnames';
-import { addFavorite, removeFavorite } from '../../../redux/postActions';
 import { connect } from 'react-redux';
-import PostOperateList from './postOperateList';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { addFavorite, removeFavorite } from '../../../redux/postActions';
+import PostOperateList from './postOperateList';
 
 /**
  * 动态右上角的操作项
@@ -97,4 +97,4 @@ class PostOperator extends React.Component {
   }
 }
 
-export default connect(state => ({}))(PostOperator);
+export default connect()(PostOperator);

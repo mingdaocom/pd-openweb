@@ -1,4 +1,3 @@
-import React from 'react';
 import styled, { keyframes } from 'styled-components';
 
 const borderBeamAnimation = keyframes`
@@ -115,8 +114,8 @@ export const MarkdownWithCSS = styled.div`
 
   img {
     border-style: none;
-    max-width: 240px;
-    max-height: 90px;
+    max-width: 360px;
+    max-height: 120px;
     margin-bottom: 8px;
     box-sizing: content-box;
   }
@@ -1262,7 +1261,7 @@ export const MarkdownWithCSS = styled.div`
       position: absolute;
       aspect-ratio: 1/1;
       width: calc(var(--size, 80px));
-      background: linear-gradient(to left, var(--color-from, #2196f320), var(--color-to, #2196f3), transparent);
+      background: linear-gradient(to left, var(--color-from, #1677ff20), var(--color-to, #1677ff), transparent);
       offset-anchor: calc(var(--anchor, 90)) 50%;
       offset-path: rect(0 auto auto 0 round calc(var(--size, 80px)));
       animation: ${borderBeamAnimation} calc(var(--duration, 6s)) infinite linear;

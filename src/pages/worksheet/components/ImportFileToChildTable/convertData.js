@@ -2,7 +2,6 @@ import _, { trim } from 'lodash';
 import moment from 'moment';
 import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { postWithToken } from 'src/utils/common';
 
 function getSelectedOptionKeys(text = '', options, isMultiple) {
@@ -42,11 +41,13 @@ const localHandleTypes = [
   WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT,
 ];
 
-function getDateStringValue(dateString, control) {
+function getDateStringValue(dateString) {
   let showFormat;
   if (/^\d{4}年\d{1,2}月\d{1,2}日/.test(dateString)) {
     showFormat = 'YYYY年M月D日 HH:mm:ss';
   }
+  dateString = dateString.replace(/(凌晨|早上|上午)$/, 'AM');
+  dateString = dateString.replace(/(中午|下午|晚上)$/, 'PM');
   if (new Date(moment(dateString, showFormat).valueOf()).toString() !== 'Invalid Date') {
     return moment(dateString, showFormat).format();
   }

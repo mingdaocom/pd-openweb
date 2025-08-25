@@ -7,7 +7,7 @@ body {
 }
 
 :root:root {
-  --adm-color-primary: #2196f3;
+  --adm-color-primary: #1677ff;
   .adm-button {
     height: 36px;
     --border-radius: 18px;
@@ -110,7 +110,7 @@ input::placeholder {
   &.full .adm-popup-body-position-bottom {
     height: 100%;
   }
-  &.minFull .adm-popup-body-position-bottom{
+  &.minFull .adm-popup-body-position-bottom {
     height: 95%;
   }
   &.topRadius .adm-popup-body-position-bottom {
@@ -121,6 +121,19 @@ input::placeholder {
   .adm-popup-body-position-bottom {
     padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px') !important;
     padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px') !important;
+  }
+  .header {
+    justify-content: space-between;
+    padding: 15px 15px 20px;
+    color: #9e9e9e;
+    .closeIcon {
+      width: 24px;
+      border-radius: 12px;
+      background-color: #e6e6e6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }
 
@@ -136,4 +149,3 @@ input::placeholder {
     }
   }
 }
-

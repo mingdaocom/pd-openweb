@@ -1,13 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Input, Icon } from 'ming-ui';
-// import { ActWrap } from 'src/pages/integration/containers/style';
-import { taskTabList, TASK_STATUS_TXT } from 'src/pages/integration/config.js';
-// import Switch from 'src/pages/workflow/components/Switch/index.jsx';
+import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, Input } from 'ming-ui';
+import { taskTabList } from 'src/pages/integration/config.js';
 import 'src/pages/workflow/components/Switch/index.less';
-import { SYNC_TASK_STATUS } from 'src/pages/integration/dataIntegration/constant';
 import { navigateTo } from 'src/router/navigateTo';
 
 const STATUS2TEXT = {
@@ -50,8 +47,8 @@ const Wrap = styled.div`
       line-height: 54px;
       &.isCur,&:hover {
         font-weight: 600;
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -60,14 +57,14 @@ const Wrap = styled.div`
     padding: 0 22px;
     line-height: 36px;
     margin-right: 16px;
-    border: 1px solid #2196f3;
-    color: #2196f3;
+    border: 1px solid #1677ff;
+    color: #1677ff;
     cursor: pointer;
     border-radius: 3px;
     text-align: center;
     font-weight: 600;
     &:hover{
-      background: #2196F3;
+      background: #1677ff;
       color:#fff;
     }
   }
@@ -96,7 +93,7 @@ export default function Header(props) {
     status: taskStatus === 'RUNNING' ? 'active' : 'close',
   });
   useEffect(() => {
-    const { onBack, onChangeTab, tab, flowData = {}, publishTask, isNew, isUpdate, changeTask } = props;
+    const { flowData = {} } = props;
     const { taskStatus } = flowData;
     setState({
       title: props.title || _l('数据同步任务'),
@@ -112,7 +109,7 @@ export default function Header(props) {
             onBack();
           }}
         >
-          <Icon icon="knowledge-return" className="Font16" />
+          <Icon icon="backspace" className="Font16" />
         </ActWrap> */}
         <i
           className="icon-backspace Font20 back"

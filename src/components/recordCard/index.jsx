@@ -65,6 +65,7 @@ export default class RecordCard extends Component {
     try {
       coverControlData = getCoverControlData(JSON.parse(data[coverCid]) || []);
     } catch (err) {
+      console.log(err);
       return null;
     }
     return coverControlData;

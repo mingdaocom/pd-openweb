@@ -1,10 +1,10 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { Divider, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv, Radio } from 'ming-ui';
+import { Icon, LoadDiv, Radio } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import SelectCount from 'src/pages/customPage/components/editWidget/button/SelectCount';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -352,7 +352,7 @@ function Setting(props) {
           value={title ? (_.find(controls, { controlId: title }) ? title : _l('字段已删除')) : undefined}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           allowClear={true}
-          clearIcon={<Icon icon="cancel1" className="Gray_bd Font20" />}
+          clearIcon={<Icon icon="cancel" className="Gray_bd Font20" />}
           placeholder={_l('请选择文本字段')}
           notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
@@ -380,7 +380,7 @@ function Setting(props) {
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           placeholder={_l('请选择文本字段')}
           allowClear={true}
-          clearIcon={<Icon icon="cancel1" className="Gray_bd Font20" />}
+          clearIcon={<Icon icon="cancel" className="Gray_bd Font20" />}
           notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {

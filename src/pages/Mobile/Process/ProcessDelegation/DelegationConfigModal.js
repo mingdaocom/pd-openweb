@@ -1,13 +1,14 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Popup, Button } from 'antd-mobile';
-import { Icon, Radio } from 'ming-ui';
-import delegationApi from 'src/pages/workflow/api/delegation';
-import SelectUser from 'mobile/components/SelectUser';
-import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import SelectAppDialog from 'mobile/components/SelectAppDialog/index.js';
+import React, { Fragment, useState } from 'react';
+import { Button, Popup } from 'antd-mobile';
+import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import cx from 'classnames';
+import { Icon, Radio } from 'ming-ui';
+import delegationApi from 'src/pages/workflow/api/delegation';
+import SelectAppDialog from 'mobile/components/SelectAppDialog/index.js';
+import SelectUser from 'mobile/components/SelectUser';
+import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 
 const ModalWrap = styled(Popup)`
   .description {
@@ -151,8 +152,8 @@ export default function DelegationConfigModal(props) {
   const currentProjectId = isEdit
     ? entrustData.companyId
     : !_.includes(existCompanyIds, localStorage.getItem('currentProjectId'))
-    ? localStorage.getItem('currentProjectId')
-    : projectList.find(it => !_.includes(existCompanyIds, it.projectId)).projectId;
+      ? localStorage.getItem('currentProjectId')
+      : projectList.find(it => !_.includes(existCompanyIds, it.projectId)).projectId;
   const currentProject = _.find(projectList, it => it.projectId == currentProjectId);
   const [orgInfo, setOrgInfo] = useState(!_.isEmpty(currentProject) ? currentProject : projectList[0]);
   const [selectUserVisible, setSelectUserVisible] = useState(false);
@@ -225,7 +226,7 @@ export default function DelegationConfigModal(props) {
   const minute = date.getMinutes();
   const second = date.getSeconds();
 
-  const disabled = !orgInfo.projectId || !user.accountId || !dateInfo.endDate;
+  const disabled = !orgInfo.projectId || !user.accountId || !dateInfo.endDate || (scope === 2 && !selectedApps.length);
 
   return (
     <ModalWrap className="mobileDelegationCardList mobileModal full" onClose={onCancel} visible={configVisible}>
@@ -478,7 +479,11 @@ export default function DelegationConfigModal(props) {
                     setProjectListVisible(false);
                   }}
                 >
-                  <div className={cx('flex Gray Font15 Bold ellipsis', { Gray_9e: _.includes(existCompanyIds, it.projectId) })}>
+                  <div
+                    className={cx('flex Gray Font15 Bold ellipsis', {
+                      Gray_9e: _.includes(existCompanyIds, it.projectId),
+                    })}
+                  >
                     {it.companyName}
                   </div>
                   {it.projectId === orgInfo.projectId && (

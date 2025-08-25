@@ -56,7 +56,6 @@ export default class TableRelation extends React.Component {
 
   setData = props => {
     const {
-      printData,
       dataSource,
       controls,
       allControls,
@@ -88,7 +87,7 @@ export default class TableRelation extends React.Component {
     controls.map(it => {
       let da = false;
 
-      dataSource.map((o, i) => {
+      dataSource.map(o => {
         if (da) {
           return;
         }
@@ -147,7 +146,7 @@ export default class TableRelation extends React.Component {
           width,
           controlId: it.controlId,
           control: it,
-          render: (text, record, index) => {
+          render: (text, record) => {
             if ([29].includes(it.type) && !['2', '5', '6'].includes(it.advancedSetting.showtype)) {
               let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
 
@@ -192,6 +191,7 @@ export default class TableRelation extends React.Component {
       try {
         attachments = JSON.parse(it[id]);
       } catch (err) {
+        console.log(err);
         return;
       }
       const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));

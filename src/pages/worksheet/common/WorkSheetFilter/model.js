@@ -253,7 +253,7 @@ class Actions {
       });
   };
 
-  deleteFilter = ({ appId, filter }, cb = () => {}) => {
+  deleteFilter = ({ appId, filter }) => {
     worksheetAjax
       .deleteWorksheetFilter({
         appId,

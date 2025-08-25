@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
+import { Button, ConfigProvider, Dropdown, Modal } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Modal, Dropdown, Tooltip, Button, ConfigProvider } from 'antd';
 import { Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
 import reportConfig from 'statistics/api/reportConfig';
-import { getSortData, isCustomSort, isTimeControl, formatSorts, timeParticleSizeDropdownData } from '../../common';
 import { reportTypes } from '../../Charts/common';
-import _ from 'lodash';
+import { formatSorts, getSortData, isCustomSort, isTimeControl, timeParticleSizeDropdownData } from '../../common';
 
 const SortContent = styled.div`
   border-radius: 3px;
@@ -67,7 +67,7 @@ const CustomSortIconWrapper = styled.div`
   &:hover {
     span,
     .icon {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -163,7 +163,7 @@ export default class Sort extends Component {
   };
   handleSaveSortList = () => {
     const { reportType, currentReport } = this.props;
-    const { xaxes, split = {}, sorts, yaxisList, rightY } = currentReport;
+    const { xaxes, split = {}, yaxisList, rightY } = currentReport;
     const { currentCustomSort, sortList, customSortValue } = this.state;
     const sortListKey = _.isNumber(customSortValue) ? customSortValue : sortList.map(item => item.originalName);
     const isPivotTable = reportType === reportTypes.PivotTable;
@@ -235,7 +235,7 @@ export default class Sort extends Component {
             return {
               name: item[key],
               originalName: key,
-              id: index
+              id: index,
             };
           }),
           customSortLoading: false,
@@ -249,9 +249,8 @@ export default class Sort extends Component {
     this.handleChangeSorts([obj]);
   };
   handleChangeXSort = (value, { controlId }) => {
-    const { reportType, currentReport } = this.props;
-    const { xaxes, yaxisList, split = {}, sorts, displaySetup } = currentReport;
-    const isDualAxes = reportType === reportTypes.DualAxes;
+    const { currentReport } = this.props;
+    const { yaxisList, split = {}, sorts, displaySetup } = currentReport;
     const isExclusion = _.isEmpty(split.controlId);
 
     if (sorts.length) {
@@ -264,7 +263,7 @@ export default class Sort extends Component {
       }
 
       const newSorts = sorts
-        .map((n, index) => {
+        .map(n => {
           if (n[controlId]) {
             if (value) {
               n[controlId] = value;
@@ -289,7 +288,6 @@ export default class Sort extends Component {
   handleChangeYSort = (value, { controlId }) => {
     const { reportType, currentReport } = this.props;
     const { yaxisList, split, pivotTable, sorts, xaxes, displaySetup } = currentReport;
-    const isDualAxes = reportType === reportTypes.DualAxes;
     const isPivotTable = reportType === reportTypes.PivotTable;
     const isExclusion = _.isEmpty(split && split.controlId);
     const xaxesId = xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId;
@@ -373,13 +371,13 @@ export default class Sort extends Component {
       value && this.createSortItem(controlId, value);
     }
   };
-  handleSortEnd = (newSortList) => {
+  handleSortEnd = newSortList => {
     this.setState({ sortList: newSortList, customSortValue: null });
   };
   renderItem(item, fn, index) {
     const { currentReport } = this.props;
     const { sorts } = currentReport;
-    const sortData = (isCustomSort(item) && index !== 3) ? [...getSortData(item), customSort] : getSortData(item);
+    const sortData = isCustomSort(item) && index !== 3 ? [...getSortData(item), customSort] : getSortData(item);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
     return (
@@ -449,7 +447,7 @@ export default class Sort extends Component {
               controlId: xaxes.particleSizeType ? `${xaxes.controlId}-${xaxes.particleSizeType}` : xaxes.controlId,
             },
             this.handleChangeXSort,
-            0
+            0,
           )}
         {reportType == reportTypes.PivotTable && pivotTable && (
           <Fragment>
@@ -463,7 +461,7 @@ export default class Sort extends Component {
                     : yItem.controlId,
                 },
                 this.handleChangePivotTableSort,
-                1
+                1,
               ),
             )}
             {pivotTable.columns.map(yItem =>
@@ -476,7 +474,7 @@ export default class Sort extends Component {
                     : yItem.controlId,
                 },
                 this.handleChangePivotTableSort,
-                2
+                2,
               ),
             )}
           </Fragment>
@@ -491,7 +489,7 @@ export default class Sort extends Component {
               controlId: split.particleSizeType ? `${split.controlId}-${split.particleSizeType}` : split.controlId,
             },
             this.handleChangeYSort,
-            4
+            4,
           )}
         {rightYaxisList.map(yItem => this.renderItem(yItem, this.handleChangeYSort, 5))}
         {rightY &&
@@ -505,7 +503,7 @@ export default class Sort extends Component {
                 : rightY.split.controlId,
             },
             this.handleChangeYSort,
-            6
+            6,
           )}
       </SortContent>
     );
@@ -528,7 +526,7 @@ export default class Sort extends Component {
       reportTypes.TopChart,
       reportTypes.CountryLayer,
     ].includes(reportType);
-  }
+  };
   render() {
     const { visible, currentCustomSort, customSortValue, sortList, customSortLoading } = this.state;
     const { children } = this.props;
@@ -554,7 +552,7 @@ export default class Sort extends Component {
                 className={cx('valignWrapper pointer', { active: customSortValue })}
                 onClick={this.handleChangeCustomSortValue}
               >
-                <Icon className="mRight5 Gray_9e Font20" icon="swap_vert" />
+                <Icon className="mRight5 Gray_9e Font20" icon="import_export" />
                 <span className="Gray Font13 Normal">
                   {customSortValue ? (customSortValue === 2 ? 'Z → A' : 'A → Z') : _l('自定义')}
                 </span>
@@ -578,7 +576,7 @@ export default class Sort extends Component {
                     useDragHandle
                     items={sortList}
                     itemKey="id"
-                    renderItem={(options) => renderSortableItem({ ...options })}
+                    renderItem={options => renderSortableItem({ ...options })}
                     onSortEnd={this.handleSortEnd}
                   />
                 )

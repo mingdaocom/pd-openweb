@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Skeleton, Icon, SvgIcon } from 'ming-ui';
+import styled from 'styled-components';
+import { Icon, Skeleton, SvgIcon } from 'ming-ui';
 import UpgradeContent from 'src/components/UpgradeContent';
+import CommonUserHandle from 'src/pages/PageHeader/components/CommonUserHandle';
 import HomepageIcon from 'src/pages/PageHeader/components/HomepageIcon';
 import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
-import CommonUserHandle from 'src/pages/PageHeader/components/CommonUserHandle';
 
 const Wrap = styled.div`
   position: fixed;
@@ -175,7 +175,7 @@ export default class UpgradeStatus extends Component {
       </div>
     );
   };
-  renderAppDetailWrap = ({ themeType, iconUrl, pcNaviStyle, name, description }) => {
+  renderAppDetailWrap = ({ themeType, iconUrl, pcNaviStyle, name, description, iconColor }) => {
     return (
       <Fragment>
         <div className={cx('appDetailWrap pointer overflowHidden')}>

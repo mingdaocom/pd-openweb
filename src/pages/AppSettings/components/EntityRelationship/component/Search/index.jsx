@@ -33,7 +33,7 @@ const Wrap = styled.div`
       padding: 0 17px;
       &:hover,
       &.current {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff !important;
       }
     }
@@ -76,7 +76,7 @@ function Search(props) {
         value={searchValue}
         placeholder={_l('搜索工作表')}
         onChange={e => setSearchValue(e.target.value.trim())}
-        onFocus={e => !openList && setOpenList(true)}
+        onFocus={() => !openList && setOpenList(true)}
       />
       <ul className={cx('optionList', { hide: !openList })}>
         {options

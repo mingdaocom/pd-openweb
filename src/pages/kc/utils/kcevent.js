@@ -1,18 +1,27 @@
 import { Set } from 'immutable';
-import { min, max, assign, trim } from 'lodash';
-import { navigateTo } from 'src/router/navigateTo';
-
+import { assign, max, min, trim } from 'lodash';
+import _ from 'lodash';
 import kcService from '../api/service';
+import { navigateTo } from 'src/router/navigateTo';
+import { NODE_OPERATOR_TYPE, NODE_STATUS, NODE_TYPE } from '../constant/enum';
 import { validateFileName } from '../utils';
-import { NODE_TYPE, NODE_STATUS, NODE_OPERATOR_TYPE } from '../constant/enum';
 
 export function bindEvent(jqns, fns, datafn) {
-  $(document)
-    .on('keydown.' + jqns, evt => (handleShortCut(evt, fns, datafn)));
+  $(document).on('keydown.' + jqns, evt => handleShortCut(evt, fns, datafn));
 }
 
 function handleShortCut(evt, fns, datafn) {
-  const { selectAllItems, selectAll, list, showDetail, moveOrCopyClick, changeFolder, handlePreview, removeNode, getRootNameAndLink } = fns;
+  const {
+    selectAllItems,
+    selectAll,
+    list,
+    showDetail,
+    moveOrCopyClick,
+    changeFolder,
+    handlePreview,
+    removeNode,
+    getRootNameAndLink,
+  } = fns;
   const { selectedItems, isRecycle, currentRoot, currentFolder, previewFile, baseUrl } = datafn();
   const $target = $(evt.target);
   if ($target.is('input') || $target.is('textarea') || $target.is('[contenteditable]')) {
@@ -44,7 +53,7 @@ function handleShortCut(evt, fns, datafn) {
       if (currentFolder.parentId === currentFolder.rootId) {
         navigateTo(getRootNameAndLink(baseUrl, currentRoot));
       } else {
-        kcService.getNodeById({ id: currentFolder.parentId }).then((parentNode) => {
+        kcService.getNodeById({ id: currentFolder.parentId }).then(parentNode => {
           if (parentNode && parentNode.type === NODE_TYPE.FOLDER) {
             changeFolder(parentNode);
           }
@@ -88,10 +97,16 @@ export function registerNodeItemEvent(element, args) {
       //   setHoveredItem(null, null);
       // },
       mousedown(evt) {
-        handleItemMouseDown(assign({}, {
-          item: findItemById($(this).attr('data-id')),
-          evt,
-        }, args));
+        handleItemMouseDown(
+          assign(
+            {},
+            {
+              item: findItemById($(this).attr('data-id')),
+              evt,
+            },
+            args,
+          ),
+        );
       },
       dblclick(evt) {
         if ($(evt.target).hasClass('actions')) return false;
@@ -103,17 +118,13 @@ export function registerNodeItemEvent(element, args) {
         }
       },
     },
-    '.nodeItem'
+    '.nodeItem',
   );
 
   $element.on(
     {
       click(evt) {
-        const item = findItemById(
-          $(this)
-            .closest('.nodeItem')
-            .attr('data-id')
-        );
+        const item = findItemById($(this).closest('.nodeItem').attr('data-id'));
         selectItem(item);
         evt.stopPropagation();
       },
@@ -124,7 +135,7 @@ export function registerNodeItemEvent(element, args) {
         evt.stopPropagation();
       },
     },
-    '.nodeItem .selectBox'
+    '.nodeItem .selectBox',
   );
 
   // 修改名称
@@ -144,10 +155,7 @@ export function registerNodeItemEvent(element, args) {
         const originName = item.name;
         const newName = trim($target.val());
         const showListName = function () {
-          $target
-            .hide()
-            .siblings('.listName,.itemExt,.thumbnailName')
-            .show();
+          $target.hide().siblings('.listName,.itemExt,.thumbnailName').show();
         };
 
         if (newName && newName !== originName) {
@@ -162,17 +170,19 @@ export function registerNodeItemEvent(element, args) {
           }
 
           const name = newName + (item.ext ? '.' + item.ext : '');
-          updateNodeItem(Object.assign({}, item, {
-            name: newName,
-          }));
+          updateNodeItem(
+            Object.assign({}, item, {
+              name: newName,
+            }),
+          );
           kcService
             .updateNode({ id: item.id, name })
-            .then((result) => {
+            .then(result => {
               if (!result) {
                 return Promise.reject();
               }
               alert(_l('修改成功'));
-              kcService.getNodeById(item.id).then((node) => {
+              kcService.getNodeById(item.id).then(node => {
                 updateNodeItem(node);
               });
             })
@@ -198,27 +208,20 @@ export function registerNodeItemEvent(element, args) {
           evt.preventDefault();
           evt.stopPropagation();
         } else if (evt.keyCode === 27 /* Esc*/) {
-          $(evt.target)
-            .val('')
-            .blur();
-          const $target = $(this);
+          $(evt.target).val('').blur();
           evt.preventDefault();
           evt.stopPropagation();
         }
       },
     },
-    '.nodeItem .listNameEdit'
+    '.nodeItem .listNameEdit',
   );
 
   // 缩略图视图点击打开或者预览
   $element.on(
     {
       click(evt) {
-        const item = findItemById(
-          $(this)
-            .closest('.nodeItem')
-            .attr('data-id')
-        );
+        const item = findItemById($(this).closest('.nodeItem').attr('data-id'));
         if (!(evt.ctrlKey || evt.metaKey) && !evt.shiftKey) {
           if (item.type === NODE_TYPE.FOLDER) {
             navigateTo(`${baseUrl}${item.position.replace(md.global.Account.accountId, 'my')}`);
@@ -229,7 +232,7 @@ export function registerNodeItemEvent(element, args) {
         }
       },
     },
-    '.nodeItem .thumbnailImg'
+    '.nodeItem .thumbnailImg',
   );
 
   document.oncontextmenu = function (evt) {
@@ -246,27 +249,19 @@ function hasOnlyOneSelectedItem(selectAll, selectedItems, list) {
 
 /** 每个 item 元素的 mousedown 事件 */
 function handleItemMouseDown(args) {
-  const {
-    item,
-    evt,
-    selectSingleItem,
-    startDragItems,
-    getLatestData,
-    changeRightMenuOption,
-  } = args;
-  const {
-    isRecycle,
-    list,
-    selectAll,
-    dragSelectEle,
-    selectedItems,
-  } = getLatestData();
+  const { item, evt, selectSingleItem, startDragItems, getLatestData, changeRightMenuOption } = args;
+  const { isRecycle, list, selectAll, dragSelectEle, selectedItems } = getLatestData();
   const selected = (selectAll && list.size === selectedItems.size) || selectedItems.contains(item);
   const $target = $(evt.target);
-  if ($target.closest('.flexRow') || $target.hasClass('flexRow') || $target.closest('.thumbnailItem') || $target.hasClass('thumbnailItem')) {
+  if (
+    $target.closest('.flexRow') ||
+    $target.hasClass('flexRow') ||
+    $target.closest('.thumbnailItem') ||
+    $target.hasClass('thumbnailItem')
+  ) {
     /* 左键点击列表，除checkbox以外*/
     if (evt.button === 0 && !$target.hasClass('selectBox')) {
-      if (!selected || (evt.ctrlKey || evt.metaKey) || evt.shiftKey) {
+      if (!selected || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
         // 框选
         startDragSelect(evt, dragSelectEle);
       } else if (!isRecycle) {
@@ -338,7 +333,9 @@ export function handleDragSelect(args) {
 
   if (evt && (evt.ctrlKey || evt.metaKey)) {
     selectedItemsBeforeDragSelect = selectedItemsBeforeDragSelect || selectedItems;
-    selectedItems = selectedItemsBeforeDragSelect.union(newSelectedItems).subtract(selectedItemsBeforeDragSelect.intersect(newSelectedItems));
+    selectedItems = selectedItemsBeforeDragSelect
+      .union(newSelectedItems)
+      .subtract(selectedItemsBeforeDragSelect.intersect(newSelectedItems));
   } else {
     selectedItems = newSelectedItems;
   }
@@ -352,7 +349,7 @@ export function handleDragSelectFromGap(evt, dragSelectEle) {
   }
 }
 
-  /** 开始框选 */
+/** 开始框选 */
 export function startDragSelect(evt, dragSelectEle) {
   if (dragSelectEle) {
     dragSelectEle.startDragSelect(evt);

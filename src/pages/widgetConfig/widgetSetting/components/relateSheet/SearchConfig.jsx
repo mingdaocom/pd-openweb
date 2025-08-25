@@ -1,20 +1,19 @@
 import React, { Fragment, useState } from 'react';
-import { Menu, MenuItem, Checkbox, RadioGroup, Dialog, Dropdown, Icon } from 'ming-ui';
-import { Tooltip } from 'antd';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
-import styled from 'styled-components';
-import update from 'immutability-helper';
-import SelectControl from '../SelectControl';
-import Trigger from 'rc-trigger';
-import 'rc-trigger/assets/index.css';
-import { get, head } from 'lodash';
-import FastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/fastFilterCon';
-import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util.js';
-import { formatControlsToDropdown, getAdvanceSetting } from '../../../util';
-import { SettingItem } from '../../../styled';
-import { handleAdvancedSettingChange } from '../../../util/setting';
 import { useSetState } from 'react-use';
+import update from 'immutability-helper';
+import { get, head } from 'lodash';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Dropdown, RadioGroup } from 'ming-ui';
+import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util.js';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import FastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/fastFilterCon';
+import { SettingItem } from '../../../styled';
+import { formatControlsToDropdown, getAdvanceSetting } from '../../../util';
+import { handleAdvancedSettingChange } from '../../../util/setting';
+import SelectControl from '../SelectControl';
+import 'rc-trigger/assets/index.css';
 
 const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 
@@ -29,7 +28,7 @@ const ConfigWrap = styled.div`
     border-radius: 3px;
     padding: 0 12px;
     line-height: 32px;
-    color: #2196f3;
+    color: #1677ff;
     font-weight: bold;
     &:hover {
       color: #1780d3;

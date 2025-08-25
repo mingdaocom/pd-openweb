@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Button from 'ming-ui/components/Button';
 
 class DialogFooter extends Component {
@@ -28,7 +27,13 @@ class DialogFooter extends Component {
               {cancelText}
             </Button>
           )}
-          <Button disabled={okDisabled} type={buttonType || confirm || 'primary'} onClick={onOk} action={action}>
+          <Button
+            disabled={okDisabled}
+            type={buttonType || confirm || 'primary'}
+            onClick={onOk}
+            action={action}
+            data-id="confirmBtn"
+          >
             {okText}
           </Button>
         </div>

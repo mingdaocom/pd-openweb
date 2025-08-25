@@ -8,6 +8,7 @@ import homeAppApi from 'src/api/homeApp';
 import reportApi from 'statistics/api/report';
 import charts from 'statistics/Charts';
 import { reportTypes } from 'statistics/Charts/common';
+import { CountryLayer } from 'statistics/Charts/CountryLayer';
 import { isOptionControl } from 'statistics/common';
 import { Abnormal, WithoutData } from 'statistics/components/ChartStatus';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
@@ -37,6 +38,7 @@ function Chart({
   if (data.status <= 0) {
     return <Abnormal status={data.status} />;
   }
+  charts[reportTypes.CountryLayer] = CountryLayer;
 
   const isMapEmpty = _.isEmpty(data.map);
   const isContrastMapEmpty = _.isEmpty(data.contrastMap);
@@ -119,20 +121,15 @@ function Chart({
     case reportTypes.ScatterChart:
     case reportTypes.TopChart:
       return isMapEmpty && !isDisplayEmptyData ? WithoutDataComponent : ChartComponent;
-      break;
     case reportTypes.DualAxes:
     case reportTypes.LineChart:
       return isMapEmpty && isContrastMapEmpty && !isDisplayEmptyData ? WithoutDataComponent : ChartComponent;
-      break;
     case reportTypes.NumberChart:
       return ChartComponent;
-      break;
     case reportTypes.PivotTable:
       return _.isEmpty(data.data.data) ? WithoutDataComponent : ChartComponent;
-      break;
     default:
       return ChartComponent;
-      break;
   }
 }
 
@@ -186,7 +183,7 @@ function ChartWrapper(props) {
                   />
                 </Fragment>
               )}
-              <Icon className="Font20 Gray_9e mRight10" icon="swap_vert" onClick={onOpenFilterModal} />
+              <Icon className="Font20 Gray_9e mRight10" icon="import_export" onClick={onOpenFilterModal} />
               {isHorizontal ? (
                 <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />
               ) : (

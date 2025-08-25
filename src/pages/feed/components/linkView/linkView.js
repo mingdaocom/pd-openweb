@@ -1,8 +1,8 @@
 ﻿// 链接预览
-import './style.css';
 import postController from 'src/api/post';
+import './style.css';
 
-var LinkView = function(el, param) {
+var LinkView = function (el, param) {
   var _this = this;
   var defaults = {
     viewUrl: '',
@@ -18,15 +18,15 @@ var LinkView = function(el, param) {
       imgArr: [], // 所有搜索到的链接图片
       error: '', // 链接预览错误信息
     },
-    callback: function(data) {},
+    callback: function () {},
   };
   var options = $.extend(defaults, param);
 
-  _this.init = function() {
+  _this.init = function () {
     _this.clear();
     _this.getLinkViewData();
   };
-  _this.getLinkViewData = function() {
+  _this.getLinkViewData = function () {
     if (!options.viewUrl) {
       return false;
     }
@@ -35,7 +35,7 @@ var LinkView = function(el, param) {
       .getLinkViewInfo({
         url: encodeURIComponent(options.viewUrl),
       })
-      .then(function(data) {
+      .then(function (data) {
         options.linkViewData.errorCode = '1';
         if (data) {
           if (!(data.title || '').trim()) {
@@ -72,13 +72,13 @@ var LinkView = function(el, param) {
           options.callback(options.linkViewData);
         }
       })
-      .catch(function() {
+      .catch(function () {
         if (options.callback) {
           options.callback(options.linkViewData);
         }
       });
   };
-  _this.createLinkViewHtml = function(data) {
+  _this.createLinkViewHtml = function (data) {
     var linkViewHTML = `
     <div class='linkView'>
       <table class='fixed' border='0' cellspacing='0' cellpadding='0' width='100%'>
@@ -152,43 +152,43 @@ var LinkView = function(el, param) {
     _this.bindEvent();
   };
   // 绑定事件
-  _this.bindEvent = function() {
+  _this.bindEvent = function () {
     var $linkView = $(el).find('.linkView');
 
     if ($linkView) {
       // 前一张预览图
-      $linkView.find('.prevPic').on('click', function() {
+      $linkView.find('.prevPic').on('click', function () {
         _this.changeLinkThumb('prev');
       });
 
       // 后一张预览图
-      $linkView.find('.nextPic').on('click', function() {
+      $linkView.find('.nextPic').on('click', function () {
         _this.changeLinkThumb('next');
       });
 
       // 编辑
-      $linkView.find('.linkBtnEdit').on('click', function() {
+      $linkView.find('.linkBtnEdit').on('click', function () {
         _this.editLink();
       });
 
       // 保存
-      $linkView.find('.linkBtnSave').on('click', function() {
+      $linkView.find('.linkBtnSave').on('click', function () {
         _this.saveLink();
       });
 
       // 取消
-      $linkView.find('.linkBtnCancel').on('click', function() {
+      $linkView.find('.linkBtnCancel').on('click', function () {
         _this.cancelLink();
       });
 
       // 发布时是否加入预览图
-      $linkView.find('.withLinkImg').on('click', function() {
+      $linkView.find('.withLinkImg').on('click', function () {
         _this.withLinkImg();
       });
     }
   };
   // 预览图切换
-  _this.changeLinkThumb = function(type) {
+  _this.changeLinkThumb = function (type) {
     var $linkView = $(el).find('.linkView');
 
     var curNum = parseInt($linkView.find('.thumbCurrentNum').html());
@@ -222,7 +222,7 @@ var LinkView = function(el, param) {
     }
   };
   // 编辑链接
-  _this.editLink = function() {
+  _this.editLink = function () {
     var $linkView = $(el).find('.linkView');
 
     var $linkTitle = $linkView.find('.linkTitle');
@@ -252,7 +252,7 @@ var LinkView = function(el, param) {
     $linkView.find('.linkBtnCancel').show();
   };
   // 保存修改
-  _this.saveLink = function() {
+  _this.saveLink = function () {
     var $linkView = $(el).find('.linkView');
     $linkView.find('.nullPrompt').hide();
 
@@ -268,10 +268,7 @@ var LinkView = function(el, param) {
       } else {
         $linkView.find('.linkDesc').html(desc);
       }
-      $linkView
-        .find('.linkDesc')
-        .attr('alt', desc)
-        .attr('title', desc);
+      $linkView.find('.linkDesc').attr('alt', desc).attr('title', desc);
       $linkView.find('.nullPrompt').hide();
     }
 
@@ -292,7 +289,7 @@ var LinkView = function(el, param) {
     }
   };
   // 取消修改
-  _this.cancelLink = function() {
+  _this.cancelLink = function () {
     var $linkView = $(el).find('.linkView');
     $linkView.find('.linkTitleDiv').remove();
     $linkView.find('.linkDescDiv').remove();
@@ -304,7 +301,7 @@ var LinkView = function(el, param) {
     $linkView.find('.linkBtnCancel').hide();
   };
   // 发布时是否加入预览图
-  _this.withLinkImg = function() {
+  _this.withLinkImg = function () {
     var $linkView = $(el).find('.linkView');
     var $withLinkImg = $linkView.find('.withLinkImg');
     if ($withLinkImg.attr('checked')) {
@@ -318,18 +315,18 @@ var LinkView = function(el, param) {
     }
   };
   // 获取XML
-  _this.createXML = function(str) {
+  _this.createXML = function (str) {
     if (document.all) {
-      var xmlDom = new ActiveXObject('Microsoft.XMLDOM');
+      let xmlDom = new ActiveXObject('Microsoft.XMLDOM');
       xmlDom.loadXML(str);
       return xmlDom;
     } else {
-      var xmlDom = new DOMParser();
+      let xmlDom = new DOMParser();
       return xmlDom.parseFromString(str, 'text/xml');
     }
   };
   // 清理
-  _this.clear = function() {
+  _this.clear = function () {
     $(el).empty();
   };
   _this.init();

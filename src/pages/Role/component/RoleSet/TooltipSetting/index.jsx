@@ -33,8 +33,8 @@ const Wrap = styled.div`
       border-bottom: 3px solid transparent;
       font-weight: 600;
       &.cur {
-        color: #2196f3;
-        border-bottom: 3px solid #2196f3;
+        color: #1677ff;
+        border-bottom: 3px solid #1677ff;
       }
     }
   }
@@ -44,7 +44,7 @@ const Wrap = styled.div`
   .pointer {
     color: #bdbdbd;
     &:hover {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

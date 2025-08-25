@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import { head, includes } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';

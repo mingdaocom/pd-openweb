@@ -1,20 +1,19 @@
-import _ from 'lodash';
 import React from 'react';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 import { ACTION_VALUE_ENUM } from '../config';
-import ShowOrHide from './actionTypes/ShowOrHide';
-import SetReadOnly from './actionTypes/SetReadOnly';
-import SetValue from './actionTypes/SetValue';
-import RefreshValue from './actionTypes/RefreshValue';
-import PromptError from './actionTypes/PromptError';
-import OpenLink from './actionTypes/OpenLink';
-import PromptMessage from './actionTypes/PromptMessage';
+import ActivateTab from './actionTypes/ActivateTab';
 import CreateRecord from './actionTypes/CreateRecord';
 import IntegratedApi from './actionTypes/IntegratedApi';
-import PlayVoice from './actionTypes/PlayVoice';
-import functionWrap from 'ming-ui/components/FunctionWrap';
+import OpenLink from './actionTypes/OpenLink';
 import OperationFlow from './actionTypes/OperationFlow ';
-import ActivateTab from './actionTypes/ActivateTab';
+import PlayVoice from './actionTypes/PlayVoice';
+import PromptError from './actionTypes/PromptError';
+import PromptMessage from './actionTypes/PromptMessage';
+import RefreshValue from './actionTypes/RefreshValue';
 import SearchWorksheet from './actionTypes/SearchWorksheet';
+import SetReadOnly from './actionTypes/SetReadOnly';
+import SetValue from './actionTypes/SetValue';
+import ShowOrHide from './actionTypes/ShowOrHide';
 
 const CustomActionConfig = props => {
   const { actionData = {} } = props;

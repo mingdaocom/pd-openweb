@@ -5,11 +5,11 @@ import _ from 'lodash';
 import nzh from 'nzh';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, LoadDiv, PopupWrapper, Radio } from 'ming-ui';
+import { Icon, LoadDiv, MobileSearch, PopupWrapper, Radio, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { renderText as renderCellText } from 'src/utils/control';
-import { checkCellIsEmpty } from '../../tools/utils';
+import { checkCellIsEmpty, sortPathsBySearchKeyword } from '../../tools/utils';
 
 const AdvancedContentWrap = styled.div`
   display: flex;
@@ -31,10 +31,38 @@ const PopupContentBox = styled.div`
 
   .adm-list-body {
     font-size: 15px;
+    border-top: initial;
   }
 
   .Radio-box {
     margin-top: initial !important;
+  }
+
+  .canWrap {
+    word-break: break-all;
+    white-space: wrap !important;
+  }
+
+  .highlight {
+    color: var(--color-primary);
+    vertical-align: initial !important;
+  }
+
+  .errorInfoBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 70%;
+
+    .icon {
+      margin-bottom: 16px;
+      font-size: 120px;
+      color: var(--gray-bd);
+    }
+    .errorInfo {
+      font-size: 17px;
+    }
   }
 `;
 
@@ -67,6 +95,7 @@ const Cascader = props => {
   const ajax = useRef(null);
   const cacheData = useRef([]);
   const sourcePath = useRef({});
+  const searchRef = useRef({});
   const [visible, setVisible] = useState(false);
   const [options, setOptions] = useState(null);
   const [value, setValue] = useState('');
@@ -75,6 +104,11 @@ const Cascader = props => {
   const [selectItem, setSelectItem] = useState({});
   const [layersName, setLayersName] = useState(null);
   const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const getKeywords = () => {
+    return searchRef.current && searchRef.current.keywords ? searchRef.current.keywords.trim() : '';
+  };
 
   /**
    * 缓存树形完整路径
@@ -89,6 +123,25 @@ const Cascader = props => {
    * 获取目前层级
    */
   const getLayer = rowId => {
+    if (getKeywords()) {
+      let currentSearch = { currentItem: {}, currentLayer: 0 };
+      (options || []).forEach(item => {
+        if (item.value === rowId) {
+          currentSearch = {
+            currentLayer: _.findIndex(safeParse(item.path, 'array'), p => p === item.label),
+            currentItem: {
+              ...item,
+              isLeaf: !_.get(
+                _.find(cacheData.current || [], c => c.rowid === rowId),
+                'childrenids',
+              ),
+            },
+          };
+        }
+      });
+      return currentSearch;
+    }
+
     const getCurrent = (data, currentLayer) => {
       for (const item of data) {
         if (item.value === rowId) return { currentItem: item, currentLayer };
@@ -151,12 +204,15 @@ const Cascader = props => {
       navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters' }) || [];
     }
 
+    setLoading(true);
+    const keywords = getKeywords();
     ajax.current = sheetAjax.getFilterRows({
       worksheetId: dataSource,
       viewId,
       filterControls,
       navGroupFilters,
       kanbanKey: rowId,
+      keywords,
       pageIndex: 1,
       pageSize: 10000,
       isGetWorksheet: true,
@@ -165,33 +221,36 @@ const Cascader = props => {
       relationWorksheetId: worksheetId,
     });
 
-    ajax.current.then(result => {
-      if (result.resultCode === 1) {
-        const { template } = result;
-        const control = template.controls.find(item => item.attribute === 1);
-        const data = result.data.map(item => {
-          return {
-            value: item.rowid,
-            label: control
-              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) ||
-                _l('未命名')
-              : _l('未命名'),
-            path: item.childrenids || item.path,
-            isLeaf: isEndLeaf(rowId) || !item.childrenids,
-          };
-        });
+    ajax.current
+      .then(result => {
+        if (result.resultCode === 1) {
+          const { template } = result;
+          const control = template.controls.find(item => item.attribute === 1);
+          const data = result.data.map(item => {
+            return {
+              value: item.rowid,
+              label: control
+                ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) ||
+                  _l('未命名')
+                : _l('未命名'),
+              path: item.childrenids || item.path,
+              searchPath: keywords ? item.path : '[]', // 搜索快速清空，偶发会显示childrenids路径，改用searchPath
+              isLeaf: !!keywords || isEndLeaf(rowId) || !item.childrenids,
+            };
+          });
 
-        if (!rowId && !_.isArray(layersName)) {
-          setLayersName((_.find(result.worksheet.views, item => item.viewId === viewId) || {}).layersName || []);
+          if (!rowId && !_.isArray(layersName)) {
+            setLayersName((_.find(result.worksheet.views, item => item.viewId === viewId) || {}).layersName || []);
+          }
+
+          ajax.current = '';
+          cacheData.current = keywords ? result.data : _.uniqBy(cacheData.current.concat(result.data), 'rowid');
+          deepDataUpdate(_.cloneDeep(options), data, rowId);
+        } else {
+          setIsError(true);
         }
-
-        ajax.current = '';
-        cacheData.current = _.uniqBy(cacheData.current.concat(result.data), 'rowid');
-        deepDataUpdate(_.cloneDeep(options), data, rowId);
-      } else {
-        setIsError(true);
-      }
-    });
+      })
+      .finally(() => setLoading(false));
   };
 
   /**
@@ -223,7 +282,15 @@ const Cascader = props => {
       return;
     }
 
-    let value = +allpath ? sourcePath.current[id] : title;
+    let value;
+    let path;
+    const keywords = getKeywords();
+    if (keywords) {
+      path = JSON.parse(cacheData.current.find(item => item.rowid === id).path);
+      value = +allpath ? path.join(' / ') : path[path.length - 1];
+    } else {
+      value = +allpath ? sourcePath.current[id] : title;
+    }
 
     onChange(
       id
@@ -262,6 +329,10 @@ const Cascader = props => {
 
   // 处理项点击事件的函数
   const handleItemClick = item => {
+    if (getKeywords() && !canUpdate(item.value)) {
+      alert(_l('不在可选范围内'), 3);
+      return;
+    }
     if (item.isLeaf) {
       setVisible(false);
       setOperatePath([]);
@@ -273,17 +344,44 @@ const Cascader = props => {
     }
   };
 
+  const formatSearchData = (item, keywords) => {
+    const searchPath = safeParse(item.searchPath) || [];
+    const nodes = [];
+
+    searchPath.forEach((part, idx) => {
+      if (idx > 0) {
+        nodes.push(' / ');
+      }
+
+      if (part.includes(keywords)) {
+        nodes.push(
+          <span className="highlight" key={idx}>
+            {part}
+          </span>,
+        );
+      } else {
+        nodes.push(part);
+      }
+    });
+
+    return nodes;
+  };
+
   // 简单展示内容（无 Radio）
-  const renderSimpleContent = item => (
-    <div className="flexRow">
-      <div className="flex ellipsis">{item.label}</div>
-      {!item.isLeaf && (
-        <div className="pLeft10 Font16 Gray_9e">
-          <i className="icon-arrow-right-border" />
+  const renderSimpleContent = (item, keywords) => {
+    return (
+      <div className="flexRow">
+        <div className={cx('flex ellipsis', { canWrap: keywords })}>
+          {keywords ? formatSearchData(item, keywords) : item.label}
         </div>
-      )}
-    </div>
-  );
+        {!item.isLeaf && (
+          <div className="pLeft10 Font16 Gray_9e">
+            <i className="icon-arrow-right-border" />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // 高级展示内容（带 Radio）
   const renderAdvancedContent = item => (
@@ -316,23 +414,32 @@ const Cascader = props => {
    * 渲染内容
    */
   const renderPopupContent = () => {
-    if (isError) return <div className="mTop10">{_l('数据源异常')}</div>;
-    if (options === null) return <LoadDiv />;
-    if (!options.length) return <div className="mTop10">{_l('无数据')}</div>;
+    if (isError)
+      return (
+        <div className="errorInfoBox">
+          <Icon icon="error1" className="Gray_bd" />
+          <span className="errorInfo">{_l('数据源异常')}</span>
+        </div>
+      );
+    if (!options.length) return null;
 
-    const _options = getOptions().map(item =>
+    let _options = getOptions().map(item =>
       limitLayer && limitLayer === operatePath.length ? { ...item, isLeaf: true } : item,
     );
 
     if (!_options.length) return <LoadDiv />;
 
+    const keywords = getKeywords();
+    if (keywords) {
+      _options = sortPathsBySearchKeyword(_options, keywords);
+    }
     // 必须选择最后一级
-    if (+anylevel) {
+    if (keywords || +anylevel) {
       return (
         <List>
           {_options.map(item => (
             <List.Item key={item.value} arrowIcon={false} onClick={() => handleItemClick(item)}>
-              {renderSimpleContent(item)}
+              {renderSimpleContent(item, keywords)}
             </List.Item>
           ))}
         </List>
@@ -401,6 +508,12 @@ const Cascader = props => {
     treeSelectChange(selectItem.id, selectItem.label);
   };
 
+  const handleSearch = () => {
+    setOperatePath([]);
+    setSelectItem({});
+    loadData();
+  };
+
   useEffect(() => {
     const items = getItem(props.value);
     setValue(items.name);
@@ -416,7 +529,7 @@ const Cascader = props => {
         })}
         onClick={() => {
           if (!disabled) {
-            options === null && loadData();
+            loadData();
             setVisible(true);
           }
         }}
@@ -430,14 +543,19 @@ const Cascader = props => {
           bodyClassName="heightPopupBody40"
           visible={visible}
           title={(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
-          confirmDisable={!(minLayer && !+anylevel ? operatePath.length >= minLayer : !+anylevel)}
+          confirmDisable={!(minLayer && !+anylevel ? operatePath.length > minLayer || selectItem.id : !+anylevel)}
           clearDisable={!value}
           onClose={handleClose}
           onBack={operatePath.length > 0 ? handleBack : null}
           onClear={handleClear}
           onConfirm={handleSave}
         >
-          <PopupContentBox className="flexColumn">{renderPopupContent()}</PopupContentBox>
+          <PopupContentBox className="flexColumn">
+            <MobileSearch ref={searchRef} onSearch={handleSearch} />
+            <div className="flex overflowHidden">
+              {loading ? <LoadDiv /> : <ScrollView className="h100">{renderPopupContent()}</ScrollView>}
+            </div>
+          </PopupContentBox>
         </PopupWrapper>
       )}
     </Fragment>

@@ -1,63 +1,63 @@
-import appManagementAjax from 'src/api/appManagement.js';
 import _ from 'lodash';
+import appManagementAjax from 'src/api/appManagement.js';
 
 export const setLoading = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_ROLE_LOADING', data });
   };
 };
 //角色列表
 export const setRoleId = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_ROLEID', data });
   };
 };
 
 export const setQuickTag = (data = {}) => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_QUICKTAG', data });
     dispatch(setRoleId(data.roleId || 'all'));
   };
 };
 //选择列表数据
 export const setSelectedIds = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_SELECTLIST', data });
   };
 };
 //成员对象
 export const setUser = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_APPUSER', data });
   };
 };
 //成员列表
 export const setUserList = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_APPUSER_LIST', data });
   };
 };
 //申请数据
 export const setApplyList = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_APPLYINFO', data });
   };
 };
 //外协数据
 export const setOutsourcingList = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_OUTSOURCING', data });
   };
 };
 //角色列表数据
 export const setAppRoleSummary = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_APPROLESUMMARY', data });
   };
 };
 
 export const SetAppRolePagingModel = data => {
-  return (dispatch, getState) => {
+  return dispatch => {
     dispatch({ type: 'UPDATE_APPROLEPAGINGMODEL', data });
   };
 };
@@ -65,7 +65,7 @@ export const SetAppRolePagingModel = data => {
 let ajaxOut = null;
 export const getOutList = (props, isOut) => {
   return (dispatch, getState) => {
-    const { type, appId } = props;
+    const { appId } = props;
     const { appRolePagingModel = {} } = getState().appRole;
     isOut && dispatch({ type: 'UPDATE_ROLE_LOADING', data: true });
     if (ajaxOut) {
@@ -84,7 +84,7 @@ export const getOutList = (props, isOut) => {
 
 let ajaxAppRoleSummary = null;
 export const getRoleSummary = (appId, cb, loading) => {
-  return (dispatch, getState) => {
+  return dispatch => {
     if (ajaxAppRoleSummary) {
       ajaxAppRoleSummary.abort();
     }
@@ -107,8 +107,8 @@ export const getRoleSummary = (appId, cb, loading) => {
 
 let ajaxApply = null;
 export const getApplyList = (props, isApply) => {
-  return (dispatch, getState) => {
-    const { type, appId } = props;
+  return dispatch => {
+    const { appId } = props;
     isApply && dispatch({ type: 'UPDATE_ROLE_LOADING', data: true });
     if (ajaxApply) {
       ajaxApply.abort();
@@ -157,7 +157,7 @@ export const getUserList = (props, isUserList) => {
 let CountAllAjax = null;
 export const getUserAllCount = props => {
   // isAllCount 用于左侧nav的计数 全部
-  return (dispatch, getState) => {
+  return dispatch => {
     const { appId } = props;
     if (CountAllAjax) {
       CountAllAjax.abort();

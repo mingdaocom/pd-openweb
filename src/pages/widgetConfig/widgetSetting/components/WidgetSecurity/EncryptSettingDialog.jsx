@@ -1,6 +1,7 @@
 import React from 'react';
-import { Dialog, Dropdown, Support } from 'ming-ui';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
+import { Dialog, Dropdown, Support } from 'ming-ui';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 
 export default function EncryptSettingDialog(props) {

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -77,7 +77,7 @@ class PortalMessage extends Component {
   };
   render() {
     const { rp } = getAppFeaturesVisible();
-    const { isMobile, color, sessionList = [], visible } = this.props;
+    const { isMobile, color } = this.props;
     const { count = 0 } = this.state;
     return (
       <React.Fragment>
@@ -104,7 +104,7 @@ class PortalMessage extends Component {
               {count > 99 ? '99+' : count}
             </div>
           )}
-          <i className={cx('icon icon-hr_message_reminder Font20 Hand', { Gray_9e: isMobile })} onClick={() => {}}></i>
+          <i className={cx('icon icon-notifications Font20 Hand', { Gray_9e: isMobile })} onClick={() => {}}></i>
         </Wrap>
         <div id="chatPanel">{rp && <PortalMg />}</div>
       </React.Fragment>

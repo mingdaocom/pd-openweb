@@ -1,15 +1,16 @@
 import React, { Fragment } from 'react';
-import styled from 'styled-components';
-import { ScrollView } from 'ming-ui';
+import { Tooltip } from 'antd';
 import { isEmpty } from 'lodash';
-import RowItem from './rowItem';
-import DisplayTab from './displayTabs';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Icon, ScrollView } from 'ming-ui';
 import { MAX_CONTROLS_COUNT } from '../config';
 import { getSectionWidgets } from '../util';
 import BottomDragPointer from './components/BottomDragPointer';
-import WidgetStyle from './components/WidgetStyle';
 import FieldRecycleBin from './components/FieldRecycleBin';
-import WidgetBatchOption from './components/WidgetBatchOption';
+import { WidgetStyle } from './components/WidgetStyle';
+import DisplayTab from './displayTabs';
+import RowItem from './rowItem';
 
 const DisplayRowListWrap = styled.div`
   flex: 1;
@@ -18,16 +19,29 @@ const DisplayRowListWrap = styled.div`
   .rowsWidgetContent {
     flex: 1;
     min-height: 100%;
-    padding: 10px 20px;
+    padding: 12px 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    background: #f5f5f9;
+    background: #fff;
+    ${props => (props.widgetPanelFixed ? 'border-left: 10px solid #F5F5F5' : '')}
+    ${props => (props.settingPanelFixed ? 'border-right: 10px solid #F5F5F5' : '')}
+    .addWidgetIcon {
+      width: 28px;
+      height: 28px;
+      text-align: center;
+      padding-top: 2px;
+      border-radius: 50%;
+      background: #2196f3;
+      color: #fff;
+      &:hover {
+        background: #1e88e5;
+      }
+    }
   }
   .rowsWrap {
     border-radius: 8px;
-    box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 16px 1px;
-    padding: 8px;
+    padding: 8px 0;
     box-sizing: border-box;
     background: #ffffff;
     display: flex;
@@ -55,7 +69,7 @@ const DisplayRowListWrap = styled.div`
     right: 0;
     height: 100%;
     width: 4px;
-    background: #2196f3;
+    background: #1677ff;
     &.top,
     &.bottom {
       width: 100%;
@@ -71,7 +85,7 @@ const DisplayRowListWrap = styled.div`
 `;
 
 export default function DisplayRow(props) {
-  const { allControls, widgets, fromType, batchActive } = props;
+  const { allControls, widgets, fromType, widgetPanelFixed, widgetVisible, setPanelVisible = () => {} } = props;
   const { commonWidgets = [], tabWidgets = [] } = getSectionWidgets(widgets);
 
   const rowsContent = (
@@ -103,16 +117,33 @@ export default function DisplayRow(props) {
   );
 
   return (
-    <DisplayRowListWrap>
+    <DisplayRowListWrap
+      className={fromType === 'public' ? '' : 'overflowHidden'}
+      {..._.pick(props, ['settingPanelFixed', 'widgetPanelFixed'])}
+    >
       {fromType === 'public' ? (
         rowsContent
       ) : (
         <ScrollView id="widgetDisplayWrap" className="flex flexColumn">
           <div className="rowsWidgetContent">
             <div className="displayHeader">
-              <div className="pLeft12">
-                <span className="Font17 Bold">{_l('表单设计')}</span>
-                <span className="controlNum Font12 Gray_9e" data-tip={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
+              <div className="flexCenter">
+                {!widgetPanelFixed && (
+                  <Tooltip title={window.isMacOs ? _l('添加字段 ⌘/') : _l('添加字段 Ctrl+/')} placement="bottomLeft">
+                    <div
+                      className="addWidgetIcon pointer"
+                      onMouseEnter={() => {
+                        if (!widgetVisible) {
+                          setPanelVisible({ widgetVisible: true });
+                        }
+                      }}
+                    >
+                      <Icon icon="add" className="Font24 " />
+                    </div>
+                  </Tooltip>
+                )}
+                <span className="Font17 Bold mLeft12">{_l('表单设计')}</span>
+                <span className="controlNum Font12 Gray_9e pTop3" data-tip={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
                   {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
                 </span>
               </div>
@@ -120,8 +151,6 @@ export default function DisplayRow(props) {
                 <div className="flexRow">
                   <WidgetStyle {...props} />
                   <FieldRecycleBin {...props} />
-
-                  {!isEmpty(batchActive) && <WidgetBatchOption batchActive={batchActive} {...props} />}
                 </div>
               )}
             </div>

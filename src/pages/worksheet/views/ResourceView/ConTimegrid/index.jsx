@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -26,7 +26,7 @@ const Wrap = styled.div`
       color: #9e9e9e;
     }
     &:hover {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
       .icon {
         color: #2195f3;
       }
@@ -53,7 +53,7 @@ const Wrap = styled.div`
       height: 28px;
       line-height: 28px;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #f5f5f5;
         border-radius: 3px 3px 3px 3px;
       }
@@ -70,7 +70,7 @@ const Wrap = styled.div`
         margin: 0 auto;
       }
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #f5f5f5;
         border-radius: 3px 3px 3px 3px;
       }
@@ -229,7 +229,7 @@ export default function Timegrid(props) {
   const scrollDiv = useRef(null);
   const isM = browserIsMobile();
   const renderContent = () => {
-    const { resourceview, updateCurrnetTime, view, mx, viewId } = props;
+    const { resourceview, updateCurrnetTime, view } = props;
     const { timeList, currentTime, resourceDataByKey, gridTimes } = resourceview;
     const { title, list } = timeList;
     const type =
@@ -243,7 +243,7 @@ export default function Timegrid(props) {
         : timeGridCount * timeWidthHalf;
     const allW = widthCon; // widthCon >= mx ? widthCon : mx;
     const onScroll = () => {
-      const { view, viewId } = props;
+      const { viewId } = props;
       const scrollTop = scrollDiv.current && scrollDiv.current.scrollTop;
       document.getElementById(`leftCon_${viewId}`).scrollTop = scrollTop;
       document.getElementById(`rightCon_${viewId}`).scrollTop = scrollTop;
@@ -304,7 +304,7 @@ export default function Timegrid(props) {
                 onClick={() => {
                   updateCurrnetTime(
                     moment(
-                      (!!currentTime ? moment(currentTime) : moment()).subtract(
+                      (currentTime ? moment(currentTime) : moment()).subtract(
                         type === 'Week' ? 7 : 1,
                         type === 'Month' ? 'months' : type === 'Year' ? 'years' : 'days',
                       ),
@@ -334,7 +334,7 @@ export default function Timegrid(props) {
                 onClick={() => {
                   updateCurrnetTime(
                     moment(
-                      (!!currentTime ? moment(currentTime) : moment()).add(
+                      (currentTime ? moment(currentTime) : moment()).add(
                         type === 'Week' ? 7 : 1,
                         type === 'Month' ? 'months' : type === 'Year' ? 'years' : 'days',
                       ),

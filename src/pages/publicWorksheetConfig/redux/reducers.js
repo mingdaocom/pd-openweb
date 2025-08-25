@@ -1,5 +1,5 @@
-import _ from 'lodash';
 import { combineReducers } from 'redux';
+import _ from 'lodash';
 
 export function loading(state = true, action) {
   switch (action.type) {

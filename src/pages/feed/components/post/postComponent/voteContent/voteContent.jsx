@@ -1,11 +1,10 @@
 ﻿import React from 'react';
-import { getPostDetail } from '../../../../redux/postActions';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import VoteResult from './voteResult';
-import VoteList from './voteList';
+import PropTypes from 'prop-types';
+import { getPostDetail } from '../../../../redux/postActions';
 import VoteAction from './voteAction';
-
+import VoteList from './voteList';
+import VoteResult from './voteResult';
 import './voteContent.css';
 
 /**
@@ -26,7 +25,7 @@ class VoteContent extends React.Component {
         PropTypes.shape({
           optionIndex: PropTypes.number,
           name: PropTypes.string, // vote message
-        })
+        }),
       ),
     }),
   };
@@ -56,11 +55,20 @@ class VoteContent extends React.Component {
   render() {
     return (
       <div className="voteContent">
-        {this.state.isShowResult ? <VoteResult {...this.props} /> : <VoteList handleShowResult={this.handleShowResult} {...this.props} />}
-        <VoteAction isShowResult={this.state.isShowResult} handleShowList={this.handleShowList} handleReloadVote={this.handleReloadVote} {...this.props} />
+        {this.state.isShowResult ? (
+          <VoteResult {...this.props} />
+        ) : (
+          <VoteList handleShowResult={this.handleShowResult} {...this.props} />
+        )}
+        <VoteAction
+          isShowResult={this.state.isShowResult}
+          handleShowList={this.handleShowList}
+          handleReloadVote={this.handleReloadVote}
+          {...this.props}
+        />
       </div>
     );
   }
 }
 
-export default connect(state => ({}))(VoteContent);
+export default connect()(VoteContent);

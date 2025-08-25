@@ -1,23 +1,18 @@
 import React from 'react';
 import _ from 'lodash';
-import { Dialog, Support } from 'ming-ui';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { Dialog } from 'ming-ui';
 import 'src/pages/PageHeader/components/NetState/index.less';
-import { navigateTo } from 'src/router/navigateTo';
-import { VersionProductHelpLink } from 'src/utils/enum';
 import { getCurrentProject, getSyncLicenseInfo } from 'src/utils/project';
 
 /**
  * 升级版本dialog
  */
 export const upgradeVersionDialog = options => {
-  const okText = options.okText ? options.okText : options.isFree ? _l('立即购买') : _l('立即升级');
   const hint = options.hint || _l('当前版本无法使用此功能');
   const explainText = options.explainText || _l('请升级至专业版或旗舰版解锁开启');
-  const versionType = options.versionType ? options.versionType : undefined;
+
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
-  const helpLink = VersionProductHelpLink[options.featureId] || options.helpLink; // 帮助链接
-  const removeFooter = options.removeFooter;
+
   const descFunc = () => {
     return (
       <div className="netStateWrap">
@@ -28,15 +23,6 @@ export const upgradeVersionDialog = options => {
         )}
       </div>
     );
-  };
-  const onOkFunc = () => {
-    !options.projectId
-      ? (location.href = `/price`)
-      : options.isFree
-        ? purchaseMethodFunc({ projectId: options.projectId, select: versionType })
-        : options.onOk
-          ? options.onOk()
-          : navigateTo(`/admin/upgradeservice/${options.projectId}${versionType ? '/' + versionType : ''}`);
   };
 
   if (options.dialogType === 'content') {
@@ -93,9 +79,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
     explainText:
       md.global.Config.IsLocal || md.global.Account.isPortal
         ? _l('请升级版本')
-        : !!explainText
-          ? explainText
-          : _l('请升级至%0解锁开启', upgradeName),
+        : explainText || _l('请升级至%0解锁开启', upgradeName),
     versionType,
     dialogType,
     onOk,

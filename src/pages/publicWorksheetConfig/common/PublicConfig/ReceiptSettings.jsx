@@ -81,7 +81,7 @@ const PopupWrap = styled.div`
         color: #bdbdbd;
       }
       &:hover {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
         .Icon {
           color: #fff;

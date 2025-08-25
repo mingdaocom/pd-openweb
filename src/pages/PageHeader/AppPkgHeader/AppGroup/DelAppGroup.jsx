@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
 import cx from 'classnames';
-import { Icon, Dialog, Button, ScrollView } from 'ming-ui';
+import { Dialog, Icon, ScrollView } from 'ming-ui';
 
 export default class DelAppGroup extends Component {
   static propTypes = {};
@@ -38,7 +37,15 @@ export default class DelAppGroup extends Component {
     const { onOk, onCancel, data } = this.props;
     const { sourceAppSectionId, searchValue } = this.state;
     return (
-      <Dialog className="delAppItemDialog" confirm="danger" width={640} title={_l('删除一级分组')} visible footer={null} onCancel={onCancel}>
+      <Dialog
+        className="delAppItemDialog"
+        confirm="danger"
+        width={640}
+        title={_l('删除一级分组')}
+        visible
+        footer={null}
+        onCancel={onCancel}
+      >
         <div className="explain">{_l('当前一级分组包含内容，必须将他们移到其他一级分组后再进行删除')}</div>
         <div className="moveTo">
           <span>{_l('移动到')}</span>
@@ -50,25 +57,25 @@ export default class DelAppGroup extends Component {
                 placeholder="搜索"
                 type="text"
                 value={searchValue}
-                onChange={(e) => {
+                onChange={e => {
                   this.setState({
-                    searchValue: e.target.value
+                    searchValue: e.target.value,
                   });
                 }}
               />
             </div>
-            <ScrollView className="flex">
-              {data.map(data => (
-                this.renderGroupingItem(data)
-              ))}
-            </ScrollView>
+            <ScrollView className="flex">{data.map(data => this.renderGroupingItem(data))}</ScrollView>
           </div>
         </div>
         <div className="btnBox">
           <button className="btnCancel" onClick={onCancel}>
             {_l('取消')}
           </button>
-          <button onClick={() => onOk(sourceAppSectionId)} disabled={!sourceAppSectionId} className={cx('btnOk', { btnDel: !!sourceAppSectionId })}>
+          <button
+            onClick={() => onOk(sourceAppSectionId)}
+            disabled={!sourceAppSectionId}
+            className={cx('btnOk', { btnDel: !!sourceAppSectionId })}
+          >
             {_l('删除')}
           </button>
         </div>

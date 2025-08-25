@@ -1,21 +1,12 @@
-import React, { useEffect, useState, memo, Fragment } from 'react';
+import React, { Fragment, memo, useEffect, useState } from 'react';
+import cx from 'classnames';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Icon, MobileDatePicker } from 'ming-ui';
 import { getDynamicValue } from '../../../core/formUtils';
-import moment from 'moment';
-import cx from 'classnames';
 
 const Time = props => {
-  const {
-    value,
-    controlName,
-    formData,
-    masterData,
-    formDisabled,
-    disabled,
-    advancedSetting = {},
-    unit,
-  } = props;
+  const { value, controlName, formData, masterData, formDisabled, disabled, advancedSetting = {}, unit } = props;
   const timeInterval = parseInt(advancedSetting.timeinterval || '1');
   const currentMinute = moment().minute();
   const defaultValue =

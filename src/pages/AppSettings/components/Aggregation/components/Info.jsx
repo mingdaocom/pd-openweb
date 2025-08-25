@@ -1,8 +1,9 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Dialog, Icon, LoadDiv, Support } from 'ming-ui';
 import CheckBox from 'ming-ui/components/Checkbox';
 import sheetAjax from 'src/api/worksheet';
@@ -11,7 +12,7 @@ import SyncTask from 'src/pages/integration/api/syncTask.js';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import 'src/pages/workflow/components/Switch/index.less';
 import { getTranslateInfo } from 'src/utils/app';
-import { AGG_CONTROL_MAX, GROUPMAX, systemControls } from '../config';
+import { AGG_CONTROL_MAX, GROUPMAX, GROUPMAXBYREL, systemControls } from '../config';
 import {
   getAllSourceList,
   getGroupFields,
@@ -82,7 +83,9 @@ export default function Info(props) {
       let data = {};
       try {
         data = await AggTableAjax.getAggTable({ projectId, appId, aggTableId: id }, { isAggTable: true });
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
       initState(data);
     }
   };
@@ -468,7 +471,7 @@ export default function Info(props) {
                     placement="bottom"
                     title={<span className="">{_l('标准版支持5个、专业版和旗舰版支持10个')}</span>}
                   >
-                    <Icon icon="info1" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
+                    <Icon icon="info" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
                   </Tooltip>
                 )}
               </div>
@@ -497,15 +500,20 @@ export default function Info(props) {
                     <span className="Gray_75 mLeft10">{`(${getGroupFields(flowData).length}/${GROUPMAX})`}</span>
                     <Tooltip
                       placement="bottom"
-                      title={<span className="">{_l('上限添加8个归组字段，关联记录下数组类型字段最多3个')}</span>}
+                      autoCloseDelay={0}
+                      title={
+                        <span className="">
+                          {_l('上限添加%0个归组字段，关联记录下数组类型字段最多%1个', GROUPMAX, GROUPMAXBYREL)}
+                        </span>
+                      }
                     >
-                      <Icon icon="info1" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
+                      <Icon icon="info" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
                     </Tooltip>
                   </span>
                   <CheckBox
                     className="Hand Gray_75 ThemeHoverColor3"
                     checked={_.get(groupDt, 'nodeConfig.config.displayNull') !== false}
-                    onClick={checked => {
+                    onClick={() => {
                       onUpdate(
                         [
                           updateConfig(groupDt, {

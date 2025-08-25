@@ -49,7 +49,7 @@ export default function CustomErNode(props) {
     });
     const newAllControls = _.get(newWorksheetInfo, 'template.controls').filter(l => l.controlId.length === 24);
     const newControls = getVisibleControls(newAllControls)
-      .filter((l, i) => !HIDE_FIELDS.includes(l.type))
+      .filter(l => !HIDE_FIELDS.includes(l.type))
       .map(l => _.pick(l, ['controlId', 'controlName', 'dataSource', 'enumDefault', 'sourceControlId', 'type']));
     const lastData = _.get(node, 'store.data.data');
     const index = _.findIndex(list, l => l.worksheetId === item.worksheetId);
@@ -118,7 +118,7 @@ export default function CustomErNode(props) {
         )}
       >
         <span className="Gray_9e Hover_21 Hand">
-          <Icon icon="task-point-more" className="Font14 Hover_21" />
+          <Icon icon="more_horiz" className="Font14 Hover_21" />
         </span>
       </Trigger>
     );

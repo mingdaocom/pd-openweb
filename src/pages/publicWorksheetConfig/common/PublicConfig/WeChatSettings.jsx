@@ -1,12 +1,12 @@
-import React, { useState, Fragment } from 'react';
-import { Dropdown, Radio, Icon } from 'ming-ui';
+import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import CommonSwitch from './CommonSwitch';
-import SectionTitle from './SectionTitle';
-import { COLLECT_WAY_OPTIONS, AUTH_OPTIONS, WECHAT_MAPPING_SOURCE_FIELDS, WECHAT_FIELD_KEY } from '../../enum';
+import { Dropdown, Icon, Radio } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import AddControlDialog from '../../components/AddControlDialog';
+import { AUTH_OPTIONS, COLLECT_WAY_OPTIONS, WECHAT_FIELD_KEY, WECHAT_MAPPING_SOURCE_FIELDS } from '../../enum';
+import CommonSwitch from './CommonSwitch';
+import SectionTitle from './SectionTitle';
 
 const BindingTip = styled.div`
   width: 410px;
@@ -73,7 +73,7 @@ export default function WeChatSettings(props) {
               style: { color: '#757575' },
               text: (
                 <div>
-                  <Icon icon="delete1" />
+                  <Icon icon="trash" />
                   <span className="mLeft20">{_l('清除')}</span>
                 </div>
               ),

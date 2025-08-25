@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
-import { SettingItem } from '../../styled';
 import { TIME_DISPLAY_TYPE } from '../../config/setting';
+import { SettingItem } from '../../styled';
 
 export default function Text(props) {
   const { data = {}, onChange } = props;

@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import { DropdownContentWrap } from '../../../../styled';
 import allData from './telData';
-import '../../../../styled/style.less';
 import 'intl-tel-input/build/css/intlTelInput.min.css';
+import '../../../../styled/style.less';
 
 const SelectInfoWrap = styled.div`
   .countryList {
@@ -19,7 +19,7 @@ const SelectInfoWrap = styled.div`
     border: 1px solid #eee;
     border-radius: 4px;
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
     .text {
       margin: 6px 0 0 12px;

@@ -41,7 +41,7 @@ const Wrapper = styled.div`
     font-weight: initial !important;
   }
   .highlig {
-    color: #2196f3;
+    color: #1677ff;
   }
   .tip-top {
     height: 18px;
@@ -72,7 +72,6 @@ const InputWrapper = styled.div`
 `;
 
 const highlightMessageText = (keyword, content) => {
-  const original = content;
   content = htmlDecodeReg(content);
   const reg = new RegExp(_.escapeRegExp(keyword), 'gi');
   const newKeyword = reg.exec(content)[0];
@@ -97,7 +96,7 @@ const searchResult = (query, queryKey, data) => {
 };
 
 function SearchRecord(props) {
-  const { mapView, searchData, view, updateSearchRecord } = props;
+  const { searchData, view, updateSearchRecord } = props;
   const data = searchData.data;
   const queryKey = searchData.queryKey;
   const [open, setOpen] = useState(false);

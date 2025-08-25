@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import FunctionWrap from 'ming-ui/components/FunctionWrap';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import EncryptBaseInfo from './EncryptBaseInfo';
 import EncryptFieldList from './EncryptFieldList';
-import styled from 'styled-components';
-import cx from 'classnames';
 
 const DetailDialog = styled(Dialog)`
   height: unset !important;
@@ -32,9 +32,9 @@ const TabWrap = styled.div`
     padding-bottom: 12px;
   }
   .active {
-    color: #2196f3;
+    color: #1677ff;
     font-weight: 600;
-    border-bottom: 2px solid #2196f3;
+    border-bottom: 2px solid #1677ff;
   }
 `;
 

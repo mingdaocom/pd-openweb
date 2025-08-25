@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+
 export const Button = styled.div`
   line-height: 36px;
   text-align: center;
@@ -97,7 +98,7 @@ export const DropdownOverlay = styled.div`
         color: #bdbdbd;
       }
       &:not(disabled):hover {
-        background-color: #2196f3;
+        background-color: #1677ff;
         color: #ffffff;
         i {
           color: #ffffff;

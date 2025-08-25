@@ -82,9 +82,14 @@ export const statusList = [
     type: 'war',
   },
   {
+    key: 7,
+    text: _l('已取消'),
+    type: 'cancel',
+  },
+  {
     key: 8,
     text: _l('已取消'),
-    type: 'err',
+    type: 'cancel',
   },
 ];
 
@@ -158,3 +163,9 @@ export const sourceTypeInfo = {
   3: _l('外部门户'),
   6: _l('他人代付'),
 };
+
+export const selectPayStatusList = [
+  { key: 100, text: _l('支付订单'), type: 'wait' },
+  { key: 7, text: _l('已取消'), type: 'err' },
+  { key: 4, text: _l('订单超时'), type: 'err' },
+];

@@ -73,7 +73,7 @@ function NewRecord(props) {
     isDraft,
     ...rest
   } = props;
-  const { appId, viewId, worksheetInfo } = rest;
+  const { appId, worksheetInfo } = rest;
   const newRecordContent = useRef(null);
   const cache = useRef({});
   const [loading, setLoading] = useState();
@@ -126,7 +126,6 @@ function NewRecord(props) {
       sessionId, // 随机ID
       appWillGoBack: data => {
         var sessionId = data.sessionId;
-        var url = data.url;
         // sessionId: 传入的sessionId
         // url: App 将返回的页面, 为空则是关闭当前浏览器
         // 若App执行失败, 将夺回控制权
@@ -183,7 +182,7 @@ function NewRecord(props) {
           </BtnsWrap>
         </div>
       ),
-      onAction: (action, index) => {
+      onAction: () => {
         actionHandler.close();
       },
     });
@@ -239,6 +238,7 @@ function NewRecord(props) {
       try {
         await customButtonConfirm();
       } catch (err) {
+        console.log(err);
         return;
       }
     }
@@ -368,10 +368,10 @@ function NewRecord(props) {
         />
       )}
       <i
-        className="icon icon-closeelement-bg-circle Gray_9e Font22"
+        className="icon icon-cancel Gray_9e Font22"
         onClick={() => {
           hideNewRecordModal();
-          if (location.search) {
+          if (location.search && window.isMingDaoApp) {
             history.back();
           }
         }}
@@ -428,7 +428,7 @@ function NewRecord(props) {
       )}
       <div className="flexColumn leftAlign h100">
         {notDialog ? null : header}
-        <ScrollView>
+        <ScrollView options={{ overflow: { x: 'hidden' } }}>
           <div
             className={cx('h100', {
               'pAll20 pTop0': localStorage.getItem('LOAD_MOBILE_FORM') === 'old',

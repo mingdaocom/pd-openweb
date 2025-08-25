@@ -6,7 +6,6 @@ import Tooltip from 'ming-ui/components/Tooltip';
 import GroupController from 'src/api/group';
 import settingGroup from 'src/pages/Group/settingGroup';
 import * as actions from '../../redux/actions';
-import * as utils from '../../utils/';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import { createDiscussion } from '../../utils/group';
@@ -126,6 +125,9 @@ class ChatPanelHeader extends Component {
           case GROUPACTION.VERIFY:
             this.props.dispatch(actions.updateVerify(data.groupId, data.isVerified));
             break;
+          case GROUPACTION.UPDATE_POST:
+            this.props.dispatch(actions.resetGroupIsPost(data.groupId, data.projectId));
+            break;
           default:
             break;
         }
@@ -140,7 +142,7 @@ class ChatPanelHeader extends Component {
     GroupController.updateGroupPushNotice({
       groupId: session.id,
       isPushNotice,
-    }).then(result => {
+    }).then(() => {
       this.props.dispatch(actions.updateGroupPushNotice(session.id, isPushNotice));
       // isPushNotice ? alert(_l('已关闭消息免打扰')) : alert(_l('已开启消息免打扰'));
     });
@@ -148,25 +150,13 @@ class ChatPanelHeader extends Component {
   }
   handleAddSession() {
     const { session } = this.props;
-    createDiscussion(session.id, result => {});
+    createDiscussion(session.id, () => {});
   }
   handleOpenChatWindow() {
-    const { session, isWindow } = this.props;
-    if (isWindow) {
-      utils.chatWindow.remove(session.id);
-      socket.Contact.setCurrentChat({});
-      if (window.opener && window.opener.reloadChatPanel) {
-        window.opener.reloadChatPanel(session.id, session.isGroup);
-      }
-      window.close();
-    } else {
-      const { id, isGroup } = session;
-      const name = session.name || session.fullname;
-      utils.windowOpen(id, name, isGroup);
-      this.props.dispatch(actions.removeCurrentSession(id));
-      this.props.dispatch(actions.removeMessages(id));
-      this.props.dispatch(actions.setNewCurrentSession({}));
-    }
+    const { session } = this.props;
+    window.open(
+      `/windowChat?id=${session.id}&type=${session.groupId ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER}`,
+    );
   }
   handleStick() {
     const { session } = this.props;
@@ -249,6 +239,28 @@ class ChatPanelHeader extends Component {
       </Trigger>
     );
   }
+
+  getGroupMessage = () => {
+    const { session } = this.props;
+
+    if (!session.project) return _l('个人群组');
+
+    return (
+      <div className="pTop5 pBottom5">
+        <div>
+          <span className="Gray_75">{_l('所属组织：')}</span>
+          {session.project.companyName}
+        </div>
+        {session.mapDepartmentName && (
+          <div className="mTop5">
+            <span className="Gray_75">{_l('关联部门：')}</span>
+            {session.mapDepartmentName}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   render() {
     const { infoVisible, session, isWindow, isOpenFile } = this.props;
     const { searchVisible, focus, value } = this.state;
@@ -260,22 +272,27 @@ class ChatPanelHeader extends Component {
 
     return (
       <div className="ChatPanel-header">
+        {session.isPost && (
+          <Tooltip popupPlacement="bottomLeft" themeColor="white" text={this.getGroupMessage()} autoCloseDelay={0}>
+            <i
+              className={cx('mRight10 Font20', session.project ? 'icon-business' : 'icon-person_new')}
+              style={{ color: session.project ? '#1677ff' : '#ff7f00' }}
+            />
+          </Tooltip>
+        )}
+
         <div className="title" title={name}>
+          <span onClick={this.handleGoto.bind(this)} className="ThemeColor3 name">
+            {name}
+          </span>
           {session.isGroup && !session.isPushNotice ? (
             <Tooltip popupPlacement="top" text={<span>{_l('关闭消息免打扰')}</span>}>
               <i onClick={this.handleUpdateGroupPushNotice.bind(this)} className="icon-chat-bell-nopush" />
             </Tooltip>
           ) : undefined}
-          <span onClick={this.handleGoto.bind(this)} className="ThemeColor3 name">
-            {name}
-          </span>
-          {session.isVerified ? (
-            <Tooltip popupPlacement="top" text={<span>{_l('已设为官方群')}</span>}>
-              <i className="icon-chat-vip"></i>
-            </Tooltip>
-          ) : undefined}
           {isSet ? this.renderSetting() : undefined}
         </div>
+        <div className="flex" />
         <div className="other" style={{ marginRight: isWindow ? 15 : 0 }}>
           {isFileTrsnsfer ? undefined : (
             <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
@@ -301,12 +318,16 @@ class ChatPanelHeader extends Component {
               <i onClick={this.handleAddSession.bind(this)} className="icon-invite ThemeColor3 iconHover" />
             </Tooltip>
           )}
-          <Tooltip text={<span>{_l('查看文件')}</span>}>
-            <i
-              onClick={this.props.onOpenFile.bind(this, !isOpenFile)}
-              className={cx('icon-task-folder-solid ThemeColor3', { iconHover: !isOpenFile })}
-            />
-          </Tooltip>
+
+          {(session.isPost || session.accountId || isFileTrsnsfer) && (
+            <Tooltip text={<span>{_l('查看文件')}</span>}>
+              <i
+                onClick={this.props.onOpenFile.bind(this, !isOpenFile)}
+                className={cx('icon-task-folder-solid ThemeColor3', { iconHover: !isOpenFile })}
+              />
+            </Tooltip>
+          )}
+
           {session.isGroup ? (
             <Tooltip popupPlacement="top" text={<span>{infoVisible ? _l('隐藏会话详情') : _l('显示会话详情')}</span>}>
               {infoVisible ? (
@@ -322,12 +343,9 @@ class ChatPanelHeader extends Component {
               )}
             </Tooltip>
           ) : undefined}
-          {isFileTrsnsfer ? undefined : (
-            <Tooltip text={<span>{isWindow ? _l('恢复') : _l('新窗口聊天')}</span>}>
-              <i
-                onClick={this.handleOpenChatWindow.bind(this)}
-                className={`${isWindow ? 'icon-maximizing_b' : 'icon-maximizing_a'} ThemeColor3 iconHover`}
-              />
+          {!isFileTrsnsfer && (
+            <Tooltip text={<span>{_l('新窗口聊天')}</span>}>
+              <i onClick={this.handleOpenChatWindow.bind(this)} className={`icon-maximizing_a ThemeColor3 iconHover`} />
             </Tooltip>
           )}
           {isWindow ? undefined : (
@@ -340,11 +358,10 @@ class ChatPanelHeader extends Component {
 }
 
 export default connect(state => {
-  const { currentSession, visible, isWindow } = state.chat;
+  const { currentSession, isWindow } = state.chat;
 
   return {
     currentSession,
-    visible,
     isWindow,
   };
 })(ChatPanelHeader);

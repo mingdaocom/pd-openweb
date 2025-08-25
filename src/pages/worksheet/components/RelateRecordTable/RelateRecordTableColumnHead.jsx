@@ -48,7 +48,11 @@ export default function ColumnHead(props) {
   const canSort = !disabled && fieldCanSort(itemType);
   const canEdit = controlBatchCanEdit(control);
   const maskData =
-    !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
+    !(
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage') ||
+      _.get(window, 'shareState.isPublicRecord')
+    ) &&
     _.get(control, 'advancedSetting.datamask') === '1' &&
     _.get(control, 'advancedSetting.isdecrypt') === '1';
 
@@ -83,7 +87,7 @@ export default function ColumnHead(props) {
           {maskData && (
             <MenuItem onClick={onShowFullValue}>
               <i className="icon icon-eye_off"></i>
-              {_l('解密')}
+              {_l('解码')}
             </MenuItem>
           )}
           {canFilter &&
@@ -123,14 +127,14 @@ export default function ColumnHead(props) {
               {_l('显示所有列')}
             </MenuItem>
           )}
-          {columnIndex < 6 && fixedColumnCount !== columnIndex + 1 && (
+          {columnIndex <= 3 && fixedColumnCount !== columnIndex + 1 && (
             <MenuItem
               onClick={() => {
                 frozen(columnIndex);
                 closeMenu();
               }}
             >
-              <i className="icon icon-task-new-locked"></i>
+              <i className="icon icon-lock"></i>
               {_l('冻结')}
             </MenuItem>
           )}

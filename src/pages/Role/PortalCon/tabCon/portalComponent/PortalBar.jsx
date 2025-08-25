@@ -1,190 +1,78 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Trigger from 'rc-trigger';
-import cx from 'classnames';
 import { Switch } from 'antd';
-import FilterDrop from './FilterDrop';
-import * as actions from '../../redux/actions';
-import externalPortalAjax from 'src/api/externalPortal';
-import SearchTelsDialog from './SearchTels';
+import cx from 'classnames';
 import _ from 'lodash';
-const Wrap = styled.div`
-  .mRight14 {
-    margin-right: 14px;
-  }
-  flex: 1;
-  text-align: right;
-  height: 36px;
-  .actIcon {
-    color: #9e9e9e;
-    &:hover {
-      color: #2196f3;
-    }
-  }
-  .searchTels {
-    cursor: pointer;
-    border: 1px solid #ddd;
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    font-size: 20px;
-    color: #9e9e9e;
-    line-height: 30px;
-    padding: 0 6px;
-  }
-  i::before {
-    line-height: 36px;
-  }
-  i {
-    vertical-align: top;
-  }
-  .searchInputPortal {
-    height: 36px;
-    overflow: hidden;
-    display: inline-block;
-    border-radius: 3px;
-    background-color: #fff;
-    .inputCon {
-      display: flex;
-      .inputConLeft {
-        line-height: 32px;
-        border: 1px solid #ddd !important;
-        border-radius: 4px 0 0 4px;
-        flex: 1;
-        padding-right: 10px;
-        position: relative;
-        &:hover {
-          border: 1px solid #2196f3 !important;
-        }
-        input {
-          flex: 1;
-          border: none;
-          line-height: 34px;
-          box-sizing: border-box;
-          vertical-align: top;
-          padding: 0 12px;
-          border-radius: 3px;
-          &:-ms-input-placeholder {
-            color: #ccc !important;
-          }
-          &::-ms-input-placeholder {
-            color: #ccc;
-          }
-          &::placeholder {
-            color: #ccc;
-          }
-        }
-      }
-      i::before {
-        line-height: 34px;
-      }
-      .none {
-        display: none;
-      }
-    }
-  }
-`;
-const Popup = styled.div`
-  background: #fff;
-  width: 240px;
-  padding: 5px 0;
-  border-radius: 4px;
-  background-color: #fff;
-  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
-  .searchWrapper {
-    border-bottom: 1px solid #e0e0e0;
-    margin: 8px 16px 0;
-    display: flex;
-    height: 38px;
-    line-height: 38px;
-    overflow: hidden;
-    .cursorText {
-      border: none;
-      flex: 1;
-      margin: 0;
-      padding: 0;
-      max-width: 79%;
-    }
-    .icon {
-      width: 20px;
-      line-height: 38px;
-      color: #bdbdbd;
-    }
-  }
-  .listBox {
-    overflow: auto;
-    max-height: 844px;
-    &::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
-    }
-    .widgetList {
-      padding: 8px 16px;
-      &:hover {
-        background: #f5f5f5;
-        border-radius: 4px;
-      }
-      .ant-switch-small {
-        min-width: 18px;
-        height: 9px;
-        line-height: 9px;
-        vertical-align: middle;
-        margin-right: 18px;
-        .ant-switch-handle {
-          width: 5px;
-          height: 5px;
-        }
-        .ant-switch-inner {
-          margin: 0;
-        }
-        &.ant-switch-checked {
-          .ant-switch-handle {
-            left: calc(100% - 5px - 2px);
-          }
-          .ant-switch-inner {
-            margin: 0;
-          }
-        }
-      }
-    }
-  }
-`;
-const ClearIcon = styled.i`
-  position: absolute;
-  right: 0;
-  font-size: 16px;
-  color: #9e9e9e;
-  margin-right: 8px;
-  cursor: pointer;
-  &:hover {
-    color: #777;
-  }
-`;
+import Trigger from 'rc-trigger';
+import { Icon, Tooltip } from 'ming-ui';
+import externalPortalAjax from 'src/api/externalPortal';
+import * as actions from '../../redux/actions';
+import FilterDrop from './FilterDrop';
+import SearchTelsDialog from './SearchTels';
+import { ClearIcon, Popup, PortalBarWrap } from './style';
+
 function PortalBar(props) {
-  const { portal, setHideIds, setKeyWords, keys, appId } = props; //['search', 'columns', 'filter', 'down']
-  const { showPortalControlIds = [], controls = [], filters = [], keyWords } = portal;
-  const [showTels, setShowTels] = useState(false); //批量搜索手机号弹层
-  const [columnsKey, setcolumnsKey] = useState(''); //列显示key
+  const { portal, setHideIds, setKeyWords, keys, appId } = props;
+  const { showPortalControlIds = [], controls = [] } = portal;
+  const [showTels, setShowTels] = useState(false);
+  const [columnsKey, setcolumnsKey] = useState('');
+  const [inputValue, setInputValue] = useState('');
+
+  const debouncedSetKeyWordsRef = useRef(
+    _.debounce(val => {
+      setKeyWords(val);
+    }, 500),
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSetKeyWordsRef.current.cancel();
+    };
+  }, []);
+
   const getControls = () => {
-    return controls.filter(o => !['avatar'].includes(o.alias)); //头像不显示
+    return controls.filter(o => !['avatar'].includes(o.alias));
   };
-  const [columns, setColumns] = useState([]); //可控制的列
+
+  const [columns, setColumns] = useState([]);
+
   useEffect(() => {
     setColumns(getControls() || []);
   }, [controls]);
+
   const setShowControls = showPortalControlIds => {
-    externalPortalAjax.editViewShowControls({
-      appId,
-      controlIds: showPortalControlIds,
-    }).then(res => {
-      setHideIds(showPortalControlIds);
-    });
+    externalPortalAjax
+      .editViewShowControls({
+        appId,
+        controlIds: showPortalControlIds,
+      })
+      .then(() => {
+        setHideIds(showPortalControlIds);
+      });
+  };
+
+  const handleSearchChange = e => {
+    const value = e.target.value;
+    setInputValue(value);
+    debouncedSetKeyWordsRef.current(value);
+  };
+
+  const handleSearchKeyUp = e => {
+    if (e.keyCode === 13) {
+      debouncedSetKeyWordsRef.current.cancel();
+      setKeyWords(inputValue);
+    }
+  };
+
+  const handleClear = () => {
+    setInputValue('');
+    debouncedSetKeyWordsRef.current.cancel();
+    setKeyWords('');
   };
 
   return (
-    <Wrap className="InlineBlock">
+    <PortalBarWrap className="InlineBlock">
       {keys.includes('search') && (
         <React.Fragment>
           <div className={cx('searchInputPortal InlineBlock mRight14')}>
@@ -194,27 +82,14 @@ function PortalBar(props) {
                   placeholder={_l('搜索')}
                   type="text"
                   className="mRight5"
-                  value={keyWords}
-                  onKeyUp={e => {
-                    if (e.keyCode === 13) {
-                      setKeyWords(e.target.value);
-                    }
-                  }}
-                  onChange={e => {
-                    setKeyWords(e.target.value);
-                  }}
+                  value={inputValue}
+                  onKeyUp={handleSearchKeyUp}
+                  onChange={handleSearchChange}
                 />
-                {keyWords && (
-                  <ClearIcon
-                    className="icon-cancel"
-                    onClick={() => {
-                      setKeyWords('');
-                    }}
-                  />
-                )}
+                {inputValue && <ClearIcon className="icon-cancel" onClick={handleClear} />}
               </div>
               <i
-                className={cx('icon icon-lookup Font20 Hand InlineBlock actIcon searchTels ThemeHoverColor3', {})}
+                className={'icon icon-lookup Font20 Hand InlineBlock actIcon searchTels ThemeHoverColor3'}
                 onClick={() => {
                   setShowTels(true);
                 }}
@@ -276,7 +151,7 @@ function PortalBar(props) {
                       return (
                         <div
                           className="widgetList overflow_ellipsis WordBreak Hand"
-                          keyWords={`widgetList-${index}`}
+                          key={`widgetList-${index}`}
                           onClick={() => {
                             if (!isChecked) {
                               setShowControls(showPortalControlIds.concat(item.controlId));
@@ -319,28 +194,23 @@ function PortalBar(props) {
         <Tooltip popupPlacement="bottom" text={<span>{_l('导出用户')}</span>}>
           <Icon
             className="mRight14 Font18 Hand InlineBlock actIcon"
-            icon="file_download"
+            icon="download"
             onClick={() => {
               props.down(true);
             }}
           />
         </Tooltip>
       )}
-      {showTels && (
-        <SearchTelsDialog
-          setShow={show => {
-            setShowTels(show);
-          }}
-          show={showTels}
-        />
-      )}
+      {showTels && <SearchTelsDialog setShow={setShowTels} show={showTels} />}
       {props.comp && props.comp()}
-    </Wrap>
+    </PortalBarWrap>
   );
 }
+
 const mapStateToProps = state => ({
   portal: state.portal,
 });
+
 const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PortalBar);

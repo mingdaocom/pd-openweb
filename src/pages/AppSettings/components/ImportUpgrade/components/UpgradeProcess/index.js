@@ -2,15 +2,24 @@ import React, { Component, Fragment } from 'react';
 import { Steps } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Button, Checkbox, Dialog, LoadDiv, QiniuUpload, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, LoadDiv, QiniuUpload, Radio, Support, SvgIcon, Tooltip } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { formatFileSize } from 'src/utils/common';
-import { UPGARADE_TYPE_LIST, UPGRADE_DETAIL_TYPE_LIST, UPGRADE_ERRORMSG } from '../../../../config';
-import { getCheckedInfo, getViewIcon } from '../../../../util';
+import {
+  AdvancedConfig,
+  ERROR_CODE,
+  ITEMS,
+  MAX_FILES,
+  SETTINGS,
+  UPDATE_METHOD,
+  UPGARADE_TYPE_LIST,
+  UPGRADE_DETAIL_TYPE_LIST,
+  UPGRADE_ERRORMSG,
+} from '../../../../config';
+import { getViewIcon } from '../../../../util';
 import UpgradeDetail from '../UpgradeDetail';
 import UpgradeFileList from '../UpgradeFileList';
 import UpgradeItemWrap from '../UpgradeItemWrap';
@@ -20,42 +29,8 @@ import './index.less';
 
 const { Step } = Steps;
 
-const MAX_FILES = 20;
-const ITEMS = [
-  { title: _l('上传文件'), key: 'renderUploadFile' },
-  { title: _l('选择应用'), key: 'renderSelectApp' },
-  { title: _l('升级范围'), key: 'renderUpgradeScope' },
-  { title: _l('开始导入') },
-];
-const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
-const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
-const AdvancedConfig = [
-  {
-    label: _l('导入时匹配人员部门和组织角色'),
-    key: 'matchOffice',
-  },
-  {
-    label: _l('升级时同时备份当前版本'),
-    key: 'backupCurrentVersion',
-  },
-];
-const ERROR_CODE = {
-  6: _l('工作表数量超标'),
-  13: _l('上传的文件不能来源于同一个应用'),
-  20: _l('业务模块类型错误'),
-  30: _l('该应用在组织下已存在，请勿重复导入'),
-  31: _l('应用不允许在当前组织下导入'),
-  32: _l('不允许导入市场购买的应用'),
-  33: _l('该应用在组织下已存在，如需使用请从回收站内恢复”'),
-};
-const SETTINGS = [
-  { key: 'upgradeName', name: _l('所有名称和说明'), desc: _l('勾选时覆盖更新应用项、视图、工作流、角色的名称和说明') },
-  { key: 'upgradeHide', name: _l('所有显隐配置'), desc: _l('勾选时覆盖更新应用项、视图、角色的显隐配置') },
-  { key: 'upgradeStyle', name: _l('外观和导航'), desc: _l('勾选时覆盖更新主题色、导航色、导航设置、应用项排序') },
-  { key: 'upgradeLang', name: _l('应用语言') },
-  { key: 'upgradeTimeZone', name: _l('应用时区') },
-];
-
+export const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
+export const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
 export default class UpgradeProcess extends Component {
   constructor(props) {
     super(props);
@@ -69,11 +44,6 @@ export default class UpgradeProcess extends Component {
       compareLoading: false,
       isEncrypt: false,
       expandTypeList: ['worksheets', 'pages', 'roles', 'workflows'],
-      checkedInfo: getCheckedInfo({
-        typeList: upgradeTypeList,
-        source: [],
-        defaultCheckedAll: true,
-      }),
       worksheetDetailData: {},
       worksheetDetailParams: {},
       backupCurrentVersion: true,
@@ -91,6 +61,7 @@ export default class UpgradeProcess extends Component {
       upgradeStyle: false,
       upgradeLang: false,
       upgradeTimeZone: false,
+      modelType: 0,
     };
   }
 
@@ -151,11 +122,6 @@ export default class UpgradeProcess extends Component {
               errTip: _.isEmpty(worksheets) ? _l('应用中没有可导入的数据') : '',
               contrasts,
               upgradeId: id,
-              checkedInfo: getCheckedInfo({
-                typeList: upgradeTypeList,
-                source: contrasts,
-                defaultCheckedAll: true,
-              }),
             },
             () => {
               if (_.isEmpty(worksheets)) return;
@@ -178,7 +144,7 @@ export default class UpgradeProcess extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ compareLoading: false, analyzeLoading: false });
       });
   };
@@ -220,7 +186,7 @@ export default class UpgradeProcess extends Component {
       const newList = res
         .filter((l, i) => {
           l.i = i;
-          if (!!ERROR_CODE[l.code]) alert(ERROR_CODE[l.code], 2);
+          if (ERROR_CODE[l.code]) alert(ERROR_CODE[l.code], 2);
           return !ERROR_CODE[l.code] && !_.find(files, m => _.get(m, 'fileName') === _.get(l, 'fileName'));
         })
         .map(l => ({
@@ -274,11 +240,6 @@ export default class UpgradeProcess extends Component {
             ...files[index],
             contrasts: item.contrasts,
             upgradeId: item.id,
-            checkedInfo: getCheckedInfo({
-              typeList: upgradeTypeList,
-              source: item.contrasts,
-              defaultCheckedAll: true,
-            }),
           };
         } else {
           files[index].checkUpdateErr = UPGRADE_ERRORMSG[item.resultCode];
@@ -331,7 +292,7 @@ export default class UpgradeProcess extends Component {
             mime_types: [{ extensions: 'mdy' }],
           },
         }}
-        onAdd={(up, files) => {
+        onAdd={() => {
           this.setState({ isEncrypt: false, errTip: '' });
         }}
         onBeforeUpload={(up, file) => {
@@ -417,7 +378,7 @@ export default class UpgradeProcess extends Component {
                     <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
                     {errTip && (
                       <div className="mTop15 errTip Font14">
-                        <span className="icon-closeelement-bg-circle Font15 mRight6"></span>
+                        <span className="icon-cancel Font15 mRight6"></span>
                         <span>{_l(errTip)}</span>
                       </div>
                     )}
@@ -457,134 +418,44 @@ export default class UpgradeProcess extends Component {
     );
   };
 
-  checkAllCurrentType = (checked, type) => {
-    const { batchUpdate, worksheetDetailData, currentWorksheet, currentAppIndex, files } = this.state;
-    const { id } = currentWorksheet || {};
-    const { checkedInfo, data } = (id && worksheetDetailData[id]) || {};
-    const isDetail = _.includes(detailTypeList, type);
-    const copyCheckedInfo = isDetail ? checkedInfo : this.state.checkedInfo;
-    const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
-    const currentTypeAllIds = this.getIds(type, isDetail ? data : contrasts);
-    const obj = {
-      ...copyCheckedInfo,
-      [`${type}CheckAll`]: !checked ? true : false,
-      [`${type}CheckIds`]: !checked ? currentTypeAllIds : [],
-    };
-    const isEmptyCheckedDetail = id && Object.keys(obj).every(v => !obj[v]);
-    this.setState({
-      checkedInfo: isDetail
-        ? this.state.checkedInfo
-        : isEmptyCheckedDetail
-          ? {
-              ...obj,
-              [`${type}CheckAll`]: false,
-              [`${type}CheckIds`]: obj[`${type}CheckIds`].filter(v => v !== id),
-            }
-          : obj,
-      worksheetDetailData: isDetail
-        ? {
-            ...worksheetDetailData,
-            [id]: {
-              ...worksheetDetailData[id],
-              checkedInfo: obj,
-              isPartialChanges: Object.keys(obj).some(v => !obj[v]),
-            },
-          }
-        : worksheetDetailData,
-    });
-  };
-
-  checkItem = ({ checked, type, it, currentItemAllList = [] }) => {
-    const { worksheetDetailData, currentWorksheet } = this.state;
-    const { id } = currentWorksheet || {};
-    const { checkedInfo } = (id && worksheetDetailData[id]) || {};
-    const isDetail = _.includes(detailTypeList, type);
-    const copyCheckedInfo = isDetail ? checkedInfo : this.state.checkedInfo;
-    const currentTypeAllIds = currentItemAllList.map(v => v.id);
-    const checkedIds = copyCheckedInfo[`${type}CheckIds`] || [];
-    const currentCheckedIds = !checked ? checkedIds.concat(it.id) : checkedIds.filter(v => v !== it.id);
-    const isCheckedAll = currentTypeAllIds.every(v => _.includes(currentCheckedIds, v));
-    const obj = {
-      ...copyCheckedInfo,
-      [`${type}CheckAll`]: isCheckedAll ? true : false,
-      [`${type}CheckIds`]: currentCheckedIds,
-    };
-    const isEmptyCheckedDetail = id && Object.keys(obj).every(v => !obj[v]);
-
-    this.setState({
-      checkedInfo: isDetail
-        ? this.state.checkedInfo
-        : isEmptyCheckedDetail
-          ? {
-              ...obj,
-              [`${type}CheckAll`]: false,
-              [`${type}CheckIds`]: obj[`${type}CheckIds`].filter(v => v !== id),
-            }
-          : obj,
-      worksheetDetailData: isDetail
-        ? {
-            ...worksheetDetailData,
-            [id]: {
-              ...worksheetDetailData[id],
-              checkedInfo: obj,
-              isPartialChanges: Object.keys(obj).some(v => !obj[v]),
-            },
-          }
-        : worksheetDetailData,
-    });
-  };
-
   getWorksheetDetailParams = () => {
-    const { worksheetDetailData, batchUpdate, files, currentAppIndex } = this.state;
+    const { batchUpdate, files, currentAppIndex, modelType } = this.state;
     const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
     const { worksheets } = contrasts;
-    let result = worksheets.map(item => {
-      const { id, upgradeType } = item;
-      if (_.get(worksheetDetailData, id)) {
-        const { data, checkedInfo = {}, upgradeType } = _.get(worksheetDetailData, id);
-        const {
-          addViewCheckIds = [],
-          updateViewCheckIds = [],
-          addFieldsCheckIds = [],
-          updateFieldsCheckIds = [],
-        } = checkedInfo;
-        let views = data['addView'].concat(data['updateView']).map(({ id, upgradeType }) => ({ id, upgradeType }));
-        let controls = data['addFields']
-          .concat(data['updateFields'])
-          .map(({ id, upgradeType }) => ({ id, upgradeType }));
-        let checkedCurrentWorksheet = _.includes(this.state.checkedInfo.worksheetsCheckIds || [], id);
-        let obj = {
-          worksheet: checkedCurrentWorksheet ? { id, upgradeType } : {},
-          views: checkedCurrentWorksheet
-            ? views.filter(v => v && _.includes([...addViewCheckIds, ...updateViewCheckIds], v.id))
-            : [],
-          controls: checkedCurrentWorksheet
-            ? controls.filter(v => v && _.includes([...addFieldsCheckIds, ...updateFieldsCheckIds], v.id))
-            : [],
+    let result = worksheets
+      .filter(v => (!modelType && v.upgradeType !== 4) || modelType)
+      .map(item => {
+        const { id, upgradeType } = item;
+        return {
+          worksheet: { id, upgradeType },
         };
-        return obj;
-      }
-      return {
-        worksheet: { id, upgradeType },
-      };
-    });
+      });
 
     return result;
   };
 
   getParams = type => {
-    const { batchUpdate, files, currentAppIndex } = this.state;
+    const { batchUpdate, files, currentAppIndex, modelType } = this.state;
     const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
 
     return (contrasts[type] || [])
-      .filter(item => _.includes(this.state.checkedInfo[`${type}CheckIds`] || [], item.id))
-      .map(({ id, upgradeType }) => ({ id, upgradeType }));
+      .map(({ id, upgradeType }) => ({ id, upgradeType }))
+      .filter(v => (!modelType && v.upgradeType !== 4) || modelType);
   };
 
   handleUpgrade = () => {
     const { appDetail, projectId, type, onCancel } = this.props;
-    const { batchUpdate, files, upgradeId, upgradeName, upgradeHide, upgradeStyle, upgradeLang, upgradeTimeZone } =
-      this.state;
+    const {
+      batchUpdate,
+      files,
+      upgradeId,
+      upgradeName,
+      upgradeHide,
+      upgradeStyle,
+      upgradeLang,
+      upgradeTimeZone,
+      modelType,
+    } = this.state;
 
     this.setState({ showUpgradeStatus: !batchUpdate });
 
@@ -616,6 +487,7 @@ export default class UpgradeProcess extends Component {
       upgradeStyle,
       upgradeLang,
       upgradeTimeZone,
+      modelType,
     });
     type === '2' && onCancel();
   };
@@ -631,18 +503,24 @@ export default class UpgradeProcess extends Component {
   };
 
   renderUpgradeScope = () => {
-    const { expandTypeList, worksheetDetailData, batchUpdate, files, currentAppIndex, batchCheckUpgradeLoading } =
-      this.state;
+    const {
+      expandTypeList,
+      worksheetDetailData,
+      batchUpdate,
+      files,
+      currentAppIndex,
+      batchCheckUpgradeLoading,
+      modelType,
+      upgradeName,
+      upgradeHide,
+      upgradeStyle,
+      upgradeLang,
+      upgradeTimeZone,
+      matchOffice,
+      backupCurrentVersion,
+    } = this.state;
     const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
-    const checkedInfo = (batchUpdate ? files[currentAppIndex].checkedInfo : this.state.checkedInfo) || {};
 
-    let checkedUpgradeIds = [];
-    upgradeTypeList.forEach(item => {
-      const checkedIds = checkedInfo[`${item}CheckIds`];
-      if (checkedIds && !_.isEmpty(checkedIds)) {
-        checkedUpgradeIds = checkedUpgradeIds.concat(checkedIds);
-      }
-    });
     const selectAll = _.some(
       ['upgradeName', 'upgradeHide', 'upgradeStyle', 'upgradeLang', 'upgradeTimeZone'],
       item => !this.state[item],
@@ -653,22 +531,67 @@ export default class UpgradeProcess extends Component {
         <div className="Font14 mBottom20">
           {_l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')}
         </div>
+        <div className="flexRow updateMethodWrap mBottom20">
+          {UPDATE_METHOD.map((item, index) => (
+            <div className={`updateMethodItem ${index === 0 ? 'mRight12' : ''}`} key={item.modelType}>
+              <Radio
+                className="bold"
+                text={item.text}
+                checked={modelType === item.modelType}
+                onClick={() =>
+                  this.setState({
+                    modelType: item.modelType,
+                    upgradeName: item.modelType ? true : upgradeName,
+                    upgradeHide: item.modelType ? true : upgradeHide,
+                    upgradeStyle: item.modelType ? true : upgradeStyle,
+                    upgradeLang: item.modelType ? true : upgradeLang,
+                    upgradeTimeZone: item.modelType ? true : upgradeTimeZone,
+                    matchOffice: item.modelType ? true : matchOffice,
+                    backupCurrentVersion: item.modelType ? true : backupCurrentVersion,
+                  })
+                }
+              />
+              <div className="Gray_75 Font12 mTop8 mLeft30">
+                {' '}
+                {!item.desc ? (
+                  <Fragment>
+                    {_l('新增目标应用中缺失项，更新已有项，')}
+                    <span className="Red">{_l('删除多余项')}</span>
+                    {_l('。升级后应用与源应用结构完全一致')}
+                  </Fragment>
+                ) : (
+                  item.desc
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
         <div className="settingsWrap">
           <div className="flexRow itemTitle">
             <i className="icon-admin-apps Gray_9e Font18 mRight7 TxtMiddle" />
             <span className="bold TxtMiddle">{_l('应用')}</span>
-            <span className="mLeft5 Gray_9e Hand" onClick={() => this.selectAllSettings(selectAll)}>
-              {selectAll ? _l('全选') : _l('取消全选')}
-            </span>
+            {modelType === 0 && (
+              <span className="mLeft5 Gray_9e Hand" onClick={() => this.selectAllSettings(selectAll)}>
+                {selectAll ? _l('全选') : _l('取消全选')}
+              </span>
+            )}
           </div>
           <ul className="flexRow">
             {SETTINGS.map(v => (
               <li className="mRight24 flexRow alignItemsCenter" key={v.key}>
-                <Checkbox checked={this.state[v.key]} onClick={checked => this.setState({ [v.key]: !checked })} />
-                <span className="">{v.name}</span>
+                <Checkbox
+                  disabled={modelType === 1}
+                  checked={this.state[v.key]}
+                  onClick={checked => this.setState({ [v.key]: !checked })}
+                />
+                <span className="">{modelType === 1 && v.coverName ? v.coverName : v.name}</span>
 
                 {v.desc && (
-                  <Tooltip text={v.desc} popupPlacement="bottom">
+                  <Tooltip
+                    text={modelType === 1 && v.coverdesc ? v.coverdesc : v.desc}
+                    popupPlacement="bottom"
+                    autoCloseDelay={0}
+                  >
                     <i className="icon icon-info_outline mLeft5 Gray_75 Font16" />
                   </Tooltip>
                 )}
@@ -706,24 +629,22 @@ export default class UpgradeProcess extends Component {
         ) : (
           UPGARADE_TYPE_LIST.map(item => {
             const { type } = item;
-            const itemList = contrasts[type] || [];
+            const itemList = (contrasts[type] || []).filter(v => (!modelType && v.upgradeType !== 4) || modelType);
             const isExpand = _.includes(expandTypeList, item.type);
 
             if (_.isEmpty(itemList)) return null;
 
             return (
               <UpgradeItemWrap
+                modelType={modelType}
                 isWorksheetDetail={false}
                 itleClassName="Font15"
                 item={item}
                 fileType={batchUpdate ? files[currentAppIndex].type : undefined}
                 itemList={itemList}
                 isExpand={isExpand}
-                checkedInfo={checkedInfo}
                 worksheetDetailData={worksheetDetailData}
                 handleExpandCollapse={this.handleExpandCollapse}
-                checkAllCurrentType={this.checkAllCurrentType}
-                checkItem={this.checkItem}
                 openShowUpgradeDetail={this.openShowUpgradeDetail}
               />
             );
@@ -756,8 +677,6 @@ export default class UpgradeProcess extends Component {
       return;
     }
 
-    const isBatchAdd = batchUpdate && files[currentAppIndex].type === 1;
-
     appManagementAjax
       .getWorksheetUpgrade({
         appId: batchUpdate ? (files[currentAppIndex].selectApp || files[currentAppIndex].apps[0]).appId : appDetail.id,
@@ -768,17 +687,14 @@ export default class UpgradeProcess extends Component {
       })
       .then(res => {
         let { controls = [], views = [] } = res;
-        controls = controls.map(item => {
-          return { ...item, icon: getIconByType(item.type) };
-        });
-        views = views.map(item => {
-          return { ...item, icon: getViewIcon(item.type) };
-        });
         const data = {
-          addFields: isBatchAdd ? controls : controls.filter(v => v.upgradeType === 3),
-          updateFields: isBatchAdd ? [] : controls.filter(v => v.upgradeType === 2),
-          addView: isBatchAdd ? views : views.filter(v => v.upgradeType === 3),
-          updateView: isBatchAdd ? [] : views.filter(v => v.upgradeType === 2),
+          ...res,
+          controls: controls.map(item => {
+            return { ...item, icon: getIconByType(item.type), originIcon: getIconByType(item.originalType) };
+          }),
+          views: views.map(item => {
+            return { ...item, icon: getViewIcon(item.type), originIcon: getViewIcon(item.originalType) };
+          }),
         };
         this.setState({
           currentWorksheet: { id, upgradeType },
@@ -787,12 +703,7 @@ export default class UpgradeProcess extends Component {
             ...worksheetDetailData,
             [id]: {
               upgradeType,
-              data,
-              checkedInfo: getCheckedInfo({
-                typeList: detailTypeList,
-                source: data,
-                defaultCheckedAll: true,
-              }),
+              data: data,
             },
           },
         });
@@ -834,18 +745,10 @@ export default class UpgradeProcess extends Component {
   };
 
   renderFooter = () => {
-    const { current, checkedInfo = {}, batchUpdate, batchCheckUpgradeLoading } = this.state;
+    const { current, batchUpdate, batchCheckUpgradeLoading, modelType } = this.state;
     const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
     const isUpgradeScope = items[current].key === 'renderUpgradeScope';
     if (!batchUpdate && !isUpgradeScope) return null;
-
-    let checkedUpgradeIds = [];
-    upgradeTypeList.forEach(item => {
-      const checkedIds = checkedInfo[`${item}CheckIds`];
-      if (checkedIds && !_.isEmpty(checkedIds)) {
-        checkedUpgradeIds = checkedUpgradeIds.concat(checkedIds);
-      }
-    });
 
     return (
       <div className="upgradeProcessFooter">
@@ -861,6 +764,7 @@ export default class UpgradeProcess extends Component {
               {AdvancedConfig.map(l => (
                 <li className="flexRow alignItemsCenter mLeft24" key={`upgradeScopeAdvancedConfig-${l.key}`}>
                   <Checkbox
+                    disabled={modelType === 1}
                     checked={this.state[l.key]}
                     onClick={checked => {
                       this.setState({ [l.key]: !checked });
@@ -890,6 +794,7 @@ export default class UpgradeProcess extends Component {
       batchUpdate,
       files,
       currentAppIndex,
+      modelType,
     } = this.state;
     const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
     const appInfo = _.get(files[currentAppIndex], 'selectApp') || _.get(files[currentAppIndex], 'apps[0]');
@@ -898,7 +803,7 @@ export default class UpgradeProcess extends Component {
       <div className="upgradeProcessWrap">
         <div className="upgradeProcessHeader">
           <div>
-            <i className="icon-arrow_back Gray_9e Font24 Hand TxtMiddle" onClick={this.clickBack} />
+            <i className="icon-backspace Gray_9e Font24 Hand TxtMiddle" onClick={this.clickBack} />
             <span className="Font17 TxtMiddle mLeft12 bold">{_l('应用导入升级')}</span>
           </div>
           {(!batchUpdate || items[current].key === 'renderUpgradeScope') && (
@@ -930,11 +835,10 @@ export default class UpgradeProcess extends Component {
 
         {showUpgradeDetail && (
           <UpgradeDetail
+            modelType={modelType}
             currentWorksheet={currentWorksheet}
             visible={showUpgradeDetail}
             worksheetDetailData={worksheetDetailData}
-            checkAllCurrentType={this.checkAllCurrentType}
-            checkItem={this.checkItem}
             onClose={() => this.setState({ showUpgradeDetail: false, currentWorksheet: {} })}
           />
         )}

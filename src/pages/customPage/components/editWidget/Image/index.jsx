@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Icon } from 'ming-ui';
-import styled from 'styled-components';
+import React from 'react';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import RegExpValidator from 'src/utils/expression';
 
 const ContentWrap = styled.div`
   &.cardStyleWrap {
@@ -38,10 +40,41 @@ const ContentWrap = styled.div`
 
 export default props => {
   const { editable, widget, themeColor, customPageConfig = {} } = props;
-  const { type, componentConfig = {}, config = {} } = widget;
-  const { name, url, showType = 1, showName = true } = componentConfig;
+  const { componentConfig = {} } = widget;
+  const { name, url, showType = 1, showName = true, action = 0, openMode = 1, linkUrl } = componentConfig;
   const isDark = customPageConfig.pageStyleType === 'dark';
   const previewUrl = componentConfig.previewUrl || url;
+
+  const handleTriggerAction = () => {
+    if (editable || !action || !previewUrl) return;
+
+    if (action === 1) {
+      previewAttachments({
+        index: 0,
+        attachments: [
+          {
+            name,
+            ext: RegExpValidator.getExtOfFileName(previewUrl.split('?')[0]),
+            path: previewUrl,
+            previewAttachmentType: 'QINIU',
+          },
+        ],
+        callFrom: 'player',
+        showThumbnail: true,
+        hideFunctions: ['editFileName', 'saveToKnowlege', 'share'],
+      });
+    }
+
+    if (action === 2 && linkUrl) {
+      if (openMode === 1) {
+        window.open(linkUrl);
+      }
+      if (openMode === 2) {
+        location.href = linkUrl;
+      }
+    }
+  };
+
   return (
     <ContentWrap
       className={cx('flexColumn h100', {
@@ -51,8 +84,9 @@ export default props => {
       style={{
         '--app-primary-color': themeColor,
         '--border-color': isDark ? '#e6e6e633' : '#bdbdbd',
-        '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5'
+        '--hover-bg-color': isDark ? '#f5f5f533' : '#f5f5f5',
       }}
+      onClick={handleTriggerAction}
     >
       {showType === 2 && (
         <div className={cx('imageHeader flexRow', { hide: !showName })}>
@@ -71,5 +105,4 @@ export default props => {
       </div>
     </ContentWrap>
   );
-}
-
+};

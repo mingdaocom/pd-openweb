@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { find } from 'lodash';
 import MessageBridge from './messageBridge';
 import Runner from './Runner';
 

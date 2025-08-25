@@ -1,7 +1,7 @@
-import './style.less';
 import React, { Component } from 'react';
-import CalendarDetail from '../modules/calendarDetail';
 import { connect } from 'react-redux';
+import CalendarDetail from '../modules/calendarDetail';
+import './style.less';
 
 class CalendarDetailEntrypoint extends Component {
   componentDidMount() {

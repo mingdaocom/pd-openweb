@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+
 const Wrap = styled.div(
   ({ width, size }) => `
   width: ${width || 32}px;

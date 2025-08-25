@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import cx from 'classnames';
-import { Icon, Support, LoadDiv, Menu, Radio } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { CardTopWrap } from '../style';
-import flowNodeAjax from 'src/pages/workflow/api/flowNode';
-import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
+import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { RedMenuItemWrap, ActWrap } from '../style';
+import styled from 'styled-components';
+import { Icon, LoadDiv, Menu, Radio, Support } from 'ming-ui';
+import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPENODE } from 'src/pages/integration/config';
 import CodeSnippet from 'src/pages/workflow/components/CodeSnippet/index.jsx';
+import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
+import { CardTopWrap } from '../style';
+import { ActWrap, RedMenuItemWrap } from '../style';
 
 const Wrap = styled.div`
   p {
@@ -36,7 +37,7 @@ const Wrap = styled.div`
     .btn {
       margin: 40px auto 0;
       padding: 11px 50px;
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
       line-height: 1em;
       border-radius: 30px;
@@ -77,7 +78,7 @@ const Wrap = styled.div`
 const WrapBtn = styled.div`
   .btnCon {
     padding: 11px 50px;
-    background: #2196f3;
+    background: #1677ff;
     color: #fff;
     line-height: 1em;
     border-radius: 30px;
@@ -154,13 +155,13 @@ export default function Item(props) {
         },
         { isIntegration: true },
       )
-      .then(res => {
+      .then(() => {
         props.hasChange();
       });
   };
 
-  const deleNode = () => {
-    flowNodeAjax.delete({ nodeId: node.id, processId: info.id }, { isIntegration: true }).then(res => {
+  const delNode = () => {
+    flowNodeAjax.delete({ nodeId: node.id, processId: info.id }, { isIntegration: true }).then(() => {
       props.hasChange();
     });
   };
@@ -202,7 +203,7 @@ export default function Item(props) {
             </span>
             <span
               className={cx('btnCon Hand Bold mLeft20')}
-              onClick={e => {
+              onClick={() => {
                 addNode(actionId);
               }}
             >
@@ -217,8 +218,8 @@ export default function Item(props) {
     }
   };
   const renderTips = () => {
-    if (!!node.code) {
-      return <Icon icon={'check_circle1'} className="Green_right tip" />;
+    if (node.code) {
+      return <Icon icon="check_circle" className="Green_right tip" />;
     }
     return '';
   };
@@ -258,12 +259,12 @@ export default function Item(props) {
                 popup={
                   <Menu>
                     <RedMenuItemWrap
-                      icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
+                      icon={<Icon icon="trash" className="Font17 mLeft5" />}
                       onClick={() => {
                         setState({
                           showMenu: false,
                         });
-                        deleNode();
+                        delNode();
                       }}
                     >
                       <span>{_l('删除')}</span>
@@ -316,7 +317,7 @@ export default function Item(props) {
               }}
               customNodeName={props.title}
               isIntegration
-              updateNodeData={data => {
+              updateNodeData={() => {
                 // getCardInfo();
                 props.hasChange();
               }}

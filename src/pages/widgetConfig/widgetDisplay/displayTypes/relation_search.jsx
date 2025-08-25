@@ -1,10 +1,11 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
-import { CommonDisplay, EditModelWrap } from '../../styled';
-import { getAdvanceSetting, getShowControls } from '../../util/setting';
-import { isSheetDisplay } from '../../util';
+import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { CommonDisplay, EditModelWrap } from '../../styled';
+import { isSheetDisplay } from '../../util';
+import { getAdvanceSetting, getShowControls } from '../../util/setting';
 
 const SYSTEM_CONTROL = Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({
   controlId: item,
@@ -12,7 +13,7 @@ const SYSTEM_CONTROL = Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({
 }));
 
 export default function RelationSearch({ data = {}, fromType, isTab }) {
-  const { enumDefault, hint = '', dataSource, controlId } = data;
+  const { enumDefault, dataSource, controlId } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
   const [controls, setControls] = useState([]);
 
@@ -32,7 +33,7 @@ export default function RelationSearch({ data = {}, fromType, isTab }) {
 
   const getWidths = () => {
     const widths = getAdvanceSetting(data, 'widths') || [];
-    if (isEmpty(widths)) return showControls.map(item => 160);
+    if (isEmpty(widths)) return showControls.map(() => 160);
     if (widths.length === showControls.length) return widths;
     return showControls.map((v, i) => widths[i] || 160);
   };

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { formatChartData } from './BarChart';
 import { Dropdown, Menu } from 'antd';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatChartData } from './BarChart';
+import { formatrChartValue, formatYaxisList, getChartColors } from './common';
 
 export default class extends Component {
   constructor(props) {
@@ -15,7 +16,7 @@ export default class extends Component {
       offset: {},
       match: null,
       linkageMatch: null,
-    }
+    };
     this.WordCloudChart = null;
     this.g2plotComponent = {};
   }
@@ -35,7 +36,10 @@ export default class extends Component {
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.ydisplay.minValue !== oldDisplaySetup.ydisplay.minValue ||
       displaySetup.ydisplay.maxValue !== oldDisplaySetup.ydisplay.maxValue ||
-      !_.isEqual(_.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']), _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor'])) ||
+      !_.isEqual(
+        _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+        _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
+      ) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -55,14 +59,16 @@ export default class extends Component {
     if (this.chartEl) {
       this.WordCloudChart = new WordCloud(this.chartEl, WordCloudChartConfig);
       this.isViewOriginalData = displaySetup.showRowList && props.isViewOriginalData;
-      this.isLinkageData = props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
+      this.isLinkageData =
+        props.isLinkageData &&
+        !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
       if (this.isViewOriginalData || this.isLinkageData) {
         this.WordCloudChart.on('element:click', this.handleClick);
       }
       this.WordCloudChart.render();
     }
   }
-  handleClick = (data) => {
+  handleClick = data => {
     const { xaxes, appId, reportId, name, reportType, style } = this.props.reportData;
     const event = data.gEvent;
     const currentData = data.data.data;
@@ -72,7 +78,7 @@ export default class extends Component {
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
@@ -85,61 +91,70 @@ export default class extends Component {
         controlName: xaxes.controlName,
         controlValue: currentData.datum.name,
         type: xaxes.controlType,
-        control: xaxes
+        control: xaxes,
       });
     }
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
       linkageMatch.onlyChartIds = style.autoLinkageChartObjectIds;
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: event.x + 20,
-        y: event.y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: event.x + 20,
+          y: event.y,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     this.setState({ dropdownVisible: false });
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
-    this.setState({
-      dropdownVisible: false,
-    }, () => {
-      const WordCloudChartConfig = this.getComponentConfig(this.props);
-      this.WordCloudChart.update(WordCloudChartConfig);
-    });
-  }
+    this.setState(
+      {
+        dropdownVisible: false,
+      },
+      () => {
+        const WordCloudChartConfig = this.getComponentConfig(this.props);
+        this.WordCloudChart.update(WordCloudChartConfig);
+      },
+    );
+  };
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, displaySetup, yaxisList } = reportData;
     const styleConfig = reportData.style || {};
-    const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
+    const style =
+      chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
+        ? { ...styleConfig, ...chartColor }
+        : styleConfig;
     const data = formatChartData(map, yaxisList);
     const newYaxisList = formatYaxisList(data, yaxisList);
     const { ydisplay } = displaySetup;
@@ -157,16 +172,18 @@ export default class extends Component {
         background: isDark ? widgetBgColor : '#ffffffcc',
       },
       tooltip: {
-        domStyles: isDark ? {
-          'g2-tooltip': {
-            color: '#ffffffcc',
-            backgroundColor: widgetBgColor,
-            boxShadow: `${widgetBgColor} 0px 0px 10px`
-          },
-          'g2-tooltip-list-item': {
-            color: '#ffffffcc',
-          }
-        } : undefined
+        domStyles: isDark
+          ? {
+              'g2-tooltip': {
+                color: '#ffffffcc',
+                backgroundColor: widgetBgColor,
+                boxShadow: `${widgetBgColor} 0px 0px 10px`,
+              },
+              'g2-tooltip-list-item': {
+                color: '#ffffffcc',
+              },
+            }
+          : undefined,
       },
       color: ({ datum }) => {
         if (datum) {
@@ -176,8 +193,8 @@ export default class extends Component {
         } else {
           return colors[0];
         }
-      }
-    }
+      },
+    };
 
     this.setCount(newYaxisList);
 
@@ -189,7 +206,7 @@ export default class extends Component {
     const count = formatrChartValue(value, false, yaxisList);
     this.setState({
       originalCount: value.toLocaleString() == count ? 0 : value.toLocaleString(),
-      count
+      count,
     });
   }
   renderOverlay() {
@@ -217,7 +234,7 @@ export default class extends Component {
       <div className="flex flexColumn chartWrapper">
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}
@@ -229,7 +246,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">{count}</span>
+            <span data-tip={originalCount ? originalCount : null} className="count">
+              {count}
+            </span>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

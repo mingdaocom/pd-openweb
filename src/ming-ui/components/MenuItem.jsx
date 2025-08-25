@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import React, { Component, cloneElement } from 'react';
+import React, { cloneElement, Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Item from './Item';
 import './less/MenuItem.less';
 
@@ -50,7 +50,8 @@ class MenuItem extends Component {
         subMenu={subMenu}
         onMouseEnter={() => this.handleMouseEnter()}
         onMouseLeave={() => this.handleMouseLeave()}
-        disabled={this.props.disabled}>
+        disabled={this.props.disabled}
+      >
         {this.props.children}
       </Item>
     );

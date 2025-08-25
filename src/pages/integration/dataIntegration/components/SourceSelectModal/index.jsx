@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Modal, ScrollView, LoadDiv } from 'ming-ui';
+import styled from 'styled-components';
+import { LoadDiv, Modal, ScrollView } from 'ming-ui';
+import dataSourceApi from '../../../api/datasource';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { DATABASE_TYPE, ROLE_TYPE, SOURCE_FROM_TYPE, SOURCE_FROM_TYPE_TAB_LIST } from '../../constant';
-import dataSourceApi from '../../../api/datasource';
 
 const Wrapper = styled.div`
   display: flex;
@@ -50,9 +50,9 @@ const TabList = styled.div`
         font-size: 15px;
       }
       &.isCur {
-        border-bottom: 4px solid #2196f3;
+        border-bottom: 4px solid #1677ff;
         a {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -183,8 +183,8 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
           </div>
         </div>
 
-        {!!getFilterList().length ? (
-          <ScrollView className="flex">
+        {getFilterList().length ? (
+          <ScrollView className="flex" options={{ overflow: { x: 'hidden' } }}>
             <div className="contentWrapper">
               {getFilterList().map((item, i) => {
                 return (
@@ -214,7 +214,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
               })}
             </div>
           </ScrollView>
-        ) : !!dataSourceList.length ? (
+        ) : dataSourceList.length ? (
           <NoDataWrapper>
             <div className="Gray_9e Font15">{_l('无搜索结果')}</div>
           </NoDataWrapper>

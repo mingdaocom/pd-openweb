@@ -1,12 +1,12 @@
 import React from 'react';
-import { bool, number, string } from 'prop-types';
-import { Button } from 'ming-ui';
-import { isFunction } from 'lodash';
 import cx from 'classnames';
-import styled from 'styled-components';
+import { isFunction } from 'lodash';
 import { includes } from 'lodash';
-import abnormal from 'src/pages/worksheet/assets/abnormal.png';
+import { bool, number, string } from 'prop-types';
+import styled from 'styled-components';
+import { Button } from 'ming-ui';
 import { CUSTOM_WIDGET_VIEW_STATUS } from 'worksheet/constants/enum';
+import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 
 const Con = styled.div`
   width: 100%;

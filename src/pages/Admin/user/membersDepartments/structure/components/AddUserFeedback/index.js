@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Button, Dialog, UserHead } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import userController from 'src/api/user';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { getCurrentProject } from 'src/utils/project';
 import { feedbackTypes } from '../../constant';
 import { refuseUserJoinFunc } from '../refuseUserJoinDia';
@@ -18,16 +17,15 @@ const FeedbackDialog = styled(Dialog)`
     .ming.Button--link {
       height: 34px;
       line-height: 34px;
-      border: 1px solid #2196f3;
-      color: #2196f3;
+      border: 1px solid #1677ff;
+      color: #1677ff;
     }
   }
 `;
 // 恢复权限
 const recovery = ({ accountId, fullname, projectId, callback = () => {} }) => {
   Confirm({
-    title: _l('确认框'),
-    description: _l('确定恢复[%0]权限吗？', fullname),
+    title: _l('确定恢复 %0 权限吗？', fullname),
     onOk: () => {
       userController
         .recoveryUser({
@@ -42,17 +40,9 @@ const recovery = ({ accountId, fullname, projectId, callback = () => {} }) => {
             const { licenseType } = getCurrentProject(projectId, true);
             let link = '';
             if (licenseType === 0) {
-              link = (
-                <span>
-                  {_l('当前用户数已超出人数限制')}
-                </span>
-              );
+              link = <span>{_l('当前用户数已超出人数限制')}</span>;
             } else {
-              link = (
-                <span>
-                  {_l('当前用户数已超出人数限制')}
-                </span>
-              );
+              link = <span>{_l('当前用户数已超出人数限制')}</span>;
             }
             alert(link, 3);
           } else {

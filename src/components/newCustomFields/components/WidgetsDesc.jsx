@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import { Linkify, Tooltip } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
@@ -90,8 +89,9 @@ class WidgetsDesc extends React.Component {
           action={[isMobile ? 'click' : 'hover']}
           popupPlacement={'topLeft'}
           offset={[-12, 0]}
+          autoCloseDelay={0}
         >
-          <i className="icon-workflow_error pointer Font16 Gray_9e mLeft3 InlineBlock" />
+          <i className="icon-info_outline pointer Font16 Gray_9e mLeft3 InlineBlock" />
         </Tooltip>
       </span>
     );

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Popup } from 'antd-mobile';
+import cx from 'classnames';
+import styled from 'styled-components';
 import { Button, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import verifyPassword from 'src/components/verifyPassword';
-import cx from 'classnames';
-import styled from 'styled-components';
 
 const VertifyPasswordDialogWrap = styled(Popup)`
   .adm-popup-body {
@@ -39,10 +39,10 @@ const VertifyPasswordDialogWrap = styled(Popup)`
       border: 1px solid #ddd;
     }
     .ming.Button--primary {
-      background: #2196f3;
+      background: #1677ff;
     }
     .ming.Button--primary:hover {
-      background: #2196f3;
+      background: #1677ff;
     }
   }
 `;

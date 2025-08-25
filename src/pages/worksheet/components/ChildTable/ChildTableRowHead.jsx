@@ -1,11 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import styled from 'styled-components';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
-import RecordOperate from 'worksheet/components/RecordOperate';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
+import RecordOperate from 'worksheet/components/RecordOperate';
 
 const Con = styled.span`
   padding: 0 !important;
@@ -62,7 +62,7 @@ const Con = styled.span`
       top: 0;
       bottom: 0;
       width: 2px;
-      background: #2196f3;
+      background: #1677ff;
     }
   }
   &:not(.disabled).hover {
@@ -213,7 +213,7 @@ export default function RowHead(props) {
         allowCancel &&
         !allowAdd &&
         ((useUserPermission ? row.allowdelete : true) ? (
-          <i className="operateBtn delete icon icon-task-new-delete hand" onClick={onDelete}></i>
+          <i className="operateBtn delete icon icon-trash hand" onClick={onDelete}></i>
         ) : (
           <span className="operateBtn"></span>
         ))}

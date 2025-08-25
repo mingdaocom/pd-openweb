@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Input } from 'antd';
+import _ from 'lodash';
 import { Button } from 'ming-ui';
 import { browserIsMobile } from 'src/utils/common';
 import { toFixed } from 'src/utils/control';

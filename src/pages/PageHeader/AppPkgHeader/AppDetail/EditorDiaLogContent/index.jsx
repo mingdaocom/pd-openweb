@@ -1,12 +1,13 @@
-﻿import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
+import { Button, Divider, Tooltip } from 'antd';
 import cx from 'classnames';
-import { Divider, Button, Tooltip } from 'antd';
-import { Icon, RichText, SvgIcon, UserHead, RadioGroup, Input, ColorPicker } from 'ming-ui';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import './index.less';
-import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+import { ColorPicker, Icon, Input, RadioGroup, RichText, SvgIcon, UserHead } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
+import './index.less';
 
 const Wrap = styled.div`
   .ck-editor__main {
@@ -54,7 +55,7 @@ export default class Editor extends Component {
       clearCacheLoading: false,
       showType: resume ? 1 : 0,
       resume: resumeInfo.value || '',
-      resumeColor: resumeInfo.color || '#151515'
+      resumeColor: resumeInfo.color || '#151515',
     };
   }
 
@@ -95,7 +96,7 @@ export default class Editor extends Component {
       .refresh({
         appId: data.id,
       })
-      .then(data => {
+      .then(() => {
         this.setState({ clearCacheLoading: false });
       });
   };
@@ -165,7 +166,7 @@ export default class Editor extends Component {
     const content = localStorage.getItem('mdEditor_' + cacheKey);
     const resumeInfo = JSON.stringify({
       value: resume,
-      color: resumeColor
+      color: resumeColor,
     });
     onSave(content, showType ? resumeInfo : '');
     if (cacheKey === 'sheetIntroDescription' && !content && resume) {
@@ -181,7 +182,6 @@ export default class Editor extends Component {
       isEditing,
       auth,
       className,
-      placeholder,
       joinEditing,
       onCancel,
       changeEditState,
@@ -321,10 +321,13 @@ export default class Editor extends Component {
           </div>
         </Fragment>
       );
-    }
+    };
 
     return (
-      <Wrap className={cx('mdEditor', className, { sheetEditor: isSheetIntroDescription })} richTextHeight={richTextHeight}>
+      <Wrap
+        className={cx('mdEditor', className, { sheetEditor: isSheetIntroDescription })}
+        richTextHeight={richTextHeight}
+      >
         {toorIsBottom && (
           <RichText
             // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
@@ -358,7 +361,7 @@ export default class Editor extends Component {
                 {
                   text: _l('文字'),
                   value: 1,
-                }
+                },
               ]}
               checkedValue={showType}
               onChange={value => {
@@ -393,7 +396,9 @@ export default class Editor extends Component {
                     }}
                   >
                     <div className="colorWrap flexRow alignItemsCenter pointer">
-                      <span className="Font22 bold" style={{ color: this.state.resumeColor }}>A</span>
+                      <span className="Font22 bold" style={{ color: this.state.resumeColor }}>
+                        A
+                      </span>
                       <Icon icon="arrow-down-border" />
                     </div>
                   </ColorPicker>
@@ -402,9 +407,7 @@ export default class Editor extends Component {
             )}
             <div className="flexRow alignItemsCenter Font13 mTop20 mBottom10">
               <span className="bold mRight3">{_l('详细说明')}</span>
-              {showType === 1 && (
-                <span>（{_l('在摘要后显示详情按钮，点击查看。可不填')}）</span>
-              )}
+              {showType === 1 && <span>（{_l('在摘要后显示详情按钮，点击查看。可不填')}）</span>}
             </div>
           </div>
         )}
@@ -427,9 +430,7 @@ export default class Editor extends Component {
           )}
         </div>
         {isSheetIntroDescription && (
-          <div className="flexRow alignItemsCenter sheetIntroDescriptionFooter">
-            {renderFooter()}
-          </div>
+          <div className="flexRow alignItemsCenter sheetIntroDescriptionFooter">{renderFooter()}</div>
         )}
       </Wrap>
     );

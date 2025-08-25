@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Motion, spring } from 'react-motion';
-import { Icon } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import delegationApi from '../../api/delegation';
 import TodoEntrustList from './TodoEntrustList';
 import TodoEntrustModal from './TodoEntrustModal';
@@ -29,10 +29,10 @@ const IconWrapper = styled.div`
 
   &:hover {
     .iconText {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
     i {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;

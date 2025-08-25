@@ -1,7 +1,7 @@
-import _ from 'lodash';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { generate } from '@ant-design/colors';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 
 export const getGreetingText = () => {
   const hours = new Date().getHours();
@@ -18,7 +18,7 @@ export const getGreetingText = () => {
 };
 
 export const getAppOrItemColor = (appItem, isItem) => {
-  const iconColor = appItem.iconColor || '#2196f3';
+  const iconColor = appItem.iconColor || '#1677ff';
   const navColor = appItem.navColor || iconColor;
   const black = '#1b2025' === navColor;
   const light = [appItem.lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
@@ -33,7 +33,7 @@ export const getAppOrItemColor = (appItem, isItem) => {
 };
 
 export const themeColors = [
-  '#2196F3',
+  '#1677ff',
   '#2F54EB',
   '#732ED1',
   '#1EBCD5',
@@ -49,14 +49,14 @@ export const getDashboardColor = color => {
   if (!color || (!_.includes(themeColors, color) && !color.startsWith('#'))) {
     return {
       bgColor: '#f7f8fc',
-      themeColor: '#2196F3',
-      activeColor: getRgbaByColor('#2196f3', '0.1'),
-      hoverColor: getRgbaByColor('#2196f3', '0.16'),
+      themeColor: '#1677ff',
+      activeColor: getRgbaByColor('#1677ff', '0.1'),
+      hoverColor: getRgbaByColor('#1677ff', '0.16'),
     };
   }
 
   return {
-    bgColor: color !== '#2196F3' ? (color === '#d4b106' ? '#f9f7d7' : generate(color)[0]) : '#f7f8fc',
+    bgColor: color !== '#1677ff' ? (color === '#d4b106' ? '#f9f7d7' : generate(color)[0]) : '#f7f8fc',
     themeColor: color,
     activeColor: getRgbaByColor(color, '0.1'),
     hoverColor: getRgbaByColor(color, '0.16'),

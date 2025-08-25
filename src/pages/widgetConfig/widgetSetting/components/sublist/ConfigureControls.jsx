@@ -7,10 +7,11 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Menu, MenuItem, SortableList, Support } from 'ming-ui';
+import { Dialog, Menu, MenuItem, SortableList, Support, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGET_GROUP_TYPE } from '../../../config/widget';
 import { checkWidgetMaxNumErr, enumWidgetType, getWidgetInfo } from '../../../util';
+import { dealCopyWidgetId } from '../../../util/data';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import { addCustomDialog } from '../CustomWidget/AddCustomDialog';
 import SelectDataSource from '../SelectDataSource';
@@ -43,13 +44,6 @@ const AllWidgetsWrap = styled.div`
     height: 36px;
     line-height: 36px;
     margin-bottom: 6px;
-    &:hover {
-      .icon-custom-01 {
-        color: #fff !important;
-        background: unset;
-        -webkit-text-fill-color: unset;
-      }
-    }
   }
   .ming.Menu {
     width: 100%;
@@ -77,6 +71,9 @@ const AllWidgetsWrap = styled.div`
 `;
 
 const WidgetInfo = styled.div`
+  border: 1px solid #eaeaea;
+  border-radius: 3px;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -91,15 +88,10 @@ const WidgetInfo = styled.div`
     display: flex;
     align-items: center;
     flex: 1;
-    padding: 0 12px;
-    margin: 0 8px;
     margin-right: 16px;
     line-height: 36px;
-    border: 1px solid #eaeaea;
-    border-radius: 3px;
-    background-color: #fff;
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
 
     .name {
@@ -107,12 +99,19 @@ const WidgetInfo = styled.div`
       padding-left: 12px;
     }
   }
+  .iconOption {
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 36px;
+  }
 `;
 const ControlsWrap = styled.div`
   margin-top: 8px;
   display: flex;
   line-height: 36px;
-  color: #2196f3;
+  color: #1677ff;
   position: relative;
   &:hover {
     color: #1565c0;
@@ -160,22 +159,32 @@ const getFilterData = value => {
   return filterData;
 };
 
-const SortableItem = ({ item, deleteWidget, configureWidget, DragHandle }) => {
+const SortableItem = ({ item, deleteWidget, copyWidget, configureWidget, DragHandle }) => {
   const { controlName, widgetName, type } = item;
   const { icon } = getWidgetInfo(type);
   return (
     <WidgetInfo>
       <DragHandle>
-        <i className="icon-drag Gray_9e ThemeHoverColor3 pointer"></i>
+        <div className="iconOption grab">
+          <i className="icon-drag Gray_9e ThemeHoverColor3"></i>
+        </div>
       </DragHandle>
-      <div className="widgetItem noSelect overflow_ellipsis" onMouseDown={configureWidget}>
+      <div className="widgetItem noSelect overflow_ellipsis pointer" onMouseDown={configureWidget}>
         <i className={`icon-${icon} Gray_9e Font_16`}></i>
         <div className="name overflow_ellipsis" title={controlName || widgetName}>
           {controlName || widgetName}
         </div>
-        <i className="icon-arrow-right-border pointer Gray_9e"></i>
       </div>
-      <i className="del icon-delete_12 pointer Font16" onMouseDown={deleteWidget}></i>
+      <div className="iconOption">
+        <Tooltip text={_l('复制')}>
+          <i className="copy icon-copy pointer Gray_9e ThemeHoverColor3 Font16" onMouseDown={copyWidget}></i>
+        </Tooltip>
+      </div>
+      <div className="iconOption mRight5">
+        <Tooltip text={_l('删除')}>
+          <i className="del icon-delete_12 pointer Font16" onMouseDown={deleteWidget}></i>
+        </Tooltip>
+      </div>
     </WidgetInfo>
   );
 };
@@ -225,9 +234,7 @@ export default function ConfigureControl(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <i className="Gray_9e pointer Font15 icon-closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <i className="Gray_9e pointer Font15 icon-cancel" onClick={() => setSearchValue('')} />}
         </div>
         {_.isEmpty(filterData) ? (
           <div className="emptyText">{_l('没有搜索结果')}</div>
@@ -352,7 +359,14 @@ export default function ConfigureControl(props) {
   );
 
   const handleDeleteWidget = index => {
-    onChange({ relationControls: update(controls, { $splice: [[index, 1]] }) });
+    const newRelationControls = update(controls, { $splice: [[index, 1]] });
+    onChange({ relationControls: newRelationControls, showControls: newRelationControls.map(i => i.controlId) });
+  };
+
+  const handleCopyWidget = index => {
+    const curControl = controls[index];
+    const newRelationControls = controls.concat([dealCopyWidgetId(curControl)]);
+    onChange({ relationControls: newRelationControls, showControls: newRelationControls.map(i => i.controlId) });
   };
 
   const handleControlDataChange = (id, obj) => {
@@ -414,6 +428,7 @@ export default function ConfigureControl(props) {
               <SortableItem
                 item={item}
                 DragHandle={DragHandle}
+                copyWidget={() => handleCopyWidget(index)}
                 deleteWidget={() => handleDeleteWidget(index)}
                 configureWidget={() => setWidgetIndex(index)}
               />

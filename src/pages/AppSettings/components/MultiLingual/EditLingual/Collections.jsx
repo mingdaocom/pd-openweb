@@ -1,5 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React from 'react';
 import { Input } from 'antd';
+import _ from 'lodash';
 import { ScrollView } from 'ming-ui';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
@@ -11,7 +12,7 @@ export default function Collections(props) {
   const data = _.find(translateData, { correlationId: selectNode.key }) || {};
   const translateInfo = data.data || {};
   const comparisonLangInfo = getTranslateInfo(app.id, null, selectNode.key, comparisonLangData);
-  const { collectionId, name, options = [] } = _.find(collections, { collectionId: selectNode.key }) || {};
+  const { name, options = [] } = _.find(collections, { collectionId: selectNode.key }) || {};
 
   const handleSave = info => {
     onEditAppLang({
@@ -44,7 +45,7 @@ export default function Collections(props) {
   };
 
   return (
-    <ScrollView className="flex">
+    <ScrollView className="h100">
       <div className="pAll20">
         <div className="Font14 bold mBottom20">
           {getTranslateInfo(app.id, null, selectNode.key).name || selectNode.title}

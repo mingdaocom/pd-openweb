@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { LoadDiv, Checkbox, Radio } from 'ming-ui';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
-import './css/department.less';
-import styled from 'styled-components';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
+import { Checkbox, LoadDiv, Radio } from 'ming-ui';
+import './css/department.less';
 
 const Wrap = styled.div`
   .onlySelf {
@@ -128,7 +128,7 @@ class Department extends Component {
 
   toogleDepargmentSelect = event => {
     const {
-      department: { open, disabled, departmentId },
+      department: { disabled },
     } = this.props;
     event.stopPropagation();
     if (!disabled) {

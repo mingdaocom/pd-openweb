@@ -105,7 +105,7 @@ function ExportPlugin(props) {
           onExportSuccess && onExportSuccess();
         }
       })
-      .catch(error => setExporting(false));
+      .catch(() => setExporting(false));
   };
 
   return (

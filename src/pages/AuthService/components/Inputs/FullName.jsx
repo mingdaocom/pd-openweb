@@ -55,7 +55,7 @@ export default function (props) {
         />
         <div
           className="title"
-          onClick={e => {
+          onClick={() => {
             InputRef.current.focus();
           }}
         >

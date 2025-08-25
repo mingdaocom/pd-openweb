@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
+import { useMeasure } from 'react-use';
 import CodeMirror from 'codemirror';
-import styled from 'styled-components';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/eclipse.css';
-import 'codemirror/mode/jsx/jsx';
-import 'codemirror/mode/xml/xml';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/closetag';
-import 'codemirror/addon/hint/show-hint';
-import 'codemirror/addon/hint/show-hint.css';
-import 'codemirror/addon/hint/javascript-hint';
-import 'codemirror/addon/hint/xml-hint';
 import 'codemirror/addon/hint/html-hint';
-import { useMeasure } from 'react-use';
+import 'codemirror/addon/hint/javascript-hint';
+import 'codemirror/addon/hint/show-hint';
+import 'codemirror/addon/hint/xml-hint';
+import 'codemirror/mode/jsx/jsx';
+import 'codemirror/mode/xml/xml';
+import styled from 'styled-components';
+import 'codemirror/addon/hint/show-hint.css';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/eclipse.css';
 
 const Con = styled.div`
   width: 100%;

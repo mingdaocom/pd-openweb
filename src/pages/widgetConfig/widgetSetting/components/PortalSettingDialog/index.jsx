@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import { SettingItem } from 'src/pages/widgetConfig/styled';
 import 'src/pages/widgetConfig/styled/style.less';
 import { enumWidgetType, getWidgetInfo } from 'src/pages/widgetConfig/util';
 import WidgetExplain from 'src/pages/widgetConfig/widgetSetting/components/WidgetExplain';
@@ -10,7 +9,6 @@ import WidgetVerify from 'src/pages/widgetConfig/widgetSetting/components/Widget
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import Switch from '../../settings/switch';
 import DynamicDefaultValue from '../DynamicDefaultValue';
-import RelateOperate from '../WidgetOperate/RelateOperate';
 import {
   HAS_AREA_CONTROL,
   HAS_EXPLAIN_CONTROL,
@@ -73,13 +71,6 @@ export default class PortalSettingDialog extends Component {
           {HAS_NUMBER_CONTROL.includes(type) && <SettingComponent {...allProps} fromPortal={true} />}
           {HAS_AREA_CONTROL.includes(type) && <SettingComponent {...allProps} />}
           {HAS_RELATE_CONTROL.includes(type) && <SettingComponent {...allProps} fromPortal={true} />}
-          {/** 操作设置 */}
-          {HAS_RELATE_CONTROL.includes(type) && (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('操作设置')}</div>
-              <RelateOperate {...allProps} fromPortal={true} />
-            </SettingItem>
-          )}
           {/** 检查项 */}
           {type === 36 && (
             <div className="checkWrap">

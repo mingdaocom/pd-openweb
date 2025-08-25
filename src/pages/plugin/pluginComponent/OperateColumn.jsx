@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Dialog, VerifyPasswordInput } from 'ming-ui';
-import verifyPassword from 'src/components/verifyPassword';
-import { pluginApiConfig, API_EXTENDS, PLUGIN_TYPE } from '../config';
+import { Dialog, Icon, VerifyPasswordInput } from 'ming-ui';
 import ProductLicenseInfo from 'src/components/productLicenseInfo';
-import _ from 'lodash';
+import verifyPassword from 'src/components/verifyPassword';
+import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig } from '../config';
 
 const OperateMenu = styled.div`
   position: relative !important;
@@ -39,7 +39,7 @@ const ConfirmDialog = styled(Dialog)`
     border: 1px solid #ccc !important;
     padding: 3px 10px !important;
     &.ant-input-affix-wrapper-focused {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
     }
   }
 `;

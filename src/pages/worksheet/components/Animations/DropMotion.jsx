@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import styled from 'styled-components';
 import { bool, node, number, shape } from 'prop-types';
+import styled from 'styled-components';
 
 const Con = styled.div`
   ${({ animateOffset = 63, duration }) => `

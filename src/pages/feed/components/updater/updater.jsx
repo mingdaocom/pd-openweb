@@ -1,12 +1,13 @@
-﻿import PropTypes from 'prop-types';
-import React from 'react';
+﻿import React from 'react';
+import { connect } from 'react-redux';
 import cx from 'classnames';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import Emotion from 'src/components/emotion/emotion';
+import UploadFiles from 'src/components/UploadFiles';
 import { addSuccess } from '../../redux/postActions';
 import MyUpdater from '../common/myupdater/myupdater';
-import { connect } from 'react-redux';
-import UploadFiles from 'src/components/UploadFiles';
-import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import './updater.css';
 
 /**
@@ -126,7 +127,7 @@ class Updater extends React.Component {
       placement: 'right bottom',
       mdBear: false,
       relatedLeftSpace: 22,
-      onSelect: (...args) => {
+      onSelect: () => {
         const textBox = $('#textarea_Updater')[0];
         if (
           textBox.value === _l('知会工作是一种美德') + '...' ||
@@ -160,7 +161,7 @@ class Updater extends React.Component {
     $('#textarea_Updater').focus();
   };
 
-  handleOpen = res => {
+  handleOpen = () => {
     const $Attachment_updater = $('[targetdiv="#Attachment_updater"]');
     if (!$Attachment_updater.hasClass('ThemeColor3')) {
       $Attachment_updater.click();

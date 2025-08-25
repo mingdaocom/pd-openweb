@@ -1,16 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Radio, Space, ConfigProvider, Modal, Button } from 'antd';
+import { Button, ConfigProvider, Modal, Radio, Space } from 'antd';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import SortColumns from 'src/pages/worksheet/components/SortColumns';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
-import styled from 'styled-components';
-import _ from 'lodash';
 
 const ShowControlIdWrapper = styled.div`
   border-radius: 4px;
   padding: 5px 9px;
-  border: 1px solid #DEDEDE;
-  background-color: #EFEFEF;
+  border: 1px solid #dedede;
+  background-color: #efefef;
 `;
 
 export default class OriginalData extends Component {
@@ -19,11 +19,11 @@ export default class OriginalData extends Component {
     const { displaySetup } = props;
     this.state = {
       showControlVisible: false,
-      showControlIds: displaySetup.showControlIds
-    }
+      showControlIds: displaySetup.showControlIds,
+    };
   }
   get columnsSorts() {
-    const { displaySetup, viewId, worksheetInfo } = this.props;
+    const { viewId, worksheetInfo } = this.props;
     const { views, columns } = worksheetInfo;
     const view = _.find(views, { viewId }) || {};
     const { showControls = [] } = view;
@@ -31,46 +31,54 @@ export default class OriginalData extends Component {
     if (showControls.length) {
       return showControls.map(controlId => _.find(columns, { controlId })).filter(_ => _);
     } else {
-      return columns.filter(item => {
-        return ![10010, 22, 45, 47, 51, 52].includes(item.type);
-      }).sort((a, b) => {
-        if (a.row === b.row) {
-          return a.col - b.col;
-        } else {
-          return a.row - b.row;
-        }
-      });
+      return columns
+        .filter(item => {
+          return ![10010, 22, 45, 47, 51, 52].includes(item.type);
+        })
+        .sort((a, b) => {
+          if (a.row === b.row) {
+            return a.col - b.col;
+          } else {
+            return a.row - b.row;
+          }
+        });
     }
   }
-  handleChangeViewDataType = (event) => {
+  handleChangeViewDataType = event => {
     const { value } = event.target;
     this.props.onChangeStyle({
-      viewDataType: value
+      viewDataType: value,
     });
-  }
-  handleChange = (event) => {
+  };
+  handleChange = event => {
     const { value } = event.target;
     if (value === 1) {
-      this.props.onChangeDisplaySetup({
-        showControlIds: []
-      }, true);
+      this.props.onChangeDisplaySetup(
+        {
+          showControlIds: [],
+        },
+        true,
+      );
     } else {
       this.setState({ showControlVisible: true });
     }
-  }
+  };
   handleSaveShowControlIds = () => {
-    this.props.onChangeDisplaySetup({
-      showControlIds: this.state.showControlIds
-    }, true);
+    this.props.onChangeDisplaySetup(
+      {
+        showControlIds: this.state.showControlIds,
+      },
+      true,
+    );
     this.setState({
       showControlVisible: false,
     });
-  }
-  handleChangeColumn = ({ newShowControls, newControlSorts }) => {
+  };
+  handleChangeColumn = ({ newShowControls }) => {
     this.setState({
-      showControlIds: newShowControls
+      showControlIds: newShowControls,
     });
-  }
+  };
   renderFooter() {
     return (
       <div className="mTop20 mBottom10 pRight8">
@@ -102,14 +110,24 @@ export default class OriginalData extends Component {
         <div className="mBottom16">
           <Radio.Group onChange={this.handleChange} value={displaySetup.showControlIds.length ? 2 : 1}>
             <Space direction="vertical">
-              <Radio value={1} className="Font13">{_l('按照权限查看')}</Radio>
-              <Radio value={2} className="Font13">{_l('所有数据')}</Radio>
+              <Radio value={1} className="Font13">
+                {_l('按照权限查看')}
+              </Radio>
+              <Radio value={2} className="Font13">
+                {_l('所有数据')}
+              </Radio>
             </Space>
           </Radio.Group>
           {!_.isEmpty(displaySetup.showControlIds) && (
             <ShowControlIdWrapper className="flexRow valignWrapper mTop10">
               <div className="flex">{_l('显示%0个字段', displaySetup.showControlIds.length)}</div>
-              <Icon className="Gray_9e pointer" icon="edit" onClick={() => { this.setState({ showControlVisible: true }); }} />
+              <Icon
+                className="Gray_9e pointer"
+                icon="edit"
+                onClick={() => {
+                  this.setState({ showControlVisible: true });
+                }}
+              />
             </ShowControlIdWrapper>
           )}
         </div>
@@ -154,13 +172,17 @@ export default class OriginalData extends Component {
         <div className="flexColumn mBottom16">
           <Radio.Group onChange={this.handleChangeViewDataType} value={viewDataType}>
             <Space direction="vertical">
-              <Radio value={1} className="Font13">{_l('在图表中分栏查看')}</Radio>
+              <Radio value={1} className="Font13">
+                {_l('在图表中分栏查看')}
+              </Radio>
               <Radio value={2} className="Font13" disabled={disabled}>
                 <span className="Gray">{_l('前往视图中查看')}</span>
               </Radio>
             </Space>
           </Radio.Group>
-          <div className="Font12 mLeft25 mTop5 Gray_9e">{_l('需要在统计数据源中指定统计的视图（当前只支持表视图）')}</div>
+          <div className="Font12 mLeft25 mTop5 Gray_9e">
+            {_l('需要在统计数据源中指定统计的视图（当前只支持表视图）')}
+          </div>
         </div>
         {viewDataType === 1 && this.renderShowControls()}
       </Fragment>

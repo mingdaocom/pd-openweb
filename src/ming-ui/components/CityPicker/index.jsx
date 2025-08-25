@@ -37,7 +37,7 @@ const CascaderSelectWrap = styled.div`
     }
     &-Item {
       cursor: pointer;
-      height: 32px;
+      min-height: 32px;
       padding: 0 6px 0 12px;
       justify-content: space-between;
       &:hover {
@@ -62,9 +62,10 @@ const CascaderSearchSelectWrap = styled.ul`
     0 2px 6px rgba(0, 0, 0, 0.1);
   z-index: 11;
   li {
-    height: 32px;
+    min-height: 32px;
     cursor: pointer;
     padding: 0 12px;
+    flex-wrap: wrap;
     &:hover {
       background: rgba(0, 0, 0, 0.06);
     }
@@ -73,7 +74,7 @@ const CascaderSearchSelectWrap = styled.ul`
     }
     .CityPicker-Search-Highline {
       background: unset;
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;
@@ -152,7 +153,7 @@ export default function CityPicker(props) {
   }, [popupVisible]);
 
   useEffect(() => {
-    if (!!data.length) {
+    if (data.length) {
       setData(data.slice(0, level));
     }
   }, [level]);
@@ -184,7 +185,30 @@ export default function CityPicker(props) {
       })
       .then(res => {
         setLoadingId(false);
-        keywords ? setData(res.citys) : setData(data.slice(0, key).concat([res.citys]));
+        if (keywords) {
+          function getSearchInfo(item) {
+            if (item.path) {
+              if (item.path === keywords.trim()) return { length: 1, count: 999 };
+              let diff = diffChars(keywords, item.path, { ignoreCase: true });
+              diff = diff.filter(i => !i.added && !i.removed);
+              return {
+                length: diff.length,
+                count: _.reduce(diff, (total, cur) => total + cur.count, 0),
+              };
+            }
+            return { length: 999, count: 0 };
+          }
+          let cityData = (res.citys || []).filter(i => i.id !== parentId);
+          cityData = cityData.sort((a, b) => {
+            const aDiff = getSearchInfo(a);
+            const bDiff = getSearchInfo(b);
+            if (aDiff.length === bDiff.length) return bDiff.count - aDiff.count;
+            return aDiff.length - bDiff.length;
+          });
+          setData(cityData);
+          return;
+        }
+        setData(data.slice(0, key).concat([res.citys]));
       });
   };
 
@@ -409,7 +433,7 @@ export default function CityPicker(props) {
   return (
     <span
       className={cx('ming CityPicker-wrapper', className)}
-      onClick={e => {
+      onClick={() => {
         if (disabled || (manual && !visible)) return;
 
         onChangeVisible(true);

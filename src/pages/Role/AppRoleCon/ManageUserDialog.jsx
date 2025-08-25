@@ -1,16 +1,17 @@
-import React, { useRef, useState, Fragment, useEffect } from 'react';
-import { useSetState } from 'react-use';
-import { Dialog, LoadDiv } from 'ming-ui';
-import styled from 'styled-components';
-import UserTable from 'src/pages/Role/AppRoleCon/UserCon/UserListCon/index.jsx';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
-import HomeAjax from 'src/api/homeApp';
-import AppAjax from 'src/api/appManagement';
-import { getUserRole, canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
-import 'src/pages/Role/style.less';
+import { useSetState } from 'react-use';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, LoadDiv } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
+import AppAjax from 'src/api/appManagement';
+import HomeAjax from 'src/api/homeApp';
+import * as actions from 'src/pages/Role/AppRoleCon/redux/actions';
+import UserTable from 'src/pages/Role/AppRoleCon/UserCon/UserListCon/index.jsx';
+import 'src/pages/Role/style.less';
+import { canEditApp, canEditData, getUserRole } from 'src/pages/worksheet/redux/actions/util';
 
 const Wrapper = styled.div`
   min-height: 640px; //最小高度
@@ -19,7 +20,7 @@ const Wrapper = styled.div`
   .iconBG {
     width: 32px;
     height: 32px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 20px;
   }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -42,7 +43,7 @@ const Wrapper = styled.div`
   }
   .memberTag {
     font-size: 12px;
-    color: #2196f3;
+    color: #1677ff;
     padding: 2px 6px;
     border-radius: 12px;
     background: #f3faff;
@@ -51,7 +52,7 @@ const Wrapper = styled.div`
   }
   .ownerTag {
     color: #fff;
-    background: #2196f3;
+    background: #1677ff;
     font-weight: bold;
     padding: 2px 6px;
     font-size: 12px;

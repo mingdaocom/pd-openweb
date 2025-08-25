@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise */
 import React from 'react';
 import { assign, isEmpty, isObject, trim } from 'lodash';
 import _ from 'lodash';
@@ -73,14 +72,12 @@ export function shallowEqual(objA, objB) {
   let key;
   // Test for A's keys different from B.
   for (key in objA) {
-    // eslint-disable-line no-restricted-syntax
     if ({}.hasOwnProperty.call(objA, key) && (!{}.hasOwnProperty.call(objB, key) || objA[key] !== objB[key])) {
       return false;
     }
   }
   // Test for B's keys missing from A.
   for (key in objB) {
-    // eslint-disable-line no-restricted-syntax
     if ({}.hasOwnProperty.call(objB, key) && !{}.hasOwnProperty.call(objA, key)) {
       return false;
     }
@@ -154,7 +151,7 @@ export function validateFileName(str, shouldAlert = true, out = null, options = 
     }
     return false;
   }
-  const illegalChars = /[\/\\:\*\?"<>\|]/g;
+  const illegalChars = /[/\\:*?"<>|]/g;
   const valid = !illegalChars.test(str);
   if (!valid) {
     if (shouldAlert) {
@@ -221,16 +218,7 @@ export function getDefaultSortType(sortBy) {
  * @param  {Boolean|String} noText    取消按钮的内容，如果为 false 不显示取消按钮
  * @return {Promise}                  [description]
  */
-export function confirm(
-  header,
-  content,
-  showClose = true,
-  ckText = undefined,
-  minorContent = undefined,
-  yesText = undefined,
-  noText = undefined,
-  className = '',
-) {
+export function confirm(header, content, showClose, ckText, minorContent, yesText = undefined, noText = undefined) {
   return new Promise((resolve, reject) => {
     const container = {};
     if (yesText === false) {

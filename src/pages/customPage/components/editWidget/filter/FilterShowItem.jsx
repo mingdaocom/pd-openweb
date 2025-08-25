@@ -1,14 +1,14 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Icon } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Select } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
-import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
-import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { EditInfo } from 'src/pages/widgetConfig/styled';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-
+import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet';
 
 const SHOW_ITEMS = [
   { text: _l('全部'), value: '1' },
@@ -36,8 +36,8 @@ function FilterShowItem(props) {
   const showNavfilters = advancedSetting.showNavfilters
     ? JSON.parse(advancedSetting.showNavfilters)
     : navfilters
-    ? JSON.parse(navfilters)
-    : [];
+      ? JSON.parse(navfilters)
+      : [];
   const globalSheetControls = allControls.filter(data => data && data.controlId !== control.controlId);
 
   useEffect(() => {
@@ -102,12 +102,12 @@ function FilterShowItem(props) {
               view={{
                 advancedSetting: {
                   ...advancedSetting,
-                  navfilters: showNavfilters
-                }
+                  navfilters: showNavfilters,
+                },
               }}
               advancedSetting={{
                 ...advancedSetting,
-                navfilters: showNavfilters
+                navfilters: showNavfilters,
               }}
               projectId={sheet.projectId}
               appId={sheet.appId}
@@ -147,13 +147,13 @@ function FilterShowItem(props) {
                       name: data.fullname,
                       avatar: data.avatar,
                     });
-                  });  
+                  });
                 } else {
-                  showNavfilters = infos.map(item => _.isObject(item) ? JSON.stringify(item) : item);
+                  showNavfilters = infos.map(item => (_.isObject(item) ? JSON.stringify(item) : item));
                 }
                 onChangeAdvancedSetting({
                   navfilters: JSON.stringify(values),
-                  showNavfilters: JSON.stringify(showNavfilters)
+                  showNavfilters: JSON.stringify(showNavfilters),
                 });
               }}
               onClose={() => setShowCustomVisible(false)}

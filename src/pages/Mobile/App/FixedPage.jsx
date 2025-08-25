@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Icon } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import Back from '../components/Back';
 
 const FixedContent = styled.div`

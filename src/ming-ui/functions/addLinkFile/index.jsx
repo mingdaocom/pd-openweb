@@ -1,15 +1,15 @@
 import React, { Fragment, useState } from 'react';
-import { Dialog, Tooltip, Icon, FunctionWrap, Input } from 'ming-ui';
+import { Dialog, FunctionWrap, Icon, Input, Tooltip } from 'ming-ui';
 import LinkImg from './image/link.png';
 import './index.less';
 
-function addLinkFile(props) {
+function AddLinkFile(props) {
   const { isEdit, showTitleTip = true, data = {}, callback } = props;
   const [name, setName] = useState(data.name);
   const [link, setLink] = useState(data.originLinkUrl);
 
   const validate = str => {
-    var illegalChars = /[\/\\\:\*\?\"\<\>\|]/g;
+    var illegalChars = /[/\\:*?"<>|]/g;
     var valid = illegalChars.test(str);
     if (valid) {
       alert(_l('链接名称不能包含以下字符：') + '\\ / : * ? " < > |', 3);
@@ -103,7 +103,7 @@ function addLinkFile(props) {
               placeholder="http://"
               value={link}
               onChange={value => setLink(value)}
-              onMouseUp={(evt) => {
+              onMouseUp={evt => {
                 var target = evt.target;
                 if (target.selectionEnd - target.selectionStart === 0) {
                   target.select();
@@ -118,5 +118,5 @@ function addLinkFile(props) {
 }
 
 export default props => {
-  FunctionWrap(addLinkFile, { ...props, onClose: () => {} });
+  FunctionWrap(AddLinkFile, { ...props, onClose: () => {} });
 };

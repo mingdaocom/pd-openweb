@@ -1,9 +1,9 @@
 import React from 'react';
-import ColumnRulesCon from '../components/columnRules/ColumnRulesCon';
-import * as columnRules from '../components/columnRules/redux/actions/columnRules';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { LoadDiv } from 'ming-ui';
+import ColumnRulesCon from '../components/columnRules/ColumnRulesCon';
+import * as columnRules from '../components/columnRules/redux/actions/columnRules';
 
 class ColumnRules extends React.Component {
   componentDidMount() {

@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
-import cx from 'classnames';
-import { Icon } from 'ming-ui';
 import { Motion, spring } from 'react-motion';
+import cx from 'classnames';
+import _ from 'lodash';
+import { string } from 'prop-types';
+import { Icon } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
-import { NATIVE_MODULES } from '../config';
 import CommonUserHandle from '../components/CommonUserHandle';
 import CoordinationIcon from '../components/CoordinationIcon';
-import IndexSide from '../components/IndexSide';
 import HomepageIcon from '../components/HomepageIcon';
-import './index.less';
+import IndexSide from '../components/IndexSide';
+import { NATIVE_MODULES } from '../config';
 import { compareProps } from '../util';
-import _ from 'lodash';
+import './index.less';
 
 export default class NativeHeader extends Component {
   static propTypes = {

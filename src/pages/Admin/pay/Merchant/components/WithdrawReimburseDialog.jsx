@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Dialog, FunctionWrap, Input, VerifyPasswordConfirm } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
-import styled from 'styled-components';
-import cx from 'classnames';
 
 const InputWrap = styled.div`
   border: 1px solid #e0e0e0;
@@ -27,7 +28,6 @@ function WithdrawReimburseDialog(props) {
     buttonType,
     label,
     desc,
-    min,
     max,
     viewId,
     refundSourceType,
@@ -139,8 +139,8 @@ function WithdrawReimburseDialog(props) {
             isFocus
               ? undefined
               : type === 'reimburse'
-              ? _l('最多可退款%0元', max)
-              : _l('最多可提现%0元', max > 0 ? max : 0)
+                ? _l('最多可退款%0元', max)
+                : _l('最多可提现%0元', max > 0 ? max : 0)
           }
           onChange={value => {
             let val = value
@@ -166,7 +166,7 @@ function WithdrawReimburseDialog(props) {
               setAmount(parseFloat(e.target.value).toFixed(3).slice(0, -1));
             }
           }}
-          onFocus={e => setIsFocus(true)}
+          onFocus={() => setIsFocus(true)}
         />
         <div className="Hand ThemeColor Hover_51" onClick={() => setAmount(max > 0 ? max : 0)}>
           {type === 'reimburse' ? _l('全部退款') : _l('全部提现')}

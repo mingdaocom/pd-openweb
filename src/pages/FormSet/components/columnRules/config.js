@@ -40,23 +40,56 @@ export const originActionItem = {
   message: '',
 };
 
-export const conditionTypeListData = [
-  { value: 1, label: _l('固定值') },
-  { value: 2, label: _l('动态值') },
-];
-
-export const actionsListData = [
-  { value: 1, label: _l('显示') },
-  { value: 2, label: _l('隐藏'), warnText: _l('隐藏后不验证必填（强制校验除外）') },
-  { value: 3, label: _l('可编辑') },
-  { value: 4, label: _l('只读'), warnText: _l('只读后不验证必填（强制校验除外）') },
-  { value: 5, label: _l('必填') },
+export const ACTION_DISPLAY = [
+  { value: 1, label: _l('显示'), titleLabel: _l('显示') },
+  { value: 2, label: _l('隐藏'), titleLabel: _l('隐藏'), warnText: _l('隐藏后不验证必填（强制校验除外）') },
+  { value: 3, label: _l('可编辑'), titleLabel: _l('编辑') },
+  { value: 4, label: _l('只读'), titleLabel: _l('只读'), warnText: _l('只读后不验证必填（强制校验除外）') },
+  { value: 5, label: _l('必填'), titleLabel: _l('必填') },
   { value: 6, label: _l('提示错误') },
   {
     value: 7,
     label: _l('只读所有字段'),
     warnText: _l('只读所有字段在记录保存后生效，生效后不允许用户直接编辑，但可以通过自定义动作和工作流进行填写'),
   },
+];
+
+export const SUBMIT_DISPLAY = [
+  { text: _l('阻止提交'), value: 0 },
+  { text: _l('忽略错误继续提交'), value: 3 },
+];
+
+export const TAB_TYPES = {
+  NORMAL_RULE: 0,
+  CHECK_RULE: 1,
+  LOCK_RULE: 2,
+};
+
+export const TABS_DISPLAY = [
+  {
+    text: _l('交互'),
+    value: 0,
+  },
+  {
+    text: _l('验证'),
+    value: 1,
+  },
+  {
+    text: _l('锁定'),
+    value: 2,
+  },
+];
+
+export const RELATE_PERMISSION_DISPLAY = [
+  { text: _l('允许选择已有记录'), value: 'add' },
+  { text: _l('允许取消关联'), value: 'delete' },
+  // { text: _l('允许编辑记录'), value: 'edit' },
+];
+
+export const SUBLIST_PERMISSION_DISPLAY = [
+  { text: _l('允许新增明细'), value: 'add' },
+  { text: _l('可删除已有明细'), value: 'delete' },
+  { text: _l('可编辑已有明细'), value: 'edit' },
 ];
 
 //获取规则名字段长度
@@ -77,7 +110,7 @@ export function getReTree(tree) {
 }
 
 //根据controlId找到node
-function deepSearch(tree = [], controlId) {
+export function deepSearch(tree = [], controlId) {
   let results = null;
 
   function recurse(nodes) {
@@ -95,8 +128,37 @@ function deepSearch(tree = [], controlId) {
   return results;
 }
 
+export const ruleTable = data => {
+  const item = data || {};
+  return (item.type === 29 && _.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype'))) || item.type === 34;
+};
+
+// 可编辑子表、关联列表，
+// 注意：若父级未选中，则呈现子集，否则不显示子集
+export const showTableSetting = (data, values = [], actionType, from) => {
+  const item = data || {};
+  return (
+    _.includes([1, 2, 3, 4, 5], actionType) &&
+    from === 'rule' &&
+    ruleTable(item) &&
+    _.find(values, v => v.controlId === item.controlId && _.isEmpty(v.childControlIds))
+  );
+};
+
+// 可编辑子表、关联列表，是否显示下拉子集
+export const showArrowSetting = (data, values = [], actionType, from) => {
+  const item = data || {};
+  if (ruleTable(item) && _.includes([1, 2, 3, 4, 5], actionType) && from === 'rule') {
+    return (
+      !_.find(values, v => v.controlId === item.controlId && _.isEmpty(v.childControlIds)) &&
+      !_.isEmpty(item.relationControls)
+    );
+  }
+  return !_.isEmpty(item.relationControls);
+};
+
 //根据controls获取controlName
-export function getTextById(data, controls = [], actionType) {
+export function getTextById(data, controls = [], actionType, from) {
   const tree = getNewDropDownData(data, actionType);
   let currentArr = [];
   if (_.find(tree, i => i.sectionId)) return;
@@ -104,12 +166,25 @@ export function getTextById(data, controls = [], actionType) {
   controls.forEach(controlsItem => {
     const { childControlIds = [], controlId = '' } = controlsItem;
     const parentNode = deepSearch(tree, controlId);
+    // 可编辑子表、关联表格呈现异化
+    const showSetting = showTableSetting(parentNode, controls, actionType, from);
     // 由于标签页内控件按普通字段存，父级名称得在查，特殊处理兼容
     const sectionNode = parentNode && parentNode.sectionId ? deepSearch(tree, parentNode.sectionId) : '';
+
+    // 标签页隐藏、只读在父级已配置的情况下不显示子集
+    if (
+      parentNode &&
+      parentNode.sectionId &&
+      _.find(controls, c => c.controlId === parentNode.sectionId) &&
+      _.includes([2, 4], actionType)
+    )
+      return;
+
     if (_.isEmpty(childControlIds)) {
       currentArr.push({
         parentId: '',
         controlId,
+        showSetting, // 子表、关联列表显示setting配置按钮
         name:
           sectionNode && parentNode
             ? _l('%0 / %1', sectionNode.controlName, parentNode.controlName)
@@ -117,6 +192,8 @@ export function getTextById(data, controls = [], actionType) {
         isDel: !parentNode,
       });
     } else {
+      // 子表、关联列表可编辑在父级已配置情况下不显示子集
+      if (!showArrowSetting(parentNode, controls, actionType, from)) return;
       childControlIds.map(child => {
         const childNode = _.find(_.get(parentNode, 'relationControls') || [], i => i.controlId === child);
         const isDelete = !parentNode || !childNode;
@@ -143,59 +220,55 @@ function formatSectionData(data = []) {
   return newData;
 }
 
-function filterDropDown(controls = [], actionType) {
-  // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
+export function getNewDropDownData(controls = [], actionType) {
   let filterControls = [];
   if (_.includes([3, 4, 5], actionType)) {
+    // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
     filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 53, 54, 10010);
     if (actionType === 5) {
       filterControls.push(43, 49);
     }
   }
 
-  return controls
-    .filter(item => !_.includes(filterControls, item.type))
-    .map(item => {
-      if (_.includes([29, 34], item.type)) {
-        const relationControls = (item.relationControls || [])
-          .filter(re => _.includes(item.showControls || [], re.controlId))
-          .filter(re => !_.includes(SYS_CONTROLS, re.controlId))
-          .filter(re => re.type !== 52)
-          .filter(re => !_.includes(filterControls, re.type))
-          .map(re => (re.type === 29 ? { ...re, relationControls: [] } : re));
-        // 关联卡片、下拉框不支持配置内部控件
-        const needClear = item.type === 29 && !_.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype'));
-        return { ...item, relationControls: needClear ? [] : relationControls };
-      } else if (item.type === 52) {
-        return { ...item, relationControls: filterDropDown(item.relationControls, actionType) };
-      } else {
-        // 防止关联单挑等渲染出子集情况
-        return { ...item, relationControls: [] };
-      }
+  function filterRelations(item) {
+    return (item.relationControls || []).filter(re => {
+      return (
+        _.includes(item.showControls || [], re.controlId) &&
+        !_.includes(SYS_CONTROLS, re.controlId) &&
+        re.type !== 52 &&
+        !_.includes(filterControls, re.type)
+      );
     });
-}
-
-//过滤隐藏的子表字段
-export function getNewDropDownData(dropDownData = [], actionType) {
-  const newData = formatSectionData(dropDownData);
-  let filterData = filterDropDown(newData, actionType);
-  // 必填过滤关联多条列表
-  if (_.includes([5], actionType)) {
-    filterData = filterData
-      .filter(i => !isSheetDisplay(i))
-      .map(i => {
-        if (i.relationControls) {
-          return { ...i, relationControls: (i.relationControls || []).filter(r => !isSheetDisplay(r)) };
-        } else {
-          return i;
-        }
-      });
   }
+
+  let newControls = [];
+
+  controls.forEach(item => {
+    if (!_.includes(filterControls, item.type)) {
+      if (_.includes([29, 34], item.type)) {
+        // 关联卡片、下拉框不支持配置内部控件
+        const relationControls =
+          item.type === 29 && !_.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype'))
+            ? []
+            : filterRelations(item);
+        // 必填过滤关联多条列表
+        if (!(actionType === 5 && isSheetDisplay(item))) {
+          newControls.push({ ...item, relationControls });
+        }
+      } else {
+        newControls.push(_.omit(item, 'relationControls'));
+      }
+    }
+  });
+
+  let sectionData = formatSectionData(newControls);
+
   // 空标签页在以下情况下过滤，
   if (_.includes([3, 4, 5], actionType)) {
-    filterData = filterData.filter(i => !(i.type === 52 && _.isEmpty(i.relationControls)));
+    sectionData = sectionData.filter(i => !(i.type === 52 && _.isEmpty(i.relationControls)));
   }
-  return filterData;
+
+  return sectionData;
 }
 
 // 过滤不符合条件的已选字段
@@ -205,15 +278,26 @@ export const filterUnAvailable = (controlConfig = {}, worksheetControls = [], ty
   let newControls = [];
   controls.map(item => {
     let newItem = { ...item };
-    const curItem = _.find(dropDownData, da => da.controlId === item.controlId);
+    if (type !== 3) {
+      delete newItem.permission;
+      delete newItem.isCustom;
+    }
+    const curItem = deepSearch(dropDownData, item.controlId);
     if (curItem) {
       if (item.childControlIds && item.childControlIds.length > 0) {
-        const { relationControls = [] } = _.find(dropDownData, i => i.controlId === item.controlId) || {};
-        newItem.childControlIds = item.childControlIds.filter(i => _.find(relationControls, re => re.controlId === i));
+        newItem.childControlIds = item.childControlIds.filter(i =>
+          _.find(curItem.relationControls || [], re => re.controlId === i),
+        );
       }
-      // 已选的必填关联多条列表字段过滤
-      if (!(type === 5 && isSheetDisplay(curItem) && !_.get(item, 'childControlIds.length'))) {
-        newControls.push(item);
+      // 已选的必填关联多条列表、标签页字段过滤
+      if (
+        !(
+          (type === 5 &&
+            ((isSheetDisplay(curItem) && !_.get(item, 'childControlIds.length')) || curItem.type === 52)) ||
+          ((_.includes(2, 4), type) && curItem.sectionId)
+        )
+      ) {
+        newControls.push(newItem);
       }
     }
   });
@@ -222,7 +306,7 @@ export const filterUnAvailable = (controlConfig = {}, worksheetControls = [], ty
 
 //根据actionValue获取label
 export function getActionLabelByType(type) {
-  return _.get(_.find(actionsListData, item => item.value === type) || {}, 'label') || '';
+  return _.get(_.find(ACTION_DISPLAY, item => item.value === type) || {}, 'label') || '';
 }
 
 //判断规则是否有效并能否提交
@@ -300,6 +384,7 @@ export function checkConditionError(condition) {
       } else {
         return !value ? 'timeConditionErrorBorder' : '';
       }
+      return '';
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
     case CONTROL_FILTER_WHITELIST.USERS.value:
     case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
@@ -475,7 +560,7 @@ export const filterText = (key, filterData, control) => {
   }
 };
 
-export const filterDataRelationText = (dynamicSource = [], columns, sourceControlId = '') => {
+export const filterDataRelationText = (dynamicSource = [], columns) => {
   let data = { type: 'dynamicSource', data: [] };
   if (dynamicSource.length <= 0) {
     data = '';
@@ -507,7 +592,7 @@ export const filterDataRelationText = (dynamicSource = [], columns, sourceContro
 export const filterData = (columns = [], filterItem = [], isSetting, relationControls = [], sourceControlId = '') => {
   columns = columns.concat(DEFAULT_COLUMNS);
   let dataList = [];
-  filterItem.forEach((item, index) => {
+  filterItem.forEach(item => {
     if (item.isGroup && item.groupFilters) {
       dataList.push({
         ...item,
@@ -517,12 +602,12 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
     }
     let controlData = [];
     if (isSetting) {
-      controlData = relationControls.filter(column =>
-        column.controlId ? column.controlId === item.controlId : column.data.controlId === item.controlId,
+      controlData = relationControls.filter((column = {}) =>
+        column.controlId ? column.controlId === item.controlId : (column.data || {}).controlId === item.controlId,
       );
     } else {
-      controlData = columns.filter(column =>
-        column.controlId ? column.controlId === item.controlId : column.data.controlId === item.controlId,
+      controlData = columns.filter((column = {}) =>
+        column.controlId ? column.controlId === item.controlId : (column.data || {}).controlId === item.controlId,
       );
     }
     if (controlData && controlData.length > 0) {
@@ -583,13 +668,23 @@ export function getNewIconByType(control = {}) {
 // 业务规则默认名称
 export function getDefaultRuleName(data = [], activeTab) {
   const displayNum = data.filter(i => i.type === activeTab).length + 1;
-  return getUnUniqName(data, activeTab === 0 ? _l('交互规则%0', displayNum) : _l('验证规则%0', displayNum));
+  return getUnUniqName(
+    data,
+    _l(
+      '%0规则%1',
+      _.get(
+        _.find(TABS_DISPLAY, i => i.value === activeTab),
+        'text',
+      ),
+      displayNum,
+    ),
+  );
 }
 
 // 校验动作错误
 export function getActionError(value = {}) {
   const { controls = [], type, message } = value;
-  if (_.includes([7], type)) {
+  if (_.includes([7], type) || !type) {
     return false;
   } else if (type === 6) {
     // 错误提示，验证时错误信息
@@ -624,7 +719,8 @@ export const getErrorControls = (controls = []) => {
     .map(i => (i.type === 52 ? i : { ...i, relationControls: [] }))
     .map(i => {
       if (i.type === 52) {
-        newData.push({ ...i, relationControls: (i.relationControls || []).filter(r => filterControl(r)) });
+        const sectionChild = controls.filter(c => c.sectionId === i.controlId);
+        newData.push({ ...i, relationControls: (sectionChild || []).filter(r => filterControl(r)) });
       } else if (filterControl(i)) {
         newData.push(i);
       }

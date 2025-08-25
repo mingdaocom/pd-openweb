@@ -1,16 +1,16 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Radio, RadioGroup, Checkbox, TagTextarea, Icon, Dialog } from 'ming-ui';
-import cx from 'classnames';
-import { Dropdown } from 'antd';
-import { getRePosFromStr } from 'ming-ui/components/TagTextarea';
-import styled from 'styled-components';
-import appManagementApi from 'src/api/appManagement';
-import { LINK_PARA_FIELDS } from 'src/pages/customPage/config';
-import { DropdownContent } from 'src/pages/widgetConfig/styled';
+import React, { Fragment, useEffect, useState } from 'react';
 import store from 'redux/configureStore';
+import { Dropdown } from 'antd';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon, RadioGroup, TagTextarea } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
-import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { LINK_PARA_FIELDS } from 'src/pages/customPage/config';
 import { updatePageInfo } from 'src/pages/customPage/redux/action';
+import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { DropdownContent } from 'src/pages/widgetConfig/styled';
 
 const ControlTag = styled.div`
   line-height: 24px;
@@ -45,7 +45,7 @@ const TagTextareaWrap = styled.div`
     align-items: center;
     justify-content: center;
     &:hover .icon-workflow_other {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
 `;
@@ -56,7 +56,7 @@ const RadioGroupWrap = styled(RadioGroup)`
   }
 `;
 
-export const EditExternalLink = (props) => {
+export const EditExternalLink = props => {
   const { appId, groupId, appItem, onCancel } = props;
   const [data, setData] = useState({ configuration: appItem.configuration });
 
@@ -67,42 +67,38 @@ export const EditExternalLink = (props) => {
       alert(_l('请输入正确的url'), 3);
       return;
     }
-    appManagementApi.editWorkSheetInfoForApp({
-      type: 1,
-      appId,
-      appSectionId: appItem.parentGroupId || groupId,
-      workSheetId: appItem.workSheetId,
-      ...data
-    }).then(res => {
-      if ([1, 3].includes(currentPcNaviStyle)) {
-        const singleRef = getAppSectionRef(groupId);
-        singleRef.dispatch(updateSheetListAppItem(appItem.workSheetId, data));
-        store.dispatch(updatePageInfo({ flag: Date.now() }));
-      } else {
-        props.updateSheetListAppItem(appItem.workSheetId, data);
-      }
-    });
+    appManagementApi
+      .editWorkSheetInfoForApp({
+        type: 1,
+        appId,
+        appSectionId: appItem.parentGroupId || groupId,
+        workSheetId: appItem.workSheetId,
+        ...data,
+      })
+      .then(() => {
+        if ([1, 3].includes(currentPcNaviStyle)) {
+          const singleRef = getAppSectionRef(groupId);
+          singleRef.dispatch(updateSheetListAppItem(appItem.workSheetId, data));
+          store.dispatch(updatePageInfo({ flag: Date.now() }));
+        } else {
+          props.updateSheetListAppItem(appItem.workSheetId, data);
+        }
+      });
     onCancel();
-  }
+  };
 
   return (
-    <Dialog
-      visible
-      title={_l('编辑外部链接')}
-      width={580}
-      onOk={handleSave}
-      onCancel={onCancel}
-    >
+    <Dialog visible title={_l('编辑外部链接')} width={580} onOk={handleSave} onCancel={onCancel}>
       <ExternalLink
         urlTemplate={appItem.urlTemplate}
         configuration={appItem.configuration}
-        onChange={(data) => {
+        onChange={data => {
           setData(data);
         }}
       />
     </Dialog>
   );
-}
+};
 
 const ExternalLink = props => {
   const { configuration = {}, onChange } = props;
@@ -115,20 +111,22 @@ const ExternalLink = props => {
   useEffect(() => {
     onChange({
       configuration: {
-        customPageType, openType, hideHeaderBar
+        customPageType,
+        openType,
+        hideHeaderBar,
       },
-      urlTemplate
+      urlTemplate,
     });
   }, [customPageType, openType, hideHeaderBar, urlTemplate]);
 
-  const handleChange = (err, value, obj) => {
+  const handleChange = (err, value) => {
     if (err) {
       return;
     }
     setUrlTemplate(value);
-  }
+  };
 
-  const genControlTag = (id) => {
+  const genControlTag = id => {
     const res = _.flatten(LINK_PARA_FIELDS.map(data => data.fields));
     const field = _.find(res, { value: id });
     return (
@@ -136,7 +134,7 @@ const ExternalLink = props => {
         <span className="Font12">{field ? field.text : id}</span>
       </ControlTag>
     );
-  }
+  };
 
   return (
     <Fragment>
@@ -173,7 +171,7 @@ const ExternalLink = props => {
                 getRef={tagtextarea => {
                   setRef(tagtextarea);
                 }}
-                renderTag={(id, options) => genControlTag(id)}
+                renderTag={id => genControlTag(id)}
                 onChange={handleChange}
               />
               <Dropdown
@@ -215,7 +213,7 @@ const ExternalLink = props => {
                 {
                   value: '1',
                   text: _l('嵌入页面'),
-                  disableTitle: true
+                  disableTitle: true,
                 },
                 { value: '2', text: _l('新窗口打开'), disableTitle: true },
               ]}
@@ -236,7 +234,6 @@ const ExternalLink = props => {
       )}
     </Fragment>
   );
-}
-
+};
 
 export default ExternalLink;

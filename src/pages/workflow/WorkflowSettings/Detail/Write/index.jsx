@@ -1,27 +1,27 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Checkbox, LoadDiv, Tooltip, Icon, Support } from 'ming-ui';
-import flowNode from '../../../api/flowNode';
-import _ from 'lodash';
-import {
-  SelectUserDropDown,
-  Member,
-  SelectNodeObject,
-  DetailHeader,
-  DetailFooter,
-  WriteFields,
-  ButtonName,
-  Schedule,
-  UserRange,
-  EmailApproval,
-  UpdateFields,
-  OperatorEmpty,
-  CustomTextarea,
-  PromptSoundDialog,
-} from '../components';
-import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon, LoadDiv, ScrollView, Support, Tooltip } from 'ming-ui';
+import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
+import {
+  ButtonName,
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  EmailApproval,
+  Member,
+  OperatorEmpty,
+  PromptSoundDialog,
+  Schedule,
+  SelectNodeObject,
+  SelectUserDropDown,
+  UpdateFields,
+  UserRange,
+  WriteFields,
+} from '../components';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -39,7 +39,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #2196f3;
+      border-bottom: 3px solid #1677ff;
     }
   }
 `;
@@ -59,7 +59,7 @@ export default class Write extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.getNodeDetail(nextProps);
     }
@@ -269,7 +269,7 @@ export default class Write extends Component {
           bg="BGSkyBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               <div className="Font13 bold">{_l('数据对象')}</div>
@@ -356,6 +356,7 @@ export default class Write extends Component {
                         {_l('登录密码验证')}
                         <Tooltip
                           popupPlacement="bottom"
+                          autoCloseDelay={0}
                           text={<span>{_l('启用后，用户输入登录密码后才可进行提交')}</span>}
                         >
                           <Icon
@@ -380,7 +381,7 @@ export default class Write extends Component {
                     height={0}
                     content={data.explain}
                     formulaMap={data.formulaMap}
-                    onChange={(err, value, obj) => this.updateSource({ explain: value })}
+                    onChange={(err, value) => this.updateSource({ explain: value })}
                     updateSource={this.updateSource}
                   />
 
@@ -439,7 +440,7 @@ export default class Write extends Component {
                     <div className="Font13 mTop15">
                       {data.selectNodeObj.nodeName && !data.selectNodeObj.appName ? (
                         <div className="Gray_75 Font13 flexRow flowDetailTips">
-                          <i className="icon-task-setting_promet Font16 Gray_9e" />
+                          <i className="icon-error1 Font16 Gray_9e" />
                           <div
                             className="flex mLeft10"
                             dangerouslySetInnerHTML={{
@@ -461,7 +462,7 @@ export default class Write extends Component {
                     </div>
                   ) : (
                     <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-                      <i className="icon-task-setting_promet Font16 Gray_9e" />
+                      <i className="icon-error1 Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                     </div>
                   )}
@@ -506,7 +507,7 @@ export default class Write extends Component {
                     })
                   ) : (
                     <div className="Gray_75 Font13 flexRow flowDetailTips mTop25">
-                      <i className="icon-task-setting_promet Font16 Gray_9e" />
+                      <i className="icon-error1 Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
                     </div>
                   )}

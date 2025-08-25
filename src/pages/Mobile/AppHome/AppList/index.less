@@ -1,4 +1,4 @@
-.appList{
+.appList {
   width: 100%;
   height: 100%;
   background-color: #fff;
@@ -10,14 +10,14 @@
     .myAppItemWrap {
       width: 25%;
       height: 120px;
-  
+
       .myAppItem {
         width: 56px;
         text-align: center;
         vertical-align: middle;
         align-items: center;
         margin: 0 auto;
-  
+
         .myAppItemDetail {
           width: 56px;
           height: 56px;
@@ -25,7 +25,7 @@
           color: #fff;
           font-size: 32px;
           text-align: center;
-  
+
           .Icon {
             vertical-align: middle;
           }
@@ -33,8 +33,17 @@
             color: #8e8e8e;
             font-size: 20px;
           }
+          .svgWrap {
+            height: inherit;
+            & > div {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: inherit;
+            }
+          }
         }
-  
+
         .contentText {
           display: -webkit-box;
           /* autoprefixer: off */
@@ -51,6 +60,6 @@
     }
   }
 }
-.justifyCenter{
+.justifyCenter {
   justify-content: center;
 }

@@ -786,7 +786,7 @@ class ProcessConfig extends Component {
                   type={2}
                   content={data.value}
                   formulaMap={data.formulaMap}
-                  onChange={(err, value, obj) => this.updateSource({ value })}
+                  onChange={(err, value) => this.updateSource({ value })}
                   updateSource={this.updateSource}
                 />
               </div>
@@ -826,7 +826,7 @@ class ProcessConfig extends Component {
                   type={2}
                   content={data.endValue}
                   formulaMap={data.formulaMap}
-                  onChange={(err, value, obj) => this.updateSource({ endValue: value })}
+                  onChange={(err, value) => this.updateSource({ endValue: value })}
                   updateSource={this.updateSource}
                 />
               </div>
@@ -974,7 +974,7 @@ class ProcessConfig extends Component {
     }
 
     return (
-      <div className="flexRow flex">
+      <div className="flexRow flex overflowHidden">
         <ul className="processConfigTab">
           {settings.map(item => (
             <li

@@ -1,17 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Button, VerifyPasswordConfirm } from 'ming-ui';
-import AuthorizationController from 'src/api/authorization';
-import copy from 'copy-to-clipboard';
 import cx from 'classnames';
-import styled from 'styled-components';
-
-const EmptyWrap = styled.div`
-  height: 232px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
+import copy from 'copy-to-clipboard';
+import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import AuthorizationController from 'src/api/authorization';
 
 export default class ViewKey extends Component {
   constructor(props) {

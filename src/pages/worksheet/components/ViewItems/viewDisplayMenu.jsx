@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import { Menu } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Menu } from 'antd';
 import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 
 export default class ViewDisplayMenu extends Component {

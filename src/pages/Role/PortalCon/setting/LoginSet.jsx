@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Icon, LoadDiv, SvgIcon, QiniuUpload } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
-import { COLORS, BGTYPE } from 'src/pages/Role/PortalCon/tabCon/util';
+import styled from 'styled-components';
+import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
+import { BGTYPE, COLORS } from 'src/pages/Role/PortalCon/tabCon/util';
 import cbg from './img/center.png';
 import cCbg from './img/centerC.png';
 import rbg from './img/right.png';
 import rCbg from './img/rightC.png';
+
 const Wrap = styled.div`
   position: relative;
   height: calc(100% - 100px);
@@ -27,7 +28,7 @@ const Wrap = styled.div`
       border: 1px solid #bdbdbd;
     }
     &:focus {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
   .uploadLogo {
@@ -38,7 +39,7 @@ const Wrap = styled.div`
     border-radius: 4px;
     line-height: 80px;
     position: relative;
-    color: #2196f3;
+    color: #1677ff;
     padding: 6px;
     .upload_logo {
       height: 100%;
@@ -65,12 +66,12 @@ const Wrap = styled.div`
       background: #fff;
       border-radius: 50%;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     &:hover {
       background: rgba(33, 150, 243, 0.1);
-      border: 2px dashed #2196f3;
+      border: 2px dashed #1677ff;
       .delete {
         display: block;
       }
@@ -146,7 +147,7 @@ const Wrap = styled.div`
         border-radius: 3px 0px 0px 3px;
       }
       &.current {
-        background: #2196f3;
+        background: #1677ff;
         color: #fff;
         position: relative;
         z-index: 1;
@@ -178,7 +179,7 @@ const Wrap = styled.div`
     padding: 0 16px;
     background: #f3faff;
     border-radius: 6px;
-    color: #2196f3;
+    color: #1677ff;
     display: inline-block;
     height: 44px;
     line-height: 44px;
@@ -191,7 +192,7 @@ const Wrap = styled.div`
   .hideUploadBgTxt {
     color: #9e9e9e;
     a {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .loginDemo {
@@ -287,12 +288,8 @@ const WrapCon = styled.div`
   }
 `;
 export default function LoginSet(props) {
-  const { appId, appPkg = {}, onChangePortalSet } = props;
+  const { appPkg = {}, onChangePortalSet } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
-  const {
-    iconColor = '#00bcd4',
-    iconUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
-  } = appPkg;
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadBgLoading, setUploadBgLoading] = useState(false);
 
@@ -314,12 +311,12 @@ export default function LoginSet(props) {
         },
         max_file_size: '4m',
       },
-      onAdd: (up, files) => {
+      onAdd: up => {
         if (uploadBgLoading) return;
         setUploadBgLoading(true);
         up.disableBrowse();
       },
-      onUploaded: (up, file, response) => {
+      onUploaded: (up, file) => {
         up.disableBrowse(false);
         updataUrl({
           backImageUrl: file.serverName + file.key,
@@ -359,12 +356,12 @@ export default function LoginSet(props) {
         },
         max_file_size: '4m',
       },
-      onAdd: (up, files) => {
+      onAdd: up => {
         if (uploadLoading) return;
         setUploadLoading(true);
         up.disableBrowse();
       },
-      onUploaded: (up, file, response) => {
+      onUploaded: (up, file) => {
         up.disableBrowse(false);
         updataUrl({
           logoImageUrl: file.serverName + file.key,
@@ -416,7 +413,7 @@ export default function LoginSet(props) {
           {portalSetModel.logoImageUrl && (
             <Icon
               className="delete Font18 Hand"
-              type="delete_out"
+              type="cancel"
               onClick={() => {
                 onChangePortalSet({
                   portalSetModel: {
@@ -463,7 +460,7 @@ export default function LoginSet(props) {
                   }}
                 >
                   {portalSetModel.pageMode / 3 - 1 === o && (
-                    <Icon className="Font18 Hand ThemeColor3" type="plus-interest" />
+                    <Icon className="Font18 Hand ThemeColor3" type="check_circle" />
                   )}
                 </span>
                 <span className="txt Block TxtCenter mTop13">{o === 0 ? _l('居中') : _l('左右')}</span>

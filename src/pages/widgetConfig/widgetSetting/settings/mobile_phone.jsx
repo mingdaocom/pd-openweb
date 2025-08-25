@@ -17,7 +17,7 @@ const DISPLAY_OPTIONS = [
 
 export default function Text(props) {
   const { data, onChange } = props;
-  const { type, controlId, hint = '' } = data;
+  const { type, controlId } = data;
   const { datamask } = getAdvanceSetting(data);
   return (
     <Fragment>

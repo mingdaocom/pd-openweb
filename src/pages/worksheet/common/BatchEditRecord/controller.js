@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import worksheetApi from 'src/api/worksheet';
 
 export function handleBatchUpdateRecords({
@@ -60,7 +61,7 @@ export function handleBatchUpdateRecords({
       if (data.successCount === selectedRows.length) {
         alert(_l('修改成功'));
       } else if (hasAuthRowIds.length < selectedRows.length) {
-        alert(_l('修改成功，无编辑权限的%0无法修改', worksheetInfo.entityName));
+        alert(_l('修改成功，无编辑权限或已锁定的%0无法修改', worksheetInfo.entityName));
       }
       if (allWorksheetIsSelected) {
         reloadWorksheet();

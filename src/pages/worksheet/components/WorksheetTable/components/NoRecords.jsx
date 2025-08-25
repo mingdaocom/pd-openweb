@@ -1,8 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import styled from 'styled-components';
 import { useMeasure } from 'react-use';
+import cx from 'classnames';
+import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import emptyPng from 'src/pages/worksheet/assets/record.png';
 
 const Con = styled.div`
@@ -46,10 +46,10 @@ export default function NoRecords(props) {
             {text
               ? text
               : sheetIsFiltered
-              ? _l('没有符合条件的记录')
-              : allowAdd
-              ? _l('暂未添加记录，点击创建')
-              : _l('暂未添加记录')}
+                ? _l('没有符合条件的记录')
+                : allowAdd
+                  ? _l('暂未添加记录，点击创建')
+                  : _l('暂未添加记录')}
           </span>
         </div>
       )}

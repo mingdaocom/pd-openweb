@@ -82,7 +82,7 @@ export default class Level extends React.Component {
   };
 
   render() {
-    const { from, recordId, className, style, cell, editable, isediting, onClick } = this.props;
+    const { from, recordId, className, style, cell, editable, onClick } = this.props;
     const { value } = this.state;
     const isMobile = browserIsMobile();
     if (isMobile) {

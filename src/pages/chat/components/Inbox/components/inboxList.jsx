@@ -1,16 +1,16 @@
 ﻿import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
-import ScrollView from 'ming-ui/components/ScrollView';
-import { TYPES, LOADTYPES, NAMES } from '../constants';
-import { Divider } from 'antd';
-import inboxController from 'src/api/inbox';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import Button from 'ming-ui/components/Button';
-import Message from './inboxMessage';
-import { isWithinOneHour } from '../util';
-import * as actions from '../../../redux/actions';
 import { connect } from 'react-redux';
+import { Divider } from 'antd';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { ScrollView } from 'ming-ui';
+import Button from 'ming-ui/components/Button';
+import LoadDiv from 'ming-ui/components/LoadDiv';
+import inboxController from 'src/api/inbox';
+import * as actions from '../../../redux/actions';
+import { LOADTYPES, NAMES, TYPES } from '../constants';
+import { isWithinOneHour } from '../util';
+import Message from './inboxMessage';
 
 @connect()
 export default class InboxList extends React.Component {
@@ -37,7 +37,7 @@ export default class InboxList extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (
       !_.isEqual(_.omit(nextProps, 'count', 'requestNow'), _.omit(this.props, 'count', 'requestNow')) ||
-      nextProps.count && nextProps.count !== this.props.count ||
+      (nextProps.count && nextProps.count !== this.props.count) ||
       (nextProps.requestNow && !isWithinOneHour(nextProps.requestNow))
     ) {
       this.setState(
@@ -50,7 +50,7 @@ export default class InboxList extends React.Component {
         () => {
           this.fetchInboxList();
           this.props.dispatch(actions.updateInoxRequestNow(nextProps.inboxType));
-        }
+        },
       );
     }
   }
@@ -67,14 +67,14 @@ export default class InboxList extends React.Component {
 
     this.ajaxRequest = inboxController.getInboxMessage({
       pageIndex,
-      pageSize: 10,
+      pageSize: location.href.includes('windowChat') ? 20 : 10,
       inboxFavorite: inboxFavorite ? 1 : 0,
       type,
       clearUnread,
       loadType: LOADTYPES.ALL,
       creatorId: user ? user.accountId : null,
       startTime,
-      endTime
+      endTime,
     });
     this.ajaxRequest
       .then(({ inboxList }) => {
@@ -103,20 +103,17 @@ export default class InboxList extends React.Component {
       });
   }
 
-  scrollEvent(event, values) {
+  scrollEvent() {
     const { hasMoreData, pageIndex, isLoading } = this.state;
-    const { direction, position, maximum } = values;
     if (!hasMoreData || isLoading) return false;
-    if (direction === 'down' && maximum - position < 50) {
-      this.setState(
-        {
-          pageIndex: pageIndex + 1,
-        },
-        () => {
-          this.fetchInboxList();
-        }
-      );
-    }
+    this.setState(
+      {
+        pageIndex: pageIndex + 1,
+      },
+      () => {
+        this.fetchInboxList();
+      },
+    );
   }
 
   renderList() {
@@ -126,11 +123,11 @@ export default class InboxList extends React.Component {
       return this.state.list.map((inboxItem, index) => (
         <Fragment key={inboxItem.inboxId}>
           <Message {...{ inboxItem }} />
-          {
-            index === (count - 1) && (
-              <Divider className="inboxDivider Font13" plain>{_l('以上为新消息')}</Divider>
-            )
-          }
+          {index === count - 1 && (
+            <Divider className="inboxDivider Font13" plain>
+              {_l('以上为新消息')}
+            </Divider>
+          )}
         </Fragment>
       ));
     } else if (pageIndex === 1 && !isLoading && !failed) {
@@ -149,7 +146,13 @@ export default class InboxList extends React.Component {
         </div>
       );
     } else {
-      return isLoading ? pageIndex === 1 ? <LoadDiv className="mTop20" /> : <LoadDiv className="mTop10 mBottom10" /> : null;
+      return isLoading ? (
+        pageIndex === 1 ? (
+          <LoadDiv className="mTop20" />
+        ) : (
+          <LoadDiv className="mTop10 mBottom10" />
+        )
+      ) : null;
     }
   }
 
@@ -174,7 +177,12 @@ export default class InboxList extends React.Component {
 
   render() {
     return (
-      <ScrollView className="flex" disableParentScroll={true} scrollContentClassName="inboxBox" updateEvent={this.scrollEvent.bind(this)}>
+      <ScrollView
+        className="flex inboxBox"
+        allowance={50}
+        disableParentScroll
+        onScrollEnd={this.scrollEvent.bind(this)}
+      >
         {this.renderList()}
         {this.renderLoading()}
       </ScrollView>

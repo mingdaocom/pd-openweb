@@ -23,6 +23,7 @@ import { emitter } from 'src/utils/common';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { handleRecordError } from 'src/utils/record';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
+import { getGroupControlId } from 'src/utils/worksheet';
 import ExportList from './ExportList';
 import PrintList from './PrintList';
 import SubButton from './SubButton';
@@ -144,8 +145,7 @@ class BatchOperate extends React.Component {
   }
 
   triggerCustomBtn(btn, isAll) {
-    const { worksheetId, viewId, selectedRows, filters, filtersGroup, quickFilter, navGroupFilters, clearSelect } =
-      this.props;
+    const { worksheetId, viewId, selectedRows, filters, filtersGroup, quickFilter, navGroupFilters } = this.props;
     const { filterControls, keyWords, searchType } = filters;
     let args = { isAll };
     if (isAll) {
@@ -202,7 +202,7 @@ class BatchOperate extends React.Component {
   }
 
   handleTriggerCustomBtn = btn => {
-    const { allWorksheetIsSelected, selectedLength } = this.props;
+    const { allWorksheetIsSelected } = this.props;
     if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY) {
       // 立即执行
       this.triggerCustomBtn(btn, allWorksheetIsSelected);
@@ -231,8 +231,6 @@ class BatchOperate extends React.Component {
       filtersGroup,
       allWorksheetIsSelected,
       selectedRows,
-      worksheetInfo,
-      clearSelect,
       reload,
       updateRows,
       getWorksheetSheetViewSummary,
@@ -376,12 +374,11 @@ class BatchOperate extends React.Component {
       addRecord,
       setHighLightOfRows,
       permissionType,
-      isLock,
     } = this.props;
     // funcs
     const { reload, updateRows, hideRows, getWorksheetSheetViewSummary } = this.props;
-    const { projectId, entityName } = worksheetInfo;
-    const { loading, select1000, customButtonLoading, templateList } = this.state;
+    const { projectId, entityName, roleType } = worksheetInfo;
+    const { loading, select1000, customButtonLoading } = this.state;
     let { customButtons } = this.state;
     customButtons = customButtons.filter(b => !b.disabled);
     const selectedRow = selectedRows.length === 1 && selectedRows[0];
@@ -416,6 +413,58 @@ class BatchOperate extends React.Component {
         </span>
       </div>
     );
+
+    function handleLock(isLock) {
+      const hasAuthRowIds = selectedRows
+        .filter(item => (item.allowdelete || item.allowDelete) && !(isLock ? item.sys_lock : false))
+        .map(item => item.rowid);
+      if (!hasAuthRowIds.length) {
+        alert(_l('没有可以%0的记录', isLock ? _l('锁定') : _l('解锁')), 3);
+        return;
+      }
+      const args = {
+        appId,
+        viewId,
+        worksheetId,
+        rowIds: hasAuthRowIds,
+        updateType: isLock ? 41 : 42,
+      };
+      if (allWorksheetIsSelected) {
+        delete args.rowIds;
+        args.isAll = true;
+        args.excludeRowIds = selectedRows.map(row => row.rowid);
+        args.filterControls = filters.filterControls;
+        args.fastFilters = (_.isArray(quickFilter) ? quickFilter : []).map(f =>
+          _.pick(f, [
+            'controlId',
+            'dataType',
+            'spliceType',
+            'filterType',
+            'dateRange',
+            'value',
+            'values',
+            'minValue',
+            'maxValue',
+          ]),
+        );
+        args.navGroupFilters = navGroupFilters;
+        args.keyWords = filters.keyWords;
+        args.searchType = filters.searchType;
+      }
+      worksheetAjax
+        .updateWorksheetRows(args)
+        .then(res => {
+          if (res.isSuccess) {
+            alert(isLock ? _l('锁定成功') : _l('解锁成功'));
+            reload();
+          } else {
+            alert(isLock ? _l('锁定失败') : _l('解锁失败'), 3);
+          }
+        })
+        .catch(() => {
+          alert(isLock ? _l('锁定失败') : _l('解锁失败'), 3);
+        });
+    }
 
     return (
       <DropMotion
@@ -510,6 +559,10 @@ class BatchOperate extends React.Component {
                           rowIds,
                         },
                         newRows => {
+                          if (getGroupControlId(view)) {
+                            refresh();
+                            return;
+                          }
                           addRecord(newRows, this.findLastId(rowIds));
                           clearSelect();
                           setHighLightOfRows(newRows.map(r => r.rowid));
@@ -529,7 +582,7 @@ class BatchOperate extends React.Component {
                 projectId,
                 viewId,
                 controls,
-                selectedRows,
+                selectedRows: selectedRows.length ? selectedRows : rows,
                 selectedRowIds: selectedRows.map(r => r.rowid),
                 count: count,
                 allowLoadMore: allWorksheetIsSelected,
@@ -541,7 +594,7 @@ class BatchOperate extends React.Component {
               <IconText
                 dataEvent="delete"
                 className="delete"
-                icon="delete2"
+                icon="trash"
                 text={_l('删除')}
                 onClick={() => {
                   if (window.isPublicApp) {
@@ -550,7 +603,7 @@ class BatchOperate extends React.Component {
                   }
                   function handleDelete(thoroughDelete) {
                     const hasAuthRowIds = selectedRows
-                      .filter(item => item.allowdelete || item.allowDelete)
+                      .filter(item => (item.allowdelete || item.allowDelete) && !item.sys_lock)
                       .map(item => item.rowid);
                     if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
                       alert(_l('无权限删除选择的记录'), 3);
@@ -592,7 +645,7 @@ class BatchOperate extends React.Component {
                             if (allWorksheetIsSelected && res.successCount === 0) {
                               alert(_l('无权限删除选择的记录'), 3);
                             } else if (hasAuthRowIds.length < selectedRows.length || allWorksheetIsSelected) {
-                              alert(_l('删除成功，无编辑权限的记录无法删除'));
+                              alert(_l('删除成功，锁定或无删除权限的记录已被忽略'));
                             } else if (hasAuthRowIds.length === selectedRows.length) {
                               alert(_l('删除成功'));
                             }
@@ -609,7 +662,7 @@ class BatchOperate extends React.Component {
                             }
                           }
                         })
-                        .catch(err => {
+                        .catch(() => {
                           alert(_l('批量删除失败'), 3);
                         });
                     }
@@ -621,13 +674,14 @@ class BatchOperate extends React.Component {
                       selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount &&
                       selectedLength !== -1
                         ? _l(
-                            '%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。',
+                            '%0天内可在 回收站 找回已删除%1。未锁定且有删除权限的%1才可被删除。',
                             md.global.SysSettings.worksheetRowRecycleDays,
                             entityName,
                           )
                         : _l(
-                            '批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录',
+                            '批量操作单次最大支持%0行记录。点击“确认”将删除前%0行未锁定且有删除权限的记录，删除后%1天内可在 回收站 找回。',
                             md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                            md.global.SysSettings.worksheetRowRecycleDays,
                           ),
                     onOk: handleDelete,
                   };
@@ -661,6 +715,7 @@ class BatchOperate extends React.Component {
                             <div className="Bold Gray mTop18">{_l('注意:')}</div>
                             <ul className="mTop10 9 mLeft4 Font14">
                               <li style={{ listStyle: 'inside' }}>{_l('将直接物理删除，永远无法恢复')}</li>
+                              <li style={{ listStyle: 'inside' }}>{_l('所选记录中锁定或无删除权限的记录将被跳过')}</li>
                               <li style={{ listStyle: 'inside' }}>
                                 {_l('其他表与已删除记录的关联关系不会被清除，记录将显示为“已删除”')}
                               </li>
@@ -677,7 +732,7 @@ class BatchOperate extends React.Component {
                     configOptions.cancelText = (
                       <CancelTextContent>
                         <i className="icon icon-error" />
-                        {_l('彻底删除所有数据', selectedLength)}
+                        {_l('彻底删除所有%0', entityName)}
                       </CancelTextContent>
                     );
                   }
@@ -749,6 +804,40 @@ class BatchOperate extends React.Component {
                       });
                     },
                   },
+                  ...(roleType === 2
+                    ? [
+                        {
+                          text: _l('锁定'),
+                          icon: 'lock',
+                          onClick: () => {
+                            if (window.isPublicApp) {
+                              alert(_l('预览模式下，不能操作'), 3);
+                              return;
+                            }
+                            Dialog.confirm({
+                              title: _l('批量锁定%0', entityName),
+                              description: _l('已选中%0条记录。一次最多处理1000条记录。', selectedLength),
+                              onOk: () => handleLock(true),
+                            });
+                          },
+                        },
+                        {
+                          text: _l('解锁'),
+                          icon: 'task-new-no-locked',
+                          onClick: () => {
+                            if (window.isPublicApp) {
+                              alert(_l('预览模式下，不能操作'), 3);
+                              return;
+                            }
+                            Dialog.confirm({
+                              title: _l('批量解锁%0', entityName),
+                              description: _l('已选中%0条记录。一次最多处理1000条记录。', selectedLength),
+                              onOk: () => handleLock(false),
+                            });
+                          },
+                        },
+                      ]
+                    : []),
                 ]}
               >
                 <i className="icon icon-more_horiz  Gray_9e Font18 pointer ThemeHoverColor3  mRight12" />

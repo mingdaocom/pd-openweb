@@ -1,13 +1,13 @@
-﻿import { formatShowTime } from '../common';
-import ajaxRequest from 'src/api/message';
-import './css/postMessage.less';
-import tpl from './template/postMessage.html';
+﻿import React from 'react';
 import doT from 'dot';
 import _ from 'lodash';
-import { Dialog, Button } from 'ming-ui';
-import React from 'react';
+import { Button, Dialog } from 'ming-ui';
+import ajaxRequest from 'src/api/message';
+import { formatShowTime } from '../common';
+import tpl from './template/postMessage.html';
+import './css/postMessage.less';
 
-export default function ({ createUser, members, address, description, allDay, start, end, title }) {
+export default function ({ members, address, description, allDay, start, end, title }) {
   var data = _.map(members, m => ({
     ...m,
     name: m.memberName,

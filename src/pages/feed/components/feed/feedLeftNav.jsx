@@ -31,7 +31,7 @@ class FeedLeftNav extends React.Component {
 
   constructor(props) {
     super(props);
-    const allProjects = _(md.global.Account.projects)
+    const allProjects = _.chain(md.global.Account.projects)
       .map(p => p.projectId)
       .push('');
     let foldedProjects;
@@ -102,9 +102,9 @@ class FeedLeftNav extends React.Component {
     return !shallowEqual(nextState, this.state) || !shallowEqual(nextProps, this.props);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     if (!this.locatedDefaultGroup && $('.avatarList .Item.ThemeBGColor8').length) {
-      $('.groupListContainer .nano-content').scrollTop($('.avatarList .Item.ThemeBGColor8').position().top);
+      $('.groupListContainer .scroll-viewport').scrollTop($('.avatarList .Item.ThemeBGColor8').position().top);
       this.locatedDefaultGroup = true;
     }
     const key = 'foldedProjects_' + md.global.Account.accountId + '_feed';
@@ -132,7 +132,7 @@ class FeedLeftNav extends React.Component {
     if (projectId) {
       query.projectId = projectId;
     } else {
-      query.excludeProjectIds = _(md.global.Account.projects)
+      query.excludeProjectIds = _.chain(md.global.Account.projects)
         .map(p => p.projectId)
         .push('')
         .reject(ex => ex === projectId)
@@ -170,7 +170,7 @@ class FeedLeftNav extends React.Component {
     }
   };
 
-  renderProjectGroups = (projectId, index) => {
+  renderProjectGroups = projectId => {
     projectId = projectId || '';
     const isFolded = this.state.foldedProjects.includes(projectId);
     const isLoading = this.state.loadingProjects.includes(projectId);
@@ -236,7 +236,7 @@ class FeedLeftNav extends React.Component {
               </span>
             </li>
           ) : (
-            _(projectGroups)
+            _.chain(projectGroups)
               .map(g => (
                 <Item
                   iconAtEnd={g.isVerified}
@@ -368,7 +368,7 @@ class FeedLeftNav extends React.Component {
           </div>
         </div>
         <ScrollView className="groupListContainer flex" disableParentScroll>
-          {_(md.global.Account.projects)
+          {_.chain(md.global.Account.projects)
             .map(p => p.projectId)
             .push('')
             .map((projectId, i) => this.renderProjectGroups(projectId, i))

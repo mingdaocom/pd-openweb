@@ -1,10 +1,10 @@
 ﻿import React from 'react';
 import { Provider } from 'react-redux';
 import Config from '../../../config';
+import { updateProjectId } from './actions/current';
 import Root from './container/root';
 import configureStore from './store/configureStore';
 import './index.less';
-import { updateProjectId } from './actions/current';
 
 const store = configureStore();
 

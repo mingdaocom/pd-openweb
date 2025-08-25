@@ -7,7 +7,7 @@ import Numeric from './Numeric';
 const Number = props => {
   const {
     disabled,
-    advancedSetting: { showtype, numinterval, showinput, min, max, numshow, datamask },
+    advancedSetting: { showtype, numinterval, showinput, min, max, numshow },
     value,
     onChange = () => {},
   } = props;

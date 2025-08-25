@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon, Dialog } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
 
 export default ({ onOk, onCancel, onSubmit }) => {
   return (

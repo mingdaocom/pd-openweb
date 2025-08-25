@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { emitter } from 'src/utils/common';
 import { equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'src/utils/common';
@@ -32,8 +33,7 @@ export default () => {
   if (!window.IM) return;
   let complete = {};
   IM.socket.on('workflow', data => {
-    const { pushUniqueId, status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } =
-      data;
+    const { pushUniqueId, status, type, worksheetId, rowId, storeId, total, finished, title, close } = data;
 
     const recordId = rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId;
 
@@ -69,7 +69,7 @@ export default () => {
         modalKey: `batchUpdateWorkflowNotice${storeId}`,
       });
     } else {
-      const { id, promptType } = STATUS[status];
+      const { promptType } = STATUS[status];
       let description = getSingleNoticeDescription(data);
       const triggerData = getDataFromLocalPushUniqueId();
       const { enableTip, tipText } = triggerData;

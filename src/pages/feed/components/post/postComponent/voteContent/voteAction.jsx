@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * 投票的操作项
@@ -16,7 +16,11 @@ function VoteAction(props) {
       <span className="Gray_9">
         {voteItem.Anonymous ? <span className="mRight10">{_l('匿名投票')}</span> : undefined}
         <span className="mRight10">{_l('最多可以选择%0项', voteItem.AvailableNumber)}</span>
-        {/* 过期时间*/ voteItem.Deadline ? <span className="mRight10">{_l('%0 到期', voteItem.Deadline)}</span> : undefined}
+        {
+          /* 过期时间*/ voteItem.Deadline ? (
+            <span className="mRight10">{_l('%0 到期', voteItem.Deadline)}</span>
+          ) : undefined
+        }
         {!voteItem.isMy ? <span>{_l('投票后可以查看结果') /* 投票后可以查看结果*/}</span> : undefined}
       </span>
     );
@@ -31,7 +35,11 @@ function VoteAction(props) {
   } else if (voteItem.isPostVote && props.isShowResult) {
     actions = (
       <span className="Gray_9">
-        {voteItem.isDeadline ? /* 投票已过期*/ _l('投票已到期') : /* 更改我的投票*/ <a onClick={props.handleShowList}>{_l('更改我的投票')}</a>}
+        {voteItem.isDeadline ? (
+          /* 投票已过期*/ _l('投票已到期')
+        ) : (
+          /* 更改我的投票*/ <a onClick={props.handleShowList}>{_l('更改我的投票')}</a>
+        )}
       </span>
     );
   }

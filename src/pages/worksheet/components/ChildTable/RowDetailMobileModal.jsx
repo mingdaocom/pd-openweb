@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useRef } from 'react';
+import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
-import { Popup, Button, ActionSheet } from 'antd-mobile';
+import _ from 'lodash';
+import PropTypes from 'prop-types';
 import RowDetail from './RowDetail';
 
 export default function RowDetailModal(props) {
@@ -31,10 +32,9 @@ export default function RowDetailModal(props) {
 
   // 切换上一条/下一条
   const handleSwitch = type => {
-
     if ($('.childTableRowDetailMobileDialog').find('.fileUpdateLoading').length) {
       alert(_l('附件正在上传，请稍后'), 3);
-      return
+      return;
     }
 
     if (!switchDisabled[type]) {
@@ -82,11 +82,11 @@ export default function RowDetailModal(props) {
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>
         {!props.disabled && allowDelete && (
-          <i className="headerBtn icon icon-task-new-delete Font18 Red" onClick={() => deleteRecord(data.rowid)}></i>
+          <i className="headerBtn icon icon-trash Font18 Red" onClick={() => deleteRecord(data.rowid)}></i>
         )}
         <div className="flex"></div>
         <i
-          className="headerBtn icon icon-delete_out Gray_9e Font20"
+          className="headerBtn icon icon-cancel Gray_9e Font20"
           onClick={() => {
             if (type === 'edit' && !disabled) {
               formContent.current.handleSave(false, false, true);

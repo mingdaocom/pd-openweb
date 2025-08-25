@@ -1,21 +1,22 @@
 import React, { Fragment } from 'react';
-import WidgetName from '../WidgetName';
+import _ from 'lodash';
 import {
+  HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
   HAS_WARNING_CONTROL,
   NO_CUSTOM_SETTING_CONTROL,
-  HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
   NO_VERIFY_WIDGET,
 } from '../../../config';
 import { enumWidgetType, isCustomWidget } from '../../../util';
 import { canAdjustWidth } from '../../../util/setting';
 import { changeWidgetSize } from '../../../util/widgets';
 import Settings from '../../settings';
-import WidgetWarning from './WidgetWarning';
+import WidgetCustom from '../CustomWidget/WidgetCustom';
 import DynamicDefaultValue from '../DynamicDefaultValue';
+import WidgetName from '../WidgetName';
 import WidgetVerify from '../WidgetVerify';
 import WidgetOtherExplain from './WidgetOtherExplain';
+import WidgetWarning from './WidgetWarning';
 import WidgetWidth from './WidgetWidth';
-import WidgetCustom from '../CustomWidget/WidgetCustom';
 
 // 高级设置
 export default function WidgetBase(props) {

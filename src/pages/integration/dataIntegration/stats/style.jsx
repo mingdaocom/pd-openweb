@@ -79,7 +79,7 @@ export const Wrap = styled.div`
       height: 8px;
 
       &.selected {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }

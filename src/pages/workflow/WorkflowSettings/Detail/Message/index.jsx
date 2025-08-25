@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, Menu, MenuItem, Radio, ScrollView, Support, TagTextarea, Tooltip } from 'ming-ui';
+import { LoadDiv, Radio, ScrollView, Support, TagTextarea, Tooltip } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import project from 'src/api/project';
-import signDialog from 'src/pages/workflow/components/signDialog';
+import SmsSignSet from 'src/components/SmsSignSet';
+import { getCurrentProject } from 'src/utils/project';
 import { getControlTypeName, handleGlobalVariableName } from '../../utils';
 import {
   ActionFields,
@@ -32,7 +32,7 @@ const TagBox = styled.div`
     color: #fff !important;
   }
   &.blue {
-    background: #2196f3;
+    background: #1677ff;
     color: #fff !important;
   }
 `;
@@ -51,7 +51,6 @@ export default class Message extends Component {
       sign: '',
       messageContent: '',
       type: 0,
-      showSignList: false,
       fieldsVisible: false,
 
       isSelectNewTpl: false,
@@ -61,8 +60,6 @@ export default class Message extends Component {
 
       showTestDialog: false,
       testArray: [],
-
-      isCertified: null,
     };
   }
 
@@ -73,7 +70,7 @@ export default class Message extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.setState({ keywords: '' });
       this.getNodeDetail(nextProps);
@@ -229,36 +226,15 @@ export default class Message extends Component {
       <Fragment>
         <div className="mTop20 bold">{_l('短信内容')}</div>
         <div className="mTop10 flowTplBox">
-          <div
-            className={cx(
-              'flowTplHeader flexRow alignItemsCenter',
-              { gray: status === 0 },
-              { green: status === 1 },
-              { red: status === 2 },
-            )}
-          >
-            {status === 0 && (
-              <Fragment>
-                <i className="Font16 Gray_75 icon-workflow_under_review" />
-                <div className="mLeft10 flex bold">{_l('模板审核中...')}</div>
-                <div className="Gray_75">{_l('无法修改审核中模板')}</div>
-              </Fragment>
-            )}
-            {status === 1 && (
-              <Fragment>
-                <i className="Font16 icon-Import-success" />
-                <div className="mLeft10 flex bold">{_l('审核通过')}</div>
-              </Fragment>
-            )}
-            {status === 2 && (
-              <Fragment>
-                <span className="workflowDetailTipsWidth" data-tip={data.messageTemplate.failCause}>
-                  <i className="Font16 icon-workflow_failure" />
-                </span>
-                <div className="mLeft10 flex bold">{_l('审核失败')}</div>
-              </Fragment>
-            )}
-          </div>
+          {status === 2 && (
+            <div className="flowTplHeader flexRow alignItemsCenter red">
+              <span className="workflowDetailTipsWidth" data-tip={data.messageTemplate.failCause}>
+                <i className="Font16 icon-workflow_failure" />
+              </span>
+              <div className="mLeft10 flex bold">{_l('已拒绝')}</div>
+            </div>
+          )}
+
           <div className="pLeft16 pRight16 pTop15 pBottom20">
             <div className="bold">{_l('短信签名：')}</div>
             <div className="mTop5">{data.messageTemplate.companySignature}</div>
@@ -278,7 +254,7 @@ export default class Message extends Component {
                 this.tagBox = tagBox;
               }}
               readonly
-              renderTag={(tag, options) => {
+              renderTag={tag => {
                 const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
                 const nodeObj = data.formulaMap[ids[0]] || {};
                 const controlObj = data.formulaMap[ids.join('-')] || {};
@@ -344,7 +320,6 @@ export default class Message extends Component {
     const { data } = this.state;
     const { messageTemplate } = data;
 
-    this.getProjectAuthType();
     this.setState({
       showSetTemplate: false,
       addNewTemplate: true,
@@ -383,13 +358,15 @@ export default class Message extends Component {
     return (
       <Fragment>
         <div className="mTop20 flexRow">
-          <div className="flex">{_l('选择已审核模板')}</div>
+          <div className="flex">{_l('选择已有模板')}</div>
           <div
             className="ThemeColor3 ThemeHoverColor2 pointer"
-            onClick={() => {
-              this.getProjectAuthType(true);
-              this.setState({ addNewTemplate: true });
-            }}
+            onClick={() =>
+              this.setState({
+                addNewTemplate: true,
+                sign: !md.global.Config.IsLocal ? '明道云' : getCurrentProject(this.props.companyId).companyName,
+              })
+            }
           >
             <i className="icon-plus mRight5" />
             {_l('创建新模板')}
@@ -404,7 +381,7 @@ export default class Message extends Component {
             value={keywords}
             onChange={evt => this.setState({ keywords: evt.currentTarget.value.trim() })}
           />
-          <i className="icon-workflow_find Font20 Gray_75 Absolute mTop8 mLeft10" />
+          <i className="icon-search Font20 Gray_75 Absolute mTop8 mLeft10" />
         </div>
 
         {templates.length ? (
@@ -432,7 +409,7 @@ export default class Message extends Component {
           </ul>
         ) : (
           <div className="flexColumn mTop40 alignItemsCenter">
-            <i className="icon-workflow_sms Gray_c Font64" />
+            <i className="icon-forum Gray_c Font64" />
             <div className="Font15 Gray_75 mTop30">{_l('没有已审核模板、点击创建新模板')}</div>
           </div>
         )}
@@ -477,9 +454,7 @@ export default class Message extends Component {
    */
   renderNewTemplate() {
     const { companyId } = this.props;
-    const { data, sign, messageContent, type, showSignList, isSelectNewTpl, showTestDialog, testArray, isCertified } =
-      this.state;
-    const companySignatureList = data.companySignatureList.filter(key => key.indexOf(sign) > -1);
+    const { data, sign, messageContent, type, isSelectNewTpl, showTestDialog, testArray } = this.state;
     const MESSAGE_TYPES = [
       { text: _l('行业通知'), value: 1, desc: _l('一般性通知。如验证码短信、通知短信、物流快递短信、订单短信') },
       {
@@ -514,47 +489,9 @@ export default class Message extends Component {
 
         <div className="Font18 bold mTop20">{isSelectNewTpl ? _l('修改模板内容') : _l('创建新模板')}</div>
         <div className="bold mTop20">{_l('短信签名')}</div>
-        <div className="Gray_75 mTop10">
-          {_l(
-            '签名内容长度为2-20个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。签名必须线下完成实名登记，且一个营业执照只能设置一个签名。',
-          )}
-        </div>
 
         <div className="mTop10 flexRow alignItemsCenter">
-          <div className="relative flexRow" style={{ width: 190 }}>
-            <input
-              type="text"
-              maxLength={20}
-              placeholder={_l('请输入签名')}
-              className="ThemeBorderColor3 actionControlBox flex pLeft10 pRight10 pTop0 pBottom0"
-              value={sign}
-              onFocus={() => this.setState({ showSignList: true })}
-              disabled={!isCertified}
-              onBlur={evt => {
-                const value = evt.currentTarget.value.trim().replace(/[^\u4e00-\u9fa5a-zA-Z ]/g, '');
-
-                this.setState({ showSignList: false, sign: value });
-              }}
-              onChange={evt => this.setState({ sign: evt.currentTarget.value })}
-            />
-
-            {showSignList && (
-              <Menu className="fomulaFnList" style={{ right: 0 }}>
-                {!companySignatureList.length && <div className="fnEmpty">{_l('没有可用的签名')}</div>}
-                {companySignatureList.map((value, i) => (
-                  <MenuItem key={i} onMouseDown={() => this.setState({ sign: value })}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Menu>
-            )}
-          </div>
-
-          {isCertified === false && (
-            <span className="ThemeColor3 ThemeHoverColor2 pointer mLeft20" onClick={() => signDialog(companyId)}>
-              {_l('自定义签名')}
-            </span>
-          )}
+          <SmsSignSet projectId={companyId} sign={sign} onOk={value => this.setState({ sign: value })} />
         </div>
 
         <div className="bold mTop20">{_l('短信类型')}</div>
@@ -563,7 +500,7 @@ export default class Message extends Component {
         </div>
         {MESSAGE_TYPES.map(item => (
           <div className="mTop15" key={item.value}>
-            <Tooltip popupPlacement="top" text={item.desc}>
+            <Tooltip popupPlacement="top" autoCloseDelay={0} text={item.desc}>
               <span>
                 <Radio
                   text={item.text}
@@ -577,9 +514,7 @@ export default class Message extends Component {
         ))}
 
         <div className="bold mTop20">{_l('短信内容')}</div>
-        <div className="Gray_75 mTop10">
-          {_l('为保证短信的稳定推送，以下内容须审核后才能使用。多于70字（含签名）的短信按67字每条计费')}
-        </div>
+        <div className="Gray_75 mTop10">{_l('多于70字（含签名）的短信按67字每条计费')}</div>
         <CustomTextarea
           className="minH100"
           projectId={this.props.companyId}
@@ -589,9 +524,7 @@ export default class Message extends Component {
           type={2}
           content={messageContent}
           formulaMap={data.formulaMap}
-          onChange={(err, value, obj) =>
-            this.setState({ messageContent: value.replace(/【/g, '[').replace(/】/g, ']') })
-          }
+          onChange={(err, value) => this.setState({ messageContent: value.replace(/【/g, '[').replace(/】/g, ']') })}
           updateSource={this.updateSource}
         />
         <div className="Gray_75 mTop10">
@@ -627,18 +560,8 @@ export default class Message extends Component {
               this.onSaveTemplate();
             }}
           >
-            {_l('提交审核')}
+            {_l('提交')}
           </span>
-        </div>
-        <div className="mTop20 Gray_75 workflowDetailDesc">
-          <div>
-            <span className="mRight10">•</span>
-            {_l('审核时间约为1小时，非工作时间提交审核会延长')}
-          </div>
-          <div>
-            <span className="mRight10">•</span>
-            {_l('我们会把审核通过的短信模板同步到「工作流 > 短信模板」')}
-          </div>
         </div>
 
         {showTestDialog && (
@@ -735,9 +658,8 @@ export default class Message extends Component {
             <span className="mLeft5">{_l('返回')}</span>
           </span>
         </div>
-        <div className="bold mTop20 Font18">{_l('已审核模板')}</div>
-        <div className="mTop10 Gray_75 flexRow">
-          <div className="flex">{_l('请修改已审核模板中的变量')}</div>
+        <div className="mTop20 flexRow alignItemsCenter">
+          <div className="flex Font18 bold">{_l('短信模板')}</div>
           <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.editTemplate}>
             {_l('修改模板的内容')}
           </div>
@@ -752,7 +674,7 @@ export default class Message extends Component {
             getRef={tagtextarea => {
               this.tagtextarea = tagtextarea;
             }}
-            renderTag={(tag, options) => {
+            renderTag={tag => {
               const ids = (this.mapData[tag] || '')
                 .replace(/\$/g, '')
                 .split(/([a-zA-Z0-9#]{24,32})-/)
@@ -882,17 +804,6 @@ export default class Message extends Component {
     this.updateSource({ messageTemplate });
   };
 
-  /**
-   * 获取网络认证状态
-   */
-  getProjectAuthType = isNew => {
-    const { companyId } = this.props;
-
-    project.getProjectInfo({ projectId: companyId }).then(res => {
-      this.setState({ isCertified: res.authType === 2, sign: isNew && res.authType === 2 ? '' : '平台' });
-    });
-  };
-
   render() {
     const { data, addNewTemplate, showSetTemplate } = this.state;
 
@@ -905,11 +816,11 @@ export default class Message extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-workflow_sms"
+          icon="icon-forum"
           bg="BGBlue"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {!addNewTemplate && !showSetTemplate && this.renderContent()}

@@ -107,7 +107,7 @@ export default function SelectAvatarTrigger(props) {
             onChange({ avatar: file.url, avatarName: file.fileName });
             up.disableBrowse(false);
           }}
-          onAdd={(up, files) => {
+          onAdd={up => {
             setState({ loading: true });
             up.disableBrowse();
           }}

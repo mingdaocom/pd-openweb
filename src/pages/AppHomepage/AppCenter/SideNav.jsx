@@ -13,7 +13,7 @@ import PopupLinks from './components/PopupLinks';
 import ThirdApp from './components/ThirdApp';
 
 const NATIVE_APP_ITEM = [
-  { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
+  { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#1677ff', href: '/feed', key: 1 },
   { id: 'task', icon: 'task_basic_application', text: _l('任务'), color: '#3cca8f', href: '/apps/task', key: 2 },
   { id: 'calendar', icon: 'sidebar_calendar', text: _l('日程'), color: '#ff6d6c', href: '/apps/calendar/home', key: 3 },
   { id: 'knowledge', icon: 'sidebar_knowledge', text: _l('文件'), color: '#F89803', href: '/apps/kc/my', key: 4 },
@@ -177,7 +177,7 @@ const DashboardEntry = styled.div`
 const moduleEntries = [
   {
     type: 'dashboard',
-    icon: 'home1',
+    icon: 'home_page',
     name: _l('工作台'),
     href: '/dashboard',
   },
@@ -294,7 +294,7 @@ export default function SideNav(props) {
         }
         onClick={
           !entry.href
-            ? e => {
+            ? () => {
                 if (entry.type === 'integration') {
                   const type = localStorage.getItem('integrationUrl');
                   navigateTo('/integration/' + (type || ''));
@@ -403,7 +403,7 @@ export default function SideNav(props) {
 
   return (
     <Con className={cx({ isExpanded })} themeBgColor={hasBgImg ? 'unset' : dashboardColor.bgColor}>
-      <ScrollView>
+      <ScrollView className="h100">
         <Content>
           {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
           <ModuleEntries>
@@ -441,10 +441,10 @@ export default function SideNav(props) {
                     safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
                   }}
                 >
-              <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>                
-                {'v' + md.global.Config.Version}
-              </span>
-              <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
+                  <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
+                    {'v' + md.global.Config.Version}
+                  </span>
+                  <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
                 </ResourceEntry>
               </Tooltip>
             </div>

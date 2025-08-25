@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';

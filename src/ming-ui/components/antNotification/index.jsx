@@ -11,7 +11,7 @@ const DefaultBtn = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  color: #2196f3;
+  color: #1677ff;
   text-align: center;
   cursor: pointer;
   &:hover {
@@ -30,10 +30,10 @@ const defaultProps = {
 function getIconName(type = 'success') {
   return (
     {
-      success: 'check_circle1',
-      error: 'cancel1',
+      success: 'check_circle',
+      error: 'cancel',
       warning: 'error1',
-      info: 'info1',
+      info: 'info',
     }[type] || ''
   );
 }
@@ -73,16 +73,21 @@ const getProps = (props, type = 'success') => {
     onClose: () => {
       // 多窗口关闭
       if (props.key && !md.global.Config.IsLocal) {
-        window.mdyAPI('', '', {
-          accountId: md.global.Account.accountId,
-          noticeId: props.key,
-          type: props.removeReadType ? undefined : 3,
-        }, {
-          ajaxOptions: {
-            type: 'GET',
-            url: `${md.global.Config.MdNoticeServer}/notice/read`
-          }
-        });
+        window.mdyAPI(
+          '',
+          '',
+          {
+            accountId: md.global.Account.accountId,
+            noticeId: props.key,
+            type: props.removeReadType ? undefined : 3,
+          },
+          {
+            ajaxOptions: {
+              type: 'GET',
+              url: `${md.global.Config.MdNoticeServer}/notice/read`,
+            },
+          },
+        );
       }
     },
   };

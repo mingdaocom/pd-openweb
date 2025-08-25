@@ -2,10 +2,10 @@
 import { findDOMNode } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import Textarea from 'ming-ui/components/Textarea';
 import cx from 'classnames';
+import Textarea from 'ming-ui/components/Textarea';
+import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
 
@@ -25,7 +25,7 @@ class ChecklistOperator extends Component {
           {_l('转为任务')}
         </li>
         <li className="ThemeBGColor3" onClick={() => this.props.removeItem()}>
-          <i className="icon-task-new-delete" />
+          <i className="icon-trash" />
           {_l('删除')}
         </li>
       </ClickAwayable>
@@ -61,17 +61,18 @@ const cardSource = {
       // 处理滚动条滚动
       clearInterval(config.setInterval);
       config.setInterval = setInterval(() => {
-        const scroll = $('.taskDetailScroll .nano-content').scrollTop();
+        const scrollEl = $('.taskDetailScroll .scroll-viewport');
+        const scroll = scrollEl.scrollTop();
         const top = clientOffset.y - config.offset.y;
         if (top <= 180) {
-          $('.taskDetailScroll').nanoScroller({ scrollTop: scroll - 100 });
+          scrollEl.scrollTop(scroll - 100);
         } else if ($(window).height() - top - config.height <= 90) {
-          $('.taskDetailScroll').nanoScroller({ scrollTop: scroll + 100 });
+          scrollEl.scrollTop(scroll + 100);
         }
       }, 200);
     }
   },
-  endDrag(props, monitor, component) {
+  endDrag(props) {
     props.checklistItemDrop();
     clearInterval(config.setInterval);
     root.unmount();

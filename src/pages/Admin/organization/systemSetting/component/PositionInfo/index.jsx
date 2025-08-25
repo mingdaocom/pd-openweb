@@ -155,7 +155,7 @@ class PositionInfo extends Component {
                 />
                 {searchValue ? (
                   <span
-                    className="Font14 icon-closeelement-bg-circle Gray_c Hand Absolute"
+                    className="Font14 icon-cancel Gray_c Hand Absolute"
                     style={{
                       top: '8px',
                       right: '8px',
@@ -194,7 +194,7 @@ class PositionInfo extends Component {
                 </Dropdown>
               </div>
               <div className="positionList">
-                <ScrollView onScrollEnd={this.onScrollEnd}>
+                <ScrollView className="h100" onScrollEnd={this.onScrollEnd}>
                   {isLoading ? (
                     <LoadDiv />
                   ) : !_.isEmpty(positionList) ? (
@@ -202,7 +202,9 @@ class PositionInfo extends Component {
                       return (
                         <div
                           key={item.jobId}
-                          className={cx('positionItem', { current: currentPosition.jobId === item.jobId })}
+                          className={cx('positionItem flexRow alignItemsCenter', {
+                            current: currentPosition.jobId === item.jobId,
+                          })}
                           onClick={() => {
                             if (item.jobId !== currentPosition.jobId) {
                               this.props.updateUserPageIndex(1);
@@ -213,11 +215,11 @@ class PositionInfo extends Component {
                           }}
                         >
                           <Icon className="Font16 Gray_9e mRight10" icon="limit-principal" />
-                          <span className={cx('overflow_ellipsis WordBreak jobName')}>{item.jobName}</span>
+                          <span className={cx('overflow_ellipsis WordBreak jobName flex')}>{item.jobName}</span>
                           <Icon
                             className="Font16 Gray_9e Right editIcon"
                             icon="edit_17"
-                            onClick={e => {
+                            onClick={() => {
                               this.createAndEdit('edit');
                               if (item.jobId !== currentPosition.jobId) {
                                 this.props.updateUserPageIndex(1);
@@ -235,7 +237,7 @@ class PositionInfo extends Component {
                       {_l('暂无职位，可')}
                       <span
                         className="Hand"
-                        style={{ color: '#2196F3' }}
+                        style={{ color: '#1677ff' }}
                         onClick={() => {
                           this.props.updateIsImportRole(true);
                         }}

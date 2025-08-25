@@ -1,5 +1,6 @@
 import React, { forwardRef, useRef } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import MobileFilter from 'mobile/CustomPage/FilterContent';
 import MobileView from 'mobile/CustomPage/ViewContent';
@@ -47,11 +48,10 @@ const WidgetContent = styled.div`
       color: var(--widget-title-color);
     }
     .hideNumberChartName {
-      .iconItem {
+      .iconItem .icon {
         background-color: var(--widget-color) !important;
       }
-      .header,
-      .header .icon {
+      .header {
         background-color: transparent !important;
       }
       .header {
@@ -59,14 +59,18 @@ const WidgetContent = styled.div`
         border: none !important;
       }
       .content {
-        padding-bottom: 0;
+        padding: 0;
       }
     }
     .numberChart {
-      .contentWrapper .name,
       .minorWrap,
       .minorWrap .name {
         color: var(--widget-title-color) !important;
+      }
+    }
+    .numberChart {
+      .contentWrapper .name {
+        color: var(--widget-title-color);
       }
     }
     .fixedLoading {

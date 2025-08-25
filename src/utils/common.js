@@ -26,7 +26,9 @@ export function saveLRUWorksheetConfig(key, id, value) {
   if (localStorage.getItem(key)) {
     try {
       data = JSON.parse(localStorage.getItem(key));
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   }
   const newData = _.assign({}, data, { [id]: value });
   if (Object.keys(newData).length > maxSaveNum) {
@@ -41,7 +43,9 @@ export function clearLRUWorksheetConfig(key, id) {
   if (localStorage.getItem(key)) {
     try {
       data = JSON.parse(localStorage.getItem(key));
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   }
   delete data[id];
   safeLocalStorageSetItem(key, JSON.stringify(data));
@@ -53,6 +57,7 @@ export function getLRUWorksheetConfig(key, id) {
     try {
       data = JSON.parse(localStorage.getItem(key));
     } catch (err) {
+      console.error(err);
       return;
     }
   }
@@ -117,7 +122,9 @@ export function saveTempRecordValueToLocal(key, id, value, max = 5) {
     try {
       savedIds = JSON.parse(localStorage.getItem(key)) || [];
       savedIds = savedIds.filter(sid => sid !== id);
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   }
   savedIds.push(id);
   if (savedIds.length > max) {
@@ -128,6 +135,7 @@ export function saveTempRecordValueToLocal(key, id, value, max = 5) {
     safeLocalStorageSetItem(key, JSON.stringify(savedIds));
     safeLocalStorageSetItem(`${key}_${id}`, value);
   } catch (err) {
+    console.error(err);
     Object.keys(localStorage)
       .filter(k => k.startsWith(key))
       .forEach(k => localStorage.removeItem(k));
@@ -146,7 +154,9 @@ export function removeTempRecordValueFromLocal(key, id) {
     try {
       savedIds = JSON.parse(localStorage.getItem(key)) || [];
       savedIds = savedIds.filter(sid => sid !== id);
-    } catch (err) {}
+    } catch (err) {
+      console.error(err);
+    }
   }
   if (savedIds && savedIds.length) {
     safeLocalStorageSetItem(key, JSON.stringify(savedIds));
@@ -171,6 +181,7 @@ export function validateFnExpression(expression, type = 'mdfunction') {
     }
     return true;
   } catch (err) {
+    console.error(err);
     return false;
   }
 }
@@ -192,11 +203,18 @@ export function getScrollBarWidth() {
   return width || 10;
 }
 
-export function getRowGetType(from) {
+export function getRowGetType(from, { discussId } = {}) {
+  let isInbox;
+  if (typeof discussId !== 'undefined') {
+    isInbox = from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && !!discussId;
+  } else {
+    isInbox =
+      from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('inboxId') > -1;
+  }
   if (from == 21) {
     return 21;
   } else if (
-    (from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('share') > -1) ||
+    isInbox ||
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicPage') ||
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
@@ -351,11 +369,15 @@ export function accMul(arg1, arg2) {
     s1 = arg1.toString(),
     s2 = arg2.toString();
   try {
-    m += s1.split('.')[1].length;
-  } catch (e) {}
+    m += (s1.split('.')[1] || '').length;
+  } catch (e) {
+    console.log(e);
+  }
   try {
-    m += s2.split('.')[1].length;
-  } catch (e) {}
+    m += (s2.split('.')[1] || '').length;
+  } catch (e) {
+    console.log(e);
+  }
   return (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) / Math.pow(10, m);
 }
 
@@ -370,11 +392,15 @@ export function accDiv(arg1, arg2) {
     r1,
     r2;
   try {
-    t1 = arg1.toString().split('.')[1].length;
-  } catch (e) {}
+    t1 = (arg1.toString().split('.')[1] || '').length;
+  } catch (e) {
+    console.log(e);
+  }
   try {
-    t2 = arg2.toString().split('.')[1].length;
-  } catch (e) {}
+    t2 = (arg2.toString().split('.')[1] || '').length;
+  } catch (e) {
+    console.log(e);
+  }
   r1 = Number(arg1.toString().replace('.', ''));
   r2 = Number(arg2.toString().replace('.', ''));
   const res = (r1 / r2) * Math.pow(10, t2 - t1);
@@ -392,13 +418,15 @@ export function accDiv(arg1, arg2) {
 export function accAdd(arg1, arg2) {
   let r1, r2, m;
   try {
-    r1 = arg1.toString().split('.')[1].length;
+    r1 = (arg1.toString().split('.')[1] || '').length;
   } catch (e) {
+    console.log(e);
     r1 = 0;
   }
   try {
-    r2 = arg2.toString().split('.')[1].length;
+    r2 = (arg2.toString().split('.')[1] || '').length;
   } catch (e) {
+    console.log(e);
     r2 = 0;
   }
   m = Math.pow(10, Math.max(r1, r2));
@@ -421,6 +449,7 @@ export function countChar(str = '', char) {
   try {
     return str.match(new RegExp(char, 'g')).length;
   } catch (err) {
+    console.log(err);
     return 0;
   }
 }
@@ -576,7 +605,7 @@ export const formatFileSize = (size, accuracy, space, units) => {
 
 export const downloadFile = url => {
   if (window.isDingTalk) {
-    const [path, search] = decodeURIComponent(url).split('?');
+    const [, search] = decodeURIComponent(url).split('?');
     const { validation } = qs.parse(search);
     return addToken(url, validation ? true : false);
   } else {
@@ -876,11 +905,11 @@ export const setCaretPosition = (ctrl, caretPos) => {
 /**
  * 获取上传token
  */
-export const getToken = (files, type = 0, args = {}) => {
+export const getToken = (files, type = 0, args = {}, options = {}) => {
   if (!md.global.Account.accountId) {
-    return qiniuAjax.getFileUploadToken({ files, type, ...args });
+    return qiniuAjax.getFileUploadToken({ files, type, ...args }, options);
   } else {
-    return qiniuAjax.getUploadToken({ files, type, ...args });
+    return qiniuAjax.getUploadToken({ files, type, ...args }, options);
   }
 };
 
@@ -952,6 +981,7 @@ export function domFilterHtmlScript(html) {
     let doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
   } catch (err) {
+    console.log(err);
     return html;
   }
 }

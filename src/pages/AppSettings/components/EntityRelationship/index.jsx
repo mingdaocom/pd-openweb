@@ -206,7 +206,7 @@ function EntityRelationship(props) {
       });
   };
 
-  const onFilter = ({ worksheetId, list }) => {
+  const onFilter = ({ worksheetId }) => {
     const selected = allData.current.find(l => l.worksheetId === worksheetId);
     const filterList = allData.current.filter(
       l =>
@@ -226,7 +226,7 @@ function EntityRelationship(props) {
   };
 
   const onLayout = (list, options = {}) => {
-    const { light = undefined, type = 'grid' } = options;
+    const { light = undefined } = options;
 
     const data = list.map(l => ({
       ...l,
@@ -239,7 +239,7 @@ function EntityRelationship(props) {
     data.forEach((item, dataIndex) => {
       item.controls
         .filter(l => [29, 34].includes(l.type) && l.dataSource !== item.worksheetId)
-        .forEach((l, i) => {
+        .forEach(l => {
           let sourceIndex = _.findIndex(data, m => m.worksheetId === l.dataSource);
           if (sourceIndex < 0 || (isBothWayRelate(l, data[sourceIndex]) && dataIndex > sourceIndex)) return;
 
@@ -295,7 +295,7 @@ function EntityRelationship(props) {
 
       controls
         .filter(l => [29, 34].includes(l.type) && l.dataSource !== item.worksheetId)
-        .forEach((l, controlIndex) => {
+        .forEach(l => {
           const targetWorksheetIndex = _.findIndex(sortData, m => m.worksheetId === l.dataSource);
           const isBothRelate = targetWorksheetIndex < 0 ? false : isBothWayRelate(l, sortData[targetWorksheetIndex]);
 
@@ -565,12 +565,13 @@ function EntityRelationship(props) {
               )}
               <Tooltip
                 themeColor="white"
+                autoCloseDelay={0}
                 text={_l(
                   '仅显示%0的关联关系，退出后可显示所有工作表',
                   getTranslateInfo(appId, null, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
                 )}
               >
-                <Icon icon="workflow_error" className="White Font16 mLeft6" />
+                <Icon icon="info_outline" className="White Font16 mLeft6" />
               </Tooltip>
             </div>
           }

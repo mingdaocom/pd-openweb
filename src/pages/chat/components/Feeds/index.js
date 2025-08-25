@@ -196,14 +196,14 @@ export default class Feeds extends Component {
     return (
       <div className="ChatPanel-Feeds ChatPanel-sessionInfo-item">
         <div className="ChatPanel-Feeds-hander ChatPanel-sessionInfo-hander">
-          <span>{`${_l('动态')}`}</span>
+          <span>{_l('动态')}</span>
           {postList.length ? (
             <span
               onClick={this.props.onSetPanelVisible.bind(this, true)}
               className="ChatPanel-sessionInfo-hander-entry ThemeColor3"
             >
               {_l('所有动态')}
-              <i className="icon-sidebar-more" />
+              <i className="icon-arrow-right-border" />
             </span>
           ) : undefined}
         </div>

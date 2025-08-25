@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import localForage from 'localforage';
-import _, { get } from 'lodash';
+import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -100,7 +100,7 @@ export default class FillWorksheet extends React.Component {
     this.customwidget.current.submitFormData();
   };
 
-  onSave = (error, { data, updateControlIds, handleRuleError, handleServiceError }) => {
+  onSave = (error, { data, handleRuleError, handleServiceError, alertLockError }) => {
     if (this.issubmitting) {
       return;
     }
@@ -176,6 +176,7 @@ export default class FillWorksheet extends React.Component {
             this.customwidget.current.dataFormat.callStore('setUniqueError', { badData });
           },
           setRuleError: badData => handleRuleError(badData),
+          alertLockError: () => alertLockError(),
           setServiceError: badData => handleServiceError(badData),
           params,
         },
@@ -269,11 +270,15 @@ export default class FillWorksheet extends React.Component {
       advancedSetting = {},
       shareId,
       projectName,
+      extendDatas = {},
     } = publicWorksheetInfo;
     const request = getRequest();
     const { header, submit, logo, title, description, footer } = request;
     const isFixedLeft = !browserIsMobile() && _.get(advancedSetting, 'tabposition') === '3';
     const isFixedRight = _.get(advancedSetting, 'tabposition') === '4';
+    const visibleHeaders = _.isUndefined(extendDatas.visibleHeaders)
+      ? ['logo', 'title', 'description']
+      : safeParse(extendDatas.visibleHeaders);
 
     return (
       <React.Fragment>
@@ -281,15 +286,17 @@ export default class FillWorksheet extends React.Component {
         <div className="infoCon">
           {header !== 'no' && (
             <React.Fragment>
-              {logoUrl && logo !== 'no' && (
+              {visibleHeaders.includes('logo') && logoUrl && logo !== 'no' && (
                 <ImgCon>
                   <img className="logo" src={logoUrl} />
                 </ImgCon>
               )}
 
-              {name && title !== 'no' && <div className="worksheetName">{name}</div>}
+              {visibleHeaders.includes('title') && name && title !== 'no' && (
+                <div className="worksheetName">{name}</div>
+              )}
 
-              {!!desc && description !== 'no' && (
+              {visibleHeaders.includes('description') && !!desc && description !== 'no' && (
                 <div className="mdEditor">
                   <RichText
                     data={desc || ''}
@@ -394,7 +401,7 @@ export default class FillWorksheet extends React.Component {
                 smsVerification={smsVerification}
                 showError={showError}
                 registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
-                onChange={(data, id) => {
+                onChange={data => {
                   if (cacheDraft) {
                     const draftData = (data || []).map(item => ({
                       controlId: item.controlId,

@@ -177,7 +177,7 @@ function ImportPlugin(props) {
             break;
         }
       })
-      .catch(error => {
+      .catch(() => {
         alertError ? alert(_l('文件解析错误'), 2) : setErrorTip(_l('文件解析错误'));
         setFileChecking(false);
       });
@@ -201,7 +201,7 @@ function ImportPlugin(props) {
             alert(_l('导入插件失败'), 2);
           }
         })
-        .catch(error => setImporting(false));
+        .catch(() => setImporting(false));
     } else {
       setImporting(false);
     }
@@ -217,7 +217,7 @@ function ImportPlugin(props) {
             mime_types: [{ extensions: 'mdye' }],
           },
         }}
-        onAdd={(up, files) => {
+        onAdd={() => {
           //   setUploading(true);
           setErrorTip('');
           setIsEncrypt(false);
@@ -327,7 +327,7 @@ function ImportPlugin(props) {
                 <div className="Gray_75 mTop6">{_l('大小：') + formatFileSize(file.size)}</div>
                 {errorTip && (
                   <div className="mTop15 error Font14">
-                    <span className="icon-closeelement-bg-circle Font15 mRight6"></span>
+                    <span className="icon-cancel Font15 mRight6"></span>
                     <span>{_l(errorTip)}</span>
                   </div>
                 )}

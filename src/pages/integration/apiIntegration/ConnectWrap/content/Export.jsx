@@ -1,11 +1,11 @@
-import React, { useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { Dialog, LoadDiv, Checkbox } from 'ming-ui';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Checkbox, Dialog, LoadDiv } from 'ming-ui';
 import AppManagement from 'src/pages/workflow/api/ApiManagement.js';
-import APITable from 'src/pages/integration/components/APITable.jsx';
 import PackageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import APITable from 'src/pages/integration/components/APITable.jsx';
 
 const Wrap = styled.div`
   .exportBottomOption {
@@ -105,7 +105,7 @@ export default function ExportDialog(props) {
         id: info.id,
       },
       { isIntegration: true },
-    ).then(res => {
+    ).then(() => {
       onClose();
     });
   };

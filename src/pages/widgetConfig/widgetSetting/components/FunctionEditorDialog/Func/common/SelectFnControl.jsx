@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { func, arrayOf, shape, string } from 'prop-types';
-import FnList from './FnList';
 import ControlList from './ControlList';
+import FnList from './FnList';
 
 const Con = styled.div`
   height: 100%;

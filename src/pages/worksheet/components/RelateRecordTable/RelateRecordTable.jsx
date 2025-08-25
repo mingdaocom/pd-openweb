@@ -1,18 +1,18 @@
-import React, { Fragment, useCallback, useEffect, useRef, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { useKey } from 'react-use';
 import { Skeleton } from 'antd';
 import cx from 'classnames';
-import { connect } from 'react-redux';
+import { get, isFunction, isUndefined } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
-import { useKey } from 'react-use';
-import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
-import TableComp from './TableComp';
-import Operate from './Operate';
-import * as actions from './redux/action';
-import { get, isFunction, isUndefined, pick } from 'lodash';
-import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
+import { openRecordInfo } from 'worksheet/common/recordInfo';
+import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
+import Operate from './Operate';
+import * as actions from './redux/action';
+import TableComp from './TableComp';
 
 const TableCon = styled.div`
   &.userSelectNone {
@@ -50,17 +50,6 @@ function RelateRecordTable(props) {
   const { updateWorksheetControls } = props;
   const { updateRecord, deleteRecords, refresh, updateBase, updateTableConfigByControl } = props;
   const { isTab, isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
-  if (loading) {
-    return tableState.error ? (
-      <ErrorStatus>{tableState.error}</ErrorStatus>
-    ) : (
-      <Skeleton
-        style={{
-          ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
-        }}
-      />
-    );
-  }
   const tableCache = useRef({});
   const tableConRef = useRef();
   const [tableId] = useState(v4());
@@ -85,7 +74,7 @@ function RelateRecordTable(props) {
         relationWorksheetId: base.worksheetId,
         rules: relateWorksheetInfo.rules,
         isDraft,
-        updateRows: ([rowid], newRecord) => {
+        updateRows: (ids, newRecord) => {
           updateRecord(newRecord);
         },
         projectId: relateWorksheetInfo.projectId,
@@ -99,7 +88,7 @@ function RelateRecordTable(props) {
         },
       });
     },
-    [control.controlId, records],
+    [control.controlId, records, relateWorksheetInfo],
   );
   useEffect(() => {
     if (isUndefined(saveSync)) {
@@ -146,6 +135,19 @@ function RelateRecordTable(props) {
       control.addRefreshEvents(control.controlId, refresh);
     }
   }, []);
+
+  if (loading) {
+    return tableState.error ? (
+      <ErrorStatus>{tableState.error}</ErrorStatus>
+    ) : (
+      <Skeleton
+        style={{
+          ...(isSplit && { overflow: 'auto', padding: '0 24px' }),
+        }}
+      />
+    );
+  }
+
   return (
     <Fragment>
       {

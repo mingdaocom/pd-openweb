@@ -1,9 +1,8 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { className } from 'twemoji';
 import { validate } from 'uuid';
 import { getTitleControlId, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
@@ -105,7 +104,6 @@ function click(func) {
 export default function RecordCoverCard(props) {
   const {
     className,
-    from,
     hideTitle,
     disabled,
     showAddAsDropdown,
@@ -134,7 +132,12 @@ export default function RecordCoverCard(props) {
   const titleMasked =
     titleControl &&
     _.get(titleControl, 'advancedSetting.datamask') === '1' &&
-    _.get(titleControl, 'advancedSetting.isdecrypt') === '1';
+    _.get(titleControl, 'advancedSetting.isdecrypt') === '1' &&
+    !(
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage') ||
+      _.get(window, 'shareState.isPublicRecord')
+    );
   const recordCardStyle = getRecordCardStyle(parentControl);
   const title =
     props.title ||

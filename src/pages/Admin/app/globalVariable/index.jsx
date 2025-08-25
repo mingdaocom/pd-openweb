@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import variableApi from 'src/api/variable';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import './index.less';
-import _ from 'lodash';
 import GlobalVarLeft from './components/GlobalVarLeft';
 import GlobalVarRight from './components/GlobalVarRight';
-import variableApi from 'src/api/variable';
 import { REFRESH_TYPE } from './constant';
+import './index.less';
 
 export default function GlobalVariable(props) {
   const projectId = props.match.params.projectId;

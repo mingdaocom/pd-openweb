@@ -69,9 +69,9 @@ const Wrap = styled.div`
     &.isCurrent {
       background: #e3f2fe;
       a {
-        color: #2196f3;
+        color: #1677ff;
         i {
-          color: #2196f3;
+          color: #1677ff;
         }
         .upgradeIcon {
           color: #fdb432 !important;

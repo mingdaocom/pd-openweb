@@ -13,7 +13,7 @@ function ButtonTabs(props) {
 
   return (
     <AnimationWrap className={cx(className, { disabled: disabled })} style={style}>
-      {data.map((item, index) => {
+      {data.map(item => {
         return (
           <li
             className={cx('animaItem overflow_ellipsis', { active: value === item.value })}

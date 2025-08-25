@@ -1,6 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
+import _ from 'lodash';
 import moment from 'moment';
+import styled from 'styled-components';
 
 const TimeZone = styled.div`
   font-family: Arial Narrow;

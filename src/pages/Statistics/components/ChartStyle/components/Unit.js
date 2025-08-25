@@ -90,10 +90,9 @@ class Unit extends Component {
       roundType,
       dotFormat,
       ydot,
-      dot,
+      thousandth = true,
       suffix,
       fixType,
-      controlType,
       showNumber = true,
       percent = {},
     } = data;
@@ -135,6 +134,18 @@ class Unit extends Component {
                   </Select.Option>
                 ))}
               </Select>
+            </div>
+            <div className="flexRow valignWrapper mBottom15">
+              <Checkbox
+                className="flexRow"
+                checked={thousandth}
+                onChange={e => {
+                  const { checked } = e.target;
+                  this.handleChangeYaxis('thousandth', checked, data);
+                }}
+              >
+                {_l('显示千分位')}
+              </Checkbox>
             </div>
             <div className="mBottom15">
               <div className="mBottom8">{_l('保留小数')}</div>
@@ -195,10 +206,11 @@ class Unit extends Component {
                   title={_l(
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                   )}
+                  autoCloseDelay={0}
                   placement="bottom"
                   arrowPointAtCenter
                 >
-                  <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                  <Icon className="Gray_9e Font18 pointer" icon="info" />
                 </Tooltip>
               </div>
             </div>
@@ -373,10 +385,11 @@ class Unit extends Component {
                       title={_l(
                         '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                       )}
+                      autoCloseDelay={0}
                       placement="bottom"
                       arrowPointAtCenter
                     >
-                      <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                      <Icon className="Gray_9e Font18 pointer" icon="info" />
                     </Tooltip>
                   </div>
                 </div>

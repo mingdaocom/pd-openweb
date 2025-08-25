@@ -1,15 +1,16 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import cx from 'classnames';
-import { Checkbox } from 'ming-ui';
+import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
-import update from 'immutability-helper';
 import { Dropdown, Input } from 'antd';
-import { keys, includes, isEmpty, findIndex } from 'lodash';
-import { DropdownContent, DropdownPlaceholder } from '../../../styled';
-import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import cx from 'classnames';
+import update from 'immutability-helper';
+import { findIndex, includes, isEmpty, keys } from 'lodash';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox } from 'ming-ui';
 import { compareWithTime } from 'src/components/newCustomFields/tools/formUtils';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { DropdownContent, DropdownPlaceholder } from '../../../styled';
 
 const WeekWrap = styled(DropdownContent)`
   max-height: 280px;
@@ -89,7 +90,7 @@ export default function DateVerify({ data, onChange }) {
   };
   const handleTimeChange = (e, key) => {
     let value = e.target.value.trim();
-    const reg = /^\D*(?:\d{0,2}(?:\:\d{0,2})?)$/;
+    const reg = /^\D*(?:\d{0,2}(?::\d{0,2})?)$/;
     if (value === '' || reg.test(value)) {
       setTime({ [key]: value });
     }
@@ -147,11 +148,11 @@ export default function DateVerify({ data, onChange }) {
               onVisibleChange={visible => setVisible({ weekVisible: visible })}
               overlay={
                 <WeekWrap onClick={e => e.stopPropagation()}>
-                  {keys(WEEKDAYS).map((key, index) => (
+                  {keys(WEEKDAYS).map(key => (
                     <div key={key} className="weekItem">
                       <Checkbox
                         checked={includes(allowweek, key)}
-                        onClick={checked =>
+                        onClick={() =>
                           onChange(
                             handleAdvancedSettingChange(data, {
                               allowweek: handleWeekChange(key),

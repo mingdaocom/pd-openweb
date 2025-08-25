@@ -1,4 +1,4 @@
-import { Collapse } from 'antd';
+import { Collapse, Drawer } from 'antd';
 import styled from 'styled-components';
 
 export const SettingCollapseWrap = styled(Collapse)`
@@ -40,5 +40,17 @@ export const SettingCollapseWrap = styled(Collapse)`
         justify-content: space-between;
       }
     }
+  }
+`;
+
+export const DrawerWrap = styled(Drawer)`
+  position: absolute !important;
+  padding-top: 50px !important;
+  .ant-drawer-header {
+    display: none;
+  }
+  .ant-drawer-body {
+    padding: 0 !important;
+    font-size: unset !important;
   }
 `;

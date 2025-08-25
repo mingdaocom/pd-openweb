@@ -55,7 +55,7 @@ export default class Formula extends Component {
     this.getNodeDetail(this.props);
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.selectNodeId !== this.props.selectNodeId) {
       this.setState({ isFocus: false });
       this.getNodeDetail(nextProps);
@@ -433,7 +433,7 @@ export default class Formula extends Component {
               '如：可以将 2008/11/11 12:23 格式化为“日期”，以2008/11/11参与运算。+8h后，得到时间结果：2008/11/11 8:00',
             )}
           >
-            <i className="icon-novice-circle" />
+            <i className="icon-help" />
           </span>
         </div>
 
@@ -452,6 +452,7 @@ export default class Formula extends Component {
         <div className="mTop10 Gray_75">
           {_l('输入你想要 添加/减去 的时间。如：+8h+1m，+1M-12d, -1d+8h。当使用数值字段运算时，请不要忘记输入单位。')}
           <Tooltip
+            autoCloseDelay={0}
             title={() => {
               return (
                 <Fragment>
@@ -835,11 +836,14 @@ export default class Formula extends Component {
             <div className="mTop20 bold">{_l('筛选条件')}</div>
             <div className="Gray_75 mTop5 flexRow alignItemsCenter">
               {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获取所有数据')}
-              <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
-                <i className="icon-knowledge-message Font16 mLeft5 Gray_9e" />
+              <Tooltip
+                autoCloseDelay={0}
+                title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}
+              >
+                <i className="icon-info Font16 mLeft5 Gray_9e" />
               </Tooltip>
             </div>
-            {!!data.filters.length ? (
+            {data.filters.length ? (
               <TriggerCondition
                 projectId={this.props.companyId}
                 relationId={this.props.relationId}
@@ -1024,7 +1028,7 @@ export default class Formula extends Component {
           bg="BGGreen"
           updateSource={this.updateSource}
         />
-        <div className="flex">
+        <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
               {data.actionId === ACTION_ID.NUMBER_FORMULA && this.renderNumberContent()}

@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import SelectOptions from '../components/OptionList/SelectOptions';
-import DisplayOptions from '../components/OptionList/DisplayOptions';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import { isCustomWidget } from '../../util';
+import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import DisplayOptions from '../components/OptionList/DisplayOptions';
+import SelectOptions from '../components/OptionList/SelectOptions';
 
 const OPTIONS_DISPLAY = [
   {

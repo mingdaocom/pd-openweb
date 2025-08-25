@@ -24,7 +24,7 @@ class RowBtnList extends React.Component {
         return <Icon icon={data.icon} style={{ color: data.color }} className={cx('mRight12 Font18 InlineFlex')} />;
       }
       if (key === 'btn') {
-        const { color, icon, name, iconUrl } = data;
+        const { color, icon, iconUrl } = data;
         return (
           <React.Fragment>
             {!!iconUrl && !!icon && icon.endsWith('_svg') ? (
@@ -32,7 +32,7 @@ class RowBtnList extends React.Component {
                 className="mRight12 svgIconForBtn InlineFlex"
                 addClassName="TxtMiddle"
                 url={iconUrl}
-                fill={!color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
+                fill={!color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
                 size={18}
               />
             ) : (

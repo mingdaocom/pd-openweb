@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { getCurrentProject } from 'src/utils/project';
 import './index.less';
@@ -8,20 +9,13 @@ import './index.less';
 export default function SelectProject(props) {
   const { changeProject = () => {} } = props;
   let actionSheetHandler = null;
+  const projects = md.global.Account.projects.concat([{ companyName: _l('外部协作'), projectId: 'external' }]);
   const projectObj = getCurrentProject(
     localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
   );
 
   const [currentProject, setCurrentProject] = useState(
     !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') },
-  );
-  const [projects, setProjects] = useState(
-    md.global.Account.projects.concat([
-      {
-        companyName: _l('外部协作'),
-        projectId: 'external',
-      },
-    ]),
   );
 
   useEffect(() => {

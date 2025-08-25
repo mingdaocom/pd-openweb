@@ -331,7 +331,7 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
     const getStyle = () => {
       if (item.type === 'tendencyLine' && controlId) {
         const index = _.findIndex(yaxisList, { controlId: item.controlId });
-        const color = colors[index] || '#2196F3';
+        const color = colors[index] || '#1677ff';
         return {
           stroke: color,
           ...getLineStyle(item.style),
@@ -397,7 +397,7 @@ export const LegendTypeData = [
 /**
  * 自动添加数量级
  */
-export const abbreviateNumber = (value, dot, formatValue = toFixed) => {
+export const abbreviateNumber = (value, dot = '', formatValue = toFixed) => {
   const absValue = Math.abs(value);
   if (window.getCurrentLang() === 'en') {
     if (absValue >= 1000000000) {
@@ -593,7 +593,7 @@ export const formatControlValueDot = (value, data) => {
     return value;
   }
 
-  const { magnitude, roundType = 2, dotFormat = '1', suffix, dot, controlId, fixType, advancedSetting } = data;
+  const { magnitude, roundType = 2, dotFormat = '1', suffix, thousandth = true, dot, controlId, fixType } = data;
   const isRecordCount = controlId === 'record_count';
   const ydot = Number(data.ydot);
   const formatValue = (value, dot) => {
@@ -601,7 +601,7 @@ export const formatControlValueDot = (value, data) => {
   };
   const formatThousandth = (value = '') => {
     value = value.toString();
-    return formatNumberThousand(value);
+    return thousandth ? formatNumberThousand(value) : value;
   };
   const { format } = _.find(numberLevel, { value: magnitude || 0 });
   if (magnitude === 0) {
@@ -661,7 +661,7 @@ export const formatrChartAxisValue = (value, isPerPile, yaxisList) => {
     if (_.isEmpty(yaxisList)) {
       return value;
     }
-    const { magnitude, ydot, suffix, dot, fixType } = yaxisList[0];
+    const { magnitude, ydot, suffix, fixType } = yaxisList[0];
     const { format } = _.find(numberLevel, { value: magnitude || 0 });
     if ([7, 8].includes(magnitude)) {
       const result = toFixed(format(value), ydot);
@@ -913,11 +913,6 @@ export const getControlPercentValue = (map, id, value) => {
   const valueRes = (mapRes.length ? mapRes : map).map(m => m.value).sort((a, b) => a - b);
   const index = Math.floor((value / 100) * valueRes.length);
   return valueRes[index >= valueRes.length ? valueRes.length - 1 : index];
-};
-
-const getPercentValue = (arr, value) => {
-  const index = Math.floor((value / 100) * arr.length);
-  return arr[index >= arr.length ? arr.length - 1 : index];
 };
 
 export const getEmptyChartData = reportData => {

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Input } from 'antd';
-import { Dialog } from 'ming-ui';
 import cx from 'classnames';
-import './ErrorMsg.less';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
+import './ErrorMsg.less';
+
 const { TextArea } = Input;
 
 class ErrorMsg extends Component {

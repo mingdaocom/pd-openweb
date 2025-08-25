@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { Icon, Dialog } from 'ming-ui';
 import { Select } from 'antd';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
 
 const DropdownWrap = styled.div`
   padding: 8px 0;

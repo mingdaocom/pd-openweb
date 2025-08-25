@@ -1,27 +1,27 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Dropdown, Menu, MenuItem, LoadDiv, Tooltip, RadioGroup } from 'ming-ui';
-import Trigger from 'rc-trigger';
-import { SearchWorksheetWrap, WorksheetListWrap } from '../DynamicDefaultValue/styled';
-import { SettingItem } from 'src/pages/widgetConfig/styled';
-import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
-import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import SelectWorksheet from './SelectWorksheet';
-import homeAppAjax from 'src/api/homeApp';
-import worksheetAjax from 'src/api/worksheet';
-import SelectControl from '../SelectControl';
-import { getControls } from '../DynamicDefaultValue/util';
-import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
-import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
-import { SYS_CONTROLS, FORM_HIDDEN_CONTROL_IDS, ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget.js';
-import 'src/pages/widgetConfig/styled/style.less';
 import cx from 'classnames';
 import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import { Dialog, Dropdown, LoadDiv, Menu, MenuItem, RadioGroup, Tooltip } from 'ming-ui';
+import homeAppAjax from 'src/api/homeApp';
+import worksheetAjax from 'src/api/worksheet';
+import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
+import { FORM_HIDDEN_CONTROL_IDS, ROW_ID_CONTROL, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget.js';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
+import 'src/pages/widgetConfig/styled/style.less';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
-import { RESULT_DISPLAY } from '../CustomEvent/config';
+import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
+import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
+import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { RESULT_DISPLAY } from '../CustomEvent/config';
 import { DYNAMIC_FROM_MODE } from '../DynamicDefaultValue/config';
+import { SearchWorksheetWrap, WorksheetListWrap } from '../DynamicDefaultValue/styled';
+import { getControls } from '../DynamicDefaultValue/util';
 import EmptyRuleConfig from '../EmptyRuleConfig';
+import SelectControl from '../SelectControl';
+import SelectWorksheet from './SelectWorksheet';
 
 const RadioDisplay = [
   {
@@ -361,7 +361,7 @@ export default class SearchWorksheetDialog extends Component {
                   })
                 }
               >
-                <i className="icon-delete1 Font17 Gray_9d ThemeHoverColor3"></i>
+                <i className="icon-trash Font17 Gray_9d ThemeHoverColor3"></i>
               </span>
             </div>
           );
@@ -422,10 +422,10 @@ export default class SearchWorksheetDialog extends Component {
       eventKey === 'filters'
         ? !sheetId || checkFilters
         : normalField
-        ? !sheetId || checkFilters || _.isEmpty(configs)
-        : selfRelate
-        ? checkFilters
-        : !sheetId || checkFilters || checkConfigs;
+          ? !sheetId || checkFilters || _.isEmpty(configs)
+          : selfRelate
+            ? checkFilters
+            : !sheetId || checkFilters || checkConfigs;
 
     const isDelete =
       _.get(configs[0] || {}, 'subCid') &&

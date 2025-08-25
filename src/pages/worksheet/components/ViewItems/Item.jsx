@@ -9,8 +9,8 @@ import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/const
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import SettingMenu from './SettingMenu';
-import './ViewItems.less';
 import 'rc-trigger/assets/index.css';
+import './ViewItems.less';
 
 export default class Item extends Component {
   static defaultProps = {
@@ -93,16 +93,7 @@ export default class Item extends Component {
     });
   };
   render() {
-    const {
-      appId,
-      item,
-      currentViewId,
-      isCharge,
-      sheetSwitchPermit,
-      currentView,
-      getNavigateUrl,
-      fixed = false,
-    } = this.props;
+    const { appId, item, currentViewId, isCharge, getNavigateUrl, fixed = false } = this.props;
     const { isEdit } = this.state;
 
     const customViewDebugUrl = window.localStorage.getItem(`customViewDebugUrl_${item.viewId}`);
@@ -133,6 +124,7 @@ export default class Item extends Component {
         >
           {showWidgetDebugIcon && (
             <Tooltip
+              autoCloseDelay={0}
               text={
                 customViewDebugUrl
                   ? _l('开发调试中，本地脚本: %0', customViewDebugUrl)

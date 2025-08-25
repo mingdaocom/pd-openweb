@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { JSONPath } from 'jsonpath-plus';
-import { getControlTypeName } from '../../../utils';
 import _ from 'lodash';
+import { getControlTypeName } from '../../../utils';
 
 export default ({ list, isIntegration = false, json }) => {
   const renderList = source => {
     return source.map((item, i) => {
-      if (item.dataSource && _.find(list, o => o.controlId === item.dataSource).type === 10000007) {
+      if (item.dataSource && (_.find(list, o => o.controlId === item.dataSource) || {}).type === 10000007) {
         return null;
       }
 
@@ -16,7 +16,7 @@ export default ({ list, isIntegration = false, json }) => {
           <li className="flexRow" key={i}>
             <div className={cx('w180 ellipsis', { pLeft20: item.dataSource })}>{item.controlName || ''}</div>
             {isIntegration && <div className="w120 ellipsis">{getControlTypeName(item)}</div>}
-            <div className={cx('mLeft15 flex', { ellipsis: !isIntegration })} style={{ minWidth: 0 }}>
+            <div className={cx('mLeft15 flex WordBreak', { ellipsis: !isIntegration })} style={{ minWidth: 0 }}>
               {isIntegration ? item.desc : renderParameters(item)}
             </div>
           </li>
@@ -38,7 +38,7 @@ export default ({ list, isIntegration = false, json }) => {
     }
 
     try {
-      let result = JSONPath({ path: jsonPath.replace(/\.(\d[^\.]*)/g, `['$1']`), json: JSON.parse(json) });
+      let result = JSONPath({ path: jsonPath.replace(/\.(\d[^.]*)/g, `['$1']`), json: JSON.parse(json) });
 
       // 文本
       if (type === 2) {
@@ -123,6 +123,8 @@ export default ({ list, isIntegration = false, json }) => {
 
       return _.isObject(result) ? JSON.stringify(result) : result;
     } catch (e) {
+      console.log(e);
+
       return <span className="Gray_75">{_l('暂无结果')}</span>;
     }
   };

@@ -18,13 +18,14 @@ const getMapViewPara = (sheet = {}, view) => {
     worksheetId: worksheetId,
     navGroupFilters,
     pageIndex: 1,
-    pageSize: 200,
+    pageSize: 1000,
     ...sheet.filters,
     fastFilters: formatQuickFilter(quickFilter),
+    langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
   });
 };
 
-function getMapViewData({ para, dispatch, mapViewRequestKey }, sheet) {
+function getMapViewData({ para, dispatch, mapViewRequestKey }) {
   if (mapViewRequestKey && !!mapViewRequest[mapViewRequestKey] && !!mapViewRequest[mapViewRequestKey].abort) {
     mapViewRequest[mapViewRequestKey].abort();
   }
@@ -32,7 +33,7 @@ function getMapViewData({ para, dispatch, mapViewRequestKey }, sheet) {
   const mapRequest = worksheetAjax.getFilterRows(para);
   mapViewRequestKey && (mapViewRequest[mapViewRequestKey] = mapRequest);
 
-  mapRequest.then(({ data, resultCode }) => {
+  mapRequest.then(({ data }) => {
     mapViewRequestKey && (mapViewRequest[mapViewRequestKey] = null);
 
     dispatch({
@@ -52,7 +53,7 @@ function getMapViewData({ para, dispatch, mapViewRequestKey }, sheet) {
 
 export function initMapViewData(view, refreshMap = false, mapViewRequestKey) {
   return (dispatch, getState) => {
-    const { sheet, mobile } = getState();
+    const { sheet } = getState();
     const para = getMapViewPara(sheet, view);
 
     if (!para) return;
@@ -75,7 +76,7 @@ export function initMapViewData(view, refreshMap = false, mapViewRequestKey) {
 
 export function mapNavGroupFiltersUpdate(navGroupFilters, view) {
   return (dispatch, getState) => {
-    const { sheet, mobile } = getState();
+    const { sheet } = getState();
     const para = getMapViewPara(sheet, view);
     const preNavGroupFilters = _.get(sheet, 'mapView.mapViewState.navGroupFilters') || [];
 

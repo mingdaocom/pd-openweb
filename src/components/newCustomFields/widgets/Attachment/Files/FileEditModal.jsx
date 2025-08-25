@@ -1,7 +1,8 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Icon } from 'ming-ui';
-import { Modal, Button, ConfigProvider } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Button, ConfigProvider, Modal } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import Files from './index';
 
 const Footer = styled.div`
@@ -31,16 +32,14 @@ export default props => {
 
   useEffect(() => {
     onChangeAttachmentData(filesProps.attachmentData);
+    setFlag(Date.now());
   }, [filesProps.attachmentData]);
 
   const renderFooter = () => {
     return (
       <ConfigProvider autoInsertSpaceInButton={false}>
         <Footer className="mTop5 mBottom5">
-          <Button
-            type="link"
-            onClick={onCancel}
-          >
+          <Button type="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button
@@ -60,7 +59,7 @@ export default props => {
         </Footer>
       </ConfigProvider>
     );
-  }
+  };
 
   return (
     <Modal
@@ -70,7 +69,7 @@ export default props => {
       centered={true}
       destroyOnClose={true}
       closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
-      footer={(isShare || !filesProps.attachmentData.length) ? null : renderFooter()}
+      footer={isShare || !filesProps.attachmentData.length ? null : renderFooter()}
       onCancel={onCancel}
     >
       <Files
@@ -84,11 +83,11 @@ export default props => {
         attachmentData={attachmentData}
         // onChangeAttachments={onChangeAttachments}
         // onChangeKnowledgeAtts={onChangeKnowledgeAtts}
-        onChangeAttachmentData={(res) => {
-          setFlag(res);
+        onChangeAttachmentData={res => {
           onChangeAttachmentData(res);
+          setFlag(Date.now());
         }}
       />
     </Modal>
   );
-}
+};

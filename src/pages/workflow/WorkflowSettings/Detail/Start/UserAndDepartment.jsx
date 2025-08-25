@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { TRIGGER_ID } from '../../enum';
 import { Radio } from 'ming-ui';
+import { TRIGGER_ID } from '../../enum';
 import { TriggerCondition } from '../components';
 
 export default ({ data, updateSource, processId, selectNodeId, companyId, renderConditionBtn, relationId }) => {
@@ -57,7 +57,7 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
                 data-tip={_l('包括用户自行注销或被管理员注销')}
                 style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}
               >
-                <i className="Font14 icon-workflow_help Gray_9e" />
+                <i className="Font14 icon-help Gray_9e" />
               </span>
             )}
           </div>

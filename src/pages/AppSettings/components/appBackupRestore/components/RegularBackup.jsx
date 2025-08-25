@@ -42,30 +42,6 @@ const RegularBackupWrap = styled.div`
   }
 `;
 
-const TabWrap = styled.div`
-  display: flex;
-  padding: 2px;
-  background: #f0f0f0;
-  border-radius: 3px;
-  .tabItem {
-    height: 24px;
-    border-radius: 3px;
-    display: flex;
-    -webkit-align-items: center;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #757575;
-    flex: 1;
-  }
-  .active {
-    color: #1e88e5;
-    background-color: #fff;
-  }
-`;
-
 const DaySelectWrap = styled.div`
   width: 240px;
   height: 190px;

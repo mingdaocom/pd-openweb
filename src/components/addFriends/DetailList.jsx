@@ -185,7 +185,11 @@ export default class DetailList extends Component {
 
     return (
       <div className="addFriendsContent pTop0">
-        <ScrollView className="flex ViewDeatil" onScrollEnd={this.searchDataList}>
+        <ScrollView
+          className="flex ViewDeatil"
+          options={{ scrollbars: { visibility: 'hidden' } }}
+          onScrollEnd={this.searchDataList}
+        >
           {list.map(item => (detailMode === 1 ? this.renderLinkList(item) : this.renderInviteList(item)))}
           {loading && (
             <div className="flexRow alignItemsCenter justifyContentCenter">

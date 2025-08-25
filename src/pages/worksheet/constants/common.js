@@ -1,9 +1,9 @@
-import sheetAjax from 'src/api/worksheet';
-import moment from 'moment';
-import { navigateTo } from 'src/router/navigateTo';
-import { formatTemporaryData, formatKcAttachmentData } from 'src/components/UploadFiles/utils.js';
-import { WORKSHEET_ROLE_TYPE, SUB_PERMISSION_NAME, ROW_HEIGHT, VIEW_DISPLAY_TYPE } from './enum';
 import _ from 'lodash';
+import moment from 'moment';
+import sheetAjax from 'src/api/worksheet';
+import { formatKcAttachmentData, formatTemporaryData } from 'src/components/UploadFiles/utils.js';
+import { navigateTo } from 'src/router/navigateTo';
+import { SUB_PERMISSION_NAME, VIEW_DISPLAY_TYPE } from './enum';
 
 // 进入配置控件页面参数处理
 export const getCustomWidgetUri = function ({ sourceName, templateId, sourceId, projectId, appconfig = {} }) {
@@ -157,7 +157,7 @@ export const getControlValue = function (controlItem) {
       };
       const fileData = controlItem.value ? JSON.parse(controlItem.value) : {};
       if (fileData && fileData.map) {
-        fileData.map((_file, i, list) => {
+        fileData.map(_file => {
           if (_file.refType) {
             value.knowledgeAtts.push(_file);
           } else {
@@ -178,6 +178,7 @@ export const getControlValue = function (controlItem) {
               })
             : '';
         } catch (error) {
+          console.log(error);
           return controlItem.value.split(',').filter(item => item).length > 0
             ? controlItem.value.split(',').map(item => {
                 return item || '';

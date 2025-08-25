@@ -1,10 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import './style.less';
-import DateTimePicker from 'ming-ui/components/NewDateTimePicker/date-time-picker';
-import LibCalender from '../lib/calender';
-import PositionContainer from 'ming-ui/components/PositionContainer';
 import moment from 'moment';
+import PropTypes from 'prop-types';
+import DateTimePicker from 'ming-ui/components/NewDateTimePicker/date-time-picker';
+import PositionContainer from 'ming-ui/components/PositionContainer';
+import LibCalender from '../lib/calender';
+import './style.less';
 
 class DateTime extends Component {
   constructor(props) {
@@ -82,13 +82,11 @@ class DateTime extends Component {
       newValue = value;
       label = LibCalender.formatTime(value, mode, this.props.timeMode);
     }
-    this.setState(
-      {
-        value: newValue,
-        label,
-        menuOpened: false,
-      }
-    );
+    this.setState({
+      value: newValue,
+      label,
+      menuOpened: false,
+    });
   };
 
   render() {
@@ -104,7 +102,7 @@ class DateTime extends Component {
     const pickerClassNames = pickerClassList.join(' ');
     let button = (
       <span
-        ref={(picker) => {
+        ref={picker => {
           this._picker = picker;
         }}
         className={pickerClassNames}
@@ -117,7 +115,7 @@ class DateTime extends Component {
     if (this.props.children) {
       button = (
         <span
-          ref={(picker) => {
+          ref={picker => {
             this._picker = picker;
           }}
           className={pickerClassNames}
@@ -134,7 +132,7 @@ class DateTime extends Component {
         {button}
         <PositionContainer
           popupParentNode={this.props.popupParentNode}
-          placement={this.props.placement || "bottom"}
+          placement={this.props.placement || 'bottom'}
           bounding={this.state.bounding}
           visible={this.state.menuOpened}
           offset={this.props.offset}
@@ -225,7 +223,7 @@ DateTime.propTypes = {
   /**
    * 偏移
    */
-   offset: PropTypes.shape({}),
+  offset: PropTypes.shape({}),
   /**
    * 指定弹层创建的位置，默认是body下
    */
@@ -258,15 +256,9 @@ DateTime.defaultProps = {
   defaultVisible: false,
   disabled: false,
   placement: 'bottom',
-  onOk: (time) => {
-    //
-  },
-  onClear: () => {
-    //
-  },
-  onSelect: (time) => {
-    //
-  },
+  onOk: () => {},
+  onClear: () => {},
+  onSelect: () => {},
 };
 
 export default DateTime;

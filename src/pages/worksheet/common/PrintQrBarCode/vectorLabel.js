@@ -2,7 +2,7 @@ import QRCode from '@mdfe/qrcode-base';
 import JsBarcode from 'jsbarcode';
 import loadScript from 'load-script';
 import localForage from 'localforage';
-import { get } from 'lodash';
+import _, { get } from 'lodash';
 import {
   BAR_POSITION,
   LANDSCAPE_QR_CODE_SIZE,
@@ -394,7 +394,7 @@ export default class Label {
   getCompressedFontSize(value, width) {
     let count = 0;
     value.split('').forEach(char => {
-      count += /[\x00-\x7F]/.test(char) ? 1.2 : 2;
+      count += /[0x00-0x7F]/.test(char) ? 1.2 : 2;
     });
     return (width / count) * 2;
   }
@@ -483,7 +483,7 @@ export default class Label {
   }
   renderQrCode(qrValue) {
     if (!qrValue) return;
-    const { codeFaultTolerance, layout } = this.options;
+    const { codeFaultTolerance } = this.options;
     const { left, top, width, height } = this.getQrCodePosition();
     // this.doc
     //   .fillColor('#FFFFFF')
@@ -501,7 +501,7 @@ export default class Label {
       width: mmToPt(width),
       height: mmToPt(height),
       correctLevel: codeFaultTolerance || 1,
-      renderCell: ({ x, y, w, h, isDark, color }) => {
+      renderCell: ({ x, y, w, h, isDark }) => {
         this.doc.rect(mmToPt(left) + x, mmToPt(top) + y, w, h);
         if (isDark) {
           this.doc.fill('#151515');
@@ -513,7 +513,7 @@ export default class Label {
   }
   getBlobUrl() {
     const stream = this.stream;
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.doc.end();
       stream.on('finish', function () {
         resolve(stream.toBlobURL('application/pdf'));
@@ -523,7 +523,6 @@ export default class Label {
 }
 
 export async function generateLabelPdf(config = {}) {
-  const {} = config;
   let width, height;
   if (config.labelSize === QR_LABEL_SIZE.CUSTOM) {
     width = config.labelCustomWidth;

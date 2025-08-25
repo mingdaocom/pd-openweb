@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { SettingItem } from '../../styled';
-import { RichText, Icon } from 'ming-ui';
 import { Modal } from 'antd';
-import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
-import styled from 'styled-components';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Icon, RichText } from 'ming-ui';
+import EditIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro';
+import { SettingItem } from '../../styled';
 
 const Wrap = styled.div`
   .fieldEditorRemark {
@@ -19,7 +19,7 @@ const Wrap = styled.div`
     .ck .ck-content {
       border: 1px solid #dddddd !important;
       &:hover {
-        border: 1px solid #2196f3 !important;
+        border: 1px solid #1677ff !important;
       }
     }
   }
@@ -40,7 +40,7 @@ export default function Remark({ data, onChange }) {
             minHeight={45}
             maxHeight={500}
             placeholder={_l('点击设置备注')}
-            onClickNull={e => {
+            onClickNull={() => {
               setShow(true);
             }}
           />

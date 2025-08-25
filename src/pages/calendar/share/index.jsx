@@ -296,7 +296,6 @@ class CalendarShare extends Component {
   }
 
   bindEvents() {
-    const _this = this;
     const settings = this.settings;
 
     // 退出日程
@@ -316,9 +315,7 @@ class CalendarShare extends Component {
               if (source.code === 1) {
                 $('#leaveBox').addClass('hide');
                 $('#joinBox').removeClass('hide');
-                $('#calendarMain header')
-                  .html('日程')
-                  .removeClass('joinStyle');
+                $('#calendarMain header').html('日程').removeClass('joinStyle');
                 $('#memberList span[data-thirdid=' + settings.thirdID + ']').remove();
                 $('#memberList').html(
                   $('#memberList')
@@ -353,9 +350,7 @@ class CalendarShare extends Component {
             if (source.code === 1) {
               $('#joinBox').addClass('hide');
               $('#leaveBox').removeClass('hide');
-              $('#calendarMain header')
-                .html('日程（已加入）')
-                .addClass('joinStyle');
+              $('#calendarMain header').html('日程（已加入）').addClass('joinStyle');
               $('#memberList')
                 .append('，<span data-thirdid="' + settings.thirdID + '">' + htmlEncodeReg(source.data) + '</span>')
                 .html(

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown } from 'ming-ui';
 import fixedDataApi from 'src/api/fixedData';
 import homeAppApi from 'src/api/homeApp';
-import _ from 'lodash';
 
 const AppTimeZoneDropdown = styled(Dropdown)`
   width: 500px;

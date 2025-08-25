@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+
 export const loading = (state = false, action) => {
   switch (action.type) {
     case 'UPDATE_LOADING':

@@ -29,7 +29,7 @@ import {
   getLeftMenuCount,
   taskTreeAfterDeleteTask,
 } from '../../../utils/taskComm';
-import { checkIsProject, taskStatusDialog } from '../../../utils/utils';
+import { checkIsProject, errorMessage, taskStatusDialog } from '../../../utils/utils';
 import CopyTask from '../copyTask/copyTask';
 import './header.less';
 
@@ -126,9 +126,9 @@ class Header extends Component {
       const visibleHeight = $('.taskDetail .taskDetailContent').height();
       const subTaskHeight = data.subTask.length * 46;
 
-      $('.taskDetailScroll').nanoScroller({
-        scrollTop: fromWhereHeight + basicHeight + subTaskHeight + 200 - visibleHeight / 2,
-      });
+      $('.taskDetailScroll .scroll-viewport')?.scrollTop(
+        fromWhereHeight + basicHeight + subTaskHeight + 200 - visibleHeight / 2,
+      );
       this.props.addSubTask();
     };
 
@@ -284,7 +284,7 @@ class Header extends Component {
         </div>
       ),
       onOk: () => {
-        const deleteAllSubTask = !!data.subTask.length ? this.checkboxRef.current.state.checked : false;
+        const deleteAllSubTask = data.subTask.length ? this.checkboxRef.current.state.checked : false;
 
         if (
           !deleteAllSubTask &&
@@ -353,7 +353,7 @@ class Header extends Component {
         <div className="flex" />
 
         <div className="taskDetailHeaderBtn ThemeColor3" onClick={this.refresh}>
-          <i className="icon-sync Font16" />
+          <i className="icon-loop Font16" />
           {_l('刷新')}
         </div>
 
@@ -374,7 +374,7 @@ class Header extends Component {
             data-tip={_l('关闭后将不再接收此任务消息推送（但仍可收到讨论中@你的消息）')}
             onClick={this.updateTaskNotice}
           >
-            <i className={cx('Font16', data.notice ? 'icon-task-point-more' : 'icon-chat-bell-nopush')} />
+            <i className={cx('Font16', data.notice ? 'icon-more_horiz' : 'icon-chat-bell-nopush')} />
             {data.notice ? _l('已开启提醒') : _l('已关闭提醒')}
           </div>
         )}
@@ -385,7 +385,7 @@ class Header extends Component {
             data-tip={_l('锁定后任务成员将无法完成和修改任务内容（但仍可参与任务讨论）')}
             onClick={this.updateTaskLocked}
           >
-            <i className={cx('Font16', data.locked ? 'icon-task-new-locked' : 'icon-task-new-no-locked')} />
+            <i className={cx('Font16', data.locked ? 'icon-lock' : 'icon-task-new-no-locked')} />
             {data.locked ? _l('已锁定') : _l('未锁定')}
           </div>
         )}
@@ -420,7 +420,7 @@ class Header extends Component {
           >
             {(isCharge || isMember) && (
               <MenuItem
-                icon={<i className="icon-task-list" />}
+                icon={<i className="icon-list" />}
                 onClick={() => this.setState({ showOperator: false, showChecklistDialog: true })}
               >
                 {_l('添加清单')}
@@ -477,12 +477,12 @@ class Header extends Component {
             {data.isTaskMember && <div className="detaiOperatorLine" />}
 
             {data.isTaskMember && data.charge.accountID !== md.global.Account.accountId && (
-              <MenuItem icon={<i className="icon-task-new-exit" />} onClick={this.exitTask}>
+              <MenuItem icon={<i className="icon-groupExit" />} onClick={this.exitTask}>
                 {_l('退出任务')}
               </MenuItem>
             )}
             {isCharge && (
-              <MenuItem icon={<i className="icon-task-new-delete" />} onClick={this.delTask}>
+              <MenuItem icon={<i className="icon-trash" />} onClick={this.delTask}>
                 {_l('删除任务')}
               </MenuItem>
             )}

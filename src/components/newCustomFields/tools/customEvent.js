@@ -17,7 +17,7 @@ import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components
 import { browserIsMobile } from 'src/utils/common';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
 import { getParamsByConfigs } from '../widgets/Search/util.js';
-import { handleUpdateApi } from '../widgets/Search/util.js';
+import { dealAuthAccount, handleUpdateApi } from '../widgets/Search/util.js';
 import { FORM_ERROR_TYPE } from './config.js';
 import { replaceStr } from './formUtils';
 import {
@@ -27,7 +27,7 @@ import {
   getCurrentValue,
   getDynamicValue,
 } from './formUtils.js';
-import { formatControlToServer, isPublicLink } from './utils.js';
+import { formatControlToServer } from './utils.js';
 
 // 显隐、只读编辑等处理
 const dealDataPermission = props => {
@@ -227,7 +227,7 @@ const handleUpdateSearchResult = async props => {
           if (_.includes([29, 35], currentControl.type)) {
             const newVal = getRelateSearchResult(
               currentControl,
-              safeParse(_.get(searchResult[0], [cid]) || '[]'),
+              safeParse(_.get(searchResult[0], [subCid]) || '[]'),
               isMix,
             );
             handleChange(newVal, currentControl.controlId, false);
@@ -309,6 +309,7 @@ const handleUpdateSearchResult = async props => {
     );
     return true;
   } catch (error) {
+    console.log(error);
     return true;
   }
 };
@@ -432,7 +433,7 @@ const handleSearchApi = async props => {
     apkId: appId,
     apiTemplateId: dataSource,
     apiEventId: advancedSetting.apiEventId,
-    authId: advancedSetting.authaccount,
+    authId: dealAuthAccount(advancedSetting.authaccount, apiFormData),
     pushUniqueId: md.global.Config.pushUniqueId,
     actionType,
   };
@@ -471,7 +472,7 @@ const checkFiltersAvailable = async props => {
   const currentSpliceType = _.get(filters, [0, 'spliceType']);
 
   for (const f of filters) {
-    const { valueType, filterItems = [], advancedSetting = {}, dataSource } = f;
+    const { valueType, filterItems = [], advancedSetting = {} } = f;
 
     switch (valueType) {
       // 字段值
@@ -529,10 +530,9 @@ const triggerCustomActions = async props => {
     const { actionType, actionItems = [], message = '', advancedSetting = {}, dataSource } = a;
 
     switch (actionType) {
-      // 显示、隐藏
+      // 显示、隐藏、可编辑、只读
       case ACTION_VALUE_ENUM.SHOW:
       case ACTION_VALUE_ENUM.HIDE:
-      // 可编辑、只读
       case ACTION_VALUE_ENUM.EDIT:
       case ACTION_VALUE_ENUM.READONLY:
         const newRenderData = dealDataPermission({ ...props, actionItems, actionType });
@@ -611,6 +611,7 @@ const triggerCustomActions = async props => {
                           isDefault: true,
                           rows: records,
                           fireWhenLoaded: true,
+                          isSetValueFromEvent: true,
                         };
                       } catch (err) {
                         console.log(err);
@@ -624,6 +625,7 @@ const triggerCustomActions = async props => {
           );
           completeActionsCount += 1;
         } catch (error) {
+          console.log(error);
           completeActionsCount += 1;
         }
         break;
@@ -648,6 +650,7 @@ const triggerCustomActions = async props => {
 
           completeActionsCount += 1;
         } catch (error) {
+          console.log(error);
           completeActionsCount += 1;
         }
         break;
@@ -769,7 +772,7 @@ const triggerCustomActions = async props => {
  * triggerType: 当前触发执行的事件类型
  */
 export const dealCustomEvent = props => {
-  const { triggerType, renderData = [], checkEventComplete } = props;
+  const { triggerType, renderData = [], checkEventComplete, isRecordLock } = props;
   const customEvent = safeParse(_.get(props, 'advancedSetting.custom_event'), 'array');
 
   // 以下情况不生效
@@ -778,7 +781,8 @@ export const dealCustomEvent = props => {
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicPage') ||
     _.get(window, 'shareState.isPublicQuery') ||
-    _.get(window, 'shareState.isPublicPrint')
+    _.get(window, 'shareState.isPublicPrint') ||
+    isRecordLock
   )
     return;
 
@@ -809,7 +813,10 @@ export const dealCustomEvent = props => {
           const completeActionsCount = await triggerCustomActions({ ...props, actions });
           // 执行完成
           if (completeActionsCount === actions.length && isBlurEvent) {
-            checkEventComplete({ [eventId]: false });
+            const eventTimer = setTimeout(() => {
+              checkEventComplete({ [eventId]: false });
+              clearTimeout(eventTimer);
+            }, 0);
           }
           return;
         }

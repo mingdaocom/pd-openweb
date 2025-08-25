@@ -70,7 +70,9 @@ export default class FieldRecycleBin extends Component {
       <Fragment>
         <span>
           <span className="Font17">{_l('回收站（字段）')}</span>
-          <span className="Font13 Gray_9e">{_l('可恢复%0天内删除的字段', md.global.SysSettings.worksheetRowRecycleDays)}</span>
+          <span className="Font13 Gray_9e">
+            {_l('可恢复%0天内删除的字段', md.global.SysSettings.worksheetRowRecycleDays)}
+          </span>
         </span>
         <SearchInput
           className="searchContainer"
@@ -108,7 +110,7 @@ export default class FieldRecycleBin extends Component {
   };
 
   updateStatus = (item, status) => {
-    const { filterList, originList, activeWidget = {}, isComplete } = this.state;
+    const { filterList, activeWidget = {}, isComplete } = this.state;
     const { globalSheetInfo = {}, allControls } = this.props;
 
     if (status === 'recover') {
@@ -234,7 +236,7 @@ export default class FieldRecycleBin extends Component {
       return (
         <div className="FieldRecycleBinTableNull">
           <div className="iconWrap">
-            <Icon icon="custom_-page_delete" />
+            <Icon icon="recycle" />
           </div>
           <div className="emptyExplain">{keywords ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}</div>
         </div>

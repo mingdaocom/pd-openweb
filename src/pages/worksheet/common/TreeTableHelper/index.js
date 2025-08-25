@@ -1,5 +1,4 @@
-import worksheetAjax from 'src/api/worksheet';
-import _, { sortBy, get, find, isUndefined, pickBy, intersection, difference } from 'lodash';
+import _, { difference, find, get, intersection, isUndefined, pickBy, sortBy } from 'lodash';
 
 function getSortedValue(list) {
   return _.map(list, function (num) {
@@ -51,6 +50,7 @@ export function treeDataUpdater(
     noSetRootMapKey = false,
     expandSize,
     levelLimit,
+    pageIndexStart,
   } = {},
 ) {
   let maxLevel = defaultIndex;
@@ -78,6 +78,9 @@ export function treeDataUpdater(
     }
     const childrenIds = _.uniq(safeParse(row.childrenids, 'array').concat(filteredRows.map(r => r.rowid)));
     if (!notSetKey) {
+      if (typeof pageIndexStart === 'number' && defaultLevelList.length) {
+        defaultLevelList[0] = pageIndexStart + defaultLevelList[0];
+      }
       treeMap[key] = {
         index,
         rowid: row.rowid,
@@ -176,6 +179,7 @@ export const handleUpdateTreeNodeExpansion =
   (
     row = {},
     {
+      runTimes,
       expandAll,
       forceUpdate,
       treeMap,
@@ -220,14 +224,14 @@ export const handleUpdateTreeNodeExpansion =
         ? row.childrenids
         : JSON.stringify(_.uniq(safeParse(row.childrenids, 'array').concat(childRows.map(r => r.rowid))));
       if (forceUpdate) {
-        updateRows([recordId], {
+        (updateRows([recordId], {
           childrenids: newChildrenIds,
         }),
           Object.keys(treeMap).forEach(key => {
             if (treeMap[key].parentKeys.includes(row.key)) {
               needDeleteKeys[key] = undefined;
             }
-          });
+          }));
       }
       const currentTreeNode = treeMap[treeMapKey] || {};
       const treeDataUpdaterResult = isAddsSubTree
@@ -281,7 +285,7 @@ export const handleUpdateTreeNodeExpansion =
                   ...row,
                   key: [treeMapKey, row.rowid].filter(_.identity).join('_'),
                 },
-                { expandAll: true },
+                { expandAll: true, runTimes: runTimes + 1 },
               ),
             );
           }

@@ -35,7 +35,7 @@ export default class TwofactorContainer extends React.Component {
   }
 
   //获取验证码ajaxFn
-  sendTwofactorVerifyCode = (data, cb) => {
+  sendTwofactorVerifyCode = data => {
     this.setState({
       isFail: false,
     });

@@ -1,10 +1,12 @@
 import React from 'react';
-import account from 'src/api/account';
 import cx from 'classnames';
-import { DatePicker, RadioGroup } from 'ming-ui';
-import './index.less';
+import _ from 'lodash';
 import moment from 'moment';
+import { DatePicker, RadioGroup } from 'ming-ui';
+import account from 'src/api/account';
 import fixedDataAjax from 'src/api/fixedData.js';
+import './index.less';
+
 export default class EditDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -91,10 +93,10 @@ export default class EditDetail extends React.Component {
           disabled={!md.global.SysSettings.enableEditAccountInfo}
           defaultValue={baseInfo.fullname}
           onChange={e => {
-            this.updateValue('fullname', e.target.value);
+            this.updateValue('fullname', _.trim(e.target.value));
           }}
           onBlur={e => {
-            if (!!baseInfo.fullname) {
+            if (baseInfo.fullname) {
               this.setTxterr(e, 'fullname');
             } else {
               this.setState({ isError: !baseInfo.fullname });

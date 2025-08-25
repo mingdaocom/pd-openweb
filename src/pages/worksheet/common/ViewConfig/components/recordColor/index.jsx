@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
-import { Dropdown, Tooltip, Icon } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { arrayOf, func, shape, string } from 'prop-types';
-import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
-import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
-import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
 import _ from 'lodash';
+import { arrayOf, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
+import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
+import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
+import { getIconByType } from 'src/pages/widgetConfig/util';
 import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/components/style.jsx';
+import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 
 const Wrap = styled.div`
   .line {
@@ -80,7 +80,7 @@ const SelectedControlCon = styled.div`
   height: 36px;
   padding: 0 5px 0 14px;
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
   .controlTypeIcon {
     font-size: 16px;
@@ -132,7 +132,7 @@ function SelectControl({ value, controls = [], onChange, onClear }) {
           <div className="flex"></div>
           <div className="endIcon">
             <i
-              className="icon removeIcon icon-closeelement-bg-circle"
+              className="icon removeIcon icon-cancel"
               onClick={e => {
                 e.stopPropagation();
                 onClear();
@@ -219,7 +219,7 @@ function SelectColorShowType(props) {
           onClick={() => onChange(RECORD_COLOR_SHOW_TYPE[showType])}
         >
           Aa
-          {value === RECORD_COLOR_SHOW_TYPE[showType] && <i className="selected icon-check_circle1"></i>}
+          {value === RECORD_COLOR_SHOW_TYPE[showType] && <i className="selected icon-check_circle"></i>}
         </span>
       ))}
     </SelectColorShowTypeCon>

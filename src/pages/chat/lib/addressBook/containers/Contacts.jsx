@@ -1,18 +1,14 @@
 import React from 'react';
-
-import Checkbox from 'ming-ui/components/Checkbox';
-
-import ListSearchBar from '../components/ListSearchBar';
-import ContactList from '../components/ContactList';
-
-import UserDetail from '../components/UserDetail';
-
-import API from '../api';
 import _ from 'lodash';
+import Checkbox from 'ming-ui/components/Checkbox';
+import API from '../api';
+import ContactList from '../components/ContactList';
+import ListSearchBar from '../components/ListSearchBar';
+import UserDetail from '../components/UserDetail';
 
 const formatContactsData = (store, list) => {
   const result = store || {};
-  _.each(list, (item) => {
+  _.each(list, item => {
     const { firstCode } = item;
     const title = /[A-Z]/.test(firstCode.toUpperCase()) ? firstCode.toUpperCase() : '#';
     if (!result[title]) {
@@ -70,7 +66,7 @@ export default class Contacts extends React.Component {
   fetchContacts() {
     const { pageIndex, keywords, isFilterOther } = this.state;
     this.promise = API.fetchAllContacts({ pageIndex, isFilterOther, keywords });
-    return this.promise.then((data) => {
+    return this.promise.then(data => {
       const { listData } = this.state;
       if (keywords) {
         this.setState({
@@ -96,7 +92,7 @@ export default class Contacts extends React.Component {
         hasMore: true,
         listData: null,
       },
-      this.fetch
+      this.fetch,
     );
   }
 
@@ -111,7 +107,7 @@ export default class Contacts extends React.Component {
         hasMore: true,
         listData: null,
       },
-      this.fetch
+      this.fetch,
     );
   }
 
@@ -121,7 +117,7 @@ export default class Contacts extends React.Component {
     this.setState({
       isLoading: true,
     });
-    this.fetchContacts().then((hasMore) => {
+    this.fetchContacts().then(hasMore => {
       this.setState({
         isLoading: false,
         pageIndex: pageIndex + 1,

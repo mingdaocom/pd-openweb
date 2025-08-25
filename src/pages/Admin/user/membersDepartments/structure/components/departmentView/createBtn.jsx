@@ -43,7 +43,7 @@ class CreateBtn extends Component {
     if (e) {
       e.stopPropagation();
     }
-    const { departmentId, projectId, dispatch } = this.props;
+    const { projectId, dispatch } = this.props;
     createEditDeptDialog({
       type: 'create',
       projectId,
@@ -91,6 +91,7 @@ class CreateBtn extends Component {
       <Wrap>
         <span className="bold mLeft12">{_l('部门')}</span>
         <Tooltip
+          autoCloseDelay={0}
           text={
             <span>
               {_l(

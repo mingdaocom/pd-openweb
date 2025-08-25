@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -53,7 +53,7 @@ const Wrap = styled.div`
     }
     &.hs {
       background: #f5f5f5;
-      color: #2196f3;
+      color: #1677ff;
     }
     &.disable {
       cursor: not-allowed;
@@ -117,7 +117,7 @@ function ChooseControl(props) {
               const isFull =
                 o.isFull || ([29, 34, 35].includes(o.type) && !canChooseForParent(props.flowData, o.dataSource));
               const isValidName = name => {
-                return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'\[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
+                return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
               };
               const disable = o.disableChoose || o.isLimit || isFull || !isValidName(o.controlName);
               const hs = controlId === o.controlId;
@@ -128,7 +128,7 @@ function ChooseControl(props) {
                     disable: disable && ![29, 34, 35].includes(o.type),
                     Hand: !disable,
                   })}
-                  onClick={event => {
+                  onClick={() => {
                     if (isFull) {
                       sourceIsMax(_.get(props, 'flowData.projectId'));
                       return;

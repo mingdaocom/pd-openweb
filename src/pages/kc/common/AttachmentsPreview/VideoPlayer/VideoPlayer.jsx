@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { PREVIEW_TYPE } from '../constant/enum';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 import { changeStateOfAttachment } from '../actions/action';
+import { PREVIEW_TYPE } from '../constant/enum';
 import './VideoPlayer.less';
 
 function supportsVideo() {

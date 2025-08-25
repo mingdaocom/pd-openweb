@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { Empty } from 'antd';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import projectAjax from 'src/api/project';
 
@@ -21,7 +22,7 @@ const ContentWrap = styled.ul`
   > li.active,
   > li:hover {
     background: rgba(33, 150, 243, 0.11);
-    border: 1px solid #2196f3;
+    border: 1px solid #1677ff;
   }
   .emptyWrap {
     margin-top: 94px;
@@ -29,7 +30,7 @@ const ContentWrap = styled.ul`
 `;
 
 function MoveDataBaseDialog(props) {
-  const { visible = false, projectId, filterId, appId, onOk, onCancel } = props;
+  const { visible = false, projectId, filterId, onOk, onCancel } = props;
 
   const [select, setSelect] = useState(undefined);
   const [list, setList] = useState([]);

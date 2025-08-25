@@ -1,7 +1,7 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import _ from 'lodash';
-import { UserName, UserCard } from 'ming-ui';
+import PropTypes from 'prop-types';
+import { UserCard, UserName } from 'ming-ui';
 
 /**
  * 动态发布者姓名和发布到的群组

@@ -1,9 +1,10 @@
 import React, { Fragment, useState } from 'react';
 import { Checkbox, Drawer, Input, Tooltip } from 'antd';
-import { Icon, Button, Support } from 'ming-ui';
 import cx from 'classnames';
-import appManagementApi from 'src/api/appManagement';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Button, Icon, Support } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 
 const CheckboxWrap = styled(Checkbox)`
   &.disabled .ant-checkbox-checked {
@@ -19,16 +20,17 @@ const AddLangModal = props => {
 
   const handleSave = () => {
     setSaveLoading(true);
-    appManagementApi.createAppLang({
-      projectId: app.projectId,
-      appId: app.id,
-      langCode: selectKey,
-    }).then(data => {
-      const { success } = data;
-      onCancel();
-      onSave();
-      setSaveLoading(false);
-    });
+    appManagementApi
+      .createAppLang({
+        projectId: app.projectId,
+        appId: app.id,
+        langCode: selectKey,
+      })
+      .then(() => {
+        onCancel();
+        onSave();
+        setSaveLoading(false);
+      });
   };
 
   const renderLangItem = data => {
@@ -38,7 +40,7 @@ const AddLangModal = props => {
         className={cx('mLeft0 mBottom10', { disabled })}
         key={data.langCode}
         checked={selectKey.includes(data.langCode)}
-        onChange={(e) => {
+        onChange={e => {
           if (disabled) {
             return;
           }
@@ -51,7 +53,7 @@ const AddLangModal = props => {
       >
         {data[currentLangKey]} ({data.localLang})
       </CheckboxWrap>
-    )
+    );
 
     if (disabled) {
       return (
@@ -62,45 +64,49 @@ const AddLangModal = props => {
     } else {
       return Item;
     }
-  }
+  };
 
-  const systemLangList = allLangList.filter(data => data[currentLangKey].includes(searchValue)).filter(data => data.isSystemLang);
-  const portionLangList = allLangList.filter(data => data[currentLangKey].includes(searchValue)).filter(data => !data.isSystemLang);
+  const systemLangList = allLangList
+    .filter(data => (data[currentLangKey] || '').includes(searchValue))
+    .filter(data => data.isSystemLang);
+  const portionLangList = allLangList
+    .filter(data => (data[currentLangKey] || '').includes(searchValue))
+    .filter(data => !data.isSystemLang);
 
   return (
     <Drawer
       placement="right"
-      title={(
+      title={
         <div className="flexRow alignItemsCenter">
           <div className="flex">{_l('添加语言')}</div>
           <Icon className="Gray_75 Font20 pointer" icon="close" onClick={onCancel} />
         </div>
-      )}
+      }
       bodyStyle={{
-        padding: '12px 24px'
+        padding: '12px 24px',
       }}
       footerStyle={{
-        padding: '16px'
+        padding: '16px',
       }}
       width={700}
       visible={visible}
       closable={false}
       onClose={onCancel}
-      footer={(
+      footer={
         <Fragment>
-          <Button onClick={handleSave} loading={saveLoading}>{_l('保存')}</Button>
-          <Button type="link" onClick={onCancel}>{_l('取消')}</Button>
+          <Button onClick={handleSave} loading={saveLoading}>
+            {_l('保存')}
+          </Button>
+          <Button type="link" onClick={onCancel}>
+            {_l('取消')}
+          </Button>
         </Fragment>
-      )}
+      }
     >
       <div className={cx('flexColumn', { h100: !(systemLangList.length + portionLangList.length) })}>
         <div className="flexRow alignItemsCenter mBottom10 pBottom10" style={{ borderBottom: '1px solid #efefef' }}>
           <Icon className="Gray_9e Font20" icon="search" />
-          <Input
-            bordered={false}
-            placeholder={_l('搜索')}
-            onChange={event => setSearchValue(event.target.value)}
-          />
+          <Input bordered={false} placeholder={_l('搜索')} onChange={event => setSearchValue(event.target.value)} />
         </div>
         {!!systemLangList.length && (
           <Fragment>
@@ -108,29 +114,32 @@ const AddLangModal = props => {
             <div className="Gray_75 mBottom10">{_l('以下语言系统提供完整支持')}</div>
           </Fragment>
         )}
-        {systemLangList.map(data => (
-          renderLangItem(data)
-        ))}
+        {systemLangList.map(data => renderLangItem(data))}
         {!!portionLangList.length && (
           <Fragment>
             <div className="Gray bold mTop20">{_l('部分支持')}</div>
             <div className="Gray_75 mBottom10">
               <span>{_l('以下语言仅可对应用内自定义内容配置多语言，系统语言未提供支持')}</span>
-              <Support className="mLeft5" text={_l('帮助')} type={3} href="https://help.mingdao.com/application/language" />
+              <Support
+                className="mLeft5"
+                text={_l('帮助')}
+                type={3}
+                href="https://help.mingdao.com/application/language"
+              />
             </div>
           </Fragment>
         )}
-        {portionLangList.map(data => (
-          renderLangItem(data)
-        ))}
+        {portionLangList.map(data => renderLangItem(data))}
         {!(systemLangList.length + portionLangList.length) && (
           <Fragment>
-            <div className="flexRow alignItemsCenter justifyContentCenter flex Font14 Gray_75">{_l('没有搜索结果')}</div>
+            <div className="flexRow alignItemsCenter justifyContentCenter flex Font14 Gray_75">
+              {_l('没有搜索结果')}
+            </div>
           </Fragment>
         )}
       </div>
     </Drawer>
   );
-}
+};
 
 export default AddLangModal;

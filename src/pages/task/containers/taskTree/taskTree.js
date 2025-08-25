@@ -1,20 +1,20 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import './css/taskTree.less';
-import doT from 'dot';
-import ajaxRequest from 'src/api/taskCenter';
-import { listLoadingContent } from '../../utils/taskComm';
-import { formatTaskTime, errorMessage, formatStatus, checkIsProject } from '../../utils/utils';
-import config from '../../config/config';
-import treeMaster from './tpl/treeMaster.html';
-import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
-import TaskDetail from '../taskDetail/taskDetail';
-import _ from 'lodash';
-import { UserHead, LoadDiv } from 'ming-ui';
 import { createRoot } from 'react-dom/client';
-import { updateTaskCharge } from '../../redux/actions';
-import { dialogSelectUser } from 'ming-ui/functions';
 import { renderToString } from 'react-dom/server';
+import { connect } from 'react-redux';
+import doT from 'dot';
+import _ from 'lodash';
+import { LoadDiv, UserHead } from 'ming-ui';
+import { dialogSelectUser } from 'ming-ui/functions';
+import ajaxRequest from 'src/api/taskCenter';
+import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
+import config from '../../config/config';
+import { updateTaskCharge } from '../../redux/actions';
+import { listLoadingContent } from '../../utils/taskComm';
+import { checkIsProject, errorMessage, formatStatus, formatTaskTime } from '../../utils/utils';
+import TaskDetail from '../taskDetail/taskDetail';
+import treeMaster from './tpl/treeMaster.html';
+import './css/taskTree.less';
 
 const loading = renderToString(<LoadDiv />);
 
@@ -482,7 +482,7 @@ class TaskTree extends Component {
           } else {
             if (source.data.stages[0].tasks.length > 0) {
               // 未完成
-              var allTasks = doT.template(treeMaster)(source);
+              let allTasks = doT.template(treeMaster)(source);
               $('#taskList .singleFolderTask:first').append(allTasks);
               $('#taskList .chargeImgWrap').each((index, ele) => {
                 this.renderUserCard(ele);
@@ -499,7 +499,7 @@ class TaskTree extends Component {
 
             if (alreadly.data[0].tasks.length) {
               // 已完成
-              var allTasks = doT.template(treeMaster)(alreadly);
+              let allTasks = doT.template(treeMaster)(alreadly);
               $('#taskList .singleFolderTask:last').append(allTasks);
               $('#taskList .chargeImgWrap').each((index, ele) => {
                 this.renderUserCard(ele);

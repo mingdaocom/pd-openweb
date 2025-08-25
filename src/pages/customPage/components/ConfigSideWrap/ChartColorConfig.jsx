@@ -1,12 +1,13 @@
-import React, { useState, Fragment } from 'react';
-import { Icon, ColorPicker } from 'ming-ui';
-import { Tooltip, Select, Input } from 'antd';
+import React, { Fragment, useState } from 'react';
+import { Input, Select, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { ColorPicker, Icon } from 'ming-ui';
 import { getPorjectChartColors } from 'statistics/Charts/common';
+import BaseColor from 'statistics/components/ChartStyle/components/Color/BaseColor';
 import { replaceColor } from 'src/pages/customPage/util';
 import { defaultTitleStyles, replaceTitleColor } from './util';
-import BaseColor from 'statistics/components/ChartStyle/components/Color/BaseColor';
-import styled from 'styled-components';
 
 const TemplateTitleWrap = styled.div`
   flex: 2;
@@ -17,19 +18,24 @@ const TemplateTitleWrap = styled.div`
   align-items: center;
 `;
 
-const titleStyles = [{
-  value: 0,
-  name: _l('无')
-}, {
-  value: 1,
-  name: _l('主题色'),
-}, {
-  value: 2,
-  name: _l('主题和背景色渐变'),
-}, {
-  value: 3,
-  name: _l('线条'),
-}];
+const titleStyles = [
+  {
+    value: 0,
+    name: _l('无'),
+  },
+  {
+    value: 1,
+    name: _l('主题色'),
+  },
+  {
+    value: 2,
+    name: _l('主题和背景色渐变'),
+  },
+  {
+    value: 3,
+    name: _l('线条'),
+  },
+];
 
 export default props => {
   const [selectChartColorVisible, setSelectChartColorVisible] = useState(false);
@@ -37,20 +43,14 @@ export default props => {
   const { chartColor, pageStyleType = 'light' } = config;
   const { iconColor } = appPkg;
   const { pageBgColor } = replaceColor(config, iconColor);
-  const baseColors = [{
-    color: '#1b2025',
-    value: '#1b2025',
-    title: _l('黑色')
-  }];
-  const colors = [themeColors[0]].concat(baseColors);
 
   const handleChangeColor = numberChartColor => {
     const { numberChartColorIndex = 1 } = config;
     handleChangeConfig({
       numberChartColor,
-      numberChartColorIndex: numberChartColorIndex + 1
+      numberChartColorIndex: numberChartColorIndex + 1,
     });
-  }
+  };
 
   const getColorConfig = () => {
     const { colorType, colorGroupId, customColors, personColor } = chartColor || {};
@@ -62,35 +62,34 @@ export default props => {
     if (colorType === 2) {
       return {
         name: _l('自定义颜色'),
-        showColors: customColors
+        showColors: customColors,
       };
     } else if (colorGroupId && colorGroupId.includes('personColor')) {
       return {
         name: personColor.name,
-        showColors: personColor.colors
-      }
+        showColors: personColor.colors,
+      };
     } else if (colorGroupId === 'adaptThemeColor') {
       const adaptThemeColors = chartColors.filter(item => (item.themeColors || []).includes(iconColor));
       if (adaptThemeColors.length) {
         return {
           name: _l('适应主题'),
-          showColors: adaptThemeColors[0].colors
-        }
+          showColors: adaptThemeColors[0].colors,
+        };
       } else {
         return {
           name: chartColors[0].name,
-          showColors: chartColors[0].colors
+          showColors: chartColors[0].colors,
         };
       }
     } else {
       const data = _.find(chartColors, { id: colorGroupId }) || chartColors[0];
       return {
         name: data.name,
-        showColors: data.colors
-      }
+        showColors: data.colors,
+      };
     }
-    return defaultConfig;
-  }
+  };
 
   const renderPivoTableColorConfig = () => {
     const lightColors = [
@@ -98,8 +97,8 @@ export default props => {
       {
         color: '#f5f6f7',
         value: '#f5f6f7',
-        title: _l('灰色')
-      }
+        title: _l('灰色'),
+      },
     ];
     const darkColors = [
       {
@@ -109,30 +108,29 @@ export default props => {
       {
         color: '#1b2025',
         value: '#1b2025',
-        title: _l('黑色')
-      }
+        title: _l('黑色'),
+      },
     ];
     const colors = pageStyleType === 'light' ? lightColors : darkColors;
     const handleChangeColor = pivoTableColor => {
       const { pivoTableColorIndex = 1 } = config;
       handleChangeConfig({
         pivoTableColor,
-        pivoTableColorIndex: pivoTableColorIndex + 1
+        pivoTableColorIndex: pivoTableColorIndex + 1,
       });
-    }
+    };
     return (
       <div className="flexRow alignItemsCenter">
         <div className="Gray_75 Font13 bold mRight10 label">{_l('透视表颜色')}</div>
         <div className="flexRow alignItemsCenter flex">
-          {colors.map((data, index) => (
+          {colors.map((data, index) =>
             data.title ? (
               <Tooltip key={index} title={data.title} color="#000" placement="bottom">
                 <div
                   className={cx('colorWrap', data.className, { active: data.value === config.pivoTableColor })}
                   style={{ backgroundColor: data.color }}
                   onClick={() => handleChangeColor(data.value)}
-                >
-                </div>
+                ></div>
               </Tooltip>
             ) : (
               <div
@@ -140,10 +138,9 @@ export default props => {
                 className={cx('colorWrap', data.className, { active: data === config.pivoTableColor })}
                 style={{ backgroundColor: data }}
                 onClick={() => handleChangeColor(data)}
-              >
-              </div>
-            )
-          ))}
+              ></div>
+            ),
+          )}
           {/*
           <div className="colorSpacingLine mLeft0" />
           <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
@@ -162,7 +159,7 @@ export default props => {
         </div>
       </div>
     );
-  }
+  };
 
   const renderNumberColorConfig = () => {
     const lightColors = [
@@ -170,31 +167,30 @@ export default props => {
       {
         color: '#ffffff',
         value: '#ffffff',
-        title: _l('白色')
-      }
+        title: _l('白色'),
+      },
     ];
     const darkColors = [
       _.find(themeColors, { value: 'iconColor' }),
       {
         color: '#1b2025',
         value: '#1b2025',
-        title: _l('黑色')
-      }
+        title: _l('黑色'),
+      },
     ];
     const colors = pageStyleType === 'light' ? darkColors : lightColors;
     return (
       <div className="flexRow alignItemsCenter mBottom15">
         <div className="Gray_75 Font13 bold mRight10 label">{_l('数值颜色')}</div>
         <div className="flexRow alignItemsCenter flex">
-          {colors.map((data, index) => (
+          {colors.map((data, index) =>
             data.title ? (
               <Tooltip key={index} title={data.title} color="#000" placement="bottom">
                 <div
                   className={cx('colorWrap', data.className, { active: data.value === config.numberChartColor })}
                   style={{ backgroundColor: data.color }}
                   onClick={() => handleChangeColor(data.value)}
-                >
-                </div>
+                ></div>
               </Tooltip>
             ) : (
               <div
@@ -202,10 +198,9 @@ export default props => {
                 className={cx('colorWrap', data.className, { active: data.value === config.numberChartColor })}
                 style={{ backgroundColor: data }}
                 onClick={() => handleChangeColor(data)}
-              >
-              </div>
-            )
-          ))}
+              ></div>
+            ),
+          )}
           {/*
         <div className="colorSpacingLine mLeft0" />
         <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
@@ -234,10 +229,10 @@ export default props => {
         titleStyles: {
           ...titleStyles,
           ...data,
-          index: Date.now()
-        }
+          index: Date.now(),
+        },
       });
-    }
+    };
     return (
       <div className="flexRow alignItemsCenter mBottom15">
         <div className="Gray_75 Font13 bold mRight10 label">{_l('标题样式')}</div>
@@ -252,11 +247,7 @@ export default props => {
               handleChange(data);
             }}
           >
-            <div
-              className="colorWrap"
-              style={{ backgroundColor: color }}
-            >
-            </div>
+            <div className="colorWrap" style={{ backgroundColor: color }}></div>
           </ColorPicker>
           <Input
             className="pageInput countInput mRight10"
@@ -271,7 +262,7 @@ export default props => {
                   onClick={() => {
                     let value = Number(titleStyles.fontSize) + 1;
                     handleChange({
-                      fontSize: titleStyles.fontSize === 32 ? 32 : value
+                      fontSize: titleStyles.fontSize === 32 ? 32 : value,
                     });
                   }}
                 />
@@ -281,7 +272,7 @@ export default props => {
                   onClick={() => {
                     let value = Number(titleStyles.fontSize) - 1;
                     handleChange({
-                      fontSize: titleStyles.fontSize === 13 ? 13 : value
+                      fontSize: titleStyles.fontSize === 13 ? 13 : value,
                     });
                   }}
                 />
@@ -293,7 +284,7 @@ export default props => {
             style={{ backgroundColor: '#fff' }}
             onClick={() => {
               handleChange({
-                fontBold: !titleStyles.fontBold
+                fontBold: !titleStyles.fontBold,
               });
             }}
           >
@@ -304,7 +295,7 @@ export default props => {
             style={{ backgroundColor: '#fff' }}
             onClick={() => {
               handleChange({
-                fontItalic: !titleStyles.fontItalic
+                fontItalic: !titleStyles.fontItalic,
               });
             }}
           >
@@ -312,20 +303,24 @@ export default props => {
           </div>
           <div className="typeSelect flexRow valignWrapper">
             <div
-              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', { active: titleStyles.textAlign === 'left' })}
+              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', {
+                active: titleStyles.textAlign === 'left',
+              })}
               onClick={() => {
                 handleChange({
-                  textAlign: 'left'
+                  textAlign: 'left',
                 });
               }}
             >
               <Icon icon="format_align_left" className="Font18" />
             </div>
             <div
-              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', { active: titleStyles.textAlign === 'center' })}
+              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', {
+                active: titleStyles.textAlign === 'center',
+              })}
               onClick={() => {
                 handleChange({
-                  textAlign: 'center'
+                  textAlign: 'center',
                 });
               }}
             >
@@ -335,7 +330,7 @@ export default props => {
         </div>
       </div>
     );
-  }
+  };
 
   const { name, showColors } = getColorConfig();
   const getBgColor = titleStyle => {
@@ -344,19 +339,19 @@ export default props => {
       return {
         color: '#333',
         border: '1px solid #b3afaf',
-      }
+      };
     }
     if (value === 1) {
       return {
         color: '#fff',
-        backgroundColor: iconColor
-      }
+        backgroundColor: iconColor,
+      };
     }
     if (value === 2) {
       return {
         color: '#fff',
-        background: `linear-gradient(to right, ${iconColor}, ${pageBgColor})`
-      }
+        background: `linear-gradient(to right, ${iconColor}, ${pageBgColor})`,
+      };
     }
   };
 
@@ -367,7 +362,10 @@ export default props => {
       <div className="flexRow alignItemsCenter mBottom15">
         <div className="Gray_75 Font13 bold mRight10 label">{_l('图表配色')}</div>
         <div className="flexRow alignItemsCenter flex">
-          <div className="selectChartColor flexRow alignItemsCenter pointer flex" onClick={() => setSelectChartColorVisible(true)}>
+          <div
+            className="selectChartColor flexRow alignItemsCenter pointer flex"
+            onClick={() => setSelectChartColorVisible(true)}
+          >
             <div className="flexRow alignItemsCenter flex">
               {showColors.map((color, index) => (
                 <div key={index} style={{ background: color }} className="colorBlock" />
@@ -402,7 +400,7 @@ export default props => {
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
               handleChangeConfig({
-                titleStyle: value
+                titleStyle: value,
               });
             }}
           >
@@ -412,12 +410,15 @@ export default props => {
                   <TemplateTitleWrap className="Relative" style={getBgColor(data.value)}>
                     {_l('标题')}
                     {data.value === 3 && (
-                      <div className="Absolute" style={{
-                        width: '96%',
-                        bottom: 0,
-                        borderBottom: `2px solid transparent`,
-                        borderImage: `linear-gradient(to right, ${iconColor}, ${pageBgColor}) 1`
-                      }} />
+                      <div
+                        className="Absolute"
+                        style={{
+                          width: '96%',
+                          bottom: 0,
+                          borderBottom: `2px solid transparent`,
+                          borderImage: `linear-gradient(to right, ${iconColor}, ${pageBgColor}) 1`,
+                        }}
+                      />
                     )}
                   </TemplateTitleWrap>
                   <div className="flex TxtRight pRight5">{data.name}</div>
@@ -434,13 +435,13 @@ export default props => {
         visible={selectChartColorVisible}
         projectId={appPkg.projectId}
         currentReport={{
-          style: chartColor
+          style: chartColor,
         }}
-        onChange={(data) => {
+        onChange={data => {
           const { chartColorIndex = 1 } = config;
           handleChangeConfig({
             chartColor: data.style,
-            chartColorIndex: chartColorIndex + 1
+            chartColorIndex: chartColorIndex + 1,
           });
           setSelectChartColorVisible(false);
         }}
@@ -448,4 +449,4 @@ export default props => {
       />
     </Fragment>
   );
-}
+};

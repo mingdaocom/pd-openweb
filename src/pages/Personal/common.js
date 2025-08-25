@@ -1,7 +1,8 @@
-var Common = {};
 import qs from 'query-string';
 
-Common.url = function(params) {
+var Common = {};
+
+Common.url = function (params) {
   return location.pathname + '?' + qs.stringify(params);
 };
 
@@ -76,6 +77,16 @@ Common.settingOptions = {
   backHomepageWay: 17,
   timeZone: 18,
   map: 19,
+  isOpenMingoAI: 23,
+  isOpenMessage: 24,
+  isOpenSearch: 25,
+  isOpenFavorite: 26,
+  isShowToolName: 27,
+  isOpenMessageList: 28,
+  isOpenCommonApp: 29,
+  commonAppShowType: 30,
+  commonAppOpenType: 31,
+  messageListShowType: 32,
 };
 
 export default Common;

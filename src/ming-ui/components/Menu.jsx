@@ -1,12 +1,10 @@
-/* eslint-disable */
-import PropTypes from 'prop-types';
-
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import ReactDom from 'react-dom';
 import cx from 'classnames';
 import { assign } from 'lodash';
-import List from './List';
+import PropTypes from 'prop-types';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import List from './List';
 import './less/Menu.less';
 
 @withClickAway
@@ -68,7 +66,7 @@ class Menu extends Component {
     if (this.state.pos) {
       style = assign({}, this.state.pos, style);
     }
-    const { fixedHeader, parentMenuItem, isSubMenu, con, isAppendToBody, ...listProps } = this.props;
+    const { fixedHeader, isAppendToBody, ...listProps } = this.props;
 
     if (fixedHeader) {
       return (

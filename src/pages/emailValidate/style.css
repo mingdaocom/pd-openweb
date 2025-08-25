@@ -33,7 +33,7 @@ body {
 }
 
 .btnEnabled {
-  background-color: #2196f3;
+  background-color: #1677ff;
   cursor: pointer;
   transition: background-color 0.5s;
 }

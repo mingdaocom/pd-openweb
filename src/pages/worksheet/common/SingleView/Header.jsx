@@ -31,9 +31,9 @@ const EmbedAddRecord = styled.div`
     color: #757575;
   }
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
     i {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
 `;

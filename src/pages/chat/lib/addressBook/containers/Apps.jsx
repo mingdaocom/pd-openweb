@@ -3,8 +3,9 @@ import cx from 'classnames';
 import { APPLICATION_ICON } from 'src/utils/enum';
 import { config } from '../config';
 
-export default function Apps(props) {
+export default function Apps() {
   const { forbidSuites } = md.global.SysSettings;
+
   return (
     <div className="contacts-apps">
       <div

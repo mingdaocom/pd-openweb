@@ -1,10 +1,10 @@
+import _, { get } from 'lodash';
+import qs from 'query-string';
 import kcService from '../../api/service';
 import shareAjax from 'src/api/share';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
-import qs from 'query-string';
-import _ from 'lodash';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 
 function login() {
   window.nativeAlert(_l('请先登录'));
@@ -67,7 +67,7 @@ export function getAttachment() {
       return worksheetAjax
         .getAttachmentDetail({
           attachmentShareId: id,
-          getType: !!getType ? Number(getType) : undefined,
+          getType: getType ? Number(getType) : undefined,
         })
         .then(res => {
           if (res.resultCode === 1) {
@@ -80,7 +80,8 @@ export function getAttachment() {
             );
             return {
               node: res.attachmentDetail,
-              allowDownload: recordAttachmentSwitch && allowdownload === '1',
+              allowDownload:
+                recordAttachmentSwitch && allowdownload === '1' && !!get(res, 'attachmentDetail.allowDown'),
             };
           } else {
             return;

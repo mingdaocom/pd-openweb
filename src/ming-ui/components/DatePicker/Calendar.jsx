@@ -1,15 +1,14 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import moment from 'moment';
 import classNames from 'classnames';
+import moment from 'moment';
+import PropTypes from 'prop-types';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import DateTable from './DateTable';
-import CalendarHeader from './CalendarHeader';
 import CalendarFooter from './CalendarFooter';
-import YearTable from './YearTable';
-import MonthTable from './MonthTable';
-
+import CalendarHeader from './CalendarHeader';
+import DateTable from './DateTable';
 import locale from './locale/zh_CN';
+import MonthTable from './MonthTable';
+import YearTable from './YearTable';
 import '../less/DatePicker.less';
 import '../less/dateRangePicker.less';
 import '../less/Rangepicker.less';
@@ -109,7 +108,8 @@ class Calendar extends Component {
       /**
        * 年份表格页面
        */
-      yearPage: value.year() % 16 ? 16 * Math.floor(value.year() / 16) + 1 : 16 * (Math.floor(value.year() / 16) - 1) + 1,
+      yearPage:
+        value.year() % 16 ? 16 * Math.floor(value.year() / 16) + 1 : 16 * (Math.floor(value.year() / 16) - 1) + 1,
       /**
        * 当前表格
        * date - 日
@@ -224,7 +224,7 @@ class Calendar extends Component {
   /**
    * 后退
    */
-  goBack = event => {
+  goBack = () => {
     if (this.state.view === 'year') {
       // year view: year table flip back
       this.setState({
@@ -247,7 +247,7 @@ class Calendar extends Component {
   /**
    * 前进
    */
-  goForward = event => {
+  goForward = () => {
     if (this.state.view === 'year') {
       // year view: year table flip foward
       this.setState({
@@ -267,7 +267,7 @@ class Calendar extends Component {
     }
   };
 
-  yearChanged = (event, value, data) => {
+  yearChanged = (event, value) => {
     let view = 'year';
     if (this.props.mode === 'month') {
       view = 'month';
@@ -283,7 +283,7 @@ class Calendar extends Component {
     });
   };
 
-  monthChanged = (event, value, data) => {
+  monthChanged = (event, value) => {
     let view = 'month';
     if (this.props.mode === 'date' || this.props.mode === 'datetime') {
       view = 'date';

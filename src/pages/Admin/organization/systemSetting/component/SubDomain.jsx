@@ -27,21 +27,19 @@ export default class SubDomain extends Component {
     this.setState({ isLoading: true });
     Promise.all([this.getSubDomainInfo(), this.getSysColor()]).then(([res, { homeImage }]) => {
       const attUrl = `${md.global.FileStoreConfig.pictureHost}ProjectLogo/`;
-      this.images = new Array(5).fill(1).map(function(item, index) {
+      this.images = new Array(5).fill(1).map(function (item, index) {
         return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
       });
       const splitHome = homeImage.split('/') || [];
-      this.setState(
-        {
-          subDomain: (res && res.subDomain) || '',
-          homeImage: splitHome[splitHome.length - 1],
-          domainName: (res && res.subDomain) || '',
-          dialogName: (res && res.subDomain) || '',
-          currentHomeImage: homeImage,
-          isCustomImage: homeImage ? this.testHomeImage(homeImage) : false,
-          isLoading: false,
-        },
-      );
+      this.setState({
+        subDomain: (res && res.subDomain) || '',
+        homeImage: splitHome[splitHome.length - 1],
+        domainName: (res && res.subDomain) || '',
+        dialogName: (res && res.subDomain) || '',
+        currentHomeImage: homeImage,
+        isCustomImage: homeImage ? this.testHomeImage(homeImage) : false,
+        isLoading: false,
+      });
     });
   }
 
@@ -150,7 +148,7 @@ export default class SubDomain extends Component {
         }}
         bucket={4}
         onUploaded={this.handleUploaded}
-        onAdd={(up, files) => {
+        onAdd={up => {
           this.setState({ isUploading: true });
           up.disableBrowse();
         }}
@@ -169,7 +167,7 @@ export default class SubDomain extends Component {
   };
 
   render() {
-    const { subDomain, domainName, isLoading, currentHomeImage, visible, isCustomImage } = this.state;
+    const { domainName, isLoading, currentHomeImage, visible } = this.state;
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader justifyContentLeft">
@@ -212,7 +210,9 @@ export default class SubDomain extends Component {
                     {domainName ? (
                       <span className="color_b">{domainName}</span>
                     ) : (
-                      <span className="domain-describe">{_l('可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。')}</span>
+                      <span className="domain-describe">
+                        {_l('可通过设置组织别名来实现更多的使用场景（如：LDAP 登录时指定组织）。')}
+                      </span>
                     )}
                     <button
                       type="button"

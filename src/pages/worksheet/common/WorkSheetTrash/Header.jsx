@@ -1,9 +1,9 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { arrayOf, bool, shape, string, func, number } from 'prop-types';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import Pagination from 'worksheet/components/Pagination';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
+import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
 
 const Con = styled.div`
@@ -41,7 +41,7 @@ const Clear = styled.span`
   margin-top: 2px;
   font-weight: 600;
   cursor: pointer;
-  color: #2196f3;
+  color: #1677ff;
 `;
 
 const Title = styled.div`
@@ -55,7 +55,7 @@ const Operate = styled.span`
   .icon-worksheet_filter,
   .inputCon > .icon-search {
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .actionWrap {
@@ -77,7 +77,7 @@ const Close = styled.span`
   font-size: 22px;
   color: #9e9e9e;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -108,14 +108,18 @@ function Header(props, ref) {
     addFilterByControl: control => {
       try {
         filterComp.current.handleWorksheetHeadAddFilter(control);
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     },
   }));
   useEffect(() => {
     if (!props.searchText) {
       try {
         inputRef.current.clear();
-      } catch (err) {}
+      } catch (err) {
+        console.log(err);
+      }
     }
   }, [props.searchText]);
   return (

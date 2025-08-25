@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { isArray } from 'lodash';
 import styled from 'styled-components';
 import { SortableList } from 'ming-ui';
@@ -10,7 +10,7 @@ import './index.less';
 const Wrap = styled.div``;
 
 export default function (props) {
-  const { setting, onChange, projectId, maxCount } = props;
+  const { setting, onChange, maxCount } = props;
 
   const onUpdateSetting = (data, index) => {
     if (!data) {
@@ -81,7 +81,7 @@ export default function (props) {
   return (
     <Wrap>
       <div className="sortCustom mTop6">
-        {!!setting.find(o => o === 'add') ? (
+        {setting.find(o => o === 'add') ? (
           renderList()
         ) : (
           <SortableList

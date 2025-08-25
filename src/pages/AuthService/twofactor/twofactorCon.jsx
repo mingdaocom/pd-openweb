@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { get } from 'lodash';
 import loginAjax from 'src/api/login';
-import { CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/AuthService/config.js';
+import { CodeTypeEnum } from 'src/pages/AuthService/config.js';
 import { LoginResult } from 'src/pages/AuthService/login/config.js';
 import { checkReturnUrl, getDataByFilterXSS } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
@@ -224,13 +224,13 @@ export default function Twofactor(props) {
             })}
             id="btnSendVerifyCode"
             value={verifyCodeText || (codeLoading ? _l('再次获取...') : !account ? _l('获取验证码') : _l('再次获取'))}
-            onClick={e => {
+            onClick={() => {
               handleSendVerifyCode(CodeTypeEnum.message);
             }}
           />
           <div
             className="title"
-            onClick={e => {
+            onClick={() => {
               code.current.focus();
             }}
           >

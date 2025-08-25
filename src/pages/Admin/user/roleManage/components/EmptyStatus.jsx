@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Icon } from 'ming-ui';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 
 const EmptyWrap = styled.div`
   width: 100%;

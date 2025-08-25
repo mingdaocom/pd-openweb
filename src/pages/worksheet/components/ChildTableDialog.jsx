@@ -368,7 +368,14 @@ export default function ChildTableDialog(props) {
                 setChanged(true);
               } else if (
                 !includes(
-                  ['FORCE_SET_OUT_ROWS', 'UPDATE_BASE', 'INIT_ROWS', 'UPDATE_DATA_LOADING', 'LOAD_ROWS'],
+                  [
+                    'FORCE_SET_OUT_ROWS',
+                    'UPDATE_BASE',
+                    'INIT_ROWS',
+                    'UPDATE_DATA_LOADING',
+                    'LOAD_ROWS',
+                    'UPDATE_PAGINATION',
+                  ],
                   get(changedValues, 'lastAction.type'),
                 )
               ) {

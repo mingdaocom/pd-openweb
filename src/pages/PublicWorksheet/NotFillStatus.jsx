@@ -59,13 +59,13 @@ const Receipt = styled.div`
 
 function getIcon(status, worksheetId) {
   if (!worksheetId) {
-    return { icon: 'icon-closeelement-bg-circle', color: '#f44133' };
+    return { icon: 'icon-cancel', color: '#f44133' };
   }
   switch (status) {
     case FILL_STATUS.COMPLETED:
-      return { icon: 'icon-plus-interest', color: '#4CAF50' };
+      return { icon: 'icon-check_circle', color: '#4CAF50' };
     default:
-      return { icon: 'icon-task-folder-message', color: '#FF6200' };
+      return { icon: 'icon-error1', color: '#FF6200' };
   }
 }
 
@@ -153,7 +153,7 @@ export default function NotFillStatus(props) {
         <div style={{ width: '100%' }}>
           <StatusIcon status={status} worksheetId={worksheetId} />
 
-          {worksheetId && <Tip1 className="mTop10">{name || _l('未命名表单')}</Tip1>}
+          {worksheetId && name && <Tip1 className="mTop10">{name}</Tip1>}
 
           <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>
 
@@ -167,7 +167,7 @@ export default function NotFillStatus(props) {
             request.statusExtra !== 'no' &&
             (canSubmitByLimit || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
               <Tip2
-                style={{ color: '#2196F3', margin: '24px 0', fontWeight: 600 }}
+                style={{ color: '#1677ff', margin: '24px 0', fontWeight: 600 }}
                 className="flexRow justifyContentCenter alignItemsCenter"
               >
                 <FilledRecord

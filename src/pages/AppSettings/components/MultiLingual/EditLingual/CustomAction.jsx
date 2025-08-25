@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
@@ -20,9 +21,6 @@ const Wrap = styled.div`
         background-color: #f5f5f5;
       }
     }
-  }
-  .customActionContent {
-    flex: 1;
   }
   .customActionWrap {
     .customActionName {
@@ -77,7 +75,9 @@ export default function CustomAction(props) {
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
         $(this).removeClass(className);
       });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
   };
 
   const renderBtnNav = btn => {
@@ -293,15 +293,13 @@ export default function CustomAction(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
         </div>
-        <ScrollView className="flex">
+        <ScrollView className="h100">
           {sheetBtns.filter(btn => btn.name.includes(searchValue)).map(btn => renderBtnNav(btn))}
         </ScrollView>
       </div>
-      <ScrollView className="customActionContent" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">{sheetBtns.map(btn => renderBtnContent(btn))}</div>
       </ScrollView>
     </Wrap>

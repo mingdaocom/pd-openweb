@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Switch } from 'ming-ui';
-import PublishErrorDialog from '../../../components/PublishErrorDialog';
-import process from '../../../api/process';
-import { navigateTo } from 'router/navigateTo';
 import _ from 'lodash';
 import moment from 'moment';
+import { navigateTo } from 'router/navigateTo';
+import { Switch } from 'ming-ui';
+import process from '../../../api/process';
+import PublishErrorDialog from '../../../components/PublishErrorDialog';
 
 const publishStatus2Text = {
   0: _l('创建'),

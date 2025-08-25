@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, LoadDiv, UserHead, ScrollView } from 'ming-ui';
+import { Button, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import roleApi from 'src/api/role';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const UserListWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   margin: 20px 24px 0px;
+  overflow: hidden;
   .userListHeader {
     .searchInput {
       height: 32px;

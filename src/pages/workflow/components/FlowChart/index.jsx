@@ -6,6 +6,7 @@ import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, LoadDiv, Modal } from 'ming-ui';
 import flowNode from '../../api/flowNode';
+import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import nodeModules from '../../WorkflowSettings/EditFlow/nodeModules';
 import { NODE_TYPE } from '../../WorkflowSettings/enum';
@@ -71,6 +72,7 @@ const Legend = styled.div`
 
 export class FlowChart extends Component {
   static propTypes = {
+    appId: string.isRequired,
     processId: string.isRequired,
     instanceId: string.isRequired,
     selectNodeId: string,
@@ -78,6 +80,7 @@ export class FlowChart extends Component {
 
   state = {
     scale: 100,
+    parentId: '',
     startEventId: '',
     flowNodeMap: {},
     execIds: [],
@@ -90,6 +93,7 @@ export class FlowChart extends Component {
 
     flowNode.get({ processId, instanceId }).then(result => {
       this.setState({
+        parentId: result.parentId,
         startEventId: result.startEventId,
         flowNodeMap: result.flowNodeMap,
         execIds: result.execIds,
@@ -177,7 +181,7 @@ export class FlowChart extends Component {
         // 包含分支最后一个经过节点id
         let lastId;
         if (gatewayType === 1) {
-          flowIds.forEach((o, i) => {
+          flowIds.forEach(o => {
             if (_.includes(ids, o)) {
               lastId = o;
             }
@@ -275,12 +279,18 @@ export class FlowChart extends Component {
    * 渲染节点卡片
    */
   renderNode = ({ processId, data, firstId, excludeFirstId = false }) => {
+    const { parentId } = this.state;
+    const { appId } = this.props;
     return getSameLevelIds(data, firstId, excludeFirstId).map(id => {
+      const item = data[id];
       const props = {
         key: id,
         processId,
         data,
-        item: data[id],
+        item: {
+          ...item,
+          name: getTranslateInfo(appId, parentId, item.id).nodename || item.name,
+        },
         disabled: true,
         renderNode: this.renderNode,
       };
@@ -370,7 +380,7 @@ export class FlowChart extends Component {
               <span className="workflowEditBtnLine" />
 
               <Legend className="flexRow alignItemsCenter">
-                <div className="legendLine" style={{ background: '#2196f3' }} />
+                <div className="legendLine" style={{ background: '#1677ff' }} />
                 <div>{_l('已执行')}</div>
               </Legend>
               <Legend className="flexRow alignItemsCenter mLeft20">
@@ -385,7 +395,7 @@ export class FlowChart extends Component {
   }
 }
 
-export default memo(({ processId, instanceId, selectNodeId, onClose = () => {} }) => {
+export default memo(({ appId, processId, instanceId, selectNodeId, onClose = () => {} }) => {
   return (
     <Modal
       visible
@@ -401,16 +411,16 @@ export default memo(({ processId, instanceId, selectNodeId, onClose = () => {} }
       width={window.outerWidth - 60}
       onCancel={onClose}
     >
-      <FlowChart processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
+      <FlowChart appId={appId} processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
     </Modal>
   );
 });
 
-export const MobileFlowChart = memo(({ processId, instanceId, selectNodeId, onClose = () => {} }) => {
+export const MobileFlowChart = memo(({ appId, processId, instanceId, selectNodeId, onClose = () => {} }) => {
   return (
     <Popup className="flowChartModal mobileModal full" onClose={onClose} visible={true}>
-      <Icon className="Gray_75 Font22 pointer mobileClose" icon="closeelement-bg-circle" onClick={onClose} />
-      <FlowChart processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
+      <Icon className="Gray_75 Font22 pointer mobileClose" icon="cancel" onClick={onClose} />
+      <FlowChart appId={appId} processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
     </Popup>
   );
 });

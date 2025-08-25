@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Prompt } from 'react-router-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
@@ -76,7 +76,7 @@ class ContactsHidden extends React.Component {
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      <PeopleAvatar user={user} />
+                      <PeopleAvatar user={user} projectId={projectId} />
                       <span className="fullname">{user.targetName}</span>
                     </React.Fragment>
                   )}
@@ -125,7 +125,7 @@ class ContactsHidden extends React.Component {
           {this.renderList(item.type, item.ruleType)}
           <span
             className="addBtn Font13 Hand mTop24"
-            onClick={e => {
+            onClick={() => {
               dispatch(showEditFn(true, item.type));
             }}
           >

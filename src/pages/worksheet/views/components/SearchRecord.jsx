@@ -29,7 +29,7 @@ const Wrapper = styled.div`
     font-weight: initial !important;
   }
   .highlig {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 
@@ -57,7 +57,6 @@ const InputWrapper = styled.div`
 `;
 
 const highlightMessageText = (keyword, content) => {
-  const original = content;
   content = htmlDecodeReg(content);
   const reg = new RegExp(_.escapeRegExp(keyword), 'gi');
   const newKeyword = reg.exec(content)[0];

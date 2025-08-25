@@ -1,6 +1,6 @@
+import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
 import roleApi from 'src/api/role';
 import versionApi from 'src/api/version';
 import { PERMISSION_ENUM, ROUTE_CONFIG } from 'src/pages/Admin/enum';

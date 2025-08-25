@@ -154,7 +154,7 @@ export default function AppTrash(props) {
                 return Promise.reject();
               }
             })
-            .catch(err => {
+            .catch(() => {
               alert(_l('恢复失败'), 2);
               setPendingCache(app.id, false);
             });
@@ -188,7 +188,7 @@ export default function AppTrash(props) {
                     return Promise.reject();
                   }
                 })
-                .catch(err => {
+                .catch(() => {
                   alert(_l('彻底删除失败'), 2);
                 });
             },

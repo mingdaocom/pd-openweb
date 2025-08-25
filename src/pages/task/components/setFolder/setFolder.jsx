@@ -1,8 +1,8 @@
 ﻿import React, { Component, Fragment } from 'react';
-import './less/setFolder.less';
-import ajaxRequest from 'src/api/taskCenter';
 import { Tooltip } from 'antd';
-import { Dialog, RadioGroup, Button } from 'ming-ui';
+import { Button, Dialog, RadioGroup } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import './less/setFolder.less';
 
 export default class SetFolder extends Component {
   constructor(props) {
@@ -175,16 +175,6 @@ export default class SetFolder extends Component {
   }
 
   render() {
-    const settings = {
-      dialogBoxID: 'setFolder',
-      container: {
-        header: _l('项目配置'),
-        yesText: '',
-        noText: '',
-        noFn: this.props.onClose,
-      },
-    };
-
     const stageAuthSetting = {
       data: [
         {
@@ -261,6 +251,7 @@ export default class SetFolder extends Component {
               <div className="mBottom10">
                 <span>{_l('1、项目看板的编辑权限')}</span>
                 <Tooltip
+                  autoCloseDelay={0}
                   title={() => {
                     return (
                       <Fragment>
@@ -271,7 +262,7 @@ export default class SetFolder extends Component {
                   }}
                 >
                   <span className="msgTip">
-                    <i className="icon-task-folder-message" />
+                    <i className="icon-error1" />
                   </span>
                 </Tooltip>
               </div>
@@ -288,7 +279,7 @@ export default class SetFolder extends Component {
                   className="msgTip tip-top"
                   data-tip={_l('仅影响项目成员和在公开范围内人员，管理员固定为对项目下所有任务可见且可查看详情')}
                 >
-                  <i className="icon-task-folder-message" />
+                  <i className="icon-error1" />
                 </span>
               </div>
               <RadioGroup {...folderSetting} />

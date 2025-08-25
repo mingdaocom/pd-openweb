@@ -8,7 +8,7 @@ import preall from 'src/common/preall';
 import { shareGetAppLangDetail } from 'src/utils/app';
 import RecordShare from './RecordShare';
 
-const Entry = props => {
+const Entry = () => {
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
   let shareId;
@@ -50,7 +50,7 @@ const Entry = props => {
   }, []);
 
   const getShareInfoByShareId = data => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
       const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
       const clientId = _.get(result, 'data.identity');
       const printClientId = _.get(result, 'data.clientId');

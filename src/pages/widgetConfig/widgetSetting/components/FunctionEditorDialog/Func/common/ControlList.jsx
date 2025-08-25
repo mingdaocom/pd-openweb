@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 import { Collapse } from 'antd';
-import { func, arrayOf, shape, string } from 'prop-types';
+import { arrayOf, func, shape, string } from 'prop-types';
+import styled from 'styled-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { checkTypeSupportForFunction } from '../enum';
 import { SearchFn } from 'src/pages/widgetConfig/util';
+import { checkTypeSupportForFunction } from 'src/utils/control';
 
 const Con = styled.div`
   padding: 10px 0;
@@ -70,9 +70,8 @@ export function getControlType(control) {
 
 export default function ControlList(props) {
   const { keywords, controls, controlGroups, insertTagToEditor } = props;
-  const [visibleControls, setVisibleControls] = useState(
-    controls.filter(c => c.controlName && checkTypeSupportForFunction(c)),
-  );
+  const visibleControls = controls.filter(c => c.controlName && checkTypeSupportForFunction(c));
+
   if (controlGroups && controlGroups.length) {
     return (
       <Con>

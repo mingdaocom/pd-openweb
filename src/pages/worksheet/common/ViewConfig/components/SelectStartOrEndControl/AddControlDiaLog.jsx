@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -59,7 +59,7 @@ export default function AddControlDiaLog(params) {
         worksheetId: worksheetId,
         controls: [_.omit(control, ['controlId'])],
       })
-      .then(({ code, data, msg }) => {
+      .then(({ msg }) => {
         onAdd(controls.concat({ ...control, controlId: msg.split(':')[0] }));
         onChange && onChange(msg.split(':')[0]);
         setVisible(false);
@@ -79,7 +79,7 @@ export default function AddControlDiaLog(params) {
         onSave();
       }}
       visible={visible}
-      updateTrigger="fasle"
+      updateTrigger="false"
     >
       <Wrap height={!widgetProps.type ? 135 : 88}>
         <WidgetBase {...widgetProps} />

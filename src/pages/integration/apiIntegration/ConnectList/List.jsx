@@ -1,12 +1,13 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import Trigger from 'rc-trigger';
-import { LoadDiv, Icon, Menu, MenuItem, Dialog, MdLink } from 'ming-ui';
-import ConnectAvator from '../../components/ConnectAvator';
-import PublishDialog from 'src/pages/integration/components/PublishDialog.jsx';
-import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import cx from 'classnames';
+import _ from 'lodash';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { Dialog, Icon, LoadDiv, MdLink, Menu, MenuItem } from 'ming-ui';
+import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
+import PublishDialog from 'src/pages/integration/components/PublishDialog.jsx';
+import ConnectAvator from '../../components/ConnectAvator';
 
 const Wrap = styled.div`
   .manageListOrder {
@@ -30,7 +31,7 @@ const Wrap = styled.div`
   }
   .addConnect {
     padding: 8px 24px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 21px;
     color: #fff;
     display: inline-block;
@@ -104,7 +105,7 @@ const MoreOperate = styled.span`
   font-size: 18px;
   &:hover {
     // background-color: rgba(0, 0, 0, 0.03);
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 const MenuWrap = styled(Menu)`
@@ -126,16 +127,11 @@ const RedMenuItemWrap = styled(MenuItemWrap)`
       color: #f44336 !important;
     }
   }
-  &:not(.disabled):hover {
-    .Icon {
-      color: #fff !important;
-    }
-  }
 `;
 function Option(props) {
   const { currentProjectId, data, hasManageAuth } = props;
   const { id, type, isOwner, name, hasAuth } = data;
-  const [{ popupVisible, showPublish, apiList }, setState] = useSetState({
+  const [{ popupVisible, showPublish }, setState] = useSetState({
     popupVisible: false,
     showPublish: false,
     apiList: [],
@@ -260,7 +256,7 @@ function Option(props) {
               </React.Fragment>
             )}
             <RedMenuItemWrap
-              icon={<Icon icon="delete1" className="Font17 mLeft5" />}
+              icon={<Icon icon="trash" className="Font17 mLeft5" />}
               onClick={e => {
                 e.stopPropagation();
                 setState({ popupVisible: false });
@@ -297,7 +293,7 @@ function Option(props) {
             e.stopPropagation();
           }}
         >
-          <i className="icon icon-task-point-more"></i>
+          <i className="icon icon-more_horiz"></i>
         </MoreOperate>
       </Trigger>
       {showPublish && (

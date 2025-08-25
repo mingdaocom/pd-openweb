@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import styled from 'styled-components';
-import SectionTableNav from './SectionTableNav';
-import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import _ from 'lodash';
+import styled from 'styled-components';
+import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { ADD_EVENT_ENUM } from '../../../pages/widgetConfig/widgetSetting/components/CustomEvent/config';
+import SectionTableNav from './SectionTableNav';
 
 const Con = styled.div`
   margin-top: -2px;
@@ -39,7 +39,7 @@ function TableContainer(props) {
     updateWorksheetControls,
     onCountChange,
     onUpdateCell,
-    isDraft
+    isDraft,
   } = props;
   return (
     <RelateRecordTable
@@ -78,7 +78,7 @@ export default function WidgetSection(props) {
     activeTabControlId,
     setActiveTabControlId,
     hasCommon,
-    isDraft
+    isDraft,
   } = props;
   const {
     isSplit,
@@ -98,9 +98,6 @@ export default function WidgetSection(props) {
   const activeControl = _.find(tabControls, i => i.controlId === activeTabControlId) || tabControls[0];
   const [version, setVersion] = useState(Math.random());
   const $sectionControls = useRef([]);
-  if (!activeControl) {
-    return null;
-  }
 
   // 上下布局时只有一个标签页时隐藏，左右布局直接隐藏
   const hideTab =
@@ -181,6 +178,10 @@ export default function WidgetSection(props) {
       );
     }
   };
+
+  if (!activeControl) {
+    return null;
+  }
 
   return (
     <Con

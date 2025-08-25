@@ -1,5 +1,6 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, Popup } from 'antd-mobile';
+import cx from 'classnames';
 import styled from 'styled-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 
@@ -30,7 +31,7 @@ const ModalWrap = styled(Popup)`
   }
   .btnsWrap {
     .btnItem {
-      background-color: #2196f3;
+      background-color: #1677ff;
       height: 36px;
       border-radius: 18px;
       margin-right: 15px;
@@ -99,8 +100,8 @@ function getIconName(type = 'success') {
   return (
     {
       success: 'succeed-circle',
-      error: 'closeelement-bg-circle',
-      warning: 'task-folder-message',
+      error: 'cancel',
+      warning: 'error1',
       info: 'info',
     }[type] || ''
   );
@@ -147,7 +148,7 @@ function MessageComp(props) {
     return <i className={`Font26 TxtMiddle ${type} icon-${getIconName(type)}`}></i>;
   };
 
-  const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => {
+  const getBatchNoticeDescription = ({ finished, total, failed }) => {
     if (finished === total) {
       return `${_l('执行完成!')}\n${failed > 0 ? _l('%0条失败', failed) : ''}`;
     } else {
@@ -190,11 +191,6 @@ function MessageComp(props) {
           <div className="flex mBottom16 ellipsis">
             {getIcon()}
             <span className="bold Font18 TxtBottom mLeft10">{title}</span>
-            {!duration && (
-              <div className="closeIcon TxtCenter" onClick={hideModalMessage}>
-                <i className="icon icon-close" />
-              </div>
-            )}
           </div>
           {!duration && (
             <div>
@@ -206,7 +202,7 @@ function MessageComp(props) {
         </div>
         <div className="mobileNoticeContent">{description}</div>
       </div>
-      <div className="btnsWrap flexRow mBottom20 mTop20">
+      <div className={cx('btnsWrap flexRow mTop20', { mBottom20: btnList.length })}>
         {btnList.reverse().map(item => (
           <div className="flex ellipsis btnItem" onClick={item.onClick}>
             {item.text}

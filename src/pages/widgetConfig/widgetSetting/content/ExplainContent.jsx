@@ -1,16 +1,16 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Input, Tooltip, Collapse } from 'antd';
-import { Icon } from 'ming-ui';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from '../../config';
-import WidgetExplain from '../components/WidgetExplain';
-import WidgetDes from '../components/WidgetDes';
-import { SettingItem, AnimationWrap } from '../../styled';
+import { Collapse, Input, Tooltip } from 'antd';
 import cx from 'classnames';
-import { SettingCollapseWrap } from './styled';
-import { handleAdvancedSettingChange } from '../../util/setting';
+import { Icon } from 'ming-ui';
+import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from '../../config';
+import { AnimationWrap, SettingItem } from '../../styled';
 import { notExplainDisplay, notWidgetDes } from '../../util';
+import { handleAdvancedSettingChange } from '../../util/setting';
 import { SectionItem } from '../components/SplitLineConfig/style';
+import WidgetDes from '../components/WidgetDes';
+import WidgetExplain from '../components/WidgetExplain';
+import { SettingCollapseWrap } from './styled';
 
 const { Panel } = Collapse;
 
@@ -81,6 +81,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
           {_l('字段别名')}
           <Tooltip
             placement="bottom"
+            autoCloseDelay={0}
             title={<span>{_l('仅允许使用字母（不区分大小写）、数字和下划线组合， 且必须以字母开头，不可重复。')}</span>}
           >
             <Icon icon="help" className="Font16 Gray_bd mLeft4" />
@@ -117,11 +118,15 @@ const DevelopContent = ({ data, allControls, onChange }) => {
       <SettingItem>
         <div className="settingItemTitle">
           {_l('备注')}
-          <Tooltip placement="bottom" title={<span>{_l('输入的内容仅应用管理员和开发者可见')}</span>}>
+          <Tooltip
+            placement="bottom"
+            autoCloseDelay={0}
+            title={<span>{_l('输入的内容仅应用管理员和开发者可见')}</span>}
+          >
             <Icon icon="help" className="Font16 Gray_bd mLeft4" />
           </Tooltip>
         </div>
-        <Input.TextArea autoSize={false} rows={3} value={remark} onChange={e => onChange({ remark: e.target.value })} />
+        <Input.TextArea autoSize={false} rows={4} value={remark} onChange={e => onChange({ remark: e.target.value })} />
       </SettingItem>
     </Fragment>
   );

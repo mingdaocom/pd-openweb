@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect, Provider } from 'react-redux';
 import _, { isFunction } from 'lodash';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import DataFormat from 'src/components/Form/core/DataFormat';
+import generateStore from 'src/pages/worksheet/components/ChildTable/redux/store';
 import ChildTable from './ChildTable';
-import generateStore from './redux/store';
 import './style.less';
 
 const ChildTableComp = connect(state => ({
@@ -70,6 +70,11 @@ export default class extends React.Component {
     const { onChange = () => {} } = this.props;
     this.unsubscribe = this.store.subscribe(() => {
       const state = this.store.getState();
+      if (_.get(state, 'lastAction.type') === 'LOAD_ROWS_COMPLETE') {
+        this.store.waitListForLoadRows.forEach(fn => fn());
+        this.store.waitListForLoadRows = [];
+        return;
+      }
       const value = _.get(this.props, 'control.value');
       onChange(
         {

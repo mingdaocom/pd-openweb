@@ -1,33 +1,34 @@
 import React, { Component, Fragment } from 'react';
+import { connect } from 'react-redux';
+import { Dropdown, Menu, Tooltip } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
-import { Menu, Dropdown, Tooltip } from 'antd';
-import RenameModal from './RenameModal';
-import ShowControlModal from './ShowControlModal';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
-import WithoutFidldItem from './WithoutFidldItem';
 import {
-  timeFormats,
-  formatTimeFormats,
-  textNormTypes,
-  timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
-  timeDataParticle,
-  timeGatherParticle,
+  emptyShowTypes,
+  filterAreaParticleSizeDropdownData,
+  filterDisableParticleSizeTypes,
   filterTimeData,
   filterTimeGatherParticle,
+  formatTimeFormats,
+  isAreaControl,
   isNumberControl,
   isTimeControl,
-  isAreaControl,
-  filterDisableParticleSizeTypes,
-  emptyShowTypes,
+  textNormTypes,
+  timeDataParticle,
+  timeFormats,
+  timeGatherParticle,
+  timeParticleSizeDropdownData,
   xaxisEmptyShowTypes,
 } from 'statistics/common';
-import { connect } from 'react-redux';
-import _ from 'lodash';
+import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { normTypes } from '../../../enum';
+import RenameModal from './RenameModal';
+import ShowControlModal from './ShowControlModal';
+import WithoutFidldItem from './WithoutFidldItem';
 
 const SortableItemContent = styled.div`
   position: relative;
@@ -73,6 +74,7 @@ const renderOverlay = ({
   const isArea = isAreaControl(axis.type);
   const isRelate = axis.type === 29;
   const newDisableParticleSizeTypes = filterDisableParticleSizeTypes(axis.controlId, disableParticleSizeTypes);
+  const areaParticleSizeDropdownData = filterAreaParticleSizeDropdownData(axis);
   const showtype = _.get(axis, 'advancedSetting.showtype');
   const timeDataList = isTime ? filterTimeData(timeDataParticle, { showtype, controlType: axis.type }) : [];
   const timeGatherParticleList = filterTimeGatherParticle(timeGatherParticle, { showtype, controlType: axis.type });
@@ -356,7 +358,7 @@ const renderSortableItem = props => {
   return (
     <SortableItemContent className="mBottom12">
       <DragHandle>
-        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag" />
       </DragHandle>
       <div className="flexRow valignWrapper fidldItem mBottom0" key={item.controlId}>
         {axis.controlId ? (

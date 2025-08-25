@@ -1,4 +1,4 @@
-import { head } from 'lodash';
+import _ from 'lodash';
 
 // 获取完整路径
 export const dealPath = path => {

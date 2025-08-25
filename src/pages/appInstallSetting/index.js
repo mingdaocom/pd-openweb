@@ -1,10 +1,9 @@
-import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
+import React, { Component } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import Trigger from 'rc-trigger';
 import privateRequest from 'src/api/private';
-import pc from 'src/pages/appInstallSetting/images/pc.png';
 import mobile from 'src/pages/appInstallSetting/images/mobile.png';
+import pc from 'src/pages/appInstallSetting/images/pc.png';
 import code from './images/code.png';
 import './index.less';
 
@@ -15,10 +14,10 @@ export default class AppInstallSetting extends Component {
       url: '',
       qrCodeUrl: '',
       downloadAppQrCodeUrl: '',
-    }
+    };
   }
   componentDidMount() {
-    privateRequest.getAPIUrl().then(({url, qrCodeUrl, downloadAppQrCodeUrl}) => {
+    privateRequest.getAPIUrl().then(({ url, qrCodeUrl, downloadAppQrCodeUrl }) => {
       this.setState({
         url,
         qrCodeUrl,
@@ -27,9 +26,7 @@ export default class AppInstallSetting extends Component {
     });
   }
   renderTitle() {
-    return (
-      <div className="appInstallSettingTitle Font16 bold">{_l('App下载与设置')}</div>
-    );
+    return <div className="appInstallSettingTitle Font16 bold">{_l('App下载与设置')}</div>;
   }
   renderHeader() {
     const { url, qrCodeUrl } = this.state;
@@ -38,16 +35,23 @@ export default class AppInstallSetting extends Component {
         <div className="Font24 mBottom18">{_l('App 初次启动需要填写的配置信息')}</div>
         <div className="flexRow Font14">
           <span>{url}</span>
-          <ClipboardButton className="copy" component="span" data-clipboard-text={url} onSuccess={() => { alert(_l('复制成功')) }}>
+          <ClipboardButton
+            className="copy"
+            component="span"
+            data-clipboard-text={url}
+            onSuccess={() => {
+              alert(_l('复制成功'));
+            }}
+          >
             {_l('复制')}
           </ClipboardButton>
           <Trigger
             action={['click']}
-            popup={(
+            popup={
               <div className="card z-depth-2 pAll15">
-                <img style={{width: 300}} src={qrCodeUrl} />
+                <img style={{ width: 300 }} src={qrCodeUrl} />
               </div>
-            )}
+            }
             popupAlign={{
               offset: [0, 7],
               points: ['tc', 'bc'],
@@ -66,14 +70,16 @@ export default class AppInstallSetting extends Component {
       <div className="appInstallSettingContent">
         <div className="Font16 bold title">{_l('下载客户端')}</div>
         <div className="TxtCenter mTop40 Font32">{_l('工作信息时刻保持连接')}</div>
-        <div className="TxtCenter mTop30 Font16">{_l('不管是在电脑前，还是出门在外，都能让你与工作信息时刻保持连接')}</div>
+        <div className="TxtCenter mTop30 Font16">
+          {_l('不管是在电脑前，还是出门在外，都能让你与工作信息时刻保持连接')}
+        </div>
         <div className="flexRow TxtCenter justifyContentCenter mTop50">
           <div className="flexColumn pcWrapper">
-            <img src={pc}/>
+            <img src={pc} />
             <span className="Font17 name">{_l('PC桌面端')}</span>
           </div>
           <div className="flexColumn mobileWrapper">
-            <img src={mobile}/>
+            <img src={mobile} />
             <span className="Font17 name">{_l('移动端')}</span>
           </div>
         </div>
@@ -89,7 +95,7 @@ export default class AppInstallSetting extends Component {
             </div>
           </div>
           <div className="flexColumn appewmWrapper">
-            <img src={downloadAppQrCodeUrl ? downloadAppQrCodeUrl : code}/>
+            <img src={downloadAppQrCodeUrl ? downloadAppQrCodeUrl : code} />
             <span className="name">{_l('扫码下载')}</span>
           </div>
         </div>

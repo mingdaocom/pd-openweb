@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1747794031719') format('woff2'),
-       url('iconfont.woff?t=1747794031719') format('woff'),
-       url('iconfont.ttf?t=1747794031719') format('truetype');
+  src: url('iconfont.woff2?t=1753248283199') format('woff2'),
+       url('iconfont.woff?t=1753248283199') format('woff'),
+       url('iconfont.ttf?t=1753248283199') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,74 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-user_female:before {
+  content: "\e684";
+}
+
+.icon-user_male:before {
+  content: "\e685";
+}
+
+.icon-hap:before {
+  content: "\ed00";
+}
+
+.icon-sidebar:before {
+  content: "\ecff";
+}
+
+.icon-bofang:before {
+  content: "\ecfe";
+}
+
+.icon-newchat:before {
+  content: "\ecfd";
+}
+
+.icon-system:before {
+  content: "\ecfc";
+}
+
+.icon-remove:before {
+  content: "\ecfb";
+}
+
+.icon-turn-right:before {
+  content: "\ecfa";
+}
+
+.icon-Circle-replace:before {
+  content: "\ecf9";
+}
+
+.icon-ai_creare_icon1:before {
+  content: "\ecf6";
+}
+
+.icon-ai_create_date1:before {
+  content: "\ecf7";
+}
+
+.icon-ai_padding_data1:before {
+  content: "\ecf8";
+}
+
+.icon-worksheet_column_chart_c:before {
+  content: "\e6c5";
+}
+
+.icon-workflow_c:before {
+  content: "\e6c6";
+}
+
+.icon-table_c:before {
+  content: "\e6c7";
+}
+
+.icon-main-department:before {
+  content: "\ecf5";
 }
 
 .icon-group_segment:before {
@@ -395,10 +463,6 @@
 
 .icon-circle_three:before {
   content: "\e67d";
-}
-
-.icon-hap:before {
-  content: "\eb0f";
 }
 
 .icon-layers_clear:before {
@@ -1325,7 +1389,7 @@
   content: "\ec9e";
 }
 
-.icon-lock:before {
+.icon-task-new-locked:before {
   content: "\ec8d";
 }
 
@@ -1373,7 +1437,7 @@
   content: "\ec98";
 }
 
-.icon-widgets:before {
+.icon-now_widgets:before {
   content: "\ec99";
 }
 
@@ -1561,7 +1625,7 @@
   content: "\ebfe";
 }
 
-.icon-arrow_back:before {
+.icon-backspace:before {
   content: "\ebff";
 }
 
@@ -1685,7 +1749,7 @@
   content: "\ec1e";
 }
 
-.icon-drag_indicator:before {
+.icon-drag:before {
   content: "\ec1f";
 }
 
@@ -1841,7 +1905,7 @@
   content: "\ec4b";
 }
 
-.icon-now_widgets:before {
+.icon-widgets:before {
   content: "\ec4c";
 }
 
@@ -2597,7 +2661,7 @@
   content: "\ebcb";
 }
 
-.icon-drag:before {
+.icon-drag_indicator:before {
   content: "\e8cc";
 }
 
@@ -2989,7 +3053,7 @@
   content: "\e9e7";
 }
 
-.icon-task_custom_position:before {
+.icon-position:before {
   content: "\eae7";
 }
 
@@ -3925,7 +3989,7 @@
   content: "\eb2b";
 }
 
-.icon-arrow-right-border:before {
+.icon-sidebar-more:before {
   content: "\e82c";
 }
 
@@ -4433,7 +4497,7 @@
   content: "\eb4f";
 }
 
-.icon-backspace:before {
+.icon-arrow_back:before {
   content: "\e850";
 }
 
@@ -5049,7 +5113,7 @@
   content: "\e97a";
 }
 
-.icon-position:before {
+.icon-task_custom_position:before {
   content: "\ea7a";
 }
 
@@ -5101,7 +5165,7 @@
   content: "\e97e";
 }
 
-.icon-sidebar-more:before {
+.icon-arrow-right-border:before {
   content: "\ea7e";
 }
 
@@ -5237,7 +5301,7 @@
   content: "\e987";
 }
 
-.icon-task-new-locked:before {
+.icon-lock:before {
   content: "\ea87";
 }
 

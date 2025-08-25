@@ -1,7 +1,4 @@
-﻿/**
- * init -> formatAttachment -> loadAttachment
- */
-import _, { isEmpty } from 'lodash';
+﻿import _, { isEmpty } from 'lodash';
 import kcService from '../../../api/service';
 import attachmentAjax from 'src/api/attachment';
 import fileAjax from 'src/api/file';
@@ -47,7 +44,7 @@ class AttachmentError {
 }
 
 function loadAttachment(attachment, options = {}) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     if (!attachment) attachment = {};
     let { previewAttachmentType, previewType } = attachment;
     const { refId } = attachment.sourceNode || {};
@@ -239,7 +236,7 @@ export function getAttachmentEditDetail(params) {
       .then(res => {
         dispatch({ type: 'ATTACHMENT_EDIT_DETAIL', wpsEditUrl: res.wpsEditUrl });
       })
-      .catch(err => {
+      .catch(() => {
         dispatch({ type: 'ATTACHMENT_EDIT_DETAIL', wpsEditUrl: '' });
       });
   }
@@ -460,12 +457,6 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
     return;
   }
   const currentAttachment = _.assign({}, state.attachments[index]);
-  const { previewType } = currentAttachment;
-  // if (state.fullscreen && previewType !== PREVIEW_TYPE.PICTURE) {
-  //   dispatch({
-  //     type: ACTION_TYPES.TOGGLE_FULLSCREEN,
-  //   });
-  // }
 
   addBehaviorLog('previewFile', extra.worksheetId, {
     fileId: _.get(state.attachments || [], `[${index}].sourceNode.fileID`),
@@ -535,7 +526,7 @@ export function renameFile(value) {
       const { id, ext } = currentAttachment.sourceNode;
       ajax
         .renameKcFile(id, value, ext)
-        .then(data => {
+        .then(() => {
           currentAttachment.sourceNode.name = value;
           currentAttachment.name = value;
           alert('修改成功');
@@ -556,7 +547,7 @@ export function renameFile(value) {
       const { docVersionID, fileID, ext, sourceID } = currentAttachment.sourceNode;
       ajax
         .renameFile(docVersionID, fileID, value, ext, sourceID)
-        .then(data => {
+        .then(() => {
           currentAttachment.sourceNode.originalFilename = value;
           currentAttachment.name = value;
           alert('修改成功');
@@ -586,7 +577,7 @@ export function updateAllowDownload() {
     const allowDown = !!currentAttachment.sourceNode.allowDown;
     ajax
       .updateAllowDownload(docVersionID, !allowDown)
-      .then(resp => {
+      .then(() => {
         if (allowDown) {
           delete currentAttachment.sourceNode.allowDown;
           alert('已设置为不可以下载');
@@ -663,7 +654,7 @@ export function saveToKnowlwdge(savePath) {
         }
         saveToKnowledge(attachmentType, sourceData)
           .save(path)
-          .then(message => {
+          .then(() => {
             // alert(message || '保存成功');
           })
           .catch(message => {
@@ -726,34 +717,8 @@ export function changePreviewService(previewService) {
   };
 }
 
-function toggleWindowFullScreen() {
-  if (
-    !document.fullscreenElement && // alternative standard method
-    !document.mozFullScreenElement &&
-    !document.webkitFullscreenElement
-  ) {
-    // current working methods
-    if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else if (document.documentElement.mozRequestFullScreen) {
-      document.documentElement.mozRequestFullScreen();
-    } else if (document.documentElement.webkitRequestFullscreen) {
-      document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-    }
-  } else {
-    if (document.cancelFullScreen) {
-      document.cancelFullScreen();
-    } else if (document.mozCancelFullScreen) {
-      document.mozCancelFullScreen();
-    } else if (document.webkitCancelFullScreen) {
-      document.webkitCancelFullScreen();
-    }
-  }
-}
-
 // 全屏模式
 export function toggleFullScreen() {
-  // toggleWindowFullScreen();
   return {
     type: ACTION_TYPES.TOGGLE_FULLSCREEN,
   };

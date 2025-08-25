@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import styled from 'styled-components';
 import { Drawer } from 'antd';
+import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 
@@ -89,7 +90,7 @@ const ListItem = styled.div`
     color: #4caf50;
   }
   .reviewing {
-    color: #2196f3;
+    color: #1677ff;
   }
 `;
 

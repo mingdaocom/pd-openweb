@@ -232,7 +232,7 @@ export function RelateSearchWorksheet(props) {
     setFields({
       relateFields: reControls,
       open: _.isUndefined(open) ? !_.isEmpty(reControls) : open,
-      selectedControl: _.isUndefined(open) || true ? reControls[0] : {},
+      selectedControl: _.isUndefined(open) ? reControls[0] : {},
     });
   };
 

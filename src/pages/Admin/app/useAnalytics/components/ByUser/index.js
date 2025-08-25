@@ -1,17 +1,17 @@
-import React, { Component, Fragment } from 'react';
-import { Select } from 'antd';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, Tooltip, UserHead } from 'ming-ui';
-import { dialogSelectUser } from 'ming-ui/functions';
+import { Button, Tooltip, UserHead } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
+import downloadAjax from 'src/api/download';
+import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
+import SelectUser from 'src/pages/Admin/components/SelectUser';
 import { formatFileSize } from 'src/utils/common';
 import { formatter, selectDateList } from '../../util';
 import TableCom from '../TableCom';
-
-const { Option } = Select;
 
 const ByUserWrap = styled.div`
   padding: 24px;
@@ -20,33 +20,13 @@ const ByUserWrap = styled.div`
   flex-direction: column;
   background-color: #fff;
   .searchWrap {
-    .ant-select {
-      height: 36px;
-      .ant-select-selector {
-        height: 36px;
-        border: 1px solid #eaeaea;
-        .ant-select-selection-placeholder,
-        .ant-select-selection-item {
-          line-height: 32px;
-        }
-      }
-      .ant-select-arrow {
-        margin-top: -9px;
-        top: 50%;
-        width: 18px;
-        height: 18px;
-      }
-      &.userSelect {
-        .ant-select-arrow {
-          right: 12px;
-          width: 18px;
-          height: 18px;
-        }
-        .ant-select-clear {
-          width: 18px;
-          height: 18px;
-        }
-      }
+    .w200 {
+      width: 200px;
+    }
+    .export {
+      margin-left: 26px;
+      min-width: 76px;
+      padding: 0 16px;
     }
   }
   .userInfo {
@@ -63,6 +43,9 @@ export default class ByUser extends Component {
       loading: false,
       pageIndex: 1,
       fullDepartmentInfo: {},
+      disabledExportBtn: true,
+      startTime: moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      endTime: moment().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
     };
     this.columns = [
       {
@@ -100,6 +83,7 @@ export default class ByUser extends Component {
               <Tooltip
                 tooltipClass="departmentFullNametip"
                 popupPlacement="bottom"
+                autoCloseDelay={0}
                 text={
                   <div>
                     {departments.map((v, depIndex) => {
@@ -121,7 +105,7 @@ export default class ByUser extends Component {
               >
                 <span className="ellipsis InlineBlock wMax100 space">
                   {departments
-                    .map((it, i) => {
+                    .map(it => {
                       return `${it.departmentName}`;
                     })
                     .join(';')}
@@ -202,32 +186,9 @@ export default class ByUser extends Component {
       });
   };
 
-  updateState = () => {};
-  // 筛选登录人
-  handleSleelctUser = () => {
-    const { projectId } = this.props;
-    dialogSelectUser({
-      fromAdmin: true,
-      SelectUserSettings: {
-        projectId,
-        dataRange: 2,
-        filterAll: true,
-        filterFriend: true,
-        filterOthers: true,
-        filterOtherProject: true,
-        filterResigned: false,
-        unique: true,
-        callback: data => {
-          this.setState({ userInfo: data, pageIndex: 1 }, () => {
-            this.getList();
-          });
-        },
-      },
-    });
-  };
   getList = () => {
     const { projectId, appId } = this.props;
-    const { pageIndex, sorterInfo = {}, keyword, selectedDate, userInfo = [] } = this.state;
+    const { pageIndex, sorterInfo = {}, selectedDate, userInfo = [], startTime, endTime } = this.state;
     const { sortFiled, order } = sorterInfo;
 
     this.setState({ loading: true });
@@ -244,7 +205,9 @@ export default class ByUser extends Component {
       dimension: appId ? 1 : 2,
       sortFiled: sortFiled || 'appAccess',
       sorted: order === 'asc' ? true : false,
-      keyword: userInfo.map(item => item.accountId).join(''),
+      userIds: userInfo.map(item => item.accountId),
+      startTime,
+      endTime,
     });
     this.ajaxRequst
       .then(({ list, allCount }) => {
@@ -252,11 +215,15 @@ export default class ByUser extends Component {
           list,
           total: allCount,
           loading: false,
+          disabledExportBtn: _.isEmpty(list),
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({
           loading: false,
+          list: [],
+          total: 0,
+          disabledExportBtn: true,
         });
       });
   };
@@ -265,51 +232,86 @@ export default class ByUser extends Component {
       this.getList();
     });
   };
+
+  exportListData = () => {
+    this.setState({ disabledExportBtn: true });
+
+    const { projectId, appId } = this.props;
+    const { pageIndex, sorterInfo = {}, selectedDate, userInfo = [], startTime, endTime } = this.state;
+    const { sortFiled, order } = sorterInfo;
+
+    const params = {
+      projectId,
+      appId: appId ? appId : '',
+      dayRange: selectedDate,
+      pageIndex: pageIndex,
+      pageSize: 50,
+      dimension: appId ? 1 : 2,
+      sortFiled: sortFiled || 'appAccess',
+      sorted: order === 'asc' ? true : false,
+      userIds: userInfo.map(item => item.accountId),
+      startTime,
+      endTime,
+    };
+
+    downloadAjax
+      .exportUsageStatisticsForDimensionLog(params)
+      .then(() => {
+        this.setState({ disabledExportBtn: false });
+      })
+      .catch(() => {
+        this.setState({ disabledExportBtn: false });
+      });
+  };
   render() {
-    let { selectedDate, list = [], loading, pageIndex, userInfo = [], total } = this.state;
+    const { projectId } = this.props;
+    let { list = [], loading, pageIndex, userInfo = [], total, disabledExportBtn, dateInfo = {} } = this.state;
     return (
       <ByUserWrap>
         <div className="searchWrap flexRow">
-          <Select
+          <SelectUser
             className="userSelect mdAntSelect"
             style={{ width: '200px' }}
-            value={userInfo.map(item => item.fullname).join(',') || undefined}
+            projectId={projectId}
+            userInfo={userInfo}
             placeholder={_l('搜索成员')}
-            dropdownRender={null}
-            allowClear
-            open={false}
-            onFocus={this.handleSleelctUser}
-            suffixIcon={<Icon icon="person" className="Font18" />}
-            onChange={() => {
-              this.setState(
-                {
-                  userInfo: [],
-                  pageIndex: 1,
-                },
-                () => {
-                  this.getList();
-                },
-              );
-            }}
-          />
-          <Select
-            className="mLeft16 mdAntSelect"
-            style={{ width: '200px' }}
-            placeholder={_l('最近30天')}
-            suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
-            value={selectedDate}
-            onChange={value => {
-              this.setState({ selectedDate: value, pageIndex: 1 }, () => {
+            maxCount={100}
+            changeData={data => {
+              this.setState({ userInfo: data, pageIndex: 1 }, () => {
                 this.getList();
               });
             }}
+          />
+          <CustomSelectDate
+            className="mdAntSelect mLeft16 w200"
+            dateFormat={'YYYY-MM-DD HH:mm:ss'}
+            searchDateList={selectDateList}
+            dateInfo={dateInfo}
+            min={moment().subtract(1, 'year')}
+            changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
+              this.setState(
+                {
+                  dateInfo: { startDate, endDate, searchDateStr },
+                  selectedDate: dayRange,
+                  startTime: startDate,
+                  endTime: endDate,
+                },
+                this.getList,
+              );
+            }}
+          />
+          <div className="flex"></div>
+          <Button
+            type="primary"
+            className="export"
+            disabled={disabledExportBtn}
+            onClick={() => {
+              if (disabledExportBtn) return;
+              this.exportListData();
+            }}
           >
-            {selectDateList.map(item => (
-              <Option key={item.value} value={item.value}>
-                {item.label}
-              </Option>
-            ))}
-          </Select>
+            {_l('导出')}
+          </Button>
         </div>
         <TableCom
           dataSource={list}

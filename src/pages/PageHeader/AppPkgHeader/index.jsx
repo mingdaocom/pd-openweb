@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import api from 'api/homeApp';
-import { getAppId } from 'src/pages/AuthService/portalAccount/util';
+import _ from 'lodash';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import { browserIsMobile } from 'src/utils/common';
 import { navigateTo } from '../../../router/navigateTo';

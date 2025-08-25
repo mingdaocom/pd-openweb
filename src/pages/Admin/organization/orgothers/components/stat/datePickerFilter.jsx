@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
+import moment from 'moment';
 import { DatePicker } from 'ming-ui';
 import { DatePickerFilterWrap } from 'src/pages/Admin/common/styled';
-import moment from 'moment';
 
 const DATE_FILTER = [
   { id: 'today', text: _l('今天') },
@@ -12,7 +12,7 @@ const DATE_FILTER = [
   { id: 'custom', text: _l('自定义日期') },
 ];
 
-export default function datePickerFilter(props) {
+export default function DatePickerFilter(props) {
   const { updateData } = props;
   const $ref = useRef(null);
   const formatDate = date => date.format('YYYY-MM-DD');
@@ -28,9 +28,12 @@ export default function datePickerFilter(props) {
       case 'currentMonth':
         return { startDate: formatDate(beginOfCurrentMonth), endDate: today };
       case 'prevMonth':
-        return { startDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'M')), endDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'day')) };
+        return {
+          startDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'M')),
+          endDate: formatDate(moment(beginOfCurrentMonth).subtract(1, 'day')),
+        };
       case 'currentYear':
-        return { startDate: formatDate(moment().startOf('year')) , endDate: today };
+        return { startDate: formatDate(moment().startOf('year')), endDate: today };
     }
   };
   const handleClick = id => {
@@ -42,7 +45,7 @@ export default function datePickerFilter(props) {
       {DATE_FILTER.map(({ id, text }) =>
         id === 'custom' ? (
           <DatePicker.RangePicker
-            offset={{ left: -533, top:  -220}}
+            offset={{ left: -533, top: -220 }}
             popupParentNode={() => $ref.current}
             max={moment(_endDate)}
             min={moment(_endDate).subtract(1, 'year')}
@@ -53,9 +56,9 @@ export default function datePickerFilter(props) {
               const data = getDateFilter('currentMonth');
               updateData(data);
             }}
-            onSelect={(selectedValue) => {
-              if(selectedValue&&selectedValue[1]) {
-                _endDate = formatDate(moment(selectedValue[1]))
+            onSelect={selectedValue => {
+              if (selectedValue && selectedValue[1]) {
+                _endDate = formatDate(moment(selectedValue[1]));
               }
             }}
           >
@@ -65,7 +68,7 @@ export default function datePickerFilter(props) {
           <li key={id} onClick={() => handleClick(id)}>
             {text}
           </li>
-        )
+        ),
       )}
     </DatePickerFilterWrap>
   );

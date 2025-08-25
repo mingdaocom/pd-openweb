@@ -6,6 +6,7 @@ export default class MapHandler {
     this.map = new AMap.Map(container, {
       // 地图容器DIV的ID值或者DIV对象
       resizeEnable: true, // 是否监控地图容器尺寸变化，默认值为false
+      showOversea: true, // 开启世界地图
       ...mapOptions, // 地图初始化参数对象
     });
   }

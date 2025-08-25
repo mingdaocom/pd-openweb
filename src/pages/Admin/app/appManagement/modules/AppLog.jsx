@@ -23,9 +23,9 @@ const optionTypeData = [
 
 const optionTypeIcon = {
   1: 'icon-add1',
-  2: 'icon-toggle_on',
-  3: 'icon-toggle_off',
-  4: 'icon-delete1',
+  2: 'icon-ic_toggle_on',
+  3: 'icon-ic_toggle_off',
+  4: 'icon-trash',
   5: 'icon-cloud_download',
   6: 'icon-reply1',
   8: 'icon-restart',
@@ -205,7 +205,7 @@ export default class AppLog extends React.Component {
             placeholder={_l('搜索应用名称/操作者')}
             onChange={_.throttle(e => this.updateState({ keyword: e.target.value }), 500)}
           />
-          <Icon icon="workflow_find" className="search Gray_9e Font16" />
+          <Icon icon="search" className="search Gray_9e Font16" />
           <Icon
             icon="close"
             onClick={() => this.updateState({ keyword: '', searchVisible: false })}
@@ -260,7 +260,7 @@ export default class AppLog extends React.Component {
                   <span className={cx('Font15 mRight10 mBottom2', optionTypeIcon[item.handleType])}></span>
                   <span dangerouslySetInnerHTML={{ __html: message }}></span>
                   {isAppItem && (
-                    <span className="mLeft4">
+                    <span className="mLeft4 WordBreak">
                       {String(item.appItem.type) === '0'
                         ? _l('工作表 %0', item.appItem.name)
                         : _l('自定义页面 %0', item.appItem.name)}

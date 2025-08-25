@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import appManagementAjax from 'src/api/appManagement';
 import { Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Input } from 'antd';
-import verifyPassword from 'src/components/verifyPassword';
+import appManagementAjax from 'src/api/appManagement';
 import SecretKey from './SecretKey';
 
 @withClickAway
@@ -43,7 +41,7 @@ export default class MoreOption extends Component {
       });
     }
 
-    ajax.then(res => {
+    ajax.then(() => {
       getAuthorizes();
       setFn(false);
     });
@@ -77,7 +75,7 @@ export default class MoreOption extends Component {
               appKey,
               remark: remark.trim(),
             })
-            .then(res => {
+            .then(() => {
               getAuthorizes();
               this.setState({ showDescDialog: false });
               setFn(false);
@@ -138,11 +136,15 @@ export default class MoreOption extends Component {
           <SecretKey
             appId={appId}
             appKey={data.appKey}
+            name={data.name}
             status={data.status}
             type={data.type}
             viewNull={data.viewNull}
             getAuthorizes={getAuthorizes}
-            onClose={() => setFn(false)}
+            onClose={() => {
+              this.setState({ showEditDialog: false });
+              setFn(false);
+            }}
           />
         )}
         {this.renderDesc()}

@@ -42,8 +42,8 @@ const Header = styled.div`
       line-height: 45px;
       border-bottom: 3px solid transparent;
       &.active {
-        border-bottom-color: #2196f3;
-        color: #2196f3;
+        border-bottom-color: #1677ff;
+        color: #1677ff;
       }
       &:first-child {
         margin-right: 30px;
@@ -99,6 +99,14 @@ const HiddenInput = styled.input`
 `;
 
 function splitCsvRows(csvData, splitter) {
+  // 预处理：检查是否是从Excel粘贴的数据（通常包含制表符分隔）
+  const isExcelPaste = splitter === '\t' && csvData.includes('\t');
+  // 如果是Excel粘贴且包含非标准CSV格式的双引号（如尺寸标记26"），使用简单的行分割
+  if (isExcelPaste) {
+    const rows = csvData.split(/\r\n|\n|\r/);
+    return rows.filter(row => row.trim() !== '');
+  }
+  // 标准CSV解析逻辑（用于非Excel粘贴或标准CSV格式）
   let rows = [];
   let currentRow = '';
   let inQuotes = false;
@@ -107,12 +115,18 @@ function splitCsvRows(csvData, splitter) {
 
   for (let i = 0; i < csvData.length; i++) {
     let char = csvData[i];
+    let nextChar = i + 1 < csvData.length ? csvData[i + 1] : '';
 
+    // 处理双引号的情况
     if (char === '"') {
-      inQuotes = !inQuotes;
-    }
-
-    if (splitter && char === splitter && !inQuotes) {
+      // 检查是否是转义的双引号 ("") - 在引号内部的情况
+      if (inQuotes && nextChar === '"') {
+        currentRow += char;
+        i++; // 跳过下一个引号，因为它是转义的一部分
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (splitter && char === splitter && !inQuotes) {
       currentRow += char;
       lastCharWasSplitter = true;
     } else if (newlineRegex.test(char) && !inQuotes) {
@@ -140,16 +154,24 @@ function splitCsvRows(csvData, splitter) {
 
 function parseText(text, splitCharType = 1) {
   const splitter = ['\t', ':', '|', ',', ' '][splitCharType - 1];
+  // 针对Excel粘贴的特殊处理
+  const isExcelPaste = splitter === '\t';
   return splitCsvRows(text, splitter)
-    .map(line =>
-      (line || '')
-        .split(splitter)
-        .map(cellValue =>
-          splitCharType === 1 && cellValue.indexOf('\n') > -1 && /^"|"$/.test(cellValue)
-            ? cellValue.replace(/^"/, '').replace(/"$/, '')
-            : cellValue,
-        ),
-    )
+    .map(line => {
+      // 如果是Excel粘贴，直接使用分隔符分割行
+      if (isExcelPaste) {
+        return (line || '').split(splitter);
+      }
+      // 标准CSV解析
+      return (line || '').split(splitter).map(cellValue => {
+        // 处理引号包裹的内容
+        if (/^".*"$/.test(cellValue)) {
+          // 去除首尾引号，并将两个连续的双引号替换为单个双引号
+          return cellValue.replace(/^"/, '').replace(/"$/, '').replace(/""/g, '"');
+        }
+        return cellValue;
+      });
+    })
     .filter(line => !_.isEmpty(line.filter(c => !_.isUndefined(c) && c !== '')));
 }
 
@@ -255,7 +277,7 @@ function PasteEdit(props) {
   );
   useKey(
     e => _.includes(['Backspace'], e.key),
-    e => {
+    () => {
       if (isEditing) {
         return;
       }
@@ -350,7 +372,7 @@ function PasteEdit(props) {
             ]}
             onChange={setSplitCharType}
           />
-          <Tooltip text={_l('切换分隔符，仅针对新粘贴数据有效，已有数据不会产生影响”')}>
+          <Tooltip autoCloseDelay={0} text={_l('切换分隔符，仅针对新粘贴数据有效，已有数据不会产生影响”')}>
             <i className="infoIcon icon icon-info_outline Font18 Gray_bd"></i>
           </Tooltip>
         </div>
@@ -457,7 +479,6 @@ PasteEdit.propTypes = {
 
 export default function ImportData(props) {
   const {
-    projectId,
     dialogHeight,
     importDataActiveType,
     worksheetId,

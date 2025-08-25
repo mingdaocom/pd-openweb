@@ -1,0 +1,135 @@
+.useInfoDisplayWrap {
+  .baseInfoWrap {
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e3e3e3;
+    &.noBorder {
+      border: none;
+    }
+    .baseInfoTitle {
+      color: #151515;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .baseSettings {
+      margin-left: -20px;
+    }
+    .baseSettingItem {
+      width: 380px;
+      height: 32px;
+      line-height: 32px;
+      border-radius: 3px;
+      padding: 0 8px 0 5px;
+      color: #151515;
+      .grabIcon {
+        visibility: hidden;
+      }
+      .deleteIcon {
+        display: none;
+      }
+      &:not(.disabledItem):hover {
+        background: #f5f5f5;
+        .grabIcon {
+          visibility: visible;
+        }
+        .deleteIcon {
+          display: inline-block;
+        }
+      }
+      &.isCardDepartment {
+        height: auto;
+        line-height: unset;
+        padding: 0 8px 10px 5px;
+      }
+      .deptLine {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin: 0 5px 0 25px;
+        border-left: 1px solid #dddddd;
+        border-bottom: 1px solid #dddddd;
+      }
+      .maskColor {
+        color: #ec6f23;
+      }
+    }
+    .settingWrap {
+      margin-right: 64px;
+    }
+
+    .previewCard {
+      width: 340px;
+      padding: 16px;
+      background: #ffffff;
+      border-radius: 4px;
+      box-shadow: 0px 1px 6px 1px rgba(0, 0, 0, 0.18);
+    }
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+    }
+    .accountBaseInfo {
+      min-width: 0;
+    }
+    .fullname {
+      color: #151515;
+    }
+    .cardItem {
+      height: 36px;
+      line-height: 36px;
+    }
+    .arrow {
+      width: 0;
+      height: 0;
+      border: 3px solid rgba(0, 0, 0, 0.18);
+      border-color: #fff;
+    }
+    .maskIcon {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      line-height: 24px;
+      cursor: pointer;
+      margin-left: 5px;
+      border-radius: 50%;
+      &:hover {
+        background: rgba(221, 221, 221, 0.31);
+      }
+    }
+  }
+  .footer {
+    padding: 10px 24px 20px;
+  }
+}
+
+.addFieldsWrap {
+  width: 240px;
+  height: 256px;
+  background: #ffffff;
+  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  border-radius: 3px 3px 3px 3px;
+  padding: 6px 0;
+  box-sizing: border-box;
+  .addFieldsItem {
+    padding-left: 12px;
+    box-sizing: border-box;
+    color: #151515;
+    line-height: 34px;
+    cursor: pointer;
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+}
+
+.disabledAction {
+  cursor: not-allowed;
+  color: rgba(33, 150, 243, 0.52) !important;
+}
+.addFields {
+  color: #1677ff;
+  &:hover {
+    color: #1d68bd;
+  }
+}

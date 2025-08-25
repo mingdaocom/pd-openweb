@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
+import { Button, Dialog, Dropdown, LoadDiv, MultipleDropdown } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
-import { Dialog, LoadDiv, Dropdown, Button, MultipleDropdown } from 'ming-ui';
 import './index.less';
 
 export default class SelectUsersFromApp extends Component {

@@ -1,5 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import { Input } from 'antd';
+import _ from 'lodash';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
 import { filterHtmlTag } from '../util';
@@ -8,7 +9,6 @@ import EditInput from './EditInput';
 
 export default function App(props) {
   const { app, translateData, comparisonLangId, comparisonLangData, selectNode, onEditAppLang } = props;
-  const [editAppIntroVisible, setEditAppIntroVisible] = useState(false);
   const data = _.find(translateData, { correlationId: app.id }) || {};
   const translateInfo = data.data || {};
   const comparisonLangInfo = getTranslateInfo(app.id, null, app.id, comparisonLangData);

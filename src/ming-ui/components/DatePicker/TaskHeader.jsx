@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 import Checkbox from 'ming-ui/components/Checkbox';
 
 class TaskHeader extends Component {
@@ -63,9 +62,7 @@ TaskHeader.propTypes = {
 TaskHeader.defaultProps = {
   startChecked: false,
   endChecked: false,
-  toggle: (type) => {
-    //
-  },
+  toggle: () => {},
 };
 
 export default TaskHeader;

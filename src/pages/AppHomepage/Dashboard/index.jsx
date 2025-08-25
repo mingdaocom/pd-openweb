@@ -24,15 +24,11 @@ import { CardItem, getGreetingText, MODULE_TYPES, urlToBase64 } from './utils';
 
 const Wrapper = styled.div`
   flex: 1;
+  overflow: hidden;
 
-  .dashboardScroll {
-    .nano-content {
-      overflow-x: scroll !important;
-    }
-  }
   .dashboardContent {
     padding: 0 36px;
-    min-width: 1020px;
+    min-width: 700px;
     max-width: 1600px;
     margin: 0 auto;
     box-sizing: content-box;
@@ -158,7 +154,7 @@ export default function Dashboard(props) {
     dashboardColor.themeColor &&
       $('.appCenterHeader').css(
         'background',
-        dashboardColor.themeColor === '#2196F3' ? '#fff' : dashboardColor.bgColor,
+        dashboardColor.themeColor === '#1677ff' ? '#fff' : dashboardColor.bgColor,
       );
 
     return () => {
@@ -224,7 +220,7 @@ export default function Dashboard(props) {
         {sortModuleIds.map((type, index) => {
           switch (type) {
             case MODULE_TYPES.APP_COLLECTION:
-              return !!markedApps.length ? (
+              return markedApps.length ? (
                 <CardItem key={index} className="sortItem appCollectCard">
                   <CollectionApps
                     loading={dashboardLoading}
@@ -295,7 +291,7 @@ export default function Dashboard(props) {
 
   return (
     <Wrapper style={{ backgroundColor: hasBgImg ? 'unset' : dashboardColor.bgColor }} logoHeight={logoHeight || 40}>
-      <ScrollView className="flex dashboardScroll">
+      <ScrollView className="dashboardScrollView h100 pRight10">
         <div className="dashboardContent">
           <div className="dashboardHeader">
             {(logoSwitch && logo) || slogan ? (

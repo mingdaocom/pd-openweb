@@ -1,17 +1,17 @@
 import React from 'react';
-import { Icon, Checkbox } from 'ming-ui';
-import { getIconByType } from 'src/pages/widgetConfig/util';
-import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import cx from 'classnames';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import styled from 'styled-components';
-import {
-  formatControlsChildBySectionId,
-  getRealData,
-  canNotForCustomWrite,
-  getFormatCustomWriteData,
-} from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Icon } from 'ming-ui';
+import withClickAway from 'ming-ui/decorators/withClickAway';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import {
+  canNotForCustomWrite,
+  formatControlsChildBySectionId,
+  getFormatCustomWriteData,
+  getRealData,
+} from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
 
 const ChooseWidgetWrap = styled.div`
    {

@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import './index.less';
+import _ from 'lodash';
 import { MenuItem } from 'ming-ui';
-import ActionFields from '../ActionFields';
+import { dialogSelectDept, dialogSelectJob, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
+import flowNode from '../../../../api/flowNode';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
 import { USER_TYPE } from '../../../enum';
 import { getControlTypeName } from '../../../utils';
-import flowNode from '../../../../api/flowNode';
-import { dialogSelectOrgRole, dialogSelectJob, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
+import ActionFields from '../ActionFields';
+import './index.less';
 
 export default class SelectUserDropDown extends Component {
   constructor(props) {
@@ -18,7 +19,7 @@ export default class SelectUserDropDown extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.nodeId !== this.props.nodeId || nextProps.specialType !== this.props.specialType) {
       this.setState({ fieldsData: [] });
     }
@@ -67,7 +68,7 @@ export default class SelectUserDropDown extends Component {
       <ul className="flowDetailUserList">
         {(specialType === 3 || specialType === 5) && (
           <div className="explainHeader flexRow">
-            <i className={cx('Gray_75', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
+            <i className={cx('Gray_75', specialType === 3 ? 'icon-phone' : 'icon-mailbox')} />
             <input
               type="text"
               className="w100 Gray"
@@ -94,7 +95,7 @@ export default class SelectUserDropDown extends Component {
               {_l('职位')}
             </MenuItem>
             <MenuItem
-              icon={<i className="icon-group-members" />}
+              icon={<i className="icon-group" />}
               onClick={() => this.setState({ showSelectAppUserDialog: true })}
             >
               {_l('应用角色')}

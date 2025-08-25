@@ -1,6 +1,6 @@
-import React, { useReducer, forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useImperativeHandle, useReducer } from 'react';
 import FiltersPopup from './FiltersPopup';
-import { createReducer, createActions, initialState } from './model';
+import { createActions, createReducer, initialState } from './model';
 
 const WorkSheetFilter = forwardRef((props, ref) => {
   const [state = {}, dispatch] = useReducer(createReducer, {

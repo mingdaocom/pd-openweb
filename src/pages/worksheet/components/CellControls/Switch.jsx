@@ -100,7 +100,7 @@ export default class Switch extends React.Component {
     }
 
     return (
-      <Tooltip text={<span>{hint}</span>} popupPlacement="bottom" disable={!hint}>
+      <Tooltip text={<span>{hint}</span>} popupPlacement="bottom" disable={!hint} autoCloseDelay={0}>
         <div className="flexCenter">
           <Checkbox className="InlineBlock" disabled={!editable} checked={value} onClick={this.handleChange} />
         </div>

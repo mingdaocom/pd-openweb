@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import UpdateFields from '../UpdateFields';
-import ProcessVariables from '../ProcessVariables';
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import process from '../../../../api/process';
+import ProcessVariables from '../ProcessVariables';
+import UpdateFields from '../UpdateFields';
 
 export default ({ companyId, processId, relationId, selectNodeId, data, selectProcessId, desc, updateSource }) => {
   const [showDialog, setShowDialog] = useState(false);

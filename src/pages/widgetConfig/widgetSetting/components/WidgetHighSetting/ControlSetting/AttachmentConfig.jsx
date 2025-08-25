@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { InputNumber, Slider, Tooltip } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Checkbox, ColorPicker, Dialog, Icon, LoadDiv, Radio, UpgradeIcon, WaterMark } from 'ming-ui';
 import attachmentAjax from 'src/api/attachment.js';
@@ -67,7 +68,7 @@ const WaterMarkSettingWrap = styled.div`
         cursor: pointer;
         &.active,
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
         &.active {
           font-weight: bold;
@@ -151,7 +152,7 @@ const WaterMarkSettingWrap = styled.div`
     border: 1px solid #d8d8d8;
     box-sizing: border-box;
     &.active {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
   }
 `;
@@ -518,6 +519,7 @@ export default function AttachmentVerify(props) {
             <span style={{ marginRight: '4px' }}>{_l('图片水印')}</span>
             <Tooltip
               placement="bottom"
+              autoCloseDelay={0}
               title={_l(
                 '在文件预览和下载时叠加水印。只支持文件大小5M以内图片水印。目前支持的图片的格式为：jpeg、png、tiff、bmp、heif',
               )}
@@ -564,6 +566,44 @@ export default function AttachmentVerify(props) {
               <span style={{ marginRight: '4px' }}>{_l('文档在线编辑')}</span>
               <Tooltip
                 placement="bottom"
+                autoCloseDelay={0}
+                title={_l(
+                  '基于WPS在线编辑能力，支持Office、WPS、PDF等主流文档格式编辑，最多10人在线协作编辑，最大文档尺寸100MB，具体可参考帮助文档说明。',
+                )}
+              >
+                <i className="icon-help Gray_9e Font16 Hand"></i>
+              </Tooltip>
+
+              {editFeatureType === '2' && (
+                <Tooltip autoCloseDelay={0} placement="bottom" title={_l('当前版本无法使用此功能，请购买或者升级')}>
+                  <UpgradeIcon />
+                </Tooltip>
+              )}
+            </Checkbox>
+          </div>
+        </Fragment>
+      )}
+
+      {allowedit === '1' && (
+        <div className="pLeft24">
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={allowedit === '1'}
+              onClick={checked => {
+                if (editFeatureType === '2') {
+                  buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.editAttachment);
+                  return;
+                }
+                onChange(
+                  handleAdvancedSettingChange(data, { allowedit: String(+!checked), onlyeditself: String(+!checked) }),
+                );
+              }}
+            >
+              <span style={{ marginRight: '4px' }}>{_l('文档在线编辑')}</span>
+              <Tooltip
+                placement="bottom"
+                autoCloseDelay={0}
                 title={_l(
                   '基于WPS在线编辑能力，支持Office、WPS、PDF等主流文档格式编辑，最多10人在线协作编辑，最大文档尺寸100MB，具体可参考帮助文档说明。',
                 )}
@@ -597,7 +637,7 @@ export default function AttachmentVerify(props) {
               </div>
             </div>
           )}
-        </Fragment>
+        </div>
       )}
     </Fragment>
   );

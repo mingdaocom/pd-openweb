@@ -1,8 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
-import { Icon, Tooltip, Checkbox, Slider } from 'ming-ui';
-import { fromType, typeForCon, DefaultNameWidth, FONT_OPTION } from '../../config';
 import _ from 'lodash';
+import { Checkbox, Icon, Slider, Tooltip } from 'ming-ui';
+import { DefaultNameWidth, FONT_OPTION, fromType, typeForCon } from '../../config';
 
 const BasicsSettingConfig = [
   {
@@ -52,7 +52,7 @@ export default function BasicsSetting(props) {
         <span>{_l('名称宽度')}</span>
         <Slider
           className="flex mLeft12 nameSlider"
-          itemcolor="#2196F3"
+          itemcolor="#1677ff"
           showInput={false}
           min={50}
           max={150}

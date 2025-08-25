@@ -1,24 +1,24 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import './index.less';
-import nodeModules from './nodeModules';
-import End from './End';
-import { CreateNodeDialog, Thumbnail, NodeWrap, WhiteNode, ExceedDialog } from './components';
-import Detail from '../Detail';
 import cx from 'classnames';
-import { Dialog, LoadDiv, EditingBar, SvgIcon } from 'ming-ui';
-import { getSameLevelIds } from '../utils';
-import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../enum';
+import _ from 'lodash';
+import { Dialog, EditingBar, LoadDiv, SvgIcon } from 'ming-ui';
+import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import {
   addFlowNode,
   deleteFlowNode,
-  updateFlowNodeName,
-  updateNodeDesc,
   updateBranchGatewayType,
   updateBranchSort,
+  updateFlowNodeName,
+  updateNodeDesc,
 } from '../../redux/actions';
-import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import _ from 'lodash';
+import Detail from '../Detail';
+import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../enum';
+import { getSameLevelIds } from '../utils';
+import { CreateNodeDialog, NodeWrap, Thumbnail, WhiteNode } from './components';
+import End from './End';
+import nodeModules from './nodeModules';
+import './index.less';
 
 @errorBoundary
 class EditFlow extends Component {
@@ -137,9 +137,6 @@ class EditFlow extends Component {
    * 选择添加节点的id
    */
   selectAddNodeId = (nodeId, selectProcessId) => {
-    const { workflowDetail } = this.props;
-    const { flowNodeMap } = workflowDetail;
-
     this.props.changeFlowInfo(false);
 
     // if (
@@ -202,9 +199,7 @@ class EditFlow extends Component {
    * 创建复制节点
    */
   createCopyNode = () => {
-    const { workflowDetail } = this.props;
     const { nodeId, selectCopyIds, selectProcessId } = this.state;
-    const { flowNodeMap } = workflowDetail;
     const copyNodeSize = selectCopyIds.length;
 
     if (!copyNodeSize) {
@@ -312,7 +307,7 @@ class EditFlow extends Component {
     let pluginInputNode;
     let pluginOutputNode;
     let pluginInputNodeProps;
-    const nodeList = getSameLevelIds(data, firstId, excludeFirstId).map((id, i) => {
+    const nodeList = getSameLevelIds(data, firstId, excludeFirstId).map(id => {
       const props = {
         key: id,
         companyId: flowInfo.companyId,
@@ -547,7 +542,7 @@ class EditFlow extends Component {
               <SvgIcon url={flowInfo.iconName} fill="#fff" size={22} />
             </span>
           ) : (
-            <i className="workflowAvatar icon-workflow" style={{ background: flowInfo.iconColor || '#2196f3' }} />
+            <i className="workflowAvatar icon-workflow" style={{ background: flowInfo.iconColor || '#1677ff' }} />
           )
         }
         nodeName={flowInfo.name}
@@ -678,7 +673,7 @@ class EditFlow extends Component {
 
         {startNodeError && (
           <div className="Font15 workflowWarning workflowError">
-            <i className="icon-task-setting_promet mRight10 Gray_9e" />
+            <i className="icon-error1 mRight10 Gray_9e" />
             {_l('触发流程的数据对象已删除。必须重新设置触发方式后，才能配置其他节点')}
           </div>
         )}

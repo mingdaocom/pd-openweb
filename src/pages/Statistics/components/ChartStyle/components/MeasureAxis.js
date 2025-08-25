@@ -1,8 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
-import { Checkbox, Tooltip, Input } from 'antd';
-import cx from 'classnames';
-import { reportTypes } from 'statistics/Charts/common';
+import { Input } from 'antd';
 
 export default class MeasureAxis extends Component {
   constructor(props) {

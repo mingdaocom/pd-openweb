@@ -45,6 +45,7 @@ export const permissionInfo = (state = {}, action) => {
 
 export const actionParams = (
   state = {
+    relationControls: [],
     showControls: [],
     coverCid: '',
     isEdit: false,

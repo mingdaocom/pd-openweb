@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, Input } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import sheetAjax from 'src/api/worksheet';
@@ -112,7 +111,7 @@ export default class QuerySheet extends Component {
                 this.setState({ listVisible: false, keyWords: '' });
               }}
             >
-              <Icon icon="closeelement-bg-circle ThemeColor8 Font14" />
+              <Icon icon="cancel ThemeColor8 Font14" />
             </span>
           )}
         </div>

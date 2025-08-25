@@ -17,7 +17,6 @@ import {
   getAdvanceSetting,
   isSheetDisplay,
   resortControlByColRow,
-  toEditWidgetPage,
 } from '../../util';
 import {
   canAsUniqueWidget,
@@ -361,6 +360,7 @@ export default function SubListSetting(props) {
             {_l('全局不允许重复输入')}
             <Tooltip
               placement={'bottom'}
+              autoCloseDelay={0}
               title={_l(
                 '以下字段在关联表中设为不允许重复。除了在本记录中不能重复输入外，也不能与关联表中的所有数据重复。',
               )}

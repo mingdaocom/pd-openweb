@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
-import SearchBox from '../components/search/searchBox';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as actions from '../actions/entities';
+import _ from 'lodash';
 import * as currentActions from '../actions/current';
-import TabList from '../components/tabList';
+import * as actions from '../actions/entities';
+import SearchBox from '../components/search/searchBox';
 import StructureContent from '../components/structureContent';
 import ImportAndExport from '../components/structureContent/ImportAndExport';
 import ImportDepAndPosition from '../components/structureContent/ImportDepAndPosition';
-import _ from 'lodash';
+import TabList from '../components/tabList';
 
 class Root extends React.Component {
   constructor(props) {

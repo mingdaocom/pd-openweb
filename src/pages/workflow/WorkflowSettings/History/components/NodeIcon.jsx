@@ -1,8 +1,8 @@
 import React from 'react';
-import Icon from 'ming-ui/components/Icon';
-import { NODE_ICON } from '../config';
-import { APP_TYPE, ACTION_ID } from '../../enum';
 import _ from 'lodash';
+import Icon from 'ming-ui/components/Icon';
+import { ACTION_ID, APP_TYPE } from '../../enum';
+import { NODE_ICON } from '../config';
 
 export default ({ type, appType, actionId, isPlugin, isFirst, isLast }) => {
   let { icon, bgColor } = NODE_ICON[type] || {};
@@ -22,7 +22,7 @@ export default ({ type, appType, actionId, isPlugin, isFirst, isLast }) => {
 
   // 处理特殊的任务节点
   if (appType === APP_TYPE.TASK) {
-    icon = 'custom_assignment';
+    icon = 'assignment';
     bgColor = '#01CA83';
   }
 
@@ -39,19 +39,24 @@ export default ({ type, appType, actionId, isPlugin, isFirst, isLast }) => {
 
   // 插件输入参数异化
   if (isPlugin && isFirst) {
-    bgColor = '#2196f3';
+    bgColor = '#1677ff';
   }
 
   // 插件输出参数异化
   if (isPlugin && isLast) {
     icon = 'output';
-    bgColor = '#2196f3';
+    bgColor = '#1677ff';
   }
 
   // 校准数据
   if (_.includes([ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFRESH_MULTIPLE_DATA], actionId)) {
     icon = 'architecture';
     bgColor = '#01CA83';
+  }
+
+  // 处理特殊支付链接icon
+  if (actionId === ACTION_ID.RECORD_LINK_PAY) {
+    icon = 'Collection';
   }
 
   return (

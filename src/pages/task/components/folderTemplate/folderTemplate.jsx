@@ -1,11 +1,11 @@
-﻿import './less/folderTemplate.less';
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import cx from 'classnames';
-import ajaxRequest from 'src/api/taskCenter';
-import CreateFolder from '../createFolder/createFolder';
-import { errorMessage } from '../../utils/utils';
 import _ from 'lodash';
-import { LoadDiv, Dialog } from 'ming-ui';
+import { Dialog, LoadDiv } from 'ming-ui';
+import ajaxRequest from 'src/api/taskCenter';
+import { errorMessage } from '../../utils/utils';
+import CreateFolder from '../createFolder/createFolder';
+import './less/folderTemplate.less';
 
 export default class FolderTemplate extends Component {
   constructor(props) {
@@ -172,7 +172,7 @@ export default class FolderTemplate extends Component {
                       <div
                         className={cx('folderTemplateItem ellipsis', { folderTemplateItemPosition: tpl.templateId })}
                       >
-                        {tpl.templateId ? undefined : <i className="icon-addapplication" />}
+                        {tpl.templateId ? undefined : <i className="icon-add_circle" />}
                         {tpl.templateName}
                       </div>
 
@@ -192,7 +192,7 @@ export default class FolderTemplate extends Component {
                               data-tip={_l('删除模板')}
                               onClick={evt => this.delTemplate(tpl.templateId, evt)}
                             >
-                              <i className="icon-task-new-delete" />
+                              <i className="icon-trash" />
                             </span>
                           ) : undefined}
                         </div>

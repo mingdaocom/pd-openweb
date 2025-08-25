@@ -1,20 +1,19 @@
-import React, { Fragment, Component, forwardRef, useMemo, useEffect, useState } from 'react';
-import AppPermissions from '../components/AppPermissions';
-import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
-import cx from 'classnames';
-import { Popup } from 'antd-mobile';
+import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
-import { configureStore } from 'src/redux/configureStore';
+import { Popup } from 'antd-mobile';
+import cx from 'classnames';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import Back from 'mobile/components/Back';
+import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
+import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import { configureStore } from 'src/redux/configureStore';
 
 const RecordInfoPage = props => {
   const { params } = props.match;
   let { appId, worksheetId, viewId, rowId, from } = params;
 
-  if (rowId.indexOf('-') === -1) {
+  if (rowId.indexOf('-') === -1 && params.rowId === '21') {
     rowId = params.viewId;
     viewId = null;
     from = Number(params.rowId);
@@ -36,15 +35,14 @@ const RecordInfoPage = props => {
   );
 };
 
-export default AppPermissions(RecordInfoPage);
+export default RecordInfoPage;
 
-export const RecordInfoModal = forwardRef((props, ref) => {
+export const RecordInfoModal = forwardRef(props => {
   const {
     rowId,
     appId,
     worksheetId,
     viewId,
-    sheetSwitchPermit,
     getDataType,
     from,
     getDraftData = () => {},

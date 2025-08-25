@@ -1,8 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Icon from 'ming-ui/components/Icon';
 import { FLOW_STATUS } from '../config';
-import _ from 'lodash';
 
 const STATUS2ICON = {
   suspend: 'workflow_suspend',
@@ -11,7 +11,7 @@ const STATUS2ICON = {
   filter: 'workflow_suspend',
   overrule: 'workflow_suspend',
   revoke: 'repeal-o',
-  delete: 'workflow_info',
+  delete: 'report',
 };
 export default ({ statusCode = 1, config = FLOW_STATUS, className, size = 30, color = '#151515', textSize = 14 }) => {
   const { status, text } = config[statusCode];

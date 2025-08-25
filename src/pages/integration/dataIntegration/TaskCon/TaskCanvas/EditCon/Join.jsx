@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { WrapL } from './style';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { JOIN_TYPE } from '../config';
-import { Dropdown } from 'ming-ui';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import _ from 'lodash';
-import { TYPE_DATA, ALL_OPERATION_TYPE_DATA } from '../config';
+import { Dropdown } from 'ming-ui';
+import { JOIN_TYPE } from '../config';
+import { ALL_OPERATION_TYPE_DATA, TYPE_DATA } from '../config';
+import { WrapL } from './style';
 
 const PopupWrap = styled.ul`
   background: #ffffff;
@@ -19,12 +19,12 @@ const PopupWrap = styled.ul`
     padding: 14px 0;
     text-align: center;
     .icon {
-      color: #2196f3;
+      color: #1677ff;
     }
     &.isCur {
       background: rgba(33, 150, 243, 0.08);
-      color: #2196f3;
-      border: 1px solid #2196f3;
+      color: #1677ff;
+      border: 1px solid #1677ff;
     }
     .toolTipCon {
       border-radius: 6px;
@@ -316,7 +316,7 @@ export default function Join(props) {
                         ...(node.nodeConfig || {}),
                         config: {
                           ...(_.get(node, 'nodeConfig.config') || {}),
-                          conditions: (conditions || []).map((a, index) => {
+                          conditions: (conditions || []).map(a => {
                             return { ...a, logicalOperator: spliceType };
                           }),
                         },

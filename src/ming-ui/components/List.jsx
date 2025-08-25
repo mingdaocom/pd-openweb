@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
-import React, { Component, cloneElement } from 'react';
+import React, { cloneElement, Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './less/List.less';
-import _ from 'lodash';
 
 class List extends Component {
   static propTypes = {
@@ -29,9 +28,6 @@ class List extends Component {
       return item;
     });
 
-    const isAllEnd = _.every(React.Children.toArray(), item => {
-      return item.props.icon && item.props.iconAtEnd;
-    });
     const header = this.props.header
       ? cloneElement(this.props.header, { className: cx(this.props.header.props.className, 'List-header') })
       : undefined;

@@ -19,7 +19,6 @@ export default function FilterControl(props) {
   const [sheetList, setSheetList] = useState([]);
   const [initLoading, setInitLoading] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [searchValue, setSearchValue] = useState('');
 
   const { filterId, objectControls = [], dataType, advancedSetting } = filter;
   const filterObjectControls = _.uniqBy(objectControls, 'worksheetId');
@@ -102,7 +101,6 @@ export default function FilterControl(props) {
           placeholder={_l('请选择筛选字段')}
           notFoundContent={notFoundContent()}
           getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
-          onSearch={value => setSearchValue(value)}
           filterOption={(searchValue, option) => {
             const { value } = option;
             const { controlName } = _.find(templateControls, { controlId: value }) || {};
@@ -123,7 +121,7 @@ export default function FilterControl(props) {
             if (!index) {
               const firstSheet = _.find(sheetList, { worksheetId: _.get(filterObjectControls[0], 'worksheetId') });
               const control = _.find(_.get(firstSheet, 'template.controls'), { controlId: value }) || {};
-              const { controlId, ...data } = getSetDefault(control);
+              const { ...data } = getSetDefault(control);
               param.control = control;
               param.filterType = 0;
               param.values = [];
@@ -138,7 +136,6 @@ export default function FilterControl(props) {
               };
               Object.assign(param, data);
             }
-            setSearchValue('');
             setFilter(param);
           }}
         >
@@ -152,7 +149,7 @@ export default function FilterControl(props) {
             .filter(c => {
               if (index) {
                 // 兼容单选控件(平铺和下拉菜单)
-                if ([9, 11].includes(c.type) === [9, 11].includes(firstControlData.type)) {
+                if ([9, 11].includes(c.type) && [9, 11].includes(c.type) === [9, 11].includes(firstControlData.type)) {
                   return true;
                 }
                 return c.type === firstControlData.type;

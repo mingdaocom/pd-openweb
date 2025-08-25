@@ -1,4 +1,5 @@
 import React from 'react';
+
 export default props => (
   <svg width={84} height={84} {...props}>
     <g data-name="\u7EC4 18285">
@@ -14,7 +15,7 @@ export default props => (
           <path
             data-name="\u8DEF\u5F84 60034"
             d="M2.218 64.088L2 61.096l23.14-1.605 24.065-25.64 30.908 15-1.369 2.687-28.836-14-23.33 24.857z"
-            fill="#2196f3"
+            fill="#1677ff"
           />
         </g>
       </g>

@@ -59,7 +59,7 @@ export function selectItems(items) {
   };
 }
 
-export function selectSingleItem(item, extraState) {
+export function selectSingleItem(item) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
     const { list } = kcState;

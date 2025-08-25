@@ -1,15 +1,14 @@
 ﻿import React from 'react';
-import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import moment from 'moment';
-import { Dialog, Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
-import Dropdown from 'ming-ui/components/Dropdown';
+import Trigger from 'rc-trigger';
+import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
-import { addFriendConfirm } from 'ming-ui/functions';
-import departmentController from 'src/api/department';
+import { addFriendConfirm as addFriendConfirmFun } from 'ming-ui/functions';
 import { checkCertification } from 'src/components/checkCertification';
+import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
+import UserMoreProfile from 'src/components/UserInfoComponents/UserMoreProfile.jsx';
 import API, { removeFriend } from '../api';
 import { config } from '../config';
 import AddFriend from './AddFriend';
@@ -17,17 +16,11 @@ import AddFriend from './AddFriend';
 const defaultState = {
   data: null,
   isLoading: false,
-  isShowMenu: false,
-  isShowDetail: false,
-  hasProjects: false,
-  activeProjectId: '',
-  dropDownValue: '',
-  fullDepartmentInfo: {},
 };
 
 export default class UserDetail extends React.Component {
   constructor(props) {
-    super();
+    super(props);
 
     this.state = defaultState;
 
@@ -58,14 +51,11 @@ export default class UserDetail extends React.Component {
       .then(data => {
         if (data) {
           data.userCards = (_.get(data, 'userCards') || []).filter(item => item.companyName);
-          const { userCards } = data;
-          const hasProjects = userCards.length;
+
           this.setState({
             ...defaultState,
             // assign default state
             data,
-            hasProjects,
-            activeProjectId: hasProjects ? userCards[0].projectId : '',
           });
         } else {
           this.setState({
@@ -86,7 +76,7 @@ export default class UserDetail extends React.Component {
 
   addFriendConfirm() {
     const { accountId } = this.props;
-    addFriendConfirm({
+    addFriendConfirmFun({
       accountId,
     });
   }
@@ -125,58 +115,58 @@ export default class UserDetail extends React.Component {
       );
     } else {
       return (
-        <span
-          className="Right Gray_75 Hand Relative ThemeHoverColor3"
-          onClick={() => {
-            this.setState({
-              isShowMenu: true,
-            });
-          }}
-        >
-          <i className="Font14 icon-check_circle TxtMiddle" />
-          <span className="mLeft5 TxtMiddle Font12">{_l('我的好友')}</span>
-          <i className="Font14 mLeft5 icon-moreop TxtMiddle" />
-          {this.state.isShowMenu ? (
-            <Menu
-              onClickAway={() => {
-                this.setState({
-                  isShowMenu: false,
-                });
-              }}
-              con={'.contacts-detail-wrapper'}
-            >
-              <MenuItem icon={<Icon icon="hr_delete" className="TxtMiddle" />} onClick={this.deleteFriendConfirm}>
-                <span className="TxtMiddle">{_l('删除好友')}</span>
-              </MenuItem>
-            </Menu>
-          ) : null}
-        </span>
+        <div className="Right Relative pTop8">
+          <Trigger
+            action={['click']}
+            popupAlign={{
+              points: ['tr', 'br'],
+              offset: [-180, 4],
+              overflow: { adjustX: true, adjustY: true },
+            }}
+            popup={
+              <Menu con={'.contacts-detail-wrapper'}>
+                <MenuItem icon={<Icon icon="hr_delete" className="TxtMiddle" />} onClick={this.deleteFriendConfirm}>
+                  <span className="TxtMiddle">{_l('删除好友')}</span>
+                </MenuItem>
+              </Menu>
+            }
+          >
+            <span className="Gray_75 Hand ThemeHoverColor3">
+              <i className="Font14 icon-check_circle TxtMiddle" />
+              <span className="mLeft5 TxtMiddle Font12">{_l('我的好友')}</span>
+              <i className="Font14 mLeft5 icon-moreop TxtMiddle" />
+            </span>
+          </Trigger>
+        </div>
       );
     }
   }
 
   renderHeader() {
     const {
-      data: { avatar, fullname, companyName, profession, accountId, isContact },
+      data: { avatar, fullname, userCards = [], accountId, isContact },
     } = this.state;
+    const companyName = _.get(userCards, '[0].companyName');
+
     return (
       <React.Fragment>
         <div className="detail-header">
           <img src={avatar} className="detail-header-avatar" />
-          <div className="detail-header-info">
-            <div className="Font18 clearfix">
-              <div className="ellipsis Left" style={{ maxWidth: '200px' }}>
-                {fullname}
-              </div>
-              {this.renderFriendTag()}
+          <div className="detail-header-info flexRow">
+            <div className="flex ellipsis pRight10">
+              <div className="ellipsis bold">{fullname}</div>
+              {userCards.length > 1 ? (
+                <div className="ThemeColor">{_l('%0个共同组织', userCards.length)}</div>
+              ) : companyName ? (
+                <div className="Gray_75 ellipsis Font14">{companyName}</div>
+              ) : (
+                ''
+              )}
             </div>
-            <div className="overflowHidden user-info">
-              <div className="Font12 Gray_75 ellipsis">{companyName}</div>
-              <div className="Font12 Gray_75 ellipsis">{profession}</div>
-            </div>
+            {this.renderFriendTag()}
           </div>
         </div>
-        <div className="detail-btns mTop24">
+        <div className="detail-btns mTop24 mBottom24 flexRow alignItemsCenter bold">
           <a
             href="javascript:void 0;"
             className="detail-btn ThemeBGColor3 ThemeHoverBGColor2 NoUnderline"
@@ -188,262 +178,39 @@ export default class UserDetail extends React.Component {
               }
             }}
           >
-            <Icon icon="chat" className="mRight5 Font18" />
+            <Icon icon="chat" className="mRight5 Font18 TxtMiddle" />
             {_l('发消息')}
           </a>
           <a href={'/user_' + accountId} className="detail-btn Gray_75 mLeft10 NoUnderline" target="_blank">
-            <Icon icon="dynamic-empty" className="mRight10 Font17" />
+            <Icon icon="dynamic-empty" className="mRight10 Font17 TxtMiddle" />
             {_l('TA的动态')}
           </a>
+          <div className="flex"></div>
+          {this.renderDetail()}
         </div>
       </React.Fragment>
     );
   }
-
-  renderDetailCard() {
-    const {
-      data: { birthdate, gender, snsLinkedin, snsSina, weiXin },
-      isShowDetail,
-    } = this.state;
-    const placeHolder = <span className="Gray_bd">{_l('未填写')}</span>;
-    if (!isShowDetail) return null;
-    return (
-      <div className="Font13 detail-card border-top border-bottom">
-        <div className="detail-info-row half">
-          <span className="Gray_75">{_l('生日')}：</span>
-          {birthdate ? moment(birthdate).format('YYYY-MM-DD') : placeHolder}
-        </div>
-        <div className="detail-info-row half">
-          <span className="Gray_75">{_l('性别')}：</span>
-          {gender ? (gender === 1 ? _l('男') : _l('女')) : placeHolder}
-        </div>
-        <div className="detail-info-row half">
-          <span className="Gray_75">{_l('微信')}：</span>
-          {weiXin || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">LinkeIn：</span>
-          {snsLinkedin || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('新浪微博')}：</span>
-          {snsSina || placeHolder}
-        </div>
-      </div>
-    );
-  }
-
-  renderProjectCards() {
-    const { hasProjects } = this.state;
-    if (!hasProjects) return null;
-    const {
-      data: { userCards },
-    } = this.state;
-    return (
-      <React.Fragment>
-        <div className="Font15 mTop25 mBottom5">{_l('名片')}</div>
-        <div className="detail-tabs">{this.renderProjectsTab()}</div>
-        {this.renderProjectCard()}
-      </React.Fragment>
-    );
-  }
-
-  renderProjectsTab() {
-    const {
-      data: { userCards },
-    } = this.state;
-    const projects = userCards.slice(0);
-    const { activeProjectId, dropDownValue } = this.state;
-    const renderTab = projects => {
-      return (
-        <React.Fragment>
-          {_.map(projects, project => {
-            const isActive = activeProjectId === project.projectId;
-            return (
-              <div
-                key={project.projectId}
-                className={cx('detail-tab detail-tab-border', {
-                  'ThemeColor3 ThemeBorderColor3': isActive,
-                  'Gray_75 Hand': !isActive,
-                })}
-                onClick={() => {
-                  this.setState({
-                    activeProjectId: project.projectId,
-                  });
-                }}
-              >
-                {project.companyName}
-              </div>
-            );
-          })}
-        </React.Fragment>
-      );
-    };
-    if (projects.length <= 3) {
-      return renderTab(projects);
-    } else {
-      const prefix = projects.slice(0, 2);
-      const otherProjects = projects.slice(2);
-      const otherProjectIds = _.map(otherProjects, ({ projectId }) => projectId);
-      const dropdownProps = {
-        value: dropDownValue || otherProjectIds[0],
-        data: _.map(otherProjects, ({ projectId, companyName }) => ({
-          text: companyName,
-          value: projectId,
-          type: 'default',
-        })),
-        menuStyle: {
-          left: 'auto',
-          right: '0px',
-        },
-        onChange: projectId => {
-          this.setState({
-            activeProjectId: projectId,
-            dropDownValue: projectId,
-          });
-        },
-      };
-
-      return (
-        <React.Fragment>
-          {renderTab(prefix)}
-          <Dropdown
-            className={cx('detail-tab', {
-              'ThemeColor3 ThemeBorderColor3': otherProjectIds.indexOf(activeProjectId) !== -1,
-              Gray_75: otherProjectIds.indexOf(activeProjectId) === -1,
-            })}
-            {...dropdownProps}
-          />
-        </React.Fragment>
-      );
-    }
-  }
-
-  getDepartmentFullName = (departmentData = []) => {
-    let { fullDepartmentInfo = {} } = this.state;
-    const departmentIds = departmentData.map(item => item.departmentId).filter(it => !fullDepartmentInfo[it]);
-    if (_.isEmpty(departmentIds)) {
-      return;
-    }
-    departmentController
-      .getDepartmentFullNameByIds({
-        projectId: this.state.activeProjectId,
-        departmentIds,
-      })
-      .then(res => {
-        res.forEach(it => {
-          fullDepartmentInfo[it.id] = it.name;
-        });
-        this.setState({ fullDepartmentInfo });
-      });
-  };
 
   onCopyID = () => {
     copy(_.get(this.state.data, 'accountId'));
     alert(_l('复制成功'));
   };
 
-  renderProjectCard() {
-    const placeHolder = <span className="Gray_bd">{_l('未填写')}</span>;
-    const {
-      data: { userCards },
-      activeProjectId,
-      fullDepartmentInfo = {},
-    } = this.state;
-    const project = _.find(userCards, project => project.projectId === activeProjectId);
-    const { companyName, department, job, jobNumber, workSite, contactPhone, departmentInfos } = project;
-    return (
-      <div className="pTop5 Font13 mTop">
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('组织')}：</span>
-          {companyName || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('部门')}：</span>
-          {department ? (
-            <Tooltip
-              tooltipClass="departmentFullNametip"
-              popupPlacement="bottom"
-              text={
-                <div>
-                  {departmentInfos.map((v, depIndex) => {
-                    const fullName = (this.state.fullDepartmentInfo[v.departmentId] || '').split('/');
-                    return (
-                      <div className={cx({ mBottom8: depIndex < departmentInfos.length - 1 })}>
-                        {fullName.map((n, i) => (
-                          <span>
-                            {n}
-                            {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
-                          </span>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-              }
-              mouseEnterDelay={0.5}
-            >
-              <span onMouseEnter={() => this.getDepartmentFullName(departmentInfos)}>{department}</span>
-            </Tooltip>
-          ) : (
-            <span>{placeHolder}</span>
-          )}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('职位')}：</span>
-          {job || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('工号')}：</span>
-          {jobNumber || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('工作地点')}：</span>
-          {workSite || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('工作电话')}：</span>
-          {contactPhone || placeHolder}
-        </div>
-      </div>
-    );
-  }
-
   renderDetail() {
-    const {
-      data: { mobilePhone, email, isPrivateEmail, isPrivateMobile },
-      isShowDetail,
-    } = this.state;
-    const placeHolder = <span className="Gray_bd">{_l('未填写')}</span>;
     return (
       <React.Fragment>
-        <div className="Font13 mTop24">
-          <div className="detail-info-row">
-            <span className="Gray_75">{_l('电话')}：</span>
-            {isPrivateMobile ? _l('保密') : mobilePhone || placeHolder}
-          </div>
-          <div className="detail-info-row">
-            <span className="Gray_75">{_l('邮箱')}：</span>
-            {isPrivateEmail ? _l('保密') : email || placeHolder}
-          </div>
-        </div>
-        {this.renderDetailCard()}
-        <div className="mTop10 Font13 Gray_9e Hand ">
-          <span className="ThemeHoverColor3" onClick={() => this.setState({ isShowDetail: !isShowDetail })}>
-            <span>{isShowDetail ? '收起详情' : '展开详情'}</span>
-            {isShowDetail ? <Icon icon="arrow-up" className="mLeft5" /> : <Icon icon="arrow-down" className="mLeft5" />}
-          </span>
-          <span className="Gray_9e Hover_21 mLeft48 Hand" onClick={this.onCopyID}>
-            {_l('用户ID')}
-            <Icon icon="copy" className="mLeft5" />
-          </span>
-        </div>
+        <span className="Gray_9e Hover_21 Hand" onClick={this.onCopyID}>
+          {_l('用户ID')}
+          <Icon icon="copy" className="mLeft5" />
+        </span>
       </React.Fragment>
     );
   }
 
   render() {
     const { isLoading, data } = this.state;
+    const { userCards = [] } = data || {};
     const { accountId, projectId, hideBackBtn } = this.props;
     if (isLoading) {
       return (
@@ -457,7 +224,7 @@ export default class UserDetail extends React.Component {
       return <AddFriend accountId={accountId} />;
     }
     return (
-      <ScrollView>
+      <ScrollView className="h100">
         <div className="contacts-detail-wrapper">
           {projectId && !hideBackBtn && (
             <div className="back Hand mBottom24" onClick={this.props.back}>
@@ -465,8 +232,17 @@ export default class UserDetail extends React.Component {
             </div>
           )}
           {this.renderHeader()}
-          {this.renderDetail()}
-          {this.renderProjectCards()}
+          <UserBaseProfile
+            className="userProjectInfoWrap"
+            infoWrapClassName="flexColumn"
+            projects={userCards}
+            isAddressBook={true}
+            currentUserProject={
+              _.find(userCards, v => v.projectId === projectId) || (!_.isEmpty(userCards) && userCards[0]) || {}
+            }
+            userInfo={data}
+          />
+          <UserMoreProfile className="mTop10" userInfo={data} rowNum={2} />
         </div>
       </ScrollView>
     );

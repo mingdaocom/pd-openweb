@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import PropTypes from 'prop-types';
 import { Popup } from 'antd-mobile';
+import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import './index.less';
 
@@ -99,10 +99,8 @@ PopupWrapper.propTypes = {
   onClear: PropTypes.func,
   className: PropTypes.string,
   bodyClassName: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
   bodyStyle: PropTypes.object,
   maskClassName: PropTypes.string,
-  // eslint-disable-next-line react/forbid-prop-types
   maskStyle: PropTypes.object,
   mask: PropTypes.bool,
   children: PropTypes.node,

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Checkbox, Input } from 'antd';
 
 export default class SubLineCount extends Component {
@@ -16,18 +16,18 @@ export default class SubLineCount extends Component {
             <Checkbox
               className="mBottom10"
               checked={data.subTotal}
-              onChange={(event) => {
+              onChange={event => {
                 const param = {
                   pivotTable: {
-                    ...currentReport.pivotTable
-                  }
+                    ...currentReport.pivotTable,
+                  },
                 };
                 const newLines = lines.map(item => {
                   if (item.controlId === data.controlId) {
                     return {
                       ...item,
-                      subTotal: event.target.checked
-                    }
+                      subTotal: event.target.checked,
+                    };
                   }
                   return item;
                 });
@@ -38,9 +38,9 @@ export default class SubLineCount extends Component {
                       percent: {
                         ...n.percent,
                         enable: false,
-                        type: 2
-                      }
-                    }
+                        type: 2,
+                      },
+                    };
                   });
                 }
                 param.pivotTable.lines = newLines;
@@ -61,12 +61,12 @@ export default class SubLineCount extends Component {
                       if (item.controlId === data.controlId) {
                         return {
                           ...item,
-                          subTotalName: event.target.value
-                        }
+                          subTotalName: event.target.value,
+                        };
                       }
                       return item;
-                    })
-                  }
+                    }),
+                  },
                 });
               }}
             />

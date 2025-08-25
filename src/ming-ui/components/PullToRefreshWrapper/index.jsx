@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
 import { PullToRefresh } from 'antd-mobile';
+import PropTypes from 'prop-types';
 import './index.less';
 
 // 下拉释放的内容
@@ -9,7 +9,7 @@ const RenderLoading = () => {
     <div className="spinnerContainer">
       <div className="spinner"></div>
     </div>
-  )
+  );
 };
 
 const PullToRefreshWrapper = ({
@@ -28,17 +28,17 @@ const PullToRefreshWrapper = ({
     switch (mode) {
       case 'auto':
         onRefresh();
-        await new Promise((resolve) => timerRef.current = setTimeout(resolve, autoRefreshDuration));
+        await new Promise(resolve => (timerRef.current = setTimeout(resolve, autoRefreshDuration)));
         break;
       case 'manual':
         try {
           await onRefresh();
         } catch (e) {
-          throw e;
+          console.log(e);
         }
         break;
       default:
-    };
+    }
   };
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const PullToRefreshWrapper = ({
         {children}
       </PullToRefresh>
     </div>
-  )
+  );
 };
 
 PullToRefreshWrapper.propTypes = {
@@ -69,7 +69,7 @@ PullToRefreshWrapper.propTypes = {
    * 模式
    * auto：自动结束
    * manual：根据异步任务结束
-  */
+   */
   mode: PropTypes.oneOf(['auto', 'manual']),
   onRefresh: PropTypes.func,
   // 下拉的提示文案

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSetState } from 'react-use';
-import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Support } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -39,11 +38,11 @@ const Wrap = styled.div`
       cursor: pointer;
 
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
         background: #f5f5f5;
       }
       &.isActive {
-        color: #2196f3;
+        color: #1677ff;
         background: rgba(33, 150, 243, 0.07);
       }
     }
@@ -52,7 +51,7 @@ const Wrap = styled.div`
     padding: 0 24px;
     line-height: 36px;
     height: 36px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 18px;
     color: #fff;
     display: inline-block;

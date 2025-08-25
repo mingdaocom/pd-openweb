@@ -6,8 +6,6 @@ import Trigger from 'rc-trigger';
 import { LoadDiv, Menu, MenuItem } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet';
-import { SYS } from 'src/pages/widgetConfig/config/widget';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import {
   SearchWorksheetWrap,
@@ -17,8 +15,6 @@ import SelectWorksheet from 'src/pages/widgetConfig/widgetSetting/components/Sea
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import { getTranslateInfo } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
-
-const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);
 
 export default function ReviewFreeByWorksheetWrap(props) {
   const { appId, projectId, onChange, query, canChooseOtherApp } = props;
@@ -226,7 +222,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
           ) : (
             <div className="addFilterCondition pointer">
               <span
-                onClick={e => {
+                onClick={() => {
                   if (!sheetId) {
                     alert(_l('请选择工作表'), 3);
                     return;

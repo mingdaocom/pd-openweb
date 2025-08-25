@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Icon, LoadDiv, Dialog, RichText } from 'ming-ui';
-import cx from 'classnames';
+import React from 'react';
+import { Dialog, RichText } from 'ming-ui';
 import './editAgreementOrPrivacy.less';
+
 export default function EditAgreementOrPrivacy(props) {
   const { onChange, setShow } = props;
-  const Wrap = styled.div`
-    .showTool {
-    }
-  `;
 
   return (
     <Dialog

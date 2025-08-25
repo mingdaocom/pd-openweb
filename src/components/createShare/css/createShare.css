@@ -102,15 +102,21 @@
   background-color: #fff;
   border-top-width: 8px;
   border-top-style: solid;
-  -moz-box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2), 0 2px 12px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2), 0 2px 12px rgba(0, 0, 0, 0.2);
-  -webkit-box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2), 0 2px 12px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.2),
+    0 2px 12px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.2),
+    0 2px 12px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow:
+    0 6px 30px rgba(0, 0, 0, 0.2),
+    0 2px 12px rgba(0, 0, 0, 0.2);
 }
 .createShareAlertTitle {
   font-size: 16px;
   margin-bottom: 7px;
 }
-.createShareAlertTitle .icon-plus-interest {
+.createShareAlertTitle .icon-check_circle {
   font-size: 22px;
   vertical-align: top;
   display: inline-block;

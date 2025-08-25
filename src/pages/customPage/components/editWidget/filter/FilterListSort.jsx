@@ -1,6 +1,6 @@
 import React from 'react';
-import { SortableList } from 'ming-ui';
 import styled from 'styled-components';
+import { SortableList } from 'ming-ui';
 
 const SortableBtnListWrap = styled.ul`
   padding: 10px 0;
@@ -35,7 +35,7 @@ export default function FilterListSort({ filters, onSortEnd }) {
         useDragHandle
         items={filters}
         itemKey="filterId"
-        renderItem={(options) => renderSortableBtn({ ...options })}
+        renderItem={options => renderSortableBtn({ ...options })}
         onSortEnd={newItems => onSortEnd(newItems)}
       />
     </SortableBtnListWrap>

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import appManagementApi from 'src/api/appManagement';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import appManagementApi from 'src/api/appManagement';
 
 const Wrap = styled.div`
   width: 100%;

@@ -10,15 +10,11 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard.jsx';
 import { getRecordAttachments } from 'src/pages/worksheet/views/util.js';
 import { RENDER_RECORD_NECESSARY_ATTR } from 'src/pages/worksheet/views/util.js';
-import { getAdvanceSetting } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
 import { getRecordColorConfig } from 'src/utils/record';
 import { isEmojiCharacter, isTimeStyle } from './util';
-import { formatEventTime } from './util';
 
 const EventCardContent = ({
   info,
-  browserIsMobile,
   currentView = {},
   controls,
   worksheetInfo,
@@ -27,7 +23,6 @@ const EventCardContent = ({
   isCharge,
   sheetButtons = [],
   printList = [],
-  views,
   eventClick,
   ...props
 }) => {
@@ -63,9 +58,6 @@ const EventCardContent = ({
     });
     coverData = { ...coverData, value: urlList.join('') };
   }
-
-  const { abstract = '' } = getAdvanceSetting(currentView);
-  let abstractData = controls.find(it => it.controlId === abstract) || {};
 
   const formDataForCard = row => {
     const { displayControls = [] } = currentView;
@@ -112,12 +104,6 @@ const EventCardContent = ({
     fields: formDataForCard(item),
     formData,
     rowId: item.rowid,
-    abstractValue: abstract
-      ? renderCellText({
-          ...abstractData,
-          value: item[abstract],
-        })
-      : '',
   };
 
   return (

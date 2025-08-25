@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import PropTypes, { string } from 'prop-types';
-import { Icon, Tooltip } from 'ming-ui';
-import RelateBox from './RelateBox';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
+import { Icon, Tooltip } from 'ming-ui';
 import { DEFAULT_COLUMNS } from '../../enum';
-import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
+import RelateBox from './RelateBox';
+
 export default class RelateFilter extends Component {
   static propTypes = {
     disabled: PropTypes.bool,
@@ -23,8 +23,8 @@ export default class RelateFilter extends Component {
     };
   }
 
-  onChangeFn = (data, isRelate) => {
-    const { dynamicSource = {}, onChange } = this.props;
+  onChangeFn = data => {
+    const { onChange } = this.props;
     this.setState({
       keywords: '',
       showUl: false,
@@ -102,7 +102,7 @@ export default class RelateFilter extends Component {
               ? _l('选择已添加的筛选项')
               : _l('选择当前表单字段')
             : _.map(dynamicSource, (item, i) => {
-                if (showCustom && _.includes(['rowid', 'currenttime'], item.cid)) {
+                if (showCustom && _.includes(['rowid', 'currenttime', 'user-self'], item.cid)) {
                   return this.renderName(
                     item,
                     {

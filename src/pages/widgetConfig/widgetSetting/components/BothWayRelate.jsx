@@ -1,11 +1,11 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { RELATE_COUNT_TEXT, DISPLAY_TYPE_TEXT } from '../../config/setting';
-import { toEditWidgetPage } from '../../util';
-import _ from 'lodash';
 import { Tooltip } from 'antd';
-import { Support, Icon } from 'ming-ui';
+import _ from 'lodash';
+import { Icon, Support } from 'ming-ui';
+import { DISPLAY_TYPE_TEXT, RELATE_COUNT_TEXT } from '../../config/setting';
 import { BothRelateInfo } from '../../styled';
+import { toEditWidgetPage } from '../../util';
 
 export default function BothWayRelate(props) {
   const { data, globalSheetInfo = {} } = props;
@@ -48,6 +48,7 @@ export default function BothWayRelate(props) {
           <span className=" mRight5">{_l('关联的%0', name || sourceName)}</span>）
           <Tooltip
             placement="bottom"
+            autoCloseDelay={0}
             title={
               <span>
                 {_l(

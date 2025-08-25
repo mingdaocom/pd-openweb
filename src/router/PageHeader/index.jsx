@@ -1,9 +1,8 @@
 import React from 'react';
-import { string } from 'prop-types';
-import { Switch, Route } from 'react-router-dom';
-import { PAGE_HEADER_ROUTE_CONFIG } from './config';
+import { Route, Switch } from 'react-router-dom';
 import { withoutHeaderUrl } from '../config';
 import genRouteComponent from '../genRouteComponent';
+import { PAGE_HEADER_ROUTE_CONFIG } from './config';
 
 const genHeaderRouteComponent = genRouteComponent();
 export default () => (

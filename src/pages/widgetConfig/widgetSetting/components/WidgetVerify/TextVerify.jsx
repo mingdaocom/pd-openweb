@@ -1,15 +1,15 @@
-import React, { useState, Fragment, useEffect } from 'react';
-import { Dialog, Checkbox, Support, Icon, SortableList } from 'ming-ui';
-import cx from 'classnames';
-import styled from 'styled-components';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
-import { SettingItem } from '../../../styled';
+import cx from 'classnames';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Checkbox, Dialog, Icon, SortableList, Support } from 'ming-ui';
 import 'src/pages/widgetConfig/styled/style.less';
+import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, getSortItems } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import renderCustomFilter from '../CustomEvent/CustomFilter';
 import { FilterItemTexts } from '../FilterData';
-import _ from 'lodash';
 
 const FORMAT_CONFIG = [
   { text: _l('字母'), value: 'char', regExp: '^[A-Za-z]*$' },
@@ -46,7 +46,7 @@ const ConfigWrap = styled.div`
       cursor: pointer;
       transition: color 0.25s;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
   }
@@ -93,14 +93,14 @@ const FormatInfo = styled.div`
       color: #9e9e9e;
       margin-right: 10px;
       &:hover {
-        color: #2196f3;
+        color: #1677ff;
       }
     }
     .deleteBtn:hover {
       color: #f44336;
     }
     .filterIcon.active {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .textVerifyFilterValue {
@@ -123,7 +123,7 @@ const AddVerify = styled.div`
   height: 21px;
   color: #9e9e9e;
   &:hover {
-    color: #2196f3;
+    color: #1677ff;
   }
   &.disable i {
     cursor: not-allowed;
@@ -178,7 +178,7 @@ function SortableItem(props) {
         />
         <Icon
           className="mRight0 deleteBtn"
-          icon="delete1"
+          icon="trash"
           onClick={e => {
             e.stopPropagation();
             onDelete(sortIndex);

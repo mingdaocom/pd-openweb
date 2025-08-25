@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { find, get, includes } from 'lodash';
+import { find, get } from 'lodash';
 import { TagTextarea, Tooltip } from 'ming-ui';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { ROW_ID_CONTROL, SYSTEM_CONTROL } from '../../config/widget';
-import { ControlTag, SelectFieldsWrap, SettingItem } from '../../styled';
+import { ControlTag, SettingItem } from '../../styled';
 import { getConcatenateControls } from '../../util/data';
 import SelectControl from './SelectControl';
 
@@ -38,7 +38,7 @@ export default function Concatenate({
               $tagtextarea.current = tagtextarea;
             }}
             placeholder={placeholder}
-            renderTag={(id, options) => {
+            renderTag={id => {
               const originControl = find(availableControls, item => item.controlId === id);
               const controlName = get(originControl, 'controlName');
               const invalidError =

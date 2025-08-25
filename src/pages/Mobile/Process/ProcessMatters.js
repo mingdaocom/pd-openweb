@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import { Checkbox, Popup, Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import qs from 'query-string';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
@@ -16,7 +15,9 @@ import { getRequest } from 'src/utils/common';
 import { handlePushState, handleReplaceState } from 'src/utils/project';
 import Back from '../components/Back';
 import Card from './Card';
+import Filter from './Filter';
 import ProcessDelegation from './ProcessDelegation';
+import { formatQueryParam } from './utils';
 import './index.less';
 
 const ModalWrap = styled(Popup)`
@@ -108,13 +109,11 @@ const tabs = [
 export default class ProcessMatters extends Component {
   constructor(props) {
     super(props);
-    const { search } = props.location;
-    const data = qs.parse(search);
+    const { tab } = props.match.params;
     const savedTabs = localStorage.getItem('currentProcessTab')
       ? JSON.parse(localStorage.getItem('currentProcessTab'))
       : {};
-    const bottomTab = savedTabs.bottomTab || _.find(tabs, { id: data.tab }) || tabs[0] || {};
-
+    const bottomTab = savedTabs.bottomTab || _.find(tabs, { id: tab }) || tabs[0] || {};
     this.state = {
       pageIndex: 1,
       pageSize: 30,
@@ -124,8 +123,8 @@ export default class ProcessMatters extends Component {
       bottomTab: bottomTab,
       topTab: savedTabs.topTab
         ? savedTabs.topTab
-        : data.tab
-          ? _.find(bottomTab.tabs, { id: data.tab }) || bottomTab.tabs[0]
+        : tab
+          ? _.find(bottomTab.tabs, { id: tab }) || bottomTab.tabs[0]
           : bottomTab.tabs[0],
       searchValue: '',
       countData: {},
@@ -135,6 +134,8 @@ export default class ProcessMatters extends Component {
       approveCards: [],
       approveType: null,
       encryptType: null,
+      filterVisible: false,
+      queryParam: {},
     };
   }
   componentDidMount() {
@@ -158,7 +159,7 @@ export default class ProcessMatters extends Component {
   };
   getTodoList() {
     const param = {};
-    const { loading, isMore, topTab, bottomTab, searchValue } = this.state;
+    const { loading, isMore, topTab, bottomTab, searchValue, queryParam } = this.state;
     const { appId } = getRequest();
 
     if (loading || !isMore) {
@@ -179,12 +180,13 @@ export default class ProcessMatters extends Component {
       param.apkId = appId;
     }
 
-    const { pageIndex, pageSize, list, stateTab } = this.state;
+    const { pageIndex, pageSize, list } = this.state;
     this.request = instanceVersion.getTodoList({
       pageSize,
       pageIndex,
-      ...param,
       ...(topTab ? topTab.param : bottomTab.param),
+      ...formatQueryParam(queryParam),
+      ...param,
     });
 
     this.request.then(result => {
@@ -206,12 +208,29 @@ export default class ProcessMatters extends Component {
         const [approveList, writeList] = result;
         const approve = _.find(approveList, { app: { id: appId } });
         const write = _.find(writeList, { app: { id: appId } });
+        const appCount = {
+          approveCount: approve ? approve.count : 0,
+          writeCount: write ? write.count : 0,
+        };
         this.setState({
-          appCount: {
-            approveCount: approve ? approve.count : 0,
-            writeCount: write ? write.count : 0,
-          },
+          appCount,
         });
+        if (!appCount.approveCount && !appCount.writeCount) {
+          history.replaceState(null, '', location.origin + location.pathname);
+          getTodoCount().then(countData => {
+            this.setState(
+              {
+                countData,
+                loading: false,
+                pageIndex: 1,
+                isMore: true,
+              },
+              () => {
+                this.getTodoList();
+              },
+            );
+          });
+        }
       });
     } else {
       getTodoCount().then(countData => {
@@ -223,6 +242,9 @@ export default class ProcessMatters extends Component {
   }
   saveCurrentTab = (topTab, bottomTab) => {
     localStorage.setItem('currentProcessTab', JSON.stringify({ topTab, bottomTab }));
+  };
+  handleClearQuery = () => {
+    this.setState({ queryParam: {} });
   };
   handleChangeCompleteTab = tab => {
     this.saveCurrentTab(tab.tabs[0], tab);
@@ -255,10 +277,10 @@ export default class ProcessMatters extends Component {
       },
     );
   };
-  handleScrollEnd = tab => {
+  handleScrollEnd = () => {
     this.getTodoList();
   };
-  handleApproveDone = ({ id, workId }) => {
+  handleApproveDone = ({ workId }) => {
     const { list, countData, appCount, topTab = {} } = this.state;
     const { appId } = getRequest();
     if (appId) {
@@ -337,16 +359,19 @@ export default class ProcessMatters extends Component {
       .then(result => {
         if (result) {
           alert(_l('操作成功'), 1);
-          this.setState({
-            batchApproval: false,
-            approveCards: [],
-            list: [],
-            pageIndex: 1,
-            isMore: true
-          }, () => {
-            this.getTodoCount();
-            this.getTodoList();
-          });
+          this.setState(
+            {
+              batchApproval: false,
+              approveCards: [],
+              list: [],
+              pageIndex: 1,
+              isMore: true,
+            },
+            () => {
+              this.getTodoCount();
+              this.getTodoList();
+            },
+          );
         }
       });
   };
@@ -444,7 +469,7 @@ export default class ProcessMatters extends Component {
     );
   }
   renderRejectDialog() {
-    const { approveCards, batchApproval, filter, topTab } = this.state;
+    const { approveCards, batchApproval, filter, topTab, bottomTab } = this.state;
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const noRejectCards = approveCards.filter(c => !('5' in _.get(c, 'flowNode.btnMap')));
     return (
@@ -554,49 +579,76 @@ export default class ProcessMatters extends Component {
     }
   }
   renderInput() {
-    const { searchValue } = this.state;
+    const { searchValue, filterVisible, bottomTab, topTab, queryParam } = this.state;
+    const currentTab = topTab ? topTab.id : bottomTab.id;
     return (
-      <div className="searchWrapper valignWrapper">
-        <Icon icon="search" className="Gray_75 Font20 pointer" />
-        <input
-          value={searchValue}
-          type="text"
-          placeholder={_l('搜索记录名称')}
-          onChange={e => {
-            this.setState({
-              searchValue: e.target.value,
-            });
-          }}
-          onKeyDown={event => {
-            const { bottomTab, topTab } = this.state;
-            if (topTab) {
-              event.which === 13 && this.handleChangeTopTab(topTab);
-            } else {
-              event.which === 13 && this.handleChangeCompleteTab(bottomTab);
-            }
-          }}
-        />
-        {searchValue ? (
-          <Icon
-            icon="close"
-            className="Gray_75 Font20 pointer"
-            onClick={() => {
-              this.setState(
-                {
-                  searchValue: '',
-                },
-                () => {
-                  const { bottomTab, topTab } = this.state;
-                  if (topTab) {
-                    this.handleChangeTopTab(topTab);
-                  } else {
-                    this.handleChangeCompleteTab(bottomTab);
-                  }
-                },
-              );
+      <div className="searchWrapper flexRow">
+        <div className="inputWrap valignWrapper flex">
+          <Icon icon="search" className="Gray_75 Font20 pointer" />
+          <input
+            value={searchValue}
+            type="text"
+            placeholder={_l('搜索记录名称')}
+            onChange={e => {
+              this.setState({
+                searchValue: e.target.value,
+              });
+            }}
+            onKeyDown={event => {
+              const { bottomTab, topTab } = this.state;
+              if (topTab) {
+                event.which === 13 && this.handleChangeTopTab(topTab);
+              } else {
+                event.which === 13 && this.handleChangeCompleteTab(bottomTab);
+              }
             }}
           />
-        ) : null}
+          {searchValue && (
+            <Icon
+              icon="close"
+              className="Gray_75 Font20 pointer"
+              onClick={() => {
+                this.setState(
+                  {
+                    searchValue: '',
+                  },
+                  () => {
+                    const { bottomTab, topTab } = this.state;
+                    if (topTab) {
+                      this.handleChangeTopTab(topTab);
+                    } else {
+                      this.handleChangeCompleteTab(bottomTab);
+                    }
+                  },
+                );
+              }}
+            />
+          )}
+        </div>
+        <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
+          <Icon icon="filter" className={cx('Font20 Gray_9e', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })} />
+        </div>
+        <Filter
+          tab={currentTab}
+          todoListFilterParam={topTab ? topTab.param : bottomTab.param}
+          visible={filterVisible}
+          onClose={() => this.setState({ filterVisible: false })}
+          query={queryParam}
+          onQuery={data => {
+            this.setState(
+              {
+                loading: false,
+                pageIndex: 1,
+                isMore: true,
+                list: [],
+                queryParam: data,
+              },
+              () => {
+                this.getTodoList();
+              },
+            );
+          }}
+        />
       </div>
     );
   }
@@ -611,7 +663,7 @@ export default class ProcessMatters extends Component {
     );
   }
   renderContent() {
-    const { stateTab, batchApproval, list, loading, pageIndex, filter, bottomTab, topTab, approveCards } = this.state;
+    const { batchApproval, list, loading, pageIndex, filter, bottomTab, topTab, approveCards } = this.state;
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
         {list.map(item => (
@@ -675,13 +727,14 @@ export default class ProcessMatters extends Component {
     const { appId } = getRequest();
     return (
       <div className="processContent flexColumn h100">
-        <div className="flex flexColumn">
+        <div className="flexColumn h100">
           <div className="processTabs mBottom10 z-depth-1">
             <Tabs
               className="md-adm-tabs"
               activeLineMode="fixed"
               activeKey={_.get(topTab, 'id')}
               onChange={id => {
+                this.handleClearQuery();
                 this.handleChangeTopTab(_.find(currentTabs, { id }));
               }}
             >
@@ -778,6 +831,7 @@ export default class ProcessMatters extends Component {
               activeLineMode="fixed"
               activeKey={_.get(bottomTab, 'id')}
               onChange={id => {
+                this.handleClearQuery();
                 this.handleChangeCompleteTab(_.find(tabs, { id }));
               }}
             >
@@ -818,7 +872,7 @@ export default class ProcessMatters extends Component {
               this.setState({ batchApproval: true });
             }}
           >
-            <Icon className="Font20 Gray_9e" icon="task-complete" />
+            <Icon className="Font20 Gray_9e" icon="done_all" />
           </div>
         )}
         <ProcessRecordInfo

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
 import { getIcons } from '../../utils';
+import { CreateNode, NodeOperate } from '../components';
 
 export default class AIGC extends Component {
   constructor(props) {
@@ -21,7 +21,7 @@ export default class AIGC extends Component {
     if (item.isException) {
       return (
         <div className="pLeft8 pRight8 yellow">
-          <i className="icon-workflow_error Font18 mRight5" />
+          <i className="icon-info_outline Font18 mRight5" />
           {_l('节点存在异常')}
         </div>
       );

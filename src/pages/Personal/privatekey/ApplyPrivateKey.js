@@ -68,7 +68,7 @@ export default class ApplyPrivateKey extends Component {
   };
 
   render() {
-    const { serverId, projectName, job, scaleId, seconds, licenseVersion } = this.state;
+    const { serverId, projectName, job, scaleId, licenseVersion } = this.state;
     const privateVersion = getRequest().v;
     let showVersion = privateVersion && parseFloat(privateVersion) >= 5.3;
     const dataArr = [

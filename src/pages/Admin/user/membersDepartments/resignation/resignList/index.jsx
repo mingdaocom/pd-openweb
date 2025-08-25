@@ -5,8 +5,6 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Checkbox, Dialog, LoadDiv, UserHead, VerifyPasswordConfirm } from 'ming-ui';
 import userController from 'src/api/user';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-import { getCurrentProject } from 'src/utils/project';
 import Empty from '../../../../common/TableEmpty';
 import PaginationWrap from '../../../../components/PaginationWrap';
 import { downloadFile } from '../../../../util';
@@ -22,7 +20,7 @@ export default class ResignList extends React.Component {
     keywords: '',
   };
 
-  constructor(props) {
+  constructor() {
     super();
 
     this.state = {
@@ -120,8 +118,7 @@ export default class ResignList extends React.Component {
   recovery(accountId, fullName) {
     const { projectId } = this.props;
     Dialog.confirm({
-      title: _l('确认框'),
-      description: _l('确定恢复[%0]权限吗？', fullName),
+      title: _l('确定恢复 %0 权限吗？', fullName),
       onOk: () => {
         userController
           .recoveryUser({
@@ -155,7 +152,7 @@ export default class ResignList extends React.Component {
     }
     if (!list || !(list && list.length)) {
       const detail = {
-        icon: 'icon-sp_assignment_turned_in_white',
+        icon: 'icon-verify',
         desc: _l('无数据'),
       };
       return <Empty detail={detail} />;

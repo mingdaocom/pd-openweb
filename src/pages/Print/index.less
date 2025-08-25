@@ -34,6 +34,9 @@
     display: flex;
     width: 100%;
     height: calc(~'100% - 50px');
+    &.mobilePrintCon {
+      overflow-x: auto;
+    }
   }
 
   .pdfPng,
@@ -97,8 +100,8 @@
       border: 1px solid transparent;
     }
     .toPdf {
-      background: #2196f3;
-      border-color: #2196f3;
+      background: #1677ff;
+      border-color: #1677ff;
       color: #fff;
       &:hover {
         background: #1565c0;
@@ -107,8 +110,8 @@
     }
     .downWord {
       background: #fff;
-      border-color: #2196f3;
-      color: #2196f3;
+      border-color: #1677ff;
+      color: #1677ff;
       &:hover {
         color: #1565c0;
         border-color: #1565c0;
@@ -225,28 +228,6 @@
     background: #fff;
   }
 
-  .nano {
-    position: relative;
-    width: 100%;
-    height: auto !important;
-    overflow: initial;
-    padding: 0;
-    background: #fff;
-  }
-
-  .nano > .nano-content {
-    position: initial;
-    overflow: initial;
-    overflow-x: initial;
-    padding: 0;
-    background: #fff;
-    height: auto !important;
-  }
-
-  .nano-pane {
-    display: none;
-  }
-
   .printTem .printContent {
     width: 100% !important;
     max-width: 100% !important;
@@ -264,7 +245,6 @@
 
   #app,
   #wrapper,
-  #containerWrapper,
   #container,
   .printTem,
   .printTemCon,

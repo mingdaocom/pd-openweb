@@ -16,6 +16,7 @@ import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
+import { getRequest } from 'src/utils/common';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
 import { VersionProductType } from 'src/utils/enum';
 import { dateConvertToUserZone, getFeatureStatus } from 'src/utils/project';
@@ -67,8 +68,8 @@ const TabWrap = styled.div`
       background-color: #f5f5f5;
     }
     &.active {
-      color: #2196f3;
-      border-bottom-color: #2196f3;
+      color: #1677ff;
+      border-bottom-color: #1677ff;
     }
   }
 `;
@@ -119,6 +120,7 @@ export default class AppAndWorksheetLog extends Component {
     const columns = md.global.Config.IsLocal
       ? APP_WORKSHEET_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
       : APP_WORKSHEET_LOG_COLUMNS;
+    const { oldsheetlog } = getRequest(location.search);
     this.state = {
       appList: [],
       worksheetList: [],
@@ -137,6 +139,7 @@ export default class AppAndWorksheetLog extends Component {
       logType: localStorage.getItem('globalLogTab') ? +localStorage.getItem('globalLogTab') : 0,
       disabledExportBtn: false,
       isAuthority: true, // 是否有权限（应用： 管理员、运营者，后台超级管理员）
+      showWorksheetLog: !!oldsheetlog,
     };
     this.columns = columns
       .map(item => {
@@ -159,7 +162,7 @@ export default class AppAndWorksheetLog extends Component {
             const { projectId } = this.props;
             const { accountId, avatar, fullname } = operator;
             const { appId, appName, appIconUrl, appIconColor, createType, urlTemplate, status } = application;
-            const { id, name, sectionId } = appItem;
+            const { id, name } = appItem;
 
             switch (item.dataIndex) {
               case 'accountId':
@@ -190,6 +193,7 @@ export default class AppAndWorksheetLog extends Component {
                     {isNormalUser ? (
                       <UserName
                         className="Gray Font13 pRight10 pTop3 flex ellipsis"
+                        projectId={projectId}
                         user={{
                           userName: fullname,
                           accountId: accountId,
@@ -236,9 +240,9 @@ export default class AppAndWorksheetLog extends Component {
                       rUserList: extrasAccounts,
                     })
                   : '';
-                const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
+                const txt = (isUser ? message : opeartContent).replace(/<a.*?>/, '').replace(/<\/a>/, '');
                 return opeartContent ? (
-                  <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
+                  <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom" autoCloseDelay={0}>
                     <span
                       className="wMax100 ellipsis InlineBlock"
                       dangerouslySetInnerHTML={{ __html: isUser ? filterXss(message) : filterXss(opeartContent) }}
@@ -304,7 +308,7 @@ export default class AppAndWorksheetLog extends Component {
           appPageIndex: appPageIndex + 1,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingApp: false });
       });
   };
@@ -555,7 +559,7 @@ export default class AppAndWorksheetLog extends Component {
           disabledExportBtn: _.isEmpty(res.list),
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loading: false, dataSource: [], disabledExportBtn: true });
       });
   };
@@ -617,7 +621,7 @@ export default class AppAndWorksheetLog extends Component {
           });
         }
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ disabledExportBtn: false });
       });
   };
@@ -637,7 +641,7 @@ export default class AppAndWorksheetLog extends Component {
 
         this.setState({ controls, showRecordLog: true, currentRowInfo: record, loadingControlDetails: false });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({ loadingControlDetails: false });
       });
   };
@@ -789,7 +793,7 @@ export default class AppAndWorksheetLog extends Component {
                   {archivedItem.start} {_l('至')} {archivedItem.end}
                 </div>
                 <Icon
-                  icon="closeelement-bg-circle"
+                  icon="cancel"
                   className="Font20 mLeft10 Gray_9e ThemeHoverColor3 pointer"
                   onClick={() => this.setState({ archivedItem: {}, searchValues: {} }, this.getLogList)}
                 />

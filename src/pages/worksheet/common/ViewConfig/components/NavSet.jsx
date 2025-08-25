@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import React from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import NavShow from './navGroup/NavShow';
 import NavSort from './NavSort';
-import styled from 'styled-components';
 
 const Wrap = styled.div`
   .Dropdown {
@@ -24,6 +24,8 @@ export default function NavSet(props) {
     navGroupId,
     canShowAll,
     canShowNull,
+    forBoard,
+    hideSort,
   } = props;
   const { advancedSetting = {} } = view;
   const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
@@ -36,7 +38,9 @@ export default function NavSet(props) {
         params={{
           types: NAVSHOW_TYPE.filter(o =>
             type === 29
-              ? true //关联记录 4项
+              ? forBoard
+                ? ['1', '2'].includes(o.value) //看板分组设置异化不显示全部和筛选
+                : true //关联记录 4项
               : [9, 10, 11, 28].includes(type) // 排除筛选
                 ? o.value !== '3'
                 : [26, 27, 48].includes(type) //分组字段为人员时，显示设置只有 显示有数据的项，显示指定项
@@ -79,6 +83,7 @@ export default function NavSet(props) {
       {/*  支持排序的字段：关联记录、人员、选项、等级*/}
       {[29, 26, 9, 10, 11, 28, 27, 48].includes(type) && !['2'].includes(navshow) && (
         <NavSort
+          hideSort={hideSort}
           view={view}
           viewControlData={{ ...viewControlData, type }}
           appId={_.get(currentSheetInfo, 'appId')}

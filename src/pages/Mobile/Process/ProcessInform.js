@@ -1,11 +1,8 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import qs from 'query-string';
-import Icon from 'ming-ui/components/Icon';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import ScrollView from 'ming-ui/components/ScrollView';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
@@ -14,13 +11,14 @@ import { handlePushState, handleReplaceState } from 'src/utils/project';
 import Back from '../components/Back';
 import Card from './Card';
 import { processInformTabs } from './enum';
+import Filter from './Filter';
+import { formatQueryParam } from './utils';
 import './index.less';
 
 export default class ProcessInform extends Component {
   constructor(props) {
     super(props);
-    const { search } = props.location;
-    const { tab } = qs.parse(search);
+    const { tab } = props.match.params;
     this.state = {
       pageIndex: 1,
       pageSize: 30,
@@ -31,6 +29,8 @@ export default class ProcessInform extends Component {
       searchValue: '',
       countData: {},
       previewRecord: {},
+      filterVisible: false,
+      queryParam: {},
     };
   }
   componentDidMount() {
@@ -48,7 +48,7 @@ export default class ProcessInform extends Component {
   };
   getTodoList() {
     const param = {};
-    const { loading, isMore, currentTab, searchValue } = this.state;
+    const { loading, isMore, currentTab, searchValue, queryParam } = this.state;
 
     if (loading || !isMore) {
       return;
@@ -68,12 +68,13 @@ export default class ProcessInform extends Component {
       param.keyword = searchValue;
     }
 
-    const { pageIndex, pageSize, list, stateTab } = this.state;
+    const { pageIndex, pageSize, list } = this.state;
     this.request = instanceVersion.getTodoList({
       pageSize,
       pageIndex,
       type: 5,
       ...param,
+      ...formatQueryParam(queryParam),
     });
 
     this.request.then(result => {
@@ -92,6 +93,9 @@ export default class ProcessInform extends Component {
       });
     });
   }
+  handleClearQuery = () => {
+    this.setState({ queryParam: {} });
+  };
   handleChangeCompleteTab = id => {
     this.setState(
       {
@@ -106,7 +110,7 @@ export default class ProcessInform extends Component {
       },
     );
   };
-  handleScrollEnd = tab => {
+  handleScrollEnd = () => {
     this.getTodoList();
   };
 
@@ -122,39 +126,73 @@ export default class ProcessInform extends Component {
   };
 
   renderInput() {
-    const { searchValue } = this.state;
+    const { searchValue, filterVisible, currentTab, queryParam } = this.state;
     return (
-      <div className="searchWrapper valignWrapper">
-        <Icon icon="search" className="Gray_9e Font20 pointer" />
-        <input
-          value={searchValue}
-          type="text"
-          placeholder={_l('搜索记录名称')}
-          onChange={e => {
-            this.setState({
-              searchValue: e.target.value,
-            });
-          }}
-          onKeyDown={event => {
-            event.which === 13 && this.handleChangeCompleteTab(this.state.currentTab);
-          }}
-        />
-        {searchValue ? (
-          <Icon
-            icon="close"
-            className="Gray_75 Font20 pointer"
-            onClick={() => {
-              this.setState(
-                {
-                  searchValue: '',
-                },
-                () => {
-                  this.handleChangeCompleteTab(this.state.currentTab);
-                },
-              );
+      <div className="searchWrapper flexRow">
+        <div className="inputWrap valignWrapper flex">
+          <Icon icon="search" className="Gray_9e Font20 pointer" />
+          <input
+            value={searchValue}
+            type="text"
+            placeholder={_l('搜索记录名称')}
+            onChange={e => {
+              this.setState({
+                searchValue: e.target.value,
+              });
+            }}
+            onKeyDown={event => {
+              event.which === 13 && this.handleChangeCompleteTab(currentTab);
             }}
           />
-        ) : null}
+          {searchValue && (
+            <Icon
+              icon="close"
+              className="Gray_75 Font20 pointer"
+              onClick={() => {
+                this.setState(
+                  {
+                    searchValue: '',
+                  },
+                  () => {
+                    this.handleChangeCompleteTab(currentTab);
+                  },
+                );
+              }}
+            />
+          )}
+        </div>
+        {['unread', 'already'].includes(currentTab) && (
+          <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
+            <Icon
+              icon="filter"
+              className={cx('Font20 Gray_9e', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
+            />
+          </div>
+        )}
+        <Filter
+          tab={currentTab}
+          todoListFilterParam={{
+            type: 5,
+            complete: currentTab === 'already',
+          }}
+          visible={filterVisible}
+          onClose={() => this.setState({ filterVisible: false })}
+          query={queryParam}
+          onQuery={data => {
+            this.setState(
+              {
+                loading: false,
+                pageIndex: 1,
+                isMore: true,
+                list: [],
+                queryParam: data,
+              },
+              () => {
+                this.getTodoList();
+              },
+            );
+          }}
+        />
       </div>
     );
   }
@@ -169,10 +207,10 @@ export default class ProcessInform extends Component {
     );
   }
   renderContent() {
-    const { stateTab, list, loading, pageIndex, filter, currentTab, countData } = this.state;
+    const { list, loading, pageIndex, filter, currentTab, countData } = this.state;
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
-        {currentTab === 'unread' && countData.waitingExamine ? (
+        {currentTab === 'unread' && countData.waitingExamine && !!list.length ? (
           <div className="valignWrapper w100 pTop15 pBottom15 pRight15 pLeft15 Height50">
             <div className="flex Font15 bold">{_l('%0个待查看', countData.waitingExamine)}</div>
             <div className="pointer" onClick={this.handleAllRead}>
@@ -239,13 +277,16 @@ export default class ProcessInform extends Component {
     const { currentTab, countData, previewRecord } = this.state;
     return (
       <div className="processContent flexColumn h100">
-        <div className="flex flexColumn">
+        <div className="flex flexColumn overflowHidden">
           <div className="processTabs mBottom10 z-depth-1">
             <Tabs
               className="md-adm-tabs"
               activeLineMode="fixed"
               activeKey={currentTab}
-              onChange={this.handleChangeCompleteTab}
+              onChange={id => {
+                this.handleClearQuery();
+                this.handleChangeCompleteTab(id);
+              }}
             >
               {processInformTabs.map(tab => (
                 <Tabs.Tab
@@ -266,7 +307,7 @@ export default class ProcessInform extends Component {
               history.back();
             }}
           />
-          {currentTab === 'already' ? this.renderInput() : null}
+          {this.renderInput()}
           {this.renderContent()}
           <ProcessRecordInfo
             isModal

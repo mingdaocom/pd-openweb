@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { array, bool, func, number, object, string } from 'prop-types';
+import filterXSS from 'xss';
 import { Icon, Linkify, Tooltip, UserHead } from 'ming-ui';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
@@ -309,7 +310,7 @@ export default class StepItem extends Component {
     const SYSTEM_TEXT = {
       1: _l('自动通过'),
       2: _l('限时自动通过'),
-      3: _l('批量处理'),
+      3: '',
     };
 
     return (
@@ -321,6 +322,7 @@ export default class StepItem extends Component {
               <Tooltip
                 tooltipClass="workflowStepFieldsWrap "
                 popupPlacement={'bottom'}
+                autoCloseDelay={0}
                 text={
                   <ul>
                     {fields.map(({ name, toValue }, index) => (
@@ -332,7 +334,7 @@ export default class StepItem extends Component {
                   </ul>
                 }
               >
-                <Icon icon="workflow_info" className="Font16 Gray_75 mLeft4" />
+                <Icon icon="report" className="Font16 Gray_75 mLeft4" />
               </Tooltip>
             )}
           </div>
@@ -482,7 +484,7 @@ export default class StepItem extends Component {
             backgroundColor: maxEndTimeConsuming > 0 ? '#FCE4E3' : '#eef7ee',
           }}
         >
-          <Icon icon={maxEndTimeConsuming > 0 ? 'overdue_network' : 'task'} className="Font14 mRight2" />
+          <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
           {_l('耗时：%0', this.covertTime(maxTimeConsuming) || _l('1秒'))}
         </span>
       </span>
@@ -500,7 +502,7 @@ export default class StepItem extends Component {
     const min = (time - day * 24 * 60 * 60 * 1000 - hour * 60 * 60 * 1000) / 60 / 1000;
 
     return `${day ? _l('%0天', day) : ''}${hour ? _l('%0小时', hour) : ''}${
-      min ? _l('%0分钟', isUp ? Math.ceil(min) : Math.floor(min) || 1) : ''
+      min ? _l('%0分钟', isUp ? (Math.ceil(min) === 60 ? 59 : Math.ceil(min)) : Math.floor(min) || 1) : ''
     }`;
   }
 
@@ -532,7 +534,7 @@ export default class StepItem extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#2196f3',
+          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#1677ff',
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { renderText as renderCellText } from 'src/utils/control';
 
 export function parseRecord(record = {}, mapViewConfig, controls) {
@@ -7,18 +8,12 @@ export function parseRecord(record = {}, mapViewConfig, controls) {
     { noMask: _.get(titleField, 'advancedSetting.datamask') !== '1' },
   );
 
-  const abstractField = controls.find(l => l.controlId === mapViewConfig.abstract) || {};
-  const abstractValue = record[abstractField.controlId]
-    ? renderCellText({ ...abstractField, value: abstractField.controlId ? record[abstractField.controlId] : undefined })
-    : '';
-
   return {
     position: safeParse(record[mapViewConfig.positionId]),
     title: titleValue || _l('未命名'),
     summary: record[mapViewConfig.summaryId],
     cover: record[mapViewConfig.coverId],
     record,
-    abstract: abstractValue,
   };
 }
 

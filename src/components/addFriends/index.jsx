@@ -211,7 +211,7 @@ class AddFriends extends Component {
           title={
             <div className="inviteBackIcon">
               <div className="iconBox" onClick={() => this.setDetailMode(DETAIL_MODE.NORMAL)}>
-                <Icon icon="arrow_back" />
+                <Icon icon="backspace" />
               </div>
               {DETAIL_MODE_TEXT[detailMode]}
             </div>
@@ -263,7 +263,7 @@ class SelectProject extends Component {
                       </Fragment>
                     ) : (
                       <Fragment>
-                        <span className="icon-task-select-other Font18 ThemeColor3"></span>
+                        <span className="icon-account_circle Font18 ThemeColor3"></span>
                         <span className="flex pLeft12 ellipsis">
                           {_l('个人好友')}
                           <span className="Font12">{_l('(非同事)')}</span>

@@ -1,16 +1,4 @@
-/**
- * 左侧补 0
- */
-/**
- * 左侧补 0
- */
-/**
- * 左侧补 0
- */
-/**
- * 左侧补 0
- */
-const padZero = (value) => {
+const padZero = value => {
   return value < 10 ? `0${value}` : value.toString();
 };
 const isTimeEarly = (a, b) => {
@@ -90,7 +78,7 @@ const Calender = {
   /**
    * 上个月
    */
-  prevMonth: (time) => {
+  prevMonth: time => {
     const year = time.getFullYear();
     const month = time.getMonth();
 
@@ -107,7 +95,7 @@ const Calender = {
   /**
    * 下个月
    */
-  nextMonth: (time) => {
+  nextMonth: time => {
     const year = time.getFullYear();
     const month = time.getMonth();
 
@@ -160,7 +148,7 @@ const Calender = {
   /**
    * 左侧补 0
    */
-  padZero: (value) => {
+  padZero: value => {
     return padZero(value);
   },
   /**

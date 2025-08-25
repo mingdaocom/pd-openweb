@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import styled from 'styled-components';
-import { FIELD_TYPE_LIST } from '../../../enum';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { FIELD_TYPE_LIST } from '../../../enum';
 
 const Box = styled.div`
   margin-top: 10px;

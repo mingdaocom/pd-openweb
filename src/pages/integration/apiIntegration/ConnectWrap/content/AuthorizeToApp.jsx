@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { LoadDiv, Checkbox, Dropdown, SvgIcon } from 'ming-ui';
-import { TableWrap } from 'src/pages/integration/apiIntegration/style';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
+import { ConfigProvider, Table } from 'antd';
+import styled from 'styled-components';
+import { Checkbox, Dropdown, LoadDiv, SvgIcon } from 'ming-ui';
 import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
-import { Table, ConfigProvider } from 'antd';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
 import processAjax from 'src/pages/workflow/api/process.js';
-import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+import { TableWrap } from 'src/pages/integration/apiIntegration/style';
 import Member from 'src/pages/workflow/WorkflowSettings/Detail/components/Member/index.jsx';
+import { NODE_TYPE, USER_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
+
 const TRIGGER_TYPE = {
   ALLOW: 0,
   ONLY_WORKFLOW: 1,
@@ -36,7 +37,7 @@ const Wrap = styled.div`
   }
   .addButtn {
     padding: 8px 24px;
-    background: #2196f3;
+    background: #1677ff;
     border-radius: 21px;
     color: #fff;
     display: inline-block;
@@ -91,7 +92,7 @@ const WrapCon = styled.div`
     justify-content: center;
   }
   .addApp {
-    color: #2196f3;
+    color: #1677ff;
     &:hover {
       color: #1764c0;
     }
@@ -205,7 +206,7 @@ function AuthorizeToApp(props) {
         },
         { isIntegration: true },
       )
-      .then(res => {
+      .then(() => {
         setState({ info: data });
         props.hasChange();
       });
@@ -319,7 +320,7 @@ function AuthorizeToApp(props) {
         },
         { isIntegration: true },
       )
-      .then(res => {
+      .then(() => {
         setState({
           optionLoading: false,
         });

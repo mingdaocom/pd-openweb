@@ -1,24 +1,24 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Icon, Tooltip, Button } from 'ming-ui';
+import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import SortColumns from 'src/pages/worksheet/components/SortColumns';
-import Input from 'src/pages/worksheet/common/CreateCustomBtn/components/Inputs';
+import { Icon, Tooltip } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
-import { DEF_TYPES, DEF_R_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import _ from 'lodash';
+import Input from 'src/pages/worksheet/common/CreateCustomBtn/components/Inputs';
+import { DEF_R_TYPES, DEF_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config';
+import SortColumns from 'src/pages/worksheet/components/SortColumns';
 
 const AddButton = styled.div`
   display: inline-flex;
   padding: 0 10px;
   height: 32px;
   max-width: 100%;
-  border: 1px solid #EAEAEA;
+  border: 1px solid #eaeaea;
   border-radius: 15px;
-  background-color: #FFFFFF;
-  color: #2196F3;
+  background-color: #ffffff;
+  color: #1677ff;
   transition: all 0.3s;
   &:hover {
     color: #1079cc;
@@ -27,7 +27,9 @@ const AddButton = styled.div`
 
 const SortColumnsWrap = styled.div`
   width: 300px;
-  box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
+  box-shadow:
+    0 4px 20px #00000021,
+    0 2px 6px #0000001a;
   border-radius: 3px;
   .searchBar {
     padding: 0 10px;
@@ -91,7 +93,7 @@ const DefaultValueInputWrap = styled.div`
     }
     .ant-input:focus,
     .ant-input-focused {
-      border-color: #2196f3 !important;
+      border-color: #1677ff !important;
       box-shadow: none !important;
     }
     .selectOtherFieldContainer {
@@ -112,27 +114,30 @@ function DefaultValue(props) {
 
   useEffect(() => {
     if (btnId && _.isEmpty(temporaryWriteControls) && !isEmptyWriteControls) {
-      sheetApi.getWorksheetBtnByID({
-        appId,
-        worksheetId,
-        btnId
-      }).then(data => {
-        const { writeControls } = data;
-        changeTemporaryWriteControls(writeControls);
-        setShowControls(writeControls.map(c => c.controlId));
-      });
+      sheetApi
+        .getWorksheetBtnByID({
+          appId,
+          worksheetId,
+          btnId,
+        })
+        .then(data => {
+          const { writeControls } = data;
+          changeTemporaryWriteControls(writeControls);
+          setShowControls(writeControls.map(c => c.controlId));
+        });
     }
   }, [btnId]);
 
   const changeTemporaryWriteControls = writeControls => {
     onChangeConfig({
       ...config,
+      controls,
       temporaryWriteControls: writeControls,
-      isEmptyWriteControls: writeControls.length ? undefined : true
+      isEmptyWriteControls: writeControls.length ? undefined : true,
     });
-  }
+  };
 
-  const defaultValueInput = (data) => {
+  const defaultValueInput = data => {
     const control = _.find(controls, { controlId: data.controlId });
 
     if (_.isEmpty(control)) return null;
@@ -156,8 +161,8 @@ function DefaultValue(props) {
 
     const advancedSetting = {
       ..._.omit(control.advancedSetting, ['dynamicsrc', 'defaultfunc']),
-      defaulttype: ''
-    }
+      defaulttype: '',
+    };
 
     if (control.type === 34 && data.defsource) {
       advancedSetting.defaulttype = '0';
@@ -167,25 +172,27 @@ function DefaultValue(props) {
       <div className="mBottom15" key={control.controlId}>
         <div className="mBottom10 Font13">{control.controlName}</div>
         <div className="valignWrapper">
-          <DefaultValueInputWrap className={cx({ notOther: ![26, 15, 16, 17, 18, 46].includes(control.type) || control.type === 34 })}>
+          <DefaultValueInputWrap
+            className={cx({ notOther: ![26, 15, 16, 17, 18, 46].includes(control.type) || control.type === 34 })}
+          >
             <Input
               item={data}
               data={{
                 ...control,
                 advancedSetting: {
                   ...advancedSetting,
-                  defsource: getDefsource(data)
-                }
+                  defsource: getDefsource(data),
+                },
               }}
               writeObject={1}
               allControls={controls}
               globalSheetInfo={{
                 projectId,
                 appId,
-                worksheetId
+                worksheetId,
               }}
               titleControl={(_.get(control, ['relationControls']) || []).find(o => o.attribute === 1)}
-              onChange={(data, isOptions) => {
+              onChange={data => {
                 const { advancedSetting = {} } = data;
                 let { defsource } = advancedSetting;
                 if ([9, 10, 11].includes(data.type)) {
@@ -201,8 +208,8 @@ function DefaultValue(props) {
                   if (c.controlId === control.controlId) {
                     return {
                       ...c,
-                      defsource
-                    }
+                      defsource,
+                    };
                   }
                   return c;
                 });
@@ -222,21 +229,17 @@ function DefaultValue(props) {
         </div>
       </div>
     );
-  }
+  };
 
   return (
     <div className="settingItem">
       <div className="settingTitle valignWrapper mBottom10">
         <span>{_l('默认值')}</span>
         <Tooltip text={<span>{_l('通过点击按钮创建记录时，将会优先生效此处配置的默认值')}</span>}>
-          <Icon className="mLeft5 Gray_9e Font16 pointer" icon="novice-circle" />
+          <Icon className="mLeft5 Gray_9e Font16 pointer" icon="help" />
         </Tooltip>
       </div>
-      {
-        temporaryWriteControls.map((control) => (
-          defaultValueInput(control)
-        ))
-      }
+      {temporaryWriteControls.map(control => defaultValueInput(control))}
       <Trigger
         action={['click']}
         popupAlign={{
@@ -244,9 +247,9 @@ function DefaultValue(props) {
           overflow: {
             adjustX: true,
             adjustY: true,
-          }
+          },
         }}
-        popup={(
+        popup={
           <SortColumnsWrap>
             <SortColumns
               layout={2}
@@ -259,7 +262,7 @@ function DefaultValue(props) {
                   return false;
                 }
                 // 关联表列表
-                if ((c.type === 29 && _.get(c, ['advancedSetting', 'showtype']) === '2')) {
+                if (c.type === 29 && _.get(c, ['advancedSetting', 'showtype']) === '2') {
                   return false;
                 }
                 return FILTER_TYPES.includes(c.type);
@@ -273,8 +276,8 @@ function DefaultValue(props) {
                   const data = {
                     controlId: control.controlId,
                     type: 2,
-                    defsource: undefined
-                  }
+                    defsource: undefined,
+                  };
                   changeTemporaryWriteControls(temporaryWriteControls.concat(data));
                 }
                 if (removeControlId) {
@@ -283,7 +286,7 @@ function DefaultValue(props) {
               }}
             />
           </SortColumnsWrap>
-        )}
+        }
       >
         <AddButton className="valignWrapper pointer">
           <Icon className="Font17" icon="add" />

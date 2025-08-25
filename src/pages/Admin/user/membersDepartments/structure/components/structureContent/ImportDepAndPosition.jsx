@@ -66,7 +66,7 @@ const ImportWrap = styled.div`
         color: #f51744;
       }
       .color_blue {
-        color: #2196f3;
+        color: #1677ff;
       }
       .importUploadModule {
         display: flex;
@@ -103,7 +103,7 @@ const ImportWrap = styled.div`
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        .icon-task_custom_excel_01 {
+        .icon-new_excel {
           font-size: 50px;
         }
         .uploadBtnStyle {
@@ -111,9 +111,9 @@ const ImportWrap = styled.div`
           width: 108px;
           height: 32px;
           border-radius: 32px;
-          border: 1px solid #2196f3;
+          border: 1px solid #1677ff;
           background-color: #ffffff;
-          color: #2196f3;
+          color: #1677ff;
         }
       }
       .importBtn {
@@ -195,7 +195,7 @@ const ListErrorInfo = styled.div`
       color: #898989;
     }
     .primaryColor {
-      color: #2196f3;
+      color: #1677ff;
     }
   }
   .errorList {
@@ -334,7 +334,7 @@ class ImportDepAndPosition extends Component {
         <div className="serialTitle mTop32">{_l('1.下载导入模版')}</div>
         <div className="importUploadModule">
           <div className="importUploadText">
-            <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
+            <span className="Font20 mRight10 mBottom2 icon-new_excel color_gr TxtMiddle" />
             <span className="Font17">{_l('导入部门模板')}</span>
           </div>
           <a className="Font16 downloadBtn" href={dptTemplatePaths[getCurrentLangCode()]} target="_blank">
@@ -361,7 +361,7 @@ class ImportDepAndPosition extends Component {
     let { fileName } = this.state;
     return (
       <div className="importExcelBox" id="importExcelBox">
-        <span className={cx('icon-task_custom_excel_01', fileName ? 'color_gr' : 'color_d')} />
+        <span className={cx('icon-new_excel', fileName ? 'color_gr' : 'color_d')} />
         <span className="Font13 mTop10 color_dd">{fileName ? fileName : _l('支持 excel')}</span>
         <UploadFile fileName={fileName} updateUploadInfo={this.updateUploadInfo} />
       </div>
@@ -377,6 +377,7 @@ class ImportDepAndPosition extends Component {
       const requestData = {
         projectId: Config.projectId,
         fileName: this.state.fileUrl,
+        originalFileName: this.state.fileName,
         ticket: rsp.ticket,
         randstr: rsp.randstr,
         captchaType: md.global.getCaptchaType(),
@@ -414,7 +415,7 @@ class ImportDepAndPosition extends Component {
             });
           }
         })
-        .catch(res => {
+        .catch(() => {
           _this.setState({ importError: true, importFileLoading: false });
         });
     };
@@ -445,7 +446,7 @@ class ImportDepAndPosition extends Component {
       return (
         <ColErrorInfo>
           <div className="colErrorInfo">
-            <Icon icon="delete_out" className="errorIcon" />
+            <Icon icon="cancel" className="errorIcon" />
             <span>{_l('超出导入数量限制,单次导入上限1000行记录！')}</span>
           </div>
           <div className="backact Hand" onClick={this.backAct}>
@@ -457,7 +458,7 @@ class ImportDepAndPosition extends Component {
       return (
         <ColErrorInfo>
           <div className="colErrorInfo">
-            <Icon icon="delete_out" className="errorIcon" />
+            <Icon icon="cancel" className="errorIcon" />
             <span>{_l('导入文件列名有误，请检查，或从导入模版中重新下载！')}</span>
           </div>
           <div className="backact Hand" onClick={this.backAct}>
@@ -470,7 +471,7 @@ class ImportDepAndPosition extends Component {
       return (
         <ListErrorInfo>
           <div className="listErrorInfo">
-            <Icon icon="delete_out" className="errorIcon" />
+            <Icon icon="cancel" className="errorIcon" />
             <div>
               <div>{_l('%0错误，请检查！', importOrExport)}</div>
               <div className="Gray_89 Font14">
@@ -494,7 +495,7 @@ class ImportDepAndPosition extends Component {
       <ImportWrap>
         <div className="exportHeader">
           <Icon
-            icon="arrow_back"
+            icon="backspace"
             onClick={() => {
               this.props.updateShowExport(false);
               this.props.updateImportType('');

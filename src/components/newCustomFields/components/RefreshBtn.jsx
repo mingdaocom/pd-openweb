@@ -8,7 +8,7 @@ import { FROM } from '../tools/config';
 import { isPublicLink } from '../tools/utils';
 
 export default props => {
-  const { disabledFunctions = [], from, recordId, item, worksheetId, disabled, onChange } = props;
+  const { disabledFunctions = [], from, recordId, item, worksheetId, onChange } = props;
   const [isRefresh, setRefresh] = useState(false);
   const isMobile = browserIsMobile();
 
@@ -34,7 +34,7 @@ export default props => {
           setRefresh(true);
 
           sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId: item.controlId }).then(data => {
-            if (item.value !== data) {
+            if ((item.value || '') !== data) {
               onChange(data, item.controlId, item);
             }
             if (isMobile) {

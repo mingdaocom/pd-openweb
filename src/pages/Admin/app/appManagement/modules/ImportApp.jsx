@@ -84,7 +84,7 @@ export default class ImportApp extends React.Component {
             },
           );
         },
-        Error: (up, err, errTip) => {
+        Error: () => {
           this.setState({
             file: {},
             url: '',
@@ -201,12 +201,12 @@ export default class ImportApp extends React.Component {
                 <Progress
                   style={{ width: 250 }}
                   trailColor="#eaeaea"
-                  strokeColor="#2196f3"
+                  strokeColor="#1677ff"
                   strokeWidth={8}
                   percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
                 />
                 <span
-                  className="icon-cancel1 Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
+                  className="icon-cancel Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
                   onClick={() => {
                     this.uploader.stop();
                     this.uploader.removeFile(file);
@@ -294,6 +294,7 @@ export default class ImportApp extends React.Component {
               <Tooltip
                 popupPlacement="top"
                 text={<span>{_l('将工作表、工作流、角色中的人员部门职位与网络中的进行匹配可保证应用的完整性')}</span>}
+                autoCloseDelay={0}
               >
                 <span className="Gray_bd icon-help1 Font15"></span>
               </Tooltip>

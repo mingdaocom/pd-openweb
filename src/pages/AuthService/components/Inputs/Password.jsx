@@ -52,7 +52,7 @@ export default function (props) {
           type={inputType}
           className="passwordIcon"
           ref={InputRef}
-          onBlur={e => {
+          onBlur={() => {
             let data = _.filter(warnList, it => !('inputPassword' === it.tipDom && it.noErr));
             onChange({ focusDiv: '', warnList: data });
           }}
@@ -60,7 +60,7 @@ export default function (props) {
           onChange={e => passwordOnWarn(e.target.value, true, { password: e.target.value })}
           autoComplete={'new-password'} //密码不自动填充
         />
-        <div className="title" onClick={e => onChange({ focusDiv: 'inputPassword' })}>
+        <div className="title" onClick={() => onChange({ focusDiv: 'inputPassword' })}>
           {_l('密码')}
         </div>
         {keys.includes('setPassword') && (

@@ -1,24 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import styled from 'styled-components';
+import withClickAway from 'ming-ui/decorators/withClickAway';
 import './EditableCellCon.less';
-
-const ReadOnlyTip = styled.div`
-  display: none;
-  border: 2px solid #2d7ff9;
-  position: absolute;
-  left: 0px;
-  right: 0px;
-  top: 100%;
-  border-top: none;
-  margin-top: -2px;
-  background: #fff;
-  padding: 0 6px;
-  color: #9d9d9d;
-`;
 
 const Con = styled.div`
   .editIcon {
@@ -40,7 +26,6 @@ function EditableCellCon(props) {
     error,
     iconName,
     iconClassName,
-    editable,
     isediting,
     popupContainer,
     onIconClick,

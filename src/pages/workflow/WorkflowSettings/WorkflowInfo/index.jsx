@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-import { Textarea, SvgIcon } from 'ming-ui';
-import './index.less';
-import { Drawer } from 'antd';
 import { connect } from 'react-redux';
+import { Drawer } from 'antd';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { SvgIcon, Textarea } from 'ming-ui';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { updateProcess } from '../../redux/actions';
 import { DetailFooter } from '../Detail/components';
-import Trigger from 'rc-trigger';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import styled from 'styled-components';
+import './index.less';
 
 const PluginIcon = styled.div`
   width: 36px;
@@ -29,7 +29,7 @@ class WorkflowInfo extends Component {
     this.state = {
       name: props.flowInfo.name,
       explain: props.flowInfo.explain || '',
-      iconColor: props.flowInfo.iconColor || '#2196f3',
+      iconColor: props.flowInfo.iconColor || '#1677ff',
       iconName: props.flowInfo.iconName || '',
     };
   }
@@ -39,7 +39,7 @@ class WorkflowInfo extends Component {
       this.setState({
         name: nextProps.flowInfo.name,
         explain: nextProps.flowInfo.explain || '',
-        iconColor: nextProps.flowInfo.iconColor || '#2196f3',
+        iconColor: nextProps.flowInfo.iconColor || '#1677ff',
         iconName: nextProps.flowInfo.iconName || '',
       });
     }

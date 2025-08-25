@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
@@ -109,7 +110,7 @@ export default function (props) {
   useEffect(() => {
     let list = LOGIN_WAY.map(o => o.key).filter(o => loginMode[o]);
     setState({
-      type: !!loginForType
+      type: loginForType
         ? loginForType //已指定登录方式的情况下，直接走对应登录方式
         : paramForPcWx || request.mdAppId //扫码后 需要填写手机号 //微信扫码登录流程回跳只进手机号验证码流程
           ? 'phone'
@@ -148,7 +149,7 @@ export default function (props) {
           } else if (statusList.includes(res.accountResult)) {
             // _l('需要收集信息');
             setStatus(res.accountResult);
-          } else if ([20].includes(accountResult)) {
+          } else if ([20].includes(res.accountResult)) {
             return alert(
               registerMode.email && registerMode.phone
                 ? _l('手机号/邮箱或者验证码错误!')
@@ -173,7 +174,7 @@ export default function (props) {
         )
         .then(res => {
           setAutoLoginKey({ ...res, appId });
-          const { accountResult, sessionId, state, accountId } = res;
+          const { accountResult, state, accountId } = res;
           //31过期， 30未扫码，可继续轮询
           if (accountResult === 31) {
             setState({ scan: false });
@@ -264,7 +265,7 @@ export default function (props) {
   };
 
   const loginCallback = res => {
-    const { accountResult, sessionId, accountId, projectId, state } = res;
+    const { accountResult, accountId, state } = res;
     state && setLogState(state);
     let info = { account: dialCode + emailOrTel };
     if (accountId) info.accountId = accountId;
@@ -313,7 +314,7 @@ export default function (props) {
       )
       .then(res => {
         setAutoLoginKey({ ...res, appId });
-        const { accountResult, sessionId, accountId, projectId, state } = res;
+        const { accountResult, state } = res;
         switch (accountResult) {
           case -1:
             if (allowUserType === 9) {
@@ -332,7 +333,7 @@ export default function (props) {
             break;
           case -3:
             // -3代表密码不符合格式规范，后端会强行校验；
-            const { md = {} } = window;
+            const { md = {} } = window || {};
             const { global = {} } = md;
             const { SysSettings = {} } = global;
             const { passwordRegexTip } = SysSettings;
@@ -417,7 +418,7 @@ export default function (props) {
   return (
     <WrapUl>
       {/* 未指定登录方式的情况下，对应tab,以及头部显示内容 */}
-      {!!(loginForType && status !== -6) ? (
+      {loginForType && status !== -6 ? (
         <div
           className="Font17 Hand back Gray_75"
           onClick={() => {
@@ -455,7 +456,7 @@ export default function (props) {
           )}
           {(paramForPcWx || request.mdAppId || status === -6) && (
             <p className="Gray mTop20 Bold mBottom5">
-              <Icon icon={'check_circle1'} className="Font20 TxtMiddle mRight5" style={{ color: '#4CAF50' }} />
+              <Icon icon="check_circle" className="Font20 TxtMiddle mRight5" style={{ color: '#4CAF50' }} />
               {status === -6
                 ? _l('已开启登录保护，验证码登录')
                 : registerMode.email && registerMode.phone
@@ -469,7 +470,7 @@ export default function (props) {
             LOGIN_WAY.filter(o => loginMode[o.key]).length > 1 && (
               <React.Fragment>
                 <ul className="flexRow mTop32 alignItemsCenter justifyContentCenter loginWays">
-                  {LOGIN_WAY.map((o, i) => {
+                  {LOGIN_WAY.map(o => {
                     if (!loginMode[o.key]) {
                       return '';
                     }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, FunctionWrap } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement.js';
@@ -10,7 +11,7 @@ const DialogCom = styled(Dialog)`
   .checkAdminDialog {
     .Button--primary {
       background: #f5f5f5;
-      color: #2196f3;
+      color: #1677ff;
       &:hover {
         background: #f5f5f5;
       }

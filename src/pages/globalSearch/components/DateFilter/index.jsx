@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Trigger from 'rc-trigger';
-import moment from 'moment';
+import React, { useRef, useState } from 'react';
 import cx from 'classnames';
-import { Icon, DatePicker } from 'ming-ui';
+import moment from 'moment';
+import Trigger from 'rc-trigger';
+import { DatePicker, Icon } from 'ming-ui';
 import './index.less';
 
 const DATE_PICK_OPTIONS = [
@@ -42,7 +42,6 @@ const DATE_PICK_OPTIONS = [
 ];
 
 export default function DateFilter(props) {
-
   const { options = DATE_PICK_OPTIONS, value = DATE_PICK_OPTIONS[0], onChange } = props;
 
   const ref = useRef(null);
@@ -59,10 +58,14 @@ export default function DateFilter(props) {
         <ul className="globalSearch-data-filter-select">
           {options.map(item => {
             return item.key !== 'custom' ? (
-              <li className={cx('selectItem', {active: value && value.key===item.key})} key={`data-filter-select-${item.key}`} onClick={() => {
-                onChange(item);
-                setVisible(false);
-              }}>
+              <li
+                className={cx('selectItem', { active: value && value.key === item.key })}
+                key={`data-filter-select-${item.key}`}
+                onClick={() => {
+                  onChange(item);
+                  setVisible(false);
+                }}
+              >
                 {item.label}
               </li>
             ) : (
@@ -77,7 +80,7 @@ export default function DateFilter(props) {
                   onClear={() => onChange({ ...item, value: undefined })}
                   onSelect={() => {}}
                 >
-                  <li className={cx('selectItem', {active: value && value.key===item.key})}>{_l('自定义日期')}</li>
+                  <li className={cx('selectItem', { active: value && value.key === item.key })}>{_l('自定义日期')}</li>
                 </DatePicker.RangePicker>
               </div>
             );
@@ -86,8 +89,12 @@ export default function DateFilter(props) {
       }
     >
       <span className="globalSearchDateFilter Gray_9e valignWrapper">
-        <Icon icon="event" className="mRight5 Font14"/>
-        {value.key==='clear' ? _l('按更新时间') : value.key==='custom' ? `${moment(value.value[0]).format('YYYY-MM-DD')}${_l('至')}${moment(value.value[1]).format('YYYY-MM-DD')}` : value.label}
+        <Icon icon="event" className="mRight5 Font14" />
+        {value.key === 'clear'
+          ? _l('按更新时间')
+          : value.key === 'custom'
+            ? `${moment(value.value[0]).format('YYYY-MM-DD')}${_l('至')}${moment(value.value[1]).format('YYYY-MM-DD')}`
+            : value.label}
       </span>
     </Trigger>
   );

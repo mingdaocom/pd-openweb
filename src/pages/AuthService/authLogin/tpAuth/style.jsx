@@ -12,7 +12,7 @@ export const Wrap = styled.div`
 
   .tpLoginContent {
     a {
-      color: #2196f3;
+      color: #1677ff;
     }
     a:hover {
       text-decoration: none;

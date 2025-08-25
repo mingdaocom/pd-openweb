@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { string, func } from 'prop-types';
-import Icon from 'ming-ui/components/Icon';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import { func, string } from 'prop-types';
+import Icon from 'ming-ui/components/Icon';
+import './index.less';
 
 export default class Search extends Component {
   static propTypes = {
@@ -41,7 +41,7 @@ export default class Search extends Component {
           placeholder={placeholder}
           onChange={e => this.handleChange(e.target.value)}
         />
-        <Icon icon="workflow_find" className="search Gray_75 Font16" />
+        <Icon icon="search" className="search Gray_75 Font16" />
         <Icon
           icon="close"
           onClick={() => this.handleChange('')}

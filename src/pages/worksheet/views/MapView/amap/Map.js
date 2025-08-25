@@ -1,8 +1,8 @@
 import React from 'react';
-import MapLoader from 'ming-ui/components/amap/MapLoader';
-import log from './utils/log';
-import { getAMapPosition, isFun, toCapitalString } from './utils/common';
 import PropTypes from 'prop-types';
+import MapLoader from 'ming-ui/components/amap/MapLoader';
+import { getAMapPosition, isFun, toCapitalString } from './utils/common';
+import log from './utils/log';
 
 const Component = React.Component;
 const Children = React.Children;

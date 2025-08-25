@@ -142,7 +142,7 @@ export const Header = styled.div`
       .back {
         color: #757575;
         &:hover {
-          color: #2196f3;
+          color: #1677ff;
         }
       }
     }
@@ -161,7 +161,7 @@ export const Header = styled.div`
       max-width: 500px;
       border: none;
       font-size: 17px;
-      border-bottom: 2px solid #2196f3;
+      border-bottom: 2px solid #1677ff;
     }
   }
   .ming.Button--secondary {
@@ -184,7 +184,7 @@ export const Header = styled.div`
     &.Hand {
       cursor: pointer;
       &:hover {
-        border: 1px solid #2196f3;
+        border: 1px solid #1677ff;
       }
     }
   }
@@ -197,7 +197,7 @@ export const Header = styled.div`
     border-radius: 3px;
     text-align: center;
     font-weight: 600;
-    background: #2196f3;
+    background: #1677ff;
     &:hover {
       background: #1e88e5;
     }
@@ -278,8 +278,8 @@ export const WrapPreview = styled.div`
       border-radius: 3px;
       border: 1px solid #bfbfbf;
       &:hover {
-        color: #2196f3;
-        border: 1px solid #2196f3;
+        color: #1677ff;
+        border: 1px solid #1677ff;
       }
       &.refreshBtn:hover {
         color: #ffa340;
@@ -298,7 +298,7 @@ export const WrapPreview = styled.div`
   .searchInputComp.default .icon-search {
     font-size: 20px;
     &:hover {
-      color: #2196f3 !important;
+      color: #1677ff !important;
     }
   }
   .previewHeader {

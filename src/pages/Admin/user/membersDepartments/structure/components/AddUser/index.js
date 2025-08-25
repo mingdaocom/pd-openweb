@@ -194,6 +194,8 @@ export default class AddUser extends Component {
       workSiteId = '',
       contactPhone = '',
       orgRoles = [],
+      useMultiJobs,
+      departmentJobInfos = [],
     } = this.baseFormInfo.state;
     const { projectId } = this.props;
     const errors = {
@@ -226,6 +228,12 @@ export default class AddUser extends Component {
           ) ||
             !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
     }
+
+    if (useMultiJobs && !!departmentJobInfos.filter(item => !item.departmentId).length) {
+      alert(_l('多任职信息中部门不能为空'), 3);
+      check = true;
+    }
+
     if (check) {
       return false;
     } else {
@@ -240,6 +248,11 @@ export default class AddUser extends Component {
         account: inviteType === 'mobile' ? mobile : email,
         accountId: !md.global.Config.IsLocal || !_.isEmpty(user) ? user.accountId : '',
         orgRoleIds: orgRoles.map(l => l.id).join(';'),
+        useMultiJobs,
+        departmentJobIdMaps: departmentJobInfos.map(item => ({
+          departmentId: item.departmentId,
+          jobIds: item.jobIds,
+        })),
       };
       if (md.global.Config.IsLocal) {
         params.verifyType = _.includes(['mobile', 'email'], inviteType) ? 0 : 1;
@@ -259,14 +272,14 @@ export default class AddUser extends Component {
       importUserController
         .inviteUser(params)
         .then(data => {
+          const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
+          const failReason = failUsers && failUsers.length ? _.get(failUsers, '[0].failReason') : '';
           if (!data || data.actionResult == RESULTS.FAILED) {
-            alert(_l('邀请失败'), 1);
+            alert(_l(failReason || '邀请失败'), 2);
           } else if (data.actionResult == RESULTS.OVERINVITELIMITCOUNT) {
             alert(_l('超过邀请数量限制'), 3);
           } else {
-            const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
             if (failUsers && failUsers.length) {
-              const failReason = failUsers[0].failReason;
               alert(failReason || _l('邀请失败'), 2);
             } else if (successUsers || successCount) {
               alert(_l('邀请成功'), 1);
@@ -303,7 +316,7 @@ export default class AddUser extends Component {
             this.mobile.value = '';
           }
         })
-        .catch(err => {
+        .catch(() => {
           this.setState({ isUploading: false });
         });
     }
@@ -356,10 +369,7 @@ export default class AddUser extends Component {
               <span className="userLabel">
                 <img src={user.avatar} />
                 <span className="userLabelName">{user.fullname}</span>
-                <span
-                  className="mLeft5 icon-closeelement-bg-circle Font14 Gray_c Hand"
-                  onClick={this.clearSelectUser}
-                />
+                <span className="mLeft5 icon-cancel Font14 Gray_c Hand" onClick={this.clearSelectUser} />
               </span>
               <Tooltip text={_l('从通讯录添加')}>
                 <span

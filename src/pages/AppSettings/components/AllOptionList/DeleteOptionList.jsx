@@ -1,11 +1,10 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { LoadDiv, ScrollView, Dialog } from 'ming-ui';
-import worksheetAjax from 'src/api/worksheet';
-import styled from 'styled-components';
-import { toEditWidgetPage } from 'src/pages/widgetConfig/util';
-import { navigateTo } from 'src/router/navigateTo';
+import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import worksheetAjax from 'src/api/worksheet';
+import { toEditWidgetPage } from 'src/pages/widgetConfig/util';
 
 const OptionQuoteWrap = styled.div`
   height: 300px;
@@ -16,7 +15,7 @@ const OptionQuoteWrap = styled.div`
     border-radius: 3px;
     &:hover {
       background-color: #f5f5f5;
-      color: #2196f3;
+      color: #1677ff;
     }
     &.disabled {
       cursor: auto;
@@ -45,7 +44,7 @@ const Empty = styled.div`
     background: #f5f5f5;
   }
 `;
-export default function DeleteOptionList({ collectionId, name, title, description, type, ...rest }) {
+export default function DeleteOptionList({ collectionId, name, title, type, ...rest }) {
   const [loading, setLoading] = useState(true);
   const [controls, setControls] = useState(rest.controls || []);
   const [dataInfo, setDataInfo] = useState(rest.dataInfo || {});
@@ -70,7 +69,7 @@ export default function DeleteOptionList({ collectionId, name, title, descriptio
         }
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setLoading(false);
       });
   };
@@ -120,7 +119,7 @@ export default function DeleteOptionList({ collectionId, name, title, descriptio
       {...rest}
     >
       <OptionQuoteWrap>
-        <ScrollView>
+        <ScrollView className="h100">
           {loading ? (
             <LoadDiv />
           ) : type === 'checkQuote' && _.isEmpty(dataInfo) ? (
@@ -137,7 +136,7 @@ export default function DeleteOptionList({ collectionId, name, title, descriptio
                 <div key={appId} className="mBottom20">
                   <div className="bold mBottom10">{appName || _l('其他')}</div>
                   {data.map((item, index) => {
-                    const { controlId, controlName, worksheetId, worksheetName, appId, worksheetType } = item;
+                    const { controlId, controlName, worksheetId, worksheetName, worksheetType } = item;
                     return (
                       <div
                         key={index}
@@ -156,8 +155,8 @@ export default function DeleteOptionList({ collectionId, name, title, descriptio
                           {worksheetType === 2
                             ? '（' + _l('空白子表') + '）'
                             : worksheetType === 3
-                            ? '（' + _l('外部门户') + '）'
-                            : ''}
+                              ? '（' + _l('外部门户') + '）'
+                              : ''}
                         </span>
                       </div>
                     );

@@ -1,5 +1,3 @@
-//'resignlist'
-
 export const PERMISSION_ENUM = {
   //用户
   MEMBER_MANAGE: 10100,
@@ -92,10 +90,11 @@ export const ROUTE_CONFIG = {
     'computing',
     'database',
     'aggregationTable',
+    'quota',
   ],
   [PERMISSION_ENUM.USER_ANALYTICS]: ['analytics'],
   [PERMISSION_ENUM.GENERAL_SETTING]: ['settings'],
-  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant','order', 'transaction', 'refund', 'withdrawalsrecord'],
+  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'order', 'transaction', 'refund', 'withdrawalsrecord'],
   [PERMISSION_ENUM.APP_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],

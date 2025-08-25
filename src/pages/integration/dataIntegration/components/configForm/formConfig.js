@@ -1,6 +1,6 @@
+import _ from 'lodash';
 import { DATABASE_TYPE } from '../../constant';
 import { ROLE_TYPE } from '../../constant';
-import _ from 'lodash';
 
 export const customFormData = (databaseType, dbRoleType, isCreateConnector, formData = {}, allFieldDisabled) => {
   const pg_sql = [DATABASE_TYPE.POSTGRESQL, DATABASE_TYPE.ALIYUN_POSTGRES, DATABASE_TYPE.TENCENT_POSTGRES];
@@ -202,7 +202,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
           value: 'ServiceName',
           index: 1,
           isDeleted: false,
-          color: '#2196F3',
+          color: '#1677ff',
           score: 0,
         },
         {
@@ -312,7 +312,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
           value: _l('账号密码（SASL）'),
           index: 2,
           isDeleted: false,
-          color: '#2196F3',
+          color: '#1677ff',
           score: 0,
         },
       ],

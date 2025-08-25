@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
+import _ from 'lodash';
 import { SelectFieldsWrap } from '../../styled';
 import { getIconByType } from '../../util';
 import { isSingleRelateSheet } from '../../util/setting';
-import _ from 'lodash';
 
 export default function SelectControlWithRelate({
   from = '',
@@ -79,7 +79,8 @@ export default function SelectControlWithRelate({
           <input
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
-            placeholder={_l('搜索字段')}></input>
+            placeholder={_l('搜索字段')}
+          ></input>
         </div>
       )}
       <div className="fieldsWrap">
@@ -116,7 +117,7 @@ export default function SelectControlWithRelate({
                     return (
                       <li key={controlId} onClick={() => onClick(obj)}>
                         <i className={`icon-${getIconByType(type)}`}></i>
-                        <span className='overflow_ellipsis flex'>{controlName}</span>
+                        <span className="overflow_ellipsis flex">{controlName}</span>
                       </li>
                     );
                   })}

@@ -129,7 +129,7 @@ export default ({
               );
               setUploadingIndex('');
             }}
-            onAdd={(up, files) => {
+            onAdd={up => {
               setUploadingIndex(index);
               up.disableBrowse();
             }}

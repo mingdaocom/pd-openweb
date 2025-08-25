@@ -1,13 +1,13 @@
 import React from 'react';
-import antNotification from '../../components/antNotification';
-import styled from 'styled-components';
 import _ from 'lodash';
+import styled from 'styled-components';
+import antNotification from '../../components/antNotification';
 
 const Btn = styled.div`
   display: inline-block;
   border-radius: 5px;
   font-size: 14px;
-  color: #2196f3;
+  color: #1677ff;
   padding: 0 11px;
   line-height: 31px;
   margin-left: 10px;

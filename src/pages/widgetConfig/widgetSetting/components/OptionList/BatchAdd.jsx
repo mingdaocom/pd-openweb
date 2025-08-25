@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, Textarea, Checkbox } from 'ming-ui';
+import _ from 'lodash';
 import styled from 'styled-components';
-import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
 import { v4 as uuidv4 } from 'uuid';
+import { Checkbox, Dialog, Textarea } from 'ming-ui';
+import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
 
 const BatchAddContent = styled.div`
   .hint {

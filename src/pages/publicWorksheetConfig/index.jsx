@@ -24,7 +24,6 @@ export default function PublicWorksheetConfig(props) {
   const { match = { params: {} } } = props;
   const { worksheetId, type } = match.params;
   const [worksheetInfo, setworksheetInfo] = useState({});
-  const [hederVisible, setHederVisible] = useState(!/detail/.test(location.hash));
   const [{ payConfigChanged, cancelActionCallback }, setPayConfigChangedInfo] = useState({});
   const { name, roleType, projectId } = worksheetInfo;
   useEffect(() => {
@@ -54,13 +53,13 @@ export default function PublicWorksheetConfig(props) {
   const renderCon = () => {
     switch (type) {
       case 'publicform':
-        return <FillEnablePanel worksheetId={worksheetId} setHederVisible={setHederVisible} projectId={projectId} />;
+        return <FillEnablePanel worksheetId={worksheetId} projectId={projectId} />;
       case 'query':
-        return <QueryEnablePanel worksheetId={worksheetId} worksheetInfo={worksheetInfo} />;
+        return <QueryEnablePanel worksheetId={worksheetId} worksheetInfo={worksheetInfo} projectId={projectId} />;
       case 'pay':
         return <PayConfig ref={payConfigRef} worksheetId={worksheetId} worksheetInfo={worksheetInfo} />;
       default:
-        return <FillEnablePanel worksheetId={worksheetId} setHederVisible={setHederVisible} projectId={projectId} />;
+        return <FillEnablePanel worksheetId={worksheetId} projectId={projectId} />;
     }
   };
 

@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
@@ -20,9 +21,6 @@ const Wrap = styled.div`
         background-color: #f5f5f5;
       }
     }
-  }
-  .viewsContent {
-    flex: 1;
   }
   .viewWrap {
     .viewName {
@@ -71,7 +69,9 @@ export default function View(props) {
       .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
         $(this).removeClass(className);
       });
-    $(scrollViewRef.current.nanoScroller).nanoScroller({ scrollTop: el.offsetTop });
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ top: el.offsetTop });
+    }
   };
 
   const { views = [] } = sheetInfo;
@@ -135,15 +135,13 @@ export default function View(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && (
-            <Icon className="Gray_9e pointer Font15" icon="closeelement-bg-circle" onClick={() => setSearchValue('')} />
-          )}
+          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
         </div>
-        <ScrollView className="flex">
+        <ScrollView className="h100">
           {views.filter(view => view.name.includes(searchValue)).map(view => renderViewNav(view))}
         </ScrollView>
       </div>
-      <ScrollView className="viewsContent" ref={scrollViewRef}>
+      <ScrollView className="h100" ref={scrollViewRef}>
         <div className="pLeft20 pRight20">{views.map(view => renderViewContent(view))}</div>
       </ScrollView>
     </Wrap>

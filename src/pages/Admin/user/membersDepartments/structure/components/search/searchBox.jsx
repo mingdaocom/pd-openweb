@@ -1,11 +1,10 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Result from './searchResult';
-import { fetchSearchResult, clearSearchKeywords, getCustomList } from '../../actions/search';
-import { loadUsers, getFullTree, loadAllUsers, loadDepartments } from '../../actions/entities';
-import { updateCursor, updateTypeCursor, updateType, updateSelectedAccountIds } from '../../actions/current';
 import { debounce } from 'lodash';
+import { updateCursor, updateSelectedAccountIds, updateType, updateTypeCursor } from '../../actions/current';
+import { getFullTree, loadAllUsers, loadDepartments, loadUsers } from '../../actions/entities';
+import { clearSearchKeywords, fetchSearchResult, getCustomList } from '../../actions/search';
+import Result from './searchResult';
 
 class SearchBox extends Component {
   constructor(props) {
@@ -21,7 +20,7 @@ class SearchBox extends Component {
   }
 
   handChange = debounce(value => {
-    const { dispatch, projectId } = this.props;
+    const { dispatch } = this.props;
     if (!value) {
       this.handleClear();
     } else {
@@ -66,7 +65,7 @@ class SearchBox extends Component {
 
   handleReset() {
     const { dispatch, departmentId, projectId } = this.props;
-    if (!!departmentId) {
+    if (departmentId) {
       dispatch(updateType(0)); //设置当前部门/职位tab
       dispatch(updateCursor('')); //设置当前选中部门
       dispatch(updateTypeCursor(0)); //全公司0/未分配1/未审核2/待激活3
@@ -141,7 +140,7 @@ class SearchBox extends Component {
     let clearBtn =
       searchValue !== '' ? (
         <span
-          className="Font14 icon-closeelement-bg-circle Gray_c Hand Absolute"
+          className="Font14 icon-cancel Gray_c Hand Absolute"
           style={{
             top: '8px',
             right: '8px',

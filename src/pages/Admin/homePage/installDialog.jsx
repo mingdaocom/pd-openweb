@@ -1,10 +1,10 @@
-import React, { useRef, Fragment } from 'react';
-import { Button } from 'ming-ui';
-import styled from 'styled-components';
-import projectAjax from 'src/api/project';
+import React, { Fragment, useRef } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
+import projectAjax from 'src/api/project';
 
 const TYPE_CONFIG = {
   desktop: {
@@ -76,14 +76,14 @@ const InstallDialog = styled.div`
   }
   .selectUser {
     span {
-      color: #2196f3;
+      color: #1677ff;
       margin-left: 4px;
       cursor: pointer;
     }
   }
 `;
 
-export default function installDialog({ projectId, type, onClose, ...rest }) {
+export default ({ projectId, type, onClose }) => {
   const { title, explain, text } = TYPE_CONFIG[type] || {};
   const { AjaxApiUrl, WebUrl } = _.get(md, ['global', 'Config']);
   const isDesktop = type === 'desktop';
@@ -167,4 +167,4 @@ export default function installDialog({ projectId, type, onClose, ...rest }) {
       </div>
     </InstallDialog>
   );
-}
+};

@@ -1,11 +1,9 @@
 import React, { Fragment } from 'react';
-import ClipboardButton from 'react-clipboard.js';
 import { Input, Popover, Radio, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Checkbox, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
-import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import CancelIntegration from '../components/CancelIntegration';
 import EnableScanLogin from '../components/EnableScanLogin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
@@ -19,12 +17,6 @@ import workwxPng2 from './workwxSyncCourse/img/2.png';
 import workwxPng3 from './workwxSyncCourse/img/3.png';
 import workwxPng4 from './workwxSyncCourse/img/4.png';
 import './style.less';
-
-const quickAprData = [
-  { label: 'URL', key: 'url' },
-  { label: 'Token', key: 'token' },
-  { label: 'EncodingAESKey', key: 'encodingAESKey' },
-];
 
 const TABS = [
   { key: 'base', label: _l('企业微信集成') },
@@ -170,7 +162,6 @@ export default class Workwx extends React.Component {
   };
 
   handleChangeJobnumberMappingField = event => {
-    const { jobnumberMappingField } = this.state;
     const { value } = event.target;
     const isWorkxeixinapp = value === 'workxeixinapp-userid';
     this.setState(
@@ -233,7 +224,7 @@ export default class Workwx extends React.Component {
               </span>
             }
           >
-            <Icon icon="sidebar_help" className="Font18 Gray_9e" />
+            <Icon icon="help" className="Font18 Gray_9e" />
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
@@ -260,7 +251,7 @@ export default class Workwx extends React.Component {
                 value={!this.state[`isShow${strId}`] ? this.state[`${strId}Format`] : this.state[strId]}
               />
               <Icon
-                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'circulated'}
+                icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
                 className="Gray_9e Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
@@ -293,7 +284,7 @@ export default class Workwx extends React.Component {
                   });
                 }}
               >
-                <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+                <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
               </div>
             ) : (
               <React.Fragment>
@@ -316,7 +307,7 @@ export default class Workwx extends React.Component {
                 });
               }}
             >
-              <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
             </div>
           )}
           {((isHasInfo && show2) || intergrationType === 2) && (
@@ -351,7 +342,7 @@ export default class Workwx extends React.Component {
               {intergrationType !== 2 && (
                 <div className="TxtRight mTop30">
                   {!canEditInfo ? (
-                    <Button type="primary" className="editInfo" onClick={e => this.setState({ canEditInfo: true })}>
+                    <Button type="primary" className="editInfo" onClick={() => this.setState({ canEditInfo: true })}>
                       {_l('编辑')}
                     </Button>
                   ) : (
@@ -686,7 +677,7 @@ export default class Workwx extends React.Component {
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (
                 <React.Fragment>
-                  <Icon icon="closeelement-bg-circle" className="Red iconReject" />
+                  <Icon icon="cancel" className="Red iconReject" />
                 </React.Fragment>
               ) : (
                 <React.Fragment>
@@ -707,7 +698,7 @@ export default class Workwx extends React.Component {
                 <Button
                   type="primary"
                   className="applyBtn mBottom10"
-                  onClick={e => {
+                  onClick={() => {
                     // 提交申请
                     this.editWXProjectSettingStatus(0, () => {
                       this.setState({

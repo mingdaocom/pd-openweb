@@ -81,7 +81,7 @@ const MonthDropdownItem = styled.div`
   align-items: center;
 
   .Icon {
-    color: #2196f3 !important;
+    color: #1677ff !important;
     position: unset !important;
   }
   &:hover {
@@ -110,11 +110,11 @@ const DaySelectContainer = styled.div`
     cursor: pointer;
 
     :hover {
-      border: 1px solid #2196f3;
+      border: 1px solid #1677ff;
     }
 
     &.active {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
     }
   }
@@ -145,10 +145,10 @@ const WeekContainer = styled.div`
       border-right-width: 1px;
     }
     :hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
     &.active {
-      background: #2196f3;
+      background: #1677ff;
       color: #fff;
     }
   }
@@ -172,7 +172,7 @@ const NoExpandSelect = styled.div`
 
   :hover,
   &.active {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 
@@ -237,8 +237,7 @@ export default function DataCollectionSettings(props) {
       }
 
       const newLimitWriteTime = _.cloneDeep(limitWriteTime);
-      if (type === TIME_TYPE.HOUR) {
-      } else {
+      if (type !== TIME_TYPE.HOUR) {
         const resultArr = Array.from(Array(newTimeRange[type].end), (_, i) => i + 1).filter(
           item => item >= newTimeRange[type].start,
         );
@@ -626,7 +625,7 @@ export default function DataCollectionSettings(props) {
                         setState({
                           limitWriteFrequencySetting: {
                             ...limitWriteFrequencySetting,
-                            limitWriteCount: !!value ? (parseInt(value) > 10000 ? 10000 : parseInt(value)) : '',
+                            limitWriteCount: value ? (parseInt(value) > 10000 ? 10000 : parseInt(value)) : '',
                           },
                         });
                     }}

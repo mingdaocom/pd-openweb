@@ -1,30 +1,39 @@
-import React, { useState, Fragment } from 'react';
-import { Icon } from 'ming-ui';
+import React, { Fragment } from 'react';
 import { Checkbox, Select, Switch } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
+import { Icon } from 'ming-ui';
 
-const refreshs = [{
-  value: 0,
-  name: _l('关闭')
-}, {
-  value: 30,
-  name: _l('30秒'),
-}, {
-  value: 60,
-  name: _l('1分钟'),
-}, {
-  value: 60 * 2,
-  name: _l('2分钟'),
-}, {
-  value: 60 * 3,
-  name: _l('3分钟'),
-}, {
-  value: 60 * 4,
-  name: _l('4分钟'),
-}, {
-  value: 60 * 5,
-  name: _l('5分钟'),
-}];
+const refreshs = [
+  {
+    value: 0,
+    name: _l('关闭'),
+  },
+  {
+    value: 30,
+    name: _l('30秒'),
+  },
+  {
+    value: 60,
+    name: _l('1分钟'),
+  },
+  {
+    value: 60 * 2,
+    name: _l('2分钟'),
+  },
+  {
+    value: 60 * 3,
+    name: _l('3分钟'),
+  },
+  {
+    value: 60 * 4,
+    name: _l('4分钟'),
+  },
+  {
+    value: 60 * 5,
+    name: _l('5分钟'),
+  },
+];
 
 export default props => {
   const { appPkg, adjustScreen, config, updatePageInfo, handleChangeConfig } = props;
@@ -36,8 +45,18 @@ export default props => {
         <div className="Gray_75 Font13 label">{_l('页面布局')}</div>
         <div className="flex">
           <div className="typeSelect flexRow valignWrapper">
-            <div className={cx('centerAlign pointer Gray_75', { active: !adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: false })}>{_l('滚动')}</div>
-            <div className={cx('centerAlign pointer Gray_75', { active: adjustScreen })} onClick={() => updatePageInfo({ adjustScreen: true })}>{_l('适应屏幕高度')}</div>
+            <div
+              className={cx('centerAlign pointer Gray_75', { active: !adjustScreen })}
+              onClick={() => updatePageInfo({ adjustScreen: false })}
+            >
+              {_l('滚动')}
+            </div>
+            <div
+              className={cx('centerAlign pointer Gray_75', { active: adjustScreen })}
+              onClick={() => updatePageInfo({ adjustScreen: true })}
+            >
+              {_l('适应屏幕高度')}
+            </div>
           </div>
         </div>
       </div>
@@ -50,7 +69,7 @@ export default props => {
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
               handleChangeConfig({
-                refresh: value
+                refresh: value,
               });
             }}
           >
@@ -87,9 +106,9 @@ export default props => {
                 <Checkbox
                   className="flexRow alignItemsCenter"
                   checked={config.shareVisible}
-                  onChange={(event) => {
+                  onChange={event => {
                     handleChangeConfig({
-                      shareVisible: event.target.checked
+                      shareVisible: event.target.checked,
                     });
                   }}
                 >
@@ -98,9 +117,9 @@ export default props => {
                 <Checkbox
                   className="flexRow alignItemsCenter"
                   checked={config.downloadVisible}
-                  onChange={(event) => {
+                  onChange={event => {
                     handleChangeConfig({
-                      downloadVisible: event.target.checked
+                      downloadVisible: event.target.checked,
                     });
                   }}
                 >
@@ -109,9 +128,9 @@ export default props => {
                 <Checkbox
                   className="flexRow alignItemsCenter"
                   checked={config.fullScreenVisible}
-                  onChange={(event) => {
+                  onChange={event => {
                     handleChangeConfig({
-                      fullScreenVisible: event.target.checked
+                      fullScreenVisible: event.target.checked,
                     });
                   }}
                 >
@@ -128,9 +147,9 @@ export default props => {
           <Checkbox
             className="flexRow alignItemsCenter"
             checked={_.isUndefined(config.chartShare) ? true : config.chartShare}
-            onChange={(event) => {
+            onChange={event => {
               handleChangeConfig({
-                chartShare: event.target.checked
+                chartShare: event.target.checked,
               });
             }}
           >
@@ -139,9 +158,9 @@ export default props => {
           <Checkbox
             className="flexRow alignItemsCenter"
             checked={_.isUndefined(config.chartExportExcel) ? true : config.chartExportExcel}
-            onChange={(event) => {
+            onChange={event => {
               handleChangeConfig({
-                chartExportExcel: event.target.checked
+                chartExportExcel: event.target.checked,
               });
             }}
           >
@@ -169,4 +188,4 @@ export default props => {
       </div>
     </Fragment>
   );
-}
+};

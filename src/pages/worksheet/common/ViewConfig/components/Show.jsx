@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Radio } from 'ming-ui';
@@ -174,7 +174,7 @@ export default class Show extends React.Component {
             className=""
             text={_l('与表单字段保持一致（显示前50个）')}
             checked={customdisplay === '0'}
-            onClick={value => {
+            onClick={() => {
               this.onChange('0');
             }}
           />
@@ -184,7 +184,7 @@ export default class Show extends React.Component {
             className=""
             text={_l('自定义显示列')}
             checked={customdisplay === '1'}
-            onClick={value => {
+            onClick={() => {
               this.onChange('1');
             }}
           />

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { string, func } from 'prop-types';
-import { Dialog } from 'ming-ui';
+import { func, string } from 'prop-types';
 import styled from 'styled-components';
+import { Dialog } from 'ming-ui';
 
 const KeywordInput = styled.textarea`
   width: 100%;
@@ -12,7 +12,7 @@ const KeywordInput = styled.textarea`
   border-radius: 3px;
   resize: none;
   &:focus {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
   &::placeholder {
     color: #bdbdbd;

@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
+import _ from 'lodash';
 import { Checkbox, Radio, Textarea } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
@@ -21,7 +22,7 @@ export default class WebhookContent extends Component {
       type: props.data.controls.length ? STATUS.COMPLETE : STATUS.NULL,
       count: 0,
       maxCount: 30,
-      contentType: !!props.data.returnJson ? 2 : 1,
+      contentType: props.data.returnJson ? 2 : 1,
     };
   }
 
@@ -175,7 +176,7 @@ export default class WebhookContent extends Component {
               <div className="Gray_75 mTop5">{_l('请在3分钟内向URL发送一条GET或POST请求')}</div>
               <div
                 className="mTop15 workflowDetailDesc"
-                style={{ padding: '15px 16px', color: overtime ? '#f44336' : '#2196f3' }}
+                style={{ padding: '15px 16px', color: overtime ? '#f44336' : '#1677ff' }}
               >
                 {overtime ? _l('当前URL并没有收到任何有效请求，是否重试?') : _l('正在接收请求…')}
               </div>
@@ -206,7 +207,7 @@ export default class WebhookContent extends Component {
                       className="workflowDetailTipsWidth mLeft5 Gray_75 tip-top"
                       data-tip={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}
                     >
-                      <i className="Font14 icon-workflow_help Gray_9e" />
+                      <i className="Font14 icon-help Gray_9e" />
                     </span>
                   </Fragment>
                 )}
@@ -355,7 +356,7 @@ export default class WebhookContent extends Component {
                       type={2}
                       content={data.returnJson}
                       formulaMap={data.formulaMap}
-                      onChange={(err, value, obj) => updateSource({ returnJson: value })}
+                      onChange={(err, value) => updateSource({ returnJson: value })}
                       updateSource={updateSource}
                     />
                   )}

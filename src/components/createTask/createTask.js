@@ -98,7 +98,7 @@ $.extend(CreateTask.prototype, {
     }
 
     // 监测网络是否过期
-    $.map(md.global.Account.projects, function (project, i) {
+    $.map(md.global.Account.projects, function (project) {
       if (settings.ProjectID === project.projectId) {
         isExsit = true;
         if (project.licenseType === 0) {
@@ -113,7 +113,7 @@ $.extend(CreateTask.prototype, {
     }
 
     settings.companyName = _l('个人');
-    $.map(md.global.Account.projects, function (project, i) {
+    $.map(md.global.Account.projects, function (project) {
       if (project.projectId === settings.ProjectID) {
         settings.companyName = project.companyName;
         return;
@@ -571,7 +571,6 @@ $.extend(CreateTask.prototype, {
 
     // hover移除成员
     $('#taskMembersBox').on('click', '.imgMemberBox .removeTaskMember', function () {
-      var accountId = $(this).parents('.imgMemberBox').attr('data-id');
       $(this).parents('.imgMemberBox').remove();
     });
 

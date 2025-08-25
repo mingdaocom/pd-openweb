@@ -1,8 +1,7 @@
 import React, { Fragment, useState } from 'react';
-import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
-import _ from 'lodash';
 import cx from 'classnames';
+import styled from 'styled-components';
+import { Dialog, Icon } from 'ming-ui';
 
 const MessageBox = styled.div`
   height: 36px;
@@ -10,7 +9,7 @@ const MessageBox = styled.div`
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
-  .icon-delete2:hover {
+  .icon-trash:hover {
     color: #f44336 !important;
   }
 `;
@@ -44,7 +43,7 @@ export default ({ buttons = [], data, updateSource }) => {
 
         {!!buttonNames.length && (
           <span data-tip={_l('清空')} className="mRight15">
-            <Icon type="delete2" className="Gray_75 Font14 pointer" onClick={() => updateSource(generateData(true))} />
+            <Icon type="trash" className="Gray_75 Font14 pointer" onClick={() => updateSource(generateData(true))} />
           </span>
         )}
 

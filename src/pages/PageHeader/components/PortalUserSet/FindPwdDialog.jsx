@@ -70,13 +70,13 @@ const AccountWrap = styled.div`
     .btnSendVerifyCode {
       width: 130px;
       height: 36px;
-      background: #2196f3;
+      background: #1677ff;
       opacity: 1;
       border-radius: 3px;
       border: 0;
       color: #fff;
       &.btnEnabled {
-        background-color: #2196f3;
+        background-color: #1677ff;
         cursor: pointer;
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
@@ -365,7 +365,7 @@ export default function TelDialog(props) {
                 })}
                 id="btnSendVerifyCode"
                 value={verifyCodeText || (verifyCodeLoading ? _l('发送中...') : _l('获取验证码'))}
-                onClick={e => {
+                onClick={() => {
                   handleSendVerifyCode(CodeTypeEnum.message);
                 }}
               />

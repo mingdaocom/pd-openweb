@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dialog, Icon } from 'ming-ui';
-import { CustomActionWrap } from '../../style';
 import cx from 'classnames';
-import { enumWidgetType } from '../../../../../util';
+import _ from 'lodash';
+import { Dialog, Icon } from 'ming-ui';
 import { DEFAULT_CONFIG } from '../../../../../config/widget';
-import DynamicDefaultValue from '../../../DynamicDefaultValue';
-import { HAS_DYNAMIC_TYPE } from '../../config';
+import { enumWidgetType } from '../../../../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
-import AddFields from '../AddFields';
+import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
+import { HAS_DYNAMIC_TYPE } from '../../config';
+import { CustomActionWrap } from '../../style';
+import AddFields from '../AddFields';
 
 export default function SetValue(props) {
   const { actionData = {}, handleOk, allControls = [], updateQueryConfigs = () => {} } = props;
@@ -117,7 +118,7 @@ export default function SetValue(props) {
                   )}
 
                   <Icon
-                    icon="delete1"
+                    icon="trash"
                     className="Font16 deleteBtn"
                     onClick={() => {
                       setState({ actionItems: actionItems.filter((i, idx) => idx !== index) });

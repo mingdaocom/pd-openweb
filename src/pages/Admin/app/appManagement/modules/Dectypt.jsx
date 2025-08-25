@@ -1,13 +1,13 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
+import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import { Dialog, QiniuUpload, Button, Tooltip } from 'ming-ui';
+import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Dialog, QiniuUpload, Tooltip } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import appManagementAjax from 'src/api/appManagement';
-import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
-import styled from 'styled-components';
-import cx from 'classnames';
-import _ from 'lodash';
+import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 
 const passwordData = [
   { title: _l('导入密码'), key: 'importPassword' },
@@ -80,6 +80,7 @@ export default class Dectypt extends Component {
       .getMdyInfo({
         projectId,
         url,
+        name: file.name,
       })
       .then(res => {
         const { resultCode, password, lockPassword } = res;
@@ -97,7 +98,7 @@ export default class Dectypt extends Component {
           file: _.includes([0, 2, 3], resultCode) ? {} : file,
         });
       })
-      .catch(err => {
+      .catch(() => {
         this.setState({
           importPassword: '',
           lockPassword: '',
@@ -109,7 +110,7 @@ export default class Dectypt extends Component {
 
   render() {
     const { onCancel = () => {} } = this.props;
-    const { file = {}, analyzeLoading, checkLoading, importPassword, lockPassword, url } = this.state;
+    const { file = {}, analyzeLoading, checkLoading, importPassword, lockPassword } = this.state;
     const loading = analyzeLoading || checkLoading;
 
     return (
@@ -136,7 +137,7 @@ export default class Dectypt extends Component {
                 mime_types: [{ extensions: 'mdy' }],
               },
             }}
-            onAdd={(up, files) => {
+            onAdd={up => {
               this.setState({ analyzeLoading: true });
               up.disableBrowse();
             }}

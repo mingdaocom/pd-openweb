@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Button } from 'ming-ui';
 import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import FilterInput, { NumberTypes, TextTypes } from './Inputs';
 import { validate } from './utils';
 import { formatFilterValuesToServer } from './utils';
@@ -45,7 +45,7 @@ const Item = styled.div(
     padding: 10px 0;
     margin-bottom: 0px;
     box-sizing: border-box;
-    border: 1px solid ${highlight ? '#2196f3' : 'transparent'};
+    border: 1px solid ${highlight ? '#1677ff' : 'transparent'};
     > * {
       pointer-events: none;
       user-select: none;
@@ -147,7 +147,7 @@ const ExpandBtn = styled.div(
   display: inline-block;
   margin-left: 20px;
   cursor: pointer;
-  color: #2196f3;
+  color: #1677ff;
   font-size: 13px;
   .icon {
     margin-right: 2px;
@@ -228,8 +228,10 @@ export default function Conditions(props) {
     updateQuickFilter,
     resetQuickFilter,
     onFilterClick,
+    viewRowsLoading,
   } = props;
   const [values, setValues] = useState({});
+  const [isQuerying, setIsQuerying] = useState(false);
   const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
   const didMount = useRef();
   const showQueryBtn = _.isUndefined(props.showQueryBtn)
@@ -265,7 +267,7 @@ export default function Conditions(props) {
       _.get(view, 'advancedSetting.requiredcids'),
     ],
   );
-  function update(newValues) {
+  function update(newValues, { noDebounce } = {}) {
     didMount.current = true;
     const valuesToUpdate = newValues || values;
     const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1';
@@ -300,14 +302,18 @@ export default function Conditions(props) {
           values,
         };
       });
-      if (_.includes(TextTypes.concat(NumberTypes), store.current.activeType)) {
+      if (_.includes(TextTypes.concat(NumberTypes), store.current.activeType) && !noDebounce) {
         debounceUpdateQuickFilter.current(formattedFilter, view);
       } else {
         debounceUpdateQuickFilter.current.cancel();
         updateQuickFilter(formattedFilter, view);
       }
     } else {
-      debounceUpdateQuickFilter.current([], view);
+      if (!noDebounce) {
+        debounceUpdateQuickFilter.current([], view);
+      } else {
+        updateQuickFilter([], view);
+      }
     }
   }
   useEffect(() => {
@@ -329,6 +335,11 @@ export default function Conditions(props) {
       update(newValues);
     }
   }, [JSON.stringify(filters)]);
+  useEffect(() => {
+    if (!viewRowsLoading) {
+      setIsQuerying(false);
+    }
+  }, [viewRowsLoading]);
   useEffect(() => {
     didMount.current = true;
     if (from === 'filterComp') {
@@ -446,8 +457,20 @@ export default function Conditions(props) {
           isFilterComp={isFilterComp}
         >
           {showQueryBtn && (
-            <Button type="primary" className="mRight10" size="mdnormal" onClick={() => update()}>
-              {queryText || _l('查询')}
+            <Button
+              type="primary"
+              className="mRight10"
+              size="mdnormal"
+              onClick={() => {
+                if (viewRowsLoading && isQuerying) {
+                  return;
+                }
+                setIsQuerying(true);
+                update(undefined, { noDebounce: true });
+              }}
+              disabled={viewRowsLoading && isQuerying}
+            >
+              {viewRowsLoading && isQuerying ? _l('查询中...') : queryText || _l('查询')}
             </Button>
           )}
           {showQueryBtn && (

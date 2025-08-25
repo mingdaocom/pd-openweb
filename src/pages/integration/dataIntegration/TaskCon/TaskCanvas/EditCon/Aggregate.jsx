@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { WrapL } from './style';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import DropOption from 'src/pages/integration/components/DropOption';
-import DropChoose from 'src/pages/integration/components/DropChoose';
+import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+import DropChoose from 'src/pages/integration/components/DropChoose';
+import DropOption from 'src/pages/integration/components/DropOption';
 import {
   getAggData,
   getAggregateData,
-  isTimeTypes,
-  getTimeGroupDropData,
   getDefaultAggregate,
+  getTimeGroupDropData,
+  isTimeTypes,
 } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+import { WrapL } from './style';
 
 export default function Aggregate(props) {
   const { onUpdate } = props;

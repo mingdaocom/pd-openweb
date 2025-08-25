@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
@@ -29,6 +30,16 @@ const AppItemWrap = styled.div`
     font-size: 32px;
     text-align: center;
     margin-right: 10px;
+
+    .svgWrap {
+      height: inherit;
+      & > div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: inherit;
+      }
+    }
   }
   .appName {
     min-width: 0;
@@ -63,9 +74,6 @@ export default function ApplicationItem(props) {
     projectId,
     icon,
     iconUrl,
-    iconColor = '#2196f3',
-    navColor,
-    lightColor,
     appStatus,
     fixed,
     isGoodsStatus,
@@ -76,8 +84,6 @@ export default function ApplicationItem(props) {
     sectionId,
     onClick,
   } = data || {};
-  const black = '#1b2025' === navColor;
-  const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
   const isUpgrade = appStatus === 4;
   const name = _.get(_.find(myPlatformLang, { key: id }), 'value') || data.name;
   const itemName = _.get(_.find(myPlatformLang, { key: itemId }), 'value') || data.itemName;
@@ -101,7 +107,7 @@ export default function ApplicationItem(props) {
         className={cx(`appItem ${className}`, { mRight10: index % 2 === 0 })}
         key={id}
         onClick={e => {
-          if (!!type) {
+          if (type) {
             //应用项
             addBehaviorLog(type === 2 ? 'worksheet' : 'customPage', itemId); // 埋点
             window.mobileNavigateTo(`/mobile/recordList/${id}/${sectionId}/${itemId}`);
@@ -121,22 +127,22 @@ export default function ApplicationItem(props) {
       >
         <div
           className="iconWrap"
-          style={{ backgroundColor: !!type ? getAppOrItemColor(data, true).bg : getAppOrItemColor(data).bg }}
+          style={{ backgroundColor: type ? getAppOrItemColor(data, true).bg : getAppOrItemColor(data).bg }}
         >
           {iconUrl ? (
             <SvgIcon
-              url={!!type ? itemUrl : iconUrl}
-              fill={!!type ? getAppOrItemColor(data, true).iconColor : getAppOrItemColor(data).iconColor}
+              className="svgWrap"
+              url={type ? itemUrl : iconUrl}
+              fill={type ? getAppOrItemColor(data, true).iconColor : getAppOrItemColor(data).iconColor}
               size={iconSize || 30}
-              addClassName="mTop7"
             />
           ) : (
             <Icon icon={icon} className="Font30" />
           )}
         </div>
         <div className="appName flex">
-          <div className={cx('name', { app: !type, ellipsis: !!type })}>{!!type ? itemName : name}</div>
-          {!!type && <div className="des ellipsis Font12 Gray_9">{name}</div>}
+          <div className={cx('name', { app: !type, ellipsis: type })}>{type ? itemName : name}</div>
+          {type ? <div className="des ellipsis Font12 Gray_9">{name}</div> : null}
         </div>
         {id === 'add' || (!fixed && !isUpgrade && !isNew && isGoodsStatus) ? null : (
           <AppStatus
@@ -176,14 +182,14 @@ export default function ApplicationItem(props) {
       >
         <div
           className="myAppItemDetail TxtCenter Relative"
-          style={{ backgroundColor: !!type ? getAppOrItemColor(data, true).bg : getAppOrItemColor(data).bg }}
+          style={{ backgroundColor: type ? getAppOrItemColor(data, true).bg : getAppOrItemColor(data).bg }}
         >
           {iconUrl ? (
             <SvgIcon
-              url={!!type ? itemUrl : iconUrl}
-              fill={!!type ? getAppOrItemColor(data, true).iconColor : getAppOrItemColor(data).iconColor}
+              className="svgWrap"
+              url={type ? itemUrl : iconUrl}
+              fill={type ? getAppOrItemColor(data, true).iconColor : getAppOrItemColor(data).iconColor}
               size={32}
-              addClassName="mTop12"
             />
           ) : (
             <Icon icon={icon} className="Font30" />

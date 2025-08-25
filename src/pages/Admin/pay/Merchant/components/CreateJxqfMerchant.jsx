@@ -1,15 +1,15 @@
 // 聚合支付 创建商户
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Icon, Button, LoadDiv, Qr, Tooltip } from 'ming-ui';
 import { Steps } from 'antd';
-import projectAjax from 'src/api/project';
-import paymentAjax from 'src/api/payment';
-import styled from 'styled-components';
-import { STEPS } from '../../config';
-import aliQrCode from 'src/pages/Admin/pay/images/aliQrCode.png';
-import wechatQrCode from 'src/pages/Admin/pay/images/wechatQrCode.png';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { Button, Checkbox, Icon, LoadDiv, Qr, Tooltip } from 'ming-ui';
+import paymentAjax from 'src/api/payment';
+import projectAjax from 'src/api/project';
+import aliQrCode from 'src/pages/Admin/pay/images/aliQrCode.png';
+import wechatQrCode from 'src/pages/Admin/pay/images/wechatQrCode.png';
+import { STEPS } from '../../config';
 import './createMerchant.less';
 
 const StepsWrap = styled(Steps)`
@@ -134,7 +134,7 @@ export default class CreateJxqfMerchant extends Component {
   }
 
   componentDidMount() {
-    const { currentMerchantInfo = {}, createStep } = this.props;
+    const { createStep } = this.props;
     const { merchantStatus } = this.state;
     if (createStep === 0) {
       this.getWeiXinBindingInfo();
@@ -179,7 +179,7 @@ export default class CreateJxqfMerchant extends Component {
 
   // 获取商户信息
   getMerchant = ({ isPoll, isOpen } = {}) => {
-    const { projectId, currentMerchantInfo = {} } = this.props;
+    const { projectId } = this.props;
     const { merchantId } = this.state;
     this.setState({ loading: true });
 
@@ -221,7 +221,7 @@ export default class CreateJxqfMerchant extends Component {
 
   // 轮询获取商户状态
   pollGetMerchantStatus = ({ merchantId, merchantNo } = {}) => {
-    const { projectId, currentMerchantInfo } = this.props;
+    const { projectId } = this.props;
     const { step } = this.state;
 
     this.timeInterval = setInterval(() => {
@@ -376,12 +376,12 @@ export default class CreateJxqfMerchant extends Component {
                     createStep === 0 && !merchantId && index === 0
                       ? ''
                       : (merchantStatus === 0 && _.includes([0, 1], index)) ||
-                        (_.includes([1, 2], merchantStatus) && _.includes([0, 1, 2], index)) ||
-                        merchantStatus === 3
-                      ? step !== index
-                        ? 'finish'
-                        : ''
-                      : 'wait'
+                          (_.includes([1, 2], merchantStatus) && _.includes([0, 1, 2], index)) ||
+                          merchantStatus === 3
+                        ? step !== index
+                          ? 'finish'
+                          : ''
+                        : 'wait'
                   }
                 ></Step>
               );
@@ -393,13 +393,19 @@ export default class CreateJxqfMerchant extends Component {
               {!description ? (
                 <Fragment>
                   <div>
-                    {_l('1、启用应用内的支付功能必须要先在组织后台申请商户号并完成签约。商户签约是由第三方支付公司提供。')}
+                    {_l(
+                      '1、启用应用内的支付功能必须要先在组织后台申请商户号并完成签约。商户签约是由第三方支付公司提供。',
+                    )}
                   </div>
                   <div>
-                    {_l('2、商户签约是验证收款商户合规性的基本流程，请完成以下四步操作，并依法依规提供真实有效的信息。')}
+                    {_l(
+                      '2、商户签约是验证收款商户合规性的基本流程，请完成以下四步操作，并依法依规提供真实有效的信息。',
+                    )}
                   </div>
                   <div>
-                    {_l('3、已经通过其他支付平台拥有支付宝和微信商户号的企业如果要使用本平台收款依然需要重新完成商户签约。')}
+                    {_l(
+                      '3、已经通过其他支付平台拥有支付宝和微信商户号的企业如果要使用本平台收款依然需要重新完成商户签约。',
+                    )}
                   </div>
                 </Fragment>
               ) : (
@@ -489,6 +495,7 @@ export default class CreateJxqfMerchant extends Component {
                           tooltipClass="merchantQr"
                           popupPlacement="bottom"
                           text={<Qr content={signUrl} width={110} height={110} />}
+                          autoCloseDelay={0}
                         >
                           <span className="Hand whiteWrap">
                             <i className="icon icon-phone mLeft10 Font20 Gray_9d" />

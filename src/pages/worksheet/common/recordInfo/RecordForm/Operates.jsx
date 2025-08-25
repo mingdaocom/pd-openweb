@@ -83,10 +83,10 @@ export default class Operates extends Component {
       customBtnTriggerCb,
       sheetSwitchPermit,
       isDraft,
+      isRecordLock,
     } = this.props;
     const { customBtns, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
-    const { projectId } = recordinfo;
     return (
       <React.Fragment>
         <div className="flex" style={{ lineHeight: 1, overflowX: 'hidden' }} ref={this.customButtonsCon}>
@@ -99,10 +99,11 @@ export default class Operates extends Component {
               appId={appId}
               worksheetId={worksheetId}
               recordId={recordId}
-              projectId={projectId}
+              {..._.pick(recordinfo, ['projectId', 'entityName'])}
               buttons={customBtns}
               btnDisable={btnDisable}
               reloadRecord={reloadRecord}
+              isRecordLock={isRecordLock}
               loadBtns={this.loadBtns}
               onUpdate={onUpdate}
               hideRecordInfo={hideRecordInfo}
@@ -111,6 +112,7 @@ export default class Operates extends Component {
               triggerCallback={customBtnTriggerCb}
               sheetSwitchPermit={sheetSwitchPermit}
               isDraft={isDraft}
+              isEditLock={!!recordbase.editLockedUser}
             />
           </div>
         </div>

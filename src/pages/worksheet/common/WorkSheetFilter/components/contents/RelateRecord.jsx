@@ -69,8 +69,8 @@ export default class RelateRecord extends React.Component {
   };
 
   render() {
-    const { type, control, worksheetId, disabled } = this.props;
-    const { records, selectRecordVisible } = this.state;
+    const { control, worksheetId, disabled } = this.props;
+    const { records } = this.state;
     return (
       <div className="worksheetFilterRelateRecordCondition">
         <div

@@ -20,7 +20,7 @@ const FormGroup = styled.div`
       border-color: #bbb;
     }
     &:focus {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
     &.error {
       border-color: #f00 !important;
@@ -33,8 +33,21 @@ const FormGroup = styled.div`
 `;
 
 export default function TextInput(props) {
-  const { label, error, value, placeholder, maxLength, ref, disabled, isRequired, type, className, onChange, onFocus, onBlur = () => {} } =
-    props;
+  const {
+    label,
+    error,
+    value,
+    placeholder,
+    maxLength,
+    ref,
+    disabled,
+    isRequired,
+    type,
+    className,
+    onChange,
+    onFocus,
+    onBlur = () => {},
+  } = props;
   const inputProps = {
     ref,
     value,
@@ -43,7 +56,7 @@ export default function TextInput(props) {
     onChange,
     onFocus,
     type,
-    onBlur
+    onBlur,
   };
 
   if (type === 'password') {

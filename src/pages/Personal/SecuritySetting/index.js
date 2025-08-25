@@ -89,7 +89,7 @@ export default class SecuritySetting extends Component {
   renderTips = key => {
     return (
       <Tooltip popupPlacement="top" text={<span>{tipsConfig[key]}</span>}>
-        <span className="icon-novice-circle Gray_bd Hand mLeft5 Font15" />
+        <span className="icon-help Gray_bd Hand mLeft5 Font15" />
       </Tooltip>
     );
   };
@@ -115,7 +115,7 @@ export default class SecuritySetting extends Component {
         .then(res => {
           this.setState({ openWXRemindDialog: true, wxQRCode: res, wxQRCodeLoading: false });
         })
-        .catch(err => {
+        .catch(() => {
           this.setState({ openWXRemindDialog: true });
         });
     } else {
@@ -218,7 +218,7 @@ export default class SecuritySetting extends Component {
                   });
               }}
             >
-              <Icon icon="closeelement-bg-circle" className="Font15" />
+              <Icon icon="cancel" className="Font15" />
             </div>
           </Tooltip>
         ) : (

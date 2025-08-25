@@ -23,7 +23,7 @@ export default class DataFilter extends Component {
     }
   }
   getText() {
-    const { currentReport, name, reportType } = this.props;
+    const { name, reportType } = this.props;
     if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(reportType)) {
       return _l('X轴');
     }

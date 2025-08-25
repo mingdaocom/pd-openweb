@@ -1,6 +1,6 @@
 import React from 'react';
-import { RelateDetail } from 'src/pages/widgetConfig/styled';
 import cx from 'classnames';
+import { RelateDetail } from 'src/pages/widgetConfig/styled';
 import { toEditWidgetPage } from '../../util';
 
 export default function RelateSheetInfo({ name, id }) {

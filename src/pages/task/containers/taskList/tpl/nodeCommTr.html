@@ -1,41 +1,44 @@
-﻿
-{{ var projectID = task.projectID,
-    taskID = task.taskID,
-    taskName = task.taskName,
-    stageID = task.stageID ? 'data-stageid="' + task.StageID + '"' : '',
-    auth = statusObj.auth,
-    topicCount = task.notificationCount,
-    subTaskCount = task.subCount,
-    subCompleteCount = task.completedNum,
-    statusTip = statusObj.tip,
-    statusStyle = statusObj.style,
-    isNewTask = task.newTask,
-    isComplete = task.status==1,
-    completeTime = it.formatTaskTime(task.status == 1, task.startTime, task.deadline, task.actualStartTime, task.completeTime),
-    userClass = task.charge.status != 1 ? 'userdisable' : '',
-    userHead = task.charge.avatar,
-    userAuth = task.auth,
-    accountId = task.charge.accountID,
-    starClass = task.star ? 'icon-task-star' : 'icon-star-hollow',
-    totalItemCount = task.totalItemCount,
-    totalCompletedItemCount = task.totalCompletedItemCount;
-}}
-{{? index < 4 && !it.createNewTask && it.isAnimated }}
+﻿{{ var projectID = task.projectID, taskID = task.taskID, taskName = task.taskName, stageID = task.stageID ?
+'data-stageid="' + task.StageID + '"' : '', auth = statusObj.auth, topicCount = task.notificationCount, subTaskCount =
+task.subCount, subCompleteCount = task.completedNum, statusTip = statusObj.tip, statusStyle = statusObj.style, isNewTask
+= task.newTask, isComplete = task.status==1, completeTime = it.formatTaskTime(task.status == 1, task.startTime,
+task.deadline, task.actualStartTime, task.completeTime), userClass = task.charge.status != 1 ? 'userdisable' : '',
+userHead = task.charge.avatar, userAuth = task.auth, accountId = task.charge.accountID, starClass = task.star ?
+'icon-task-star' : 'icon-star-hollow', totalItemCount = task.totalItemCount, totalCompletedItemCount =
+task.totalCompletedItemCount; }} {{? index < 4 && !it.createNewTask && it.isAnimated }}
 <tr class="animatedFarFast">
     {{ var height = index==0 ? 80: 20 + index*20 + 'px', opacity = index==0? 0.7 : 1-index*0.3; }}
     <td colspan="5" style="height:{{=height}};" class="animatedFarFast">
         <div class="maskBoxShadow"></div>
     </td>
 </tr>
-<tr data-taskid="{{=taskID}}" data-projectid="{{=projectID}}" class="onlyFourTr" style="opacity:{{=opacity}};" data-isNotice="{{=task.isNotice}}" data-auth="{{= auth }}" {{= stageID }}>
-{{??}}
-<tr data-taskid="{{=taskID}}" data-projectid="{{=projectID}}" class="otherTrs" style="{{= !it.createNewTask && it.isAnimated ? 'opacity: 0;' : ''}}"  data-isNotice="{{=task.isNotice}}" data-auth="{{=auth }}" {{=stageID }}>
-{{?}}
+<tr
+    data-taskid="{{=taskID}}"
+    data-projectid="{{=projectID}}"
+    class="onlyFourTr"
+    style="opacity:{{=opacity}};"
+    data-isNotice="{{=task.isNotice}}"
+    data-auth="{{= auth }}"
+    {{="stageID"
+    }}
+>
+    {{??}}
+</tr>
+
+<tr
+    data-taskid="{{=taskID}}"
+    data-projectid="{{=projectID}}"
+    class="otherTrs"
+    style="{{= !it.createNewTask && it.isAnimated ? 'opacity: 0;' : ''}}"
+    data-isNotice="{{=task.isNotice}}"
+    data-auth="{{=auth }}"
+    {{="stageID"
+    }}
+>
+    {{?}}
     <td class="markComplete {{=it.isMyTask ? 'myTask':''}}">
         {{?it.isMyTask}}
-        <span class="myTaskTag">
-            {{= it.buildMyTaskIcon(type) }}
-        </span>
+        <span class="myTaskTag"> {{= it.buildMyTaskIcon(type) }} </span>
         {{?}}
         <span tip="{{= statusTip }}" class="markTask {{= statusStyle }}"></span>
     </td>
@@ -43,15 +46,19 @@
         <div class="taskListName">
             {{?task.colorTags && task.colorTags.length}}
             <div class="colorTagsDiv">
-              {{~task.colorTags:tag}}
-              <span class="colorTagCircle" style="background:{{=tag.color}}"></span>
-              {{~}}
+                {{~task.colorTags:tag}}
+                <span class="colorTagCircle" style="background:{{=tag.color}}"></span>
+                {{~}}
             </div>
-            {{?}}
-            {{? isNewTask && !it.hideOpts }}
+            {{?}} {{? isNewTask && !it.hideOpts }}
             <span class="newTaskTip boderRadAll_3">{{= _l('新任务') }}</span>
             {{?}}
-            <span class="overflow_ellipsis spanName boxSizing {{= isNewTask && !it.hideOpts ?'newTaskTipName':''}} {{= isComplete ? 'completeTask' : '' }}" title="{{!taskName}}" style="{{=topicCount > 0 ? '' : 'border-right-width: 0;' }}">{{!taskName}}</span>
+            <span
+                class="overflow_ellipsis spanName boxSizing {{= isNewTask && !it.hideOpts ?'newTaskTipName':''}} {{= isComplete ? 'completeTask' : '' }}"
+                title="{{!taskName}}"
+                style="{{=topicCount > 0 ? '' : 'border-right-width: 0;' }}"
+                >{{!taskName}}</span
+            >
             {{? topicCount > 0 && !it.hideOpts }}
             <span class="icon-replyto newTopic"><span class="newTopicCount">{{=topicCount}}</span></span>
             {{?}}
@@ -61,19 +68,28 @@
         {{? subTaskCount }}
         <span class="taskTagsBG">
             <i class="icon-task-card" tip="{{= _l('子任务') }}"></i>
-            <span class="subCounts"><span class="completedNum">{{=subCompleteCount > subTaskCount ? subTaskCount : subCompleteCount}}</span>/<span class="subCount">{{=subTaskCount}}</span></span>
+            <span class="subCounts"
+                ><span class="completedNum">{{=subCompleteCount > subTaskCount ? subTaskCount : subCompleteCount}}</span
+                >/<span class="subCount">{{=subTaskCount}}</span></span
+            >
         </span>
-        {{?}}
-        {{? totalItemCount > 0}}
+        {{?}} {{? totalItemCount > 0}}
         <span class="taskTagsBG mLeft10">
-            <i class="icon-task-list Font14 cardColor" tip="{{= _l('检查清单') }}"></i>
+            <i class="icon-list Font14 cardColor" tip="{{= _l('检查清单') }}"></i>
             <span class="mLeft5 cardColor">{{=totalCompletedItemCount}}/{{=totalItemCount}}</span>
         </span>
         {{?}}
-        <span class="deteLine mLeft10 {{=completeTime ? '' : 'mp0'}}" data-start="{{=task.startTime}}" data-end="{{=task.deadline}}" data-actdate="{{=task.actualStartTime}}" data-comdate="{{=task.completeTime}}">{{=completeTime}}</span>
+        <span
+            class="deteLine mLeft10 {{=completeTime ? '' : 'mp0'}}"
+            data-start="{{=task.startTime}}"
+            data-end="{{=task.deadline}}"
+            data-actdate="{{=task.actualStartTime}}"
+            data-comdate="{{=task.completeTime}}"
+            >{{=completeTime}}</span
+        >
     </td>
     <td class="chargeTd updateUserHead" data-src="{{=userHead}}" data-auth="{{=userAuth}}" data-id="{{=accountId}}">
-        <img class="circle chargeImg {{=userClass}}" src="{{=userHead}}"/>
+        <img class="circle chargeImg {{=userClass}}" src="{{=userHead}}" />
     </td>
     <td class="markStar"><i class="taskStar mLeft2 ThemeColor3 {{= starClass }}"></i></td>
 </tr>

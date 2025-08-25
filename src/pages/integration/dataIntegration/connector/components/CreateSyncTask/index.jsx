@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
 import onlySyncBg from 'staticfiles/images/onlySync.png';
 import syncWithDealBg from 'staticfiles/images/syncWithDeal.png';
@@ -60,7 +60,7 @@ const SyncTaskWrapper = styled.div`
       line-height: 28px;
     }
     &:hover {
-      border-color: #2196f3;
+      border-color: #1677ff;
     }
   }
   .titleItem {
@@ -108,7 +108,7 @@ const CardWrapper = styled.div`
     font-weight: 500;
   }
   &:hover {
-    border-color: #2196f3;
+    border-color: #1677ff;
   }
 `;
 

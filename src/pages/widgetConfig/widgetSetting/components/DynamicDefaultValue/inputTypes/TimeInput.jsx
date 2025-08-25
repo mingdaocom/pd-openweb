@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { shape, number, func } from 'prop-types';
-import moment from 'moment';
-import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
-import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 import _ from 'lodash';
-import { MdAntTimeRangePicker, MdAntTimePicker } from 'ming-ui';
+import moment from 'moment';
+import { func, number, shape } from 'prop-types';
+import { MdAntTimePicker, MdAntTimeRangePicker } from 'ming-ui';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
+import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 
 export default class TimeInput extends Component {
   static propTypes = {

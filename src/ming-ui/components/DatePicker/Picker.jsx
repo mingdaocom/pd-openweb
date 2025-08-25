@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import PositionContainer from 'ming-ui/components/PositionContainer';
 
 function createChainedFunction(...argsOuter) {
@@ -78,7 +78,7 @@ class Picker extends Component {
     this.setState({ visible: false });
   };
 
-  onCalendarSelect = (value, cause = {}) => {
+  onCalendarSelect = value => {
     const visible = true;
     // if (this.props.timePicker) {
     //   visible = true;

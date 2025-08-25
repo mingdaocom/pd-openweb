@@ -147,7 +147,7 @@ export default class User extends React.Component {
   };
 
   handleChange = forceUpdate => {
-    const { isSubList, cell, updateCell, updateEditingStatus } = this.props;
+    const { error, ignoreErrorMessage, isSubList, cell, updateCell } = this.props;
     const { value } = this.state;
     if (isSubList && !forceUpdate) {
       return;
@@ -159,23 +159,16 @@ export default class User extends React.Component {
       return;
     }
     this.handleExitEditing({ exit: cell.enumDefault === 0 });
+    if (error && !ignoreErrorMessage) {
+      return;
+    }
     updateCell({
       value: JSON.stringify(value),
     });
   };
 
   pickUser = event => {
-    const {
-      isSubList,
-      worksheetId,
-      cell,
-      projectId,
-      updateEditingStatus,
-      appId,
-      rowFormData,
-      onValidate,
-      masterData = () => {},
-    } = this.props;
+    const { isSubList, cell, projectId, appId, rowFormData, onValidate, masterData = () => {} } = this.props;
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
     const tabType = getTabTypeBySelectUser(cell);
@@ -195,12 +188,17 @@ export default class User extends React.Component {
     const callback = (data, forceUpdate) => {
       if (cell.enumDefault === 0) {
         // 单选
-        if (!onValidate(JSON.stringify(data))) {
+        const validateResult = onValidate(JSON.stringify(data));
+        if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
           this.setState({
             value: data,
             isError: true,
+            validateResult,
           });
           return;
+        }
+        if (validateResult.errorMessage) {
+          alert(validateResult.errorMessage, 3);
         }
         this.setState(
           {
@@ -215,7 +213,9 @@ export default class User extends React.Component {
         let newData = [];
         try {
           newData = _.uniqBy(this.state.value.concat(data), 'accountId');
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         this.setState(
           {
             value: newData,
@@ -312,10 +312,10 @@ export default class User extends React.Component {
       cell,
       editable,
       isediting,
-      updateEditingStatus,
       disabled,
+      ignoreErrorMessage,
     } = this.props;
-    const { value } = this.state;
+    const { value, validateResult } = this.state;
     const single = cell.enumDefault === 0;
     const { rows } = this.context || {};
     const editcontent = (
@@ -326,6 +326,7 @@ export default class User extends React.Component {
         <div
           className={cx('cellUsers cellControl cellControlUserPopup cellControlEdittingStatus', {
             cellControlErrorStatus: error,
+            ignoreErrorMessage: ignoreErrorMessage || validateResult?.ignoreErrorMessage,
           })}
           ref={isediting && !single ? this.cell : () => {}}
           style={{
@@ -340,7 +341,13 @@ export default class User extends React.Component {
             </span>
           )}
         </div>
-        {error && single && <CellErrorTip pos={rowIndex === 0 ? 'bottom' : 'top'} error={error} />}
+        {error && single && (
+          <CellErrorTip
+            color={ignoreErrorMessage ? '#ff933e' : undefined}
+            pos={rowIndex === 0 ? 'bottom' : 'top'}
+            error={error}
+          />
+        )}
       </ClickAwayable>
     );
 

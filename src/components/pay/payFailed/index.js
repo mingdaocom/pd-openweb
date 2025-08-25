@@ -1,8 +1,8 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import styled from 'styled-components';
 import preall from 'src/common/preall';
 import PayHeader from '../payHeader';
-import styled from 'styled-components';
 
 const PayFailedWrap = styled.div`
   .failedWrap {
@@ -27,7 +27,7 @@ const PayFailedWrap = styled.div`
   }
 `;
 
-function PayFailed(props) {
+function PayFailed() {
   return (
     <PayFailedWrap>
       <PayHeader />

@@ -1,6 +1,9 @@
-export const memberList = (state = {
-  data: [],
-}, action) => {
+export const memberList = (
+  state = {
+    data: [],
+  },
+  action,
+) => {
   switch (action.type) {
     case 'UPDATE_MEMBER_LIST':
       return action.data;

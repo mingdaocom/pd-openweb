@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { TimePicker } from 'antd';
 import cx from 'classnames';
+import _ from 'lodash';
 import moment from 'moment';
 import {
   Checkbox,
@@ -50,7 +51,7 @@ export default class SingleControlValue extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (this.props.item.type === 2 && prevProps.item.fieldValue !== this.props.item.fieldValue && this.tagtextarea) {
       const cursor = this.tagtextarea.cmObj.getCursor();
 
@@ -487,7 +488,7 @@ export default class SingleControlValue extends Component {
             getRef={tagtextarea => {
               this.tagtextarea = tagtextarea;
             }}
-            renderTag={(tag, options) => {
+            renderTag={tag => {
               const ids = tag.split(/([a-zA-Z0-9#]{24,32})-/).filter(item => item);
               const nodeObj = formulaMap[ids[0]] || {};
               const controlObj = formulaMap[ids.join('-')] || {};
@@ -504,7 +505,7 @@ export default class SingleControlValue extends Component {
                 />
               );
             }}
-            onChange={(err, value, obj) => {
+            onChange={(err, value) => {
               this.updateSingleControlValue({ fieldValue: value, fieldValueId: '', nodeAppId: '' }, i);
             }}
           />
@@ -766,7 +767,7 @@ export default class SingleControlValue extends Component {
                   this.cacheFile.push(formatResponseData(file, decodeURIComponent(JSON.stringify(response))));
                   this.updateSingleControlValue({ fieldValue: JSON.stringify(this.cacheFile) }, i);
                 }}
-                onAdd={(up, files) => {
+                onAdd={up => {
                   this.setState({ isUploading: true });
                   up.disableBrowse();
                 }}
@@ -872,7 +873,7 @@ export default class SingleControlValue extends Component {
               </DateTime>
               {item.fieldValue && (
                 <Icon
-                  icon="cancel1"
+                  icon="cancel"
                   className="Font16 Gray_75 ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
@@ -968,7 +969,7 @@ export default class SingleControlValue extends Component {
               </CityPicker>
               {cityText && (
                 <Icon
-                  icon="cancel1"
+                  icon="cancel"
                   className="Font16 Gray_75 ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => {
@@ -1023,7 +1024,7 @@ export default class SingleControlValue extends Component {
 
       return (
         <div className="mTop8 flexRow relative">
-          {item.fieldValueId ? (
+          {item.fieldValueId || (item.nodeId && JSON.parse(item.fieldValue || '[]').length) ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
             <Fragment>
@@ -1195,7 +1196,7 @@ export default class SingleControlValue extends Component {
                 showNow={false}
                 bordered={false}
                 suffixIcon={null}
-                clearIcon={<Icon icon="cancel1" className="Font16 Gray_75 ThemeHoverColor3" />}
+                clearIcon={<Icon icon="cancel" className="Font16 Gray_75 ThemeHoverColor3" />}
                 inputReadOnly
                 placeholder={_l('请选择时间')}
                 format={timeFormat}

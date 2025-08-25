@@ -1,17 +1,16 @@
-import React, { Fragment } from 'react';
-import { createPortal } from 'react-dom';
-import { Checkbox, Dialog, Icon } from 'ming-ui';
-import { Tooltip, Dropdown } from 'antd';
+import React from 'react';
+import { Dropdown, Tooltip } from 'antd';
+import _, { find, flatten } from 'lodash';
 import styled from 'styled-components';
-import { SettingItem, DropdownOverlay } from '../../styled';
-import { updateConfig } from '../../util/setting';
-import { batchRemoveItems } from '../../util/drag';
-import { batchCopyWidgets, handleMoveWidgets, batchResetWidgets } from '../../util/data';
-import { putControlByOrder, notInsetSectionTab, isSheetDisplay } from '../../util';
-import { find, flatten } from 'lodash';
-import { UN_REQUIRED_WIDGET } from '../../config';
-import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
+import { Checkbox, Dialog, Icon } from 'ming-ui';
 import AutoIcon from '../../components/Icon';
+import { UN_REQUIRED_WIDGET } from '../../config';
+import { DropdownOverlay, SettingItem } from '../../styled';
+import { isSheetDisplay, notInsetSectionTab, putControlByOrder } from '../../util';
+import { batchCopyWidgets, batchResetWidgets, handleMoveWidgets } from '../../util/data';
+import { batchRemoveItems } from '../../util/drag';
+import { updateConfig } from '../../util/setting';
+import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
@@ -138,7 +137,7 @@ function WidgetBatch(props) {
             <Icon className="titleBtn" icon="copy" onClick={() => handleOperate('copy')} />
           </Tooltip>
           <Tooltip placement="bottom" title={_l('删除')}>
-            <Icon className="titleBtn mRight0" icon="delete1" onClick={() => handleOperate('delete')} />
+            <Icon className="titleBtn mRight0" icon="trash" onClick={() => handleOperate('delete')} />
           </Tooltip>
         </div>
       </div>
@@ -244,35 +243,30 @@ export default function WidgetBatchOption(props) {
   };
 
   return (
-    <Fragment>
-      {createPortal(
-        <WidgetBatch
-          allControls={allControls}
-          batchActive={batchActive}
-          handleChange={(value, key) => {
-            // 标题字段属性直接变更，批量数据没有同步
-            const newBatchActive = batchActive.map(b => {
-              const newAttribute = _.get(
-                _.find(allControls, i => i.controlId === b.controlId),
-                'attribute',
-              );
-              if (key === 'fieldPermission') {
-                return {
-                  ...b,
-                  fieldPermission: updateConfig({ config: b.fieldPermission || '111', ...value }),
-                  attribute: newAttribute,
-                };
-              }
-              return { ...b, ...value, attribute: newAttribute };
-            });
-            setBatchActive(newBatchActive);
-            batchResetWidgets(props, newBatchActive);
-          }}
-          handleCancel={() => setBatchActive([])}
-          handleOperate={handleOperate}
-        />,
-        document.getElementById('widgetConfigSettingWrap'),
-      )}
-    </Fragment>
+    <WidgetBatch
+      allControls={allControls}
+      batchActive={batchActive}
+      handleChange={(value, key) => {
+        // 标题字段属性直接变更，批量数据没有同步
+        const newBatchActive = batchActive.map(b => {
+          const newAttribute = _.get(
+            _.find(allControls, i => i.controlId === b.controlId),
+            'attribute',
+          );
+          if (key === 'fieldPermission') {
+            return {
+              ...b,
+              fieldPermission: updateConfig({ config: b.fieldPermission || '111', ...value }),
+              attribute: newAttribute,
+            };
+          }
+          return { ...b, ...value, attribute: newAttribute };
+        });
+        setBatchActive(newBatchActive);
+        batchResetWidgets(props, newBatchActive);
+      }}
+      handleCancel={() => setBatchActive([])}
+      handleOperate={handleOperate}
+    />
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { DATE_FORMAT_BY_DATERANGETYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
@@ -112,7 +112,7 @@ export default function DefCom(props) {
               minValue: undefined,
               dateRange: 0,
             });
-          } else if (!!data[0].staticValue) {
+          } else if (data[0].staticValue) {
             if (
               ([6, 8].includes(dataType) && control.filterType === 11) ||
               dataType === 46 ||
@@ -215,7 +215,7 @@ export default function DefCom(props) {
               param = { dateRange: 18 };
             }
             updateViewSet({
-              dynamicSource: JSON.parse(defsource),
+              dynamicSource: safeParse(defsource, 'array'),
               values: [],
               maxValue: undefined,
               minValue: undefined,
@@ -231,8 +231,8 @@ export default function DefCom(props) {
         }
         withLinkParams={[1, 2, 32, 3, 4, 5, 6, 7, 8, 15, 16, 17, 18, 46, 9, 10, 11, 36].includes(dataType)}
         withDY={[15, 16, 17, 18].includes(dataType) && getDaterange(_.get(control, 'advancedSetting') || {}).length > 0}
-        hideDynamic={[27, 48, 29, 35].includes(dataType)}
-        linkParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
+        hideDynamic={[29, 35].includes(dataType)}
+        linkParams={safeParse(view?.advancedSetting?.urlparams, 'array')}
         titleControl={(_.get(dataControls, 'relationControls') || []).find(o => o.attribute === 1)} //关联表的标题字段
         globalSheetInfo={_.pick(currentSheetInfo, ['appId', 'groupId', 'name', 'projectId', 'worksheetId'])}
       />

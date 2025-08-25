@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import PropTypes from 'prop-types';
 import '../less/Progress.less';
 
 class LineProgress extends Component {
@@ -39,7 +39,7 @@ class LineProgress extends Component {
         'Progress--active': active,
         [`Progress--${theme}`]: theme,
       },
-      className
+      className,
     );
 
     return (

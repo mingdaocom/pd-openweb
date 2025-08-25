@@ -1,8 +1,6 @@
-import React, { Component, createRef } from 'react';
+import React, { Component, createRef, Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
-import _ from 'lodash';
 import { Button, Dialog, LoadDiv, QiniuUpload, UpgradeIcon, VerifyPasswordConfirm } from 'ming-ui';
-import fixedDataAjax from 'src/api/fixedData';
 import projectController from 'src/api/project';
 import projectSettingController from 'src/api/projectSetting';
 import AdminCommon from 'src/pages/Admin/common/common';
@@ -11,6 +9,7 @@ import CertificationButton from 'src/pages/certification/CertificationButton';
 import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 import SetInfoDialog from '../modules/SetInfoDialog';
+// import SmsSignature from '../modules/SmsSignature';
 import './index.less';
 
 export default class CommonInfo extends Component {
@@ -65,6 +64,7 @@ export default class CommonInfo extends Component {
         },
       ]) => {
         const { allowProjectCodeJoin, regCode } = privacyModel;
+
         this.setState(
           {
             homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
@@ -240,7 +240,7 @@ export default class CommonInfo extends Component {
         }}
         bucket={4}
         onUploaded={this.handleUploaded}
-        onAdd={(up, files) => {
+        onAdd={up => {
           this.setState({ uploadLoading: true });
           up.disableBrowse();
         }}
@@ -395,21 +395,35 @@ export default class CommonInfo extends Component {
                 </div>
               </div>
               {!md.global.Config.IsLocal && (
-                <div className="common-info-row mTop24">
-                  <div className="common-info-row-label">{_l('身份认证')}</div>
-                  <div className="common-info-row-content">
-                    <CertificationButton
-                      authType={authType}
-                      projectId={Config.projectId}
-                      onUpdateCertStatus={authType => this.setState({ authType })}
-                    />
-                    <div className="set-describe mTop4">
-                      {_l(
-                        '试用、免费版需组织完成身份认证后可充值余额；自定义短信签名等功能需完成组织身份认证（注意：非个人身份）',
-                      )}
+                <Fragment>
+                  <div className="common-info-row mTop24">
+                    <div className="common-info-row-label">{_l('身份认证')}</div>
+                    <div className="common-info-row-content">
+                      <CertificationButton
+                        authType={authType}
+                        projectId={Config.projectId}
+                        onUpdateCertStatus={authType => this.setState({ authType })}
+                      />
+                      <div className="set-describe mTop4">
+                        {_l(
+                          '试用、免费版需组织完成身份认证后可充值余额；自定义短信签名等功能需完成组织身份认证（注意：非个人身份）',
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                  {/* <div className="common-info-row mTop24">
+                    <div className="common-info-row-label">{_l('短信签名')}</div>
+                    <div className="common-info-row-content">
+                      <SmsSignature
+                        authType={authType}
+                        signature={signature}
+                        onSetSignature={signature => this.setState({ signature, signStatus: 0 })}
+                        signStatus={signStatus}
+                        hasContact={hasContact}
+                      />
+                    </div>
+                  </div> */}
+                </Fragment>
               )}
 
               <div className="split-line" />
@@ -439,9 +453,13 @@ export default class CommonInfo extends Component {
                   </div>
                   {homeImage && <img src={homeImage} className="domain-review" />}
                   <div className="mTop4 Gray_75">
-                    {_l(
-                      '通过二级域名可建立组织专属的登录页，会展示组织LOGO与配置的背景图，若配置了LDAP、企业微信、钉钉或飞书集成，也会展示在登录页可快捷登录',
-                    )}
+                    {md.global.Config.IsLocal
+                      ? _l(
+                          '通过在登录地址后增加组织编号参数（?projectId=组织编号），可进入组织专属登录页，展示对应的 logo 和配置的背景图，若配置了LDAP、企业微信、钉钉或飞书集成，也会展示在登录页可快捷登录',
+                        )
+                      : _l(
+                          '通过二级域名可建立组织专属的登录页，会展示组织LOGO与配置的背景图，若配置了LDAP、企业微信、钉钉或飞书集成，也会展示在登录页可快捷登录',
+                        )}
                   </div>
                 </div>
               </div>

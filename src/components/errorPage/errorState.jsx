@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
 import './errorPage.less';
 
 export default class ErrorState extends Component {
@@ -29,15 +29,13 @@ export default class ErrorState extends Component {
 
     return (
       <div className={cx('flexColumn noAuthContentBox', className)}>
-        <i className={cx('icon-task-folder-message', iconClassName)} />
+        <i className={cx('icon-error1', iconClassName)} />
         <div className="Font17 mTop20">{text}</div>
         {showBtn ? (
           <span className="Font14 ThemeBGColor3 ThemeHoverBGColor2 noAuthJoin mTop25 pointer" onClick={callback}>
             {btnText}
           </span>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }

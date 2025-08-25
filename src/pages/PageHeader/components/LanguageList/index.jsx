@@ -1,11 +1,12 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { Dropdown, Menu, Divider } from 'antd';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Divider, Dropdown, Menu } from 'antd';
 import cx from 'classnames';
-import { Icon, LoadDiv } from 'ming-ui';
-import appManagementApi from 'src/api/appManagement';
-import accountSettingApi from 'src/api/accountSetting';
-import fixedDataApi from 'src/api/fixedData';
+import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon, LoadDiv } from 'ming-ui';
+import accountSettingApi from 'src/api/accountSetting';
+import appManagementApi from 'src/api/appManagement';
+import fixedDataApi from 'src/api/fixedData';
 
 const Wrap = styled(Menu)`
   .ant-dropdown-menu-item.active {
@@ -21,57 +22,73 @@ export default props => {
   const [langList, setLangList] = useState({});
 
   useEffect(() => {
-    appManagementApi.getAppLangs({
-      appId,
-      projectId,
-    }).then(data => {
-      setAppLangs(data);
-      if (placement.includes('top')) {
-        loadLangList(data);
-      }
-    });
+    appManagementApi
+      .getAppLangs({
+        appId,
+        projectId,
+      })
+      .then(data => {
+        setAppLangs(data);
+        if (placement.includes('top')) {
+          loadLangList(data);
+        }
+      });
   }, []);
 
   const loadLangList = appLangs => {
     if (!_.isEmpty(langList)) return;
     setLoading(true);
-    fixedDataApi.loadLangList({
-      langCodes: appLangs.map(n => n.langCode).concat(app.originalLang).filter(n => n)
-    }).then(langList => {
-      setLangList(langList);
-      setLoading(false);
-    });
-  }
+    fixedDataApi
+      .loadLangList({
+        langCodes: appLangs
+          .map(n => n.langCode)
+          .concat(app.originalLang)
+          .filter(n => n),
+      })
+      .then(langList => {
+        setLangList(langList);
+        setLoading(false);
+      });
+  };
 
   const handleSetLang = value => {
     const langCodeObjs = {
-      'en': 'en',
-      'ja': 'ja',
-      'zh_hant': 'zh-Hant',
-      'zh_hans': 'zh-Hans'
-    }
-    const langCode = value === '' ? (langCodeObjs[app.originalLang] ? getCurrentLangCode(langCodeObjs[app.originalLang]) : 0) : getCurrentLangCode(langCodeObjs[value]);
-    accountSettingApi.editAccountSetting({
-      settingType: '20',
-      settingValue: value
-    }).then(data => {
-      if (data) {
-        if (_.isNumber(value === '' ? 0 : getCurrentLangCode(langCodeObjs[value] || ''))) {
-          accountSettingApi.editAccountSetting({
-            settingType: '6',
-            settingValue: langCode.toString()
-          }).then(res => {
-            if (res) {
-              setCookie('i18n_langtag', langCodeObjs[value] ? value : 'zh-Hans');
-              window.location.reload();
-            }
-          });
-        } else {
-          window.location.reload();
+      en: 'en',
+      ja: 'ja',
+      zh_hant: 'zh-Hant',
+      zh_hans: 'zh-Hans',
+    };
+    const langCode =
+      value === ''
+        ? langCodeObjs[app.originalLang]
+          ? getCurrentLangCode(langCodeObjs[app.originalLang])
+          : 0
+        : getCurrentLangCode(langCodeObjs[value]);
+    accountSettingApi
+      .editAccountSetting({
+        settingType: '20',
+        settingValue: value,
+      })
+      .then(data => {
+        if (data) {
+          if (_.isNumber(value === '' ? 0 : getCurrentLangCode(langCodeObjs[value] || ''))) {
+            accountSettingApi
+              .editAccountSetting({
+                settingType: '6',
+                settingValue: langCode.toString(),
+              })
+              .then(res => {
+                if (res) {
+                  setCookie('i18n_langtag', langCodeObjs[value] ? value : 'zh-Hans');
+                  window.location.reload();
+                }
+              });
+          } else {
+            window.location.reload();
+          }
         }
-      }
-    });
-  }
+      });
+  };
 
   if (!appLangs.length) {
     return null;
@@ -79,7 +96,7 @@ export default props => {
 
   return (
     <Dropdown
-      overlay={(
+      overlay={
         <Wrap style={{ width: 200, maxHeight: 380, overflowY: loading ? undefined : 'auto' }}>
           {loading ? (
             <li className="flexRow alignItemsCenter justifyContentCenter">
@@ -88,14 +105,22 @@ export default props => {
           ) : (
             <Fragment>
               {appLangs.map(item => (
-                <Menu.Item key={item.langCode} className={cx({ active: item.langCode === md.global.Account.appLang })} onClick={() => handleSetLang(item.langCode)}>
+                <Menu.Item
+                  key={item.langCode}
+                  className={cx({ active: item.langCode === md.global.Account.appLang })}
+                  onClick={() => handleSetLang(item.langCode)}
+                >
                   <div className="flexRow alignItemsCenter">
                     <div className="flex">{_.get(langList[item.langCode], 'localLang')}</div>
                     {item.langCode === md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font19" />}
                   </div>
                 </Menu.Item>
               ))}
-              <Menu.Item key={app.originalLang} className={cx({ active: !md.global.Account.appLang })} onClick={() => handleSetLang('')}>
+              <Menu.Item
+                key={app.originalLang}
+                className={cx({ active: !md.global.Account.appLang })}
+                onClick={() => handleSetLang('')}
+              >
                 <div className="flexRow alignItemsCenter">
                   <div className="flex">
                     {_l('原始语言')}
@@ -121,7 +146,7 @@ export default props => {
             </Fragment>
           )}
         </Wrap>
-      )}
+      }
       placement={placement}
       trigger={['click']}
       onVisibleChange={value => {
@@ -130,9 +155,7 @@ export default props => {
         }
       }}
     >
-      <span>
-        {props.children}
-      </span>
+      <span>{props.children}</span>
     </Dropdown>
   );
-}
+};
