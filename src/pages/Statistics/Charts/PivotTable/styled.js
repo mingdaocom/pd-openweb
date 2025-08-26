@@ -161,6 +161,7 @@ const PivotTableContent = styled.div`
   .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'odd' : 'even')}) {
     .cell-content {
       color: ${props => props.pivotTableStyle.evenTextColor} !important;
+      background-color: transparent !important;
     }
     background-color: ${props => props.pivotTableStyle.evenBgColor || '#fafcfd'};
     &:hover {
@@ -171,6 +172,7 @@ const PivotTableContent = styled.div`
   .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'even' : 'odd')}) {
     .cell-content {
       color: ${props => props.pivotTableStyle.oddTextColor} !important;
+      background-color: transparent !important;
     }
     background-color: ${props => props.pivotTableStyle.oddBgColor || 'transparent'};
     &:hover {

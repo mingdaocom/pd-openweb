@@ -348,6 +348,7 @@ export default connect(
     mobileNavGroupFilters: state.mobile.mobileNavGroupFilters,
     quickFilter: state.mobile.quickFilter,
     base: state.mobile.base,
+    filterControls: state.mobile.filterControls,
   }),
   dispatch =>
     bindActionCreators(

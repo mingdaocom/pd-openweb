@@ -284,6 +284,9 @@ export const getTableData = () => {
         if (!result.style) {
           result.style = {};
         }
+        if (!result.valueMap) {
+          result.valueMap = {};
+        }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
           data: formatYaxisList(result),
@@ -333,6 +336,9 @@ export const getTableData = () => {
       reportRequestAjax.getTableData(params).then(result => {
         if (!result.style) {
           result.style = {};
+        }
+        if (!result.valueMap) {
+          result.valueMap = {};
         }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',

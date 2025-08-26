@@ -140,6 +140,7 @@ class PostOperateList extends React.Component {
       rGroupList: postItem.rGroupList,
       categories: postItem.categories,
       noLink: true,
+      doNotEscapeHTML: true,
     });
     createCalendar({
       MemberArray: _.chain(postItem.rUserList)
@@ -179,6 +180,7 @@ class PostOperateList extends React.Component {
       rGroupList: postItem.rGroupList,
       categories: postItem.categories,
       noLink: true,
+      doNotEscapeHTML: true,
     });
     if (param === 1) {
       createTask({

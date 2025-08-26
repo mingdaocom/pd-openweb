@@ -138,7 +138,7 @@ export default class SourceDest extends Component {
       .then(res => {
         this.setState({
           loading: false,
-          dbList: res.map(a => {
+          dbList: (res || []).map(a => {
             return { ...a, text: a.appName, value: a.appId, disabled: !isValidName(a.appName) };
           }),
         });
@@ -237,7 +237,7 @@ export default class SourceDest extends Component {
         datasourceId,
       }).then(res => {
         this.setState({
-          dbList: res.map(a => {
+          dbList: (res || []).map(a => {
             return { text: a, value: a, disabled: !isValidName(a) };
           }),
         });

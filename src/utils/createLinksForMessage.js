@@ -22,7 +22,11 @@ function escapeHTML(s) {
  * @return {string}                替换后的 html
  */
 export default args => {
-  let message = escapeHTML(args.message).replace(/\n/g, '<br>');
+  let message = args.message;
+  if (!args.doNotEscapeHTML) {
+    message = escapeHTML(message);
+  }
+  message = message.replace(/\n/g, '<br>');
   let rUserList = args.rUserList;
   let rGroupList = args.rGroupList;
   let categories = args.categories;

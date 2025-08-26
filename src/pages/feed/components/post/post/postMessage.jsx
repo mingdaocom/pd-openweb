@@ -100,6 +100,7 @@ class PostMessage extends React.Component {
       rGroupList: postItem.rGroupList,
       categories: postItem.categories,
       filterFace: !this.props.renderFace,
+      doNotEscapeHTML: true,
     });
 
     if (this.props.keywords) {

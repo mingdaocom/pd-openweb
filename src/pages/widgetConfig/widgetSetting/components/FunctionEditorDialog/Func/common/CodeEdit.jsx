@@ -223,8 +223,9 @@ function CodeEdit(props, ref) {
                   }}
                   dangerouslySetInnerHTML={{
                     __html: _l(
-                      '1.函数返回值需要保证和当前子表的数据结构完全一致，从而对子表数据进行全量替换更新。否则将会导致未知异常问题。\n\n2.此功能仅提供给熟悉代码的用户使用，可以自由处理子表数据实现复杂业务逻辑。普通用户请谨慎使用！\n\n%0',
-                      `<a target="_blank" href="${md.global.Config.HelpUrl ? subListHelpUrl.replace('https://help.mingdao.com', md.global.Config.HelpUrl) : subListHelpUrl}">${_l('查看代码说明>')}</a>`,
+                      '1.函数返回值需要保证和当前子表的数据结构完全一致，从而对子表数据进行全量替换更新。否则将会导致未知异常问题。%02.此功能仅提供给熟悉代码的用户使用，可以自由处理子表数据实现复杂业务逻辑。普通用户请谨慎使用！%1',
+                      '<br /><br />',
+                      `<br /><br /><a target="_blank" href="${md.global.Config.HelpUrl ? subListHelpUrl.replace('https://help.mingdao.com', md.global.Config.HelpUrl) : subListHelpUrl}">${_l('查看代码说明>')}</a>`,
                     ),
                   }}
                 />

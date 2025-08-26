@@ -364,7 +364,7 @@ const MentionsInput = props => {
         handleSelectUser();
         return;
       }
-      handleAddMention(res[index]);
+      res[index] && handleAddMention(res[index]);
     }
   };
 
@@ -489,14 +489,18 @@ const MentionsInput = props => {
         responseData.accounts = responseData.accounts.concat(addressBookSelectConfig);
       }
       responseData.accounts = responseData.accounts.concat(recordAtdatas);
-      responseData.accounts = responseData.accounts.map((item, index) => {
-        return {
-          ...item,
-          type: 'user',
-          atDataIndex: index === (isAddressBookSelect ? 2 : 1) ? index : undefined,
-          showFullname: highlightTerm(htmlEncodeReg(item.fullname), query),
-        };
-      });
+      responseData.accounts = responseData.accounts
+        .filter(item => {
+          return item.fullname.includes(query);
+        })
+        .map((item, index) => {
+          return {
+            ...item,
+            type: 'user',
+            atDataIndex: index === (isAddressBookSelect ? 2 : 1) ? index : undefined,
+            showFullname: highlightTerm(htmlEncodeReg(item.fullname), query),
+          };
+        });
       setTriggerPopupVisible(true);
       return populateDropdown(query, responseData);
     }

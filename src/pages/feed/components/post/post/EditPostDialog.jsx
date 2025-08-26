@@ -93,12 +93,12 @@ export default class EditPostDialog extends React.Component {
     import('src/components/MentionsInput').then(data => {
       const MentionsInput = data.default;
       const message = htmlDecodeReg(
-        createLinksForMessage(_.assign({ noLink: true }, postItem))
+        createLinksForMessage(_.assign({ noLink: true, doNotEscapeHTML: true }, postItem))
           .replace(/<br>/g, '\n')
           .replace(/<[^>]+>/g, ''),
       );
       const messageMentions = createLinksForMessage(
-        _.assign({ noLink: true }, postItem, {
+        _.assign({ noLink: true, doNotEscapeHTML: true }, postItem, {
           message: postItem.message
             .replace('/[aid]([0-9a-zA-Z-]*\\|?.*)[/aid]/', 'user:$1')
             .replace('/[gid]([0-9a-zA-Z-]*\\|?.*)[/gid]/', 'group:$1'),

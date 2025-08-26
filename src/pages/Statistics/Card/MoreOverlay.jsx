@@ -156,8 +156,9 @@ export default class MoreOverlay extends Component {
     const card = document.querySelector(`.statisticsCard-${report.id}`);
     if (dropdownVisible) {
       const container = document.querySelector('#componentsWrap');
-      if (container) {
-        const elementRect = card.querySelector('.chartCardMoreIcon').getBoundingClientRect();
+      const moreIcon = card.querySelector('.chartCardMoreIcon');
+      if (container && moreIcon) {
+        const elementRect = moreIcon.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         const elementBottomToContainerTop = elementRect.bottom - containerRect.top;
         const containerVisibleHeight = container.clientHeight;

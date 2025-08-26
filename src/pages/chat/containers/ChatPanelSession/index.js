@@ -361,16 +361,19 @@ class ChatPanelSession extends Component {
   }
   getAtParam(id) {
     const textarea = $(`#ChatPanel-${id}`).find('.ChatPanel-textarea textarea');
+    const textareaEl = textarea.get(0);
     let atList = [];
-    textarea.get(0).getMentions(users => {
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].id === 'all') {
-          atList = 'all';
-          break;
+    if (textareaEl.getMentions) {
+      textareaEl.getMentions(users => {
+        for (let i = 0; i < users.length; i++) {
+          if (users[i].id === 'all') {
+            atList = 'all';
+            break;
+          }
+          atList.push(users[i].id);
         }
-        atList.push(users[i].id);
-      }
-    });
+      });
+    }
     if (atList.length || atList === 'all') {
       return {
         gid: id,
