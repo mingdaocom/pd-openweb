@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
+import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv, ScrollView, SvgIcon, Switch } from 'ming-ui';
@@ -60,9 +61,12 @@ const SYSTEM_TYLE = [
 const isCustomIcon = icon => !icon.startsWith('sys_');
 
 function IconTabs(props) {
-  const { iconColor, hideCustom, icon, projectId, handleClick } = props;
+  const { iconColor, hideCustom, icon, projectId, handleClick, navColor } = props;
   const commonData = safeParse(localStorage.getItem('md_common_icons'), 'array');
   const commonSetting = safeParse(localStorage.getItem('md_common_icon_setting'));
+  const lightColor = generate(iconColor)[0];
+  const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
+  const black = '#1b2025' === navColor;
 
   const [loading, setLoading] = useState(true);
   const [typePage, setTypePage] = useState(0);
@@ -227,7 +231,6 @@ function IconTabs(props) {
 
   const renderCommonIcon = () => {
     if (!commonData.length) return;
-
     return (
       <div className="commonIcon">
         <p className="iconType">{_l('最近使用')}</p>
@@ -236,12 +239,14 @@ function IconTabs(props) {
             const isCustom = isCustomIcon(l.icon);
             const iconItem = getIconName(l.icon, setting.isLine);
             const isCurrent = iconItem === icon;
+            const backgroundColor = isCurrent ? (light ? lightColor : navColor || iconColor) : '#fff';
+            const fillColor = isCurrent ? (black || light ? iconColor : '#fff') : '#9e9e9e';
 
             return (
               <li
                 key={`common-icons-${l.icon}`}
                 className={cx({ isCurrentIcon: isCurrent })}
-                style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
+                style={{ backgroundColor }}
                 onClick={() => {
                   onClickIcon({
                     icon: iconItem,
@@ -250,12 +255,12 @@ function IconTabs(props) {
                 }}
               >
                 {isCustom ? (
-                  <SvgIcon url={l.iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
+                  <SvgIcon url={l.iconUrl} fill={fillColor} />
                 ) : (
                   <span
                     className={iconItem}
                     style={{
-                      color: isCurrent ? '#fff' : '#9e9e9e',
+                      color: fillColor,
                     }}
                   ></span>
                 )}
@@ -295,17 +300,20 @@ function IconTabs(props) {
                         ? icon === fileName
                         : fileName.replace('sys_', '') === icon;
 
+                      const backgroundColor = isCurrent ? (light ? lightColor : navColor || iconColor) : '#fff';
+                      const fillColor = isCurrent ? (black || light ? iconColor : '#fff') : '#9e9e9e';
+
                       return (
                         <li
                           key={fileName}
                           className={cx({ isCurrentIcon: isCurrent })}
-                          style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
+                          style={{ backgroundColor }}
                           onClick={() => onClickIcon({ icon: fileName, iconUrl })}
                         >
                           <span
                             className={fileName}
                             style={{
-                              color: isCurrent ? '#fff' : '#9e9e9e',
+                              color: fillColor,
                             }}
                           ></span>
                         </li>
@@ -373,14 +381,16 @@ function IconTabs(props) {
           <ul className="iconsWrap">
             {data.customIcon.map(({ iconUrl, fileName }) => {
               let isCurrent = icon === fileName;
+              const backgroundColor = isCurrent ? (light ? lightColor : navColor || iconColor) : '#fff';
+              const fillColor = isCurrent ? (black || light ? iconColor : '#fff') : '#9e9e9e';
               return (
                 <li
                   key={fileName}
                   className={cx({ isCurrentIcon: isCurrent })}
-                  style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
+                  style={{ backgroundColor }}
                   onClick={() => onClickIcon({ icon: fileName, iconUrl })}
                 >
-                  <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
+                  <SvgIcon url={iconUrl} fill={fillColor} />
                 </li>
               );
             })}

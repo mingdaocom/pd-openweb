@@ -498,7 +498,8 @@ const checkFiltersAvailable = async props => {
           formData,
           forceSyncRun: true,
         });
-        result.push(funResult);
+        const tempFunResult = !funResult || funResult === 'false' ? false : true;
+        result.push(tempFunResult);
         break;
     }
   }

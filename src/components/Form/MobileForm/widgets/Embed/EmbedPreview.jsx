@@ -20,7 +20,7 @@ const Wrap = styled.div`
 `;
 
 export default function EmbedPreview(props) {
-  const { needUpdate } = props;
+  const { setting: { config = {} } = {} } = props;
   const [ViewComponent, setComponent] = useState(null);
 
   useEffect(() => {
@@ -31,5 +31,5 @@ export default function EmbedPreview(props) {
 
   return useMemo(() => {
     return <Wrap>{ViewComponent ? <ViewComponent.View {...props} /> : null}</Wrap>;
-  }, [needUpdate, ViewComponent]);
+  }, [config.embedNeedUpdate, ViewComponent]);
 }

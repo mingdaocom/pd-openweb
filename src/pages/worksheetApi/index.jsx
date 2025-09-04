@@ -1,11 +1,10 @@
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import DocumentTitle from 'react-document-title';
 import JsonView from 'react-json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Avatar, Dialog, Icon, LoadDiv, ScrollView, Skeleton, SvgIcon, Textarea, Tooltip } from 'ming-ui';
+import { Avatar, Dialog, Icon, LoadDiv, ScrollView, Textarea, Tooltip } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import ajaxRequest from 'src/api/worksheet';
@@ -15,33 +14,36 @@ import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/
 import preall from 'src/common/preall';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
-import Share from 'src/pages/worksheet/components/Share';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { navigateTo } from 'src/router/navigateTo';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { setFavicon } from 'src/utils/app';
+import FiltersGenerate from './components/FiltersGenerate';
+import Header from './components/Header';
+import RequestFormat from './components/RequestFormat';
+import Summary from './components/Summary';
+import WorkAliasDialog from './components/WorkAliasDialog';
 import {
-  ADD_API_CONTROLS,
-  ADD_WORKSHEET_SUCCESS,
   appInfoParameters,
   appRoleErrorData,
   appSuccessData,
-  DATA_PIPELINE_FILTERS,
-  DATA_PIPELINE_MENUS,
   ERROR_CODE,
-  MENU_LIST,
   MENU_LIST_APPENDIX,
-  MENU_LIST_APPENDIX_HEADER,
   MENU_LIST_APPROLE,
   OPTIONS_FUNCTION_LIST,
   sameParameters,
-  SIDEBAR_LIST,
+} from './core/apiV2Config';
+import {
+  ADD_API_CONTROLS,
+  ADD_WORKSHEET_SUCCESS,
+  DATA_PIPELINE_FILTERS,
+  DATA_PIPELINE_MENUS,
+  MENU_LIST_APPENDIX_HEADER,
   WORKSHEETINFO_SUCCESS_DATA,
-} from './config';
-import FiltersGenerate from './FiltersGenerate';
+} from './core/applicationConfig';
+import { MENU_LIST_MAP, SIDEBAR_LIST_MAP, TAB_TYPE } from './core/enum';
 import noDataImg from './img/lock.png';
 import MoreOption from './MoreOption';
 import SecretKey from './SecretKey';
-import WorksheetAliasDialog from './WorksheetAliasDialog';
 import './index.less';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([
@@ -54,7 +56,7 @@ class WorksheetApi extends Component {
     super(props);
     this.state = {
       data: [],
-      selectId: 'summary',
+      selectId: props.isSharePage ? 'summary' : 'authorizationInstr',
       dataApp: {},
       loading: true,
       showMoreOption: false,
@@ -64,6 +66,7 @@ class WorksheetApi extends Component {
       errorCode: 0, // 1：工作表不存在 2：应用过期
       aliasDialog: { visible: false, type: 'control' },
       templateControls: [],
+      sheetSwitchPermit: [],
       appInfo: {},
       whiteListDialog: false,
 
@@ -78,13 +81,16 @@ class WorksheetApi extends Component {
       selectWorkflowId: '',
       pbcList: [],
       workflowInfo: {},
-      menuList: MENU_LIST,
       shareVisible: false,
       dataPipelineList: undefined,
       expandIds: [],
       webhookList: [],
       visibleAppKeys: [],
       visibleSigns: [],
+      tabIndex: TAB_TYPE[props.isSharePage ? 'API_V2' : 'APPLICATION'],
+      // 工作流别名相关
+      workflowAliasDialog: false,
+      workflowAlias: '',
     };
     this.canScroll = true;
     this.contentScrollRef = React.createRef();
@@ -92,6 +98,12 @@ class WorksheetApi extends Component {
 
   componentDidMount() {
     this.getAppInfo();
+  }
+
+  get MENU_LIST() {
+    const { tabIndex } = this.state;
+
+    return MENU_LIST_MAP[tabIndex] || [];
   }
 
   getAppInfo() {
@@ -156,6 +168,7 @@ class WorksheetApi extends Component {
         dataApp.iconColor = shareData.appIconColor;
         dataApp.name = shareData.appName;
         dataApp.projectId = shareData.projectId;
+        dataApp.navColor = shareData.appNavColor;
       }
 
       setFavicon(dataApp.iconUrl, dataApp.iconColor);
@@ -172,9 +185,11 @@ class WorksheetApi extends Component {
       }
       if (dataApp.appStatus === 20) {
         this.setState({ errorCode: 2 });
-      } else if (worksheetList.length <= 0) {
-        this.setState({ errorCode: 1 });
-      } else {
+      }
+      // else if (worksheetList.length <= 0) {
+      //   this.setState({ errorCode: 1 });
+      // }
+      else {
         this.setState(
           {
             dataApp,
@@ -188,7 +203,11 @@ class WorksheetApi extends Component {
           },
           () => {
             document.title = dataApp.name + ' - ' + _l('API说明');
-            this.getWorksheetApiInfo(worksheetList[0].workSheetId);
+            if (worksheetList.length > 0) {
+              this.getWorksheetApiInfo(worksheetList[0].workSheetId);
+            } else {
+              this.setState({ loading: false });
+            }
           },
         );
       }
@@ -227,7 +246,7 @@ class WorksheetApi extends Component {
       }
 
       if (!isDataPipeline) {
-        MENU_LIST.forEach(item => {
+        this.MENU_LIST.forEach(item => {
           if (item.id === 'List') {
             item.data.forEach(obj => {
               if (obj.name === 'viewId') {
@@ -246,9 +265,9 @@ class WorksheetApi extends Component {
         {
           [isDataPipeline ? 'dataPipelineData' : 'data']: data,
           templateControls: list.template.controls || [],
+          sheetSwitchPermit: list.switches,
           loading: false,
           alias: list.alias,
-          menuList: MENU_LIST,
         },
         () => {
           this.scrollToFixedPosition();
@@ -346,7 +365,8 @@ class WorksheetApi extends Component {
   renderSideItem(props) {
     const { worksheetList = [], selectId, dataPipelineList = [], expandIds = [] } = this.state;
     const type = _.get(props, 'type') || 'worksheetCreateForm';
-    const list = type === 'dataPipeline' ? MENU_LIST.filter(l => DATA_PIPELINE_MENUS.includes(l.id)) : MENU_LIST;
+    const list =
+      type === 'dataPipeline' ? this.MENU_LIST.filter(l => DATA_PIPELINE_MENUS.includes(l.id)) : this.MENU_LIST;
 
     return (type === 'dataPipeline' ? dataPipelineList : worksheetList).map(item => {
       const worksheetId = item.workSheetId || item.worksheetId;
@@ -358,7 +378,7 @@ class WorksheetApi extends Component {
           <div
             className="worksheetApiMenuItem overflow_ellipsis"
             onClick={() => {
-              let id = worksheetId + MENU_LIST[0].id;
+              let id = prefix + worksheetId + this.MENU_LIST[0].id;
               isSelect
                 ? this.setState({ expandIds: [expandIds[0]] })
                 : this.setSelectId({
@@ -395,7 +415,7 @@ class WorksheetApi extends Component {
    * 渲染工作表侧栏
    */
   renderWorksheetSide() {
-    const { selectId, expandIds = [] } = this.state;
+    const { selectId, expandIds = [], tabIndex } = this.state;
     const isOpen = expandIds[0] === 'worksheetCreateForm';
 
     return (
@@ -414,23 +434,30 @@ class WorksheetApi extends Component {
           <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {_l('工作表')}
         </div>
-        {isOpen ? (
+        {isOpen && (
           <Fragment>
-            <div
-              className={cx('worksheetApiMenuItem overflow_ellipsis', { active: selectId === 'worksheetCreateForm' })}
-              onClick={() => this.setSelectId({ selectId: 'worksheetCreateForm' })}
-            >
-              {_l('新建工作表')}
-            </div>
-            <div
-              className={cx('worksheetApiMenuItem overflow_ellipsis', { active: selectId === 'worksheetFormInfo' })}
-              onClick={() => this.setSelectId({ selectId: 'worksheetFormInfo' })}
-            >
-              {_l('获取工作表结构信息')}
-            </div>
+            {tabIndex === TAB_TYPE.API_V2 && (
+              <Fragment>
+                {[
+                  { id: 'worksheetCreateForm', label: _l('新建工作表') },
+                  { id: 'worksheetFormInfo', label: _l('获取工作表结构信息') },
+                ].map(({ id, label }) => (
+                  <div
+                    key={id}
+                    className={cx('worksheetApiMenuItem overflow_ellipsis', {
+                      active: selectId === id,
+                    })}
+                    onClick={() => this.setSelectId({ selectId: id })}
+                  >
+                    {label}
+                  </div>
+                ))}
+              </Fragment>
+            )}
+
             {this.renderSideItem()}
           </Fragment>
-        ) : null}
+        )}
       </div>
     );
   }
@@ -460,11 +487,11 @@ class WorksheetApi extends Component {
   }
 
   /**
-   * 渲染封装业务流程侧栏
+   * 渲染封装业务流程、webhook侧栏
    */
   renderPBCSide({ type, listKey, title }) {
     const { selectWorkflowId, expandIds = [] } = this.state;
-    const isOpen = expandIds[0] === type;
+    const isOpen = expandIds[1] === type;
 
     if (!this.state[listKey].length) return null;
 
@@ -473,14 +500,14 @@ class WorksheetApi extends Component {
     return (
       <div className="worksheetApiMenu">
         <div
-          className="worksheetApiMenuTitle"
+          className="worksheetApiMenuItem"
           onClick={() => {
             isOpen
               ? this.setState({ expandIds: [] })
               : this.setSelectId({
                   selectId: 'workflowInfo',
                   workflowId: list[0].id,
-                  expandIds: [type],
+                  expandIds: [expandIds[0], type],
                 });
           }}
         >
@@ -491,13 +518,46 @@ class WorksheetApi extends Component {
           list.map(item => {
             return (
               <div
-                className={cx('worksheetApiMenuItem overflow_ellipsis', { active: item.id === selectWorkflowId })}
+                className={cx('worksheetApiMenuItem pLeft58 overflow_ellipsis', {
+                  active: item.id === selectWorkflowId,
+                })}
                 onClick={() => this.setSelectId({ selectId: 'workflowInfo', workflowId: item.id })}
               >
                 {item.name + ' POST'}
               </div>
             );
           })}
+      </div>
+    );
+  }
+
+  /**
+   * 渲染工作流侧栏
+   */
+  renderWorkflow() {
+    const { expandIds = [] } = this.state;
+    const isOpen = expandIds[0] === 'workflow';
+    return (
+      <div className="worksheetApiMenu">
+        <div
+          className="worksheetApiMenuTitle"
+          onClick={() => {
+            isOpen
+              ? this.setState({ expandIds: [], selectId: '' })
+              : this.setSelectId({ expandIds: ['workflow'], selectId: 'workflow' });
+          }}
+        >
+          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          {_l('工作流')}
+        </div>
+        {isOpen && (
+          <Fragment>
+            {[
+              { type: 'workflowInfo', listKey: 'pbcList', title: _l('封装业务流程') },
+              { type: 'webhook', listKey: 'webhookList', title: _l('Webhook') },
+            ].map(item => this.renderPBCSide(item))}
+          </Fragment>
+        )}
       </div>
     );
   }
@@ -559,17 +619,18 @@ class WorksheetApi extends Component {
    * 渲染内容
    */
   renderContent(item, i, type = 'worksheet') {
-    const menuList = type === 'dataPipeline' ? MENU_LIST.filter(l => DATA_PIPELINE_MENUS.includes(l.id)) : MENU_LIST;
+    const menuList =
+      type === 'dataPipeline' ? this.MENU_LIST.filter(l => DATA_PIPELINE_MENUS.includes(l.id)) : this.MENU_LIST;
 
     return (
       <Fragment key={i + type}>
         {menuList.map((o, i) => {
-          const index = _.findIndex(MENU_LIST, l => l.id === o.id);
+          const index = _.findIndex(this.MENU_LIST, l => l.id === o.id);
           return (
             <div
               className="flexRow worksheetApiLi"
               key={i + type}
-              id={item.worksheetId + MENU_LIST[index].id + '-content'}
+              id={item.worksheetId + this.MENU_LIST[index].id + '-content'}
             >
               {['FieldTable', 'ViewTable'].includes(o.id)
                 ? this.renderComparisonTable(item, i, type)
@@ -627,6 +688,9 @@ class WorksheetApi extends Component {
    */
   renderWorksheetInfo() {
     const { data = [] } = this.state;
+    if (data.length <= 0) {
+      return null;
+    }
     return (
       <Fragment>
         <div className="worksheetApiContent1">
@@ -670,6 +734,9 @@ class WorksheetApi extends Component {
    */
   renderCreateWorksheet() {
     const { data = [], appInfo } = this.state;
+    if (data.length <= 0) {
+      return null;
+    }
     const sectionIds = _.get(appInfo, 'apiResponse.sections').flatMap(l => {
       let items = l.items.filter(it => it.type === 2);
       if (items.length === 0) return l;
@@ -803,12 +870,9 @@ class WorksheetApi extends Component {
    * 渲染工作流信息
    */
   renderWorkflowInfo() {
-    const { data = [], workflowInfo, webhookList } = this.state;
+    const { workflowInfo, tabIndex, webhookList } = this.state;
     const isWebhook = !!_.find(webhookList, l => l.id === workflowInfo.processId);
-    let inputExample =
-      isWebhook && workflowInfo.authType === 0
-        ? {}
-        : { appKey: data[0].appKey || 'YOUR_APP_KEY', sign: data[0].sign || 'YOUR_SIGN' };
+    let inputExample = {};
     let outputExample = {};
 
     const renderInputs = source => {
@@ -881,25 +945,42 @@ class WorksheetApi extends Component {
       <Fragment>
         <div className="worksheetApiContent1">
           <div className="Font22 bold">{workflowInfo.name + ' POST'}</div>
-          <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + workflowInfo.url} />
-          <div className="Font17 bold mTop30">{_l('请求参数')}</div>
+          {/* <div className="Font14 bold mTop20">
+            <span className="mRight20 Gray_75">
+              {_l('流程ID：')}
+              {workflowInfo.processId}
+            </span>
+            <span className="Gray_75">
+              {_l('流程别名：')}
+              {workflowAlias}
+            </span>
+            {tabIndex === TAB_TYPE.APPLICATION && (
+              <span
+                className="Hand Font13 mLeft20"
+                style={{ color: '#1677ff' }}
+                onClick={() => this.setState({ workflowAliasDialog: true })}
+              >
+                {_l('设置')}
+              </span>
+            )}
+          </div> */}
+          {tabIndex === TAB_TYPE.API_V2 && (
+            <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + workflowInfo.url} />
+          )}
+          <div className="valignWrapper justifyContentBetween Font17 bold mTop30">
+            <span>{_l('请求参数')}</span>
+            {/* {tabIndex === TAB_TYPE.APPLICATION && (
+              <span className="Hand Font13 mLeft20" style={{ color: '#1677ff' }}>
+                {_l('设置参数别名')}
+              </span>
+            )} */}
+          </div>
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
             <div className="w32">{_l('参数')}</div>
             <div className="mLeft30 w18">{_l('必选')}</div>
             <div className="mLeft30 w14">{_l('类型')}</div>
             <div className="mLeft30 w36">{_l('说明')}</div>
           </div>
-          {(!isWebhook || workflowInfo.authType !== 0) &&
-            appInfoParameters.map(o => {
-              return (
-                <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
-                  <div className="w32">{o.name}</div>
-                  <div className="mLeft30 w18">{o.required}</div>
-                  <div className="mLeft30 w14">{o.type}</div>
-                  <div className="mLeft30 w36">{o.desc}</div>
-                </div>
-              );
-            })}
           {workflowInfo.outType === 1 && (
             <div className="flexRow worksheetApiLine flexRowHeight">
               <div className="w32">callbackURL</div>
@@ -909,7 +990,7 @@ class WorksheetApi extends Component {
             </div>
           )}
           {renderInputs(workflowInfo.inputs.filter(o => !o.dataSource))}
-          {!isWebhook && (
+          {tabIndex === TAB_TYPE.API_V2 && !isWebhook && (
             <Fragment>
               <div className="Font17 bold mTop30">{_l('响应参数')}</div>
               <div className="bold mTop10">
@@ -925,6 +1006,23 @@ class WorksheetApi extends Component {
             </Fragment>
           )}
         </div>
+        {/* 修改工作流别名 */}
+        {/* {workflowAliasDialog && (
+          <WorkAliasDialog
+            type="workflow"
+            onClose={() => this.setState({ workflowAliasDialog: false })}
+            alias={workflowAlias}
+            appId={this.getId()}
+            updateAlias={alias => {
+              this.setState({
+                workflowAlias: alias,
+                data: this.state.data.map(o => ({ ...o, alias })),
+                showWorksheetAliasDialog: false,
+              });
+            }}
+          />
+        )} */}
+
         {this.renderRightContent({ data: inputExample, outputData: outputExample })}
       </Fragment>
     );
@@ -1098,6 +1196,7 @@ class WorksheetApi extends Component {
       alias,
       dialogType,
       dataApp,
+      sheetSwitchPermit,
     } = this.state;
     const isFieldTable = i === 0;
 
@@ -1109,7 +1208,12 @@ class WorksheetApi extends Component {
               <div className="flexRow alignItemsCenter">
                 <div className="Font22 bold flex">{item.name}</div>
                 {!isSharePage && (
-                  <FiltersGenerate controls={templateControls} projectId={dataApp.projectId} appId={this.getId()} />
+                  <FiltersGenerate
+                    controls={templateControls}
+                    projectId={dataApp.projectId}
+                    appId={this.getId()}
+                    sheetSwitchPermit={sheetSwitchPermit}
+                  />
                 )}
               </div>
               <div className="Font14 bold mTop20 mBottom40">
@@ -1129,21 +1233,21 @@ class WorksheetApi extends Component {
           )}
 
           <div className="Font17 bold">
-            {MENU_LIST[i].title}
+            {this.MENU_LIST[i].title}
             {!isSharePage && (
               <span
                 className="Right Hand Font13"
                 style={{ color: '#1677ff' }}
                 onClick={() => {
-                  this.setState({ aliasDialog: { visible: true, type: MENU_LIST[i].type }, dialogType: type });
+                  this.setState({ aliasDialog: { visible: true, type: this.MENU_LIST[i].type }, dialogType: type });
                 }}
               >
-                {MENU_LIST[i].btnText}
+                {this.MENU_LIST[i].btnText}
               </span>
             )}
           </div>
           <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
-            {MENU_LIST[i].fields.map(field => (
+            {this.MENU_LIST[i].fields.map(field => (
               <div key={field.key} className={field.className}>
                 {field.text}
               </div>
@@ -1152,7 +1256,7 @@ class WorksheetApi extends Component {
           {(isFieldTable ? item.controls : item.views).map((o, index) => {
             return (
               <div key={`${o.controlId || o.viewId}-${index}`} className="flexRow worksheetApiLine flexRowHeight">
-                {MENU_LIST[i].fields.map(field => (
+                {this.MENU_LIST[i].fields.map(field => (
                   <div key={`data-${field.key}`} className={field.className}>
                     {['controlId', 'viewId'].includes(field.key) && (
                       <React.Fragment>
@@ -1173,11 +1277,11 @@ class WorksheetApi extends Component {
             );
           })}
         </div>
-        {aliasDialog.visible && aliasDialog.type === MENU_LIST[i].type && dialogType === type && (
+        {aliasDialog.visible && aliasDialog.type === this.MENU_LIST[i].type && dialogType === type && (
           <AliasDialog
-            type={MENU_LIST[i].type}
-            data={this.state.data[0][MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
-            controlTypeList={this.state.data[0][MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
+            type={this.MENU_LIST[i].type}
+            data={this.state.data[0][this.MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
+            controlTypeList={this.state.data[0][this.MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
             worksheetId={item.worksheetId}
             appId={this.getId()}
             onClose={isUpdate => {
@@ -1187,28 +1291,18 @@ class WorksheetApi extends Component {
           />
         )}
         {showWorksheetAliasDialog && dialogType === type && isFieldTable && (
-          <WorksheetAliasDialog
+          <WorkAliasDialog
             onClose={() => this.setState({ showWorksheetAliasDialog: false, dialogType: undefined })}
             alias={alias}
-            onOk={alias => {
-              ajaxRequest
-                .updateWorksheetAlias({ appId: this.getId(), worksheetId: item.worksheetId, alias })
-                .then(res => {
-                  if (res === 0) {
-                    this.setState({
-                      alias,
-                      data: this.state.data.map(o => ({ ...o, alias: alias })),
-                      showWorksheetAliasDialog: false,
-                      dialogType: undefined,
-                    });
-                  } else if (res === 3) {
-                    alert(_l('工作表别名格式不匹配'), 3);
-                  } else if (res === 2) {
-                    alert(_l('工作表别名已存在，请重新输入'), 3);
-                  } else {
-                    alert(_l('别名修改失败'), 3);
-                  }
-                });
+            appId={this.getId()}
+            worksheetId={item.worksheetId}
+            updateAlias={alias => {
+              this.setState({
+                alias,
+                data: this.state.data.map(o => ({ ...o, alias: alias })),
+                showWorksheetAliasDialog: false,
+                dialogType: undefined,
+              });
             }}
           />
         )}
@@ -1442,13 +1536,16 @@ class WorksheetApi extends Component {
    * 渲染请求内容
    */
   renderPostContent(item, i, otherOptions, rightOptions = {}) {
-    const url = this.state.data[0].apiUrl + MENU_LIST[i].apiName;
+    if (this.state.data.length <= 0) {
+      return null;
+    }
+    const url = this.state.data[0].apiUrl + this.MENU_LIST[i].apiName;
 
     return (
       <Fragment>
         {this.renderLeftContent(i)}
         {this.renderRightContent({
-          data: MENU_LIST[i].isGet
+          data: this.MENU_LIST[i].isGet
             ? this.getUrl(url, this.setCommonPostParameters(item, otherOptions))
             : this.setCommonPostParameters(item, otherOptions),
           errorData: appRoleErrorData,
@@ -1462,20 +1559,27 @@ class WorksheetApi extends Component {
    * 渲染通用的左内容
    */
   renderLeftContent(i) {
-    const { data, menuList } = this.state;
+    const { data = [] } = this.state;
+
+    if (data.length <= 0) {
+      return null;
+    }
 
     return (
       <div className="worksheetApiContent1">
         <div />
-        <div className="Font17 bold">{MENU_LIST[i].title}</div>
-        <input className="mTop24 worksheetApiInput" value={_l('请求URL：') + data[0].apiUrl + MENU_LIST[i].apiName} />
+        <div className="Font17 bold">{this.MENU_LIST[i].title}</div>
+        <input
+          className="mTop24 worksheetApiInput"
+          value={_l('请求URL：') + data[0].apiUrl + this.MENU_LIST[i].apiName}
+        />
         <div className="flexRow worksheetApiLine flexRowHeight bold mTop25">
           <div className="w32">{_l('参数')}</div>
           <div className="mLeft30 w18">{_l('必选')}</div>
           <div className="mLeft30 w14">{_l('类型')}</div>
           <div className="mLeft30 w36">{_l('说明')}</div>
         </div>
-        {menuList[i].data.map(o => {
+        {this.MENU_LIST[i].data.map(o => {
           return (
             <div key={o.name} className="flexRow worksheetApiLine flexRowHeight">
               <div className="w32">{o.name}</div>
@@ -1617,7 +1721,7 @@ class WorksheetApi extends Component {
   };
 
   renderWorksheetCommon(item, i, type) {
-    const specification = MENU_LIST[i];
+    const specification = this.MENU_LIST[i];
     const rightOptions = {};
     const needFilter = type === 'dataPipeline' && DATA_PIPELINE_FILTERS[specification.id];
     const otherOptions =
@@ -1724,31 +1828,43 @@ class WorksheetApi extends Component {
     );
   }
 
+  updateTabIndex = tabIndex => {
+    let targetId = '';
+    switch (tabIndex) {
+      case TAB_TYPE.APPLICATION:
+        targetId = 'authorizationInstr';
+        break;
+      case TAB_TYPE.API_V2:
+        targetId = 'summary';
+        break;
+      default:
+        break;
+    }
+    if (this.contentScrollRef?.current) {
+      this.contentScrollRef.current.scrollTo();
+    }
+    this.setState({
+      tabIndex,
+      selectId: targetId,
+      expandIds: [],
+    });
+  };
+
   render() {
-    const {
-      data = [],
-      loading,
-      selectId,
-      dataApp,
-      errorCode,
-      shareVisible,
-      appInfo,
-      dataPipelineData = [],
-    } = this.state;
+    const { data = [], loading, selectId, dataApp, errorCode, appInfo, dataPipelineData = [], tabIndex } = this.state;
     const { isSharePage } = this.props;
     const appId = this.getId();
-    const sidebarList = isSharePage
-      ? SIDEBAR_LIST.filter(l => !['authorizationInstr', 'whiteList'].includes(l.key))
-      : SIDEBAR_LIST;
+    const sidebarList = SIDEBAR_LIST_MAP[tabIndex] || [];
+    const lang = window.getCurrentLang();
 
-    if (errorCode) {
+    if (errorCode === 2) {
       return (
         <div className="flexColumn h100">
           <div className="errorBox">
             <span>
               <Icon icon="info" />
             </span>
-            {errorCode === 1 ? _l('无法配置，请先创建工作表') : _l('应用已过期，无法使用 API')}
+            {_l('应用已过期，无法使用 API')}
           </div>
         </div>
       );
@@ -1760,160 +1876,108 @@ class WorksheetApi extends Component {
 
     return (
       <div className="flexColumn h100">
-        <header className="worksheetApiHeader flexRow pLeft30 pRight30">
-          {data && (
-            <React.Fragment>
-              <span
-                className="appIconWrapIcon"
-                style={{
-                  backgroundColor: dataApp.iconColor,
-                }}
-                onClick={() => {
-                  navigateTo(`/app/${appId}`);
-                }}
-              >
-                <SvgIcon url={dataApp.iconUrl} fill="#fff" size={24} addClassName="mTop3" />
-              </span>
-              <span
-                className="appName Hand bold mRight5"
-                onClick={() => {
-                  navigateTo(`/app/${appId}`);
-                }}
-              >
-                {dataApp.name}
-              </span>
-            </React.Fragment>
-          )}
-          {_l('API说明')}
-          <div className="flex"></div>
-          {!md.global.Config.IsLocal && (
-            <a
-              className="shareButton Hand Gray_75 flexRow valignWrapper mRight16"
-              target="_blank"
-              href="https://apifox.mingdao.com/"
-            >
-              <Icon icon="play_arrow" className="mRight8 Font18" />
-              <span className="Font14">{_l('调试')}</span>
-            </a>
-          )}
-          {!isSharePage && (
-            <div
-              className="shareButton Hand Gray_75 flexRow valignWrapper"
-              onClick={() => this.setState({ shareVisible: true })}
-            >
-              <Icon icon="share" className="mRight8 Font18" />
-              <span className="Font14">{_l('分享')}</span>
-            </div>
-          )}
-        </header>
-        <div className="flex flexRow minHeight0">
-          <div className="worksheetApiSide h100">
-            {data.length <= 0 ? (
-              <div className="flexColumn h100">
-                <Skeleton active={true} itemStyle={{ background: '#ddd' }} />
-              </div>
-            ) : (
-              <ScrollView>
-                {sidebarList.map(({ key, title, render, args }, index) => {
-                  return render ? (
-                    <Fragment key={index}>{this[render](args)}</Fragment>
-                  ) : (
-                    <div
-                      key={index}
-                      className={cx('worksheetApiMenuTitle', { active: selectId === key })}
-                      onClick={() => this.setSelectId({ selectId: key })}
-                    >
-                      {title}
-                    </div>
-                  );
-                })}
-              </ScrollView>
-            )}
-          </div>
-          <div className="flex h100 minWidth0">
-            {data.length <= 0 ? (
-              <div className="TxtCenter TxtMiddle noDataApi" style={{ paddingTop: $(document).height() / 3 }}>
-                <img src={noDataImg} alt={_l('您不是应用的管理员，无权访问此页面')} width="130" />
-                <p className="pTop30 Gray_75 Font17">{_l('您不是应用的管理员，无权访问此页面')}</p>
-              </div>
-            ) : (
-              <ScrollView ref={this.contentScrollRef} className="worksheetApiScroll" onScrollEnd={this.scroll}>
-                <div className="flexRow worksheetApiLi" id="summary-content">
-                  <div className="worksheetApiContent1">
-                    <div className="Font22 bold">{_l('概述')}</div>
-                    <div className="Font14 mTop15">
-                      {_l(
-                        '本文档提供了一个简单的方法来实现实现应用数据和任何外部数据的集成。API严格遵循REST语义，使用JSON编码对象，并依赖标准HTTP代码来指示操作结果。',
-                      )}
-                    </div>
+        <Header
+          isSharePage={isSharePage}
+          data={data}
+          dataApp={dataApp}
+          appId={appId}
+          appInfo={appInfo}
+          tabIndex={tabIndex}
+          updateTabIndex={this.updateTabIndex}
+        />
+        <div className="flex flexRow minHeight0 WhiteBG">
+          {tabIndex === TAB_TYPE.API_V3 ? (
+            <iframe
+              width="100%"
+              height="100%"
+              style={{ border: 'none' }}
+              allowTransparency={true}
+              allowFullScreen
+              src={`${md.global.Config.OpenApiDocUrl}${lang === 'zh-Hans' ? 'zh-Hans/' : 'en/'}?ts=${Date.now()}`}
+            />
+          ) : (
+            <Fragment>
+              <div className="worksheetApiSide h100">
+                {/* {data.length <= 0 ? (
+                  <div className="flexColumn h100">
+                    <Skeleton active={true} itemStyle={{ background: '#ddd' }} />
                   </div>
-                  <div className="worksheetApiContent2" />
-                </div>
-                <div className="flexRow worksheetApiLi" id="requestFormat-content">
-                  <div className="worksheetApiContent1">
-                    <div className="Font22 bold">{_l('请求格式')}</div>
-                    <div className="Font14 mTop15">{_l('对于 GET 请求，所有参数通过拼接在 URL 之后传递。')}</div>
-                    <div className="Font14 mTop10">
-                      {_l(
-                        '对于 POST 请求，请求的主体必须是 JSON 格式，而且 HTTP header 的 Content-Type 需要设置为 application/json。',
-                      )}
-                    </div>
-                  </div>
-                  <div className="worksheetApiContent2" />
-                </div>
-                {!isSharePage && (
-                  <React.Fragment>
-                    <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
-                      {this.renderAuthorizationManagement()}
-                    </div>
-                    <div className="flexRow worksheetApiLi" id="whiteList-content">
-                      {this.renderWhiteList()}
-                    </div>
-                  </React.Fragment>
-                )}
-                <div className="flexRow worksheetApiLi" id="appInfo-content">
-                  {this.renderAppInfo()}
-                </div>
-                <div className="flexRow worksheetApiLi" id="worksheetCreateForm-content">
-                  {this.renderCreateWorksheet()}
-                </div>
-                <div className="flexRow worksheetApiLi" id="worksheetFormInfo-content">
-                  {this.renderWorksheetInfo()}
-                </div>
-
-                <div id="list-content">{data.map((item, i) => this.renderContent(item, i))}</div>
-                <div id="dataPipeline-content">
-                  {dataPipelineData.map((item, i) => this.renderContent(item, i, 'dataPipeline'))}
-                </div>
-                <div className="flexRow worksheetApiLi" id="workflowInfo-content">
-                  {this.renderWorkflowInfo()}
-                </div>
-                {/** 应用角色 */}
-                {this.renderAppRoleContent()}
-
-                {/** 筛选(附录) */}
-                {this.renderAppendixContent()}
-
-                {/** 选项集 */}
-                {this.renderOptions()}
-                {this.renderAppendixContent(ERROR_CODE)}
-              </ScrollView>
-            )}
-          </div>
+                ) */}
+                <ScrollView>
+                  {sidebarList.map(({ key, title, render, args }, index) => {
+                    return render ? (
+                      <Fragment key={index}>{this[render](args)}</Fragment>
+                    ) : (
+                      <div
+                        key={index}
+                        className={cx('worksheetApiMenuTitle', { active: selectId === key })}
+                        onClick={() => this.setSelectId({ selectId: key })}
+                      >
+                        {title}
+                      </div>
+                    );
+                  })}
+                </ScrollView>
+              </div>
+              <div className="flex h100 minWidth0">
+                <ScrollView ref={this.contentScrollRef} className="worksheetApiScroll" onScrollEnd={this.scroll}>
+                  {/* 应用授权 */}
+                  {tabIndex === TAB_TYPE.APPLICATION && (
+                    <Fragment>
+                      {/* 授权管理 */}
+                      <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
+                        {this.renderAuthorizationManagement()}
+                      </div>
+                      {/* IP白名单 */}
+                      <div className="flexRow worksheetApiLi" id="whiteList-content">
+                        {this.renderWhiteList()}
+                      </div>
+                      <div id="list-content">{data.map((item, i) => this.renderContent(item, i))}</div>
+                      <div id="dataPipeline-content">
+                        {dataPipelineData.map((item, i) => this.renderContent(item, i, 'dataPipeline'))}
+                      </div>
+                      {/* <div className="flexRow worksheetApiLi" id="workflowInfo-content">
+                          {this.renderWorkflowInfo()}
+                        </div> */}
+                    </Fragment>
+                  )}
+                  {/* API 2.0 */}
+                  {tabIndex === TAB_TYPE.API_V2 && (
+                    <Fragment>
+                      {/* 概述 */}
+                      <Summary />
+                      {/* 请求格式 */}
+                      <RequestFormat />
+                      {/* 获取应用信息 */}
+                      <div className="flexRow worksheetApiLi" id="appInfo-content">
+                        {this.renderAppInfo()}
+                      </div>
+                      {/* 新建工作表 */}
+                      <div className="flexRow worksheetApiLi" id="worksheetCreateForm-content">
+                        {this.renderCreateWorksheet()}
+                      </div>
+                      {/* 获取工作表结构信息 */}
+                      <div className="flexRow worksheetApiLi" id="worksheetFormInfo-content">
+                        {this.renderWorksheetInfo()}
+                      </div>
+                      <div id="list-content">{data.map((item, i) => this.renderContent(item, i))}</div>
+                      <div className="flexRow worksheetApiLi" id="workflowInfo-content">
+                        {this.renderWorkflowInfo()}
+                      </div>
+                      {/** 应用角色 */}
+                      {this.renderAppRoleContent()}
+                      {/** 筛选(附录) */}
+                      {this.renderAppendixContent()}
+                      {/** 选项集 */}
+                      {this.renderOptions()}
+                      {this.renderAppendixContent(ERROR_CODE)}
+                    </Fragment>
+                  )}
+                </ScrollView>
+              </div>
+            </Fragment>
+          )}
         </div>
-        {shareVisible && (
-          <Share
-            title={_l('分享文档')}
-            from="worksheetApi"
-            isCharge={true}
-            params={{
-              appId: appId,
-              sourceId: _.get(appInfo, 'apiRequest.appKey') || this.getId(),
-              title: _l('API说明'),
-            }}
-            onClose={() => this.setState({ shareVisible: false })}
-          />
-        )}
       </div>
     );
   }
@@ -2007,23 +2071,7 @@ const Entry = () => {
   // 密码验证
   return (
     <div className="flexColumn h100">
-      <header className="worksheetApiHeader flexRow pLeft30 pRight30">
-        {share.data && (
-          <React.Fragment>
-            <span
-              className="appIconWrapIcon"
-              style={{
-                backgroundColor: share.data.appIconColor,
-              }}
-            >
-              <SvgIcon url={share.data.appIcon} fill="#fff" size={24} addClassName="mTop3" />
-            </span>
-            <span className="appName Hand bold mRight5">{share.data.appName}</span>
-            {share.data.appName && <DocumentTitle title={`${share.data.appName}-${_l('API说明')}`} />}
-          </React.Fragment>
-        )}
-        {_l('API说明')}
-      </header>
+      <Header isAuthorization={true} share={share} />
       {renderContent()}
     </div>
   );

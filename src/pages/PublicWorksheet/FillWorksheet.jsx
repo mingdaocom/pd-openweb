@@ -161,11 +161,23 @@ export default class FillWorksheet extends React.Component {
       if (smsVerification && checkMobileVerify(data, smsVerificationFiled)) {
         params.verifyCode = this.customwidget.current.state.verifyCode;
       }
+
+      const formData = data.map(item =>
+        smsVerification && item.controlId === smsVerificationFiled
+          ? {
+              ...item,
+              value: item.value.startsWith('+')
+                ? item.value
+                : `+${this.customwidget.current.state.dialCode}${item.value}`,
+            }
+          : item,
+      );
+
       addWorksheetRow(
         {
           worksheetId,
           shareId,
-          formData: data,
+          formData,
           publicWorksheetInfo,
           triggerUniqueError: badData => {
             if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {

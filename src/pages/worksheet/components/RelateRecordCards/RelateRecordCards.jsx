@@ -857,7 +857,7 @@ class RelateRecordCards extends Component {
             disabled={disabled || !allowRemove}
             title={record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', sourceEntityName)}
             onClick={
-              !allowOpenRecord || (disabled && !recordId)
+              !allowOpenRecord
                 ? () => {}
                 : () => {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {

@@ -62,6 +62,7 @@ const AddBtn = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 10;
   button {
     width: 66px !important;
     height: 66px !important;

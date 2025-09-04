@@ -64,7 +64,7 @@ export default class Widgets extends Component {
   };
 
   componentDidMount() {
-    const { hint, value, advancedSetting } = this.props;
+    const { hint, value, advancedSetting, onSetDialCode } = this.props;
     if (this.input) {
       this.iti && this.iti.destroy();
       this.iti = intlTelInput(this.input, {
@@ -79,6 +79,8 @@ export default class Widgets extends Component {
     }
 
     this.setValue(value);
+
+    window.isPublicWorksheet && value && onSetDialCode(this.iti.getSelectedCountryData().dialCode);
 
     $(this.input).on('close:countrydropdown keyup paste', () => {
       if (!this.destroy) {

@@ -1240,7 +1240,7 @@ class ChildTable extends React.Component {
             onMaskClick={() => this.setState({ showExpand: false })}
           >
             <div className={cx('Relative w100 h100 flexColumn', { expandChildTableCon: h5ShowType !== '3' })}>
-              <div className="header flexRow">
+              <div className="expandChildTableHeader flexRow">
                 <div className="controlLabelName flex ellipsis">
                   {control.controlName}
                   {`(${pagination.count})`}

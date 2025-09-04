@@ -138,7 +138,7 @@ const RefreshBtn = styled.div`
   cursor: pointer;
 `;
 
-const PAGE_SIZE = 100;
+const PAGE_SIZE = 50;
 
 export default function SelectDialog({ ...args }) {
   const {

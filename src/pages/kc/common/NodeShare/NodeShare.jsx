@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import styled from 'styled-components';
-import LoadDiv from 'ming-ui/components/LoadDiv';
+import { LoadDiv, WaterMark } from 'ming-ui';
 import preall from 'src/common/preall';
 import { NODE_TYPE } from '../../constant/enum';
 import AttachmentsPreview from '../AttachmentsPreview';
@@ -67,16 +67,18 @@ class NodeShare extends React.Component {
       );
     } else {
       return (
-        <AttachmentsPreview
-          showTitle
-          options={{
-            attachments: [this.state.node],
-            callFrom: this.state.node.isKc ? 'kc' : 'player',
-            fromType: 6,
-            index: 0,
-            hideFunctions: allowDownload ? ['saveToKnowlege'] : ['download', 'share', 'saveToKnowlege'],
-          }}
-        />
+        <WaterMark projectId={this.state.node?.projectId}>
+          <AttachmentsPreview
+            showTitle
+            options={{
+              attachments: [this.state.node],
+              callFrom: this.state.node.isKc ? 'kc' : 'player',
+              fromType: 6,
+              index: 0,
+              hideFunctions: allowDownload ? ['saveToKnowlege'] : ['download', 'share', 'saveToKnowlege'],
+            }}
+          />
+        </WaterMark>
       );
     }
   }

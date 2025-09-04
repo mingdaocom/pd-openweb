@@ -490,10 +490,16 @@ class ChildTable extends React.Component {
 
   updateDefsourceOfControl(nextProps) {
     const { recordId, masterData } = nextProps || this.props;
-    const { controls } = this.state;
     const relateRecordControl = (nextProps || this.props).control;
-    this.setState({
-      controls: handleUpdateDefsourceOfControl({ recordId, relateRecordControl, masterData, controls }),
+    this.setState(oldState => {
+      return {
+        controls: handleUpdateDefsourceOfControl({
+          recordId,
+          relateRecordControl,
+          masterData,
+          controls: oldState.controls,
+        }),
+      };
     });
   }
 
@@ -562,6 +568,12 @@ class ChildTable extends React.Component {
       this.searchRef.current.clear();
     }
     this.dataFormatCacheMap.clear();
+  };
+
+  triggerCustomEvent = () => {
+    if (isFunction(get(this, 'props.control.triggerCustomEvent'))) {
+      get(this, 'props.control.triggerCustomEvent')(ADD_EVENT_ENUM.CHANGE);
+    }
   };
 
   getShowColumns() {
@@ -645,6 +657,7 @@ class ChildTable extends React.Component {
       }),
       row.rowid,
     );
+    this.triggerCustomEvent();
   }
   copyRows(rows) {
     const { addRows } = this.props;
@@ -658,6 +671,7 @@ class ChildTable extends React.Component {
       }),
     );
     addRows(newRows);
+    this.triggerCustomEvent();
   }
 
   rowUpdate(
@@ -985,9 +999,7 @@ class ChildTable extends React.Component {
       return;
     }
     update.apply(this);
-    if (isFunction(get(this, 'props.control.triggerCustomEvent'))) {
-      get(this, 'props.control.triggerCustomEvent')(ADD_EVENT_ENUM.CHANGE);
-    }
+    this.triggerCustomEvent();
   }
 
   handleRowDetailSave = (row, updatedControlIds) => {
@@ -1782,7 +1794,10 @@ class ChildTable extends React.Component {
                       }
                     }}
                     onOpen={index => this.openDetail(index)}
-                    onDelete={() => deleteRow(args.row.rowid)}
+                    onDelete={() => {
+                      deleteRow(args.row.rowid);
+                      this.triggerCustomEvent();
+                    }}
                     onCopy={() => {
                       if (isExceed) {
                         alert(enablelimit ? _l('已超过子表最大行数') : _l('最多输入%0条记录', maxCount), 3);

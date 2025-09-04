@@ -26,7 +26,13 @@ const Con = styled.div`
 `;
 
 function getCoverControlData(data) {
-  return _.find(data, file => RegExpValidator.fileIsPicture(file.ext) || (isDocument(file.ext) && file.previewUrl));
+  return _.find(
+    data,
+    file =>
+      RegExpValidator.fileIsPicture(file.ext) ||
+      RegExpValidator.isVideo(file.ext) ||
+      (isDocument(file.ext) && file.previewUrl),
+  );
 }
 
 const coverTypes = {

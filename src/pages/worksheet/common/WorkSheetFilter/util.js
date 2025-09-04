@@ -474,38 +474,55 @@ export function getFilterTypes(control = {}, conditionType, from) {
       break;
     case 15: // 日期
     case 16: //  日期时间
-      typeEnums = [
-        ...(type === 15
-          ? [FILTER_CONDITION_TYPE.DATEENUM, FILTER_CONDITION_TYPE.NDATEENUM]
-          : [FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE]),
-        FILTER_CONDITION_TYPE.DATE_LT,
-        FILTER_CONDITION_TYPE.DATE_GT,
-        FILTER_CONDITION_TYPE.DATE_LTE,
-        FILTER_CONDITION_TYPE.DATE_GTE,
-        FILTER_CONDITION_TYPE.DATE_BETWEEN,
-        FILTER_CONDITION_TYPE.DATE_NBETWEEN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
+      if (from === 'apiV3') {
+        typeEnums = [FILTER_CONDITION_TYPE.DATE_BETWEEN, FILTER_CONDITION_TYPE.DATE_NBETWEEN];
+      } else {
+        typeEnums = [
+          ...(type === 15
+            ? [FILTER_CONDITION_TYPE.DATEENUM, FILTER_CONDITION_TYPE.NDATEENUM]
+            : [FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE]),
+          FILTER_CONDITION_TYPE.DATE_LT,
+          FILTER_CONDITION_TYPE.DATE_GT,
+          FILTER_CONDITION_TYPE.DATE_LTE,
+          FILTER_CONDITION_TYPE.DATE_GTE,
+          FILTER_CONDITION_TYPE.DATE_BETWEEN,
+          FILTER_CONDITION_TYPE.DATE_NBETWEEN,
+          FILTER_CONDITION_TYPE.ISNULL,
+          FILTER_CONDITION_TYPE.HASVALUE,
+        ];
+      }
       break;
     case 19:
     case 23:
     case 24:
-      typeEnums = [
-        FILTER_CONDITION_TYPE.EQ,
-        FILTER_CONDITION_TYPE.NE,
-        ...(from === 'rule'
-          ? []
-          : [
-              FILTER_CONDITION_TYPE.BETWEEN,
-              FILTER_CONDITION_TYPE.NBETWEEN,
-              FILTER_CONDITION_TYPE.LIKE,
-              FILTER_CONDITION_TYPE.NCONTAIN,
-            ]),
-        FILTER_CONDITION_TYPE.EQ_FOR_SINGLE,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
+      if (from === 'apiV3') {
+        typeEnums = [
+          FILTER_CONDITION_TYPE.EQ,
+          FILTER_CONDITION_TYPE.NE,
+          FILTER_CONDITION_TYPE.BETWEEN,
+          FILTER_CONDITION_TYPE.NBETWEEN,
+          FILTER_CONDITION_TYPE.EQ_FOR_SINGLE,
+          FILTER_CONDITION_TYPE.ISNULL,
+          FILTER_CONDITION_TYPE.HASVALUE,
+        ];
+      } else {
+        typeEnums = [
+          FILTER_CONDITION_TYPE.EQ,
+          FILTER_CONDITION_TYPE.NE,
+          ...(from === 'rule'
+            ? []
+            : [
+                FILTER_CONDITION_TYPE.BETWEEN,
+                FILTER_CONDITION_TYPE.NBETWEEN,
+                FILTER_CONDITION_TYPE.LIKE,
+                FILTER_CONDITION_TYPE.NCONTAIN,
+              ]),
+          FILTER_CONDITION_TYPE.EQ_FOR_SINGLE,
+          FILTER_CONDITION_TYPE.ISNULL,
+          FILTER_CONDITION_TYPE.HASVALUE,
+        ];
+      }
+
       break;
     case 26: // 人员
       typeEnums = [
@@ -534,7 +551,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
         FILTER_CONDITION_TYPE.NE,
         FILTER_CONDITION_TYPE.BETWEEN,
         FILTER_CONDITION_TYPE.NBETWEEN,
-        ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
+        ...(from === 'rule' || from === 'apiV3' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
         ...(control.enumDefault === 1 ? [FILTER_CONDITION_TYPE.ALLCONTAIN] : []),
         FILTER_CONDITION_TYPE.ISNULL,
         FILTER_CONDITION_TYPE.HASVALUE,
@@ -584,18 +601,22 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [FILTER_CONDITION_TYPE.ISNULL, FILTER_CONDITION_TYPE.HASVALUE];
       break;
     case 46: // 时间字段
-      typeEnums = [
-        FILTER_CONDITION_TYPE.DATEENUM,
-        FILTER_CONDITION_TYPE.NDATEENUM,
-        FILTER_CONDITION_TYPE.DATE_LT,
-        FILTER_CONDITION_TYPE.DATE_GT,
-        FILTER_CONDITION_TYPE.DATE_LTE,
-        FILTER_CONDITION_TYPE.DATE_GTE,
-        FILTER_CONDITION_TYPE.DATE_BETWEEN,
-        FILTER_CONDITION_TYPE.DATE_NBETWEEN,
-        FILTER_CONDITION_TYPE.ISNULL,
-        FILTER_CONDITION_TYPE.HASVALUE,
-      ];
+      if (from === 'apiV3') {
+        typeEnums = [FILTER_CONDITION_TYPE.DATE_BETWEEN, FILTER_CONDITION_TYPE.DATE_NBETWEEN];
+      } else {
+        typeEnums = [
+          FILTER_CONDITION_TYPE.DATEENUM,
+          FILTER_CONDITION_TYPE.NDATEENUM,
+          FILTER_CONDITION_TYPE.DATE_LT,
+          FILTER_CONDITION_TYPE.DATE_GT,
+          FILTER_CONDITION_TYPE.DATE_LTE,
+          FILTER_CONDITION_TYPE.DATE_GTE,
+          FILTER_CONDITION_TYPE.DATE_BETWEEN,
+          FILTER_CONDITION_TYPE.DATE_NBETWEEN,
+          FILTER_CONDITION_TYPE.ISNULL,
+          FILTER_CONDITION_TYPE.HASVALUE,
+        ];
+      }
       break;
     default:
       typeEnums = [];
@@ -628,9 +649,11 @@ function getDefaultFilterType(control, from) {
     return FILTER_CONDITION_TYPE.BETWEEN;
   }
   if (_.includes([15, 46], control.type)) {
+    if (from === 'apiV3') return FILTER_CONDITION_TYPE.DATE_BETWEEN;
     return FILTER_CONDITION_TYPE.DATEENUM;
   }
   if (control.type === 16) {
+    if (from === 'apiV3') return FILTER_CONDITION_TYPE.DATE_BETWEEN;
     return FILTER_CONDITION_TYPE.DATE_EQ;
   }
   if (_.includes([15, 46], control.type)) {
@@ -639,6 +662,9 @@ function getDefaultFilterType(control, from) {
   // 29 关联、35 级联、9 10 11 选项、26 人员、27 部门、48 角色
   if (control.type === 29 && isMultiple && from !== 'rule') {
     return FILTER_CONDITION_TYPE.RCEQ;
+  }
+  if (from === 'apiV3' && _.includes([19, 23, 24], control.type)) {
+    return FILTER_CONDITION_TYPE.EQ;
   }
   if (_.includes([29, 35, 9, 10, 11, 19, 23, 24, 26, 27, 48], control.type)) {
     if (isMultiple) {

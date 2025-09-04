@@ -418,7 +418,7 @@ class BatchOperate extends React.Component {
       const hasAuthRowIds = selectedRows
         .filter(item => (item.allowdelete || item.allowDelete) && !(isLock ? item.sys_lock : false))
         .map(item => item.rowid);
-      if (!hasAuthRowIds.length) {
+      if (!allWorksheetIsSelected && !hasAuthRowIds.length) {
         alert(_l('没有可以%0的记录', isLock ? _l('锁定') : _l('解锁')), 3);
         return;
       }

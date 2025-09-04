@@ -254,7 +254,7 @@ export default class CellControl extends React.Component {
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
       value = accDiv(value, 100);
     }
-    const errorType = this.validate(
+    let errorType = this.validate(
       { ...(cell.type === 10 ? mergeControlAdvancedSetting(cell, { otherrequired: '0' }) : { ...cell }), value },
       row,
     );
@@ -270,6 +270,10 @@ export default class CellControl extends React.Component {
       }).errorText;
     } else {
       errorText = errorType && this.getErrorText(errorType, { ...cell, value });
+    }
+    if (errorType === 'OTHER_REQUIRED') {
+      errorText = null;
+      errorType = null;
     }
     if (!errorText) {
       clearCellError(`${(row || {}).rowid}-${cell.controlId}`);

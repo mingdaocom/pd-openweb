@@ -95,6 +95,7 @@ function View(props) {
     'sheetSwitchPermit',
     'noLoadAtDidMount',
     'printCharge',
+    'embedNeedUpdate',
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {

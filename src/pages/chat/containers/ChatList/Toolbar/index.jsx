@@ -81,7 +81,7 @@ const Toolbar = props => {
   };
 
   const handleOpenGlobalSearch = () => {
-    const match = location.pathname.match(/\/app\/([^/]+)/);
+    const match = location.pathname.match(/\/app\/([A-Za-z0-9-]{36})(?=\/|$)/);
     GlobalSearch({
       match: {
         params: {

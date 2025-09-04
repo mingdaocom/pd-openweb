@@ -102,11 +102,13 @@ class Range extends React.Component {
       const el = this.el;
       const { offsetWidth: w, offsetHeight: h } = el;
       const ul = document.querySelector('.switchBoxCon ul')?.getBoundingClientRect();
+      const chat = document.querySelector('#chat')?.getBoundingClientRect();
+      const conWidth = window.innerWidth - chat.width;
 
       Object.assign(el.style, {
         transition: 'all 0.3s',
-        left: ul && ul.width + w + ul.left <= window.innerWidth ? `${Math.max(10, ul.width)}px` : 'initial',
-        right: ul && ul.width + w + ul.left > window.innerWidth ? '-40px' : 'initial',
+        left: ul && ul.width + w + ul.left <= conWidth ? `${Math.max(10, ul.width)}px` : 'initial',
+        right: ul && ul.width + w + ul.left > conWidth ? '-40px' : 'initial',
         top: `${this.props.top - (h + this.props.top > this.containerRef.offsetHeight ? h - 48 : 0)}px`,
       });
     }, 0);

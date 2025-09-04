@@ -14,7 +14,7 @@ export const fetchSearchResult = keywords => dispatch => {
     [CALL_API]: {
       types: [SEARCH_REQUEST, SEARCH_SUCCESS, SEARCH_FAILURE],
       params: {
-        keywords,
+        keywords: (keywords || '').trim(),
       },
     },
   });

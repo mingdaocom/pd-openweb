@@ -218,10 +218,10 @@ const Embed = props => {
                   fullShowTable: true,
                   minRowCount: 2,
                   isDraft,
+                  embedNeedUpdate: needUpdate,
                 },
               }}
               filtersGroup={resultData}
-              needUpdate={needUpdate}
             />
           </div>
         );

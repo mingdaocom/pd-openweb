@@ -54,6 +54,7 @@ export default function WidgetContainer(props) {
     quickFilter,
     navGroupFilters,
     onLoadScript = () => {},
+    embedNeedUpdate,
   } = props;
   const iframeRef = useRef();
   const cache = useRef({});
@@ -102,7 +103,7 @@ export default function WidgetContainer(props) {
         action: 'reload',
       });
     }
-  }, [scriptUrl, reloadFlag]);
+  }, [scriptUrl, reloadFlag, embedNeedUpdate]);
   useEffect(() => {
     setReloadFlag(Math.random().toString());
   }, [JSON.stringify(paramsMap)]);

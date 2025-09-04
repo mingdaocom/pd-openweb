@@ -174,6 +174,7 @@ export default class CustomFields extends Component {
       loadingItems: {},
       verifyCode: '', // 验证码
       activeTabControlId: '',
+      dialCode: '', // 区号
     };
 
     this.abortController = new AbortController();
@@ -262,6 +263,7 @@ export default class CustomFields extends Component {
       recordId,
       recordCreateTime,
       from,
+      isDraft,
       onFormDataReady,
       masterRecordRowId,
       ignoreLock,
@@ -286,6 +288,7 @@ export default class CustomFields extends Component {
       ignoreLock,
       rules,
       from,
+      isDraft,
       instanceId,
       workId,
       verifyAllControls,
@@ -706,6 +709,7 @@ export default class CustomFields extends Component {
       masterData,
       disabledChildTableCheck,
       formDidMountFlag,
+      smsVerificationFiled,
     } = this.props;
     const { renderData } = this.state;
     const { instanceId, workId } = this.workflowParams;
@@ -869,6 +873,9 @@ export default class CustomFields extends Component {
             .concat(getMasterFormData() || [])}
           triggerCustomEvent={triggerType => this.triggerCustomEvent({ ...item, triggerType })}
           submitChildTableCheckData={this.submitChildTableCheckData}
+          onSetDialCode={dialCode => {
+            controlId === smsVerificationFiled && this.setState({ dialCode });
+          }}
         />
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
       </FormWidget>

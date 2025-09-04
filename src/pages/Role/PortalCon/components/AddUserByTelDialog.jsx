@@ -150,7 +150,7 @@ function AddUserByTelDialog(props) {
   return (
     <Dialog
       className="addUserByTelDialog"
-      width="580"
+      width="680"
       visible={show}
       title={<span className="Font17 Bold">{_l('邀请用户')}</span>}
       okText={loading ? _l('确认邀请...') : _l('确认邀请')}

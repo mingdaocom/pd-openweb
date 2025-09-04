@@ -21,14 +21,15 @@ function AttachmentAction(props) {
   } = props;
   const [showSavePreviewService, setShowSavePreviewService] = useState(false);
   const isMobile = browserIsMobile();
+  const showWpsPreview = !md.global.Config.IsLocal && cauUseWpsPreview && !md.global.Config.EnableWpsDocPreview;
 
   return (
     <div className={cx('flexRow flex justifyContentCenter', { mobileAttachmentAction: isMobile })}>
-      {!md.global.Config.IsLocal && cauUseWpsPreview ? (
+      {showWpsPreview ? (
         <Fragment>
           {!userWps ? (
             <div
-              className={cx('setWPSPreview', { wpsPreview: !showEdit && !isMobile })}
+              className={cx('setWPSPreview', { centerStyle: !showEdit && !isMobile })}
               onClick={() => changePreview('wps')}
             >
               <span className="bold">{_l('预览失败？使用WPS预览')}</span>
@@ -66,10 +67,13 @@ function AttachmentAction(props) {
       ) : (
         ''
       )}
-      {isMobile && showEdit && <div className="flex"></div>}
+      {isMobile && showEdit && showWpsPreview && <div className="flex"></div>}
       {/* 编辑 草稿箱内不支持附件在线编辑 */}
       {showEdit && (
-        <div className={cx('setWPSPreview editFileBtn mLeft10 bold', {})} onClick={clickEdit}>
+        <div
+          className={cx('setWPSPreview editFileBtn mLeft10 bold', { centerStyle: !isMobile && !showWpsPreview })}
+          onClick={clickEdit}
+        >
           <i className="icon icon-hr_edit mRight5 Font18" />
           {editLoading ? _l('请稍等...') : _l('在线编辑')}
         </div>

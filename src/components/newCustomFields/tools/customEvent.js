@@ -499,7 +499,9 @@ const checkFiltersAvailable = async props => {
           formData,
           forceSyncRun: true,
         });
-        result.push(funResult);
+        // 函数返回结果都是字符串，兼容判断
+        const tempFunResult = !funResult || funResult === 'false' ? false : true;
+        result.push(tempFunResult);
         break;
     }
   }

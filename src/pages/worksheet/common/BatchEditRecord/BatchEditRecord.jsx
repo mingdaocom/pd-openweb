@@ -260,6 +260,7 @@ export default function BatchEditRecord(props) {
               control={{
                 ...item.control,
                 ...(view.viewId === worksheetId ? { fieldPermission: '111' } : {}),
+                ...(get(item, 'control.options.length') ? { value: undefined } : {}),
               }}
               type={item.type}
               setRef={ref => {

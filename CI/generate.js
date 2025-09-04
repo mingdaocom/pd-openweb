@@ -104,8 +104,15 @@ function generate() {
           window.FE_RELEASE_TIME = "${moment().format('YYYY/MM/DD HH:mm:SS')}";
           var __api_server__ = eval(${JSON.stringify(apiMap)});
           var __webpack_public_path__ = "${entry ? getPublicPath(entry.type) : ''}";
+          var urlPathname = new URL(location.href);
+          var title = urlPathname.searchParams.get('pagetitle');
+
           if (location.pathname.indexOf('/portal/') >= 0) {
               window.subPath = '/portal';
+          }
+
+          if (title) {
+            document.title = decodeURIComponent(title);
           }
       </script>
     `);

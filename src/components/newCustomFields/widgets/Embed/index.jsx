@@ -246,10 +246,10 @@ export default class Widgets extends Component {
                     fullShowTable: true,
                     minRowCount: 2,
                     isDraft,
+                    embedNeedUpdate: needUpdate,
                   },
                 }}
                 filtersGroup={resultData}
-                needUpdate={needUpdate}
               />
             </div>
           );

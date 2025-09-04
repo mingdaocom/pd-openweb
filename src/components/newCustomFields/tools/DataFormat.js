@@ -91,6 +91,7 @@ export default class DataFormat {
     masterRecordRowId = '',
     masterData,
     from = FROM.DEFAULT,
+    isDraft = false,
     storeCenter,
     loadRowsWhenChildTableStoreCreated = false,
     searchConfig = [],
@@ -120,6 +121,7 @@ export default class DataFormat {
     this.errorItems = [];
     this.recordCreateTime = recordCreateTime;
     this.from = from;
+    this.isDraft = isDraft;
     this.searchConfig = searchConfig;
     this.onAsyncChange = (...args) => {
       onAsyncChange(...args, this);
@@ -1394,7 +1396,7 @@ export default class DataFormat {
       this.setLoadingInfo(controlId, true);
 
       let params = {
-        getType: 1,
+        getType: this.from === 2 && this.isDraft ? 21 : 1,
         worksheetId,
         rowId: sid,
       };

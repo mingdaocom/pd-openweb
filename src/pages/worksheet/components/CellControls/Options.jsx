@@ -143,7 +143,7 @@ function OtherOption(props) {
       destroyPopupOnHide
       popupAlign={{
         points: ['tl', 'bl'],
-        overflow: { adjustY: true },
+        overflow: { adjustY: true, adjustX: true },
       }}
     >
       <OtherOptionCon className="cellControlEdittingStatus" style={style}>
@@ -561,7 +561,7 @@ export default class Options extends React.Component {
           <Trigger
             getPopupContainer={getPopupContainer}
             popupVisible={!!error}
-            zIndex={1000}
+            zIndex={1050}
             popup={
               <CellErrorTips
                 color={this.ignoreErrorMessage ? '#ff933e' : undefined}

@@ -118,7 +118,7 @@ export default function NavGroup(props) {
       const { allpath = '0' } = advancedSetting;
       const nStr = allpath === '1' && type === 35 ? (str ? str + '/' : '') + d.txt : d.txt; //级联选项控件，结果显示层级路径
       const showCount = count > 0 && view.viewType !== 2;
-      const txtName = (d?.txt || '').startsWith('{') && type === 27 ? '' : d?.txt || _l('未命名');
+      const txtName = !d?.txt ? _l('未命名') : _.isString(d.txt) && d.txt.startsWith('{') && type === 27 ? '' : d.txt;
       return (
         <React.Fragment>
           <li

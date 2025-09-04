@@ -11,7 +11,7 @@ import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilte
 import { emitter } from 'src/utils/common';
 import { getFilledRequestParams } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
-import { AREA, PARTICULARLY_CITY } from './constants.js';
+import { AREA, PARTICULARLY_CITY, TYPES } from './constants.js';
 import NavGroupCon from './NavGroup';
 import NavSearch from './NavSearch.jsx';
 import { Con } from './style';
@@ -239,7 +239,14 @@ function GroupFilter(props) {
     } else {
       let data = formatData(source, navGroup, controls, view);
       if (searchRef.current.value) {
-        data = data.filter(o => o.txt.includes(searchRef.current.value));
+        const keyStr = _.toLower(searchRef.current.value);
+        data = data.filter(o => {
+          const str =
+            o?.txt && _.isString(o.txt) && o.txt.startsWith('{') && [26, 27, 48].includes(source.type)
+              ? safeParse(o.txt)[TYPES[source.type].name]
+              : o.txt;
+          return _.toLower(str).includes(keyStr);
+        });
       }
       setGroupFilterData(data);
       setLoading(false);

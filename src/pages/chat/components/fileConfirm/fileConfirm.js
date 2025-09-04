@@ -157,7 +157,7 @@ FileConfirm.prototype = {
     const illegalSet = ['\\', '/', ':', '*', '?', '"', '<', '>', '|'];
     const illegalChars = new RegExp(`[${illegalSet.map(c => '\\' + c).join('')}]`, 'g');
     if (illegalChars.test(str)) {
-      alert(_l('名称不能包含以下字符: ') + ' ' + illegalSet.join(' '), 3);
+      alert(_l('名称不能包含以下字符:') + ' ' + illegalSet.join(' '), 3);
       return false;
     }
     return true;

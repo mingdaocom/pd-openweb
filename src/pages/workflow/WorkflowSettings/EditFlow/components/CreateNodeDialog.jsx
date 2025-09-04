@@ -389,7 +389,7 @@ export default class CreateNodeDialog extends Component {
               name: _l('发送短信%03029'),
               iconColor: '#1677ff',
               iconName: 'icon-forum',
-              describe: _l('向指定手机号发送经过审核的手机短信（收费）'),
+              describe: _l('向指定手机号发送经过审核的手机短信'),
             },
             {
               type: 11,
@@ -398,7 +398,7 @@ export default class CreateNodeDialog extends Component {
               actionId: '202',
               iconColor: '#1677ff',
               iconName: 'icon-workflow_email',
-              describe: _l('由 HAP 向指定邮箱代发自定义内容的邮件（收费）'),
+              describe: _l('由 HAP 向指定邮箱代发自定义内容的邮件'),
             },
             {
               type: 19,

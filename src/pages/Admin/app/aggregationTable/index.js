@@ -59,7 +59,7 @@ export default class AggregationTable extends Component {
         projectId,
         pageNo: pageIndex - 1,
         pageSize: 50,
-        searchBody: keyWords,
+        searchBody: _.trim(keyWords),
         sort: { fieldName: sortId, sortDirection: isAsc ? 'ASC' : 'DESC' },
         taskType: 1, //聚合表
         appId: appId ? appId : undefined,

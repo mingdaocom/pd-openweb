@@ -211,7 +211,7 @@ class DialogSelectDept extends React.Component {
     let param = {
       projectId: this.props.projectId,
       returnCount: this.props.returnCount,
-      [isAnalysis && departrangetype === '0' ? 'keyword' : 'keywords']: this.state.keywords,
+      [isAnalysis && departrangetype === '0' ? 'keyword' : 'keywords']: _.trim(this.state.keywords),
     };
     let usePageDepartment = !this.state.keywords;
 

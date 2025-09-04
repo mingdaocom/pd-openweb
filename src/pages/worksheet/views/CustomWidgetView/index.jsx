@@ -71,6 +71,7 @@ function CustomWidgetViewContent(props) {
     quickFilter,
     navGroupFilters,
     refresh,
+    embedNeedUpdate,
   } = props;
 
   const { isPublished = false, currentScriptUrl } = view;
@@ -122,6 +123,7 @@ function CustomWidgetViewContent(props) {
           quickFilter={quickFilter}
           navGroupFilters={navGroupFilters}
           flag={flag}
+          embedNeedUpdate={embedNeedUpdate}
           onLoadScript={err => {
             if (err) {
               setStatus(CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR);

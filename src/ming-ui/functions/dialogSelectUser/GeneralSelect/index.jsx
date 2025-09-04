@@ -382,7 +382,7 @@ export default class GeneraSelect extends Component {
     // 组建请求数据
     if (tabItem) {
       const reqData = {
-        keywords: this.state.keywords,
+        keywords: _.trim(this.state.keywords),
         projectId: commonSettings.projectId,
         dataRange: commonSettings.dataRange,
         filterAccountIds: userSettings.filterAccountIds,

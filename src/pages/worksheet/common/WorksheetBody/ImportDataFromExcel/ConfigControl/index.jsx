@@ -452,7 +452,7 @@ export default class ConfigControl extends Component {
       let requiredFiledNoSetArray = [];
 
       worksheetControls
-        .filter(o => o.type !== 30 && o.advancedSetting && o.advancedSetting.required === '1')
+        .filter(o => o.type !== 30 && o.required === '1')
         .map(o => {
           if (!controlMappingFilter.find(obj => obj.ControlId === o.controlId)) {
             requiredFiledNoSetArray.push(o.controlName);
@@ -989,10 +989,7 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
-            {(showStar === controlItem.controlId ||
-              (controlItem.advancedSetting && controlItem.advancedSetting.required === '1')) && (
-              <span className="mLeft3 star">*</span>
-            )}
+            {(showStar === controlItem.controlId || controlItem.required) && <span className="mLeft3 star">*</span>}
           </div>
 
           {/** 提示文字 */}
@@ -1185,9 +1182,7 @@ export default class ConfigControl extends Component {
                               <span className="mLeft10 ellipsis flex flexRow alignItemsCenter">
                                 {controlItem.controlName}
                                 {(showStar === controlItem.controlId ||
-                                  (controlItem.type !== 30 &&
-                                    controlItem.advancedSetting &&
-                                    controlItem.advancedSetting.required === '1')) && (
+                                  (controlItem.type !== 30 && controlItem.required === '1')) && (
                                   <span className="mLeft3 star">*</span>
                                 )}
                               </span>

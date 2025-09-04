@@ -262,7 +262,7 @@ class SelectIcon extends Component {
           <div className="flex mTop18 relative" style={{ width: '60%' }}>
             <IconTabs
               handleClick={this.handleClick}
-              {..._.pick(this.state, ['iconColor', 'icon'])}
+              {..._.pick(this.state, ['iconColor', 'icon', 'lightColor', 'navColor'])}
               {..._.pick(this.props, ['hideCustom', 'projectId'])}
             />
             {onClearIcon && this.state.icon && (

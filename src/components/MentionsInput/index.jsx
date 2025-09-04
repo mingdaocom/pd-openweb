@@ -293,7 +293,10 @@ const MentionsInput = props => {
     if (!isAt) {
       // 解决部分数据法恶心的问题
       var message = currentMessage.substring(atPos, startPos);
-      if (message.indexOf(' ') == -1 && message.indexOf('\n') == -1) {
+      if (
+        (message.indexOf(' ') == -1 && message.indexOf('\n') == -1) ||
+        (window.isSafari && atLetterArr.includes(message))
+      ) {
         // 没有空格 没有换行，重新激活搜索
         isAt = true;
         currentType = currentMessage.substring(atPos - 1, atPos);
@@ -315,7 +318,6 @@ const MentionsInput = props => {
       _.debounce(() => doSearch(currentDataQuery), 200)();
     } else {
       setTriggerPopupVisible(false);
-      currentType = '';
     }
   };
 
@@ -756,7 +758,10 @@ const MentionsInput = props => {
                   __html:
                     md.global.Account.isPortal || isCategory
                       ? _l('没有找到')
-                      : _l('没有找到，%0 加入吧! ', `<span class="ThemeColor3 Hand">${_l('邀请更多的同事')}</span>`),
+                      : _l(
+                          '没有找到，%0 加入吧!',
+                          `<span class="ThemeColor3 Hand mLeft3">${_l('邀请更多的同事')}</span>`,
+                        ),
                 }}
                 onClick={() => {
                   if (isCategory) return;

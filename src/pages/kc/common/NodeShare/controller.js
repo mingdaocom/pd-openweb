@@ -79,7 +79,7 @@ export function getAttachment() {
               res.attachmentShareModel.viewId,
             );
             return {
-              node: res.attachmentDetail,
+              node: { ...res.attachmentDetail, projectId: res.attachmentShareModel.projectId },
               allowDownload:
                 recordAttachmentSwitch && allowdownload === '1' && !!get(res, 'attachmentDetail.allowDown'),
             };

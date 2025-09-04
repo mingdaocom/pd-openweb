@@ -582,7 +582,7 @@ export default function RecordOperate(props) {
                 {_l('复制ID')}
               </MenuItemWrap>
             )}
-            <Hr />
+            {showCopy && showCopyId && showRecreate && <Hr />}
             {canFav && (
               <MenuItemWrap
                 data-event="collect"

@@ -2,6 +2,7 @@
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Dropdown, Tooltip, UserHead, UserName } from 'ming-ui';
+import departmentController from 'src/api/department';
 import userAjax from 'src/api/user';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -69,6 +70,7 @@ export default class extends React.Component {
       keywords: '',
       columns: [],
       keywordsType: 1,
+      fullDepartmentInfo: {},
     };
     this.getColumns = () => {
       return [
@@ -109,12 +111,36 @@ export default class extends React.Component {
           width: 200,
           render: (text, record) => {
             const { departmentInfos = [] } = record;
+            const { fullDepartmentInfo = {} } = this.state;
             const txt = departmentInfos.map((item, index) => {
               return item.departmentName + (index < departmentInfos.length - 1 ? ';' : '');
             });
+            const departmentIds = departmentInfos.map(item => item.departmentId);
             return (
-              <div className="ellipsis">
-                <Tooltip text={<span>{txt}</span>}>
+              <div className="ellipsis" onMouseEnter={() => this.updateFullDepartmentInfo(departmentIds)}>
+                <Tooltip
+                  popupPlacement="bottom"
+                  text={
+                    <div>
+                      {departmentInfos.map((it, index) => {
+                        const fullName = (fullDepartmentInfo[it.departmentId] || '').split('/');
+                        return (
+                          <div
+                            key={it.departmentId}
+                            className={`${index < departmentInfos.length - 1 ? 'mBottom8' : ''} `}
+                          >
+                            {fullName.map((n, i) => (
+                              <span>
+                                {n}
+                                {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  }
+                >
                   <span>{txt}</span>
                 </Tooltip>
               </div>
@@ -190,7 +216,7 @@ export default class extends React.Component {
       projectId: this.props.projectId,
       pageIndex,
       pageSize: 50,
-      keywords: this.state.keywords,
+      keywords: _.trim(this.state.keywords),
       keywordsType: this.state.keywordsType,
     };
 
@@ -243,6 +269,30 @@ export default class extends React.Component {
           });
       },
     });
+  };
+
+  updateFullDepartmentInfo = departmentIds => {
+    const { fullDepartmentInfo = {} } = this.state;
+    const copyFullDepartmentInfo = _.clone(fullDepartmentInfo);
+    const needUpdateIds = departmentIds.filter(id => !copyFullDepartmentInfo[id]);
+
+    // 已加载过的部门不再重复加载
+    if (!needUpdateIds.length) {
+      return;
+    }
+
+    departmentController
+      .getDepartmentFullNameByIds({
+        projectId: this.props.projectId,
+        departmentIds: needUpdateIds,
+      })
+      .then(res => {
+        (res || []).forEach(it => {
+          copyFullDepartmentInfo[it.id] = it.name;
+        });
+
+        this.setState({ fullDepartmentInfo: copyFullDepartmentInfo });
+      });
   };
 
   render() {

@@ -165,7 +165,7 @@ export default class GroupsList extends Component {
     let reqData = {
       pageIndex: this.state.pageIndex,
       pageSize: this.state.pageSize,
-      keywords: this.state.keywords,
+      keywords: _.trim(this.state.keywords),
       sortType: parseInt(this.state.sortType),
       sortFiled: parseInt(this.state.sortField),
       firstLetters: [],

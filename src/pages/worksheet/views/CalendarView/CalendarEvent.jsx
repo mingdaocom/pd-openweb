@@ -2,14 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Popover } from 'antd';
 import _ from 'lodash';
+import moment from 'moment';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard.jsx';
 import { getRecordAttachments } from 'src/pages/worksheet/views/util.js';
 import { RENDER_RECORD_NECESSARY_ATTR } from 'src/pages/worksheet/views/util.js';
+import { dateConvertToServerZone } from 'src/utils/project';
 import { getRecordColorConfig } from 'src/utils/record';
 import { isEmojiCharacter, isTimeStyle } from './util';
 
@@ -27,7 +30,13 @@ const EventCardContent = ({
   ...props
 }) => {
   // 准备卡片数据
-  const item = _.get(info, 'event.extendedProps');
+  const item = _.cloneDeep(_.get(info, 'event.extendedProps'));
+  if (item?.info?.begin && item[item.info.begin]) {
+    item[item.info.begin] = dateConvertToServerZone(moment(item[item.info.begin]));
+  }
+  if (item?.info?.end && item[item.info.end]) {
+    item[item.info.end] = dateConvertToServerZone(moment(item[item.info.end]));
+  }
   const coverCid = currentView.coverCid || _.get(worksheetInfo, 'advancedSetting.coverid');
   let formData = controls.map(o => ({ ...o, value: item[o.controlId] }));
   const { coverImage, allAttachments } = getRecordAttachments(item[coverCid]);
@@ -74,13 +83,7 @@ const EventCardContent = ({
 
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let displayControlsCopy = !isShowWorkflowSys
-      ? displayControls.filter(
-          it =>
-            !_.includes(
-              ['wfname', 'wfstatus', 'wfcuaids', 'wfrtime', 'wfftime', 'wfdtime', 'wfcaid', 'wfctime', 'wfcotime'],
-              it,
-            ),
-        )
+      ? displayControls.filter(it => !_.includes(SYS_CONTROLS_WORKFLOW, it))
       : displayControls;
 
     displayControlsCopy.forEach(id => {

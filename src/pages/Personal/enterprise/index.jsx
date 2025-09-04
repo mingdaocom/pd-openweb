@@ -46,7 +46,6 @@ export default class AccountChart extends React.Component {
         this.getUntreatAuthList(),
         this.getList({ projectStatus: 2 }),
       ]).then(([unAuthProject, project, auth, closeProject]) => {
-        console.log(closeProject);
         this.setState({
           unAuthList: (unAuthProject.list || []).map(v => ({
             ...v,
@@ -57,7 +56,7 @@ export default class AccountChart extends React.Component {
             companyName: getCurrentProject(v.projectId).companyName || v.companyName,
           })),
           count: project.allCount,
-          isEnterprise: project.allCount > 0,
+          isEnterprise: project.allCount > 0 || closeProject.allCount > 0,
           authCount: auth.count,
           loading: false,
           closeProject,

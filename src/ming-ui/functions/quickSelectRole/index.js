@@ -171,7 +171,7 @@ export function RoleSelect(props) {
       promise.abort();
     }
     promise = organizeAjax.getOrganizes({
-      keywords,
+      keywords: _.trim(keywords),
       projectId,
       pageIndex: fetchPageIndex,
       pageSize: keywords ? 50 : 500,

@@ -467,7 +467,24 @@ function EntityRelationship(props) {
   const onExport = () => {
     const { name } = props.data;
     const erFileName = `${name}-${_l('关系图')}-${moment().format('YYYY-MM-DD-HH_mm_ss')}.png`;
+
+    if (!graphRef.current) return;
+
+    const rawZoom = graphRef.current.zoom ? graphRef.current.zoom() : 1;
+    // 保留两位小数并做下限保护（防止除 0）
+    const currentZoom = Math.max(0.01, Number(rawZoom.toFixed(2)));
+    const bbox = graphRef.current.getContentBBox();
+    // 计算原始尺寸
+    const unzoomedWidth = bbox.width / (currentZoom || 1);
+    const unzoomedHeight = bbox.height / (currentZoom || 1);
+
+    const scale = 1.5;
+    const exportWidth = Math.round(unzoomedWidth * scale);
+    const exportHeight = Math.round(unzoomedHeight * scale);
+
     graphRef.current.exportPNG(erFileName, {
+      width: exportWidth,
+      height: exportHeight,
       padding: 40,
       backgroundColor: '#f0f0f0',
       stylesheet: stylesheet_er,

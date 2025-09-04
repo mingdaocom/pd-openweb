@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget';
+import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import FilterDetail from '../components/FilterDetail';
 import { CONTROL_FILTER_WHITELIST } from '../enum';
@@ -68,7 +68,15 @@ export default function SingleFilter(props) {
   const showWorkflowControl = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit, viewId);
   function filterAddConditionControls(controls) {
     return filterOnlyShowField(
-      showWorkflowControl ? controls : controls.filter(c => !_.find(SYS_CONTROLS_WORKFLOW, [c.controlId])),
+      showWorkflowControl
+        ? controls
+        : controls.filter(
+            c =>
+              !_.includes(
+                WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId),
+                c.controlId,
+              ),
+          ),
     );
   }
   useEffect(() => {

@@ -390,8 +390,12 @@ class AttachmentsPreview extends React.Component {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
 
-                    if (previewService === 'wps' && (isWpsPreview(ext) || defaultWpsPreview(ext))) {
-                      viewUrl = `${md.global.Config.WpsUrl}/view?url=${encodeURIComponent(
+                    if (
+                      previewService === 'wps' &&
+                      (isWpsPreview(ext) || defaultWpsPreview(ext)) &&
+                      !md.global.Config.EnableWpsDocPreview
+                    ) {
+                      viewUrl = `${md.global.Config.WpsDocPreviewUrl}/view?url=${encodeURIComponent(
                         currentAttachment.viewUrl,
                       )}&attname=${encodeURIComponent(
                         currentAttachment.name || currentAttachment.sourceNode.originalFilename,

@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, LoadDiv, RadioGroup } from 'ming-ui';
 import fixedDataApi from 'src/api/fixedData';
+import privateMapApi from 'src/api/privateMap';
 
 const Wrap = styled.div`
   .systemSettingsDropdown {
@@ -20,6 +21,7 @@ export default props => {
   const [currentTimeZone, setCurrentTimeZone] = useState(md.global.Account.timeZone);
   const [map, setMap] = useState(md.global.Account.map || 0);
   const [timeZones, setTimeZones] = useState([]);
+  const [mapList, setMapList] = useState([]);
 
   useEffect(() => {
     fixedDataApi.loadTimeZones().then(res => {
@@ -34,6 +36,15 @@ export default props => {
       );
       setLoading(false);
     });
+    if (md.global.SysSettings.enableMap) {
+      privateMapApi.getAvailableMapList({}).then(res => {
+        const list = (res || []).map(item => ({
+          text: item.type === 0 ? _l('高德地图') : _l('Google地图'),
+          value: item.type,
+        }));
+        setMapList(list);
+      });
+    }
   }, []);
 
   if (loading) {
@@ -79,10 +90,7 @@ export default props => {
           className="systemSettingsDropdown w100 Gray"
           border
           value={map}
-          data={[
-            { text: _l('高德地图'), value: 0 },
-            { text: _l('Google地图'), value: 1 },
-          ]}
+          data={mapList}
           onChange={value => {
             handleSureSettings('map', value, () => {
               setMap(value);
@@ -175,7 +183,7 @@ export default props => {
   return (
     <Wrap className="flex">
       {renderCurrentTimeZone()}
-      {renderMap()}
+      {md.global.SysSettings.enableMap && renderMap()}
       {renderBackHomepageWay()}
       {renderIsOpenMessageSound()}
     </Wrap>

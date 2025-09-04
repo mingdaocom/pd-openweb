@@ -213,6 +213,7 @@ function Sheet(props) {
     printCharge: config.printCharge,
     allowOpenRecord: config.allowOpenRecord,
     allowAddNewRecord: config.isAddRecord,
+    embedNeedUpdate: config.embedNeedUpdate,
     viewRowsLoading,
   };
   const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(

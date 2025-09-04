@@ -12,7 +12,7 @@ const AddRecordWrap = styled.div`
   border-radius: 50%;
   color: #fff;
   text-align: center;
-  z-index: 1;
+  z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
 `;
 

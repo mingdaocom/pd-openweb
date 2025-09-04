@@ -67,6 +67,15 @@ const getOrganize = (projectId, accountId) => {
   });
 };
 
+const getAppTime = appId => {
+  const serverZone = md.global.Config.DefaultTimeZone;
+  const appTimeZone = window[`timeZone_${appId}`];
+  const current = moment().format('YYYY-MM-DD HH:mm:ss');
+  return moment(current)
+    .add(appTimeZone - serverZone, 'm')
+    .format('YYYY-MM-DD HH:mm:ss');
+};
+
 let currentBtn = {};
 
 export function ButtonList({
@@ -164,7 +173,7 @@ export function ButtonList({
                 }
               }
               if (item.cid === 'triggerTime') {
-                return moment().format('YYYY-MM-DD HH:mm:ss');
+                return getAppTime(appId);
               }
               if (item.cid === 'codeResult') {
                 return scanQRCodeResult;

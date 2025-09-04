@@ -42,7 +42,7 @@ export default function SheetField(props) {
   } = props;
   const { controlId, dataSource, strDefault = '10' } = data;
 
-  const showType = strDefault.split('')[0] || '0';
+  const showType = (strDefault || '10').split('')[0];
 
   const $ref = createRef(null);
 

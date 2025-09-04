@@ -289,7 +289,7 @@ export default function WidgetConfig(props) {
             checked={allpath === '1'}
             onClick={checked => onChange(handleAdvancedSettingChange(data, { allpath: String(+!checked) }))}
           >
-            <span>{_l('显示部门层级')}</span>
+            <span>{_l('显示部门路径')}</span>
           </Checkbox>
         </div>
         <div className="labelWrap">
