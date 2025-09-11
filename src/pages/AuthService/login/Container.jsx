@@ -122,7 +122,7 @@ export default function (props) {
             break;
         }
       })
-      .catch(() => {
+      .catch(error => {
         onChange({ loginDisabled: false });
       });
   };
@@ -159,21 +159,33 @@ export default function (props) {
       params.projectId = projectId;
       params.userName = encrypt(account);
       params.regFrom = request.s;
-      loginController.lDAPLogin(params).then(data => {
-        data.loginType = 1;
-        cb(data);
-      });
+      loginController
+        .lDAPLogin(params)
+        .then(data => {
+          data.loginType = 1;
+          cb(data);
+        })
+        .catch(error => {
+          console.log(error);
+          onChange({ loginDisabled: false });
+        });
     } else {
       params.account = encrypt(dialCode + account.trim());
       params.state = request.state;
       params.unionId = request.unionId;
       params.tpType = request.tpType;
       params.regFrom = request.s;
-      loginController.mDAccountLogin(params).then(data => {
-        data.account = account;
-        data.loginType = 0;
-        cb(data);
-      });
+      loginController
+        .mDAccountLogin(params)
+        .then(data => {
+          data.account = account;
+          data.loginType = 0;
+          cb(data);
+        })
+        .catch(error => {
+          console.log(error);
+          onChange({ loginDisabled: false });
+        });
     }
   };
 

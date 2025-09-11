@@ -184,4 +184,14 @@ export default {
   addProject: function (args, options = {}) {
     return mdyAPI('PrivateGuide', 'AddProject', args, options);
   },
+  /**
+   * 获取平台提醒信息
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getPlatformRemindInfo: function (args, options = {}) {
+    return mdyAPI('PrivateGuide', 'GetPlatformRemindInfo', args, options);
+  },
 };

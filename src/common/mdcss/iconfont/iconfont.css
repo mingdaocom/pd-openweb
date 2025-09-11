@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1753248283199') format('woff2'),
-       url('iconfont.woff?t=1753248283199') format('woff'),
-       url('iconfont.ttf?t=1753248283199') format('truetype');
+  src: url('iconfont.woff2?t=1757324261153') format('woff2'),
+       url('iconfont.woff?t=1757324261153') format('woff'),
+       url('iconfont.ttf?t=1757324261153') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,70 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-article:before {
+  content: "\e694";
+}
+
+.icon-routine_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24:before {
+  content: "\ed05";
+}
+
+.icon-jifen:before {
+  content: "\e602";
+}
+
+.icon-expand_all:before {
+  content: "\e6c9";
+}
+
+.icon-AI_Agent:before {
+  content: "\ed01";
+}
+
+.icon-Invoice:before {
+  content: "\e68b";
+}
+
+.icon-month:before {
+  content: "\e689";
+}
+
+.icon-week:before {
+  content: "\e68a";
+}
+
+.icon-notification_turn_off:before {
+  content: "\e686";
+}
+
+.icon-notification_turn_on:before {
+  content: "\e687";
+}
+
+.icon-Silent:before {
+  content: "\e688";
+}
+
+.icon-Qwen:before {
+  content: "\ed04";
+}
+
+.icon-chatgpt:before {
+  content: "\ed03";
+}
+
+.icon-deepseek:before {
+  content: "\ed02";
+}
+
+.icon-add_reaction:before {
+  content: "\eb0f";
+}
+
+.icon-rectangle_2:before {
+  content: "\e6c8";
 }
 
 .icon-user_female:before {

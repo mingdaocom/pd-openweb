@@ -250,6 +250,7 @@ export default class MobilePhone extends React.Component {
         }}
       >
         <MobilePhoneEdit
+          isEditing={isediting}
           inputClassName="cellMobileInput stopPropagation"
           enumDefault={cell.enumDefault}
           advancedSetting={cell.advancedSetting}

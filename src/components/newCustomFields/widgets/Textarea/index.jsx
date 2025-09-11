@@ -201,7 +201,7 @@ export default class Widgets extends Component {
     const disabledInput = advancedSetting.dismanual === '1';
     const isMobile = browserIsMobile();
     const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
-    const maxHeight = isMobile ? 400 : Number(advancedSetting.maxheight || '400');
+    const maxHeight = isMobile ? 400 : advancedSetting.maxheight ? Number(advancedSetting.maxheight) : 'auto';
     const isSingleLine = enumDefault === 2;
     const isScanQR = getIsScanQR();
     const startTextScanCode = !disabled && isScanQR && advancedSetting.scantype;

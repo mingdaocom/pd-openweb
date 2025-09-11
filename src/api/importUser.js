@@ -44,10 +44,10 @@ export default {
    * @param {string} args.departmentIds 用分号分隔，所选部门Id集（第一个为主部门）
    * @param {string} args.orgRoleIds 组织角色
    * @param {string} args.jobIds 用分号分隔，所选职位Id集
-   * @param {} args.verifyType
-   * @param {string} args.password 密码
    * @param {boolean} args.useMultiJobs 是否 使用 多任职
    * @param {array} args.departmentJobIdMaps 任职信息（第一个 代表主部门）
+   * @param {} args.verifyType
+   * @param {string} args.password 密码
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

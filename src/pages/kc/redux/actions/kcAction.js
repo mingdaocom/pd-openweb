@@ -467,7 +467,7 @@ export function removeNode(nodeStatus) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
     const { list, totalCount, currentFolder, currentRoot, selectAll, selectedItems, params } = kcState;
-    const { keywords } = params;
+    const { keywords } = params.toObject();
     handleRemoveNode({
       list,
       nodeStatus,
@@ -519,7 +519,7 @@ export function moveOrCopyClick(type, rootId) {
   return (dispatch, getState) => {
     const kcState = getState().kc;
     const { list, baseUrl, currentFolder, currentRoot, selectAll, selectedItems, params } = kcState;
-    const { keywords } = params;
+    const { keywords } = params.toObject();
     handleMoveOrCopyClick(
       {
         type,
@@ -558,7 +558,7 @@ export function restoreNode() {
   return (dispatch, getState) => {
     const kcState = getState().kc;
     const { list, selectedItems, selectAll, currentFolder, currentRoot } = kcState;
-    const { keywords } = kcState.params;
+    const { keywords } = kcState.params.toObject();
     handleRestoreNode({
       list,
       folder: currentFolder,

@@ -261,6 +261,7 @@ export default function BatchEditRecord(props) {
                 ...item.control,
                 ...(view.viewId === worksheetId ? { fieldPermission: '111' } : {}),
                 ...(get(item, 'control.options.length') ? { value: undefined } : {}),
+                advancedSetting: omit(get(item, 'control.advancedSetting'), 'custom_event'),
               }}
               type={item.type}
               setRef={ref => {

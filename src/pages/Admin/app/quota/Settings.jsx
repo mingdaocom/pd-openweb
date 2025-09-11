@@ -558,12 +558,18 @@ export default class LimitAttachmentUpload extends Component {
       case 'app':
         return (
           <div className="flexRow alignItemsCenter">
-            <div className="appIcon" style={{ background: app.appIconColor }}>
-              <SvgIcon url={app.appIconUrl} fill="#fff" size={18} className="mTop3" />
-            </div>
-            <span className="flex ellipsis mRight10" title={app.appName}>
-              {app.appName}
-            </span>
+            {app.appName ? (
+              <Fragment>
+                <div className="appIcon" style={{ background: app.appIconColor }}>
+                  <SvgIcon url={app.appIconUrl} fill="#fff" size={18} className="mTop3" />
+                </div>
+                <span className="flex ellipsis mRight10" title={app.appName}>
+                  {app.appName}
+                </span>
+              </Fragment>
+            ) : (
+              <span className="Red">{_l('应用已删除')}</span>
+            )}
           </div>
         );
       case 'worksheet':

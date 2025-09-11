@@ -277,6 +277,16 @@ export default class PayConfig extends Component {
       return;
     }
 
+    if (
+      _.every(
+        merchantList.filter(v => _.includes(mchid, v.value)),
+        v => v.disabled,
+      )
+    ) {
+      alert(_l('当前选择的商户不可用，请您重新选择！'), 3);
+      return;
+    }
+
     const copyInitMchId = getFilterDeletedMchId(initSettings.mchid, merchantList);
     const currentMchId = getFilterDeletedMchId(mchid, merchantList);
 

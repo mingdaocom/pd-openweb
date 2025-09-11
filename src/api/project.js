@@ -22,7 +22,7 @@ export default {
   /**
    * 获取网络财务信息
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -58,7 +58,7 @@ export default {
   /**
    * 获取网络授权辅助信息
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {boolean} args.onlyNormal 是否只需要基本信息
    * @param {boolean} args.onlyUsage 是否只需要用量信息
    * @param {Object} options 配置参数
@@ -71,7 +71,7 @@ export default {
   /**
    * 获取网络有效成员数量
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -82,7 +82,7 @@ export default {
   /**
    * 获取网络注销记录
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -129,7 +129,7 @@ export default {
   /**
    * 取消申请注销
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -140,7 +140,7 @@ export default {
   /**
    * 取消高级模式试用授权
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -151,7 +151,7 @@ export default {
   /**
    * 获取网络邀请人数赠送规则
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -162,7 +162,7 @@ export default {
   /**
    * 获取网络内待审批用户数量
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -344,7 +344,7 @@ export default {
   /**
    * 绑定微信公众号
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -355,7 +355,7 @@ export default {
   /**
    * 获取绑定的微信公众号信息
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -366,7 +366,7 @@ export default {
   /**
    * 取消绑定微信公众号
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {string} args.appId
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -405,7 +405,7 @@ export default {
   /**
    * 获取网络基本信息
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -417,7 +417,7 @@ export default {
   * 获取组织与授权相关信息，只返回授权/登录账户是否管理员/是否开启水印
 登录之后才返回信息
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
+  * @param {string} args.projectId 组织ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -465,7 +465,7 @@ export default {
   * 获取网络集成类型
 0 代表尚未集成，1代表钉钉自建应用集成，2代表企业微信（第三方），3代表企业微信自建应用，4代表Welink自建应用集成
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
+  * @param {string} args.projectId 组织ID
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

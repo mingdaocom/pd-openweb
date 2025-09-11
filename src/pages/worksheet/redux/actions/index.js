@@ -279,7 +279,7 @@ export function loadWorksheet(worksheetId, setRequest) {
           if (queryRes) {
             dispatch({
               type: 'WORKSHEET_SEARCH_CONFIG_INIT',
-              value: formatSearchConfigs(_.get(queryRes, 'searchConfig') || []),
+              value: formatSearchConfigs(queryRes),
             });
           }
           const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));

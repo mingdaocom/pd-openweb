@@ -67,57 +67,58 @@ export default class FindPassword extends React.Component {
         ticket: res.ticket,
         randStr: res.randstr,
         captchaType: md.global.getCaptchaType(),
-      }).then(data => {
-        window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        if (data) {
-          _this.setState({
-            loginDisabled: false,
-          });
-          let actionResult = ActionResult;
-          if (data.actionResult == actionResult.success) {
-            alert(_l('密码重置成功！'), '1', 3000, () => {
-              _this.updateWarn([]);
-              navigateTo('/login');
-            });
-          } else {
-            if (data.accountResult === actionResult.userInfoNotFound) {
-              _this.updateWarn([
-                {
-                  tipDom: 'inputAccount',
-                  warnTxt: _l('账号未注册'),
-                },
-              ]);
-              return;
-            }
-            if (data.actionResult == actionResult.failInvalidVerifyCode) {
-              _this.updateWarn([{ tipDom: 'inputCode', warnTxt: _l('验证码错误'), isError: true }]);
-            } else if (data.actionResult == actionResult.noEfficacyVerifyCode) {
-              let str = _l('验证码已经失效，请重新发送');
-              _this.updateWarn([{ tipDom: 'inputCode', warnTxt: str, isError: true }]);
-              alert(str, 3);
-            } else if (data.actionResult == actionResult.userInfoNotFound) {
-              _this.updateWarn([{ tipDom: 'inputAccount', warnTxt: _l('账号不存在') }]);
-            } else if (data.actionResult == actionResult.samePassword) {
-              return alert('新密码不可与旧密码一样', 3);
-            } else if (data.actionResult === actionResult.accountFrequentLoginError) {
-              //需要前端图形验证码
-              new captcha(cb, isOk => {
-                if (isOk) return;
-                _this.setState({
-                  loginDisabled: false,
-                });
+      })
+        .then(data => {
+          window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
+          if (data) {
+            _this.setState({ loginDisabled: false });
+            let actionResult = ActionResult;
+            if (data.actionResult == actionResult.success) {
+              alert(_l('密码重置成功！'), '1', 3000, () => {
+                _this.updateWarn([]);
+                navigateTo('/login');
               });
-            } else if (data.actionResult === actionResult.fieldRequired) {
-              //前端图形验证码校验失败
-              return alert('图形验证码校验失败', 3);
             } else {
-              let msg = '';
-              msg = _l('操作失败');
-              alert(msg, 3);
+              if (data.accountResult === actionResult.userInfoNotFound) {
+                _this.updateWarn([
+                  {
+                    tipDom: 'inputAccount',
+                    warnTxt: _l('账号未注册'),
+                  },
+                ]);
+                return;
+              }
+              if (data.actionResult == actionResult.failInvalidVerifyCode) {
+                _this.updateWarn([{ tipDom: 'inputCode', warnTxt: _l('验证码错误'), isError: true }]);
+              } else if (data.actionResult == actionResult.noEfficacyVerifyCode) {
+                let str = _l('验证码已经失效，请重新发送');
+                _this.updateWarn([{ tipDom: 'inputCode', warnTxt: str, isError: true }]);
+                alert(str, 3);
+              } else if (data.actionResult == actionResult.userInfoNotFound) {
+                _this.updateWarn([{ tipDom: 'inputAccount', warnTxt: _l('账号不存在') }]);
+              } else if (data.actionResult == actionResult.samePassword) {
+                return alert('新密码不可与旧密码一样', 3);
+              } else if (data.actionResult === actionResult.accountFrequentLoginError) {
+                //需要前端图形验证码
+                new captcha(cb, isOk => {
+                  if (isOk) return;
+                  _this.setState({ loginDisabled: false });
+                });
+              } else if (data.actionResult === actionResult.fieldRequired) {
+                //前端图形验证码校验失败
+                return alert('图形验证码校验失败', 3);
+              } else {
+                let msg = '';
+                msg = _l('操作失败');
+                alert(msg, 3);
+              }
             }
           }
-        }
-      });
+        })
+        .catch(error => {
+          _this.setState({ loginDisabled: false });
+          console.log(error);
+        });
     };
 
     // 前3次关闭图像验证

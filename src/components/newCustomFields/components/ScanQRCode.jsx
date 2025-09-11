@@ -155,6 +155,15 @@ export default class Widgets extends Component {
     }
   };
   handleScanCode = () => {
+    // 嵌入第三方APP SDK扫码
+    if (window.customScan && typeof window.customScan === 'function') {
+      window.customScan({
+        success: res => {
+          this.props.onScanQRCodeResult(res);
+        },
+      });
+      return;
+    }
     const { projectId, control = {} } = this.props;
 
     compatibleMDJS(

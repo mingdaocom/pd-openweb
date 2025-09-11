@@ -59,7 +59,7 @@ const SWITCH_ENUM = {
   28: ['NUMBER'], // 等级
   29: ['SUB_LIST'], // 关联记录
   30: item =>
-    (item.strDefault || '10').split('')[0] !== '1' && item.sourceControlId
+    (item.strDefault || '').split('')[0] !== '1' && item.sourceControlId
       ? [enumWidgetType[_.get(item, 'sourceControl.type')]]
       : [], // 他表字段
   31: ['NUMBER', 'MONEY', 'SCORE'], // 公式---数值计算

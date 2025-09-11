@@ -110,46 +110,51 @@ export default function (props) {
         }
       }
 
-      joinCompanyAction(params).then(data => {
-        data.token && onChange({ tokenProjectCode: data.token });
+      joinCompanyAction(params)
+        .then(data => {
+          data.token && onChange({ tokenProjectCode: data.token });
 
-        if (isApplyJoinOrInviteJoin) {
-          // 接口调用成功后需要删除 cookie RegFrom 和  Referrer
-          window.localStorage.removeItem('RegFrom');
-          window.localStorage.removeItem('Referrer');
-        }
-
-        if (location.href.match(/enterpriseRegister(\.htm)?\?type=editInfo/i) || !!regcode) {
-          validateEditCard(data);
-        } else {
-          if (data.actionResult == ActionResult.success) {
-            setState({ loading: false });
-            registerSuc(props);
-          } else if (data.actionResult == ActionResult.userAccountExists) {
-            alert(_l('该手机号已注册，您可以使用已有账号登录'), 3);
-          } else if (data.actionResult == ActionResult.inviteLinkExpirate) {
-            onChange({ step: 'inviteLinkExpirate' });
-          } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
-            alert(_l('验证码错误'), 3);
-          } else if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
-            alert(_l('验证码已经失效，请重新发送'), 3);
-          } else if (data.actionResult == ActionResult.projectUserExists) {
-            setTimeout(() => registerSuc(props), 1000);
-            alert(_l('您已经是该组织成员，可直接登录'), 3);
-          } else if (data.actionResult == ActionResult.freeProjectForbid) {
-            alert(_l('你加入的组织用户额度不足，请联系该组织管理员'), 3);
-          } else if (data.actionResult == ActionResult.accountFrequentLoginError) {
-            alert(_l('账号已被锁定，请稍后再试'), 3);
-          } else if (
-            data.actionResult == ActionResult.firstLoginResetPassword ||
-            data.actionResult == ActionResult.passwordOverdue
-          ) {
-            alert(_l('密码已过期，请重置后重新操作'), 3);
-          } else {
-            alert(_l('操作失败'), 3);
+          if (isApplyJoinOrInviteJoin) {
+            // 接口调用成功后需要删除 cookie RegFrom 和  Referrer
+            window.localStorage.removeItem('RegFrom');
+            window.localStorage.removeItem('Referrer');
           }
-        }
-      });
+
+          if (location.href.match(/enterpriseRegister(\.htm)?\?type=editInfo/i) || !!regcode) {
+            validateEditCard(data);
+          } else {
+            if (data.actionResult == ActionResult.success) {
+              setState({ loading: false });
+              registerSuc(props);
+            } else if (data.actionResult == ActionResult.userAccountExists) {
+              alert(_l('该手机号已注册，您可以使用已有账号登录'), 3);
+            } else if (data.actionResult == ActionResult.inviteLinkExpirate) {
+              onChange({ step: 'inviteLinkExpirate' });
+            } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
+              alert(_l('验证码错误'), 3);
+            } else if (data.actionResult == ActionResult.noEfficacyVerifyCode) {
+              alert(_l('验证码已经失效，请重新发送'), 3);
+            } else if (data.actionResult == ActionResult.projectUserExists) {
+              setTimeout(() => registerSuc(props), 1000);
+              alert(_l('您已经是该组织成员，可直接登录'), 3);
+            } else if (data.actionResult == ActionResult.freeProjectForbid) {
+              alert(_l('你加入的组织用户额度不足，请联系该组织管理员'), 3);
+            } else if (data.actionResult == ActionResult.accountFrequentLoginError) {
+              alert(_l('账号已被锁定，请稍后再试'), 3);
+            } else if (
+              data.actionResult == ActionResult.firstLoginResetPassword ||
+              data.actionResult == ActionResult.passwordOverdue
+            ) {
+              alert(_l('密码已过期，请重置后重新操作'), 3);
+            } else {
+              alert(_l('操作失败'), 3);
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          setState({ loading: false });
+        });
     }
   };
 

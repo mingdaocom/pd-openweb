@@ -342,6 +342,7 @@ function Cell(props) {
       placeholder: !row.rowid,
       emptyRow: row.rowid && isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),
       oddRow: rowIndex % 2 === 1,
+      lastRow: rowIndex === rows.length - 1,
       readonly:
         lineEditable &&
         !disableQuickEdit &&

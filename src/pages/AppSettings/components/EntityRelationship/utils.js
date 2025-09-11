@@ -80,4 +80,10 @@ export function createLabelOption(control, sourceWorksheet) {
 export const LINE_HEIGHT = 24;
 export const NODE_WIDTH = 180;
 
-export const HIDE_FIELDS = [43, 10010, 22, 52, 45, 49];
+/**
+ * 调整不显示字段
+ * 布局字段（分段、分割线、标签页）
+ * API查询（包含所有显示类型）
+ * 文本识别
+ * */
+export const HIDE_FIELDS = [52, 22, 49, 50, 43];

@@ -71,81 +71,71 @@ export default class DepDropDown extends Component {
       pageSize: 1000,
     });
 
-    this.ajax.then(result => {
-      if (result) {
-        this.cachePath = {};
-        if (keywords) {
-          // let list = [];
-          // const getItem = (item, path) => {
-          //   item.map(o => {
-          //     this.cachePath[o.departmentId] = path ? `${path}/${o.departmentName}` : o.departmentName;
-          //     list.push({
-          //       value: o.departmentId,
-          //       label: this.cachePath[o.departmentId],
-          //       isLeaf: !o.haveSubDepartment,
-          //     });
-          //     if (!!o.subDepartments) {
-          //       getItem(o.subDepartments, this.cachePath[o.departmentId]);
-          //     }
-          //   });
-          // };
-          // getItem(list);
-          const getItem = (item = [], path) => {
-            return item.map(o => {
-              this.cachePath[o.departmentId] = path ? `${path} / ${o.departmentName}` : o.departmentName;
-              let name = o.departmentName;
-              let nameArr = [name];
-              if (keywords) {
-                let mt = name.match(keywords);
-                let len = keywords.length;
-                if (mt) {
-                  nameArr = [];
-                  while (mt) {
-                    nameArr.push(name.slice(0, mt.index));
-                    nameArr.push(name.slice(mt.index, mt.index + len));
-                    name = name.slice(mt.index + len);
-                    mt = name.match(keywords);
-                  }
-                  if (name) {
-                    nameArr.push(name);
+    this.ajax
+      .then(result => {
+        if (result) {
+          this.cachePath = {};
+          if (keywords) {
+            const getItem = (item = [], path) => {
+              return item.map(o => {
+                this.cachePath[o.departmentId] = path ? `${path} / ${o.departmentName}` : o.departmentName;
+                let name = o.departmentName;
+                let nameArr = [name];
+                if (keywords) {
+                  let mt = name.match(keywords);
+                  let len = keywords.length;
+                  if (mt) {
+                    nameArr = [];
+                    while (mt) {
+                      nameArr.push(name.slice(0, mt.index));
+                      nameArr.push(name.slice(mt.index, mt.index + len));
+                      name = name.slice(mt.index + len);
+                      mt = name.match(keywords);
+                    }
+                    if (name) {
+                      nameArr.push(name);
+                    }
                   }
                 }
-              }
-              let text = nameArr.map((item, index) => {
-                if (item === keywords) {
-                  return (
-                    <span key={item + index} style={{ color: '#1677ff' }}>
-                      {item}
-                    </span>
-                  );
-                }
-                return <span key={item + index}>{item}</span>;
+                let text = nameArr.map((item, index) => {
+                  if (item === keywords) {
+                    return (
+                      <span key={item + index} style={{ color: '#1677ff' }}>
+                        {item}
+                      </span>
+                    );
+                  }
+                  return <span key={item + index}>{item}</span>;
+                });
+                return {
+                  value: o.departmentId,
+                  label: <span>{text}</span>,
+                  isLeaf: !o.subDepartments,
+                  children: o.subDepartments ? getItem(o.subDepartments, this.cachePath[o.departmentId]) : null,
+                };
               });
+            };
+            this.ajax = '';
+            this.setState({ searchOptions: getItem(result), options: null });
+          } else {
+            const data = result.map(item => {
               return {
-                value: o.departmentId,
-                label: <span>{text}</span>,
-                isLeaf: !o.subDepartments,
-                children: o.subDepartments ? getItem(o.subDepartments, this.cachePath[o.departmentId]) : null,
+                value: item.departmentId,
+                label: item.departmentName,
+                isLeaf: !item.haveSubDepartment,
               };
             });
-          };
-          this.ajax = '';
-          this.setState({ searchOptions: getItem(result), options: null });
+            this.ajax = '';
+            this.deepDataUpdate(_.cloneDeep(options), data, departmentId);
+          }
         } else {
-          const data = result.map(item => {
-            return {
-              value: item.departmentId,
-              label: item.departmentName,
-              isLeaf: !item.haveSubDepartment,
-            };
-          });
-          this.ajax = '';
-          this.deepDataUpdate(_.cloneDeep(options), data, departmentId);
+          this.setState({ isError: true });
         }
-      } else {
+      })
+      .catch(error => {
         this.setState({ isError: true });
-      }
-    });
+        console.log(error);
+      });
   };
 
   /**
@@ -230,7 +220,6 @@ export default class DepDropDown extends Component {
         onChange={id => {
           this.treeSelectChange(id);
         }}
-        // onSearch={e => this.setState({ keywords: e }, this.loadData)}
         onFocus={() => !options && this.loadData()}
         onDropdownVisibleChange={data => {
           if (data && !keywords && !options) {

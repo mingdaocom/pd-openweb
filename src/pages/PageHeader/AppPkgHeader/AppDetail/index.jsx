@@ -789,7 +789,7 @@ export default class AppInfo extends Component {
     const showName = getTranslateInfo(appId, null, appId).name || data.name;
     const canDebug = (debugRole || {}).canDebug || false;
     // 获取url参数
-    const { s, tb, tr } = getAppFeaturesVisible();
+    const { s, tb, tr, ln } = getAppFeaturesVisible();
     // 当导航方式为经典或卡片时URL的隐藏参数全写上后，顶部色块应该隐藏
     if (_.includes([0, 2], currentPcNaviStyle) && !s && !tb && !tr) return null;
 
@@ -826,7 +826,7 @@ export default class AppInfo extends Component {
           </Fragment>
         )}
         <div
-          className={cx('appPkgHeaderWrap', themeType)}
+          className={cx('appPkgHeaderWrap', { hide: [1, 3].includes(currentPcNaviStyle) && !ln }, themeType)}
           style={{
             backgroundColor: navColor,
             width: [1, 3].includes(currentPcNaviStyle) ? navWidth : undefined,

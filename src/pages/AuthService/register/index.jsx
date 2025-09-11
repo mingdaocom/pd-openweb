@@ -215,32 +215,42 @@ export default function () {
         } else {
           setState({ step: 'inviteLinkExpirate' });
         }
+      })
+      .catch(error => {
+        console.log(error);
+        setState({ loading: false });
       });
   };
 
   const checkInviteJoin = () => {
     const { projectId } = state;
-    registerApi.checkJoinLink({ projectId }).then(data => {
-      setState({ loading: false });
-      let actionResult = ActionResult;
-      if (data && data.actionResult == actionResult.success) {
-        let inviteInfo = data.inviteInfo;
-        setState({
-          logo: data.logo,
-          isDefaultLogo: data.isDefaultLogo,
-          hasGetLogo: true,
-          inviteInfo,
-          isApplyJoin: true,
-          nextAction: AccountNextActions.userCardInfo,
-          titleStr: inviteInfo.sourceName,
-          title: _l('您正在加入') + inviteInfo.sourceName,
-          company: { ...state.company, companyName: inviteInfo.sourceName },
-          userCard: data.userCard,
-        });
-      } else {
-        setState({ step: 'inviteLinkExpirate' });
-      }
-    });
+    registerApi
+      .checkJoinLink({ projectId })
+      .then(data => {
+        setState({ loading: false });
+        let actionResult = ActionResult;
+        if (data && data.actionResult == actionResult.success) {
+          let inviteInfo = data.inviteInfo;
+          setState({
+            logo: data.logo,
+            isDefaultLogo: data.isDefaultLogo,
+            hasGetLogo: true,
+            inviteInfo,
+            isApplyJoin: true,
+            nextAction: AccountNextActions.userCardInfo,
+            titleStr: inviteInfo.sourceName,
+            title: _l('您正在加入') + inviteInfo.sourceName,
+            company: { ...state.company, companyName: inviteInfo.sourceName },
+            userCard: data.userCard,
+          });
+        } else {
+          setState({ step: 'inviteLinkExpirate' });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        setState({ loading: false });
+      });
   };
 
   const updateCompany = data => setState({ company: { ...state.company, ...data } });

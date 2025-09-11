@@ -168,6 +168,10 @@ export const doCreateAccount = ({ accountInfo, callback, onChange }) => {
       } else {
         alert(_l('操作失败'), 3);
       }
+    })
+    .catch(error => {
+      console.log(error);
+      onChange({ createAccountLoading: false });
     });
 };
 
@@ -208,6 +212,10 @@ export const registerAction = ({ res = {}, info = {}, onChange = () => {}, callb
             } else {
               registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
             }
+          })
+          .catch(error => {
+            console.log(error);
+            onChange({ createAccountLoading: false });
           });
       } else if (nextAction == AccountNextActions.userCardInfo) {
         if (location.href.indexOf('join') >= 0) {
@@ -226,6 +234,10 @@ export const registerAction = ({ res = {}, info = {}, onChange = () => {}, callb
               } else {
                 registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
               }
+            })
+            .catch(error => {
+              console.log(error);
+              onChange({ createAccountLoading: false });
             });
         } else {
           registerApi
@@ -257,6 +269,10 @@ export const registerAction = ({ res = {}, info = {}, onChange = () => {}, callb
               } else {
                 registerFailCb({ actionResult: data.actionResult, accountInfo: info, onChange });
               }
+            })
+            .catch(error => {
+              console.log(error);
+              onChange({ createAccountLoading: false });
             });
         }
       }

@@ -627,6 +627,7 @@ class PublicConfig extends React.Component {
                 }}
                 setState={this.handleLinkSettingChange}
                 projectId={worksheetInfo.projectId}
+                projectName={worksheetInfo.projectName}
               />
 
               {!md.global.SysSettings.hideWeixin && (

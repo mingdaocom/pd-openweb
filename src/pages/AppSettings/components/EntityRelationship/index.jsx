@@ -65,6 +65,8 @@ function EntityRelationship(props) {
   const edgeRef = useRef(null);
   const allData = useRef(null);
   const layoutModuleRef = useRef(null);
+  const controlShowAllMap = useRef({});
+  const isShowAllControls = useRef(false);
 
   useEffect(() => {
     async function loadComp() {
@@ -200,6 +202,9 @@ function EntityRelationship(props) {
         setLoading(false);
         setWorksheetList(res);
         allData.current = res;
+        res?.forEach(l => {
+          controlShowAllMap.current[l.worksheetId] = false;
+        });
         if (!res.length) return;
         onLayout(res);
         onFitRect();
@@ -249,7 +254,6 @@ function EntityRelationship(props) {
     });
 
     const sortData = data.sort((a, b) => !!(b.start + b.end) - !!(a.start + a.end));
-
     sortData.forEach((item, dataIndex) => {
       const controls = item.controls.filter(l => !HIDE_FIELDS.includes(l.type));
 
@@ -258,7 +262,11 @@ function EntityRelationship(props) {
         group: 'port1',
       }));
 
-      const nodeHeight = (controls.slice(0, 10).length + 1) * LINE_HEIGHT + 59;
+      const isShowAll = controlShowAllMap.current[item.worksheetId];
+      // 计算要展示的字段数量
+      const visibleControlsCount = isShowAll ? controls.length : Math.min(controls.length, 10);
+      // 最终节点高度
+      const nodeHeight = (visibleControlsCount + 1) * LINE_HEIGHT + 59;
 
       nodes.push({
         id: item.worksheetId,
@@ -266,7 +274,7 @@ function EntityRelationship(props) {
         width: NODE_WIDTH,
         height: nodeHeight,
         data: {
-          controls: controls.slice(0, 10),
+          controls: isShowAll ? controls : controls.slice(0, 10),
           height: LINE_HEIGHT,
           item: item,
           list,
@@ -274,8 +282,10 @@ function EntityRelationship(props) {
           filter: light,
           count: item.controls.length,
           allControls: item.controls,
+          hasMoreControls: controls.length > 10,
           updateSource,
           onFilter,
+          showItemForAllControls,
         },
         ports: {
           groups: {
@@ -521,6 +531,22 @@ function EntityRelationship(props) {
     );
   };
 
+  const showItemForAllControls = worksheetId => {
+    controlShowAllMap.current[worksheetId] = !controlShowAllMap.current[worksheetId];
+    onLayout(allData.current);
+  };
+
+  const showAllItemsForAllControls = () => {
+    const nextValue = !isShowAllControls.current;
+    isShowAllControls.current = nextValue;
+
+    allData.current.forEach(l => {
+      controlShowAllMap.current[l.worksheetId] = nextValue;
+    });
+
+    onLayout(allData.current);
+  };
+
   return (
     <div className="w100 h100 relative">
       {loading && (
@@ -558,7 +584,14 @@ function EntityRelationship(props) {
           <Icon icon="full_screen" className="Gray_75 Font20 Hand mRight20 Hover_21" onClick={onFitRect} />
         </Tooltip>
         <Tooltip text={_l('等比显示')}>
-          <Icon icon="enlarge" className="Gray_75 restore Hand Font20 Hover_21" onClick={onRestore} />
+          <Icon icon="enlarge" className="Gray_75 restore Hand Font20 Hover_21 mRight20" onClick={onRestore} />
+        </Tooltip>
+        <Tooltip text={_l('显示全部字段')}>
+          <Icon
+            icon="expand_all"
+            className="Gray_75 restore Hand Font20 Hover_21"
+            onClick={showAllItemsForAllControls}
+          />
         </Tooltip>
         <span className="splintLint"></span>
         <Tooltip text={_l('导出为图片')}>

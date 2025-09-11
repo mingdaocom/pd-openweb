@@ -74,9 +74,7 @@ export default class TwofactorContainer extends React.Component {
           return;
         } else if ([failed, noEmail, noTel, sendFrequent].includes(actionResult)) {
           //失败
-          this.setState({
-            isFail: true,
-          });
+          this.setState({ isFail: true });
           let msg = _l('验证码发送失败!');
           if (actionResult === sendFrequent) {
             msg = _l('验证码发送过于频繁，请切换验证方式!');
@@ -115,6 +113,10 @@ export default class TwofactorContainer extends React.Component {
             isFail: false,
           });
         }
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({ isFail: true });
       });
   };
   //获取验证码

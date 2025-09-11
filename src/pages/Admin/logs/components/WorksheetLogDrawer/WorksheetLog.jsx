@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { filterXSS } from 'xss';
 import { Icon, LoadDiv, PreferenceTime, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import createLinksForMessage from 'src/utils/createLinksForMessage';
 
 const PAGE_SIZE = 30;
 
@@ -91,16 +90,10 @@ export default class Discuss extends Component {
     const children = (
       <div className="logBox">
         {discussList.map((item, index) => {
-          const message = createLinksForMessage({
-            message: item.message,
-            accountId: item.accountId,
-            accountName: item.accountName,
-          });
-
           return (
             <div className="logItem" key={index}>
               <Icon icon={[undefined, 'plus', 'edit', 'trash', 'restart', 'download', 'reply'][item.type]} />
-              <span className="logContent" dangerouslySetInnerHTML={{ __html: filterXSS(message) }} />
+              <span className="logContent" dangerouslySetInnerHTML={{ __html: item.message }} />
               <span className="logTime">
                 <PreferenceTime value={item.createTime} className="Normal Hand Hover_21 logTimeTip" />
               </span>

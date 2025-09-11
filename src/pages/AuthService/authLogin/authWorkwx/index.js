@@ -71,7 +71,7 @@ if (code) {
 
         if (agentId) {
           location.replace(
-            `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&agentId=${agentId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`,
+            `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${corpId}&agentid=${agentId}&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_base&state=${state}#wechat_redirect`,
           );
         } else {
           location.replace(

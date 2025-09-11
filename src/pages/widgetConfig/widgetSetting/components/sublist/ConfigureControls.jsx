@@ -375,6 +375,10 @@ export default function ConfigureControl(props) {
         [activeWidgetIndex]: { $apply: item => ({ ...item, ...obj }) },
       }),
     });
+    window.clearLocalDataTime({
+      requestData: { worksheetId: data.dataSource },
+      clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+    });
   };
 
   return (

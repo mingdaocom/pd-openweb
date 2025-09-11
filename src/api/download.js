@@ -307,6 +307,8 @@ export default {
    * @param {string} args.keyword 关键词查询
    * @param {string} args.appId 应用id
    * @param {array} args.userIds 用户id列表
+   * @param {string} args.startTime 开始时间
+   * @param {string} args.endTime 结束时间
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

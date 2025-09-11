@@ -120,6 +120,7 @@ function SheetHeader(props) {
     setHighLightOfRows,
     clearChartId,
     clearSelect,
+    changeToSelectCurrentPageFromSelectAll,
   } = props;
   const { pageSize, sortControls } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
@@ -200,6 +201,7 @@ function SheetHeader(props) {
       refreshWorksheetControls={refreshWorksheetControls}
       addRecord={addRecord}
       setHighLightOfRows={setHighLightOfRows}
+      changeToSelectCurrentPageFromSelectAll={changeToSelectCurrentPageFromSelectAll}
     />
   );
   useKey('Enter', e => {
@@ -608,6 +610,7 @@ export default connect(
           'saveSheetLayout',
           'resetSheetLayout',
           'clearSelect',
+          'changeToSelectCurrentPageFromSelectAll',
         ]),
         updateSheetList,
         updateWorksheetInfo,

@@ -79,9 +79,9 @@ const Wrap = styled.div`
 `;
 
 export default function TextMessage(props) {
-  const { projectId, onChangePortalSet } = props;
-  const [sign, setSign] = useState(_.get(props, 'portalSet.portalSetModel.smsSignature')); //签名
-  const [emailSignature, setEmailSignature] = useState(_.get(props, 'portalSet.portalSetModel.emailSignature'));
+  const { projectId, onChangePortalSet, portalSet } = props;
+  const [sign, setSign] = useState(_.get(portalSet, 'portalSetModel.smsSignature')); //签名
+  const [emailSignature, setEmailSignature] = useState(_.get(portalSet, 'portalSetModel.emailSignature'));
   const [{ showEmailDialog, showTelDialog }, setState] = useSetState({
     showEmailDialog: false,
     showTelDialog: false,
@@ -129,6 +129,7 @@ export default function TextMessage(props) {
                   setSign(value);
                   onChangePortalSet({ portalSetModel: { ...props.portalSet.portalSetModel, smsSignature: value } });
                 }}
+            suffix={_.get(portalSet, 'portalSetModel.customizeName')}
               />
             </div>
 

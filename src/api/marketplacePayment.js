@@ -296,6 +296,18 @@ export default {
     return mdyAPI('MarketplacePayment', 'CancelWithdraw', args, options);
   },
   /**
+   * 手动更新提现状态
+   * @param {Object} args 请求参数
+   * @param {string} args.withdrawId 提现订单号
+   * @param {} args.status
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateWithdrawStatus: function (args, options = {}) {
+    return mdyAPI('MarketplacePayment', 'UpdateWithdrawStatus', args, options);
+  },
+  /**
    * 同步民生银行提现单状态
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数

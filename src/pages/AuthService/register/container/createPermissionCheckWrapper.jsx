@@ -22,14 +22,24 @@ export default function createPermissionCheckWrapper(Comp) {
     const [error, setError] = useState();
 
     useEffect(() => {
-      registerAjax.checkCreateCompany().then(able => {
-        if (able) {
+      registerAjax
+        .checkCreateCompany()
+        .then(able => {
+          if (able) {
+            setLoading(false);
+          } else {
+            setError(
+              _l(
+                '抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！',
+              ),
+            );
+            setLoading(false);
+          }
+        })
+        .catch(error => {
+          console.log(error);
           setLoading(false);
-        } else {
-          setError(_l('抱歉，操作过于频繁或者创建的组织已经达到上限，请升级版本！'));
-          setLoading(false);
-        }
-      });
+        });
     }, []);
 
     if (loading) {

@@ -622,7 +622,7 @@ class RoleManage extends Component {
     let orgGroup = {};
 
     if (searchValue) {
-      orgGroup = treeData.find(m => m.orgRoleGroupId === l.orgRoleGroupId);
+      orgGroup = treeData.find(m => m.orgRoleGroupId === l.orgRoleGroupId) || {};
     }
 
     const isDefault = !l.isLeaf && l.orgRoleGroupId === '';

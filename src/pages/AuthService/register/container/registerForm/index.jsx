@@ -74,15 +74,21 @@ export default function (props) {
   }, [props.isFrequentLoginError]);
 
   const getProjectLang = projectId => {
-    appManagementController.getProjectLang({ projectId }).then(res => {
-      setState({
-        loadProjectName: false,
-        projectNameLang: _.get(
-          _.find(res, o => o.langType === getCurrentLangCode()),
-          'data[0].value',
-        ),
+    appManagementController
+      .getProjectLang({ projectId })
+      .then(res => {
+        setState({
+          loadProjectName: false,
+          projectNameLang: _.get(
+            _.find(res, o => o.langType === getCurrentLangCode()),
+            'data[0].value',
+          ),
+        });
+      })
+      .catch(error => {
+        console.log(error);
+        setState({ loadProjectName: false });
       });
-    });
   };
 
   const doCaptchaFn = isFrequentLoginError => {

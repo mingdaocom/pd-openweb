@@ -4,7 +4,7 @@ import { Dialog, Input, LoadDiv, Radio, Support } from 'ming-ui';
 import certificationApi from 'src/api/certification';
 
 export default function SmsSignSet(props) {
-  const { onOk = () => {}, sign, projectId } = props;
+  const { onOk = () => {}, sign, projectId, suffix } = props;
   const list = _.get(md, 'global.Config.DefaultSmsProvider') || [];
   const [type, setType] = useState('custom');
   const [signature, setSignature] = useState('');
@@ -47,7 +47,7 @@ export default function SmsSignSet(props) {
       </div>
 
       {visible && (
-        <Dialog visible width={600} title={_l('设置短信签名')} onCancel={() => setVisible(false)} onOk={onSave}>
+        <Dialog visible width={660} title={_l('设置短信签名')} onCancel={() => setVisible(false)} onOk={onSave}>
           {isCertified === null ? (
             <LoadDiv className="mTop10" />
           ) : (
@@ -116,6 +116,11 @@ export default function SmsSignSet(props) {
                 return (
                   <div className="mTop16" key={index}>
                     <Radio text={text} checked={type === index} onClick={() => setType(index)} />
+                    {suffix && !md.global.Config.IsLocal && index === 1 && type === index && (
+                      <div className="mTop10 mLeft30 Gray_75">
+                        {_l('发送效果：【吉信通】 您的验证码是123456，感谢您的使用（发自：%0）', suffix)}
+                      </div>
+                    )}
                   </div>
                 );
               })}

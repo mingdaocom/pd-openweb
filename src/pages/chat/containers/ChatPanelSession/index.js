@@ -170,7 +170,7 @@ class ChatPanelSession extends Component {
     this.setState({
       value,
     });
-    if (!value) {
+    if (!value || value === '@') {
       const { currentSession } = this.props;
       const textarea = document.querySelector(`#ChatPanel-${currentSession.value} .ChatPanel-textarea textarea`);
       textarea && textarea.reset && textarea.reset();

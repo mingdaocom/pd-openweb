@@ -744,6 +744,15 @@ export function selectRows({ rows = [], selectAll }) {
   }
 }
 
+export function changeToSelectCurrentPageFromSelectAll() {
+  return (dispatch, getState) => {
+    const { sheetview } = getState().sheet;
+    const { rows = [] } = sheetview.sheetViewData;
+    dispatch(clearSelect());
+    dispatch(selectRows({ rows: rows.filter(r => r.rowid !== 'groupTitle' && r.rowid !== 'loadGroupMore') }));
+  };
+}
+
 export const updateSheetColumnWidths = (controlId, value) => ({
   type: 'WORKSHEET_SHEETVIEW_UPDATE_COLUMN_WIDTH',
   controlId,

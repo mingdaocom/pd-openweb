@@ -7,6 +7,8 @@ import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, MdLink, Tooltip } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
+import privateGuideApi from 'src/api/privateGuide';
+import { VerticalMiddle } from 'worksheet/components/Basics';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import { getAppFeaturesVisible } from 'src/utils/app';
@@ -15,6 +17,24 @@ import LanguageList from '../LanguageList';
 import MyProcessEntry from '../MyProcessEntry';
 import CreateAppItem from './CreateAppItem';
 import './index.less';
+
+const AdminEntry = styled(VerticalMiddle)`
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 28px;
+  margin: 0 5px;
+  .icon {
+    font-size: 20px;
+    color: rgb(0, 0, 0, 0.6);
+  }
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+`;
 
 const EntryWrap = styled.div`
   height: 32px;
@@ -35,7 +55,17 @@ export default class CommonUserHandle extends Component {
   };
   state = {
     addMenuVisible: false,
+    newVersion: null,
+    isLicense: true,
   };
+
+  componentDidMount() {
+    if (md.global.Account.superAdmin) {
+      privateGuideApi.getPlatformRemindInfo().then(data => {
+        this.setState({ newVersion: data.newVersion, isLicense: data.isLicense });
+      });
+    }
+  }
 
   handleAddMenuVisible(visible) {
     this.setState({
@@ -44,7 +74,7 @@ export default class CommonUserHandle extends Component {
   }
 
   render() {
-    const { newVersion } = this.state;
+    const { newVersion, isLicense } = this.state;
     const { type, currentProject = {} } = this.props;
     const hasProjectAdminAuth =
       currentProject.projectId &&
@@ -97,13 +127,24 @@ export default class CommonUserHandle extends Component {
                 </EntryWrap>
               </MdLink>
             )}
-            {type === 'dashboard' && newVersion && (
+            {type === 'dashboard' && !!newVersion && (
               <AdminEntry
                 data-tip={_l('发现新版本：%0，点击查看', newVersion)}
                 className="tip-bottom-left"
                 onClick={() => window.open('https://docs-pd.mingdao.com/version')}
               >
                 <Icon icon="score-up" className="Font20" style={{ color: '#20CA86' }} />
+              </AdminEntry>
+            )}
+            {type === 'dashboard' && !isLicense && (
+              <AdminEntry
+                data-tip={_l('平台授权已失效，点击查看')}
+                className="tip-bottom-left"
+                onClick={() => {
+                  location.href = md.global.Config.WebUrl + 'pm/sysconfig/platform';
+                }}
+              >
+                <Icon icon="error1" className="Font20" style={{ color: '#f44336' }} />
               </AdminEntry>
             )}
             {/*<BtnCon

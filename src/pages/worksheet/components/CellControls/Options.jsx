@@ -363,7 +363,8 @@ export default class Options extends React.Component {
     if ((this.isSubList && isOther) || fromEmbed) {
       getPopupContainer = () => document.body;
     }
-    const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 0;
+    const showErrorAsPopup =
+      (this.isSubList || this.isRelateRecord) && (rowIndex === 0 || _.includes(className, 'lastRow'));
     let editcontent;
     if (!isMultiple && isOther && !error) {
       editcontent = (
@@ -572,7 +573,8 @@ export default class Options extends React.Component {
             destroyPopupOnHide
             popupAlign={{
               points: ['tl', 'bl'],
-              overflow: { adjustX: true, adjustY: true },
+              offset: [0, rowIndex === 0 ? 0 : -1 * style.height],
+              overflow: { adjustX: true },
             }}
           >
             {editcontent}

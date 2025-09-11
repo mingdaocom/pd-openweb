@@ -35,34 +35,39 @@ function ContainerCon(props) {
     const { appId = '' } = request;
     ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId, customLink });
     ajaxPromise &&
-      ajaxPromise.then(res => {
-        const { portalSetResult = {}, isExist, status } = res;
-        const { isEnable, appId } = portalSetResult;
-        if (portalSetResult.pageTitle) {
-          setdocumentTitle(_l('忘记密码 - %0', portalSetResult.pageTitle));
-        } else {
-          setdocumentTitle(_l('忘记密码'));
-        }
-        const isErrCustomUrl = customLink && isErrSet(portalSetResult);
-        if (status === 40 || isErrCustomUrl) {
-          //扩展链接不存在 || 你访问的链接已停止访问
-          setStatus(40);
+      ajaxPromise
+        .then(res => {
+          const { portalSetResult = {}, isExist, status } = res;
+          const { isEnable, appId } = portalSetResult;
+          if (portalSetResult.pageTitle) {
+            setdocumentTitle(_l('忘记密码 - %0', portalSetResult.pageTitle));
+          } else {
+            setdocumentTitle(_l('忘记密码'));
+          }
+          const isErrCustomUrl = customLink && isErrSet(portalSetResult);
+          if (status === 40 || isErrCustomUrl) {
+            //扩展链接不存在 || 你访问的链接已停止访问
+            setStatus(40);
+            setLoading(false);
+          }
+          if (!isEnable || !isExist) {
+            !isEnable && setStatus(20000);
+            !isExist && setStatus(10000);
+            setLoading(false);
+          }
+          setFixInfo({
+            fixAccount: res.fixAccount,
+            fixRemark: res.fixRemark,
+          });
+          setStatus(status);
+          setAppId(appId);
+          setBaseSetInfo(portalSetResult);
           setLoading(false);
-        }
-        if (!isEnable || !isExist) {
-          !isEnable && setStatus(20000);
-          !isExist && setStatus(10000);
+        })
+        .catch(error => {
+          console.log(error);
           setLoading(false);
-        }
-        setFixInfo({
-          fixAccount: res.fixAccount,
-          fixRemark: res.fixRemark,
         });
-        setStatus(status);
-        setAppId(appId);
-        setBaseSetInfo(portalSetResult);
-        setLoading(false);
-      });
   };
 
   if (loading) {

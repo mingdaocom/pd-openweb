@@ -95,7 +95,7 @@ export default {
     return mdyAPI('DataLimit', 'GetListPage', args, options);
   },
   /**
-   * 列表额度管理页数据
+   * 模块列表额度管理页数据
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
    * @param {integer} args.businessType 获取的业务类型 (1:单个附件上传量,2= 行记录量,3 = 附件用量)
@@ -110,7 +110,7 @@ export default {
     return mdyAPI('DataLimit', 'GetUageLimits', args, options);
   },
   /**
-   * 列表额度管理页数据
+   * 编辑额度管理数据
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
    * @param {integer} args.size 全局用量限制（没有修改不要传值）

@@ -1125,7 +1125,7 @@ export default {
   /**
    * 创建工作流CSM
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {string} args.name 实体名称
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -1335,6 +1335,8 @@ export default {
    * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
    * @param {string} args.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
    * @param {boolean} args.isApp 表示是否是应用的使用分析
+   * @param {string} args.startTime 开始时间
+   * @param {string} args.endTime 结束时间
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1363,7 +1365,7 @@ export default {
    * 不同维度使用情况统计(按应用，按成员)
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
-   * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年, 5 = 昨天
+   * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
    * @param {integer} args.pageIndex 当前页
    * @param {integer} args.pageSize 页大小
    * @param {integer} args.dimension 维度 1-应用 2-用户
@@ -1613,6 +1615,7 @@ export default {
    * @param {string} args.worksheetId 工作表id
    * @param {string} args.appId
    * @param {string} args.batchId 批量升级批次id
+   * @param {integer} args.upgradeType 升级类型
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1899,7 +1902,7 @@ export default {
   /**
    * 获取组织名称多语言(只能获取名称)
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络id
+   * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

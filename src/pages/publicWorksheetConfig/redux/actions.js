@@ -149,6 +149,7 @@ export function loadPublicWorksheet({ worksheetId }) {
               'desc',
               'worksheetId',
               'projectId',
+              'projectName',
               'visibleType',
               'submitBtnName',
               'appId',

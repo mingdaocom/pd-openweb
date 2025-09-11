@@ -5,11 +5,13 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Tooltip } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
+import BarCode from 'src/components/Form/MobileForm/widgets/BarCode/index.jsx';
 import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { isDocument } from 'src/components/UploadFiles/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
@@ -201,10 +203,34 @@ export default class RecordCard extends Component {
         });
       });
   };
+
+  getIframe = coverCid => {
+    const { data } = this.props;
+    // 嵌入字段（链接，配置侧仅画廊视图支持）
+    const isLegalLink = /^https?:\/\/.+$/.test(data[coverCid]);
+    return (
+      <div className="coverWrap">
+        {isLegalLink ? (
+          <iframe className="overflowHidden Border0" width="100%" height="100%" src={data[coverCid]} />
+        ) : (
+          <div className={cx('coverWrap', 'emptyCoverWrap mobileOverWrap')}>
+            <img src={emptyCover} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   renderCover() {
+    const { view, controls, data, appId } = this.props;
     const { coverType, coverFillType, coverPosition } = getCoverStyle(this.props.view);
     const { coverError, appshowtype } = this.state;
     const { url } = this;
+    const { coverCid, worksheetId, viewId } = view;
+    const coverCidControl = _.find(controls, { controlId: coverCid }) || {};
+    const { type } = coverCidControl;
+    const isIframeCover = isIframeControl(coverCidControl);
+
     return (
       <div
         className={cx('recordCardCover', coverTypes[coverType], `appshowtype${appshowtype || '0'}`, {
@@ -212,7 +238,20 @@ export default class RecordCard extends Component {
           mRight10: coverPosition === '0' && _.includes([2, 3], coverType),
         })}
       >
-        {url && !coverError ? (
+        {isIframeCover ? (
+          this.getIframe(coverCid)
+        ) : type === 47 ? (
+          <BarCode
+            {...coverCidControl}
+            formData={data}
+            appId={appId}
+            className="coverWrapQr"
+            worksheetId={worksheetId}
+            recordId={data.rowid}
+            viewIdForPermit={viewId}
+            isView={true}
+          />
+        ) : url && !coverError ? (
           coverType ? (
             <img
               onClick={this.handleCoverClick}

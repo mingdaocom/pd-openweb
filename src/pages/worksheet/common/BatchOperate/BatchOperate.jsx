@@ -374,6 +374,7 @@ class BatchOperate extends React.Component {
       addRecord,
       setHighLightOfRows,
       permissionType,
+      changeToSelectCurrentPageFromSelectAll,
     } = this.props;
     // funcs
     const { reload, updateRows, hideRows, getWorksheetSheetViewSummary } = this.props;
@@ -756,6 +757,7 @@ class BatchOperate extends React.Component {
                   isAll={allWorksheetIsSelected}
                   handleTriggerCustomBtn={this.handleTriggerCustomBtn}
                   handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
+                  changeToSelectCurrentPageFromSelectAll={pageSize < count && changeToSelectCurrentPageFromSelectAll}
                 />
               </ButtonsCon>
             ) : (

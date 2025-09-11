@@ -211,8 +211,8 @@ class Discuss extends Component {
       loading,
       temporaryDiscuss,
     } = this.state;
-    const recordDiscussSwitch = isOpenPermit(permitList.recordDiscussSwitch, switchPermit);
-    const recordLogSwitch = isOpenPermit(permitList.recordLogSwitch, switchPermit);
+    const recordDiscussSwitch = isOpenPermit(permitList.recordDiscussSwitch, switchPermit, params.viewId);
+    const recordLogSwitch = isOpenPermit(permitList.recordLogSwitch, switchPermit, params.viewId);
     // 外部用户且未开启讨论 不能内部讨论
     const entityType = md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1 ? 2 : 0;
     if ((md.global.Account.isPortal && loading) || _.isEmpty(switchPermit)) {

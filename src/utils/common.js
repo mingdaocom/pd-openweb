@@ -540,7 +540,14 @@ export const cutStringWithHtml = (self, len, rows) => {
 export const encrypt = text => {
   const encrypt = new JSEncrypt();
   encrypt.setPublicKey(PUBLIC_KEY);
-  return encrypt.encrypt(encodeURIComponent(text));
+  return encrypt.encrypt(
+    JSON.stringify({
+      expire: moment()
+        .utc()
+        .valueOf(),
+      data: encodeURIComponent(text),
+    }),
+  );
 };
 
 /**

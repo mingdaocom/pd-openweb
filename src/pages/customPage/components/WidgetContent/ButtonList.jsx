@@ -24,7 +24,7 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import { browserIsMobile } from 'src/utils/common';
-import { addBehaviorLog, mdAppResponse } from 'src/utils/project';
+import { addBehaviorLog, dateConvertToServerZone, mdAppResponse } from 'src/utils/project';
 import { genUrl } from '../../util';
 import ButtonDisplay from '../editWidget/button/ButtonDisplay';
 
@@ -65,15 +65,6 @@ const getOrganize = (projectId, accountId) => {
         resolve(organizes || []);
       });
   });
-};
-
-const getAppTime = appId => {
-  const serverZone = md.global.Config.DefaultTimeZone;
-  const appTimeZone = window[`timeZone_${appId}`];
-  const current = moment().format('YYYY-MM-DD HH:mm:ss');
-  return moment(current)
-    .add(appTimeZone - serverZone, 'm')
-    .format('YYYY-MM-DD HH:mm:ss');
 };
 
 let currentBtn = {};
@@ -173,7 +164,7 @@ export function ButtonList({
                 }
               }
               if (item.cid === 'triggerTime') {
-                return getAppTime(appId);
+                return dateConvertToServerZone(moment().format('YYYY-MM-DD HH:mm:ss'));
               }
               if (item.cid === 'codeResult') {
                 return scanQRCodeResult;

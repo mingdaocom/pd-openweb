@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import _, { get, includes, isFunction, isUndefined } from 'lodash';
+import _, { find, get, includes, isFunction, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Dialog, Icon, MenuItem, SvgIcon, VerifyPasswordConfirm } from 'ming-ui';
@@ -516,7 +516,7 @@ export default class CustomButtons extends React.Component {
      * btn.writeObject 对象 1：本记录 2：关联记录
      * btn.writeType 类型 1：填写字段 2：新建关联记录
      **/
-    const { worksheetId, recordId } = this.props;
+    const { isAll, worksheetId, recordId, selectedRows = [], changeToSelectCurrentPageFromSelectAll } = this.props;
     let rowInfo;
     if (recordId) {
       rowInfo = await getRowDetail({
@@ -548,9 +548,34 @@ export default class CustomButtons extends React.Component {
           formData: rowInfo.formData,
           widgetStyle: rowInfo.advancedSetting,
         };
-        this.setStateFn({
-          fillRecordControlsVisible: true,
-        });
+        const hasAttachmentControl = find(
+          rowInfo.formData,
+          c => find(this.activeBtn?.writeControls, wc => wc.controlId === c.controlId) && c.type === 14,
+        );
+        if (isAll && hasAttachmentControl && isFunction(changeToSelectCurrentPageFromSelectAll)) {
+          // changeToSelectCurrentPageFromSelectAll();
+          Dialog.confirm({
+            title: _l('不支持跨页批量修改附件'),
+            description: _l('该按钮中附件字段的编辑仅对本页选中的记录生效'),
+            okText: _l('仅选中本页'),
+            onOk: () => {
+              changeToSelectCurrentPageFromSelectAll();
+              this.setStateFn({
+                fillRecordControlsVisible: true,
+              });
+            },
+            cancelText: _l('继续修改'),
+            onCancel: () => {
+              this.setStateFn({
+                fillRecordControlsVisible: true,
+              });
+            },
+          });
+        } else {
+          this.setStateFn({
+            fillRecordControlsVisible: true,
+          });
+        }
         break;
       case '12': // 本记录 - 新建关联记录
         if (!addRelationControl || !_.isObject(addRelationControl)) {

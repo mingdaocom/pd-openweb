@@ -104,6 +104,11 @@ export default class Widgets extends Component {
         itiWidth: $(this.input).css('padding-left'),
       });
     }
+    if (nextProps.isCell && this.props.isEditing !== nextProps.isEditing) {
+      this.setState({
+        isEditing: nextProps.isEditing,
+      });
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {

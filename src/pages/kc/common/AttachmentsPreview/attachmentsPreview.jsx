@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import RegExpValidator from 'src/utils/expression';
 import ExtIcon from '../../components/ExtIcon';
 import { defaultWpsPreview, isWpsPreview } from '../../utils';
 import * as Actions from './actions/action';
@@ -81,8 +82,7 @@ class AttachmentsPreview extends React.Component {
     // 浏览PDF时，禁止滚动
     const { index, attachments } = this.props;
     const { ext } = attachments[index];
-    if (ext == 'pdf') return;
-
+    if (!RegExpValidator.fileIsPicture(('.' + ext).replace(/\.\./, '.'))) return;
     // 滚动切换文件预览
     evt = _.assign({}, evt);
     clearTimeout(this.timer);

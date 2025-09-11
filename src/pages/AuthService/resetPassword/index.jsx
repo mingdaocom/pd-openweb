@@ -68,6 +68,10 @@ export default class ResetPassword extends React.Component {
           type: res.type,
           loading: false,
         });
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({ loading: false });
       });
   };
 
@@ -109,18 +113,14 @@ export default class ResetPassword extends React.Component {
     if (!isV) {
       return;
     }
-    this.setState({
-      sending: true,
-    });
+    this.setState({ sending: true });
     registerAjax
       .resetPasswordByState({
         state: request.state,
         password: encrypt(password),
       })
       .then(res => {
-        this.setState({
-          sending: false,
-        });
+        this.setState({ sending: false });
         if (res.actionResult == 1) {
           alert(_l('密码修改成功，请使用新密码重新登录'), 1, 3000, function () {
             if (request.ReturnUrl) {
@@ -134,6 +134,10 @@ export default class ResetPassword extends React.Component {
         } else {
           alert(_l('密码修改失败，请稍后再试'), 2);
         }
+      })
+      .catch(error => {
+        console.log(error);
+        this.setState({ sending: false });
       });
   };
 

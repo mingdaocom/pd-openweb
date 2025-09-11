@@ -59,7 +59,7 @@ export default function TextMarkdown(props) {
 
   const isMobile = browserIsMobile();
   const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
-  const maxHeight = isMobile ? 400 : Number(advancedSetting.maxheight || '400');
+  const maxHeight = isMobile ? 400 : advancedSetting.maxheight ? Number(advancedSetting.maxheight) : 'auto';
 
   const getCommonProps = () => {
     return {

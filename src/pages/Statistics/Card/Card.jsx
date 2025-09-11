@@ -339,14 +339,6 @@ class Card extends Component {
           background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`,
         };
       }
-      if (titleStyle === 3) {
-        return {
-          margin: '0 10px 8px',
-          padding: 0,
-          borderBottom: `2px solid transparent`,
-          borderImage: `linear-gradient(to right, ${themeColor}, ${pageBgColor}) 1`,
-        };
-      }
       return {};
     };
     return (
@@ -562,6 +554,12 @@ class Card extends Component {
               />
             )}
           </div>
+          {!this.state.loading && titleStyle === 3 && (
+            <div
+              className="headerBottomLine"
+              style={{ background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})` }}
+            />
+          )}
         </div>
         {this.renderBody()}
         {dialogVisible && (

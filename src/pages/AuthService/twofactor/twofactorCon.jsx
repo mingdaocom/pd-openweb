@@ -150,6 +150,10 @@ export default function Twofactor(props) {
           }
           alert(msg, 3);
         }
+      })
+      .catch(error => {
+        console.log(error);
+        setSending(false);
       });
   };
 

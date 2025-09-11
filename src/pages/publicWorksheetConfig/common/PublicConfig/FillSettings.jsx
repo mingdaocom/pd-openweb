@@ -45,7 +45,7 @@ const ALERT_TEXT = {
 };
 
 export default function FillSettings(props) {
-  const { data, setState, projectId } = props;
+  const { data, setState, projectId, projectName } = props;
   const {
     needCaptcha,
     smsVerification,
@@ -214,6 +214,7 @@ export default function FillSettings(props) {
                   projectId={projectId}
                   onOk={value => setState({ smsSignature: value })}
                   sign={smsSignature}
+                  suffix={projectName}
                 />
               </div>
             )}

@@ -37,7 +37,20 @@ export default function CustomErNode(props) {
   const { node } = props;
 
   const data = _.get(node, 'store.data.data');
-  const { item, controls, height, list, updateSource, appId, count, filter, allControls, onFilter } = data;
+  const {
+    item,
+    controls,
+    height,
+    list,
+    updateSource,
+    appId,
+    count,
+    filter,
+    allControls,
+    onFilter,
+    showItemForAllControls,
+    hasMoreControls,
+  } = data;
   const worksheetName = getTranslateInfo(appId, null, item.worksheetId).name || item.worksheetName;
 
   const [visible, setVisible] = useState(false);
@@ -124,6 +137,12 @@ export default function CustomErNode(props) {
     );
   };
 
+  const expandControls = () => {
+    if (!hasMoreControls) return;
+
+    showItemForAllControls(item.worksheetId);
+  };
+
   return (
     <div
       className={cx('customErNode', { searchCurrent: filter === item.worksheetId })}
@@ -173,7 +192,11 @@ export default function CustomErNode(props) {
           </div>
         );
       })}
-      <div className="count Font12 Gray_9e" style={{ height: height || 32, lineHeight: `${height || 32}px` }}>
+      <div
+        className={cx('count Font12 Gray_9e', { pointer: hasMoreControls })}
+        style={{ height: height || 32, lineHeight: `${height || 32}px` }}
+        onClick={expandControls}
+      >
         {_l('共%0个字段', count)}
       </div>
     </div>
