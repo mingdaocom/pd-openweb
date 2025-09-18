@@ -197,13 +197,13 @@ function TableComp(props) {
     },
     [control.controlId],
   );
-  let tableData = recordId ? addHiddenTip(getPageRecords({ records, pageIndex, pageSize })) : records;
+  let tableData = recordId ? addHiddenTip(getPageRecords({ records, pageIndex, pageSize, isTreeTableView })) : records;
   let rowCount = records.length > emptyRowCount ? records.length : emptyRowCount;
   if (isTreeTableView) {
     tableData = getSheetViewRows({ rows: records }, { treeMap: treeTableViewData.treeMap });
     rowCount = tableData.length > emptyRowCount ? tableData.length : emptyRowCount;
   }
-  if (recordId && base.saveSync && rowCount > pageSize) {
+  if (recordId && base.saveSync && rowCount > pageSize && !isTreeTableView) {
     rowCount = pageSize;
   }
   useClickAway({ current: get(worksheetTableRef, 'current.con') }, e => {

@@ -210,15 +210,16 @@ export default function WidgetIntro(props) {
     }
     // 多选转单选 需要将默认选中设为一个
     if (type === 10) {
+      const isMultipleDropdown = _.get(data, 'advancedSetting.checktype') === '1';
       onChange({
-        ...handleAdvancedSettingChange(data, { showtype: '1' }),
-        type: 9,
+        ...handleAdvancedSettingChange(data, { showtype: isMultipleDropdown ? '0' : '1' }),
+        type: isMultipleDropdown ? 11 : 9,
       });
       return;
     }
     // 下拉转多选需要设置排列方式
     if (type === 11) {
-      onChange({ type: 10, advancedSetting: { direction: '0', chooseothertype: '0' } });
+      onChange({ type: 10, advancedSetting: { direction: '0', chooseothertype: '0', checktype: '1' } });
       return;
     }
 

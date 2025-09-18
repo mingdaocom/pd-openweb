@@ -11,6 +11,7 @@ import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
+import { getHighAuthControls } from 'src/utils/control';
 import { handleRowData } from 'src/utils/record';
 
 const Con = styled.div`
@@ -307,6 +308,11 @@ export default function RowHead(props) {
                   columns: controls,
                 }).then(res => {
                   const { defaultData, defcontrols } = res;
+                  const isManageView = isCharge && viewId === worksheetId;
+                  if (isManageView) {
+                    worksheetInfo.template.controls = getHighAuthControls(_.get(worksheetInfo, 'template.controls'));
+                    worksheetInfo.rules = [];
+                  }
                   addRecord({
                     worksheetId,
                     appId,

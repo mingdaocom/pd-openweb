@@ -188,7 +188,7 @@ const MobilePhone = props => {
       ref={boxRef}
     >
       <div
-        className={cx('customFormControlBox customFormControlInputView', {
+        className={cx('customFormControlBox customFormControlInputView customFormFocusControl', {
           phoneEditReadonly: !formDisabled && value && disabled,
           phoneDisabled: formDisabled,
         })}

@@ -24,7 +24,7 @@ import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { renderText } from 'src/utils/control';
-import { addBehaviorLog, mdAppResponse } from 'src/utils/project';
+import { addBehaviorLog, handlePushState, mdAppResponse } from 'src/utils/project';
 import selectLocation from './selectLocation';
 
 export const api = {
@@ -130,6 +130,9 @@ export const utils = {
           return { action: 'update', value: safeParse(res.value)[0] };
         }
       });
+    }
+    if (isMobile) {
+      handlePushState('page', 'recordDetail');
     }
     return new Promise(resolve => {
       (isMobile ? openMobileRecordInfo : openRecordInfo)({

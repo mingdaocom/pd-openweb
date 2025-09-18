@@ -76,7 +76,7 @@ const IDWidget = props => {
   return (
     <div className="Relative">
       <div
-        className={cx('customFormControlBox customFormControlInputView', {
+        className={cx('customFormControlBox customFormControlInputView customFormFocusControl', {
           controlEditReadonly: !formDisabled && currentValue && disabled,
           controlDisabled: formDisabled,
         })}

@@ -266,7 +266,7 @@ class PrintForm extends React.Component {
         : [];
 
       res.forEach(item => {
-        ajaxList.push(instance.get2({ id: item.id, workId }));
+        ajaxList.push(instance.get2({ id: item.id, workId: item.workId }));
       });
 
       axios.all(ajaxList).then(resData => {
@@ -335,7 +335,7 @@ class PrintForm extends React.Component {
             getWorksheet: true,
             keywords: '',
             pageIndex: 1,
-            pageSize: 1000,
+            pageSize: control?.type === 51 && control.enumDefault === 1 ? 1 : 1000,
             rowId,
             filterControls: newFilter,
             getType: 5,

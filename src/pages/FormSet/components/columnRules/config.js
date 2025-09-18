@@ -138,7 +138,7 @@ export const ruleTable = data => {
 export const showTableSetting = (data, values = [], actionType, from) => {
   const item = data || {};
   return (
-    _.includes([1, 2, 3, 4, 5], actionType) &&
+    _.includes([1, 3, 5], actionType) &&
     from === 'rule' &&
     ruleTable(item) &&
     _.find(values, v => v.controlId === item.controlId && _.isEmpty(v.childControlIds))

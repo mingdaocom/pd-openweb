@@ -1199,6 +1199,7 @@ class WorksheetApi extends Component {
       sheetSwitchPermit,
     } = this.state;
     const isFieldTable = i === 0;
+    const data = item[this.MENU_LIST[i].type === 'control' ? 'controls' : 'views'];
 
     return (
       <Fragment>
@@ -1280,8 +1281,8 @@ class WorksheetApi extends Component {
         {aliasDialog.visible && aliasDialog.type === this.MENU_LIST[i].type && dialogType === type && (
           <AliasDialog
             type={this.MENU_LIST[i].type}
-            data={this.state.data[0][this.MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
-            controlTypeList={this.state.data[0][this.MENU_LIST[i].type === 'control' ? 'controls' : 'views']}
+            data={data}
+            controlTypeList={data}
             worksheetId={item.worksheetId}
             appId={this.getId()}
             onClose={isUpdate => {

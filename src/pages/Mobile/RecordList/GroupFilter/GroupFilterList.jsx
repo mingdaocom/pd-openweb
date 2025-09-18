@@ -130,6 +130,7 @@ const GroupFilterList = props => {
     // 侧滑默认选中第一项(配置显示‘全部’项时，默认选中全部，否则选中第一项)
     if (view.viewType === 0 && (appnavtype === '2' || !appnavtype) && _.isEmpty(sliderCurrentGroup)) {
       let navData = getNavData(navGroupData);
+      if (!navData || !navData.length) return;
       const selected = navData[0];
       toList(selected);
     }

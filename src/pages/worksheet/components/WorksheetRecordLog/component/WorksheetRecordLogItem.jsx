@@ -27,7 +27,8 @@ function renderContent(data, recordInfo, extendParam) {
   if (
     CIRCLE_TAGS_CONTROL_TYPE.includes(type) ||
     RECT_TAGS_CONTROL_TYPE.includes(type) ||
-    SUBLIST_FILE_EDIT_TYPE.includes(editType)
+    SUBLIST_FILE_EDIT_TYPE.includes(editType) ||
+    (type === 2 && control?.enumDefault === 2)
   ) {
     const { newList = [], oldList = [], onlyNew = false } = handleSelectTagsValue({ ...data, control, requestType });
     const { _oldValue, _newValue, _defaultValue } = diffSelectTagsValue({ newList, oldList, type, editType, control });

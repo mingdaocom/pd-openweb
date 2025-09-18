@@ -579,7 +579,7 @@ export default class ExportSheet extends Component {
             {allCount > 1000 && !selectRowIds.length && (
               <div className="exportSheetMessage flexRow alignItemsCenter">
                 <Icon icon="info" className="Font16 mRight6 ThemeColor3" />
-                {_l('记录超过1000条，将按照创建时间排序（新的在前）')}
+                {_l('记录超过1000条，将按照创建时间排序（旧的在前）')}
               </div>
             )}
 

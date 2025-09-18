@@ -97,6 +97,16 @@ const getModuleRules = () => {
       exclude: /(node_modules)/,
       use: 'raw-loader',
     },
+    {
+      test: /\.m?js$/,
+      include: /node_modules\/(@ctrl\/tinycolor|intl-tel-input)/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: [['@babel/preset-env', { targets: { chrome: '76' } }]],
+        },
+      },
+    },
   ];
 
   if (!ENV.isProduction) {

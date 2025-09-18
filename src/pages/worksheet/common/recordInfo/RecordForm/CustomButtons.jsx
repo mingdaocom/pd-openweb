@@ -193,6 +193,15 @@ export default class CustomButtons extends React.Component {
     };
   }
 
+  getTipConfigWithTranslate() {
+    const { appId, worksheetId } = this.props;
+    const translateInfo = getTranslateInfo(appId, worksheetId, this.activeBtn.btnId);
+    return {
+      enableTip: get(this.activeBtn, 'advancedSetting.opentip') !== '0',
+      tipText: translateInfo.completeText || get(this.activeBtn, 'advancedSetting.tiptext') || _l('操作完成'),
+    };
+  }
+
   handleRecordWorkflowUpdate = ({ recordId: triggerRecordId, triggerBtnId, isSuccess }) => {
     const { recordId } = this.props;
     if (
@@ -222,7 +231,7 @@ export default class CustomButtons extends React.Component {
       return;
     }
     this.activeBtn = btn;
-    appendDataToLocalPushUniqueId(_this.tipConfig);
+    appendDataToLocalPushUniqueId(_this.getTipConfigWithTranslate());
     function run({ remark } = {}) {
       function trigger(btn) {
         if (handleTriggerCustomBtn) {

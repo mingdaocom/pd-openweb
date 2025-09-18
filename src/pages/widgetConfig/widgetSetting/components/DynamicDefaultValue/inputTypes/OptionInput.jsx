@@ -76,6 +76,11 @@ export const DefaultOptionsMenu = styled(DropdownContent)`
     border-radius: 50%;
     margin-right: 6px;
   }
+  .emptyOption {
+    border-top: 1px solid rgba(0, 0, 0, 0.09);
+    height: 0;
+    margin: 6px 0;
+  }
 `;
 
 export default function DefaultOptions(props) {
@@ -121,6 +126,23 @@ export default function DefaultOptions(props) {
 
   const switchChecked = key => {
     if (isMulti) {
+      if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+        if (key === 'isEmpty') {
+          onDynamicValueChange([{ rcid: '', cid: '', staticValue: key }]);
+          return;
+        }
+        if (checkedValue.includes('isEmpty')) {
+          if (checkedValue.includes(key)) {
+            const values = dynamicValue.filter(item => ['isEmpty', key].includes(item.staticValue));
+            onDynamicValueChange(values);
+            return;
+          } else {
+            const filteredValue = dynamicValue.filter(item => item.staticValue !== 'isEmpty');
+            onDynamicValueChange(filteredValue.concat({ rcid: '', cid: '', staticValue: key }));
+            return;
+          }
+        }
+      }
       if (checkedValue.includes(key)) {
         const index = dynamicValue.findIndex(item => item.staticValue === key);
         onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
@@ -184,12 +206,17 @@ export default function DefaultOptions(props) {
                 </div>
                 {options.map(({ key, color, value }) => {
                   const checked = includes(checkedValue, key);
+                  const isEmpty = key === 'isEmpty' && from === DYNAMIC_FROM_MODE.FAST_FILTER;
                   return (
-                    <div className={cx('optionItem', { checked })} key={key} onClick={() => switchChecked(key)}>
-                      {colorful && color && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
-                      <div className="text overflow_ellipsis">{value}</div>
-                      {checked && <i className="icon-done"></i>}
-                    </div>
+                    <>
+                      {isEmpty && <div className="emptyOption" />}
+                      <div className={cx('optionItem', { checked })} key={key} onClick={() => switchChecked(key)}>
+                        {colorful && color && <div className="colorWrap" style={{ backgroundColor: color }}></div>}
+                        <div className="text overflow_ellipsis">{value}</div>
+                        {checked && <i className="icon-done"></i>}
+                      </div>
+                      {isEmpty && <div className="emptyOption" />}
+                    </>
                   );
                 })}
               </DefaultOptionsMenu>

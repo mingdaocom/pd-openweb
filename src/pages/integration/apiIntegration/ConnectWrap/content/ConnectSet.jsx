@@ -221,18 +221,22 @@ function ConnectSet(props) {
   };
   return (
     <Wrap className="flexColumn">
-      <ConnectParam
-        {...props}
-        id={props.id}
-        node={data1}
-        connectType={props.connectType}
-        onChange={v => {
-          setState({ data1: { ...data1, ...v } });
-          props.hasChange();
-        }}
-        canEdit={props.isConnectOwner}
-      />
-      {props.hasAuth ? flowDts.map((o, i) => renderFlowDts(o, false, i)) : renderFlowDts(flowDts[0], true)}
+      {props.hasAuth && !props.isConnectOwner ? null : (
+        <>
+          <ConnectParam
+            {...props}
+            id={props.id}
+            node={data1}
+            connectType={props.connectType}
+            onChange={v => {
+              setState({ data1: { ...data1, ...v } });
+              props.hasChange();
+            }}
+            canEdit={props.isConnectOwner}
+          />
+          {props.hasAuth ? flowDts.map((o, i) => renderFlowDts(o, false, i)) : renderFlowDts(flowDts[0], true)}
+        </>
+      )}
       {((!props.introduce && props.connectType === 1 && props.isConnectOwner) || !!props.introduce) && (
         <div className="descContainer">
           <EditIntro

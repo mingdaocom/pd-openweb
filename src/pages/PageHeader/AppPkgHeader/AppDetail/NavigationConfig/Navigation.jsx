@@ -228,7 +228,7 @@ const Group = props => {
             <SvgIcon
               url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon || '8_4_folder'}.svg`}
               fill="#9e9e9e"
-              className="mRight5"
+              className="mRight10"
             />
             <span className="flex name ellipsis" onClick={() => setChildrenVisible(!childrenVisible)}>
               {getTranslateInfo(app.id, null, id).name || name}
@@ -291,11 +291,11 @@ const Group = props => {
             })}
           >
             <div ref={drag} onMouseDown={() => setChildrenVisible(false)}>
-              <Icon icon="drag" className="Gray_9e pointer operateIcon mRight5" />
+              <Icon icon="drag" className="Gray_9e pointer operateIcon mRight0" />
             </div>
             <div
               className="flexRow alignItemsCenter w100"
-              style={{ paddingLeft: data.isAppItem ? 20 * layerIndex : 0 }}
+              style={{ paddingLeft: data.isAppItem ? (layerIndex === 1 ? 19 : 51) : 0 }}
             >
               {data.isAppItem ? (
                 <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon}.svg`} fill="#9e9e9e" />

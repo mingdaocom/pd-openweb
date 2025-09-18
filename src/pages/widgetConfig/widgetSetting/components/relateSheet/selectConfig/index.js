@@ -37,7 +37,7 @@ function SelectConfig(props) {
     configData: data,
   });
   const openfastfilters = _.get(configData, 'advancedSetting.openfastfilters') || (showtype === '3' ? '0' : '1');
-  const { controls = [], views = [] } = window.subListSheetConfig[data.controlId] || {};
+  const { controls = [], views = [], sheetInfo = {} } = window.subListSheetConfig[data.controlId] || {};
 
   const renderDesc = () => {
     switch (showTab) {
@@ -60,6 +60,7 @@ function SelectConfig(props) {
       data: configData,
       controls,
       views,
+      sheetSwitchPermit: sheetInfo.switches,
       handleChange: newData => setData({ configData: newData }),
     };
     if (showTab === 0) {

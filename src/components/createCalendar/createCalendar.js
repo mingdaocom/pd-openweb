@@ -1226,7 +1226,7 @@ CreateCalendar.methods = {
       timezoneOffset,
       'm',
     );
-    const end = moment(`${isAll ? moment(endDate).format('YYYY-MM-DD 00:00') : endDate}`).add(timezoneOffset, 'm');
+    const end = moment(`${isAll ? moment(endDate).format('YYYY-MM-DD 23:59:59') : endDate}`).add(timezoneOffset, 'm');
 
     // 重复日程
     if (isRecur) {

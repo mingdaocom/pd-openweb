@@ -27,6 +27,7 @@ import { getFilledRequestParams } from 'src/utils/common';
 import { clearLRUWorksheetConfig, getLRUWorksheetConfig, saveLRUWorksheetConfig } from 'src/utils/common';
 import { formatQuickFilter } from 'src/utils/filter';
 import { handleRecordError } from 'src/utils/record';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import {
   getFiltersForGroupedView,
   getGroupControlId,
@@ -246,11 +247,11 @@ export const fetchRows = ({
               c.controlId,
             ),
         );
-        controls = newControls;
+        controls = replaceControlsTranslateInfo(appId, worksheetId, newControls);
         try {
           dispatch({
             type: 'WORKSHEET_UPDATE_CONTROLS',
-            controls: newControls,
+            controls,
           });
         } catch (err) {
           console.log(err);

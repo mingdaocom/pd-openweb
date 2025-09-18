@@ -12,6 +12,7 @@ import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { resortControlByColRow } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
 import { updateDraftTotalInfo } from './utils';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
@@ -80,7 +81,7 @@ function DraftModal(props) {
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState(props.draftData || []);
   const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
-  const controls = _.get(worksheetInfo, 'template.controls');
+  const controls = resortControlByColRow(_.get(worksheetInfo, 'template.controls'));
   const columns = controls
     .filter(
       item =>

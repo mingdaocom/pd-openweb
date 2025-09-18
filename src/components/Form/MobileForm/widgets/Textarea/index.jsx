@@ -201,7 +201,7 @@ const Textarea = props => {
         hint={!value && hint}
       >
         <div
-          className={cx('customFormControlBox customFormTextareaView', {
+          className={cx('customFormControlBox customFormTextareaView customFormFocusControl', {
             controlEditReadonly: (!formDisabled && currentValue && disabled) || disableInput,
             controlDisabled: formDisabled,
           })}

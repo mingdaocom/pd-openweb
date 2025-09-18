@@ -125,8 +125,8 @@ export default class DropDownItem extends Component {
               childControlIds: [],
               ...(actionType === 3
                 ? {
-                    permission: currentItem.type === 34 ? ['add', 'delete', 'edit'] : ['add', 'delete'],
-                    isCustom: true,
+                    permission: [],
+                    isCustom: false,
                   }
                 : {}),
             },
@@ -372,9 +372,7 @@ export default class DropDownItem extends Component {
         newValue.push({
           controlId: item.controlId,
           childControlIds: [],
-          ...(ruleTable(item) && this.props.actionType === 3
-            ? { isCustom: true, permission: item.type === 34 ? ['add', 'delete', 'edit'] : ['add', 'delete'] }
-            : {}),
+          ...(ruleTable(item) && this.props.actionType === 3 ? { isCustom: false, permission: [] } : {}),
         });
       }
       if (item.relationControls && item.relationControls.length > 0) {

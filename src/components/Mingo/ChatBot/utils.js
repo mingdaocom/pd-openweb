@@ -132,7 +132,9 @@ export async function getRecommendMessage(chatId) {
 2.每题≤20 字。
 4.为 HAP 使用相关话题的合理延伸，符合用户可能感兴趣的领域。
 5.保持于现有对话的语气风格一致，选项多样。
-6.若偏离主题，需引导回 HAP 使用。`,
+6.若偏离主题，需引导回 HAP 使用。
+7.返回语言使用 ${md.global.Account.lang}
+`,
       },
     }),
   }).then(res => res.json());

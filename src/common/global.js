@@ -676,10 +676,7 @@ const interfaceDataDecryption = (response, actionName = '') => {
         .split(/\$\$encryptedStart\$\$(.*?)\$\$(.*?)\$\$encryptedEnd/)
         .filter(o => o);
 
-      dataStr = dataStr.replace(
-        item,
-        getDecryptedValue(decryptKey, encryptedValue).replace(/\r/g, '\\r').replace(/\n/g, '\\n'),
-      );
+      dataStr = dataStr.replace(item, getDecryptedValue(decryptKey, encryptedValue));
     });
 
     return {

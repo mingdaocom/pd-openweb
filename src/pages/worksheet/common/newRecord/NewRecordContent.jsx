@@ -57,11 +57,16 @@ function focusInput(formcon) {
   if (!formcon) {
     return;
   }
-  const $formWrap = formcon.querySelector('.customFieldsContainer');
+  const isMobile = browserIsMobile();
+  const $formWrap = formcon.querySelector(isMobile ? '.customMobileFormContainer' : '.customFieldsContainer');
   if (!$formWrap) {
     return;
   }
-  const $firstText = $formWrap.querySelector('.customFormItem:first-child .customFormTextareaBox');
+  const $firstText = $formWrap.querySelector(
+    isMobile
+      ? '.customFormItem:first-child .customFormFocusControl'
+      : '.customFormItem:first-child .customFormTextareaBox',
+  );
   if ($firstText) {
     $firstText.click();
   }

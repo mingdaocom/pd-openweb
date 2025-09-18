@@ -160,13 +160,13 @@ function ConnectCon(props) {
         const canEdit = hasManageAuth || newData.isOwner;
         const list =
           !canEdit && newData.hasAuth
-            ? TABLIST.filter(o => (!introduce ? [1, 3].includes(o.tab) : o.tab !== 2))
+            ? TABLIST.filter(o => (!newData.introduce ? [1, 3].includes(o.tab) : o.tab !== 2))
             : TABLIST;
         setState({
           hasManageAuth,
           tabList: list,
           isUpgrade: upgrading,
-          tab: list.map(o => o.tab).includes(tab) ? tab : !canEdit && newData.hasAuth && !introduce ? 3 : 0,
+          tab: list.map(o => o.tab).includes(tab) ? tab : !canEdit && newData.hasAuth && !newData.introduce ? 3 : 0,
         });
         if (canEdit || newData.hasAuth) {
           setState({

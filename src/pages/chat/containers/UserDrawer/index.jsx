@@ -107,7 +107,12 @@ export default props => {
           <div
             className="ThemeColor Font14 mTop10 pointer bold myAccount"
             onClick={() => {
-              window.open('/personal?type=information');
+              if (md.global.Account.isSSO) {
+                location.href = '/personal?type=information';
+              } else {
+                window.open('/personal?type=information');
+              }
+
               onClose();
             }}
           >
@@ -217,17 +222,20 @@ export default props => {
             )}
           </Fragment>
         )}
-
-        <div className="divider mTop10 mBottom10" />
-        <div
-          className="flexRow alignItemsCenter pointer itemWrap"
-          onClick={() => {
-            location.href = md.global.Config.WebUrl + 'pm/sysconfig';
-          }}
-        >
-          <Icon className="Gray_9e Font22" icon="settings1" />
-          <div className="flex mLeft15">{_l('平台管理')}</div>
-        </div>
+        {md.global.Account.superAdmin && (
+          <Fragment>
+            <div className="divider mTop10 mBottom10" />
+            <div
+              className="flexRow alignItemsCenter pointer itemWrap"
+              onClick={() => {
+                location.href = md.global.Config.WebUrl + 'pm/sysconfig';
+              }}
+            >
+              <Icon className="Gray_9e Font22" icon="settings1" />
+              <div className="flex mLeft15">{_l('平台管理')}</div>
+            </div>
+          </Fragment>
+        )}
       </div>
       <div className="footer flexRow alignItemsCenter justifyContentCenter">
         <div className="flexRow alignItemsCenter pointer Gray_75 logout" onClick={logout}>

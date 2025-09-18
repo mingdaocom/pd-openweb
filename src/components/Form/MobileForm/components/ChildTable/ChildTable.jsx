@@ -1201,7 +1201,10 @@ class ChildTable extends React.Component {
                 (useUserPermission && !!recordId ? _.get(tableData[previewRowIndex], 'allowdelete') : true))
             }
             allowCopy={allowadd && allowCopy && isEditCurrentRow && !disabled}
-            controls={controls}
+            controls={controls.map(c => ({
+              ...c,
+              hidden: !_.includes(control.showControls, c.controlId) ? true : c.hidden,
+            }))}
             data={previewRowIndex > -1 ? tableData[previewRowIndex] || {} : this.newRow()}
             switchDisabled={{
               prev: previewRowIndex === 0,

@@ -141,7 +141,11 @@ export default function RecordCoverCard(props) {
   const recordCardStyle = getRecordCardStyle(parentControl);
   const title =
     props.title ||
-    (data.rowid && validate(data.rowid)
+    (data.rowid &&
+    !data.rowid.startsWith('temp-') &&
+    !data.rowid.startsWith('public-temp') &&
+    !data.rowid.startsWith('default-') &&
+    !data.rowid.startsWith('delete')
       ? getTitleTextFromRelateControl(parentControl, data, { noMask: forceShowFullValue })
       : _l('关联当前%0', sourceEntityName));
   const titleControlId = getTitleControlId(parentControl);

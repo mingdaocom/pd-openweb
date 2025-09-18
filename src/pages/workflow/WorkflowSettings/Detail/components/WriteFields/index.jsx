@@ -317,7 +317,7 @@ export default class WriteFields extends Component {
       .filter(
         item => (item.name || '').toLocaleLowerCase().indexOf(keywords.trim().toLocaleLowerCase()) > -1 || isChildTable,
       )
-      .filter(item => !item.sectionId || !!isSubData)
+      .filter(item => !item.sectionId || isChildTable || !!isSubData)
       .map((item, i) => {
         return (
           <Fragment key={i}>

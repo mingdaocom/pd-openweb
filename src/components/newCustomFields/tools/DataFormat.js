@@ -630,8 +630,8 @@ export default class DataFormat {
               });
             }
 
-            // 关联记录
-            if (item.type === 29) {
+            // 关联记录、级联被引用为默认值
+            if (item.type === 29 || item.type === 35) {
               this.getCurrentRelateData(item);
             }
 

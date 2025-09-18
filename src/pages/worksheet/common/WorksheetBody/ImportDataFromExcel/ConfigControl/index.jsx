@@ -7,6 +7,7 @@ import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, ScrollView, To
 import sheetAjax from 'src/api/worksheet';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import DropDownItem from './DropDownItem';
 import './index.less';
 
@@ -119,7 +120,11 @@ export default class ConfigControl extends Component {
     });
 
     // 过滤掉系统字段
-    data.template.controls = data.template.controls.filter(item => !_.includes(ALL_SYS, item.controlId));
+    data.template.controls = replaceControlsTranslateInfo(
+      args.appId,
+      args.worksheetId,
+      data.template.controls.filter(item => !_.includes(ALL_SYS, item.controlId)),
+    );
 
     // 处理关联表数据
     if (isRelate) {

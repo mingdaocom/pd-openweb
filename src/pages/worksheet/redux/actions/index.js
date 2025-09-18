@@ -24,6 +24,7 @@ import { needHideViewFilters } from 'src/utils/filter';
 import { addBehaviorLog } from 'src/utils/project';
 import {
   replaceAdvancedSettingTranslateInfo,
+  replaceBtnsTranslateInfo,
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
 } from 'src/utils/translate';
@@ -360,7 +361,8 @@ export function loadCustomButtons({ appId, viewId, rowId, worksheetId }, cb = ()
         rowId,
         worksheetId,
       })
-      .then(buttons => {
+      .then(newButtons => {
+        const buttons = replaceBtnsTranslateInfo(appId, newButtons);
         if (!viewId) {
           dispatch({
             type: 'WORKSHEET_UPDATE_SHEETBUTTONS',

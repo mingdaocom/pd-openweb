@@ -58,7 +58,7 @@ const OtherInput = props => {
           ref={textareaRef}
           maxLength={200}
           disabled={disabled}
-          className="customFormControlBox customFormTextarea controlMinHeight escclose"
+          className="customFormControlBox customFormTextarea controlMinHeight escclose customFormFocusControl"
           spellCheck={false}
           placeholder={advancedSetting.otherhint}
           value={currentValue}

@@ -134,8 +134,6 @@ export default function VerifyPasswordInput(props) {
         autoFocus={autoFocus}
         autoComplete="new-password"
         placeholder={_l('请输入当前用户的密码')}
-        readOnly
-        onFocus={e => e.target.removeAttribute('readOnly')}
         onChange={e => onChange({ password: e.target.value, isNoneVerification })}
       />
 
