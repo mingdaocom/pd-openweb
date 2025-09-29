@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import { diffChars } from 'diff';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
@@ -185,30 +184,7 @@ export default function CityPicker(props) {
       })
       .then(res => {
         setLoadingId(false);
-        if (keywords) {
-          function getSearchInfo(item) {
-            if (item.path) {
-              if (item.path === keywords.trim()) return { length: 1, count: 999 };
-              let diff = diffChars(keywords, item.path, { ignoreCase: true });
-              diff = diff.filter(i => !i.added && !i.removed);
-              return {
-                length: diff.length,
-                count: _.reduce(diff, (total, cur) => total + cur.count, 0),
-              };
-            }
-            return { length: 999, count: 0 };
-          }
-          let cityData = (res.citys || []).filter(i => i.id !== parentId);
-          cityData = cityData.sort((a, b) => {
-            const aDiff = getSearchInfo(a);
-            const bDiff = getSearchInfo(b);
-            if (aDiff.length === bDiff.length) return bDiff.count - aDiff.count;
-            return aDiff.length - bDiff.length;
-          });
-          setData(cityData);
-          return;
-        }
-        setData(data.slice(0, key).concat([res.citys]));
+        keywords ? setData(res.citys) : setData(data.slice(0, key).concat([res.citys]));
       });
   };
 
@@ -301,6 +277,19 @@ export default function CityPicker(props) {
     flag && onClear();
   };
 
+  const renderLabel = path => {
+    const searchReg = new RegExp(search.trim(), 'gi');
+    const pathArray = path.replace(searchReg, `$${search.trim()}$`).split('$');
+
+    return pathArray.map((text, i) => {
+      return (
+        <Fragment key={i}>
+          {searchReg.test(text) ? <span className="CityPicker-Search-Highline">{text}</span> : text}
+        </Fragment>
+      );
+    });
+  };
+
   const renderPopup = () => {
     return (
       <div id="CascaderSelect-Ming" className="CityPicker" ref={popupRef}>
@@ -308,8 +297,6 @@ export default function CityPicker(props) {
           <CascaderSearchSelectWrap>
             {data.map(item => {
               if (!item.path) return;
-
-              let diff = diffChars(search, item.path, { ignoreCase: true });
 
               return (
                 <li
@@ -325,13 +312,7 @@ export default function CityPicker(props) {
                     handleClose([item]);
                   }}
                 >
-                  {diff.map(l =>
-                    l.added && !l.removed ? (
-                      l.value
-                    ) : !l.removed ? (
-                      <span className="CityPicker-Search-Highline">{l.value}</span>
-                    ) : null,
-                  )}
+                  {renderLabel(item.path)}
                 </li>
               );
             })}

@@ -67,29 +67,35 @@ function UserSelect(props) {
     }
 
     if (window.isMingDaoApp && advancedSetting.usertype === '1' && enumDefault2 !== 1) {
-      compatibleMDJS('chooseUsers', {
-        projectId: enumDefault2 === 2 ? projectId : undefined, // 网络ID, 默认为空, 不限制
-        count: isUnique ? 1 : '', // 默认为空, 不限制数量
-        //暂不支持 appointed:[], // [accountId], 特定列表, 只加载约定用户
-        selected: selectUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })), // 已选中的用户, 交互上可以取消 [{accountId, fullname, avatar}]
-        //暂不支持 disabled: [], // 禁用的用户, 交互上不可选择 [{accountId}]
-        //暂不支持 additions: ['user-self', ...], // 默认为空, 不支持额外选项
-        // 全部支持项:
-        // user-self: 自己
-        // user-sub: 下属, 回调数据无头像
-        // user-undefined: 未指定, 回调数据无头像
-        // user-workflow: 工作流, 回调数据无头像
-        // user-system: 系统, 回调数据无头像
-        // user-publicform: 公开表单, 回调数据无头像
-        // user-api: API, 回调数据无头像
-        success: function (res) {
-          // 最终选择结果, 完全替换已有数据
-          var results = res.results.map(item => ({ ...item, fullname: item.name })); // [{accountId, fullname, avatar}]
+      compatibleMDJS(
+        'chooseUsers',
+        {
+          projectId: enumDefault2 === 2 ? projectId : undefined, // 网络ID, 默认为空, 不限制
+          count: isUnique ? 1 : '', // 默认为空, 不限制数量
+          //暂不支持 appointed:[], // [accountId], 特定列表, 只加载约定用户
+          selected: selectUsers.map(({ accountId, fullname, avatar }) => ({ accountId, fullname, avatar })), // 已选中的用户, 交互上可以取消 [{accountId, fullname, avatar}]
+          //暂不支持 disabled: [], // 禁用的用户, 交互上不可选择 [{accountId}]
+          //暂不支持 additions: ['user-self', ...], // 默认为空, 不支持额外选项
+          // 全部支持项:
+          // user-self: 自己
+          // user-sub: 下属, 回调数据无头像
+          // user-undefined: 未指定, 回调数据无头像
+          // user-workflow: 工作流, 回调数据无头像
+          // user-system: 系统, 回调数据无头像
+          // user-publicform: 公开表单, 回调数据无头像
+          // user-api: API, 回调数据无头像
+          success: function (res) {
+            // 最终选择结果, 完全替换已有数据
+            var results = res.results.map(item => ({ ...item, fullname: item.name })); // [{accountId, fullname, avatar}]
 
-          onChange(JSON.stringify(results));
+            onChange(JSON.stringify(results));
+          },
+          cancel: function () {},
         },
-        cancel: function () {},
-      });
+        () => {
+          setShowSelectUser(true);
+        },
+      );
       return;
     }
     setShowSelectUser(true);

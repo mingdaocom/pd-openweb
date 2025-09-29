@@ -123,7 +123,7 @@ export default class Widgets extends Component {
                     : HINT_TEXT[enumDefault2]
             }
             value={visible ? search || '' : (city || { name: '' }).name}
-            title={(disabled && _.get(city, 'name')) || ''}
+            title={_.get(city, 'name') || ''}
             onChange={value => {
               this.setState({ search: value });
               this.onFetchData(value);

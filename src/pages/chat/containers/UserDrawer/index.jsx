@@ -107,7 +107,7 @@ export default props => {
           <div
             className="ThemeColor Font14 mTop10 pointer bold myAccount"
             onClick={() => {
-              if (md.global.Account.isSSO) {
+              if (md.global.Account.isSSO || window.isDingTalk) {
                 location.href = '/personal?type=information';
               } else {
                 window.open('/personal?type=information');

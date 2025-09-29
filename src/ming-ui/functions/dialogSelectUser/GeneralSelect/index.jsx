@@ -888,11 +888,15 @@ export default class GeneraSelect extends Component {
       this.closeSearch();
       return;
     }
-    let selectedTabId =
-      keywords &&
-      _.includes([UserTabsId.CONACT_USER, UserTabsId.DEPARTMENT, UserTabsId.GROUP], this.state.selectedUserTabId)
-        ? this.state.selectedUserTabId
-        : UserTabsId.CONACT_USER;
+    let selectedTabId = UserTabsId.CONACT_USER;
+    if (keywords) {
+      const searchTabs = this.getDefaultSearchTabs();
+      const curTab = _.find(searchTabs, { id: this.state.selectedUserTabId });
+      if (curTab) {
+        selectedTabId = curTab.id;
+      }
+    }
+
     if (_.includes(showTabs, 'structureUsers')) {
       selectedTabId = 'structureUsers';
     } else if (_.includes(showTabs, 'ruleMember')) {
@@ -1397,19 +1401,21 @@ export default class GeneraSelect extends Component {
   };
 
   getDefaultSearchTabs = () => {
-    return (this.userSettings.defaultTabs || []).filter(i =>
+    const searchTabs = (this.userSettings.defaultTabs || []).filter(i =>
       _.includes([UserTabsId.CONACT_USER, UserTabsId.DEPARTMENT, UserTabsId.GROUP], i.id),
     );
+    if (!this.userSettings.filterResigned) {
+      return searchTabs.concat(SearchUserTabs);
+    }
+    return searchTabs;
   };
 
   renderTabs() {
     const { keywords } = this.state;
 
     if (keywords) {
-      let searchTabs = this.getDefaultSearchTabs();
-      if (!this.userSettings.filterResigned) {
-        searchTabs = searchTabs.concat(SearchUserTabs);
-      }
+      const searchTabs = this.getDefaultSearchTabs();
+
       return (
         <ul className="GSelect-head-search-navbar">
           {searchTabs.map(tab => (

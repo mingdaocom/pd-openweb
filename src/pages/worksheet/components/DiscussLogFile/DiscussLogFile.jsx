@@ -99,10 +99,11 @@ class DiscussLogFile extends Component {
           {this.showTabs.map(tab => (
             <span
               key={tab.id}
-              className={cx('talk Font14', `tab${tab.id}`, `tabsNum${this.showTabs.length}`, {
+              className={cx('talk Font14 overflowHidden', `tab${tab.id}`, `tabsNum${this.showTabs.length}`, {
                 'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
                 'ThemeHoverColor3 ThemeHoverBorderColor3': !isWorksheetDiscuss,
                 isWorksheetDiscuss: isWorksheetDiscuss,
+                maxWidthFitContent: this.showTabs.length <= 3,
               })}
               onClick={() => {
                 this.setState({ status: tab.id, loading: tab.id === status });
@@ -114,10 +115,11 @@ class DiscussLogFile extends Component {
               }}
             >
               <span
-                className={cx('txt InlineBlock overflow_ellipsis WordBreak', {
+                className={cx('txt InlineBlock overflow_ellipsis WordBreak w100', {
                   'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
                   'Gray Font18': isWorksheetDiscuss,
                 })}
+                title={tab.text}
               >
                 {tab.text}
               </span>

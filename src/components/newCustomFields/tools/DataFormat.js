@@ -1396,7 +1396,7 @@ export default class DataFormat {
       this.setLoadingInfo(controlId, true);
 
       let params = {
-        getType: this.from === 2 && this.isDraft ? 21 : 1,
+        getType: 1,
         worksheetId,
         rowId: sid,
       };
@@ -1416,7 +1416,7 @@ export default class DataFormat {
         .then(result => {
           this.setLoadingInfo(controlId, false);
 
-          if (result.resultCode === 7) return;
+          if (result.resultCode === 7 || (this.from === 2 && this.isDraft && result.resultCode === 4)) return;
 
           const formatValue = JSON.stringify(
             safeParse(value || '[]').map((i, index) =>

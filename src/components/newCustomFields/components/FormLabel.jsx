@@ -250,7 +250,7 @@ export default ({
           </div>
         )}
 
-        {hintShowAsIcon && <WidgetsDesc item={item} from={from} />}
+        {(item.type === 34 ? hintShowAsIcon && showTitle : hintShowAsIcon) && <WidgetsDesc item={item} from={from} />}
 
         {item.type === 45 && allowlink === '1' && item.enumDefault === 1 && (
           <Tooltip text={<span>{_l('新页面打开')}</span>}>

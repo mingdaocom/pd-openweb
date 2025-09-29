@@ -324,7 +324,7 @@ export function QuickFilter(props) {
             >
               <span className="bold Gray">{_l('自定义筛选')}</span>
               <div className="flex"></div>
-              {!!props.filterControls.length && (
+              {props.filterControls && !!props.filterControls.length && (
                 <span className="ThemeColor">{_l('选中 %0 项', props.filterControls.length)}</span>
               )}
             </div>

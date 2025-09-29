@@ -111,7 +111,7 @@ class RecordList extends Component {
     const { params } = match;
     this.props.updateBase({ viewId: view.viewId });
     if (now) {
-      _.includes([0, 6], view.viewType) && this.props.resetSheetView();
+      _.includes([0, 3, 6], view.viewType) && this.props.resetSheetView();
     } else {
       window.mobileNavigateTo(
         `/mobile/recordList/${params.appId}/${params.groupId}/${params.worksheetId}/${view.viewId}`,

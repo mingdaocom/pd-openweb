@@ -198,7 +198,7 @@ export default class RecordInfo extends Component {
         discussId: this.discussId,
       });
       if (needReLoadSheetSwitch) {
-        switchPermit = await worksheetApi.getSwitchPermit({ appId, worksheetId });
+        switchPermit = await worksheetApi.getSwitchPermit({ worksheetId });
       }
       data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName;
 

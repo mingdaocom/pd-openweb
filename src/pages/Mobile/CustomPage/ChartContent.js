@@ -156,8 +156,15 @@ function ChartComponent(props) {
 
   const handleNextReportRequest = (reportId, param) => {
     let requestParam = {
+      pageId,
       reportId,
       version,
+      filters: [
+        filters.length ? filters : undefined,
+        filtersGroup.length ? filtersGroup : undefined,
+        linkageFiltersGroup.length ? linkageFiltersGroup : undefined,
+      ].filter(_ => _),
+      ...getFilledRequestParams({}),
     };
     if (param) {
       Object.assign(

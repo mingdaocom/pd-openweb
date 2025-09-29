@@ -113,7 +113,9 @@ const OptionItem = props => {
           <Tooltip placement="bottom" title={_l('编辑')}>
             <Icon icon="edit" className="Gray_9e ThemeHoverColor3 Font16 pointer" onClick={() => handleClick('edit')} />
           </Tooltip>
-          <OperateList {...props} status={status} />
+          <div className="InlineBlock" onClick={e => e.stopPropagation()}>
+            <OperateList {...props} status={status} />
+          </div>
         </div>
       </div>
       <ul>
@@ -210,7 +212,7 @@ export default function AllOptionList(props) {
   };
 
   const handleEdit = data => {
-    const nextData = { ...items[editIndex], ...data };
+    const nextData = { ...items[editIndex], ...data, collectionId: data.collectionId || items[editIndex].collectionId };
     const nextList = update(items, { [editIndex]: { $set: nextData } });
     setOriginalItems(nextList);
     setItems(nextList);

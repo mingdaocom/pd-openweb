@@ -26,7 +26,7 @@ export default function RecordInfoRight(props) {
     isCharge,
     updatePayConfig = () => {},
   } = props;
-  const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
+  const { isSubList, appId, viewId, viewType, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
   let hiddenTabs = [];
   const noApproved =
     !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) ||
@@ -77,6 +77,7 @@ export default function RecordInfoRight(props) {
         appId={appId}
         appSectionId={appSectionId}
         viewId={viewId}
+        viewType={viewType}
         title={recordTitle}
         rowId={recordId}
         worksheetId={worksheetId}

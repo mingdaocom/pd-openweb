@@ -53,7 +53,7 @@ export default class AliasDialog extends React.Component {
       if (controlTypeList.length <= 0) {
         //获取类型
         sheetAjax.getWorksheetApiInfo({ worksheetId, appId }).then(res => {
-          this.setState({ controlTypeList: res[0].data });
+          this.setState({ controlTypeList: res[0]?.controls || [] });
         });
       } else {
         this.setState({ controlTypeList });

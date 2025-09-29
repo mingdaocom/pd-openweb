@@ -614,7 +614,7 @@ export default class extends Component {
                 )}
                 <div className="flexRow">
                   <div className="ellipsis count" style={{ color: getFontColor }}>
-                    {formatrValue}
+                    {formatrValue || 0}
                   </div>
                 </div>
               </div>

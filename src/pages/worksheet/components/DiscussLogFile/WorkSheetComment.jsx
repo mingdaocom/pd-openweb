@@ -4,6 +4,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
 
@@ -152,6 +153,7 @@ export default class WorkSheetComment extends React.Component {
       exAccountDiscussEnum,
       allowExAccountDiscuss,
       isHide,
+      viewType,
     } = this.props;
     const { worksheetInfo, disType } = this.state;
     let entityType = //0 = 全部，1 = 不包含外部讨论，2=外部讨论
@@ -160,6 +162,8 @@ export default class WorkSheetComment extends React.Component {
         : disType === 1 && !md.global.Account.isPortal && exAccountDiscussEnum === 1 //当前内部成员，外部门户开放讨论且外部门户设置为不可见内部
           ? 1
           : 0;
+    const autoFocus = viewType === parseInt(VIEW_DISPLAY_TYPE.detail) ? false : true;
+
     const commenterProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       scrollToListTop: this.scrollToListTop.bind(this),
@@ -173,7 +177,9 @@ export default class WorkSheetComment extends React.Component {
       instanceId,
       workId,
       isHide,
+      autoFocus,
     };
+
     const commentListProps = {
       worksheet: Object.assign({}, this.props, worksheetInfo),
       listRef: el => {
@@ -188,6 +194,7 @@ export default class WorkSheetComment extends React.Component {
       entityType,
       instanceId,
       workId,
+      autoFocus,
     };
 
     const renderWorkSheetCommentList = () => {
@@ -243,12 +250,7 @@ export default class WorkSheetComment extends React.Component {
             {renderWorkSheetCommentList()}
           </ScrollView>
         )}
-        <WorkSheetCommenter
-          {...commenterProps}
-          discussions={this.state.discussions}
-          atData={this.state.atData}
-          autoFocus={true}
-        />
+        <WorkSheetCommenter {...commenterProps} discussions={this.state.discussions} atData={this.state.atData} />
       </div>
     );
   }

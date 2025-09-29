@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { getRequest } from 'src/utils/common';
 
 const Content = styled.div`
   display: flex;
@@ -46,8 +47,14 @@ export default class Back extends Component {
     );
   }
   render() {
+    const { pc_slide = '' } = getRequest();
+    // 钉钉、企微、飞书客户端内在侧边栏打开记录详情时，显示返回按钮
+    if (
+      (window.isDingTalk || window.isWxWork || window.isFeiShu) &&
+      (pc_slide.includes('true') || sessionStorage.getItem('dingtalk_pc_slide'))
+    ) {
+      return this.renderContent();
+    }
     return null;
-
-    // return (window.isWxWork && !this.props.filterWxWork) || window.isMingDaoApp ? null : this.renderContent();
   }
 }

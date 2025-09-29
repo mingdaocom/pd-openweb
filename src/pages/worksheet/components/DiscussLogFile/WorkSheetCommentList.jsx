@@ -180,6 +180,7 @@ export default class WorkSheetCommentList extends Component {
       entityType,
       instanceId,
       workId,
+      autoFocus,
     } = this.props;
     const { isFocus, containAttachment, focusType, keywords } = this.state;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
@@ -210,7 +211,7 @@ export default class WorkSheetCommentList extends Component {
       popupContainer: document.body,
       extendsId: `${appId || ''}|${viewId || ''}`,
       mentionsOptions: { isAtAll: !!rowId },
-      autoFocus: true,
+      autoFocus,
       onSubmit: data => {
         change({ discussions: [data].concat(discussions) });
         addCallback(data);

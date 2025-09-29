@@ -80,7 +80,13 @@ const getEmptyTypes = reportType => {
 
 const getIsEmptyType = (reportType, { isTime, isOption }) => {
   if (
-    [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) &&
+    [
+      reportTypes.BarChart,
+      reportTypes.LineChart,
+      reportTypes.DualAxes,
+      reportTypes.RadarChart,
+      reportTypes.NumberChart,
+    ].includes(reportType) &&
     (isTime || isOption)
   ) {
     return true;
