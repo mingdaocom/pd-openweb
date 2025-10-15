@@ -29,7 +29,7 @@
     .mdEditorContent,
     .editorNull {
       min-height: 120px;
-      border:0;
+      border: 0;
     }
     .editorNull {
       padding: 15px 0;
@@ -111,7 +111,7 @@
     }
     .folderDetailNoTalk {
       color: #bdbdbd;
-      background: url("./images/noTalk.jpg") no-repeat center 50px;
+      background: url('./images/noTalk.jpg') no-repeat center 50px;
       text-align: center;
       padding-top: 160px;
       padding-bottom: 30px;
@@ -168,9 +168,16 @@
       opacity: 0.4;
       margin-top: 4px;
     }
+    .folderDetailMemberLabel {
+      height: 28px;
+      line-height: 28px;
+      min-width: 40px;
+      .icon-help {
+        opacity: 0.4;
+      }
+    }
     .folderDetailMemberList {
-      margin-top: 6px;
-      padding-left: 58px;
+      padding-left: 10px;
       box-sizing: border-box;
       width: 100%;
       font-size: 14px;
@@ -179,18 +186,8 @@
         min-height: 36px;
         margin-bottom: 10px;
       }
-      .folderDetailMemberLabel {
-        position: absolute;
-        top: 0;
-        left: -58px;
-        height: 28px;
-        line-height: 28px;
-        .icon-help {
-          opacity: 0.4;
-        }
-      }
       .folderMemberList {
-        display: inline-block!important;
+        display: inline-block !important;
         height: 28px;
         width: 28px;
         margin-right: 6px;
@@ -202,7 +199,7 @@
           display: inline-block;
           height: 28px;
           width: 28px;
-          background-image: url("./images/applyMember.png");
+          background-image: url('./images/applyMember.png');
           background-size: 28px;
           pointer-events: none;
           position: absolute;

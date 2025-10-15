@@ -80,7 +80,7 @@ export default function FiltersGenerate(props) {
           width={800}
           showFooter={false}
           title={<span className="Font20">{_l('筛选条件生成器')}</span>}
-          description={_l('生成 API 可以直接用的筛选条件，可直接传入 filters 字段中')}
+          description={_l('生成 API 可以直接用的筛选条件，可直接传入 filter 字段中')}
           onCancel={() => {
             setVisible(false);
             setFilters([]);

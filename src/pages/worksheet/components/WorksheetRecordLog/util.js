@@ -190,7 +190,7 @@ export function handleSelectTagsValue(param) {
       oldList = oldText ? oldText.split(',').filter(l => l) : oldValue ? oldValue.split(',').filter(l => l) : [];
       newList = newText ? newText.split(',').filter(l => l) : newValue ? newValue.split(',').filter(l => l) : [];
 
-      if ([6, 8].includes(type)) {
+      if ([6, 8, 31].includes(type)) {
         oldList = numberControlHandle(oldList, control, type);
         newList = numberControlHandle(newList, control, type);
       } else if (id === 'wfstatus') {

@@ -751,7 +751,7 @@ class AppWorkflowList extends Component {
     if (type !== FLOW_TYPE.OTHER_APP) {
       return (
         <PublishBtn
-          disabled={type === FLOW_TYPE.APPROVAL}
+          disabled={type === FLOW_TYPE.APPROVAL || item.startAppType === APP_TYPE.APPROVAL_START}
           list={list}
           item={item}
           showTime={true}

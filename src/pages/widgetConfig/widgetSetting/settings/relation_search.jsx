@@ -401,6 +401,7 @@ export default function RelationSearch(props) {
                     showtype: '5',
                     allowlink: querytype === '1' ? '0' : '1',
                   }),
+                  size: WHOLE_SIZE,
                 });
               }}
             >

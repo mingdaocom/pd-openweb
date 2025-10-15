@@ -52,6 +52,7 @@ export default function FreeFieldRunner({
   const iframeRef = useRef();
   const cache = useRef({});
   cache.current.formData = widgetParams.formData;
+  cache.current.onChange = widgetParams.onChange;
   const [loadingForMask, setLoadingForMask] = useState(false);
   const formData = useMemo(() => formatFormData(widgetParams.formData || []), [widgetParams.formData]);
   const currentControl = useMemo(() => {
@@ -82,7 +83,7 @@ export default function FreeFieldRunner({
           cache.current.params = undefined;
         }
       } else if (payload.event === 'trigger-on-change') {
-        onChange(...payload.value);
+        cache.current.onChange(...payload.value);
       } else if (payload.event === 'trigger-error') {
         onError(payload.error);
       }

@@ -174,7 +174,6 @@ class FolderDetail extends Component {
     );
     return (
       <li>
-        <div className="folderDetailMemberLabel">{_l('负责人')}</div>
         <div className="folderMemberList">
           <UserHead
             user={{
@@ -264,7 +263,6 @@ class FolderDetail extends Component {
 
     return (
       <li>
-        <div className="folderDetailMemberLabel">{_l('管理员')}</div>
         {data.admins.map((item, i) => {
           return (
             <div key={i} className="folderMemberList">
@@ -365,7 +363,6 @@ class FolderDetail extends Component {
 
     return (
       <li>
-        <div className="folderDetailMemberLabel">{_l('成员')}</div>
         {data.ordinaryMembers.map((item, i) => {
           return (
             <div key={i} className="folderMemberList">
@@ -1026,11 +1023,18 @@ class FolderDetail extends Component {
                 <i className="icon-help Font16" />
               </Tooltip>
             </div>
-            <ul className="folderDetailMemberList">
-              {this.renderFolderCharge()}
-              {this.renderFolderAdmin()}
-              {this.renderFolderMember()}
-            </ul>
+            <div className="flexRow mTop6">
+              <div className="folderDetailMemberLabel">{_l('负责人')}</div>
+              <ul className="folderDetailMemberList flex">{this.renderFolderCharge()}</ul>
+            </div>
+            <div className="flexRow">
+              <div className="folderDetailMemberLabel">{_l('管理员')}</div>
+              <ul className="folderDetailMemberList flex">{this.renderFolderAdmin()}</ul>
+            </div>
+            <div className="flexRow">
+              <div className="folderDetailMemberLabel">{_l('成员')}</div>
+              <ul className="folderDetailMemberList flex">{this.renderFolderMember()}</ul>
+            </div>
             <div className="folderDetailLine" />
             <div className="folderDetailRange">
               <div className="folderDetailRangeLabel">

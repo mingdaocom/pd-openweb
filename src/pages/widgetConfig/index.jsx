@@ -187,7 +187,7 @@ export default function Container(props) {
     if (targetControlId) {
       const activeControl = flattenControls.find(item => item.controlId === targetControlId) || {};
       setActiveWidget(activeControl);
-      setStyleInfo({ activeStatus: false });
+      setStyleInfo({ activeStatus: false, info: _.get(globalInfo, 'advancedSetting') || {} });
       // 滚动到激活控件
       setTimeout(() => {
         const $ele = document.getElementById(`widget-${targetControlId}`);

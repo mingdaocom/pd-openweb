@@ -155,11 +155,11 @@ export default class SortableAppItem extends Component {
     } = this.props;
     const { visible, dbClickedAppGroupId } = this.state;
     const { name, appSectionId } = value;
-    const { appId, groupId } = this.ids;
+    const { groupId } = this.ids;
     const isFocus = appSectionId === focusGroupId || appSectionId === dbClickedAppGroupId;
     const isShowConfigIcon = appSectionId === groupId && !isFocus && canEditApp(permissionType);
     const url = this.getNavigateUrl(appSectionId);
-    const showName = getTranslateInfo(appId, null, appSectionId).name || name;
+    const showName = getTranslateInfo(appPkg.id, null, appSectionId).name || name;
     const showIcon = (_.get(appPkg, 'displayIcon') || '').split('')[0] === '1';
     return (
       <LiCon

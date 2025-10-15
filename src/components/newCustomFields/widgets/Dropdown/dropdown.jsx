@@ -70,7 +70,7 @@ export default class Widgets extends Component {
    * 渲染列表
    */
   renderList = item => {
-    const { enumDefault2, value, disabled, advancedSetting } = this.props;
+    const { enumDefault2, value, disabled, advancedSetting, isSheet } = this.props;
     const { otherValue } = getCheckAndOther(value);
     const isMobile = browserIsMobile();
     const { direction, checktype } = advancedSetting || {};
@@ -85,7 +85,8 @@ export default class Widgets extends Component {
             isEmpty: item.key === 'isEmpty',
           },
           {
-            'pLeft12 pRight12': enumDefault2 === 1,
+            'pLeft12 pRight12': !isSheet && enumDefault2 === 1,
+            'pLeft6 pRight6': isSheet,
             horizonArrangementItem: checktype === '2' && (direction === '0' || direction === '2') && browserIsMobile(),
             showRadioTxtAll: browserIsMobile(),
           },
@@ -111,6 +112,7 @@ export default class Widgets extends Component {
       advancedSetting,
       disableCustom,
       hint,
+      optionStyle = {},
     } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
     const delOptions = options.filter(item => item.isDeleted || item.hide);
@@ -224,7 +226,7 @@ export default class Widgets extends Component {
           {...selectProps}
         >
           {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
-            <Select.Option disabled className="cursorDefault">
+            <Select.Option style={optionStyle} disabled className="cursorDefault">
               <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
             </Select.Option>
           )}
@@ -232,6 +234,7 @@ export default class Widgets extends Component {
           {noDelOptions.map((item, i) => {
             return (
               <Select.Option
+                style={optionStyle}
                 value={item.key}
                 key={i}
                 text={item.text}

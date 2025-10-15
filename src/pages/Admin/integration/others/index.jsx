@@ -115,6 +115,7 @@ export default class OtherTool extends Component {
       mustJob: false,
       mustWorkphone: false,
       noMatchCreate: false, // 无匹配用户时新建
+      initLdapData: {},
     };
   }
 
@@ -227,6 +228,8 @@ export default class OtherTool extends Component {
     this.setState(
       {
         [key]: !this.state[key],
+        initLdapData:
+          key === 'effective' ? { ...this.state.initLdapData, effective: !this.state[key] } : this.state.initLdapData,
       },
       () => {
         if (key === 'effective') {

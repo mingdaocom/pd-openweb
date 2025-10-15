@@ -26,6 +26,7 @@ import {
 } from 'worksheet/redux/actions';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 import { isHaveCharge } from 'worksheet/redux/actions/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/components/Form/core/enum';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -779,6 +780,15 @@ class TableView extends React.Component {
   // 检查关键依赖项是否发生变化
   _shouldRecalculateColumns() {
     const { isTreeTableView, view, treeTableViewData, controls, worksheetInfo = {}, showControlIds } = this.props;
+
+    // 生成选项字段的 options 哈希值，用于检测选项变化
+    const optionsHash =
+      controls
+        ?.filter(control =>
+          _.includes([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN], control.type),
+        )
+        ?.map(control => `${control.controlId}:${control.options?.length || 0}`)
+        ?.join(',') || '';
     const currentHash = {
       showControlIds,
       sheetHiddenColumns: get(this.props, 'sheetViewConfig.sheetHiddenColumns', []),
@@ -789,6 +799,7 @@ class TableView extends React.Component {
       showControlsLength: view?.showControls?.length,
       maxLevel: treeTableViewData?.maxLevel,
       controlsLength: controls?.length,
+      optionsHash, // 添加选项字段的哈希值检测
       isManageView: this.isManageView,
       isRequestingRelationControls: worksheetInfo?.isRequestingRelationControls,
     };
@@ -1511,16 +1522,37 @@ class TableView extends React.Component {
       });
   };
 
+  debounceUpdateControlOfRow(delay = 500) {
+    const { updateControlOfRow } = this.props;
+    const timers = new Map();
+
+    return function ({ recordId, cell: { controlId: cid, value: newValue }, rules }) {
+      const key = [recordId, cid, newValue].join('-');
+      if (timers.has(key)) {
+        clearTimeout(timers.get(key));
+      }
+
+      timers.set(
+        key,
+        setTimeout(() => {
+          updateControlOfRow({ recordId, cell: { controlId: cid, value: newValue }, rules });
+          timers.delete(key);
+        }, delay),
+      );
+    };
+  }
+
   asyncUpdate(row, cell, options) {
     const { worksheetInfo, updateControlOfRow, controls, sheetSearchConfig, sheetViewData = {} } = this.props;
     const { rows = [] } = sheetViewData;
     row = _.find(rows, { rowid: row.rowid }) || {};
     const { projectId, rules = [] } = worksheetInfo;
+    const asyncUpdateControlOfRow = this.debounceUpdateControlOfRow();
     const asyncUpdateCell = (cid, newValue) => {
       if (typeof newValue === 'object' || cid === cell.controlId) {
         return;
       }
-      updateControlOfRow({ recordId: row.rowid, cell: { controlId: cid, value: newValue }, rules });
+      asyncUpdateControlOfRow({ recordId: row.rowid, cell: { controlId: cid, value: newValue }, rules });
     };
     const dataFormat = new DataFormat({
       data: controls.filter(c => c.advancedSetting).map(c => ({ ...c, value: (row || {})[c.controlId] || c.value })),

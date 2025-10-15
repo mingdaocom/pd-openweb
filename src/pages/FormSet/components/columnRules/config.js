@@ -670,14 +670,10 @@ export function getDefaultRuleName(data = [], activeTab) {
   const displayNum = data.filter(i => i.type === activeTab).length + 1;
   return getUnUniqName(
     data,
-    _l(
-      '%0规则%1',
-      _.get(
-        _.find(TABS_DISPLAY, i => i.value === activeTab),
-        'text',
-      ),
-      displayNum,
-    ),
+    `${_.get(
+      _.find(TABS_DISPLAY, i => i.value === activeTab),
+      'text',
+    )} ` + _l('规则 %0', displayNum),
   );
 }
 

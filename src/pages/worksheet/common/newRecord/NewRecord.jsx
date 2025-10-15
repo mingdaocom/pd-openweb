@@ -303,7 +303,7 @@ function NewRecord(props) {
           <Modal
             {...dialogProps}
             allowScale
-            bodyStyle={{ paddingBottom: 0 }}
+            bodyStyle={{ paddingBottom: 0, padding: '32px 24px' }}
             transitionName="none"
             maskTransitionName="none"
           >

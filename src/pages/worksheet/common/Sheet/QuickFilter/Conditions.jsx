@@ -196,6 +196,10 @@ function getDefaultValues(items) {
         values: item.values,
         value: item.value,
       };
+    } else if (get(item, 'dataType') === 29) {
+      values[key] = {
+        values: [],
+      };
     }
   });
   return values;

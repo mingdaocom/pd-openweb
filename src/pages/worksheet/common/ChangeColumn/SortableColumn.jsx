@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SortableList, Tooltip } from 'ming-ui';
@@ -19,6 +19,7 @@ export default function SortableColumn(props) {
     setRetractTabControlIds,
     handleItemClick,
     handleSortEnd,
+    forbiddenScroll,
   } = props;
   let list = items;
   let filteredShowColumns = [];
@@ -34,8 +35,21 @@ export default function SortableColumn(props) {
   }
 
   const listRef = useRef(null);
+  const scrollTopRef = useRef(null);
+
+  useEffect(() => {
+    if (forbiddenScroll && scrollTopRef.current && listRef.current) {
+      setTimeout(() => {
+        listRef.current.scrollTop = scrollTopRef.current;
+        scrollTopRef.current = null;
+      }, 0);
+    }
+  }, [selected]);
 
   const onItemClick = item => {
+    if (forbiddenScroll && listRef.current) {
+      scrollTopRef.current = listRef.current.scrollTop;
+    }
     handleItemClick(item, !canDrag && !search);
   };
 

@@ -336,6 +336,7 @@ export default function RelateSheet(props) {
             sortAutoChange
             isShowColumns
             empty={<div />}
+            forbiddenScroll={true}
             min1msg={_l('至少显示一列')}
             noempty={false}
             ghostControlIds={[]}

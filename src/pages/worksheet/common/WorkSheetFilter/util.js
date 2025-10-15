@@ -1327,10 +1327,14 @@ export function fillConditionValue({
 export function formatDateValue({ type, value }) {
   if (type === FILTER_CONDITION_TYPE.DATE_GT) {
     // 晚于
-    return moment(value).endOf('day').format('YYYY-MM-DD HH:mm:ss');
+    return moment(value || undefined)
+      .endOf('day')
+      .format('YYYY-MM-DD HH:mm:ss');
   } else if (type === FILTER_CONDITION_TYPE.DATE_LT) {
     // 早于
-    return moment(value).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    return moment(value || undefined)
+      .startOf('day')
+      .format('YYYY-MM-DD HH:mm:ss');
   } else {
     return value;
   }

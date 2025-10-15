@@ -3,19 +3,19 @@
     <div class="folderChartBarLeft">
         <div>
             <span class="tip-bottom-right" data-tip="{{= _l('项目下的全部任务数量，包含已完成和未完成')}}">
-                <span class="charBarNum1">{{=it.data.amount}}</span>个
+                <span class="charBarNum1">{{=it.data.amount}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('全部任务')}}</span>
             </span>
         </div>
         <div class="ThemeColor3">
             <span data-tip="{{= _l('此项目下正在未完成的任务数')}}">
-                <span class="charBarNum2">{{=it.data.underway}}</span>个
+                <span class="charBarNum2">{{=it.data.underway}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('未完成')}}</span>
             </span>
         </div>
         <div>
             <span data-tip="{{= _l('未完成逾期的总任务数')}}">
-                <span class="charBarNum3">{{=it.data.underway_A}}</span>个
+                <span class="charBarNum3">{{=it.data.underway_A}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('逾期任务数')}}</span>
             </span>
         </div>
@@ -24,19 +24,19 @@
                 data-tip="{{= _l('未完成任务逾期的总时间向下取整，不足1天的显示0天。如：3个未完成任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}"
                 class="fixWidth"
             >
-                <span class="charBarNum4">{{=Math.floor(it.data.timespan_Und / 24)}}</span>天
+                <span class="charBarNum4">{{=Math.floor(it.data.timespan_Und / 24)}}</span>{{= _l('天')}}
                 <span class="block">{{= _l('逾期时间')}}</span>
             </span>
         </div>
         <div class="ThemeColor3">
             <span data-tip="{{= _l('此项目下已经完成的任务数')}}">
-                <span class="charBarNum5">{{=it.data.completed}}</span>个
+                <span class="charBarNum5">{{=it.data.completed}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('已完成')}}</span>
             </span>
         </div>
         <div>
             <span data-tip="{{= _l('已完成的任务中逾期的总完成的任务数')}}">
-                <span class="charBarNum6">{{=it.data.completed_A}}</span>个
+                <span class="charBarNum6">{{=it.data.completed_A}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('逾期任务数')}}</span>
             </span>
         </div>
@@ -45,7 +45,7 @@
                 data-tip="{{= _l('已完成任务逾期的总时间向下取整，不足1天的显示0天。如：3个进行中任务逾期时间累计为15小时，则显示总逾期0天，若累计为26小时，则显示总逾期1天，以此类推')}}"
                 class="fixWidth"
             >
-                <span class="charBarNum7">{{=Math.floor(it.data.timespan_Com / 24)}}</span>天
+                <span class="charBarNum7">{{=Math.floor(it.data.timespan_Com / 24)}}</span>{{= _l('天')}}
                 <span class="block">{{= _l('逾期时间')}}</span>
             </span>
         </div>
@@ -53,13 +53,13 @@
     <div class="folderChartBarRight">
         <div>
             <span data-tip="{{= _l('此项目下所有任务的参与人数')}}">
-                <span class="charBarNum8">{{=it.data.memberAmount}}</span>人
+                <span class="charBarNum8">{{=it.data.memberAmount}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('参与人数')}}</span>
             </span>
         </div>
         <div>
             <span class="tip-bottom-left" data-tip="{{= _l('此项目下所有任务的负责人')}}">
-                <span class="charBarNum9">{{=it.data.chargeAmount}}</span>人
+                <span class="charBarNum9">{{=it.data.chargeAmount}}</span>{{= _l('个')}}
                 <span class="block">{{= _l('负责人')}}</span>
             </span>
         </div>

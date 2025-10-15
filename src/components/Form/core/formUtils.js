@@ -462,7 +462,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
           return getControlValue(masterData.formData, currentItem, item.cid);
         }
-        const parentControl = _.find(data, c => c.controlId === item.rcid);
+        const parentControl = _.find(data, c => c.controlId === item.rcid) || {};
         const control = safeParse(parentControl.value || '[]')[0];
         const sourcevalue = control && safeParse(control.sourcevalue)[item.cid];
 

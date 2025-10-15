@@ -319,7 +319,7 @@ class TaskCenter extends Component {
           {folderId && !_.isEmpty(folderSettings) && folderSettings.code ? (
             this.renderErrorPage()
           ) : (
-            <div className="taskContent flex animatedBorderFast">
+            <div className="taskContent flex animatedBorderFast minHeight0">
               {taskFilter !== 9 && !folderId && <TaskList emitter={this.props.emitter} />}
               {taskFilter === 9 && <Subordinate />}
               {this.props.folderId && this.props.folderId !== folderId

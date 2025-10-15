@@ -78,6 +78,7 @@ export default class RelateRecord extends React.Component {
           onClick={() => {
             import('src/components/SelectRecords').then(({ selectRecords }) => {
               selectRecords({
+                getType: 32,
                 allowNewRecord: false,
                 multiple: !this.selectSingle,
                 coverCid: control.coverCid,

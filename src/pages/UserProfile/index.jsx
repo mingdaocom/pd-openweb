@@ -9,7 +9,7 @@ export default class UserEntryPoint extends React.PureComponent {
   state = {
     accountId: '',
     isMe: false,
-    isLoading: false,
+    isLoading: true,
     userInfo: {}, // 用户详细信息
     rUserList: [],
     isFriend: false,

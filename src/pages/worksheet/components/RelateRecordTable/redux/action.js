@@ -112,7 +112,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     const { base = {}, tableState = {}, changes = {} } = state;
     const { addedRecords = [], deletedRecordIds = [] } = changes;
     const { filterControls } = tableState;
-    const { from, worksheetId, control, recordId, instanceId, workId, isDraft } = base;
+    const { from, worksheetId, control, recordId, instanceId, workId, isDraft, isTab } = base;
     pageIndex = pageIndex || tableState.pageIndex;
     pageSize = pageSize || tableState.pageSize;
     keywords = !isUndefined(keywords) ? keywords : tableState.keywords;
@@ -128,7 +128,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       controlId: control.controlId,
       pageIndex,
       keywords,
-      pageSize,
+      pageSize: isTab ? pageSize : 30,
       getWorksheet,
       getRules,
       filterControls: filterControls || [],
@@ -157,7 +157,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     dispatch(updateTreeTableViewData({ pageIndexStart: pageSize * (pageIndex - 1) }));
     dispatch({
       type: 'UPDATE_TABLE_STATE',
-      value: { tableLoading: false, pageIndex, pageSize, keywords },
+      value: { tableLoading: false, pageIndex, pageSize: isTab ? pageSize : 30, keywords },
     });
     dispatch({
       type: 'UPDATE_TABLE_STATE',
@@ -282,6 +282,9 @@ export function init() {
     const { base = {}, tableState } = state;
     const { from, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
     let { pageSize } = tableState;
+    const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
+      get(control, 'advancedSetting.showtype'),
+    );
     const isNewRecord = !recordId;
     let relateWorksheetInfo;
     if (isNewRecord || control.type === 51) {
@@ -306,7 +309,7 @@ export function init() {
           rowId: recordId,
           controlId: control.controlId,
           pageIndex: 1,
-          pageSize,
+          pageSize: isTab ? pageSize : 30,
           getWorksheet: true,
           getRules: true,
           getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
@@ -352,7 +355,7 @@ export function init() {
         }
         dispatch({
           type: 'UPDATE_TABLE_STATE',
-          value: { count: res.count },
+          value: { count: res.count, pageSize: isTab ? pageSize : 30 },
         });
       }
     }
@@ -398,9 +401,7 @@ export function init() {
       type: 'UPDATE_BASE',
       value: {
         ...tableConfig,
-        isTab: [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
-          get(control, 'advancedSetting.showtype'),
-        ),
+        isTab,
         isInForm: String(RELATE_RECORD_SHOW_TYPE.TABLE) === get(control, 'advancedSetting.showtype'),
         relateWorksheetInfo,
         sheetSwitchPermit,

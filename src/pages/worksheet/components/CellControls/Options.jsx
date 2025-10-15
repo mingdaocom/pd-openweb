@@ -422,11 +422,13 @@ export default class Options extends React.Component {
                   this.isChanging = false;
                 },
               }}
+              optionStyle={{ padding: '5px 6px' }}
               onChange={value => this.handleChange(value, { forceUpdate: true })}
             />
           ) : (
             <Dropdown
               {...cell}
+              isSheet
               isSubList={this.isSubList}
               dropdownClassName="scrollInTable"
               value={value}
@@ -458,6 +460,7 @@ export default class Options extends React.Component {
                   this.handleChange(value);
                 },
               }}
+              optionStyle={{ padding: '5px 6px' }}
             />
           )}
           {error && !showErrorAsPopup && (

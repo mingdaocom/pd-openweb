@@ -51,7 +51,7 @@ const configs = [
   {
     key: 'email',
     title: _l('发送邮件'),
-    desc: _l('用于工作流短信节点或外部门户发送邮件，费用0.03元/封'),
+    desc: _l('用于工作流邮件节点或外部门户发送邮件，费用0.03元/封'),
     hasSwitch: false,
   },
   {

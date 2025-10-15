@@ -688,10 +688,25 @@ export const formatControlsData = (controls = [], fromSub = false) => {
           );
         });
       }
+
+      // 游离子表赋值row,保证转换成真实子表时有顺序
+      const newRelationControls =
+        getAdvanceSetting(data, 'detailworksheettype') === 2
+          ? _.sortBy(data.relationControls, r => {
+              const controlssorts = getAdvanceSetting(data, 'controlssorts');
+              return findIndex(controlssorts, c => c === r.controlId);
+            }).map((item, index) => {
+              return {
+                ...item,
+                row: index + 1,
+              };
+            })
+          : data.relationControls;
+
       return {
         ...data,
         advancedSetting: { ...data.advancedSetting, uniquecontrols: JSON.stringify(uniqueControls) },
-        relationControls: formatControlsData(data.relationControls, true),
+        relationControls: formatControlsData(newRelationControls, true),
       };
     }
 

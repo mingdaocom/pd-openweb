@@ -62,6 +62,7 @@ export default class SortColumns extends React.Component {
       showTabs = false,
       disabled = false,
       showOperate = true,
+      forbiddenScroll = false,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
@@ -73,6 +74,7 @@ export default class SortColumns extends React.Component {
           downElement={
             this.props.downElement || (
               <ChangeColumn
+                forbiddenScroll={forbiddenScroll}
                 placeholder={placeholder}
                 noShowCount={noShowCount}
                 noempty={noempty}

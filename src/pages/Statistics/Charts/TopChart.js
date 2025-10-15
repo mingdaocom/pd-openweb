@@ -350,7 +350,7 @@ export default class extends Component {
     const { count, originalCount, dropdownVisible, offset } = this.state;
     const { summary, displaySetup = {} } = this.props.reportData;
     return (
-      <div className="flex flexColumn chartWrapper topChart Relative" ref={el => (this.chartWrapEl = el)}>
+      <div className="flex flexColumn chartWrapper minHeight0 topChart Relative" ref={el => (this.chartWrapEl = el)}>
         <Dropdown
           visible={dropdownVisible}
           onVisibleChange={dropdownVisible => {

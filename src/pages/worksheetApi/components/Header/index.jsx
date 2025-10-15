@@ -101,7 +101,7 @@ const getIconColor = ({ iconColor, navColor }) => {
 };
 
 const CommonHeader = props => {
-  const { data, dataApp, appId, isSharePage, appInfo, tabIndex, updateTabIndex } = props;
+  const { data, dataApp, appId, isSharePage, appInfo, tabIndex, updateTabIndex, getId = () => {} } = props;
   const { backgroundColor, fillColor } = getIconColor(dataApp);
   const [shareVisible, setShareVisible] = useState(false);
 
@@ -171,7 +171,7 @@ const CommonHeader = props => {
           isCharge={true}
           params={{
             appId,
-            sourceId: _.get(appInfo, 'apiRequest.appKey') || this.getId(),
+            sourceId: _.get(appInfo, 'apiRequest.appKey') || getId(),
             title: _l('API说明'),
           }}
           onClose={() => setShareVisible(false)}

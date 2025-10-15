@@ -45,6 +45,7 @@ function getSearchConfig(control) {
 
 export default function useRecords(props) {
   const {
+    getType,
     control,
     worksheetId,
     viewId,
@@ -107,7 +108,7 @@ export default function useRecords(props) {
       keyWords: trim(keyWords),
       isGetWorksheet: true,
       filterControls: ignoreAllFilters ? [] : filterControls || [], // TODO
-      getType: isDraft ? 27 : 7,
+      getType: getType || (isDraft ? 27 : 7),
       sortControls: sortControl ? [sortControl] : [],
       fastFilters: quickFilters.map(f =>
         _.pick(f, [

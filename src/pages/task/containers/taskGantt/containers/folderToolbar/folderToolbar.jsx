@@ -135,8 +135,8 @@ class FolderToolbar extends Component {
     ];
     const viewTypeList = [
       { text: _l('天'), value: config.VIEWTYPE.DAY },
-      { text: _l('周'), value: config.VIEWTYPE.WEEK },
-      { text: _l('月'), value: config.VIEWTYPE.MONTH },
+      { text: _l('周%05034'), value: config.VIEWTYPE.WEEK },
+      { text: _l('月%06010'), value: config.VIEWTYPE.MONTH },
     ];
     const filterWeekendList = [
       { text: _l('仅工作日'), value: true },

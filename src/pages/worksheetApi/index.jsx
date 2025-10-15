@@ -1885,6 +1885,7 @@ class WorksheetApi extends Component {
           appInfo={appInfo}
           tabIndex={tabIndex}
           updateTabIndex={this.updateTabIndex}
+          getId={this.getId}
         />
         <div className="flex flexRow minHeight0 WhiteBG">
           {tabIndex === TAB_TYPE.API_V3 ? (

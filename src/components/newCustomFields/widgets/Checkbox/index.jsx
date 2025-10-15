@@ -49,7 +49,7 @@ class Widgets extends Component {
    * 渲染列表
    */
   renderList = (item, noMaxWidth) => {
-    const { enumDefault2, from, advancedSetting, value, disabled } = this.props;
+    const { enumDefault2, from, advancedSetting, value, disabled, isSheet } = this.props;
     const { otherValue } = getCheckAndOther(value);
     const { checktype, direction } = advancedSetting || {};
 
@@ -59,7 +59,8 @@ class Widgets extends Component {
           'customRadioItem WordBreak',
           { White: enumDefault2 === 1 && !isLightColor(item.color), ellipsis: !browserIsMobile() },
           {
-            'pLeft12 pRight12': enumDefault2 === 1,
+            'pLeft12 pRight12': !isSheet && enumDefault2 === 1,
+            'pLeft6 pRight6': isSheet,
             horizonArrangementItem: checktype == '2' && (direction === '0' || direction === '2') && browserIsMobile(),
             showRadioTxtAll: browserIsMobile(),
           },
@@ -125,7 +126,7 @@ class Widgets extends Component {
   }
 
   renderSelectAll = (checkIds = [], displayOptions = []) => {
-    const { advancedSetting = {}, disabled } = this.props;
+    const { advancedSetting = {}, disabled, optionStyle = {} } = this.props;
     const { showselectall, checktype, chooseothertype } = advancedSetting;
 
     if (disabled || showselectall !== '1') return null;
@@ -155,7 +156,7 @@ class Widgets extends Component {
     }
 
     return (
-      <Select.Option value="select-all" key="select-all">
+      <Select.Option style={optionStyle} value="select-all" key="select-all">
         <span className="ellipsis customRadioItem ThemeColor3">{_l('全选')}</span>
       </Select.Option>
     );
@@ -270,6 +271,7 @@ class Widgets extends Component {
       advancedSetting = {},
       selectProps,
       onChange,
+      optionStyle = {},
     } = this.props;
     let noDelOptions = options.filter(item => !item.isDeleted && !item.hide);
     const canAddOption = noDelOptions.length < MAX_OPTIONS_COUNT;
@@ -346,7 +348,7 @@ class Widgets extends Component {
           {...selectProps}
         >
           {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
-            <Select.Option disabled className="cursorDefault">
+            <Select.Option style={optionStyle} disabled className="cursorDefault">
               <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
             </Select.Option>
           )}
@@ -355,7 +357,12 @@ class Widgets extends Component {
 
           {noDelOptions.map((item, i) => {
             return (
-              <Select.Option value={item.key} key={i} className={cx({ isEmpty: item.key === 'isEmpty' })}>
+              <Select.Option
+                style={optionStyle}
+                value={item.key}
+                key={i}
+                className={cx({ isEmpty: item.key === 'isEmpty' })}
+              >
                 {this.renderList(item, true)}
               </Select.Option>
             );
@@ -365,7 +372,7 @@ class Widgets extends Component {
             !noDelOptions.find(item => item.value === keywords) &&
             advancedSetting.allowadd === '1' &&
             canAddOption && (
-              <Select.Option value={`add_${keywords}`}>
+              <Select.Option style={optionStyle} value={`add_${keywords}`}>
                 <span className="ellipsis customRadioItem ThemeColor3">{_l('添加新的选项：') + keywords}</span>
               </Select.Option>
             )}

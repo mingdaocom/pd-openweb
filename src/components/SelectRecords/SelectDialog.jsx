@@ -142,6 +142,7 @@ const PAGE_SIZE = 50;
 
 export default function SelectDialog({ ...args }) {
   const {
+    getType,
     singleConfirm,
     isCharge,
     appId,
@@ -186,6 +187,7 @@ export default function SelectDialog({ ...args }) {
     handleUpdateSortControl,
     handleUpdateQuickFilters,
   } = useRecords({
+    getType,
     appId,
     worksheetId,
     viewId,

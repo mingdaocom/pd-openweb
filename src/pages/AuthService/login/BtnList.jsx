@@ -28,7 +28,7 @@ export default function (props) {
     projectIntergrationType,
     projectId,
     verifyType,
-    ssoIcon,
+    ssoIconUrl,
     isMobile,
     ssoAppUrl,
     ssoWebUrl,
@@ -69,8 +69,8 @@ export default function (props) {
   const renderSsoBtn = () => {
     return (
       <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="flexRow alignItemsCenter">
-        {ssoIcon ? (
-          <span className="btnIcon mRight5 Gray_75" style={{ backgroundImage: `url(${ssoIcon})` }}></span>
+        {ssoIconUrl ? (
+          <span className="btnIcon mRight5 Gray_75" style={{ backgroundImage: `url(${ssoIconUrl})` }}></span>
         ) : (
           <Icon icon={'tab_move'} className="mRight5 Gray_75 Font20" />
         )}

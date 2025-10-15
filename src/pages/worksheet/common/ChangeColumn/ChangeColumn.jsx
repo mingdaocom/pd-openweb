@@ -197,6 +197,7 @@ export default class ChangeColumn extends Component {
       sortAutoChange = false,
       hideReset,
       showOperate,
+      forbiddenScroll,
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
     const filteredColumns = sortControlByIds(columns, controlsSorts).filter(
@@ -281,6 +282,7 @@ export default class ChangeColumn extends Component {
             canDrag={dragable && !search}
             items={filteredColumns}
             focusControlId={focusControlId}
+            forbiddenScroll={forbiddenScroll}
             selected={selected}
             maxHeight={maxHeight}
             isShowColumns={isShowColumns}

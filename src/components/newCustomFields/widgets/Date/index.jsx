@@ -217,6 +217,7 @@ export default class Widgets extends Component {
             className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
             disabled={disabled}
             value={value ? moment(dateTime) : ''}
+            {...(minDate ? { defaultPickerValue: moment(minDate) } : {})}
             picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
             showTime={showTime || false}
             format={showformat}

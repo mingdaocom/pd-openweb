@@ -103,7 +103,7 @@ const getModuleRules = () => {
       use: {
         loader: 'babel-loader',
         options: {
-          presets: [['@babel/preset-env', { targets: { chrome: '76' } }]],
+          presets: [['@babel/preset-env', { targets: { chrome: '69' } }]],
         },
       },
     },

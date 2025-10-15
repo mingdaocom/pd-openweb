@@ -140,7 +140,7 @@ export default class FolderTemplate extends Component {
                 {templateType.map((type, i) => {
                   return (
                     <li
-                      className={cx({ ThemeColor3: type.templateTypeId === this.state.selectType })}
+                      className={cx('ellipsis', { ThemeColor3: type.templateTypeId === this.state.selectType })}
                       key={i}
                       onClick={() => this.getTemplates(type.templateTypeId)}
                     >

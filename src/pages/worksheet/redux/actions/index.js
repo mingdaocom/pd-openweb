@@ -50,13 +50,15 @@ import { isHaveCharge } from './util';
 
 export function fireWhenViewLoaded(view = {}, { forceUpdate, controls } = {}) {
   return (dispatch, getState) => {
+    const { base } = getState().sheet;
+    const { chartId } = base || {};
     if (!get(view, 'fastFilters')) return;
     const newFastFilters = handleConditionsDefault(
       view.fastFilters || [],
       controls || get(getState(), 'sheet.controls') || [],
     );
     const fastFiltersHasDefaultValue = some(newFastFilters, validate);
-    if (fastFiltersHasDefaultValue || forceUpdate) {
+    if ((fastFiltersHasDefaultValue || forceUpdate) && !chartId) {
       if (get(view, 'advancedSetting.enablebtn') !== '1') {
         dispatch(
           updateQuickFilter(

@@ -186,7 +186,7 @@ export class UploadFileWrapper extends Component {
     const h5Watermark = (_.get(advancedSetting, 'h5watermark') || '').split('$').filter(v => !!v);
     const watermark = h5Watermark.length ? h5Watermark : JSON.parse(advancedSetting.watermark || null) || [];
 
-    if (!currentLocation && watermark.length) {
+    if (!currentLocation && watermark.length && _.findIndex(watermark, v => v === 'xy' || v === 'address') > -1) {
       currentLocation = {};
       new MapLoader().loadJs().then(() => {
         this._maphHandler = new MapHandler();

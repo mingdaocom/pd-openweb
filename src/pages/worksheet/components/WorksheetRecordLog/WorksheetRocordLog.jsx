@@ -361,7 +361,7 @@ function WorksheetRecordLog(props, ref) {
             endDateTime: undefined,
             requestType: 0,
           }
-        : {},
+        : { archiveId: undefined },
     );
   };
 
