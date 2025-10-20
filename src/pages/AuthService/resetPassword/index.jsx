@@ -64,6 +64,13 @@ export default class ResetPassword extends React.Component {
         state: request.state,
       })
       .then(res => {
+        if (res.actionResult == 0) {
+          alert(_l('参数错误'), 2);
+          setTimeout(() => {
+            location.href = '/login';
+          }, 3000);
+          return;
+        }
         this.setState({
           type: res.type,
           loading: false,
@@ -100,7 +107,10 @@ export default class ResetPassword extends React.Component {
       isRight = false;
     }
     if (passwordCopy !== password && isRight) {
-      warnList.push({ tipDom: 'passwordCopy', warnTxt: _l('请确保确认密码与密码一致') });
+      warnList.push({
+        tipDom: 'passwordCopy',
+        warnTxt: _l('请确保确认密码与密码一致'),
+      });
       isRight = false;
     }
     this.setState({ warnList });
@@ -240,7 +250,7 @@ export default class ResetPassword extends React.Component {
     return (
       <WrapCom className="flexColumn">
         <DocumentTitle title={_l('修改密码')} />
-        {!loading && (
+        {!loading ? (
           <div className="loginBox flex">
             <div className="loginContainer">
               {!SysSettings.hideBrandLogo && (
@@ -251,6 +261,8 @@ export default class ResetPassword extends React.Component {
               {this.renderCon()}
             </div>
           </div>
+        ) : (
+          <div className="h100 flex" />
         )}
         {_.get(md, 'global.SysSettings.enableFooterInfo') && <Footer />}
       </WrapCom>

@@ -1541,14 +1541,19 @@ export default class DataFormat {
    */
   getSearchStatus = (filters = [], controls = []) => {
     const splitFilters = getArrBySpliceType(filters);
+    const emptyRule = !_.isEmpty(_.get(splitFilters, '0.groupFilters'))
+      ? _.get(splitFilters, '0.groupFilters.0.emptyRule')
+      : _.get(splitFilters, '0.emptyRule');
     return _.some(splitFilters, (items = []) => {
       return _.every(getItemFilters(items), item => {
         // 固定值|字段值
         const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
-        //筛选值字段
+        //筛选值字段, 老数据没配置空状态按老逻辑(没值不请求接口)，新配置的都交给接口处理
         const fieldResult =
           _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
-          _.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid'));
+          (!emptyRule
+            ? (_.find(this.data, { controlId: _.get(item.dynamicSource[0] || {}, 'cid') }) || {}).value
+            : _.find(this.data, { controlId: _.get(item.dynamicSource[0] || {}, 'cid') }));
         //条件字段
         const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
         return isDynamicValue ? fieldResult : conditionExit;

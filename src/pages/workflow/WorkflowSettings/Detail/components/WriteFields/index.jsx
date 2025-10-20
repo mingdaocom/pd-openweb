@@ -345,7 +345,7 @@ export default class WriteFields extends Component {
                 <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分段') : _l('备注'))}>
                   {item.name || (item.type === 22 ? _l('分段') : _l('备注'))}
                 </div>
-                {item.datamask && !_.includes(hideTypes, 1) && item.type !== 30 && (
+                {item.datamask === '1' && !_.includes(hideTypes, 1) && item.type !== 30 && (
                   <DecryptBox className="mLeft5">{_l('脱敏')}</DecryptBox>
                 )}
                 {item.type === 29 && !!(item.subFormProperties || []).length && selectNodeType !== NODE_TYPE.CC && (

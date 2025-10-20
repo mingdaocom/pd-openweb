@@ -302,7 +302,7 @@ export default function DisplayItem(props) {
 
       return {
         mode: DRAG_MODE.INSERT_NEW_LINE,
-        activePath: [_.includes(['view_top', 'top'], location) ? path[0] - 1 : path[0], path[1]],
+        activePath: [_.includes(['view_top', 'top'], location) ? path[0] - 1 : path[0], 0],
         rowIndex: _.includes(['view_top', 'top'], location) ? path[0] : path[0] + 1,
         sectionId,
         displayItemType,

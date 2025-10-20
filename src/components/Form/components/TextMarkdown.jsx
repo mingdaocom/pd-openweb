@@ -106,7 +106,7 @@ export default function TextMarkdown(props) {
       isCreate={!recordId}
       className="textMarkdown"
     >
-      {!disabled && isEditing && (
+      {!disabled && isEditing && !isMobile && (
         <span
           data-tip={_l('全屏编辑')}
           className="tip-bottom iconFullScreen"

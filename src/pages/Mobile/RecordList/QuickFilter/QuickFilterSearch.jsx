@@ -75,7 +75,7 @@ export default function QuickFilterSearch(props) {
       control: _.find(sheetControls, c => c.controlId === filter.controlId),
     }))
     .filter(c => c.control);
-  const groupControlId = getGroupControlId(view) || view.viewControl;
+  const groupControlId = getGroupControlId(view);
 
   const handleOpenDrawer = () => {
     updateFilters({ visible: !filters.visible }, view);

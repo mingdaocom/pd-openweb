@@ -536,7 +536,7 @@ export default class CustomFields extends Component {
       );
 
       prevRow = item.row;
-      preIsSection = item.type === 22 || item.type === 10010;
+      preIsSection = (item.type === 22 || item.type === 10010) && data.filter(d => d.row === item.row).length === 1;
     });
 
     return formList;

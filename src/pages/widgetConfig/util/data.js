@@ -963,9 +963,10 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
     }
   }
 
-  let newWidgets = widgets;
+  let newWidgets = [].concat(widgets);
+  let lastItem = null;
 
-  data.map((item, index) => {
+  data.forEach((item, index) => {
     let currentRowIndex = 0;
 
     // 没有激活控件或者激活的控件不存在 则直接添加在最后一行
@@ -1017,14 +1018,17 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
       });
     }
 
-    if (index === data.length - 1) {
-      setWidgets(newWidgets);
-      setActiveWidget(item);
-      setTimeout(() => {
-        scrollToVisibleRange(item, { ...widgetProps, activeWidget: item });
-      }, 50);
-    }
+    lastItem = item;
   });
+
+  // 所有控件都添加完成后，统一执行状态更新操作
+  setWidgets(newWidgets);
+  if (lastItem) {
+    setActiveWidget(lastItem);
+    setTimeout(() => {
+      scrollToVisibleRange(lastItem, { ...widgetProps, activeWidget: lastItem });
+    }, 50);
+  }
 
   if (_.isFunction(callback)) {
     callback();
