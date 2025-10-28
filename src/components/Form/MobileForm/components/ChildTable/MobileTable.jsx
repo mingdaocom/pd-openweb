@@ -344,7 +344,7 @@ export default function MobileTable(props) {
               c = { ...c, fieldPermission: currentCell.fieldPermission };
 
               const visible =
-                c.fieldPermission[0] === '1' && c.fieldPermission[2] === '1' && c.controlPermissions[2] === '1';
+                c.fieldPermission[0] === '1' && c.fieldPermission[2] === '1' && c.controlPermissions[0] === '1';
 
               if (!visible) {
                 return (

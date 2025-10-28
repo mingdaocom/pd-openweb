@@ -527,7 +527,7 @@ export function getTitleControlIdFromRelateControl(control = {}) {
 
 const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
   if (recordId) {
-    let baseUrl = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}`;
+    let baseUrl = `${md.global.Config.WebUrl}/app/${appId}/${worksheetId}`;
     if (viewId) {
       baseUrl += `/${viewId}`;
     }

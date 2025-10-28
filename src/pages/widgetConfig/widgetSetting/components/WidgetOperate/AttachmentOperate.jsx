@@ -5,7 +5,13 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 // 操作设置
 export default function AttachmentOperate(props) {
   const { data, onChange } = props;
-  const { allowupload = '1', allowdelete = '1', allowdownload = '1', alldownload = '1' } = getAdvanceSetting(data);
+  const {
+    allowupload = '1',
+    allowdelete = '1',
+    allowdownload = '1',
+    alldownload = '1',
+    allowappupload = '1',
+  } = getAdvanceSetting(data);
 
   const isDownload = allowdownload === '1' || alldownload === '1';
 
@@ -17,6 +23,14 @@ export default function AttachmentOperate(props) {
           text={_l('允许上传')}
           checked={allowupload === '1'}
           onClick={checked => onChange(handleAdvancedSettingChange(data, { allowupload: String(+!checked) }))}
+        />
+      </div>
+      <div className="labelWrap">
+        <Checkbox
+          size="small"
+          text={_l('允许从移动设备输入')}
+          checked={allowappupload !== '0'}
+          onClick={checked => onChange(handleAdvancedSettingChange(data, { allowappupload: String(+!checked) }))}
         />
       </div>
       <div className="labelWrap">

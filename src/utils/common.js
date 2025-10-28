@@ -616,7 +616,7 @@ export const downloadFile = url => {
     const { validation } = qs.parse(search);
     return addToken(url, validation ? true : false);
   } else {
-    return addToken(url);
+    return addToken(url, md.global.Config.HttpOnly ? false : true);
   }
 };
 

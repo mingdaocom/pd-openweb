@@ -440,6 +440,7 @@ class ChatPanelSession extends Component {
                   onPrepareUpload={this.handlePrepareUpload.bind(this)}
                   onSelectedUser={this.handleSelectedUser.bind(this)}
                   onShake={this.handleShake.bind(this)}
+                  onChangeValue={this.handleChange.bind(this)}
                 />
               </div>
               <MessageSendText value={value} onSendMsg={this.handleSendMsg.bind(this)} />

@@ -65,6 +65,7 @@ function FilterContent(props) {
   useEffect(() => {
     return () => {
       props.updateLoadFilterComponentCount(0);
+      props.updateFiltersGroup(value, []);
     };
   }, []);
 

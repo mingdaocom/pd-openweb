@@ -7,7 +7,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Button from 'ming-ui/components/Button';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import { addToken, browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import ExtIcon from '../../components/ExtIcon';
 import { defaultWpsPreview, isWpsPreview } from '../../utils';
@@ -400,6 +400,10 @@ class AttachmentsPreview extends React.Component {
                       )}&attname=${encodeURIComponent(
                         currentAttachment.name || currentAttachment.sourceNode.originalFilename,
                       )}.${ext}`;
+                    }
+
+                    if (md.global.Config.HttpOnly) {
+                      viewUrl = addToken(viewUrl, false);
                     }
 
                     return (

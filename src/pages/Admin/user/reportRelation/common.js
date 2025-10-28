@@ -47,6 +47,7 @@ export function selectUser({ accountId, unique, isSetParent, callback }) {
       filterOthers: true,
       filterOtherProject: true,
       filterResigned: false,
+      hideResignedTab: true,
       unique: !!unique,
       showTabs: ['structureUsers'],
       extraTabs: [

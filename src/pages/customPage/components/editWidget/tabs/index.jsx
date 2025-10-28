@@ -202,10 +202,18 @@ export const Tabs = props => {
     const wrap = isTabs
       ? document.querySelector(`.tabs-${objectId} .tabsBody`)
       : document.querySelector(`.card-${objectId} .tabsBody`);
-    return {
+    const data = {
       ...config,
       width: width || (wrap ? wrap.clientWidth : undefined),
     };
+    if (adjustScreen) {
+      const maxH = _.max(tabComponents.map(item => _.get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
+      return {
+        ...data,
+        rowHeight: wrap ? (wrap.offsetHeight - 20) / maxH - 10 : undefined,
+      };
+    }
+    return data;
   };
 
   const handleLayoutChange = layouts => {

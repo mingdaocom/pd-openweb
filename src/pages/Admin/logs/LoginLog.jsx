@@ -251,6 +251,7 @@ export default class LoginLog extends Component {
         label: _l('登录/登出时间'),
         placeholder: _l('登录/登出时间'),
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        limitSixMonths: md.global.Config.IsLocal,
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {
@@ -289,7 +290,7 @@ export default class LoginLog extends Component {
         <div className="orgManagementHeader Font17 flexRow">
           <span className="flex">{_l('登录')}</span>
           <div>
-            <span className="tipInfo mRight26">{_l('保留最近6个月的日志')}</span>
+            {md.global.Config.IsLocal ? '' : <span className="tipInfo mRight26">{_l('保留最近6个月的日志')}</span>}
             <i
               className="icon-task-later Gray_9 hoverText mRight26 Font17"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}

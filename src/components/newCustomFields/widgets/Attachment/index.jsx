@@ -606,6 +606,7 @@ export default class Widgets extends Component {
     const allowUpload = (advancedSetting.allowupload || '1') === '1';
     const allowDelete = (advancedSetting.allowdelete || '1') === '1';
     const allowDownload = (advancedSetting.allowdownload || '1') === '1';
+    const allowappupload = (advancedSetting.allowappupload || '1') === '1';
     const pcDisabled = !allowUpload || disabled || isOnlyAllowMobile;
     const mobileDisabled = !allowUpload || disabled;
     const addFileName = hint || _l('添加附件');
@@ -867,35 +868,37 @@ export default class Widgets extends Component {
                   )}
                 </div>
               </UploadFilesTrigger>
-              <GenScanUploadQr
-                rowId={recordId}
-                worksheetId={worksheetId}
-                viewId={viewIdForPermit}
-                controlId={controlId}
-                onScanResultUpdate={files => {
-                  let currentAttachments = [];
-                  try {
-                    currentAttachments = JSON.parse(this.state.value).attachments || [];
-                  } catch (err) {
-                    console.log(err);
-                  }
-                  this.filesChanged(currentAttachments.concat(files), 'attachments');
-                }}
-              >
-                <div className="uploadFromMobile mLeft10" style={{ padding: 0, textAlign: 'center' }}>
-                  <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
-                    <Icon
-                      icon="mobile"
-                      className="Font20 Gray_9e"
-                      style={{
-                        width: 34,
-                        height: 34,
-                        lineHeight: '34px',
-                      }}
-                    />
-                  </Tooltip>
-                </div>
-              </GenScanUploadQr>
+              {allowappupload && (
+                <GenScanUploadQr
+                  rowId={recordId}
+                  worksheetId={worksheetId}
+                  viewId={viewIdForPermit}
+                  controlId={controlId}
+                  onScanResultUpdate={files => {
+                    let currentAttachments = [];
+                    try {
+                      currentAttachments = JSON.parse(this.state.value).attachments || [];
+                    } catch (err) {
+                      console.log(err);
+                    }
+                    this.filesChanged(currentAttachments.concat(files), 'attachments');
+                  }}
+                >
+                  <div className="uploadFromMobile mLeft10" style={{ padding: 0, textAlign: 'center' }}>
+                    <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
+                      <Icon
+                        icon="mobile"
+                        className="Font20 Gray_9e"
+                        style={{
+                          width: 34,
+                          height: 34,
+                          lineHeight: '34px',
+                        }}
+                      />
+                    </Tooltip>
+                  </div>
+                </GenScanUploadQr>
+              )}
             </div>
           ) : attachmentData.length || attachments.length ? (
             <div className="flex" />

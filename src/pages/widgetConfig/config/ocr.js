@@ -76,7 +76,7 @@ const DETAIL = [
   },
   {
     text: _l('单位'),
-    match: OPTION,
+    match: TEXT,
     value: 2026,
   },
   {

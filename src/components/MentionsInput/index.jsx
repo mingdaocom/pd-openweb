@@ -70,6 +70,7 @@ const MentionsInput = props => {
   const mentionAllSyntax =
     sourceType === SOURCE_TYPE.POST ? _.template('<%= type %>:<%= id %>') : _.template('[all]<%= id %>[/all]');
   const rect = input.getBoundingClientRect();
+  let timerId = null;
 
   useEffect(() => {
     input.addEventListener('focus', handleValueChange);
@@ -153,7 +154,7 @@ const MentionsInput = props => {
   }, []);
 
   const handleBlur = () => {
-    setTimeout(() => {
+    timerId = setTimeout(() => {
       setTriggerPopupVisible(false);
     }, 500);
   };
@@ -272,6 +273,10 @@ const MentionsInput = props => {
 
   const handleValueChange = e => {
     updateValues();
+
+    if (timerId) {
+      clearTimeout(timerId);
+    }
 
     if ([38, 40, 16].indexOf(e.keyCode) > -1) {
       return;

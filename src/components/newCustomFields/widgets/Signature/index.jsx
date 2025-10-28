@@ -413,8 +413,10 @@ export default class Signature extends Component {
       popupContainer,
       destroyPopupOnHide,
       popupAlign,
+      advancedSetting = {},
     } = this.props;
     const { popupVisible, lastInfo } = this.state;
+    const allowappupload = (advancedSetting.allowappupload || '1') === '1';
 
     return browserIsMobile() ? (
       <Fragment>
@@ -494,29 +496,31 @@ export default class Signature extends Component {
               <i className="icon-e-signature Font17 Gray_9e"></i>
               <span className="mLeft5">{_l('添加签名')}</span>
             </GrayButton>
-            <GenScanUploadQr
-              worksheetId={worksheetId}
-              viewId={viewIdForPermit}
-              controlId={controlId}
-              rowId={recordId}
-              type={2}
-              onScanResultUpdate={files => {
-                if (get(files, '0.url')) {
-                  this.props.onChange(get(files, '0.url'));
-                  if (get(window, 'md.global.Account.accountId')) {
-                    accountSettingAjax.editSign({ url: get(files, '0.url') });
+            {allowappupload && (
+              <GenScanUploadQr
+                worksheetId={worksheetId}
+                viewId={viewIdForPermit}
+                controlId={controlId}
+                rowId={recordId}
+                type={2}
+                onScanResultUpdate={files => {
+                  if (get(files, '0.url')) {
+                    this.props.onChange(get(files, '0.url'));
+                    if (get(window, 'md.global.Account.accountId')) {
+                      accountSettingAjax.editSign({ url: get(files, '0.url') });
+                    }
                   }
-                }
-              }}
-            >
-              <div>
-                <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
-                  <GrayButton type="ghostgray" className="iconButton">
-                    <i className="icon icon-mobile Font20 Gray_9e"></i>
-                  </GrayButton>
-                </Tooltip>
-              </div>
-            </GenScanUploadQr>
+                }}
+              >
+                <div>
+                  <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
+                    <GrayButton type="ghostgray" className="iconButton">
+                      <i className="icon icon-mobile Font20 Gray_9e"></i>
+                    </GrayButton>
+                  </Tooltip>
+                </div>
+              </GenScanUploadQr>
+            )}
           </ButtonsCon>
         ) : (
           children

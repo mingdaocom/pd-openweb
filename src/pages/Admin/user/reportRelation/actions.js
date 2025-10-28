@@ -72,8 +72,27 @@ export const addSubordinates =
         const { failedAccountIds } = res;
         let successAccounts = accounts;
         if (failedAccountIds && failedAccountIds.length) {
-          successAccounts = _.filter(accounts, account => failedAccountIds.indexOf(account.accountId) === -1);
+          successAccounts = _.filter(
+            accounts,
+            account => failedAccountIds.findIndex(({ accountId }) => accountId === account.accountId) === -1,
+          );
+
+          alert(
+            _l(
+              '添加失败：%0',
+              failedAccountIds
+                .map(
+                  ({ accountId, failMessage }) =>
+                    _.find(accounts, account => account.accountId === accountId).fullname + failMessage,
+                )
+                .join(','),
+            ),
+            2,
+          );
         }
+
+        if (_.isElement(successAccounts)) return;
+
         const { users = {} } = getState().entities;
         const { subordinates = [], subTotalCount } = users[id] || {};
         callback && callback();

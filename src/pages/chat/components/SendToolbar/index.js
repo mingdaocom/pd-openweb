@@ -271,14 +271,15 @@ export default class SendToolbar extends Component {
   }
   handleOpenAt() {
     const { at } = this;
-    const { session } = this.props;
+    const { session, onChangeValue } = this.props;
     const $textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea');
     const $target = $(at);
     const $container = $(`#ChatPanel-${session.id}`).find('.mentionsAutocompleteList');
     if (!$target.data('open') || !$container.is(':visible')) {
-      $textarea.val($textarea.val() + '@').trigger('keyup');
-      setCaretPosition($textarea.get(0), $textarea.val().length);
-      $textarea.focus();
+      onChangeValue($textarea.val() + '@');
+      setTimeout(() => {
+        setCaretPosition($textarea.get(0), $textarea.val().length);
+      }, 0);
       $target.data('open', true);
     } else {
       $textarea.blur();

@@ -380,7 +380,9 @@ export default function ChildTableDialog(props) {
                 )
               ) {
                 setChanged(true);
-                onChange(changedValues, 'childTableDialog');
+                setTimeout(() => {
+                  onChange(changedValues, 'childTableDialog');
+                }, 0);
               }
             }}
             mobileIsEdit={mobileIsEdit}

@@ -259,7 +259,11 @@ export default class orgLog extends React.Component {
         <div className="orgManagementHeader Font17">
           <div className="flex">{_l('组织管理')}</div>
           <div>
-            <span className="Font13 Normal mRight26">{_l('保留最近6个月的日志')}</span>
+            {md.global.Config.IsLocal ? (
+              ''
+            ) : (
+              <span className="Font13 Normal mRight26">{_l('保留最近6个月的日志')}</span>
+            )}
             {historyLogInfo.allCount ? (
               <Tooltip text={<span>{_l('历史日志')}</span>}>
                 <i
@@ -328,6 +332,7 @@ export default class orgLog extends React.Component {
                 label: _l('操作时间'),
                 placeholder: _l('最近30天'),
                 dateFormat: 'YYYY-MM-DD HH:mm:ss',
+                limitSixMonths: md.global.Config.IsLocal,
                 suffixIcon: <Icon icon="person" className="Font16" />,
               },
             ]}

@@ -139,7 +139,7 @@ export const HAVE_CONFIG_SUB_LIST = [2, 3, 10, 15, 16, 28, 32, 35, 46];
 export const HAVE_MASK_WIDGET = [3, 4, 5, 7, 8];
 
 // 有操作的控件
-export const HAVE_OPTION_WIDGET = [14, 29, 34];
+export const HAVE_OPTION_WIDGET = [14, 29, 34, 42];
 
 // 有表格样式的控件
 export const HAVE_TABLE_STYLE_WIDGET = [34];

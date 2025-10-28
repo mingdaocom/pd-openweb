@@ -163,7 +163,7 @@ export default class Email extends Component {
     ];
     const contentTypes = [
       { text: _l('纯文本'), value: 0 },
-      { text: _l('富文本（支持html样式）'), value: 1 },
+      { text: _l('富文本'), value: 1 },
     ];
 
     return (

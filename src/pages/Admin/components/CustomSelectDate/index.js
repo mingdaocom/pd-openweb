@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Select } from 'antd';
+import _ from 'lodash';
 import moment from 'moment';
 import { DatePicker, Icon } from 'ming-ui';
 import { searchDateList } from '../../logs/enum';
 import './index.less';
 
 export default function CustomSelectDate(props) {
-  const { changeDate = () => {}, className, placeholder, min } = props;
+  const { changeDate = () => {}, className, placeholder, min, limitSixMonths } = props;
   const [openDateSelect, setOpenDateSelect] = useState(false);
   const [dateInfo, setDateInfo] = useState({});
   const $ref = useRef();
@@ -81,6 +82,7 @@ export default function CustomSelectDate(props) {
         suffixIcon={<Icon icon="sidebar_calendar" className="Font16" />}
         dropdownClassName="serchDate"
         dropdownStyle={!openDateSelect ? { display: 'none' } : {}}
+        open={openDateSelect}
         className={className}
         placeholder={placeholder || _l('最近30天')}
         onChange={() => {
@@ -113,6 +115,15 @@ export default function CustomSelectDate(props) {
                 popupParentNode={() => $ref.current}
                 min={min ? min : md.global.Config.IsLocal ? undefined : moment().subtract(6, 'months')}
                 onOk={([start, end]) => {
+                  const copyStart = _.cloneDeep(start);
+                  const copyEnd = _.cloneDeep(end);
+
+                  // 检查日期跨度是否超过半年
+                  if (limitSixMonths && copyStart.isBefore(copyEnd.subtract(6, 'months'))) {
+                    alert(_l('时间跨度不得超过6个月'), 3);
+                    return;
+                  }
+
                   start = moment(start).startOf('day');
                   end =
                     end.isAfter(moment().format('YYYY-MM-DD'), 'day') ||

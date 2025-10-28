@@ -3,6 +3,7 @@ import AttachmentOperate from './AttachmentOperate';
 import EmbedOperate from './EmbedOperate';
 import RelateOperate from './RelateOperate';
 import RelateSearchOperate from './RelateSearchOperate';
+import SignatureOperate from './SignatureOperate';
 import SubListOperate from './SubListOperate';
 
 // 高级设置
@@ -20,6 +21,10 @@ export default function WidgetOperate(props) {
 
   if (type === 34) {
     return <SubListOperate {...props} />;
+  }
+
+  if (type === 42) {
+    return <SignatureOperate {...props} />;
   }
 
   if (type === 45) {

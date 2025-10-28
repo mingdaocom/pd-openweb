@@ -443,6 +443,7 @@ export const DEFAULT_DATA = {
       allowupload: '1',
       allowdelete: '1',
       allowdownload: '1',
+      allowappupload: '1',
     },
   },
   DATE: {
@@ -644,6 +645,7 @@ export const DEFAULT_DATA = {
     size: 6,
     advancedSetting: {
       uselast: '1',
+      allowappupload: '1',
     },
   },
   CASCADER: {
