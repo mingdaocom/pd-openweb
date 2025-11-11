@@ -2,6 +2,7 @@ const gulp = require('gulp');
 const fs = require('fs');
 const path = require('path');
 const { merge } = require('webpack-merge');
+const deleteSync = require('del').deleteSync;
 const each = require('gulp-each');
 const chalk = require('chalk');
 const $ = require('gulp-load-plugins')();
@@ -61,9 +62,10 @@ gulp.task(
 /** MdFunction 库构建 */
 gulp.task('mdFunctionWebpack', webpackTaskFactory(webpackConfigForMdFunction, false));
 
-function cleanStatic() {
+function cleanStatic(done) {
   console.log('正在删除老文件');
-  return gulp.src(['./build/files/staticfiles/*'], { read: false, allowEmpty: true }).pipe($.clean({ force: true }));
+  deleteSync(['./build/files/staticfiles/*'], { force: true });
+  done();
 }
 
 function copyStatic(done) {
@@ -86,7 +88,7 @@ gulp.task('copy', gulp.series(cleanStatic, copyStatic));
 
 /** 清理 build 文件夹 */
 gulp.task('clean-build', done => {
-  gulp.src(['./build*']).pipe($.clean({ force: true }));
+  deleteSync(['./build*'], { force: true });
   done();
 });
 
@@ -138,7 +140,7 @@ gulp.task('release', gulp.series('clean-build', 'webpack', 'singleEntryExtractMo
 
 /** 清理 sourceMap, LICENSE 文件 */
 gulp.task('clean-file', done => {
-  gulp.src(['./build/**/*.map', './build/**/*.LICENSE.txt']).pipe($.clean({ force: true }));
+  deleteSync(['./build/**/*.map', './build/**/*.LICENSE.txt'], { force: true });
   done();
 });
 

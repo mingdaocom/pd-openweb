@@ -68,8 +68,9 @@ export const updateEmSizeNumAction = (dispatch, num) => {
   });
 };
 
-export const getFilterDataByRuleAction = (dispatch, props, dataFormat, rules = [], isInit = false) => {
+export const getFilterDataByRuleAction = (dispatch, { props, dataFormat, getState, isInit = false }) => {
   const { ignoreHideControl, recordId, from, systemControlData, verifyAllControls } = props;
+  const { rules = [], searchConfig = [] } = getState();
   let tempRenderData = updateRulesData({
     rules,
     recordId,
@@ -81,6 +82,18 @@ export const getFilterDataByRuleAction = (dispatch, props, dataFormat, rules = [
       dataFormat.setErrorControl(controlId, errorType, errorMessage, rule, isInit);
     },
     verifyAllControls,
+    searchConfig,
+    handleChange: (value, cid, item, searchByChange) => {
+      handleChangeAction(dispatch, {
+        props,
+        getState,
+        dataFormat,
+        value,
+        cid,
+        item,
+        searchByChange,
+      });
+    },
   });
 
   tempRenderData.forEach(item => {
@@ -112,7 +125,7 @@ export const getFilterDataByRuleAction = (dispatch, props, dataFormat, rules = [
 /**
  * 获取配置（业务规则 || 查询配置）
  */
-export const getConfigAction = async (dispatch, props, { getRules, getSearchConfig }) => {
+export const getConfigAction = async (dispatch, { props, getRules, getSearchConfig }) => {
   const { appId, worksheetId, onRulesLoad = () => {} } = props;
   let rules;
   let config;
@@ -144,8 +157,8 @@ export const getConfigAction = async (dispatch, props, { getRules, getSearchConf
 /**
  * 更新error显示状态
  */
-export const updateErrorStateAction = (dispatch, state, { isShow, controlId }) => {
-  const { errorItems, uniqueErrorItems } = state;
+export const updateErrorStateAction = (dispatch, { getState, isShow, controlId }) => {
+  const { errorItems, uniqueErrorItems } = getState();
   if (controlId) {
     updateErrorItemsAction(
       dispatch,
@@ -206,16 +219,10 @@ export const errorDialog = errors => {
  */
 export const getSubmitDataAction = (
   dispatch,
-  props,
-  state,
-  options,
-  dataFormat,
-  getSubmitBegin,
-  getControlRefs,
-  newErrorDialog,
+  { props, getState, options, dataFormat, getSubmitBegin, getControlRefs, newErrorDialog },
 ) => {
   const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {}, worksheetId } = props;
-  const { rules, activeTabControlId, errorItems, uniqueErrorItems } = state;
+  const { rules, activeTabControlId, errorItems, uniqueErrorItems } = getState();
   const { silent, ignoreAlert, verifyAllControls, ignoreDialog } = options || {};
   const updateControlIds = dataFormat.getUpdateControlIds();
   const data = dataFormat.getDataSource();
@@ -269,7 +276,7 @@ export const getSubmitDataAction = (
   const hasRuleError = (ignoreDialog ? errors.filter(e => !e.ignoreErrorMessage) : errors).length;
 
   // 提交时所有错误showError更新为true
-  updateErrorStateAction(dispatch, state, { isShow: true });
+  updateErrorStateAction(dispatch, { getState, isShow: true });
 
   // 标签页内报错，展开标签页
   // 分段内报错，展开分段
@@ -336,29 +343,20 @@ export const getSubmitDataAction = (
  */
 export const submitFormDataAction = (
   dispatch,
-  props,
-  state,
-  options,
-  dataFormat,
-  updateSubmitBegin,
-  getSubmitBegin,
-  getControlRefs,
-  newErrorDialog,
+  { props, getState, options, dataFormat, updateSubmitBegin, getSubmitBegin, getControlRefs, newErrorDialog },
 ) => {
-  const { loadingItems } = state;
+  const { loadingItems, rules } = getState();
   updateSubmitBegin(true);
-  const { rules } = state;
   const { onSave, from, entityName = _l('记录') } = props;
-  const { data, updateControlIds, error, ids } = getSubmitDataAction(
-    dispatch,
+  const { data, updateControlIds, error, ids } = getSubmitDataAction(dispatch, {
     props,
-    state,
+    getState,
     options,
     dataFormat,
     getSubmitBegin,
     getControlRefs,
     newErrorDialog,
-  );
+  });
 
   if (!error && _.some(Object.values(loadingItems), i => i)) {
     return;
@@ -441,17 +439,19 @@ export const submitFormDataAction = (
  */
 export const handleChangeAction = (
   dispatch,
-  props,
-  state,
-  dataFormat,
-  value,
-  cid,
-  item,
-  updateChangeStatus,
-  onChangeEnhance,
-  searchByChange = true,
+  {
+    props,
+    getState,
+    dataFormat,
+    value,
+    cid,
+    item,
+    updateChangeStatus = () => {},
+    onChangeEnhance = () => {},
+    searchByChange = true,
+  },
 ) => {
-  const { uniqueErrorItems, rules } = state;
+  const { uniqueErrorItems } = getState();
   const { onWidgetChange = () => {}, onManualWidgetChange = () => {} } = props;
 
   if (searchByChange) {
@@ -475,7 +475,7 @@ export const handleChangeAction = (
       },
       searchByChange: searchByChange,
     });
-    getFilterDataByRuleAction(dispatch, props, dataFormat, rules);
+    getFilterDataByRuleAction(dispatch, { props, dataFormat, getState });
 
     const newErrorItems = dataFormat.getErrorControls();
     updateErrorItemsAction(
@@ -500,15 +500,10 @@ export const handleChangeAction = (
  */
 export const triggerCustomEventAction = (
   dispatch,
-  params,
-  props,
-  state,
-  dataFormat,
-  updateRenderData,
-  handleChange,
+  { params, props, getState, dataFormat, updateRenderData, handleChange },
 ) => {
   const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = props;
-  const { searchConfig = [], renderData = [] } = state;
+  const { searchConfig = [], renderData = [] } = getState();
 
   const customProps = {
     ...params,
@@ -550,8 +545,8 @@ export const triggerCustomEventAction = (
 /**
  * 验证唯一值
  */
-export const checkControlUniqueAction = (dispatch, props, state, controlId, controlType, controlValue) => {
-  const { uniqueErrorItems } = state;
+export const checkControlUniqueAction = (dispatch, { props, getState, controlId, controlType, controlValue }) => {
+  const { uniqueErrorItems } = getState();
   const { worksheetId, recordId, checkCellUnique, onError = () => {} } = props;
 
   if (_.isFunction(checkCellUnique)) {

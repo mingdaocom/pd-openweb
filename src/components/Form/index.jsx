@@ -63,6 +63,7 @@ const Entrance = React.forwardRef((props, ref) => {
     rulesLoading: !props.disableRules && !props.rules,
     searchConfig: props.searchConfig || [],
   });
+  const stateRef = useRef(state);
   const [Component, setComponent] = useState(null);
   const [{ errors, submitOptions, mobilePopupVisible, isAllIgnoreError }, setState] = useSetState({
     errors: [],
@@ -71,75 +72,80 @@ const Entrance = React.forwardRef((props, ref) => {
     isAllIgnoreError: false,
   });
 
+  // 定义 getState 方法，始终返回最新 state
+  const getState = () => stateRef.current;
+
   /**
    * 规则筛选数据
    */
   const getFilterDataByRule = (isInit = false) => {
-    getFilterDataByRuleAction(dispatch, props, dataFormat.current, state.rules, isInit);
+    getFilterDataByRuleAction(dispatch, {
+      props,
+      dataFormat: dataFormat.current,
+      getState,
+      isInit,
+    });
   };
 
   /**
    * 获取配置（业务规则 || 查询配置）
    */
   const getConfig = ({ getRules, getSearchConfig }) => {
-    getConfigAction(dispatch, props, { getRules, getSearchConfig });
+    getConfigAction(dispatch, { props, getRules, getSearchConfig });
   };
 
   /**
    * 更新error显示状态
    */
   const updateErrorState = (isShow, controlId) => {
-    updateErrorStateAction(dispatch, state, { isShow, controlId });
+    updateErrorStateAction(dispatch, { getState, isShow, controlId });
   };
 
   const getSubmitData = options => {
-    return getSubmitDataAction(
-      dispatch,
+    return getSubmitDataAction(dispatch, {
       props,
-      state,
+      getState,
       options,
-      dataFormat.current,
-      () => submitBegin.current,
-      () => controlRefs.current,
+      dataFormat: dataFormat.current,
+      getSubmitBegin: () => submitBegin.current,
+      getControlRefs: () => controlRefs.current,
       newErrorDialog,
-    );
+    });
   };
 
   /**
    * 表单提交数据
    */
   const submitFormData = options => {
-    submitFormDataAction(
-      dispatch,
+    submitFormDataAction(dispatch, {
       props,
-      state,
+      getState,
       options,
-      dataFormat.current,
-      bool => (submitBegin.current = bool),
-      () => submitBegin.current,
-      () => controlRefs.current,
+      dataFormat: dataFormat.current,
+      updateSubmitBegin: bool => (submitBegin.current = bool),
+      getSubmitBegin: () => submitBegin.current,
+      getControlRefs: () => controlRefs.current,
       newErrorDialog,
-    );
+    });
   };
 
   /**
    * 组件onChange方法
    */
   const handleChange = (value, cid, item, searchByChange = true) => {
-    handleChangeAction(
-      dispatch,
+    handleChangeAction(dispatch, {
       props,
-      state,
-      dataFormat.current,
+      getState,
+      dataFormat: dataFormat.current,
       value,
       cid,
       item,
-      bool => {
+      updateChangeStatus: bool => {
         changeStatus.current = bool;
       },
       onChangeEnhance,
       searchByChange,
-    );
+    });
   };
 
   const updateErrorItems = items => {
@@ -166,7 +172,7 @@ const Entrance = React.forwardRef((props, ref) => {
    * 提交的时唯一值错误
    */
   const uniqueErrorUpdate = uniqueErrorIds => {
-    const { uniqueErrorItems } = state;
+    const { uniqueErrorItems } = getState();
 
     alert(_l('记录提交失败：数据重复'), 2);
 
@@ -195,11 +201,24 @@ const Entrance = React.forwardRef((props, ref) => {
   };
 
   const triggerCustomEvent = params => {
-    triggerCustomEventAction(dispatch, params, props, state, dataFormat.current, updateRenderData, handleChange);
+    triggerCustomEventAction(dispatch, {
+      params,
+      props,
+      getState,
+      dataFormat: dataFormat.current,
+      updateRenderData,
+      handleChange,
+    });
   };
 
   const checkControlUnique = (controlId, controlType, controlValue) => {
-    checkControlUniqueAction(dispatch, props, state, controlId, controlType, controlValue, dataFormat.current);
+    checkControlUniqueAction(dispatch, {
+      props,
+      getState,
+      controlId,
+      controlType,
+      controlValue,
+    });
   };
 
   const getWorkflowParams = () => {
@@ -610,6 +629,10 @@ const Entrance = React.forwardRef((props, ref) => {
       abortController.current.abort();
     };
   }, []);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   // 监听 是否执行getConfig，如果执行，则等待配置加载完再初始化数据
   useEffect(() => {

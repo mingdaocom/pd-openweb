@@ -138,6 +138,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
     "css-minimizer-webpack-plugin": "^5.0.1",
+    "del": "^8.0.1",
     "esbuild": "^0.25.5",
     "esbuild-loader": "^4.3.0",
     "eslint": "^9.29.0",

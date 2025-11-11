@@ -899,6 +899,7 @@ export default class UploadFiles extends Component {
       callFrom,
     } = this.props;
     let { temporaryData, kcAttachmentData, attachmentData } = this.state;
+    const allowappupload = ((advancedSetting || {}).allowappupload || '1') === '1';
     let { totalSize, currentPrograss } = getAttachmentTotalSize(temporaryData);
     let length = temporaryData.length + kcAttachmentData.length + attachmentData.length;
     let emptys = Array.from({ length: 15 });
@@ -939,7 +940,7 @@ export default class UploadFiles extends Component {
                   <span>{_l('链接文件')}</span>
                 </div>
               )}
-              {allowUploadFileFromMobile && (
+              {allowUploadFileFromMobile && allowappupload && (
                 <GenScanUploadQr
                   worksheetId={worksheetId}
                   viewId={viewId}

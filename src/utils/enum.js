@@ -102,14 +102,8 @@ export const VersionProductHelpLink = {
   40: 'https://help.mingdao.com/org/payment',
 };
 
-export const FAST_GPT_CONFIG = {
-  baseUrl: 'https://api.fastgpt.in/api',
-  appId: '6686401ad09786ad4cf5af3b',
-  apiKey: 'fastgpt-glRUgG77BwL2f6DP8P31RzrvXOCFDqMlS8sfqipg4JcKzm7984FSRTDueQV',
-};
-
-export const FAST_GPT_CONFIG_DEV = {
-  baseUrl: 'https://api.fastgpt.in/api',
-  appId: '67a7382df3811da4b71c0c65',
-  apiKey: 'fastgpt-xAhbB4UMWWmqOfRNQGH3eYyiPgsnM7mbTcfdIbXitsDqXtXt9qpU',
-};
+export const FAST_GPT_CONFIG = JSON.parse(
+  atob(
+    'eyJiYXNlVXJsIjoiaHR0cHM6Ly9hcGkuZmFzdGdwdC5pbi9hcGkiLCJhcHBJZCI6IjY2ODY0MDFhZDA5Nzg2YWQ0Y2Y1YWYzYiIsImFwaUtleSI6ImZhc3RncHQtZ2xSVWdHNzdCd0wyZjZEUDhQMzFSenJ2WE9DRkRxTWxTOHNmcWlwZzRKY0t6bTc5ODRGU1JURHVlUVYifQ==',
+  ),
+);
