@@ -8,6 +8,7 @@ import privateGuide from 'src/api/privateGuide';
 import preall from 'src/common/preall';
 import ChatList from 'src/pages/chat/containers/ChatList';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
+import DeclareConfirm from 'src/pages/Mobile/components/DeclareConfirm';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
 import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
@@ -23,6 +24,7 @@ import './index.less';
 @preall
 @errorBoundary(true)
 @withRouter
+@DeclareConfirm
 export default class App extends Component {
   constructor(props) {
     super(props);

@@ -32,6 +32,9 @@ export const bindWeiXin = projectId => {
         } else {
           reject(1);
         }
+      })
+      .catch(err => {
+        reject(err);
       });
   });
 };
@@ -39,6 +42,7 @@ export const bindWeiXin = projectId => {
 export const bindWxWork = projectId => {
   return new Promise((reslove, reject) => {
     const url = location.href.split('#')[0];
+
     workWeiXinApi
       .getSignatureInfo({
         projectId,
@@ -68,6 +72,9 @@ export const bindWxWork = projectId => {
           window.nativeAlert(JSON.stringify(res));
           reject();
         });
+      })
+      .catch(err => {
+        reject(err);
       });
   });
 };
@@ -101,6 +108,9 @@ export const bindFeishu = projectId => {
         window.h5sdk.ready(() => {
           reslove();
         });
+      })
+      .catch(err => {
+        reject(err);
       });
   });
 };
@@ -133,6 +143,9 @@ export const bindDing = projectId => {
           err.mdurl = url;
           window.nativeAlert(JSON.stringify(err));
         });
+      })
+      .catch(err => {
+        reject(err);
       });
   });
 };
@@ -163,6 +176,9 @@ export const bindWeLink = projectId => {
           err.mdurl = url;
           window.nativeAlert(JSON.stringify(err));
         });
+      })
+      .catch(err => {
+        reject(err);
       });
   });
 };

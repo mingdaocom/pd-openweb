@@ -137,7 +137,7 @@ export default function Login() {
         return;
       }
       let googleSsoSet;
-      if (md.global.Config.IsLocal) {
+      if (md.global.Config.IsLocal && !request.projectId) {
         googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
       }
       //request.loginMode === 'systemLogin' 指定平台账号登录方式

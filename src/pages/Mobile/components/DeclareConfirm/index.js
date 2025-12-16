@@ -1,12 +1,14 @@
 import React, { Fragment } from 'react';
 import DocumentTitle from 'react-document-title';
 import { Button, CenterPopup, Popup, SpinLoading } from 'antd-mobile';
+import cx from 'classnames';
 import styled from 'styled-components';
+import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import privateLegalApi from 'src/api/privateLegal';
+import { browserIsMobile } from 'src/utils/common';
 
 const Con = styled.div`
   text-align: left;
-  padding: 20px;
 
   a {
     text-decoration: none;
@@ -37,6 +39,23 @@ const Con = styled.div`
   .am-button-small {
     height: 35px;
     line-height: 35px;
+  }
+  .DialogButton {
+    width: auto;
+    height: 36px;
+    border-radius: 3px;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    padding: 0 32px !important;
+    &.reject {
+      color: #757575;
+      background-color: #fff;
+      &:hover {
+        color: #1e88e5;
+        background-color: #f5f5f5;
+      }
+    }
+    border: none;
   }
 `;
 
@@ -132,21 +151,29 @@ const declareConfirm = Component => {
     }
     renderConfirm() {
       const { reject } = this.state;
+      const isMobile = browserIsMobile();
       return (
-        <Con>
+        <Con className="pAll20">
           <DocumentTitle title={_l('用户服务协议和隐私政策')} />
           {reject ? (
             <Fragment>
-              <div className="bold Gray Font16 mBottom10">{_l('用户服务协议和隐私政策')}</div>
+              <div className={cx('bold Gray  mBottom10', isMobile ? 'Font16' : 'Font17')}>
+                {_l('用户服务协议和隐私政策')}
+              </div>
               <div className="Gray Font14">
                 {_l('您拒绝了我们的用户服务协议和隐私政策，很遗憾无法继续提供服务！请手动关闭页面后退出。')}
               </div>
-              <div className="flexRow mTop20">
-                <Button className="bold mRight20 alreadyReject" color="default" size="small" inline>
+              <div className={cx(!isMobile ? 'mTop40 TxtRight' : 'flexRow mTop20')}>
+                <Button
+                  className={cx('bold mRight20 alreadyReject', { DialogButton: !isMobile })}
+                  color="default"
+                  size="small"
+                  inline
+                >
                   {_l('已拒绝')}
                 </Button>
                 <Button
-                  className="bold flex agree"
+                  className={cx('bold flex agree', { DialogButton: !isMobile })}
                   color="primary"
                   size="small"
                   inline
@@ -160,7 +187,9 @@ const declareConfirm = Component => {
             </Fragment>
           ) : (
             <Fragment>
-              <div className="bold Gray Font16 mBottom10">{_l('用户服务协议和隐私政策')}</div>
+              <div className={cx('bold Gray mBottom10', isMobile ? 'Font16' : 'Font17')}>
+                {_l('用户服务协议和隐私政策')}
+              </div>
               <div
                 className="Gray Font14"
                 onClick={this.handleOpenModal}
@@ -172,9 +201,9 @@ const declareConfirm = Component => {
                   ),
                 }}
               ></div>
-              <div className="flexRow mTop20">
+              <div className={cx(!isMobile ? 'mTop40 TxtRight' : 'flexRow mTop20')}>
                 <Button
-                  className="bold mRight20 reject"
+                  className={cx('bold mRight20 reject', { DialogButton: !isMobile })}
                   color="default"
                   size="small"
                   inline
@@ -184,7 +213,13 @@ const declareConfirm = Component => {
                 >
                   {_l('拒绝')}
                 </Button>
-                <Button className="bold flex agree" color="primary" size="small" inline onClick={this.handleAgree}>
+                <Button
+                  className={cx('bold flex agree', { DialogButton: !isMobile })}
+                  color="primary"
+                  size="small"
+                  inline
+                  onClick={this.handleAgree}
+                >
                   {_l('同意并继续')}
                 </Button>
               </div>
@@ -193,6 +228,7 @@ const declareConfirm = Component => {
         </Con>
       );
     }
+
     render() {
       const { loading, confirm } = this.state;
 
@@ -205,14 +241,26 @@ const declareConfirm = Component => {
       }
 
       if (confirm) {
-        return (
-          <Fragment>
-            <Popup visible={true} onClose={() => {}}>
-              {this.renderConfirm()}
-            </Popup>
-            {this.renderDeclare()}
-          </Fragment>
-        );
+        const isMobile = browserIsMobile();
+        if (isMobile) {
+          return (
+            <Fragment>
+              <Popup visible={true} onClose={() => {}}>
+                {this.renderConfirm()}
+              </Popup>
+              {this.renderDeclare()}
+            </Fragment>
+          );
+        } else {
+          return (
+            <>
+              <DialogBase visible={true} width={500}>
+                {this.renderConfirm()}
+              </DialogBase>
+              {this.renderDeclare()}
+            </>
+          );
+        }
       }
 
       return <Component {...this.props} />;

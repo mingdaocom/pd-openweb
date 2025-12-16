@@ -153,7 +153,7 @@ export default function GroupByControl(props) {
     view,
     customEmptyName = '',
   } = props;
-  const originControl = props.control;
+  const originControl = props.control || {};
   const control = _.assign(
     {},
     originControl,

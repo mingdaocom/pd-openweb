@@ -173,6 +173,11 @@ export default function OtherField(props) {
             'ua',
             'timestamp',
             'user-self',
+            'current-location',
+            'user',
+            'time',
+            'address',
+            'xy',
           ],
           cid,
         )

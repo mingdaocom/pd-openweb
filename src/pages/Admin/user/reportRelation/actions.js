@@ -219,6 +219,11 @@ export const removeStructure =
             id: accountId,
           },
         });
+        if (parentId) {
+          dispatch(fetchSubordinates(parentId, 1));
+        } else {
+          dispatch(fetchRootSubordinates(parentId, 1));
+        }
       } else {
         alert(_l('操作失败'), 2);
       }

@@ -134,6 +134,7 @@ export default class Header extends Component {
     } else {
       onSubmit({
         noSave: true,
+        ignoreDialog: id !== 'submit',
         callback: err => {
           if (!err) {
             openOperatorDialog();
