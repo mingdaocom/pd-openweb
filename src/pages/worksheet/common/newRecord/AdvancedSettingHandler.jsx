@@ -3,7 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getTranslateInfo } from 'src/utils/app';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
+import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
 
 const ErrorWrapper = styled.div`
   display: flex;
@@ -36,9 +36,7 @@ export default function AdvancedSettingHandler(Comp) {
             }
             const translateInfo = getTranslateInfo(data.appId, null, worksheetId);
             if (data.advancedSetting) {
-              data.advancedSetting.title = translateInfo.formTitle || data.advancedSetting.title;
-              data.advancedSetting.sub = translateInfo.formSub || data.advancedSetting.sub;
-              data.advancedSetting.continue = translateInfo.formContinue || data.advancedSetting.continue;
+              data.advancedSetting = replaceAdvancedSettingTranslateInfo(data.appId, worksheetId, data.advancedSetting);
             }
             data.entityName = translateInfo.recordName || data.entityName;
             data.template.controls = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);

@@ -6,7 +6,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
 import { browserIsMobile, emitter } from 'src/utils/common';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';

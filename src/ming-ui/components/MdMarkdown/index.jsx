@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Vditor from '@mdfe/vditor';
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { getToken } from 'src/utils/common';
@@ -132,16 +133,19 @@ function MdMarkdown(props) {
     worksheetId,
     hideToolbar = false,
     registerRef = () => {},
-    handleFocus = () => {},
+    handleFocus,
     handleChange = () => {},
-    handleBlur = () => {},
+    handleBlur,
   } = props;
-
+  const [isFocus, setFocus] = useState(false);
   const vditorRef = useRef(null);
   const vditorInstance = useRef(null);
 
   useEffect(() => {
     createEditor();
+    return () => {
+      vditorInstance.current && vditorInstance.current.destroy();
+    };
   }, []);
 
   useEffect(() => {
@@ -155,8 +159,16 @@ function MdMarkdown(props) {
   }, [disabled]);
 
   useEffect(() => {
-    if (vditorInstance.current && vditorInstance.current.getValue() !== data) {
+    if (!isFocus && vditorInstance.current && vditorInstance.current.getValue() !== data) {
       vditorInstance.current.setValue(data);
+    }
+    // 初始化还没加载完就赋值处理
+    if (!isFocus && data && !vditorInstance.current) {
+      setTimeout(() => {
+        if (vditorInstance.current) {
+          vditorInstance.current.setValue(data);
+        }
+      }, 100);
     }
   }, [data]);
 
@@ -248,7 +260,7 @@ function MdMarkdown(props) {
           },
         },
       },
-      tab: '\t',
+      tab: '',
       typewriterMode: true,
       cache: {
         enable: false,
@@ -269,7 +281,18 @@ function MdMarkdown(props) {
       input(val) {
         handleChange(val);
       },
-      ...(isFullScreen ? {} : { focus: val => handleFocus(val), blur: val => handleBlur(val) }),
+      focus(val) {
+        setFocus(true);
+        if (_.isFunction(handleFocus)) {
+          handleFocus(val);
+        }
+      },
+      blur(val) {
+        setFocus(false);
+        if (_.isFunction(handleBlur)) {
+          handleBlur(val);
+        }
+      },
     });
   };
 

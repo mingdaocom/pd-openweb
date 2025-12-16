@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement.js';
 import homeAppAjax from 'src/api/homeApp.js';
 import DataSourceApi from 'src/pages/integration/api/datasource';
@@ -139,7 +139,7 @@ export default class SourceDest extends Component {
         this.setState({
           loading: false,
           dbList: (res || []).map(a => {
-            return { ...a, text: a.appName, value: a.appId, disabled: !isValidName(a.appName) };
+            return { ...a, text: a.appName, value: a.appId, disabled: !isValidName(a.appName, true) }; //允许横线
           }),
         });
       });
@@ -238,7 +238,7 @@ export default class SourceDest extends Component {
       }).then(res => {
         this.setState({
           dbList: (res || []).map(a => {
-            return { text: a, value: a, disabled: !isValidName(a) };
+            return { text: a, value: a, disabled: !isValidName(a, true) }; //允许横线
           }),
         });
       });
@@ -733,7 +733,7 @@ export default class SourceDest extends Component {
                       <div className={cx('itemText', { disabled: item.disabled })}>
                         {item.text}
                         {item.disabled && (
-                          <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex="100000">
+                          <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex={100000}>
                             <Icon icon="info" className="Gray_bd mLeft5 disabledIcon" />
                           </Tooltip>
                         )}

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
@@ -204,14 +205,11 @@ export default props => {
       <div className="flex"></div>
       <ul className="displayType">
         {DisplayType.map(({ type, icon, text }) => (
-          <li
-            data-tip={text}
-            className={cx({ highlight: type === displayType })}
-            key={type}
-            onClick={() => switchType(type)}
-          >
-            <i className={`icon-${icon}`}></i>
-          </li>
+          <Tooltip title={text}>
+            <li className={cx({ highlight: type === displayType })} key={type} onClick={() => switchType(type)}>
+              <i className={`icon-${icon}`}></i>
+            </li>
+          </Tooltip>
         ))}
       </ul>
       <div className="flexRow alignItemsCenter pointer mRight20 pageSetting" onClick={() => setConfigVisible(true)}>

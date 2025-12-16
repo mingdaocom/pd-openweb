@@ -138,8 +138,6 @@ export default function DraggableRecord(props) {
   const [isEditTitle, setEditTitle] = useState(false);
   const [realCardHeight, setRealCardHeight] = useState(skeletonHeight);
   const [skeletonRows, setSkeletonRows] = useState(Math.floor(skeletonHeight / 50));
-
-  // TODO 发布前调整为200
   const shouldSkip = hierarchyTopLevelDataCount < 200;
   const { ref, inView: inViewRaw } = useInView({
     root: null,
@@ -281,13 +279,13 @@ export default function DraggableRecord(props) {
             visible={visible && hasExpanded}
             onClick={() => {
               window.hierarchViewExpandPathId = pathId;
-              toggleChildren({ rowId, visible: !visible, path, pathId });
+              toggleChildren({ rowId, visible: !(visible && hasExpanded), path, pathId });
             }}
           />
         )}
         {canAddChildren() && !browserIsMobile() && (
           <AddRecord
-            onAdd={() =>
+            onAdd={() => {
               handleAddRecord({
                 value: getRelateDefaultValue(treeData[rowId], {
                   currentView: view,
@@ -299,9 +297,9 @@ export default function DraggableRecord(props) {
                 pathId,
                 isTextTitle: isMultiRelate ? false : isTextTitle(controls),
                 pid: rowId,
-                visible,
-              })
-            }
+                visible: visible && hasExpanded,
+              });
+            }}
           />
         )}
       </OperationWrap>

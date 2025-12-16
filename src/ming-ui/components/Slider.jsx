@@ -2,7 +2,8 @@ import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } fr
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import { formatNumberFromInput } from 'src/utils/control';
 
@@ -248,6 +249,7 @@ export default function Slider(props) {
     onChange = _.noop,
     liveUpdate = true,
     inputClassName,
+    registerCell,
   } = props;
   let min = props.min || 0;
   let max = props.max || 100;
@@ -372,6 +374,23 @@ export default function Slider(props) {
       onChange(tempValue);
     }
   }, [tempValue]);
+
+  useEffect(() => {
+    if (_.isFunction(registerCell)) {
+      registerCell({
+        handleFocus: () => {
+          if (inputRef.current) {
+            inputRef.current.focus();
+          }
+        },
+        handleBlur: () => {
+          if (inputRef.current) {
+            inputRef.current.blur();
+          }
+        },
+      });
+    }
+  }, []);
   return (
     <Con
       className={className}
@@ -424,10 +443,14 @@ export default function Slider(props) {
                       }
                 }
               >
-                <Tooltip offset={[0, -2]} disable={!showTip} text={showTip ? <span>{scale.value}</span> : undefined}>
+                <Tooltip
+                  title={showTip ? <span>{scale.value}</span> : undefined}
+                  placement={tipDirection || 'top'}
+                  align={{ offset: [0, -2] }}
+                >
                   <ScalePoint
                     key={i}
-                    className={`scale ${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
+                    className={'scale'}
                     value={scale.value}
                     color={scale.percent < valuePercent ? color : 'rgba(0, 0, 0, 0.06)'}
                     percent={scale.percent}
@@ -449,12 +472,12 @@ export default function Slider(props) {
 
         {showDrag && (
           <Tooltip
-            offset={[0, -2]}
-            disable={!(showTip && !_.isUndefined(value))}
-            text={showTip && !_.isUndefined(value) ? <span>{value + (showAsPercent ? '%' : '')}</span> : undefined}
+            title={showTip && !_.isUndefined(value) ? <span>{value + (showAsPercent ? '%' : '')}</span> : undefined}
+            placement={tipDirection || 'top'}
+            align={{ offset: [0, -2] }}
           >
             <Drag
-              className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'} ${isDragging ? 'hover' : ''}`}
+              className={`${isDragging ? 'hover' : ''}`}
               ref={dragRef}
               color={!_.isUndefined(value) ? (disabled ? '#bdbdbd' : color) : '#f1f1f1'}
               style={{ left: `calc(${valuePercent}% - 7px)`, cursor: disabled ? 'default' : 'pointer' }}

@@ -5,14 +5,17 @@
   margin: 14px 0 14px 0 !important;
   overflow: visible !important;
 }
+
 .postCard .postContainer {
   padding: 15px 20px 0 15px;
   position: relative;
 }
+
 .postCard .userMain {
   margin-left: 61px;
   position: relative;
 }
+
 .postCard .userNameGroup {
   line-height: 28px;
   margin-right: 20px;
@@ -25,67 +28,81 @@
   position: relative;
   word-wrap: break-word;
 }
+
 .postCard .postContent .postContentBodyContainer {
   position: relative;
   overflow: hidden;
 }
+
 .postCard .postContent .postContentBody {
   overflow: hidden;
   max-height: 330px;
   word-wrap: break-all;
   /*white-space: pre-wrap;*/
 }
+
 .postCard .postContent [class^='emotion'],
 .postCard .postContent [class*=' emotion'] {
   width: 20px;
   height: 20px;
   vertical-align: middle;
 }
+
 .postCard .postContent .emotion-twemoji {
   box-sizing: border-box;
   padding: 1px;
 }
+
 .postCard .postContent .postContentBody.isFullHeight {
   max-height: none;
 }
+
 .topPostList .postContentBody {
   overflow: hidden;
   max-height: 66px;
   height: 66px;
 }
+
 .topPostList .userNameGroup {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .topPostList .userNameGroup > a,
 .topPostList .userNameGroup > span {
   display: inline !important;
 }
+
 .topPostViewDetailLink {
   display: inline-block;
   margin-left: 61px;
   margin-top: 15px;
 }
+
 .topPostViewDetailLink:hover {
   text-decoration: none;
 }
+
 .postCard .postContent .postContentBody.fullHeight {
   max-height: 56000px;
   transition: 10s;
 }
+
 .postCard .postContent .showMore,
 .postCard .postContent .hideMore {
   display: block;
   width: 100%;
   background: white;
 }
+
 .commentContainer .hideMore,
 .commentContainer .showMore,
 .rPostItem .hideMore,
 .rPostItem .showMore {
   background: #f5f5f5 !important;
 }
+
 .postCard .postContent .showMore {
   opacity: 1;
   position: absolute;
@@ -101,19 +118,23 @@
   margin-top: -35px;
   padding-bottom: 20px;
 }
+
 .postCard .rPostItem {
   margin: 15px 0 10px 0;
   background: #f5f5f5;
   padding: 35px 0 15px 20px;
 }
+
 .postCard .rPostItem .userNameGroup,
 .postCard .rPostItem .postContent,
 .postCard .rPostItem .postFooter {
   margin-left: 50px;
 }
+
 .postCard .rPostItem .postContent {
   min-height: 0;
 }
+
 .postCard .rPostItem .postFooter {
   padding-bottom: 0;
 }
@@ -121,6 +142,7 @@
 .linkContent {
   word-break: break-all;
 }
+
 .linkContent img {
   max-width: 130px;
   max-height: 90px;
@@ -142,21 +164,26 @@
 .postCard .mdEmotion {
   z-index: 2;
 }
+
 .postOperatorListBtn {
   font-size: 18px;
   padding-top: 4px;
   display: inline-block;
 }
+
 .postOperatorListBtn:hover {
   color: #757575;
 }
+
 .postOperatorListContainer {
   overflow: hidden;
 }
+
 .postOperatorListContainer > .Menu {
   left: auto !important;
   right: 0px;
 }
+
 .postOperatorList {
   position: absolute;
   /*width: auto;*/
@@ -167,9 +194,11 @@
   border-radius: 3px;
   padding: 6px 0;
 }
+
 .postOperatorListContainer:hover .postOperatorListBtn {
   color: #aaa !important;
 }
+
 .postOperatorList li {
   cursor: pointer;
   background: white;
@@ -178,12 +207,15 @@
   line-height: 32px;
   font-size: 12px;
 }
+
 .postOperatorFavBtn {
   text-align: center;
 }
+
 .postOperatorFavBtn.favorited {
   color: #fbc02d;
 }
+
 .postOperatorFavBtn i {
   text-align: center;
 }
@@ -200,10 +232,6 @@
   display: inline-block;
 }
 
-.postCard .postFooter a [data-tip] {
-  text-decoration: inherit;
-}
-
 .postCard .postFooter .projectHint {
   font-size: 16px;
   margin-left: 10px;
@@ -217,16 +245,19 @@
   border-right: 1px solid;
   padding: 0 12px;
 }
+
 .postCard .postFooter .postActionIcon:last-child {
   margin-right: -13px;
   border-right: none;
 }
+
 .postCard .postFooter .postActionIcon i {
   line-height: 18px;
   font-size: 14px;
   vertical-align: middle;
   transition: 0.2s color ease-in-out;
 }
+
 .postCard .postFooter .postActionIcon span {
   line-height: 18px;
   font-size: 12px;
@@ -249,24 +280,29 @@
   -webkit-border-radius: 5px;
   -khtml-border-radius: 5px;
 }
+
 .moreOperateDiv li {
   border: 0 !important;
   padding: 2px !important;
   position: relative;
   list-style-type: none;
 }
+
 .postFooter .postLocation {
   margin-left: 12px;
   text-decoration: none;
 }
+
 .postFooter .postLocation .icon {
   margin: 0 2px;
   font-size: 16px;
   color: #9f9f9f;
 }
+
 .moreOperateDiv ul li a:hover {
   color: #fff;
 }
+
 .moreOperateDiv a {
   display: block;
   line-height: 20px;
@@ -278,12 +314,14 @@
   font-size: 12px;
   text-decoration: none;
 }
+
 .postOperatorList .parent {
   background-image: url(../../images/check_to.gif);
   background-position: 165px center;
   background-repeat: no-repeat;
   position: relative;
 }
+
 .postOperatorList .parent:hover {
   background-image: url(../../images/check_to2.gif);
 }
@@ -299,6 +337,7 @@
   left: 181px;
   top: 0px;
 }
+
 .postCard .commentAttachments {
   margin-left: 50px;
 }
@@ -316,6 +355,7 @@
   height:100%;*/
   /*border:1px solid red;*/
 }
+
 .replyFrame {
   /*width: 95%;*/
   height: 100%;
@@ -326,19 +366,23 @@
   border: 1px solid #ddd;
   border-radius: 4px;
 }
+
 .replyFrameFocus {
   /*margin-left: 40px;*/
   box-shadow: 0 0 5px #a7d8f5;
   border-color: #66bdf2 !important;
 }
+
 .replyButton {
   width: 90%;
   margin: 3px 49px;
 }
+
 .postCard .postCommentBox .firstRow {
   display: table;
   width: 100%;
 }
+
 .postCard .postCommentBox .secondRow {
   /*margin-left: 58px;
   line-height: 24px;*/
@@ -348,11 +392,13 @@
   padding-top: 8px;
   padding-bottom: 10px;
 }
+
 .postCard .postCommentBox .secondRow > div:first-child {
   height: 30px;
   display: flex;
   align-items: center;
 }
+
 .msgExpandDivclass {
   font-size: 0px;
   padding: 3px;
@@ -367,9 +413,11 @@
 .postCard .postCommentBox .secondRow .cb {
   margin-left: 0px;
 }
+
 .postCard .postCommentBox .secondRow .viewTo {
   float: right;
 }
+
 .postCard .postCommentBox .commentBoxUserHead,
 .postCard .postCommentBox .commentBoxTextareaContainer {
   display: table-cell !important;
@@ -377,16 +425,19 @@
   width: auto;
   float: left;
 }
+
 .postCard .postCommentBox .commentBoxTextareaContainer {
   width: 100%;
   height: 100%;
 }
+
 .postCard .postCommentBox .textareaContainer {
   padding: 3px;
   background-color: white;
   min-height: 26px;
   border-radius: 4px;
 }
+
 .postCard .postCommentBox .commentBoxTextarea {
   display: block;
   width: 99%;
@@ -399,6 +450,7 @@
   padding-left: 5px;
   transition: 0.2s height ease-in-out;
 }
+
 .postCard .postCommentBox .commentUploadAttachment {
   color: #ccc;
   line-height: 30px;
@@ -407,16 +459,20 @@
   float: left;
   margin-left: 10px;
 }
+
 .postCard .postCommentBox .faceBtn:not(:hover) {
   color: #ccc !important;
 }
+
 .postCard .postCommentBox .relayBtn {
   vertical-align: -2px;
   cursor: pointer;
 }
+
 .postCard .postCommentBox .hoverRelayBtn:not(:hover) {
   color: #ccc !important;
 }
+
 .postCard .postCommentBox .faceBtn {
   background: none !important;
   text-decoration: none !important;
@@ -426,6 +482,7 @@
   padding: 0 !important;
   margin-top: 2px !important;
 }
+
 .postCard .postCommentBox .msgExpandDiv {
   width: 20px;
   height: 24px;
@@ -441,8 +498,9 @@
   border-width: 0 10px 10px 10px;
   border-color: transparent transparent #f5f5f5 transparent;
   position: absolute;
-  top: 28px;
+  top: 30px;
 }
+
 .postCard .commentListContainer {
   margin: 0 -20px 0 -15px;
   background: #f5f5f5;
@@ -496,17 +554,20 @@
   margin-left: 50px;
   font-size: 12px;
 }
+
 .postCard .commentList .commentContainer .postCommentBox {
   padding-left: 80px;
   padding-top: 0px;
   font-size: 13px;
 }
+
 .postCard .commentList .commentSpliter {
   height: 0;
   border: none;
   border-bottom: 1px solid #ddd;
   margin-left: 50px;
 }
+
 .postCard .commentList .commentContainer:hover .commentDeleteLink {
   display: inline !important;
 }
@@ -519,11 +580,8 @@
   padding-left: 21px;
   padding-top: 10px;
   font-size: 14px;
-  /*border-bottom: 1px solid #efefef;*/
 }
-.topPostPager ul {
-  padding-left: 1px\9;
-}
+
 .topPostPager li {
   cursor: pointer;
   margin-left: 12px;
@@ -542,9 +600,11 @@
 .postMoreIndicator {
   background: #f3f9ff !important;
 }
+
 .postMoreIndicator:hover {
   background: #e7f3ff !important;
 }
+
 .postMoreIndicator:active {
   background: #d9ecff !important;
 }
@@ -552,9 +612,11 @@
 .postNewIndicator {
   background: #fffee8 !important;
 }
+
 .postNewIndicator:hover {
   background: #fffdde !important;
 }
+
 .postNewIndicator:active {
   background: #fffdd6 !important;
 }

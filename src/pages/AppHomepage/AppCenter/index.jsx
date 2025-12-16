@@ -98,7 +98,7 @@ function AppCenter(props) {
 
   const getKey = () => {
     let key = 'app';
-    list.map(o => {
+    list.forEach(o => {
       if (location.pathname.startsWith(o.str)) {
         key = o.key;
       }

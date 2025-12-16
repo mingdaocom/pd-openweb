@@ -72,19 +72,21 @@ export default class ChartCollect extends Component {
             <LoadDiv />
           </div>
         ) : (
-          collectCharts.map(item => {
-            return (
-              <div key={item.favoriteId} className="chartItemWrap flexColumn">
-                <MobileChart
-                  isHorizontal={false}
-                  reportId={item.reportId}
-                  pageId={item.pageId}
-                  viewId={item.viewId}
-                  filters={[]}
-                />
-              </div>
-            );
-          })
+          <div>
+            {collectCharts.map(item => {
+              return (
+                <div key={item.favoriteId} className="chartItemWrap flexColumn">
+                  <MobileChart
+                    isHorizontal={false}
+                    reportId={item.reportId}
+                    pageId={item.pageId}
+                    viewId={item.viewId}
+                    filters={[]}
+                  />
+                </div>
+              );
+            })}
+          </div>
         )}
 
         <Back

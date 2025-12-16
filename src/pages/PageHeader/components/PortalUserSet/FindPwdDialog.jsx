@@ -117,8 +117,11 @@ export default function TelDialog(props) {
     const { accountResult } = res;
     switch (accountResult) {
       case 1:
-        alert(_l('密码重置成功！'), '1', 3000, () => {
-          onOk();
+        alert({
+          msg: _l('密码重置成功！'),
+          onClose: () => {
+            onOk();
+          },
         });
         setState({
           sending: false,
@@ -235,7 +238,7 @@ export default function TelDialog(props) {
           } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
             alert(_l('验证码错误'), 3);
           } else if (data.actionResult == ActionResult.balanceIsInsufficient) {
-            alert(_l('当前企业账号余额不足，无法发送短信'), 2);
+            alert(_l('当前企业账户信用点不足，无法发送短信'), 2);
           } else if (data.actionResult == ActionResult.userAccountExists) {
             alert(_l('发送失败，新手机号与现有手机号一致'), 2);
           } else {
@@ -366,7 +369,7 @@ export default function TelDialog(props) {
                 id="btnSendVerifyCode"
                 value={verifyCodeText || (verifyCodeLoading ? _l('发送中...') : _l('获取验证码'))}
                 onClick={() => {
-                  handleSendVerifyCode(CodeTypeEnum.message);
+                  handleSendVerifyCode();
                 }}
               />
             </div>

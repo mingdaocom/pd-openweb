@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
-import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet';
+import { WIDGETS_TO_API_TYPE_ENUM_N } from 'src/pages/Role/PortalCon/setting/InfoSet/config.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const typeList = _.keys(WIDGETS_TO_API_TYPE_ENUM_N);

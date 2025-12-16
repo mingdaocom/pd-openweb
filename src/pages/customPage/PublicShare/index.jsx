@@ -44,7 +44,7 @@ const Entry = () => {
       clientId,
     }).then(async result => {
       const { data } = result;
-      const { projectId } = data;
+      const { projectId } = data || {};
       localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
@@ -66,7 +66,6 @@ const Entry = () => {
     });
 
     if (hideHeader === 'true') {
-      document.body.classList.add('bodyScroll');
       setCookie('i18n_langtag', 'zh-Hans');
     }
 

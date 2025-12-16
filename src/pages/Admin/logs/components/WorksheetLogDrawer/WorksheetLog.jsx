@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { filterXSS } from 'xss';
 import { Icon, LoadDiv, PreferenceTime, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 

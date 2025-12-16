@@ -4,14 +4,15 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
 import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
-import { formatValue } from 'src/pages/Admin/homePage/config.js';
+import { formatValue } from 'src/pages/Admin/homePage/utils.js';
 import { formatFileSize } from 'src/utils/common';
 import { dateDimension, formatChartData, formatter, selectDateList } from '../../util';
 import LineChart from '../LineChart';
@@ -550,10 +551,7 @@ export default class Overview extends Component {
               <div className="summaryItem Hand linkHover">
                 <div className="Gray_75 fontWeight600 ">
                   {_l('附件累计存储量')}
-                  <Tooltip
-                    text={_l('指应用下字段、讨论等附件，此数据每天统计一次，第二天自动重新计算')}
-                    autoCloseDelay={0}
-                  >
+                  <Tooltip title={_l('指应用下字段、讨论等附件，此数据每天统计一次，第二天自动重新计算')}>
                     <Icon icon="info" className="Gray_9e mLeft4 Hand" />
                   </Tooltip>
                 </div>
@@ -660,9 +658,8 @@ export default class Overview extends Component {
             <div className="Font15 fontWeight600 mBotto8 Black">
               {_l('应用访问量')}
               <Tooltip
-                popupPlacement="bottom"
-                autoCloseDelay={0}
-                text={
+                placement="bottom"
+                title={
                   <span>
                     {_l('应用访问次数计数说明：')}
                     <br />
@@ -683,9 +680,8 @@ export default class Overview extends Component {
             <div className="Font15 fontWeight600 mBotto8 Black">
               {_l('记录创建量')}
               <Tooltip
-                popupPlacement="bottom"
-                autoCloseDelay={0}
-                text={
+                placement="bottom"
+                title={
                   <span>
                     {_l('记录创建次数计数说明：')}
                     <br />
@@ -705,7 +701,7 @@ export default class Overview extends Component {
           <div className="charContainer">
             <div className="Font15 fontWeight600 mBotto8 Black">
               {_l('工作流执行数')}
-              <Tooltip text={<span>{_l('筛选条件“按部门”不生效')}</span>} popupPlacement="bottom">
+              <Tooltip title={_l('筛选条件“按部门”不生效')} placement="bottom">
                 <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
               </Tooltip>
             </div>
@@ -714,7 +710,7 @@ export default class Overview extends Component {
           <div className="charContainer">
             <div className="Font15 fontWeight600 mBotto8 Black">
               {_l('附件上传量')}
-              <Tooltip text={_l('公开表单仅统计非平台登录用户上传的附件')}>
+              <Tooltip title={_l('公开表单仅统计非平台登录用户上传的附件')}>
                 <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
               </Tooltip>
             </div>

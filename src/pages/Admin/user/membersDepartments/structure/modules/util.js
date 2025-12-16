@@ -109,6 +109,27 @@ export const formatSearchDeptData = (data, keywords) => {
   return result;
 };
 
+/**
+ * 获取扁平化部门数据
+ * @param {*} departmentArr
+ * @returns
+ */
+export const getFlatDepartments = (departmentArr = []) => {
+  let departments = {};
+  const func = data => {
+    departments = _.merge(departments, _.keyBy(data, 'departmentId'));
+    data.forEach(item => {
+      if (item.subDepartments && !_.isEmpty(item.subDepartments)) {
+        func(item.subDepartments);
+      }
+    });
+  };
+
+  func(departmentArr);
+
+  return departments;
+};
+
 // 获取当前departmentId的所有的父节点ID
 export const getParentsId = (data, id) => {
   for (var i in data) {
@@ -124,22 +145,75 @@ export const getParentsId = (data, id) => {
   }
 };
 
-// 删除某个节点
-export const filterDeleteTreeData = (tree, delId) => {
-  var newArr = [];
-  for (var i = 0; i < tree.length; i++) {
-    var item = tree[i];
-    if (item.departmentId === delId) {
-      tree.splice(i--, 1);
-    } else {
-      if (item.subDepartments) {
-        item.subDepartments = filterDeleteTreeData(item.subDepartments, delId);
-      }
-      newArr.push(item);
-    }
+/**
+ * 删除某个节点
+ * @param {Array} treeData 部门树数据
+ * @param {string|number} departmentId 要删除的部门ID
+ * @returns {Array} 删除后的部门树数据
+ */
+export const filterDeleteTreeData = (treeData = [], departmentId) => {
+  if (_.isEmpty(treeData) || !departmentId) {
+    return [];
   }
-  return newArr;
+  const clonedData = _.cloneDeep(treeData);
+
+  // 递归删除函数
+  const removeNode = departments => {
+    return _.chain(departments)
+      .filter(dept => dept && dept.departmentId !== departmentId)
+      .map(dept => {
+        if (dept.subDepartments && _.isArray(dept.subDepartments)) {
+          const filteredSubs = removeNode(dept.subDepartments);
+          // 如果子部门为空，则移除该属性
+          if (filteredSubs.length === 0) {
+            return _.omit(dept, 'subDepartments');
+          }
+          return { ...dept, subDepartments: filteredSubs };
+        }
+        return dept;
+      })
+      .value();
+  };
+
+  return removeNode(clonedData);
 };
+/**
+ * 根据 departmentId 和 newDepartments 获取父节点
+ * @param {Array} newDepartments - 部门树数据
+ * @param {string|number} departmentId - 要查找的部门ID
+ * @returns {Object|null} 返回父节点对象，如果没有父节点则返回 null
+ */
+export const getParentNode = (newDepartments, departmentId) => {
+  if (!newDepartments || !_.isArray(newDepartments) || !departmentId) {
+    return null;
+  }
+
+  const findParent = (departments, targetId) => {
+    for (let i = 0; i < departments.length; i++) {
+      const dept = departments[i];
+
+      // 判断当前部门是否有子部门
+      if (dept.subDepartments && Array.isArray(dept.subDepartments)) {
+        // 判断子部门中是否包含目标部门
+        const hasTargetInChildren = dept.subDepartments.some(child => child.departmentId === targetId);
+
+        if (hasTargetInChildren) {
+          return dept; // 找到父节点
+        }
+
+        // 递归查找更深层的子部门
+        const result = findParent(dept.subDepartments, targetId);
+        if (result) {
+          return result;
+        }
+      }
+    }
+    return null;
+  };
+
+  return findParent(newDepartments, departmentId);
+};
+
 // 获取当前节点路径
 const getCurrentPath = path => {
   return (path || '')
@@ -153,72 +227,100 @@ const getCurrentPath = path => {
     })
     .join('');
 };
-// 更新某个节点
-export const updateTreeData = (newDepartments = [], departmentId, departmentName, parentDepartment) => {
-  let path = {};
-  let arr = [...newDepartments];
-  let expandedKeys = [];
+
+/**
+ * 停用/恢复所有的子部门
+ * @param {*} departments 当前部门树数据
+ * @param {*} disabled 停用状态
+ * @returns {Object} 返回更新后的部门树数据
+ */
+
+const disabledChildren = (departments, disabled) => {
+  if (!departments) return;
+
+  return _.map(departments, dept => {
+    if (dept.subDepartments && dept.subDepartments.length) {
+      return { ...dept, disabled, subDepartments: disabledChildren(dept.subDepartments, disabled) };
+    }
+    return { ...dept, disabled };
+  });
+};
+
+/**
+ * 更新部门树数据
+ * @param {*} departments 当前部门树数据
+ * @param {*} departmentId 新增/修改/删除的部门ID
+ * @param {*} parentId 新增/修改/删除的部门父ID
+ * @param {*} updateDataInfo 新增/修改/删除的部门数据
+ * @param {*} type 新增/修改/删除
+ * @param {*} showDisabledDepartment 停用当前部门
+ * @returns {Object} 返回更新后的部门树数据和展开的节点
+ */
+export const updateTreeData = ({ departments, departmentId, parentId, updateDataInfo, type }) => {
+  let path = {}; // 所有节点路径
+  let arr = _.cloneDeep(departments);
+
   // 获取所有节点id对应路径
-  const getpath = (arr, index = '') => {
+  const getPath = (arr, index = '') => {
     (arr || []).forEach((item, i) => {
-      const his = index !== '' ? `${index}-${i}` : i.toString();
-      path[item.departmentId] = his;
+      const pathIndex = index !== '' ? `${index}-${i}` : i.toString();
+      path[item.departmentId] = pathIndex;
       if (item.subDepartments && item.subDepartments.length) {
-        getpath(item.subDepartments, his);
+        getPath(item.subDepartments, pathIndex);
       }
     });
   };
-  getpath(arr);
-  // 获取当前编辑的节点path
+  getPath(arr);
+  // 获取当前编辑的部门path
   let currentEditPath = getCurrentPath(path[departmentId]);
   // 获取当前修改节点
-  let currentEditNode = { ..._.get(arr, currentEditPath), departmentName };
+  let currentEditNode = { ..._.get(arr, currentEditPath), ...updateDataInfo };
   // 获取父节点path
   let parentPath = currentEditPath.replace(/.subDepartments\[\d{1,}\]$/g, '');
   // 获取父节点
-  let parentNode = _.get(arr, parentPath);
+  let parentNode = currentEditPath === parentPath ? {} : _.get(arr, parentPath);
 
-  _.unset(arr, currentEditPath);
-
-  if (currentEditPath.replace(/.subDepartments\[\d{1,}\]$/g, '') === currentEditPath) {
-    arr = [..._.filter(arr, item => item)];
-  } else if (parentNode.departmentId === parentDepartment) {
-    _.update(arr, currentEditPath, data => {
-      return { ...data, ...currentEditNode };
-    });
-    return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
-  } else {
-    _.update(arr, currentEditPath.replace(/.subDepartments\[\d{1,}\]$/g, ''), data => {
-      let temp = _.filter(data.subDepartments, item => item);
-      if (temp.length) {
-        return { ...data, subDepartments: temp };
-      } else {
-        delete data.subDepartments;
-        data.haveSubDepartment = false;
-        return data;
-      }
-    });
+  // 创建部门
+  if (type === 'create' && !parentNode) {
+    return arr;
   }
 
-  if (!parentDepartment) {
-    arr = arr.concat([currentEditNode]);
-    return { newDepartments: arr, expandedKeys: [currentEditNode.departmentId] };
+  // 删除部门
+  if (type === 'delete') {
+    arr = filterDeleteTreeData(arr, departmentId);
+    return arr;
   }
 
-  if (path[parentDepartment] && arr[getCurrentPath(path[parentDepartment])]) {
-    _.update(arr, getCurrentPath(path[parentDepartment]), data => {
-      if (data.subDepartments && data.subDepartments.length) {
-        data.subDepartments = data.subDepartments.concat([currentEditNode]);
-      } else {
-        data.haveSubDepartment = true;
-      }
-      return data;
-    });
+  // 编辑 && 不改变父节点
+  if (_.includes(['updateDisabled', 'edit'], type) && parentNode.departmentId === parentId) {
+    _.update(arr, currentEditPath, data => ({
+      ...data,
+      ...updateDataInfo,
+      subDepartments:
+        type === 'updateDisabled'
+          ? disabledChildren(data.subDepartments, updateDataInfo.disabled)
+          : data.subDepartments,
+    }));
   }
 
-  expandedKeys = getParentsId(arr, currentEditNode.departmentId)
-    ? getParentsId(arr, parentDepartment)
-    : getParentsId(arr, currentEditNode.departmentId);
+  // 编辑 && 改变父节点
+  if (type === 'edit' && parentNode.departmentId !== parentId) {
+    arr = filterDeleteTreeData(arr, departmentId);
+    if (!parentId) {
+      arr = arr.concat(currentEditNode);
+    } else {
+      const newParentPath = getCurrentPath(path[parentId]);
+      _.update(arr, newParentPath, data => {
+        return {
+          ...data,
+          subDepartments:
+            data.subDepartments && data.subDepartments.length
+              ? [...data.subDepartments, { ...currentEditNode, ...updateDataInfo }]
+              : data.subDepartments,
+        };
+      });
+    }
+  }
 
-  return { newDepartments: arr, expandedKeys };
+  return arr;
 };

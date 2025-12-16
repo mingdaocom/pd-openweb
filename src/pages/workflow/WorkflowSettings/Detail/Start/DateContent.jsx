@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Time from 'ming-ui/components/NewTimePicker';
 import { getControlTypeName } from '../../utils';
 import { TimeSelect, TriggerCondition } from '../components';

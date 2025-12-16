@@ -6,7 +6,8 @@ import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIODS } from 'worksheet/views/GunterView/config';
 import { getSearchData } from 'worksheet/views/util';
@@ -163,7 +164,7 @@ export default class ToolBar extends Component {
           </SearchRecord>
         )}
         {!isMobile && (
-          <Tooltip text={<span>{_l('导出为图片')}</span>}>
+          <Tooltip title={_l('导出为图片')}>
             <Icon
               icon="download"
               className="Gray_75 Font18 mRight14 pointer mLeft24"

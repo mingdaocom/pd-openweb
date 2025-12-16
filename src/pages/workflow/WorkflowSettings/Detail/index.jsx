@@ -78,10 +78,13 @@ class Detail extends Component {
     return (
       <Drawer
         placement="right"
+        className="Absolute"
         visible={!!selectNodeId}
         closable={false}
         mask={false}
+        getContainer={false}
         bodyStyle={{ padding: 0 }}
+        style={{ zIndex: 9 }}
         width={800}
       >
         <div className="workflowSettings h100">

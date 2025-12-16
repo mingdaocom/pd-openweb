@@ -4,7 +4,8 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Modal, Tooltip } from 'ming-ui';
+import { Icon, Modal } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import { DATABASE_TYPE, isValidName } from '../../../../constant';
 import SelectDataObjForm from '../../SelectDataObjForm';
@@ -140,7 +141,7 @@ export default function LeftTableList(props) {
                 label: !isValidTable ? (
                   <React.Fragment>
                     {item.workSheetName}
-                    <Tooltip text={_l('名称包含特殊字符，无法同步')}>
+                    <Tooltip title={_l('名称包含特殊字符，无法同步')}>
                       <Icon icon="info" className="Gray_bd mLeft5 pointer" />
                     </Tooltip>
                   </React.Fragment>
@@ -295,7 +296,7 @@ export default function LeftTableList(props) {
                         <span title={table.name}>{table.name}</span>
                         <div className="flexRow">
                           {isRepeatDestName && (
-                            <Tooltip text={_l('目的地表名重复')}>
+                            <Tooltip title={_l('目的地表名重复')}>
                               <Icon icon="info" className="repeatIcon" />
                             </Tooltip>
                           )}

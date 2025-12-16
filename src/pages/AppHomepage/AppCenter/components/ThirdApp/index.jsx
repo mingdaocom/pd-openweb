@@ -3,6 +3,7 @@ import api from 'api/application';
 import _ from 'lodash';
 import { func } from 'prop-types';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ThirdAppGroup from './ThirdAppGroup';
 import './index.less';
 

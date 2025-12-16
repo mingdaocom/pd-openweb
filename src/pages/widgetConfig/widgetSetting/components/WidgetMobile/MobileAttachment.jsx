@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Checkbox, Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
 import DynamicDefaultValue from '../DynamicDefaultValue';
@@ -121,7 +121,6 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                       <span style={{ marginRight: '4px' }}>{_l('添加照片水印')}</span>
                       <Tooltip
                         placement="bottom"
-                        autoCloseDelay={0}
                         title={_l('在上传照片时添加水印，可显示上传者、上传时间、地点、经纬度信息')}
                       >
                         <i className="icon-help Gray_9e Font16 Hand"></i>
@@ -156,7 +155,6 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                   <span style={{ marginRight: '4px' }}>{_l('手机App')}</span>
                   <Tooltip
                     placement="bottom"
-                    autoCloseDelay={0}
                     title={
                       <span className="WordBreak">
                         {_l('勾选后，将对图片压缩后再进行上传。未勾选时，用户可自行选择是否上传原图。')}
@@ -176,7 +174,6 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                   <span style={{ marginRight: '4px' }}>{_l('Web移动端（H5）')}</span>
                   <Tooltip
                     placement="bottom"
-                    autoCloseDelay={0}
                     title={
                       <span className="WordBreak">
                         {_l(

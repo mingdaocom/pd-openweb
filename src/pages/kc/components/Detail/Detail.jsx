@@ -141,7 +141,7 @@ class Detail extends React.Component {
       service
         .getNodesTotalFolderCountAndFileSize({
           rootType: this.props.rootType,
-          keywords: $.trim($('#smartSearchFile').val()),
+          keywords: $('#smartSearchFile').val().trim(),
           parentId: this.props.parentId || this.props.rootId,
           status: this.props.status,
         })
@@ -179,7 +179,7 @@ class Detail extends React.Component {
         .updateNode({ id: item.id, isDownloadable })
         .then(result => {
           if (!result) {
-            return Promise.reject();
+            throw new Error();
           }
           alert(_l('修改成功'));
           item = _.assign({}, item, { isDownloadable });
@@ -204,7 +204,7 @@ class Detail extends React.Component {
         .updateNode({ id: item.id, isEditable })
         .then(result => {
           if (!result) {
-            return Promise.reject();
+            throw new Error();
           }
           alert(_l('修改成功'));
           item = _.assign({}, item, { isEditable });
@@ -229,7 +229,7 @@ class Detail extends React.Component {
         .updateNode(_.assign({ id: item.id }, attrubuteObj))
         .then(result => {
           if (!result) {
-            return Promise.reject();
+            throw new Error();
           }
           alert(_l('修改成功'));
           item = _.extend({}, item, attrubuteObj);
@@ -297,7 +297,7 @@ class Detail extends React.Component {
         .updateNode({ id: item.id, visibleType })
         .then(result => {
           if (!result) {
-            return Promise.reject();
+            throw new Error();
           }
           alert(_l('修改成功'));
           item = _.assign({}, item, { visibleType });

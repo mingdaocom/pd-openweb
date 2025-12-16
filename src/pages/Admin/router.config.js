@@ -132,7 +132,7 @@ export const menuList = [
         key: 'billinfo',
         routes: [
           {
-            path: '/admin/billinfo/(.*)',
+            path: '/admin/billinfo/:projectId/:type?',
             component: () => import('./organization/billCenter/billInfo'),
           },
           {
@@ -281,9 +281,9 @@ export const menuList = [
     ].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.key === 'aggregationTable')),
   },
   {
-    title: _l('商户与支付'),
+    title: _l('支付与开票'),
     key: 'pay',
-    icon: 'icon-merchant',
+    icon: 'icon-payment3',
     subMenuList: [
       {
         name: _l('商户'),
@@ -303,7 +303,7 @@ export const menuList = [
       },
       {
         name: _l('订单'),
-        key: 'order',
+        key: 'transaction',
         featureId: 40,
         menuPath: '/admin/transaction/:projectId(.*)',
         routes: [
@@ -314,6 +314,21 @@ export const menuList = [
           {
             path: '/admin/refund/:projectId',
             component: () => import('./pay/OrderList'),
+          },
+        ],
+      },
+      {
+        name: _l('开票'),
+        key: 'invoice',
+        featureId: VersionProductType.invoice,
+        routes: [
+          {
+            path: '/admin/invoice/:projectId/:type?',
+            component: () => import('./pay/Invoice'),
+          },
+          {
+            path: '/admin/expansionservice/(.*)/(invoice)+',
+            component: () => import('./organization/billCenter/expansionService'),
           },
         ],
       },

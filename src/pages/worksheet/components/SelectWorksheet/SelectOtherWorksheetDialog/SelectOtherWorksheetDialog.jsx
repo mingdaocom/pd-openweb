@@ -4,13 +4,14 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Button, Dialog, Dropdown } from 'ming-ui';
 import homeAppAjax from 'src/api/homeApp';
+import syncTaskApi from 'src/pages/integration/api/syncTask';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import './SelectOtherWorksheetDialog.less';
 
 export default class extends Component {
   static propTypes = {
     projectId: PropTypes.string,
-    worksheetType: PropTypes.number, // 工作表类型 0: 工作表 1: 自定义页面
+    worksheetType: PropTypes.number, // 工作表类型 0: 工作表 1: 自定义页面 2: 聚合表
     selectedAppId: PropTypes.string, // 已选中的应用id
     selectedWorksheetId: PropTypes.string, // 已选中的工作表id
     visible: PropTypes.bool,
@@ -56,20 +57,35 @@ export default class extends Component {
     }
   }
   loadWorksheetsOfApp(appId) {
-    const { worksheetType } = this.props;
-    homeAppAjax.getWorksheetsByAppId({ appId, type: worksheetType }).then(data => {
-      this.setState({
-        worksheetsOfSelectedApp: data
-          .filter(o => o.createType !== 1)
-          .map(sheet => ({ text: sheet.workSheetName, value: sheet.workSheetId })),
+    const { projectId, worksheetType } = this.props;
+
+    if (worksheetType === 2) {
+      syncTaskApi
+        .list({ projectId, appId, pageNo: 0, pageSize: 9999, taskType: 1 }, { isAggTable: true })
+        .then(data => {
+          this.setState({
+            worksheetsOfSelectedApp: data.content
+              .filter(o => o.aggTableTaskStatus !== 0)
+              .map(({ name, worksheetId }) => ({ text: name, value: worksheetId })),
+          });
+        });
+    } else {
+      homeAppAjax.getWorksheetsByAppId({ appId, type: worksheetType }).then(data => {
+        this.setState({
+          worksheetsOfSelectedApp: data
+            .filter(o => o.createType !== 1)
+            .map(sheet => ({ text: sheet.workSheetName, value: sheet.workSheetId })),
+        });
       });
-    });
+    }
   }
   render() {
     const { visible, onHide, worksheetType, onOk, className, onlyApp, title, description, hideAppLabel, disabled } =
       this.props;
     const { myApps, worksheetsOfSelectedApp, selectedAppId, selectedWorksheetId } = this.state;
-    const worksheetTypeName = worksheetType === 1 ? _l('自定义页面') : _l('工作表');
+    const worksheetTypeName =
+      worksheetType === 1 ? _l('自定义页面') : worksheetType === 2 ? _l('聚合表') : _l('工作表');
+
     return (
       <Dialog
         dialogClasses={className}

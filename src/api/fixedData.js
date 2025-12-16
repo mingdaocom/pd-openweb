@@ -52,6 +52,22 @@ export default {
     return mdyAPI('FixedData', 'GetCitysByParentID', args, options);
   },
   /**
+   * 根据城市id获取完整的城市层级路径
+   * @param {Object} args 请求参数
+   * @param {string} args.cityId 城市ID
+   * @param {string} args.textSplit 分割字符
+   * @param {integer} args.langType 语言类型
+   * @param {string} args.projectId 组织Id
+   * @param {boolean} args.isGetCounty 返回path是否包含国家
+   * @param {boolean} args.isChooseCounty 是否需要返回第一级
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAllPathCitysByID: function (args, options = {}) {
+    return mdyAPI('FixedData', 'GetAllPathCitysByID', args, options);
+  },
+  /**
    * 根据组织Id或者地区Code获取地区默认配置信息
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -117,5 +133,16 @@ export default {
    **/
   loadLangList: function (args, options = {}) {
     return mdyAPI('FixedData', 'LoadLangList', args, options);
+  },
+  /**
+   * 加载系统快捷键列表
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  loadHostKeys: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('FixedData', 'LoadHostKeys', args, options);
   },
 };

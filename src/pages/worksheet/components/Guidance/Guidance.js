@@ -10,7 +10,7 @@ const maxGuide = 7;
 export default class Guidance extends Component {
   constructor(props) {
     super(props);
-    const guide = localStorage.getItem('guide');
+    const guide = localStorage.getItem(`guide-${md.global.Account.accountId}`);
     this.state = {
       guide: guide ? Number(guide) : 1,
     };
@@ -99,7 +99,7 @@ export default class Guidance extends Component {
   }
   saveGuide = () => {
     const { guide } = this.state;
-    safeLocalStorageSetItem('guide', guide);
+    safeLocalStorageSetItem(`guide-${md.global.Account.accountId}`, guide);
     if (guide === 2) {
       const moreOperate = document.querySelector('.worksheetCompHeader .moreOperate ul');
       if (moreOperate) {
@@ -290,7 +290,7 @@ export default class Guidance extends Component {
               </Button>
             ) : (
               <Button className="continue" type="primary" onClick={this.handleContinue}>
-                {guide === 1 ? _l('开始') : _l('继续')}
+                {_l('下一步')}
               </Button>
             )}
           </div>

@@ -5,6 +5,7 @@ import CodeMirror from 'codemirror';
 import 'codemirror/addon/display/placeholder';
 import _, { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import { MODE } from './enum';
 import 'codemirror/lib/codemirror.css';
 import './TagTextarea.less';
@@ -39,7 +40,6 @@ export default class TagTextarea extends React.Component {
   };
 
   static defaultProps = {
-    maxHeight: 500,
     mode: MODE.TEXT,
     operatorsSetMargin: false,
     defaultValue: '',
@@ -71,6 +71,7 @@ export default class TagTextarea extends React.Component {
       placeholder,
       codeMirrorMode,
       lineNumbers,
+      maxHeight = 500,
     } = this.props;
     getRef(this);
     if (this.cmcon) {
@@ -92,6 +93,19 @@ export default class TagTextarea extends React.Component {
       }
       this.cmObj.on('change', this.handleCMChange);
       this.cmObj.on('beforeChange', (cm, obj) => {
+        if (this.cmcon) {
+          if (this.cmcon.querySelector('.CodeMirror-sizer').clientHeight >= maxHeight - 2) {
+            if (this.cmcon.classList.contains('autoHeight')) {
+              this.cmcon.classList.remove('autoHeight');
+            }
+            this.cmcon.style.height = maxHeight + 'px';
+          } else {
+            if (!this.cmcon.classList.contains('autoHeight')) {
+              this.cmcon.classList.add('autoHeight');
+            }
+            this.cmcon.style.height = 'auto';
+          }
+        }
         if (obj.origin === 'undo' || obj.origin === 'redo') {
           return;
         }
@@ -269,14 +283,16 @@ export default class TagTextarea extends React.Component {
     return (
       <div className={cx('tagInputarea', className, { flexRow: rightIcon })}>
         <div
-          className={cx('tagInputareaIuput ThemeBorderColor3', { 'flex hasRightIcon': rightIcon })}
+          className={cx('tagInputareaIuput autoHeight ThemeBorderColor3', { 'flex hasRightIcon': rightIcon })}
           ref={con => (this.cmcon = con)}
           style={{ maxHeight }}
         />
         {rightIcon && (
-          <span className="rightIcon Hand ThemeHoverColor3" onClick={onAddClick} data-tip={_l('添加字段')}>
-            <i className="icon icon-workflow_other"></i>
-          </span>
+          <Tooltip title={_l('添加字段')}>
+            <span className="rightIcon Hand ThemeHoverColor3" onClick={onAddClick}>
+              <i className="icon icon-workflow_other"></i>
+            </span>
+          </Tooltip>
         )}
       </div>
     );

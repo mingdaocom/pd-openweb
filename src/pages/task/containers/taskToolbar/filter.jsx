@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, Dropdown, MultipleDropdown, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
@@ -146,9 +147,11 @@ class Filter extends Component {
       <div className="filterLabel relative">
         {text}
         {tips ? (
-          <span data-tip={tips} className="mLeft5 Font14">
-            <i className="icon-help" />
-          </span>
+          <Tooltip title={tips}>
+            <span className="mLeft5 Font14">
+              <i className="icon-help" />
+            </span>
+          </Tooltip>
         ) : undefined}
         {clearOptionsFun ? (
           <span className="ThemeColor3 filterClear pointer" onClick={clearOptionsFun}>
@@ -398,19 +401,20 @@ class Filter extends Component {
     };
 
     return (
-      <span
-        key={item.accountID}
-        data-tip={isMoreBtn ? '' : item.fullName}
-        className={cx('filterMemberItem relative tip-top', {
-          ThemeBorderColor3: _.includes(filterSettings.selectChargeIds, item.accountID),
-        })}
-        onClick={onClickFun}
-      >
-        <img src={item.avatar} />
-        {isMoreBtn && (
-          <span className="filterMemberItemMore">+{members.length - 12 > 99 ? 99 : members.length - 12}</span>
-        )}
-      </span>
+      <Tooltip title={isMoreBtn ? '' : item.fullName}>
+        <span
+          key={item.accountID}
+          className={cx('filterMemberItem relative', {
+            ThemeBorderColor3: _.includes(filterSettings.selectChargeIds, item.accountID),
+          })}
+          onClick={onClickFun}
+        >
+          <img src={item.avatar} />
+          {isMoreBtn && (
+            <span className="filterMemberItemMore">+{members.length - 12 > 99 ? 99 : members.length - 12}</span>
+          )}
+        </span>
+      </Tooltip>
     );
   }
 

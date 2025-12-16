@@ -2,7 +2,8 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
@@ -42,7 +43,7 @@ const ControlLabel = styled.div`
       }
     }}
     font-size: ${props => props.titleSize || '0.8em'}!important;
-    color: ${props => props.titleColor || 'var(--gray-75)'};
+    color: ${props => props.titleColor || 'var(--color-text-secondary)'};
     ${props => props.titleStyle || ''};
   }
   .requiredBtnBox .customFormItemLoading {
@@ -50,6 +51,11 @@ const ControlLabel = styled.div`
       const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
       return `${valueHeight - 12}px !important`;
     }};
+  }
+  .filledByAi {
+    color: #773be0;
+    font-size: 18px;
+    margin-left: 3px;
   }
 `;
 
@@ -127,7 +133,7 @@ export default ({
 
         {item.desc && !_.includes([FROM.H5_ADD], from) && (
           <Tooltip
-            text={
+            title={
               <span
                 className="Block"
                 style={{
@@ -141,10 +147,9 @@ export default ({
                 {item.desc}
               </span>
             }
-            action={['click']}
-            popupPlacement={'topLeft'}
-            offset={[-12, 0]}
-            autoCloseDelay={0}
+            trigger={['click']}
+            placement="topLeft"
+            align={{ offset: [-12, 0] }}
           >
             <i className="icon-info_outline pointer Font16 Gray_9e mBottom10" />
           </Tooltip>
@@ -228,7 +233,7 @@ export default ({
         {hintShowAsIcon && <WidgetsDesc item={item} from={from} />}
 
         {item.type === 45 && allowlink === '1' && item.enumDefault === 1 && (
-          <Tooltip text={<span>{_l('新页面打开')}</span>}>
+          <Tooltip title={_l('新页面打开')}>
             <Icon
               className="Hand Font16 mLeft3 Gray_9e mTop3"
               icon="launch"

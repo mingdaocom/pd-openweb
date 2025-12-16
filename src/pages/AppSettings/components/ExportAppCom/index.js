@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, ScrollView, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import ExportApp from 'src/pages/Admin/app/appManagement/modules/ExportApp';
 import { dateConvertToUserZone } from 'src/utils/project';
@@ -216,7 +217,7 @@ export default class ExportAppCom extends Component {
                           {apps.length === 1 ? (
                             _l('单应用')
                           ) : (
-                            <Tooltip text={<span>{_l('应用包') + `(${appNames})`}</span>}>
+                            <Tooltip title={_l('应用包') + `(${appNames})`}>
                               <span className="ellipsis InlineBlock wMax100">{_l('应用包') + `(${appNames})`}</span>
                             </Tooltip>
                           )}

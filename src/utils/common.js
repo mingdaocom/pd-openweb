@@ -1,3 +1,5 @@
+import { generate } from '@ant-design/colors';
+import { TinyColor } from '@ctrl/tinycolor';
 import dayjs from 'dayjs';
 import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
@@ -7,7 +9,6 @@ import qs from 'query-string';
 import appManagementAjax from 'src/api/appManagement';
 import qiniuAjax from 'src/api/qiniu';
 import webCache from 'src/api/webCache';
-import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { PUBLIC_KEY } from './enum';
 import RegExpValidator from './expression';
 import { getPssId } from './pssId';
@@ -193,23 +194,15 @@ export function isKeyBoardInputChar(value) {
 }
 
 export function getScrollBarWidth() {
-  let width;
-  var scroll = document.createElement('div');
-  scroll.style = 'position: absolute; left: -10000px; top: -10000px; width: 100px; height: 100px; overflow: scroll;';
-  scroll.innerHTML = '<div style="width: 100px;height:200px"></div>';
-  document.body.appendChild(scroll);
-  width = scroll.offsetWidth - scroll.clientWidth;
-  document.body.removeChild(scroll);
-  return width || 10;
+  return 10;
 }
 
 export function getRowGetType(from, { discussId } = {}) {
   let isInbox;
   if (typeof discussId !== 'undefined') {
-    isInbox = from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && !!discussId;
+    isInbox = from === 2 && !!discussId;
   } else {
-    isInbox =
-      from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('inboxId') > -1;
+    isInbox = from === 2 && location.search && location.search.indexOf('inboxId') > -1;
   }
   if (from == 21) {
     return 21;
@@ -234,7 +227,7 @@ export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig 
     token = await appManagementAjax.getToken(tokenArgs);
 
     if (!token) {
-      return Promise.reject('获取token失败');
+      throw '获取token失败';
     }
   }
   return window.mdyAPI(
@@ -262,7 +255,7 @@ export async function getWithToken(url, tokenArgs = {}, body = {}) {
     token = await appManagementAjax.getToken(tokenArgs);
 
     if (!token) {
-      return Promise.reject('获取token失败');
+      throw '获取token失败';
     }
   }
 
@@ -542,9 +535,7 @@ export const encrypt = text => {
   encrypt.setPublicKey(PUBLIC_KEY);
   return encrypt.encrypt(
     JSON.stringify({
-      expire: moment()
-        .utc()
-        .valueOf(),
+      expire: moment().utc().valueOf(),
       data: encodeURIComponent(text),
     }),
   );
@@ -616,7 +607,7 @@ export const downloadFile = url => {
     const { validation } = qs.parse(search);
     return addToken(url, validation ? true : false);
   } else {
-    return addToken(url, md.global.Config.HttpOnly ? false : true);
+    return addToken(url, md.global.Config.HttpOnly || window.self !== window.top ? false : true);
   }
 };
 
@@ -993,103 +984,338 @@ export function domFilterHtmlScript(html) {
   }
 }
 
-// 提示邀请结果
-export const existAccountHint = function (result) {
-  const inviteNoticeMessage = function (title, accounts) {
-    if (!accounts.length) return '';
-    const USER_STATUS = {
-      2: _l('（被拒绝加入，需从后台恢复权限）'),
-      3: _l('（待审批）'),
-      4: _l('（被暂停权限，需从后台恢复权限）'),
-    };
-    let noticeMessage = title + '：<br/>';
-
-    accounts.forEach(item => {
-      let message = '';
-      if (item.account) {
-        // 不存在的用户
-        message = item.account;
-      } else {
-        // 已存在的用户
-        let accountArr = [];
-        if (item.email) {
-          accountArr.push(item.email);
-        }
-        if (item.mobilePhone) {
-          accountArr.push(item.mobilePhone);
-        }
-        let desc = accountArr.join(' / ') + (USER_STATUS[item.user] || '');
-        message = item.fullname + (desc.length ? '：' + desc : '');
-      }
-      noticeMessage += '<div class="Font12 Gray_c LineHeight25">' + message + '</div>';
-    });
-
-    return noticeMessage;
-  };
-  const SendMessageResult = {
-    Failed: 0,
-    Success: 1,
-    Limit: 2,
-  };
-
-  if (result.sendMessageResult === SendMessageResult.Failed) {
-    alert(_l('邀请失败'), 2);
-    return;
-  }
-
-  let accountInfos = []; // 成功
-  let existAccountInfos = []; // 已存在
-  let failedAccountInfos = []; // 失败
-  let limitAccountInfos = []; // 邀请限制
-  let forbidAccountInfos = []; // 账号来源类型受限
-
-  (result.results || []).forEach(singleResult => {
-    // 成功
-    if (singleResult.accountInfos) {
-      accountInfos = accountInfos.concat(singleResult.accountInfos);
-    }
-
-    // 已存在
-    if (singleResult.existAccountInfos) {
-      existAccountInfos = existAccountInfos.concat(singleResult.existAccountInfos);
-    }
-
-    // 失败
-    if (singleResult.failedAccountInfos) {
-      failedAccountInfos = failedAccountInfos.concat(singleResult.failedAccountInfos);
-    }
-
-    // 限制
-    if (singleResult.limitAccountInfos) {
-      limitAccountInfos = limitAccountInfos.concat(singleResult.limitAccountInfos);
-    }
-
-    // 账号来源类型受限
-    if (singleResult.forbidAccountInfos) {
-      forbidAccountInfos = forbidAccountInfos.concat(singleResult.forbidAccountInfos);
-    }
-  });
-
-  let message = _l('邀请成功');
-  let isNotice =
-    existAccountInfos.length || failedAccountInfos.length || limitAccountInfos.length || forbidAccountInfos.length;
-
-  if (isNotice) {
-    message = inviteNoticeMessage(_l('以下用户邀请成功'), accountInfos);
-    message += inviteNoticeMessage(_l('以下用户已存在，不能重复邀请'), existAccountInfos);
-    message += inviteNoticeMessage(_l('以下用户超过邀请数量限制，无法邀请'), limitAccountInfos);
-    message += inviteNoticeMessage(_l('以下用户邀请失败'), failedAccountInfos);
-    message += inviteNoticeMessage(_l('以下用户账号来源类型受限'), forbidAccountInfos);
-  }
-
-  if (isNotice) {
-    alert(message, 3);
-  } else {
-    alert(message);
-  }
-
-  return {
-    accountInfos: accountInfos,
-    existAccountInfos: existAccountInfos,
-  };
+const globalStoreForMingo = {
+  emitter: new EventEmitter(),
+  activeModule: 'worksheet', // ["worksheet", "worksheetControlsEdit"]
 };
+
+window.globalStoreForMingo = globalStoreForMingo;
+
+export const updateGlobalStoreForMingo = (key, value) => {
+  if (typeof key === 'string') {
+    globalStoreForMingo[key] = value;
+  } else {
+    if (value === 'clear') {
+      Object.keys(globalStoreForMingo).forEach(k => {
+        delete globalStoreForMingo[k];
+      });
+    }
+    Object.keys(key).forEach(k => {
+      globalStoreForMingo[k] = key[k];
+    });
+  }
+};
+
+export const getGlobalStoreForMingo = key => {
+  return key ? globalStoreForMingo[key] : globalStoreForMingo;
+};
+
+function generateFileOId() {
+  const prefix = 'o_';
+
+  // 使用当前时间戳作为基础（更具唯一性）
+  const timestamp = Date.now().toString(36); // 转成36进制，包含数字+字母
+
+  // 随机部分，用于增加复杂度和避免冲突
+  const randomPart = Array.from({ length: 20 }, () => Math.random().toString(36)[2]).join('');
+
+  return prefix + timestamp + randomPart;
+}
+
+export function getTemporaryAttachmentFromUrl({ fileUrl, fileName = '', fileSize, fileExt } = {}) {
+  const urlObj = new URL(fileUrl);
+  const name = fileName.replace(/\.[^.]+$/, '');
+  const ext = fileExt || get(fileName.match(/\.[^.]+$/), '0');
+  const fileNameOfUrl = get(urlObj.pathname.match(/\/([^/]*$)/, ''), '1').replace(/\.[^.]+$/, '');
+  return {
+    fileID: generateFileOId(),
+    fileSize: fileSize || 0,
+    serverName: urlObj.origin + '/',
+    filePath: urlObj.pathname.replace(/\/([^/]*$)/, '').replace(/^\//, '') + '/',
+    fileName: fileNameOfUrl,
+    fileExt: ext,
+    originalFileName: name,
+    key: urlObj.pathname.replace(/^\//, ''),
+    oldOriginalFileName: name,
+    url: fileUrl,
+  };
+}
+
+/**
+ * 根据文件扩展名获取对应的 MIME 类型
+ * @param  {string} ext 文件扩展名
+ * @return {string}     MIME 类型
+ */
+export const getMimeTypeByExt = ext => {
+  if (!ext) return 'application/octet-stream';
+  ext = ext.replace(/^\./, '');
+  const extLower = ext.toLowerCase();
+
+  switch (extLower) {
+    // 图片类型
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'gif':
+      return 'image/gif';
+    case 'bmp':
+      return 'image/bmp';
+    case 'tif':
+    case 'tiff':
+      return 'image/tiff';
+    case 'webp':
+      return 'image/webp';
+    case 'svg':
+      return 'image/svg+xml';
+    case 'ico':
+      return 'image/x-icon';
+
+    // 文档类型
+    case 'pdf':
+      return 'application/pdf';
+    case 'doc':
+      return 'application/msword';
+    case 'docx':
+      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    case 'dot':
+      return 'application/msword';
+    case 'xls':
+      return 'application/vnd.ms-excel';
+    case 'xlsx':
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    case 'ppt':
+      return 'application/vnd.ms-powerpoint';
+    case 'pptx':
+      return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+    case 'pps':
+      return 'application/vnd.ms-powerpoint';
+
+    // 文本类型
+    case 'txt':
+      return 'text/plain';
+    case 'html':
+    case 'htm':
+      return 'text/html';
+    case 'css':
+      return 'text/css';
+    case 'js':
+      return 'application/javascript';
+    case 'json':
+      return 'application/json';
+    case 'xml':
+      return 'application/xml';
+    case 'csv':
+      return 'text/csv';
+    case 'md':
+      return 'text/markdown';
+
+    // 代码文件
+    case 'ts':
+      return 'application/typescript';
+    case 'java':
+      return 'text/x-java-source';
+    case 'py':
+      return 'text/x-python';
+    case 'rb':
+      return 'text/x-ruby';
+    case 'cpp':
+    case 'c':
+      return 'text/x-c';
+    case 'php':
+      return 'application/x-php';
+    case 'swift':
+      return 'text/x-swift';
+    case 'go':
+      return 'text/x-go';
+    case 'rust':
+      return 'text/x-rust';
+    case 'lua':
+      return 'text/x-lua';
+    case 'sql':
+      return 'application/sql';
+    case 'pl':
+      return 'text/x-perl';
+    case 'sh':
+      return 'application/x-sh';
+    case 'cs':
+      return 'text/x-csharp';
+    case 'vb':
+      return 'text/x-vb';
+    case 'scala':
+      return 'text/x-scala';
+    case 'perl':
+      return 'text/x-perl';
+    case 'r':
+      return 'text/x-r';
+    case 'matlab':
+      return 'text/x-matlab';
+    case 'groovy':
+      return 'text/x-groovy';
+    case 'jsp':
+      return 'application/x-jsp';
+    case 'jsx':
+      return 'text/jsx';
+    case 'tsx':
+      return 'text/tsx';
+    case 'sass':
+      return 'text/x-sass';
+    case 'less':
+      return 'text/x-less';
+    case 'scss':
+      return 'text/x-scss';
+    case 'coffee':
+      return 'text/x-coffeescript';
+    case 'asm':
+      return 'text/x-asm';
+    case 'bat':
+      return 'application/x-bat';
+    case 'powershell':
+      return 'application/x-powershell';
+    case 'h':
+    case 'hpp':
+      return 'text/x-c';
+    case 'm':
+    case 'mm':
+      return 'text/x-objective-c';
+    case 'd':
+      return 'text/x-d';
+    case 'kt':
+      return 'text/x-kotlin';
+    case 'ini':
+      return 'text/plain';
+    case 'yml':
+    case 'yaml':
+      return 'application/x-yaml';
+
+    // 音频类型
+    case 'mp3':
+      return 'audio/mpeg';
+    case 'wav':
+      return 'audio/wav';
+    case 'flac':
+      return 'audio/flac';
+    case 'ape':
+      return 'audio/ape';
+    case 'alac':
+      return 'audio/alac';
+    case 'wavpack':
+      return 'audio/wavpack';
+    case 'm4a':
+      return 'audio/mp4';
+    case 'aac':
+      return 'audio/aac';
+    case 'ogg':
+      return 'audio/ogg';
+    case 'vorbis':
+      return 'audio/vorbis';
+    case 'opus':
+      return 'audio/opus';
+    case 'au':
+      return 'audio/basic';
+    case 'mmf':
+      return 'audio/mmf';
+    case 'aif':
+      return 'audio/aiff';
+
+    // 视频类型
+    case 'mp4':
+      return 'video/mp4';
+    case 'mov':
+      return 'video/quicktime';
+    case 'mpg':
+    case 'mpeg':
+      return 'video/mpeg';
+    case 'flv':
+      return 'video/x-flv';
+    case 'f4v':
+      return 'video/x-f4v';
+    case 'rm':
+    case 'rmvb':
+      return 'video/vnd.rn-realvideo';
+    case 'avi':
+      return 'video/x-msvideo';
+    case 'mkv':
+      return 'video/x-matroska';
+    case 'wmv':
+      return 'video/x-ms-wmv';
+    case '3gp':
+      return 'video/3gpp';
+    case '3g2':
+      return 'video/3gpp2';
+    case 'swf':
+      return 'application/x-shockwave-flash';
+    case 'm4v':
+      return 'video/x-m4v';
+
+    // 压缩文件
+    case 'zip':
+      return 'application/zip';
+    case 'rar':
+      return 'application/x-rar-compressed';
+    case '7z':
+      return 'application/x-7z-compressed';
+    case 'tar':
+      return 'application/x-tar';
+    case 'gz':
+      return 'application/gzip';
+
+    // 其他文件类型
+    case 'psd':
+      return 'image/vnd.adobe.photoshop';
+    case 'ai':
+      return 'application/postscript';
+    case 'eps':
+      return 'application/postscript';
+    case 'exe':
+      return 'application/x-msdownload';
+    case 'dmg':
+      return 'application/x-apple-diskimage';
+    case 'iso':
+      return 'application/x-iso9660-image';
+    case 'apk':
+      return 'application/vnd.android.package-archive';
+    case 'db':
+      return 'application/x-sqlite3';
+    case 'dwg':
+      return 'image/vnd.dwg';
+    case 'indd':
+      return 'application/x-indesign';
+    case 'key':
+      return 'application/vnd.apple.keynote';
+    case 'ma':
+    case 'max':
+      return 'application/x-3ds-max';
+    case 'numbers':
+      return 'application/vnd.apple.numbers';
+    case 'obj':
+      return 'application/x-tgif';
+    case 'pages':
+      return 'application/vnd.apple.pages';
+    case 'prt':
+      return 'application/x-prt';
+    case 'rp':
+      return 'application/x-rp';
+    case 'skp':
+      return 'application/x-sketchup';
+    case 'xd':
+      return 'application/vnd.adobe.xd';
+    case 'url':
+      return 'application/x-url';
+    case 'mdy':
+      return 'application/x-mdy';
+
+    // 默认类型
+    default:
+      return 'application/octet-stream';
+  }
+};
+
+export function setAppThemeColor(color) {
+  const style = document.createElement('style');
+  style.innerHTML = `:root { --app-primary-color: ${color}; --app-primary-hover-color: ${new TinyColor(color)
+    .darken(5)
+    .toString()};  --app-highlight-color: ${generate(color)[0].toString()}}`;
+  document.head.appendChild(style);
+}

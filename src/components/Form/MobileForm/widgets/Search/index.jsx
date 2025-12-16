@@ -81,7 +81,7 @@ const SearchBox = props => {
         upgradeVersionDialog({
           projectId,
           okText: _l('立即充值'),
-          hint: _l('余额不足，请联系管理员充值'),
+          hint: _l('信用点不足，请联系管理员充值'),
           explainText: <div></div>,
           onOk: () => {
             location.href = `/admin/valueaddservice/${projectId}`;
@@ -112,7 +112,7 @@ const SearchBox = props => {
   const realTimeSearch = useCallback(_.debounce(handleSearch, 500), []);
 
   const getOptions = () => {
-    return safeParse(data[itemsource] || '[]');
+    return safeParse((data || {})[itemsource] || '[]');
   };
 
   const handleSelect = item => {

@@ -95,6 +95,7 @@ export const ACTION_TO_TEXT = {
 
 export const STATUS_ERROR_MESSAGE = {
   20001: _l('动作节点执行失败'),
+  20018: _l('节点对象已删除'),
   30001: _l('当前流程已删除'),
   30002: _l('当前流程已关闭'),
   30003: _l('当前内容已失效'),

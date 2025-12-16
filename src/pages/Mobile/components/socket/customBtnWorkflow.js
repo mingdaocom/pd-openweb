@@ -89,8 +89,9 @@ export default () => {
       alert({
         msg: description,
         type: _.includes([3, 4], data.type) ? 4 : promptType,
-        timeout: 1000,
+        duration: 1000,
         key: 'workflow',
+        isPcAlert: true,
       });
     }
   });

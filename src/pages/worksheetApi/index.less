@@ -136,6 +136,14 @@ html {
   border-bottom: 1px solid rgba(153, 153, 153, 0.3);
   flex: 1.5;
 
+  .minWidthControlId {
+    min-width: 180px;
+  }
+
+  .minWidthViewId {
+    min-width: 180px;
+  }
+
   .w32 {
     flex: 32;
     word-break: break-all;
@@ -150,6 +158,10 @@ html {
   }
   .w22 {
     flex: 22;
+    word-break: break-all;
+  }
+  .w20 {
+    flex: 20;
     word-break: break-all;
   }
   .w30 {
@@ -170,6 +182,10 @@ html {
   }
   .w14 {
     flex: 14;
+    word-break: break-all;
+  }
+  .w28 {
+    flex: 28;
     word-break: break-all;
   }
 
@@ -273,6 +289,21 @@ html {
 
   .react-json-view {
     background: transparent !important;
+  }
+}
+
+.worksheetApiContentJsonViewBox {
+  padding: 16px 20px;
+  border-radius: 4px;
+  background: #303336;
+  overflow-x: auto;
+  .react-json-view {
+    background: transparent !important;
+    .variable-value {
+      div {
+        word-break: break-all;
+      }
+    }
   }
 }
 

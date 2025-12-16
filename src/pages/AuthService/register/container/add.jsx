@@ -71,15 +71,18 @@ export default function (props) {
             str = _l('申请加入失败，您在该企业已离职，请联系管理员恢复权限');
           }
           if (data.joinProjectResult === 3) {
-            alert(str, 1, 2000, function () {
-              if (window.isMingDaoApp) {
-                mdAppResponse({
-                  sessionId: 'register',
-                  type: 'native',
-                  settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
-                });
-              }
-              location.href = '/personal?type=enterprise';
+            alert({
+              msg: str,
+              onClose: function () {
+                if (window.isMingDaoApp) {
+                  mdAppResponse({
+                    sessionId: 'register',
+                    type: 'native',
+                    settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
+                  });
+                }
+                location.href = '/personal?type=enterprise';
+              },
             });
           } else {
             alert(str, 3);
@@ -126,7 +129,7 @@ export default function (props) {
             <div className="title" onClick={() => setState({ focusDiv: 'regcode' })}>
               {_l('示例：MD1314')}
             </div>
-            {renderWarn('regcode')}
+            {renderWarn()}
           </div>
         </div>
       </React.Fragment>

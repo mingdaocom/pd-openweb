@@ -1,7 +1,11 @@
+import _ from 'lodash';
+
 export default class MapHandler {
   constructor(container = document.createElement('div'), mapOptions = {}) {
     this.searchMarker = null; // 搜索结果点标记
     this.rangeCircle = null; // 圆形范围
+    this.eventHandlers = []; // 存储事件处理器，用于销毁时清理
+    this.geolocation = null; // 定位实例
     // 创建地图实例
     this.map = new AMap.Map(container, {
       // 地图容器DIV的ID值或者DIV对象
@@ -12,9 +16,20 @@ export default class MapHandler {
   }
   // 销毁地图
   destroyMap() {
+    if (!this.map) return;
+
+    this.eventHandlers.forEach(({ map, name, callback }) => {
+      if (map && map.off) {
+        map.off(name, callback);
+      }
+    });
+    this.eventHandlers = [];
+    this.map?.clearMap();
+    this.map?.destroy();
     this.map = null;
     this.searchMarker = null;
     this.rangeCircle = null;
+    this.geolocation = null;
   }
   // 指定地图显示位置
   setPosition(lng, lat, zoom = 15) {
@@ -30,6 +45,8 @@ export default class MapHandler {
   // 事件绑定
   _bindListener(map, name, callback) {
     map.on(name, callback);
+    // 保存事件处理器引用，用于销毁时清理
+    this.eventHandlers.push({ map, name, callback });
   }
   // 解除绑定
   _unBindListener(map, name, callback) {
@@ -66,6 +83,11 @@ export default class MapHandler {
   addSearchMarker(lng, lat) {
     const map = this.map;
 
+    if (this.searchMarker) {
+      this.searchMarker?.setMap(null);
+      this.searchMarker = null;
+    }
+
     // 实例化点标记
     this.searchMarker = new AMap.Marker({
       icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_r.png', // 红色点标记
@@ -95,19 +117,31 @@ export default class MapHandler {
     }
   }
   // 获取当前位置
-  getCurrentPos(callback, openCityPos = true) {
-    const geolocation = new AMap.Geolocation({
-      timeout: 10000, // 超过10秒后停止定位，默认：无穷大
+  getCurrentPos(callback, openCityPos = false, { locationFailedCallback, locationFailedAlert } = {}) {
+    if (this.geolocation) {
+      this.geolocation = null;
+    }
+
+    this.geolocation = new AMap.Geolocation({
+      timeout: 15000, // 超过15秒后停止定位，默认：无穷大
       zoomToAccuracy: true, // 定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
       extensions: 'all',
       needAddress: true, // 包含详细地址信息
     });
-    geolocation.getCurrentPosition((status, result) => {
+    this.geolocation.getCurrentPosition((status, result) => {
       if (status === 'error' && openCityPos) {
         this.getCurrentCityPos(callback);
+      } else if (status === 'error' || !result.formattedAddress) {
+        // 未获取到定位时给出检查确认提示弹层
+        if (_.isFunction(locationFailedCallback)) {
+          locationFailedCallback();
+          return;
+        }
+        locationFailedAlert && alert(_l('定位获取失败，请重试'), 2);
       } else {
         callback(status, result);
       }
+      this.geolocation = null;
     });
   }
   // 根据ip获取城市

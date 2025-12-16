@@ -3,9 +3,11 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import datasourceApi from '../../../../api/datasource';
 import SelectTables from '../../../components/SelectTables';
-import { DATABASE_TYPE } from '../../../constant';
+import { DATABASE_TYPE, isValidName } from '../../../constant';
 
 const Wrapper = styled.div`
   .selectItem {
@@ -38,7 +40,21 @@ export default function SelectDataObjForm(props) {
     datasourceApi.getDatabases({ projectId: props.currentProjectId, datasourceId: id }).then(res => {
       if (res) {
         const dbOptionList = res.map(item => {
-          return { label: item, value: item };
+          const isValidDb = isValidName(item, true);
+          return {
+            label: isValidDb ? (
+              item
+            ) : (
+              <React.Fragment>
+                {item}
+                <Tooltip title={_l('名称包含特殊字符，无法同步')}>
+                  <Icon icon="info" className="Gray_bd mLeft5 pointer" />
+                </Tooltip>
+              </React.Fragment>
+            ),
+            value: item,
+            disabled: !isValidDb,
+          };
         });
         setDataObj({ dbOptionList });
       }

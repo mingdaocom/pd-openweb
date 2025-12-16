@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import './less/Score.less';
 
 class Score extends Component {
@@ -118,15 +119,16 @@ class Score extends Component {
     };
 
     return (
-      <div
-        key={index}
-        data-tip={this.props.disabled || hideTip ? '' : index + 1}
-        onClick={event => this.onSelect(index + 1, event)}
-        onMouseEnter={event => this.onMouseEnter(index + 1, event)}
-        onMouseLeave={this.onMouseLeave}
-        style={index < score ? selectStyle : defaultStyle}
-        className="LineScore-item tip-top"
-      />
+      <Tooltip title={this.props.disabled || hideTip ? '' : index + 1}>
+        <div
+          key={index}
+          onClick={event => this.onSelect(index + 1, event)}
+          onMouseEnter={event => this.onMouseEnter(index + 1, event)}
+          onMouseLeave={this.onMouseLeave}
+          style={index < score ? selectStyle : defaultStyle}
+          className="LineScore-item"
+        />
+      </Tooltip>
     );
   }
   renderStar(index) {
@@ -141,20 +143,21 @@ class Score extends Component {
     };
 
     return (
-      <div
-        key={index}
-        className="StarScore-item tip-top"
-        data-tip={this.props.disabled || hideTip ? '' : index + 1}
-        onClick={event => this.onSelect(index + 1, event)}
-        onMouseEnter={event => this.onMouseEnter(index + 1, event)}
-        onMouseLeave={this.onMouseLeave}
-      >
-        {index < score ? (
-          <i style={selectStyle} className="icon-task_custom_starred" />
-        ) : (
-          <i style={defaultStyle} className={cx('icon-task_custom_starred', defaultIcon)} />
-        )}
-      </div>
+      <Tooltip title={this.props.disabled || hideTip ? '' : index + 1}>
+        <div
+          key={index}
+          className="StarScore-item"
+          onClick={event => this.onSelect(index + 1, event)}
+          onMouseEnter={event => this.onMouseEnter(index + 1, event)}
+          onMouseLeave={this.onMouseLeave}
+        >
+          {index < score ? (
+            <i style={selectStyle} className="icon-task_custom_starred" />
+          ) : (
+            <i style={defaultStyle} className={cx('icon-task_custom_starred', defaultIcon)} />
+          )}
+        </div>
+      </Tooltip>
     );
   }
   render() {

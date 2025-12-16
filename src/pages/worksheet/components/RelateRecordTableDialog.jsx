@@ -4,6 +4,7 @@ import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Modal } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 
@@ -140,7 +141,7 @@ export default function RelateRecordTableDialog(props) {
   const [isFullScreen, setIsFullScreen] = useState(openFrom !== 'cell');
   const callFromDialog = openFrom !== 'cell';
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
-  useKey('e', e => {
+  useKey('/', e => {
     if (window.isMacOs ? e.metaKey : e.ctrlKey) {
       setIsFullScreen(old => !old);
       e.preventDefault();
@@ -175,45 +176,48 @@ export default function RelateRecordTableDialog(props) {
         <Header>
           <div className="main ellipsis">{control.controlName}</div>
           <div className="flex"></div>
-          <IconBtn
-            className="mRight10 ThemeHoverColor3"
-            data-tip={_l('刷新(Ctrl + Shift + R)')}
-            onClick={() => {
-              if (get(cache, 'current.' + control.controlId)) {
-                get(cache, 'current.' + control.controlId)();
-              }
-            }}
-          >
-            <i className="icon icon-task-later"></i>
-          </IconBtn>
-          <IconBtn
-            className="mRight10 ThemeHoverColor3"
-            data-tip={
-              isFullScreen
-                ? _l('退出%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
-                : _l('全屏%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
-            }
-            onClick={() => {
-              if (callFromDialog) {
-                onClose();
-              } else {
-                setIsFullScreen(!isFullScreen);
-              }
-            }}
-          >
-            <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
-          </IconBtn>
-          {!callFromDialog && (
+          <Tooltip title={_l('刷新')} shortcut={window.isMacOs ? '⌘⇧R' : 'Ctrl+Shift+R'} placement="bottom">
             <IconBtn
-              className="ThemeHoverColor3"
-              data-tip={_l('关闭(Esc)')}
+              className="mRight10 ThemeHoverColor3"
               onClick={() => {
-                reloadTable();
-                onClose();
+                if (get(cache, 'current.' + control.controlId)) {
+                  get(cache, 'current.' + control.controlId)();
+                }
               }}
             >
-              <i className="icon icon-close"></i>
+              <i className="icon icon-task-later"></i>
             </IconBtn>
+          </Tooltip>
+          <Tooltip
+            title={isFullScreen ? _l('退出') : _l('全屏')}
+            shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
+            placement="bottom"
+          >
+            <IconBtn
+              className="mRight10 ThemeHoverColor3"
+              onClick={() => {
+                if (callFromDialog) {
+                  onClose();
+                } else {
+                  setIsFullScreen(!isFullScreen);
+                }
+              }}
+            >
+              <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
+            </IconBtn>
+          </Tooltip>
+          {!callFromDialog && (
+            <Tooltip title={_l('关闭')} shortcut={'Esc'} placement="bottom">
+              <IconBtn
+                className="ThemeHoverColor3"
+                onClick={() => {
+                  reloadTable();
+                  onClose();
+                }}
+              >
+                <i className="icon icon-close"></i>
+              </IconBtn>
+            </Tooltip>
           )}
         </Header>
         <Content>

@@ -7,7 +7,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
-import { Dialog, Icon, Input, Item, List, Menu, MenuItem, ScrollView, Splitter, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Input, Item, List, Menu, MenuItem, ScrollView, Splitter } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import service from '../../api/service';
 import MDLeftNav from 'src/pages/feed/components/common/mdLeftNav';
 import { navigateTo } from 'src/router/navigateTo';
@@ -360,16 +361,14 @@ class KcLeft extends Component {
           <span>
             {_l('本月上传流量已用')}
             <Tooltip
-              autoCloseDelay={0}
-              text={
+              title={
                 <span>
                   {_l(
                     '在各模块上传文件时，会计入每月上传量。免费用户上传流量为300M/月，付费版用户10G/月，多个组织可叠加。',
                   )}
                 </span>
               }
-              action={['hover']}
-              popupPlacement={'bottom'}
+              placement="bottom"
             >
               <i class="icon-help ThemeColor4"></i>
             </Tooltip>

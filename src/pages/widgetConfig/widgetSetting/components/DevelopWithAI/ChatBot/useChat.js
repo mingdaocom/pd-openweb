@@ -36,7 +36,7 @@ class ChunkLoader {
   }
 }
 
-function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageDone = () => {} }) {
+function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageDone = () => {}, onError = () => {} }) {
   const cache = useRef({});
   const [firstInputMessage, setFirstInputMessage] = useState();
   const [messages, setMessages] = useState(defaultMessages);
@@ -105,23 +105,6 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
     setIsRequesting(true);
 
     try {
-      // const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer sk-npryhcefscyskmwsuqejaefqujbpwctivwyeoqfdanqhapct`,
-      //     Accept: 'text/event-stream',
-      //   },
-      //   body: JSON.stringify({
-      //     model: 'deepseek-ai/DeepSeek-V2.5',
-      //     messages: [...messages, userMessage]
-      //       .filter(message => message.type !== MESSAGE_TYPE.SHOW_NOT_SEND)
-      //       .map(message => omit(message, ['id', 'type'])),
-      //     stream: true,
-      //   }),
-      //   signal: abortControllerRef.current.signal,
-      // });
-
       let isContinuous = messages.length > 2;
 
       function getMessageList() {
@@ -188,6 +171,9 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
             return;
           }
 
+          if (event.event === 'error') {
+            onError(safeParse(event.data).message, event.data);
+          }
           try {
             const data = JSON.parse(event.data);
             const messageContent = get(data, 'choices.0.delta.content') || '';

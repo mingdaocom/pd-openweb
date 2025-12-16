@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { controlState } from 'src/components/newCustomFields/tools/utils.js';
+import { controlState } from 'src/components/Form/core/utils';
 import { fixedBottomWidgets } from 'src/pages/widgetConfig/util';
 
 export const THEME_COLOR_OPTIONS = [

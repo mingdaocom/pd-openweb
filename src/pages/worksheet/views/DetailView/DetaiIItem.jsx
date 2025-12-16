@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';

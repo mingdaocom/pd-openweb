@@ -1,10 +1,11 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Drawer, Select, Tooltip } from 'antd';
+import { Drawer, Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Button, Checkbox, Icon, Input, Radio, ScrollView, SvgIcon, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import variableApi from 'src/api/variable';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -430,7 +431,6 @@ export default function VarAddOrEditModal(props) {
               title={_l(
                 '仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。',
               )}
-              autoCloseDelay={0}
               placement="top"
             >
               <Icon icon="info_outline" className="Gray_bd mLeft8 pointer" />
@@ -469,11 +469,7 @@ export default function VarAddOrEditModal(props) {
                   checked={!!formData.maskType}
                   onClick={() => setFormData({ maskType: formData.maskType ? 0 : 1 })}
                 />
-                <Tooltip
-                  title={_l('在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看')}
-                  placement="topRight"
-                  autoCloseDelay={0}
-                >
+                <Tooltip title={_l('在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看')} placement="topRight">
                   <Icon icon="info_outline" className="Gray_bd mLeft4 pointer" />
                 </Tooltip>
               </div>

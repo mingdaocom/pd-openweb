@@ -3,7 +3,7 @@ import { generate } from '@ant-design/colors';
 import { Dropdown, Menu, Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
+import { Icon, Linkify } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { isFormatNumber, relevanceImageSize } from 'statistics/common';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -28,7 +28,13 @@ const isPrintPivotTable = location.href.includes('printPivotTable');
 export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType }) => {
   const data = _.clone(pivotTableStyle);
   const { columnBgColor, lineBgColor } = data;
-  const { pivoTableColor, pivoTableColorIndex = 1, pageStyleType, widgetBgColor } = customPageConfig || {};
+  const {
+    pivoTableColor,
+    pivoTableColorIndex = 1,
+    pageStyleType,
+    widgetBgColor,
+    originWidgetBgColor,
+  } = customPageConfig || {};
 
   if (pivoTableColor && pivoTableColorIndex >= (data.pivoTableColorIndex || 0)) {
     const isLight = isLightColor(pivoTableColor);
@@ -74,9 +80,9 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
     }
   }
   if (pageStyleType === 'dark') {
-    data.evenBgColor = widgetBgColor;
+    data.evenBgColor = originWidgetBgColor || widgetBgColor;
     data.evenTextColor = '#ffffffcc';
-    data.oddBgColor = widgetBgColor;
+    data.oddBgColor = originWidgetBgColor || widgetBgColor;
     data.oddTextColor = '#ffffffcc';
   }
   // if (!_.isEmpty(linkageMatch)) {
@@ -694,38 +700,40 @@ export default class extends Component {
         const { rename, controlName, showNumber = true } = _.find(yaxisList, { controlId: item.t_id }) || {};
         const name = rename || controlName;
         const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
-        childrenYaxisList.push({
-          title: () => {
-            index = index + 1;
-            return (
-              <Fragment>
-                {sumData.name ? `${name} (${sumData.name})` : name}
-                {this.renderDrag(index)}
-              </Fragment>
-            );
-          },
-          dataIndex: `${item.t_id}-${index}`,
-          colSpan: 1,
-          width: yaxisList.length === 1 ? this.getColumnWidth(result.length + 1) : this.getColumnWidth(index + 1),
-          className: 'cell-content',
-          render: (value, record, recordIndex) => {
-            const newRecord = {
-              ...record,
-              key: 'sum',
-              type: record.type || 'columns',
-              sumCount: item.sum,
-              sumData,
-            };
-            const subTotal = !record.isSubTotal && getLineSubTotal(item.data, recordIndex);
-            if (subTotal && valueMap[item.t_id]) {
-              newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
-            }
-            newRecord.showNumber = record.isSubTotal && newRecord.type === 'columns' ? true : showNumber;
-            // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
-            newRecord.showPercent = false;
-            return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
-          },
-        });
+        if (sumData.number || sumData.percent) {
+          childrenYaxisList.push({
+            title: () => {
+              index = index + 1;
+              return (
+                <Fragment>
+                  {sumData.name ? `${name} (${sumData.name})` : name}
+                  {this.renderDrag(index)}
+                </Fragment>
+              );
+            },
+            dataIndex: `${item.t_id}-${index}`,
+            colSpan: 1,
+            width: yaxisList.length === 1 ? this.getColumnWidth(result.length + 1) : this.getColumnWidth(index + 1),
+            className: 'cell-content',
+            render: (value, record, recordIndex) => {
+              const newRecord = {
+                ...record,
+                key: 'sum',
+                type: record.type || 'columns',
+                sumCount: item.sum,
+                sumData,
+              };
+              const subTotal = !record.isSubTotal && getLineSubTotal(item.data, recordIndex);
+              if (subTotal && valueMap[item.t_id]) {
+                newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
+              }
+              newRecord.showNumber = record.isSubTotal && newRecord.type === 'columns' ? true : showNumber;
+              // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
+              newRecord.showPercent = false;
+              return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
+            },
+          });
+        }
       }
     });
 
@@ -838,8 +846,11 @@ export default class extends Component {
     return dataSource;
   }
   getParentNode() {
-    const { isThumbnail, reportData } = this.props;
+    const { isThumbnail, reportData, isHorizontal } = this.props;
     const { reportId } = reportData;
+    if (isHorizontal) {
+      return document.querySelector(`.adm-popup-body`);
+    }
     return isThumbnail
       ? document.querySelector(isMobile ? `.statisticsCard-${reportId}` : `.statisticsCard-${reportId} .content`)
       : document.querySelector(`.ChartDialog .chart .flex`);
@@ -868,7 +879,7 @@ export default class extends Component {
       const lineHeight = 39;
       const columnsLength = (columns.length || 1) + (yaxisList.length === 1 ? 0 : 1);
       const headerHeight = columnsLength * lineHeight;
-      const offsetHeight = isMobile && isHorizontal ? document.body.clientWidth - 80 : parent.offsetHeight;
+      const offsetHeight = isMobile && isHorizontal ? document.body.clientWidth - 80 : parent.offsetHeight - 15;
       const paginationHeight = paginationVisible && dataSource.length > this.state.pageSize ? 45 : 0;
       if (!lineFreeze) {
         config.x = '100%';
@@ -1047,7 +1058,19 @@ export default class extends Component {
       return data;
     }
 
-    return <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>{data}</div>;
+    const textStyle = { wordWrap: 'break-word', wordBreak: 'break-word' };
+
+    if (controlType === 2) {
+      return (
+        <div style={textStyle}>
+          <Linkify properties={{ target: '_blank' }} unLimit={true}>
+            {data}
+          </Linkify>
+        </div>
+      );
+    }
+
+    return <div style={textStyle}>{data}</div>;
   }
   renderBodyTd(value, record, controlId, controlMinAndMax) {
     const { yaxisList, displaySetup } = this.props.reportData;
@@ -1055,7 +1078,7 @@ export default class extends Component {
     const style = {};
     const barStyle = {};
     const axisStyle = {};
-    const { emptyShowType, percent: percentConfig } = _.find(yaxisList, { controlId }) || {};
+    const { controlType, normType, emptyShowType, percent: percentConfig } = _.find(yaxisList, { controlId }) || {};
     const isNumberValue = _.isNumber(value);
     const originalValue = value;
     let onlyShowBar = false;
@@ -1138,11 +1161,25 @@ export default class extends Component {
       }
     }
 
+    const renderValue = () => {
+      if (isNumberValue) {
+        return record.showNumber && value;
+      } else if (controlType === 2 && normType === 7) {
+        return (
+          <Linkify properties={{ target: '_blank' }} unLimit={true}>
+            {value}
+          </Linkify>
+        );
+      } else {
+        return value;
+      }
+    };
+
     return (
       <Fragment>
         {!onlyShowBar && (
           <div className="cell-value" style={{ color: style.color }}>
-            {isNumberValue ? record.showNumber && value : value}
+            {renderValue()}
             {percent}
           </div>
         )}
@@ -1221,6 +1258,7 @@ export default class extends Component {
             hideDrag: widthModel === 3,
             noSelect: dragValue,
             safariScroll: scrollConfig.y,
+            firefoxScroll: scrollConfig.y && window.isWindows && window.isFirefox,
           })}
         >
           <Table

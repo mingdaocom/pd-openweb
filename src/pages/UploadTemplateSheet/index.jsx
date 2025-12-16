@@ -90,8 +90,6 @@ export default class UploadTemplateSheet extends React.Component {
     };
   }
 
-  componentWillMount() {}
-
   componentDidMount() {
     (async () => {
       // 显示模板打印弹框

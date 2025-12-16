@@ -102,7 +102,7 @@ function showShare(attachment, options) {
   return true;
 }
 
-// TODO chat下的显示权限
+// chat下的显示权限
 export function getPermission(...args) {
   return {
     showSaveToKnowlege: showSaveToKnowlege(...args),

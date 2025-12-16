@@ -20,7 +20,7 @@ const ModalWrap = styled(Popup)`
 
 const DraftEntry = styled.div`
   position: relative;
-  margin-right: 16px;
+  margin-right: 18px;
   padding-top: 3px;
 `;
 

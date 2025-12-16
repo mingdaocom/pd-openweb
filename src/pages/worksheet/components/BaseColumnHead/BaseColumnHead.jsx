@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
@@ -157,10 +158,10 @@ export default class BaseColumnHead extends React.Component {
       sustractWidth += 21;
     }
     const head = (
-      <div className={cx('baseColumnHead columnHead', className)} style={style}>
-        <div className="inner">
+      <div className={cx('baseColumnHead columnHead allowOutClick', className)} style={style}>
+        <div className="inner allowOutClick">
           <div
-            className={cx('controlName', { 'ThemeHoverColor3 Hand': canSort })}
+            className={cx('controlName allowOutClick', { 'ThemeHoverColor3 Hand': canSort })}
             style={{
               width: style.width - 10,
               height: style.height,
@@ -175,11 +176,7 @@ export default class BaseColumnHead extends React.Component {
             </span>
             {canSort && typeof isAsc !== 'undefined' && <span className="sortIcon">{this.getSortIcon()}</span>}
             {control.desc && (
-              <Tooltip
-                popupPlacement="bottom"
-                autoCloseDelay={0}
-                text={<span className="preWrap">{control.desc}</span>}
-              >
+              <Tooltip placement="bottom" title={<span className="preWrap">{control.desc}</span>}>
                 <i className="icon-info descIcon"></i>
               </Tooltip>
             )}

@@ -141,7 +141,7 @@ export default class extends Component {
                   </Select.Option>
                 ))}
             </Select>
-            <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
+            <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
           </div>
 
           {isPastAndFuture(dropdownScopeValue) && (
@@ -190,7 +190,7 @@ export default class extends Component {
       return (
         <div className="Relative">
           <Input readOnly className="chartInput" value={_.find(dropdownScopeData, { value: filter.rangeType }).text} />
-          <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
+          <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
         </div>
       );
     }
@@ -236,7 +236,7 @@ export default class extends Component {
               );
             }}
           />
-          <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
+          <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
         </div>
       );
     }
@@ -286,7 +286,7 @@ export default class extends Component {
                 }
               }}
             />
-            <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
+            <TimeZoneTag appId={worksheetInfo.appId} position={{ top: 1, bottom: 1 }} />
           </div>
         </Dropdown>
       );

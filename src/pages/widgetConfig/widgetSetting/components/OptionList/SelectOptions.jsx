@@ -1,26 +1,24 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
-import ClipboardButton from 'react-clipboard.js';
-import { Tooltip } from 'antd';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import { has } from 'lodash';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Menu, MenuItem, Support } from 'ming-ui';
+import { Dialog, Dropdown, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 import AutoIcon from '../../../components/Icon';
 import { SettingItem } from '../../../styled';
 import {
-  getAdvanceSetting,
   getDefaultCheckedOption,
   getDefaultOptions,
   getOptions,
   handleAdvancedSettingChange,
 } from '../../../util/setting';
-import DeleteDialog from './DelateDialog';
 import EditOptionList from './EditOptionList';
+import MoreOption from './MoreOption';
 import Options from './Options';
 import SelectOptionList from './SelectOptionList';
 
@@ -161,19 +159,18 @@ const OptionListItem = styled.div`
 
 export default function SelectOptions(props) {
   const { data, onChange, globalSheetInfo = {}, fromPortal = false } = props;
-  const { type, controlName, controlId, strDefault, enumDefault, enumDefault2, options, dataSource } = data;
+  const { type, controlId, strDefault, enumDefault, enumDefault2, options, dataSource } = data;
   const { appId, projectId } = globalSheetInfo;
-  const { showtype } = getAdvanceSetting(data);
   const colorful = enumDefault2 === 1;
   // 是新增控件
   const isNewControl = controlId.includes('-');
+  const optionsRef = useRef(null);
 
-  const [{ selectVisible, editVisible, optionVisible, recoverVisible, deleteVisible }, setVisible] = useState({
+  const [{ selectVisible, editVisible, optionVisible, recoverVisible }, setVisible] = useState({
     selectVisible: false,
     editVisible: false,
     optionVisible: false,
     recoverVisible: false,
-    deleteVisible: false,
   });
 
   const [optionList, setOptionList] = useState(
@@ -227,32 +224,6 @@ export default function SelectOptions(props) {
     }
   }, [controlId]);
 
-  const toOptionList = () => {
-    Dialog.confirm({
-      title: <span className="Bold">{_l('转为选项集')}</span>,
-      width: 480,
-      description: (
-        <span>
-          {_l('转为选项集后，在其他工作表也可以使用这组选项。')}
-          <Support href="https://help.mingdao.com/worksheet/option-set" type={3} text={_l('帮助')} />
-        </span>
-      ),
-      onOk: () => {
-        worksheetAjax
-          .saveOptionsCollection({ appId, colorful, options, name: controlName })
-          .then(({ code, data, msg }) => {
-            if (code === 1) {
-              const { collectionId } = data;
-              setOptionList(data);
-              onChange({ dataSource: collectionId });
-            } else {
-              alert(msg);
-            }
-          });
-      },
-    });
-  };
-
   // 转自定义
   const handleToCustom = () => {
     const newData = { dataSource: '', options: options.map(i => ({ ...i, hide: false })) };
@@ -274,14 +245,6 @@ export default function SelectOptions(props) {
       },
     });
   };
-
-  const getCopyValue = () => {
-    const copyOptions = options.filter(i => !i.isDeleted);
-    return copyOptions.reduce((p, c, i) => (i === options.length - 1 ? `${p}${c.value}` : `${p}${c.value}\n`), '');
-  };
-
-  // 已删除控件
-  const deleteOptions = options.filter(i => i.isDeleted);
 
   return (
     <SettingItem>
@@ -323,30 +286,20 @@ export default function SelectOptions(props) {
               ></i>
               <span>{_l('彩色')}</span>
             </div>
-            <div className="setOption">
-              <ClipboardButton
-                component="span"
-                data-clipboard-text={getCopyValue()}
-                onSuccess={() => alert(_l('复制成功，请去批量添加选项'))}
-                data-tip={_l('复制')}
-              >
-                <AutoIcon icon="content-copy" className="mRight15" />
-              </ClipboardButton>
-              {!dataSource && showtype !== '2' && (
-                <Fragment>
-                  <Tooltip title={_l('转为选项集')} placement="bottom">
-                    <AutoIcon icon="swap_horiz" onClick={toOptionList} />
-                  </Tooltip>
-                  {deleteOptions.length > 0 && (
-                    <Tooltip title={_l('恢复选项')} placement="bottom">
-                      <span className="mLeft15 flexCenter pointer" onClick={() => setVisible({ deleteVisible: true })}>
-                        <AutoIcon icon="trash-loop" className="Font20" />
-                      </span>
-                    </Tooltip>
-                  )}
-                </Fragment>
-              )}
-            </div>
+            <MoreOption
+              data={data}
+              options={options}
+              colorful={colorful}
+              globalSheetInfo={globalSheetInfo}
+              addOption={callback => {
+                if (optionsRef && optionsRef.current) {
+                  optionsRef.current.addOption(true);
+                  callback();
+                }
+              }}
+              setOptionList={obj => setOptionList(obj)}
+              handleChange={obj => onChange(obj)}
+            />
           </div>
         )}
         {dataSource ? (
@@ -475,6 +428,7 @@ export default function SelectOptions(props) {
             enableScore={enumDefault === 1}
             isMulti={type === 10}
             fromPortal={fromPortal}
+            ref={optionsRef}
             onChange={obj => {
               if (has(obj, 'enableScore')) {
                 const { enableScore, ...rest } = obj;
@@ -539,16 +493,6 @@ export default function SelectOptions(props) {
                 alert('恢复成功');
               }
             });
-          }}
-        />
-      )}
-      {deleteVisible && (
-        <DeleteDialog
-          options={options}
-          colorful={colorful}
-          onCancel={() => setVisible({ deleteVisible: false })}
-          onOk={newOptions => {
-            onChange({ options: newOptions });
           }}
         />
       )}

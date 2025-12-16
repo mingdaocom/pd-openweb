@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Checkbox, Collapse, ConfigProvider, Input, Modal, Radio, Switch, Tooltip } from 'antd';
+import { Button, Checkbox, Collapse, ConfigProvider, Input, Modal, Radio, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getChartColors } from 'statistics/Charts/common';
 import { replaceColor } from 'statistics/Charts/GaugeChart';
 import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';

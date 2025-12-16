@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'src/pages/widgetConfig/util/setting';
 import { SYSTEM_CONTROL } from '../../../../config/widget';
 import { formatViewToDropdown } from '../../../../util';
@@ -15,7 +15,7 @@ export default function RelateConfig(props) {
   let { showtype = String(enumDefault), showcount = '0', layercontrolid } = getAdvanceSetting(data);
   const resultfilters = getAdvanceSetting(data, 'resultfilters');
   const [isHiddenOtherViewRecord] = strDefault.split('');
-  const { loading = true, views = [], controls = [] } = window.subListSheetConfig[controlId] || {};
+  const { loading = true, views = [], controls = [], sheetInfo = {} } = window.subListSheetConfig[controlId] || {};
 
   const [{ isRelateView, resultFilterVisible, resultVisible }, setState] = useSetState({
     isRelateView: Boolean(viewId),
@@ -49,8 +49,7 @@ export default function RelateConfig(props) {
         >
           <span style={{ marginRight: '6px' }}>{_l('关联视图')}</span>
           <Tooltip
-            popupPlacement="bottom"
-            autoCloseDelay={0}
+            placement="bottom"
             title={
               <span>
                 {_l(
@@ -122,11 +121,7 @@ export default function RelateConfig(props) {
                   }}
                 >
                   <span style={{ marginRight: '6px' }}>{_l('按条件过滤')}</span>
-                  <Tooltip
-                    popupPlacement="bottom"
-                    autoCloseDelay={0}
-                    title={<span>{_l('设置筛选条件，只显示满足条件的关联记录')}</span>}
-                  >
+                  <Tooltip placement="bottom" title={_l('设置筛选条件，只显示满足条件的关联记录')}>
                     <i className="icon-help Gray_bd Font16 pointer"></i>
                   </Tooltip>
                 </Checkbox>
@@ -138,6 +133,7 @@ export default function RelateConfig(props) {
                   showCustom
                   filterKey="resultfilters"
                   supportGroup
+                  sheetSwitchPermit={sheetInfo.switches}
                   relationControls={controls}
                   globalSheetControls={globalSheetControls}
                   allControls={allControls.concat(
@@ -184,8 +180,7 @@ export default function RelateConfig(props) {
                 >
                   <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
                   <Tooltip
-                    popupPlacement="bottom"
-                    autoCloseDelay={0}
+                    placement="bottom"
                     title={
                       <span>
                         {_l(
@@ -215,7 +210,7 @@ export default function RelateConfig(props) {
                   )
                 }
               >
-                <Tooltip popupPlacement="bottom" title={<span>{_l('在表单中显示关联记录的数量')}</span>}>
+                <Tooltip placement="bottom" title={_l('在表单中显示关联记录的数量')}>
                   <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
                 </Tooltip>
               </Checkbox>

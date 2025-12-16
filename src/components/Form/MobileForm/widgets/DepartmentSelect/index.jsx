@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SelectUser from 'mobile/components/SelectUser';
+import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
 import { dealRenderValue, dealUserRange } from '../../../core/utils';
 
 function DepartmentSelect(props) {
@@ -57,7 +58,11 @@ function DepartmentSelect(props) {
   const renderItem = item => {
     return (
       <span key={item.departmentId} className="customFormCapsule">
-        {item.departmentName}
+        {item.disabled ? (
+          <DisabledDepartmentAndRoleName className="ellipsis" disabled={item.disabled} name={item.departmentName} />
+        ) : (
+          item.departmentName
+        )}
         {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
 
         {!isUnique && !disabled && (

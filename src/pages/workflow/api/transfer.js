@@ -1,8 +1,9 @@
 import base, { controllerName } from './base';
+
 /**
  * transfer
-*/
-var transfer = {
+ */
+const transfer = {
   /**
    * 获取交接数量
    * @param {Object} args 请求参数
@@ -11,7 +12,7 @@ var transfer = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  count: function(args, options) {
+  count: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/transfer/count';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'transfercount', JSON.stringify(args), $.extend(base, options));
@@ -24,7 +25,7 @@ var transfer = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getList: function(args, options) {
+  getList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/transfer/getList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'transfergetList', JSON.stringify(args), $.extend(base, options));
@@ -37,7 +38,7 @@ var transfer = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  initProcessExtends: function(args, options) {
+  initProcessExtends: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/transfer/initProcessExtends';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'transferinitProcessExtends', JSON.stringify(args), $.extend(base, options));
@@ -50,7 +51,7 @@ var transfer = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  update: function(args, options) {
+  update: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/transfer/update';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'transferupdate', JSON.stringify(args), $.extend(base, options));

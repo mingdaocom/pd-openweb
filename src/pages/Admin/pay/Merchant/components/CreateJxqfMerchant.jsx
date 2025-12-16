@@ -1,59 +1,17 @@
 // 聚合支付 创建商户
 import React, { Component, Fragment } from 'react';
-import { Steps } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, LoadDiv, Qr, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Icon, LoadDiv, Qr } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
+import { Step, StepsWrap } from 'src/pages/Admin/pay/components/StepsWrap';
 import aliQrCode from 'src/pages/Admin/pay/images/aliQrCode.png';
 import wechatQrCode from 'src/pages/Admin/pay/images/wechatQrCode.png';
 import { STEPS } from '../../config';
 import './createMerchant.less';
-
-const StepsWrap = styled(Steps)`
-  height: 235px;
-  width: unset !important;
-  .ant-steps-item-title {
-    font-weight: 700;
-    margin-bottom: 60px;
-  }
-  .ant-steps-item-process .ant-steps-item-title {
-    color: #1890ff !important;
-  }
-  .ant-steps-item-icon {
-    width: 28px;
-    height: 28px;
-    line-height: 26px;
-    border-radius: 28px;
-    font-weight: 500;
-  }
-  .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-tail::after,
-  .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-tail::after {
-    background-color: #e0e0e0;
-  }
-  .ant-steps-item > .ant-steps-item-container > .ant-steps-item-tail {
-    padding: 31px 0 3px !important;
-    left: 14px !important;
-  }
-  .ant-steps-item-wait .ant-steps-item-icon {
-    background-color: #f5f5f5;
-    border: 1px solid #f5f5f5;
-  }
-  .ant-steps-item-finish .ant-steps-item-icon {
-    background-color: rgba(33, 150, 243, 0.1);
-    border-color: transparent;
-  }
-  &.isFinished {
-    .ant-steps-item:first-child > .ant-steps-item-container > .ant-steps-item-tail::after {
-      background-color: #1890ff !important;
-    }
-    .ant-steps-item.customTail > .ant-steps-item-container > .ant-steps-item-tail::after {
-      background-color: #e0e0e0 !important;
-    }
-  }
-`;
 
 const DivideLine = styled.div`
   width: 1px;
@@ -109,8 +67,6 @@ const Description = styled.div`
   margin-bottom: 20px;
   color: #151515;
 `;
-
-const { Step } = Steps;
 
 // 聚合支付
 export default class CreateJxqfMerchant extends Component {
@@ -439,7 +395,7 @@ export default class CreateJxqfMerchant extends Component {
                     <Icon icon="wechat_pay" className="Font24" />
                   </IconWrap>
                   <span className="Font15">{_l('微信')}</span>
-                  <Tooltip text={_l('微信服务号主体必须与创建商户的主体一致')} tooltipStyle={{ maxWidth: 267 }}>
+                  <Tooltip title={_l('微信服务号主体必须与创建商户的主体一致')}>
                     <Icon icon="info" className="Gray_9e mLeft6 Font16" />
                   </Tooltip>
                 </div>
@@ -490,12 +446,13 @@ export default class CreateJxqfMerchant extends Component {
                       {_l('开通支付')}
                       {signUrl && (
                         <Tooltip
-                          tooltipStyle={{ width: 134, height: 134 }}
-                          themeColor="white"
-                          tooltipClass="merchantQr"
-                          popupPlacement="bottom"
-                          text={<Qr content={signUrl} width={110} height={110} />}
-                          autoCloseDelay={0}
+                          type="white"
+                          placement="bottom"
+                          title={
+                            <span className="mTop3 mBottom3">
+                              <Qr content={signUrl} width={110} height={110} />
+                            </span>
+                          }
                         >
                           <span className="Hand whiteWrap">
                             <i className="icon icon-phone mLeft10 Font20 Gray_9d" />

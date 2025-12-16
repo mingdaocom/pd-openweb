@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import _, { get, identity } from 'lodash';
+import _, { get, identity, isEmpty } from 'lodash';
 import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -122,7 +122,7 @@ export default function CardCellControls(props) {
   const isMobile = browserIsMobile();
 
   return (
-    <Con fullShowCard={fullShowCard}>
+    <Con className="cardCellControls" fullShowCard={fullShowCard}>
       {controls.filter(identity).map((control = {}, i) => {
         const recordCardStyle = getRecordCardStyle(parentControl);
         const isColumn = get(recordCardStyle, 'controlTitleStyle.direction') === '2';
@@ -137,11 +137,16 @@ export default function CardCellControls(props) {
           >
             <div
               className={cx('label', { ellipsis: isColumn, breakAll: isMobile && !isColumn })}
-              style={{
-                fontSize: get(recordCardStyle, 'controlTitleStyle.size'),
-                lineHeight:
-                  Math.floor(get(recordCardStyle, 'controlTitleStyle.size', '').replace(/[^\d]/g, '') * 1.3) + 'px',
-              }}
+              style={
+                !isEmpty(recordCardStyle)
+                  ? {
+                      fontSize: get(recordCardStyle, 'controlTitleStyle.size'),
+                      lineHeight:
+                        Math.floor(get(recordCardStyle, 'controlTitleStyle.size', '').replace(/[^\d]/g, '') * 1.3) +
+                        'px',
+                    }
+                  : {}
+              }
             >
               {control.controlName}
             </div>
@@ -149,7 +154,7 @@ export default function CardCellControls(props) {
               className={cx(`content control${control.type}`, { isTextControl, isNotEmpty })}
               style={{
                 [isColumn ? 'paddingBottom' : 'paddingTop']: getCellContentPaddingTop(control, isNotEmpty),
-                ...(isTextControl
+                ...(isTextControl && !isEmpty(recordCardStyle)
                   ? {
                       fontSize: get(recordCardStyle, 'controlValueStyle.size', ''),
                       lineHeight:

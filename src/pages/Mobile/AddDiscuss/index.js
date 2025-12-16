@@ -114,6 +114,11 @@ class AddDiscuss extends Component {
     if (md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1) {
       entityType = 2;
     }
+
+    if ($('.addDiscuss').find('.Progress--circle').length) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
     discussionAjax
       .addDiscussion({
         sourceId: newRowId ? `${worksheetId}|${newRowId}` : worksheetId,

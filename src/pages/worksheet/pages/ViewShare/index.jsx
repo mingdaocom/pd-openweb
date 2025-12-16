@@ -64,7 +64,7 @@ const Entry = () => {
       clientId,
     }).then(async result => {
       const { data } = result;
-      const { projectId } = data;
+      const { projectId } = data || {};
       localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },

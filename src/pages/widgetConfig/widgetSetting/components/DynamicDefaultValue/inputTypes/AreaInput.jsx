@@ -8,7 +8,7 @@ export default function (props) {
   const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType, globalSheetInfo = {} } = props;
   const { staticValue, cid = '' } = dynamicValue[0] || {};
   const name = JSON.parse(staticValue || '{}').name || '';
-  const { chooserange } = data.advancedSetting || {};
+  const { chooserange, commcountries } = data.advancedSetting || {};
   const [value, setValue] = useState(name);
   const [isDynamic, setDynamic] = useState(!!cid);
   const [search, setSearch] = useState('');
@@ -73,6 +73,8 @@ export default function (props) {
             defaultValue={value}
             level={data.enumDefault2}
             chooserange={chooserange}
+            destroyPopupOnHide={true}
+            commcountries={commcountries}
             projectId={globalSheetInfo.projectId}
             callback={handleChange}
           >

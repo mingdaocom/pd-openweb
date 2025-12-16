@@ -129,7 +129,6 @@ const ENTRIES = {
     'src/common/mdcss/basic.css',
     'src/common/mdcss/iconfont/mdfont.css',
     'src/common/mdcss/animate.css',
-    'src/common/mdcss/tip.css',
     'src/common/mdcss/Themes/theme.less',
   ],
 };

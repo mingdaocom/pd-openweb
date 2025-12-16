@@ -8,7 +8,7 @@ import { pick } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import CustomPage from 'src/pages/customPage';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
 import {
@@ -27,6 +27,7 @@ import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { addBehaviorLog } from 'src/utils/project';
 import { findSheet } from 'src/utils/worksheet';
+import { insertPortal } from '../util';
 import CustomPageHeader from './CustomPageHeader';
 import 'rc-trigger/assets/index.css';
 
@@ -196,6 +197,9 @@ function CustomPageContent(props) {
           filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
           version,
         });
+        if (window.shareState.shareId && !adjustScreen && className && className.includes('hideHeader')) {
+          document.body.classList.add('bodyScroll');
+        }
       })
       .finally(() => updateLoading(false));
   };
@@ -226,9 +230,10 @@ function CustomPageContent(props) {
           urlList.push(encodeURIComponent(embedValue));
         }
       });
+      const url = urlList.join('');
       return (
         <div className="customPageContent h100 pAll0">
-          <iframe className="w100 h100" style={{ border: 'none' }} src={urlList.join('')} />
+          <iframe className="w100 h100" style={{ border: 'none' }} src={insertPortal(url)} />
         </div>
       );
     }

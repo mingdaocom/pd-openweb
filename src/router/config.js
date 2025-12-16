@@ -95,9 +95,9 @@ export const ROUTE_CONFIG = {
     path: '/worksheet/form/preview/:worksheetId',
     component: () => import('src/pages/PublicWorksheetPreview'),
   },
-  publicWorksheetConfig: {
+  formExtend: {
     path: '/worksheet/form/edit/:worksheetId/:type?',
-    component: () => import('src/pages/publicWorksheetConfig'),
+    component: () => import('src/pages/FormExtend'),
   },
   formSet: {
     path: '/worksheet/formSet/edit/:worksheetId/:type?',
@@ -277,6 +277,11 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/certification/CertificationDetail'),
     title: _l('我的认证'),
   },
+  approveInvoice: {
+    path: '/approveInvoice/:projectId/:orderId',
+    component: () => import('src/pages/invoice/InvoiceConfirm'),
+    title: _l('审核开票'),
+  },
   default: {
     path: '/app',
     redirect: '/dashboard',
@@ -344,6 +349,7 @@ const withoutChatPathList = [
   'certification',
   'certificationDetail',
   'app/lib',
+  'approveInvoice',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

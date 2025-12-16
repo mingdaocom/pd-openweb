@@ -1,23 +1,24 @@
-﻿import { CALL_API } from '../middleware/api';
-
-export const SEARCH_REQUEST = 'SEARCH_REQUEST';
-export const SEARCH_SUCCESS = 'SEARCH_SUCCESS';
-export const SEARCH_FAILURE = 'SEARCH_FAILURE';
+﻿import departmentController from 'src/api/department';
 
 /**
  * 搜索
  * @param keywords
  */
-export const fetchSearchResult = keywords => dispatch => {
-  return dispatch({
-    keywords,
-    [CALL_API]: {
-      types: [SEARCH_REQUEST, SEARCH_SUCCESS, SEARCH_FAILURE],
-      params: {
-        keywords: (keywords || '').trim(),
-      },
-    },
-  });
+export const fetchSearchResult = keywords => (dispatch, getState) => {
+  const { showDisabledDepartment } = getState().entities;
+  const { projectId } = getState().current;
+  dispatch({ type: 'UPDATE_IS_SEARCHING', isSearching: true });
+  departmentController
+    .searchDeptAndUsers({
+      keywords,
+      projectId,
+      includeDisabled: showDisabledDepartment,
+    })
+    .then(res => {
+      dispatch({ type: 'SEARCH_SUCCESS', result: res });
+      dispatch({ type: 'UPDATE_SEARCH_USERS', searchUsers: res.users || [] });
+      dispatch({ type: 'UPDATE_IS_SEARCHING', isSearching: false });
+    });
 };
 
 export const CLEAR_KEYWORDS = 'CLEAR_KEYWORDS';

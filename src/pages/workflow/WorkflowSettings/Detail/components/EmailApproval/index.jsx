@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Checkbox, Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, PriceTip } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { NODE_TYPE } from '../../../enum';
 import SingleControlValue from '../SingleControlValue';
 
@@ -11,7 +12,6 @@ export default ({
   selectNodeId,
   selectNodeType,
   title,
-  desc,
   flowNodeMap,
   updateSource,
   showApprovalBtn = false,
@@ -28,7 +28,13 @@ export default ({
         text={
           <span>
             {title}
-            <Tooltip popupPlacement="bottom" text={<span>{desc}</span>}>
+            <Tooltip
+              title={
+                <PriceTip
+                  text={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人。邮件费用自动从组织信用点中扣除')}
+                />
+              }
+            >
               <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
             </Tooltip>
           </span>

@@ -263,7 +263,7 @@ function addFolder(args) {
   return kc.addNode(assign({ type: NODE_TYPE.FOLDER }, args)).then(assignHashFunc);
 }
 
-// TODO: 使用七牛回调而非客户端通知
+// 使用七牛回调而非客户端通知
 function addFile(args) {
   return kc.addNode(assign({ type: NODE_TYPE.FILE }, args)).then(assignHashFunc);
 }

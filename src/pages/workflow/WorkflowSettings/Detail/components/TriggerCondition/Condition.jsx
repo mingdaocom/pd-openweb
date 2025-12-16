@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { TimePicker, Tooltip } from 'antd';
+import { TimePicker } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Checkbox, CityPicker, Dropdown, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
@@ -21,7 +22,7 @@ import SelectOtherFields from '../SelectOtherFields';
 import Tag from '../Tag';
 import TagInput from '../TagInput';
 
-export default class TriggerCondition extends Component {
+export default class Condition extends Component {
   static propTypes = {
     processId: PropTypes.string,
     selectNodeId: PropTypes.string,
@@ -102,6 +103,7 @@ export default class TriggerCondition extends Component {
           appTypeName: obj.appTypeName,
           actionId: obj.actionId,
           isSourceApp: obj.isSourceApp,
+          subFlowNodeApps: obj.subFlowNodeApps,
           items: obj.controls.map(o => {
             return {
               type: o.type,
@@ -271,20 +273,18 @@ export default class TriggerCondition extends Component {
             item.conditionId === '3' ||
             item.conditionId === '5' ||
             item.conditionId === '6') && (
-            <span
-              className="triggerTipIcon ThemeColor3 Block tip-bottom-left"
-              data-tip={_l('当选择多个值，则表示是其中任何一个值时，即符合条件')}
-            >
-              <i className="icon-info Font16" />
-            </span>
+            <Tooltip title={_l('当选择多个值，则表示是其中任何一个值时，即符合条件')} placement="bottomLeft">
+              <span className="triggerTipIcon ThemeColor3 Block">
+                <i className="icon-info Font16" />
+              </span>
+            </Tooltip>
           )}
           {(item.conditionId === '2' || item.conditionId === '4') && (
-            <span
-              className="triggerTipIcon ThemeColor3 Block tip-bottom-left"
-              data-tip={_l('当选择多个值，则表示不是其中所有值时，才符合条件')}
-            >
-              <i className="icon-info Font16" />
-            </span>
+            <Tooltip title={_l('当选择多个值，则表示不是其中所有值时，才符合条件')} placement="bottomLeft">
+              <span className="triggerTipIcon ThemeColor3 Block">
+                <i className="icon-info Font16" />
+              </span>
+            </Tooltip>
           )}
         </div>
         {hasAnd ? (
@@ -621,6 +621,7 @@ export default class TriggerCondition extends Component {
               value=""
               placeholder={_l('请选择')}
               border
+              openSearch
               onChange={key =>
                 this.updateConditionValue({
                   value: _.find(options, opts => opts.key === key),
@@ -814,6 +815,7 @@ export default class TriggerCondition extends Component {
               <CityPicker
                 search={keywords}
                 chooserange={_.get(currentControl || {}, 'advancedSetting.chooserange')}
+                commcountries={_.get(currentControl || {}, 'advancedSetting.commcountries')}
                 level={enumDefault}
                 projectId={this.props.projectId}
                 callback={citys => {

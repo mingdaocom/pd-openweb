@@ -18,8 +18,8 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import DataFormat from 'src/components/Form/core/DataFormat';
+import { controlState } from 'src/components/Form/core/utils';
 import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { deleteRecord, updateRecordControl, updateRelateRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
@@ -98,7 +98,7 @@ export const updateTreeTableViewData =
     const allRecords = base.recordId ? records.concat(addedRecords) : records;
     const { treeMap, maxLevel } = treeDataUpdater(
       {},
-      { rootRows: allRecords.filter(r => !r.pid), rows: allRecords, levelLimit: 10, pageIndexStart },
+      { rootRows: allRecords.filter(r => !r.pid), rows: allRecords, levelLimit: 20, pageIndexStart },
     );
     dispatch({
       type: 'UPDATE_TREE_TABLE_VIEW_DATA',
@@ -337,6 +337,13 @@ export function init() {
         dispatch({
           type: 'UPDATE_RECORDS',
           records: res.data,
+        });
+        dispatch({
+          type: 'INIT_FIRST_PAGE_RESULT',
+          value: {
+            count: res.count,
+            records: res.data,
+          },
         });
         if (isTreeTableView) {
           const { treeMap, maxLevel } = treeDataUpdater(

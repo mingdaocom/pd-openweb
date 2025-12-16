@@ -1,9 +1,5 @@
-﻿// root node departmentId
-// root node departmentId
-import _ from 'lodash';
+﻿import _ from 'lodash';
 import RegExpValidator from 'src/utils/expression';
-
-export const COMPANY_DEPARMENTID = '';
 
 export const PAGE_SIZE = 50;
 
@@ -27,9 +23,6 @@ export const ACTIONS = {
   INACTIVE_USER_REQUEST: 'INACTIVE_USER_REQUEST',
   APPROVAL_USER_REQUEST: 'APPROVAL_USER_REQUEST',
   USER_REQUEST: 'USER_REQUEST',
-  FULL_TREE_REQUEST: 'FULL_TREE_REQUEST',
-  DEPARTMENT_REQUEST: 'DEPARTMENT_REQUEST',
-  SEARCH_REQUEST: 'SEARCH_REQUEST',
 };
 
 export const getEllipsisDep = str => {
@@ -61,19 +54,19 @@ const checkUser = (input, iti) => {
 
 export const checkForm = {
   userName: userName => {
-    return $.trim(userName) === '' ? _l('姓名不能为空') : '';
+    return !userName?.trim() ? _l('姓名不能为空') : '';
   },
   email: email => {
-    return $.trim(email) === '' ? _l('邮箱不能为空') : !RegExpValidator.isEmail(email) ? _l('邮箱填写错误') : '';
+    return !email?.trim() ? _l('邮箱不能为空') : !RegExpValidator.isEmail(email) ? _l('邮箱填写错误') : '';
   },
   mobile: (input, iti) => {
-    return $.trim(input) === '' ? _l('手机号不能为空') : iti && !iti.isValidNumber() ? _l('手机号填写错误') : '';
+    return !input?.trim() ? _l('手机号不能为空') : iti && !iti.isValidNumber() ? _l('手机号填写错误') : '';
   },
   autonomously: checkUser,
   invite: checkUser,
   autonomouslyPasswrod: password => {
     const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
-    return !$.trim(password)
+    return !password.trim()
       ? _l('密码不能为空')
       : !RegExpValidator.isPasswordValid(password)
         ? passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字')

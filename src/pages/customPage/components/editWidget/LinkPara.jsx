@@ -3,6 +3,7 @@ import { Checkbox, Dropdown, Input } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DropdownContent } from '../../../widgetConfig/styled';
 import { LINK_PARA_FIELDS } from '../../config';
 
@@ -103,7 +104,7 @@ function ParaItem({ deleteItem, item, updateItem }) {
         <Dropdown
           visible={visible}
           trigger={'click'}
-          placement={'bottomRight'}
+          placement="bottomRight"
           onVisibleChange={setVisible}
           overlay={
             <DropdownContent style={{ width: '180px' }}>
@@ -129,14 +130,18 @@ function ParaItem({ deleteItem, item, updateItem }) {
             </DropdownContent>
           }
         >
-          <div data-tip={_l('使用动态参数')} className={cx('selectField pointer', { active: visible })}>
-            <i className="icon-workflow_other Font18 "></i>
-          </div>
+          <Tooltip title={_l('使用动态参数')}>
+            <div className={cx('selectField pointer', { active: visible })}>
+              <i className="icon-workflow_other Font18 "></i>
+            </div>
+          </Tooltip>
         </Dropdown>
       </div>
-      <div className="deleteWrap pointer" data-tip={_l('删除')} onClick={deleteItem}>
-        <i className="icon-delete_12"></i>
-      </div>
+      <Tooltip title={_l('删除')}>
+        <div className="deleteWrap pointer" onClick={deleteItem}>
+          <i className="icon-delete_12"></i>
+        </div>
+      </Tooltip>
     </div>
   );
 }

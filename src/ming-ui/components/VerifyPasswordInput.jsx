@@ -1,7 +1,8 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { Input } from 'antd';
 import styled from 'styled-components';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 
 const Password = styled(Input.Password)`
@@ -94,10 +95,7 @@ export default function VerifyPasswordInput(props) {
         {isRequired && <RequiredBox className="Absolute">*</RequiredBox>}
         <span className={`flex Font13 Gray label ${isMobile ? 'bold' : ''}`}>{_l('密码')}</span>
         <Tooltip
-          action="hover"
-          tooltipStyle={{ maxWidth: 360 }}
-          autoCloseDelay={0}
-          text={
+          title={
             <Fragment>
               {isRequired ? (
                 <div>
@@ -142,7 +140,7 @@ export default function VerifyPasswordInput(props) {
         browserIsMobile() ? (
           vertifyCheckBox()
         ) : (
-          <Tooltip popupPlacement="bottom" text={_l('此后1小时内在当前设备上应用和审批操作无需再次验证')}>
+          <Tooltip placement="bottom" title={_l('此后1小时内在当前设备上应用和审批操作无需再次验证')}>
             {vertifyCheckBox()}
           </Tooltip>
         )

@@ -1,31 +1,27 @@
 ﻿{{ var archivedClass = folder.archived || folder.isHidden ? 'archivedFolder': ''; }}
-<li data-projectid="{{=folder.projectID }}"
-    data-id="{{=folder.folderID }}"
-    data-charge="{{=folder.charge.accountID }}"
-    data-ismember="{{=folder.isMember }}"
-    data-auth="{{=folder.auth }}"
-    data-istop="{{=folder.top}}"
-    data-ispublic="{{=folder.visibility != 0 }}"
-    data-ispigeonhole="{{=folder.archived }}"
-    data-ishidden="{{=folder.isHidden}}"
-    class="ThemeHoverBGColor7 commFolder {{= archivedClass }}">
-  <div class="folderContent">
-    <span class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}" data-src="{{=folder.charge.avatar }}" data-id="{{=folder.charge.accountID }}">
-        <img src="{{=folder.charge.avatar }}" data-id="{{=folder.charge.accountID }}" />
-    </span>
-    <!-- <img src="{{=folder.charge.avatar }}" class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}" data-id="{{=folder.charge.accountID }}" /> -->
-    <span class="folderName overflow_ellipsis ThemeColor10" title="{{!folder.folderName}}">{{!folder.folderName }}</span>
-    {{? folder.visibility != 0 }}
-    <span class="navFolderPublic" data-tip="{{=folder.visibility === 1 ? _l('公开给指定群组') : '公开项目' }}">
-        <i class="icon-folder-public ThemeColor8"></i>
-    </span>
-    {{?}}
-    {{? folder.isNotice}}
-    <i class="folderNewTip circle"></i>
-    {{?}}
-    {{? folder.taskOngoingNum }}
-    <span class="folderUnfinished folderIcon ThemeColor8">{{=folder.taskOngoingNum }}</span>
-    {{?}}
-    <span class="folderIcon icon-settings sinSettings Hidden Relative ThemeColor8 ThemeHoverColor9"></span>
-  </div>
+<li data-projectid="{{=folder.projectID }}" data-id="{{=folder.folderID }}" data-charge="{{=folder.charge.accountID }}"
+    data-ismember="{{=folder.isMember }}" data-auth="{{=folder.auth }}" data-istop="{{=folder.top}}"
+    data-ispublic="{{=folder.visibility != 0 }}" data-ispigeonhole="{{=folder.archived }}"
+    data-ishidden="{{=folder.isHidden}}" class="ThemeHoverBGColor7 commFolder {{= archivedClass }}">
+    <div class="folderContent">
+        <span class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}"
+            data-src="{{=folder.charge.avatar }}" data-id="{{=folder.charge.accountID }}">
+            <img src="{{=folder.charge.avatar }}" data-id="{{=folder.charge.accountID }}" />
+        </span>
+        <!-- <img src="{{=folder.charge.avatar }}" class="folderCharge circle {{=folder.charge.status != 1 ? 'userdisable' : ''}}" data-id="{{=folder.charge.accountID }}" /> -->
+        <span class="folderName overflow_ellipsis ThemeColor10" title="{{!folder.folderName}}">{{!folder.folderName
+            }}</span>
+        {{? folder.visibility != 0 }}
+        <span class="navFolderPublic" title="{{=folder.visibility === 1 ? _l('公开给指定群组') : '公开项目' }}">
+            <i class="icon-folder-public ThemeColor8"></i>
+        </span>
+        {{?}}
+        {{? folder.isNotice}}
+        <i class="folderNewTip circle"></i>
+        {{?}}
+        {{? folder.taskOngoingNum }}
+        <span class="folderUnfinished folderIcon ThemeColor8">{{=folder.taskOngoingNum }}</span>
+        {{?}}
+        <span class="folderIcon icon-settings sinSettings Hidden Relative ThemeColor8 ThemeHoverColor9"></span>
+    </div>
 </li>

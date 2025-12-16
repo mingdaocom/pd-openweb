@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Radio } from 'ming-ui';
+import { Checkbox, Dialog, Dropdown, Icon, PriceTip, Radio } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import * as actions from '../redux/actions';
 import EmailInput from './Email';
@@ -180,11 +180,8 @@ function AddUserByTelDialog(props) {
         })}
         {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
           <p className="mTop16">
-            {type === 1
-              ? _l('邮件%0/封，', _.get(md, 'global.PriceConfig.EmailPrice'))
-              : _l('短信%0/条，', _.get(md, 'global.PriceConfig.SmsPrice'))}
-            {_l('将自动从企业账户扣除，请确保账户余额充足。')}
-            {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
+            <PriceTip text={_l('发送邀请的费用自动从组织信用点中扣除')} />
+            {!_.get(md, 'global.Config.IsLocal') && <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>}
           </p>
         )}
         <div className="list">

@@ -100,8 +100,9 @@ const SessionListDrawer = props => {
             <BgIconButton
               icon="contacts-book"
               iconClassName="Font19 pointer Gray_75"
-              tooltip={`${_l('通讯录')} (E)`}
+              tooltip={`${_l('通讯录')}`}
               onClick={() => props.setShowAddressBook(true)}
+              shortcut={'E'}
             />
           </div>
         )}

@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Input, Tooltip } from 'ming-ui';
+import { Checkbox, Dropdown, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
@@ -575,11 +576,7 @@ export default function NavGroup(params) {
                       ) : null}
                       <div className="itemText">
                         {filterData.isErr ? (
-                          <Tooltip
-                            popupPlacement="bottom"
-                            text={<span>{_l('ID: %0', _.get(filterData, ['controlId']))}</span>}
-                            tooltipClass="deleteHoverTips"
-                          >
+                          <Tooltip placement="bottom" title={_l('ID: %0', _.get(filterData, ['controlId']))}>
                             <span>{_l('该字段已删除')}</span>
                           </Tooltip>
                         ) : (
@@ -669,9 +666,8 @@ export default function NavGroup(params) {
               }}
             />
             <Tooltip
-              autoCloseDelay={0}
-              popupPlacement="bottom"
-              text={
+              placement="bottom"
+              title={
                 <span>
                   {_l(
                     '如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。',

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Modal, Support, Tooltip } from 'ming-ui';
+import { Icon, Modal, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
@@ -188,7 +189,7 @@ export default function EditUserExtendInfo(props) {
       </Select>
       <div className="selectTitle Bold valignWrapper mTop20">
         {_l('选择工作表')}
-        <Tooltip text={_l('选择或新建的工作表字段中，必须包含“成员”字段')} autoCloseDelay={0}>
+        <Tooltip title={_l('选择或新建的工作表字段中，必须包含“成员”字段')}>
           <Icon icon="info_outline" className="mLeft6 Gray_bd Font17" />
         </Tooltip>
       </div>
@@ -219,10 +220,7 @@ export default function EditUserExtendInfo(props) {
       </Select>
       <div className="selectTitle Bold valignWrapper mTop20">
         {_l('用户映射')}
-        <Tooltip
-          text={_l('选择一个“成员”字段，用于标识匹配系统登陆的用户，进而读取用户关联的扩展属性')}
-          autoCloseDelay={0}
-        >
+        <Tooltip title={_l('选择一个“成员”字段，用于标识匹配系统登陆的用户，进而读取用户关联的扩展属性')}>
           <Icon icon="info_outline" className="mLeft6 Gray_bd Font17" />
         </Tooltip>
       </div>

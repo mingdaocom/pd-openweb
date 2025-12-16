@@ -55,7 +55,7 @@ const ExpandBtn = styled.div`
   display: inline-block;
   height: 36px;
   line-height: 36px;
-  margin-left: 20px;
+  margin-left: 34px;
   cursor: pointer;
   color: #1677ff;
   font-size: 13px;
@@ -244,6 +244,7 @@ export default function SearchWrap(props) {
           )}
           {showExpand && (
             <ExpandBtn
+              className="mLeft12"
               onClick={() => {
                 setFullShow(!fullShow);
               }}

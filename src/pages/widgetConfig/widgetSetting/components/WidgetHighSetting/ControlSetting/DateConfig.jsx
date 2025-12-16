@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Input, Tooltip } from 'antd';
+import { Dropdown, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Dropdown as MingDropdown, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 import { DATE_SHOW_TYPES } from '../../../../config/setting';
 import { DropdownContent, DropdownPlaceholder, EditInfo, SettingItem } from '../../../../styled';
@@ -106,7 +107,7 @@ export function ShowFormatDialog(props) {
         <div className="formatList">
           <div className="title Gray_75">
             {_l('选择下方日期格式或自定义输入')}
-            <Support href="https://help.mingdao.com//worksheet/date-format" type={3} text={_l('帮助')} />
+            <Support href="https://help.mingdao.com/worksheet/date-format/" type={3} text={_l('帮助')} />
           </div>
           <ul className="list">
             {CUSTOM_SHOW_FORMAT.map(item => (
@@ -225,6 +226,7 @@ function StartEndTime(props) {
   const { data, onChange, allControls } = props;
   const min = getAdvanceSetting(data, 'min');
   const max = getAdvanceSetting(data, 'max');
+  const locationbegin = getAdvanceSetting(data, 'locationbegin');
 
   const handleValueChange = (value, mode) => {
     onChange(handleAdvancedSettingChange(data, { [mode]: JSON.stringify(value) }));
@@ -235,20 +237,45 @@ function StartEndTime(props) {
         <Checkbox
           size="small"
           checked={min}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { min: checked ? '' : JSON.stringify([]) }))}
+          onClick={checked =>
+            onChange(
+              handleAdvancedSettingChange(
+                data,
+                checked ? { locationbegin: '0', min: '' } : { min: JSON.stringify([]) },
+              ),
+            )
+          }
         >
           <span>{_l('起始日期')}</span>
         </Checkbox>
       </div>
       {min && (
-        <DateInput
-          {...props}
-          controls={allControls}
-          hideSearchAndFun
-          dynamicValue={min}
-          onDynamicValueChange={value => handleValueChange(value, 'min')}
-        />
+        <Fragment>
+          <DateInput
+            {...props}
+            controls={allControls}
+            hideSearchAndFun
+            dynamicValue={min}
+            onDynamicValueChange={value => handleValueChange(value, 'min')}
+          />
+          <div className="labelWrap mTop8">
+            <Checkbox
+              size="small"
+              checked={!!locationbegin}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { locationbegin: checked ? '0' : '1' }))}
+            >
+              <span>{_l('默认定位到起始日期')}</span>
+              <Tooltip
+                placement="bottom"
+                title={_l('勾选后，打开时间选择器优先显示起始日期所在日期；未勾选时优先显示当前日期。')}
+              >
+                <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+        </Fragment>
       )}
+
       <div className={cx('labelWrap', { mTop8: min, mBottom8: max })}>
         <Checkbox
           size="small"
@@ -298,8 +325,7 @@ export default function DateConfig(props) {
           >
             <span>{_l('预设分钟间隔')}</span>
             <Tooltip
-              placement={'bottom'}
-              autoCloseDelay={0}
+              placement="bottom"
               title={_l('用于控制时间选择器上的分钟按多少间隔显示，但依然可手动输入任意分钟数')}
             >
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>

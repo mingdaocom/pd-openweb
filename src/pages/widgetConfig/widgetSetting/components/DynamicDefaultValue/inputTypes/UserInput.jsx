@@ -73,9 +73,7 @@ export default class DateInput extends Component {
       if (from === DYNAMIC_FROM_MODE.FAST_FILTER && _.get(data, 'advancedSetting.shownullitem') === '1') {
         param.staticAccounts = [
           {
-            avatar:
-              md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-              '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+            avatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
             fullname: _.get(data, 'advancedSetting.nullitemname') || _l('为空'),
             accountId: 'isEmpty',
           },

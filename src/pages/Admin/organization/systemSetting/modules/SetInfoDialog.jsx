@@ -9,14 +9,14 @@ import './common.less';
 
 const checkFuncs = {
   companyDisplayName: companyDisplayName => {
-    if ($.trim(companyDisplayName) === '') {
+    if (!companyDisplayName.trim()) {
       return {
         msg: _l('企业简称不能为空'),
       };
     }
   },
   companyName: companyName => {
-    if ($.trim(companyName) === '') {
+    if (!companyName.trim()) {
       return {
         msg: _l('企业全称不能为空'),
       };
@@ -135,7 +135,7 @@ export default class SetInfoDialog extends Component {
       <div className="org-name-form">
         <div className="formGroup">
           <span className="formLabel">
-            {_l('组织名称')}
+            {_l('名称')}
             <span className="TxtMiddle Red">*</span>
           </span>
           <div className="formDescribe">{_l('用于账单和发票抬头，请确保准确')}</div>

@@ -424,6 +424,9 @@ export default class Text extends React.Component {
     if (cell.type === 7) {
       value = (value || '').toUpperCase();
     }
+    if (cell.controlId === 'rowid' && (value || '').startsWith('empty-')) {
+      value = '';
+    }
     const isCard = from === FROM.CARD;
     const editProps = {
       ref: this.input,

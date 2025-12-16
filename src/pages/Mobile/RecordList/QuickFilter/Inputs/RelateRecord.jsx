@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import RelateRecordOptions from './RelateRecordOptions';
 
 export default function RelateRecord(props) {

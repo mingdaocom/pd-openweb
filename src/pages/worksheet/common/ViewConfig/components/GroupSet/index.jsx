@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ChangeName from 'src/pages/integration/components/ChangeName';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
@@ -227,7 +228,7 @@ export default function (props) {
                   />
                   <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“未分组”')}</div>
                 </SwitchStyle>
-                <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+                <Tooltip title={_l('重命名')}>
                   <i
                     className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
                     onClick={() => setState({ showChangeName: true })}

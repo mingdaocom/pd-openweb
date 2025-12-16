@@ -6,7 +6,7 @@ import { FREQUENCY, RECURLAYERS, RECURTYPE, REMINDTYPE, WEEKDAYS } from './const
 import afterRefreshOp from './lib/afterRefreshOp';
 import recurCalendarUpdate from './lib/recurCalendarUpdateDialog';
 
-export let Config = {};
+export const Config = {};
 
 export function getParamsFromUrl() {
   const result = /detail_([^_?]+)_?([^_?]+)?/.exec(location.href);
@@ -526,7 +526,7 @@ export const editCalendar = (calendar, isEdit, { originStartTime, originEndTime 
                 isFirst: true,
                 scrollTop: $('.calendarList').scrollTop(),
               });
-            } else if ($.isFunction(Config.saveCallback)) {
+            } else if (_.isFunction(Config.saveCallback)) {
               Config.saveCallback(); // 刷新日历
             }
             alert(_l('修改成功'));

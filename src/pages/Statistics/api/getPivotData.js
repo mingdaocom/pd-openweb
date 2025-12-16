@@ -3,7 +3,7 @@ import base, { controllerName } from './base';
 /**
  * getPivotData
  */
-var getPivotData = {
+const getPivotData = {
   /**
    * getPivotData
    * @param {Object} args 请求参数

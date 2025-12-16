@@ -89,8 +89,11 @@ function LoginContainer(props) {
     const { accountResult } = res;
     switch (accountResult) {
       case 1:
-        alert(_l('密码重置成功！'), '1', 3000, () => {
-          toApp(appId);
+        alert({
+          msg: _l('密码重置成功！'),
+          onClose: () => {
+            toApp(appId);
+          },
         });
         setState({
           sending: false,

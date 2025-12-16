@@ -4,8 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
-import CustomFields from 'src/components/newCustomFields';
-import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils.js';
+import CustomFields from 'src/components/Form';
+import { isUnTextWidget } from 'src/components/Form/core/utils';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import RefreshTime from 'src/pages/worksheet/common/ViewConfig/components/RefreshTime.jsx';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -75,7 +75,7 @@ const Wrap = styled.div`
 
 const getAllTypes = (controls = []) => {
   let allTypes = [];
-  controls.map(o => {
+  controls.forEach(o => {
     switch (o) {
       // case 'DROP_DOWN':
       case '11': //单选
@@ -373,5 +373,25 @@ export default function ParameterSet(params) {
       </React.Fragment>
     );
   };
-  return <Wrap className={'mTop16'}>{renderCon()}</Wrap>;
+  const sourceType = (_.get(view, 'pluginInfo') || {}).source;
+  return (
+    <>
+      {[1, 2, 3, 4].includes(sourceType) ? (
+        <div className="Gray_75 mTop10">
+          {sourceType === 4
+            ? _l(
+                '%0（%1），升级方式：跟随应用升级',
+                _.get(view, 'pluginInfo.name'),
+                _.get(view, 'pluginInfo.currentVersion.versionCode'),
+              )
+            : _l(
+                '%0（%1），升级方式：在插件中心单独升级，不随应用升级',
+                _.get(view, 'pluginInfo.name'),
+                _.get(view, 'pluginInfo.currentVersion.versionCode'),
+              )}
+        </div>
+      ) : null}
+      <Wrap className="mTop16">{renderCon()}</Wrap>{' '}
+    </>
+  );
 }

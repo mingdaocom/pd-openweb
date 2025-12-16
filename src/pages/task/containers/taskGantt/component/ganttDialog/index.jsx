@@ -201,7 +201,7 @@ export default class GanttDialog extends Component {
             const { key = '' } = data || {};
             this.setState({
               buildImgSuccess: true,
-              url: `${md.global.FileStoreConfig.pubHost + key}?attname=${encodeURIComponent(
+              url: `${md.global.FileStoreConfig.pubHost}/${key}?attname=${encodeURIComponent(
                 this.state.name + moment().format('YYYY-MM-DD'),
               )}.png`,
             });

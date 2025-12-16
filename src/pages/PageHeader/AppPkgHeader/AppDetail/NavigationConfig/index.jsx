@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Tabs, Tooltip } from 'antd';
+import { Checkbox, Tabs } from 'antd';
 import cx from 'classnames';
 import { Icon, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import AppNavStyle from '../AppNavStyle';
 import MobileCustomNav from './MobileCustomNav';
 import Navigation from './Navigation';
@@ -177,7 +178,6 @@ export default function NavigationConfig(props) {
                     )}
                     arrowPointAtCenter={true}
                     placement="bottom"
-                    autoCloseDelay={0}
                   >
                     <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
                   </Tooltip>
@@ -200,7 +200,6 @@ export default function NavigationConfig(props) {
             title={_l('勾选时，管理员可以在应用中查看隐藏的应用项。取消勾选时，对管理员也同时隐藏')}
             arrowPointAtCenter={true}
             placement="topRight"
-            autoCloseDelay={0}
           >
             <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
           </Tooltip>

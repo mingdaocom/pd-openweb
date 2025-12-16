@@ -4,9 +4,11 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4, validate } from 'uuid';
 import { Checkbox, Dialog, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
 import appManagement from 'src/api/appManagement';
+import selectPBPDialog from '../../../components/selectPBPDialog';
 import { ACTION_ID, FIELD_TYPE_LIST } from '../../enum';
 import {
   DetailFooter,
@@ -14,7 +16,6 @@ import {
   ProcessParameters,
   ProcessVariablesInput,
   SelectNodeObject,
-  SelectOtherPBCDialog,
   SingleControlValue,
   SpecificFieldsValue,
   TransferTriggerUser,
@@ -36,7 +37,6 @@ export default class PBC extends Component {
       data: {},
       saveRequest: false,
       execCountType: 1,
-      showOtherPBC: false,
       selectFieldId: '',
       cacheKey: +new Date(),
     };
@@ -448,52 +448,55 @@ export default class PBC extends Component {
             </div>
 
             {!isPlugin && (
-              <span
-                className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
-                data-tip={_l('编辑')}
-                onClick={() => {
-                  this.setState({ selectFieldId: item.fieldId });
-                  this.cacheItem = item;
-                }}
-              >
-                <i className="icon-edit " />
-              </span>
+              <Tooltip title={_l('编辑')}>
+                <span
+                  className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+                  onClick={() => {
+                    this.setState({ selectFieldId: item.fieldId });
+                    this.cacheItem = item;
+                  }}
+                >
+                  <i className="icon-edit " />
+                </span>
+              </Tooltip>
             )}
 
-            <span
-              className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
-              data-tip={_l('删除')}
-              onClick={() => {
-                let fields = [].concat(data.fields);
-                let objArrayIds = [];
+            <Tooltip title={_l('删除')}>
+              <span
+                className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+                onClick={() => {
+                  let fields = [].concat(data.fields);
+                  let objArrayIds = [];
 
-                _.remove(fields, o => {
-                  const isDelete = o.fieldId === item.fieldId || o.dataSource === item.fieldId;
+                  _.remove(fields, o => {
+                    const isDelete = o.fieldId === item.fieldId || o.dataSource === item.fieldId;
 
-                  if (isDelete && o.type === 10000007) {
-                    objArrayIds.push(o.fieldId);
-                  }
+                    if (isDelete && o.type === 10000007) {
+                      objArrayIds.push(o.fieldId);
+                    }
 
-                  return isDelete;
-                });
+                    return isDelete;
+                  });
 
-                // 移除普通数组的子项
-                _.remove(fields, o => _.includes(objArrayIds, o.dataSource));
+                  // 移除普通数组的子项
+                  _.remove(fields, o => _.includes(objArrayIds, o.dataSource));
 
-                this.updateSource({ fields });
-              }}
-            >
-              <i className="icon-trash" />
-            </span>
+                  this.updateSource({ fields });
+                }}
+              >
+                <i className="icon-trash" />
+              </span>
+            </Tooltip>
 
-            <span
-              className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
-              style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
-              data-tip={_l('添加')}
-              onClick={() => this.addParameters(item)}
-            >
-              <i className="icon-add" />
-            </span>
+            <Tooltip title={_l('添加')}>
+              <span
+                className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+                style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
+                onClick={() => this.addParameters(item)}
+              >
+                <i className="icon-add" />
+              </span>
+            </Tooltip>
           </div>
           {this.renderList(data.fields.filter(o => o.dataSource === item.fieldId))}
         </Fragment>
@@ -756,7 +759,11 @@ export default class PBC extends Component {
         noData={_l('暂无业务流程，请先在应用里创建')}
         onChange={appId => {
           if (appId === 'other') {
-            this.setState({ showOtherPBC: true });
+            selectPBPDialog({
+              appId: this.props.relationId,
+              companyId: this.props.companyId,
+              onOk: ({ selectPBCId }) => this.getNodeDetail(this.props, { appId: selectPBCId }),
+            });
           } else {
             this.getNodeDetail(this.props, { appId });
           }
@@ -859,7 +866,7 @@ export default class PBC extends Component {
   }
 
   render() {
-    const { data, showOtherPBC } = this.state;
+    const { data } = this.state;
     const isPBCOut = data.actionId === ACTION_ID.PBC_OUT;
 
     if (_.isEmpty(data)) {
@@ -887,15 +894,6 @@ export default class PBC extends Component {
             setTimeout(this.onSave, 50);
           }}
         />
-
-        {showOtherPBC && (
-          <SelectOtherPBCDialog
-            appId={this.props.relationId}
-            companyId={this.props.companyId}
-            onOk={({ selectPBCId }) => this.getNodeDetail(this.props, { appId: selectPBCId })}
-            onCancel={() => this.setState({ showOtherPBC: false })}
-          />
-        )}
       </Fragment>
     );
   }

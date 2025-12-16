@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Tooltip } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import { LANGUAGE_BCP47 } from '../../../enum';
 import PromptSound from '../PromptSound';
@@ -33,12 +34,8 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
     <Fragment>
       <div className="Font13 bold mTop25">
         {_l('提示音')}
-        <Tooltip
-          popupPlacement="bottom"
-          autoCloseDelay={0}
-          text={_l('在 APP 运行期间方可进行语音播报，而 H5 则不具备此功能')}
-        >
-          <Icon className="Font16 Gray_9e mLeft5 tip-top-right" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+        <Tooltip title={_l('在 APP 运行期间方可进行语音播报，而 H5 则不具备此功能')}>
+          <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
         </Tooltip>
       </div>
 
@@ -61,41 +58,45 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
         </div>
 
         {promptSound.type !== 0 && (
-          <span data-tip={_l('清空')} className="mRight15">
-            <Icon
-              type="trash"
-              className="Gray_75 Font14 pointer"
-              onClick={() =>
-                updateSource({
-                  promptSound: {
-                    content: '',
-                    file: '',
-                    language: 'zh-CN',
-                    pitch: '1',
-                    preset: '',
-                    speed: '1',
-                    type: 0,
-                  },
-                })
-              }
-            />
-          </span>
+          <Tooltip title={_l('清空')}>
+            <span className="mRight15">
+              <Icon
+                type="trash"
+                className="Gray_75 Font14 pointer"
+                onClick={() =>
+                  updateSource({
+                    promptSound: {
+                      content: '',
+                      file: '',
+                      language: 'zh-CN',
+                      pitch: '1',
+                      preset: '',
+                      speed: '1',
+                      type: 0,
+                    },
+                  })
+                }
+              />
+            </span>
+          </Tooltip>
         )}
 
-        <span data-tip={_l('编辑')}>
-          <Icon
-            type="edit"
-            className="Gray_75 ThemeHoverColor3 Font14 pointer"
-            onClick={() => {
-              setCacheData({
-                promptSound:
-                  promptSound.type === 0 ? { ..._.cloneDeep(promptSound), type: 1 } : _.cloneDeep(promptSound),
-                formulaMap: _.cloneDeep(formulaMap),
-              });
-              setVisible(true);
-            }}
-          />
-        </span>
+        <Tooltip title={_l('编辑')}>
+          <span>
+            <Icon
+              type="edit"
+              className="Gray_75 ThemeHoverColor3 Font14 pointer"
+              onClick={() => {
+                setCacheData({
+                  promptSound:
+                    promptSound.type === 0 ? { ..._.cloneDeep(promptSound), type: 1 } : _.cloneDeep(promptSound),
+                  formulaMap: _.cloneDeep(formulaMap),
+                });
+                setVisible(true);
+              }}
+            />
+          </span>
+        </Tooltip>
       </MessageBox>
 
       {visible && (

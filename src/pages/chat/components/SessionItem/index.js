@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import './index.less';
 
 export default class SessionItem extends Component {
@@ -117,7 +118,7 @@ export default class SessionItem extends Component {
           {visible ? (
             this.renderAvatar(item)
           ) : (
-            <Tooltip popupPlacement="left" text={item.name} offset={[-3, 0]} autoCloseDelay={1000}>
+            <Tooltip placement="left" title={item.name} align={{ offset: [-3, 0] }} mouseLeaveDelay={0.1}>
               {this.renderAvatar(item)}
             </Tooltip>
           )}

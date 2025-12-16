@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 
@@ -54,7 +55,7 @@ export default class Entry extends Component {
       return renderContent({ count, waitingExamine }, onClick);
     }
     return (
-      <Tooltip text={<span>{_l('流程待办')}</span>}>
+      <Tooltip title={_l('流程待办')}>
         <div
           className={`myProcessHeader pointer mRight10 ${isNative ? 'Gray_75' : 'White'} ${className}`}
           onClick={onClick}

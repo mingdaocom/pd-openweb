@@ -68,7 +68,7 @@ const MingoShareLand = props => {
     alert(_l('复制成功'));
   };
   const onContinueChat = () => {
-    window.open(`/mingo/chat/${chatId}`, '_blank');
+    window.open(`/mingo/chat/${chatId}?from=share`, '_blank');
   };
   return (
     <Con className="t-flex t-flex-col">

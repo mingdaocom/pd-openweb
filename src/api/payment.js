@@ -76,6 +76,8 @@ export default {
 校验订单与原始数据一致性
   * @param {Object} args 请求参数
   * @param {string} args.orderId 订单ID
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 记录Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -146,6 +148,18 @@ export default {
    **/
   getMerchant: function (args, options = {}) {
     return mdyAPI('Payment', 'GetMerchant', args, options);
+  },
+  /**
+  * 聚合获取开通的支付商户以及认证的企业信息列表
+返回 公司名称/税号/类型。可以通过已经认证的企业信息开通电子开票税号
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  getAllMerchantInvoiceTaxNo: function (args, options = {}) {
+    return mdyAPI('Payment', 'GetAllMerchantInvoiceTaxNo', args, options);
   },
   /**
    * 获取商户列表

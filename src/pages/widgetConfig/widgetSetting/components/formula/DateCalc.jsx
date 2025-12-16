@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Button, Dropdown, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { createWorksheetColumnTag, formatColumnToText, getFormulaControls } from '../../../util/data';
 import ColumnListDropdown from '../ColumnListDropdown';
@@ -211,7 +211,6 @@ export default class DateCalc extends Component {
             <p className="Font12 Gray_9e">
               {_l('输入你想要 添加/减去 的时间。如：+8h+1m，-1d+8h。当使用数值类型的字段运算时，请不要忘记输入单位。')}
               <Tooltip
-                autoCloseDelay={0}
                 title={
                   <Fragment>
                     <div>{_l('年：Y（大写')}</div>

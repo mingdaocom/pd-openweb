@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { FILTER_SYS, SYST_PRINT } from './config';
 

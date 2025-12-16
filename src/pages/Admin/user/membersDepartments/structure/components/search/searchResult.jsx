@@ -10,16 +10,18 @@ class Result extends React.Component {
   renderDepartments = (departments = [], keywords) => {
     if (!departments || !departments.length) return null;
     const result = formatSearchDeptData(departments, keywords);
-    const list = _.map(result, (department, index) => (
-      <div
-        dangerouslySetInnerHTML={{ __html: filterXSS(department.departmentName) }}
-        key={`${index}_${department.id}`}
-        className="deptItem"
-        onClick={() => {
-          this.props.onDepartmentClick(department);
-        }}
-      ></div>
-    ));
+    const list = _.map(result, (department, index) => {
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: filterXSS(department.departmentName) }}
+          key={`${index}_${department.id}`}
+          className="deptItem"
+          onClick={() => {
+            this.props.onDepartmentClick(department);
+          }}
+        ></div>
+      );
+    });
     return (
       <div className="searchDepartmentList">
         <div className="title">

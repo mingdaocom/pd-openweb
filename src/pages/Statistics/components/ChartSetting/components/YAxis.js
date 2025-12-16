@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu, Tooltip } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
-import { emptyShowTypes, isNumberControl } from 'statistics/common';
+import { addCalculateControlHighlight, emptyShowTypes, isNumberControl, isOptionControl } from 'statistics/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { normTypes } from '../../../enum';
 import RenameModal from './RenameModal';
@@ -74,7 +75,7 @@ const renderOverlay = props => {
       )}
       {!isNumberControl(controlType) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {(enumDefault === 1
+          {(isOptionControl(controlType) && enumDefault === 1
             ? normTypes
             : [
                 {
@@ -190,14 +191,34 @@ export default class YAxis extends Component {
   }
   handleVerification = (data, isAlert = false) => {
     const { currentReport } = this.props;
-    const { xaxes, split, yaxisList, reportType } = currentReport;
+    const { reportType, xaxes, split, yaxisList, rightY } = currentReport;
 
-    if (_.find(yaxisList, { controlId: data.controlId })) {
-      isAlert && alert(_l('不允许添加重复字段'), 2);
+    if (reportTypes.DualAxes === reportType) {
+      const yList = yaxisList.concat(rightY.yaxisList);
+      if (_.find(yList, { controlId: data.controlId })) {
+        isAlert && alert(_l('字段不可重复添加，如需使用，请使用“计算字段”添加'), 2);
+        isAlert && addCalculateControlHighlight();
+        return false;
+      }
+    }
+
+    if (reportTypes.WorldMap === reportType && data.type === 40) {
+      isAlert && alert(_l('不支持定位字段'), 2);
       return false;
     }
 
-    if ([reportTypes.ScatterChart].includes(reportType) && data.controlId === split.controlId) {
+    if (_.find(yaxisList, { controlId: data.controlId })) {
+      isAlert && alert(_l('字段不可重复添加，如需使用，请使用“计算字段”添加'), 2);
+      isAlert && addCalculateControlHighlight();
+      return false;
+    }
+
+    if ([reportTypes.FunnelChart].includes(reportType) && data.controlId === xaxes.controlId) {
+      isAlert && alert(_l('维度和数值不能相同'), 2);
+      return false;
+    }
+
+    if ([reportTypes.ScatterChart, reportTypes.WorldMap].includes(reportType) && data.controlId === split.controlId) {
       isAlert && alert(_l('数值和颜色不允许重复'), 2);
       return false;
     }
@@ -314,6 +335,7 @@ export default class YAxis extends Component {
         reportTypes.GaugeChart,
         reportTypes.ScatterChart,
         reportTypes.BidirectionalBarChart,
+        reportTypes.WorldMap,
       ].includes(reportType)
     ) {
       return _.isEmpty(yaxisList) && Content;
@@ -338,7 +360,7 @@ export default class YAxis extends Component {
         <div className="Bold mBottom12">{name}</div>
         <SortableList
           useDragHandle
-          items={yaxisList}
+          items={yaxisList || []}
           itemKey="controlId"
           renderItem={options => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={this.handleSortEnd}

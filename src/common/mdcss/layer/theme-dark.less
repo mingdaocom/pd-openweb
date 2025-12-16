@@ -1,3 +1,74 @@
 [data-theme='dark'] {
-  --text-color: #ffffff;
+  /* ================= Dark Theme (强化卡片/弹窗可见性) ================= */
+
+  /* 主题色 */
+  --color-primary: #1677ff; /* 不变 */
+  --color-primary-light: #4096ff; /* 不变 */
+  --color-primary-dark: #0958d9; /* 不变 */
+  --color-primary-focus: #1677ff; /* 不变 */
+  --color-primary-focus-outer: rgba(22, 119, 255, 0.5); /* 暗底上提高到 ~50% 更可见 */
+  --color-primary-transparent: rgba(22, 119, 255, 0.2); /* 暗底上提高到 ~20% 更可见 */
+
+  /* 应用色 */
+  --color-app: #1677ff; /* 不变 */
+  --color-app-light: #4096ff; /* 不变 */
+  --color-app-dark: #0958d9; /* 不变 */
+  --color-app-transparent: rgba(22, 119, 255, 0.2); /* 暗底上提高到 ~20% 更可见 */
+
+  /* mingo */
+  --color-mingo: #6e09f9; /* 不变 */
+  --color-mingo-light: #8f33ff; /* 不变 */
+  --color-mingo-dark: #5100d4; /* 不变 */
+  --color-mingo-transparent: rgba(110, 9, 249, 0.2); /* 暗底上提高到 ~20% 更可见 */
+
+  /* 背景层级 */
+  --color-background-primary: #121212; /* 基底 */
+  --color-background-secondary: #161616;
+  --color-background-tertiary: #1b1b1b;
+  --color-background-card: #202124; /* 卡片/菜单/面板（明显亮于基底） */
+  --color-background-hover: #39393b; /*  hover (对比card高亮)） */
+  --color-background-disabled: #141414;
+  --color-background-overlay: rgba(0, 0, 0, 0.6); /* 模态遮罩略深，突出弹窗 */
+  --color-background-inverse: #ffffff; /* 不变 */
+
+  /* 文本：在更亮的卡片/弹窗上保持足够对比 */
+  --color-text-primary: #e6e6e6;
+  --color-text-title: #f2f2f2;
+  --color-text-secondary: #b3b3b3;
+  --color-text-tertiary: #8c8c8c;
+  --color-text-placeholder: #6f6f6f;
+  --color-text-disabled: #5e5e5e;
+  --color-text-inverse: #151515;
+
+  /* 边框/描边：给卡片与弹窗加“可见轮廓”，比背景更亮一档 */
+  --color-border-primary: #2a2f37; /* 常规描边（卡片/面板外框） */
+  --color-border-secondary: #22262c; /* 轻分隔 */
+  --color-border-tertiary: #353b45; /* 强分割 */
+  --color-border-hover: #3e4552; /* 悬停边框（输入/按钮 hover） */
+  --color-border-strong: #596273; /* 强强调（拖拽/高对比轮廓） */
+
+  /* 阴影：暗色里阴影存在感更弱，靠“更亮表面 + 细描边”表达层级 */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.38), 0 2px 4px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.34), 0 4px 6px rgba(0, 0, 0, 0.26);
+  --shadow-xl: 0 12px 28px rgba(0, 0, 0, 0.32), 0 8px 16px rgba(0, 0, 0, 0.24);
+
+  /* 功能色浅底：暗色需更高透明度（~0.20）以确保提示条/Tag 可见 */
+  --color-success: #4caf50;
+  --color-success-bg: rgba(76, 175, 80, 0.2);
+  --color-success-border: #66bb6a;
+  --color-warning: #ff9800;
+  --color-warning-bg: rgba(255, 152, 0, 0.2);
+  --color-warning-border: #ffb74d;
+  --color-error: #f44336;
+  --color-error-bg: rgba(244, 67, 54, 0.2);
+  --color-error-border: #ef9a9a;
+  --color-info: #1677ff;
+  --color-info-bg: rgba(22, 119, 255, 0.2);
+  --color-info-border: #90caf9;
+
+  /* 链接在暗底提亮，hover 再提一档，强化可见性 */
+  --color-link: #66b0ff;
+  --color-link-hover: #8cc6ff;
+  --color-link-visited: #8ab6f5;
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, InfoCircleFilled } from '@ant-design/icons';
 import _ from 'lodash';
-import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils';
+import { isUnTextWidget } from 'src/components/Form/core/utils';
 import { isCustomWidget } from '../../../util';
 
 // 事件

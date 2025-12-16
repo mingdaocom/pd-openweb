@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useLayoutEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { find, get, includes, isEmpty } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -81,6 +81,7 @@ const CardWrapper = styled.div`
 `;
 
 export default function OperateButtons({
+  refreshFlag,
   row = {},
   status,
   rowHeight,
@@ -123,6 +124,11 @@ export default function OperateButtons({
       }, 0);
     }
   });
+  useEffect(() => {
+    return () => {
+      setBtnDisable({});
+    };
+  }, [row.rowid, refreshFlag]);
   if (isEmpty(context)) return null;
   if (
     !buttons.length ||
@@ -245,13 +251,6 @@ export default function OperateButtons({
             setBtnDisable(old => ({ ...old, [btnId]: true }));
           }}
           sheetSwitchPermit={sheetSwitchPermit}
-          // TODO
-          // reloadRecord
-          // loadBtns
-          // onUpdate
-          // hideRecordInfo
-          // triggerCallback
-          //
           visibleNum={visibleNum}
         />
       )}

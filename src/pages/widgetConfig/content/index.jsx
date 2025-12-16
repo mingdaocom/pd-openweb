@@ -2,9 +2,11 @@ import React, { useEffect } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
 import { useSetState } from 'react-use';
+import cx from 'classnames';
 import _ from 'lodash';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { useGlobalStore } from 'src/common/GlobalStore';
 import WidgetDisplay from '../widgetDisplay';
 import WidgetList from '../widgetList';
 import WidgetSetting from '../widgetSetting';
@@ -19,6 +21,7 @@ const originFixedInfo = {
 
 export default function Content(props) {
   const { globalSheetInfo = {}, isRecycle, activeWidget = {}, setActiveWidget, styleInfo = {}, setStyleInfo } = props;
+  const { store: { mingoCreateWorksheetAction, mingoIsCreatingWorksheetStatus } = {} } = useGlobalStore() || {};
   const [fixedInfo, setPanelFixed] = useSetState(originFixedInfo);
   const [{ widgetVisible, settingVisible }, setVisible] = useSetState({
     widgetVisible: false,
@@ -28,6 +31,11 @@ export default function Content(props) {
   const { widgetPanelFixed, settingPanelFixed } = fixedInfo;
 
   useEffect(() => {
+    if (mingoCreateWorksheetAction) {
+      setPanelFixed({ widgetPanelFixed: false, settingPanelFixed: false });
+      setVisible({ widgetVisible: false, settingVisible: false });
+      return;
+    }
     const tempInfo = safeParse(
       window.localStorage.getItem(`worksheetPanelFixed-${globalSheetInfo.worksheetId}`) || '{}',
     );
@@ -53,11 +61,19 @@ export default function Content(props) {
 
   useEffect(() => {
     setTimeout(() => {
-      if (!_.isEmpty(activeWidget) && !settingVisible) {
+      if (!_.isEmpty(activeWidget) && !settingVisible && !window.lastAddWidgetsTriggerByMingo) {
         setVisible({ settingVisible: true });
       }
+      delete window.lastAddWidgetsTriggerByMingo;
     }, 100);
   }, [activeWidget.controlId]);
+
+  useEffect(() => {
+    if (mingoCreateWorksheetAction) {
+      setPanelFixed({ widgetPanelFixed: false, settingPanelFixed: false });
+      setVisible({ widgetVisible: false, settingVisible: false });
+    }
+  }, [mingoCreateWorksheetAction]);
 
   useEffect(() => {
     const handleKeyDown = e => {
@@ -78,7 +94,9 @@ export default function Content(props) {
     ...fixedInfo,
     listPanelVisible: widgetVisible,
     settingPanelVisible: settingVisible,
-    setPanelVisible: value => setVisible(value),
+    setPanelVisible: value => {
+      setVisible(value);
+    },
     setPanelFixed: key => {
       const obj = { [key]: !fixedInfo[key] };
       setPanelFixed(obj);
@@ -124,24 +142,24 @@ export default function Content(props) {
   };
 
   const renderWidgetSetting = () => {
+    function handleClose(target) {
+      const $el = $(target);
+      if (
+        $el &&
+        ($el.closest('.displayHeader').length || $el.closest('.worksheetConfigHeader').length) &&
+        settingVisible
+      ) {
+        setVisible({ settingVisible: false });
+        setActiveWidget({});
+        if (styleInfo.activeStatus) {
+          setStyleInfo({ activeStatus: false });
+        }
+      }
+    }
+
     if (!settingPanelFixed && !isRecycle) {
       return (
-        <ClickAwayable
-          onClickAway={target => {
-            const $el = $(target);
-            if (
-              $el &&
-              ($el.closest('.displayHeader').length || $el.closest('.worksheetConfigHeader').length) &&
-              settingVisible
-            ) {
-              setVisible({ settingVisible: false });
-              setActiveWidget({});
-              if (styleInfo.activeStatus) {
-                setStyleInfo({ activeStatus: false });
-              }
-            }
-          }}
-        >
+        <ClickAwayable onClickAway={handleClose}>
           <DrawerWrap
             width={350}
             title={null}
@@ -159,14 +177,29 @@ export default function Content(props) {
         </ClickAwayable>
       );
     }
-    return <WidgetSetting {...baseProps} />;
+    return (
+      <ClickAwayable
+        onClickAway={handleClose}
+        onClickAwayExceptions={[
+          '.fieldRecycleBinText',
+          '.addWidgetIcon',
+          '.closeConfigPage',
+          '.saveConfigPage',
+          '.goback',
+          '.configPageName',
+          '.worksheetConfigHeader .tabs',
+        ]}
+      >
+        <WidgetSetting {...baseProps} />
+      </ClickAwayable>
+    );
   };
 
   return (
     <DndProvider key="config" context={window} backend={HTML5Backend}>
-      <div className="customWidgetContainer">
+      <div className={cx('customWidgetContainer', { isGenerating: mingoIsCreatingWorksheetStatus })}>
         {renderWidgetList()}
-        <WidgetDisplay {...baseProps} />
+        <WidgetDisplay {...baseProps} isGenerating={mingoIsCreatingWorksheetStatus} />
         {renderWidgetSetting()}
       </div>
     </DndProvider>

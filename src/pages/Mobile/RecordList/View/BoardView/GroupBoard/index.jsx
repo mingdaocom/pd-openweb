@@ -6,7 +6,6 @@ import GroupByControl from 'mobile/components/GroupByControl';
 import { getGroupOpenKeys, getGroupOptions, groupByOptionKey } from 'worksheet/views/BoardView/GroupBoard/core/util';
 import { canEditForGroupControl, dealBoardViewData } from 'worksheet/views/BoardView/util';
 import { getCardWidth } from 'src/utils/worksheet';
-import { getAuthParams } from '../util';
 import SecondGroupItem from './SecondGroupItem';
 import './index.less';
 
@@ -36,7 +35,6 @@ const GroupBoard = props => {
   const viewData = dealBoardViewData({ view, controls, data: boardData }) || [];
   // 判断一级分组是否有未指定，且未指定数量是否大于0
   const hasNoFirstGroup = _.get(_.find(viewData, { key: '-1' }), 'totalNum', 0) > 0;
-  const authParams = getAuthParams(viewData);
   // 一级分组字段id
   const { viewControl } = view;
   const groupOptions = useMemo(() => {
@@ -129,12 +127,11 @@ const GroupBoard = props => {
                     selectControl={selectControl}
                     controls={controls}
                     openRecord={openRecord}
-                    authParams={authParams}
                     addBoardViewRecord={addBoardViewRecord}
                     viewData={viewData}
                     allowOperation={allowOperation}
                     viewRootEl={viewport}
-                    {..._.pick(props, ['appId', 'sheetSwitchPermit', 'updateViewCard'])}
+                    {..._.pick(props, ['appId', 'sheetSwitchPermit', 'updateViewCard', 'delBoardViewRecord'])}
                   />
                 );
               })}

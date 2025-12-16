@@ -64,4 +64,68 @@ export default {
   setupCustomField: function (args, options = {}) {
     return mdyAPI('sse/Code', 'SetupCustomField', args, options);
   },
+  /**
+   * 构建工作表创建需求收集
+   * @param {Object} args 请求参数
+   * @param {string} args.appId Appid
+   * @param {array} args.messageList 消息列表
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  buildSheetRequirements: function (args, options = {}) {
+    return mdyAPI('sse/Mingo', 'BuildSheetRequirements', args, options);
+  },
+  /**
+   * AI智能生成工作表
+   * @param {Object} args 请求参数
+   * @param {string} args.appId Appid
+   * @param {array} args.messageList 消息列表
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  buildWorkSheet: function (args, options = {}) {
+    return mdyAPI('sse/Mingo', 'BuildWorkSheet', args, options);
+  },
+  /**
+   * AI创建示例数据
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId WorksheetId
+   * @param {array} args.messageList 消息列表
+   * @param {} args.langType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  generateExampleData: function (args, options = {}) {
+    return mdyAPI('sse/Mingo', 'GenerateExampleData', args, options);
+  },
+  /**
+   * 识别内容创建记录
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.worksheetId WorksheetId
+   * @param {} args.langType
+   * @param {array} args.messageList 用户输入对话
+   * @param {boolean} args.isSmartFill 是否使用智能填充
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  generateRecordByAI: function (args, options = {}) {
+    return mdyAPI('sse/Mingo', 'GenerateRecordByAI', args, options);
+  },
+  /**
+   * AI生成智能体提示词
+   * @param {Object} args 请求参数
+   * @param {array} args.messageList 消息列表
+   * @param {} args.langType
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  generateAgentPrompt: function (args, options = {}) {
+    return mdyAPI('sse/Mingo', 'GenerateAgentPrompt', args, options);
+  },
 };

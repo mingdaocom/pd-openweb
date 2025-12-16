@@ -239,7 +239,7 @@ function ConnectAuth(props) {
 
   const updateAjaxParameter = (obj, i, isBlur) => {
     const webHookNodes = _.cloneDeep(node.webHookNodes);
-    Object.keys(obj).map(key => {
+    Object.keys(obj).forEach(key => {
       if (key === 'method' && _.includes([1, 4, 5], obj[key])) {
         webHookNodes[i].contentType = 1;
         webHookNodes[i].formControls = [];

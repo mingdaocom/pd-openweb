@@ -2,7 +2,8 @@ import React, { Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dialog, Icon, Support, Tooltip } from 'ming-ui';
+import { Checkbox, Dialog, Icon, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
 import { generateRandomPassword } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -94,7 +95,7 @@ export default class ExportApp extends React.Component {
     if (batch) {
       params.projectId = projectId;
       ajaxRequest.batchExportApp(params).then(res => {
-        if (!res) alert(_l('导出失败'), 2, 3000);
+        if (!res) alert(_l('导出失败'), 2);
       });
     } else {
       params.token = this.state.token;
@@ -108,7 +109,7 @@ export default class ExportApp extends React.Component {
         })
         .then(({ state, exception }) => {
           if (state !== 1) {
-            alert(exception, 2, 3000);
+            alert(exception, 2);
           }
         });
     }
@@ -156,13 +157,12 @@ export default class ExportApp extends React.Component {
             </Checkbox>
             {description && (
               <Tooltip
-                text={<span>{description}</span>}
-                popupAlign={{
+                title={description}
+                align={{
                   points: ['bl', 'tl'],
                   offset: [-5, 0],
                   overflow: { adjustX: true, adjustY: true },
                 }}
-                autoCloseDelay={0}
               >
                 <Icon icon="help" className="Gray_9e" />
               </Tooltip>
@@ -215,7 +215,7 @@ export default class ExportApp extends React.Component {
                   data-clipboard-text={this.state[password]}
                   onSuccess={() => alert(_l('复制成功'))}
                 >
-                  <Tooltip text={<span>{_l('复制')}</span>} popupPlacement="bottom">
+                  <Tooltip title={_l('复制')} placement="bottom">
                     <span className="icon-content-copy Hand" />
                   </Tooltip>
                 </ClipboardButton>

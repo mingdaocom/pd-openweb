@@ -1,14 +1,17 @@
 import React, { Fragment, PureComponent } from 'react';
 import { createRoot } from 'react-dom/client';
 import linkify from 'linkifyjs/html';
+import { match } from 'path-to-regexp';
 import styled from 'styled-components';
 import xss from 'xss';
-import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import TaskCenterController from 'src/api/taskCenter';
 import processAjax from 'src/pages/workflow/api/process';
 import Emotion from 'src/components/emotion/emotion';
 import { formatMsgDate } from 'src/pages/chat/utils';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
+import logDialog from 'src/pages/workflow/WorkflowSettings/History/components/logDialog';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
@@ -170,6 +173,25 @@ export default class SystemMessage extends PureComponent {
           addBehaviorLog('app', appId);
           return;
         }
+
+        // map应用审核 || 人事
+        if (href.indexOf('admin/applications/') > -1 || href.indexOf('hr/check/') > -1) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.open(href);
+          return;
+        }
+
+        // 反馈给 HAP
+        if (href.indexOf('agent/feedback/') > -1) {
+          const agentParams = match('/agent/feedback/:processId/:nodeId/:instanceId');
+          const { params } = agentParams(href) || {};
+          const { processId, nodeId, instanceId } = params;
+
+          evt.preventDefault();
+          evt.stopPropagation();
+          logDialog({ processId, nodeId, instanceId });
+        }
       });
     }
   }
@@ -271,7 +293,7 @@ export default class SystemMessage extends PureComponent {
 
               <span
                 dangerouslySetInnerHTML={{
-                  __html: parse(xss(linkify(xss(content.replace(/[\r\n]/g, '<br />').replace(/，<a href=.*personal\?type=enterprise.*<\/a>/gi, ''), xssOptions)), xssOptions)),
+                  __html: parse(xss(linkify(xss(content.replace(/[\r\n]/g, '<br />'), xssOptions)), xssOptions)),
                 }}
                 ref={el => {
                   this.msg = el;
@@ -280,7 +302,7 @@ export default class SystemMessage extends PureComponent {
             </div>
             <div className="Gray_9 mTop8">
               {done && (
-                <Tooltip text={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`} autoCloseDelay={0}>
+                <Tooltip title={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
                   <Done className="Hover_21 Hand">
                     <Icon icon="done" className="mRight6" />
                     <span className="text">{MSG_DONE_TEXT[inboxType] || _l('已处理')}</span>

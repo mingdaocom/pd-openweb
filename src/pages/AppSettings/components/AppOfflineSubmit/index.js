@@ -147,7 +147,7 @@ export default function AppOfflineSubmit(props) {
             '3.离线录入时，表单的业务规则、字段验证和权限控制都不生效。数据暂存本地，网络恢复后需手动提交，确保数据结构完整性。',
           )}
         </div>
-        <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/appOfflineSubmit" />
+        <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/appofflinesubmit" />
       </div>
       {loading ? (
         <LoadDiv />

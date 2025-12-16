@@ -1,6 +1,6 @@
 import _, { trim } from 'lodash';
 import moment from 'moment';
-import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { onValidator } from 'src/components/Form/core/formUtils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import { postWithToken } from 'src/utils/common';
 
@@ -89,7 +89,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.DATE:
               case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
-                value = item[key] ? getDateStringValue(item[key], control) : value;
+                value = item[key] ? getDateStringValue(item[key]) : value;
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.TIME:
                 if (/^\w\w:\w\w(:\w\w)?$/.test(trim(item[key]))) {

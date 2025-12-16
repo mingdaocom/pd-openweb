@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
-import { Select, Tooltip } from 'antd';
+import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import {
   DATE_FILTER_TYPE,
   DATE_GRANULARITY_TYPE,
@@ -172,7 +173,7 @@ export default function FilterSetting(props) {
             >
               {item.text}
               {item.txt && (
-                <Tooltip title={item.txt} autoCloseDelay={0}>
+                <Tooltip title={item.txt}>
                   <Icon className="mLeft5" icon="info" />
                 </Tooltip>
               )}

@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { compile, pathToRegexp } from 'path-to-regexp';
 import Trigger from 'rc-trigger';
-import { MdLink, Tooltip, UpgradeIcon } from 'ming-ui';
+import { MdLink, UpgradeIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
@@ -170,9 +171,9 @@ export default class AdminLeftMenu extends Component {
               {currentCompanyName}
             </div>
             <Tooltip
-              popupPlacement="right"
-              offset={[10, 0]}
-              text={<span>{isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}</span>}
+              placement="right"
+              align={{ offset: [10, 0] }}
+              title={isExtend ? _l('隐藏侧边栏') : _l('展开侧边栏')}
             >
               <span
                 className={cx('Hand Font12 ThemeColor9 titleIconBox Block', isExtend ? 'icon-back-02' : 'icon-next-02')}

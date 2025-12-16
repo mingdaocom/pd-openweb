@@ -6,7 +6,7 @@ import workSiteController from 'src/api/workSite';
 export default class SiteName extends Component {
   constructor(props) {
     super(props);
-    this.dialogtype = this.props.workSiteId ? '编辑' : '创建';
+    this.dialogtype = this.props.workSiteId ? _l('编辑') : _l('创建');
     this.state = {
       workSiteName: '',
     };
@@ -35,11 +35,11 @@ export default class SiteName extends Component {
           const workFn = this.props.workSiteId ? 'updateWorkSiteName' : 'addWorkSite';
           workSiteController[workFn]({
             workSiteId: this.props.workSiteId,
-            workSiteName: $.trim(this.state.workSiteName),
+            workSiteName: this.state.workSiteName.trim(),
             projectId: this.props.projectId,
           }).then(data => {
             if (data === 1) {
-              alert(_l('%0成功', this.dialogtype));
+              alert(this.props.workSiteId ? _l('编辑成功') : _l('创建成功'));
               this.setState({
                 workSiteName: '',
               });
@@ -47,7 +47,7 @@ export default class SiteName extends Component {
             } else if (data === 2) {
               this.showMes(_l('此工作地点已存在'));
             } else {
-              alert(_l('%0失败', this.dialogtype));
+              alert(this.props.workSiteId ? _l('编辑失败') : _l('创建失败'), 2);
             }
           });
         }
@@ -68,7 +68,7 @@ export default class SiteName extends Component {
     return (
       <Dialog
         visible={this.props.visible}
-        title={_l('%0工作地点', this.dialogtype)}
+        title={this.props.workSiteId ? _l('编辑工作地点') : _l('创建工作地点')}
         cancelText={_l('取消')}
         okText={_l('确定')}
         width="413"

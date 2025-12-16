@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Icon, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DISPLAY_TYPE_TEXT, RELATE_COUNT_TEXT } from '../../config/setting';
 import { BothRelateInfo } from '../../styled';
 import { toEditWidgetPage } from '../../util';
@@ -48,7 +48,6 @@ export default function BothWayRelate(props) {
           <span className=" mRight5">{_l('关联的%0', name || sourceName)}</span>）
           <Tooltip
             placement="bottom"
-            autoCloseDelay={0}
             title={
               <span>
                 {_l(

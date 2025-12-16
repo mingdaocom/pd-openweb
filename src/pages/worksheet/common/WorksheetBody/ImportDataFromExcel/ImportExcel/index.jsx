@@ -48,7 +48,7 @@ export default class ImportExcel extends React.Component {
             fileList = fileList.set(file.id, {
               name: file.name,
               relativePath: file.getSource().relativePath,
-              loaded: file.loaded,
+              loaded: file?.loaded,
               size: file.size,
               status: file.mdUploadErrorType ? UPLOAD_STATUS.ERROR : UPLOAD_STATUS.QUEUE,
               errorText: '',
@@ -81,7 +81,7 @@ export default class ImportExcel extends React.Component {
         },
         UploadProgress(up, file = {}) {
           const fileList = comp.state.fileList.update(file.id, fileItem => {
-            fileItem.loaded = file.loaded;
+            fileItem.loaded = file?.loaded;
             fileItem.status = UPLOAD_STATUS.UPLOADING;
             return fileItem;
           });
@@ -91,12 +91,12 @@ export default class ImportExcel extends React.Component {
         FileUploaded(up, file, info) {
           const { key } = info.response;
           const filePaths = comp.state.filePaths.concat();
-          filePaths.push({ id: md.global.FileStoreConfig.documentHost + key, type: 1, name: file.name });
+          filePaths.push({ id: md.global.FileStoreConfig.documentHost + '/' + key, type: 1, name: file.name });
           const fileList = comp.state.fileList.update(file.id, fileItem => {
             fileItem.status = UPLOAD_STATUS.COMPLETE;
             fileItem.name = file.name;
             fileItem.ext = file.name.split('.')[file.name.split('.').length - 1];
-            fileItem.path = md.global.FileStoreConfig.documentHost + key;
+            fileItem.path = md.global.FileStoreConfig.documentHost + '/' + key;
             return fileItem;
           });
 
@@ -185,7 +185,7 @@ export default class ImportExcel extends React.Component {
               '支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配',
               worksheetExcelImportDataLimitCount,
             )}
-            <Support type={3} href="https://help.mingdao.com/worksheet/import-Excel-data" text={_l('使用帮助')} />
+            <Support type={3} href="https://help.mingdao.com/worksheet/import-excel-data" text={_l('使用帮助')} />
           </div>
         }
         overlayClosable={false}

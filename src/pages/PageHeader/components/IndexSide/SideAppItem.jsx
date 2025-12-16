@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, MdLink, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
 import { addBehaviorLog } from 'src/utils/project';
@@ -91,7 +92,7 @@ function SideAppItem({
             handleMarkApp({ projectId, appId: id, isMark: !isMarked }, e);
           }}
         >
-          <Tooltip popupPlacement={'bottom'} text={isMarked ? _l('取消收藏') : _l('收藏')}>
+          <Tooltip placement="bottom" title={isMarked ? _l('取消收藏') : _l('收藏')}>
             <Icon icon={isMarked ? 'task-star' : 'star-hollow'} />
           </Tooltip>
         </div>

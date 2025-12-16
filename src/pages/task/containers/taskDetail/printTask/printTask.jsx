@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import cx from 'classnames';
 import { Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import './less/printTask.less';
 
@@ -90,12 +91,11 @@ export default class PrintTask extends Component {
                     <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                     {item.name}
                     {item.key === 'qrCode' ? (
-                      <span
-                        className="mLeft5 operationTips tip-top"
-                        data-tip={_l('可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务')}
-                      >
-                        <i className="icon-info" />
-                      </span>
+                      <Tooltip title={_l('可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务')}>
+                        <span className="mLeft5 operationTips">
+                          <i className="icon-info" />
+                        </span>
+                      </Tooltip>
                     ) : undefined}
                   </div>
                 </li>

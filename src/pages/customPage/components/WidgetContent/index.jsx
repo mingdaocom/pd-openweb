@@ -28,6 +28,16 @@ export const LayoutContent = styled.div`
   &[richText-offset-top] {
     top: 25px;
   }
+  .widgetContentTools.show {
+    display: flex !important;
+    visibility: visible !important;
+  }
+  .widgetContentTools {
+    &.card,
+    &.tabs {
+      display: none;
+    }
+  }
   .widgetContentTools,
   &.resizing .widgetContentTools {
     visibility: hidden;
@@ -75,6 +85,7 @@ export const LayoutContent = styled.div`
       }
     }
     &.tabs,
+    &.card,
     &.image {
       background: transparent !important;
       > div,
@@ -231,6 +242,12 @@ function WidgetContent(props) {
           const { titleVisible } = widget[layoutType] || {};
           const enumType = getEnumType(type);
           const iconColor = appPkg.iconColor || apk.iconColor;
+          const isTransparent = enumType === 'analysis' && _.get(widget, 'config.showType') === 1;
+          const widgetConfig = {
+            ...config,
+            originWidgetBgColor: config.widgetBgColor,
+            widgetBgColor: isTransparent ? 'transparent' : config.widgetBgColor,
+          };
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               <WidgetTools
@@ -242,6 +259,16 @@ function WidgetContent(props) {
                 components={components}
                 widget={widget}
                 setWidget={setWidget}
+                getChartData={() => {
+                  const { state } = displayRefs[index] || {};
+                  return _.get(state, 'reportData') || {};
+                }}
+                setChartData={data => {
+                  const chartRef = displayRefs[index];
+                  if (chartRef) {
+                    chartRef.handleChangeReportData(data);
+                  }
+                }}
               />
               <div
                 className={cx('widgetContent', enumType, layoutType, {
@@ -250,7 +277,7 @@ function WidgetContent(props) {
                   widgetIsDark,
                 })}
                 style={{
-                  backgroundColor: config.widgetBgColor,
+                  backgroundColor: widgetConfig.widgetBgColor,
                 }}
               >
                 <WidgetDisplay
@@ -259,7 +286,7 @@ function WidgetContent(props) {
                   editingWidget={editingWidget}
                   ids={ids}
                   isCharge={isCharge && !(appPkg.isLock || appPkg.permissionType === APP_ROLE_TYPE.RUNNER_ROLE)}
-                  config={config}
+                  config={widgetConfig}
                   themeColor={iconColor}
                   isLock={appPkg.isLock}
                   permissionType={appPkg.permissionType}

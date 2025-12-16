@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
@@ -115,7 +116,7 @@ class PostCommentInput extends React.Component {
             textarea.val(data => {
               const commentMsg = data;
 
-              if (!commentMsg || !$.trim(commentMsg)) {
+              if (!commentMsg || !(commentMsg || '').trim()) {
                 alert(_l('发表内容不能为空'), 3);
                 return false;
               } else if (commentMsg.length > 3000) {
@@ -369,14 +370,16 @@ class PostCommentInput extends React.Component {
                     <div className="Clear" />
                   </div>
                 </div>
-                <span data-tip={_l('同时转发此条')}>
-                  <i
-                    className={cx('relayBtn icon-forward2 Font19 ThemeColor3', {
-                      hoverRelayBtn: !this.state.isReshare,
-                    })}
-                    onClick={this.handleReshareToggle}
-                  />
-                </span>
+                <Tooltip title={_l('同时转发此条')}>
+                  <span>
+                    <i
+                      className={cx('relayBtn icon-forward2 Font19 ThemeColor3', {
+                        hoverRelayBtn: !this.state.isReshare,
+                      })}
+                      onClick={this.handleReshareToggle}
+                    />
+                  </span>
+                </Tooltip>
                 <div className="flex"></div>
                 <input
                   id={'buttonComment_' + postItem.postID + '_' + postItem.commentID}

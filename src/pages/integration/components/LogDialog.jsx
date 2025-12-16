@@ -10,7 +10,7 @@ import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.js';
 
-const TABLIST = ['请求参数', '返回值'];
+const TABLIST = [_l('请求参数'), _l('返回值')];
 
 const Wrap = styled.div`
   .tabCon {
@@ -111,7 +111,7 @@ export default function LogDialog(props) {
       className=""
       width="740"
       visible={true}
-      title={'查看 API 请求日志详情'}
+      title={_l('查看 API 请求日志详情')}
       footer={null}
       onCancel={props.onCancel}
     >

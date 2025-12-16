@@ -112,7 +112,7 @@ class ColumnRulesCon extends React.Component {
           <div className="columnRuleDesc">
             <span className="Gray_9e">
               {activeTab === TAB_TYPES.NORMAL_RULE
-                ? _l('显示、隐藏、只读、可编辑、必填会随着条件变化实时生效，只读所有将在记录保存后生效。')
+                ? _l('交互规则可根据条件控制字段的显隐、是否可编辑和是否必填，并支持为字段赋值。')
                 : activeTab === TAB_TYPES.CHECK_RULE
                   ? _l('当满足条件时,可对指定字段进行提示。')
                   : _l(
@@ -129,7 +129,7 @@ class ColumnRulesCon extends React.Component {
           <Drawer
             className="columnRulesDrawerContainer"
             width={640}
-            title={<span>{isAdd ? _l('新建%0规则', tabText) : _l('编辑%0规则', tabText)}</span>}
+            title={isAdd ? _l('新建%0规则', tabText) : _l('编辑%0规则', tabText)}
             placement="right"
             mask={false}
             onClose={() => clearColumnRules()}

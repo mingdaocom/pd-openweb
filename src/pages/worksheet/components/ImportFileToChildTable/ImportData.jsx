@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Button, Dropdown, Tooltip } from 'ming-ui';
+import { Button, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import UploadFile from 'worksheet/components/DialogImportExcelCreate/DialogUpload/UploadFile';
 import { usePasteText } from 'worksheet/hooks';
 import { getWithToken } from 'src/utils/common';
@@ -372,7 +373,7 @@ function PasteEdit(props) {
             ]}
             onChange={setSplitCharType}
           />
-          <Tooltip autoCloseDelay={0} text={_l('切换分隔符，仅针对新粘贴数据有效，已有数据不会产生影响”')}>
+          <Tooltip title={_l('切换分隔符，仅针对新粘贴数据有效，已有数据不会产生影响”')}>
             <i className="infoIcon icon icon-info_outline Font18 Gray_bd"></i>
           </Tooltip>
         </div>

@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
-import { Icon, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import ViewConfigCon from './ViewConfig';
@@ -75,8 +76,8 @@ export default class ViewConfig extends React.Component {
             <span className="Font16 flex pLeft11">
               {_l('数据管理')}
               <Tooltip
-                autoCloseDelay={0}
-                text={_l(
+                placement="bottom"
+                title={_l(
                   '管理所有工作表数据。所有字段可见、可编辑；所有打印模版、自定义动作均可用；开启所有功能开关。',
                 )}
               >

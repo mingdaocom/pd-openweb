@@ -137,7 +137,7 @@ class BackupFromFilesCom extends Component {
           this.setState(
             {
               file: file,
-              url: md.global.FileStoreConfig.documentHost + key,
+              url: md.global.FileStoreConfig.documentHost + '/' + key,
               errTip: '',
             },
             this.checkFile,

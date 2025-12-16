@@ -5,8 +5,8 @@ import { Icon, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
-import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { SYSTEM_ENUM } from 'src/components/Form/core/config';
+import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 
 const Wrap = styled.div`

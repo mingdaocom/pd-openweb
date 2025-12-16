@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Input, Radio, Select, Space, Tag, Tooltip } from 'antd';
+import { Checkbox, Input, Radio, Select, Space, Tag } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { ColorPicker, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes, roundTypes } from 'statistics/Charts/common';
 import RuleColor from './Color/RuleColor';
 
@@ -14,9 +15,12 @@ export default class Label extends Component {
     };
   }
   render() {
-    const { currentReport, onChangeDisplayValue, onChangeDisplaySetup, onChangeStyle } = this.props;
+    const { currentReport, onChangeDisplayValue, onChangeDisplaySetup, onChangeYDisplaySetup, onChangeStyle } =
+      this.props;
     const { reportType, yaxisList, displaySetup, summary, rightY, style } = currentReport;
     const { percent } = displaySetup;
+    const rightYDisplaySetup = _.get(rightY, 'display.ydisplay') || {};
+    const rightYShowNumber = rightYDisplaySetup.showNumber ?? true;
 
     const labelPercent = (
       <Fragment>
@@ -106,7 +110,6 @@ export default class Label extends Component {
                 {_l('省略末尾的 0')}
               </Checkbox>
               <Tooltip
-                autoCloseDelay={0}
                 title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
                 placement="bottom"
                 arrowPointAtCenter
@@ -367,27 +370,66 @@ export default class Label extends Component {
 
     return (
       <Fragment>
-        <div className={cx('flexRow valignWrapper', showMultiple ? 'mBottom10' : 'mBottom16')}>
-          <Checkbox
-            className="flexRow mLeft0"
-            checked={displaySetup.showDimension || displaySetup.showNumber}
-            onChange={() => {
-              if (displaySetup.showDimension || displaySetup.showNumber) {
-                onChangeDisplaySetup({
-                  showDimension: false,
-                  showNumber: false,
-                });
-              } else {
-                onChangeDisplaySetup({
-                  showDimension: true,
-                  showNumber: true,
-                });
-              }
-            }}
-          >
-            {reportType === reportTypes.FunnelChart ? _l('显示转化率') : _l('显示数据')}
-          </Checkbox>
-        </div>
+        {reportType === reportTypes.DualAxes ? (
+          <Fragment>
+            <div className="flexRow valignWrapper mBottom16">
+              <Checkbox
+                className="flexRow mLeft0"
+                checked={displaySetup.showNumber}
+                onChange={() => {
+                  if (displaySetup.showNumber) {
+                    onChangeDisplaySetup({
+                      showDimension: false,
+                      showNumber: false,
+                    });
+                  } else {
+                    onChangeDisplaySetup({
+                      showDimension: true,
+                      showNumber: true,
+                    });
+                  }
+                }}
+              >
+                {_l('显示Y轴数据')}
+              </Checkbox>
+            </div>
+            <div className="flexRow valignWrapper mBottom16">
+              <Checkbox
+                className="flexRow mLeft0"
+                checked={rightYShowNumber}
+                onChange={() => {
+                  onChangeYDisplaySetup({
+                    showNumber: rightYShowNumber ? false : true,
+                  });
+                }}
+              >
+                {_l('显示辅助Y轴数据')}
+              </Checkbox>
+            </div>
+          </Fragment>
+        ) : (
+          <div className={cx('flexRow valignWrapper', showMultiple ? 'mBottom10' : 'mBottom16')}>
+            <Checkbox
+              className="flexRow mLeft0"
+              checked={displaySetup.showDimension || displaySetup.showNumber}
+              onChange={() => {
+                if (displaySetup.showDimension || displaySetup.showNumber) {
+                  onChangeDisplaySetup({
+                    showDimension: false,
+                    showNumber: false,
+                  });
+                } else {
+                  onChangeDisplaySetup({
+                    showDimension: true,
+                    showNumber: true,
+                  });
+                }
+              }}
+            >
+              {reportType === reportTypes.FunnelChart ? _l('显示转化率') : _l('显示数据')}
+            </Checkbox>
+          </div>
+        )}
         {reportType === reportTypes.FunnelChart && (
           <div className="mLeft20 mBottom12">
             {(displaySetup.showDimension || displaySetup.showNumber) && (

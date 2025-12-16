@@ -3,13 +3,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Tooltip } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { quickSelectDept } from 'ming-ui/functions';
-import departmentAjax from 'src/api/department';
-import { dealRenderValue, dealUserRange } from 'src/components/newCustomFields/tools/utils';
-import { getCurrentProject } from 'src/utils/project';
+import { dealRenderValue, dealUserRange } from 'src/components/Form/core/utils';
+import DepartmentTooltip from 'src/components/Form/DesktopForm/widgets/DepartmentSelect/DepartmentTooltip';
 import EditableCellCon from '../EditableCellCon';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -45,7 +43,6 @@ export default class Text extends React.Component {
       this.handleSelect();
     }
     if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
-      // this.handleSelect();
       setTimeout(() => {
         this.handleSelect();
       }, 200);
@@ -171,8 +168,15 @@ export default class Text extends React.Component {
 
   renderDepartmentTag(department, allowDelete) {
     const { style, isediting, cell = {} } = this.props;
+
     return (
-      <span className={cx('cellDepartment', { isDelete: department.isDelete })} style={{ maxWidth: style.width - 20 }}>
+      <span
+        className={cx('cellDepartment', {
+          isDelete: department.isDelete,
+          disabledDepartmentOrRole: department.disabled,
+        })}
+        style={{ maxWidth: style.width - 20 }}
+      >
         <div className="flexRow">
           <div
             className="departmentName flex ellipsis"
@@ -204,13 +208,12 @@ export default class Text extends React.Component {
       singleLine,
       popupContainer,
       cell,
-      projectId,
       editable,
       isediting,
       updateEditingStatus,
       onClick,
+      projectId,
     } = this.props;
-    const { allpath } = cell.advancedSetting || {};
     const value = dealRenderValue(this.state.value, cell.advancedSetting);
     const single = cell.enumDefault === 0;
     const editcontent = (
@@ -265,44 +268,14 @@ export default class Text extends React.Component {
           {!!value && (
             <div className={cx('cellDepartments cellControl', { singleLine })}>
               {value.map(department => (
-                <Tooltip
-                  autoCloseDelay={0}
-                  flag={department.departmentId}
-                  mouseEnterDelay={0.6}
-                  disable={!projectId}
-                  text={
-                    !_.get(window, 'shareState.shareId')
-                      ? () =>
-                          new Promise((resolve, reject) => {
-                            if (!projectId) {
-                              return reject();
-                            }
-
-                            if (department.isDelete) {
-                              resolve(
-                                _l('%0部门已被删除', department.deleteCount > 1 ? `${department.deleteCount}个` : ''),
-                              );
-                              return;
-                            }
-
-                            if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
-                              return resolve(department.departmentName);
-                            }
-
-                            departmentAjax
-                              .getDepartmentFullNameByIds({
-                                projectId,
-                                departmentIds: [department.departmentId],
-                              })
-                              .then(res => {
-                                resolve(_.get(res, '0.name'));
-                              });
-                          })
-                      : null
-                  }
+                <DepartmentTooltip
+                  key={department.departmentId}
+                  item={department}
+                  advancedSetting={cell?.advancedSetting}
+                  projectId={projectId}
                 >
                   {this.renderDepartmentTag(department)}
-                </Tooltip>
+                </DepartmentTooltip>
               ))}
             </div>
           )}

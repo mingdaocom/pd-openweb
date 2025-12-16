@@ -147,7 +147,7 @@ export default class Con extends React.Component {
     let preRelationControls = false;
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
 
-    Object.keys(controlData).map(key => {
+    Object.keys(controlData).forEach(key => {
       const item = controlData[key];
 
       let isRelationControls = item.length === 1 && isRelation(item[0]);
@@ -570,6 +570,7 @@ export default class Con extends React.Component {
             allControls={allControlsOfRelation}
             orderNumberCheck={orderNumberCheck}
             id={tableList.controlId}
+            tableList={tableList}
             printData={printData}
             handChange={handChange}
             isShowFn={this.isShow}

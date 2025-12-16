@@ -63,7 +63,7 @@ export const getCurrentId = cb => {
   }
   let href = decodeURIComponent(ReturnUrl ? ReturnUrl : location.href);
   let currentAppId = '';
-  urlList.map(o => {
+  urlList.forEach(o => {
     if (href.indexOf(o) >= 0) {
       currentAppId = href.substr(href.indexOf(o) + o.length, 36);
     }
@@ -108,7 +108,7 @@ export const getCurrentExt = (appId, suffix) => {
   const pathname = urlPathname.pathname;
   let prefix;
   if (appId) {
-    ['app/', 'mobile/recordList/'].map(o => {
+    ['app/', 'mobile/recordList/'].forEach(o => {
       if (pathname.indexOf(`/${o}${appId}/`) >= 0) {
         prefix = `/${o}${appId}/`;
       }

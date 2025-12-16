@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { find, get, pick } from 'lodash';
+import { find, get, isFunction, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { MessageHandler } from 'src/utils/iframeCommunicate';
 import { getRowsRelation } from './functions';
 
@@ -25,8 +25,19 @@ const Con = styled.div`
   }
 `;
 
-function pickControl(control) {
-  return pick(control, ['controlId', 'controlName', 'value', 'type', 'options']);
+function pickControl(control = {}) {
+  const result = pick(control, ['controlId', 'controlName', 'value', 'type', 'options']);
+  if (control.type === 34 && isFunction(get(control, 'store.getState'))) {
+    try {
+      const state = control.store.getState();
+      const rows = get(state, 'rows', []);
+      result.rows = rows.filter(row => !get(row, 'rowid', '').startsWith('empty-'));
+      result.rowsLoading = get(state, 'dataLoading', true);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  return result;
 }
 
 function formatFormData(formData) {
@@ -47,8 +58,7 @@ export default function FreeFieldRunner({
   onError = () => {},
 }) {
   const [iframeId] = useState(v4());
-  const { currentControlId, value, env, recordId, worksheetId, onChange, refreshRecord, setControlHeight } =
-    widgetParams;
+  const { currentControlId, value, env, recordId, worksheetId, refreshRecord, setControlHeight } = widgetParams;
   const iframeRef = useRef();
   const cache = useRef({});
   cache.current.formData = widgetParams.formData;

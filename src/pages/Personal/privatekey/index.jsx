@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import moment from 'moment';
-import { Icon, Textarea, Tooltip } from 'ming-ui';
+import { Icon, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import privateGuide from 'src/api/privateGuide';
 import { getRequest } from 'src/utils/common';
 import ApplyPrivateKey from './ApplyPrivateKey';
@@ -91,7 +92,7 @@ export default class PersonalEntrypoint extends Component {
               <div className="Gray_75 mBottom5 mRight5">{_l('产品密钥')}</div>
               <div className="flex Relative">
                 <Textarea minHeight={90} readOnly defaultValue={licenseCode} />
-                <Tooltip text={<span>{_l('复制')}</span>} popupPlacement="bottom">
+                <Tooltip title={_l('复制')} placement="bottom">
                   <div className="copyWrapper">
                     <ClipboardButton
                       component="div"

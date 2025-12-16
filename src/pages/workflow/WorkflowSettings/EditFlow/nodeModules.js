@@ -1,4 +1,5 @@
 import Action from './Action';
+import Agent from './Agent';
 import AIGC from './AIGC';
 import Api from './Api';
 import ApiPackage from './ApiPackage';
@@ -63,6 +64,7 @@ export default {
   30: Return,
   31: AIGC,
   32: Plugin,
+  33: Agent,
   1000: FindSystem,
   1001: FindSystem,
 };

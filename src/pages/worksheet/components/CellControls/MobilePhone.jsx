@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
+import MobilePhoneEdit from 'src/components/Form/DesktopForm/widgets/MobilePhone';
 import { emitter } from 'src/utils/common';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { formatNumberFromInput } from 'src/utils/control';

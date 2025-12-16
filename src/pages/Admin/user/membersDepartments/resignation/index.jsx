@@ -1,7 +1,8 @@
 ﻿import React from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Dialog, Dropdown, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
 import userAjax from 'src/api/user';
 import { hasPermission } from 'src/components/checkPermission';
@@ -119,8 +120,8 @@ export default class extends React.Component {
             return (
               <div className="ellipsis" onMouseEnter={() => this.updateFullDepartmentInfo(departmentIds)}>
                 <Tooltip
-                  popupPlacement="bottom"
-                  text={
+                  placement="bottom"
+                  title={
                     <div>
                       {departmentInfos.map((it, index) => {
                         const fullName = (fullDepartmentInfo[it.departmentId] || '').split('/');
@@ -157,7 +158,7 @@ export default class extends React.Component {
             });
             return (
               <div className="ellipsis">
-                <Tooltip text={<span>{txt}</span>}>
+                <Tooltip title={txt}>
                   <span>{txt}</span>
                 </Tooltip>
               </div>

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog, LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import AppSettingHeader from 'src/pages/AppSettings/components/AppSettingHeader';
 import { dateConvertToUserZone } from 'src/utils/project';
@@ -108,7 +109,7 @@ export default function AppItemTrash(props) {
         url={
           appItem.iconUrl.startsWith('http')
             ? appItem.iconUrl
-            : `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${appItem.iconUrl}.svg`
+            : `${md.global.FileStoreConfig.pubHost}/customIcon/${appItem.iconUrl}.svg`
         }
         fill="#1677ff"
         size={34}
@@ -118,7 +119,9 @@ export default function AppItemTrash(props) {
         {appItem.name}
       </span>,
     ],
-    <span className="ellipsis">{appItem.type === 0 ? _l('工作表') : _l('自定义页面')}</span>,
+    <span className="ellipsis">
+      {appItem.type === 0 ? _l('工作表') : appItem.type === 1 ? _l('自定义页面') : _l('对话机器人')}
+    </span>,
     [
       <UserHead
         projectId={projectId}
@@ -190,7 +193,7 @@ export default function AppItemTrash(props) {
             window.__worksheetLeftReLoad();
           }
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(() => {
@@ -220,7 +223,7 @@ export default function AppItemTrash(props) {
               setAppItems(items => items.filter(t => t.id !== appItems[itemIndex].id));
               alert(_l('彻底删除成功'));
             } else {
-              return Promise.reject();
+              throw new Error();
             }
           })
           .catch(() => {
@@ -301,18 +304,22 @@ export default function AppItemTrash(props) {
                         {cells[cellIndex]}
                       </Cell>
                     ))}
-                    <span data-tip={_l('恢复')} className="tip-bottom mLeft40 mRight25">
-                      <i
-                        className="operateIcon icon icon-restart Font14 Gray_9e Hand"
-                        onClick={() => onRestore(rowKey)}
-                      ></i>
-                    </span>
-                    <span data-tip={_l('彻底删除')} className="tip-bottom mRight35">
-                      <i
-                        className="operateIcon icon icon-trash Font16 Gray_9e Hand"
-                        onClick={() => onDelete(rowKey)}
-                      ></i>
-                    </span>
+                    <Tooltip title={_l('恢复')} placement="bottom">
+                      <span className="mLeft40 mRight25">
+                        <i
+                          className="operateIcon icon icon-restart Font14 Gray_9e Hand"
+                          onClick={() => onRestore(rowKey)}
+                        ></i>
+                      </span>
+                    </Tooltip>
+                    <Tooltip title={_l('彻底删除')} placement="bottom">
+                      <span className="mRight35">
+                        <i
+                          className="operateIcon icon icon-trash Font16 Gray_9e Hand"
+                          onClick={() => onDelete(rowKey)}
+                        ></i>
+                      </span>
+                    </Tooltip>
                   </TableRow>
                 ))}
               {loading && !!data.length && <LoadDiv className="mTop20" />}

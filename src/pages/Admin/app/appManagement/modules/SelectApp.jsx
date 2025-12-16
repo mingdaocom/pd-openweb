@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, LoadDiv, ScrollView, SortableList, SvgIcon, Tooltip } from 'ming-ui';
+import { Checkbox, LoadDiv, ScrollView, SortableList, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
 import Search from 'src/pages/workflow/components/Search';
 import Config from '../../../config';
@@ -189,7 +190,7 @@ export default class SelectApp extends React.Component {
           <div className="selectAppRightContent">
             <div className="clearfix">
               <span className="Left Font15">{_l('已选')}</span>
-              <Tooltip popupPlacement="top" text={<span>{_l('导出的应用总数上限%0个', MAX_EXPORT_NUM)}</span>}>
+              <Tooltip placement="top" title={_l('导出的应用总数上限%0个', MAX_EXPORT_NUM)}>
                 <span className="icon-info mLeft8 Gray_bd Right LineHeight20"></span>
               </Tooltip>
               <span className={cx('Right', { errorMag: selectList.length > MAX_EXPORT_NUM })}>

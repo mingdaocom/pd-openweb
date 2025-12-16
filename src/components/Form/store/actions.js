@@ -68,31 +68,68 @@ export const updateEmSizeNumAction = (dispatch, num) => {
   });
 };
 
-export const getFilterDataByRuleAction = (dispatch, { props, dataFormat, getState, isInit = false }) => {
+export const getFilterDataByRuleAction = (
+  dispatch,
+  {
+    props,
+    dataFormat,
+    getState,
+    isInit = false,
+    updateChangeStatus = () => {},
+    onChangeEnhance = () => {},
+    disabledRuleSet = false,
+  },
+) => {
   const { ignoreHideControl, recordId, from, systemControlData, verifyAllControls } = props;
-  const { rules = [], searchConfig = [] } = getState();
+  const { rules = [], searchConfig = [], uniqueErrorItems = [] } = getState();
   let tempRenderData = updateRulesData({
     rules,
     recordId,
     data: dataFormat.getDataSource().concat(systemControlData || []),
     from,
     updateControlIds: dataFormat.getUpdateRuleControlIds(),
+    currentRuleControlIds: dataFormat.getCurrentRuleControlIds(),
+    disabledRuleSet,
     ignoreHideControl,
     checkRuleValidator: (controlId, errorType, errorMessage, rule) => {
       dataFormat.setErrorControl(controlId, errorType, errorMessage, rule, isInit);
     },
     verifyAllControls,
-    searchConfig,
-    handleChange: (value, cid, item, searchByChange) => {
-      handleChangeAction(dispatch, {
-        props,
-        getState,
-        dataFormat,
-        value,
-        cid,
-        item,
-        searchByChange,
-      });
+    searchConfig: searchConfig.filter(item => item.eventType === 2),
+    handleChange: (value, cid, item, searchByChange, setComplete) => {
+      if (item.value !== value) {
+        dataFormat.updateDataSource({
+          controlId: cid,
+          value,
+          removeUniqueItem: id => {
+            _.remove(uniqueErrorItems, o => o.controlId === id && o.errorType === FORM_ERROR_TYPE.UNIQUE);
+          },
+          searchByChange: searchByChange,
+        });
+
+        if (setComplete) {
+          setTimeout(() => {
+            // 禁止重新设置值
+            getFilterDataByRuleAction(dispatch, { props, dataFormat, getState, disabledRuleSet: true });
+
+            const newErrorItems = dataFormat.getErrorControls();
+            updateErrorItemsAction(
+              dispatch,
+              newErrorItems.map(item =>
+                item.controlId === cid && item.errorType === FORM_ERROR_TYPE.RULE_REQUIRED
+                  ? Object.assign({}, item, { showError: !!checkRequired({ ...item, value }) })
+                  : item,
+              ),
+            );
+
+            const ids = dataFormat.getUpdateControlIds();
+            if (ids.length) {
+              onChangeEnhance(dataFormat.getDataSource(), ids, { controlId: cid });
+              updateChangeStatus(true);
+            }
+          }, 50);
+        }
+      }
     },
   });
 
@@ -223,7 +260,7 @@ export const getSubmitDataAction = (
 ) => {
   const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {}, worksheetId } = props;
   const { rules, activeTabControlId, errorItems, uniqueErrorItems } = getState();
-  const { silent, ignoreAlert, verifyAllControls, ignoreDialog } = options || {};
+  const { silent, ignoreAlert, verifyAllControls, ignoreDialog, noTriggerError } = options || {};
   const updateControlIds = dataFormat.getUpdateControlIds();
   const data = dataFormat.getDataSource();
   const submitBegin = getSubmitBegin();
@@ -276,7 +313,9 @@ export const getSubmitDataAction = (
   const hasRuleError = (ignoreDialog ? errors.filter(e => !e.ignoreErrorMessage) : errors).length;
 
   // 提交时所有错误showError更新为true
-  updateErrorStateAction(dispatch, { getState, isShow: true });
+  if (!noTriggerError) {
+    updateErrorStateAction(dispatch, { getState, isShow: true });
+  }
 
   // 标签页内报错，展开标签页
   // 分段内报错，展开分段
@@ -453,6 +492,11 @@ export const handleChangeAction = (
 ) => {
   const { uniqueErrorItems } = getState();
   const { onWidgetChange = () => {}, onManualWidgetChange = () => {} } = props;
+  let disabledRuleSet = false;
+
+  if (item.type === 34) {
+    disabledRuleSet = _.get(value, 'disabledRuleSet');
+  }
 
   if (searchByChange) {
     // 手动更改表单
@@ -475,7 +519,7 @@ export const handleChangeAction = (
       },
       searchByChange: searchByChange,
     });
-    getFilterDataByRuleAction(dispatch, { props, dataFormat, getState });
+    getFilterDataByRuleAction(dispatch, { props, dataFormat, getState, disabledRuleSet });
 
     const newErrorItems = dataFormat.getErrorControls();
     updateErrorItemsAction(

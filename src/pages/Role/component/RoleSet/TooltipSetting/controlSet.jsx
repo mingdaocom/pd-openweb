@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import lookPng from './img/s.png';
 import { formatFields, getDecryptCheckboxProps, getFunction, getSectionIds } from './util';
@@ -213,7 +214,7 @@ export default class extends React.PureComponent {
             >
               {_l('新增')}
             </Checkbox>
-            <Tooltip text={<span>{_l('指“新增记录”时，可查看的字段')} </span>} popupPlacement="top">
+            <Tooltip title={_l('指“新增记录”时，可查看的字段')}>
               <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
             </Tooltip>
           </div>

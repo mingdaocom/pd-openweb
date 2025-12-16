@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ajaxRequest from 'src/api/taskCenter';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -193,7 +194,7 @@ class Attachment extends Component {
           }
 
           this.setState({
-            dataSource: $.merge(this.state.dataSource, source.data || []),
+            dataSource: _.merge(this.state.dataSource, source.data || []),
             isFirstPostComplete: false,
             isMore: source.data ? source.data.length >= config.pageSize : false,
           });

@@ -3,6 +3,7 @@ import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
 import { formatNumberFromInput } from 'src/utils/control';
 import { formatrChartAxisValue, formatrChartValue, getChartColors, getLegendType, getStyleColor } from './common';
@@ -125,10 +126,10 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
-      this.ScatterChart.update(config);
+      this.ScatterChart && this.ScatterChart.update(config);
     }
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.ScatterChart.destroy();
+      this.ScatterChart && this.ScatterChart.destroy();
       this.renderScatterChart(nextProps);
     }
   }
@@ -281,7 +282,7 @@ export default class extends Component {
       size: [5, 20],
       rawFields: ['originalId', xField],
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: data => {
         const controlId = data[split.controlId];
@@ -555,9 +556,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

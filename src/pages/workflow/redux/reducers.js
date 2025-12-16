@@ -41,7 +41,18 @@ const workflowDetail = (state = {}, action) => {
   }
 };
 
+const workflowTestRunning = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_WORKFLOW_TEST_RUNNING':
+    case 'CLEAR_WORKFLOW_TEST_RUNNING':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
 export default combineReducers({
   flowInfo,
   workflowDetail,
+  workflowTestRunning,
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 
 function safeParse(str) {

@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import { get } from 'lodash';
 import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DynamicInputStyle } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/styled.js';
 import { OUTPUT_FORMULA_FUNC, TIME_DISPLAY_TYPE } from '../../config/setting';
 import { SettingItem } from '../../styled';
@@ -85,7 +85,7 @@ export default function FormulaFunc(props) {
                 <span className="Bold flex overflow_ellipsis">{_l('函数计算')}</span>
               </div>
               <div className="options">
-                <Tooltip text={<span>{_l('清除')}</span>}>
+                <Tooltip title={_l('清除')}>
                   <div
                     className="delete"
                     onClick={e => {

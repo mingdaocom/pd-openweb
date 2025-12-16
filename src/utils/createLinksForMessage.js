@@ -139,7 +139,6 @@ export default args => {
     };
   };
 
-  // TODO: 了解此处各字符串是否已由后台encode
   // 话题
   let findCategory = function (id) {
     if (categories) {

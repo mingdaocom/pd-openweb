@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Input, intlTelInput, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
+import { Icon, Input, intlTelInput, LoadDiv, RadioGroup, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
@@ -22,7 +23,7 @@ export default class AddUser extends Component {
       departmentIds: [],
       errors: {},
       baseInfo: {},
-      inviteType: !md.global.SysSettings.enableSmsCustomContent ? 'email' : 'mobile',
+      inviteType: 'email',
       addUserVisible: props.addUserVisible,
     };
     this.it = null;
@@ -75,9 +76,8 @@ export default class AddUser extends Component {
         filterProjectId: projectId,
         unique: true,
         callback(userObj) {
-          _this.setState({
-            user: userObj[0],
-          });
+          _this.setState({ user: userObj[0] });
+          _this.checkedUser({ type: 'selectUser', accountId: userObj[0].accountId });
         },
       },
     });
@@ -116,10 +116,9 @@ export default class AddUser extends Component {
     this.setState({ errors });
   };
   // check当前组织是否存在该人员
-  checkedUser = (e, type) => {
+  checkedUser = ({ val, type, accountId } = {}) => {
     const { projectId, typeCursor, departmentId } = this.props;
     const { email, inviteType, autonomously } = this.state;
-    let val = e.target.value;
     if (
       (type === 'mobile' && !!checkForm['mobile'](val, this.iti)) ||
       (type === 'email' && !!checkForm['email'](val)) ||
@@ -129,15 +128,17 @@ export default class AddUser extends Component {
       return;
     }
     const userContact =
-      inviteType === 'mobile'
-        ? this.iti.getNumber()
-        : inviteType === 'email'
-          ? email
-          : type === 'autonomously' && this.itiAutonomously
-            ? this.itiAutonomously.getNumber()
-            : autonomously;
+      type === 'selectUser'
+        ? ''
+        : inviteType === 'mobile'
+          ? this.iti.getNumber()
+          : inviteType === 'email'
+            ? email
+            : type === 'autonomously' && this.itiAutonomously
+              ? this.itiAutonomously.getNumber()
+              : autonomously;
 
-    if (!userContact) {
+    if (!userContact && !accountId) {
       this.setState({ showMask: false });
       return;
     }
@@ -147,6 +148,7 @@ export default class AddUser extends Component {
         projectId,
         userContact,
         departmentId,
+        accountId,
       })
       .then(res => {
         // {0: 用户不存在，1:用户存在但不在组织内，2:用户存在且在组织内，3:未激活，4:未审核，5:已离职，6:在当前部门下}
@@ -176,7 +178,10 @@ export default class AddUser extends Component {
           currentUser: user,
           refreshData: this.props.refreshData,
           reviewUserInfo: this.reviewUserInfo,
-          hideMask: () => this.setState({ showMask: false }),
+          hideMask: () => {
+            this.setState({ showMask: false });
+            this.clearSelectUser();
+          },
           fetchReInvite: this.props.fetchReInvite,
           fetchCancelImportUser: this.props.fetchCancelImportUser,
         });
@@ -334,6 +339,7 @@ export default class AddUser extends Component {
       autonomouslyPasswrod,
     } = this.state;
     const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
+
     return (
       <Fragment>
         {_.isEmpty(user) ? (
@@ -350,12 +356,7 @@ export default class AddUser extends Component {
               this.clearError('userName');
             }}
           >
-            <Tooltip
-              tooltipClass="addUserDressbook"
-              text={<span>{_l('从通讯录添加')}</span>}
-              offset={[-20, 0]}
-              popupPlacement="bottom"
-            >
+            <Tooltip placement="bottomLeft" align={{ offset: [-10, 0] }} title={_l('从通讯录添加')}>
               <span
                 className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
                 onClick={this.dialogSelectUserHandler}
@@ -371,7 +372,7 @@ export default class AddUser extends Component {
                 <span className="userLabelName">{user.fullname}</span>
                 <span className="mLeft5 icon-cancel Font14 Gray_c Hand" onClick={this.clearSelectUser} />
               </span>
-              <Tooltip text={_l('从通讯录添加')}>
+              <Tooltip title={_l('从通讯录添加')}>
                 <span
                   className="icon-topbar-addressList Font16 selectUser ThemeHoverColor3"
                   onClick={this.dialogSelectUserHandler}
@@ -387,8 +388,8 @@ export default class AddUser extends Component {
               <RadioGroup
                 checkedValue={inviteType}
                 data={[
-                  { text: md.global.Config.IsLocal ? _l('手机号邀请') : _l('手机'), value: 'mobile' },
                   { text: md.global.Config.IsLocal ? _l('邮箱邀请') : _l('邮箱'), value: 'email' },
+                  { text: md.global.Config.IsLocal ? _l('手机号邀请') : _l('手机'), value: 'mobile' },
                   { text: _l('自主创建'), value: 'autonomously' },
                 ].filter(item => {
                   if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)
@@ -411,6 +412,24 @@ export default class AddUser extends Component {
                 }}
               ></RadioGroup>
             </div>
+            {inviteType === 'mobile' && (
+              <div className="prompt flexRow mBottom20 Gray mTop10">
+                <div className="mRight3">
+                  <Icon icon="info" className="Font16" />
+                </div>
+                <div className="flex">
+                  <span>
+                    {_l('受运营商政策影响，含链接的邀请短信可能被拦截。如未收到短信，请通过邮箱或邀请链接发送邀请')}
+                  </span>
+                  <Support
+                    type={3}
+                    className="mLeft5 mBottom3"
+                    href="https://blog.mingdao.com/37103.html"
+                    text={_l('详细')}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
         {inviteType === 'mobile' && _.isEmpty(user) && (
@@ -435,7 +454,7 @@ export default class AddUser extends Component {
               }}
               onBlur={e => {
                 this.setState({ showMask: true });
-                this.checkedUser(e, 'mobile');
+                this.checkedUser({ val: e.target.value, type: 'mobile' });
               }}
             />
             {errors['mobile'] && !!checkForm['mobile'](mobile, this.iti) && (
@@ -459,7 +478,7 @@ export default class AddUser extends Component {
               }}
               onBlur={e => {
                 this.setState({ showMask: true });
-                this.checkedUser(e, 'email');
+                this.checkedUser({ val: e.target.value, type: 'email' });
               }}
             />
             {errors['email'] && checkForm['email'](email) && (
@@ -493,7 +512,7 @@ export default class AddUser extends Component {
               }}
               onBlur={e => {
                 this.setState({ showMask: true });
-                this.checkedUser(e, 'autonomously');
+                this.checkedUser({ val: e.target.value, type: 'autonomously' });
               }}
             />
             {errors['autonomously'] && checkForm['autonomously'](autonomously) && (
@@ -603,6 +622,7 @@ export default class AddUser extends Component {
                     worksiteList={worksiteList}
                     baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
                     authority={authority}
+                    departmentInfos={this.props.departmentInfos}
                   />
                 </div>
                 <DrawerFooterOption

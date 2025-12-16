@@ -2,7 +2,8 @@ import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Avatar, Dialog, Dropdown, Icon, Input, Radio, Switch, Tooltip } from 'ming-ui';
+import { Avatar, Dialog, Dropdown, Icon, Input, Radio, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectDept } from 'ming-ui/functions';
 import groupAjax from 'src/api/group';
@@ -157,7 +158,7 @@ function CreateGroup(props) {
         <div className="mBottom24">
           <Switch checked={isApproval} onClick={() => setState({ isApproval: !isApproval })} size="small" />
           <span className="Font13 Gray_15 mLeft8">{_l('新成员加入需要管理员验证')}</span>
-          <Tooltip text={_l('仅对主动申请加入和通过链接邀请的用户生效')}>
+          <Tooltip title={_l('仅对主动申请加入和通过链接邀请的用户生效')}>
             <Icon icon="info_outline" className="mLeft4 Gray_bd Font16" />
           </Tooltip>
         </div>
@@ -196,8 +197,7 @@ function CreateGroup(props) {
           size={40}
           shape="circle"
           src={
-            avatar ||
-            `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/GroupAvatar/default.png?imageView2/1/w/100/h/100/q/90`
+            avatar || `${md.global.FileStoreConfig.pictureHost}/GroupAvatar/default.png?imageView2/1/w/100/h/100/q/90`
           }
         />
         <SelectAvatarTrigger onChange={value => setState(value)}>

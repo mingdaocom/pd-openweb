@@ -1,0 +1,45 @@
+.customFormAttachmentBox {
+  .triggerTraget,
+  .uploadFromMobile {
+    width: max-content;
+    padding: 0 16px;
+    border: 1px solid var(--color-border-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    max-width: 100%;
+    cursor: pointer;
+    &:not(.mobile):hover {
+      background-color: var(--color-background-tertiary);
+    }
+    &.mobile {
+      .Relative {
+        overflow: hidden !important;
+      }
+    }
+    &.active {
+      .Gray_9e {
+        color: var(--color-primary) !important;
+      }
+    }
+    .addFileName {
+      font-weight: bold;
+    }
+  }
+  .spaceBetween {
+    justify-content: space-between;
+  }
+  .handleBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      color: var(--color-primary) !important;
+      background-color: #fafafa;
+    }
+  }
+}

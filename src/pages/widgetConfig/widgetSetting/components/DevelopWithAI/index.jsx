@@ -411,7 +411,7 @@ export default function DevelopWithAI(props) {
                     <span
                       className="ThemeColor3 ThemeHoverColor3 Hand mLeft8"
                       onClick={() => {
-                        location.href = md.global.Config.WebUrl + 'pm/sysconfig/hub';
+                        location.href = md.global.Config.PlatformUrl + 'sysconfig/hub';
                       }}
                     >
                       {_l('去配置')}
@@ -471,7 +471,6 @@ export function openDevelopWithAI(props) {
 }
 
 /**
- * TODO
  * formData 只传配置了引用的字段
  * AI 使用别名
  * 组件加载状态

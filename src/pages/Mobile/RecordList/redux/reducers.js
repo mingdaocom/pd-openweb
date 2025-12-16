@@ -29,7 +29,7 @@ export const currentSheetRows = (state = [], action) => {
       return Object.assign([], state);
     case 'MOBILE_UPDATE_SHEET_ROW_BY_ROWID':
       const newState = state.map(row => {
-        if (action.rowId === row.rowid) {
+        if (action.recordId === row.rowid) {
           return action.isViewData ? { ...row, ...action.rowUpdatedValue } : null;
         }
         return row;
@@ -330,3 +330,82 @@ export const viewCard = (state = { needUpdate: true, height: 0 }, action) => {
       return state;
   }
 };
+
+export const calendarView = (
+  state = {
+    calendar: [],
+    calendarFormatData: [],
+    calendarData: {},
+    loading: true,
+  },
+  action,
+) => {
+  switch (action.type) {
+    case 'MOBILE_CHANGE_CALENDAR_LIST':
+      return { ...state, calendar: action.data };
+    case 'MOBILE_CHANGE_CALENDAR_FORMAT_DATA':
+      return { ...state, calendarFormatData: action.data };
+    case 'MOBILE_CHANGE_CALENDAR_DATA':
+      return { ...state, calendarData: action.data };
+    case 'MOBILE_CHANGE_CALENDAR_LOADING':
+      return { ...state, loading: action.data };
+    default:
+      return state;
+  }
+};
+
+export const calenderNotScheduled = (
+  state = {
+    // 未排期
+    list: [],
+    hasMore: true,
+    total: 0,
+    loading: false,
+  },
+  action,
+) => {
+  switch (action.type) {
+    case 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED':
+      return { ...state, ...action.data };
+    case 'MOBILE_RESET_CALENDAR_NOT_SCHEDULED':
+      return { ...state, list: [], hasMore: true };
+    case 'MOBILE_UPDATE_CALENDAR_NOT_SCHEDULED': {
+      const index = state.list.findIndex(item => item.rowid === action.rowid);
+      if (index === -1) return state;
+      return update(state, {
+        list: { [index]: { $merge: action.rowData } },
+      });
+    }
+    case 'MOBILE_DELETE_CALENDAR_NOT_SCHEDULED': {
+      const index = state.list.findIndex(item => item.rowid === action.rowid);
+      if (index === -1) return state;
+      return update(state, {
+        list: { $splice: [[index, 1]] },
+        total: { $apply: total => total - 1 },
+      });
+    }
+    case 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED_TOTAL': {
+      return { ...state, total: action.total };
+    }
+    default:
+      return state;
+  }
+};
+
+export function sheetButtons(state = [], action) {
+  switch (action.type) {
+    case 'MOBILE_WORKSHEET_UPDATE_SHEET_BUTTONS':
+      return action.buttons;
+    default:
+      return state;
+  }
+}
+
+export function printList(state = [], action) {
+  switch (action.type) {
+    case 'MOBILE_WORKSHEET_UPDATE_PRINT_LIST':
+      return action.printList;
+    default:
+      return state;
+  }
+}

@@ -7,11 +7,13 @@ import { getCurrentProject } from 'src/utils/project';
 import './index.less';
 
 export default function SelectProject(props) {
-  const { changeProject = () => {} } = props;
+  const { changeProject = () => {}, noCache = false, filterExternal = false, projectId } = props;
   let actionSheetHandler = null;
-  const projects = md.global.Account.projects.concat([{ companyName: _l('外部协作'), projectId: 'external' }]);
+  const projects = md.global.Account.projects.concat(
+    filterExternal ? [] : [{ companyName: _l('外部协作'), projectId: 'external' }],
+  );
   const projectObj = getCurrentProject(
-    localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
+    projectId || localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
   );
 
   const [currentProject, setCurrentProject] = useState(
@@ -53,9 +55,12 @@ export default function SelectProject(props) {
       ),
       onAction: action => {
         const { project } = action;
-        safeLocalStorageSetItem('currentProjectId', project.projectId);
+        // 人员选择层不需要真实修改组织
+        if (!noCache) {
+          safeLocalStorageSetItem('currentProjectId', project.projectId);
+        }
         setCurrentProject(project);
-        changeProject();
+        changeProject(noCache && { project });
         actionSheetHandler.close();
       },
     });

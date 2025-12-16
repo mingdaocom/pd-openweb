@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Dialog, LoadDiv, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, LoadDiv, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import transferAjax from 'src/pages/workflow/api/transfer';
@@ -86,11 +87,11 @@ const AppItem = props => {
       <div className="appIconWrap" style={{ backgroundColor: iconColor }}>
         <SvgIcon url={iconUrl} fill="#fff" size={16} addClassName="mTop2" />
       </div>
-      <Tooltip text={appName} popupPlacement="topLeft" disable={!nameTips} mouseEnterDelay={0.5}>
+      <Tooltip title={!nameTips ? '' : appName} placement="topLeft" mouseEnterDelay={0.5}>
         <span className="flex ellipsis mLeft8"> {appName}</span>
       </Tooltip>
       {!!roles.length && (
-        <Tooltip text={namesText} popupPlacement="topLeft" mouseEnterDelay={0.5}>
+        <Tooltip title={namesText} placement="topLeft" mouseEnterDelay={0.5}>
           <span className="flex2 ellipsis">{namesText}</span>
         </Tooltip>
       )}

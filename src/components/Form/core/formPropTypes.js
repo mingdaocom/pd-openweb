@@ -20,6 +20,7 @@ export const commonPropTypes = {
   isCreate: PropTypes.bool, // 是否新建
   widgetStyle: PropTypes.object, // 表单样式配置
   ignoreLock: PropTypes.bool, // 是否忽略锁定记录
+  isRecordLock: PropTypes.bool, // 记录锁定，真锁定
   ignoreHideControl: PropTypes.bool, // 忽略隐藏控件
   verifyAllControls: PropTypes.bool, // 是否校验全部字段
   isWorksheetQuery: PropTypes.bool, // 是否配置工作表查询

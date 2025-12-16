@@ -385,14 +385,3 @@ export default function PrintQrBarCode(props) {
     </Con>
   );
 }
-
-/**
- * TODO 待处理
- * 条形码条码大小逻辑
- * 自定义大小切换横版竖版
- * 横向显示大小不合理
- * 预览分辨率
- * 待定
- * 标签样式优化
- * 重写 qr 逻辑
- */

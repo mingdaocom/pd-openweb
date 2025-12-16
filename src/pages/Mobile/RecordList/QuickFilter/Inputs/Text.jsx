@@ -40,7 +40,7 @@ const SearchTypeWrap = styled.div`
 `;
 
 export default function Text(props) {
-  const { viewId, values = [], control, filterType, advancedSetting, onChange } = props;
+  const { viewId, values = [], control, filterType, advancedSetting, onChange, showTextAdvanced = true } = props;
   const [isExact, setIsExact] = useState(false);
   const [isCaseSensitive, setIsCaseSensitive] = useState(false);
 
@@ -91,28 +91,30 @@ export default function Text(props) {
             </div>
           )}
         </div>
-        <SearchTypeWrap className="flexRow">
-          <div
-            className={cx('searchType valignWrapper', { active: isExact })}
-            onClick={() => {
-              setIsExact(!isExact);
-              handleChange({ values, newIsExact: !isExact });
-            }}
-          >
-            <i className="icon icon-quote-left Font20" />
-            <span className="Font12">{_l('精确匹配')}</span>
-          </div>
-          <div
-            className={cx('searchType valignWrapper mLeft10', { active: isCaseSensitive })}
-            onClick={() => {
-              setIsCaseSensitive(!isCaseSensitive);
-              handleChange({ values, newIsCaseSensitive: !isCaseSensitive });
-            }}
-          >
-            <i className="icon icon-case Font20" />
-            <span className="Font12">{_l('区分大小写')}</span>
-          </div>
-        </SearchTypeWrap>
+        {showTextAdvanced && (
+          <SearchTypeWrap className="flexRow">
+            <div
+              className={cx('searchType valignWrapper', { active: isExact })}
+              onClick={() => {
+                setIsExact(!isExact);
+                handleChange({ values, newIsExact: !isExact });
+              }}
+            >
+              <i className="icon icon-quote-left Font20" />
+              <span className="Font12">{_l('精确匹配')}</span>
+            </div>
+            <div
+              className={cx('searchType valignWrapper mLeft10', { active: isCaseSensitive })}
+              onClick={() => {
+                setIsCaseSensitive(!isCaseSensitive);
+                handleChange({ values, newIsCaseSensitive: !isCaseSensitive });
+              }}
+            >
+              <i className="icon icon-case Font20" />
+              <span className="Font12">{_l('区分大小写')}</span>
+            </div>
+          </SearchTypeWrap>
+        )}
       </div>
     </div>
   );

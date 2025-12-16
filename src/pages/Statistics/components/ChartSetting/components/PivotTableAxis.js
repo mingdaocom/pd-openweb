@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Dropdown, Menu, Tooltip } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import {
+  addCalculateControlHighlight,
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
   emptyShowTypes,
@@ -415,7 +417,8 @@ export default class PivotTableAxis extends Component {
     const isAxis = ['lines', 'columns'].includes(type);
 
     if (!isTimeControl(data.type) && _.find(isAxis ? axisList : list, { controlId: data.controlId })) {
-      isAlert && alert(_l('不允许添加重复字段'), 2);
+      isAlert && alert(_l('字段不可重复添加，如需使用，请使用“计算字段”添加'), 2);
+      isAlert && addCalculateControlHighlight();
       return false;
     }
 

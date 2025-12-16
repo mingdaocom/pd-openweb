@@ -1,9 +1,9 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { CreateNode, SimplifyNode } from '../components';
 import 'rc-trigger/assets/index.css';
 
@@ -151,18 +151,16 @@ export default props => {
         <ApprovalProcessBox className={cx('flexColumn', { foldCurrentNode: isHide })}>
           {foldBtn && !isHide ? (
             <Tooltip
-              autoCloseDelay={0}
               title={() => (
                 <span
                   className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3 mTop7"
-                  data-tip={isHide ? _l('展开') : _l('收起')}
                   onMouseDown={() => {
                     nodeNameRef && nodeNameRef.current && nodeNameRef.current.blur();
                     changeShrink();
                     handleFoldBtnTipsPosition();
                   }}
                 >
-                  <Icon type={isHide ? 'arrow-down-border' : 'arrow-up-border'} />
+                  <Icon type="arrow-up-border" />
                 </span>
               )}
               overlayClassName="workflowBranchTips"

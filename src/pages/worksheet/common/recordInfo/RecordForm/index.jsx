@@ -5,16 +5,17 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, ScrollView, Skeleton, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, Skeleton } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DragMask from 'worksheet/common/DragMask';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import ViewContext from 'worksheet/views/ViewContext';
-import CustomFields from 'src/components/newCustomFields';
-import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
-import { controlState, getControlsByTab, isPublicLink } from 'src/components/newCustomFields/tools/utils';
+import CustomFields from 'src/components/Form';
+import SectionTableNav from 'src/components/Form/components/SectionTableNav';
+import { updateRulesData } from 'src/components/Form/core/formUtils';
+import { controlState, getControlsByTab, isPublicLink } from 'src/components/Form/core/utils';
 import RecordPay from 'src/components/RecordPay';
 import { browserIsMobile } from 'src/utils/common';
-import SectionTableNav from '../../../../../components/newCustomFields/components/SectionTableNav';
 import Abnormal from './Abnormal';
 import FormCover from './FormCover';
 import FormHeader from './FormHeader';
@@ -155,6 +156,7 @@ function RecordForm(props) {
     maskinfo,
     controlProps = {},
     recordinfo = {},
+    filledByAiMap = {},
     relateRecordData,
     view = {},
     showError,
@@ -384,9 +386,8 @@ function RecordForm(props) {
       <LockWrap isAdmin={isAdmin}>
         <div className="lockContent">
           <Tooltip
-            autoCloseDelay={0}
-            text={_l('锁定%0不允许编辑和删除。管理员可在应用内解锁。', recordinfo.entityName)}
-            popupPlacement="bottomLeft"
+            title={_l('锁定%0不允许编辑和删除。管理员可在应用内解锁。', recordinfo.entityName)}
+            placement="bottomLeft"
           >
             <span className="lockIcon" onClick={() => updateRecordLock()}>
               <Icon icon="lock" />
@@ -455,6 +456,7 @@ function RecordForm(props) {
                 ? {
                     className: 'recordInfoFormScroll Relative flex',
                     ref: scrollRef,
+                    options: { overflow: { x: 'hidden' } },
                     onScroll: () => {
                       setNavVisible();
                       setStickyBarVisible();
@@ -552,6 +554,7 @@ function RecordForm(props) {
                     flag={formFlag}
                     formDidMountFlag={formDidMountFlag}
                     widgetStyle={widgetStyle}
+                    filledByAiMap={filledByAiMap}
                     controlProps={{ ...controlProps, updateWorksheetControls, updateRelateRecordTableCount }}
                     data={formdata.filter(
                       c =>

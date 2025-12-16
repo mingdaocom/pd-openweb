@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import chartEmptyImg from 'staticfiles/images/chart.png';
 import styled from 'styled-components';
 import { Icon, LoadDiv, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import favoriteApi from 'src/api/favorite';
 import Chart from 'src/pages/Statistics/Card';
 import { CardItem } from './utils';
@@ -70,9 +71,11 @@ export default function CollectionCharts(props) {
     return (
       <React.Fragment>
         <DragHandle>
-          <span data-tip={_l('拖拽')} className="dragWrap">
-            <Icon icon="drag" className="Font14" />
-          </span>
+          <Tooltip title={_l('拖拽')}>
+            <span className="dragWrap">
+              <Icon icon="drag" className="Font14" />
+            </span>
+          </Tooltip>
         </DragHandle>
         <Chart
           report={{ id: item.reportId }}

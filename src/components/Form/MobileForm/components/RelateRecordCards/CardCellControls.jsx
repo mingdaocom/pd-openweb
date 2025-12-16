@@ -100,7 +100,7 @@ const Control = styled.div`
       margin: unset;
       width: 22px;
       height: 6px;
-      background: var(--gray-e0);
+      background: var(--color-border-primary);
       border-radius: 3px;
     }
     ${({ contentStyle }) => contentStyle}

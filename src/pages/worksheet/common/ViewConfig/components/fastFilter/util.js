@@ -419,7 +419,7 @@ export const getSetDefault = (control = {}) => {
     controlId: control.controlId,
     dataType: type,
   };
-  FAST_FILTERS_WHITELIST.map(o => {
+  FAST_FILTERS_WHITELIST.forEach(o => {
     let defaultValue = o.default;
     if (o.keys.includes(type)) {
       const { advancedSetting = {} } = fastFilterSet;
@@ -449,10 +449,6 @@ export const getSetDefault = (control = {}) => {
   //设置了加密
   if (control.encryId) {
     fastFilterSet = { ...fastFilterSet, filterType: FILTER_CONDITION_TYPE.EQ };
-  }
-  //检查框 默认不勾选
-  if (fastFilterSet.dataType === 36) {
-    fastFilterSet.filterType = FILTER_CONDITION_TYPE.NE;
   }
   if (_.get(control, 'advancedSetting.searchcontrol')) {
     fastFilterSet.advancedSetting.searchcontrol = _.get(control, 'advancedSetting.searchcontrol');

@@ -1,8 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, Input, Tooltip } from 'antd';
+import { Collapse, Input } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { HAS_EXPLAIN_CONTROL, NO_DES_WIDGET } from '../../config';
 import { AnimationWrap, SettingItem } from '../../styled';
 import { notExplainDisplay, notWidgetDes } from '../../util';
@@ -81,8 +82,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
           {_l('字段别名')}
           <Tooltip
             placement="bottom"
-            autoCloseDelay={0}
-            title={<span>{_l('仅允许使用字母（不区分大小写）、数字和下划线组合， 且必须以字母开头，不可重复。')}</span>}
+            title={_l('仅允许使用字母（不区分大小写）、数字和下划线组合， 且必须以字母开头，不可重复。')}
           >
             <Icon icon="help" className="Font16 Gray_bd mLeft4" />
           </Tooltip>
@@ -118,11 +118,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
       <SettingItem>
         <div className="settingItemTitle">
           {_l('备注')}
-          <Tooltip
-            placement="bottom"
-            autoCloseDelay={0}
-            title={<span>{_l('输入的内容仅应用管理员和开发者可见')}</span>}
-          >
+          <Tooltip placement="bottom" title={_l('输入的内容仅应用管理员和开发者可见')}>
             <Icon icon="help" className="Font16 Gray_bd mLeft4" />
           </Tooltip>
         </div>

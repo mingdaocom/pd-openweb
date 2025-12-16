@@ -12,11 +12,14 @@ import paymentAjax from 'src/api/payment.js';
 import { agreeOrRefuseRefundConfirm } from 'src/pages/Admin/pay/components/MobileRefundModal';
 import { refundConfirmFunc } from 'src/pages/Admin/pay/components/MobileRefundModal';
 import reimburseDialogFunc from 'src/pages/Admin/pay/Merchant/components/WithdrawReimburseDialog';
+import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
+import { INVOICE_STATUS } from 'src/pages/invoice/constant';
 import { browserIsMobile } from 'src/utils/common';
 import { infoKeys, refundInfoKeys, refundStatusList, selectPayStatusList, sourceTypeInfo, statusList } from './config';
 
 const WrapCon = styled.div`
   overflow: auto;
+  padding: 12px 16px;
 `;
 const Wrap = styled.div`
   background: #ffffff;
@@ -54,18 +57,41 @@ const Wrap = styled.div`
   .cancel {
     color: #757575;
   }
+
   .refundBtn,
-  .cancelRefundBtn {
+  .invoiceBtn,
+  .cancelRefundBtn,
+  .okBtn,
+  .refuseBtn {
+    padding: 10px 0;
+    border-radius: 3px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+
     background: rgba(244, 67, 54, 0.13);
     &:hover {
       background: rgba(244, 67, 54, 0.23);
     }
-    padding: 10px 0;
-    border-radius: 3px;
+
+    &.invoiceBtn {
+      background: #fff !important;
+      border: 1px solid #e0e0e0;
+      &:hover {
+        border-color: #1677ff;
+        color: #1677ff;
+      }
+    }
     &.cancelRefundBtn {
       background: rgba(33, 150, 243, 0.13);
       &:hover {
         background: rgba(33, 150, 243, 0.23);
+      }
+    }
+    &.okBtn {
+      background: rgba(76, 175, 80, 0.13);
+      &:hover {
+        background: rgba(76, 175, 80, 0.23);
       }
     }
     &.disable {
@@ -73,27 +99,8 @@ const Wrap = styled.div`
       background: #f5f5f5 !important;
     }
   }
-  .optionCon {
+  .gap10 {
     gap: 10px;
-    .okBtn,
-    .refuseBtn {
-      padding: 10px 0;
-      background: rgba(76, 175, 80, 0.13);
-      &:hover {
-        background: rgba(76, 175, 80, 0.23);
-      }
-      border-radius: 3px;
-      &.refuseBtn {
-        background: rgba(244, 67, 54, 0.13);
-        &:hover {
-          background: rgba(244, 67, 54, 0.23);
-        }
-      }
-      &.disable {
-        cursor: not-allowed;
-        background: #f5f5f5 !important;
-      }
-    }
   }
 `;
 
@@ -122,21 +129,25 @@ const Btn = styled.div`
 `;
 
 const SelectPayStatusWrap = styled.span`
-  display: inline-block;
-  height: 32px;
+  display: flex;
+  align-items: center;
   background: #fff;
-  line-height: 32px;
-  padding: 0 14px;
-  margin-bottom: 14px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  width: fit-content;
+  padding: 8px 12px;
+  margin-bottom: 16px;
   border-radius: 3px;
   cursor: pointer;
-  .icon {
-    color: #9e9e9e;
+  color: #757575;
+  .icon.icon-arrow-down {
+    color: #757575;
+    font-size: 8px;
+    width: 18px;
+    display: inline-block;
+    text-align: center;
   }
   &:hover {
-    .icon {
-      color: rgba(0, 0, 0, 0.5);
-    }
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
   }
 `;
 const PopupWrap = styled.div`
@@ -203,6 +214,7 @@ export default function PayLog(props) {
       showConfirmCancelOrderDialog,
       cancelOrderId,
       popupVisible,
+      isOpenInvoice,
     },
     setState,
   ] = useSetState({
@@ -217,6 +229,7 @@ export default function PayLog(props) {
     showConfirmCancelOrderDialog: false,
     cancelOrderId: undefined,
     popupVisible: false,
+    isOpenInvoice: false,
   });
   const isMobile = browserIsMobile();
   const filterPayOrders = payOrders.filter(v =>
@@ -243,6 +256,7 @@ export default function PayLog(props) {
           payOrders: data.payOrders,
           refundOrders: data.refundOrders,
           allowRefund: data.allowRefund,
+          isOpenInvoice: data.isOpenInvoice,
           editing: false,
         });
       });
@@ -460,24 +474,18 @@ export default function PayLog(props) {
         {/* 退款单操作权限 0无操作权限1取消退款权限2同意或拒绝权限3退款单用户既是付款人又有退款审批权限 */}
         {(o.refundOperation === 1 || o.refundOperation === 3) && (
           <div
-            className={cx('cancelRefundBtn w100 mTop24 TxtCenter Bold', { Hand: !editing, disable: editing })}
+            className={cx('cancelRefundBtn w100 mTop24', { disable: editing })}
             onClick={() => changeStatus(o.refundOrderId, 5)}
           >
             {_l('取消退款')}
           </div>
         )}
         {(o.refundOperation === 2 || o.refundOperation === 3) && (
-          <div className="flexRow optionCon mTop24">
-            <div
-              className={cx('okBtn flex TxtCenter Bold', { Hand: !editing, disable: editing })}
-              onClick={() => onOk(o)}
-            >
+          <div className="flexRow gap10 mTop24">
+            <div className={cx('okBtn flex', { disable: editing })} onClick={() => onOk(o)}>
               {_l('同意')}
             </div>
-            <div
-              className={cx('refuseBtn flex TxtCenter Bold', { Hand: !editing, disable: editing })}
-              onClick={() => onRefuse(o)}
-            >
+            <div className={cx('refuseBtn flex', { disable: editing })} onClick={() => onRefuse(o)}>
               {_l('拒绝')}
             </div>
           </div>
@@ -557,14 +565,33 @@ export default function PayLog(props) {
               </div>
             );
           })}
-          {allowRefund && _.includes([1, 5], payOrder.status) && (
-            <div
-              className={cx('refundBtn w100 mTop24 TxtCenter Bold', { Hand: !editing, disable: editing })}
-              onClick={() => onRefund(payOrder)}
-            >
-              {_l('申请退款')}
+
+          {_.includes([1, 5], payOrder.status) && (
+            <div className="flexRow gap10 mTop24">
+              {allowRefund &&
+                ((payOrder.invoiceStatus === INVOICE_STATUS.UN_INVOICED && !payOrder.invoiceId) ||
+                  [INVOICE_STATUS.CANCELLED, INVOICE_STATUS.FAILED].includes(payOrder.invoiceStatus)) && (
+                  <div className={cx('refundBtn flex ', { disable: editing })} onClick={() => onRefund(payOrder)}>
+                    {_l('退款')}
+                  </div>
+                )}
+
+              <ApplyInvoiceBtn
+                className="invoiceBtn flex"
+                orderInfo={{
+                  orderId: payOrder.orderId,
+                  orderStatus: payOrder.status,
+                  amount: payOrder.amount,
+                  payAccountId: payOrder.payAccountInfo?.accountId,
+                }}
+                isOpenInvoice={isOpenInvoice}
+                invoiceStatus={payOrder.invoiceStatus}
+                invoiceId={payOrder.invoiceId}
+                onCallback={getInfo}
+              />
             </div>
           )}
+
           {payOrder.status === 0 && !isMobile && (
             <div className="flexRow mTop12">
               <Btn
@@ -630,7 +657,7 @@ export default function PayLog(props) {
 
   return (
     <Fragment>
-      <WrapCon className={cx('h100', isMobile ? 'pAll10' : 'pAll20')}>
+      <WrapCon className={cx('h100', { pAll10: isMobile })}>
         {!isMobile && (
           <Trigger
             popupAlign={{ points: ['tl', 'bl'], offset: [0, 2] }}
@@ -641,7 +668,7 @@ export default function PayLog(props) {
           >
             <SelectPayStatusWrap>
               <span>{(_.find(selectPayStatusList, v => v.key === selectStatus) || { text: _l('待支付') }).text}</span>
-              <i className="icon icon-arrow-down-border mLeft6" />
+              <i className="icon icon-arrow-down mLeft4" />
             </SelectPayStatusWrap>
           </Trigger>
         )}

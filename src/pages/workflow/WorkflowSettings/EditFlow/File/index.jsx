@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
 export default class File extends Component {
   constructor(props) {
@@ -35,11 +35,7 @@ export default class File extends Component {
       );
     }
 
-    return (
-      <div className="workflowContentInfo ellipsis workflowContentBG">
-        <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
-      </div>
-    );
+    return <WorksheetMessage item={{ ...item, appTypeName: _l('工作表') }} />;
   }
 
   render() {

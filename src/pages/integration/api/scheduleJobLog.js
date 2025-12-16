@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var scheduleJobLog = {
-
+const scheduleJobLog = {
   /**
    * 获得定时任务日志
    *
@@ -36,7 +35,7 @@ var scheduleJobLog = {
     base.ajaxOptions.url = base.server(options) + 'scheduleJobLog/page';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'scheduleJobLogpage', args, $.extend(base, options));
-  }
+  },
 };
 
 export default scheduleJobLog;

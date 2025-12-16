@@ -3,6 +3,7 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 import { Dialog, FunctionWrap } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { mdNotification } from 'ming-ui/functions';
 import { htmlEncodeReg } from 'src/utils/common';
 import './css/createShare.css';
@@ -157,9 +158,11 @@ function CreateShare(props) {
             </div>
             {setting.isAdmin && (
               <div className="shareOperator">
-                <span className="shareBtn shareBtnClose ThemeColor3" data-tip={_l('取消分享')} onClick={handleShareBtn}>
-                  {_l('取消分享')}
-                </span>
+                <Tooltip title={_l('取消分享')}>
+                  <span className="shareBtn shareBtnClose ThemeColor3" onClick={handleShareBtn}>
+                    {_l('取消分享')}
+                  </span>
+                </Tooltip>
               </div>
             )}
           </Fragment>

@@ -1,0 +1,67 @@
+.invoiceStatusLandPage {
+  width: 100%;
+  height: 100%;
+  background-color: #f8f8f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .cardWrap {
+    width: 480px;
+    background-color: #fff;
+    border-radius: 3px;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .invoiceStatusFooterBtns {
+    padding: 40px 0 0;
+  }
+  @media (max-width: 600px) {
+    background-color: #fff;
+  }
+}
+
+.invoiceStatusFooterBtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  .cancelBtn {
+    background: #fff !important;
+    border: 1px solid #e0e0e0;
+    color: #757575;
+    &:hover {
+      color: #1677ff;
+      border-color: #1677ff;
+    }
+  }
+}
+
+.invoiceStatusDialog {
+  .mui-dialog-header {
+    padding: 24px 24px 22px !important;
+  }
+  .mui-dialog-desc {
+    padding-top: 8px !important;
+    color: #9e9e9e !important;
+  }
+  .mui-dialog-body {
+    padding: 0 24px 16px !important;
+  }
+  .mui-dialog-footer .invoiceStatusFooterBtns {
+    gap: 0;
+    justify-content: end;
+  }
+}
+
+.mobileModal .invoiceStatusFooterBtns {
+  padding: 24px 15px;
+  .cancelBtn {
+    border-color: #e0e0e0 !important;
+    color: #757575 !important;
+  }
+  button {
+    flex: 1;
+  }
+}

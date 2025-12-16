@@ -69,8 +69,8 @@ export const PAID_VERSION_TO_TEXT = {
       btnText: _l('购买外部用户扩充包'),
     },
     portalupgrade: {
-      hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
+      hint: _l('账户信用点不足'),
+      explain: _l('当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -99,8 +99,8 @@ export const PAID_VERSION_TO_TEXT = {
       btnText: _l('购买外部用户扩充包'),
     },
     portalupgrade: {
-      hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
+      hint: _l('账户信用点不足'),
+      explain: _l('当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -127,8 +127,8 @@ export const PAID_VERSION_TO_TEXT = {
       btnText: _l('购买外部用户扩充包'),
     },
     portalupgrade: {
-      hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
+      hint: _l('账户信用点不足'),
+      explain: _l('当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -160,8 +160,8 @@ export const PAID_VERSION_TO_TEXT = {
       btnText: _l('购买外部用户扩充包'),
     },
     portalupgrade: {
-      hint: _l('账号余额不足'),
-      explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
+      hint: _l('账户信用点不足'),
+      explain: _l('当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值'),
       btnText: _l('立即充值'),
     },
   },
@@ -190,8 +190,8 @@ export const EXPERIENCE_VERSION_TO_TEXT = {
     btnText: _l('立即购买'),
   },
   portalupgrade: {
-    hint: _l('账号余额不足'),
-    explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
+    hint: _l('账户信用点不足'),
+    explain: _l('当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值'),
     btnText: _l('立即充值'),
   },
 };
@@ -219,8 +219,8 @@ export const OVERDUE_NET_TEXT = {
     btnText: _l('立即购买'),
   },
   portalupgrade: {
-    hint: _l('账号余额不足'),
-    explain: _l('当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值'),
+    hint: _l('账户信用点不足'),
+    explain: _l('当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值'),
     btnText: _l('立即充值'),
   },
 };
@@ -228,7 +228,7 @@ export const OVERDUE_NET_TEXT = {
 // 通用能力
 export const COMMON = {
   ocr: {
-    hint: _l('余额不足，请联系管理员充值'),
+    hint: _l('信用点不足，请联系管理员充值'),
     btnText: _l('立即充值'),
   },
 };

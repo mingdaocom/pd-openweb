@@ -43,13 +43,13 @@ export const GLOBAL_SEARCH_TYPE = [
 
 export const USER_LIST_NAME = [
   {
-    label: '联系人',
+    label: _l('联系人'),
     key: 'fullname',
     idKey: 'accountId',
     searchType: 'user',
   },
   {
-    label: '聊天/群组',
+    label: _l('聊天/群组'),
     key: 'name',
     idKey: 'groupId',
     searchType: 'group',
@@ -106,6 +106,6 @@ export const SEARCH_APP_SEARCH_TYPE = {
   all: 0,
 };
 
-export const SEARCH_APP_ITEM_TYPE = ['工作表', '自定义页面', '分组', '应用'];
+export const SEARCH_APP_ITEM_TYPE = [_l('工作表'), _l('自定义页面'), _l('分组'), _l('应用'), _l('对话机器人')];
 
 export const GLOBAL_SEARCH_FEATURE_ID = 25;

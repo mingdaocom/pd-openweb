@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { colorGroup, getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
 import BaseColor from './BaseColor';
@@ -179,7 +180,7 @@ export default class ColorEntrance extends Component {
               <Icon className="Font16 Gray_9e" icon="trash" />
             </EntranceWrapper>
           ) : (
-            <Tooltip text={<span>{_l('颜色规则')}</span>}>
+            <Tooltip title={_l('颜色规则')}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
                 onClick={() => {

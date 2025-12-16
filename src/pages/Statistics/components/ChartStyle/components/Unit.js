@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Collapse, Input, Radio, Select, Tooltip } from 'antd';
+import { Checkbox, Collapse, Input, Radio, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { numberLevel, reportTypes, roundTypes } from 'statistics/Charts/common';
 import { formatNumberFromInput } from 'src/utils/control';
 
@@ -206,7 +207,6 @@ class Unit extends Component {
                   title={_l(
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                   )}
-                  autoCloseDelay={0}
                   placement="bottom"
                   arrowPointAtCenter
                 >
@@ -385,7 +385,6 @@ class Unit extends Component {
                       title={_l(
                         '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                       )}
-                      autoCloseDelay={0}
                       placement="bottom"
                       arrowPointAtCenter
                     >

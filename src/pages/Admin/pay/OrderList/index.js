@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button } from 'ming-ui';
+import { Button, Icon } from 'ming-ui';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { navigateTo } from 'src/router/navigateTo';
@@ -40,8 +40,8 @@ export default class Merchant extends Component {
 
     return (
       <div className="orgManagementWrap">
-        <AdminTitle prefix={_l(`商户与支付 - ${(_.find(TABS, v => v.key === currentTab) || {}).label || '订单'}`)} />
-        {showHeader ? (
+        <AdminTitle prefix={_l(`支付与开票 - ${(_.find(TABS, v => v.key === currentTab) || {}).label || '订单'}`)} />
+        {showHeader && (
           <div className="orgManagementHeader">
             <div className="tabBox">
               {TABS.map(item => (
@@ -54,25 +54,39 @@ export default class Merchant extends Component {
                 </span>
               ))}
             </div>
-            <Button
-              type="primary"
-              className="export mLeft24"
-              disabled={disabledExportBtn}
-              onClick={() => {
-                if (featureType === '2') {
-                  buriedUpgradeVersionDialog(Config.projectId, VersionProductType.PAY);
-                  return;
-                }
-                if (this.com) {
-                  this.com.handleExport();
-                }
-              }}
-            >
-              {_l('导出')}
-            </Button>
+            <div className="flexRow alignItemsCenter">
+              <Icon
+                icon="task-later"
+                className="Gray_9 hoverText Font17"
+                onClick={() => {
+                  if (this.com) {
+                    if (currentTab === 'transaction') {
+                      this.com.getDataList();
+                      this.com.getPayOrderSummary();
+                    } else {
+                      this.com.getDataList();
+                    }
+                  }
+                }}
+              />
+              <Button
+                type="primary"
+                className="export mLeft24"
+                disabled={disabledExportBtn}
+                onClick={() => {
+                  if (featureType === '2') {
+                    buriedUpgradeVersionDialog(Config.projectId, VersionProductType.PAY);
+                    return;
+                  }
+                  if (this.com) {
+                    this.com.handleExport();
+                  }
+                }}
+              >
+                {_l('导出')}
+              </Button>
+            </div>
           </div>
-        ) : (
-          ''
         )}
         <div
           className={cx('flexColumn overflowHidden', {

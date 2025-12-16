@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, Radio, ScrollView, Tooltip } from 'ming-ui';
+import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { checkJSON, formatTestParameters } from '../../utils';
@@ -352,11 +353,11 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold mTop20">Body</div>
-        <div className="flexRow mTop15">
+        <div className="flexRow mTop7">
           {contentTypes.map((item, i) => {
             return (
               <div
-                className="alignItemsCenter flexRow minHeight30"
+                className="alignItemsCenter flexRow minHeight36"
                 style={{ flex: item.value === 1 ? 1.2 : 1 }}
                 key={i}
               >
@@ -456,7 +457,7 @@ export default class WebHook extends Component {
               this.updateSource({ settings: Object.assign({}, data.settings, { useProxy: !checked }) })
             }
           />
-          <Tooltip autoCloseDelay={0} text={<span>{_l('需要管理员在「组织管理-安全-数据」中配置}')}</span>}>
+          <Tooltip title={_l('需要管理员在「组织管理-安全-数据」中配置')}>
             <Icon icon="info_outline" className="Gray_75 mTop3 mLeft10 mRight20" />
           </Tooltip>
           <Checkbox
@@ -651,12 +652,14 @@ export default class WebHook extends Component {
                   }
                   type="number"
                   min={5}
-                  max={120}
+                  max={data.settings.sysTimeout > 120 ? data.settings.sysTimeout : 120}
                   hasOtherField={false}
                   data={{ fieldValue: data.settings.timeout }}
                 />
               </div>
-              <div className="mLeft10">{_l('秒')}（5 ~ 120）</div>
+              <div className="mLeft10">
+                {_l('秒')}（5 ~ {data.settings.sysTimeout > 120 ? data.settings.sysTimeout : 120}）
+              </div>
 
               <Checkbox
                 style={{ marginLeft: 80 }}

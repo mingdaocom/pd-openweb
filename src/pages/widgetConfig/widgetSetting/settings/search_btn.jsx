@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import ApiSearchConfig from '../components/ApiSearchConfig';
@@ -26,11 +26,7 @@ const SEARCH_TYPES = [
     text: (
       <span>
         {_l('实时搜索')}
-        <Tooltip
-          placement="bottom"
-          autoCloseDelay={0}
-          title={_l('无需点击按钮，在输入的同时执行请求。当查询付费API时会产生更多额外费用')}
-        >
+        <Tooltip placement="bottom" title={_l('无需点击按钮，在输入的同时执行请求。当查询付费API时会产生更多额外费用')}>
           <i className="icon-help Gray_9e Font16 mLeft5"></i>
         </Tooltip>
       </span>
@@ -106,7 +102,6 @@ export default function SearchBtn(props) {
               {_l('最少字数')}
               <Tooltip
                 placement="bottom"
-                autoCloseDelay={0}
                 title={_l('当输入满足了最小字数后才会发起请求。当API的搜索参数有字数限制时可以设置此配置')}
               >
                 <i className="icon-help Gray_9e Font16 mLeft5"></i>
@@ -119,7 +114,6 @@ export default function SearchBtn(props) {
               {_l('预加载选项')}
               <Tooltip
                 placement="bottom"
-                autoCloseDelay={0}
                 title={_l(
                   '勾选后，在激活搜索下拉框时先进行一次请求，此时向接口传入的搜索参数为空，并将返回结果作为预设的选项以供选择。当API的搜索参数支持传空时，可以勾许此项。',
                 )}

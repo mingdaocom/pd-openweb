@@ -35,7 +35,7 @@ export default class ChartDesc extends Component {
     }
     if (newDesc !== desc) {
       reportConfig
-        .updateReportDesc({
+        .updateReportName({
           reportId,
           desc: newDesc,
         })

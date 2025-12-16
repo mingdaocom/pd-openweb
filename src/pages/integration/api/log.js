@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var log = {
-
+const log = {
   /**
    * 根据jobId获取完整的异常日志
    *
@@ -80,7 +79,7 @@ var log = {
     base.ajaxOptions.url = base.server(options) + 'log/getErrorLog';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'loggetErrorLog', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default log;

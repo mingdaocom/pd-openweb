@@ -27,6 +27,8 @@ export default class CustomTextarea extends Component {
     operatorsSetMargin: PropTypes.bool,
     className: PropTypes.string,
     showCurrent: PropTypes.bool,
+    onlyOneValue: PropTypes.bool,
+    errorMessage: PropTypes.string,
   };
 
   static defaultProps = {
@@ -38,6 +40,8 @@ export default class CustomTextarea extends Component {
     isPlugin: false,
     className: '',
     showCurrent: false,
+    onlyOneValue: false,
+    errorMessage: '',
   };
 
   state = {
@@ -51,9 +55,16 @@ export default class CustomTextarea extends Component {
   componentDidUpdate(prevProps) {
     if (this.tagtextarea && prevProps.content !== this.props.content) {
       const cursor = this.tagtextarea.cmObj.getCursor();
-
+      const scrollInfo = this.tagtextarea.cmObj.getScrollInfo();
       this.tagtextarea.setValue(this.props.content);
       this.tagtextarea.cmObj.setCursor(cursor);
+      this.tagtextarea.cmObj.scrollTo(scrollInfo.left, scrollInfo.top);
+      const lastLine = this.tagtextarea.cmObj.lineCount() - 1;
+      if (cursor.line === lastLine) {
+        setTimeout(() => {
+          this.tagtextarea.cmObj.scrollIntoView({ line: lastLine, ch: 0 }, 50);
+        }, 10);
+      }
     }
   }
 
@@ -77,6 +88,8 @@ export default class CustomTextarea extends Component {
       className,
       onBlur = () => {},
       showCurrent,
+      onlyOneValue,
+      errorMessage,
     } = this.props;
     const { fieldsVisible } = this.state;
 
@@ -85,7 +98,9 @@ export default class CustomTextarea extends Component {
         <TagTextarea
           className={cx('flex', className, {
             smallPadding: height === 0 && content && content.match(/\$[\w]+-[\w]+\$/g),
+            onlyOneValue: content && onlyOneValue,
           })}
+          readonly={onlyOneValue}
           height={height}
           defaultValue={content || ''}
           operatorsSetMargin={operatorsSetMargin}
@@ -106,12 +121,20 @@ export default class CustomTextarea extends Component {
                 nodeName={handleGlobalVariableName(ids[0], controlObj.sourceType, nodeObj.name)}
                 controlId={ids[1]}
                 controlName={controlObj.name || ''}
+                errorMessage={errorMessage}
               />
             );
           }}
           onBlur={onBlur}
           onChange={onChange}
         />
+        {content && onlyOneValue && (
+          <i
+            className="icon-delete ThemeHoverColor3 Absolute Gray_75 Font16 pointer"
+            style={{ right: 46, top: 10 }}
+            onClick={() => onChange(null, '')}
+          />
+        )}
         <SelectOtherFields
           item={{ type }}
           fieldsVisible={fieldsVisible}
@@ -138,7 +161,12 @@ export default class CustomTextarea extends Component {
             };
 
             updateSource({ formulaMap: newFormulaMap }, () => {
-              this.tagtextarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
+              if (onlyOneValue) {
+                this.tagtextarea.setValue('');
+                obj.fieldValueId && this.tagtextarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
+              } else {
+                this.tagtextarea.insertColumnTag(`${obj.nodeId}-${obj.fieldValueId}`);
+              }
             });
           }}
           openLayer={() => this.setState({ fieldsVisible: true })}

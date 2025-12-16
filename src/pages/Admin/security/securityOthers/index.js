@@ -49,6 +49,7 @@ export default class SecurityOthers extends Component {
           onlyManagerCreateApp = false,
           pluginsOnlyManager = false,
           onlyManagerDeleteApp = false,
+          superSearchOnlyManager = false,
         }) => {
           this.setState({
             apiIntgOnlyManager,
@@ -56,6 +57,7 @@ export default class SecurityOthers extends Component {
             onlyManagerCreateApp,
             pluginsOnlyManager,
             onlyManagerDeleteApp,
+            superSearchOnlyManager,
           });
         },
       );
@@ -70,6 +72,7 @@ export default class SecurityOthers extends Component {
       dataPipeOnlyManager,
       pluginsOnlyManager,
       onlyManagerDeleteApp,
+      superSearchOnlyManager,
     } = this.state;
 
     const limitInfo = {
@@ -78,6 +81,7 @@ export default class SecurityOthers extends Component {
       // dataPipeOnlyManager: _l('数据集成'),
       pluginsOnlyManager: _l('开发插件'),
       onlyManagerDeleteApp: _l('删除应用'),
+      superSearchOnlyManager: _l('超级搜索 - 搜索记录'),
     };
 
     const settings = Object.keys(limitInfo).filter(
@@ -110,6 +114,7 @@ export default class SecurityOthers extends Component {
                     dataPipeOnlyManager,
                     pluginsOnlyManager,
                     onlyManagerDeleteApp,
+                    superSearchOnlyManager,
                   },
                   updateData: data => this.setState({ ...data }),
                 }),

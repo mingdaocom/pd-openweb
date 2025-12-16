@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import moment from 'moment';
 import { Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Config from '../../../config';
 import './style.less';
 
@@ -195,12 +196,13 @@ export default class PortalProgress extends Component {
                 <span className={cx('portal-ant-slider-dot', { active: userCount >= item.value })}></span>
               ))}
             </div>
-            <div
-              className="portal-ant-slider-handle tip-top"
-              style={{ left: `${moveX}px` }}
-              data-tip={_l('%0人', userCount)}
-              onMouseDown={this.onMouseDown}
-            />
+            <Tooltip title={_l('%0人', userCount)} placement="top">
+              <div
+                className="portal-ant-slider-handle "
+                style={{ left: `${moveX}px` }}
+                onMouseDown={this.onMouseDown}
+              />
+            </Tooltip>
             <div className="portal-ant-slider-mark">
               {marks.map(item => {
                 return (

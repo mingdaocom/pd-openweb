@@ -69,8 +69,16 @@ export default function generateStore(
     value: { pageSize },
   });
   store.cancelChange = () => {
-    store.dispatch({ type: 'RESET' });
-    store.dispatch(refresh());
+    const state = store.getState();
+    if (get(state, 'base.isTab')) {
+      return;
+    }
+    const { originFirstPageResult = {} } = state;
+    store.dispatch({
+      type: 'CANCEL_CHANGE',
+      records: originFirstPageResult.records,
+      count: originFirstPageResult.count,
+    });
   };
   store.init = () => store.dispatch(init());
   store.setEmpty = ({ ignoreControlId = [] } = {}) => {

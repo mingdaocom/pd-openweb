@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon, Support, UpgradeIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
 import { EditInfo } from 'src/pages/widgetConfig/styled';
@@ -65,9 +65,8 @@ export default function ControlMask(props) {
           <span style={{ marginRight: '4px' }}>{_l('掩码显示')}</span>
           <Tooltip
             placement="bottom"
-            autoCloseDelay={0}
             title={_l(
-              '将字段值显示为掩码，应用管理员和有解码权限的用户可以点击后解码查看（解码权限需要在用户-角色-字段权限中配置）。在对外公开分享时始终掩盖',
+              '将字段值显示为掩码，应用管理员和有解码权限的用户可以点击后解码查看（解码权限需要在用户-角色-字段权限中配置）。',
             )}
           >
             <Icon icon="help" className="Font16 Gray_9e" />
@@ -92,7 +91,7 @@ export default function ControlMask(props) {
 
       {visible && <MaskSettingDialog {...props} onCancel={() => setVisible(false)} />}
 
-      {!_.includes([6, 8], type) && (
+      {!_.includes([6, 8, 30], type) && (
         <div className="labelWrap">
           <Checkbox
             className="customWidgetCheckbox"
@@ -114,7 +113,6 @@ export default function ControlMask(props) {
             {isPayType && <UpgradeIcon />}
             <Tooltip
               placement="bottom"
-              autoCloseDelay={0}
               title={
                 <span>
                   {_l('对字段数据进行加密存储，保护重要信息。注意：字段加密后。一些使用将会受限。')}

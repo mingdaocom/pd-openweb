@@ -5,8 +5,6 @@ import InfoTop from './UserInfoTop';
 class Info extends Component {
   state = {};
 
-  componentDidMount() {}
-
   render() {
     return (
       <React.Fragment>

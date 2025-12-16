@@ -99,7 +99,7 @@ function Edit(params) {
           fastFilters.map(o => {
             if (o.controlId === activeFastFilterId) {
               let filters = o;
-              Object.keys(data).map(ii => {
+              Object.keys(data).forEach(ii => {
                 if (![...ADVANCEDSETTING_KEYS, ...Filter_KEYS].includes(ii)) {
                   filters[ii] = data[ii];
                 } else {

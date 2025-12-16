@@ -1,4 +1,4 @@
-import { get, isFunction, last } from 'lodash';
+import { get, isFunction } from 'lodash';
 import _ from 'lodash';
 import { api, mainWebApi, utils } from './widgetFunctions';
 
@@ -42,10 +42,7 @@ export default class WidgetBridge {
       this.onLoad();
       let loadUrl = this.cache.current.scriptUrl;
       if (this.cache.current.isServerUrl) {
-        loadUrl =
-          md.global.FileStoreConfig.pubHost +
-          (last(md.global.FileStoreConfig.pubHost) === '/' ? '' : '/') +
-          this.cache.current.scriptUrl;
+        loadUrl = `${md.global.FileStoreConfig.pubHost}/${this.cache.current.scriptUrl}`;
       }
       this.sendWidgetBridge({
         action: 'load-widget',

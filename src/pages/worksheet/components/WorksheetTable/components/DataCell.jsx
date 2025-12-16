@@ -18,6 +18,7 @@ export default function MDCell(props) {
     from,
     isDraft,
     leftFixedCount,
+    inView,
   } = props;
   const {
     tableType,
@@ -35,6 +36,7 @@ export default function MDCell(props) {
     onCellClick = () => {},
     onFocusCell = () => {},
     onCellMouseDown = () => {},
+    setActiveRow = () => {},
     projectId,
     lineEditable,
     scrollTo,
@@ -56,9 +58,9 @@ export default function MDCell(props) {
     registerRef,
     chatButton,
   } = props;
-  const onClick = () => {
+  const onClick = (options = {}) => {
     if (control.key === 'number' || !row.rowid || allowlink === '0') return;
-    onCellClick(control, row, rowIndex, columnIndex);
+    onCellClick(control, row, rowIndex, columnIndex, options);
   };
   // console.log('data cell render');
   return (
@@ -109,7 +111,7 @@ export default function MDCell(props) {
           id => id === control.controlId,
         )
       }
-      cell={{ ...control, disabled: !row.allowedit || control.disabled }}
+      cell={{ ...control, disabled: !row.allowedit || control.disabled, inView }}
       row={row}
       rowIndex={rowIndex}
       cellIndex={cellIndex}
@@ -122,6 +124,7 @@ export default function MDCell(props) {
       from={from === 21 ? from : 1}
       popupContainer={() => getPopupContainer(columnIndex <= leftFixedCount - 1)}
       projectId={projectId}
+      setActiveRow={setActiveRow}
       scrollTo={scrollTo}
       tableScrollTop={tableScrollTop}
       updateCell={(cell, options) => {

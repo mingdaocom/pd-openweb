@@ -1,6 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
+import _ from 'lodash';
 import { Dialog, LoadDiv } from 'ming-ui';
 import ErrorState from 'src/components/errorPage/errorState';
 import { getAppFeaturesPath } from 'src/utils/app';
@@ -48,7 +49,7 @@ class Container extends Component {
       };
 
       Config.saveCallback = function () {
-        if ($.isFunction(saveCallback)) saveCallback();
+        if (_.isFunction(saveCallback)) saveCallback();
       };
 
       Config.cancelCallback = Config.closeDialog = function () {
@@ -159,10 +160,10 @@ export default function (options) {
       if (location.href.indexOf('/apps/calendar/home') !== -1) {
         $('.showActiveTitleMessage').remove();
         $('#calendar').fullCalendar('refetchEvents');
-        if (window.localStorage.getItem === 'list' && $.isFunction(saveCallback)) {
+        if (window.localStorage.getItem === 'list' && _.isFunction(saveCallback)) {
           saveCallback();
         }
-      } else if ($.isFunction(saveCallback)) {
+      } else if (_.isFunction(saveCallback)) {
         saveCallback();
       }
     };
@@ -172,10 +173,10 @@ export default function (options) {
       if (location.href.indexOf('/apps/calendar/home') !== -1) {
         $('.showActiveTitleMessage').remove();
         $('#calendar').fullCalendar('refetchEvents');
-        if (window.localStorage.getItem === 'list' && $.isFunction(saveCallback)) {
+        if (window.localStorage.getItem === 'list' && _.isFunction(saveCallback)) {
           saveCallback();
         }
-      } else if ($.isFunction(saveCallback)) {
+      } else if (_.isFunction(saveCallback)) {
         saveCallback();
       }
     };

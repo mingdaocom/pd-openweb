@@ -1,16 +1,49 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { MdLink, ScrollView } from 'ming-ui';
 import api from '../../api/instance';
 import processVersion from '../../api/processVersion';
 import ArchivedList from 'src/components/ArchivedList';
+import chatbot from '../../apiV2/chatbot';
 import Detail from '../Detail';
+import { APP_TYPE } from '../enum';
 import HistoryDetail from './HistoryDetail';
 import HistoryHeader from './HistoryHeader';
 import HistoryList from './HistoryList';
 import './index.less';
+
+const MenuIcon = styled.i`
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+const DrawerBox = styled.div`
+  width: 280px;
+  background-color: #fff;
+  .listItem {
+    padding: 0 10px;
+    height: 40px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    &:hover,
+    &.active {
+      background: #f5f5f5;
+    }
+  }
+`;
 
 @withRouter
 class History extends Component {
@@ -41,6 +74,9 @@ class History extends Component {
       archivedItem: {},
       cacheKey: +new Date(),
       scrollTop: 0,
+      showTalksDrawer: true,
+      chatBotHistory: [],
+      selectConversationId: '',
     };
   }
 
@@ -48,16 +84,32 @@ class History extends Component {
   filterPara = {};
 
   componentWillMount() {
+    const { flowInfo } = this.props;
     const { instanceId } = this.state;
 
     this.getData();
     this.getProcessAccumulation();
     instanceId && this.getInstance();
+    flowInfo.startAppType === APP_TYPE.CHATBOT && !flowInfo.parentId && this.getChatBotHistory();
   }
+
+  getChatBotHistory = () => {
+    const { flowInfo } = this.props;
+
+    chatbot
+      .getAllConversationList({
+        pageIndex: 1,
+        pageSize: 1000,
+        chatbotId: flowInfo.id,
+      })
+      .then(res => {
+        this.setState({ chatBotHistory: res });
+      });
+  };
 
   getData = (callback = () => {}) => {
     const processId = this.props.flowInfo.id;
-    const { pageIndex, workId, instanceId, requestPending, archivedItem } = this.state;
+    const { pageIndex, workId, instanceId, requestPending, archivedItem, selectConversationId } = this.state;
     const { pageSize, filterPara } = this;
     let para = {
       pageIndex,
@@ -66,6 +118,7 @@ class History extends Component {
       workId,
       instanceId,
       archivedId: archivedItem.id,
+      conversationId: selectConversationId,
       ...filterPara,
     };
 
@@ -162,21 +215,56 @@ class History extends Component {
     });
   };
 
-  render() {
+  renderTalksDrawer() {
+    const { chatBotHistory, selectConversationId } = this.state;
+    const selectFunc = id => {
+      this.setState(
+        {
+          selectConversationId: id,
+          pageIndex: 1,
+          batchIds: [],
+          data: null,
+          selectActionId: '',
+        },
+        () => this.getData(),
+      );
+    };
+
+    return (
+      <DrawerBox>
+        <div className="flexColumn h100">
+          <div className="flexRow alignItemsCenter mTop15 mLeft20 mRight15">
+            <div className="Font12 bold flex Gray_75">{_l('历史对话')}</div>
+            {selectConversationId && (
+              <div className="Gray_75 ThemeHoverColor3 pointer mRight10" onClick={() => selectFunc('')}>
+                {_l('重置')}
+              </div>
+            )}
+            <i
+              className="icon-menu_left Font20 Gray_9e ThemeHoverColor3 pointer"
+              onClick={() => this.setState({ showTalksDrawer: false })}
+            />
+          </div>
+          <ScrollView className="flex h100 mTop10 pLeft10 pRight10">
+            {chatBotHistory.map(item => (
+              <div
+                className={cx('listItem', { active: selectConversationId === item.conversationId })}
+                key={item.conversationId}
+                onClick={() => selectFunc(item.conversationId)}
+              >
+                <div className="ellipsis flex">{item.title}</div>
+                <div className="Gray_9e Font12 mLeft10">{createTimeSpan(item.ctime)}</div>
+              </div>
+            ))}
+          </ScrollView>
+        </div>
+      </DrawerBox>
+    );
+  }
+
+  renderDetail() {
     const { flowInfo, match, isPlugin } = this.props;
-    const {
-      data,
-      selectActionId,
-      hasMoreData,
-      accumulation,
-      requestPending,
-      batchIds,
-      selectNodeObj,
-      archivedItem,
-      cacheKey,
-      scrollTop,
-    } = this.state;
-    const { lastPublishDate, parentId, enabled } = flowInfo;
+    const { selectActionId, selectNodeObj, scrollTop } = this.state;
     const detailProps = {
       processId: selectNodeObj.processId,
       selectNodeId: selectNodeObj.selectNodeId,
@@ -187,48 +275,42 @@ class History extends Component {
       closeDetail: () => this.setState({ selectNodeObj: {} }),
     };
 
-    if (selectActionId) {
-      return (
-        <Fragment>
-          <ScrollView className="workflowHistoryWrap flex">
-            <div className="workflowHistoryContentWrap">
-              <HistoryDetail
-                isPlugin={isPlugin}
-                id={selectActionId}
-                onClick={() => {
-                  if (match.params.operator) {
-                    location.replace(
-                      `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/${match.params.type}`,
-                    );
-                  } else {
-                    this.setState({ selectActionId: '' }, () => {
-                      this.contentScroll.scrollTo({ top: scrollTop });
-                    });
-                  }
-                }}
-                openNodeDetail={selectNodeObj => this.setState({ selectNodeObj })}
-              />
-            </div>
-          </ScrollView>
+    return (
+      <Fragment>
+        <ScrollView className="workflowHistoryWrap flex">
+          <div className="workflowHistoryContentWrap">
+            <HistoryDetail
+              isPlugin={isPlugin}
+              id={selectActionId}
+              onClick={() => {
+                if (match.params.operator) {
+                  location.replace(
+                    `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/${match.params.type}`,
+                  );
+                } else {
+                  this.setState({ selectActionId: '' }, () => {
+                    this.contentScroll.scrollTo({ top: scrollTop });
+                  });
+                }
+              }}
+              openNodeDetail={selectNodeObj => this.setState({ selectNodeObj })}
+            />
+          </div>
+        </ScrollView>
 
-          <Detail {...detailProps} />
-        </Fragment>
-      );
-    }
+        <Detail {...detailProps} />
+      </Fragment>
+    );
+  }
+
+  renderList() {
+    const { flowInfo, isPlugin } = this.props;
+    const { data, hasMoreData, accumulation, requestPending, batchIds, archivedItem, cacheKey } = this.state;
+    const { lastPublishDate, parentId, enabled } = flowInfo;
 
     return (
-      <ScrollView
-        className="workflowHistoryWrap flex"
-        ref={contentScroll => (this.contentScroll = contentScroll)}
-        style={{ marginTop: _.isEmpty(archivedItem) ? 20 : 13 }}
-      >
-        <div
-          className="lastPublishInfo"
-          style={{
-            height: _.isEmpty(archivedItem) ? 22 : 36,
-            marginBottom: _.isEmpty(archivedItem) ? 20 : 13,
-          }}
-        >
+      <ScrollView className="workflowHistoryWrap flex" ref={contentScroll => (this.contentScroll = contentScroll)}>
+        <div className="lastPublishInfo">
           {!_.isEmpty(archivedItem) ? (
             <ArchivedList
               type={1}
@@ -291,6 +373,7 @@ class History extends Component {
           <HistoryList
             processId={flowInfo.id}
             isPlugin={isPlugin}
+            isChatbot={flowInfo.startAppType === APP_TYPE.CHATBOT}
             data={data}
             accumulation={accumulation}
             updateSource={(item, index) => {
@@ -311,6 +394,26 @@ class History extends Component {
           />
         </div>
       </ScrollView>
+    );
+  }
+
+  render() {
+    const { flowInfo } = this.props;
+    const { selectActionId, showTalksDrawer } = this.state;
+
+    return (
+      <div className="flexRow flex minHeight0">
+        {flowInfo.startAppType !== APP_TYPE.CHATBOT || flowInfo.parentId ? null : showTalksDrawer ? (
+          this.renderTalksDrawer()
+        ) : (
+          <MenuIcon
+            className="icon-menu_right Gray_9e ThemeHoverColor3 mLeft24 mTop20 Font20"
+            onClick={() => this.setState({ showTalksDrawer: true })}
+          />
+        )}
+
+        {selectActionId ? this.renderDetail() : this.renderList()}
+      </div>
     );
   }
 }

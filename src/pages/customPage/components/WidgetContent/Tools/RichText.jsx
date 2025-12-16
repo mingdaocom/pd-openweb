@@ -1,11 +1,13 @@
 import React, { Fragment, useState } from 'react';
-import { Popover, Tooltip } from 'antd';
+import { Popover } from 'antd';
 import cx from 'classnames';
+import { Tooltip } from 'ming-ui/antd-components';
 import { TabsSettingPopover } from './styled.js';
 
 let isEdit = false;
 export default props => {
-  const { icon, type, highlight, widget } = props;
+  const { toolItem, highlight, widget } = props;
+  const { icon, type } = toolItem;
   const { componentConfig = {}, editRichText } = widget;
   const { showType = 2 } = componentConfig;
   const [popoverVisible, setPopoverVisible] = useState(false);
@@ -20,14 +22,14 @@ export default props => {
   return (
     <Fragment>
       {!editRichText && (
-        <Tooltip
-          title={_l('编辑')}
-          placement="bottom"
-          onClick={() => {
-            props.handleToolClick(type, { editRichText: true });
-          }}
-        >
-          <li className={cx('edit', { highlight })} key="edit">
+        <Tooltip title={_l('编辑')} placement="bottom">
+          <li
+            className={cx('edit', { highlight })}
+            key="edit"
+            onClick={() => {
+              props.handleToolClick(type, { editRichText: true });
+            }}
+          >
             <i className={`icon-edit Font18`}></i>
           </li>
         </Tooltip>

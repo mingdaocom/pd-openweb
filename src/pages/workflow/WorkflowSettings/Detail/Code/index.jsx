@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Dropdown, Icon, LoadDiv, ScrollView, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import CodeSnippet, { CodeSnippetEdit } from '../../../components/CodeSnippet';
 import { ACTION_ID } from '../../enum';
@@ -405,7 +406,7 @@ export default class Code extends Component {
                   <i className="icon-custom-description Font20" />
                   {_l('代码片段库')}
                 </CodeSnippetButton>
-                {!md.global.SysSettings.hideAIBasicFun && (
+                {!md.global.SysSettings.hideAIBasicFun ? (
                   <CodeSnippetButton
                     className="flexRow alignItemsCenter mLeft15"
                     onClick={() => this.setState({ showChatGPTDialog: true })}
@@ -413,18 +414,16 @@ export default class Code extends Component {
                     <i className="icon-ai1 Font20" />
                     {_l('生成代码')}
                   </CodeSnippetButton>
-                )}
+                ) : null}
               </div>
 
               <div className="mTop5 relative">
                 {this.renderCode()}
-                <span
-                  data-tip={_l('放大')}
-                  className="codeEditorFull tip-top"
-                  onClick={() => this.setState({ isFullCode: true })}
-                >
-                  <Icon icon="open_in_full" />
-                </span>
+                <Tooltip title={_l('放大')}>
+                  <span className="codeEditorFull" onClick={() => this.setState({ isFullCode: true })}>
+                    <Icon icon="open_in_full" />
+                  </span>
+                </Tooltip>
               </div>
 
               {msg && (
@@ -450,13 +449,11 @@ export default class Code extends Component {
             closable={false}
             type="fixed"
             title={
-              <span
-                data-tip={_l('缩小')}
-                className="codeEditorSmall tip-top"
-                onClick={() => this.setState({ isFullCode: false })}
-              >
-                <Icon icon="close_fullscreen" />
-              </span>
+              <Tooltip title={_l('缩小')}>
+                <span className="codeEditorSmall" onClick={() => this.setState({ isFullCode: false })}>
+                  <Icon icon="close_fullscreen" />
+                </span>
+              </Tooltip>
             }
             visible
             width={800}

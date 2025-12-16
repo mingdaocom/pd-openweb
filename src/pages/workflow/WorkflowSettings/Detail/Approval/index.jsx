@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support, Tooltip } from 'ming-ui';
+import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
@@ -337,9 +338,7 @@ export default class Approval extends Component {
 
               {item.value === 11 && (
                 <Tooltip
-                  autoCloseDelay={0}
-                  popupPlacement="bottom"
-                  text={
+                  title={
                     <span>
                       {_l(
                         '当上一节点审批人同意后，从设置的选择范围中选择本节点的审批人。若涉及多人审批，仅在或签模式下支持此操作。',
@@ -581,12 +580,9 @@ export default class Approval extends Component {
                 this.updateSource({ multipleLevelType });
               }}
             />
-            <span
-              className="workflowDetailTipsWidth mLeft5 Gray_75"
-              data-tip={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}
-            >
-              <i className="Font14 icon-help Gray_9e" />
-            </span>
+            <Tooltip title={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}>
+              <i className="Font14 icon-help Gray_9e mLeft5" />
+            </Tooltip>
           </div>
         )}
       </Fragment>
@@ -1060,7 +1056,7 @@ export default class Approval extends Component {
               <span>
                 {o.text}
                 {o.tips && (
-                  <Tooltip popupPlacement="bottom" text={<span>{o.tips}</span>}>
+                  <Tooltip title={o.tips}>
                     <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
                   </Tooltip>
                 )}
@@ -1074,13 +1070,6 @@ export default class Approval extends Component {
         <EmailApproval
           {...this.props}
           title={_l('启用邮件通知')}
-          desc={
-            <span>
-              {_l('启用后，待办通知、催办和限时处理提醒同时会以邮件的形式发送给相关负责人。')}
-              {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
-                _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
-            </span>
-          }
           showApprovalBtn={!data.encrypt}
           flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
           updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
@@ -1157,7 +1146,7 @@ export default class Approval extends Component {
           {...this.props}
           data={{ ...data }}
           icon="icon-workflow_ea"
-          bg="BGViolet"
+          bg="BGDarkRed"
           updateSource={this.updateSource}
         />
         <div className="flex overflowHidden">
@@ -1182,14 +1171,13 @@ export default class Approval extends Component {
 
                   <div className="Font13 bold mTop25">
                     {_l('节点结果通知发起人')}
-                    <span
-                      className="workflowDetailTipsWidth mLeft5 tip-top-right"
-                      data-tip={_l(
+                    <Tooltip
+                      title={_l(
                         '当发起节点启用邮件通知功能后，这边同步开启相应设置，审批结果将通过邮件的形式及时发送给发起人。',
                       )}
                     >
-                      <Icon className="Font16 Gray_9e" icon="info" />
-                    </span>
+                      <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+                    </Tooltip>
                   </div>
                   {this.renderMessage()}
                   <div className="Font13 bold mTop25">{_l('审批意见')}</div>
@@ -1244,17 +1232,19 @@ export default class Approval extends Component {
                     {(!!(data.opinionTemplate.opinions[OPERATION_TYPE.PASS] || []).length ||
                       !!(data.opinionTemplate.opinions[OPERATION_TYPE.OVERRULE] || []).length) && (
                       <Fragment>
-                        <span data-tip={_l('删除模板')}>
-                          <Icon
-                            type="trash"
-                            className="Gray_75 Font14 pointer"
-                            onClick={() =>
-                              this.updateSource({
-                                opinionTemplate: { inputType: data.opinionTemplate.inputType, opinions: {} },
-                              })
-                            }
-                          />
-                        </span>
+                        <Tooltip title={_l('删除模板')}>
+                          <span>
+                            <Icon
+                              type="trash"
+                              className="Gray_75 Font14 pointer"
+                              onClick={() =>
+                                this.updateSource({
+                                  opinionTemplate: { inputType: data.opinionTemplate.inputType, opinions: {} },
+                                })
+                              }
+                            />
+                          </span>
+                        </Tooltip>
 
                         <Icon
                           type="edit"
@@ -1311,11 +1301,7 @@ export default class Approval extends Component {
                     text={
                       <span>
                         {_l('登录密码验证')}
-                        <Tooltip
-                          popupPlacement="bottom"
-                          autoCloseDelay={0}
-                          text={<span>{_l('启用后，用户输入登录密码后才可进行通过/否决')}</span>}
-                        >
+                        <Tooltip title={_l('启用后，用户输入登录密码后才可进行通过/否决')}>
                           <Icon
                             className="Font16 Gray_9e mLeft5"
                             style={{ verticalAlign: 'text-bottom' }}
@@ -1334,12 +1320,9 @@ export default class Approval extends Component {
 
                   <div className="Font13 bold mTop25">
                     {_l('审批说明')}
-                    <span
-                      className="workflowDetailTipsWidth mLeft5 tip-top-right"
-                      data-tip={_l('在审批记录详情页，右侧的当前节点卡片内会显示对审批内容或操作的提示信息')}
-                    >
-                      <Icon className="Font16 Gray_9e" icon="info" />
-                    </span>
+                    <Tooltip title={_l('在审批记录详情页，右侧的当前节点卡片内会显示对审批内容或操作的提示信息')}>
+                      <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+                    </Tooltip>
                   </div>
                   <CustomTextarea
                     projectId={this.props.companyId}

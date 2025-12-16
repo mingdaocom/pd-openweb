@@ -5,7 +5,8 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Dialog, Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import LogAjax from 'src/pages/integration/api/log.js';
 import MonitorAjax from 'src/pages/integration/api/monitor.js';
 
@@ -205,7 +206,7 @@ function Monitor(props) {
           },
         );
       });
-      !g2plotComponent.current.value ? getG2plotComponent(initChartData) : renderChart(initChartData);
+      !g2plotComponent.current.value ? getG2plotComponent() : renderChart(initChartData);
       setState({
         history: initChartData,
       });
@@ -335,7 +336,7 @@ function Monitor(props) {
           <div className="title flexRow">
             <span className="flex Bold Font16">
               {_l('历史')}
-              <Tooltip text={<span>{_l('仅保留最近6个月的读写历史')}</span>} popupPlacement={'top'}>
+              <Tooltip title={_l('仅保留最近6个月的读写历史')}>
                 <Icon className="mLeft5 Gray_bd" type="info" />
               </Tooltip>
             </span>
@@ -357,7 +358,7 @@ function Monitor(props) {
           <div className="line"></div>
           <div className="title Bold Font16">
             {_l('日志')}
-            <Tooltip text={<span>{_l('仅保留最近6个月的日志')}</span>} popupPlacement={'top'}>
+            <Tooltip title={_l('仅保留最近6个月的日志')}>
               <Icon className="mLeft5 Gray_bd" type="info" />
             </Tooltip>
           </div>

@@ -193,7 +193,10 @@ export default function ReviewFree(props) {
             cellConfigs,
             type,
             status,
-            query: { ..._.pick(query, ['id', 'sourceId', 'items', 'configs', 'templates', 'sourceType']) },
+            query: {
+              ..._.pick(query, ['id', 'sourceId', 'items', 'configs', 'templates', 'sourceType']),
+              worksheetId: query?.templates?.worksheetId,
+            },
           };
     noVerifyAjax.update(param).then(res => {
       if (res.success) {
@@ -299,7 +302,7 @@ export default function ReviewFree(props) {
                 }}
               />
             ) : !fileUrl ? (
-              <div className="listCon">
+              <div className="listCon flexRow alignItemsCenter">
                 <QiniuUpload {...uploadParam} className={cx('up Hand InlineBlock')}>
                   <Icon className="Font18 TxtMiddle mRight6" type="cloud_upload" />
                   <span>{_l('上传免审配置')}</span>
@@ -307,7 +310,7 @@ export default function ReviewFree(props) {
               </div>
             ) : (
               <React.Fragment>
-                <div className="listCon">
+                <div className="listCon flexRow alignItemsCenter">
                   <span className="txt flex flexRow">
                     <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: '#4CAF50' }} />
                     <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {fileName}</span>

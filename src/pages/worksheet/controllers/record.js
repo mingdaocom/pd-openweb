@@ -4,7 +4,7 @@ import attachmentAjax from 'src/api/attachment';
 import kcAjax from 'src/api/kc';
 import worksheetAjax from 'src/api/worksheet';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { emitter } from 'src/utils/common';
 import { checkCellIsEmpty, updateOptionsOfControls } from 'src/utils/control';

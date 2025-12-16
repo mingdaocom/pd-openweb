@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import './index.less';
 
@@ -76,7 +77,7 @@ export default class TableCom extends Component {
                   {item.title}
                 </div>
                 {!!item.explain && (
-                  <Tooltip text={<span>{item.explain}</span>} popupPlacement="bottom" autoCloseDelay={0}>
+                  <Tooltip title={item.explain} placement="bottom">
                     <Icon icon="info" className="Font16 Gray_9e mLeft3 mRight12 hover_f3" />
                   </Tooltip>
                 )}

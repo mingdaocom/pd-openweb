@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import genQrDataURL from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
+import { getCompressedFontSize } from './util';
 
 export class QrLabel {
   // portrait 肖像 高度大
@@ -92,20 +93,13 @@ export class QrLabel {
     ctx.font = fontSize + 'px sans-serif';
     return ctx.measureText(value).width;
   }
-  getCompressedFontSize(value, width) {
-    let count = 0;
-    value.split('').forEach(char => {
-      count += /[0x00-0x7F]/.test(char) ? 1.1 : 2;
-    });
-    return (width / count) * 2;
-  }
   renderText({ x = 0, y = 0, fontSize, content, width, isCenter, forceInLine, isBold, color = '#222' }) {
     this.ctx.textBaseline = 'top';
     let textFontSize = fontSize * 0.55 * this.fontSize;
     if (forceInLine) {
       const textWidth = this.measureTextWidth(content, textFontSize);
       if (textWidth > width) {
-        textFontSize = this.getCompressedFontSize(content, width);
+        textFontSize = getCompressedFontSize(content, width);
       } else {
         forceInLine = false;
       }

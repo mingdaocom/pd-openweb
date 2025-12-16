@@ -13,7 +13,15 @@ import { Dialog, Dropdown, LoadDiv, ScrollView, Support, Switch } from 'ming-ui'
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID } from '../../enum';
 import { formatTestParameters, getIcons } from '../../utils';
-import { CustomTextarea, DetailFooter, DetailHeader, JSONAnalysis, OutputList, TestParameter } from '../components';
+import {
+  CustomTextarea,
+  DetailFooter,
+  DetailHeader,
+  JSONAnalysis,
+  OutputList,
+  SelectAIModel,
+  TestParameter,
+} from '../components';
 
 const MarkdownContent = styled.div`
   p {
@@ -97,7 +105,7 @@ export default class AIGC extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
-        if (!result.appId && result.appList.length) {
+        if (!result.appId && result.appList.length && !result.platformConfigModel) {
           result.appId = result.appList[0].id;
         }
 
@@ -175,32 +183,18 @@ export default class AIGC extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择AI模型')}</div>
-        <Dropdown
-          className="flowDropdown mTop10"
-          data={data.appList.map((o, index) => ({
-            text: `${o.name}${index === 0 ? _l('（默认）') : ''}`,
-            value: o.id,
-          }))}
-          value={data.appId}
-          noData={_l('暂无可用模型')}
-          border
-          openSearch
-          onChange={appId => {
-            this.updateSource({ appId });
-          }}
-        />
-        {!!data.appList.length && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && (
-          <div className="Font13 Gray_75 mTop5 flexRow">
-            {_l(
-              '%0 模型按 %1元 / 1K tokens 计费，直接从组织账户余额中扣除',
-              data.appId,
-              (_.find(data.appList, o => o.id === data.appId) || {}).entityName || '',
-            )}
-            {!md.global.Config.IsPlatformLocal && (
-              <Support type={3} text={_l('扣费说明')} href="https://help.mingdao.com/purchase/billing-items" />
-            )}
+        {md.global.Config.IsPlatformLocal ? (
+          <div className="Font13 Gray_75 mTop5">
+            {_l('选择用于 AIGC 的大语言模型。Token 消耗将从组织信用点扣除')}
+            <Support type={3} text={_l('了解模型价格')} href={md.global.Config.WebUrl + 'billingrules'} />
           </div>
+        ) : (
+          <div className="Font13 Gray_75 mTop5">{_l('选择用于 AIGC 的大语言模型。')}</div>
         )}
+        <SelectAIModel
+          data={{ ...data, model: data.appId }}
+          updateSource={({ model }) => this.updateSource({ appId: model })}
+        />
 
         {this.renderMessage('prompt')}
 
@@ -253,7 +247,9 @@ export default class AIGC extends Component {
 
         {!!data.totalTokens && (
           <div className="Font13 Gray_75 mTop5">
-            {_l('本次测试消耗 %0 tokens， 计费 %1 元', data.totalTokens, data.price)}
+            {md.global.Config.IsPlatformLocal
+              ? _l('本次测试消耗 %0 tokens， 计费 %1 信用点', data.totalTokens, data.price)
+              : _l('本次测试消耗 %0 tokens', data.totalTokens)}
           </div>
         )}
 
@@ -476,7 +472,7 @@ export default class AIGC extends Component {
           {...this.props}
           data={{ ...data }}
           icon={getIcons(selectNodeType, data.appType, data.actionId)}
-          bg="BGRed"
+          bg="BGDarkViolet"
           updateSource={this.updateSource}
         />
         <div className="flex overflowHidden">

@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   display: flex;
@@ -131,7 +132,7 @@ export function renderTabs(props) {
           num = control.store.getState().tableState.count;
         }
         return (
-          <Tooltip popupPlacement="right" text={control.controlName} disable={!showTip}>
+          <Tooltip placement="right" title={!showTip ? '' : control.controlName}>
             <Tab
               key={i}
               title={control.controlName}
@@ -142,7 +143,7 @@ export function renderTabs(props) {
                 }
               }}
             >
-              {renderIcon(control, widgetStyle)}
+              {renderIcon(control)}
               <span className="ellipsis">{control.controlName}</span>
               {showNum && !!num && <Num>{isFixedLeft ? num : `（${num}）`}</Num>}
             </Tab>
@@ -213,7 +214,7 @@ export default function SectionTableNav(props) {
       )}
       {showSplitIcon && (
         <SplitBtn>
-          <Tooltip text={isSplit ? _l('取消分栏') : _l('分栏显示')}>
+          <Tooltip title={isSplit ? _l('取消分栏') : _l('分栏显示')}>
             <span>
               <i
                 className={`icon icon-${

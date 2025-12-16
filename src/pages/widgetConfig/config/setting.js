@@ -259,24 +259,10 @@ export const DISPLAY_RC_TITLE_STYLE = [
   { icon: 'align_vertical_center', value: '1', text: _l('居中对齐') },
 ];
 
-export const DISPLAY_FROZEN_LIST = [
-  {
-    text: _l('不冻结'),
-    value: '0',
-  },
-  {
-    text: _l('1列'),
-    value: '1',
-  },
-  {
-    text: _l('2列'),
-    value: '2',
-  },
-  {
-    text: _l('3列'),
-    value: '3',
-  },
-];
+export const DISPLAY_FROZEN_LIST = Array.from({ length: 11 }).map((item, index) => ({
+  value: `${index}`,
+  text: !index ? _l('不冻结') : _l('%0列', index),
+}));
 
 export const RELATE_SORT_DISPLAY = [
   { text: _l('按添加时间排序'), value: '1' },
@@ -291,3 +277,43 @@ export const SETTING_MODE_DISPLAY = {
   DESC: 3,
   EVENT: 4,
 };
+
+export const COMMON_DEFAULT_COUNTRY = [
+  'CN',
+  'HK',
+  'TW',
+  'MO',
+  'SG',
+  'JP',
+  'US',
+  'CA',
+  'AU',
+  'GB',
+  'DE',
+  'FR',
+  'KR',
+  'MY',
+  'NZ',
+  'RU',
+];
+
+export const AREA_DISPLAY_OPTION = [
+  {
+    value: 1,
+    text: _l('省'),
+  },
+  { value: 2, text: _l('省-市') },
+  { value: 3, text: _l('省-市-县') },
+];
+
+export const AREA_SPECIAL_DISPLAY_OPTION = [
+  { value: 1, text: _l('省/州') },
+  { value: 2, text: _l('市/郡') },
+];
+
+export const AREA_INTERNATION_DISPLAY_OPTION = [
+  { value: 4, text: _l('所有层级') },
+  { value: 1, text: _l('国家') },
+  { value: 2, text: _l('省/州') },
+  { value: 3, text: _l('市/郡') },
+];

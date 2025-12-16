@@ -1,6 +1,5 @@
 .newRecordLand {
   position: relative;
-  width: 800px;
   height: 100%;
   margin: 0 auto;
   padding: 20px 0 0;
@@ -9,18 +8,39 @@
     text-decoration: none;
     padding: 5px;
   }
+  .mingoCreate {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #757575;
+    img {
+      width: 18px;
+      margin-right: 5px;
+    }
+  }
   .newRecordCon {
     height: 100%;
     background-color: #fff;
     border-radius: 4px;
-    padding: 20px 0;
     box-sizing: border-box;
+    overflow: hidden;
+    .workSheetNewRecord > .scrollViewContainer {
+      padding: 20px 0;
+    }
+    .newRecordTitle {
+      margin: 0 24px;
+    }
+    .customFieldsCon {
+      padding: 0 24px;
+    }
   }
   .workSheetNewRecord {
     height: 100%;
 
     .footerBox {
-      padding: 0 24px 10px;
+      padding: 0 24px 20px;
       .Button--link {
         display: none;
       }
@@ -40,10 +60,12 @@
     justify-content: center;
     align-items: center;
   }
-  .customFieldsContainer {
-    padding-bottom: 52px;
-  }
   .footerBox {
     text-align: right;
+  }
+  &:not(.isMingoCreate) {
+    .customFieldsContainer {
+      padding-bottom: 52px;
+    }
   }
 }

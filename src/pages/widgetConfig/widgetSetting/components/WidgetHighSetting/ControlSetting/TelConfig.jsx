@@ -1,11 +1,12 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Tooltip } from 'antd';
+import { Dropdown } from 'antd';
 import cx from 'classnames';
 import { isEqual } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import fixedDataController from 'src/api/fixedData';
 import { DropdownPlaceholder, SettingItem } from '../../../../styled';
 import { getAdvanceSetting } from '../../../../util';
@@ -146,7 +147,7 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
           </div>
           <div className="title">
             {_l('常用的国家/地区')}
-            <Tooltip popupPlacement="bottom" title={<span>{_l('常用的将优先显示在选择列表')}</span>}>
+            <Tooltip placement="bottom" title={_l('常用的将优先显示在选择列表')}>
               <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
             </Tooltip>
           </div>

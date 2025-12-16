@@ -82,6 +82,9 @@ class DialogImportExcelCreate extends Component {
   getPreviewData = (params = {}) => {
     const { projectId, appId } = this.props;
     const { filePath, fileType, fileName, token } = params;
+    const worksheetExcelImportDataLimitCount = md.global.Config.IsLocal
+      ? md.global.SysSettings.worksheetExcelImportDataLimitCount
+      : 20000;
 
     const questParams = {
       accountId: md.global.Account.accountId,
@@ -131,7 +134,7 @@ class DialogImportExcelCreate extends Component {
             disabled:
               !item.rows ||
               !item.rows.length ||
-              item.total - 1 > 20000 ||
+              item.total - 1 > worksheetExcelImportDataLimitCount ||
               (item.rows && item.rows.some(v => v.cells && v.cells.length > 200)),
           };
         });
@@ -243,6 +246,10 @@ class DialogImportExcelCreate extends Component {
       },
       0,
     );
+    const worksheetExcelImportDataLimitCount = md.global.Config.IsLocal
+      ? md.global.SysSettings.worksheetExcelImportDataLimitCount
+      : 20000; // Sass2w,私有部署取配置
+
     if (licenseType === 0 && totalRows + freeRowCount > 50000 && createType !== 'app') {
       alert(_l('超过导入上限(上限 50000 行)，请调整导入数据'), 3);
       return;
@@ -251,8 +258,8 @@ class DialogImportExcelCreate extends Component {
     if (importSheets.length > 20) {
       alert(_l('当前版本最多支持20个Sheet'), 3);
       return;
-    } else if (importSheets.some(item => item.total - 1 > 20000)) {
-      alert(_l('当前版本单个sheet最多支持20000行'), 3);
+    } else if (importSheets.some(item => item.total - 1 > worksheetExcelImportDataLimitCount)) {
+      alert(_l('当前版本单个sheet最多支持%0行', worksheetExcelImportDataLimitCount), 3);
       return;
     } else if (importSheets.some(item => item.rows && item.rows.some(it => it.cells && it.cells.length > 200))) {
       alert(_l('当前版本单个sheet最多支持200列'), 3);

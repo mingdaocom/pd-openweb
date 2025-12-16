@@ -295,7 +295,7 @@ export default class StatTable extends React.Component {
             isLoading: false,
           });
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(({ errorCode } = {}) => {

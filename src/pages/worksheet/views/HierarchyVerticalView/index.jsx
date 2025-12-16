@@ -14,7 +14,7 @@ import worksheetAjax from 'src/api/worksheet';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
-import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils.js';
+import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';

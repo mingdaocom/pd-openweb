@@ -3,7 +3,7 @@ import base, { controllerName } from './base';
 /**
  * reportConfig
  */
-var reportConfig = {
+const reportConfig = {
   /**
    * 复制图表
    * @param {Object} args 请求参数

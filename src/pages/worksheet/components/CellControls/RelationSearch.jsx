@@ -3,7 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
 import { RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
-import { openRelationSearchDialog } from 'src/components/newCustomFields/widgets/RelationSearch';
+import { openRelationSearchDialog } from 'src/components/Form/DesktopForm/widgets/RelationSearch';
 
 const Con = styled.div`
   .relationSearchTag {

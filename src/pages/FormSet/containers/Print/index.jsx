@@ -13,7 +13,7 @@ import PrintTemDialog from '../../components/PrintTemDialog';
 import PrintSortableItem from './PrintSortableItem';
 import './style.less';
 
-const MAX_PRINT_COUNT = 100;
+const MAX_PRINT_COUNT = 500;
 
 const PRINT_TYPE_CLASSIFY = {
   0: [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT],
@@ -143,7 +143,7 @@ class Print extends React.Component {
   };
 
   addDrawerPrintTemp = fileType => {
-    if (this.checkedPrintTempCount(0)) return;
+    if (this.checkedPrintTempCount()) return;
 
     const { worksheetInfo } = this.props;
 
@@ -196,16 +196,11 @@ class Print extends React.Component {
     });
   };
 
-  checkedPrintTempCount = type => {
-    const data = this.state.printData.filter(it => PRINT_TYPE_CLASSIFY[type].includes(it.type));
+  checkedPrintTempCount = () => {
+    const data = this.state.printData || [];
 
     if (data.length >= MAX_PRINT_COUNT) {
-      alert(
-        type === 0
-          ? _l('记录打印模版数量已达上限（%0）', MAX_PRINT_COUNT)
-          : _l('条码打印模版数量已达上限（%0）', MAX_PRINT_COUNT),
-        3,
-      );
+      alert(_l('模版最多支持 %0 个，您已超出上限', MAX_PRINT_COUNT), 2);
       return true;
     }
 
@@ -213,7 +208,7 @@ class Print extends React.Component {
   };
 
   addNewRecordPrintTemp = () => {
-    if (this.checkedPrintTempCount(0)) {
+    if (this.checkedPrintTempCount()) {
       return;
     }
 
@@ -230,7 +225,7 @@ class Print extends React.Component {
   addCodePrintTemp = type => {
     const { worksheetInfo = {} } = this.props;
 
-    if (this.checkedPrintTempCount(1)) return;
+    if (this.checkedPrintTempCount()) return;
 
     this.setState({ showCreatePrintTemp: false });
     printQrBarCode({

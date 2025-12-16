@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 import { selectRecords } from 'src/components/SelectRecords';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
@@ -185,6 +185,9 @@ export default function TestFunctionDialog(props) {
       className="testFunctionDialog contentScroll"
       footer={null}
       onCancel={() => {
+        if (codeEditorRef.current) {
+          onUpdate(codeEditorRef.current.getValue());
+        }
         onUpdate(codeEditorRef.current.getValue());
         onCancel();
       }}

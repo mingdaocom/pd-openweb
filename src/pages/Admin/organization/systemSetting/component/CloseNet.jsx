@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { Button, Icon, LoadDiv } from 'ming-ui';
 import projectController from 'src/api/project';
-import { formatValue } from 'src/pages/Admin/homePage/config';
+import { formatValue } from 'src/pages/Admin/homePage/utils';
 import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 
@@ -55,8 +55,11 @@ export default class CloseNet extends Component {
       })
       .then(res => {
         if (res) {
-          alert(_l('组织已关闭'), 1, 2000, function () {
-            window.location.href = '/dashboard';
+          alert({
+            msg: _l('组织已关闭'),
+            onClose: function () {
+              window.location.href = '/dashboard';
+            },
           });
         } else {
           this.setState({ disabled: false });

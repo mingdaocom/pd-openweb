@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { CreateNode } from '../components';
 import BranchItem from './BranchItem';
 import './index.less';
@@ -25,33 +25,33 @@ export default class Branch extends Component {
 
     return (
       <div className="flexRow alignItemsCenter">
-        <span
-          className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3"
-          data-tip={_l('添加分支')}
-          onClick={() => {
-            this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
-            this.handleTipsPosition();
-          }}
-        >
-          <i className="icon-add" />
-        </span>
+        <Tooltip title={_l('添加分支')}>
+          <span
+            className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3"
+            onClick={() => {
+              this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
+              this.handleTipsPosition();
+            }}
+          >
+            <i className="icon-add" />
+          </span>
+        </Tooltip>
 
-        <span
-          className="workflowBranchBtnBig mLeft8 mRight8"
-          data-tip={item.gatewayType === 1 ? _l('并行分支') : _l('唯一分支')}
-          onClick={() => {
-            this.handleTipsPosition();
-            this.setState({ showBranchTypeDialog: true, gatewayType: item.gatewayType });
-          }}
-        />
+        <Tooltip title={item.gatewayType === 1 ? _l('并行分支') : _l('唯一分支')}>
+          <span
+            className="workflowBranchBtnBig mLeft8 mRight8"
+            onClick={() => {
+              this.handleTipsPosition();
+              this.setState({ showBranchTypeDialog: true, gatewayType: item.gatewayType });
+            }}
+          />
+        </Tooltip>
 
-        <span
-          className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3"
-          onClick={this.changeShrink}
-          data-tip={_l('收起')}
-        >
-          <i className={'icon-arrow-up-border'} />
-        </span>
+        <Tooltip title={_l('收起')}>
+          <span className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3" onClick={this.changeShrink}>
+            <i className={'icon-arrow-up-border'} />
+          </span>
+        </Tooltip>
       </div>
     );
   };
@@ -119,15 +119,13 @@ export default class Branch extends Component {
           {showAddBtn && showTips && (
             <Fragment>
               {isHide ? (
-                <i className={cx('workflowBranchBtn icon-milestone1', { ThemeColor3: isHide })}>
-                  <span
-                    className="Font16 workflowBranchNumber bold pointer"
-                    data-tip={_l('展开')}
-                    onClick={this.changeShrink}
-                  >
-                    {item.flowIds.length}
-                  </span>
-                </i>
+                <Tooltip title={_l('展开')}>
+                  <i className={cx('workflowBranchBtn icon-milestone1', { ThemeColor3: isHide })}>
+                    <span className="Font16 workflowBranchNumber bold pointer" onClick={this.changeShrink}>
+                      {item.flowIds.length}
+                    </span>
+                  </i>
+                </Tooltip>
               ) : (
                 <Tooltip title={this.renderTips} overlayClassName="workflowBranchTips" align={{ offset: [0, 34] }}>
                   <i className="workflowBranchBtn icon-milestone1">

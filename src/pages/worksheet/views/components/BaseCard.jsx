@@ -12,7 +12,7 @@ import Switch from 'worksheet/components/CellControls/Switch';
 import OperateButtons from 'worksheet/components/OperateButtons';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import { FlexCenter, Text } from 'worksheet/styled';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
@@ -533,7 +533,7 @@ const BaseCard = props => {
       <CellControl
         className={'control-val-' + item.controlId}
         from={4}
-        cell={cell}
+        cell={{ ...cell, inView: true }}
         rowFormData={() => data.formData || []}
         sheetSwitchPermit={sheetSwitchPermit}
         worksheetId={worksheetId}
@@ -584,7 +584,7 @@ const BaseCard = props => {
         )}
         {includes(['1', '2'], coverPosition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
         <div className="fieldContentWrap">
-          {renderTitleControl({ forceShowFullValue })}
+          {renderTitleControl()}
           {renderAbstract()}
           {!_.isEmpty(showFields) && (
             <RecordFieldsWrap hasCover={!!coverImage}>

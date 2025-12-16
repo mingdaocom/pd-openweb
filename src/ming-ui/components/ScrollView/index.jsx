@@ -59,6 +59,7 @@ const ScrollView = forwardRef((props, ref) => {
     onReachHorizontalEdge,
     onScroll,
     customScroll,
+    setViewPortRef,
     ...rest
   } = props;
   const isMobile = browserIsMobile();
@@ -160,6 +161,17 @@ const ScrollView = forwardRef((props, ref) => {
     lastScroll.current = { top: scrollTop, left: scrollLeft };
     onScroll && onScroll({ scrollTop, scrollLeft });
   }, 300);
+
+  useEffect(() => {
+    if (osRef.current && setViewPortRef) {
+      const osInstance = osRef.current.osInstance();
+      if (!osInstance) return;
+      const viewport = osInstance?.elements()?.viewport;
+      if (viewport) {
+        setViewPortRef(viewport);
+      }
+    }
+  }, [osRef.current]);
 
   useEffect(() => {
     return () => {

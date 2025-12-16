@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Radio, Switch, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, Radio, ScrollView, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import SelectExDrop from 'src/pages/Role/PortalCon/setting/SelectExDrop.jsx';
+import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
+import SelectExDrop from 'src/pages/Role/PortalCon/components/SelectExDrop';
+import ShareCardSetting from './ShareCardSet';
 
 const Container = styled.div`
   padding: 35px 40px 10px;
@@ -66,6 +69,9 @@ const RecordSharing = styled.div`
   .ant-select-selector {
     min-height: 36px;
   }
+  .wxPublicWrap {
+    justify-content: start;
+  }
 `;
 
 const TYPES = [
@@ -79,12 +85,12 @@ const TYPES = [
   },
   {
     key: 'discussion',
-    lab: _l('讨论AT消息'),
+    lab: _l('讨论消息'),
   },
 ];
 
 const SharingSettings = props => {
-  const { worksheetId, worksheetInfo, onChange } = props;
+  const { worksheetId, worksheetInfo, onChange, worksheetControls } = props;
   const { views = [], appId } = worksheetInfo;
   const [activeTab, setActiveTab] = useState('view');
   const [isView, setIsView] = useState(false);
@@ -168,7 +174,9 @@ const SharingSettings = props => {
                   '若您希望对@消息也严格按照权限控制，可设置为不允许查看。此时当用户无视图权限或记录权限，将无法查看记录。',
                 )}
               </div>
-              <div className="mTop10">{_l('备注：此配置对成员字段中【加人时发送通知】的消息链接同样生效')}</div>
+              <div className="mTop10">
+                {_l('备注：此配置对关注者的新讨论通知，和成员字段【加人时发送通知】中的消息链接同样生效')}
+              </div>
             </Description>
             <SubTitle className="Bold Font14 mTop24">{_l('当被@用户没有记录查看权限时')}</SubTitle>
             <RadioGroup className="flexColumn mTop20">
@@ -232,7 +240,7 @@ const SharingSettings = props => {
                       text={
                         <span className="InlineFlex alignItemsCenter">
                           {_l('仅系统角色')}
-                          <Tooltip popupPlacement="bottom" text={<span>{_l('包含管理员、运营者、开发者')}</span>}>
+                          <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
                             <Icon icon="info_outline" className="Gray_9e Font16 mLeft5 InlineFlex" />
                           </Tooltip>
                         </span>
@@ -293,6 +301,31 @@ const SharingSettings = props => {
                     )}
                   </div>
                 </SettingItem>
+                <div className="conLine mTop24" />
+                <SettingItem>
+                  <SubTitle className="mTop24 Bold">{_l('分享卡片设置')}</SubTitle>
+                  <div className="mTop25">
+                    <ShareCardSetting
+                      worksheetInfo={worksheetInfo}
+                      defaultValue={{
+                        title: activeTab === 'view' ? _l('表名称-视图名称') : _l('未命名'),
+                      }}
+                      key={worksheetId + activeTab}
+                      worksheetId={worksheetId}
+                      appId={appId}
+                      type={activeTab === 'view' ? SHARECARDTYPS.VIEW : SHARECARDTYPS.RECORD}
+                      titleTxt={_l('标题')}
+                      titlePlaceholder={activeTab === 'view' ? _l('默认：表名称-视图名称') : _l('默认使用记录标题')}
+                      desTxt={_l('描述')}
+                      canUseControl={activeTab !== 'view'}
+                      //标题支持文本、数值、金额、邮箱、文本组合
+                      controls={worksheetControls.filter(o => [2, 6, 8, 5, 32].includes(o.type))}
+                      showTips={false}
+                      showBaseImg={activeTab !== 'view'}
+                      autoSave
+                    />
+                  </div>
+                </SettingItem>
               </>
             )}
           </RecordSharing>
@@ -303,24 +336,26 @@ const SharingSettings = props => {
   if (info.loading) return <LoadDiv />;
 
   return (
-    <Container className="w100 h100">
-      <div className="flexRow">
-        <span className="Font17 Bold flex Height36">{_l('公开分享')}</span>
-      </div>
-      <Tabs>
-        {TYPES.map(o => {
-          return (
-            <Tab
-              className={cx('Bold Font14 hoverText', activeTab === o.key ? 'ThemeColor3 curTab' : 'Gray_75')}
-              onClick={() => setActiveTab(o.key)}
-            >
-              {o.lab}
-            </Tab>
-          );
-        })}
-      </Tabs>
-      <TabContent>{renderCon()}</TabContent>
-    </Container>
+    <ScrollView>
+      <Container className="w100 h100">
+        <div className="flexRow">
+          <span className="Font17 Bold flex Height36">{_l('公开分享')}</span>
+        </div>
+        <Tabs>
+          {TYPES.map(o => {
+            return (
+              <Tab
+                className={cx('Bold Font14 hoverText', activeTab === o.key ? 'ThemeColor3 curTab' : 'Gray_75')}
+                onClick={() => setActiveTab(o.key)}
+              >
+                {o.lab}
+              </Tab>
+            );
+          })}
+        </Tabs>
+        <TabContent>{renderCon()}</TabContent>
+      </Container>
+    </ScrollView>
   );
 };
 

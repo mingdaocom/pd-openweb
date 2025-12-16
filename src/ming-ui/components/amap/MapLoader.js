@@ -17,7 +17,9 @@ export const getMapKey = keyName => {
 
   if (keyName === 'amap') {
     window._AMapSecurityConfig = {
-      securityJsCode: _.get(mapInfo, 'secret'),
+      ...(_.get(mapInfo, 'host')
+        ? { serviceHost: _.get(mapInfo, 'host') }
+        : { securityJsCode: _.get(mapInfo, 'secret') }),
     };
   }
 
@@ -26,6 +28,10 @@ export const getMapKey = keyName => {
 
 export default class MapLoader {
   loadJs() {
+    if (window.AMap && window.AMap.Map) {
+      return Promise.resolve(window.AMap);
+    }
+
     return new Promise(resolve => {
       // 获取地图数据
       const { key } = getMapKey('amap') || {};
@@ -38,8 +44,17 @@ export default class MapLoader {
           }
           return response.text();
         })
-        .then(script => {
-          eval(script);
+        .then(scriptCode => {
+          // 检查是否已经存在高德地图的script标签;
+          const existingScript = document.querySelector('script[data-amap-script]');
+          if (existingScript) {
+            return;
+          }
+
+          const script = document.createElement('script');
+          script.setAttribute('data-amap-script', 'true');
+          script.textContent = scriptCode;
+          document.head.appendChild(script);
         })
         .catch(error => {
           console.log(error);

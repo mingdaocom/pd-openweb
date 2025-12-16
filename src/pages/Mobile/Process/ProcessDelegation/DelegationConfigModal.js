@@ -260,7 +260,7 @@ export default function DelegationConfigModal(props) {
                   <div className="pointer circle">
                     <img
                       style={{ backgroundColor: '#f5f5f5', borderRadius: '50%', width: '22px', height: '22px' }}
-                      placeholder={`${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`}
+                      placeholder={`${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`}
                       className="circle"
                       src={
                         user.avatar

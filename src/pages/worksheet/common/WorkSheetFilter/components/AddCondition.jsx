@@ -45,12 +45,13 @@ export default class AddCondition extends Component {
       widgetControlData = {},
     } = this.props;
     const { columnListVisible } = this.state;
-    // 关联记录、查询记录（非聚合表）支持rowId
+    // 关联记录、查询记录（非聚合表）支持rowId,查询工作表也只支持rowid
     if (
       from === 'relateSheet' &&
-      _.includes([29, 35, 51], widgetControlData.type) &&
-      _.get(widgetControlData, 'advancedSetting.querytype') !== '1' &&
-      !_.find(columns, { controlId: 'rowid' })
+      !_.find(columns, { controlId: 'rowid' }) &&
+      (_.isEmpty(widgetControlData) ||
+        (_.includes([29, 35, 51], widgetControlData.type) &&
+          _.get(widgetControlData, 'advancedSetting.querytype') !== '1'))
     ) {
       columns = columns.concat(ROW_ID_CONTROL);
     }

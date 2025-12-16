@@ -1,0 +1,115 @@
+.personalInfoBody {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(~'100% - 40px');
+  min-height: 200px;
+  font-size: 16px;
+  border-radius: 12px 12px 0 0;
+
+  .closeIconBox {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--color-background-tertiary);
+    color: var(--color-text-tertiary);
+    font-size: 13px;
+  }
+  .loadingBox {
+    display: flex;
+    align-items: center;
+    height: 250px;
+  }
+  .personalInfoHeaderBox {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+
+    .avatar {
+      margin-right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+    .fullname {
+      font-size: 1em;
+      font-weight: bold;
+      color: var(--color-text-primary);
+    }
+    .userDetailPersonalStatus {
+      .remark {
+        font-weight: bold;
+      }
+    }
+  }
+
+  .personalInfoContentBox {
+    flex: 1;
+    font-size: 0.9em;
+    padding: 0 20px 20px;
+
+    .infoItem {
+      display: flex;
+      align-items: center;
+      .label {
+        flex-shrink: 0;
+        margin-right: 18px;
+        max-width: 80px;
+        color: var(--gary-75);
+      }
+      .contentBox {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 0;
+        color: var(--color-text-primary);
+        font-weight: 600;
+        .content {
+          flex: 1;
+        }
+        .tel {
+          display: flex;
+          font-size: 1.15em;
+          color: var(--color-primary);
+        }
+      }
+    }
+    .infoItem + .infoItem {
+      margin-top: 20px;
+    }
+    .appointmentField {
+      align-items: flex-start;
+    }
+  }
+
+  .noContactBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 66px 0 56px;
+    .emptyLogo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      font-size: 2.5em;
+      background-color: var(--color-background-tertiary);
+      color: var(--color-text-disabled);
+    }
+    .emptyLabel {
+      font-size: 1em;
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+  }
+}

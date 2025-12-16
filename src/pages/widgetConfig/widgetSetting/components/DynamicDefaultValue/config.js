@@ -365,4 +365,5 @@ export const DYNAMIC_FROM_MODE = {
   H5_WATER_MASK: 11, // h5照片水印
   PRINT_TEMP: 12, // 打印模板
   API_AUTH_ACCOUNT: 13, // api集成账户选择
+  RULES: 14, // 业务规则
 };

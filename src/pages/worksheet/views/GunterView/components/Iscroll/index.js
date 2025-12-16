@@ -541,7 +541,6 @@ IScroll.prototype = {
     }
 
     if (this.options.preventDefault) {
-      // increases performance on Android? TODO: check!
       e.preventDefault();
     }
 
@@ -1113,7 +1112,6 @@ IScroll.prototype = {
     }
 
     if (this.options.indicators) {
-      // TODO: check concat compatibility
       indicators = indicators.concat(this.options.indicators);
     }
 
@@ -1121,7 +1119,6 @@ IScroll.prototype = {
       this.indicators.push(new Indicator(this, indicators[i]));
     }
 
-    // TODO: check if we can use array.map (wide compatibility and performance issues)
     function _indicatorsMap(fn) {
       if (that.indicators) {
         for (var i = that.indicators.length; i--; ) {
@@ -1626,16 +1623,16 @@ IScroll.prototype = {
         newY = 0;
         break;
       case this.options.keyBindings.left:
-        newX += snap ? -1 : (5 + this.keyAcceleration) >> 0;
+        newX += snap ? -1 : Math.trunc(5 + this.keyAcceleration);
         break;
       case this.options.keyBindings.up:
-        newY += snap ? 1 : (5 + this.keyAcceleration) >> 0;
+        newY += snap ? 1 : Math.trunc(5 + this.keyAcceleration);
         break;
       case this.options.keyBindings.right:
-        newX -= snap ? -1 : (5 + this.keyAcceleration) >> 0;
+        newX -= snap ? -1 : Math.trunc(5 + this.keyAcceleration);
         break;
       case this.options.keyBindings.down:
-        newY -= snap ? 1 : (5 + this.keyAcceleration) >> 0;
+        newY -= snap ? 1 : Math.trunc(5 + this.keyAcceleration);
         break;
       default:
         return;

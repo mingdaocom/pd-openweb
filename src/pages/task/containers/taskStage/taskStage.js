@@ -378,7 +378,7 @@ class TaskStage extends Component {
       $li.find('.listStageTaskCount').hide();
 
       const $stageName = $li.find('.listStageName').hide();
-      const stageName = $.trim($stageName.text());
+      const stageName = ($stageName.text() || '').trim();
 
       $li.find('.stageChargeAvatar').addClass('Hidden');
       $li
@@ -492,7 +492,10 @@ class TaskStage extends Component {
             $listStageName
               .closest('.stageHeader')
               .append('<input class="updateStageName boderRadAll_3" maxlength="100" />');
-            $listStageName.siblings('.updateStageName').focus().val($.trim($stageName.text()));
+            $listStageName
+              .siblings('.updateStageName')
+              .focus()
+              .val(($stageName.text() || '').trim());
             taskStageSettings.isBlur = false;
           }
         },
@@ -546,7 +549,7 @@ class TaskStage extends Component {
             return;
           }
           taskStageSettings.isBlur = true;
-          const stageName = $.trim($(this).val());
+          const stageName = $(this).val().trim();
 
           $('.listStage .addNewStage').removeClass('Hidden');
           // 如果不输入阶段名称 默认去除创建
@@ -573,7 +576,7 @@ class TaskStage extends Component {
       const $this = $(this);
       // 去除窗体上 创建没有输入值的
       $('li.addNewTask').each(() => {
-        if (!$.trim($this.find('.teaStageName').val())) {
+        if (!$this.find('.teaStageName').val().trim()) {
           that.canelCreateStageTask($this.closest('li.singleStage'));
         }
       });
@@ -627,7 +630,7 @@ class TaskStage extends Component {
     // 创建任务回车
     $taskList.on('keydown', '.addNewTask .teaStageName', function (event) {
       if (event.keyCode == 13) {
-        if ($.trim($(this).val())) {
+        if ($(this).val().trim()) {
           that.addNewTaskEnter($(this).closest('li').find('.btnStagCreateTask'), true);
         }
         return false;
@@ -885,9 +888,9 @@ class TaskStage extends Component {
    * 更新阶段名称
    */
   updateStageName($el) {
-    const stageName = $.trim($el.val());
+    const stageName = $el.val().trim();
     const $spanStage = $el.siblings('.listStageName');
-    const oldStageName = $.trim($spanStage.text());
+    const oldStageName = $spanStage.text().trim();
     const breakEditState = () => {
       $el.remove();
       $spanStage.show();
@@ -1176,7 +1179,7 @@ class TaskStage extends Component {
   addNewStage($el) {
     const { folderId } = this.props.taskConfig;
     const $li = $el.closest('li.singleStage');
-    const stageName = $.trim($el.val());
+    const stageName = $el.val().trim();
 
     ajaxRequest
       .addFolderStage({
@@ -1602,7 +1605,7 @@ class TaskStage extends Component {
    */
   addNewTaskEnter($el, isEnter) {
     const $parent = $el.parent();
-    const taskName = $.trim($parent.find('.teaStageName').val());
+    const taskName = $parent.find('.teaStageName').val().trim();
 
     // 验证任务名称
     if (!taskName) {

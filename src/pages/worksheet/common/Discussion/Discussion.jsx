@@ -15,6 +15,7 @@ const clickAwayExceptions = [
   '.discussionFilterCon > .List',
   '.mui-dialog-container',
   '.mentionsAutocompleteList',
+  '.discussionFilterCon',
 ];
 
 export default class Discussion extends Component {

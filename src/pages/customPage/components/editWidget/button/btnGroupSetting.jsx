@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Button } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import BtnListSort from './BtnListSort';
 import SelectCount from './SelectCount';
 
@@ -151,14 +152,11 @@ export default function BtnGroupSetting(props) {
         </ul>
         <ul className="btnStyle">
           {(btnType === 1 ? BTN_STYLE : BTN_STYLE2).map(({ icon, value, tip }) => (
-            <li
-              className={cx({ active: value === style })}
-              key={value}
-              data-tip={tip}
-              onClick={() => setSetting({ style: value })}
-            >
-              <i className={`icon-${icon}`}></i>
-            </li>
+            <Tooltip title={tip}>
+              <li className={cx({ active: value === style })} key={value} onClick={() => setSetting({ style: value })}>
+                <i className={`icon-${icon}`}></i>
+              </li>
+            </Tooltip>
           ))}
         </ul>
         {btnType === 1 ? (
@@ -166,14 +164,15 @@ export default function BtnGroupSetting(props) {
             <div className="itemTitle overflow_ellipsis">{_l('宽度')}</div>
             <ul className="btnWidth">
               {BTN_WIDTH.map(({ icon, value, tip }) => (
-                <li
-                  className={cx({ active: value === width })}
-                  key={value}
-                  data-tip={tip}
-                  onClick={() => setSetting({ width: value })}
-                >
-                  <i className={`icon-${icon}`}></i>
-                </li>
+                <Tooltip title={tip}>
+                  <li
+                    className={cx({ active: value === width })}
+                    key={value}
+                    onClick={() => setSetting({ width: value })}
+                  >
+                    <i className={`icon-${icon}`}></i>
+                  </li>
+                </Tooltip>
               ))}
             </ul>
           </Fragment>
@@ -182,19 +181,20 @@ export default function BtnGroupSetting(props) {
             <div className="itemTitle overflow_ellipsis">{_l('方向')}</div>
             <ul className="btnWidth">
               {BTN_DIRECTION.map(({ icon, value, tip }) => (
-                <li
-                  className={cx({ active: value === direction })}
-                  key={value}
-                  data-tip={tip}
-                  onClick={() => {
-                    setSetting({
-                      config: { ...config, direction: value },
-                      mobileCount: value === 1 ? 4 : 2,
-                    });
-                  }}
-                >
-                  <i className={`icon-${icon}`}></i>
-                </li>
+                <Tooltip title={tip}>
+                  <li
+                    className={cx({ active: value === direction })}
+                    key={value}
+                    onClick={() => {
+                      setSetting({
+                        config: { ...config, direction: value },
+                        mobileCount: value === 1 ? 4 : 2,
+                      });
+                    }}
+                  >
+                    <i className={`icon-${icon}`}></i>
+                  </li>
+                </Tooltip>
               ))}
             </ul>
           </Fragment>

@@ -29,7 +29,8 @@ const CheckWidgetWrap = styled.div`
   .Radio {
     display: flex;
     align-items: center;
-    margin: 6px 0;
+    margin-top: 6px;
+    margin-bottom: 6px;
 
     &-box {
       flex-shrink: 0;

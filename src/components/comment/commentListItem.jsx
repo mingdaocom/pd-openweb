@@ -7,7 +7,8 @@ import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import { Icon } from 'ming-ui';
-import { LoadDiv, PreferenceTime, Tooltip, UserHead, UserName } from 'ming-ui';
+import { LoadDiv, PreferenceTime, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import discussionAjax from 'src/api/discussion';
 import UploadFiles from 'src/components/UploadFiles';
@@ -96,7 +97,7 @@ export default class CommentListItem extends React.Component {
               removeComment(discussionId);
             } else {
               alert(_l('删除讨论失败'), 2);
-              return Promise.reject();
+              throw new Error();
             }
           });
       },
@@ -206,11 +207,7 @@ export default class CommentListItem extends React.Component {
                   }}
                   projectId={comment.projectId}
                 />
-                <Tooltip
-                  text={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />}
-                  themeColor={'white'}
-                  autoCloseDelay={0}
-                >
+                <Tooltip title={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />} type="white">
                   <span
                     className="msgTip icon-task-reply-msg ThemeColor3 pLeft5"
                     onMouseOver={() => !this.ajax && this.fetchReplyMsg()}

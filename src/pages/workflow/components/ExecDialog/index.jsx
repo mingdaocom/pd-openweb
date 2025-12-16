@@ -5,7 +5,9 @@ import { Icon, ScrollView } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import instance from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';
-import worksheetAjax from 'src/api/worksheet';
+import appManagementApi from 'src/api/appManagement';
+import homeAppApi from 'src/api/homeApp';
+import worksheetApi from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { getTranslateInfo } from 'src/utils/app';
 import { addBehaviorLog } from 'src/utils/project';
@@ -24,6 +26,7 @@ const WorkflowHistory = props => {
         instanceId={props.instanceId}
         processName={props.data.processName}
         isApproval={props.data.isApproval}
+        hideStep={props.hideStep}
       />
       <ScrollView className="flex">
         <ul className="pAll16 pTop0">
@@ -88,15 +91,15 @@ export default class ExecDialog extends Component {
   /**
    * 获取节点的详细数据
    */
-  getData = () => {
+  getData = async () => {
     let { id, workId, onRead, onSave, onClose } = this.props;
 
-    instanceVersion.get({ id, workId }).then(res => {
+    instanceVersion.get({ id, workId }).then(async res => {
       const { status, currentWork, currentWorkItem, works, companyId, ...rest } = res;
 
       onRead();
 
-      if (_.includes([20001, 30001, 30002, 30003, 30004, 30006, 40007], status)) {
+      if (_.includes([20001, 20018, 30001, 30002, 30003, 30004, 30006, 40007], status)) {
         if (status === 30006) {
           alert(STATUS_ERROR_MESSAGE[status], 2);
           onClose();
@@ -105,6 +108,23 @@ export default class ExecDialog extends Component {
         this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status], nodeLoading: false });
       } else {
         const { app, flowNode } = rest;
+        const appId = app.id;
+
+        if (!window[`langData-${appId}`]) {
+          const langInfo = await homeAppApi.getAppLangInfo({
+            appId,
+          });
+          if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+            const lang = await appManagementApi.getAppLangDetail({
+              appId,
+              appLangId: langInfo.appLangId,
+              projectId: langInfo.projectId,
+            });
+            window[`langData-${appId}`] = lang.items;
+            window[`langVersion-${appId}`] = langInfo.version;
+          }
+        }
+
         app.name = getTranslateInfo(app.id, null, app.id).name || app.name;
         flowNode.name = getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name;
         rest.processName = getTranslateInfo(app.id, null, rest.parentId).name || rest.processName;
@@ -137,7 +157,7 @@ export default class ExecDialog extends Component {
   getPermit = () => {
     const { id, workId, onError, onClose } = this.props;
 
-    worksheetAjax
+    worksheetApi
       .getWorkItem({
         instanceId: id,
         workId: workId,
@@ -148,7 +168,7 @@ export default class ExecDialog extends Component {
           return;
         }
 
-        worksheetAjax.getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
+        worksheetApi.getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
           this.setState({
             sheetSwitchPermit,
             viewId: res.viewId,

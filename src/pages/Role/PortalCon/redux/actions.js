@@ -1,6 +1,6 @@
 import externalPortalAjax from 'src/api/externalPortal';
+import { pageSizeForPortal } from 'src/pages/Role/PortalCon/tabCon/config';
 
-const pageSize = 100;
 export const getControls = (appId, projectId) => {
   return dispatch => {
     dispatch(
@@ -110,7 +110,7 @@ export const updateListByRoleid = ({ roleId = '', rowIds = [] }, cb) => {
 };
 
 //激活用户
-export const activatExAccounts = ({ rowIds, cb }) => {
+export const activateExAccounts = ({ rowIds, cb }) => {
   return (dispatch, getState) => {
     const { portal = {} } = getState();
     const { baseInfo = {}, list = [] } = portal;
@@ -347,9 +347,8 @@ export const getList = (PotralStatus = 0, cb) => {
       list = [],
     } = portal;
     const { appId = '' } = baseInfo;
-    // ajaxFn && ajaxFn.abort();
     ajaxFn = externalPortalAjax.getFilterRows({
-      pageSize,
+      pageSize: pageSizeForPortal,
       pageIndex,
       keyWords,
       filterControls: filters,

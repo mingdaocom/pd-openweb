@@ -2,7 +2,8 @@ import React, { PureComponent } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import RoleSetTool from 'src/pages/Role/component/RoleSet/TooltipSetting';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
 import ViewGroup from './ViewGroup';
@@ -181,11 +182,7 @@ export default class extends PureComponent {
               <span className="flex overflow_ellipsis ThemeHoverColor3 InlineBlock">
                 {sheet.sheetName || sheet.name}
               </span>
-              <Tooltip
-                popupPlacement="top"
-                disable={!(sheet.checked || readSize > 0)}
-                text={<span>{_l('在导航中隐藏')}</span>}
-              >
+              <Tooltip title={!(sheet.checked || readSize > 0) ? '' : <span>{_l('在导航中隐藏')}</span>}>
                 <span
                   className={classNames('mLeft7 arrowIconShow', {
                     show: sheet.navigateHide,
@@ -193,7 +190,11 @@ export default class extends PureComponent {
                   })}
                   onClick={e => {
                     if (sheet.checked || readSize > 0) {
-                      updateNavigateHide(!!sheet.sheetId, sheet.pageId || sheet.sheetId, !sheet.navigateHide);
+                      updateNavigateHide(
+                        sheet?.sheetId ? 'sheets' : sheet?.pageId ? 'pages' : 'chatbots',
+                        sheet?.pageId || sheet?.sheetId || sheet?.id,
+                        !sheet.navigateHide,
+                      );
                       e.stopPropagation();
                     }
                   }}
@@ -225,7 +226,9 @@ export default class extends PureComponent {
                   <Checkbox
                     className="InlineBlock"
                     checked={sheet.checked}
-                    onClick={() => updateLookPages(sheet.pageId, !sheet.checked)}
+                    onClick={() =>
+                      updateLookPages(sheet.pageId || sheet.id, !sheet.checked, sheet?.pageId ? 'pages' : 'chatbots')
+                    }
                   />
                 </div>
               )}

@@ -4,9 +4,9 @@ import update from 'immutability-helper';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
-import CustomFields from 'src/components/newCustomFields';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import CustomFields from 'src/components/Form';
+import DataFormat from 'src/components/Form/core/DataFormat';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import useWorksheetRowProvider from 'src/pages/worksheet/common/recordInfo/WorksheetRecordProvider';
 import { isRelateRecordTableControl } from 'src/utils/control';
@@ -246,6 +246,13 @@ class FillRecordControls extends React.Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+    if (
+      $('.mobileFillRecordControls').find('.uploadingProcessCircle').length ||
+      $('.mobileFillRecordControls').find('.fileUpdateLoading').length
+    ) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   };
@@ -308,7 +315,7 @@ class FillRecordControls extends React.Component {
 
     return (
       <Con>
-        <div className="flex customFieldsWrapper">
+        <div className="flex customFieldsWrapper mobileFillRecordControls">
           {submitLoading && (
             <LoadMask style={continueFill ? { zIndex: 10 } : {}}>
               <LoadDiv />

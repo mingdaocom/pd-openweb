@@ -5,6 +5,7 @@ export const SectionItemWrap = styled.div`
   padding: 4px 0;
   display: flex;
   align-items: center;
+  transform: translateZ(0);
 
   .titleBox {
     flex: 1;
@@ -50,7 +51,7 @@ export const SectionItemWrap = styled.div`
       ${props => (props.visible ? 'transform: rotate(180deg); transition: transform 0.2s ease-in-out;' : '')};
     }
     i {
-      color: var(--gray-9e);
+      color: var(--color-text-tertiary);
     }
   }
 

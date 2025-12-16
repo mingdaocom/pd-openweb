@@ -56,8 +56,9 @@ export const ActionResult = {
   passwordOverdue: 19, // 密码过期
   samePassword: 20, // 新旧密码一致
   isLock: 21, // 代表频繁用户被锁定20分钟，提示看下登录里面的锁定提示，保持跟登录一致，锁定的分钟写死20分钟即可
-  balanceIsInsufficient: 22, // 22代表网络余额不足
+  balanceIsInsufficient: 22, // 22代表网络信用点不足
   accoutRegisterClosed: 23, // 23关闭注册 非注册时间段
+  accountResign: 25, // 25用户已离职
 };
 
 export const scaleList = [

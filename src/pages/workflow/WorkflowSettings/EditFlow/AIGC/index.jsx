@@ -53,12 +53,12 @@ export default class AIGC extends Component {
               <i
                 className={cx(
                   'workflowAvatar',
-                  item.appId ? 'BGRed' : 'BGGray',
+                  item.appId ? 'BGDarkViolet' : 'BGGray',
                   getIcons(item.typeId, item.appType, item.actionId),
                 )}
               />
             </div>
-            <NodeOperate nodeClassName="BGRed" {...this.props} />
+            <NodeOperate nodeClassName="BGDarkViolet" {...this.props} />
             <div className="workflowContent Font13">
               {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import dataSourceApi from 'src/pages/integration/api/datasource.js';
 import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting/index.jsx';
@@ -584,7 +585,7 @@ export default class CellEdit extends Component {
               {['SOURCE_TABLE', 'JOIN'].includes(nodeType) && tab === 0 && this.resetAlias()}
             </span>
             {nodeType === 'SOURCE_TABLE' && (
-              <Tooltip text={<span>{_l('刷新数据源字段')}</span>} action={['hover']} popupPlacement={'bottom'}>
+              <Tooltip title={_l('刷新数据源字段')} placement="bottom">
                 <i
                   className="icon icon-refresh1  Hand Font20 mLeft10"
                   onClick={() => {

@@ -5,15 +5,15 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import { FROM } from '../core/config';
 import { mobileFormPropTypes } from '../core/formPropTypes';
-import { controlState, getControlsByTab, getHideTitleStyle } from '../core/utils';
+import { controlState, getControlsByTab, getWidgetDisplayRow, showRefreshBtn } from '../core/utils';
 import { useFormStore } from '../index';
 import { updateEmSizeNumAction } from '../store/actions';
 import FormLabel from './components/FormLabel';
+import MobileFormWidget from './components/MobileFormWidget';
 import MobileWidgetSection from './components/MobileWidgetSection';
 import RefreshBtn from './components/RefreshBtn';
 // import { FIELD_SIZE_OPTIONS } from './tools/config';
-import { getValueStyle, showRefreshBtn, supportDisplayRow } from './tools/utils';
-import widgets from './widgets';
+import { getValueStyle } from './tools/utils';
 import './style.less';
 
 const CONTROL_HEIGHT_MAP = {
@@ -58,7 +58,6 @@ const MobileForm = props => {
     renderData,
     rulesLoading,
     handleChange,
-    renderFormItem,
     renderVerifyCode,
     triggerCustomEvent,
     setLoadingInfo,
@@ -88,7 +87,6 @@ const MobileForm = props => {
       updateErrorState,
     } = props;
     const { instanceId, workId } = mobileApprovalRecordInfo;
-    const { titlelayout_app = '1' } = widgetStyle;
     const formList = [];
     let prevRow = -1;
     let preIsSection;
@@ -114,13 +112,12 @@ const MobileForm = props => {
         formList.push(<div className="customFormLine" key={`clearfix-${worksheetId}-${item.controlId}`} />);
       }
 
-      const hideTitleStyle = getHideTitleStyle(item, data) || {};
-      const displayRow = titlelayout_app === '2' && supportDisplayRow(item);
+      const displayRowInfo = getWidgetDisplayRow({ item, data, widgetStyle });
       const isShowRefreshBtn = showRefreshBtn({ ..._.pick(props, ['disabledFunctions', 'recordId', 'from']), item });
 
       formList.push(
         <div
-          className={cx('customFormItem', { customFormItemRow: displayRow || hideTitleStyle.displayRow })}
+          className={cx('customFormItem', { customFormItemRow: displayRowInfo.displayRow })}
           style={{
             width: '100%',
             display: item.type === 49 && disabled ? 'none' : 'flex',
@@ -132,7 +129,13 @@ const MobileForm = props => {
             <div className="relative" style={{ height: 10 }}>
               <div
                 className="Absolute"
-                style={{ background: 'var(--gray-f5)', height: 10, left: -1000, right: -1000, top: -7 }}
+                style={{
+                  background: 'var(--color-background-tertiary)',
+                  height: 10,
+                  left: -1000,
+                  right: -1000,
+                  top: -7,
+                }}
               />
             </div>
           )}
@@ -146,7 +149,7 @@ const MobileForm = props => {
               errorItems={errorItems}
               uniqueErrorItems={uniqueErrorItems}
               loadingItems={loadingItems}
-              widgetStyle={{ ...widgetStyle, displayRow, ...hideTitleStyle }}
+              widgetStyle={{ ...widgetStyle, ...displayRowInfo }}
               disabled={disabled}
               formDisabled={item.disabled}
               updateErrorState={updateErrorState}
@@ -159,17 +162,23 @@ const MobileForm = props => {
             {...getValueStyle(item)}
             isShowRefreshBtn={isShowRefreshBtn}
           >
-            {renderFormItem(
-              Object.assign({}, item, controlProps, {
-                instanceId,
-                workId,
-                richTextControlCount,
-                isDraft: isDraft || from === FROM.DRAFT,
-                ...(item.type === 22 ? { setNavVisible } : {}),
-                setLoadingInfo,
-              }),
-              widgets,
-            )}
+            <MobileFormWidget
+              {...props}
+              item={{
+                ...item,
+                ...controlProps,
+                ...{
+                  instanceId,
+                  workId,
+                  richTextControlCount,
+                  isDraft: isDraft || from === FROM.DRAFT,
+                  ...(item.type === 22 ? { setNavVisible } : {}),
+                  setLoadingInfo,
+                },
+              }}
+              renderData={renderData}
+            />
+
             {isShowRefreshBtn && (
               <RefreshBtn
                 {..._.pick(props, ['disabledFunctions', 'worksheetId', 'recordId', 'from'])}
@@ -190,7 +199,7 @@ const MobileForm = props => {
   };
 
   const renderTab = (commonData, tabControls) => {
-    const { from, isDraft, activeTabControlId, updateActiveTabControlId, mobileApprovalRecordInfo } = props;
+    const { from, isDraft, activeTabControlId, setActiveTabControlId, mobileApprovalRecordInfo } = props;
     const sectionProps = {
       ...props,
       tabControls,
@@ -198,7 +207,7 @@ const MobileForm = props => {
       activeTabControlId: activeTabControlId || _.get(tabControls[0], 'controlId'),
       isDraft: isDraft || from === FROM.DRAFT,
       mobileApprovalRecordInfo,
-      setActiveTabControlId: value => updateActiveTabControlId(value),
+      setActiveTabControlId: value => setActiveTabControlId(value),
       renderForm: value => renderForm(value),
       triggerCustomEvent: value => triggerCustomEvent({ ...props, ...value }),
     };

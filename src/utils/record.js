@@ -4,7 +4,7 @@ import _, { findLastIndex, get } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { getSheetViewRows } from 'worksheet/common/TreeTableHelper';
 import { RECORD_COLOR_SHOW_TYPE, VIEW_CONFIG_RECORD_CLICK_ACTION } from 'worksheet/constants/enum';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
 import { getAppFeaturesPath } from 'src/utils/app';
 import { isLightColor, isRelateRecordTableControl } from 'src/utils/control';
@@ -685,7 +685,7 @@ export async function handleRowData(props) {
       const index = _.findIndex(defcontrols, o => {
         return o.controlId == item.controlId;
       });
-      ((defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item));
+      (defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item);
     });
 
     return { defaultData, defcontrols };

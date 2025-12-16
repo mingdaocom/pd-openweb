@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Tooltip } from 'antd';
+import { Checkbox } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, SvgIcon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { covertTime, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS, TABS } from '../config';
@@ -246,7 +247,6 @@ export default class Card extends Component {
 
     return (
       <Tooltip
-        autoCloseDelay={0}
         title={
           autoPass
             ? ''

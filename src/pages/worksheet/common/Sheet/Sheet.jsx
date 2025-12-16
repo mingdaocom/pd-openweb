@@ -17,6 +17,7 @@ import { defaultNavCloseW, defaultNavOpenW, MaxNavW, MinNavW } from 'src/pages/w
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
+import { emitter as globalEmitter } from 'src/utils/common';
 import GroupFilter from './GroupFilter';
 import QuickFilter from './QuickFilter';
 import SheetContext from './SheetContext';
@@ -105,6 +106,7 @@ function Sheet(props) {
   const {
     loading,
     error,
+    emitter,
     appId,
     groupId,
     worksheetId,
@@ -289,6 +291,12 @@ function Sheet(props) {
     setGroupFilterWidth(w);
   };
   useEffect(() => {
+    globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet', {
+      ...worksheetInfo,
+      isCharge,
+    });
+  }, [worksheetInfo, isCharge]);
+  useEffect(() => {
     window.openViewConfig = () => {
       setViewConfigVisible(true);
       setViewConfigTab('DebugConfig');
@@ -296,6 +304,7 @@ function Sheet(props) {
     return () => {
       updateGroupFilter([], view);
       delete window.openViewConfig;
+      globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet');
     };
   }, []);
   return (
@@ -340,6 +349,15 @@ function Sheet(props) {
               </React.Fragment>
             )}
             {type === 'single' && <SheetHeader {...basePara} onlyBatchOperate />}
+            {type === 'single' && (
+              <ViewControl
+                {...basePara}
+                viewConfigTab={viewConfigTab}
+                view={_.cloneDeep(view)}
+                type="exportSheetButton"
+                emitter={emitter}
+              />
+            )}
             <Con id="worksheetRightContentBox" className={cx({ viewConfigVisible })}>
               {showQuickFilter && (
                 <QuickFilterCon>

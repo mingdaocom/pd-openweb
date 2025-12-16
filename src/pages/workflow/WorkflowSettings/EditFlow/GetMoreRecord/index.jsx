@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { ACTION_ID } from '../../enum';
+import { ACTION_ID, APP_TYPE } from '../../enum';
 import { getIcons } from '../../utils';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -16,7 +16,8 @@ export default class GetMoreRecord extends Component {
   renderContent() {
     const { item } = this.props;
     const text = {
-      [ACTION_ID.FROM_WORKSHEET]: _l('从工作表获取多条记录'),
+      [ACTION_ID.FROM_WORKSHEET]:
+        item.appType === APP_TYPE.SHEET ? _l('从工作表获取多条记录') : _l('从聚合表获取多条记录'),
       [ACTION_ID.FROM_RECORD]: _l('从一条记录获取多条关联记录'),
       [ACTION_ID.FROM_ADD]: _l('从新增记录节点获取多条记录'),
       [ACTION_ID.FROM_ARRAY]: _l('从发送API请求数组获取数据'),
@@ -63,9 +64,9 @@ export default class GetMoreRecord extends Component {
 
     return (
       <Fragment>
-        <div className="workflowContentInfo ellipsis workflowContentBG">
-          <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
-        </div>
+        <WorksheetMessage
+          item={{ ...item, appTypeName: item.appType === APP_TYPE.SHEET ? _l('工作表') : _l('聚合表') }}
+        />
         {_.includes([ACTION_ID.BATCH_UPDATE, ACTION_ID.REFRESH_MULTIPLE_DATA], item.actionId) ? (
           <div className="workflowContentInfo Gray_75 mTop4 pBottom5">
             {item.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA

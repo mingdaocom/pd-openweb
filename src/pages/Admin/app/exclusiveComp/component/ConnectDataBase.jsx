@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Switch, Textarea, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Switch, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import { encrypt } from 'src/utils/common';
 import TextInput from './TextInput';
@@ -213,7 +214,7 @@ function ConnectDataBase(props) {
         />
         <div className="Font14 mBottom4 valignWrapper">
           {_l('新增应用')}
-          <Tooltip text={_l('开启时，允许拥有“应用服务和资源”的管理员，新增应用到这个数据库')} autoCloseDelay={0}>
+          <Tooltip title={_l('开启时，允许拥有“应用服务和资源”的管理员，新增应用到这个数据库')}>
             <Icon icon="info_outline" className="Font16 Gray_bd mLeft8" />
           </Tooltip>
         </div>

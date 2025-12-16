@@ -7,6 +7,7 @@ import Chart from 'statistics/Card';
 import exportPivotTableSocket from 'statistics/components/socket';
 import preall from 'src/common/preall';
 import { socketInit } from 'src/socket';
+import customNotice from 'src/socket/customNotice';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import './index.less';
 
@@ -27,6 +28,7 @@ export default class EmbedChart extends Component {
     this.pageId = pageId;
     socketInit();
     exportPivotTableSocket();
+    customNotice();
   }
   componentDidMount() {
     homeAppApi

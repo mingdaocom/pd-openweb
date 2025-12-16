@@ -1,7 +1,8 @@
 import React, { Component, createRef, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, Textarea, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Input, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { encryptList } from './constant';
 
@@ -166,7 +167,7 @@ export default class EncryptBaseInfo extends Component {
         <div>Key</div>
         <div className="Gray mBottom30 keyInfo">
           {handleMask(ruleDetail.key, maskKey)}
-          <Tooltip text={maskKey ? _l('解码') : _l('掩码')}>
+          <Tooltip title={maskKey ? _l('解码') : _l('掩码')}>
             <i
               className={`icon Font14 Gray_bd mLeft10 ${maskKey ? 'icon-eye_off' : 'icon-eye'}`}
               onClick={() => this.setState({ maskKey: !maskKey })}
@@ -176,7 +177,7 @@ export default class EncryptBaseInfo extends Component {
         <div>IV</div>
         <div className="Gray mBottom30">
           {handleMask(ruleDetail.iv, maskIv)}
-          <Tooltip text={maskIv ? _l('解码') : _l('掩码')}>
+          <Tooltip title={maskIv ? _l('解码') : _l('掩码')}>
             <i
               className={`icon Font14 Gray_bd mLeft10 ${maskIv ? 'icon-eye_off' : 'icon-eye'}`}
               onClick={() => this.setState({ maskIv: !maskIv })}

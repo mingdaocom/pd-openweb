@@ -97,8 +97,7 @@ export default class ApplyAction extends PureComponent {
   render() {
     const { getPopupContainer } = this.props;
     const triggerProps = {
-      popupClassName: 'ming Tooltip-white',
-      prefixCls: 'Tooltip',
+      popupClassName: 'Normal',
       action: ['click'],
       popup: this.renderPopup(),
       builtinPlacements,

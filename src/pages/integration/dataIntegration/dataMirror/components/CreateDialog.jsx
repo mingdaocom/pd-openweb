@@ -4,7 +4,8 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import dataSourceApi from 'src/pages/integration/api/datasource';
@@ -92,7 +93,7 @@ export default function CreateDialog(props) {
                 label: !isValidTable ? (
                   <React.Fragment>
                     {item.workSheetName}
-                    <Tooltip text={_l('名称包含特殊字符，无法同步')}>
+                    <Tooltip title={_l('名称包含特殊字符，无法同步')}>
                       <Icon icon="info" className="Gray_bd mLeft5 pointer" />
                     </Tooltip>
                   </React.Fragment>

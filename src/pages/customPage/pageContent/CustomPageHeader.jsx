@@ -8,7 +8,8 @@ import { pick } from 'lodash';
 import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
-import { Icon, LoadDiv, RichText, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, RichText, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import appManagementApi from 'src/api/appManagement';
 import customApi from 'statistics/api/custom';
@@ -322,14 +323,7 @@ export default function CustomPageHeader(props) {
           {!isPublicShare &&
             !isEmbedPage &&
             (appPkg.currentPcNaviStyle === 2 ? (
-              <Tooltip
-                text={
-                  <span>
-                    {_l('退出')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
-                  </span>
-                }
-                popupPlacement="bottom"
-              >
+              <Tooltip title={_l('退出全屏')} shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'} placement="bottom">
                 <div
                   className="iconWrap hideSide"
                   onClick={() => {
@@ -342,12 +336,9 @@ export default function CustomPageHeader(props) {
               </Tooltip>
             ) : (
               <Tooltip
-                text={
-                  <span>
-                    {inFull ? _l('退出') : _l('展开')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
-                  </span>
-                }
-                popupPlacement="bottom"
+                title={inFull ? _l('退出全屏') : _l('应用全屏')}
+                shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
+                placement="bottom"
               >
                 <div
                   className="iconWrap hideSide"
@@ -389,6 +380,7 @@ export default function CustomPageHeader(props) {
             <Popover
               arrowPointAtCenter={true}
               title={null}
+              zIndex={2000}
               placement="bottomLeft"
               overlayClassName="sheetDescPopoverOverlay"
               content={
@@ -438,20 +430,20 @@ export default function CustomPageHeader(props) {
                 overlayClassName="customPageAutoLinkagePopoverWrap"
                 content={renderLinkageFiltersPopover()}
               >
-                <Tooltip text={<span>{_l('联动筛选')}</span>} popupPlacement="bottom">
+                <Tooltip title={_l('联动筛选')} placement="bottom">
                   <div data-event="filter" className="iconWrap valignWrapper mLeft20 autoLinkageTrigger">
                     <Icon className="Font22 pointer" icon="linkage_filter" />
                   </div>
                 </Tooltip>
               </Popover>
             )}
-            <Tooltip text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('刷新')} placement="bottom">
               <div data-event="refresh" className="iconWrap valignWrapper mLeft20" onClick={resetPage}>
                 <Icon className="Font20 pointer" icon="task-later" />
               </div>
             </Tooltip>
             {isCharge && !(appPkg.isLock || appPkg.permissionType === APP_ROLE_TYPE.RUNNER_ROLE) && (
-              <Tooltip text={<span>{_l('页面配置')}</span>} popupPlacement="bottom">
+              <Tooltip title={_l('页面配置')} placement="bottom">
                 <div
                   data-event="pageConfig"
                   className="iconWrap valignWrapper mLeft20"
@@ -464,7 +456,7 @@ export default function CustomPageHeader(props) {
               </Tooltip>
             )}
             {!isPublicShare && !isEmbedPage && apk.appId && !md.global.Account.isPortal && pageConfig.shareVisible && (
-              <Tooltip text={<span>{_l('分享')}</span>} popupPlacement="bottom">
+              <Tooltip title={_l('分享')} placement="bottom">
                 <div
                   data-event="share"
                   className="iconWrap valignWrapper mLeft20"
@@ -482,7 +474,7 @@ export default function CustomPageHeader(props) {
                   <LoadDiv size="small" />
                 </div>
               ) : (
-                <Tooltip text={<span>{_l('保存图片')}</span>} popupPlacement="bottom">
+                <Tooltip title={_l('保存图片')} placement="bottom">
                   <div data-event="savePic" className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
                     <Icon className="Font20 pointer" icon="download" />
                   </div>
@@ -491,7 +483,7 @@ export default function CustomPageHeader(props) {
           </Fragment>
         )}
         {!isPublicShare && pageConfig.fullScreenVisible && (
-          <Tooltip text={<span>{_l('全屏展示')}</span>} popupPlacement="bottom">
+          <Tooltip title={_l('全屏展示')} placement="bottom">
             <div data-event="fullScreen" className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
               <Icon icon="full_screen" className="Font20 pointer" />
             </div>
@@ -501,6 +493,7 @@ export default function CustomPageHeader(props) {
       <SheetDesc
         title={_l('自定义页面说明')}
         permissionType={appPkg.permissionType}
+        cacheKey="pageIntroDescription"
         visible={editIntroVisible}
         desc={descIsEditing ? desc || '' : getTranslateInfo(appId, null, pageId).description || desc || ''}
         isEditing={descIsEditing}

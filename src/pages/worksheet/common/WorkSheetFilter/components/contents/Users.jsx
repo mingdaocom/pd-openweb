@@ -91,8 +91,7 @@ export default class Users extends Component {
                 accountId: 'user-self',
                 fullname: _l('当前用户'),
                 avatar:
-                  md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-                  '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
+                  md.global.FileStoreConfig.pictureHost + '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
               },
             ],
           }

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, Input, Tooltip, UserHead } from 'ming-ui';
+import { Button, Checkbox, Dialog, Icon, Input, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectUser } from 'ming-ui/functions';
 
@@ -121,7 +122,7 @@ class EarlyWarningDialog extends Component {
     return (
       <div className="mBottom26">
         <span className="mRight16">
-          {type === 'balance' ? _l('当组织账户余额低于') : _l('当累积排队超过 / 降低到')}
+          {type === 'balance' ? _l('当组织信用点余额低于') : _l('当累积排队超过 / 降低到')}
         </span>
         <InputWrap
           placeholder={_l('请输入')}
@@ -151,7 +152,7 @@ class EarlyWarningDialog extends Component {
       <NoticeMethod className="mTop26">
         <div className="mBottom12">
           {_l('通知方式')}
-          <Tooltip autoCloseDelay={0} text={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
+          <Tooltip placement="bottom" title={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
             <Icon icon="info" className="Gray_bd mLeft8 Font16" />
           </Tooltip>
         </div>
@@ -184,11 +185,11 @@ class EarlyWarningDialog extends Component {
         title={
           type === 'balance' ? (
             <div>
-              <span>{_l('余额预警')}</span>
+              <span>{_l('信用点余额预警')}</span>
               <Tooltip
-                autoCloseDelay={0}
-                text={_l(
-                  '设置后，在扣款时若组织账户余额低于预警值则会发送预警给通知人（每天仅发送 1 次预警，若重置预警值则会再次发送）',
+                placement="bottom"
+                title={_l(
+                  '设置后，在扣款时若组织账户信用点低于预警值则会发送预警给通知人（每天仅发送 1 次预警，若重置预警值则会再次发送）',
                 )}
               >
                 <i className="icon icon-info Gray_bd mLeft8" />

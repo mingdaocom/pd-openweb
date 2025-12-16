@@ -9,6 +9,7 @@ import { arrayOf } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import ExportSheetButton from 'worksheet/components/ExportSheetButton';
@@ -192,11 +193,13 @@ export function SearchInput(props) {
           },
         }}
       >
-        <span className="Relative" data-tip={_l('搜索')} style={{ height: 28, marginRight: 6 }}>
-          <IconBtn className={cx('searchIcon Hand ThemeHoverColor3', { active: props.keywords })}>
-            <i className="icon icon-search"></i>
-          </IconBtn>
-        </span>
+        <Tooltip title={_l('搜索')} placement="bottom">
+          <span className="Relative" style={{ height: 28, marginRight: 6 }}>
+            <IconBtn className={cx('searchIcon Hand ThemeHoverColor3', { active: props.keywords })}>
+              <i className="icon icon-search"></i>
+            </IconBtn>
+          </span>
+        </Tooltip>
       </Trigger>
     </Fragment>
   );
@@ -298,7 +301,10 @@ function Operate(props) {
     cacheStore.current.oldFilterControls = filterControls;
   }, [filterControls]);
   useEffect(() => {
-    emitter.emit(`relationSearchCount:${control.controlId}`, count);
+    emitter.emit(
+      `relationSearchCount:${control.controlId}`,
+      control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count,
+    );
   }, [count]);
   return (
     <Con className={className} style={style} smallMode={smallMode} ref={workSheetFilterContainerRef}>
@@ -535,45 +541,47 @@ function Operate(props) {
             from !== 21 &&
             !!recordId &&
             (base.isTab || _.isEqual(changes, initialChanges) || _.isEmpty(changes)) && (
-              <span
-                className="mRight6"
-                data-tip={_l('刷新')}
-                style={{ height: 28 }}
-                onClick={() => {
-                  refresh();
-                }}
-              >
-                <IconBtn className="Hand ThemeHoverColor3">
-                  <i className="icon icon-task-later" />
-                </IconBtn>
-              </span>
+              <Tooltip title={_l('刷新')} placement="bottom">
+                <span
+                  className="mRight6"
+                  style={{ height: 28 }}
+                  onClick={() => {
+                    refresh();
+                  }}
+                >
+                  <IconBtn className="Hand ThemeHoverColor3">
+                    <i className="icon icon-task-later" />
+                  </IconBtn>
+                </span>
+              </Tooltip>
             )}
           {mode === 'recordForm' && !!recordId && from !== RECORD_INFO_FROM.DRAFT && (
-            <span
-              data-tip={_l('全屏')}
-              style={{ height: 28, marginRight: 6 }}
-              onClick={() =>
-                openRelateRelateRecordTable({
-                  appId,
-                  viewId,
-                  worksheetId,
-                  recordId,
-                  isDraft,
-                  control: { ...control, ...(base.isTab ? { store: undefined } : {}) },
-                  allowEdit,
-                  formdata: formData,
-                  reloadTable: base.isTab ? refresh : () => {},
-                  updateWorksheetControls: updatedControls => {
-                    updateBase({ control: updatedControls[0] });
-                    updateWorksheetControls(updatedControls);
-                  },
-                })
-              }
-            >
-              <IconBtn className="Hand ThemeHoverColor3">
-                <i className="icon icon-worksheet_enlarge" />
-              </IconBtn>
-            </span>
+            <Tooltip title={_l('全屏')} placement="bottom">
+              <span
+                style={{ height: 28, marginRight: 6 }}
+                onClick={() =>
+                  openRelateRelateRecordTable({
+                    appId,
+                    viewId,
+                    worksheetId,
+                    recordId,
+                    isDraft,
+                    control: { ...control, ...(base.isTab ? { store: undefined } : {}) },
+                    allowEdit,
+                    formdata: formData,
+                    reloadTable: base.isTab ? refresh : () => {},
+                    updateWorksheetControls: updatedControls => {
+                      updateBase({ control: updatedControls[0] });
+                      updateWorksheetControls(updatedControls);
+                    },
+                  })
+                }
+              >
+                <IconBtn className="Hand ThemeHoverColor3">
+                  <i className="icon icon-worksheet_enlarge" />
+                </IconBtn>
+              </span>
+            </Tooltip>
           )}
 
           {(!!recordId || control.type === 51) && (

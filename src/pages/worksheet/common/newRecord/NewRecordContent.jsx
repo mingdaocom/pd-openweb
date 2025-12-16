@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from 'antd-mobile';
 import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
 import cx from 'classnames';
-import _, { get } from 'lodash';
+import _, { find, get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { EditingBar, ScrollView } from 'ming-ui';
@@ -13,9 +13,10 @@ import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import { BUTTON_ACTION_TYPE } from 'worksheet/constants/enum';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import { canEditData } from 'worksheet/redux/actions/util';
-import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import Share from 'src/pages/worksheet/components/Share';
 import { browserIsMobile, emitter, getRequest } from 'src/utils/common';
@@ -53,22 +54,27 @@ const EditingBarCon = styled.div`
   height: 86px;
 `;
 
+function checkVisibility(el) {
+  return new Promise(resolve => {
+    const observer = new IntersectionObserver(([entry]) => {
+      resolve(entry?.isIntersecting);
+      observer.disconnect();
+    });
+    observer.observe(el);
+  });
+}
+
 function focusInput(formcon) {
-  if (!formcon) {
-    return;
-  }
+  if (!formcon) return;
   const isMobile = browserIsMobile();
-  const $formWrap = formcon.querySelector(isMobile ? '.customMobileFormContainer' : '.customFieldsContainer');
-  if (!$formWrap) {
-    return;
-  }
-  const $firstText = $formWrap.querySelector(
-    isMobile
-      ? '.customFormItem:first-child .customFormFocusControl'
-      : '.customFormItem:first-child .customFormTextareaBox',
-  );
-  if ($firstText) {
-    $firstText.click();
+  const firstText = formcon.querySelector(`${isMobile ? '.customFormFocusControl' : '.customFormTextareaBox'}`);
+
+  if (firstText) {
+    checkVisibility(firstText).then(isVisible => {
+      if (isVisible) {
+        firstText.click();
+      }
+    });
   }
 }
 
@@ -76,6 +82,7 @@ function NewRecordForm(props) {
   const {
     loading,
     maskLoading,
+    isMingoCreate,
     from,
     isCustomButton,
     isCharge,
@@ -101,6 +108,7 @@ function NewRecordForm(props) {
     customBtn,
     sheetSwitchPermit,
     updateWorksheetControls,
+    updateTitle = () => {},
     advancedSetting = {},
     setShareVisible = () => {},
     onSubmitBegin = () => {},
@@ -117,11 +125,15 @@ function NewRecordForm(props) {
     handleAddRelation,
     handOverNavigation = () => {},
   } = props;
-  const cache = useRef({});
+  const cache = useRef({
+    formLoading: true,
+    pendingFunctions: [],
+  });
   const cellObjs = useRef({});
   const isSubmitting = useRef(false);
   const customwidget = useRef();
   const formcon = useRef();
+  const formdataRef = useRef([]);
   const propsWorksheetInfo = useMemo(() => _.cloneDeep(props.worksheetInfo || {}), []);
   const [formLoading, setFormLoading] = useState(true);
   const [isSettingTempData, setIsSettingTempData] = useState(false);
@@ -135,9 +147,18 @@ function NewRecordForm(props) {
   const [random, setRandom] = useState();
   const [requesting, setRequesting] = useState();
   const [offlineTempId, setOfflineTempId] = useState('');
+  const [filledByAiMap, setFilledByAiMap] = useState({});
+  const [isRenderForm, setIsRenderForm] = useState(true);
   const { offlineUpload } = getRequest();
 
   const isMobile = browserIsMobile();
+  const saveKey = isMingoCreate ? 'tempNewRecordFromMingo' : 'tempNewRecord';
+
+  // 同步 formdata 到 ref
+  useEffect(() => {
+    formdataRef.current = formdata;
+  }, [formdata]);
+
   function newRecord(options = {}) {
     if (!customwidget.current) return;
     if (options.rowStatus === 21) {
@@ -172,7 +193,7 @@ function NewRecordForm(props) {
         setRequesting,
         onSubmitSuccess: ({ rowData, isOverLimit }) => {
           handOverNavigation(true);
-          removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+          removeTempRecordValueFromLocal(saveKey, worksheetId);
           if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
             _.get(cache, 'current.tempSaving.cancel')();
           }
@@ -321,7 +342,7 @@ function NewRecordForm(props) {
 
           // 创建记录后关闭弹层
           if (actionType === BUTTON_ACTION_TYPE.CLOSE) {
-            alert(_l('提交成功'), 1, 1000);
+            alert(_l('提交成功'), 1);
           }
 
           if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
@@ -342,7 +363,7 @@ function NewRecordForm(props) {
               return;
             }
 
-            alert(_l('保存成功'), 1, 1000);
+            alert(_l('保存成功'), 1);
             isSubmitting.current = false;
 
             if (offlineUpload === '1' && offlineTempId) {
@@ -392,6 +413,7 @@ function NewRecordForm(props) {
 
             setErrorVisible(false);
             setRandom(Math.random().toString());
+            setFilledByAiMap({});
             focusInput(formcon.current);
           } else {
             onCancel();
@@ -425,7 +447,7 @@ function NewRecordForm(props) {
               }
             }
           }
-          removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
+          removeTempRecordValueFromLocal(saveKey, worksheetId);
           if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
             _.get(cache, 'current.tempSaving.cancel')();
           }
@@ -470,7 +492,7 @@ function NewRecordForm(props) {
     setFormdata(parsedData.formdata);
     setRelateRecordData(parsedData.relateRecordData);
     setRandom(Math.random().toString());
-    setRestoreVisible(true);
+    setRestoreVisible(!isMingoCreate);
     setIsSettingTempData(false);
   };
 
@@ -478,13 +500,13 @@ function NewRecordForm(props) {
     if (window.isMingDaoApp) return;
     if (needCache) {
       if (window.isWxWork) {
-        KVGet(`${md.global.Account.accountId}${worksheetId}-tempNewRecord`).then(data => {
+        KVGet(`${md.global.Account.accountId}${worksheetId}-${saveKey}`).then(data => {
           if (data) {
             fillTempRecordValue(data, newFormdata);
           }
         });
       } else {
-        const tempData = localStorage.getItem('tempNewRecord_' + worksheetId);
+        const tempData = localStorage.getItem(saveKey + '_' + worksheetId);
         if (tempData) {
           fillTempRecordValue(tempData, newFormdata);
         }
@@ -543,6 +565,7 @@ function NewRecordForm(props) {
         });
 
         setOriginFormdata(newFormdata);
+        cache.current.originFormdata = newFormdata;
         setFormdata(newFormdata);
         // 离线缓存;
         if (offlineUpload === '1') {
@@ -580,6 +603,11 @@ function NewRecordForm(props) {
         }
 
         setFormLoading(false);
+        cache.current.formLoading = false;
+        if (cache.current.pendingFunctions.length) {
+          cache.current.pendingFunctions.forEach(handle => handle());
+          cache.current.pendingFunctions = [];
+        }
         cache.current.focusTimer = setTimeout(() => focusInput(formcon.current), 300);
         handleRestoreTempRecord(newFormdata);
       }
@@ -588,6 +616,106 @@ function NewRecordForm(props) {
       load();
     }
   }, [loading]);
+
+  const handleMingoTriggerAction = useCallback(({ action, params = {} }) => {
+    function handle() {
+      if (action === 'fillValueByAi') {
+        const { controlId } = params;
+        let value = params.value;
+        const control = find(cache.current.originFormdata, { controlId });
+        if (control && control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && !isEmpty(value)) {
+          value = safeParse(value);
+          customwidget.current.dataFormat.updateDataSource({
+            controlId: control.controlId,
+            value: {
+              action: 'clearAndSet',
+              rows: value,
+            },
+          });
+          value = value.length;
+        }
+        if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && typeof value === 'undefined') {
+          value = '[]';
+        }
+        setFilledByAiMap(prev => ({
+          ...prev,
+          [controlId]: typeof value === 'undefined' ? false : true,
+        }));
+        // 使用 ref 获取最新状态，避免并发更新时状态覆盖
+        const newFormdata = formdataRef.current.map(item => (item.controlId === controlId ? { ...item, value } : item));
+        setFormdata(newFormdata);
+        formdataRef.current = newFormdata;
+        setRandom(Math.random().toString());
+      } else {
+        handleMingoSaveTempRecord();
+      }
+    }
+    if (cache.current.formLoading) {
+      cache.current.pendingFunctions.push(handle);
+    } else {
+      handle();
+    }
+  });
+
+  const handleMingoSaveTempRecord = useCallback(() => {
+    setFormdata(prev => {
+      saveTempRecordValueToLocal(
+        'tempNewRecordFromMingo',
+        worksheetId,
+        JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(prev) }),
+      );
+      return prev;
+    });
+  }, []);
+
+  const handleResetForm = useCallback(() => {
+    setFormdata(cache.current.originFormdata);
+    setRandom(Math.random());
+    setFilledByAiMap({});
+  }, [originFormdata]);
+
+  useEffect(() => {
+    emitter.on('MINGO_TRIGGER_ACTION', handleMingoTriggerAction);
+    emitter.on('MINGO_NEW_RECORD_CLEAN', handleResetForm);
+    window.newRecordActive = true;
+    return () => {
+      emitter.off('MINGO_TRIGGER_ACTION', handleMingoTriggerAction);
+      emitter.off('MINGO_NEW_RECORD_CLEAN', handleResetForm);
+      window.newRecordActive = false;
+    };
+  }, []);
+
+  const handleMobileFillValueByAi = aiData => {
+    setFormdata(prev => prev.map(item => (aiData[item.controlId] ? { ...item, value: aiData[item.controlId] } : item)));
+    // 手动重置表单
+    setIsRenderForm(false);
+    setTimeout(() => {
+      setIsRenderForm(true);
+    }, 300);
+  };
+
+  useEffect(() => {
+    if (isMobile) {
+      emitter.on('MINGO_FILL_NEW_RECORD_VALUE_BY_AI_MOBILE', handleMobileFillValueByAi);
+    }
+    return () => {
+      if (isMobile) {
+        emitter.off('MINGO_FILL_NEW_RECORD_VALUE_BY_AI_MOBILE', handleMobileFillValueByAi);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    updateTitle(recordTitle);
+  }, [recordTitle]);
+
+  useEffect(() => {
+    return () => {
+      if (isMingoCreate) {
+        emitter.emit('NEW_RECORD_UNMOUNT');
+      }
+    };
+  }, []);
 
   return (
     <RecordInfoContext.Provider
@@ -624,6 +752,7 @@ function NewRecordForm(props) {
               removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
               setFormdata(originFormdata);
               setRandom(Math.random());
+              setFilledByAiMap({});
               setRestoreVisible(false);
             }}
           />
@@ -648,15 +777,20 @@ function NewRecordForm(props) {
                 removeTempRecordValueFromLocal('tempNewRecord', worksheetId);
                 setFormdata(originFormdata);
                 setRandom(Math.random());
+                setFilledByAiMap({});
                 setRestoreVisible(false);
               }}
             />
           </EditingBarCon>
         )}
         <RecordCon
-          className={cx({
-            fixedLeftOrRight: _.includes(['3', '4'], _.get(worksheetInfo.advancedSetting, 'tabposition')),
-          })}
+          {...(!notDialog
+            ? {
+                className: cx('newRecordScrollContainer', {
+                  fixedLeftOrRight: _.includes(['3', '4'], _.get(worksheetInfo.advancedSetting, 'tabposition')),
+                }),
+              }
+            : {})}
         >
           {!window.isPublicApp && shareVisible && (
             <Share
@@ -698,112 +832,119 @@ function NewRecordForm(props) {
           )}
           {showTitle && <div className="newRecordTitle ellipsis Font20 mBottom10 Bold">{recordTitle}</div>}
           <div className="customFieldsCon" ref={formcon}>
-            <RecordForm
-              from={2}
-              isDraft={isDraft}
-              type="new"
-              loading={formLoading || loading || isSettingTempData}
-              recordbase={{
-                appId,
-                worksheetId,
-                viewId,
-                from,
-                isCharge,
-                allowEdit: true,
-              }}
-              sheetSwitchPermit={sheetSwitchPermit}
-              widgetStyle={worksheetInfo.advancedSetting}
-              masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
-              registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
-              mountRef={ref => (customwidget.current = ref.current)}
-              formFlag={random}
-              recordinfo={worksheetInfo}
-              formdata={formdata.filter(
-                it =>
-                  !_.includes(
-                    [
-                      'wfname',
-                      'wfstatus',
-                      'wfcuaids',
-                      'wfrtime',
-                      'wfftime',
-                      'wfdtime',
-                      'wfcaid',
-                      'wfctime',
-                      'wfcotime',
-                      'rowid',
-                      'uaid',
-                    ],
-                    it.controlId,
-                  ),
-              )}
-              relateRecordData={relateRecordData}
-              worksheetId={worksheetId}
-              showError={errorVisible}
-              onChange={(data, ids, { noSaveTemp } = {}) => {
-                if (isSubmitting.current || maskLoading) {
-                  return;
-                }
-                setFormdata([...data]);
-                if (needCache && !noSaveTemp && cache.current.formUserChanged) {
-                  cache.current.tempSaving = saveTempRecordValueToLocal(
-                    'tempNewRecord',
-                    worksheetId,
-                    JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
-                  );
-                }
-              }}
-              onSave={onSave}
-              onError={() => {
-                onSubmitEnd();
-              }}
-              onRelateRecordsChange={(control, records) => {
-                if (!customwidget.current) {
-                  return;
-                }
-                customwidget.current.dataFormat.updateDataSource({
-                  controlId: control.controlId,
-                  value: String((records || []).length),
-                  data: records,
-                });
-                customwidget.current.updateRenderData();
-                setFormdata(
-                  formdata.map(item =>
-                    item.controlId === control.controlId ? { ...item, value: String((records || []).length) } : item,
-                  ),
-                );
-                const newRelateRecordData = {
-                  ...relateRecordData,
-                  [control.controlId]: { ...control, value: records },
-                };
-                setRelateRecordData(newRelateRecordData);
-                if (viewId) {
-                  cache.current.tempSaving = saveTempRecordValueToLocal(
-                    'tempNewRecord',
-                    worksheetId,
-                    JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
-                  );
-                }
-              }}
-              updateRelateRecordTableCount={(controlId, num) => {
-                if (customwidget.current) {
+            {(!isMobile || isRenderForm) && (
+              <RecordForm
+                from={2}
+                isDraft={isDraft}
+                type="new"
+                loading={formLoading || loading || isSettingTempData}
+                recordbase={{
+                  appId,
+                  worksheetId,
+                  viewId,
+                  from,
+                  isCharge,
+                  allowEdit: true,
+                }}
+                sheetSwitchPermit={sheetSwitchPermit}
+                widgetStyle={worksheetInfo.advancedSetting}
+                masterRecordRowId={masterRecordRowId || (masterRecord || {}).rowId}
+                registerCell={({ item, cell }) => (cellObjs.current[item.controlId] = { item, cell })}
+                mountRef={ref => (customwidget.current = ref.current)}
+                formFlag={random}
+                recordinfo={worksheetInfo}
+                formdata={formdata.filter(
+                  it =>
+                    !_.includes(
+                      [
+                        'wfname',
+                        'wfstatus',
+                        'wfcuaids',
+                        'wfrtime',
+                        'wfftime',
+                        'wfdtime',
+                        'wfcaid',
+                        'wfctime',
+                        'wfcotime',
+                        'rowid',
+                        'uaid',
+                      ],
+                      it.controlId,
+                    ),
+                )}
+                relateRecordData={relateRecordData}
+                worksheetId={worksheetId}
+                showError={errorVisible}
+                filledByAiMap={filledByAiMap}
+                onChange={(data, ids, { noSaveTemp } = {}) => {
+                  setFilledByAiMap(prev => ({
+                    ...prev,
+                    [ids[0]]: undefined,
+                  }));
+                  if (isSubmitting.current || maskLoading) {
+                    return;
+                  }
+                  setFormdata([...data]);
+                  if (needCache && !noSaveTemp && cache.current.formUserChanged) {
+                    cache.current.tempSaving = saveTempRecordValueToLocal(
+                      saveKey,
+                      worksheetId,
+                      JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(data, relateRecordData) }),
+                    );
+                  }
+                }}
+                onSave={onSave}
+                onError={() => {
+                  onSubmitEnd();
+                }}
+                onRelateRecordsChange={(control, records) => {
+                  if (!customwidget.current) {
+                    return;
+                  }
                   customwidget.current.dataFormat.updateDataSource({
-                    controlId,
-                    value: String(num),
+                    controlId: control.controlId,
+                    value: String((records || []).length),
+                    data: records,
                   });
                   customwidget.current.updateRenderData();
-                }
-                setFormdata(prevFormData =>
-                  prevFormData.map(item => (item.controlId === controlId ? { ...item, value: String(num) } : item)),
-                );
-              }}
-              projectId={projectId || props.projectId}
-              onWidgetChange={() => {
-                onWidgetChange();
-                cache.current.formUserChanged = true;
-              }}
-              onManualWidgetChange={onManualWidgetChange}
-            />
+                  setFormdata(
+                    formdata.map(item =>
+                      item.controlId === control.controlId ? { ...item, value: String((records || []).length) } : item,
+                    ),
+                  );
+                  const newRelateRecordData = {
+                    ...relateRecordData,
+                    [control.controlId]: { ...control, value: records },
+                  };
+                  setRelateRecordData(newRelateRecordData);
+                  if (viewId) {
+                    cache.current.tempSaving = saveTempRecordValueToLocal(
+                      'tempNewRecord',
+                      worksheetId,
+                      JSON.stringify({ create_at: Date.now(), value: getRecordTempValue(formdata, relateRecordData) }),
+                    );
+                  }
+                }}
+                updateRelateRecordTableCount={(controlId, num) => {
+                  if (customwidget.current) {
+                    customwidget.current.dataFormat.updateDataSource({
+                      controlId,
+                      value: String(num),
+                    });
+                    customwidget.current.updateRenderData();
+                  }
+                  setFormdata(prevFormData =>
+                    prevFormData.map(item => (item.controlId === controlId ? { ...item, value: String(num) } : item)),
+                  );
+                }}
+                projectId={projectId || props.projectId}
+                onWidgetChange={() => {
+                  onWidgetChange();
+                  cache.current.formUserChanged = true;
+                }}
+                onManualWidgetChange={onManualWidgetChange}
+              />
+            )}
           </div>
         </RecordCon>
       </Con>

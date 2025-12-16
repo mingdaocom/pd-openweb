@@ -92,8 +92,8 @@
       &.BGYellow {
         background: #ffa340;
       }
-      &.BGViolet {
-        background: #7e57c2;
+      &.BGDarkRed {
+        background: #a00416;
       }
       &.BGBlueAsh {
         background: #4c7d9e;
@@ -112,6 +112,9 @@
       }
       &.BGRed {
         background: #f15b75;
+      }
+      &.BGDarkViolet {
+        background: #6e09f9;
       }
       input {
         height: 34px;
@@ -243,6 +246,20 @@
             .Item-content {
               padding: 0;
             }
+          }
+        }
+        &.flowDropdownModel {
+          .icon-AI_Agent {
+            color: #2196f3;
+          }
+          .icon-deepseek {
+            color: #4d6bfe;
+          }
+          .icon-chatgpt {
+            color: #000;
+          }
+          .icon-Qwen {
+            color: #615ced;
           }
         }
         .Dropdown--border {
@@ -738,6 +755,28 @@
         }
       }
     }
+    .flowSelectModel {
+      border-radius: 4px;
+      height: 36px;
+      border: 1px solid #ddd;
+      padding: 0 10px;
+      cursor: pointer;
+      &:hover {
+        border-color: #2196f3;
+      }
+      .icon-AI_Agent {
+        color: #2196f3;
+      }
+      .icon-deepseek {
+        color: #4d6bfe;
+      }
+      .icon-chatgpt {
+        color: #000;
+      }
+      .icon-Qwen {
+        color: #615ced;
+      }
+    }
   }
   .tagInputarea {
     &.minH100 {
@@ -760,6 +799,14 @@
         }
       }
     }
+    &.onlyOneValue {
+      .CodeMirror {
+        background: #f8f8f8;
+      }
+      .columnTagCon {
+        max-width: 95%;
+      }
+    }
     .tagInputareaIuput {
       border-color: #ddd !important;
       border-radius: 4px 0 0 4px;
@@ -768,13 +815,6 @@
       &:not(.active) {
         border-color: #ddd !important;
       }
-    }
-  }
-  .workflowDetailTipsWidth {
-    &::after {
-      width: 280px !important;
-      white-space: normal;
-      word-break: break-all;
     }
   }
   .fomulaFnList {
@@ -1177,6 +1217,14 @@
         .CodeMirror-lines {
           padding: 1px 0;
         }
+      }
+    }
+    &.onlyOneValue {
+      .CodeMirror {
+        background: #f8f8f8;
+      }
+      .columnTagCon {
+        max-width: 95%;
       }
     }
     .tagInputareaIuput {

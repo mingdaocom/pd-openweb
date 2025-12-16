@@ -2,12 +2,10 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { Divider } from 'antd';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
-import departmentController from 'src/api/department';
 import { getFieldsData, maskValue } from 'src/pages/Admin/security/account/utils';
 import DepartmentFullName from './DepartmentFullName';
 
@@ -41,8 +39,10 @@ const UserProjectInfoWrap = styled.div`
   .itemInfo {
     width: ${({ rowNum }) => (rowNum ? `calc((100% - 0px) / ${rowNum})` : '100%')};
     overflow: hidden;
-    height: 30px;
     line-height: 30px;
+  }
+  .personalDepartment {
+    min-width: 0;
   }
   .maskIcon {
     display: inline-block;
@@ -104,38 +104,28 @@ const ProjectsMenuCon = styled.div`
 
 // 个人资料基础信息、名片层
 export default function UserBaseProfile(props) {
-  const { className, isCard, infoWrapClassName, projects, userInfo, rowNum, isAddressBook, updateUserInfo } = props;
+  const {
+    className,
+    isCard,
+    infoWrapClassName,
+    projects,
+    userInfo,
+    rowNum,
+    isAddressBook,
+    updateUserInfo,
+    onContentLoaded,
+  } = props;
   const { isPrivateEmail, isPrivateMobile, cardSetList = [] } = userInfo;
-  const [
-    { popupVisible, currentUserProject, fullDepartmentInfo, cardInfoData, fullDepartmentLoading, mainDepartmentId },
-    setState,
-  ] = useSetState({
+  const [{ popupVisible, currentUserProject, cardInfoData }, setState] = useSetState({
     popupVisible: false,
     currentUserProject: props.currentUserProject || {},
-    fullDepartmentInfo: {},
     cardInfoData: getFieldsData(isCard, isCard ? cardSetList : _.get(props.currentUserProject, 'personalSetList')),
-    fullDepartmentLoading: false,
-    mainDepartmentId: _.get(props, 'currentUserProject.departmentInfos[0].departmentId') || '',
   });
-  const noProject = _.isEmpty(currentUserProject);
-
-  const getDepartmentFullName = (departmentIds = []) => {
-    departmentIds = departmentIds.filter(it => !fullDepartmentInfo[it]);
-
-    if (_.isEmpty(departmentIds)) {
-      return;
-    }
-    setState({ fullDepartmentLoading: true });
-    departmentController
-      .getDepartmentFullNameByIds({ projectId: currentUserProject.projectId, departmentIds })
-      .then(res => {
-        setState({ fullDepartmentLoading: false });
-        res.forEach(it => {
-          fullDepartmentInfo[it.id] = it.name;
-        });
-        setState({ fullDepartmentInfo });
-      });
-  };
+  const noProject =
+    _.isEmpty(currentUserProject) ||
+    !currentUserProject.projectId ||
+    get(userInfo, 'accountId', '').startsWith('virtualuser-');
+  const departmentInfos = isCard ? userInfo.departmentInfos : currentUserProject.departmentInfos;
 
   const renderProjects = () => {
     return (
@@ -151,7 +141,6 @@ export default function UserBaseProfile(props) {
                     currentUserProject: item,
                     popupVisible: false,
                     cardInfoData: getFieldsData(isCard, isCard ? cardSetList : _.get(item, 'personalSetList')),
-                    mainDepartmentId: _.get(item, 'departmentInfos[0].departmentId') || '',
                   })
                 }
               >
@@ -171,23 +160,20 @@ export default function UserBaseProfile(props) {
     });
   }, [props.currentUserProject]);
 
-  useEffect(() => {
-    if (currentUserProject && currentUserProject.useMultiJobs) {
-      getDepartmentFullName(currentUserProject.departmentJobInfos.map(item => item.department.id));
-    } else {
-      if (mainDepartmentId) {
-        getDepartmentFullName([mainDepartmentId]);
-      }
-    }
-  }, [mainDepartmentId, currentUserProject]);
-
   const getFilterDisplayData = data => {
-    return data.filter(
-      item =>
-        (isCard ? userInfo[item.id] : !(currentUserProject.useMultiJobs && ['department', 'job'].includes(item.id))) &&
+    return data.filter(item => {
+      let showFields = _.includes(['currentDepartmentFullName', 'currentDepartmentName'], item.id)
+        ? userInfo.departmentInfos && !!userInfo.departmentInfos.length
+        : _.includes(['currentJobTitleName'], item.id) && currentUserProject.projectId
+          ? userInfo.jobInfos && !!userInfo.jobInfos.length
+          : userInfo[item.id];
+
+      return (
+        (isCard ? showFields : !(currentUserProject.useMultiJobs && ['department', 'job'].includes(item.id))) &&
         !(isPrivateMobile && item.id === 'mobilePhone') &&
-        !(isPrivateEmail && item.id === 'email'), // 个人账户-账户与隐私 设置手机号/邮箱仅自己可见时用户卡片不显示手机/邮箱信息
-    );
+        !(isPrivateEmail && item.id === 'email')
+      ); // 个人账户-账户与隐私 设置手机号/邮箱仅自己可见时用户卡片不显示手机/邮箱信息
+    });
   };
 
   return (
@@ -230,9 +216,17 @@ export default function UserBaseProfile(props) {
                   <div className={isAddressBook ? 'flexColumn' : 'flexRow'}>
                     <div className="itemInfo flexRow">
                       <div className={cx('Gray_75', { mRight8: isCard })}>{isCard ? _l('部门') : _l('部门：')}</div>
-                      <div className="flex ellipsis mRight5">
-                        <DepartmentFullName currentDepartmentFullName={fullDepartmentInfo[item.department?.id]} />
-                      </div>
+                      <DepartmentFullName
+                        className="flex mRight5 personalDepartment"
+                        projectId={currentUserProject.projectId}
+                        departmentInfos={[
+                          {
+                            departmentId: _.get(item, 'department.id'),
+                            departmentName: _.get(item, 'department.name'),
+                          },
+                        ]}
+                        onContentLoaded={onContentLoaded}
+                      />
                     </div>
                     <div className="itemInfo flexRow">
                       <div className={cx('Gray_75', { mRight8: isCard })}>{isCard ? _l('职位') : _l('职位：')}</div>
@@ -251,9 +245,14 @@ export default function UserBaseProfile(props) {
           )}
         </React.Fragment>
       )}
-
       <div className={`infoWrap ${infoWrapClassName}`}>
         {getFilterDisplayData(noProject ? NoProjectCardInfoData : cardInfoData).map(item => {
+          const fieldValue = _.includes(['currentDepartmentFullName', 'currentDepartmentName'], item.id)
+            ? !!userInfo.departmentInfos.length
+            : _.includes(['currentJobTitleName'], item.id) && currentUserProject.projectId
+              ? !!userInfo.jobInfos.length
+              : userInfo[item.id];
+
           return (
             <div key={item.id} className="itemInfo flexRow">
               <div className={cx('Gray_75', { mRight8: isCard })}>
@@ -267,23 +266,30 @@ export default function UserBaseProfile(props) {
                   ) : (
                     userInfo[item.id]
                   )
-                ) : isCard && userInfo[item.id] ? (
-                  item.id === 'currentDepartmentFullName' ? (
-                    <DepartmentFullName currentDepartmentFullName={userInfo[item.id]} />
+                ) : isCard && fieldValue ? (
+                  _.includes(['currentDepartmentFullName', 'currentDepartmentName'], item.id) &&
+                  userInfo.departmentInfos.length ? (
+                    <DepartmentFullName
+                      noPath={item.id === 'currentDepartmentName'}
+                      projectId={currentUserProject.projectId}
+                      departmentInfos={departmentInfos}
+                      onContentLoaded={onContentLoaded}
+                    />
+                  ) : item.id === 'currentJobTitleName' && userInfo.jobInfos.length && currentUserProject.projectId ? (
+                    <span title={(userInfo.jobInfos || []).map(item => item.jobName).join(';')}>
+                      {(userInfo.jobInfos || []).map(item => item.jobName).join(';')}
+                    </span>
                   ) : (
                     userInfo[item.id]
                   )
                 ) : currentUserProject[item.id] ? (
                   item.id === 'department' ? (
-                    fullDepartmentLoading ? (
-                      <LoadDiv size="small" style={{ textAlign: 'left!important' }} />
-                    ) : (
-                      <DepartmentFullName
-                        currentDepartmentFullName={
-                          mainDepartmentId ? fullDepartmentInfo[mainDepartmentId] : currentUserProject[item.id]
-                        }
-                      />
-                    )
+                    <DepartmentFullName
+                      className="flex ellipsis mRight5"
+                      projectId={currentUserProject.projectId}
+                      departmentInfos={departmentInfos}
+                      onContentLoaded={onContentLoaded}
+                    />
                   ) : (
                     currentUserProject[item.id]
                   )

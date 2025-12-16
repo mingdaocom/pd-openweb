@@ -1,13 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import { dialogSelectUser } from 'ming-ui/functions';
 import InviteController from 'src/api/invitation';
 import addFriends from 'src/components/addFriends';
 import AddFriends from 'src/components/addFriends';
 import createGroup from 'src/pages/Group/createGroup';
-import { existAccountHint } from 'src/utils/common';
+import { existAccountHint } from 'src/utils/inviteCommon';
 
 export default class SearchBar extends React.Component {
   constructor(props) {
@@ -94,16 +95,18 @@ export default class SearchBar extends React.Component {
             value={this.state.value}
           />
         </div>
-        <span data-tip={tip}>
-          <Icon
-            icon={isGroup ? 'group_add' : 'invite'}
-            className={cx(
-              'contacts-search-addbtn pLeft12 pRight20 Gray_9e Hand ThemeHoverColor3',
-              isGroup ? 'Font22' : 'Font18 mLeft5',
-            )}
-            onClick={this.addHandler}
-          />
-        </span>
+        <Tooltip title={tip}>
+          <span>
+            <Icon
+              icon={isGroup ? 'group_add' : 'invite'}
+              className={cx(
+                'contacts-search-addbtn pLeft12 pRight20 Gray_9e Hand ThemeHoverColor3',
+                isGroup ? 'Font22' : 'Font18 mLeft5',
+              )}
+              onClick={this.addHandler}
+            />
+          </span>
+        </Tooltip>
       </div>
     );
   }

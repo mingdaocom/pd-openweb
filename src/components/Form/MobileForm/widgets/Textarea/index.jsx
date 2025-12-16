@@ -1,11 +1,10 @@
-import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Linkify } from 'ming-ui';
+import { Linkify } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { addBehaviorLog } from 'src/utils/project.js';
 import TextMarkdown from '../../../components/TextMarkdown';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 import { getIsScanQR } from '../../components/ScanQRCode';
@@ -31,13 +30,13 @@ const TextareaWrap = styled.div`
     width: 100% !important;
     height: 100% !important;
     line-height: 1.5;
-    color: var(--gray-bd) !important;
+    color: var(--color-text-disabled) !important;
     white-space: pre-wrap;
     word-break: break-all;
   }
   .customFormTextarea {
     box-sizing: border-box;
-    border: 1px solid var(--gray-e0);
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     padding: 6px 12px;
     width: 100%;
@@ -52,7 +51,6 @@ const TextareaWrap = styled.div`
 const Textarea = props => {
   const {
     className,
-    maskPermissions,
     enumDefault,
     value = '',
     advancedSetting = {},
@@ -63,6 +61,9 @@ const Textarea = props => {
     formData,
     disabled,
     formDisabled,
+    renderMaskContent = () => {},
+    handleMaskClick = () => {},
+    showMaskValue = false,
   } = props;
   let { hint } = props;
   const startTextScanCode = !disabled && isScanQR && advancedSetting.scantype;
@@ -83,11 +84,7 @@ const Textarea = props => {
   const isOnComposition = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
-  const [maskStatus, setMaskStatus] = useState(advancedSetting.datamask === '1');
   const [currentValue, setCurrentValue] = useState(getEditValue());
-  const isMask = useMemo(() => {
-    return maskPermissions && enumDefault === 2 && value && maskStatus;
-  }, [maskPermissions, enumDefault, value, maskStatus]);
 
   const onFocus = event => {
     setOriginValue(event.target.value.trim());
@@ -104,7 +101,7 @@ const Textarea = props => {
       props.onChange(trimValue);
     }
     setIsEditing(false);
-    setMaskStatus(advancedSetting.datamask === '1');
+    handleMaskClick();
     if (window.isWeiXin) {
       // 处理微信webview键盘收起 网页未撑开
       window.scrollTo(0, 0);
@@ -117,7 +114,7 @@ const Textarea = props => {
     const value = getEditValue();
 
     if (value) {
-      if (maskStatus) {
+      if (showMaskValue) {
         return dealMaskValue({ ...props, value });
       }
       return isUnLink ? (
@@ -150,7 +147,7 @@ const Textarea = props => {
       event.preventDefault();
     } else if (!disabled && !disableManual) {
       setIsEditing(true);
-      setMaskStatus(false);
+      handleMaskClick();
       textareaRef.current.focus();
     }
   };
@@ -197,7 +194,7 @@ const Textarea = props => {
         id={`textareaPointEvents-${controlId}`}
         startTextScanCode={startTextScanCode}
         disabled={disabled}
-        isMask={isMask}
+        isMask={showMaskValue}
         hint={!value && hint}
       >
         <div
@@ -211,19 +208,9 @@ const Textarea = props => {
           }}
           onClick={joinTextareaEdit}
         >
-          <span
-            onClick={() => {
-              if (disabled && isMask) {
-                addBehaviorLog('worksheetDecode', props.worksheetId, {
-                  rowId: props.recordId,
-                  controlId: props.controlId,
-                });
-                setMaskStatus(false);
-              }
-            }}
-          >
+          <span onClick={handleMaskClick}>
             {getShowValue()}
-            {isMask && <Icon icon="eye_off" className={cx('commonFormIcon', disabled ? 'mLeft7' : 'maskIcon')} />}
+            {renderMaskContent()}
           </span>
         </div>
         {!disabled && !disableInput && (
@@ -276,7 +263,6 @@ Textarea.propTypes = {
   className: PropTypes.string,
   hint: PropTypes.string,
   disabled: PropTypes.bool,
-  maskPermissions: PropTypes.bool,
   // 1: 多行文本框, 0: 单行文本框
   enumDefault: PropTypes.number,
   strDefault: PropTypes.string,
@@ -293,7 +279,7 @@ Textarea.propTypes = {
 
 export default memo(Textarea, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'controlId', 'formDisabled']),
-    _.pick(nextProps, ['value', 'disabled', 'controlId', 'formDisabled']),
+    _.pick(prevProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue']),
+    _.pick(nextProps, ['value', 'disabled', 'controlId', 'formDisabled', 'showMaskValue']),
   );
 });

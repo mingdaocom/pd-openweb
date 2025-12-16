@@ -121,7 +121,7 @@ export default function (props) {
               alert(_l('当前门户不在设置的注册时间范围内，暂不支持注册'), 3);
             }
             if (data.actionResult == ActionResult.balanceIsInsufficient) {
-              alert(_l('当前企业账户余额不足，无法发送短信/邮件'), 2);
+              alert(_l('当前企业账户信用点不足，无法发送短信/邮件'), 2);
             }
             // 非第一次
             if (codeType == CodeTypeEnum.message) {

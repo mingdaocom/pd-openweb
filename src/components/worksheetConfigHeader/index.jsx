@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Tabs } from 'ming-ui';
+import { useGlobalStore } from 'src/common/GlobalStore';
 import { navigateTo } from 'src/router/navigateTo';
 import { toEditWidgetPage } from '../../pages/widgetConfig/util';
 import './index.less';
@@ -16,7 +17,14 @@ import './index.less';
  * &templateId={templateId} 模板 id
  */
 
-export default class WorksheetConfigHeader extends Component {
+export default function WorksheetConfigHeader(props) {
+  const {
+    store: { mingoCreateWorksheetAction },
+  } = useGlobalStore();
+  return <WorksheetConfigHeaderComponent {...props} mingoCreateWorksheetAction={mingoCreateWorksheetAction} />;
+}
+
+class WorksheetConfigHeaderComponent extends Component {
   static propTypes = {
     appId: PropTypes.string,
     worksheetId: PropTypes.string,
@@ -43,7 +51,6 @@ export default class WorksheetConfigHeader extends Component {
   currentModuleName = location.pathname.replace(/.*\/worksheet/, '/worksheet').split('/')[2];
 
   handleRedirect(modulename) {
-    // TODO: 跳转逻辑待细化
     const { worksheetId, onBack } = this.props;
     const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
       ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
@@ -81,7 +88,8 @@ export default class WorksheetConfigHeader extends Component {
   }
 
   render() {
-    const { showSaveButton, saveLoading, worksheetName, onBack, onSave, onClose } = this.props;
+    const { showSaveButton, saveLoading, worksheetName, onBack, onSave, onClose, mingoCreateWorksheetAction } =
+      this.props;
     return (
       <div className="worksheetConfigHeader">
         <div className="customHeadBox flexRow">
@@ -89,29 +97,31 @@ export default class WorksheetConfigHeader extends Component {
             <i className="ming Icon icon icon-backspace Font24" />
           </span>
           <div className="editDetailWrap">
-            <div onClick={onBack} className="flexCenter">
+            <div onClick={onBack} className="flexCenter configPageName">
               <span className="overflow_ellipsis pointer InlineBlock" style={{ maxWidth: '360px' }}>
                 {worksheetName}
               </span>
             </div>
           </div>
-          <Tabs
-            className="tabs"
-            active={this.currentModuleName}
-            tabs={[
-              { value: 'field', text: _l('编辑表单') },
-              { value: 'formSet', text: _l('更多设置') },
-              { value: 'form', text: _l('扩展功能') },
-            ]}
-            onChange={tab => {
-              this.handleRedirect(tab.value);
-            }}
-          />
+          {!mingoCreateWorksheetAction && (
+            <Tabs
+              className="tabs"
+              active={this.currentModuleName}
+              tabs={[
+                { value: 'field', text: _l('编辑表单') },
+                { value: 'formSet', text: _l('更多设置') },
+                { value: 'form', text: _l('扩展功能') },
+              ]}
+              onChange={tab => {
+                this.handleRedirect(tab.value);
+              }}
+            />
+          )}
           <Button className="closeConfigPage" onClick={onClose}>
             {_l('关闭')}
           </Button>
           {showSaveButton && (
-            <Button onClick={onSave} className="btn-loading" loading={saveLoading}>
+            <Button onClick={onSave} className="btn-loading saveConfigPage" loading={saveLoading}>
               {_l('保存')}
             </Button>
           )}

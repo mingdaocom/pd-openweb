@@ -1,8 +1,9 @@
 import base, { controllerName } from './base';
+
 /**
  * translator
-*/
-var translator = {
+ */
+const translator = {
   /**
    * 获取流程翻译详情
    * @param {Object} args 请求参数
@@ -11,7 +12,7 @@ var translator = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getProcessTranslator: function(args, options) {
+  getProcessTranslator: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/translator/getProcessTranslator';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'translatorgetProcessTranslator', args, $.extend(base, options));
@@ -25,7 +26,7 @@ var translator = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getProcessTranslatorList: function(args, options) {
+  getProcessTranslatorList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/translator/getProcessTranslatorList';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'translatorgetProcessTranslatorList', args, $.extend(base, options));

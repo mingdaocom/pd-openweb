@@ -1,6 +1,16 @@
 .appManagementList {
+  overflow-x: auto;
+  overflow-y: hidden;
+  .appManagementContent {
+    flex: 1;
+    min-height: 0;
+    min-width: 1000px;
+  }
   .columnWidth {
     width: 120px;
+    &.terminal {
+      width: 160px;
+    }
     @media (max-width: 1360px) {
       width: 100px;
       &.dataBase {

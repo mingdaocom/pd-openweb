@@ -74,10 +74,12 @@ function loadPosts(options, pageOptions, currentCount = 0) {
           more: parseInt(res.count, 10) > currentCount,
         };
       } catch (e) {
-        return Promise.reject(e);
+        throw new Error(e);
       }
     },
-    e => Promise.reject(e),
+    e => {
+      throw new Error(e);
+    },
   );
 }
 

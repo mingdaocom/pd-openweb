@@ -5,7 +5,7 @@ import { DragSource } from 'react-dnd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Tooltip from 'ming-ui/components/Tooltip';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatTaskTime } from '../../../../utils/utils';
 import config from '../../config/config';
 import utils from '../../utils/utils';
@@ -700,15 +700,7 @@ export default class TimeBars extends Component {
     const offset = [this.state.offsetX, 1];
 
     return (
-      <Tooltip
-        popupPlacement="top"
-        text={this.tooltip()}
-        themeColor="white"
-        mouseEnterDelay={0.5}
-        offset={offset}
-        overflow={[0, 0]}
-        autoCloseDelay={0}
-      >
+      <Tooltip title={this.tooltip()} type="white" mouseEnterDelay={0.5} align={{ offset, overflow: [0, 0] }}>
         <div
           className={cx(
             'timeBars pointer',

@@ -1,25 +1,93 @@
 :root {
-  /* 主色系 */
-  --color-primary: #1677ff; /* 淡色主题的主题色 */
-  --color-secondary: #151515; /* 淡色主题的次要色 */
-  --color-third: #ffffff; /* 纯白 */
+  /* ================= 主色 =================
+   一般为蓝色。用于：主按钮/高亮控件、选中态、可点击元素的聚焦与强调。可由平台级进行定义
+*/
+  --color-primary: #1677ff; /* 主色：按钮、填充、图标、文字强调、聚焦、关键图标 */
+  --color-primary-light: #4096ff; /* 稍浅：hover */
+  --color-primary-dark: #0958d9; /* 稍深：按下，深度强调 */
+  --color-primary-focus: #1677ff; /* 聚焦环主色 */
+  --color-primary-focus-outer: rgba(22, 119, 255, 0.4); /* 外发光式聚焦环，增加层级 */
+  --color-primary-transparent: rgba(22, 119, 255, 0.12); /* 透明覆盖：高亮、浅色背景、点击反馈（随底层混色） */
 
-  /* 灰色系 */
-  --gray-75: #757575; /* 灰色75 */
-  --gray-9e: #9e9e9e; /* 灰色9e */
-  --gray-bd: #bdbdbd; /* 灰色bd */
-  --gray-e0: #e0e0e0; /* 灰色e0 */
-  --gray-f3: #f3f3f3; /* 灰色f3 */
-  --gray-f5: #f5f5f5; /* 灰色f5 */
-  --gray-f7: #f7f7f7; /* 灰色f7 */
-  --gray-f8: #f8f8f8; /* 灰色f8 */
-  --gray-f9: #f9f9f9; /* 灰色f9 */
+  /* ================= 应用色 =================
+ 应用色为变量，由各个模块定义（应用，Mingo的主题色），未传入时和主色一致。dark=color-7（dark） 和 light=color-5
+ 用于：应用主界面中的按钮等元素等需要和应用主色保持一致时使用。（非全局使用）
+*/
+  --color-app: #1677ff; /* 主色：Primary 按钮填充、主链接强调、关键图标 */
+  --color-app-light: #4096ff; /* 稍浅：按钮 hover */
+  --color-app-dark: #0958d9; /* 稍深：按下，深度强调 */
+  --color-app-transparent: rgba(22, 119, 255, 0.12); /* 透明覆层：高亮、浅色背景、点击反馈（随底层混色） */
 
-  /* shadow*/
-  --shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
+  /* mingo */
+  --color-mingo: #6e09f9; /* 主色：Primary 按钮填充、主链接强调、关键图标 */
+  --color-mingo-light: #8f33ff; /* 稍浅：按钮 hover */
+  --color-mingo-dark: #5100d4; /* 稍深：按下，深度强调 */
+  --color-mingo-transparent: rgba(110, 9, 249, 0.12); /* 透明覆层：高亮、浅色背景、点击反馈（随底层混色） */
 
-  /* 错误和提示 */
-  --color-error: #f44336; /* 错误色 */
-  --color-warning: #f5ab02; /* 警告色 */
-  --color-success: #4caf50; /* 成功色 */
+  /* ================= 背景色（页面层级与容器） =================
+ 用于：页面底色、卡片/面板、分组区块、蒙层
+ 注意：secondary/tertiary 用于分层；card 与 primary 同为白底但语义不同，用于适应深色主题分层
+*/
+  --color-background-primary: #ffffff; /* 页面主底：整页背景、表单页背景 */
+  --color-background-secondary: #fafafa; /* 极浅背景：浅色整页背景、空态占位底 */
+  --color-background-tertiary: #f5f5f5; /* 稍深背景：区块/分组背景、按钮/列表hover */
+  --color-background-disabled: #f0f0f0; /* 禁用背景：禁用按钮、禁用输入框 */
+  --color-background-card: #ffffff; /* 菜单/弹窗/面板：与页面主底区分语义（适合暗色主题处理） */
+  --color-background-hover: #f5f5f5; /* hover背景：区分语义（适合暗色主题处理） */
+  --color-background-overlay: rgba(0, 0, 0, 0.5); /* 蒙层：抽屉/模态对话框遮罩 */
+  --color-background-inverse: #1e1e1e; /* 反色底：深色页（code）、反色页脚、徽章 */
+
+  /* ================= 文本色（信息层级） =================
+ 用于：正文、标题、说明、禁用与反色文本
+*/
+  --color-text-primary: #151515; /* 主文案/大标题：正文内容、表单标签、一级标题 */
+  --color-text-secondary: #757575; /* 说明文案：帮助文本、次要信息、时间戳 */
+  --color-text-tertiary: #9e9e9e; /* 弱化说明：表格次要列、占位性提示 */
+  --color-text-title: #515151; /* 次标题/段落标题：卡片标题、分组标题 */
+  --color-text-placeholder: #ccc; /* 输入框占位：仅placeholder，避免与 disabled 混用 */
+  --color-text-disabled: #bdbdbd; /* 禁用文案：禁用按钮/输入/菜单项文字 */
+  --color-text-inverse: #ffffff; /* 反色文本：深色背景上的文字（Banner/Tag/按钮） */
+
+  /* ================= 边框色（分隔与可交互状态） =================
+ 用于：卡片分隔、输入框/选择器边界、禁用/聚焦状态
+ 注意：focus 时遵循主品牌色；disabled 与次级边框区分开
+*/
+  --color-border-primary: #dddddd; /* 常规边框：输入框/卡片/面板/列表项外框/按钮边界 */
+  --color-border-secondary: #eaeaea; /* 轻分隔：表格行分割、列表内部分隔线 */
+  --color-border-tertiary: #cccccc; /* 强分割：页面区域分割 */
+  --color-border-hover: #bdbdbd; /* 边框悬停：输入框/按钮 hover 边框 */
+  --color-border-strong: #9e9e9e; /* 强强调：拖拽区域、高对比轮廓 */
+
+  /* ================= 阴影（立体与层级） =================
+ 用于：悬浮卡片、气泡、对话框；数值越大，层级越高
+*/
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06); /* 卡片：卡片边缘 */
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04); /* 导航：导航栏、侧边栏 */
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12), 0 4px 6px rgba(0, 0, 0, 0.1); /* 浮层：下拉菜单、消息通知 */
+  --shadow-xl:
+    0 12px 28px rgba(0, 0, 0, 0.16), 0 8px 16px rgba(0, 0, 0, 0.12); /* 大型浮层：侧滑层、模态对话框、悬浮导航 */
+
+  /* ================= 功能色（状态与反馈） =================
+ 用于：结果反馈、Alert/Message/Badge、校验信息
+ 注意：每种功能色配“主体/浅底/边框”三件套；浅底用于弱提示
+*/
+  --color-success: #4caf50; /* 成功主色：成功按钮描边/图标、成功文本高亮 */
+  --color-success-bg: rgba(76, 175, 80, 0.12); /* 成功浅底：成功提示条/Tag 背景 */
+  --color-success-border: #81c784; /* 成功边：消息/卡片边线、强调轮廓 */
+
+  --color-warning: #ff9800; /* 警告主色：风险提示、注意要点图标 */
+  --color-warning-bg: rgba(255, 152, 0, 0.12); /* 警告浅底：轻量提醒条/Tag 背景 */
+  --color-warning-border: #ffb74d; /* 警告边：提醒轮廓、进度状态边 */
+
+  --color-error: #f44336; /* 错误主色：表单校验失败、危险操作强调 */
+  --color-error-bg: rgba(244, 67, 54, 0.12); /* 错误浅底：错误提示条/Tag 背景 */
+  --color-error-border: #e57373; /* 错误边：错误卡片/表单域边框 */
+
+  --color-info: #1677ff; /* 信息主色：一般提示、通知蓝 */
+  --color-info-bg: rgba(22, 119, 255, 0.12); /* 信息浅底：信息条/结果空态背景 */
+  --color-info-border: #64b5f6; /* 信息边：信息卡片/分隔轮廓 */
+
+  --color-link: #1363f6; /* 默认链接：正文内超链接、轻交互 */
+  --color-link-hover: #0958d9; /* 悬停链接：更深的蓝，用于 hover/active */
+  --color-link-visited: #20375f; /* 已访问链接 */
 }

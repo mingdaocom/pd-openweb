@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import ConnectAuth from 'src/pages/integration/components/ConnectAuth';
 import ConnectParam from 'src/pages/integration/components/ConnectParam';
@@ -119,13 +120,15 @@ export default class ApiPackage extends Component {
           ) : data.appId && !data.app.name ? (
             <Fragment>
               <div className="flex Font15">{_l('API 接与认证已删除')}</div>
-              <span data-tip={_l('变更连接与认证')}>
-                <Icon
-                  icon="swap_horiz"
-                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
-                  onClick={() => this.setState({ visible: true })}
-                />
-              </span>
+              <Tooltip title={_l('变更连接与认证')}>
+                <span>
+                  <Icon
+                    icon="swap_horiz"
+                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    onClick={() => this.setState({ visible: true })}
+                  />
+                </span>
+              </Tooltip>
             </Fragment>
           ) : (
             <Fragment>
@@ -148,13 +151,15 @@ export default class ApiPackage extends Component {
                 )}
               </div>
               <div className="flex" />
-              <span data-tip={_l('变更连接与认证')}>
-                <Icon
-                  icon="swap_horiz"
-                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
-                  onClick={() => this.setState({ visible: true })}
-                />
-              </span>
+              <Tooltip title={_l('变更连接与认证')}>
+                <span>
+                  <Icon
+                    icon="swap_horiz"
+                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    onClick={() => this.setState({ visible: true })}
+                  />
+                </span>
+              </Tooltip>
             </Fragment>
           )}
         </div>

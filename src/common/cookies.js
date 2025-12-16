@@ -15,16 +15,15 @@ window.setCookie = function setCookie(name, value, expire) {
 
   // 过期时间处理
   const expiration = expire ? moment(expire).toDate() : moment().add(10, 'days').toDate();
+  const secure = location.protocol.indexOf('https') > -1 ? 'Secure;' : '';
+  const cookieString = [
+    `expires=${expiration.toGMTString()}`,
+    'path=/',
+    `domain=${document.domain.indexOf('mingdao.com') === -1 ? '' : '.mingdao.com'}`,
+    'SameSite=Lax',
+  ].join(';');
 
-  const cookieOptions = {
-    expires: expiration.toGMTString(),
-    path: '/',
-    domain: document.domain.indexOf('mingdao.com') === -1 ? '' : '.mingdao.com',
-  };
-
-  document.cookie = `${name}=${escape(value)};expires=${cookieOptions.expires};path=${cookieOptions.path};domain=${
-    cookieOptions.domain
-  }`;
+  document.cookie = `${name}=${escape(value)};${secure}${cookieString}`;
 };
 
 /**

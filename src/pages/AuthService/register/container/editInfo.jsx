@@ -165,29 +165,35 @@ export default function (props) {
     }
     switch (data.joinProjectResult) {
       case 1:
-        alert(_l('您已成功加入该组织'), 1, 2000, function () {
-          setState({ loading: false });
-          location.href = '/app';
-          if (window.isMingDaoApp) {
-            mdAppResponse({
-              sessionId: 'register',
-              type: 'native',
-              settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
-            });
-          }
+        alert({
+          msg: _l('您已成功加入该组织'),
+          onClose: function () {
+            setState({ loading: false });
+            location.href = '/app';
+            if (window.isMingDaoApp) {
+              mdAppResponse({
+                sessionId: 'register',
+                type: 'native',
+                settings: { action: 'enterpriseRegister.addSuccess', account: dialCode + emailOrTel, password },
+              });
+            }
+          },
         });
         break;
       case 2:
-        alert(_l('您的申请已提交，请等待管理员审批'), 1, 2000, function () {
-          setState({ loading: false });
-          location.href = '/personal?type=enterprise';
-          if (window.isMingDaoApp) {
-            mdAppResponse({
-              sessionId: 'register',
-              type: 'native',
-              settings: { action: 'enterpriseRegister.addPending', account: dialCode + emailOrTel, password },
-            });
-          }
+        alert({
+          msg: _l('您已成功加入该组织'),
+          onClose: function () {
+            setState({ loading: false });
+            location.href = '/personal?type=enterprise';
+            if (window.isMingDaoApp) {
+              mdAppResponse({
+                sessionId: 'register',
+                type: 'native',
+                settings: { action: 'enterpriseRegister.addPending', account: dialCode + emailOrTel, password },
+              });
+            }
+          },
         });
         break;
       case 3:

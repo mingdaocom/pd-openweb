@@ -30,6 +30,7 @@ const AutoHeightTextArea = forwardRef(
           textAreaRef.current.scrollTop = textAreaRef.current.scrollHeight;
         }
       },
+      dom: textAreaRef.current,
     }));
 
     // 自动调整高度的函数
@@ -88,6 +89,7 @@ const AutoHeightTextArea = forwardRef(
         placeholder={placeholder}
         disabled={disabled}
         className={className}
+        rows="1"
         style={{
           minHeight: `${minHeight}px`,
           maxHeight: maxHeight > 0 ? `${maxHeight}px` : 'none',

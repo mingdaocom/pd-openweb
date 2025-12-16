@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { Icon, MdLink, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -58,7 +59,7 @@ const AppItem = props => {
     }
     return (
       ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
-        <Tooltip popupPlacement="bottom" text={<span>{_l('仅系统角色可见（包含管理员、开发者）')}</span>}>
+        <Tooltip placement="bottom" title={_l('仅系统角色可见（包含管理员、开发者）')}>
           <Icon className="Font16 mRight10 visibilityIcon" icon={icon} style={{ color: '#ee6f09' }} />
         </Tooltip>
       )

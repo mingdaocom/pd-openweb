@@ -294,9 +294,10 @@ export const exportImage = ({ pageBgColor, isUserWatermark, currentProject }) =>
       document.querySelector('.componentsWrap .react-grid-layout') || document.querySelector('.customPageContent');
     const { left: wrapLeft, top: wrapTop } = wrap.getBoundingClientRect();
     const embedUrls = wrap.querySelectorAll('.widgetContent.embedUrl');
-    const countryLayers = [...wrap.querySelectorAll(`.statisticsCard-${reportTypes.CountryLayer}`)].map(
-      item => item.parentNode.parentNode,
-    );
+    const countryLayers = [
+      ...wrap.querySelectorAll(`.statisticsCard-${reportTypes.CountryLayer}`),
+      ...wrap.querySelectorAll(`.statisticsCard-${reportTypes.WorldMap}`),
+    ].map(item => item.parentNode.parentNode);
     const { offsetWidth, offsetHeight } = wrap;
     const fontlinksheet = document.querySelector('.fontlinksheet');
     document.querySelectorAll('.mapboxgl-ctrl').forEach(item => {
@@ -639,4 +640,20 @@ export const updateLayout = (components, config) => {
       },
     };
   });
+};
+
+export const insertPortal = url => {
+  const theportal = 'www.theportal.cn';
+  if (md.global.Account.isPortal && url.includes('embed/')) {
+    if (location.hostname === theportal) {
+      const parsed = new URL(url);
+      parsed.host = theportal;
+      parsed.port = location.port;
+      parsed.protocol = location.protocol;
+      return parsed.toString();
+    } else {
+      return url.replace(/(\/)embed\//, '$1portal/embed/');
+    }
+  }
+  return url;
 };

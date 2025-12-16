@@ -70,7 +70,7 @@ export function initMapViewData(view, refreshMap = false, mapViewRequestKey) {
       });
     }
 
-    getMapViewData({ para, dispatch, mapViewRequestKey }, sheet);
+    getMapViewData({ para, dispatch, mapViewRequestKey });
   };
 }
 

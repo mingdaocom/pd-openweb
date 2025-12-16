@@ -76,7 +76,7 @@ export const updateTreeTableViewData = () => (dispatch, getState) => {
   if (!base.isTreeTableView) {
     return;
   }
-  const { treeMap, maxLevel } = treeDataUpdater({}, { rootRows: rows.filter(r => !r.pid), rows: rows, levelLimit: 10 });
+  const { treeMap, maxLevel } = treeDataUpdater({}, { rootRows: rows.filter(r => !r.pid), rows: rows, levelLimit: 20 });
   dispatch({
     type: 'UPDATE_TREE_TABLE_VIEW_DATA',
     value: { maxLevel, treeMap },
@@ -132,7 +132,10 @@ function getChangesControlIds(oldRow, newRow, controls) {
   return ids;
 }
 
-export const clearAndSetRows = (rows, { isSetValueFromEvent = false, controls = [] } = {}) => {
+export const clearAndSetRows = (
+  rows,
+  { isSetValueFromEvent = false, isSetValueFromRule = false, controls = [] } = {},
+) => {
   return (dispatch, getState) => {
     const oldRows = getState().rows;
     let newRows = rows;
@@ -148,7 +151,7 @@ export const clearAndSetRows = (rows, { isSetValueFromEvent = false, controls = 
         ),
       }));
     }
-    dispatch({ type: 'CLEAR_AND_SET_ROWS', isSetValueFromEvent, rows: newRows, deleted });
+    dispatch({ type: 'CLEAR_AND_SET_ROWS', isSetValueFromEvent, isSetValueFromRule, rows: newRows, deleted });
   };
 };
 
@@ -460,6 +463,7 @@ export function setRowsFromStaticRows({
   isDefaultValue = true,
   isQueryWorksheetFill = true,
   isSetValueFromEvent = false,
+  isSetValueFromRule = false,
   triggerSubListControlValueChange = () => {},
 } = {}) {
   return (getState, dispatch, DataFormat) => {
@@ -540,7 +544,7 @@ export function setRowsFromStaticRows({
         rows: filterEmptyChildTableRows(getState().rows),
       });
     } else {
-      dispatch(clearAndSetRows(rows, { isSetValueFromEvent, controls }));
+      dispatch(clearAndSetRows(rows, { isSetValueFromEvent, isSetValueFromRule, controls }));
       triggerSubListControlValueChange({
         action: 'clearAndSet',
         isDefault: true,

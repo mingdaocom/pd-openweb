@@ -10,6 +10,7 @@ import CellControl from 'worksheet/components/CellControls';
 import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
 import { getAdvanceSetting, getControlStyles } from 'src/utils/control';
 import { updateRulesData } from '../../../core/formUtils';
+import { addWidthToColumns } from './utils';
 
 const TableWrap = styled(Table)`
   height: 100%;
@@ -20,7 +21,9 @@ const TableWrap = styled(Table)`
     height: 100%;
   }
   .ant-table {
-    font-size: 1em !important;
+    ${({ h5height }) => h5height === '0' && 'font-size: 0.8em !important;'};
+    ${({ h5height }) => h5height === '1' && 'font-size: 0.9em !important;'};
+    ${({ h5height }) => (h5height === '2' || h5height === '3') && 'font-size: 1em !important;'};
     color: #151515 !important;
   }
   .ant-table-thead
@@ -59,7 +62,12 @@ const TableWrap = styled(Table)`
     display: none !important;
   }
   .compactness {
-    height: 44px;
+    height: 28px !important;
+    line-height: 28px !important;
+
+    .customFormNull {
+      margin: 0 !important;
+    }
   }
   /* 中等 */
   .mediumTable {
@@ -87,7 +95,7 @@ const TableWrap = styled(Table)`
   .adaptive {
     min-height: 44px;
     td {
-      padding: 5px 12px;
+      padding: 8px 12px !important;
     }
     .cell,
     .cell .ellipsis {
@@ -99,9 +107,28 @@ const TableWrap = styled(Table)`
     .customFormNull {
       width: 22px;
       height: 6px;
-      background: var(--gray-e0);
+      background: var(--color-border-primary);
       margin: 15px 0;
       border-radius: 3px;
+    }
+  }
+  .cellUsers {
+    .userName {
+      word-break: break-all;
+    }
+  }
+  .cellDepartments {
+    width: 100%;
+    .cellDepartment {
+      max-width: 100%;
+      .departmentName {
+        white-space: nowrap;
+      }
+    }
+  }
+  .RelateRecordDropdown {
+    .normalSelectedItem {
+      white-space: nowrap !important;
     }
   }
   ${({ controlStyles }) => controlStyles || ''}
@@ -164,6 +191,7 @@ function TableComponent(props) {
     !disabled && isEdit && !_.isEmpty(rows) && showDeleteCol
       ? [{ controlId: 'delete', controlName: '', className: 'deleteAction', width: 30 }].concat(columns)
       : columns;
+  columns = addWidthToColumns(columns, dataSource);
   const lineHeightInfo = { 0: 'compactness', 1: 'mediumTable', 2: 'heightTable', 3: 'adaptive' }; // h5height: 0=>紧凑 1=>中等 2=>高 3=>自适应
   let timer = null;
 
@@ -181,6 +209,7 @@ function TableComponent(props) {
           controlStyles={getControlStyles(columns)}
           tableLayout="fixed"
           rowClassName={lineHeightInfo[h5height]}
+          h5height={h5height}
           pagination={false}
           dataSource={dataSource}
           scroll={{ x: '100%', y: true }}
@@ -263,7 +292,7 @@ function TableComponent(props) {
                           width: 180,
                           height:
                             h5height === '0'
-                              ? 44
+                              ? 28
                               : h5height === '1'
                                 ? 64
                                 : h5height === '2'

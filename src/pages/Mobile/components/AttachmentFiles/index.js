@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, Progress, QiniuUpload } from 'ming-ui';
-import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import {
   checkAccountUploadLimit,
@@ -11,8 +11,6 @@ import {
   formatResponseData,
   getFilesSize,
 } from 'src/components/UploadFiles/utils';
-import MapHandler from 'src/ming-ui/components/amap/MapHandler';
-import MapLoader from 'src/ming-ui/components/amap/MapLoader';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { generateRandomPassword } from 'src/utils/common';
 import { getClassNameByExt } from 'src/utils/common';
@@ -87,7 +85,7 @@ function compressImage(file, quality) {
   });
 }
 
-function addWaterMarker(file, watermark, { dynamicControls, advancedSetting }) {
+function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, currentLocation }) {
   const isNew = !!_.get(advancedSetting, 'h5watermark');
   let textLayouts = [];
   let dynamicTxt = '';
@@ -164,7 +162,6 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting }) {
   });
 }
 
-let currentLocation = null;
 export class UploadFileWrapper extends Component {
   constructor(props) {
     super(props);
@@ -181,36 +178,18 @@ export class UploadFileWrapper extends Component {
       });
     }
   }
-  componentDidMount() {
-    const { advancedSetting = {} } = this.props;
-    const h5Watermark = (_.get(advancedSetting, 'h5watermark') || '').split('$').filter(v => !!v);
-    const watermark = h5Watermark.length ? h5Watermark : JSON.parse(advancedSetting.watermark || null) || [];
 
-    if (!currentLocation && watermark.length && _.findIndex(watermark, v => v === 'xy' || v === 'address') > -1) {
-      currentLocation = {};
-      new MapLoader().loadJs().then(() => {
-        this._maphHandler = new MapHandler();
-        this._maphHandler.getCurrentPos((status, result) => {
-          if (status === 'complete') {
-            const { formattedAddress, position } = result;
-            currentLocation = {
-              formattedAddress,
-              position,
-            };
-          }
-        });
-      });
-    }
-  }
-  componentWillUnmount() {
-    if (this._maphHandler) {
-      this._maphHandler.destroyMap();
-      this._maphHandler = null;
-    }
-  }
   getMethod() {
     const self = this;
-    const { advancedSetting = {}, customUploadType, checkValueByFilterRegex, formData, projectId, appId } = self.props;
+    const {
+      advancedSetting = {},
+      customUploadType,
+      checkValueByFilterRegex,
+      formData,
+      projectId,
+      appId,
+      currentLocation,
+    } = self.props;
     const method = {
       async onAdd(uploader, files, nextStart) {
         if (_.isEmpty(files)) {
@@ -340,7 +319,11 @@ export class UploadFileWrapper extends Component {
                       .filter(_.identity)
                       .filter(v => _.includes([2, 3, 4, 5, 6, 8, 15, 16, 46], v.type)); // 文本、数值、金额、邮箱、日期、时间、电话、座机
 
-                    newFile = await addWaterMarker(newFile, watermark, { dynamicControls, advancedSetting });
+                    newFile = await addWaterMarker(newFile, watermark, {
+                      dynamicControls,
+                      advancedSetting,
+                      currentLocation,
+                    });
                   }
                   if (isWebcompress) {
                     newFile = await compressImage(newFile, 0.3);

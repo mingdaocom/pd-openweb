@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { string } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, MdLink, Tooltip } from 'ming-ui';
+import { Icon, MdLink } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import privateGuideApi from 'src/api/privateGuide';
 import { VerticalMiddle } from 'worksheet/components/Basics';
@@ -92,26 +94,25 @@ export default class CommonUserHandle extends Component {
         {['native', 'integration'].includes(type) && (
           <React.Fragment>
             {type === 'native' && (
-              <Tooltip
-                popupVisible={this.state.addMenuVisible}
-                text={
+              <Popover
+                visible={this.state.addMenuVisible}
+                content={
                   <AddMenu
                     onClose={() => {
                       this.setState({ addMenuVisible: false });
                     }}
                   />
                 }
-                action={['click']}
+                trigger="click"
                 mouseEnterDelay={0.2}
-                themeColor="white"
-                tooltipClass="pAll0"
-                autoCloseDelay={0}
-                onPopupVisibleChange={this.handleAddMenuVisible.bind(this)}
+                overlayClassName="addOperationPopover"
+                placement="bottom"
+                onVisibleChange={this.handleAddMenuVisible.bind(this)}
               >
                 <div className="addOperationIconWrap mLeft20 mRight15 pointer">
                   <Icon icon="add_circle Font30" />
                 </div>
-              </Tooltip>
+              </Popover>
             )}
             <MyProcessEntry type={type} />
           </React.Fragment>
@@ -141,7 +142,7 @@ export default class CommonUserHandle extends Component {
                 data-tip={_l('平台授权已失效，点击查看')}
                 className="tip-bottom-left"
                 onClick={() => {
-                  location.href = md.global.Config.WebUrl + 'pm/sysconfig/platform';
+                  location.href = md.global.Config.PlatformUrl + 'sysconfig/platform';
                 }}
               >
                 <Icon icon="error1" className="Font20" style={{ color: '#f44336' }} />
@@ -206,6 +207,7 @@ export class LeftCommonUserHandle extends Component {
               groupId={match.params.groupId}
               worksheetId={match.params.worksheetId}
               projectId={projectId}
+              appPkg={data}
             >
               <div className="headerColorSwitch">
                 <Icon icon="add" className="Font20 pointer" />
@@ -214,14 +216,18 @@ export class LeftCommonUserHandle extends Component {
             {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
               <Fragment>
                 {!window.isPublicApp && canEditApp(permissionType, isLock) && (
-                  <MdLink data-tip={_l('工作流')} className="tip-top" to={`/app/${id}/workflow`}>
-                    <Icon icon="workflow" className="Font20 headerColorSwitch" />
-                  </MdLink>
+                  <Tooltip title={_l('工作流')} placement="bottom">
+                    <MdLink to={`/app/${id}/workflow`}>
+                      <Icon icon="workflow" className="Font20 headerColorSwitch" />
+                    </MdLink>
+                  </Tooltip>
                 )}
                 {roleEntryVisible && (
-                  <MdLink data-tip={_l('用户')} className="tip-top" to={`/app/${id}/role`}>
-                    <Icon icon="group" className="Font20 headerColorSwitch" />
-                  </MdLink>
+                  <Tooltip title={_l('用户')} placement="bottom">
+                    <MdLink to={`/app/${id}/role`}>
+                      <Icon icon="group" className="Font20 headerColorSwitch" />
+                    </MdLink>
+                  </Tooltip>
                 )}
               </Fragment>
             )}
@@ -232,9 +238,11 @@ export class LeftCommonUserHandle extends Component {
           app={data}
           isCharge={canEditApp(permissionType, sourceType === 60 ? false : isLock)}
         >
-          <div className="headerColorSwitch tip-top pointer" data-tip={_l('应用语言')}>
-            <Icon icon="language" className="Font20" />
-          </div>
+          <Tooltip title={_l('应用语言')} placement="bottom">
+            <div className="headerColorSwitch pointer">
+              <Icon icon="language" className="Font20" />
+            </div>
+          </Tooltip>
         </LanguageList>
       </div>
     );

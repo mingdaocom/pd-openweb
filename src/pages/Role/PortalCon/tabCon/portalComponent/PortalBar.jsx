@@ -5,7 +5,8 @@ import { Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import * as actions from '../../redux/actions';
 import FilterDrop from './FilterDrop';
@@ -99,7 +100,7 @@ function PortalBar(props) {
         </React.Fragment>
       )}
       {keys.includes('refresh') && (
-        <Tooltip popupPlacement="bottom" text={<span>{_l('刷新')}</span>}>
+        <Tooltip placement="bottom" title={_l('刷新')}>
           <Icon
             className="mRight14 Font18 Hand InlineBlock actIcon"
             icon="task-later"
@@ -183,7 +184,7 @@ function PortalBar(props) {
               },
             }}
           >
-            <Tooltip popupPlacement="bottom" text={<span>{_l('列显示')}</span>}>
+            <Tooltip placement="bottom" title={_l('列显示')}>
               <Icon className="mRight14 Font18 InlineBlock Hand actIcon" icon="tune" />
             </Tooltip>
           </Trigger>
@@ -191,7 +192,7 @@ function PortalBar(props) {
       )}
       {keys.includes('filter') && <FilterDrop {...props} />}
       {keys.includes('down') && (
-        <Tooltip popupPlacement="bottom" text={<span>{_l('导出用户')}</span>}>
+        <Tooltip placement="bottom" title={_l('导出用户')}>
           <Icon
             className="mRight14 Font18 Hand InlineBlock actIcon"
             icon="download"

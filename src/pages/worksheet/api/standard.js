@@ -2,7 +2,7 @@ function mdPost({ action, controller, data, abortController } = {}) {
   return window.mdyAPI(controller, action, data, { abortController });
 }
 
-class RequestPool {
+export class RequestPool {
   queues = {};
   constructor({ abortController, maxConcurrentRequests = 3 } = {}) {
     this.abortController = abortController;

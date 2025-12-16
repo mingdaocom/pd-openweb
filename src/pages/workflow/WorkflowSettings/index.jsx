@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import processVersion from '../api/processVersion';
 import { clearSource, getFlowInfo, getProcessById } from '../redux/actions';
@@ -88,9 +89,11 @@ class WorkflowSettings extends Component {
         <Fragment>
           <div className="workflowSettings flexColumn h100">
             <div className="workflowSettingsHeader flexRow">
-              <div className="workflowReturn tip-bottom-right" onClick={this.back} data-tip={_l('返回')}>
-                <i className="icon-backspace" />
-              </div>
+              <Tooltip title={_l('返回')} placement="bottomRight">
+                <div className="workflowReturn" onClick={this.back}>
+                  <i className="icon-backspace" />
+                </div>
+              </Tooltip>
             </div>
             <div className="flowEmptyWrap flex">
               <div className="flowEmptyPic flowEmptyPic-lock" />
@@ -107,9 +110,11 @@ class WorkflowSettings extends Component {
       return (
         <div className="workflowSettings flexColumn h100">
           <div className="workflowSettingsHeader flexRow">
-            <div className="workflowReturn tip-bottom-right" onClick={this.back} data-tip={_l('返回')}>
-              <i className="icon-backspace" />
-            </div>
+            <Tooltip title={_l('返回')} placement="bottomRight">
+              <div className="workflowReturn" onClick={this.back}>
+                <i className="icon-backspace" />
+              </div>
+            </Tooltip>
           </div>
           <div className="flowEmptyWrap flex">
             <div className="flowEmptyPic flowEmptyPic-del" />

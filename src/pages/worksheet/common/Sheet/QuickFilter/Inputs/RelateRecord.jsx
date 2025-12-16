@@ -5,7 +5,7 @@ import _, { find } from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import RelateRecordOptions from './RelateRecordOptions';
 
 const Con = styled.div`

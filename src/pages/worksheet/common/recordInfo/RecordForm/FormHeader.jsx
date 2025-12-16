@@ -2,9 +2,10 @@ import React, { useMemo, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Icon, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getTranslateInfo } from 'src/utils/app';
@@ -172,7 +173,7 @@ export default function FormHeader(props) {
       {editLockedUser && (
         <div className="lockedUserInfo">
           <div className="lineTag" />
-          <Tooltip autoCloseDelay={0} text={_l('当前记录不允许多人同时编辑。请稍后重试')} popupPlacement="bottom">
+          <Tooltip title={_l('当前记录不允许多人同时编辑。请稍后重试')} placement="bottom">
             <Icon icon="workflow_write" className="Font16 ThemeColor mLeft5 mRight5" />
           </Tooltip>
           <UserName

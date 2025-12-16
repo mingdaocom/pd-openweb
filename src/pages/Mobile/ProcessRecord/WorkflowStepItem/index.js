@@ -18,13 +18,13 @@ class WorkflowStepItem extends Component {
   }
   render() {
     const { visible } = this.state;
-    const { appId, instance, worksheetId, recordId, controls = [] } = this.props;
+    const { appId, instance, worksheetId, recordId, controls = [], hideStep = false } = this.props;
     const { works, currentWork, currentWorkItem, processId, status, isApproval } = instance;
     return (
       <Wrap className="stepList">
         <div className="pTop20 flexRow valignWrapper">
           <div className="Font17 bold flex">{_l('流程进度')}</div>
-          {isApproval && (
+          {isApproval && !hideStep && (
             <div className="flexRow alignItemsCenter Gray_9e" onClick={() => this.setState({ visible: true })}>
               <Icon className="Font16 mRight5" icon="department" />
               <div className="bold">{_l('流转图')}</div>

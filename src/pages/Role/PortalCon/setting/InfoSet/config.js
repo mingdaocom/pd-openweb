@@ -1,0 +1,51 @@
+export const filterAlias = [
+  'mobilephone',
+  'avatar',
+  'roleid',
+  'status',
+  'firstLoginTime',
+  'portal_logintime',
+  'openid',
+  'portal_email',
+];
+
+//支持的字段：文本、数值、电话、邮箱、日期、单选、多选、附件、地区、身份证、检查框；字段的属性是工作表字段的部分属性
+export const WIDGETS_TO_API_TYPE = [
+  'TEXT',
+  'MOBILE_PHONE',
+  // 'TELEPHONE',
+  'EMAIL',
+  'NUMBER',
+  'CRED',
+  // 'FLAT_MENU',
+  'MULTI_SELECT',
+  'DROP_DOWN',
+  // 'ATTACHMENT',
+  'DATE',
+  // 'DATE_TIME',
+  // 'AREA_PROVINCE',
+  // 'AREA_CITY',
+  'AREA_COUNTY',
+  'SWITCH',
+  'RELATE_SHEET',
+].filter(key => !(md.global?.SysSettings?.hideWorksheetControl || []).includes(key));
+
+export const WIDGETS_TO_API_TYPE_ENUM_N = {
+  2: 'TEXT',
+  3: 'MOBILE_PHONE',
+  4: 'TELEPHONE',
+  5: 'EMAIL',
+  6: 'NUMBER',
+  7: 'CRED',
+  9: 'FLAT_MENU',
+  10: 'MULTI_SELECT',
+  11: 'DROP_DOWN',
+  // 14: 'ATTACHMENT',
+  15: 'DATE',
+  16: 'DATE_TIME',
+  19: 'AREA_PROVINCE',
+  23: 'AREA_CITY',
+  24: 'AREA_COUNTY',
+  36: 'SWITCH',
+  29: 'RELATE_SHEET',
+};

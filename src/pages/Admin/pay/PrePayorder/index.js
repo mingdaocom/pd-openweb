@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Button, Dialog, FunctionWrap, Icon, LoadDiv, Qr, Radio } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import webCacheAjax from 'src/api/webCache';
+import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
 import { browserIsMobile } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import PayErrorIcon from '../components/PayErrorIcon';
@@ -202,7 +203,7 @@ export default class PrePayOrder extends Component {
 
       if (status === 1 && paySuccessReturnUrl) {
         notDialog
-          ? window.parent.postMessage({ type: 'navigate', returnUrl: decodeURIComponent(paySuccessReturnUrl) })
+          ? window.parent.postMessage({ type: 'navigate', returnUrl: decodeURIComponent(paySuccessReturnUrl) }, '*')
           : (location.href = paySuccessReturnUrl);
         return;
       }
@@ -210,7 +211,7 @@ export default class PrePayOrder extends Component {
       if (_.includes([1, 4], status)) {
         this.getData();
         onUpdateSuccess({ orderStatus: status, onCancel });
-        payFinished({ onCancel, isSuccess: status === 1 });
+        payFinished({ onCancel, isSuccess: status === 1, amount, orderId });
       } else {
         this.setState(
           {
@@ -241,7 +242,7 @@ export default class PrePayOrder extends Component {
 
     paymentAjax.checkPayOrder({ orderId }).then(({ payedResult, orderId }) => {
       if (payedResult) {
-        payFinished({ onCancel, isSuccess: true });
+        payFinished({ onCancel, isSuccess: true, amount: 0, orderId });
         if (paySuccessReturnUrl) {
           location.href = paySuccessReturnUrl;
         } else if (browserIsMobile()) {
@@ -348,6 +349,7 @@ export default class PrePayOrder extends Component {
 
   // 支付状态
   renderPayStatus = () => {
+    const { worksheetId, notDialog } = this.props;
     const { errorMessage, orderInfo = {} } = this.state;
     const orderStatus = errorMessage || orderInfo.msg ? -1 : this.state.orderStatus;
     const { text, icon, color } = getOrderStatusInfo(orderStatus, errorMessage || orderInfo.msg) || {};
@@ -367,14 +369,25 @@ export default class PrePayOrder extends Component {
         <div className="Font24 bold mBottom24">{errorMessage || text}</div>
 
         {orderInfo.orderId && !orderInfo.msg && (
-          <Button
-            className="okPay"
-            onClick={() => {
-              window.open(`${md.global.Config.WebUrl}orderpay/${orderInfo.orderId}`);
-            }}
-          >
-            {_l('查看订单')}
-          </Button>
+          <div className="flexRow">
+            <ApplyInvoiceBtn
+              className="ming Button--medium Button okPay invoiceBtn mRight8"
+              orderInfo={{ orderId: orderInfo.orderId, orderStatus, amount: orderInfo.amount }}
+              isOpenInvoice={orderInfo.isOpenInvoice}
+              invoiceStatus={orderInfo.invoiceStatus}
+              invoiceId={orderInfo.invoiceId}
+              worksheetId={worksheetId}
+              landPageOpen={notDialog}
+            />
+            <Button
+              className="okPay"
+              onClick={() => {
+                window.open(`${md.global.Config.WebUrl}orderpay/${orderInfo.orderId}`);
+              }}
+            >
+              {_l('查看订单')}
+            </Button>
+          </div>
         )}
       </div>
     );

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import ToolTip from 'ming-ui/components/Tooltip';
+import { Tooltip } from 'ming-ui/antd-components';
 import syncTaskApi from '../../../../api/syncTask';
 import { formatDate } from '../../../../config';
 import { TASK_STATUS_TYPE } from '../../../constant';
@@ -158,22 +158,22 @@ export default function UsageDetail({ projectId, sourceId }) {
         return (
           <div className="flexRow alignItemsCenter pRight8">
             <div className="flexRow alignItemsCenter pLeft8 titleColumn">
-              <ToolTip text={item.sourceTypeName}>
+              <Tooltip title={item.sourceTypeName}>
                 <TaskIcon>
                   <svg className="icon svg-icon" aria-hidden="true">
                     <use xlinkHref={`#icon${item.sourceClassName}`} />
                   </svg>
                   {item.sourceNum > 1 && <div className="sourceNum">{item.sourceNum}</div>}
                 </TaskIcon>
-              </ToolTip>
+              </Tooltip>
               <Icon icon="arrow_down" className="arrowIcon" />
-              <ToolTip text={item.destTypeName}>
+              <Tooltip title={item.destTypeName}>
                 <TaskIcon>
                   <svg className="icon svg-icon" aria-hidden="true">
                     <use xlinkHref={`#icon${item.destClassName}`} />
                   </svg>
                 </TaskIcon>
-              </ToolTip>
+              </Tooltip>
             </div>
             <span title={item.taskName} className="Font14 Gray overflow_ellipsis">
               {item.taskName}

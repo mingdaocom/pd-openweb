@@ -253,17 +253,7 @@ export default function (control, formData, { update, type, forceSyncRun = false
       expression,
     };
   }
-  // TODO 作用不明 先注释
-  // let matched;
-  // const re = /['"][^'"]+['"]/g;
-  // while ((matched = re.exec(expression)) !== null) {
-  //   const matchStart = matched.index;
-  //   const matchEnd = matched.index + matched[0].length;
-  //   expression =
-  //     expression.slice(0, matchStart) +
-  //     replaceControlIdToValue(expression.slice(matchStart, matchEnd), formData, true) +
-  //     expression.slice(matchEnd);
-  // }
+
   expression = replaceControlIdToValue(expression, formData);
   if (!expression || existDeletedControl) {
     return {

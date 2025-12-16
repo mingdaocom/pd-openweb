@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 import { isRelateRecordTableControl } from 'src/utils/control';
 
 export default class RowDetail extends React.Component {
@@ -54,7 +54,7 @@ export default class RowDetail extends React.Component {
     if (!this.customwidget.current || isMobile) {
       return;
     }
-    const submitData = this.customwidget.current.getSubmitData({ silent: true });
+    const submitData = this.customwidget.current.getSubmitData({ silent: true, noTriggerError: true });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
     const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));

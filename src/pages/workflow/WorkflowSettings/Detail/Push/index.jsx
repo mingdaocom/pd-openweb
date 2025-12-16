@@ -208,6 +208,7 @@ export default class Push extends Component {
       fields,
       promptSound,
       accounts,
+      windowSize,
     } = data;
 
     let hasError = false;
@@ -251,6 +252,7 @@ export default class Push extends Component {
         fields: actionId === ACTION_ID.CREATE_RECORD ? fields : [],
         promptSound,
         accounts,
+        windowSize,
       })
       .then(result => {
         this.props.updateNodeData(result);

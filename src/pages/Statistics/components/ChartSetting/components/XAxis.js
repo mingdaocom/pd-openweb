@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Menu, Tooltip } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
 import {
   areaParticleSizeDropdownData,
@@ -140,9 +141,19 @@ export default class XAxis extends Component {
       isAlert && alert(_l('行政区域图仅支持地区字段可作为x轴维度'), 2);
       return false;
     }
-    if ([reportTypes.FunnelChart].includes(reportType) && isTimeControl(data.type)) {
-      isAlert && alert(_l('时间类型不能作为x轴维度'), 2);
+    if ([reportTypes.WorldMap].includes(reportType) && !(isAreaControl(data.type) || data.type === 40)) {
+      isAlert && alert(_l('地图仅支持地区和定位字段可作为x轴维度'), 2);
       return false;
+    }
+    if ([reportTypes.FunnelChart].includes(reportType)) {
+      if (isTimeControl(data.type)) {
+        isAlert && alert(_l('时间类型不能作为x轴维度'), 2);
+        return false;
+      }
+      if (data.controlId === _.get(yaxisList[0], 'controlId')) {
+        isAlert && alert(_l('维度和数值不能相同'), 2);
+        return false;
+      }
     }
     if ([reportTypes.PieChart].includes(reportType) && yaxisList.length > 1) {
       isAlert && alert(_l('多数值时不能同时配置维度'), 2);
@@ -356,7 +367,7 @@ export default class XAxis extends Component {
             ))}
           </Menu.SubMenu>
         )}
-        {!isTime && (
+        {!isTime && xaxes.controlType !== 40 && (
           <Menu.Item
             className="flexRow valignWrapper"
             onClick={() => {

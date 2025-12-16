@@ -17,7 +17,7 @@ export default function SettingContent(props) {
 
   const getPanelData = () => {
     const defaultItems = [];
-    EXPAND_ITEMS.map(item => {
+    EXPAND_ITEMS.forEach(item => {
       if (supportSettingCollapse(props, item.key)) {
         const Widget = CollapseComponents[item.name];
         defaultItems.push({

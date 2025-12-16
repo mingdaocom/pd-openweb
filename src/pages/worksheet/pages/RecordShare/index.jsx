@@ -5,6 +5,7 @@ import { LoadDiv } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import globalEvents from 'src/router/globalEvents';
 import { shareGetAppLangDetail } from 'src/utils/app';
 import RecordShare from './RecordShare';
 
@@ -30,7 +31,7 @@ const Entry = () => {
       printId,
     }).then(async result => {
       const { data } = result;
-      const { appId, projectId } = data;
+      const { appId, projectId } = data || {};
       if (!data.rowId) {
         location.href = `/public/view/${shareId}`;
         return;
@@ -46,6 +47,7 @@ const Entry = () => {
       window.appInfo = { id: appId };
       setShare(result);
       setLoading(false);
+      globalEvents();
     });
   }, []);
 

@@ -15,24 +15,17 @@ const promiseList = [
   ACTIONS.APPROVAL_USER_REQUEST,
   ACTIONS.USER_REQUEST,
 ];
-const getApiByRequestType = (type, { departmentId, isGetAll }) => {
+const getApiByRequestType = (type, { departmentId }) => {
   if (type === ACTIONS.USER_REQUEST) {
     return departmentId ? departmentController.getProjectDepartmentUsers : departmentController.getNoDepartmentUsers;
   }
-  if (type === ACTIONS.FULL_TREE_REQUEST) {
-    return isGetAll
-      ? departmentController.getProjectDepartmentFullTreeByDepartmentId
-      : departmentController.getOneDepartmentFullTree;
-  }
+
   const dict = {
     [ACTIONS.ALL_USER_REQUEST]: userController.pagedNormalUserList, //全公司
-    [ACTIONS.DEPARTMENT_REQUEST]: departmentController.pagedSubDepartments, //根据部门父Id获取子部门,departmentId为null表示父部门是网络
     [ACTIONS.INACTIVE_USER_REQUEST]: importUserController.getImportUserDetails, //未激活成员
     [ACTIONS.APPROVAL_USER_REQUEST]: userController.getApprovalUser, //待管理员审核
     [ACTIONS.INACTIVE_LOAD]: importUserController.getUnusedInfosByProjectIdCount, //整个网络的导入用户，未被使用的总数
     [ACTIONS.APPROVAL_LOAD]: projectController.getProjectUnauditedUserCount, //获取网络内待审批用户数量
-    [ACTIONS.SEARCH_REQUEST]: departmentController.searchDeptAndUsers,
-    // [ACTIONS.FULL_TREE_REQUEST]: departmentController.getOneDepartmentFullTree,
   };
   if (dict[type] === undefined) throw new Error('ajaxController method not found.');
   return dict[type];

@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { Slider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, Tooltip } from 'ming-ui';
+import { Button, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import orderController from 'src/api/order';
 import upgradeController from 'src/api/upgrade';
 import preall from 'src/common/preall';
@@ -167,8 +168,11 @@ export default class VersionUpgrade extends Component {
       })
       .then(res => {
         if (res) {
-          alert('订单取消成功', 1, 2000, function () {
-            window.location.reload();
+          alert({
+            msg: '订单取消成功',
+            onClose: function () {
+              window.location.reload();
+            },
           });
         } else {
           alert('订单取消失败', 2);
@@ -317,10 +321,11 @@ export default class VersionUpgrade extends Component {
                         <Fragment>
                           <span>{item.name}</span>
                           {!!item.dataTip && (
-                            <Tooltip popupPlacement="bottom" text={<span>{item.dataTip}</span>}>
+                            <Tooltip placement="bottom" title={item.dataTip}>
                               <Icon className="icon icon-help Gray_bd Font16 mLeft3" />
                             </Tooltip>
                           )}
+                          {item.isNew && <span className="newTag">NEW</span>}
                         </Fragment>
                       ) : _.includes(['basicPng', 'basicNo'], content) ? (
                         ''

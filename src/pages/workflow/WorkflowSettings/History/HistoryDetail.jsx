@@ -4,11 +4,13 @@ import _ from 'lodash';
 import moment from 'moment';
 import { func, string } from 'prop-types';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import api from '../../api/instance';
 import instanceVersion from '../../api/instanceVersion';
 import process from '../../api/process';
 import { APP_TYPE, OPERATION_TYPE } from '../enum';
 import HistoryStatus from './components/HistoryStatus';
+import logDialog from './components/logDialog';
 import NodeIcon from './components/NodeIcon';
 import {
   ACTION_TYPE,
@@ -245,6 +247,21 @@ export default class HistoryDetail extends Component {
     );
   }
 
+  renderAgentMessage(item) {
+    const { id } = this.props;
+    const { processInfo } = this.state;
+    const { flowNode } = item;
+
+    return (
+      <span
+        className="ThemeColor3 ThemeHoverColor2 pointer"
+        onClick={() => logDialog({ processId: processInfo.id, nodeId: flowNode.id, instanceId: id })}
+      >
+        {_l('查看详情')}
+      </span>
+    );
+  }
+
   renderRetryBtn(retryPosition) {
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
@@ -254,32 +271,33 @@ export default class HistoryDetail extends Component {
 
     if (showRetry || showSuspend) {
       return (
-        <div
-          className={cx(
-            'historyDetailRetry',
-            isRetry ? 'historyDetailRetryDisabled' : 'ThemeHoverColor2 ThemeHoverBorderColor2',
-          )}
-          data-tip={showRetry ? _l('从失败或中止的节点处开始重试') : _l('中止流程')}
-          onClick={e => {
-            e.stopPropagation();
+        <Tooltip title={showRetry ? _l('从失败或中止的节点处开始重试') : _l('中止流程')}>
+          <div
+            className={cx(
+              'historyDetailRetry',
+              isRetry ? 'historyDetailRetryDisabled' : 'ThemeHoverColor2 ThemeHoverBorderColor2',
+            )}
+            onClick={e => {
+              e.stopPropagation();
 
-            this.retryPosition = retryPosition;
-            this.operationInstance(showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance);
-          }}
-        >
-          {showRetry ? (
-            <Fragment>
-              <Icon className="Font14 mRight3" icon="refresh1" />
-              {_l('重试')}
-              {!!logs.length && '#' + logs.length}
-            </Fragment>
-          ) : (
-            <Fragment>
-              <Icon className="Font14 mRight3" icon="block" />
-              {_l('中止')}
-            </Fragment>
-          )}
-        </div>
+              this.retryPosition = retryPosition;
+              this.operationInstance(showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance);
+            }}
+          >
+            {showRetry ? (
+              <Fragment>
+                <Icon className="Font14 mRight3" icon="refresh1" />
+                {_l('重试')}
+                {!!logs.length && '#' + logs.length}
+              </Fragment>
+            ) : (
+              <Fragment>
+                <Icon className="Font14 mRight3" icon="block" />
+                {_l('中止')}
+              </Fragment>
+            )}
+          </div>
+        </Tooltip>
       );
     }
 
@@ -472,7 +490,9 @@ export default class HistoryDetail extends Component {
                         ? this.renderSubProcess(item)
                         : flowNode.type === 19
                           ? this.renderTemplateInfo(item)
-                          : this.renderOperationInfo(item, index === works.length - 1)}
+                          : flowNode.type === 33
+                            ? this.renderAgentMessage(item)
+                            : this.renderOperationInfo(item, index === works.length - 1)}
                     </div>
 
                     <div className="operationTime Gray_75">

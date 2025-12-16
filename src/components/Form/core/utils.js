@@ -1,3 +1,4 @@
+import loadScript from 'load-script';
 import _, { find, get, isEmpty } from 'lodash';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
@@ -193,6 +194,7 @@ export function formatControlToServer(
     isSubListCopy,
     isDraft,
     isSubList,
+    isFromMingoData,
     isNewRecord,
     needSourceValue,
     needFullUpdate,
@@ -327,6 +329,7 @@ export function formatControlToServer(
             isRelateRecordDropdown ||
             isSingleRelateRecord ||
             isFromDefault ||
+            isFromMingoData ||
             control.editType === 31 ||
             _.get(parsedValue, '0.needFullUpdate')
           ) {
@@ -377,7 +380,15 @@ export function formatControlToServer(
       }
       break;
     case 34: // 子表
-      state = control.store.getState();
+      if (isFromMingoData) {
+        result.value = JSON.stringify(
+          safeParse(control.value, 'array').map(row =>
+            formatRowToServer(row, control.relationControls || [], { isSubList: true }),
+          ),
+        );
+        break;
+      }
+      state = control.store && control.store.getState();
       childTableControls = get(state, 'base.controls') || [];
       if (_.isEmpty(childTableControls)) {
         console.log('childTableControls is empty');
@@ -527,7 +538,7 @@ export function getTitleControlIdFromRelateControl(control = {}) {
 
 const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
   if (recordId) {
-    let baseUrl = `${md.global.Config.WebUrl}/app/${appId}/${worksheetId}`;
+    let baseUrl = `${md.global.Config.WebUrl}app/${appId}/${worksheetId}`;
     if (viewId) {
       baseUrl += `/${viewId}`;
     }
@@ -734,19 +745,19 @@ export function loadSDK() {
   const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
 
   if (window.isDingTalk && !window.dd) {
-    $.getScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
+    loadScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
   }
   if (window.isWeLink && !window.HWH5) {
-    $.getScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
+    loadScript('https://open-doc.welink.huaweicloud.com/docs/jsapi/2.0.4/hwh5-cloudonline.js');
   }
   if (isWx && !window.wx) {
-    $.getScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
+    loadScript('https://res2.wx.qq.com/open/js/jweixin-1.6.0.js');
   }
   if (window.isWxWork && !window.wx) {
-    $.getScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
+    loadScript('https://res.wx.qq.com/open/js/jweixin-1.2.0.js');
   }
   if (window.isFeiShu && !window.h5sdk) {
-    $.getScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
+    loadScript('https://lf1-cdn-tos.bytegoofy.com/goofy/lark/op/h5-js-sdk-1.5.19.js');
   }
 }
 
@@ -880,13 +891,17 @@ export const dealRenderValue = (value, advancedSetting = {}) => {
   return result;
 };
 
-// 标题隐藏按横向排列
-export const getHideTitleStyle = (item = {}, data = []) => {
+// 标题是否横向布局、隐藏按横向排列
+export const getWidgetDisplayRow = ({ item = {}, data = [], widgetStyle = {} }) => {
+  const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
+  if ((browserIsMobile() ? titlelayout_app : titlelayout_pc) === '2' && supportDisplayRow(item)) {
+    return { displayRow: true };
+  }
   const rowWidgets = data.filter(i => i.row === item.row);
-
-  return rowWidgets.every(row => _.get(row, 'advancedSetting.hidetitle') === '1' && supportDisplayRow(row))
-    ? { displayRow: true, titlewidth_pc: '0' }
-    : {};
+  if (rowWidgets.every(row => _.get(row, 'advancedSetting.hidetitle') === '1' && supportDisplayRow(row))) {
+    return { displayRow: true, titlewidth_pc: '0' };
+  }
+  return {};
 };
 
 export const getArrBySpliceType = (filters = []) => {
@@ -1010,5 +1025,50 @@ export function calcSubTotalCount(values = [], control = {}, currentItem = {}) {
 
   return _.uniq(totalValues).length + containsEmptyValues;
 }
+
+export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item }) => {
+  return (
+    !disabledFunctions.includes('controlRefresh') &&
+    from !== FROM.DRAFT &&
+    !isPublicLink() &&
+    recordId &&
+    !recordId.includes('default') &&
+    !recordId.includes('temp') &&
+    md.global.Account.accountId &&
+    ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38, 53], item.type))
+  );
+};
+
+export const getControlDisabled = (item = {}, from, disabledChildTableCheck) => {
+  const isEditable = controlState(item, from).editable;
+  return item.type === 36 ? disabledChildTableCheck || item.disabled || !isEditable : item.disabled || !isEditable;
+};
+
+export const supportTabKeyDown = (data, from, disabledChildTableCheck, supportMarkdownLeave) => {
+  if (!data) return false;
+  const { advancedSetting = {} } = data;
+  const disabled = getControlDisabled(data, from, disabledChildTableCheck);
+  return (
+    !disabled &&
+    advancedSetting.customtype !== '1' &&
+    (_.includes([3, 4, 5, 7, 8, 14, 15, 16, 21, 24, 26, 27, 28, 35, 36, 40, 41, 42, 46, 48], data.type) ||
+      (data.type === 2 && (supportMarkdownLeave || data.enumDefault !== 3)) ||
+      (data.type === 6 && !(advancedSetting.showtype === '2' && advancedSetting.showinput !== '1')) ||
+      (_.includes([9, 10, 11], data.type) && advancedSetting.showtype !== '2'))
+    // (data.type === 29 && !isSheetDisplay(data)))
+  );
+};
+
+// 获取人员字段值
+export const getUserValue = value => {
+  if (!value) return [];
+  if (_.isArray(value)) return value;
+  if (value && typeof value === 'string') {
+    const dealValue = JSON.parse(value);
+    return _.isArray(dealValue) ? dealValue : [dealValue];
+  } else {
+    return [];
+  }
+};
 
 export { controlState, getValueStyle, getTitleTextFromControls, getTitleTextFromRelateControl };

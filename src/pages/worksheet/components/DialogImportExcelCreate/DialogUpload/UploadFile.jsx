@@ -42,7 +42,7 @@ export default class UploadFile extends Component {
   }
 
   initUpload() {
-    const { fileUploaded = () => {}, onFilesAdded = () => {} } = this.props;
+    const { fileUploaded = () => {}, onFilesAdded = () => {}, type = 8 } = this.props;
     this.uploader = createUploader({
       runtimes: 'html5',
       browse_button: this.uplaodaExcel,
@@ -53,7 +53,7 @@ export default class UploadFile extends Component {
       filters: {
         mime_types: [{ extensions: 'xlsx,xls,csv' }],
       },
-      type: 8,
+      type,
       init: {
         Error: (up, err) => {
           const {
@@ -65,7 +65,7 @@ export default class UploadFile extends Component {
             RegExpValidator.getExtOfFileName(name) != 'xls' &&
             RegExpValidator.getExtOfFileName(name) != 'csv'
           ) {
-            alert(_l('文件类型错误，仅支持xls、xlsx、csv文件'), 3, 1000);
+            alert(_l('文件类型错误，仅支持xls、xlsx、csv文件'), 3);
             return;
           }
           if (code === window.plupload.FILE_SIZE_ERROR) {

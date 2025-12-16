@@ -40,7 +40,7 @@ export default class UpgradeService extends Component {
           this.setState({
             allowUpgradeVersion: data.allowUpgradeVersion,
           });
-          alert(_l('版本不需要升级'), 3, 1000);
+          alert(_l('版本不需要升级'), 3);
         } else {
           this.getVersionData();
         }
@@ -78,7 +78,7 @@ export default class UpgradeService extends Component {
             );
           }
         } else {
-          alert(_l('获取升级版本失败'), 2, 1000);
+          alert(_l('获取升级版本失败'), 2);
         }
       });
   }
@@ -141,8 +141,12 @@ export default class UpgradeService extends Component {
       })
       .then(data => {
         if (data) {
-          alert(_l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
-            window.location.href = '/admin/waitingpay/' + Config.projectId + '/' + data.orderId;
+          alert({
+            msg: _l('订单已创建成功，正在转到付款页...'),
+            duration: 500,
+            onClose: function () {
+              window.location.href = '/admin/waitingpay/' + Config.projectId + '/' + data.orderId;
+            },
           });
         } else {
           this.setState({ isPay: false });

@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import { bool, func, number, oneOfType, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
@@ -287,14 +288,12 @@ export default function Steps(props) {
           <PortraitBar ref={barRef}>
             <PortraitContent style={{ height: `${width}%`, backgroundColor: currentColor }} />
             {(!disabled || from === 'recordInfo') && (
-              <PortraitDrag
-                className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
-                color={currentColor}
-                style={{ top: `calc(${width}% - 7px)` }}
-                {...(showTip && !_.isUndefined(currentValue)
-                  ? { 'data-tip': _.get(filterOptions[currentValue], 'value') }
-                  : {})}
-              />
+              <Tooltip
+                title={showTip && !_.isUndefined(currentValue) ? _.get(filterOptions[currentValue], 'value') : ''}
+                placement={tipDirection || 'top'}
+              >
+                <PortraitDrag color={currentColor} style={{ top: `calc(${width}% - 7px)` }} />
+              </Tooltip>
             )}
           </PortraitBar>
           <PortraitScaleBox
@@ -326,9 +325,9 @@ export default function Steps(props) {
                 return (
                   <div className="portraitPointItem">
                     <Tooltip
-                      text={<span>{option.value}</span>}
-                      popupPlacement={tipDirection || 'top'}
-                      disable={from === 'recordInfo' && disabled ? true : !showTip}
+                      title={(from === 'recordInfo' && disabled) || !showTip ? '' : <span>{option.value}</span>}
+                      placement={tipDirection || 'top'}
+                      align={{ offset: [0, -2] }}
                     >
                       <PortraitScalePoint
                         key={option.key}
@@ -390,16 +389,15 @@ export default function Steps(props) {
           <Content style={{ width: `${width}%`, backgroundColor: currentColor }} />
           {(!disabled || from === 'recordInfo') && !_.isUndefined(currentValue) && (
             <Tooltip
-              offset={[0, -2]}
-              disable={!(showTip && !_.isUndefined(currentValue) && _.get(filterOptions[currentValue], 'value'))}
-              text={
-                showTip && !_.isUndefined(currentValue) ? (
+              title={
+                showTip && !_.isUndefined(currentValue) && _.get(filterOptions[currentValue], 'value') ? (
                   <span>{_.get(filterOptions[currentValue], 'value')}</span>
                 ) : undefined
               }
+              placement={tipDirection || 'top'}
+              align={{ offset: [0, -2] }}
             >
               <Drag
-                className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
                 color={currentColor}
                 onClick={() => {
                   // 选项第一个无法选中，点击元素被覆盖
@@ -446,10 +444,9 @@ export default function Steps(props) {
               return (
                 <div className="pointItem">
                   <Tooltip
-                    text={<span>{option.value}</span>}
-                    offset={[0, -2]}
-                    popupPlacement={tipDirection || 'top'}
-                    disable={from === 'recordInfo' && disabled ? true : !showTip}
+                    title={(from === 'recordInfo' && disabled) || !showTip ? '' : <span>{option.value}</span>}
+                    placement={tipDirection || 'top'}
+                    align={{ offset: [0, -2] }}
                   >
                     <div
                       className="pointCon"

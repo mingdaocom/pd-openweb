@@ -5,6 +5,7 @@ import { DragSource, DropTarget } from 'react-dnd';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
+import { Tooltip } from 'ming-ui/antd-components';
 import Textarea from 'ming-ui/components/Textarea';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -47,12 +48,14 @@ class ChecklistOperator extends Component {
         <li className="ThemeBGColor3 clipboard">
           <i className="icon-task-new-copy Font14" />
           {_l('复制清单')}
-          <span
-            className="mLeft25 tip-bottom-left"
-            data-tip={_l('复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。')}
+          <Tooltip
+            title={_l('复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。')}
+            placement="bottomLeft"
           >
-            <i className="icon-help" />
-          </span>
+            <span className="mLeft25">
+              <i className="icon-help" />
+            </span>
+          </Tooltip>
         </li>
         <li className="ThemeBGColor3" onClick={() => this.props.removeCheckList()}>
           <i className="icon-trash" />
@@ -168,7 +171,7 @@ export default class Checklist extends Component {
         evt.preventDefault();
       }
 
-      const name = $.trim(evt.currentTarget.value);
+      const name = evt.currentTarget.value.trim();
 
       this.setState({ isEditName: false });
       this.props.noDragIndexUpdate(-1);
@@ -189,7 +192,7 @@ export default class Checklist extends Component {
         evt.preventDefault();
       }
 
-      const name = $.trim(evt.currentTarget.value);
+      const name = evt.currentTarget.value.trim();
       if (name) {
         this.props.noDragIndexUpdate(-1);
         this.props.addItems(this.props.data.checkListId, name);
@@ -276,12 +279,14 @@ export default class Checklist extends Component {
                 }}
               />
             ) : undefined}
-            <span className="taskDetailFold" data-tip={isHidden ? _l('展开') : _l('收起')}>
-              <i
-                className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
-                onClick={() => this.props.updateTaskFoldStatus(data.checkListId)}
-              />
-            </span>
+            <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
+              <span className="taskDetailFold">
+                <i
+                  className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                  onClick={() => this.props.updateTaskFoldStatus(data.checkListId)}
+                />
+              </span>
+            </Tooltip>
           </div>
 
           {!isHidden ? (

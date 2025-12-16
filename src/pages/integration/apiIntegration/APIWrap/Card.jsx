@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { renderValue } from 'src/pages/integration/apiIntegration/util';
@@ -99,11 +100,7 @@ function AddNode(props) {
       >
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
-        <Tooltip
-          autoCloseDelay={0}
-          popupPlacement="bottom"
-          text={<span>{_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}</span>}
-        >
+        <Tooltip placement="bottom" title={_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}>
           <Icon icon="info_outline" className="Gray_bd Font16 mLeft5" />
         </Tooltip>
       </WrapBtn>
@@ -322,11 +319,7 @@ export default function Card(props) {
                         });
                       }}
                     />
-                    <Tooltip
-                      autoCloseDelay={0}
-                      popupPlacement="topLeft"
-                      text={<span>{_l('安装的API，允许在卡片上修改是否使用网络代理')}</span>}
-                    >
+                    <Tooltip placement="topLeft" title={_l('安装的API，允许在卡片上修改是否使用网络代理')}>
                       <Icon icon="info_outline" className="Gray_75 Font16 mLeft10 mTop4" />
                     </Tooltip>
                   </div>
@@ -356,7 +349,7 @@ export default function Card(props) {
             </div>
           )}
         </CardTopWrap>
-        {renderCon(node)}
+        {renderCon()}
         {showEdit && props.canEdit && (
           <div className="workflowSettings">
             <Detail

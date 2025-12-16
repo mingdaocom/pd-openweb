@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { handleAdvancedSettingChange } from '../../../../util/setting';
 import AssignValue from '../../OptionList/AssignValue';
 
@@ -74,9 +74,10 @@ export default function DropConfig(props) {
           >
             <span>{_l('允许用户增加选项')}</span>
             <Tooltip
-              placement={'bottom'}
-              autoCloseDelay={0}
-              title={_l('勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表')}
+              placement="bottom"
+              title={_l(
+                '勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表。若不勾选，通过工作流、API写入、批量导入等操作仍可将新的选项添加至选项列表。',
+              )}
             >
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
             </Tooltip>

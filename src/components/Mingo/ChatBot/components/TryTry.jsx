@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   .refresh-try {
@@ -92,7 +93,7 @@ function getTryTryList(oldIds = [], num = 3) {
   return result;
 }
 
-export default function TryTry({ data, className, onSelect = () => {} }) {
+export default function TryTry({ data, className, onSelect = () => {}, onFocus = () => {} }) {
   const isRecommend = !!data;
   const [tryTryList, setTryTryList] = useState(data ? data.map(item => ({ text: item })) : getTryTryList());
   return (
@@ -100,11 +101,15 @@ export default function TryTry({ data, className, onSelect = () => {} }) {
       <div className="refresh-try t-flex t-items-center">
         {isRecommend ? _l('猜你想问') : _l('试一试')}
         {!isRecommend && (
-          <Tooltip text={<span>{_l('换一批')}</span>} popupPlacement="top">
+          <Tooltip title={_l('换一批')} placement="top">
             <span
               className="refreshCon t-items-center Hand"
+              onMouseDown={() => {
+                window.isTryRefreshClicked = true;
+              }}
               onClick={() => {
                 setTryTryList(getTryTryList(tryTryList.map(item => item.id)));
+                onFocus();
               }}
             >
               <i className="icon icon-task-later"></i>

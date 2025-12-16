@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Dialog, Icon, LoadDiv, Switch, Tooltip } from 'ming-ui';
+import { Button, Dialog, Icon, LoadDiv, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import accountController from 'src/api/account';
 import accountSetting from 'src/api/accountSetting';
 import actionLogAjax from 'src/api/actionLog';
@@ -88,7 +89,7 @@ export default class SecuritySetting extends Component {
   }
   renderTips = key => {
     return (
-      <Tooltip popupPlacement="top" text={<span>{tipsConfig[key]}</span>}>
+      <Tooltip placement="top" title={tipsConfig[key]}>
         <span className="icon-help Gray_bd Hand mLeft5 Font15" />
       </Tooltip>
     );
@@ -192,7 +193,7 @@ export default class SecuritySetting extends Component {
           {!!geoCity && `（${geoCity}）`}
         </div>
         {!current ? (
-          <Tooltip popupPlacement="right" text={<span>{_l('退出账号')} </span>}>
+          <Tooltip placement="right" title={_l('退出账号')}>
             <div
               class="iconWrap Hand"
               onClick={() => {
@@ -248,13 +249,20 @@ export default class SecuritySetting extends Component {
       return <LoadDiv />;
     }
 
+    //两步验证
+    const showMultipleDevicesUse =
+      !md.global.Config.IsLocal || md.global?.SysSettings?.multipleDevicesUseSwitchType === 3;
+    //允许同时登录
+    const showTwoFactorAuthentication =
+      !md.global.Config.IsLocal || md.global?.SysSettings?.twoFactorAuthenticationSwitchType === 3;
+
     return (
       <div className="securitySettingContainer">
-        {!md.global.Config.IsLocal && (
+        {(!md.global.Config.IsLocal || showTwoFactorAuthentication) && (
           <Fragment>
             <div className="Font17 mBottom30 Bold">{_l('安全设置')}</div>
             <div>
-              {!md.global.Config.IsLocal && (
+              {showTwoFactorAuthentication && (
                 <div className="setRowItem">
                   <div className="label Gray_75">
                     {_l('两步验证')}
@@ -276,7 +284,7 @@ export default class SecuritySetting extends Component {
           </Fragment>
         )}
         <div className="Font17 mTop30 Bold">{_l('设备管理')}</div>
-        {!md.global.Config.IsLocal && (
+        {showMultipleDevicesUse && (
           <div className="setRowItem loginSameTime">
             <div className="label Gray_75">{_l('允许同时登录')}</div>
             <div className="flexColumn">

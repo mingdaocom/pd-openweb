@@ -1,9 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Input, Select, Tooltip } from 'antd';
+import { Input, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ColorPicker, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getPorjectChartColors } from 'statistics/Charts/common';
 import BaseColor from 'statistics/components/ChartStyle/components/Color/BaseColor';
 import { replaceColor } from 'src/pages/customPage/util';
@@ -125,7 +126,7 @@ export default props => {
         <div className="flexRow alignItemsCenter flex">
           {colors.map((data, index) =>
             data.title ? (
-              <Tooltip key={index} title={data.title} color="#000" placement="bottom">
+              <Tooltip key={index} title={data.title} placement="bottom">
                 <div
                   className={cx('colorWrap', data.className, { active: data.value === config.pivoTableColor })}
                   style={{ backgroundColor: data.color }}
@@ -143,7 +144,7 @@ export default props => {
           )}
           {/*
           <div className="colorSpacingLine mLeft0" />
-          <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
+          <Tooltip title={_l('使用图表颜色')} placement="bottom">
             <div
               className={cx('defaultColor', { active: !config.pivoTableColor })}
               onClick={() => {
@@ -185,7 +186,7 @@ export default props => {
         <div className="flexRow alignItemsCenter flex">
           {colors.map((data, index) =>
             data.title ? (
-              <Tooltip key={index} title={data.title} color="#000" placement="bottom">
+              <Tooltip key={index} title={data.title} placement="bottom">
                 <div
                   className={cx('colorWrap', data.className, { active: data.value === config.numberChartColor })}
                   style={{ backgroundColor: data.color }}
@@ -203,7 +204,7 @@ export default props => {
           )}
           {/*
         <div className="colorSpacingLine mLeft0" />
-        <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
+        <Tooltip title={_l('使用图表颜色')} placement="bottom">
           <div
             className={cx('defaultColor', { active: !config.numberChartColor })}
             onClick={() => {
@@ -229,6 +230,7 @@ export default props => {
         titleStyles: {
           ...titleStyles,
           ...data,
+          isInitial: false,
           index: Date.now(),
         },
       });
@@ -376,7 +378,7 @@ export default props => {
           </div>
           {/*
         <div className="colorSpacingLine" />
-        <Tooltip title={_l('使用图表颜色')} color="#000" placement="bottom">
+        <Tooltip title={_l('使用图表颜色')} placement="bottom">
           <div
             className={cx('defaultColor', { active: !config.chartColor })}
             onClick={() => {

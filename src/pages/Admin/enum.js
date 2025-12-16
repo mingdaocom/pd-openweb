@@ -13,7 +13,7 @@ export const PERMISSION_ENUM = {
   SSO_LOGIN: 10940,
   OPEN_INTERFACE: 10950,
   PLATFORM_ACCOUNT_LOGIN: 10960,
-  THIRD_APP: 10915,
+  THIRD_APP: 10915, //第三方应用--仅私有部署
 
   //组织
   BASIC_SETTING: 13100,
@@ -29,8 +29,12 @@ export const PERMISSION_ENUM = {
   USER_ANALYTICS: 15500,
   GENERAL_SETTING: 15700,
 
-  //商户服务
-  MERCHANT_SERVICE: 16000,
+  //支付与开票
+  MANAGE_MERCHANT: 16110,
+  WITHDRAW: 16120,
+  ORDER: 16200,
+  TAX: 16310,
+  INVOICE: 16320,
 
   //日志
   APP_LOG: 17100,
@@ -94,7 +98,12 @@ export const ROUTE_CONFIG = {
   ],
   [PERMISSION_ENUM.USER_ANALYTICS]: ['analytics'],
   [PERMISSION_ENUM.GENERAL_SETTING]: ['settings'],
-  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'order', 'transaction', 'refund', 'withdrawalsrecord'],
+  [PERMISSION_ENUM.MANAGE_MERCHANT]: ['merchant'],
+  [PERMISSION_ENUM.WITHDRAW]: ['merchant'],
+  [PERMISSION_ENUM.ORDER]: ['transaction', 'refund'],
+  [PERMISSION_ENUM.TAX]: ['invoice'],
+  [PERMISSION_ENUM.INVOICE]: ['invoice'],
+
   [PERMISSION_ENUM.APP_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],

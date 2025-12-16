@@ -3,6 +3,7 @@ import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { toFixed } from 'src/utils/control';
 import { formatrChartValue, formatYaxisList, getChartColors, getLegendType, getStyleColor } from './common';
@@ -146,7 +147,7 @@ const getControlMinAndMax = (yaxisList, data) => {
   };
 
   yaxisList.forEach(item => {
-    result[item.controlId] = get(item.controlId);
+    result[item.controlId] = get();
   });
 
   return result;
@@ -376,7 +377,7 @@ export default class extends Component {
       isTransposed: displaySetup.showChartType === 2,
       shape: style.funnelShape,
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: ({ name }) => {
         const index = _.findIndex(data, { name });
@@ -501,9 +502,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

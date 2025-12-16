@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
+import CascaderDropdown from 'src/components/Form/DesktopForm/widgets/Cascader';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { renderText } from 'src/utils/control';

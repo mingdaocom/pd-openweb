@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var taskFlowNodeCfg = {
-
+const taskFlowNodeCfg = {
   /**
    * 获取分类汇总节点配置
    *
@@ -90,7 +89,7 @@ var taskFlowNodeCfg = {
     base.ajaxOptions.url = base.server(options) + 'taskFlowNodeCfg/src';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'taskFlowNodeCfgsrc', args, $.extend(base, options));
-  }
+  },
 };
 
 export default taskFlowNodeCfg;

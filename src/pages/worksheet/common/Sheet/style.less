@@ -115,4 +115,9 @@
 }
 #worksheetRightContentBox {
   position: relative;
+  &.noSelect {
+    * {
+      user-select: none !important;
+    }
+  }
 }

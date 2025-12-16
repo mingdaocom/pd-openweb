@@ -1,24 +1,27 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, LoadDiv, MenuItem, ScrollView, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Icon, LoadDiv, MenuItem, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import flowNode from '../../api/flowNode';
 import process from '../../api/process';
 import sheetAjax from 'src/api/worksheet';
+import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import { selectRecords } from 'src/components/SelectRecords';
 import { getAppFeaturesPath } from 'src/utils/app';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
 import Switch from '../../components/Switch';
-import { updatePublishState } from '../../redux/actions';
+import { clearTestRunning, updatePublishState, updateTestRunning } from '../../redux/actions';
 import { START_APP_TYPE } from '../../WorkflowList/utils';
 import { ProcessParameters } from '../Detail/components';
 import { APP_TYPE, NODE_TYPE } from '../enum';
+import logDialog from '../History/components/logDialog';
 import { getIcons, getStartNodeColor } from '../utils';
 import HistoryVersion, { restoreVision } from './HistoryVersion';
 import './index.less';
@@ -78,8 +81,8 @@ const TestHeader = styled.div`
   &.BGYellow {
     background: #ffa340;
   }
-  &.BGViolet {
-    background: #7e57c2;
+  &.BGDarkRed {
+    background: #a00416;
   }
   &.BGBlueAsh {
     background: #4c7d9e;
@@ -115,6 +118,17 @@ const Footer = styled.div`
   }
 `;
 
+const BotBox = styled.div`
+  width: 400px;
+  height: calc(100vh - 87px);
+  position: absolute;
+  right: 16px;
+  top: 71px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+`;
+
 class Header extends Component {
   static defaultProps = {
     tabIndex: 1,
@@ -134,6 +148,7 @@ class Header extends Component {
       testVisible: false,
       showTestFlow: false,
       startNodeDetail: {},
+      showChatbotDialog: false,
     };
   }
 
@@ -146,6 +161,16 @@ class Header extends Component {
       that.props.switchTabs(2);
       that.setState({ showPublishDialog: false });
     });
+
+    IM.socket.on('workflow_running', result => {
+      if (md.global.Config.pushUniqueId === result.pushUniqueId) {
+        this.props.dispatch(updateTestRunning(result));
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    IM.socket.off('workflow_running');
   }
 
   /**
@@ -272,8 +297,21 @@ class Header extends Component {
    * 渲染测试按钮
    */
   renderTestBtn() {
-    const { flowInfo, isPlugin } = this.props;
-    const { testVisible } = this.state;
+    const { flowInfo, isPlugin, tabIndex } = this.props;
+    const { testVisible, showChatbotDialog } = this.state;
+
+    if (flowInfo.startAppType === APP_TYPE.CHATBOT) {
+      if (showChatbotDialog || tabIndex !== 1) return null;
+
+      return (
+        <span
+          className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3"
+          onClick={() => this.setState({ showChatbotDialog: true })}
+        >
+          {_l('测试')}
+        </span>
+      );
+    }
 
     // 未发布和非立即执行的只有测试
     if (
@@ -465,6 +503,7 @@ class Header extends Component {
         onText: _l('开始测试'),
         allowNewRecord: true,
         allowAdd: true,
+        showMoreControls: true,
         onOk: selectedRecords => {
           isTest
             ? this.sendTestFlow({ sourceId: selectedRecords[0].rowid })
@@ -491,7 +530,7 @@ class Header extends Component {
    * 发送测试流程
    */
   sendTestFlow = ({ sourceId, fields } = {}) => {
-    const { flowInfo, isPlugin } = this.props;
+    const { flowInfo } = this.props;
     let hasError = 0;
 
     (fields || []).forEach(o => {
@@ -504,6 +543,8 @@ class Header extends Component {
       alert(_l('有必填字段未填写'), 2);
       return;
     }
+
+    this.props.dispatch(clearTestRunning());
 
     process
       .startProcessById({
@@ -518,7 +559,7 @@ class Header extends Component {
         if (result.processWarnings) {
           this.setState({ showTestFlow: false, publishErrorVisible: true, errorInfo: result });
         } else {
-          location.href = `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/2/${result.id}`;
+          this.setState({ showTestFlow: false });
         }
       });
   };
@@ -753,49 +794,65 @@ class Header extends Component {
       });
   };
 
+  /**
+   * 渲染对话机器人对话框
+   */
+  renderChatbotDialog() {
+    const { flowInfo, workflowDetail } = this.props;
+
+    return (
+      <BotBox>
+        <WorkflowChatBot
+          chatbotId={flowInfo.id}
+          conversationId={'test-' + get(md, 'global.Account.accountId')}
+          isTest
+          showOperateHeader
+          onClose={() => this.setState({ showChatbotDialog: false })}
+          onOpenMessageLog={({ instanceId }) => {
+            logDialog({
+              processId: flowInfo.id,
+              nodeId: workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId,
+              instanceId,
+            });
+          }}
+        />
+      </BotBox>
+    );
+  }
+
   render() {
     const { tabIndex, switchTabs, flowInfo, isIntegration, isPlugin, openFlowInfo } = this.props;
-    const { publishErrorVisible, errorInfo, isProgressing, showTestFlow } = this.state;
+    const { publishErrorVisible, errorInfo, isProgressing, showTestFlow, showChatbotDialog } = this.state;
     const tabs = TABS_OPTS.filter(
       item => (flowInfo.startAppType !== APP_TYPE.APPROVAL_START && !isPlugin) || item.tabIndex !== 3,
     );
     const formatString = _l('YYYY年M月D日 HH:mm');
 
     return (
-      <div className={cx('workflowSettingsHeader flexRow', { workflowReleaseHeader: flowInfo.parentId })}>
-        <div
-          className="workflowReturn tip-bottom-right"
-          onClick={this.back}
-          data-tip={flowInfo.parentId ? _l('返回最新版本') : _l('返回')}
-        >
-          <i className="icon-backspace" />
-        </div>
+      <div className={cx('workflowSettingsHeader flexRow relative', { workflowReleaseHeader: flowInfo.parentId })}>
+        <Tooltip title={flowInfo.parentId ? _l('返回最新版本') : _l('返回')} placement="bottomRight">
+          <div className="workflowReturn" onClick={this.back}>
+            <i className="icon-backspace" />
+          </div>
+        </Tooltip>
 
-        <div
-          className="iconWrap mRight10"
-          style={{
-            backgroundColor: (START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconColor,
-          }}
-          data-tip={flowInfo.child ? _l('子流程') : START_APP_TYPE[flowInfo.startAppType]?.text}
-        >
-          <Icon icon={(START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconName} />
-        </div>
+        <Tooltip title={flowInfo.child ? _l('子流程') : START_APP_TYPE[flowInfo.startAppType]?.text}>
+          <div
+            className="iconWrap mRight10"
+            style={{
+              backgroundColor: (START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconColor,
+            }}
+          >
+            <Icon icon={(START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconName} />
+          </div>
+        </Tooltip>
 
         <div className="flex relative w100 h100">
           <div className="flexColumn workflowHeaderDesc">
             <div className="Font17 ellipsis pointer" onClick={openFlowInfo}>
               {flowInfo.name}
               {flowInfo.explain && (
-                <Tooltip
-                  autoCloseDelay={0}
-                  themeColor="white"
-                  popupPlacement="bottomLeft"
-                  tooltipStyle={{ maxWidth: 640 }}
-                  offset={[-12, 0]}
-                  text={
-                    <div style={{ maxHeight: 480, overflowY: 'auto', whiteSpace: 'pre-wrap' }}>{flowInfo.explain}</div>
-                  }
-                >
+                <Tooltip placement="bottomLeft" align={{ offset: [-12, 0] }} type="white" title={flowInfo.explain}>
                   <Icon icon="info" className="Gray_9e Font18 mLeft5" />
                 </Tooltip>
               )}
@@ -805,28 +862,30 @@ class Header extends Component {
             </div>
             {flowInfo.lastPublishDate &&
               (flowInfo.parentId ? (
-                <div className="Font12">
+                <div className="Font12 ellipsis">
                   <span className="Gray_75 mRight5">
                     {_l('版本：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
                   </span>
-                  <span data-tip={_l('恢复到此版本')}>
-                    <Icon
-                      className="Font14 pointer"
-                      icon="restore2"
-                      onClick={() =>
-                        restoreVision({
-                          ...flowInfo,
-                          date: flowInfo.lastPublishDate,
-                          currentFlowId: flowInfo.parentId,
-                          isIntegration,
-                          isPlugin,
-                        })
-                      }
-                    />
-                  </span>
+                  <Tooltip title={_l('恢复到此版本')}>
+                    <span>
+                      <Icon
+                        className="Font14 pointer"
+                        icon="restore2"
+                        onClick={() =>
+                          restoreVision({
+                            ...flowInfo,
+                            date: flowInfo.lastPublishDate,
+                            currentFlowId: flowInfo.parentId,
+                            isIntegration,
+                            isPlugin,
+                          })
+                        }
+                      />
+                    </span>
+                  </Tooltip>
                 </div>
               ) : (
-                <div className="Font12">
+                <div className="Font12 ellipsis">
                   <span className="Gray_75 mRight5">
                     {_l('上次发布：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
                   </span>
@@ -844,14 +903,17 @@ class Header extends Component {
                 active: tabIndex === item.tabIndex,
                 mRight60: TABS_OPTS.length - 1 === i,
               })}
-              onClick={() => switchTabs(item.tabIndex)}
+              onClick={() => {
+                switchTabs(item.tabIndex);
+                this.setState({ showChatbotDialog: false });
+              }}
             >
               {item.name}
             </div>
           );
         })}
 
-        <div className="flex flexRow" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex flexRow" style={{ justifyContent: 'flex-end', minWidth: 'fit-content' }}>
           {flowInfo.parentId ? (
             <div className="Font12 workflowReleaseBox">
               {_l('发布时间：%0', moment(flowInfo.lastPublishDate).format(formatString))}
@@ -859,7 +921,7 @@ class Header extends Component {
           ) : (
             <Fragment>
               {!_.includes([APP_TYPE.WEBHOOK, APP_TYPE.USER, APP_TYPE.EXTERNAL_USER], flowInfo.startAppType) &&
-                (flowInfo.publishStatus !== 2 || isPlugin) &&
+                (flowInfo.publishStatus !== 2 || isPlugin || flowInfo.startAppType === APP_TYPE.CHATBOT) &&
                 this.renderTestBtn()}
 
               {flowInfo.publishStatus === 2 &&
@@ -913,6 +975,8 @@ class Header extends Component {
         {this.renderPublishDialog()}
 
         {showTestFlow && this.renderTestFlow()}
+
+        {showChatbotDialog && this.renderChatbotDialog()}
       </div>
     );
   }

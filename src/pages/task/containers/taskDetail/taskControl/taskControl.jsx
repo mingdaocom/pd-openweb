@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import CustomFields from 'src/components/newCustomFields';
+import { Tooltip } from 'ming-ui/antd-components';
+import CustomFields from 'src/components/Form';
 import { deleteAttachment } from 'src/pages/kc/common/AttachmentsPreview/ajax';
 import config from '../../../config/config';
 import { taskFoldStatus, updateControlValue, updateTaskControlFiles } from '../../../redux/actions';
@@ -249,12 +250,14 @@ class TaskControl extends Component {
           <i className="icon-task-extension" />
           {_l('自定义内容')}
           <div className="flex" />
-          <span className="taskDetailFold" data-tip={isHidden ? _l('展开') : _l('收起')}>
-            <i
-              className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
-              onClick={this.updateTaskFoldStatus}
-            />
-          </span>
+          <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
+            <span className="taskDetailFold">
+              <i
+                className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                onClick={this.updateTaskFoldStatus}
+              />
+            </span>
+          </Tooltip>
         </div>
         {!isHidden && (
           <div className="pLeft12 pRight12 taskCustomFields">

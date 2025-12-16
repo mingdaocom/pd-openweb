@@ -96,7 +96,7 @@ export const formatTaskNodeData = (dataList = [], firstId) => {
 
     list
       .filter(item => item.y > 0)
-      .map(item => {
+      .forEach(item => {
         if (!rowObj[item.y]) {
           rowObj[item.y] = [item.x];
         } else {
@@ -118,7 +118,7 @@ export const formatTaskNodeData = (dataList = [], firstId) => {
       .forEach(line => {
         list
           .filter(item => item.y >= line)
-          .map(item => {
+          .forEach(item => {
             item.y = item.y - 1;
           });
       });
@@ -318,14 +318,14 @@ export const formatFieldsByType = list => {
   const oidStrList = [...PERSONNEL_FIELDS, ...DEPT_FIELDS, ...RELATED_RECORD_FIELDS].map(o => o.id);
   const isIn = str => {
     let inStr = false;
-    oidStrList.map(o => {
+    oidStrList.forEach(o => {
       if (str.indexOf(o) >= 0) {
         inStr = true;
       }
     });
     return inStr;
   };
-  list.map(control => {
+  list.forEach(control => {
     const commonObj = control;
     if (_.includes([26, 27, 29], control.mdType) && !isIn(control.oid)) {
       const type = control.mdType;

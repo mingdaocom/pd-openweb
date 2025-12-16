@@ -6,15 +6,16 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Dialog, RichText, ScrollView, Skeleton } from 'ming-ui';
-import weixinApi from 'src/api/weixin';
 import { Absolute, FormTopImgCon } from 'worksheet/components/Basics';
 import { VerificationPass } from 'worksheet/components/ShareState';
-import BgContainer from 'src/pages/publicWorksheetConfig/components/BgContainer';
-import Qr from 'src/pages/publicWorksheetConfig/components/Qr';
-import { getPageConfig } from 'src/pages/publicWorksheetConfig/utils';
+import ShareCardConfig from 'src/components/ShareCardConfig';
+import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
+import { themes } from 'src/pages/FormExtend/enum';
+import BgContainer from 'src/pages/FormExtend/PublicWorksheetConfig/components/BgContainer';
+import Qr from 'src/pages/FormExtend/PublicWorksheetConfig/components/Qr';
+import { getPageConfig } from 'src/pages/FormExtend/utils';
 import { getRequest } from 'src/utils/common';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
-import { themes, WX_ICON_LIST } from '../publicWorksheetConfig/enum';
 import { getFormData, getPublicWorksheet, getPublicWorksheetInfo } from './action';
 import { FILL_STATUS } from './enum';
 import FillWorksheet from './FillWorksheet';
@@ -46,6 +47,7 @@ export default class PublicWorksheet extends React.Component {
       passWord: '',
       pageConfigKey: urlParams.get('source') || '',
       preFillDescVisible: true,
+      submitRes: {},
     };
     window.isPublicWorksheet = _.get(window, 'shareState.isPublicFormPreview') ? false : true;
   }
@@ -70,10 +72,6 @@ export default class PublicWorksheet extends React.Component {
         alert(_l('地址有误，无法找到相关数据！'), 2);
       }
 
-      if (window.isWeiXin && !window.wx) {
-        $.getScript('https://res.wx.qq.com/open/js/jweixin-1.6.0.js');
-      }
-
       const shareId = urlMatch[1];
       window.publicWorksheetShareId = shareId;
       this.shareId = shareId;
@@ -87,13 +85,14 @@ export default class PublicWorksheet extends React.Component {
             alert(_l('你访问的表单暂未开放!'), 3);
           }
 
-          if (window.isWeiXin && window.wx) {
-            const shareConfig = safeParse(_.get(info, 'publicWorksheetInfo.extendDatas.shareConfig'));
-            this.setWxShareConfig(
-              shareConfig,
-              _.get(info, 'publicWorksheetInfo.name'),
-              _.get(info, 'publicWorksheetInfo.projectId'),
-            );
+          if (window.isWeiXin) {
+            ShareCardConfig({
+              title: `${_.get(info, 'publicWorksheetInfo.name')} - ${_l('公开填写')}`,
+              desc: _l('请填写内容'),
+              projectId: _.get(info, 'publicWorksheetInfo.projectId'),
+              worksheetId: _.get(info, 'publicWorksheetInfo.worksheetId'),
+              type: SHARECARDTYPS.PUBLICWORKSHEET,
+            });
           }
         },
       );
@@ -110,39 +109,10 @@ export default class PublicWorksheet extends React.Component {
     }
   };
 
-  setWxShareConfig(shareConfig, formName, projectId) {
-    const entryUrl = sessionStorage.getItem('entryUrl');
-    weixinApi.getWeiXinConfig({ url: encodeURI(entryUrl || location.href), projectId }).then(({ data, code }) => {
-      if (code === 1) {
-        window.wx.config({
-          debug: false,
-          appId: data.appId,
-          timestamp: data.timestamp,
-          nonceStr: data.nonceStr,
-          signature: data.signature,
-          jsApiList: ['updateAppMessageShareData'],
-        });
-
-        wx.ready(function () {
-          //需在用户可能点击分享按钮前就先调用
-          wx.updateAppMessageShareData({
-            title: shareConfig.title || `${formName} - ${_l('公开填写')}`,
-            desc: shareConfig.desc || _l('请填写内容'),
-            link: location.href,
-            imgUrl: shareConfig.icon || md.global.FileStoreConfig.pubHost + WX_ICON_LIST[0],
-            success: function () {
-              console.log('设置成功');
-            },
-          });
-        });
-      }
-    });
-  }
-
   onClosePreFillDesc = () => this.setState({ preFillDescVisible: false });
 
-  onSubmit = (submitResutl, data, submitSuccess = () => {}) => {
-    const { isPayOrder, rowId, isAtOncePayment, isPaySuccessAddRecord } = submitResutl || {};
+  onSubmit = (submitResult, data, submitSuccess = () => {}) => {
+    const { isPayOrder, rowId, isAtOncePayment, isPaySuccessAddRecord, isOpenInvoice } = submitResult || {};
     const { worksheetId, extendDatas } = this.state.publicWorksheetInfo || {};
 
     const afterSubmit = safeParse(_.get(extendDatas, 'afterSubmit'));
@@ -167,11 +137,20 @@ export default class PublicWorksheet extends React.Component {
         paySuccessReturnUrl: jumpUrl,
         isPaySuccessAddRecord,
         notDialog,
-        payFinished: ({ onCancel, isSuccess }) => {
+        payFinished: ({ onCancel, isSuccess, amount, orderId }) => {
           if (isPaySuccessAddRecord && isSuccess) {
             submitSuccess();
             if (!notDialog) {
-              this.setState({ status: FILL_STATUS.COMPLETED, fillData: data });
+              this.setState({
+                status: FILL_STATUS.COMPLETED,
+                fillData: data,
+                submitRes: {
+                  isPaySuccessAddRecord: true,
+                  isOpenInvoice,
+                  amount,
+                  orderId,
+                },
+              });
               onCancel();
             }
           }
@@ -229,11 +208,13 @@ export default class PublicWorksheet extends React.Component {
 
   render() {
     const { isPreview } = this.props;
-    const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey } = this.state;
+    const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey, submitRes } = this.state;
     const { worksheetId, writeScope } = publicWorksheetInfo;
+
     const request = getRequest();
     const { bg, cover } = request;
     const hideBg = bg === 'no';
+
     const config = getPageConfig(_.get(publicWorksheetInfo, 'extendDatas.pageConfigs'), pageConfigKey);
     const { themeBgColor, layout, cover: coverPic, showQrcode, themeColor } = config;
     const bgShowTop = (layout === 2 || hideBg) && !loading;
@@ -324,6 +305,7 @@ export default class PublicWorksheet extends React.Component {
                   formData={formData}
                   rules={rules}
                   fillData={this.state.fillData}
+                  submitRes={submitRes}
                 />
               ) : (
                 <FillWorksheet

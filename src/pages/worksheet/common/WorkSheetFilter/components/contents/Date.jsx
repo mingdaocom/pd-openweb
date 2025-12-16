@@ -4,7 +4,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Checkbox, Dropdown, MdAntDateRangePicker } from 'ming-ui';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
-import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import DatePicker from 'src/components/Form/DesktopForm/widgets/Date';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { DATE_OPTIONS, DATE_RANGE_TYPE, DATE_RANGE_TYPE_OPTIONS, FILTER_CONDITION_TYPE } from '../../enum';
 

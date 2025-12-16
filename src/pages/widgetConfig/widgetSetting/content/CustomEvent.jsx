@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, Tooltip } from 'antd';
+import { Collapse } from 'antd';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
 import { Dropdown, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getTextById } from 'src/pages/FormSet/components/columnRules/config.js';
 import { getFilterControls } from '../../util/data';
@@ -260,7 +261,6 @@ export default function CustomEvent(props) {
             </div>
           </Fragment>
         );
-      // TODO：这两个暂时用不上、按钮才能配
       case ACTION_VALUE_ENUM.LINK:
         return <div className="textCon LineHeight30">{renderDynamicValue(message)}</div>;
       case ACTION_VALUE_ENUM.CREATE:

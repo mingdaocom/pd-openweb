@@ -60,7 +60,7 @@ class DateTBody extends Component {
     let jIndex;
     let current;
     const dateTable = [];
-    const today = getTodayTime(value);
+    const today = getTodayTime();
     const cellClass = `${prefixCls}-cell`;
     const dateClass = `${prefixCls}-date`;
     const todayClass = `${prefixCls}-today`;

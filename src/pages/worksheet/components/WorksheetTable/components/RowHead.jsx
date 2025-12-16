@@ -5,7 +5,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Checkbox, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import { FlexCenter } from 'worksheet/components/Basics';
@@ -442,10 +443,9 @@ export default function RowHead(props) {
 
           return localStorage.getItem('row_head_no_show_tip') !== '1' ? (
             <Tooltip
-              destroyPopupOnHide
-              popupPlacement="bottom"
-              text={() => (document.querySelector('.cell.focus') ? _l('打开记录（空格）') : _l('打开记录'))}
-              onToolTipVisibleChange={visible => {
+              placement="bottom"
+              title={() => (document.querySelector('.cell.focus') ? _l('打开记录（空格）') : _l('打开记录'))}
+              onOpenChange={visible => {
                 if (visible) {
                   setTimeout(() => localStorage.setItem('row_head_no_show_tip', '1'), 1000);
                 }

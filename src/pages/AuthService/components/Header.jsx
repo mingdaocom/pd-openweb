@@ -9,7 +9,7 @@ function Header(props) {
     if (hasGetLogo) {
       brandLogo = isDefaultLogo ? '' : logo;
     } else {
-      brandLogo = logo || `${_.get(md, 'global.FileStoreConfig.pictureHost')}ProjectLogo/default.png`;
+      brandLogo = logo || `${_.get(md, 'global.FileStoreConfig.pictureHost')}/ProjectLogo/default.png`;
     }
   } else {
     brandLogo = logo || _.get(md, 'global.SysSettings.brandLogoUrl');

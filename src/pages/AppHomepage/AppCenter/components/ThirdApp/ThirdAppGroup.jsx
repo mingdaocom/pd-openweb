@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import { array, shape, string } from 'prop-types';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import placeholderPic from '../../assets/thirdAppPlaceholder.png';
 
 const TYPE_TO_TITLE = {
@@ -16,25 +17,29 @@ const ThirdAppItem = ({ onSetTopClick, appId, projectId, appName, avatar, isTop,
     </div>
     <div className="name">{appName}</div>
     <div className="operatorIconWrap">
-      <span data-tip={isTop ? _l('取消置顶') : _l('置顶')}>
-        <Icon
-          icon="set_top"
-          onClick={e => {
-            e.stopPropagation();
-            onSetTopClick(!isTop, { appId, projectId });
-          }}
-          className={cx({ active: isTop })}
-        />
-      </span>
-      <span data-tip={_l('设置')}>
-        <Icon
-          icon="settings"
-          onClick={e => {
-            e.stopPropagation();
-            window.open(settingUrl);
-          }}
-        />
-      </span>
+      <Tooltip title={isTop ? _l('取消置顶') : _l('置顶')}>
+        <span>
+          <Icon
+            icon="set_top"
+            onClick={e => {
+              e.stopPropagation();
+              onSetTopClick(!isTop, { appId, projectId });
+            }}
+            className={cx({ active: isTop })}
+          />
+        </span>
+      </Tooltip>
+      <Tooltip title={_l('设置')}>
+        <span>
+          <Icon
+            icon="settings"
+            onClick={e => {
+              e.stopPropagation();
+              window.open(settingUrl);
+            }}
+          />
+        </span>
+      </Tooltip>
     </div>
   </div>
 );

@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
 import _, { isEmpty } from 'lodash';
-import { Dialog, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
+import { Dialog, LoadDiv, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
 import { WHOLE_SIZE } from '../../config/Drag';
@@ -17,7 +18,7 @@ import {
   parseDataSource,
   resortControlByColRow,
 } from '../../util';
-import { isSingleRelateSheet, updateConfig } from '../../util/setting';
+import { handleAdvancedSettingChange, isSingleRelateSheet, updateConfig } from '../../util/setting';
 import { isFullLineControl } from '../../util/widgets';
 import WorksheetReference from '../components/WorksheetReference';
 
@@ -238,10 +239,13 @@ export default function SheetField(props) {
                       key={item.controlId}
                       onClick={() => {
                         onChange({
-                          sourceControlId: item.controlId,
-                          sourceControl: item,
-                          controlName: item.controlName,
-                          size: isFullLineControl(item) ? WHOLE_SIZE : data.size,
+                          ...handleAdvancedSettingChange(data, { datamask: '0' }),
+                          ...{
+                            sourceControlId: item.controlId,
+                            sourceControl: item,
+                            controlName: item.controlName,
+                            size: isFullLineControl(item) ? WHOLE_SIZE : data.size,
+                          },
                         });
                         setInfo({ controlDel: false });
                       }}
@@ -264,11 +268,7 @@ export default function SheetField(props) {
             })}
           >
             {data.sourceControlId ? (
-              <Tooltip
-                text={<span>{_l('ID: %0', data.sourceControlId)}</span>}
-                popupPlacement="bottom"
-                disable={!controlDel}
-              >
+              <Tooltip title={!controlDel ? '' : <span>{_l('ID: %0', data.sourceControlId)}</span>} placement="bottom">
                 <span className="breakAll">{controlDel ? _l('字段已删除') : controlName}</span>
               </Tooltip>
             ) : (

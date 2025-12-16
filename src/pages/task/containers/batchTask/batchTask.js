@@ -510,10 +510,10 @@ BatchTask.updateUserNotice = function () {
         alert(notice ? _l('已开启任务提醒') : _l('已关闭任务提醒'));
         if (notice) {
           $iconTaskNoNews.removeClass('close');
-          $iconTaskNoNews.attr('data-tip', _l('批量关闭消息提醒')).data('bindDate', false);
+          $iconTaskNoNews.attr('title', _l('批量关闭消息提醒')).data('bindDate', false);
         } else {
           $iconTaskNoNews.addClass('close');
-          $iconTaskNoNews.attr('data-tip', _l('批量打开消息提醒')).data('bindDate', false);
+          $iconTaskNoNews.attr('title', _l('批量打开消息提醒')).data('bindDate', false);
         }
       } else {
         errorMessage(source.error);
@@ -534,10 +534,10 @@ BatchTask.updateTaskLocked = function (lock) {
         const $iconTaskNoNews = $('#batchTask .batchIcon.iconTaskNewLocked');
         if (lock) {
           $iconTaskNoNews.find('i').removeClass('icon-lock').addClass('icon-task-new-no-locked');
-          $iconTaskNoNews.attr('data-tip', _l('批量解锁任务')).data('bindDate', false);
+          $iconTaskNoNews.attr('title', _l('批量解锁任务')).data('bindDate', false);
         } else {
           $iconTaskNoNews.find('i').addClass('icon-lock').removeClass('icon-task-new-no-locked');
-          $iconTaskNoNews.attr('data-tip', _l('批量锁定任务')).data('bindDate', false);
+          $iconTaskNoNews.attr('title', _l('批量锁定任务')).data('bindDate', false);
         }
 
         const noAuth = source.data.noAuth;
@@ -555,12 +555,12 @@ BatchTask.updateTaskLocked = function (lock) {
         } else {
           if (lock) {
             $iconTaskNoNews.find('i').removeClass('icon-lock').addClass('icon-task-new-no-locked');
-            $iconTaskNoNews.attr('data-tip', _l('批量锁定任务')).data('bindDate', false);
+            $iconTaskNoNews.attr('title', _l('批量锁定任务')).data('bindDate', false);
             // 加锁
             $('#taskList .selectTask .markTask').addClass('lockToOtherTask');
           } else {
             $iconTaskNoNews.find('i').addClass('icon-lock').removeClass('icon-task-new-no-locked');
-            $iconTaskNoNews.attr('data-tip', _l('批量锁定任务')).data('bindDate', false);
+            $iconTaskNoNews.attr('title', _l('批量锁定任务')).data('bindDate', false);
             // 加锁
             $('#taskList .selectTask .markTask').removeClass('lockToOtherTask');
           }
@@ -700,7 +700,7 @@ BatchTask.updateTaskStatus = function (status) {
             } else {
               // 标记完成
               if (status == 1) {
-                $('#taskList .selectTask .markTask').addClass('completeHook').attr('data-tip', _l('标记未完成'));
+                $('#taskList .selectTask .markTask').addClass('completeHook').attr('title', _l('标记未完成'));
                 $('#taskList .selectTask .spanName').addClass('completeTask');
                 $('#batchTask .taskDetailStatusBtn').addClass('active');
                 $('#batchTaskNoStart').addClass('Hidden');
@@ -708,7 +708,7 @@ BatchTask.updateTaskStatus = function (status) {
                 $('#batchTaskComplete .detailTimeLabelText').html(_l('实际结束于%0', moment().format('MMMDo HH:mm')));
                 alert(_l('已标记完成'));
               } else {
-                $('#taskList .selectTask .markTask').removeClass('completeHook').attr('data-tip', _l('标记完成'));
+                $('#taskList .selectTask .markTask').removeClass('completeHook').attr('title', _l('标记完成'));
                 $('#taskList .selectTask .spanName').removeClass('completeTask');
                 $('#batchTask .taskDetailStatusBtn').removeClass('active');
                 $('#batchTaskNoStart').removeClass('Hidden');
@@ -777,7 +777,7 @@ BatchTask.addMembers = function (users, callbackInviteResult) {
   const specialAccounts = {};
 
   // 外部用户
-  if ($.isFunction(callbackInviteResult)) {
+  if (_.isFunction(callbackInviteResult)) {
     $.each(users, (i, item) => {
       specialAccounts[item.account] = item.fullname;
     });
@@ -794,7 +794,7 @@ BatchTask.addMembers = function (users, callbackInviteResult) {
       specialAccounts: specialAccounts,
     })
     .then(source => {
-      if ($.isFunction(callbackInviteResult)) {
+      if (_.isFunction(callbackInviteResult)) {
         callbackInviteResult({ status: source.status });
       }
 
@@ -945,7 +945,7 @@ BatchTask.builAuthTask = function (data, args, type, title) {
       // 项目
       if (!folderId) {
         taskId = $item.data('taskid');
-        if ($.inArray(taskId, noAuth) > -1) {
+        if (_.indexOf(noAuth, taskId) > -1) {
           avatar = $item.find('.chargeTd img').attr('src') || md.global.Account.avatar;
           authObj.push({
             TaskID: $item.data('taskid'),
@@ -959,7 +959,7 @@ BatchTask.builAuthTask = function (data, args, type, title) {
       } else {
         if (viewType === config.folderViewType.treeView) {
           taskId = $item.parent().data('taskid');
-          if ($.inArray(taskId, noAuth) > -1) {
+          if (_.indexOf(noAuth, taskId) > -1) {
             authObj.push({
               TaskID: taskId,
               TaskName: $item.find('.taskListNameBox .spanName').attr('title'),
@@ -971,7 +971,7 @@ BatchTask.builAuthTask = function (data, args, type, title) {
           }
         } else {
           taskId = $item.data('taskid');
-          if ($.inArray(taskId, noAuth) > -1) {
+          if (_.indexOf(noAuth, taskId) > -1) {
             authObj.push({
               TaskID: $item.data('taskid'),
               TaskName: $item.find('.listStageTaskName').attr('title'),
@@ -999,9 +999,9 @@ BatchTask.afterUpdatePart = function ($item, type, args) {
   if (type === 'markTask') {
     // 标记完成
     if (args.status == 1) {
-      $item.find('.markTask').addClass('completeHook').attr('data-tip', _l('标记未完成'));
+      $item.find('.markTask').addClass('completeHook').attr('title', _l('标记未完成'));
     } else {
-      $item.find('.markTask').removeClass('completeHook').attr('data-tip', _l('标记完成'));
+      $item.find('.markTask').removeClass('completeHook').attr('title', _l('标记完成'));
     }
   } else if (type === 'lockTask') {
     if (args.lock) {

@@ -4,7 +4,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import filterXss from 'xss';
-import { Button, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Button, Icon, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import appManagementAjax from 'src/api/appManagement';
 import downloadAjax from 'src/api/download';
@@ -140,6 +141,7 @@ export default class AppAndWorksheetLog extends Component {
       disabledExportBtn: false,
       isAuthority: true, // 是否有权限（应用： 管理员、运营者，后台超级管理员）
       showWorksheetLog: !!oldsheetlog,
+      activeDateRange: [],
     };
     this.columns = columns
       .map(item => {
@@ -242,7 +244,7 @@ export default class AppAndWorksheetLog extends Component {
                   : '';
                 const txt = (isUser ? message : opeartContent).replace(/<a.*?>/, '').replace(/<\/a>/, '');
                 return opeartContent ? (
-                  <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom" autoCloseDelay={0}>
+                  <Tooltip title={<spam>{txt}</spam>} placement="bottom">
                     <span
                       className="wMax100 ellipsis InlineBlock"
                       dangerouslySetInnerHTML={{ __html: isUser ? filterXss(message) : filterXss(opeartContent) }}
@@ -331,7 +333,15 @@ export default class AppAndWorksheetLog extends Component {
 
   getConditions = () => {
     const { appId, projectId } = this.props;
-    const { logType, appList, searchValues, worksheetList, isMoreApp, archivedItem = {} } = this.state;
+    const {
+      logType,
+      appList,
+      searchValues,
+      worksheetList,
+      isMoreApp,
+      archivedItem = {},
+      activeDateRange = [],
+    } = this.state;
     const {
       appIds = [],
       worksheetIds = [],
@@ -383,13 +393,19 @@ export default class AppAndWorksheetLog extends Component {
               : [moment(archivedItem.start, 'YYYY-MM-DD').subtract(30, 'days'), moment(archivedItem.end, 'YYYY-MM-DD')],
             format: 'YYYY-MM-DD',
             value: !_.isEmpty(dateTimeRange) ? [dateTimeRange.startDate, dateTimeRange.endDate] : [],
+            onCalendarChange: val => {
+              this.setState({ activeDateRange: val });
+            },
             disabledDate: current => {
               if (md.global.Config.IsLocal) {
-                return (
-                  current < moment(endDate).subtract(6, 'months') ||
-                  current > moment(startDate).add(6, 'months').format('YYYYMMDDHHmmss')
-                );
+                if (!activeDateRange) {
+                  return false;
+                }
+                const tooLate = activeDateRange[0] && current.diff(activeDateRange[0], 'months') > 5;
+                const tooEarly = activeDateRange[1] && activeDateRange[1].diff(current, 'months') > 5;
+                return !!tooEarly || !!tooLate;
               }
+
               return current < moment().subtract(1, 'day').subtract(6, 'months');
             },
           },
@@ -726,7 +742,7 @@ export default class AppAndWorksheetLog extends Component {
           <div>
             {md.global.Config.IsLocal ? '' : <span className="tipInfo">{_l('保留最近6个月的日志')}</span>}
             {appId && (
-              <Tooltip text={_l('查看旧版工作表日志')}>
+              <Tooltip title={_l('查看旧版工作表日志')}>
                 <i
                   className="icon icon-draft-box Gray_9 Hand mLeft26 Font17 Hover_21"
                   onClick={() => this.setState({ showWorksheetLog: true })}
@@ -757,10 +773,7 @@ export default class AppAndWorksheetLog extends Component {
               className="icon-task-later Gray_9 hoverText mRight26 Font17 mLeft26"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
             />
-            <Tooltip
-              text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
-              popupPlacement="bottom"
-            >
+            <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
               <Button
                 type="primary"
                 className="export"

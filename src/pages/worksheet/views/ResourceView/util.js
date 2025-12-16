@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import moment from 'moment';
+import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
 import { renderText as renderCellText } from 'src/utils/control';
 import { dateConvertToUserZone } from 'src/utils/project';
@@ -173,11 +174,13 @@ export const getViewTimesList = (view = {}, time) => {
 /**
  * 处理记录时间
  */
-export const formatRecordTime = (row, view) => {
+export const formatRecordTime = (row, view, controls = []) => {
   const { advancedSetting } = view;
   const { begindate, enddate } = advancedSetting;
-  let startTime = dateConvertToUserZone(moment(row[begindate]));
-  let endTime = dateConvertToUserZone(moment(row[enddate]));
+  const startControl = controls.find(o => o.controlId === begindate);
+  const endControl = controls.find(o => o.controlId === enddate);
+  let startTime = isTimeStyle(startControl) ? dateConvertToUserZone(moment(row[begindate])) : row[begindate];
+  let endTime = isTimeStyle(endControl) ? dateConvertToUserZone(moment(row[enddate])) : row[enddate];
   return {
     ...row,
     startTime,
@@ -195,7 +198,7 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
     localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
   const getTimeConfig = (time, isEnd) => {
     let n = -1;
-    list.map((o, i) => {
+    list.forEach((o, i) => {
       const key = type === 'Week' ? 'h' : type === 'Month' ? 'd' : 'm';
       // 和当前时间相等
       if (moment(time).isSame(moment(list[i].date))) {

@@ -48,4 +48,59 @@ export default {
     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
     return mdyAPI('WorksheetSetting', 'GetRowDetailIsShowOrder', args, options);
   },
+  /**
+   * 保存工作表开票配置
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {string} args.worksheetId 工作表id
+   * @param {string} args.taxNo 开票税号
+   * @param {object} args.scenes 开票场景
+   * @param {string} args.productId 开票商品
+   * @param {string} args.remark 说明
+   * @param {string} args.mapWorksheetId 关联的工作表
+   * @param {object} args.fieldMaps 关联的工作表映射字段
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  saveInvoiceSetting: function (args, options = {}) {
+    return mdyAPI('WorksheetSetting', 'SaveInvoiceSetting', args, options);
+  },
+  /**
+   * 获取工作表开票配置
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getInvoiceSetting: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('WorksheetSetting', 'GetInvoiceSetting', args, options);
+  },
+  /**
+   * 编辑工作表分享卡片配置
+   * @param {Object} args 请求参数
+   * @param {string} args.shareCardId 分享卡片唯一id
+   * @param {string} args.appItemId 应用项ID (工作表id 或者 自定义页面Id)
+   * @param {string} args.title 商户号
+   * @param {string} args.desc 支付内容控件
+   * @param {string} args.icon 支付金额控件
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  shareCardSetting: function (args, options = {}) {
+    return mdyAPI('WorksheetSetting', 'ShareCardSetting', args, options);
+  },
+  /**
+   * 获取工作表分享卡片配置
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getShareCardSetting: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('WorksheetSetting', 'GetShareCardSetting', args, options);
+  },
 };

@@ -190,6 +190,7 @@ export default function RowHead(props) {
       </span>
       {!hideOperate && (
         <RecordOperate
+          action={['hover']}
           popupAlign={{
             offset: [-12, 0],
             points: ['tl', 'bl'],

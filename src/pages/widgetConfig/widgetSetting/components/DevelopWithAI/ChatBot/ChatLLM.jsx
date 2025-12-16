@@ -5,7 +5,9 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
 import { Skeleton } from 'ming-ui';
+import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
+import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import { generateParamsForPrompt, getMessageList, saveMessageList } from '../util';
 import AutoHeightInput from './AutoHeightInput';
 import { MESSAGE_TYPE } from './enum';
@@ -255,6 +257,7 @@ function ChatLLM(
   const uploadImageRef = useRef(null);
   const [messageListLoading, setMessageListLoading] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [error, setError] = useState();
   const [uploadedImageUrl, setUploadedImageUrl] = useState('');
   const isRefValue = control.type === 54;
   const handleSaveMessageList = useCallback(newMessages => {
@@ -295,6 +298,12 @@ function ChatLLM(
         ),
       },
     ],
+    onError: (error, eventData) => {
+      setError({
+        errorMsg: _l('模型调用失败'),
+        sourceData: eventData,
+      });
+    },
   });
   const [inputIsFocused, setInputIsFocused] = useState(false);
   const [scrollToBottomVisible, setScrollToBottomVisible] = useState(false);
@@ -415,6 +424,14 @@ function ChatLLM(
                       codeIsClosed={message.codeIsClosed}
                       onAiCodeUpdate={onCodeUpdate}
                     />
+                    {!!error && message.role === 'assistant' && index === messages.length - 1 && (
+                      <ResponseError
+                        style={{ marginTop: 0 }}
+                        aiFeatureType={AI_FEATURE_TYPE.CODEGEN_TABLE_FIELDS}
+                        error={error}
+                        showFeedback
+                      />
+                    )}
                   </TextContainer>
                 </Message>
               ))}

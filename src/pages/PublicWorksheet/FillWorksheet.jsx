@@ -9,14 +9,14 @@ import styled from 'styled-components';
 import { Button, RichText } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
-import CustomFields from 'src/components/newCustomFields';
-import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
-import { checkMobileVerify, controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
+import CustomFields from 'src/components/Form';
+import { updateRulesData } from 'src/components/Form/core/formUtils';
+import { checkMobileVerify, controlState, getControlsByTab } from 'src/components/Form/core/utils';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
 import { browserIsMobile, getRequest } from 'src/utils/common';
-import CountDown from '../publicWorksheetConfig/common/CountDown';
-import { TIME_TYPE } from '../publicWorksheetConfig/enum';
-import { getLimitWriteTimeDisplayText } from '../publicWorksheetConfig/utils';
+import { TIME_TYPE } from '../FormExtend/enum';
+import CountDown from '../FormExtend/PublicWorksheetConfig/CountDown';
+import { getLimitWriteTimeDisplayText } from '../FormExtend/utils';
 import { getRgbaByColor } from '../widgetConfig/util';
 import { addWorksheetRow } from './action';
 import { FILL_STATUS } from './enum';
@@ -118,11 +118,12 @@ export default class FillWorksheet extends React.Component {
       smsVerification,
       cacheFieldData = {},
       writeScope,
+      weChatSetting = {},
     } = publicWorksheetInfo;
 
     const submitSuccess = () => {
       const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
-      if (writeScope === 1 && !wxUserInfo.openId) {
+      if (writeScope === 1 && !(weChatSetting.isCollectWxInfo && wxUserInfo.openId)) {
         const submitStorage = getPublicSubmitStorage(shareId);
         safeLocalStorageSetItem(
           'publicWorksheetSubmit_' + shareId,

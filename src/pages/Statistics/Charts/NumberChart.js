@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { generate } from '@ant-design/colors';
-import { Col, Dropdown, Menu, Row, Tooltip } from 'antd';
+import { Col, Dropdown, Menu, Row } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { images } from 'statistics/components/ChartStyle/components/BgPicker/Image';
 import { browserIsMobile } from 'src/utils/common';
 import { toFixed } from 'src/utils/control';
@@ -305,18 +306,16 @@ export default class extends Component {
     const { reportId, xaxes, yaxisList, displaySetup } = this.props.reportData;
     const el = document.querySelector(`.statisticsCard-${reportId}`);
     const parentElement = _.get(el, 'parentElement.parentElement');
-    const filterCriteriaIcon = el && el.querySelector('.filterCriteriaIcon');
+
     if (yaxisList.length === 1 && !xaxes.controlId && sourceType && isThumbnail && !isMobile) {
       if (parentElement) {
         el.classList.add('hideNumberChartName');
         el.classList.add('hideChartHeader');
-        filterCriteriaIcon && filterCriteriaIcon.classList.add('tip-bottom-right');
       }
     } else {
       if (parentElement && displaySetup.showTitle) {
         el.classList.remove('hideNumberChartName');
         el.classList.remove('hideChartHeader');
-        filterCriteriaIcon && filterCriteriaIcon.classList.remove('tip-bottom-right');
       }
     }
   }
@@ -485,7 +484,7 @@ export default class extends Component {
         {contrastValue && percentage ? (
           <Tooltip title={contrastValue} overlayInnerStyle={{ textAlign: 'center' }}>
             <div
-              className={`tip-top ${
+              className={`${
                 positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : contrastColor ? 'DepGreen' : 'Red'
               }`}
             >
@@ -509,7 +508,7 @@ export default class extends Component {
             </div>
           </Tooltip>
         ) : (
-          <span className="Gray range">- -</span>
+          <span className="Gray range">{contrastValue ? 0 : '- -'}</span>
         )}
       </div>
     );
@@ -591,7 +590,7 @@ export default class extends Component {
               className={cx('svgIconWrap valignWrapper justifyContentCenter', shape, `svgIconSize${newFontSize}`)}
               style={{ backgroundColor: iconColor }}
             >
-              <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#fff" size={32} />
+              <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#fff" size={32} />
             </div>
           )}
           <NumberChartContent className={cx('flex', `numberChartAlign-${textAlign}`)} fontSize={newFontSize}>
@@ -599,14 +598,14 @@ export default class extends Component {
               title={value.toLocaleString() == formatrValue ? null : value.toLocaleString()}
               overlayInnerStyle={{ textAlign: 'center' }}
             >
-              <div className="contentWrapper textWrap flexColumn tip-top">
+              <div className="contentWrapper textWrap flexColumn">
                 {name && (
                   <div className="flexRow valignWrapper w100 mBottom2">
                     <div className="flex ellipsis name" style={{ fontSize: titleFontSize, color: getTitleColor }}>
                       {name}
                     </div>
                     {descVisible && desc && (
-                      <Tooltip title={desc} placement="bottom" autoCloseDelay={0}>
+                      <Tooltip title={desc} placement="bottom">
                         <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 mRight7 InlineBlock mTop2" />
                       </Tooltip>
                     )}
@@ -626,7 +625,7 @@ export default class extends Component {
                 name: lastContrastText || _l('环比'),
                 controlId: data.controlId,
               })}
-              {(!!contrastTypes.length || [4, 8, 11].includes(filter.rangeType)) &&
+              {(!!contrastTypes.length || [4, 8, 11, 21].includes(filter.rangeType)) &&
                 this.renderContrast({
                   value,
                   contrastValue,

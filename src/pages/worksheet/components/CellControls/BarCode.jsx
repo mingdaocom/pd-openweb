@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import BarCode from 'src/components/newCustomFields/widgets/BarCode';
+import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
 
 const Con = styled.div`
   padding: 4px 6px !important;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import _, { find, get, isFunction, trim, uniqBy } from 'lodash';
+import _, { find, get, isEmpty, isFunction, trim, uniqBy } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -84,7 +84,6 @@ export default function useRecords(props) {
     }
     return;
   }, [control, formData, worksheetInfo]);
-  // TODO abort
   const load = useCallback(() => {
     if (filterControls === false && !ignoreAllFilters) {
       setError(ERROR_STATUS.INVALID_CONDITION);
@@ -107,7 +106,7 @@ export default function useRecords(props) {
       status: 1,
       keyWords: trim(keyWords),
       isGetWorksheet: true,
-      filterControls: ignoreAllFilters ? [] : filterControls || [], // TODO
+      filterControls: ignoreAllFilters ? [] : filterControls || [],
       getType: getType || (isDraft ? 27 : 7),
       sortControls: sortControl ? [sortControl] : [],
       fastFilters: quickFilters.map(f =>
@@ -141,6 +140,12 @@ export default function useRecords(props) {
           _system_excluderowids: JSON.stringify(ignoreRowIds),
         };
       }
+      if (!isEmpty(filterRowIds)) {
+        args.requestParams = {
+          ...(args.requestParams || {}),
+          exclude_rowids: JSON.stringify(filterRowIds),
+        };
+      }
     }
     if (isFunction(get(cache, 'current.request.abort'))) {
       cache.current.request.abort();
@@ -149,10 +154,7 @@ export default function useRecords(props) {
     cache.current.request = request;
     request.then(res => {
       if (res.resultCode === 1) {
-        let filteredRecords = uniqBy(
-          res.data.filter(r => !filterRowIds.includes(r.rowid)),
-          'rowid',
-        );
+        let filteredRecords = uniqBy(res.data, 'rowid');
         const needSort =
           keyWords &&
           pageIndex === 1 &&

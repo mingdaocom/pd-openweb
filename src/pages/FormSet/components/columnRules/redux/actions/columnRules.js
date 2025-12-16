@@ -1,8 +1,11 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
+import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
+import { dealCusTomEventActions } from 'src/pages/widgetConfig/util/data';
 import {
   checkConditionCanSave,
   checkConditionError,
+  checkRuleEnableLimit,
   filterDeleteOptions,
   formatValues,
   getActionError,
@@ -15,7 +18,7 @@ import {
  * 获取规则列表
  */
 export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
-  const worksheetId = _.get(worksheetInfo, 'worksheetId');
+  const { worksheetId, isWorksheetQuery } = worksheetInfo || {};
   return dispatch => {
     dispatch({
       type: 'COLUMNRULES_FETCH_START',
@@ -56,6 +59,21 @@ export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
         dispatch(clearColumnRules()); //清除state历史数据
       })
       .then(() => {});
+    sheetAjax.getWorksheetControls({ worksheetId, getRelationSearch: true, resultType: 3 }).then(res => {
+      dispatch({
+        type: 'WORKSHEET_RELATION_SEARCH',
+        data: _.get(res, 'data.controls') || [],
+      });
+    });
+    if (isWorksheetQuery) {
+      sheetAjax.getQueryBySheetId({ worksheetId }).then(res => {
+        const formatSearchData = formatSearchConfigs(res);
+        dispatch({
+          type: 'WORKSHEET_QUERY_CONFIGS',
+          data: formatSearchData.filter(i => i.eventType === 2),
+        });
+      });
+    }
   };
 }
 
@@ -67,8 +85,7 @@ export function addColumnRules() {
     const stateList = getState().formSet;
     let { columnRulesListData = [], activeTab } = stateList;
 
-    if (columnRulesListData.length >= 50) {
-      alert(_l('业务规则数量已达上限（50个）'), 3);
+    if (!checkRuleEnableLimit(columnRulesListData)) {
       return;
     }
 
@@ -111,7 +128,7 @@ export function updateActiveTab(value) {
 export function saveControlRules() {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
-    const { worksheetId = '', selectRules = {}, columnRulesListData = [], worksheetControls } = stateList;
+    const { worksheetId = '', selectRules = {}, columnRulesListData = [], worksheetRuleControls } = stateList;
     const { filters = [], name = '', ruleItems = [] } = selectRules;
     // 没有配置任何东西，直接关闭弹层
     if (!ruleItems.length && !filters.length) {
@@ -120,12 +137,21 @@ export function saveControlRules() {
     }
 
     // 错误校验
-    const dealFilters = filterDeleteOptions(filters, worksheetControls);
+    const dealFilters = filterDeleteOptions(filters, worksheetRuleControls);
     const ruleItemError = ruleItems.every(ruleItem => !getActionError(ruleItem));
 
     if (!name || !dealFilters.length || !checkConditionCanSave(dealFilters) || !ruleItems.length || !ruleItemError) {
       filters.length > 0 && dispatch(updateError('filters', filters));
-      ruleItems.length > 0 && ruleItems.map((item, index) => dispatch(updateError('action', item, index)));
+      ruleItems.length > 0 &&
+        ruleItems.map((item, index) => {
+          if (item.type === 9) {
+            if (item.controls && item.controls.length > 0) {
+              item.controls.map((c, cidx) => dispatch(updateError('setValue', c.value, `${index}-${cidx}`)));
+            }
+          } else {
+            dispatch(updateError('action', item, index));
+          }
+        });
       alert(_l('请完善规则内容'), 3);
       return;
     }
@@ -134,6 +160,15 @@ export function saveControlRules() {
       .saveControlRule({
         ...selectRules,
         filters: formatValues(filters),
+        ruleItems: ruleItems.map(r => {
+          if (r.type === 9) {
+            return {
+              ...r,
+              controls: dealCusTomEventActions(r.controls, worksheetRuleControls),
+            };
+          }
+          return r;
+        }),
         ruleId: selectRules.ruleId.indexOf('-') >= 0 ? '' : selectRules.ruleId,
         worksheetId,
       })
@@ -195,27 +230,41 @@ export function deleteControlRules(rule) {
 export function copyControlRules(rule) {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
-    let { worksheetId, columnRulesListData = [] } = stateList;
+    let { worksheetId, columnRulesListData = [], copyLoading } = stateList;
 
-    if (columnRulesListData.length >= 50) {
-      alert(_l('业务规则数量已达上限（50个）'), 3);
+    const { disabled, ruleId, name } = rule;
+
+    if (copyLoading || (!disabled && !checkRuleEnableLimit(columnRulesListData))) {
       return;
     }
+
+    dispatch({
+      type: 'COLUMNRULES_COPY_START',
+      data: true,
+    });
 
     sheetAjax
       .saveControlRule({
         editAttrs: ['copy'],
-        ruleId: rule.ruleId,
+        ruleId: ruleId,
         worksheetId,
       })
       .then(data => {
         if (data) {
-          const index = _.findIndex(columnRulesListData, item => item.ruleId === rule.ruleId);
-          columnRulesListData.splice(index + 1, 0, { ...rule, name: `${rule.name}-${_l('复制')}`, ruleId: data });
+          const index = _.findIndex(columnRulesListData, item => item.ruleId === ruleId);
+          columnRulesListData.splice(index + 1, 0, {
+            ...rule,
+            name: `${name}-${_l('复制')}`,
+            ruleId: data,
+          });
           dispatch(clearColumnRules());
           dispatch({
             type: 'COLUMNRULES_LIST',
             data: columnRulesListData,
+          });
+          dispatch({
+            type: 'COLUMNRULES_COPY_END',
+            data: false,
           });
           alert(_l('复制成功'));
         }
@@ -290,6 +339,19 @@ export function updateError(attr, value, index) {
         data: { ...ruleError, actionError },
       });
     }
+    if (attr === 'setValue') {
+      let setValueError = ruleError.setValueError || {};
+      if (value === 'delete' || !_.isEmpty(safeParse(value || '{}'))) {
+        delete setValueError[index];
+      } else {
+        setValueError[index] = true;
+      }
+
+      dispatch({
+        type: 'COLUMN_RULELIST_ERROR',
+        data: { ...ruleError, setValueError },
+      });
+    }
   };
 }
 
@@ -317,5 +379,14 @@ export function updateRuleAttr(attr, value, ruleId) {
           });
         }
       });
+  };
+}
+
+export function updateQueryConfigs(value) {
+  return dispatch => {
+    dispatch({
+      type: 'WORKSHEET_QUERY_CONFIGS',
+      data: value,
+    });
   };
 }

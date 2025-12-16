@@ -25,7 +25,7 @@ export default class WorksheetFileMessage extends Component {
       return;
     }
     let promise;
-    if (_.includes(['report', 'customPage'], from)) {
+    if (_.includes(['report', 'customPage', 'chatbot'], from)) {
       promise = homeAppAjax.getApp({ appId }).then(data => _l('"%0"应用', data.name));
     } else {
       promise = worksheetAjax.getWorksheetInfo({ worksheetId }).then(data => _l('"%0"工作表', data.name));

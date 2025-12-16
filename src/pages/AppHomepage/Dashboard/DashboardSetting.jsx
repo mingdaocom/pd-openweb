@@ -306,7 +306,7 @@ export default function DashboardSetting(props) {
               <div className="mTop8">
                 <div className="logoBoxBorder">
                   <img
-                    src={`${md.global.FileStoreConfig.pictureHost}ProjectLogo/${
+                    src={`${md.global.FileStoreConfig.pictureHost}/ProjectLogo/${
                       logo || 'emptylogo.png'
                     }?imageView2/2/h/200/q/90`}
                     alt="logo"

@@ -23,16 +23,16 @@ const LocationWrap = styled.div`
   .locationTitle {
     padding: 10px 12px 0;
     font-size: 14px;
-    color: var(--color-secondary);
+    color: var(--color-text-primary);
     font-weight: 500;
   }
   .address {
-    color: var(--color-secondary);
+    color: var(--color-text-primary);
     font-size: 12px;
     padding: 2px 12px 6px;
   }
   .xy {
-    color: var(--gray-9e);
+    color: var(--color-text-tertiary);
     font-size: 12px;
     padding: 0 12px 10px;
     margin-top: -5px;
@@ -58,6 +58,17 @@ export default class Widgets extends Component {
     visible: false,
   };
 
+  _mapHandler = null;
+
+  componentWillUnmount() {
+    this._mapHandler?.destroyMap();
+    this._mapHandler = null;
+  }
+
+  locationFailed = () => {
+    alert(_l('定位获取失败，请重试'), 2);
+  };
+
   handleAuthentication = () => {
     const { strDefault, projectId } = this.props;
     const geolocation = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
@@ -71,7 +82,7 @@ export default class Widgets extends Component {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
-        handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin(projectId));
+        handleTriggerEvent(this.handleWxSelectLocation, bindWeiXin(projectId), this.locationFailed);
       }
       return;
     }
@@ -80,13 +91,13 @@ export default class Widgets extends Component {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
-        handleTriggerEvent(this.handleWxSelectLocation, bindWxWork(projectId));
+        handleTriggerEvent(this.handleWxSelectLocation, bindWxWork(projectId), this.locationFailed);
       }
       return;
     }
 
     if (window.isFeiShu) {
-      handleTriggerEvent(this.handleFeishuSelectLocation, bindFeishu(projectId));
+      handleTriggerEvent(this.handleFeishuSelectLocation, bindFeishu(projectId), this.locationFailed);
       return;
     }
 
@@ -94,7 +105,7 @@ export default class Widgets extends Component {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
-        handleTriggerEvent(this.handleDingSelectLocation, bindDing(projectId));
+        handleTriggerEvent(this.handleDingSelectLocation, bindDing(projectId), this.locationFailed);
       }
       return;
     }
@@ -103,7 +114,7 @@ export default class Widgets extends Component {
       if (!geolocation) {
         this.setState({ visible: true });
       } else {
-        handleTriggerEvent(this.handleWeLinkSelectLocation, bindWeLink(projectId));
+        handleTriggerEvent(this.handleWeLinkSelectLocation, bindWeLink(projectId), this.locationFailed);
       }
       return;
     }
@@ -113,7 +124,7 @@ export default class Widgets extends Component {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后'),
+      content: _l('正在获取经纬度，请稍后'),
     });
     window.dd.device.geolocation.get({
       targetAccuracy: 200,
@@ -136,7 +147,7 @@ export default class Widgets extends Component {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后'),
+      content: _l('正在获取经纬度，请稍后'),
     });
     window.HWH5.getLocation({
       type: 0,
@@ -160,7 +171,7 @@ export default class Widgets extends Component {
       // 获取经纬度
       Toast.show({
         icon: 'loading',
-        content: _l('正在获取取经纬度，请稍后'),
+        content: _l('正在获取经纬度，请稍后'),
       });
       window.tt.getLocation({
         type: 'gcj02',
@@ -205,7 +216,7 @@ export default class Widgets extends Component {
     if ((typeof strDefault === 'string' ? strDefault : '00')[0] === '1') {
       Toast.show({
         icon: 'loading',
-        content: _l('正在获取取经纬度，请稍后'),
+        content: _l('正在获取经纬度，请稍后'),
       });
 
       if (!window.MDJS || !window.MDJS.getLocation) return;
@@ -257,7 +268,7 @@ export default class Widgets extends Component {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后'),
+      content: _l('正在获取经纬度，请稍后'),
     });
     window.wx.getLocation({
       type: 'wgs84',
@@ -277,7 +288,7 @@ export default class Widgets extends Component {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后'),
+      content: _l('正在获取经纬度，请稍后'),
     });
     const isGoogle = !!getMapConfig();
     if (isGoogle) {
@@ -308,19 +319,27 @@ export default class Widgets extends Component {
       return;
     }
     new MapLoader().loadJs().then(() => {
-      new MapHandler().getCurrentPos((status, res) => {
-        if (status === 'complete') {
-          onChange(
-            JSON.stringify({
-              x: res.position.lng,
-              y: res.position.lat,
-              address: res.formattedAddress || '',
-              title: (res.addressComponent || {}).building || '',
-            }),
-          );
-          Toast.clear();
-        }
-      });
+      if (!this._mapHandler) {
+        this._mapHandler = new MapHandler();
+      }
+
+      this._mapHandler.getCurrentPos(
+        (status, res) => {
+          if (status === 'complete') {
+            onChange(
+              JSON.stringify({
+                x: res.position.lng,
+                y: res.position.lat,
+                address: res.formattedAddress || '',
+                title: (res.addressComponent || {}).building || '',
+              }),
+            );
+            Toast.clear();
+          }
+        },
+        false,
+        { locationFailedAlert: true },
+      );
     });
   };
 

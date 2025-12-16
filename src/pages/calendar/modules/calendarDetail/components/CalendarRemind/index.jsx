@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'ming-ui/components/Checkbox';
 import Dropdown from 'ming-ui/components/Dropdown';
 import Icon from 'ming-ui/components/Icon';
@@ -111,7 +112,7 @@ export default class CalendarRemind extends Component {
   }
   // 修改提醒时间
   onChangeRemind = evt => {
-    let value = $.trim(evt.currentTarget.value);
+    let value = evt.currentTarget.value.trim();
 
     if (value < 0) {
       value = 1;
@@ -167,9 +168,11 @@ export default class CalendarRemind extends Component {
                 >
                   {_l('电话提醒')}
                 </Checkbox>
-                <span className="mLeft10 TxtMiddle" data-tip={_l('勾选电话提醒，将以电话语音形式通知您')}>
-                  <i className="icon-help" />
-                </span>
+                <Tooltip title={_l('勾选电话提醒，将以电话语音形式通知您')}>
+                  <span className="mLeft10 TxtMiddle">
+                    <i className="icon-help" />
+                  </span>
+                </Tooltip>
               </span>
             )}
           </div>

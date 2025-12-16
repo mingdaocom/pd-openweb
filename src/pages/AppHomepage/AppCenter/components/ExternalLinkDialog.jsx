@@ -4,7 +4,8 @@ import { generate } from '@ant-design/colors';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, Input, TagTextarea, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Input, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Dialog from 'ming-ui/components/Dialog';
 import { SYSTEM_LIST, USER_LIST } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config';
 import { getThemeColors } from 'src/utils/project';
@@ -265,7 +266,7 @@ export default function ExternalLinkDialog(props) {
                   </PopupWrapper>
                 }
               >
-                <Tooltip text={_l('使用动态参数')} popupPlacement="bottom">
+                <Tooltip title={_l('使用动态参数')} placement="bottom">
                   <LinkIcon>
                     <Icon icon="workflow_other" />
                   </LinkIcon>

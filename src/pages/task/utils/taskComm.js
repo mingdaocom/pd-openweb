@@ -2,6 +2,7 @@
 import { renderToString } from 'react-dom/server';
 import Store from 'redux/configureStore';
 import doT from 'dot';
+import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, DeleteReconfirm, Dialog, LoadDiv } from 'ming-ui';
 import ajaxRequest from 'src/api/taskCenter';
@@ -998,7 +999,7 @@ export const updateFolderTop = (folderId, isTop, callback) => {
           }
         }
 
-        if ($.isFunction(callback)) {
+        if (_.isFunction(callback)) {
           callback();
         }
       } else {
@@ -1153,7 +1154,7 @@ export const updateFolderArchived = (projectId, folderId, pigeonhole, callback) 
             .hide();
         }
 
-        if ($.isFunction(callback)) {
+        if (_.isFunction(callback)) {
           callback();
         }
       } else {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import store from 'redux/configureStore';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
@@ -124,7 +125,7 @@ function FiltersGroupPreview(props) {
   }, [widget.filter]);
 
   return (
-    <Wrap className={className}>
+    <Wrap className={cx(className, `filter-${widget.id || widget.uuid}`)}>
       {loading ? (
         <LoadDiv />
       ) : (

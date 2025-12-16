@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import Tooltip from 'ming-ui/antd-components/Tooltip';
 
 const ConBox = styled.div`
   position: absolute;
@@ -85,7 +86,7 @@ export default function EditingBar(props) {
     onOkMouseDown = () => {},
   } = props;
   const cache = useRef({ saveShortCut, okDisabled });
-  useKey('s', e => {
+  const handleSave = e => {
     if (!cache.current.saveShortCut || !(window.isMacOs ? e.metaKey : e.ctrlKey)) return;
     e.stopPropagation();
     e.preventDefault();
@@ -99,7 +100,9 @@ export default function EditingBar(props) {
     setTimeout(() => {
       onUpdate();
     }, delayTime);
-  });
+  };
+  useKey('s', handleSave);
+  useKey('S', handleSave);
   useEffect(() => {
     cache.current = { saveShortCut, okDisabled };
   }, [saveShortCut, okDisabled]);
@@ -135,14 +138,18 @@ export default function EditingBar(props) {
               </CancelButton>
             )}
             {!loading && (
-              <OkButton
-                className={cx({ disabled: okDisabled }, isBlack ? 'Gray' : 'ThemeColor3')}
-                onMouseDown={onOkMouseDown}
-                onClick={okDisabled ? () => {} : onUpdate}
-                {...(saveShortCut && !okDisabled ? { 'data-tip': window.isMacOs ? '⌘ + S' : 'Ctrl + S' } : {})}
+              <Tooltip
+                title={saveShortCut && !okDisabled ? _l('保存') : ''}
+                shortcut={saveShortCut && !okDisabled ? (window.isMacOs ? '⌘S' : 'Ctrl+S') : ''}
               >
-                {updateText}
-              </OkButton>
+                <OkButton
+                  className={cx({ disabled: okDisabled }, isBlack ? 'Gray' : 'ThemeColor3')}
+                  onMouseDown={onOkMouseDown}
+                  onClick={okDisabled ? () => {} : onUpdate}
+                >
+                  {updateText}
+                </OkButton>
+              </Tooltip>
             )}
           </Con>
         </ConBox>

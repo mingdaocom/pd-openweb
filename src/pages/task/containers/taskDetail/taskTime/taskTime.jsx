@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import moment from 'moment';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import config, { OPEN_TYPE } from '../../../config/config';
 import { updateCompletedTime, updateTaskActualStartTime, updateTaskStartTimeAndDeadline } from '../../../redux/actions';
@@ -441,18 +442,20 @@ class TaskTime extends Component {
             })}
 
             {processLines.blue.width > 0 ? (
-              <div
-                className={cx('detailTimeLineToday', {
-                  'tip-bottom-left': this.getTodayBorderNum(processLines).right < 100,
-                })}
-                data-tip={_l('今天 %0', moment(getCurrentTime()).format('MMMDo'))}
-                style={{
-                  borderLeftWidth: this.getTodayBorderNum(processLines).left,
-                  borderRightWidth: this.getTodayBorderNum(processLines).right,
-                }}
+              <Tooltip
+                title={_l('今天 %0', moment(getCurrentTime()).format('MMMDo'))}
+                placement={this.getTodayBorderNum(processLines).right < 100 ? 'bottomLeft' : 'bottom'}
               >
-                <span />
-              </div>
+                <div
+                  className={'detailTimeLineToday'}
+                  style={{
+                    borderLeftWidth: this.getTodayBorderNum(processLines).left,
+                    borderRightWidth: this.getTodayBorderNum(processLines).right,
+                  }}
+                >
+                  <span />
+                </div>
+              </Tooltip>
             ) : null}
           </div>
 

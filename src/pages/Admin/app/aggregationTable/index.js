@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Select, Tooltip } from 'antd';
+import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView, Switch, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
@@ -408,10 +409,8 @@ export default class AggregationTable extends Component {
                         {taskStatus !== TASK_STATUS_TYPE.RUNNING && errorInfo && (
                           <Tooltip
                             placement="bottomRight"
-                            overlayStyle={{ maxWidth: 350, maxHeight: 300, overflow: 'auto' }}
                             align={{ offset: [12, 0] }}
                             title={<span className="InlineBlock WordBreak">{errorInfo}</span>}
-                            autoCloseDelay={0}
                           >
                             <Icon type={'error'} className="Red Font16 TxtMiddle InlineBlock" />
                           </Tooltip>

@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Input, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import processVersion from 'src/pages/workflow/api/processVersion';
@@ -492,10 +493,7 @@ function AddWorkflowDialog(props) {
         title={
           <span className="Font17 bold">
             {_l('添加工作流')}
-            <Tooltip
-              text={_l('工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。')}
-              autoCloseDelay={0}
-            >
+            <Tooltip title={_l('工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。')}>
               <span className="mLeft8 Font17 Gray_bd icon-info_outline"></span>
             </Tooltip>
           </span>

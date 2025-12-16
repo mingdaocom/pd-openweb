@@ -1,15 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import privateGuide from 'src/api/privateGuide';
 import preall from 'src/common/preall';
 import ChatList from 'src/pages/chat/containers/ChatList';
 import ChatPanel from 'src/pages/chat/containers/ChatPanel';
 import DeclareConfirm from 'src/pages/Mobile/components/DeclareConfirm';
-import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
 import PortalPageHeaderRoute from 'src/pages/Portal/PageHeader';
 import weixinCode from 'src/pages/privateImageInstall/images/weixin.png';
@@ -43,9 +40,6 @@ export default class App extends Component {
     // 全局注入事件
     globalEvents();
 
-    // 绑定快捷操作
-    !md.global.Account.isPortal && this.bindShortcut();
-
     if ((_.get(md, ['global', 'Account', 'projects']) || []).filter(item => item.licenseType === 1).length === 0) {
       if (!localStorage.getItem('supportTime')) {
         privateGuide.getSupportInfo().then(result => {
@@ -57,37 +51,6 @@ export default class App extends Component {
     } else {
       localStorage.removeItem('supportTime');
     }
-  }
-
-  /**
-   * 绑定快捷操作
-   */
-  bindShortcut() {
-    const callDialog = _.debounce(which => {
-      switch (which) {
-        case 102:
-          let path = location.pathname.split('/');
-          GlobalSearch({
-            match: {
-              params: {
-                appId:
-                  location.pathname.startsWith('/app/') && path.length > 2 && path[2].length > 20 ? path[2] : undefined,
-              },
-            },
-            onClose: () => {},
-          });
-          break;
-        default:
-          break;
-      }
-    }, 200);
-
-    $(document).on('keypress', function (e) {
-      if (e.ctrlKey || e.shiftKey || e.altKey || e.cmdKey || e.metaKey) return;
-      var tag = e.target.tagName && e.target.tagName.toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || $(e.target).is('[contenteditable]')) return;
-      callDialog(e.which);
-    });
   }
 
   /**

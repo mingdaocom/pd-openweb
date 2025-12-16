@@ -67,13 +67,13 @@ export default class Member extends Component {
             if (isCreateUser) return null;
             if (isWxMember) return <span className="memberStatus confirmed" />;
             switch (status) {
-              case MEMBER_STATUS.UNCONFIRMED:
-              default:
-                return <span className="memberStatus unConfirmed" />;
               case MEMBER_STATUS.CONFIRMED:
                 return <span className="memberStatus confirmed" />;
               case MEMBER_STATUS.REFUSED:
                 return <span className="memberStatus refused" />;
+              case MEMBER_STATUS.UNCONFIRMED:
+              default:
+                return <span className="memberStatus unConfirmed" />;
             }
           })()}
           {!isWxMember ? (

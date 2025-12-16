@@ -9,7 +9,7 @@ import worksheetAjax from 'src/api/worksheet';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import Header from './Header';
 import TrashBatchOperate from './TrashBatchOperate';
 import ColumnHead from './TrashColumnHead';
@@ -162,7 +162,7 @@ export default function WorkSheetTrash(props) {
   const lineNumberBegin = (pageIndex - 1) * pageSize;
   const hasAuthRows = selectRows.filter(item => item.allowedit || item.allowEdit);
   const hasAuthRowIds = hasAuthRows.map(item => item.rowid);
-  const actions = createActions(dispatch, state);
+  const actions = createActions(dispatch);
   const controlsForShow = controls
     .filter(
       column =>

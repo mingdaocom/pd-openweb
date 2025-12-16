@@ -4,7 +4,8 @@ import _ from 'lodash';
 import { bool, func, number, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, MdLink, Menu, MenuItem, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, MdLink, Menu, MenuItem, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexSpacer, VerticalMiddle } from 'worksheet/components/Basics';
 
 const GroupItemLink = styled(MdLink)`
@@ -167,7 +168,7 @@ export default function GroupItem(props) {
         ) : (
           <GroupItemIcon
             size={18}
-            url={iconUrl || `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${icon}.svg`}
+            url={iconUrl || `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
             fill="#757575"
           />
         )}
@@ -221,11 +222,7 @@ export default function GroupItem(props) {
                 </Trigger>
               )}
 
-              <Tooltip
-                disableAnimation
-                popupPlacement="right"
-                text={<span>{isMarked ? _l('取消标星') : _l('标星')}</span>}
-              >
+              <Tooltip placement="right" title={isMarked ? _l('取消标星') : _l('标星')}>
                 <i
                   className={cx(
                     `star icon icon-${isMarked ? 'task-star' : 'star_outline'} Font18 Gray_9e mLeft5 stopPropagation`,

@@ -32,7 +32,6 @@ export default class AppLog extends Component {
       disabledExportBtn: false,
     };
   }
-  componentDidMount() {}
 
   render() {
     const { appId, projectId, worksheetId } = _.get(this.props, 'match.params') || '';

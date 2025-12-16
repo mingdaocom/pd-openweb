@@ -94,6 +94,11 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       component: () => import('mobile/CustomPage'),
       title: _l('自定义页面'),
     },
+    chatbot: {
+      path: '/mobile/chatbot/:appId/:groupId/:chatbotId/:conversationId?',
+      component: () => import('mobile/Chatbot'),
+      title: _l('对话机器人'),
+    },
     record: {
       path: '/mobile/record/:appId/:worksheetId/:viewId?/:rowId/:from?',
       component: () => import('mobile/Record'),
@@ -152,6 +157,7 @@ export const PORTAL = [
   'home',
   'recordList',
   'customPage',
+  'chatbot',
   'record',
   'addRecord',
   'searchRecord',

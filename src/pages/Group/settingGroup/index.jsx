@@ -24,7 +24,7 @@ import addFriends from 'src/components/addFriends';
 import { checkPermission } from 'src/components/checkPermission';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { existAccountHint } from 'src/utils/common';
+import { existAccountHint } from 'src/utils/inviteCommon';
 import SelectAvatarTrigger from '../createGroup/SelectAvatarTrigger';
 import { BUTTONS, GROUP_INFOS, USER_ACTION_AJAX, USER_ACTION_MAP, USER_ACTIONS, USER_ACTIONS_MAP } from './config';
 import QrPopup from './QrPopup';
@@ -1075,7 +1075,7 @@ function SettingGroup(props) {
           </ContentWrap>
         )}
       </SettingDialog>
-      {renderUserDialog(groupInfo.users)}
+      {renderUserDialog()}
       {renderAboutDialog()}
       {renderCovertPostDialog()}
     </Fragment>

@@ -3,6 +3,7 @@ import cx from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { MdLink } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withHoverState from 'ming-ui/decorators/withHoverState';
 import { getClassNameByExt } from 'src/utils/common';
@@ -146,9 +147,11 @@ export default class KcAppItem extends React.Component {
               onDragStart={event => event.preventDefault()}
             />
           ) : isFolderShared ? (
-            <span className="folderSharedItem" data-tip={_l('已开启文件分享')}>
-              <span className={cx('type', itemType)} />
-            </span>
+            <Tooltip title={_l('已开启文件分享')}>
+              <span className="folderSharedItem">
+                <span className={cx('type', itemType)} />
+              </span>
+            </Tooltip>
           ) : (
             <span className={cx('type', itemType)} />
           )}
@@ -199,44 +202,54 @@ export default class KcAppItem extends React.Component {
           <input type="text" className="listNameEdit" defaultValue={item.name} />
           <span className="flex" />
           <span className={cx('nodeActionIcons Relative', { hide: !this.state.clickMoreActionsBtn })}>
-            <span className={cx('mLeft15', { hide: isRecycle })} data-tip={_l('分享')}>
-              <i className={cx('preview icon-share pointer ThemeColor3')} onClick={() => onShareNode(item)} />
-            </span>
+            <Tooltip title={_l('分享')}>
+              <span className={cx('mLeft15', { hide: isRecycle })}>
+                <i className={cx('preview icon-share pointer ThemeColor3')} onClick={() => onShareNode(item)} />
+              </span>
+            </Tooltip>
             {(item.isAdmin || (item.canEdit && item.canDownload) || item.canDownload) && (
-              <span data-tip={_l('下载')}>
-                <i
-                  className={cx('download icon-kc-hover-download pointer ThemeColor3', { hide: isRecycle })}
-                  onClick={download}
+              <Tooltip title={_l('下载')}>
+                <span>
+                  <i
+                    className={cx('download icon-kc-hover-download pointer ThemeColor3', { hide: isRecycle })}
+                    onClick={download}
+                  />
+                </span>
+              </Tooltip>
+            )}
+            <Tooltip title={_l('更多操作')}>
+              <span>
+                <HoverState
+                  component="span"
+                  ref={moreActions => (this.moreActions = moreActions)}
+                  className={cx(
+                    'actions pointer',
+                    { ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
+                    isRecycle ? 'hide' : 'icon-more_horiz',
+                  )}
+                  thisArg={this}
+                  hoverStateName="hoverMoreActionsBtn"
+                  onClick={() => this.setState({ clickMoreActionsBtn: true })}
                 />
               </span>
-            )}
-            <span data-tip={_l('更多操作')}>
-              <HoverState
-                component="span"
-                ref={moreActions => (this.moreActions = moreActions)}
-                className={cx(
-                  'actions pointer',
-                  { ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn },
-                  isRecycle ? 'hide' : 'icon-more_horiz',
-                )}
-                thisArg={this}
-                hoverStateName="hoverMoreActionsBtn"
-                onClick={() => this.setState({ clickMoreActionsBtn: true })}
-              />
-            </span>
+            </Tooltip>
             {menu}
             {(item.isAdmin || isCreateUser) && (
-              <span data-tip={_l('彻底删除')}>
-                <i
-                  className={cx('download icon-trash pointer ThemeColor3', { hide: !isRecycle })}
-                  onClick={() => removeNode(NODE_STATUS.DELETED)}
-                />
-              </span>
+              <Tooltip title={_l('彻底删除')}>
+                <span>
+                  <i
+                    className={cx('download icon-trash pointer ThemeColor3', { hide: !isRecycle })}
+                    onClick={() => removeNode(NODE_STATUS.DELETED)}
+                  />
+                </span>
+              </Tooltip>
             )}
             {(item.isAdmin || isCreateUser) && (
-              <span data-tip={_l('还原')}>
-                <i className={cx('icon-rotate pointer ThemeColor3', { hide: !isRecycle })} onClick={restoreNode} />
-              </span>
+              <Tooltip title={_l('还原')}>
+                <span>
+                  <i className={cx('icon-rotate pointer ThemeColor3', { hide: !isRecycle })} onClick={restoreNode} />
+                </span>
+              </Tooltip>
             )}
           </span>
           <span className={cx('createName ellipsis cursorDefault', { hide: isRecycle })} title={item.owner.fullname}>
@@ -332,18 +345,20 @@ export default class KcAppItem extends React.Component {
           </div>
           <input type="text" className="listNameEdit" defaultValue={item.name} />
           <span className={cx('nodeActionIcons', { hide: !this.state.clickMoreActionsBtn })}>
-            <span data-tip={_l('更多操作')}>
-              <HoverState
-                ref={moreActions => (this.moreActions = moreActions)}
-                component="span"
-                className={cx('actions pointer icon-more_horiz', {
-                  ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
-                })}
-                thisArg={this}
-                hoverStateName="hoverMoreActionsBtn"
-                onClick={() => this.setState({ clickMoreActionsBtn: true })}
-              />
-            </span>
+            <Tooltip title={_l('更多操作')}>
+              <span>
+                <HoverState
+                  ref={moreActions => (this.moreActions = moreActions)}
+                  component="span"
+                  className={cx('actions pointer icon-more_horiz', {
+                    ThemeColor3: this.state.hoverMoreActionsBtn || this.state.clickMoreActionsBtn,
+                  })}
+                  thisArg={this}
+                  hoverStateName="hoverMoreActionsBtn"
+                  onClick={() => this.setState({ clickMoreActionsBtn: true })}
+                />
+              </span>
+            </Tooltip>
             {menu}
           </span>
           <div className="selectBox">

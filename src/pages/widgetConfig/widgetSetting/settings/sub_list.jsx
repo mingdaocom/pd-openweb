@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import _, { filter, find, findIndex, isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -252,9 +252,9 @@ export default function SubListSetting(props) {
         <Fragment>
           <div className="settingItemTitle">
             {_l('字段')}
-            <span className="mLeft12 Font12 Gray_9e" data-tip={_l('最多添加100个字段')}>
-              {_l('%0/100', filterSysRelate.length)}
-            </span>
+            <Tooltip title={_l('最多添加100个字段')}>
+              <span className="mLeft12 Font12 Gray_9e">{_l('%0/100', filterSysRelate.length)}</span>
+            </Tooltip>
           </div>
           {dataSource ? (
             <ConfigureControls
@@ -280,6 +280,7 @@ export default function SubListSetting(props) {
           <SortColumns
             sortAutoChange
             isShowColumns
+            forbiddenScroll={true}
             min1msg={_l('至少显示一列')}
             showControls={showControls}
             columns={sortedControls}
@@ -359,8 +360,7 @@ export default function SubListSetting(props) {
           <div className="settingItemTitle Normal">
             {_l('全局不允许重复输入')}
             <Tooltip
-              placement={'bottom'}
-              autoCloseDelay={0}
+              placement="bottom"
               title={_l(
                 '以下字段在关联表中设为不允许重复。除了在本记录中不能重复输入外，也不能与关联表中的所有数据重复。',
               )}
@@ -374,7 +374,7 @@ export default function SubListSetting(props) {
       <SettingItem>
         <div className="settingItemTitle Normal">
           {_l('本记录内不允许重复输入')}
-          <Tooltip placement={'bottom'} title={_l('以下字段不允许在当前主记录内重复输入')}>
+          <Tooltip placement="bottom" title={_l('以下字段不允许在当前主记录内重复输入')}>
             <i className="icon-help tipsIcon Gray_9e Font16 pointer" />
           </Tooltip>
         </div>

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { bool, func, oneOf, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
@@ -255,13 +256,14 @@ export default class MyAppItem extends Component {
               <LineClampTextBox className="appExplain" text={appName} title={appName} />
             )}
           </MdLink>
-          <div
-            className="star appItemIcon"
-            data-tip={isMarked ? _l('取消收藏') : _l('收藏')}
-            onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked, groupType: type })}
-          >
-            <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
-          </div>
+          <Tooltip title={isMarked ? _l('取消收藏') : _l('收藏')}>
+            <div
+              className="star appItemIcon"
+              onClick={() => handleApp({ mode: 'mark', appId: id, projectId, isMark: !isMarked, groupType: type })}
+            >
+              <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
+            </div>
+          </Tooltip>
           {(canEditApp(permissionType, isLock) ||
             canEditData(permissionType) ||
             (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) &&

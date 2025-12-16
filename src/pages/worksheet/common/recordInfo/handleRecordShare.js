@@ -1,5 +1,5 @@
 import { getRowDetail } from 'worksheet/api';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils.js';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { isOwner } from './crtl';
 

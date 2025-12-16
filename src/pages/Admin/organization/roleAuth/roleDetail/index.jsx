@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, Input, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Icon, Input, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import roleApi from 'src/api/role';
 import { getCurrentProject } from 'src/utils/project';
 import PermissionList from '../createEditRole/PermissionList';
@@ -212,7 +213,7 @@ export default function RoleDetail(props) {
                               });
                           }}
                         />
-                        <Tooltip text={_l('勾选后，角色下成员可以添加、移除其他成员')}>
+                        <Tooltip title={_l('勾选后，角色下成员可以添加、移除其他成员')}>
                           <Icon icon="info_outline" className="Gray_9e Font16 mLeft4 mRight20" />
                         </Tooltip>
                         <Button type="ghost" size="small" onClick={() => onOpenDrawer('editRole')}>

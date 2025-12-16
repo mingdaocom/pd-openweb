@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import { APP_TYPE, GLOBAL_VARIABLE, NODE_TYPE } from '../../enum';
 import { handleGlobalVariableName } from '../../utils';
@@ -92,13 +93,11 @@ export default props => {
                   controlId={item.fieldId}
                   controlName={item.fieldName}
                 />
-                <span
-                  className="mLeft5 flowDetailMemberDel"
-                  data-tip={_l('刪除')}
-                  onClick={() => updateSource({ fields: [] })}
-                >
-                  <i className="icon-delete Font18" />
-                </span>
+                <Tooltip title={_l('刪除')}>
+                  <span className="mLeft5 flowDetailMemberDel" onClick={() => updateSource({ fields: [] })}>
+                    <i className="icon-delete Font18" />
+                  </span>
+                </Tooltip>
               </li>
             </ul>
 

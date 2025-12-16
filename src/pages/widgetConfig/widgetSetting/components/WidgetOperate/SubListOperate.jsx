@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import { Checkbox, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { SettingItem } from '../../../styled';
 
@@ -94,8 +94,7 @@ export default function SubListOperate(props) {
               }}
             >
               <Tooltip
-                placement={'bottom'}
-                autoCloseDelay={0}
+                placement="bottom"
                 title={_l(
                   '如：在添加订单明细时需要先选择关联的产品。此时您可以设置为从产品字段添加明细。设置后，您可以直接一次选择多个产品，并为每个产品都添加一行订单明细',
                 )}

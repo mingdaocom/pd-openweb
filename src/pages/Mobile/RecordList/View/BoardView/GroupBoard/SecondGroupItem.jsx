@@ -15,7 +15,6 @@ const SecondGroupItem = props => {
     appId,
     controls,
     openRecord,
-    authParams,
     control,
     boardData,
     secondGroupOpt,
@@ -26,6 +25,7 @@ const SecondGroupItem = props => {
     allowOperation,
     viewRootEl,
     updateViewCard,
+    delBoardViewRecord,
   } = props;
 
   return (
@@ -44,6 +44,7 @@ const SecondGroupItem = props => {
             sheetSwitchPermit={sheetSwitchPermit}
             viewRootEl={viewRootEl}
             updateViewCard={updateViewCard}
+            onDeleteSuccess={() => delBoardViewRecord({ key: groupKey, rowId: _row.rowid })}
             onClick={() =>
               openRecord(
                 {
@@ -56,7 +57,7 @@ const SecondGroupItem = props => {
           />
         );
       })}
-      {allowOperation && isShowAddRecord(worksheetInfo, authParams, viewControl, sheetSwitchPermit) && (
+      {allowOperation && isShowAddRecord(worksheetInfo, list, viewControl, sheetSwitchPermit) && (
         <AddRecordBtn
           view={view}
           appId={appId}

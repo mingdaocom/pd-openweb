@@ -27,6 +27,30 @@ export default {
     return mdyAPI('Organize', 'SetSortOrgRoleGroup', args, options);
   },
   /**
+   * 停用 组织角色分组
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {string} args.organizeGroupId 角色Id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  disabledOrganizeGroup: function (args, options = {}) {
+    return mdyAPI('Organize', 'DisabledOrganizeGroup', args, options);
+  },
+  /**
+   * 启用 组织角色分组
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {string} args.organizeGroupId 角色Id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  enabledOrganizeGroup: function (args, options = {}) {
+    return mdyAPI('Organize', 'EnabledOrganizeGroup', args, options);
+  },
+  /**
    * 删除 角色分组
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络Id
@@ -109,6 +133,30 @@ export default {
     return mdyAPI('Organize', 'DeleteOrganizes', args, options);
   },
   /**
+   * 停用 组织角色
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {string} args.organizeId 角色Id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  disabledOrganize: function (args, options = {}) {
+    return mdyAPI('Organize', 'DisabledOrganize', args, options);
+  },
+  /**
+   * 启用 组织角色
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络Id
+   * @param {string} args.organizeId 角色Id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  enabledOrganize: function (args, options = {}) {
+    return mdyAPI('Organize', 'EnabledOrganize', args, options);
+  },
+  /**
    * 组织角色成员 设置分管部门
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络Id
@@ -167,6 +215,7 @@ export default {
    * 获取角色分组列表
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织ID
+   * @param {boolean} args.includeDisabled 是否 包含 停用
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -177,11 +226,12 @@ export default {
   /**
    * 获取角色列表
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络Id
+   * @param {string} args.projectId 组织ID
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 页大小
    * @param {string} args.keywords 关键词
    * @param {string} args.orgRoleGroupId 角色分组ID
+   * @param {boolean} args.includeDisabled 是否 包含 停用
    * @param {array} args.appointedOrganizeIds 指定的组织角色列表
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

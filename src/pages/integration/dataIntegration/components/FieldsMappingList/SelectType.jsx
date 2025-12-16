@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Select, Tooltip } from 'antd';
+import { Select } from 'antd';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import { canSetAsTitle, enumWidgetType } from 'src/pages/widgetConfig/util';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';

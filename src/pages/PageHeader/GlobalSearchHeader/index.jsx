@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import CommonUserHandle from '../components/CommonUserHandle';
@@ -87,9 +88,11 @@ export default class GlobalSearchHeader extends Component {
     return (
       <div className="globalSearchHeaderWrap">
         <div className="netManageLogo">
-          <HomeEntry data-tip={_l('工作台')} onClick={() => navigateTo('/dashboard')}>
-            <i className="icon-home_page Font18"></i>
-          </HomeEntry>
+          <Tooltip title={_l('工作台')}>
+            <HomeEntry onClick={() => navigateTo('/dashboard')}>
+              <i className="icon-home_page Font18"></i>
+            </HomeEntry>
+          </Tooltip>
           {text && <div className="netManageTitle">{text}</div>}
         </div>
         <div className="searchCon">

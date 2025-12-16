@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
 import postEnum from '../../../constants/postEnum';
 import { addFavorite, addLike, removeFavorite, removeLike } from '../../../redux/postActions';
@@ -203,57 +204,59 @@ class PostBody extends React.Component {
           detailUrl={'/feeddetail?itemID=' + postItem.postID}
           showFullCompanyName={this.props.isSummary}
         >
-          <span
-            className={cx(
-              'postActionIcon ThemeBorderColor5 Hand',
-              this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? 'ThemeColor3' : 'ThemeColor4',
-            )}
-            onClick={this.props.isSummary ? this.gotoPostDetail : this.toggleCommentBox}
-            data-tip={_l('回复')}
-          >
-            <i
-              ref={commentButton => {
-                this.commentButton = commentButton;
-              }}
-              className={'icon-replyto'}
-            />
-            <span>{commentCount || 0}</span>
-            {this.state.selectedOperation === postEnum.OPERATE_TYPE.comment && (
-              <div className="commentListContainerTriangle" />
-            )}
-          </span>
+          <Tooltip title={_l('回复')}>
+            <span
+              className={cx(
+                'postActionIcon ThemeBorderColor5 Hand Relative',
+                this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? 'ThemeColor3' : 'ThemeColor4',
+              )}
+              onClick={this.props.isSummary ? this.gotoPostDetail : this.toggleCommentBox}
+            >
+              <i
+                ref={commentButton => {
+                  this.commentButton = commentButton;
+                }}
+                className={'icon-replyto'}
+              />
+              <span>{commentCount || 0}</span>
+              {this.state.selectedOperation === postEnum.OPERATE_TYPE.comment && (
+                <div className="commentListContainerTriangle" />
+              )}
+            </span>
+          </Tooltip>
 
           {!postItem.Secretary && postItem.user ? (
             <span className={cx('postActionIcon ThemeBorderColor5', postItem.liked ? 'ThemeColor3' : 'ThemeColor4')}>
-              <span data-tip={postItem.liked ? _l('取消点赞') : _l('点赞')}>
-                <i className={cx('Hand icon-some-praise')} onClick={this.toggleLike} />
-              </span>
-              {postItem.likeCount ? (
-                <span
-                  className="Hand"
-                  data-tip={_l('点赞人员')}
-                  onClick={this.props.isSummary ? this.gotoPostDetail : this.showLikedUsers}
-                >
-                  {postItem.likeCount}
+              <Tooltip title={postItem.liked ? _l('取消点赞') : _l('点赞')}>
+                <span>
+                  <i className={cx('Hand icon-some-praise')} onClick={this.toggleLike} />
                 </span>
+              </Tooltip>
+              {postItem.likeCount ? (
+                <Tooltip title={_l('点赞人员')}>
+                  <span className="Hand" onClick={this.props.isSummary ? this.gotoPostDetail : this.showLikedUsers}>
+                    {postItem.likeCount}
+                  </span>
+                </Tooltip>
               ) : (
                 false
               )}
             </span>
           ) : undefined}
-          <div
-            className={cx(
-              'postActionIcon ThemeBorderColor5 Hand postOperatorFavBtn',
-              this.props.postItem.isFav ? 'favorited' : 'ThemeColor4',
-            )}
-            onClick={this.props.postItem.isFav ? this.handleRemoveFavorite : this.handleFavorite}
-            ref={favBtn => {
-              this.favBtn = favBtn;
-            }}
-            data-tip={this.props.postItem.isFav ? _l('取消收藏') : _l('收藏')}
-          >
-            <i className="icon-task-star Hand" />
-          </div>
+          <Tooltip title={this.props.postItem.isFav ? _l('取消收藏') : _l('收藏')}>
+            <div
+              className={cx(
+                'postActionIcon ThemeBorderColor5 Hand postOperatorFavBtn',
+                this.props.postItem.isFav ? 'favorited' : 'ThemeColor4',
+              )}
+              onClick={this.props.postItem.isFav ? this.handleRemoveFavorite : this.handleFavorite}
+              ref={favBtn => {
+                this.favBtn = favBtn;
+              }}
+            >
+              <i className="icon-task-star Hand" />
+            </div>
+          </Tooltip>
         </PostFooter>
 
         {this.state.selectedOperation === postEnum.OPERATE_TYPE.comment ? (

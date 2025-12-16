@@ -9,7 +9,6 @@ import * as actions from 'mobile/RecordList/redux/actions';
 import { getTargetName } from 'worksheet/views/BoardView/util';
 import { getViewSelectFields, hasSecondGroupControl } from 'worksheet/views/BoardView/util';
 import ViewEmpty from 'worksheet/views/components/ViewEmpty';
-import { browserIsMobile } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { handlePushState, handleReplaceState } from 'src/utils/project';
@@ -54,8 +53,8 @@ const Container = styled.div`
     height: 44px;
     border-radius: 50%;
     font-size: 26px;
-    color: var(--gray-9e);
-    background-color: var(--color-third);
+    color: var(--color-text-tertiary);
+    background-color: var(--color-background-primary);
     box-shadow: rgba(0, 0, 0, 0.16) 0px 4px 12px;
   }
 `;
@@ -130,10 +129,8 @@ const MobileBoardView = props => {
       }`;
       return;
     }
-    if (browserIsMobile()) {
-      handlePushState('page', 'recordDetail');
-      updatePreviewRecordId(item.rowid);
-    }
+    handlePushState('page', 'recordDetail');
+    updatePreviewRecordId(item.rowid);
     setUpdateRowParam(updateRowParam);
   };
 
@@ -141,44 +138,35 @@ const MobileBoardView = props => {
     handleReplaceState('page', 'recordDetail', () => updatePreviewRecordId(''));
   };
 
-  const findTargetKey = (str, obj) => {
-    const result =
-      _.chain(_.keys(obj))
-        .filter(key => key !== '-1')
-        .find(key => str.includes(key))
-        .value() || '-1';
-
-    return result;
-  };
-
-  const updateRow = (rowId, value) => {
+  const updateRow = ({ recordId, rowData }) => {
     if (!updateRowParam.key) {
       return;
     }
     // 分组字段值
+    // 之前
     const preControlValue = updateRowParam.preRow[viewControl] || '';
-    const isChangeGroup = preControlValue.includes(updateRowParam.key);
+    // 现在
+    const currentValue = rowData[viewControl];
+    const isChangeGroup = preControlValue !== currentValue;
+
     let param = {
       key: updateRowParam.key,
-      rowId,
+      rowId: recordId,
       item: {
-        ...value,
+        ...rowData,
         ..._.pick(updateRowParam.preRow, ['allowdelete', 'allowedit']),
       },
       info: { type: firstGroupControl.type, viewControl },
       isChangeGroup,
     };
 
-    const currentValue = value[viewControl];
-
     if (isChangeGroup) {
       param.target = currentValue;
-      param.targetKey = findTargetKey(currentValue, boardViewRecordCount);
       param.targetName = getTargetName(currentValue, firstGroupControl, { type: firstGroupControl.type });
     }
 
     // 多选作为看板更改多选字段 更新数据
-    if (firstGroupControl.type === 10 && preControlValue !== currentValue) {
+    if (firstGroupControl.type === 10 && isChangeGroup) {
       updateMultiSelectBoard({
         ...param,
         prevValue: preControlValue,
@@ -234,6 +222,7 @@ const MobileBoardView = props => {
         className="full"
         visible={!!previewRecordId}
         enablePayment={worksheetInfo.enablePayment}
+        worksheetInfo={worksheetInfo}
         appId={base.appId}
         worksheetId={base.worksheetId}
         viewId={base.viewId || view.viewId}

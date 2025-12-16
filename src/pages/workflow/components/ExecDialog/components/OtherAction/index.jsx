@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, object, oneOf, string } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog, Dropdown, Signature, Textarea, VerifyPasswordInput } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import delegationAJAX from '../../../../api/delegation';
 import instanceAJAX from '../../../../api/instance';
 import codeAuth from 'src/api/codeAuth';
-import Attachment from 'src/components/newCustomFields/widgets/Attachment';
+import Attachment from 'src/components/Form/DesktopForm/widgets/Attachment';
 import verifyPassword from 'src/components/verifyPassword';
 import { getTranslateInfo } from 'src/utils/app';
 import { ACTION_TO_TEXT } from '../../config';
@@ -380,10 +380,8 @@ export default class OtherAction extends Component {
                 {!!entrustList[user.accountId] && (
                   <Tooltip
                     placement="bottomLeft"
-                    color="#fff"
                     overlayInnerStyle={{ padding: '12px 16px', width: 240 }}
                     align={{ offset: [5, 15] }}
-                    autoCloseDelay={0}
                     title={() => (
                       <Fragment>
                         <div className="Font15 bold Gray">
@@ -762,7 +760,11 @@ export default class OtherAction extends Component {
           <Fragment>
             <div className="relative bold">
               {(passContent || overruleContent) && <RequiredIcon>*</RequiredIcon>}
-              {action === 'return' ? _l('退回理由') : _l('意见')}
+              {action === 'return'
+                ? _l('退回理由')
+                : _.includes(['taskRevoke', 'revoke'], action)
+                  ? _l('撤回理由')
+                  : _l('意见')}
             </div>
             <div className="mTop10 relative">
               <div className="flexRow">
@@ -780,15 +782,15 @@ export default class OtherAction extends Component {
                 />
                 {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&
                   allowUploadAttachment && (
-                    <AttachmentBtn
-                      className="tip-top"
-                      data-tip={_l('添加附件')}
-                      onClick={() => {
-                        $('.approveDialog .customFieldsContainer .triggerTraget').click();
-                      }}
-                    >
-                      <i className="Font16 Gray_75 icon-attachment" />
-                    </AttachmentBtn>
+                    <Tooltip title={_l('添加附件')}>
+                      <AttachmentBtn
+                        onClick={() => {
+                          $('.approveDialog .customFieldsContainer .triggerTraget').click();
+                        }}
+                      >
+                        <i className="Font16 Gray_75 icon-attachment" />
+                      </AttachmentBtn>
+                    </Tooltip>
                   )}
               </div>
 

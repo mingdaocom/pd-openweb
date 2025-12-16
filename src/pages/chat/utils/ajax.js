@@ -142,7 +142,7 @@ export const getImageContext = conf => {
       },
     })
     .then(res => {
-      if (!$.isArray(res)) {
+      if (!_.isArray(res)) {
         res = [];
       }
       return res;
@@ -259,19 +259,5 @@ export const createDiscussion = param => {
       .catch(xhr => {
         reject(xhr);
       });
-  });
-};
-
-/**
- * 获取视频信息
- * @param {*} url
- */
-export const getVideoInfo = url => {
-  return new Promise(resolve => {
-    $.ajax({
-      url,
-    }).then(result => {
-      resolve(result);
-    });
   });
 };

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import messageController from 'src/api/message';
-import Attachment from 'src/components/newCustomFields/widgets/Attachment';
+import Attachment from 'src/components/Form/DesktopForm/widgets/Attachment';
 import Config from '../../../config';
 
 const { TextArea } = Input;
@@ -232,7 +232,7 @@ export default class Announce extends Component {
         } else if (data.actionResult == 2) {
           alert(_l('你发送的信息过长'), 3);
         } else if (data.actionResult == 3) {
-          alert(_l('余额不足,请前去充值'), 3);
+          alert(_l('信用点不足,请前去充值'), 3);
         } else {
           alert(_l('发送失败'), 2);
         }

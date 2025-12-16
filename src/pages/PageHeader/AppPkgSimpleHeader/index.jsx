@@ -5,7 +5,8 @@ import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
-import { SvgIcon, Tooltip } from 'ming-ui';
+import { SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import { routerConfigs } from 'src/pages/AppSettings/routerConfig.js';
@@ -85,7 +86,7 @@ function AppPkgSimpleHeader(props) {
         title={`${name ? name + ' - ' : ''}${text}${routerInfo === 'settings' ? ' - ' + currentSettingMenu : ''}`}
       />
 
-      <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', name)}</span>}>
+      <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
         <div
           className="flexRow pointer Gray_bd alignItemsCenter"
           onClick={() => {

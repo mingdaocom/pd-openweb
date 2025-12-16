@@ -18,7 +18,6 @@ class RoleManageContent extends Component {
     super(props);
     this.state = {};
   }
-  componentDidMount() {}
   // 添加成员
   addUser = () => {
     const { projectId, currentRole = {} } = this.props;

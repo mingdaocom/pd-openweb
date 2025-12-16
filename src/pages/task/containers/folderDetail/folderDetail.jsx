@@ -1,9 +1,9 @@
 ﻿import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, RichText, ScrollView, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
@@ -111,7 +111,7 @@ class FolderDetail extends Component {
         if ($topFolderList.length && $li.length === 1) {
           let projectId = $li.data('projectid');
           let isExist = false;
-          $.map(md.global.Account.projects, project => {
+          _.map(md.global.Account.projects, project => {
             if (projectId === project.projectId) {
               isExist = true;
               return;
@@ -280,12 +280,14 @@ class FolderDetail extends Component {
         })}
 
         {data.isAdmin && (
-          <span data-tip={_l('添加项目管理员')}>
-            <i
-              className="icon-task-add-member-circle pointer ThemeColor3"
-              onClick={evt => this.addFolderMembersEvents(evt, true)}
-            />
-          </span>
+          <Tooltip title={_l('添加项目管理员')}>
+            <span>
+              <i
+                className="icon-task-add-member-circle pointer ThemeColor3"
+                onClick={evt => this.addFolderMembersEvents(evt, true)}
+              />
+            </span>
+          </Tooltip>
         )}
       </li>
     );
@@ -399,12 +401,14 @@ class FolderDetail extends Component {
         })}
 
         {data.isAdmin && (
-          <span data-tip={_l('添加项目成员')}>
-            <i
-              className="icon-task-add-member-circle pointer ThemeColor3"
-              onClick={evt => this.addFolderMembersEvents(evt, false)}
-            />
-          </span>
+          <Tooltip title={_l('添加项目成员')}>
+            <span>
+              <i
+                className="icon-task-add-member-circle pointer ThemeColor3"
+                onClick={evt => this.addFolderMembersEvents(evt, false)}
+              />
+            </span>
+          </Tooltip>
         )}
       </li>
     );
@@ -734,7 +738,7 @@ class FolderDetail extends Component {
     const specialAccounts = {};
 
     // 外部用户
-    if ($.isFunction(callbackInviteResult)) {
+    if (_.isFunction(callbackInviteResult)) {
       users.forEach(item => {
         specialAccounts[item.account] = item.fullname;
       });
@@ -752,7 +756,7 @@ class FolderDetail extends Component {
         isAdmin,
       })
       .then(source => {
-        if ($.isFunction(callbackInviteResult)) {
+        if (_.isFunction(callbackInviteResult)) {
           callbackInviteResult({ status: source.status });
         }
 
@@ -1009,7 +1013,6 @@ class FolderDetail extends Component {
             <div className="folderDetailHead">
               {_l('项目所有成员')} ({data.admins.length + data.ordinaryMembers.length + 1})
               <Tooltip
-                autoCloseDelay={0}
                 title={() => {
                   return (
                     <Fragment>

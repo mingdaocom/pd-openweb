@@ -1,7 +1,7 @@
 import React from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 import { SheetViewWrap } from '../../styled';
 
@@ -64,7 +64,6 @@ export default function WidgetUserPermission({ data, onChange }) {
         {type === 27 && (
           <Tooltip
             placement="bottom"
-            autoCloseDelay={0}
             title="若工作表数据过多，当范围设置[当前部门及所有下级部门成员]或[当前部门及所有上级部门负责人]时，用户打开表单或视图时可能会显示异常。"
           >
             <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>

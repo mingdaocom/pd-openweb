@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, SortableList, Tooltip } from 'ming-ui';
+import { Icon, Menu, MenuItem, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { FILTER_TYPE } from '../enum';
 
@@ -126,21 +127,21 @@ function FilterTitleItem(props) {
           {name}
         </span>
         {error && (
-          <Tooltip text={_l('该筛选器中的筛选条件出错')}>
+          <Tooltip title={_l('该筛选器中的筛选条件出错')}>
             <i className="icon icon-error1 Font16 mLeft6" style={{ color: '#F44336' }}></i>
           </Tooltip>
         )}
       </VerticalMiddle>
       <div onClick={e => e.stopPropagation()}>
         {canEdit ? (
-          <Tooltip popupPlacement="bottom" text={_l('编辑')}>
+          <Tooltip placement="bottom" title={_l('编辑')}>
             <i
               className="icon icon-edit Hand editIcon hoverShow ThemeHoverColor3 Font16 mRight12"
               onClick={() => onEditFilter(filter)}
             ></i>
           </Tooltip>
         ) : (
-          <Tooltip popupPlacement="bottom" text={_l('查看')}>
+          <Tooltip placement="bottom" title={_l('查看')}>
             <i
               className="icon icon-visibility Hand moreMenu hoverShow ThemeHoverColor3 Font16 mRight12"
               onClick={() => onEditFilter(filter)}

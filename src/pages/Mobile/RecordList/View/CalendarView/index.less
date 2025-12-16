@@ -1,51 +1,129 @@
 .mobileBoxCalendar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-  position: relative;
+  overflow: hidden;
+  background: var(--color-background-primary);
+  font-size: 16px;
+  .customCalendarHeader {
+    padding: 10px 16px;
+    font-size: 1.5em;
+    color: var(--color-text-primary);
+    font-weight: bold;
+    .calendarToolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 30px;
+      color: var(--color-text-tertiary);
+      .toolbarBox {
+        display: flex;
+        gap: 6px;
+        .toolbarItem {
+          display: flex;
+          align-items: center;
+          padding: 0 12px;
+          height: 30px;
+          background-color: var(--color-background-tertiary);
+          color: var(--color-text-tertiary);
+          border-radius: 5px;
+          font-size: 0.6em;
+          .icon {
+            font-size: 1.4em;
+            font-weight: 600;
+          }
+        }
+        .todayBtn {
+          padding: 0 18px;
+          color: var(--color-text-primary);
+        }
+      }
+    }
+  }
+  .fullCalendarWrapper {
+    flex: 1;
+    min-height: 0;
+    overflow-y: scroll;
+    .fc {
+      min-height: 360px;
+    }
+  }
+  a {
+    color: var(--color-text-primary);
+  }
   .externalEvents {
     display: none;
   }
+  .fc,
+  .fc-col-header,
+  .fc-daygrid-body,
+  .fc-daygrid-body > table {
+    width: 100%;
+  }
   .fc-header-toolbar {
-    .fc-toolbar-chunk:nth-child(2) {
-      display: flex;
-      margin-left: 60px;
-      @media screen and (max-width: 320px) {
-        margin-left: 45px;
-      }
-      > div {
-        display: flex;
-        .fc-toolbar-title {
-          position: unset;
-          transform: unset;
-          font-size: 14px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          vertical-align: top;
-        }
-        .fc-button-primary {
-          color: #9e9e9e;
-        }
-        .fc-button-primary:first-child {
-          padding: 0 22px 0 0;
-        }
-        .fc-button-primary:last-child {
-          padding: 0 0 0 22px;
-          margin: 0;
-        }
-      }
+    display: none;
+  }
+  .fc-theme-standard th {
+    font-weight: normal !important;
+  }
+  .fc-theme-standard td,
+  .fc-theme-standard th {
+    border-color: rgba(0, 0, 0, 0.05) !important;
+    border-right: none;
+  }
+  .fc-theme-standard .fc-scrollgrid {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  .fc-scrollgrid-section-header {
+    .fc-col-header tr {
+      line-height: 30px;
     }
-    .fc-toolbar-chunk:last-child {
-      padding-right: 16px;
-      .fc-button-primary {
-        padding: 0;
-        border: none;
+    .fc-col-header-cell {
+      border-left: none;
+    }
+  }
+  // 当天
+  .fc-daygrid-day.fc-day-today,
+  .fc-timegrid-col.fc-day-today {
+    background-color: transparent;
+  }
+  // 当天日期的数字样式
+  .fc-dayGridMonth-view .fc-daygrid-day.fc-day-today .fc-daygrid-day-number .num {
+    padding: 0;
+    display: block;
+    border-radius: 50%;
+    background: var(--color-primary);
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+    color: var(--color-background-primary);
+    font-weight: normal;
+  }
+  // 非当前月日期的背景颜色
+  .fc .fc-day-other {
+    background: var(--color-background-secondary);
+    .fc-daygrid-day-top {
+      //非当前月的时间显示
+      opacity: 1;
+      .num {
+        color: var(--color-text-tertiary);
       }
     }
   }
+  // 日期的数字和农历
   .fc-daygrid-day-top {
+    position: relative;
     .fc-daygrid-day-number {
+      position: initial;
       .lunar {
+        position: absolute;
+        left: 4px;
+        color: var(--color-text-tertiary);
         font-size: 9px;
         -webkit-transform: scale(0.75);
       }
@@ -54,70 +132,35 @@
       }
     }
   }
-  .fc-daygrid-dot-event:hover,
+  .fc-daygrid-dot-event {
+    border: 1px solid #dddddd;
+    background: #fff;
+    padding: 0;
+  }
+  .fc-daygrid-dot-event,
   .fc-daygrid-dot-event.fc-event-mirror {
     background: unset;
   }
-  .expandIcon {
-    width: 28px;
-    height: 28px;
-    position: absolute;
-    left: 14px;
-    top: 8px;
-    color: #9e9e9e;
-    .schedule {
-      font-size: 28px;
-    }
-    .totalNum {
-      position: absolute;
-      right: 0;
-      bottom: -3px;
-      font-size: 10px;
-    }
-  }
 
-  .boxCalendar .fc-button-primary:not(:disabled):hover {
-    background-color: #fff;
-  }
-  .boxCalendar .fc .fc-daygrid-more-link:hover {
-    background-color: #fff;
-  }
-  .boxCalendar .fc-button-primary:not(:disabled):hover,
-  .boxCalendar .fc-button-primary:not(:disabled):active {
-    color: #9e9e99;
-  }
-  .fc-view-harness {
-    .fc-timeGridDay-view {
-      .fc-scrollgrid {
-        .fc-scrollgrid-section {
-          .fc-timegrid-body {
-            tr {
-              td {
-                height: 36px;
-              }
-            }
-          }
-        }
-      }
-    }
-    .fc-dayGridDay-view {
-      .fc-scrollgrid {
-        .fc-scrollgrid-section {
-          .fc-daygrid-body {
-            .fc-daygrid-day-events {
-              .fc-daygrid-event-harness {
-                .fc-daygrid-event {
-                  min-height: 36px;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
   .fc-event-selected:after,
   .fc-event:focus:after {
     display: none;
+  }
+
+  .dayNumBox {
+    position: relative;
+    width: 20px;
+    text-align: center;
+    line-height: 20px;
+    .txt {
+      display: block;
+    }
+    .add {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+    }
   }
 }

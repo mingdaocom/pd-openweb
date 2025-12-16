@@ -2,9 +2,9 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { MdMarkdown, RichText } from 'ming-ui';
-import { getBarCodeValue, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import BarCode from 'src/components/newCustomFields/widgets/BarCode';
-import Embed from 'src/components/newCustomFields/widgets/Embed';
+import { getBarCodeValue, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
+import Embed from 'src/components/Form/DesktopForm/widgets/Embed';
 import { parseDataSource } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
 import { getSwitchItemNames, renderText as renderCellText } from 'src/utils/control';
@@ -241,9 +241,11 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
               {records
                 .map(
                   l =>
-                    renderCellText({ ...titleControl, value: l[titleControl.controlId] }) ||
-                    l[titleControl.controlId] ||
-                    _l('未命名'),
+                    renderCellText({ ...titleControl, value: l[titleControl?.controlId] }) ||
+                    (!l[titleControl?.controlId] ||
+                    ([9, 10, 11].includes(titleControl?.type) && l[titleControl?.controlId] === '[]')
+                      ? _l('未命名')
+                      : l[titleControl?.controlId]),
                 )
                 .join(', ')}
             </span>

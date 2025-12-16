@@ -43,7 +43,7 @@ export const functions = {
       [start, end] = [end, start];
     }
     let result = dayjs(end).diff(dayjs(start), 'day') + 1;
-    // TODO 处理工作日逻辑
+    // 处理工作日逻辑
     const startWeekDay = dayjs(start).day();
     let endWeekDay = dayjs(end).day();
     if (endTimeIsBeforeStartTime(start, end)) {
@@ -142,7 +142,7 @@ export const functions = {
     if (unit === 'Y') {
       unit = 'y';
     }
-    if (type === 1) {
+    if (String(type) === '1') {
       if (/^\d{4}(-\d{2}){2}$/.test(begin)) {
         begin = dayjs(begin).startOf('day');
       }
@@ -193,13 +193,9 @@ export const functions = {
   //   );
   // },
   // 条件求和
-  // SUMIF: function () {
-  //   // TODO 待定
-  // },
+  // SUMIF: function () {},
   // // 条件计数
-  // COUNTIF: function () {
-  //   // TODO 待定
-  // },
+  // COUNTIF: function () {},
   // 返回随机数
   RANDBETWEEN: function (begin, end) {
     begin = Math.round(Number(begin));
@@ -687,9 +683,16 @@ export const functions = {
     matchStr = String(matchStr);
     replaceStr = String(replaceStr);
 
+    // 转义正则表达式特殊字符
+    const escapeRegExp = str => {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    };
+
+    const escapedMatchStr = escapeRegExp(matchStr);
+
     // 如果未指定替换位置，则替换所有匹配项
     if (typeof position === 'undefined') {
-      return value.replace(new RegExp(matchStr, 'g'), replaceStr);
+      return value.replace(new RegExp(escapedMatchStr, 'g'), replaceStr);
     }
 
     position = Number(position);
@@ -700,7 +703,7 @@ export const functions = {
     }
 
     let occurrencesFound = 0;
-    const result = value.replace(new RegExp(matchStr, 'g'), match => {
+    const result = value.replace(new RegExp(escapedMatchStr, 'g'), match => {
       occurrencesFound++;
       return occurrencesFound === position ? replaceStr : match;
     });

@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import flowNode from '../../../api/flowNode';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
@@ -165,13 +166,15 @@ export default class Api extends Component {
           ) : data.appId && !data.app.name ? (
             <Fragment>
               <div className="flex Font15">{_l('API已删除')}</div>
-              <span data-tip={_l('变更API')}>
-                <Icon
-                  icon="swap_horiz"
-                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
-                  onClick={this.selectIntegrationApi}
-                />
-              </span>
+              <Tooltip title={_l('变更API')}>
+                <span>
+                  <Icon
+                    icon="swap_horiz"
+                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    onClick={this.selectIntegrationApi}
+                  />
+                </span>
+              </Tooltip>
             </Fragment>
           ) : (
             <Fragment>
@@ -180,8 +183,8 @@ export default class Api extends Component {
                 style={{ backgroundColor: getRgbaByColor(data.app.iconColor || '#757575', '0.08') }}
               >
                 <SvgIcon url={data.app.iconName} fill={data.app.iconColor} size={32} />
-                <Tooltip popupPlacement="bottom" text={<span>{data.app.otherApkId || _l('未命名连接')}</span>}>
-                  <div className="workflowApiIconSubscript workflowDetailTipsWidth tip-bottom-right">
+                <Tooltip title={data.app.otherApkId || _l('未命名连接')}>
+                  <div className="workflowApiIconSubscript">
                     {data.app.otherApkName ? <img src={data.app.otherApkName} /> : <Icon icon="connect" />}
                   </div>
                 </Tooltip>
@@ -202,13 +205,15 @@ export default class Api extends Component {
                 )}
               </div>
               <div className="flex" />
-              <span data-tip={_l('变更API')}>
-                <Icon
-                  icon="swap_horiz"
-                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
-                  onClick={this.selectIntegrationApi}
-                />
-              </span>
+              <Tooltip title={_l('变更API')}>
+                <span>
+                  <Icon
+                    icon="swap_horiz"
+                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    onClick={this.selectIntegrationApi}
+                  />
+                </span>
+              </Tooltip>
             </Fragment>
           )}
         </div>

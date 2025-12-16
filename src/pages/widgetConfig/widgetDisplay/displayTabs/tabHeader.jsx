@@ -9,6 +9,7 @@ import { DRAG_ACCEPT, DRAG_ITEMS, DRAG_MODE } from '../../config/Drag';
 import { DropdownOverlay } from '../../styled';
 import { fixedBottomWidgets, putControlByOrder } from '../../util';
 import { deleteSection } from '../../util/data';
+import { batchCopyWidgets } from '../../util/data';
 import { batchRemoveItems, insertNewLine } from '../../util/drag';
 import { getAdvanceSetting } from '../../util/setting';
 import WidgetStatus from '../components/WidgetStatus';
@@ -106,6 +107,21 @@ export function TabHeaderItem(props) {
           onVisibleChange={visible => setVisible(visible)}
           overlay={
             <DropdownOverlay>
+              <div
+                className="dropdownContent"
+                onClick={e => {
+                  e.stopPropagation();
+                  if (fixedBottomWidgets(data)) {
+                    batchCopyWidgets(props, [data]);
+                    setVisible(false);
+                  }
+                }}
+              >
+                <div className="item">
+                  <Icon icon="copy" />
+                  {_l('复制')}
+                </div>
+              </div>
               <div
                 className="dropdownContent"
                 onClick={e => {

@@ -79,9 +79,7 @@ export default class EditMemberDialog extends Component {
                       className="mLeft10 headIcon"
                       src={user.avatar}
                       alt=""
-                      onError={() =>
-                        `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`
-                      }
+                      onError={() => `${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`}
                     />
                     <div className="contentName overflow_ellipsis">
                       <span className="mLeft5">{user.fullname}</span>

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import process from '../../api/process';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -548,9 +549,9 @@ class ProcessConfig extends Component {
                       onClick={checked => this.updateSource({ [o.key]: !checked })}
                     />
                     {o.tip && (
-                      <span className="workflowDetailTipsWidth mLeft5" data-tip={o.tip}>
-                        <Icon icon="info" className="Gray_9e" />
-                      </span>
+                      <Tooltip title={o.tip}>
+                        <Icon icon="info" className="Gray_9e mLeft5" />
+                      </Tooltip>
                     )}
                   </div>
                 );
@@ -985,9 +986,9 @@ class ProcessConfig extends Component {
               <Icon className="Font16" icon={item.icon} />
               {item.text}
               {item.tip && (
-                <span className="workflowDetailTipsWidth mLeft5" data-tip={item.tip}>
-                  <Icon icon="info" className="Gray_9e" />
-                </span>
+                <Tooltip title={item.tip}>
+                  <Icon icon="info" className="Gray_9e mLeft5" />
+                </Tooltip>
               )}
             </li>
           ))}

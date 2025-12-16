@@ -4,7 +4,7 @@ import { Popover } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
@@ -32,10 +32,14 @@ const EventCardContent = ({
   // 准备卡片数据
   const item = _.cloneDeep(_.get(info, 'event.extendedProps'));
   if (item?.info?.begin && item[item.info.begin]) {
-    item[item.info.begin] = dateConvertToServerZone(moment(item[item.info.begin]));
+    item[item.info.begin] = isTimeStyle(_.get(item, 'info.startData'))
+      ? dateConvertToServerZone(moment(item[item.info.begin]))
+      : item[item.info.begin];
   }
   if (item?.info?.end && item[item.info.end]) {
-    item[item.info.end] = dateConvertToServerZone(moment(item[item.info.end]));
+    item[item.info.end] = isTimeStyle(_.get(item, 'info.endData'))
+      ? dateConvertToServerZone(moment(item[item.info.end]))
+      : item[item.info.end];
   }
   const coverCid = currentView.coverCid || _.get(worksheetInfo, 'advancedSetting.coverid');
   let formData = controls.map(o => ({ ...o, value: item[o.controlId] }));
@@ -134,7 +138,7 @@ const EventCardContent = ({
           hoverShowAll
           canDrag={false}
           isCharge={isCharge}
-          currentView={{ ...currentView, appId, worksheetId, groupId }}
+          currentView={{ ...currentView, appId, worksheetId, groupId, projectId: worksheetInfo.projectId }}
           allowCopy={worksheetInfo.allowAdd}
           allowRecreate={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
@@ -155,7 +159,6 @@ const EventCardContent = ({
 
 const EventCard = ({
   info,
-  browserIsMobile,
   currentView,
   controls,
   worksheetInfo,
@@ -185,13 +188,7 @@ const EventCard = ({
     const setElementVisibility = (element, visible) => {
       element.style.display = visible ? '' : 'none';
     };
-    setElementVisibility(
-      timeEl,
-      !browserIsMobile &&
-        isTimeStyle(_.get(info, 'event.extendedProps.startData')) &&
-        !(allDay && isMonthView) &&
-        !(browserIsMobile && !isMonthView),
-    );
+    setElementVisibility(timeEl, isTimeStyle(_.get(info, 'event.extendedProps.startData')) && !(allDay && isMonthView));
   };
 
   useEffect(() => {
@@ -243,14 +240,11 @@ const EventCard = ({
     }
   };
 
-  if (browserIsMobile) return null;
-
   return (
     <Popover
       content={
         <EventCardContent
           info={info}
-          browserIsMobile={browserIsMobile}
           currentView={{
             ...currentView,
             displayControls: _.uniq([
@@ -306,7 +300,6 @@ const EventCard = ({
 
 export const eventDidMount = (
   info,
-  browserIsMobile,
   currentView,
   controls,
   worksheetInfo,
@@ -328,7 +321,6 @@ export const eventDidMount = (
       key={`custom-card_${_.get(info, 'event.extendedProps.rowid')}`}
       isMove={isMove}
       info={info}
-      browserIsMobile={browserIsMobile}
       currentView={currentView}
       controls={controls}
       worksheetInfo={worksheetInfo}

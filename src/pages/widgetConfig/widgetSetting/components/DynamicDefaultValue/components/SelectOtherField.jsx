@@ -1,11 +1,11 @@
 import React, { Component, createRef, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import { func } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
@@ -230,8 +230,8 @@ export default class SelectOtherField extends Component {
       //子表里的字段默认值没有查询和函数配置
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH, OTHER_FIELD_TYPE.FX], item.key));
     }
-    //自定义事件没有查询工作表
-    if (this.props.fromCustomEvent) {
+    //自定义事件、业务规则没有部门和角色,需要掉接口
+    if (this.props.from === DYNAMIC_FROM_MODE.CUSTOM_EVENT || this.props.from === DYNAMIC_FROM_MODE.RULES) {
       types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.DEPT, OTHER_FIELD_TYPE.ROLE], item.key));
     }
     if (this.props.fromRange) {
@@ -266,7 +266,6 @@ export default class SelectOtherField extends Component {
       linkParams = [],
       fromCustomEventApi,
       actionData = {},
-      fromCustomEvent,
     } = this.props;
 
     const filterTypes = this.getCurrentField(data);
@@ -397,7 +396,7 @@ export default class SelectOtherField extends Component {
           >
             <Tooltip
               trigger={['hover']}
-              placement={'bottom'}
+              placement="bottom"
               title={withLinkParams && !withDY ? _l('使用链接参数') : isSubList ? _l('查询工作表') : _l('使用动态值')}
             >
               <SelectOtherFieldWrap
@@ -444,7 +443,11 @@ export default class SelectOtherField extends Component {
                 : getAdvanceSetting(data, 'defaultfunc')
             }
             title={data.controlName}
-            controls={fromCustomEvent ? allControls : allControls.filter(c => c.controlId !== data.controlId)}
+            controls={
+              from === DYNAMIC_FROM_MODE.CUSTOM_EVENT
+                ? allControls
+                : allControls.filter(c => c.controlId !== data.controlId)
+            }
             onClose={() => this.setState({ fxVisible: false })}
             onSave={value => {
               onChange(

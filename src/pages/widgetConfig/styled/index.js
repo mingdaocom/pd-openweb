@@ -756,10 +756,13 @@ export const TitleContentWrap = styled.div`
       text-align: ${props => (props.textAlign === '1' ? 'left' : 'right')};
       font-size: ${props => props.titleSize};
       line-height: ${props => (parseInt(props.titleSize) > 18 ? props.titleSize : '18px')};
-      color: ${props => props.titleColor || '#757575'};
+      color: ${props => props.titleColor || 'var(--color-text-title)'};
       ${props => props.titleStyle || ''};
       &.hideTitle {
         color: #9e9e9e !important;
+      }
+      &.isMingo {
+        color: #732ed1;
       }
     }
     .isSplitLine {
@@ -1001,6 +1004,12 @@ export const EditOptionDialog = styled(Dialog)`
     flex-direction: column;
     padding: 0 0 36px !important;
     min-height: 0;
+  }
+  .setOption {
+    color: #9e9e9e;
+    span:hover {
+      color: #1677ff;
+    }
   }
   .optionsWrap {
     flex: 1;

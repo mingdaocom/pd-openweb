@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Tooltip } from 'antd';
+import { Button } from 'antd';
 import cx from 'classnames';
 import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { NOT_NEED_DELETE_CONFIRM } from '../../config';
 import { canSetAsTitle, isCustomWidget } from '../../util';

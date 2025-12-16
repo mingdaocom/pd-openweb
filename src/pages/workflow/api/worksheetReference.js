@@ -1,8 +1,9 @@
 import base, { controllerName } from './base';
+
 /**
  * worksheetReference
-*/
-var worksheetReference = {
+ */
+const worksheetReference = {
   /**
    * 刷新网络下所有流程
    * @param {Object} args 请求参数
@@ -11,10 +12,15 @@ var worksheetReference = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getWorksheetReferences: function(args, options) {
+  getWorksheetReferences: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/worksheetReference/GetWorksheetReferences';
     base.ajaxOptions.type = 'POST';
-    return mdyAPI(controllerName, 'worksheetReferenceGetWorksheetReferences', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(
+      controllerName,
+      'worksheetReferenceGetWorksheetReferences',
+      JSON.stringify(args),
+      $.extend(base, options),
+    );
   },
 };
 export default worksheetReference;

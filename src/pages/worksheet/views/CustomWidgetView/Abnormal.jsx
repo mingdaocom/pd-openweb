@@ -98,6 +98,7 @@ export default function Abnormal(props) {
         !(location.host || '').startsWith('localhost') && (
           <div className="tip-sec">{_l('非 https 下 Chrome 无法加载本地脚本，请使用 Firefox 开发插件。')}</div>
         )}
+      <div className="tip-sec">{_l('Chrome 最近限制了本地脚本的加载，出现这种情况时，请使用 Firefox 开发插件。')}</div>
       {showDebugButton &&
         includes([CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING, CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR], status) && (
           <Button

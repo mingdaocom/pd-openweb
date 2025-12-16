@@ -1,0 +1,57 @@
+.scheduleIconBox {
+  position: relative;
+  height: 30px;
+  .scheduleIcon {
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+  .totalNum {
+    position: absolute;
+    right: -6px;
+    bottom: 0;
+    font-size: 0.5em;
+    color: #151515;
+  }
+}
+
+.schedulePopup {
+  .popupContentBox {
+    background-color: #f2f2f2;
+    .popupSearchWrapper {
+      background-color: #fff;
+    }
+    .tabsBox {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1px;
+      margin: 0 15px 10px;
+      background-color: rgba(118, 118, 128, 0.12);
+      border-radius: 9px;
+      .tabItem {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 33%;
+        height: 32px;
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+        &.active {
+          height: 28px;
+          background-color: #fff;
+          border-radius: 7px;
+          border: 1px solid rgba(0, 0, 0, 0.04);
+          box-shadow: 0 3px 8px 0px rgba(0, 0, 0, 0.16);
+        }
+      }
+    }
+
+    .eventListBox {
+      padding: 0 10px;
+    }
+    .scheduleLoading {
+      height: 50px;
+    }
+  }
+}

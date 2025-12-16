@@ -8,7 +8,7 @@ import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 import './style.less';
 
-const productList = [5000, 3000, 2000, 1000];
+const productList = [50, 100, 500, 1000];
 
 @withRouter
 export default class ValueAddService extends Component {
@@ -17,8 +17,8 @@ export default class ValueAddService extends Component {
     this.state = {
       step: 1,
       isInput: false,
-      productPrice: 5000,
-      inputValue: _l('其他金额'),
+      productPrice: 1000,
+      inputValue: _l('自定义'),
       balance: 0,
       needSalesAssistance: true,
       isPay: false,
@@ -31,14 +31,14 @@ export default class ValueAddService extends Component {
       projectId: Config.projectId,
     }).then(balance => {
       this.setState({
-        balance: parseInt(balance, 10) || 0,
+        balance: balance ? Number(balance) : 0,
       });
     });
   }
 
   // 选择金额
   handleChange(productPrice) {
-    this.setState({ productPrice, isInput: false, inputValue: _l('其他金额') });
+    this.setState({ productPrice, isInput: false, inputValue: _l('自定义') });
   }
 
   handleInputFocus() {
@@ -59,7 +59,7 @@ export default class ValueAddService extends Component {
     let tmpPrince = parseInt(e.target.value) || 50;
     if (tmpPrince > 999999) {
       tmpPrince = 999999;
-      alert(_l('最多充值金额 999999 元'), 3);
+      alert(_l('最多充值金额 999999 信用点'), 3);
     }
     this.setState({
       inputValue: tmpPrince,
@@ -87,8 +87,12 @@ export default class ValueAddService extends Component {
       })
       .then(function (data) {
         if (data) {
-          alert(_l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
-            window.location.href = '/admin/waitingpay/' + Config.projectId + '/' + data.orderId;
+          alert({
+            msg: _l('订单已创建成功，正在转到付款页...'),
+            duration: 500,
+            onClose: function () {
+              window.location.href = '/admin/waitingpay/' + Config.projectId + '/' + data.orderId;
+            },
           });
         } else {
           _this.setState({ isPay: false });
@@ -104,14 +108,14 @@ export default class ValueAddService extends Component {
       <div className="warpCenter valueAddServerContent">
         <div className="valueAddServerHeader">
           <Icon icon="backspace" className="Hand mRight18 TxtMiddle Font24" onClick={() => this.handleBack()}></Icon>
-          <span className="Font17 Bold">{_l('充值')}</span>
+          <span className="Font17 Bold">{_l('充值信用点')}</span>
         </div>
         <div className="warpOneStep">
           <div className={cx('stepTitle', { color_bd: step !== 1 })}>
             <div className="stepNum">
               <span className="Bold Font12">1</span>
             </div>
-            <span>{_l('选择充值金额')}</span>
+            <span>{_l('选择充值信用点')}</span>
           </div>
           <div className={cx('Gray_9 Font13 Normal mTop10', { Hidden: step !== 1 })}>
             {_l('如需特别定制，请联系电话 400-665-6655')}
@@ -127,7 +131,7 @@ export default class ValueAddService extends Component {
                         onClick={() => this.handleChange(item)}
                         className={cx(productPrice === item && !isInput ? 'selectProduct' : '')}
                       >
-                        ￥{item}
+                        {item}
                       </li>
                     );
                   })}
@@ -135,7 +139,7 @@ export default class ValueAddService extends Component {
                     <input
                       type="text"
                       className="txtCustomPrice"
-                      placeholder={_l('请输入金额')}
+                      placeholder={_l('请输入信用点')}
                       value={inputValue}
                       onFocus={this.handleInputFocus.bind(this)}
                       onChange={e => this.handleInputChange(e)}
@@ -152,7 +156,7 @@ export default class ValueAddService extends Component {
                   <span className="Font20 color_b">￥</span>
                   <span className="Font20 color_b Bold">{currentPrice}</span>
                   <span className="Gray_9 mLeft5">
-                    {_l('购买后增值服务账户金额：%0 元', parseFloat(currentPrice) + parseFloat(balance))}
+                    {_l('购买后增值服务账户信用点余额：%0', parseFloat(currentPrice) + parseFloat(balance))}
                   </span>
                 </div>
                 <div className="pTop30">

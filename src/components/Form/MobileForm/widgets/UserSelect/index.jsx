@@ -3,11 +3,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { MobilePersonalInfo } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
 import { compatibleMDJS } from 'src/utils/project';
-import { dealUserRange } from '../../../core/utils';
+import { dealUserRange, getUserValue } from '../../../core/utils';
 import { useFormStore } from '../../../index';
-import { getTabTypeBySelectUser, getUserValue } from '../../tools/utils';
+import { getTabTypeBySelectUser } from '../../tools/utils';
 
 const UserItemBox = styled.div`
   position: relative;
@@ -51,6 +52,8 @@ function UserSelect(props) {
   const userHeadSize = emSizeNum * 1.5 + 6;
   const selectUsers = getUserValue(value);
   const [showSelectUser, setShowSelectUser] = useState(false);
+  const [personalInfoVisible, setPersonalInfoVisible] = useState(false);
+  const [accountId, setAccountId] = useState(null);
   const isUnique = enumDefault === 0;
 
   const pickUser = () => {
@@ -107,9 +110,21 @@ function UserSelect(props) {
     onChange(JSON.stringify(newAccounts));
   };
 
-  const removeUser = accountId => {
+  const removeUser = (e, accountId) => {
+    e.stopPropagation();
     const newValue = selectUsers.filter(item => item.accountId !== accountId);
     onChange(JSON.stringify(newValue));
+  };
+
+  const viewPersonalInfo = ({ accountId }) => {
+    if (!formDisabled) return;
+
+    if (window.isMingDaoApp) {
+      compatibleMDJS('userDetail', { accountId });
+    } else {
+      setPersonalInfoVisible(true);
+      setAccountId(accountId);
+    }
   };
 
   const syncObject = obj => {
@@ -141,13 +156,13 @@ function UserSelect(props) {
         key={item.accountId}
         userHeadSize={userHeadSize}
         className="customFormCapsule"
-        onClick={() => compatibleMDJS('userDetail', { accountId: item.accountId })}
+        onClick={() => viewPersonalInfo(item)}
       >
         <img className="userHead" src={item.avatar} />
         <div className="userName">{item.name || item.fullname || item.fullName}</div>
 
         {!isUnique && !disabled && (
-          <i className="icon-minus-square capsuleDel" onClick={() => removeUser(item.accountId)} />
+          <i className="icon-minus-square capsuleDel" onClick={e => removeUser(e, item.accountId)} />
         )}
       </UserItemBox>
     );
@@ -181,6 +196,15 @@ function UserSelect(props) {
           )}
         </Fragment>
       )}
+      {formDisabled && (
+        <MobilePersonalInfo
+          visible={personalInfoVisible}
+          accountId={accountId}
+          appId={appId}
+          projectId={projectId}
+          onClose={() => setPersonalInfoVisible(false)}
+        />
+      )}
 
       {showSelectUser && (
         <SelectUser
@@ -196,6 +220,8 @@ function UserSelect(props) {
           onClose={() => setShowSelectUser(false)}
           onSave={onSave}
           selectedUsers={formatSelectUser()}
+          advancedSetting={advancedSetting}
+          enumDefault2={enumDefault2}
         />
       )}
     </div>

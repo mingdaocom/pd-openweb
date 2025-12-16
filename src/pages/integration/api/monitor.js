@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var monitor = {
-
+const monitor = {
   /**
    * 获取任务算力使用数据
    *
@@ -150,7 +149,7 @@ var monitor = {
     base.ajaxOptions.url = base.server(options) + 'monitor/getTaskCount';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'monitorgetTaskCount', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default monitor;

@@ -107,7 +107,7 @@ export default () => {
         );
         if (
           fnitem &&
-          /(workSheetNewRecord|workSheetRecordInfo|fillRecordControls)/.test(fnitem.className) &&
+          /(workSheetNewRecord|createRecordSideMask|workSheetRecordInfo|fillRecordControls)/.test(fnitem.className) &&
           window.hasEditingCell
         ) {
           return;

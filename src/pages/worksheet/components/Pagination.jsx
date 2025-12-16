@@ -237,6 +237,7 @@ export default class Pagination extends React.Component {
       abnormalMode,
       className = '',
       pageIndex,
+      onlyShowCount,
       maxCount,
       allCount,
       appendToBody,
@@ -246,6 +247,13 @@ export default class Pagination extends React.Component {
       onNext,
     } = this.props;
     const { popupVisible } = this.state;
+    if (onlyShowCount) {
+      return (
+        <Con className={className}>
+          <NoData>{_l('共%0行', allCount)}</NoData>
+        </Con>
+      );
+    }
     if (maxCount) {
       return (
         <Con className={className}>

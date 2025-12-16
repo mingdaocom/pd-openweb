@@ -172,7 +172,7 @@ export default ({ data = [], list = [], errorItems, setErrorItems, updateSource 
                         }
                         return o;
                       })
-                      .map(o => {
+                      .forEach(o => {
                         if (o.controlId === obj.dataSource) {
                           const objectArray = {};
                           let isAllEmpty = true;

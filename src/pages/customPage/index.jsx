@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import customApi from 'statistics/api/custom.js';
+import reportConfigApi from 'statistics/api/reportConfig';
 import { reportTypes } from 'statistics/Charts/common';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
@@ -98,6 +99,46 @@ export default class CustomPage extends Component {
     const { updateModified, updateEditPageVisible } = this.props;
     updateEditPageVisible(false);
     updateModified(false);
+  };
+
+  // 找到编辑过名称和描述的图表保存数据
+  fillChartData = components => {
+    return new Promise(resolve => {
+      const chartComponent = components
+        .filter(item => item.type === enumWidgetType.analysis)
+        .filter(item => _.get(item, 'config.isEdit') === true);
+      if (chartComponent.length) {
+        const saveChartRequest = chartComponent.map(item => {
+          return reportConfigApi.updateReportName({
+            reportId: item.value,
+            name: _.get(item, 'config.name'),
+            desc: _.get(item, 'config.desc'),
+            showTitle: _.get(item, 'config.showTitle'),
+          });
+        });
+        Promise.all(saveChartRequest).then(() => {
+          const newComponents = components.map(component => {
+            if (component.type === enumWidgetType.analysis) {
+              return {
+                ...component,
+                config: {
+                  ...component.config,
+                  isEdit: undefined,
+                  showTitle: undefined,
+                  name: undefined,
+                  desc: undefined,
+                },
+              };
+            } else {
+              return component;
+            }
+          });
+          resolve(newComponents);
+        });
+      } else {
+        resolve(components);
+      }
+    });
   };
 
   getCreateRecordBtns = components => {
@@ -493,6 +534,7 @@ export default class CustomPage extends Component {
 
     let newComponents = this.dealComponents(components);
 
+    newComponents = await this.fillChartData(newComponents);
     newComponents = await this.fillBtnData(newComponents);
     newComponents = await this.fillFilterData(newComponents);
     newComponents = await this.fillFilterComponent(newComponents);

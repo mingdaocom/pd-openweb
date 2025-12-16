@@ -1,9 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Input, Popover, Select, Tooltip } from 'antd';
+import { Checkbox, Input, Popover, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, QiniuUpload } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { TabsSettingPopover } from './styled.js';
 
 const actionType = [
@@ -29,6 +30,21 @@ const openModeType = [
   {
     name: _l('当前页面'),
     value: 2,
+  },
+];
+
+const fillType = [
+  {
+    name: _l('填满'),
+    value: 1,
+  },
+  {
+    name: _l('完整显示'),
+    value: 2,
+  },
+  {
+    name: _l('拉伸 (会变形)'),
+    value: 3,
   },
 ];
 
@@ -85,12 +101,14 @@ const ImageUploadWrap = styled.div`
 
 let isEdit = false;
 export default props => {
-  const { icon, type, highlight, widget } = props;
+  const { toolItem, widget, renderItem } = props;
+  const { type } = toolItem;
   const { componentConfig = {} } = widget;
   const { url, name, showName = true, linkUrl } = componentConfig;
   const showType = _.isNumber(componentConfig.showType) ? componentConfig.showType : 1;
   const action = _.isNumber(componentConfig.action) ? componentConfig.action : 0;
   const openMode = _.isNumber(componentConfig.openMode) ? componentConfig.openMode : 1;
+  const fill = componentConfig.fill || 1;
   const [popoverVisible, setPopoverVisible] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -188,6 +206,23 @@ export default props => {
               </div>
             </div>
           </div>
+          <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('填充方式')}</div>
+          <Select
+            className="mdAntSelect w100"
+            value={fill}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              handleChangeConfig({ fill: value });
+            }}
+          >
+            {fillType.map(c => (
+              <Select.Option className="mdAntSelectOption" key={c.value} value={c.value}>
+                <div className="valignWrapper h100">
+                  <span className="Font13 ellipsis">{c.name}</span>
+                </div>
+              </Select.Option>
+            ))}
+          </Select>
           <div className="flexRow valignWrapper mTop15 mBottom10 bold">{_l('点击图片时')}</div>
           <Select
             className="mdAntSelect w100"
@@ -251,7 +286,14 @@ export default props => {
             <div className="Gray_75 mBottom10">{_l('请选择5MB以内的jpg, jpeg或png图片')}</div>
             {previewUrl ? (
               <div className="imageView Relative">
-                <div className="image fill" style={{ backgroundImage: `url(${previewUrl})` }} />
+                {fill === 3 ? (
+                  <img src={previewUrl} className="w100 h100" />
+                ) : (
+                  <div
+                    className={cx('image', { fill: fill === 1, full: fill === 2 })}
+                    style={{ backgroundImage: `url(${previewUrl})` }}
+                  />
+                )}
                 <div className="mask flexColumn">
                   <div className="flex"></div>
                   <div className="btnsWrap flexRow alignItemsCenter">
@@ -280,9 +322,7 @@ export default props => {
       }
       getPopupContainer={() => document.body}
     >
-      <li className={cx(type, { highlight })} key={type}>
-        <i className={`icon-${icon} Font18`}></i>
-      </li>
+      {renderItem()}
     </Popover>
   );
 };

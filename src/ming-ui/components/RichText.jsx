@@ -346,6 +346,16 @@ const RichText = forwardRef((props, ref) => {
         });
       }
     },
+    blur: () => {
+      if (editorDom.current) {
+        if (editorDom.current.editor.editing.view.document.isFocused) {
+          const editorElement = editorDom.current.editor.ui.getEditableElement();
+          if (editorElement) {
+            editorElement.blur();
+          }
+        }
+      }
+    },
   }));
 
   const lang = () => {

@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Tooltip, UserHead } from 'ming-ui';
+import { Checkbox, Icon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
 import OrganizeAjax from 'src/api/organize';
@@ -32,7 +33,6 @@ class RoleUserList extends Component {
     this.scrollRef = React.createRef();
     this.scrollNullHeadRef = React.createRef();
   }
-  componentDidMount() {}
 
   setDeptRange = item => {
     const { projectId, roleId } = this.props;
@@ -102,19 +102,20 @@ class RoleUserList extends Component {
           className="Hand"
         >
           <Tooltip
-            text={
-              <div>
-                {(departmentsPath.find(l => l.accountId === item.accountId) || { departments: [] }).departments.map(
-                  l => (
-                    <div>{l.name}</div>
-                  ),
-                )}
-              </div>
+            title={
+              !orgRoleChargeDepartments || orgRoleChargeDepartments.length === 0 ? (
+                ''
+              ) : (
+                <div>
+                  {(departmentsPath.find(l => l.accountId === item.accountId) || { departments: [] }).departments.map(
+                    l => (
+                      <div>{l.name}</div>
+                    ),
+                  )}
+                </div>
+              )
             }
-            autoCloseDelay={0}
-            popupPlacement="top"
             mouseEnterDelay={0.5}
-            disable={!orgRoleChargeDepartments || orgRoleChargeDepartments.length === 0}
           >
             <span className="departmentValue overflow_ellipsis">
               {orgRoleChargeDepartments.map(l => l.departmentName).join('、') || '-'}
@@ -158,9 +159,8 @@ class RoleUserList extends Component {
           <th className="departmentRangeCol">
             {_l('分管部门')}
             <Tooltip
-              autoCloseDelay={0}
-              popupPlacement="bottom"
-              text={
+              placement="bottom"
+              title={
                 <span>
                   {_l('为角色人员指定分管范围，在审批流程中可以动态获取当前角色中对应的分管负责人进行审批。')}
                 </span>

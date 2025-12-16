@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Textarea from 'ming-ui/components/Textarea';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -95,11 +96,12 @@ class SingleItem extends Component {
     return (
       <li className="flexRow">
         <div className="subTasksStatusWidth">
-          <span
-            className={cx('updateTaskStatus tip-bottom-right', subTaskStatus)}
-            data-tip={tipMessage}
-            onClick={() => hasAuth && this.props.editTaskStatus(taskID, status ? 0 : 1)}
-          />
+          <Tooltip title={tipMessage} placement="bottomRight">
+            <span
+              className={cx('updateTaskStatus', subTaskStatus)}
+              onClick={() => hasAuth && this.props.editTaskStatus(taskID, status ? 0 : 1)}
+            />
+          </Tooltip>
         </div>
         <Textarea
           disabled={!hasAuth}
@@ -132,17 +134,15 @@ class SingleItem extends Component {
               operation={hasAuth ? this.renderOpHtml() : null}
             />
           </span>
-          <span
-            className="subTaskLink tip-bottom-left"
-            data-tip={_l('查看子任务详情和评论')}
-            onClick={() => this.props.switchTaskDetail(taskID)}
-          >
-            {item.totalItemCount || item.topicCount || item.subCount ? (
-              <i className="icon-abstract Font13" />
-            ) : (
-              <i className="icon-arrow-right-border" />
-            )}
-          </span>
+          <Tooltip title={_l('查看子任务详情和评论')} placement="bottomLeft">
+            <span className="subTaskLink" onClick={() => this.props.switchTaskDetail(taskID)}>
+              {item.totalItemCount || item.topicCount || item.subCount ? (
+                <i className="icon-abstract Font13" />
+              ) : (
+                <i className="icon-arrow-right-border" />
+              )}
+            </span>
+          </Tooltip>
         </div>
       </li>
     );
@@ -159,8 +159,7 @@ class Subtask extends Component {
       addSubTask: props.addSubTask,
       accountId: isMe ? 'user-undefined' : md.global.Account.accountId,
       avatar: isMe
-        ? md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-          '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+        ? md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
         : md.global.Account.avatar,
       value: '',
     };
@@ -177,8 +176,7 @@ class Subtask extends Component {
       this.setState({
         accountId: isMe ? 'user-undefined' : md.global.Account.accountId,
         avatar: isMe
-          ? md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-            '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+          ? md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
           : md.global.Account.avatar,
       });
     }
@@ -414,27 +412,32 @@ class Subtask extends Component {
     return (
       <div className="taskContentBox">
         <div className="subTaskBox">
-          <span className="subTaskIcon" data-tip={_l('子任务')}>
-            <i className="icon-task-card" />
-          </span>
+          <Tooltip title={_l('子任务')}>
+            <span className="subTaskIcon">
+              <i className="icon-task-card" />
+            </span>
+          </Tooltip>
           <div className="subTaskHeader Font14">
             {_l('子任务')}
             <span className="subTaskComplete mLeft5">{_.filter(data.subTask, item => item.status === 1).length}</span>/
             <span className="subTaskSum">{data.subTask.length}</span>
-            <span
-              className="subTaskMessage mLeft5"
-              data-tip={_l(
+            <Tooltip
+              title={_l(
                 '如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务',
               )}
             >
-              <i className="icon-info Font16" />
-            </span>
-            <span className="Right" data-tip={isHidden ? _l('展开') : _l('收起')}>
-              <i
-                className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
-                onClick={this.updateTaskFoldStatus}
-              />
-            </span>
+              <span className="subTaskMessage mLeft5">
+                <i className="icon-info Font16" />
+              </span>
+            </Tooltip>
+            <Tooltip title={isHidden ? _l('展开') : _l('收起')}>
+              <span className="Right">
+                <i
+                  className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
+                  onClick={this.updateTaskFoldStatus}
+                />
+              </span>
+            </Tooltip>
           </div>
           {!isHidden ? (
             <Fragment>

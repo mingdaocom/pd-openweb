@@ -72,7 +72,7 @@ function Container() {
           // 没有绑定过账号
           setState({ loading: false });
           if (tpType == TPTYPES.sso) {
-            alert(_l('登录失败'), 2, 5000);
+            alert(_l('登录失败'), 2);
           } else {
             const params = `?state=${state}&tpType=${tpType}&unionId=${unionId}`;
             navigateTo(`/register${params}`);
@@ -103,7 +103,7 @@ function Container() {
             });
           } else {
             // 登录失败
-            alert(data.accountResult === LoginResult.userFromError ? _l('账号来源类型受限') : _l('登录失败'), 2, 5000);
+            alert(data.accountResult === LoginResult.userFromError ? _l('账号来源类型受限') : _l('登录失败'), 2);
           }
         }
       }

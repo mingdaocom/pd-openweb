@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
@@ -8,6 +7,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, RadioGroup, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -250,7 +250,6 @@ export default function RelateSheet(props) {
           >
             <Tooltip
               className="hoverTip"
-              autoCloseDelay={0}
               title={_l('在选择关联的记录时显示附加的字段值和封面，帮助您快速找到需要关联的记录')}
             >
               <i className="icon pointer icon-help Gray_9e Font16" />
@@ -376,9 +375,11 @@ export default function RelateSheet(props) {
             }}
             getPopupContainer={() => document.body}
           >
-            <div className="relateCoverSetting tip-bottom" data-tip={_l('设置封面')}>
-              <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverId })}></span>
-            </div>
+            <Tooltip title={_l('设置封面')} placement="bottom">
+              <div className="relateCoverSetting">
+                <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverId })}></span>
+              </div>
+            </Tooltip>
           </Trigger>
         </RelateSheetCover>
       </SettingItem>
@@ -579,7 +580,6 @@ export default function RelateSheet(props) {
               {_l('排序')}
               <Tooltip
                 placement="bottom"
-                autoCloseDelay={0}
                 title={
                   <span>
                     {_l('当关联记录显示方式为卡片和下拉框时：')}

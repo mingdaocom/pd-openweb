@@ -8,8 +8,12 @@ import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { getTitleTextFromControls, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import {
+  formatControlToServer,
+  getTitleTextFromControls,
+  getTitleTextFromRelateControl,
+} from 'src/components/Form/core/utils';
+import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { isKeyBoardInputChar } from 'src/utils/common';
@@ -89,7 +93,9 @@ export default class RelateRecord extends React.Component {
       return [];
     }
     try {
-      return safeParse(value, 'array').map(r => safeParse(r.sourcevalue, 'array'));
+      return safeParse(value, 'array').map(r =>
+        r.sourcevalue ? JSON.parse(r.sourcevalue) : { rowid: r.sid, titleValue: r.name },
+      );
     } catch (err) {
       console.log(err);
       return [];
@@ -185,10 +191,16 @@ export default class RelateRecord extends React.Component {
           controlValue = record.name;
         }
         return (
-          <RecordCardCellRelateRecord key={index}>
-            {renderCellText({ ...titleControl, value: controlValue }) ||
-              (typeof controlValue === 'undefined' ? _l('未命名') : '')}
-          </RecordCardCellRelateRecord>
+          <ViewHoverRelateRecordCard
+            record={record.sourcevalue ? JSON.parse(record.sourcevalue) : record}
+            control={cell}
+            {...this.props}
+          >
+            <RecordCardCellRelateRecord key={index}>
+              {renderCellText({ ...titleControl, value: controlValue }) ||
+                (typeof controlValue === 'undefined' ? _l('未命名') : '')}
+            </RecordCardCellRelateRecord>
+          </ViewHoverRelateRecordCard>
         );
       });
     }
@@ -272,6 +284,7 @@ export default class RelateRecord extends React.Component {
       rowHeightEnum = 0,
       sheetSwitchPermit,
       count,
+      row = {},
       cell,
       editable,
       isediting,
@@ -312,7 +325,7 @@ export default class RelateRecord extends React.Component {
             <div
               className={cx('cellRelateRecordMultiple', { allowOpenList })}
               onClick={e => {
-                if (!allowOpenList || browserIsMobile()) {
+                if (!allowOpenList || browserIsMobile() || row.fakeCreatedAt) {
                   return;
                 }
                 e.stopPropagation();
@@ -413,6 +426,7 @@ export default class RelateRecord extends React.Component {
             popupContainer={() => document.body}
             multiple={cell.enumDefault === 2}
             isMobileTable={isMobileTable}
+            sheetSwitchPermit={sheetSwitchPermit}
             onVisibleChange={this.handleVisibleChange}
             selectedClassName={cx('sheetview', `cell-${tableId}-${recordId}-${cell.controlId}`, {
               canedit: editable,
@@ -460,6 +474,8 @@ export default class RelateRecord extends React.Component {
               recordId={recordId}
               worksheetId={worksheetId}
               allowOpenRecord={allowlink === '1'}
+              rowFormData={rowFormData}
+              sheetSwitchPermit={sheetSwitchPermit}
             />
           </EditableCellCon>
         );
@@ -486,6 +502,7 @@ export default class RelateRecord extends React.Component {
                 worksheetId={worksheetId}
                 allowOpenRecord={allowlink === '1'}
                 rowFormData={rowFormData}
+                sheetSwitchPermit={sheetSwitchPermit}
                 onClose={this.handleRelateRecordTagChange}
                 onCloseDialog={() => {
                   setTimeout(() => {

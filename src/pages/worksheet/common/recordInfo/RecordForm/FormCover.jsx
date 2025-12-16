@@ -229,11 +229,12 @@ export default function FormCover(props) {
     _.find(FILL_COLOR, c => c.value === covercolor),
     'color',
   );
+  const control = _.find(formData, i => i.controlId === coverid) || {};
+  const allowDownload = (_.get(control, 'advancedSetting.allowdownload') || '1') === '1';
 
   useEffect(() => {
     let newData = [];
     if (coverid) {
-      const control = _.find(formData, i => i.controlId === coverid) || {};
       newData = JSON.parse(control.value || '[]').filter(i => videoReg(i) || imgReg(i));
     }
     setImageData(newData);
@@ -244,11 +245,8 @@ export default function FormCover(props) {
       fileId: _.get(imageData, `[${currentIndex}].fileID`),
       rowId: recordId,
     });
-    const control = _.find(formData, i => i.controlId === coverid) || {};
-    const { advancedSetting } = control;
-    const allowDownload = advancedSetting.allowdownload || '1';
     const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'];
-    if (allowDownload === '0') {
+    if (!allowDownload) {
       hideFunctions.push('download');
     }
     // 打开图片
@@ -290,6 +288,7 @@ export default function FormCover(props) {
             controls={!isMobile && !fromThumbnail}
             width="100%"
             height="100%"
+            {...(allowDownload ? {} : { controlsList: 'nodownload' })}
           ></video>
         ) : (
           <div className="image " />

@@ -5,7 +5,8 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, Input, Textarea, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, Icon, Input, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sshConfigApi from 'src/pages/integration/api/sshConfig';
 
 const SSHCheckbox = styled(Checkbox)`
@@ -251,7 +252,7 @@ export default function SSHConnect(props) {
             <div className="overflow_ellipsis">{`${option.sshUser}@${option.sshHost}:${option.sshPort}`}</div>
             {option.remark && <div className="Gray_9e overflow_ellipsis">{option.remark}</div>}
           </div>
-          <Tooltip text={_l('删除')}>
+          <Tooltip title={_l('删除')}>
             <Icon icon="trash" onClick={e => onDelete(e, option)} />
           </Tooltip>
         </OptionItem>
@@ -306,7 +307,7 @@ export default function SSHConnect(props) {
               isHide: !(sshOptions.filter(o => o.id === data.sshConfigId)[0] || {}).sshPublicKey,
             })}
           >
-            <Tooltip text={_l('复制公钥')}>
+            <Tooltip title={_l('复制公钥')}>
               <Icon
                 icon="copy"
                 onClick={e => {

@@ -118,9 +118,9 @@
   .fc-scroller-harness,
   .fc-scrollgrid-section,
   .fc-timegrid-col-events {
-    z-index: 10 !important;
+    z-index: 9 !important;
     &:hover {
-      z-index: 11 !important;
+      z-index: 10 !important;
     }
   }
   .fc-daygrid-event {
@@ -202,46 +202,46 @@
     padding-top: 2px;
   }
   .fc-button-primary {
-    background-color: #fff;
-    color: #9e9e9e;
-    border: 0px;
-    font-weight: 700;
+    background-color: #fff !important;
+    color: #9e9e9e !important;
+    border: 0px !important;
+    font-weight: 700 !important;
     &:focus {
-      box-shadow: none;
+      box-shadow: none !important;
     }
     &:disabled {
-      background-color: #fff;
-      color: transparent;
-      opacity: 1;
+      background-color: #fff !important;
+      color: transparent !important;
+      opacity: 1 !important;
     }
     &:not(:disabled):focus,
     &:not(:disabled):hover,
     &:not(:disabled):active,
     &:not(:disabled).fc-button-active {
-      background-color: #fff;
-      color: #1677ff;
-      box-shadow: none;
-      position: relative;
-      overflow: hidden;
+      background-color: #fff !important;
+      color: #1677ff !important;
+      box-shadow: none !important;
+      position: relative !important;
+      overflow: hidden !important;
       &:focus {
-        box-shadow: none;
+        box-shadow: none !important;
       }
     }
     &:not(:disabled):hover {
-      background: #f7f7f7;
-      padding-top: 4px;
-      padding-bottom: 4px;
-      border-radius: 5px;
+      background: #f7f7f7 !important;
+      padding-top: 4px !important;
+      padding-bottom: 4px !important;
+      border-radius: 5px !important;
     }
     &:not(:disabled).fc-button-active {
       &::after {
-        content: ' ';
-        width: 12px;
-        border: 1px solid #1677ff;
-        position: absolute;
-        bottom: 3px;
-        left: 30%;
-        border-radius: 1px;
+        content: ' ' !important;
+        width: 12px !important;
+        border: 1px solid #1677ff !important;
+        position: absolute !important;
+        bottom: 3px !important;
+        left: 30% !important;
+        border-radius: 1px !important;
       }
     }
   }

@@ -180,10 +180,13 @@ export default class UserListCon extends React.Component {
     const { memberModels = [] } = outsourcing;
     let data = [...memberModels, ...userList].find(o => o.id === userIds[0].split('_')[0]);
     Dialog.confirm({
-      title:
-        userIds.length > 1
-          ? _l('你确认将%0个用户移出本应用吗？', userIds.length)
-          : _l('你确认将“%0”移出本应用吗？', data.name),
+      title: (
+        <span className="WordBreak">
+          {userIds.length > 1
+            ? _l('你确认将%0个用户移出本应用吗？', userIds.length)
+            : _l('你确认将“%0”移出本应用吗？', data.name)}
+        </span>
+      ),
       closable: false,
       anim: false,
       onOk: () => {

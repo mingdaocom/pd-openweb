@@ -1,7 +1,8 @@
 import React from 'react';
 import copy from 'copy-to-clipboard';
 import { navigateTo } from 'router/navigateTo';
-import { Dialog, Icon, Switch, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
 import { emitter } from 'src/utils/common';
 import './index.less';
@@ -149,7 +150,7 @@ class DialogSettingInviteRules extends React.Component {
           <h3>{_l('人员加入审核')}</h3>
           <div className="listText">
             <span className="iconBox">
-              <Tooltip text={<span>{_l('开启后需要审核，关闭后不需要')}</span>} action={['hover']}>
+              <Tooltip title={_l('开启后需要审核，关闭后不需要')}>
                 <span>
                   <Switch
                     checked={this.state.userAuditEnabled}
@@ -166,15 +167,13 @@ class DialogSettingInviteRules extends React.Component {
               <p className="Gray Font13">
                 {_l('邀请审核')}
                 <Tooltip
-                  autoCloseDelay={0}
-                  text={
+                  title={
                     <span>
                       {_l(
                         '通过邀请链接、搜索企业号的方式加入企业网络，默认均需要管理员审核；企业网络管理员通过手机或邮箱邀请用户加入网络无需审批',
                       )}
                     </span>
                   }
-                  action={['hover']}
                 >
                   <span>
                     <Icon className="Font14 Hand Gray_bd mLeft5" icon="help" />
@@ -189,8 +188,6 @@ class DialogSettingInviteRules extends React.Component {
           <h3>{_l('搜索加入')}</h3>
           <div className="listText">
             <span className="iconBox">
-              {/* <Tooltip text={<span>{_l('开启时需要审核，关闭后不需要')}</span>} action={['hover']}>
-              <span> */}
               <Switch
                 checked={this.state.allowProjectCodeJoin}
                 onClick={() => {
@@ -199,8 +196,6 @@ class DialogSettingInviteRules extends React.Component {
                   });
                 }}
               />
-              {/* </span>
-            </Tooltip> */}
             </span>
             <span className="text">
               <p className="Gray Font13">
@@ -221,29 +216,9 @@ class DialogSettingInviteRules extends React.Component {
           <div className="listBox borderTopLine">
             <h3>{_l('人员加入组织需要填写的信息')}</h3>
             <p className="Gray_9e Font13 mTop12">{_l('开启后成员加入组织时则需要填写')}</p>
-            {/* <div className="listText">
-              <span className="iconBox">
-                <Tooltip text={<span>{_l('开启后需要填写，关闭后不需要')}</span>} action={['hover']}>
-                  <span>
-                    <Switch
-                      checked={this.state.userFillCompanyEnabled}
-                      onClick={() => {
-                        this.setState({
-                          userFillCompanyEnabled: !this.state.userFillCompanyEnabled,
-                        });
-                      }}
-                    />
-                  </span>
-                </Tooltip>
-              </span>
-              <span className="text">
-                <p className="Gray Font13">{_l('组织')}</p>
-                <p className="Gray_9e Font13 mTop13">{_l('填写组织信息，默认为当前组织名称')}</p>
-              </span>
-            </div> */}
             <div className="listText">
               <span className="iconBox">
-                <Tooltip text={<span>{_l('开启后成员可自主选择')}</span>} action={['hover']}>
+                <Tooltip title={_l('开启后成员可自主选择')}>
                   <span>
                     <Switch
                       checked={this.state.userFillDepartmentEnabled}
@@ -281,7 +256,7 @@ class DialogSettingInviteRules extends React.Component {
             </div>
             <div className="listText">
               <span className="iconBox">
-                <Tooltip text={<span>{_l('开启后成员可自主选择')}</span>} action={['hover']}>
+                <Tooltip title={_l('开启后成员可自主选择')}>
                   <span>
                     <Switch
                       checked={this.state.userFillJobEnabled}
@@ -301,7 +276,7 @@ class DialogSettingInviteRules extends React.Component {
             </div>
             <div className="listText">
               <span className="iconBox">
-                <Tooltip text={<span>{_l('开启后成员可自主选择')}</span>} action={['hover']}>
+                <Tooltip title={_l('开启后成员可自主选择')}>
                   <span>
                     <Switch
                       checked={this.state.userFillWorkSiteEnabled}
@@ -339,7 +314,7 @@ class DialogSettingInviteRules extends React.Component {
             </div>
             <div className="listText">
               <span className="iconBox">
-                <Tooltip text={<span>{_l('开启后需要填写，关闭后不需要')}</span>} action={['hover']}>
+                <Tooltip title={_l('开启后需要填写，关闭后不需要')}>
                   <span>
                     <Switch
                       checked={this.state.userFillJobNumberEnabled}

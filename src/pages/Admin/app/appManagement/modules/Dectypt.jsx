@@ -3,7 +3,8 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, QiniuUpload, Tooltip } from 'ming-ui';
+import { Button, Dialog, QiniuUpload } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import appManagementAjax from 'src/api/appManagement';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
@@ -150,7 +151,7 @@ export default class Dectypt extends Component {
               this.setState(
                 {
                   file: file,
-                  url: md.global.FileStoreConfig.documentHost + key,
+                  url: md.global.FileStoreConfig.documentHost + '/' + key,
                   analyzeLoading: false,
                 },
                 this.checkFile,
@@ -186,7 +187,7 @@ export default class Dectypt extends Component {
                   <div className="mBottom8 Gray_75 Font14">{item.title}</div>
                   <div>
                     <span className="password">{this.state[item.key]}</span>
-                    <Tooltip text={<span>{_l('复制')}</span>}>
+                    <Tooltip title={_l('复制')}>
                       <i
                         className="icon icon-copy Hand Gray_9e Font16 mLeft8"
                         onClick={() => {

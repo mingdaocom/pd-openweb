@@ -111,7 +111,7 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
         title ? (
           title
         ) : (
-          <span className="Bold" style={{ color: '#f44336' }}>
+          <span className="Bold" style={{ color: '#f44336', wordBreak: 'break-all' }}>
             {_l('无法直接删除选项集 “%0”', name)}
           </span>
         )

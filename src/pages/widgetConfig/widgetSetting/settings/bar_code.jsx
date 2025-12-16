@@ -2,7 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, RadioGroup, Tooltip } from 'ming-ui';
+import { Dropdown, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import WidgetDropdown from '../../components/Dropdown';
 import { SettingItem } from '../../styled';
 import { getIconByType, parseDataSource } from '../../util';
@@ -110,9 +111,8 @@ export default function BarCode({ data, onChange, allControls, from, subListData
           <div className="settingItemTitle">
             {_l('容错率')}
             <Tooltip
-              popupPlacement={'bottom'}
-              autoCloseDelay={0}
-              text={
+              placement="bottom"
+              title={
                 <span>
                   {_l(
                     '容错率是指二维码被遮挡多少后，仍可以扫描出来的能力。容错率越高，二维码越容易被扫描，二维码图片也越复杂。',

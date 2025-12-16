@@ -3,6 +3,7 @@ import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Dialog from 'ming-ui/components/Dialog';
 import Ajax from 'src/api/workWeiXin';
 import CancelIntegration from '../components/CancelIntegration';
@@ -264,12 +265,11 @@ export default class Welink extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 Gray_75 Right closeDing">
-              <span
-                className="mLeft10 switchBtn tip-bottom-left"
-                data-tip={_l('关闭Welink集成后，无法再从Welink集成处进入应用')}
-              >
-                <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
-              </span>
+              <Tooltip title={_l('关闭Welink集成后，无法再从Welink集成处进入应用')} placement="bottomLeft">
+                <span className="mLeft10 switchBtn">
+                  <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
+                </span>
+              </Tooltip>
             </span>
           )}
           {!this.state.isCloseDing && this.state.show2 && (

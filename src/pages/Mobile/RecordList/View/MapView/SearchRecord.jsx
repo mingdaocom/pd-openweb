@@ -8,6 +8,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getSearchData } from 'worksheet/views/util';
 import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewActions from 'src/pages/worksheet/redux/actions/mapView';
@@ -42,9 +43,6 @@ const Wrapper = styled.div`
   }
   .highlig {
     color: #1677ff;
-  }
-  .tip-top {
-    height: 18px;
   }
 `;
 
@@ -164,30 +162,34 @@ function SearchRecord(props) {
             </span>
           )}
           <span className="line mLeft15 mRight15"></span>
-          <div className="tip-top" data-tip={disable || isMobile ? null : _l('上一条')}>
-            <Icon
-              className={cx('Gray_9e Font18', { Gray_bd: disable, cursorInitial: disable })}
-              icon="expand_less"
-              onClick={() => {
-                if (disable) return;
-                const index = activeIndex === 0 ? options.length - 1 : activeIndex - 1;
-                const { record } = options[index];
-                setSearchRecord(record);
-              }}
-            />
-          </div>
-          <div className="tip-top" data-tip={disable || isMobile ? null : _l('下一条')}>
-            <Icon
-              className={cx('Gray_9e Font18 mLeft8 mRight12', { Gray_bd: disable, cursorInitial: disable })}
-              icon="expand_more"
-              onClick={() => {
-                if (disable) return;
-                const index = activeRecord ? (activeIndex === options.length - 1 ? 0 : activeIndex + 1) : 0;
-                const { record } = options[index];
-                setSearchRecord(record);
-              }}
-            />
-          </div>
+          <Tooltip title={disable || isMobile ? null : _l('上一条')}>
+            <div>
+              <Icon
+                className={cx('Gray_9e Font18', { Gray_bd: disable, cursorInitial: disable })}
+                icon="expand_less"
+                onClick={() => {
+                  if (disable) return;
+                  const index = activeIndex === 0 ? options.length - 1 : activeIndex - 1;
+                  const { record } = options[index];
+                  setSearchRecord(record);
+                }}
+              />
+            </div>
+          </Tooltip>
+          <Tooltip title={disable || isMobile ? null : _l('下一条')}>
+            <div>
+              <Icon
+                className={cx('Gray_9e Font18 mLeft8 mRight12', { Gray_bd: disable, cursorInitial: disable })}
+                icon="expand_more"
+                onClick={() => {
+                  if (disable) return;
+                  const index = activeRecord ? (activeIndex === options.length - 1 ? 0 : activeIndex + 1) : 0;
+                  const { record } = options[index];
+                  setSearchRecord(record);
+                }}
+              />
+            </div>
+          </Tooltip>
         </InputWrapper>
       </AutoComplete>
     </Wrapper>

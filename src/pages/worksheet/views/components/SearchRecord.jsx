@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
 
@@ -159,32 +160,36 @@ const SearchRecord = props => {
               </span>
             )}
             <span className="line mLeft15 mRight15"></span>
-            <div className="tip-top" data-tip={disable || isMobile ? null : _l('上一条')}>
-              <Icon
-                className={cx('Gray_9e Font18', { Gray_bd: disable, cursorInitial: disable })}
-                icon="expand_less"
-                onClick={() => {
-                  if (disable) return;
-                  const index = activeIndex === 0 ? options.length - 1 : activeIndex - 1;
-                  const { record } = options[index];
-                  onSearch(record);
-                  setSearchRecord(record);
-                }}
-              />
-            </div>
-            <div className="tip-top" data-tip={disable || isMobile ? null : _l('下一条')}>
-              <Icon
-                className={cx('Gray_9e Font18 mLeft8 mRight12', { Gray_bd: disable, cursorInitial: disable })}
-                icon="expand_more"
-                onClick={() => {
-                  if (disable) return;
-                  const index = activeRecord ? (activeIndex === options.length - 1 ? 0 : activeIndex + 1) : 0;
-                  const { record } = options[index];
-                  onSearch(record);
-                  setSearchRecord(record);
-                }}
-              />
-            </div>
+            <Tooltip title={disable || isMobile ? null : _l('上一条')} placement="top">
+              <div>
+                <Icon
+                  className={cx('Gray_9e Font18', { Gray_bd: disable, cursorInitial: disable })}
+                  icon="expand_less"
+                  onClick={() => {
+                    if (disable) return;
+                    const index = activeIndex === 0 ? options.length - 1 : activeIndex - 1;
+                    const { record } = options[index];
+                    onSearch(record);
+                    setSearchRecord(record);
+                  }}
+                />
+              </div>
+            </Tooltip>
+            <Tooltip title={disable || isMobile ? null : _l('下一条')} placement="top">
+              <div>
+                <Icon
+                  className={cx('Gray_9e Font18 mLeft8 mRight12', { Gray_bd: disable, cursorInitial: disable })}
+                  icon="expand_more"
+                  onClick={() => {
+                    if (disable) return;
+                    const index = activeRecord ? (activeIndex === options.length - 1 ? 0 : activeIndex + 1) : 0;
+                    const { record } = options[index];
+                    onSearch(record);
+                    setSearchRecord(record);
+                  }}
+                />
+              </div>
+            </Tooltip>
             <Icon
               className="Gray_75 Font18 pointer"
               icon="close"
@@ -209,6 +214,7 @@ const SearchRecord = props => {
       overlay={renderOverlay()}
       visible={visible}
       placement="bottomRight"
+      zIndex={1000}
       onVisibleChange={visible => {
         setVisible(visible);
         if (visible) {

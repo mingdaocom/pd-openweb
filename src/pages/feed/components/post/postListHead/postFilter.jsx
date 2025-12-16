@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DateFilter from 'src/components/DateFilter';
 import { setCaretPosition } from 'src/utils/common';
 import postEnum from '../../../constants/postEnum';
@@ -185,20 +186,22 @@ class HomePostFilter extends React.Component {
               A+
             </a>
           </div>
-          <div className="mLeft10 InlineBlock searchFilterKeyword" data-tip={_l('搜索动态')}>
-            <input
-              ref={searchInput => {
-                this.searchInput = searchInput;
-              }}
-              placeholder={_l('回车搜索')}
-              defaultValue={this.props.searchKeywords}
-              className={cx({ expand: this.state.isSearchInputExpand })}
-              onBlur={this.blurSearchInput}
-              onKeyUp={this.keyupSearchInput}
-              onChange={this.changeSearchKeywords}
-            />
-            <i className="icon-search Font16 Gray_9" onClick={this.focusSearchInput} />
-          </div>
+          <Tooltip title={_l('搜索动态')}>
+            <div className="mLeft10 InlineBlock searchFilterKeyword">
+              <input
+                ref={searchInput => {
+                  this.searchInput = searchInput;
+                }}
+                placeholder={_l('回车搜索')}
+                defaultValue={this.props.searchKeywords}
+                className={cx({ expand: this.state.isSearchInputExpand })}
+                onBlur={this.blurSearchInput}
+                onKeyUp={this.keyupSearchInput}
+                onChange={this.changeSearchKeywords}
+              />
+              <i className="icon-search Font16 Gray_9" onClick={this.focusSearchInput} />
+            </div>
+          </Tooltip>
           <DateFilter
             popupContainer={document.querySelector('.feedAppScrollContent')}
             onChange={(startDate, endDate) => {
@@ -209,18 +212,21 @@ class HomePostFilter extends React.Component {
               this.searchPost();
             }}
           >
-            <div
-              className={cx('mLeft10 InlineBlock Hand', {
-                hide: this.props.options.listType === postEnum.LIST_TYPE.ireply,
-              })}
-              data-tip={
+            <Tooltip
+              title={
                 this.props.options.startDate
                   ? this.props.options.startDate + ' 至 ' + this.props.options.endDate
                   : _l('通过时间筛选')
               }
             >
-              <i className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'Gray_9')} />
-            </div>
+              <div
+                className={cx('mLeft10 InlineBlock Hand', {
+                  hide: this.props.options.listType === postEnum.LIST_TYPE.ireply,
+                })}
+              >
+                <i className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'Gray_9')} />
+              </div>
+            </Tooltip>
           </DateFilter>
         </div>
         <div className="selectContainer Right">{!typeSelectAtLeft && typeSelect}</div>

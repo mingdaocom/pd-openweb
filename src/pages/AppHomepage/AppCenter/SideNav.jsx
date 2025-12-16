@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import privateSource from 'src/api/privateSource';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -392,7 +393,7 @@ export default function SideNav(props) {
     switch (true) {
       case !isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id):
         return (
-          <Tooltip key={index} popupPlacement="right" text={<span>{entry.name}</span>}>
+          <Tooltip key={index} placement="right" title={entry.name}>
             {content}
           </Tooltip>
         );
@@ -433,7 +434,7 @@ export default function SideNav(props) {
                 </div>
               )}
 
-              <Tooltip popupPlacement="right" text={isExpanded ? _l('收起导航') : _l('展开导航')}>
+              <Tooltip placement="right" title={isExpanded ? _l('收起导航') : _l('展开导航')}>
                 <ResourceEntry
                   className="resourceEntry expandBtn"
                   onClick={() => {

@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { calculateTimePercentage } from 'src/pages/worksheet/views/ResourceView/util.js';
 import { browserIsMobile } from 'src/utils/common';
 import { dayTimeByPart, lineBottomHeight, timeWidth, timeWidthHalf, types, weekObj } from '../config';
@@ -286,17 +287,20 @@ export default function Timegrid(props) {
               </div>
             )}
             <Tooltip
-              disable={isM}
-              text={
-                <span>
-                  {type === 'Month'
-                    ? _l('上个月')
-                    : type === 'Week'
-                      ? _l('上一周')
-                      : type === 'Year'
-                        ? _l('上一年')
-                        : _l('上一天')}
-                </span>
+              title={
+                isM ? (
+                  ''
+                ) : (
+                  <span>
+                    {type === 'Month'
+                      ? _l('上个月')
+                      : type === 'Week'
+                        ? _l('上一周')
+                        : type === 'Year'
+                          ? _l('上一年')
+                          : _l('上一天')}
+                  </span>
+                )
               }
             >
               <div
@@ -316,17 +320,20 @@ export default function Timegrid(props) {
               </div>
             </Tooltip>
             <Tooltip
-              disable={isM}
-              text={
-                <span>
-                  {type === 'Month'
-                    ? _l('下个月')
-                    : type === 'Week'
-                      ? _l('下一周')
-                      : type === 'Year'
-                        ? _l('下一年')
-                        : _l('下一天')}
-                </span>
+              title={
+                isM ? (
+                  ''
+                ) : (
+                  <span>
+                    {type === 'Month'
+                      ? _l('下个月')
+                      : type === 'Week'
+                        ? _l('下一周')
+                        : type === 'Year'
+                          ? _l('下一年')
+                          : _l('下一天')}
+                  </span>
+                )
               }
             >
               <div

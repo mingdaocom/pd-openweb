@@ -30,7 +30,7 @@ class Canvas {
   async mergeRun(els) {
     const imgSrcs = els.map(({ el }) => printImage(el));
     const imgEles = await Promise.all(imgSrcs);
-    imgEles.map((item, index) => {
+    imgEles.forEach((item, index) => {
       if (item) {
         const { x = 0, y = 0 } = els[index];
         const { offsetWidth, offsetHeight } = els[index].el;

@@ -1,12 +1,18 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ScrollView, Support } from 'ming-ui';
-import { handleAddWidgets } from 'src/pages/widgetConfig/util/data';
+import {
+  batchUpdateWidgetsLayout,
+  clearAndSetWidgets,
+  handleAddWidgets,
+  handleDeleteWidgetsForMingo,
+  handleUpdateWidgetsAttribute,
+} from 'src/pages/widgetConfig/util/data';
+import { emitter, updateGlobalStoreForMingo } from 'src/utils/common';
 import { getFeatureStatus } from 'src/utils/project';
 import { WIDGET_GROUP_TYPE } from '../config/widget';
-import WidgetAiRecommend from '../Header/WidgetAiRecommend';
 import { notInsetSectionTab } from '../util';
 import { FixedIcon } from '../widgetDisplay/components/WidgetStyle';
 import DraggableItem from './draggableItem';
@@ -116,7 +122,17 @@ const WidgetList = styled.div`
 `;
 
 export default function List(props) {
-  const { globalSheetInfo = {}, activeWidget = {} } = props;
+  const cache = useRef({});
+  cache.current.props = props;
+  const containerRef = useRef(false);
+  const {
+    globalSheetInfo = {},
+    activeWidget = {},
+    allControls = [],
+    widgetPanelFixed,
+    listPanelVisible,
+    setPanelVisible = () => {},
+  } = props;
   const { hideWorksheetControl = '' } = md.global.SysSettings;
 
   const handleAdd = (data, para = {}, callback) => {
@@ -144,9 +160,87 @@ export default function List(props) {
     return getFeatureStatus(globalSheetInfo.projectId, featureId);
   };
 
+  const clearAndSetWidgetsFromEmitter = (data, para = {}, callback) => {
+    window.lastAddWidgetsTriggerByMingo = true;
+    clearAndSetWidgets(data, para, cache.current.props, callback);
+    setTimeout(() => {
+      window.lastAddWidgetsTriggerByMingo = false;
+    }, 100);
+  };
+
+  const handleAddWidgetsFromEmitter = (data, para = {}, callback) => {
+    window.lastAddWidgetsTriggerByMingo = true;
+    handleAddWidgets(
+      data.map(item => ({ ...item, isMingo: true })),
+      {
+        ...para,
+        isMingo: true,
+      },
+      cache.current.props,
+      ({ newWidgets = [] } = []) => {
+        if (para.isStreaming) {
+          return;
+        }
+        batchUpdateWidgetsLayout(
+          para.layoutOfAllWidgets,
+          {
+            ...cache.current.props,
+            widgets: newWidgets,
+          },
+          callback,
+        );
+      },
+    );
+    setTimeout(() => {
+      window.lastAddWidgetsTriggerByMingo = false;
+    }, 100);
+  };
+
+  const handleUpdateWidgetsAttributeFromEmitter = (data, callback) => {
+    handleUpdateWidgetsAttribute(data, cache.current.props, callback);
+  };
+
+  const handleDeleteWidgetsForMingoFromEmitter = (data, para = {}, callback) => {
+    handleDeleteWidgetsForMingo(data, cache.current.props, ({ newWidgets = [] } = []) => {
+      batchUpdateWidgetsLayout(
+        para.layoutOfAllWidgets,
+        {
+          ...cache.current.props,
+          widgets: newWidgets,
+        },
+        callback,
+      );
+    });
+  };
+
+  useEffect(() => {
+    updateGlobalStoreForMingo('allWidgets', allControls);
+  }, [allControls]);
+
+  useEffect(() => {
+    emitter.on('WIDGET_CONFIG_CLEAR_AND_SET_WIDGETS', clearAndSetWidgetsFromEmitter);
+    emitter.on('WIDGET_CONFIG_DELETE_WIDGETS', handleDeleteWidgetsForMingoFromEmitter);
+    emitter.on('WIDGET_CONFIG_ADD_WIDGETS', handleAddWidgetsFromEmitter);
+    emitter.on('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', handleUpdateWidgetsAttributeFromEmitter);
+    return () => {
+      updateGlobalStoreForMingo('allWidgets', []);
+      emitter.off('WIDGET_CONFIG_CLEAR_AND_SET_WIDGETS', clearAndSetWidgetsFromEmitter);
+      emitter.off('WIDGET_CONFIG_DELETE_WIDGETS', handleDeleteWidgetsForMingoFromEmitter);
+      emitter.off('WIDGET_CONFIG_ADD_WIDGETS', handleAddWidgetsFromEmitter);
+      emitter.off('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', handleUpdateWidgetsAttributeFromEmitter);
+    };
+  }, []);
+
   return (
-    <WidgetList>
-      <ListItemLayer {..._.pick(props, ['listPanelVisible', 'setPanelVisible'])} />
+    <WidgetList
+      className="WidgetListPanel"
+      onMouseLeave={() => {
+        if (!widgetPanelFixed && listPanelVisible && !containerRef.current) {
+          setPanelVisible({ widgetVisible: false });
+        }
+      }}
+    >
+      <ListItemLayer {..._.pick(props, ['listPanelVisible', 'setPanelVisible'])} containerRef={containerRef} />
       <ScrollView>
         <div className="groupList">
           {!md.global.SysSettings.hideAIBasicFun && (
@@ -159,8 +253,7 @@ export default function List(props) {
                 <FixedIcon {...props} fixedKey="widgetPanelFixed" />
               </div>
               <div className="mTop12">
-                <span className="Gray_75">{_l('点击或拖拽添加，或通过')}</span>
-                <WidgetAiRecommend {...props} />
+                <span className="Gray_75">{_l('点击或拖拽添加')}</span>
               </div>
             </Fragment>
           )}

@@ -300,7 +300,7 @@ export default function Item(props) {
             </React.Fragment>
           )}
         </CardTopWrap>
-        {renderCon(node)}
+        {renderCon()}
         {showEdit && props.canEdit && (
           <div className="workflowSettings">
             <Detail

@@ -53,7 +53,7 @@ export const FLOW_FAIL_REASON = {
   20005: _l('短信或邮件没有账号'),
   20006: _l('批数据源数量超过节点处理上限'),
   20007: _l('短信邮件内容有敏感词'),
-  20008: _l('账户余额不足'),
+  20008: _l('账户信用点不足'),
   20009: _l('查找节点关键词为空'),
   20010: _l('删除数据错误'),
   20011: _l('url校验失败'),
@@ -169,6 +169,8 @@ export const NODE_TYPE = {
   30: { type: 'return', text: _l('中止') },
   31: { type: 'aigc', text: _l('AIGC') },
   32: { type: 'plugin', text: _l('插件') },
+  33: { type: 'agent', text: _l('Agent') },
+  101: { type: 'tools', text: _l('工具') },
   1000: { type: 'singleInfo', text: _l('获取单条信息') },
   1001: { type: 'moreInfo', text: _l('获取多条信息') },
 };
@@ -215,6 +217,7 @@ export const NODE_ICON = {
       23: 'language',
       25: 'sending',
       45: 'arrow_loop',
+      49: 'chat-full',
       106: 'replyto',
     },
     text: {
@@ -230,6 +233,7 @@ export const NODE_ICON = {
       23: _l('外部用户事件触发'),
       25: _l('事件推送'),
       45: _l('循环'),
+      49: _l('对话机器人'),
       106: _l('讨论通知触发'),
     },
     bgColor: {
@@ -245,6 +249,7 @@ export const NODE_ICON = {
       23: '#01ca83',
       25: '#4C7D9E',
       45: '#4C7D9E',
+      49: '#2196f3',
       106: '#1677ff',
     },
   },
@@ -261,7 +266,7 @@ export const NODE_ICON = {
   approve: {
     icon: 'workflow_ea',
     text: _l('审批'),
-    bgColor: '#7e57c2',
+    bgColor: '#A00416',
   },
   cc: {
     icon: 'send',
@@ -412,12 +417,49 @@ export const NODE_ICON = {
       531: _l('AI 生成文本'),
       532: _l('AI 生成数据对象'),
     },
-    bgColor: '#F15B75',
+    bgColor: '#6E09F9',
   },
   plugin: {
     icon: 'workflow',
     text: _l('插件'),
     bgColor: '#1677ff',
+  },
+  agent: {
+    icon: 'AI_Agent',
+    text: _l('AI Agent'),
+    bgColor: '#6E09F9',
+  },
+  tools: {
+    icon: {
+      1: 'playlist_add',
+      2: 'workflow_update',
+      7: 'notifications',
+      8: 'workflow_email',
+      17: 'pbc',
+      42: 'api',
+      107: 'task_functions',
+      406: 'search',
+    },
+    text: {
+      1: _l('新增记录'),
+      2: _l('更新记录'),
+      7: _l('站内通知'),
+      8: _l('邮件'),
+      17: _l('封装业务流程'),
+      42: _l('调用已集成 API'),
+      107: _l('汇总'),
+      406: _l('查询记录'),
+    },
+    bgColor: {
+      1: '#ffa340',
+      2: '#ffa340',
+      7: '#1677ff',
+      8: '#1677ff',
+      17: '#4c7d9e',
+      42: '#4c7d9e',
+      107: '#ffa340',
+      406: '#ffa340',
+    },
   },
   singleInfo: {
     icon: {

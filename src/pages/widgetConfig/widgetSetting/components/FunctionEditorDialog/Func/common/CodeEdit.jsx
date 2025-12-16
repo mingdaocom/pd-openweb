@@ -3,7 +3,8 @@ import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { validateFnExpression } from 'src/utils/common';
 import FunctionEditor from './FunctionEditor';
 
@@ -214,8 +215,8 @@ function CodeEdit(props, ref) {
           </div>
           {isCustom && control.type === 34 && (
             <Tooltip
-              popupPlacement="bottom"
-              text={
+              placement="bottom"
+              title={
                 <div
                   style={{
                     width: 360,

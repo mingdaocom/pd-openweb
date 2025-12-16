@@ -9,7 +9,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, ScrollView, Skeleton, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, Menu, MenuItem, ScrollView, Skeleton, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
 import Drag from 'worksheet/common/WorkSheetLeft/Drag';
@@ -173,6 +174,18 @@ const AppSectionItem = props => {
         >
           <span className="text">{_l('自定义页面')}</span>
         </MenuItem>
+        {(appPkg.workflowAgentFeatureType === '1') & !md.global.SysSettings.hideAIBasicFun && (
+          <MenuItem
+            data-event="chatbot"
+            icon={<Icon icon="AI_Agent" className="Font18" />}
+            onClick={() => {
+              setCreateType('chatbot');
+              setPopupVisible(false);
+            }}
+          >
+            <span className="text">{_l('对话机器人')}</span>
+          </MenuItem>
+        )}
         <MenuItem
           data-event="subGroup"
           icon={<Icon icon="add-files" className="Font16" />}
@@ -362,7 +375,16 @@ const AppSectionItem = props => {
         />
       )}
       {!!createType && (
-        <CreateNew type={createType} onCreate={handleCreateAppItem} onCancel={() => setCreateType('')} />
+        <CreateNew
+          type={createType}
+          onImportExcel={() => {
+            setDialogImportExcel(true);
+            setPopupVisible(false);
+            setCreateType('');
+          }}
+          onCreate={handleCreateAppItem}
+          onCancel={() => setCreateType('')}
+        />
       )}
       {dialogImportExcel && (
         <DialogImportExcelCreate
@@ -548,7 +570,7 @@ const LeftAppGroup = props => {
                   ? roleSelectValue[0].name
                   : _l('%0个角色', roleSelectValue.length)}
             </span>
-            <Tooltip disable={!roleSelectValue.length} placement="bottom" text={_l('清空调试')}>
+            <Tooltip placement="bottom" title={!roleSelectValue.length ? '' : _l('清空调试')}>
               <Icon
                 icon={roleSelectValue.length ? 'cancel' : 'expand_more'}
                 className="Font16 roleSelectIcon"

@@ -7,11 +7,11 @@ import MentionsInput from 'src/components/MentionsInput';
 import LinkView from '../../linkView/linkView';
 import VoteUpdater from '../../voteUpdater/voteUpdater';
 
-var langUploadFiles = _l('上传附件') + '...';
-var langShareLink = _l('分享网站') + '...';
-var langVoteQuestion = _l('请输入投票问题') + '...';
+let langUploadFiles = _l('上传附件') + '...';
+let langShareLink = _l('分享网站') + '...';
+let langVoteQuestion = _l('请输入投票问题') + '...';
 
-var MyUpdater = {
+const MyUpdater = {
   options: {
     thumbImgs: '',
     linkViewData: null, // 链接预览数据
@@ -38,7 +38,7 @@ var MyUpdater = {
     $('.myUpdateItem_Content a[targetDiv]')
       .off()
       .on('click', function () {
-        var targetDivID = $(this).attr('targetDiv');
+        let targetDivID = $(this).attr('targetDiv');
         // $('#Div_JoinKnowledge').hide();
         // 附件
         if (targetDivID == '#Attachment_updater') {
@@ -101,7 +101,7 @@ var MyUpdater = {
           }
           $('#Link_updater .visualDocTextBox').show();
           $('#text_LinkUrl').on('keydown', function (e) {
-            var key = window.event ? e.keyCode : e.which;
+            let key = window.event ? e.keyCode : e.which;
             if (key == 13) {
               $(this).parent().next().find("input[type='button']").click();
               return false;
@@ -171,8 +171,8 @@ var MyUpdater = {
         $(this).removeClass('Gray_c');
       },
     });
-    var $textareaUpdater = $('#textarea_Updater');
-    var textareaUpdaterEl = $textareaUpdater.get(0);
+    let $textareaUpdater = $('#textarea_Updater');
+    let textareaUpdaterEl = $textareaUpdater.get(0);
 
     // 支持高度自适应
     $textareaUpdater
@@ -181,7 +181,7 @@ var MyUpdater = {
         minHeight: 24,
       })
       .focus(function () {
-        var msg = $textareaUpdater.val().trim();
+        let msg = $textareaUpdater.val().trim();
         if (
           msg == _l('知会工作是一种美德') + '...' ||
           msg == langUploadFiles ||
@@ -210,7 +210,7 @@ var MyUpdater = {
       })
       .blur(function () {
         textareaUpdaterEl.store();
-        if (!$.trim($(this).val())) {
+        if (!$(this).val().trim()) {
           $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
         }
       });
@@ -236,7 +236,7 @@ var MyUpdater = {
 
     $(document).click(function (event) {
       if ($('#textarea_Updater').length > 0) {
-        var text;
+        let text;
         MyUpdater.options.updaterInputAreaFocus = !(
           !$(event.target).closest(
             '.myUpdateItem,.myUpdateType,.mentionsAutocompleteList,.faceDiv,.plupload,.focusUpdaterCon',
@@ -274,7 +274,7 @@ var MyUpdater = {
   // 重置参数
   ResetUpdaterDiv: function () {
     if ($('#textarea_Updater')) {
-      var msg = $('#textarea_Updater').val().trim();
+      let msg = $('#textarea_Updater').val().trim();
       if (
         msg == '' ||
         msg == langUploadFiles ||
@@ -312,7 +312,7 @@ var MyUpdater = {
 
     $('#button_Share').attr('disabled', false).removeClass('Disabled');
     // 链接
-    var $mdLinkUpdater = $('#Link_updater');
+    let $mdLinkUpdater = $('#Link_updater');
     $mdLinkUpdater.find('.updaterLinkView').empty();
     $mdLinkUpdater.find('.linkTextBox').val('http://').addClass('Gray_c');
     $mdLinkUpdater.find('.linkBtn').val(_l('预览')).attr('disabled', false).removeClass('Disabled');
@@ -342,9 +342,9 @@ var MyUpdater = {
     }
 
     if ($('#Vote_updater .voteOptions li').length > 0) {
-      var oplength = $('#Vote_updater .voteOptions li').lenght;
+      let oplength = $('#Vote_updater .voteOptions li').lenght;
       if (oplength > 0) {
-        for (var i = 0; i < oplength; i++) {
+        for (let i = 0; i < oplength; i++) {
           if (i > 1) {
             $('#Vote_updater .voteOptions li').eq(i).remove();
           }
@@ -360,16 +360,16 @@ var MyUpdater = {
   },
   // 预览分享链接
   ViewLink: function (obj) {
-    var linkUrl = $('#text_LinkUrl').val().trim();
+    let linkUrl = $('#text_LinkUrl').val().trim();
     if (!linkUrl || linkUrl == 'http://') {
       alert(_l('请输入链接'), 3);
       return false;
     }
 
-    var $el = $(obj);
+    let $el = $(obj);
     $el.val(_l('提取中...')).attr('disabled', true).addClass('Disabled');
 
-    var $btnShare = $('#button_Share');
+    let $btnShare = $('#button_Share');
     $btnShare.attr('disabled', true).addClass('Disabled');
 
     LinkView($('#Link_updater .updaterLinkView'), {
@@ -387,7 +387,7 @@ var MyUpdater = {
   },
   PostUpdater: function (result, obj, successCallback, isPost) {
     document.querySelector('#textarea_Updater').val(data => {
-      var postMsg = data;
+      let postMsg = data;
       if (
         !postMsg ||
         !postMsg.trim() ||
@@ -403,7 +403,7 @@ var MyUpdater = {
         return false;
       }
 
-      var postType = $('#hidden_UpdaterType').val();
+      let postType = $('#hidden_UpdaterType').val();
 
       // 验证链接是否有效
       if (postType == '1' && !MyUpdater.options.linkViewData) {
@@ -418,11 +418,11 @@ var MyUpdater = {
         }
       }
 
-      var rData = { postType: postType, postMsg: postMsg };
+      let rData = { postType: postType, postMsg: postMsg };
 
-      var voteData;
+      let voteData;
       if (postType == '7') {
-        var $voteUpdater = $('#Vote_updater');
+        let $voteUpdater = $('#Vote_updater');
         voteData = VoteUpdater.getData($voteUpdater);
         // 验证投票是否有选项
         if (voteData.invalid) {
@@ -452,9 +452,9 @@ var MyUpdater = {
         rData.attachments = JSON.stringify(result.attachmentData);
         rData.knowledgeAttach = JSON.stringify(result.kcAttachmentData);
         if ($('#addAttachmentToKcToggle').prop('checked')) {
-          var addToKcRootId, addToKcParentId;
-          var addToKcType = $('#addAttachmentToKcLink').data('type');
-          var addToKcNode = $('#addAttachmentToKcLink').data('node');
+          let addToKcRootId, addToKcParentId;
+          let addToKcType = $('#addAttachmentToKcLink').data('type');
+          let addToKcNode = $('#addAttachmentToKcLink').data('node');
           if (addToKcType == 2 /* ROOT*/) {
             addToKcRootId = addToKcParentId = addToKcNode.id;
           } else if (addToKcType == 3 /* NODE*/) {
@@ -474,7 +474,7 @@ var MyUpdater = {
         }
       } else if (postType == '1') {
         if (MyUpdater.options.linkViewData) {
-          var linkViewData = MyUpdater.options.linkViewData;
+          let linkViewData = MyUpdater.options.linkViewData;
           rData.linkUrl = linkViewData.url;
           rData.linkTitle = linkViewData.title;
           rData.linkDesc = linkViewData.desc;
@@ -484,7 +484,7 @@ var MyUpdater = {
 
       // 当前动态是不是以问号结尾 “是”则提示加入问答中心
       if (!isPost && postType == 0) {
-        var reg = /.*[?？吗](\s*@[^\s]+)*\s*$/;
+        let reg = /.*[?？吗](\s*@[^\s]+)*\s*$/;
         if (reg.test(postMsg)) {
           MyUpdater.PostToReward(obj, successCallback);
           return;
@@ -493,7 +493,7 @@ var MyUpdater = {
 
       // 如果发布内容与原文件名称一致，需要用户确认
       if (postType == '9') {
-        var originName = result.attachmentData.length
+        let originName = result.attachmentData.length
           ? result.attachmentData[0].originalFileName
           : $('#Attachment_updater .kcAttachmentList').children().first().data('name');
         if (postMsg == originName) {
@@ -505,16 +505,16 @@ var MyUpdater = {
 
       $(obj).attr('disabled', 'disabled').addClass('Disabled');
 
-      var checkValidPromises = [];
+      let checkValidPromises = [];
       if (postType == '9' && result.attachmentData.length && $('#addAttachmentToKcToggle').prop('checked')) {
-        var addToKcSize = result.attachmentData
+        let addToKcSize = result.attachmentData
           .map(function (file) {
             return file.fileSize;
           })
           .reduce(function (a, b) {
             return a + b;
           }, 0);
-        var flowValidPromise = new Promise((resolve, reject) => {
+        let flowValidPromise = new Promise((resolve, reject) => {
           kcAjax
             .getUsage()
             .then(function (result) {
@@ -574,8 +574,8 @@ var MyUpdater = {
       okText: _l('是的'),
       cancelText: _l('不用了'),
       onOk: function () {
-        var isEnableReward = false;
-        var rewardMark = 0;
+        let isEnableReward = false;
+        let rewardMark = 0;
         $('#hidden_UpdaterType').val('4');
         MyUpdater.PostUpdater(false, postObj, callback, 'isReward', isEnableReward, rewardMark);
       },

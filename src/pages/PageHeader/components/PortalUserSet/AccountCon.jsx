@@ -236,7 +236,7 @@ class TelCon extends React.Component {
             } else if (data.actionResult == ActionResult.failInvalidVerifyCode) {
               alert(_l('验证码错误'), 3);
             } else if (data.actionResult == ActionResult.balanceIsInsufficient) {
-              alert(_l('当前企业账户余额不足，无法发送短信/邮件'), 2);
+              alert(_l('当前企业账户信用点不足，无法发送短信/邮件'), 2);
             } else if (data.actionResult == ActionResult.userAccountExists) {
               alert(_l('发送失败，新手机号与现有手机号一致'), 2);
             } else {

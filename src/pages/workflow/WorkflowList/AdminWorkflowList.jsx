@@ -3,7 +3,8 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Icon, LoadDiv, MdLink, ScrollView, Switch, Tooltip, UserHead } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, MdLink, ScrollView, Switch, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import flowNode from '../api/flowNode';
@@ -35,6 +36,7 @@ const typeList = [
   { label: _l('循环'), value: 13 },
   { label: _l('子流程'), value: 8 },
   { label: _l('自定义动作'), value: 7 },
+  { label: _l('对话'), value: 14 },
   { label: _l('审批流程'), value: 11 },
   { label: _l('封装业务流程'), value: 10 },
   { label: _l('事件推送'), value: 12 },
@@ -220,7 +222,7 @@ export default class AdminWorkflowList extends Component {
             },
             () => {
               if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
-                alert('当前账户余额不足100元，该功能可能无法正常运行', 3);
+                alert('当前账户信用点不足100信用点，该功能可能无法正常运行', 3);
               }
             },
           );
@@ -314,9 +316,11 @@ export default class AdminWorkflowList extends Component {
           <div className="mLeft12 ellipsis flex mRight20">{item.createdBy.fullName}</div>
         </div>
         <MdLink to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">
-          <span data-tip={_l('历史')}>
-            <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_75" />
-          </span>
+          <Tooltip title={_l('历史')}>
+            <span>
+              <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_75" />
+            </span>
+          </Tooltip>
         </MdLink>
       </div>
     );
@@ -495,9 +499,8 @@ export default class AdminWorkflowList extends Component {
                     onClick={() => this.setState({ autoOrderVisible: true })}
                   />
                   <Tooltip
-                    autoCloseDelay={0}
-                    popupPlacement="bottom"
-                    text={<span>{_l('本月剩余执行额度到达2%时，自动购买100元/1万次的单月包，从账户余额中扣款')}</span>}
+                    placement="bottom"
+                    title={_l('本月剩余执行额度到达2%时，自动购买100信用点/1万次的单月包，从账户信用点余额中扣款')}
                   >
                     <span className="Gray_75 Hand">{_l('自动订购')}</span>
                   </Tooltip>
@@ -631,7 +634,7 @@ export default class AdminWorkflowList extends Component {
               <span
                 dangerouslySetInnerHTML={{
                   __html: _l(
-                    '开启后，当月剩余执行额度为2%时，自动购买 %0 100元/1万次 %1 的单月包，从账户余额中扣款',
+                    '开启后，当月剩余执行额度为2%时，自动购买 %0 100信用点/1万次 %1 的单月包，从账户信用点中扣款',
                     '<span class="Bold Gray">',
                     '</span>',
                   ),

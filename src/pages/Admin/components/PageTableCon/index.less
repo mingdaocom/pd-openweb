@@ -18,11 +18,12 @@
         th {
           height: 48px;
           background: #fff;
-          // padding: 1px 24px 12px 1px;
+          padding-inline: 12px;
           box-sizing: border-box;
           font-weight: 600;
           font-size: 13px;
           color: #151515;
+
           &:hover {
             background: #fff !important;
           }
@@ -38,6 +39,9 @@
         [colspan]
       ):before {
       width: 0px !important;
+    }
+    .ant-table-tbody > tr > td {
+      padding-inline: 12px;
     }
   }
   .ant-table-ping-left:not(.ant-table-has-fix-left) .ant-table-container::before,

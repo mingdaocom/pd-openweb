@@ -68,7 +68,7 @@ export default function Des(props) {
     return <div className={`des overflow_ellipsis WordBreak ${props.className}`}>{txt}</div>;
   };
   if (isAct) {
-    return renderDes(nodeData);
+    return renderDes();
   }
   let tableName = _.get(nodeData, 'nodeConfig.config.tableName');
   return tableName ? ( //工作表名称

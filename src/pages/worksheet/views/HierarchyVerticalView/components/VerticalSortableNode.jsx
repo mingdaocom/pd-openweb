@@ -128,7 +128,7 @@ export default class VerticalSortableRecordItem extends Component {
     const getLayerRows = (arr = [], rows = []) => {
       const { data = {}, treeData = {} } = this.props;
       if (arr.length) {
-        arr.map(item => {
+        arr.forEach(item => {
           if (_.get(item, 'pathId.length') === _.get(data, 'pathId.length')) {
             rows.push({
               index: (_.get(item, 'path') || [])[_.get(item, 'pathId.length') - 1],

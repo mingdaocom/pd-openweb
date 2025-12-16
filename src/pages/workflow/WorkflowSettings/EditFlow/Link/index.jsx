@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { ACTION_ID } from '../../enum';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
 export default class Link extends Component {
   constructor(props) {
@@ -18,6 +18,7 @@ export default class Link extends Component {
       2: _l('获取记录填写链接'),
       3: _l('带支付按钮的记录链接'),
       4: _l('付款链接'),
+      5: _l('内部链接'),
     };
 
     if (!item.appId && !item.selectNodeId) {
@@ -44,9 +45,7 @@ export default class Link extends Component {
 
     return (
       <Fragment>
-        <div className="workflowContentInfo ellipsis workflowContentBG">
-          <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
-        </div>
+        <WorksheetMessage item={{ ...item, appTypeName: _l('工作表') }} />
         <div className={cx('workflowContentInfo ellipsis Gray_75 mTop4 pBottom5', { yellow: item.isException })}>
           {item.isException ? (
             <Fragment>

@@ -88,7 +88,7 @@ export default function BulletinBoard(props) {
   return (
     <CarouselWrapper autoplay={true} isMobile={browserIsMobile()}>
       {bulletinBoards
-        .concat(!bulletinBoards.length ? [{ url: md.global.FileStoreConfig.pictureHost + coverUrls[0] }] : [])
+        .concat(!bulletinBoards.length ? [{ url: `${md.global.FileStoreConfig.pictureHost}/${coverUrls[0]}` }] : [])
         .map((item, i) => {
           return (
             <div

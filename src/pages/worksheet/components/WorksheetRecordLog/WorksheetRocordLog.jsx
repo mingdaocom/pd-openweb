@@ -7,7 +7,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import filterXSS from 'xss';
-import { Icon, LoadDiv, PreferenceTime, PullToRefreshWrapper, ScrollView, Tooltip, UserHead } from 'ming-ui';
+import { Icon, LoadDiv, PreferenceTime, PullToRefreshWrapper, ScrollView, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import ArchivedList from 'src/components/ArchivedList';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
@@ -656,7 +657,7 @@ function WorksheetRecordLog(props, ref) {
                   <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: _.includes([1, 11, 12], item.type) })}>
                     {renderLogCardTitle(item)}
                     {!!ua && (
-                      <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
+                      <Tooltip title={_l('复制创建时的UA信息')}>
                         <span
                           className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
                           onClick={() => {
@@ -698,7 +699,7 @@ function WorksheetRecordLog(props, ref) {
                                     : _l('更新了 %0个字段', updateControlCount)}
                                   {control && <span className="Gray mLeft8">{control.controlName}</span>}
                                   {showTooltips && (
-                                    <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
+                                    <Tooltip placement="right" title={_l('部分字段无权限不可见')}>
                                       <Icon icon="info_outline" className="Font14 mLeft5" />
                                     </Tooltip>
                                   )}
@@ -750,8 +751,9 @@ function WorksheetRecordLog(props, ref) {
             <Divider className="logDivider">
               {_l('以下是旧版日志')}
               <Tooltip
-                autoCloseDelay={0}
-                text={<span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>}
+                title={
+                  <span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>
+                }
               >
                 <Icon className="Font12" icon="error1" />
               </Tooltip>

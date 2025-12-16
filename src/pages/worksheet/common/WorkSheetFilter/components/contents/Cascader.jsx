@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
+import CascaderDropdown from 'src/components/Form/DesktopForm/widgets/Cascader';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 
 export default class RelateRecord extends React.Component {

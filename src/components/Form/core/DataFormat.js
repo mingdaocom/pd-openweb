@@ -26,7 +26,7 @@ import {
 import { compatibleMDJS, getCurrentProject } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FROM, SYSTEM_ENUM, TIME_UNIT } from './config';
-import { checkRuleLocked } from './formUtils';
+import { checkRuleLocked, controlState } from './formUtils';
 import {
   asyncUpdateMdFunction,
   calcDefaultValueFunction,
@@ -65,6 +65,7 @@ import { calcSubTotalCount, getArrBySpliceType, halfSwitchSize, isUnTextWidget }
  * @param {function} onAsyncChange 异步更新
  * @param {function} updateLoadingItems 异步更新的控件更新父级 子表用
  * @param {function} activeTrigger 主动触发保存 汇总字段这类引起的
+ * @param {[]} currentRuleControlIds 当前页面正更新字段用于业务规则设置字段值
  */
 export default class DataFormat {
   constructor({
@@ -86,22 +87,24 @@ export default class DataFormat {
     ignoreLock = false,
     ignoreRequired = false,
     verifyAllControls = false,
+    noAutoSubmit = false,
     recordCreateTime = '',
     masterRecordRowId = '',
     masterData,
     from = FROM.DEFAULT,
+    isDraft = false,
     storeCenter,
     loadRowsWhenChildTableStoreCreated = false,
     searchConfig = [],
     embedData = {},
     onAsyncChange = () => {},
     updateLoadingItems = () => {},
-    updateLoadingItemsWithAutoSubmit = () => {},
     activeTrigger = () => {},
   }) {
     this.abortController = abortController;
     this.disabled = disabled;
     this.isCharge = isCharge;
+    this.noAutoSubmit = noAutoSubmit;
     this.appId = appId;
     this.projectId = projectId;
     this.worksheetId = worksheetId;
@@ -116,15 +119,16 @@ export default class DataFormat {
     this.loadingInfo = {};
     this.controlIds = [];
     this.ruleControlIds = [];
+    this.currentRuleControlIds = [];
     this.errorItems = [];
     this.recordCreateTime = recordCreateTime;
     this.from = from;
+    this.isDraft = isDraft;
     this.searchConfig = searchConfig;
     this.onAsyncChange = (...args) => {
       onAsyncChange(...args, this);
     };
     this.updateLoadingItems = updateLoadingItems;
-    this.updateLoadingItemsWithAutoSubmit = updateLoadingItemsWithAutoSubmit;
     this.activeTrigger = activeTrigger;
     this.loopList = [];
     this.isMobile = browserIsMobile();
@@ -180,7 +184,7 @@ export default class DataFormat {
           if (item.store) {
             item.store.setLoadingInfo = (key, status) => {
               this.loadingInfo[key] = status;
-              this.updateLoadingItemsWithAutoSubmit(this.loadingInfo);
+              this.updateLoadingItems(this.loadingInfo, true);
             };
           }
         } catch (err) {
@@ -289,7 +293,7 @@ export default class DataFormat {
         }
 
         // 定位控件默认选中当前位置
-        if (item.type === 40 && item.advancedSetting.defsource) {
+        if (item.type === 40 && item.advancedSetting.defsource && controlState(item, this.from).visible) {
           if (_.get(safeParse(item.advancedSetting.defsource), '0.cid') === 'current-location') {
             locationIds.push(item.controlId);
           }
@@ -319,7 +323,7 @@ export default class DataFormat {
         item.type === 52 ? _.replace(item.controlPermissions || '111', /^(.)(.)/, '$1' + '1') : item.controlPermissions;
       item.fieldPermission = _.includes(SYSTEM_ENUM, item.controlId)
         ? '0' + (item.fieldPermission || '111').slice(-2)
-        : item.type === 52 && instanceId && workId
+        : item.type === 52 && ((instanceId && workId) || _.get(window, 'shareState.isPublicWorkflowRecord'))
           ? _.replace(item.fieldPermission || '111', /^(.)(.)/, '$1' + '1')
           : item.fieldPermission;
       item.defaultState = {
@@ -475,6 +479,7 @@ export default class DataFormat {
     data,
     isInit = false,
     searchByChange = false,
+    userTriggerChange = false,
     ignoreSearch = false, // 禁止触发查询工作表
   }) {
     this.asyncControls = {};
@@ -504,6 +509,8 @@ export default class DataFormat {
                 params.type = 'append';
               } else if (_.get(value, 'action') === 'clearAndSet') {
                 params.staticRows = value.rows;
+                params.isSetValueFromEvent = value.isSetValueFromEvent;
+                params.isSetValueFromRule = value.isSetValueFromRule;
                 if (_.isEmpty(value.rows)) {
                   item.store.dispatch({
                     type: 'DELETE_ALL',
@@ -535,7 +542,7 @@ export default class DataFormat {
                     })(item.store.getState, item.store.dispatch, DataFormat);
                   });
                   if (!item.store.initialized) {
-                    item.store.init();
+                    item.store.init({ noMountInit: true });
                   }
                 } else {
                   setRowsFromStaticRows(params)(item.store.getState, item.store.dispatch, DataFormat);
@@ -626,7 +633,7 @@ export default class DataFormat {
               });
             }
 
-            // 关联记录
+            // 关联记录、级联被引用为默认值
             if (item.type === 29 || item.type === 35) {
               this.getCurrentRelateData(item);
             }
@@ -670,6 +677,16 @@ export default class DataFormat {
               this.ruleControlIds.push(controlId);
             }
 
+            // 业务规则变更id集合
+            if (!isInit) {
+              const index = this.currentRuleControlIds.indexOf(controlId);
+              if (index !== -1) {
+                this.currentRuleControlIds.splice(index, 1);
+              } else {
+                this.currentRuleControlIds.push(controlId);
+              }
+            }
+
             // 变更控件的id集合
             if (
               !_.includes([25, 30, 31, 32, 33], item.type) &&
@@ -694,8 +711,9 @@ export default class DataFormat {
         let currentSearchByChange = depth === 0 ? searchByChange : false;
         let currentIgnoreSearch = depth === 0 ? ignoreSearch : false;
         // onChange主动更新，清空循环列表
-        if (currentSearchByChange) {
+        if (currentSearchByChange || userTriggerChange) {
           this.loopList = [];
+          this.currentRuleControlIds = [];
         }
 
         // 最多递归5层
@@ -757,7 +775,7 @@ export default class DataFormat {
                 }
                 return formulaResult.error || _.isNull(formulaResult.result)
                   ? ''
-                  : `${formulaResult.result.toFixed(singleControl.dot)}${singleControl.unit}`;
+                  : `${formulaResult.result}${singleControl.unit}`;
               }
 
               return formatColumnToText(singleControl, true, true, { doNotHandleTimeZone: true });
@@ -798,7 +816,11 @@ export default class DataFormat {
 
           // 动态默认值
           if (currentItem.advancedSetting && currentItem.advancedSetting.defsource && currentItem.type !== 30) {
-            value = getDynamicValue(this.data, currentItem, this.masterData);
+            if (currentItem.isImportFromExcel && currentItem.value) {
+              value = currentItem.value;
+            } else {
+              value = getDynamicValue(this.data, currentItem, this.masterData);
+            }
           }
 
           // 嵌入控件
@@ -871,7 +893,12 @@ export default class DataFormat {
                 c => c.controlId === currentItem.sourceControlId,
               );
               if (sourceControl) {
-                const valuesOfRecords = records.map(record => (record.row || record)[sourceControl.controlId]);
+                const valuesOfRecords = records.map(
+                  record =>
+                    (record.row || (record.sourcevalue ? safeParse(record.sourcevalue, 'object') : record))[
+                      sourceControl.controlId
+                    ],
+                );
                 const noUndefinedValues = valuesOfRecords.filter(value => !_.isUndefined(value));
                 if (valuesOfRecords.length) {
                   const isDate =
@@ -900,8 +927,8 @@ export default class DataFormat {
                         }
                       }).length;
                       break;
-                    case 21: // 唯一值计数
-                    case 22: // 所有值计数
+                    case 21: // 去重计数
+                    case 22: // 单个去重计数
                       // 子表、关联多条存在计算有误的情况，不计算
                       if (sourceControl.type === 34 || (sourceControl.type === 29 && sourceControl.enumDefault === 2))
                         return;
@@ -1058,6 +1085,13 @@ export default class DataFormat {
   }
 
   /**
+   * 获取当前页面正更新字段用于业务规则设置字段值
+   */
+  getCurrentRuleControlIds() {
+    return this.currentRuleControlIds;
+  }
+
+  /**
    * 更新字段是否被文本输入格式筛选引用
    */
   checkFilterRegex(item) {
@@ -1157,9 +1191,7 @@ export default class DataFormat {
       }
 
       if (index === newIds.length - 1) {
-        autoSubmit
-          ? this.updateLoadingItemsWithAutoSubmit(this.loadingInfo)
-          : this.updateLoadingItems(this.loadingInfo);
+        this.updateLoadingItems(this.loadingInfo, autoSubmit && !this.noAutoSubmit);
       }
     });
   }
@@ -1335,31 +1367,37 @@ export default class DataFormat {
       },
       () => {
         new MapLoader().loadJs().then(() => {
-          new MapHandler().getCurrentPos((status, res) => {
-            if (status === 'complete') {
-              ids.forEach(controlId => {
-                this.updateDataSource({
-                  controlId,
+          const mapHandler = new MapHandler();
+          mapHandler.getCurrentPos(
+            (status, res) => {
+              if (status === 'complete') {
+                ids.forEach(controlId => {
+                  this.updateDataSource({
+                    controlId,
+                    value: JSON.stringify({
+                      x: res.position.lng,
+                      y: res.position.lat,
+                      address: res.formattedAddress || '',
+                      title: (res.addressComponent || {}).building || '',
+                    }),
+                    isInit: true,
+                  });
+                });
+                this.onAsyncChange({
+                  controlIds: ids,
                   value: JSON.stringify({
                     x: res.position.lng,
                     y: res.position.lat,
                     address: res.formattedAddress || '',
                     title: (res.addressComponent || {}).building || '',
                   }),
-                  isInit: true,
                 });
-              });
-              this.onAsyncChange({
-                controlIds: ids,
-                value: JSON.stringify({
-                  x: res.position.lng,
-                  y: res.position.lat,
-                  address: res.formattedAddress || '',
-                  title: (res.addressComponent || {}).building || '',
-                }),
-              });
-            }
-          });
+              }
+              mapHandler.destroyMap();
+            },
+            false,
+            { locationFailedAlert: !!ids.length },
+          );
         });
       },
     );
@@ -1405,7 +1443,7 @@ export default class DataFormat {
         .then(result => {
           this.setLoadingInfo(controlId, false);
 
-          if (result.resultCode === 7) return;
+          if (result.resultCode === 7 || (this.from === 2 && this.isDraft && result.resultCode === 4)) return;
 
           const formatValue = JSON.stringify(
             safeParse(value || '[]').map((i, index) =>
@@ -1481,19 +1519,30 @@ export default class DataFormat {
             };
 
             const infoObj = INFO_OPTIONS[item.type];
+            let ajaxParams = { projectId: this.projectId, accountIds: accounts.map(o => o.accountId) };
+            if (item.type === 27) {
+              ajaxParams.includePath = true;
+            }
 
             infoObj
-              .api({ projectId: this.projectId, accountIds: accounts.map(o => o.accountId) })
+              .api(ajaxParams)
               .then(result => {
                 let departments = [];
                 this.setLoadingInfo(item.controlId, false);
 
-                result.maps.forEach(item => {
-                  item[infoObj.ids].forEach(obj => {
-                    departments.push({
-                      [infoObj.id]: obj.id,
-                      [infoObj.name]: obj.name,
-                    });
+                result.maps.forEach(r => {
+                  r[infoObj.ids].forEach(obj => {
+                    if (item.type === 27 && _.get(item, 'advancedSetting.allpath') === '1') {
+                      departments.push({
+                        [infoObj.id]: obj.id,
+                        [infoObj.name]: obj.departmentPath,
+                      });
+                    } else {
+                      departments.push({
+                        [infoObj.id]: obj.id,
+                        [infoObj.name]: obj.name,
+                      });
+                    }
                   });
                 });
 
@@ -1530,19 +1579,14 @@ export default class DataFormat {
    */
   getSearchStatus = (filters = [], controls = []) => {
     const splitFilters = getArrBySpliceType(filters);
-    const emptyRule = !_.isEmpty(_.get(splitFilters, '0.groupFilters'))
-      ? _.get(splitFilters, '0.groupFilters.0.emptyRule')
-      : _.get(splitFilters, '0.emptyRule');
     return _.some(splitFilters, (items = []) => {
       return _.every(getItemFilters(items), item => {
         // 固定值|字段值
         const isDynamicValue = item.dynamicSource && item.dynamicSource.length > 0;
-        //筛选值字段, 老数据没配置空状态按老逻辑(没值不请求接口)，新配置的都交给接口处理
+        //筛选值字段
         const fieldResult =
           _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
-          (!emptyRule
-            ? (_.find(this.data, { controlId: _.get(item.dynamicSource[0] || {}, 'cid') }) || {}).value
-            : _.find(this.data, { controlId: _.get(item.dynamicSource[0] || {}, 'cid') }));
+          _.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid'));
         //条件字段
         const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
         return isDynamicValue ? fieldResult : conditionExit;
@@ -1566,7 +1610,6 @@ export default class DataFormat {
     if (_.some(existFilters, e => _.isEqual(tempFilterValue, e.loopFilter))) {
       return Promise.resolve(null);
     }
-    this.setLoadingInfo(controlId, true);
     this.loopList.push({ loopId: `${effectControlId}-${controlId}`, loopFilter: tempFilterValue });
 
     let params = {
@@ -1651,6 +1694,7 @@ export default class DataFormat {
         // 初始时由工作表查询引起的变更遗漏
         if (!_.includes(this.ruleControlIds, currentConfig.controlId) && searchType === 'init') {
           this.ruleControlIds.push(currentConfig.controlId);
+          this.currentRuleControlIds.push(currentConfig.controlId);
         }
 
         this.setLoadingInfo(currentConfig.controlId, false, true);
@@ -1661,6 +1705,7 @@ export default class DataFormat {
         configs = [],
         templates = [],
         moreType,
+        recordsNotFound,
         moreSort,
         sourceId,
         controlType,
@@ -1713,11 +1758,19 @@ export default class DataFormat {
             control.controlId,
           );
 
-          // 查询失败、查询多条不赋值
-          if (!res || res.resultCode !== 1 || (canSearchMore && res.count > 1 && moreType === 1)) {
+          // 查询失败、查询多条不赋值、未查询到不赋值
+          if (
+            !res ||
+            res.resultCode !== 1 ||
+            (canSearchMore && res.count > 1 && moreType === 1) ||
+            (recordsNotFound === 1 && !res.count)
+          ) {
             this.setLoadingInfo(controlId, false, true);
             return;
           }
+
+          // 查询多条赋空值、未查询到赋空值
+          const emptyValue = (canSearchMore && res.count > 1 && moreType === 2) || (!res.count && !recordsNotFound);
 
           const titleControl = _.find(_.get(currentControl, 'relationControls'), i => i.attribute === 1);
           const newValue = (res.data || []).map(item => {
@@ -1732,14 +1785,10 @@ export default class DataFormat {
               name: getCurrentValue(titleControl, nameValue, { type: 2 }),
             };
           });
-          if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
-            updateData('');
-            return;
-          }
-          if (_.isEmpty(newValue) && _.includes([29], controlType)) {
-            updateData('deleteRowIds: all');
+          if ((_.isEmpty(newValue) || emptyValue) && _.includes([29], controlType)) {
+            this.isMobile ? updateData('') : updateData('deleteRowIds: all');
           } else {
-            updateData(JSON.stringify(newValue));
+            emptyValue ? updateData('') : updateData(JSON.stringify(newValue));
           }
         } else {
           //子表和普通字段需判断映射字段存在与否
@@ -1770,8 +1819,29 @@ export default class DataFormat {
           );
 
           // 失败、查询多条不赋值
-          if (!res || res.resultCode !== 1 || (canSearchMore && res.count > 1 && moreType === 1)) {
+          if (
+            !res ||
+            res.resultCode !== 1 ||
+            (canSearchMore && res.count > 1 && moreType === 1) ||
+            (recordsNotFound === 1 && !res.count)
+          ) {
             this.setLoadingInfo(controlId, false, true);
+            return;
+          }
+
+          // 查询多条赋空值、未查询到赋空值
+          const emptyValue = (canSearchMore && res.count > 1 && moreType === 2) || (!res.count && !recordsNotFound);
+
+          if (emptyValue) {
+            updateData(
+              controlType === 34
+                ? {
+                    action: 'clearAndSet',
+                    isDefault: true,
+                    rows: [],
+                  }
+                : '',
+            );
             return;
           }
 

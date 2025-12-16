@@ -44,11 +44,10 @@ export const MENU_LIST = [
     btnText: _l('设置字段别名'),
     type: 'control',
     fields: [
-      { key: 'controlId', text: _l('字段ID'), className: 'w22' },
-      { key: 'controlName', text: _l('字段名称'), className: 'w18 mLeft30' },
-      { key: 'type', text: _l('类型'), className: 'w14 mLeft30' },
-      { key: 'numberType', text: _l('控件类型编号'), className: 'w14 mLeft30' },
-      { key: 'desc', text: _l('说明'), className: 'w32 mLeft30' },
+      { key: 'controlId', text: _l('字段ID(别名)'), className: 'w25 minWidthControlId' },
+      { key: 'controlName', text: _l('字段名称'), className: 'w20 mLeft20' },
+      { key: 'controlType', text: _l('字段类型(编号|名称)'), className: 'w28 mLeft20' },
+      { key: 'desc', text: _l('说明'), className: 'w32 mLeft20' },
     ],
   },
   {
@@ -57,9 +56,9 @@ export const MENU_LIST = [
     btnText: _l('设置视图别名'),
     type: 'view',
     fields: [
-      { key: 'viewId', text: _l('视图ID'), className: 'w46' },
-      { key: 'name', text: _l('视图名称'), className: 'w32 mLeft30' },
-      { key: 'viewType', text: _l('类型'), className: 'w22 mLeft30' },
+      { key: 'viewId', text: _l('视图ID'), className: 'w46 minWidthViewId' },
+      { key: 'name', text: _l('视图名称'), className: 'w32 mLeft20' },
+      { key: 'viewType', text: _l('类型'), className: 'w22 mLeft20' },
     ],
   },
 ];
@@ -154,6 +153,10 @@ export const SIDEBAR_LIST = [
   {
     key: 'authorizationInstr',
     title: _l('授权管理'),
+  },
+  {
+    key: 'mcpServer',
+    title: _l('MCP'),
   },
   {
     key: 'whiteList',

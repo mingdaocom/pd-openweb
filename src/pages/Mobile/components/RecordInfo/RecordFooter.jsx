@@ -1,37 +1,40 @@
 import React, { Component, Fragment } from 'react';
 import { ActionSheet, Button, Toast } from 'antd-mobile';
 import cx from 'classnames';
-import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import worksheetApi from 'src/api/worksheet';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils.js';
+import sheetSetAjax from 'src/api/worksheetSetting';
+import { getDynamicValue } from 'src/components/Form/core/formUtils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
+import { SHARECARDTYPS, WX_ICON_LIST } from 'src/components/ShareCardConfig/config.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { renderText } from 'src/utils/control';
 import { compatibleMDJS } from 'src/utils/project';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
 import CustomButtons from './RecordAction/CustomButtons';
 
-const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
+export const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
   const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
-  if (navigator.share) {
-    navigator
-      .share({
-        title: _l('系统'),
-        text: document.title,
-        url: shareUrl,
-      })
-      .then(() => {
-        alert(_l('分享成功'));
-      });
-  } else {
-    copy(shareUrl);
-    alert(_l('复制成功'));
-  }
+
+  navigator.clipboard.writeText(shareUrl);
+  alert(_l('复制成功'));
 };
 
-const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
+const updateWorksheetRowShareRange = ({ appId, worksheetId, rowId, viewId }) => {
+  worksheetApi.updateWorksheetRowShareRange({
+    appId,
+    worksheetId,
+    rowId,
+    viewId,
+    shareRange: 2,
+    objectType: 2,
+  });
+};
+
+export const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId, isPublic, isCharge }) => {
   Toast.show({ icon: 'loading' });
   worksheetApi
     .getWorksheetShareUrl({
@@ -43,19 +46,13 @@ const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
     })
     .then(data => {
       Toast.clear();
-      if (navigator.share) {
-        navigator
-          .share({
-            title: _l('系统'),
-            text: document.title,
-            url: data.shareLink,
-          })
-          .then(() => {
-            alert(_l('分享成功'));
-          });
-      } else {
-        copy(data.shareLink);
-        alert(_l('复制成功'));
+
+      navigator.clipboard.writeText(data.shareLink);
+      alert(_l('复制成功'));
+
+      // 在H5上执行对外公开分享，默认需要打开PC对外公开分享的链接开关
+      if (!isPublic && isCharge) {
+        updateWorksheetRowShareRange({ appId, worksheetId, rowId: recordId, viewId, isPublic });
       }
     });
 };
@@ -70,9 +67,11 @@ export default class RecordFooter extends Component {
       btnDisable: {},
       isFavorite: false,
       RecordAction: null,
+      shareCardSet: {},
     };
   }
   recordRef = React.createRef();
+
   componentDidMount() {
     if (
       this.props.getDataType !== 21 &&
@@ -82,32 +81,39 @@ export default class RecordFooter extends Component {
     ) {
       this.loadCustomBtns();
     }
+
     this.props.addRefreshEvents('loadCustomBtns', () => {
       setTimeout(() => {
         this.setState({ btnDisable: {} });
       }, 500);
       this.loadCustomBtns();
     });
+
     this.setState({ isFavorite: this.props.recordInfo.isFavorite });
+
     import('mobile/components/RecordInfo/RecordAction').then(component => {
       this.setState({ RecordAction: component.default });
     });
+
+    this.getShareCardSet();
   }
   componentWillUnmount() {
     this.actionSheetHandler && this.actionSheetHandler.close();
     this.shareSheetHandler && this.shareSheetHandler.close();
   }
+
   loadCustomBtns = () => {
     if (location.pathname.indexOf('public') > -1) return;
 
     const { recordBase } = this.props;
     const { appId, worksheetId, viewId, recordId } = recordBase;
+
     worksheetApi
       .getWorksheetBtns({
         appId,
         worksheetId,
-        viewId,
         rowId: recordId,
+        viewId: viewId === 'null' ? '' : viewId,
       })
       .then(data => {
         this.setState({
@@ -117,43 +123,73 @@ export default class RecordFooter extends Component {
       });
   };
 
-  handleShare = () => {
-    const { recordInfo, recordBase, formData } = this.props;
+  getShareCardSet = () => {
+    const { recordBase = {}, formData } = this.props;
+    const { worksheetId } = recordBase;
+
+    if (!window.isMingDaoApp) return;
+
+    const renderTxt = value => {
+      if (!value || !value.startsWith('[')) {
+        return value;
+      }
+      return getDynamicValue(formData, {
+        type: 2,
+        advancedSetting: {
+          defsource: value,
+        },
+      });
+    };
+
+    if (worksheetId) {
+      sheetSetAjax.getShareCardSetting({ shareCardId: `${worksheetId}_${SHARECARDTYPS.RECORD}` }).then(res => {
+        if (res) {
+          const desc = renderTxt(res.desc);
+          const title = renderTxt(res.title);
+
+          this.setState({ shareCardSet: { desc, title, iconUrl: res.iconUrl } });
+        }
+      });
+    }
+  };
+
+  getButtons = () => {
+    const { recordInfo, recordBase } = this.props;
     const publicShare = isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId);
     const innerShare = isOpenPermit(permitList.embeddedLink, recordInfo.switchPermit, recordBase.viewId);
-
-    const BUTTONS = [
-      {
+    const shareObj = {
+      innerShare: {
         key: 'innerShare',
         name: _l('内部成员访问'),
         info: _l('仅限内部成员登录系统后根据权限访问'),
         icon: 'share',
         iconClass: 'Font18 Gray_9e',
-        fn: () => getRecordUrl(recordBase),
+        fn: () => (window.isMingDaoApp ? this.handleAPPShare(false) : getRecordUrl(recordBase)),
         className: 'mBottom10',
       },
-      {
+      publicShare: {
         key: 'publicShare',
         name: _l('对外公开分享'),
         info: _l('获得链接的所有人都可以查看'),
         icon: 'trash',
         iconClass: 'Font22 Red',
-        fn: () => getWorksheetShareUrl(recordBase),
+        fn: () =>
+          window.isMingDaoApp
+            ? this.handleAPPShare(true)
+            : getWorksheetShareUrl({ ...recordBase, isPublic: recordInfo.shareRange === 2 }),
       },
-    ].filter(v =>
-      publicShare && innerShare
-        ? true
-        : publicShare
-          ? v.key === 'publicShare'
-          : innerShare
-            ? v.key === 'innerShare'
-            : false,
+    };
+    return [publicShare ? shareObj.publicShare : undefined, innerShare ? shareObj.innerShare : undefined].filter(
+      item => item,
     );
+  };
 
+  handleShare = () => {
+    const { formData } = this.props;
     const recordTitle = getTitleTextFromControls(formData);
 
     this.shareSheetHandler = ActionSheet.show({
-      actions: BUTTONS.map(item => {
+      actions: this.getButtons().map(item => {
         return {
           key: item.icon,
           text: (
@@ -177,6 +213,50 @@ export default class RecordFooter extends Component {
       ),
       onAction: () => {
         this.shareSheetHandler.close();
+      },
+    });
+  };
+
+  handleAPPShare = async publicShare => {
+    const { recordInfo, recordBase, worksheetInfo, formData = [] } = this.props;
+    const { appId, worksheetId, viewId, recordId } = recordBase;
+    const { shareCardSet } = this.state;
+    const rowData = recordInfo.rowData ? safeParse(recordInfo.rowData) : {};
+    let { shareLink } = !publicShare
+      ? {}
+      : (await worksheetApi.getWorksheetShareUrl({
+          appId,
+          worksheetId,
+          rowId: recordId,
+          viewId,
+          objectType: 2,
+        })) || {};
+
+    compatibleMDJS('shareContent', {
+      // 数据, 分享到聊天使用
+      mdItem: {
+        type: 1,
+        title: renderText(formData.find(o => o.attribute === 1)),
+        rowId: recordId,
+        sheetId: worksheetId,
+        viewId,
+        appId,
+        ownerName: _.get(safeParse(rowData.ownerid), '[0].fullname'),
+        entityName: worksheetInfo.entityName,
+        url: publicShare ? shareLink : `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`,
+        public: publicShare,
+      }, //  mdItem{type=1, title, rowId, sheetId, viewId, appId, url, public, ownerName(拥有者姓名), entityName(实体名称 如"记录")}
+      // 通用参数
+      type: 3, // 0: 文本, 1: 链接, 3: 明道云内容; (2: 图片暂不支持)
+      title: shareCardSet.title || renderText(formData.find(o => o.attribute === 1)) || _l('未命名'), // 标题
+      desc: shareCardSet.desc || '', // 描述
+      url: '', // 链接
+      icon: shareCardSet.iconUrl || `${md.global.FileStoreConfig.pubHost}/${WX_ICON_LIST[0]}`, // 图标链接
+      success: function (res) {
+        console.log(res, 'success');
+      },
+      cancel: function (res) {
+        console.log(res, 'cancel');
       },
     });
   };
@@ -242,6 +322,7 @@ export default class RecordFooter extends Component {
         });
     }
   };
+
   renderContent() {
     const {
       editable,
@@ -256,7 +337,7 @@ export default class RecordFooter extends Component {
       isRecordLock,
     } = this.props;
     const { onEditRecord, onSubmitRecord } = this.props;
-    const { loading, customBtns } = this.state;
+    const { loading, customBtns, printList = [] } = this.state;
     const allowEdit = recordInfo.allowEdit || editable;
     const allowDelete =
       (isOpenPermit(permitList.recordDelete, recordInfo.switchPermit, recordBase.viewId) && recordInfo.allowDelete) ||
@@ -265,6 +346,22 @@ export default class RecordFooter extends Component {
       (isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId) ||
         isOpenPermit(permitList.embeddedLink, recordInfo.switchPermit, recordBase.viewId)) &&
       !md.global.Account.isPortal;
+    const isPublicShare =
+      _.get(window, 'shareState.isPublicRecord') ||
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage') ||
+      _.get(window, 'shareState.isPublicQuery') ||
+      _.get(window, 'shareState.isPublicForm') ||
+      _.get(window, 'shareState.isPublicWorkflowRecord') ||
+      _.get(window, 'shareState.isPublicPrint');
+    const allowPrint =
+      !isPublicShare &&
+      !window.isMingDaoApp &&
+      !window.isWeiXin &&
+      !window.isWeLink &&
+      !window.isDingTalk &&
+      printList.length;
+
     return (
       <Fragment>
         {(allowEdit || isDraft) && !isRecordLock && (
@@ -300,7 +397,7 @@ export default class RecordFooter extends Component {
               }}
             />
             {(!getDataType || getDataType !== 21) &&
-              (allowDelete || allowShare) &&
+              (allowDelete || allowShare || allowPrint) &&
               !customBtns.length &&
               !hideOtherOperate && (
                 <Button
@@ -321,6 +418,7 @@ export default class RecordFooter extends Component {
       </Fragment>
     );
   }
+
   renderEditContent() {
     const { onCancelSave, onSaveRecord } = this.props;
     return (
@@ -334,6 +432,7 @@ export default class RecordFooter extends Component {
       </Fragment>
     );
   }
+
   renderRecordAction() {
     const {
       recordInfo,
@@ -343,6 +442,7 @@ export default class RecordFooter extends Component {
       isRecordLock,
       updateRecordLock,
       editLockedUser,
+      onUpdate,
     } = this.props;
     const { recordActionVisible, customBtns, isFavorite, RecordAction } = this.state;
 
@@ -375,11 +475,15 @@ export default class RecordFooter extends Component {
         isRecordLock={isRecordLock}
         updateRecordLock={updateRecordLock}
         isEditLock={!!editLockedUser}
+        updatePrintList={list => this.setState({ printList: list })}
+        onUpdate={onUpdate}
       />
     );
   }
+
   render() {
     const { isEditRecord } = this.props;
+
     return (
       <Fragment>
         <div className="flexRow alignItemsCenter WhiteBG pAll10 footer">

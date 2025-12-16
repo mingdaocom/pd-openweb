@@ -3,7 +3,10 @@ import { useMeasure } from 'react-use';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import CreateByMingoButton from 'src/components/Mingo/ChatBot/CreateByMingoButton';
+import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
 import emptyPng from 'src/pages/worksheet/assets/record.png';
+import { emitter } from 'src/utils/common';
 
 const Con = styled.div`
   position: absolute;
@@ -25,7 +28,7 @@ const Con = styled.div`
   }
 `;
 export default function NoRecords(props) {
-  const { style, sheetIsFiltered, allowAdd, showNewRecord, text, icon } = props;
+  const { style, sheetIsFiltered, allowAdd, showNewRecord, text, icon, showGenDataFromMingo } = props;
   const [ref, { height }] = useMeasure();
   return (
     <Con ref={ref} style={style}>
@@ -51,6 +54,16 @@ export default function NoRecords(props) {
                   ? _l('暂未添加记录，点击创建')
                   : _l('暂未添加记录')}
           </span>
+          {!sheetIsFiltered && showGenDataFromMingo && !md.global.SysSettings.hideAIBasicFun && (
+            <CreateByMingoButton
+              onClick={() => {
+                window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_WORKSHEET_DATA_ASSIGNMENT };
+                emitter.emit('SET_MINGO_VISIBLE');
+              }}
+            >
+              {_l('AI 生成示例数据')}
+            </CreateByMingoButton>
+          )}
         </div>
       )}
     </Con>

@@ -12,8 +12,27 @@ import { componentCountLimit } from '../../util';
 import Tools from './Tools';
 
 const WidgetTools = props => {
-  const { ids, enumType, editable, iconColor, layoutType, widget, components, allComponents } = props;
-  const { updateWidget, updateWidgetVisible, updatePageInfo, setWidget, insertTitle, copyWidget } = props;
+  const {
+    ids,
+    enumType,
+    editable,
+    iconColor,
+    layoutType,
+    widget,
+    components,
+    allComponents,
+    activeContainerInfo = {},
+  } = props;
+  const {
+    updateWidget,
+    updateWidgetVisible,
+    updatePageInfo,
+    setWidget,
+    insertTitle,
+    copyWidget,
+    getChartData,
+    setChartData,
+  } = props;
   const widgetLayout = widget[layoutType] || {};
   const { title } = widgetLayout;
   const titleVisible = widget.sectionId ? false : widgetLayout.titleVisible;
@@ -64,6 +83,7 @@ const WidgetTools = props => {
                 needUpdate: Date.now(),
                 config: {
                   objectId: uuidv4(),
+                  ..._.pick(_.get(widget, 'config'), ['showTitle', 'showType', 'name', 'desc']),
                 },
               }),
             )
@@ -149,11 +169,15 @@ const WidgetTools = props => {
           appId={ids.appId}
           pageId={ids.worksheetId}
           widget={widget}
+          updateWidget={updateWidget}
           layoutType={layoutType}
           titleVisible={titleVisible}
           allComponents={allComponents}
           handleToolClick={(clickType, result) => handleToolClick(clickType, { widget, result })}
           updatePageInfo={updatePageInfo}
+          getChartData={getChartData}
+          setChartData={setChartData}
+          activeContainerInfo={activeContainerInfo}
         />
       )}
     </Fragment>
@@ -163,6 +187,7 @@ const WidgetTools = props => {
 export default connect(
   state => ({
     allComponents: state.customPage.components,
+    activeContainerInfo: state.customPage.activeContainerInfo,
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )(WidgetTools);

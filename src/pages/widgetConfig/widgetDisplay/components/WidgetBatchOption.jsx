@@ -1,8 +1,9 @@
 import React from 'react';
-import { Dropdown, Tooltip } from 'antd';
+import { Dropdown } from 'antd';
 import _, { find, flatten } from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import AutoIcon from '../../components/Icon';
 import { UN_REQUIRED_WIDGET } from '../../config';
 import { DropdownOverlay, SettingItem } from '../../styled';

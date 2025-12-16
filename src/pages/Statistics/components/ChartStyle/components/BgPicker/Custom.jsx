@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { Select, Tooltip } from 'antd';
+import { Select } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, QiniuUpload } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const Wrap = styled.div`
   .imageUpload {

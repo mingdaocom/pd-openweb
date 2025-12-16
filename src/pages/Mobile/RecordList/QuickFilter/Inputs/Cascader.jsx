@@ -74,7 +74,6 @@ export default class Cascader extends Component {
     this.searchRef = React.createRef();
     this.handleSearch = this.onSearch.bind(this);
   }
-  componentDidMount() {}
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.value, nextProps.value)) {
       this.setState({ value: nextProps.value });

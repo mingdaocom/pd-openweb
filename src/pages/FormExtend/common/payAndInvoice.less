@@ -1,0 +1,102 @@
+.payAndInvoiceWrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+
+  .configCon {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+
+    .configTitle {
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .configDesc {
+      color: #9e9e9e;
+      margin-top: 10px;
+    }
+    .configContent {
+      max-width: 1000px;
+      margin-top: 28px;
+      .enableScene {
+        max-width: 1000px;
+        display: flex;
+        li {
+          flex: 1;
+          border-left: 1px solid #eaeaea;
+          border-right: 1px solid #eaeaea;
+          padding: 16px;
+          width: 100%;
+          border-radius: 3px;
+          border: 1px solid #e0e0e0;
+          &:first-child {
+            margin-right: 15px;
+          }
+          &:hover {
+            border: 1px solid #ccc;
+          }
+        }
+      }
+      .title {
+        margin: 35px 0 20px;
+        font-size: 16px;
+        font-weight: 600;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e5e5;
+      }
+      .subTitle {
+        font-weight: 600;
+        font-size: 14px;
+        margin: 20px 0 10px;
+        position: relative;
+        &.required::before {
+          content: '*';
+          position: absolute;
+          left: -10px;
+          top: 3px;
+          color: #f44336;
+        }
+      }
+      .mapSettingBtn {
+        height: 36px;
+        line-height: 36px;
+        text-align: center;
+        border: 1px dashed #e0e0e0;
+        border-radius: 3px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .createLink {
+        height: 36px;
+        line-height: 36px;
+        border-radius: 3px;
+        background: #f7f7f7;
+        border: 1px solid #e0e0e0;
+        color: #1677ff;
+        padding-left: 12px;
+        cursor: pointer;
+        &:hover {
+          color: #1565c0;
+        }
+      }
+      .emptyDropdown {
+        .Dropdown--input .value {
+          color: #9e9e9e;
+        }
+      }
+    }
+  }
+
+  .footer {
+    background-color: #fff;
+    padding: 10px 32px 20px;
+  }
+}
+
+.mapFieldMenuWrap {
+  .itemText {
+    margin-left: 10px;
+  }
+}

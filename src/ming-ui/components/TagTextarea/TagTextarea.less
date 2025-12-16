@@ -22,10 +22,19 @@
     border-left: none;
     border-radius: 0 3px 3px 0;
   }
+  &.autoHeight {
+    .CodeMirror {
+      height: auto;
+    }
+  }
+  &:not(.autoHeight) {
+    .CodeMirror {
+      height: 100%;
+    }
+  }
   .CodeMirror {
     font-family: inherit !important;
     box-sizing: border-box;
-    height: auto;
     .CodeMirror-lines {
       padding: 6px 0;
     }

@@ -37,6 +37,7 @@ class RecordList extends Component {
       tempViewIdForRecordInfo: undefined,
     };
     this.hideAddRecord = hideAddRecord;
+    this.viewRef = React.createRef();
   }
   componentDidMount() {
     const { getFilters } = getRequest();
@@ -247,6 +248,7 @@ class RecordList extends Component {
           )}
           {hasGroupFilter && <SlideGroupFilter {...this.props} />}
           <View
+            ref={this.viewRef}
             view={view}
             key={worksheetInfo.worksheetId}
             routerParams={params}
@@ -311,6 +313,12 @@ class RecordList extends Component {
                         return;
                       }
 
+                      // 日历视图，调用内部的刷新方法视图
+                      if (view.viewType === 4) {
+                        this.viewRef.current?.viewComRef?.current?.refreshCalendarViewData();
+                        return;
+                      }
+
                       if (view.viewType) {
                         this.props.addNewRecord(data, view);
                       } else {
@@ -331,6 +339,7 @@ class RecordList extends Component {
           appId={params.appId}
           worksheetId={worksheetInfo.worksheetId}
           enablePayment={worksheetInfo.enablePayment}
+          worksheetInfo={worksheetInfo}
           viewId={this.state.tempViewIdForRecordInfo}
           rowId={this.state.previewRecordId}
           onClose={() => {
@@ -346,15 +355,16 @@ class RecordList extends Component {
   render() {
     const { worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { detail = {}, appName } = appDetail;
-    const { webMobileDisplay } = detail;
+    const { webMobileDisplay, appDisplay } = detail;
+    const isNoPublish = window.isMingDaoApp ? appDisplay : webMobileDisplay;
 
-    if (webMobileDisplay) {
+    if (isNoPublish) {
       return (
         <div style={{ background: '#fff', height: '100%' }}>
           <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
             <span className="Gray Font24 LineHeight80 InlineBlock Bold">{appName}</span>
           </div>
-          <FixedPage isNoPublish={webMobileDisplay} />
+          <FixedPage isNoPublish={isNoPublish} />
         </div>
       );
     }

@@ -53,6 +53,7 @@ export default function InboxMessage(_props) {
     case MSGTYPES.WorkSheetRowReply:
     case MSGTYPES.WorkSheetRowMentioned:
     case MSGTYPES.WorkSheetRowComment:
+    case MSGTYPES.FocusMessage:
       return <CommonTopic {...props} />;
     default:
       return null;

@@ -4,13 +4,15 @@ import _, { head } from 'lodash';
 import { Steps } from 'ming-ui';
 import { isLightColor } from 'src/utils/control';
 import { CommonDisplay, OptionWrap } from '../../styled';
-import { getAdvanceSetting, getOptions, parseOptionValue } from '../../util/setting';
+import { getAdvanceSetting, getOptions } from '../../util/setting';
 
 export default function Dropdown({ data }) {
   const { enumDefault2, hint } = data;
-  const checkedValue = parseOptionValue(data.default);
+  const { direction, showtype, defsource } = getAdvanceSetting(data);
+  const checkedValue = safeParse(defsource || '[]')
+    .map(item => item.staticValue)
+    .filter(_.identity);
   const { value, color, key: checkedKey } = _.find(getOptions(data), item => item.key === head(checkedValue)) || {};
-  const { direction, showtype } = getAdvanceSetting(data);
 
   if (showtype === '2') {
     return <Steps disabled={true} data={data} showTip={false} value={checkedKey} />;

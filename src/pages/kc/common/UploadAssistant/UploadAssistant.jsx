@@ -143,7 +143,7 @@ class UploadAssistant extends React.Component {
       before_upload_check: (up, files) =>
         service.getUsage().then(usage => {
           if (usage.used + files.reduce((total, file) => total + (file.size || 0), 0) > usage.total) {
-            return Promise.reject(_l('选择的文件超过本月上传流量上限'));
+            throw _l('选择的文件超过本月上传流量上限');
           }
         }),
       init: {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ClipboardButton from 'react-clipboard.js';
 import { useSetState } from 'react-use';
-import { DatePicker, Tooltip } from 'antd';
+import { DatePicker } from 'antd';
 import localeEn from 'antd/es/date-picker/locale/en_US';
 import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
 import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
@@ -9,6 +9,7 @@ import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon, Input, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { generateRandomPassword } from 'src/utils/common';
 import { API_EXTENDS, pluginApiConfig } from '../config';

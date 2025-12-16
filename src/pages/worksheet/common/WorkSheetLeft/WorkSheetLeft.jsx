@@ -6,7 +6,8 @@ import { DndProvider } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, ScrollView, Skeleton, Tooltip } from 'ming-ui';
+import { Icon, ScrollView, Skeleton } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Guidance from 'src/pages/worksheet/components/Guidance';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
 import { getAppFeaturesVisible } from 'src/utils/app';
@@ -122,13 +123,14 @@ class WorkSheetLeft extends Component {
                 groupId={groupId}
                 sheetListActions={sheetListActions}
                 getSheetList={this.getSheetList}
+                appPkg={appPkg}
               />
             )}
           </Wrap>
         </div>
         {!secondLevelGroup && (
           <div className="unfoldWrap TxtRight">
-            <Tooltip text={<span>{isUnfold ? _l('收起导航') : _l('展开导航')}</span>}>
+            <Tooltip title={isUnfold ? _l('收起导航') : _l('展开导航')}>
               <Icon
                 icon={isUnfold ? 'menu_left' : 'menu_right'}
                 className="Font20 Gray_9e pointer unfoldIcon"

@@ -3,11 +3,14 @@ import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
 import CancelIntegration from '../components/CancelIntegration';
+import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
+import ProcessSync from '../components/ProcessSync';
 import SettingLinkOpen from '../components/SettingLinkOpen';
 import { checkClearIntergrationData, integrationFailed } from '../utils';
 import fsImg from './feishuSyncCourse/img/8.png';
@@ -39,10 +42,15 @@ export default class FeiShu extends React.Component {
       passwordError: false,
       currentTab: 'base',
       isEditing: false,
+      isProxy: false, // 是否开启网络代理
     };
   }
 
   componentDidMount() {
+    this.getFeishuProjectSettingInfo();
+  }
+
+  getFeishuProjectSettingInfo = () => {
     const { projectIntergrationType, type } = this.props;
     const isLark = type === 'lark';
 
@@ -70,11 +78,19 @@ export default class FeiShu extends React.Component {
           show1: !(res.appId && res.appSecret && res.status != 2),
           show2: !(res.appId && res.appSecret && res.status != 2),
           integrationScanEnabled: res.intergrationScanEnabled,
-          ..._.pick(res, ['customNameIcon', 'status', 'isLark', 'ddMessagUrlPcSlide']),
+          ..._.pick(res, [
+            'customNameIcon',
+            'status',
+            'isLark',
+            'ddMessagUrlPcSlide',
+            'enableTodo',
+            'approveName',
+            'isProxy',
+          ]),
         });
       }
     });
-  }
+  };
 
   // 保存信息/编辑信息
   editInfo = () => {
@@ -119,26 +135,26 @@ export default class FeiShu extends React.Component {
     return newStr;
   };
 
-  editFeishuProjectSettingStatus = (tag, callback) => {
+  editFeishuProjectSettingStatus = ({ tag, isProxy, isClose } = {}) => {
     // 状态：0 提交申请；2关闭集成；1重新开启集成 tag
     Ajax.editFeishuProjectSettingStatus({
       projectId: this.props.projectId,
       status: tag,
       isLark: this.state.isLark,
+      isProxy: _.isUndefined(isProxy) ? this.state.isProxy : isProxy,
     }).then(res => {
       if (res) {
-        callback();
+        this.setState({ isProxy, isCloseDing: tag === 1 ? false : true });
+        if (isClose) {
+          this.props.onClose();
+          alert(_l('取消成功'));
+        }
+        if (!_.isUndefined(isProxy)) {
+          alert(_l('设置成功'));
+        }
       } else {
         integrationFailed(this.props.projectId);
       }
-    });
-  };
-
-  editDingStatus = num => {
-    this.editFeishuProjectSettingStatus(num, () => {
-      this.setState({
-        isCloseDing: !this.state.isCloseDing,
-      });
     });
   };
 
@@ -251,14 +267,19 @@ export default class FeiShu extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 Gray_75 Right closeDing">
-              <span
-                className="mLeft10 switchBtn tip-bottom-left"
-                data-tip={
+              <Tooltip
+                title={
                   isLark ? _l('关闭Lark集成后，无法再从Lark处进入应用') : _l('关闭飞书集成后，无法再从飞书处进入应用')
                 }
+                placement="bottomLeft"
               >
-                <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
-              </span>
+                <span className="mLeft10 switchBtn">
+                  <Switch
+                    checked={!this.state.isCloseDing}
+                    onClick={checked => this.editFeishuProjectSettingStatus({ tag: checked ? 2 : 1 })}
+                  />
+                </span>
+              </Tooltip>
             </span>
           )}
           {!this.state.isCloseDing && this.state.show2 && (
@@ -333,6 +354,7 @@ export default class FeiShu extends React.Component {
       this.getInitialPassword();
     }
   };
+
   render() {
     const { projectId } = this.props;
     const {
@@ -345,6 +367,9 @@ export default class FeiShu extends React.Component {
       isLark,
       isEditing,
       ddMessagUrlPcSlide,
+      enableTodo,
+      approveName,
+      isProxy,
     } = this.state;
 
     if (this.state.pageLoading) {
@@ -381,15 +406,14 @@ export default class FeiShu extends React.Component {
               })}
             </div>
           </div>
+          <EnabledWebProxy
+            isProxy={isProxy}
+            handleChangeProxy={checked =>
+              this.editFeishuProjectSettingStatus({ tag: this.state.isCloseDing ? 2 : 1, isProxy: !checked })
+            }
+          />
           {!this.state.isCloseDing && AppId && AppSecret && (
-            <CancelIntegration
-              clickCancel={() =>
-                this.editFeishuProjectSettingStatus(2, () => {
-                  this.props.onClose();
-                  alert(_l('取消成功'));
-                })
-              }
-            />
+            <CancelIntegration clickCancel={() => this.editFeishuProjectSettingStatus({ tag: 2, isClose: true })} />
           )}
         </div>
         <div className="orgManagementContent">
@@ -424,6 +448,14 @@ export default class FeiShu extends React.Component {
                 disabled={isCloseDing}
                 value={ddMessagUrlPcSlide}
                 onChange={value => this.setState({ ddMessagUrlPcSlide: value })}
+              />
+              <ProcessSync
+                projectId={projectId}
+                isLark={isLark}
+                enableTodo={enableTodo}
+                approveName={approveName}
+                getFeishuProjectSettingInfo={this.getFeishuProjectSettingInfo}
+                updateState={state => this.setState(state)}
               />
             </Fragment>
           )}

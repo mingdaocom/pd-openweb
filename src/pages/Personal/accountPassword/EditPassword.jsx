@@ -74,8 +74,11 @@ export default class EditPassword extends Component {
             _l('为了保障账户安全，如果您有安装APP，%0APP将自动登出，建议您重新登录确保可以正常收到推送', '<br />') +
             '</div>';
           //  保存成功
-          alert(message, 1, 5000, function () {
-            navigateToLogout();
+          alert({
+            msg: message,
+            onClose: () => {
+              navigateToLogout();
+            },
           });
         } else if (data === 6) {
           // /*旧密码错误*/

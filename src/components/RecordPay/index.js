@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { handleShare } from 'worksheet/common/recordInfo/handleRecordShare';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -140,7 +141,7 @@ export default function RecordPay(props) {
       {!isPayShare &&
         isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) &&
         !md.global.Account.isPortal && (
-          <Tooltip popupPlacement="bottom" text={_l('发送给其他人付款')}>
+          <Tooltip placement="bottom" title={_l('发送给其他人付款')}>
             <PayShare onClick={handlePayShare}>
               <i className="icon icon-Collection LineHeight32 Font20 Hand" />
             </PayShare>

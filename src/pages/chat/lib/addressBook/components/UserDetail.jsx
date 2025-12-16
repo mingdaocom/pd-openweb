@@ -147,6 +147,9 @@ export default class UserDetail extends React.Component {
       data: { avatar, fullname, userCards = [], accountId, isContact },
     } = this.state;
     const companyName = _.get(userCards, '[0].companyName');
+    const commonOrg = _.filter(userCards, card =>
+      _.some(_.get(md, 'global.Account.projects', []), project => project.projectId === card.projectId),
+    );
 
     return (
       <React.Fragment>
@@ -155,8 +158,8 @@ export default class UserDetail extends React.Component {
           <div className="detail-header-info flexRow">
             <div className="flex ellipsis pRight10">
               <div className="ellipsis bold">{fullname}</div>
-              {userCards.length > 1 ? (
-                <div className="ThemeColor">{_l('%0个共同组织', userCards.length)}</div>
+              {accountId !== md.global.Account.accountId && commonOrg.length > 0 ? (
+                <div className="ThemeColor">{_l('%0个共同组织', commonOrg.length)}</div>
               ) : companyName ? (
                 <div className="Gray_75 ellipsis Font14">{companyName}</div>
               ) : (

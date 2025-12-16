@@ -100,7 +100,7 @@ export default function NavGroup(props) {
       let list = ['', ...navfilters, 'null'];
       const data = navData;
       navData = [];
-      list.map(it => {
+      list.forEach(it => {
         navData = navData.concat(data.find(o => o.value === it));
       });
       navData = navData.filter(o => !!o);

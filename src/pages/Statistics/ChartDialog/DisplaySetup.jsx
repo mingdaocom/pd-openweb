@@ -3,15 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import { reportTypes } from '../Charts/common';
-import { chartNav, isTimeControl } from '../common';
+import { chartNav } from '../common';
 import HeaderDisplaySetup from '../components/HeaderDisplaySetup';
 import * as actions from '../redux/actions.js';
 
 const DisplaySetup = ({ settingVisible, currentReport, reportData, changeCurrentReport, children }) => {
   const isDualAxes = reportTypes.DualAxes === currentReport.reportType;
   const { xaxes, displaySetup, yreportType, sorts } = currentReport;
-  const controlType = _.get(xaxes, ['controlType']);
-  const xAxisisTime = isTimeControl(controlType);
   return (
     <div className="chartHeader mBottom10">
       <div className="flexRow valignWrapper Font13 Gray_75">
@@ -25,7 +23,6 @@ const DisplaySetup = ({ settingVisible, currentReport, reportData, changeCurrent
                 displaySetup={displaySetup}
                 mapKeys={Object.keys(reportData.map || [])}
                 reportType={isDualAxes ? yreportType : reportData.reportType}
-                xAxisisTime={xAxisisTime}
                 onUpdateDisplaySetup={(data, name) => {
                   if (name === 'default') {
                     changeCurrentReport(
@@ -60,7 +57,6 @@ const DisplaySetup = ({ settingVisible, currentReport, reportData, changeCurrent
                   displaySetup={currentReport.rightY.display}
                   mapKeys={Object.keys(reportData.contrastMap || [])}
                   reportType={currentReport.rightY.reportType}
-                  xAxisisTime={xAxisisTime}
                   onUpdateDisplaySetup={data => {
                     changeCurrentReport({
                       rightY: {

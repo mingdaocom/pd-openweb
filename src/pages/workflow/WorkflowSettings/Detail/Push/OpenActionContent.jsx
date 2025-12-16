@@ -6,7 +6,7 @@ import homeApp from 'src/api/homeApp';
 import worksheet from 'src/api/worksheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { PUSH_TYPE } from '../../enum';
-import { CustomTextarea, SelectNodeObject } from '../components';
+import { CustomTextarea, SelectNodeObject, SpecificFieldsValue } from '../components';
 
 export default class OpenActionContent extends Component {
   state = {
@@ -234,6 +234,41 @@ export default class OpenActionContent extends Component {
             );
           })}
         </div>
+
+        {data.openMode === 4 && (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('模态窗口大小')}</div>
+            <div className="Font13 mTop10">{_l('宽度（px）')}</div>
+            <div className="mTop5">
+              <SpecificFieldsValue
+                type="number"
+                min={400}
+                max={2000}
+                hasOtherField={false}
+                allowedEmpty
+                data={{ fieldValue: data.windowSize?.width !== undefined ? data.windowSize.width : 800 }}
+                updateSource={({ fieldValue }) =>
+                  updateSource({ windowSize: { ...data.windowSize, width: parseInt(fieldValue) || '' } })
+                }
+              />
+            </div>
+
+            <div className="Font13 mTop10">{_l('高度（px）')}</div>
+            <div className="mTop5">
+              <SpecificFieldsValue
+                type="number"
+                min={300}
+                max={1200}
+                hasOtherField={false}
+                allowedEmpty
+                data={{ fieldValue: data.windowSize?.height !== undefined ? data.windowSize.height : 600 }}
+                updateSource={({ fieldValue }) =>
+                  updateSource({ windowSize: { ...data.windowSize, height: parseInt(fieldValue) || '' } })
+                }
+              />
+            </div>
+          </Fragment>
+        )}
       </Fragment>
     );
   }

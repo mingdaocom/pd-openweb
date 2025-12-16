@@ -154,7 +154,7 @@ export default function (props) {
           } else if (isSameType([27], props.controlInfo)) {
             addDep(e, true);
           } else if (isSameType([48], props.controlInfo)) {
-            addRole(e, true);
+            addRole(e);
           } else {
             onAdd(num);
           }

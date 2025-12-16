@@ -3,6 +3,7 @@ import { Switch } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { LogoWrap } from 'src/pages/integration/apiIntegration/style';
 import { formatDate, publishStatus2Text } from 'src/pages/integration/config';
 
@@ -55,6 +56,7 @@ const Wrap = styled.div`
     }
     .StatusTxt {
       opacity: 0;
+      z-index: -1;
     }
   }
   .statusBox {
@@ -117,39 +119,45 @@ function APICard(props) {
           >{`${formatDate(props.item.lastModifiedDate)} ${publishStatus2Text[props.item.publishStatus]}`}</span>
         )}
         <div className="optionCon mLeft40">
-          <span data-tip={_l('日志')}>
-            <Icon
-              className="Font18 Hand InlineBlock"
-              icon="restore2"
-              onClick={() => {
-                props.onOpenLog(props.item);
-              }}
-            />
-          </span>
-          <span data-tip={_l('复制')} className="mLeft25">
-            <Icon
-              className={cx('Font18 InlineBlock', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
-              icon="copy"
-              onClick={() => {
-                if (!props.canEdit) {
-                  return;
-                }
-                props.onCopyProcess(props.item);
-              }}
-            />
-          </span>
-          <span data-tip={_l('删除')} className="mLeft25">
-            <Icon
-              className={cx('Font18 InlineBlock del', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
-              icon="trash"
-              onClick={() => {
-                if (!props.canEdit) {
-                  return;
-                }
-                props.onDel && props.onDel(props.item);
-              }}
-            />
-          </span>
+          <Tooltip title={_l('日志')}>
+            <span>
+              <Icon
+                className="Font18 Hand InlineBlock"
+                icon="restore2"
+                onClick={() => {
+                  props.onOpenLog(props.item);
+                }}
+              />
+            </span>
+          </Tooltip>
+          <Tooltip title={_l('复制')}>
+            <span className="mLeft25">
+              <Icon
+                className={cx('Font18 InlineBlock', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
+                icon="copy"
+                onClick={() => {
+                  if (!props.canEdit) {
+                    return;
+                  }
+                  props.onCopyProcess(props.item);
+                }}
+              />
+            </span>
+          </Tooltip>
+          <Tooltip title={_l('删除')}>
+            <span className="mLeft25">
+              <Icon
+                className={cx('Font18 InlineBlock del', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
+                icon="trash"
+                onClick={() => {
+                  if (!props.canEdit) {
+                    return;
+                  }
+                  props.onDel && props.onDel(props.item);
+                }}
+              />
+            </span>
+          </Tooltip>
         </div>
       </div>
     </Wrap>

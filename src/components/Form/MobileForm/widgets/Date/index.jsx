@@ -57,12 +57,18 @@ const DateWidget = props => {
     if (/^\d+$/.test(String(_value)) && String(_value).length < 5) {
       _value = '';
     }
-    const currentMinute = moment().minute();
-    const defaultValue =
-      timeInterval === 1 ? new Date() : moment().minute(currentMinute - (currentMinute % timeInterval));
+    const isLocationBegin = !!minDate && advancedSetting.locationbegin === '1';
+    const defaultDate = isLocationBegin ? moment(minDate) : moment();
+
+    const currentMinute = defaultDate.minute();
+    const baseMinute = currentMinute - (currentMinute % timeInterval);
+    const adjustedMinute = isLocationBegin ? baseMinute + timeInterval : baseMinute;
+
+    const defaultValue = timeInterval === 1 ? defaultDate.toDate() : defaultDate.clone().minute(adjustedMinute);
+
     const _dateTime = _value ? (type === 15 || notConvertZone ? _value : dateConvertToUserZone(_value)) : defaultValue;
     setDateTime(_dateTime);
-  }, [value, type, notConvertZone, advancedSetting.timeinterval]);
+  }, [value, type, notConvertZone, minDate, advancedSetting.timeinterval, advancedSetting.locationbegin]);
 
   useEffect(() => {
     setDateProps(getDatePickerConfigs(props));

@@ -316,7 +316,6 @@ export default function SubmitConfig(params) {
                   <div className="flexRow conLi alignItemsCenter">
                     <Radio
                       className=""
-                      // text={o.name}
                       checked={o.id === CommitId}
                       onClick={() => {
                         const { plugin_attachement_info } = _.get(view, 'advancedSetting');

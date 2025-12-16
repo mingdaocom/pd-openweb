@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TimePicker, Tooltip } from 'antd';
+import { TimePicker } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import zh_CN from 'antd/es/date-picker/locale/zh_CN';
@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dropdown, Icon, Input, LoadDiv, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import datasourceApi from 'src/pages/integration/api/datasource';
 import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig';
 import { navigateTo } from 'src/router/navigateTo';
@@ -333,7 +334,6 @@ export default function TimingSetting(props) {
               />
               {_.get(setting, 'config.basisField.basisFieldType') === 'date' && (
                 <Tooltip
-                  autoCloseDelay={0}
                   title={
                     <React.Fragment>
                       <div>{_l('YYYY 表示四位数的年份')}</div>

@@ -13,6 +13,7 @@ module.exports = [
       'src/pages/calendar/modules/calendarControl/**',
       'src/pages/integration/svgIcon.js',
       'src/pages/workflow/api/*',
+      'src/pages/workflow/apiV2/*',
       'src/pages/Statistics/api/*',
       'src/pages/integration/api/*',
       'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/examples/**',
@@ -67,6 +68,7 @@ module.exports = [
         WeixinJSBridge: false,
         google: false,
         TencentCaptcha: false,
+        VConsole: false,
       },
     },
 

@@ -45,14 +45,14 @@ function getParams() {
 export function getAttachment() {
   const { type, id, getType } = getParams();
   if (!id) {
-    return Promise.reject();
+    throw new Error();
   }
   switch (type) {
     case 'kc_share':
       return shareAjax.getShareNode({ shareId: id }).then(r => {
         if (r.actionResult === 2) {
           login();
-          return Promise.reject();
+          throw new Error();
         } else {
           return { ...r, node: { ...r.node, isKc: true } };
         }
@@ -92,6 +92,6 @@ export function getAttachment() {
           alert(_l('获取附件详情失败'), 2);
         });
     default:
-      return Promise.reject();
+      throw new Error();
   }
 }

@@ -5,6 +5,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -60,10 +61,6 @@ export default class KcListHeader extends Component {
       this.setState({ showAddNodeBtnMenu: true });
     }
   };
-  // 临时
-  addNewFolder() {}
-  selectAll() {}
-  removeNode() {}
   render() {
     const {
       currentRoot,
@@ -161,19 +158,27 @@ export default class KcListHeader extends Component {
         )}
 
         <div className="kcRightHeadOperate boxSizing">
-          <span className="tip-con" data-tip={_l('文件详情')}>
-            <i
-              className={cx('icon-info showDetail ThemeHoverColor3', { ThemeColor3: isPinDetail }, { hide: isRecycle })}
-              ref="toggleDetailAndTogglePinBtn"
-              onClick={toggleDetailAndTogglePin}
-            />
-          </span>
-          <span className="tip-con" data-tip={isList ? _l('切换为缩略图') : _l('切换为列表')}>
-            <i
-              className={cx('ThemeHoverColor3', { hide: isRecycle }, isList ? 'icon-home-navigation' : 'icon-list')}
-              onClick={changeKcView}
-            />
-          </span>
+          <Tooltip title={_l('文件详情')}>
+            <span className="tip-con InlineBlock">
+              <i
+                className={cx(
+                  'icon-info showDetail ThemeHoverColor3',
+                  { ThemeColor3: isPinDetail },
+                  { hide: isRecycle },
+                )}
+                ref="toggleDetailAndTogglePinBtn"
+                onClick={toggleDetailAndTogglePin}
+              />
+            </span>
+          </Tooltip>
+          <Tooltip title={isList ? _l('切换为缩略图') : _l('切换为列表')}>
+            <span className="tip-con InlineBlock">
+              <i
+                className={cx('ThemeHoverColor3', { hide: isRecycle }, isList ? 'icon-home-navigation' : 'icon-list')}
+                onClick={changeKcView}
+              />
+            </span>
+          </Tooltip>
 
           <Trigger
             popupVisible={showAddNodeBtnMenu}

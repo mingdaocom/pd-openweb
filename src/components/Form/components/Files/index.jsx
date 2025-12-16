@@ -1,5 +1,6 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { ConfigProvider } from 'antd';
+import { left } from '@antv/x6/lib/registry/node-anchor/bbox';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -17,6 +18,7 @@ import ImageCard from './ImageCard';
 import LargeImageCard from './LargeImageCard';
 import ListCard, { ListCardHeader } from './ListCard';
 import SmallCard from './SmallCard';
+import WaitingUpload from './WaitingUpload';
 import './index.less';
 
 const showTypes = {
@@ -79,7 +81,7 @@ const renderSortableItem = props => {
   const fileProps = {
     isMdFile,
     isKc,
-    wpsEditUrl: wpsEditUrls[data.fileID],
+    wpsEditUrl: allowEditName ? wpsEditUrls[data.fileID] : undefined,
     allowShare: (data.ext || '').includes('url') ? false : allowShare,
   };
 
@@ -115,8 +117,33 @@ const renderSortableItem = props => {
 };
 
 const SortableListWrap = props => {
-  const { list, className, smallSize, style, ref, isListCard, canDrag, ...otherProps } = props;
+  const {
+    list,
+    className,
+    smallSize,
+    style,
+    ref,
+    isListCard,
+    canDrag,
+    temporaryAttachments = [],
+    ...otherProps
+  } = props;
+  let waitingAttachments = [];
+  if (isMobile) {
+    waitingAttachments =
+      temporaryAttachments?.filter(item => {
+        const progress = Number(item?.progress);
+        const existsInList = list?.some(l => l.id === item?.id);
+        return !isNaN(progress) && progress === 0 && !existsInList;
+      }) ?? [];
+  }
+
   const { showType } = props;
+
+  const removeUploadingFile = file => {
+    props.removeUploadingFile?.(file);
+  };
+
   return (
     <div
       style={style}
@@ -134,7 +161,12 @@ const SortableListWrap = props => {
           renderItem={options => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={otherProps.onSortEnd}
         />
-        {['1', '2'].includes(showType) &&
+        {isMobile &&
+          waitingAttachments?.map(item => (
+            <WaitingUpload key={item.id} type={showType} file={item} removeUploadingFile={removeUploadingFile} />
+          ))}
+        {!isMobile &&
+          ['1', '2'].includes(showType) &&
           Array.from({ length: 10 }).map((_, index) => (
             <i
               key={index}
@@ -468,7 +500,8 @@ const Files = props => {
       allowedit === '1' &&
       ((onlyeditself === '1' && md.global.Account.accountId === file.accountId) || onlyeditself !== '1') &&
       isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true) &&
-      !_.get(window, 'shareState.shareId')
+      !_.get(window, 'shareState.shareId') &&
+      (md.global.Config.IsLocal ? md.global.Config.EnableDocEdit : true)
     ) {
       let attachmentShareId;
       if (!controlId) {

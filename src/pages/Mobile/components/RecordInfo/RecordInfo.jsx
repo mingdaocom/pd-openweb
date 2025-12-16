@@ -16,13 +16,16 @@ import { handleSubmitDraft, loadRecord, updateRecord } from 'worksheet/common/re
 import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import RecordEditLock from 'worksheet/common/recordInfo/RecordEditLock';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
-import { isPublicLink } from 'src/components/newCustomFields/tools/utils';
+import { checkRuleLocked } from 'src/components/Form/core/formUtils';
+import { isPublicLink } from 'src/components/Form/core/utils';
+import ShareCardConfig from 'src/components/ShareCardConfig';
+import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getTranslateInfo } from 'src/utils/app';
 import { emitter } from 'src/utils/common';
 import { getRowGetType, KVGet, removeTempRecordValueFromLocal, saveTempRecordValueToLocal } from 'src/utils/common';
+import { renderText as renderCellText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { getRecordTempValue } from 'src/utils/record';
@@ -280,8 +283,21 @@ export default class RecordInfo extends Component {
           this.getPortalConfigSet();
           if (_.isFunction(this.props.updateRow) && !data.isViewData && _.isFunction(this.props.onClose)) {
             const rowData = safeParse(data.rowData);
-            this.props.updateRow(recordId, _.omit(rowData, ['allowedit', 'allowdelete']), rowData.isviewdata);
+            this.props.updateRow({
+              recordId,
+              rowData: _.omit(rowData, ['allowedit', 'allowdelete']),
+              isViewData: rowData.isviewdata,
+            });
             this.props.onClose();
+          }
+          if (window.isWeiXin) {
+            ShareCardConfig({
+              title: renderCellText((data.formData || []).find(o => o.attribute === 1)),
+              projectId: recordInfo?.projectId,
+              controls: data.formData,
+              worksheetId,
+              type: SHARECARDTYPS.RECORD,
+            });
           }
         },
       );
@@ -352,7 +368,7 @@ export default class RecordInfo extends Component {
     } else if (!isPublic && getDataType !== 21) {
       const showDiscuss = isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId);
       const showApprove = isOpenPermit(permitList.approveDetailsSwitch, switchPermit, viewId);
-      if (showDiscuss || showApprove) {
+      if (appId && (showDiscuss || showApprove)) {
         // 非同一个应用且讨论或审批没有关闭 去获取外部门户讨论设置
         try {
           portalConfigSet = await externalPortalApi.getConfig({ appId });
@@ -516,6 +532,13 @@ export default class RecordInfo extends Component {
     );
   };
   handleTriggerSave = ({ draftType } = {}) => {
+    if (
+      $('.customFormFileBox').find('.uploadingProcessCircle').length ||
+      $('.customFormFileBox').find('.fileUpdateLoading').length
+    ) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
     this.draftType = draftType;
     this.confirmHandler && this.confirmHandler.close();
     this.setState({
@@ -643,7 +666,11 @@ export default class RecordInfo extends Component {
         this.setState({ submitLoading: false });
         if (!err) {
           const formData = tempFormData.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
-          updateRow(recordBase.recordId, _.omit(resdata, ['allowedit', 'allowdelete']), resdata.isviewdata);
+          updateRow({
+            recordId: recordBase.recordId,
+            rowData: _.omit(resdata, ['allowedit', 'allowdelete']),
+            isViewData: resdata.isviewdata,
+          });
           updateEditStatus(false);
           updateRelateRecord && updateRelateRecord(formData);
           // 更新草稿列表
@@ -711,6 +738,7 @@ export default class RecordInfo extends Component {
         workId={workId}
         instanceId={instanceId}
         formData={tempFormData}
+        worksheetInfo={worksheetInfo}
         loadRecord={() => {
           this.loadRecord();
           this.getPayConfig();
@@ -807,6 +835,23 @@ export default class RecordInfo extends Component {
             return;
           }
           this.handleTriggerSave(getDataType === 21 ? { draftType: 'save' } : undefined);
+        }}
+        onUpdate={(changedValue, record) => {
+          let newValue = { ...changedValue };
+          if (_.filter(tempFormData, c => c.type === 34 && changedValue[c.controlId]).length) {
+            newValue = _.omit(record, ['allowedit', 'allowdelete']);
+          }
+          const newFormData = tempFormData.map(c =>
+            _.assign({}, c, {
+              value: !_.isUndefined(newValue[c.controlId]) ? newValue[c.controlId] : c.value,
+            }),
+          );
+          Object.keys(changedValue).forEach(key => {
+            if (_.isFunction(this.refreshEvents[key])) {
+              this.refreshEvents[key]();
+            }
+          });
+          this.setState({ tempFormData: newFormData });
         }}
         {...this.props}
       />
@@ -978,7 +1023,7 @@ export default class RecordInfo extends Component {
       return null;
 
     const needLoad = !loadedRecordsOver && currentSheetRows.length >= 20;
-    const hidePre = !needLoad && !currentSheetRows[currentRecordIndex - 1];
+    const hidePre = (!needLoad && !currentSheetRows[currentRecordIndex - 1]) || currentRecordIndex === 0;
     const hideNext = !needLoad && !currentSheetRows[currentRecordIndex + 1];
 
     return (
@@ -1041,7 +1086,8 @@ export default class RecordInfo extends Component {
 
     const useWaterMark = !isModal && recordInfo.projectId;
     const Wrap = useWaterMark ? WaterMark : React.Fragment;
-
+    const hideStep =
+      (recordInfo.switchPermit || []).find(o => o.type === permitList.approveDetailsSwitch)?.displayFlowChart === 1;
     return (
       <Wrap {...(useWaterMark ? { projectId: recordInfo.projectId } : {})}>
         <div className={cx('recordInfoForm mobileSheetRowRecord flexColumn h100', `mobileSheetRowRecord-${recordId}`)}>
@@ -1096,6 +1142,7 @@ export default class RecordInfo extends Component {
             currentTab={currentTab}
             header={header}
             workflow={workflow}
+            hideStep={hideStep}
             payConfig={payConfig}
             worksheetInfo={worksheetInfo}
             isDraft={recordBase.from === RECORD_INFO_FROM.DRAFT || isDraft}

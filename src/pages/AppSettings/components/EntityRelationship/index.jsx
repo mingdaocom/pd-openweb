@@ -4,8 +4,9 @@ import { Scroller } from '@antv/x6-plugin-scroller';
 import { register } from '@antv/x6-react-shape';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Button, Icon, LoadDiv } from 'ming-ui';
 import { EditingBar } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
@@ -409,11 +410,12 @@ function EntityRelationship(props) {
   };
 
   const onCreate = async (type, param) => {
-    const { name } = param;
+    const { name, remark } = param;
     const res = await appManagementApi.addWorkSheet({
       appId,
       appSectionId: props.data.sections[0].appSectionId,
       name,
+      remark,
       icon: 'table',
       type: 0,
     });
@@ -580,13 +582,13 @@ function EntityRelationship(props) {
         <span className="Font13 Gray percent">{`${Math.round(percent * 100)}%`}</span>
         <Icon icon="minus" className="Gray_75 Font19 Hand Hover_21 mRight20" onClick={() => setGraphZoom(false)} />
         <Icon icon="add1" className="Gray_75 Font19 Hand mRight20 Hover_21 " onClick={() => setGraphZoom(true)} />
-        <Tooltip text={_l('适合画布(cmd+0)')}>
+        <Tooltip title={_l('适合画布(cmd+0)')}>
           <Icon icon="full_screen" className="Gray_75 Font20 Hand mRight20 Hover_21" onClick={onFitRect} />
         </Tooltip>
-        <Tooltip text={_l('等比显示')}>
+        <Tooltip title={_l('等比显示')}>
           <Icon icon="enlarge" className="Gray_75 restore Hand Font20 Hover_21 mRight20" onClick={onRestore} />
         </Tooltip>
-        <Tooltip text={_l('显示全部字段')}>
+        <Tooltip title={_l('显示全部字段')}>
           <Icon
             icon="expand_all"
             className="Gray_75 restore Hand Font20 Hover_21"
@@ -594,13 +596,18 @@ function EntityRelationship(props) {
           />
         </Tooltip>
         <span className="splintLint"></span>
-        <Tooltip text={_l('导出为图片')}>
+        <Tooltip title={_l('导出为图片')}>
           <Icon icon="download" className="Gray_75 Font16 Hand Hover_21" onClick={onExport} />
         </Tooltip>
       </div>
 
       {createNewVisible && (
-        <CreateNew type={'worksheet'} onCreate={onCreate} onCancel={() => setCreateNewVisible(false)} />
+        <CreateNew
+          hideHeader={true}
+          type={'worksheet'}
+          onCreate={onCreate}
+          onCancel={() => setCreateNewVisible(false)}
+        />
       )}
 
       {!!filterWorksheet && (
@@ -614,12 +621,15 @@ function EntityRelationship(props) {
                 getTranslateInfo(appId, null, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
               )}
               <Tooltip
-                themeColor="white"
-                autoCloseDelay={0}
-                text={_l(
-                  '仅显示%0的关联关系，退出后可显示所有工作表',
-                  getTranslateInfo(appId, null, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
-                )}
+                type="white"
+                title={
+                  <span>
+                    {_l(
+                      '仅显示%0的关联关系，退出后可显示所有工作表',
+                      getTranslateInfo(appId, null, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
+                    )}
+                  </span>
+                }
               >
                 <Icon icon="info_outline" className="White Font16 mLeft6" />
               </Tooltip>

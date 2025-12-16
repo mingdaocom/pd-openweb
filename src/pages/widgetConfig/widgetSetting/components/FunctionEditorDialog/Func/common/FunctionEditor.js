@@ -2,6 +2,7 @@ import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import CodeMirror from 'codemirror';
 import _, { get, identity, isEmpty } from 'lodash';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
 import { checkTypeSupportForFunction } from 'src/utils/control';
@@ -37,6 +38,7 @@ function createElement(text, style = {}, { tooltip } = {}) {
     dom.style[key] = style[key];
   });
   if (tooltip) {
+    dom.setAttribute('title', tooltip);
     dom.setAttribute('data-tip', tooltip);
     dom.classList.add('tip-right', 'tip-no-animation', 'tip-red');
   }

@@ -33,7 +33,19 @@ export default function MoreMenu(props) {
       from={from}
       hideFav={hideFav}
       showDeleteHr={false}
-      shows={['share', 'share', 'print', 'copy', 'copyId', 'editform', 'recreate', 'openinnew', 'fav', 'lock']}
+      shows={[
+        'share',
+        'share',
+        'print',
+        'copy',
+        'copyId',
+        'editform',
+        'recreate',
+        'openinnew',
+        'fav',
+        'lock',
+        'version',
+      ]}
       isCharge={isCharge}
       isAdmin={roleType === 2}
       allowDelete={allowDelete}

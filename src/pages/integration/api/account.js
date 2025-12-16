@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var account = {
-
+const account = {
   /**
    * 获取用户信息
    *
@@ -34,7 +33,7 @@ var account = {
     base.ajaxOptions.url = base.server(options) + 'account/getAccounts';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'accountgetAccounts', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default account;

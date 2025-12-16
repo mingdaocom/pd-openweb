@@ -3,7 +3,6 @@ import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { validate } from 'uuid';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { getTitleControlId, getTitleTextFromRelateControl } from '../../../core/utils';
 import { getRecordCardStyle } from '../../tools/utils';
@@ -13,13 +12,13 @@ const Con = styled.div`
   position: relative;
   width: 100%;
   border-radius: 3px;
-  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--color-third)'};
+  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--color-background-primary)'};
   border: 1px solid
     ${({ borderColor, canSelect, selected }) => {
       if (canSelect) {
-        return selected ? 'var(--color-primary)' : 'var(--gray-e0)';
+        return selected ? 'var(--color-primary)' : 'var(--color-border-primary)';
       }
-      return borderColor || 'var(--gray-e0)';
+      return borderColor || 'var(--color-border-primary)';
     }};
 
   & + & {
@@ -30,7 +29,7 @@ const Con = styled.div`
     position: absolute;
     top: 0;
     right: 0;
-    border: 17px solid ${({ selected }) => (selected ? 'var(--color-primary)' : 'var(--gray-e0)')};
+    border: 17px solid ${({ selected }) => (selected ? 'var(--color-primary)' : 'var(--color-border-primary)')};
     border-left-color: transparent;
     border-bottom-color: transparent;
   }
@@ -40,7 +39,7 @@ const Con = styled.div`
     top: 1px;
     right: 1px;
     font-size: 18px;
-    color: var(--color-third);
+    color: var(--color-background-primary);
   }
 
   .removeBtn {
@@ -49,7 +48,7 @@ const Con = styled.div`
     right: 0;
     transform: translate(50%, -50%);
     font-size: 26px;
-    color: var(--gray-9e);
+    color: var(--color-text-tertiary);
   }
 
   .exchangeBtn {
@@ -58,7 +57,7 @@ const Con = styled.div`
     right: 9px;
     transform: translate(-50%, -50%);
     font-size: 26px;
-    color: var(--gray-9e);
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -71,7 +70,7 @@ const Title = styled.div`
   width: 100%;
   font-weight: bold;
   line-height: 1.5;
-  color: var(--color-secondary);
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -141,7 +140,11 @@ export default function RecordCoverCard(props) {
   const recordCardStyle = getRecordCardStyle(parentControl);
   const title =
     props.title ||
-    (data.rowid && validate(data.rowid)
+    (data.rowid &&
+    !data.rowid.startsWith('temp-') &&
+    !data.rowid.startsWith('public-temp') &&
+    !data.rowid.startsWith('default-') &&
+    !data.rowid.startsWith('delete')
       ? getTitleTextFromRelateControl(parentControl, data, { noMask: forceShowFullValue })
       : _l('关联当前%0', sourceEntityName));
   const titleControlId = getTitleControlId(parentControl);

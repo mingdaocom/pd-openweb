@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, Input, LoadDiv, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Icon, Input, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import roleApi from 'src/api/role';
 import { getCheckedPermissionIds } from '../utils';
 import PermissionList from './PermissionList';
@@ -121,7 +122,7 @@ export default function CreateEditRole(props) {
                     text={_l('允许成员自行加人')}
                     onClick={() => setRoleInfo({ allowAddMembers: !roleInfo.allowAddMembers })}
                   />
-                  <Tooltip text={_l('勾选后，角色下成员可以添加、移除其他成员')} popupPlacement="topLeft">
+                  <Tooltip title={_l('勾选后，角色下成员可以添加、移除其他成员')} placement="topLeft">
                     <Icon icon="info_outline" className="Gray_9e Font16 mLeft4" />
                   </Tooltip>
                 </React.Fragment>

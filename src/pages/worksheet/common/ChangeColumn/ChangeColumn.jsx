@@ -25,6 +25,7 @@ export default class ChangeColumn extends Component {
     onChange: PropTypes.func,
     showTabs: PropTypes.bool,
     showOperate: PropTypes.bool, // 显示全显示、全隐藏操作
+    disabled: PropTypes.bool, // 能否操作
   };
   static defaultProps = {
     layout: 1,
@@ -35,6 +36,7 @@ export default class ChangeColumn extends Component {
     placeholder: _l('搜索字段'),
     showTabs: false,
     showOperate: true,
+    disabled: false,
   };
 
   constructor(props) {
@@ -198,6 +200,7 @@ export default class ChangeColumn extends Component {
       hideReset,
       showOperate,
       forbiddenScroll,
+      disabled,
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
     const filteredColumns = sortControlByIds(columns, controlsSorts).filter(
@@ -279,6 +282,7 @@ export default class ChangeColumn extends Component {
         )}
         <div className="sortableList flex" style={{ maxHeight }}>
           <SortableColumn
+            disabled={disabled}
             canDrag={dragable && !search}
             items={filteredColumns}
             focusControlId={focusControlId}

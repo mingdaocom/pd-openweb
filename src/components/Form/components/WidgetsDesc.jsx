@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
-import { Linkify, Tooltip } from 'ming-ui';
+import { Linkify } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import { FROM } from '../core/config';
 
@@ -72,7 +73,7 @@ class WidgetsDesc extends React.Component {
     return (
       <span className="descBoxInfo">
         <Tooltip
-          text={
+          title={
             <span
               className="Block"
               style={{
@@ -86,10 +87,9 @@ class WidgetsDesc extends React.Component {
               {item.desc}
             </span>
           }
-          action={[isMobile ? 'click' : 'hover']}
-          popupPlacement={'topLeft'}
-          offset={[-12, 0]}
-          autoCloseDelay={0}
+          trigger={[isMobile ? 'click' : 'hover']}
+          placement="topLeft"
+          align={{ offset: [-12, 0] }}
         >
           <i className="icon-info_outline pointer Font16 Gray_9e mLeft3 InlineBlock" />
         </Tooltip>

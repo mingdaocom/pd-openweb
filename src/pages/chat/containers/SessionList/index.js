@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, ScrollView, Tooltip } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -543,13 +544,11 @@ class SessionList extends Component {
                   {chatCount ? _l('%0条新消息', chatCount) : _l('暂无新消息')}
                 </div>
               </div>
-              <div
-                data-tip={_l('忽略全部消息')}
-                className="tip-left clearAll"
-                onClick={this.handleClearAllCount.bind(this, visible)}
-              >
-                <i className="icon-clean_all ThemeColor3"></i>
-              </div>
+              <Tooltip title={_l('忽略全部消息')} placement="left">
+                <div className="clearAll" onClick={this.handleClearAllCount.bind(this, visible)}>
+                  <i className="icon-clean_all ThemeColor3"></i>
+                </div>
+              </Tooltip>
             </Fragment>
           )}
           {socketState === 1 && (
@@ -569,9 +568,11 @@ class SessionList extends Component {
                 <h3 className="ThemeColor10">{_l('消息')}</h3>
                 <div className="text red">{_l('网络已断开')}</div>
               </div>
-              <div data-tip={_l('刷新页面')} className="tip-left clearAll" onClick={() => location.reload()}>
-                <i className="icon-network_disconnection red"></i>
-              </div>
+              <Tooltip title={_l('刷新页面')} placement="left">
+                <div className="clearAll" onClick={() => location.reload()}>
+                  <i className="icon-network_disconnection red"></i>
+                </div>
+              </Tooltip>
             </Fragment>
           )}
         </div>
@@ -586,10 +587,7 @@ class SessionList extends Component {
           }}
         >
           {socketState === 0 && (
-            <Tooltip
-              popupPlacement="left"
-              text={<span>{chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}</span>}
-            >
+            <Tooltip placement="left" title={chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}>
               <div className="SessionList-bell" style={{ cursor: chatCount ? 'pointer' : 'initial' }}>
                 <i className="icon-notifications"></i>
                 {chatCount ? <span>{chatCount >= 99 ? '99+' : chatCount}</span> : undefined}
@@ -597,14 +595,14 @@ class SessionList extends Component {
             </Tooltip>
           )}
           {socketState === 1 && (
-            <Tooltip popupPlacement="left" text={<span>{_l('网络已断开，正在重新连接')}</span>}>
+            <Tooltip placement="left" title={_l('网络已断开，正在重新连接')}>
               <div className="SessionList-bell">
                 <LoadDiv size="small" />
               </div>
             </Tooltip>
           )}
           {socketState === 2 && (
-            <Tooltip popupPlacement="left" text={<span>{_l('网络已断开，点击刷新页面')}</span>}>
+            <Tooltip placement="left" title={_l('网络已断开，点击刷新页面')}>
               <div className="SessionList-bell" onClick={() => location.reload()}>
                 <i className="icon-network_disconnection red Font20"></i>
               </div>
@@ -673,7 +671,7 @@ class SessionList extends Component {
               document.querySelector('.toolbarWrap .sessionList').click();
             }}
           >
-            <Tooltip text={chatCount ? _l('未读消息') : _l('展开')} popupPlacement="left" offset={[-3, 0]}>
+            <Tooltip title={chatCount ? _l('未读消息') : _l('展开')} placement="left" align={{ offset: [-3, 0] }}>
               <div className="countWrap pointer Font12">
                 {chatCount ? chatCount >= 99 ? '99+' : chatCount : <Icon icon="arrow-left-border" />}
               </div>

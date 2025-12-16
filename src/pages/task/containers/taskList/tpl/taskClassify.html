@@ -4,7 +4,7 @@
 <div class="persist-area {{=it.data['num_' + i] === 0 ? 'Hidden' : ''}}">
     <div class="taskListFolderName persist-header" data-type="{{= key }}">
         <i class="arrow-down {{= isCollapsed ? 'downArrow':''}}"></i>
-        <span class="listFolderNameTextList myTaskTip" data-tip="{{=it.TIPS[key] }}">{{=it.TYPES[key] }}</span>
+        <span class="listFolderNameTextList myTaskTip" title="{{=it.TIPS[key] }}">{{=it.TYPES[key] }}</span>
         <span class="stageTaskCount"></span>
     </div>
     <div class="listStageTaskContent" style="{{= isCollapsed ? 'display:none':'display:block'}}">
@@ -12,12 +12,12 @@
             <tbody>
                 {{ var tasks = it.data['classify_' + key], taskcount= tasks && tasks.length, type = parseInt(key); }}
                 {{~tasks:task:index}}
-                    {{?task.charge}}
-                        {{ var statusObj = it.formatStatus(task.status, task.locked, task.auth); }}
-                        #include.nodeCommTr
-                    {{??}}
-                        {{console.log(task);}}
-                    {{?}}
+                {{?task.charge}}
+                {{ var statusObj = it.formatStatus(task.status, task.locked, task.auth); }}
+                #include.nodeCommTr
+                {{??}}
+                {{console.log(task);}}
+                {{?}}
                 {{~}}
             </tbody>
         </table>

@@ -25,7 +25,7 @@ export default (callback = () => {}, onCancel = () => {}) => {
       width: 368,
       description: (
         <Fragment>
-          <input type="text" className="captchaInput" autoFocus />
+          <input type="text" className="captchaInput" autoFocus placeholder={_l('不区分大小写')} />
           <div className="captchaImg">
             <img src={getImgLink()} />
           </div>

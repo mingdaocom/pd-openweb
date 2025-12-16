@@ -160,7 +160,7 @@ export default class Options extends Component {
     }
     if (_.includes([19, 23, 24], control.type)) {
       const areaLevel = this.getAreaLevel(control.enumDefault2, type);
-      const { chooserange = 'CN' } = control.advancedSetting || {};
+      const { chooserange = 'CN', commcountries } = control.advancedSetting || {};
 
       return (
         <div className="worksheetFilterOptionsCondition" ref={con => (this.con = con)}>
@@ -169,27 +169,27 @@ export default class Options extends Component {
             destroyPopupOnHide
             defaultValue={undefined}
             chooserange={chooserange}
+            commcountries={commcountries}
             projectId={projectId}
             level={areaLevel}
             callback={area => {
               const last = _.last(area);
               search && this.setState({ keywords: undefined, search: '' });
-              const tempItem = _.find(selectedOptions, o => o.temp);
-
-              if (!tempItem) {
-                this.addItem({
-                  temp: true,
-                  id: last.id,
+              if (last) {
+                this.tempArea = {
                   name: last.path,
-                });
-              } else {
-                this.updateItem(tempItem.id, {
                   id: last.id,
-                  name: last.path,
-                });
+                };
               }
             }}
             handleClose={() => {
+              if (this.tempArea) {
+                this.addItem({
+                  temp: true,
+                  id: this.tempArea.id,
+                  name: this.tempArea.name,
+                });
+              }
               setTimeout(this.clearTemp, 10);
               search && this.setState({ keywords: undefined, search: '' });
             }}

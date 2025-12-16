@@ -15,6 +15,11 @@ const Con = styled.div`
   background-color: #fff;
 `;
 
+const hideHeader = window.hideHeader || new URL(location.href).searchParams.get('header') === '0';
+if (hideHeader) {
+  window.hideHeader = true;
+}
+
 const MingoLand = withRouter(props => {
   const isSmallMode = window.innerWidth < 880;
   const { match, history } = props;
@@ -43,7 +48,7 @@ const MingoLand = withRouter(props => {
   }, [sideVisible]);
   return (
     <Con className="t-flex t-flex-col">
-      <Header isSmallMode={isSmallMode} />
+      {!hideHeader && <Header isSmallMode={isSmallMode} />}
       <div className="t-flex-1 t-flex t-flex-row t-overflow-hidden Relative">
         {!isSmallMode && expandIconVisible && (
           <ExpandIcon
@@ -61,7 +66,7 @@ const MingoLand = withRouter(props => {
             emitter={emitter}
             currentChatId={currentChatId}
             onSelect={chatItem => {
-              navigateTo(`/mingo/chat/${chatItem.chatId}`);
+              navigateTo(`/mingo/chat/${chatItem.chatId}${hideHeader ? '?header=0' : ''}`);
             }}
             handleNewChatClick={handleNewChatClick}
             onExpand={() => {
@@ -76,6 +81,7 @@ const MingoLand = withRouter(props => {
           className="t-flex-1"
           currentChatId={currentChatId}
           onNewChatClick={handleNewChatClick}
+          hideHeader={hideHeader}
         />
       </div>
     </Con>

@@ -122,7 +122,7 @@ export default class UploadFile extends Component {
             code,
           } = err;
           if (RegExpValidator.getExtOfFileName(name) != 'mp3') {
-            alert(_l('文件类型错误，仅支持mp3文件'), 3, 1000);
+            alert(_l('文件类型错误，仅支持mp3文件'), 3);
             return;
           }
           if (code === window.plupload.FILE_SIZE_ERROR) {

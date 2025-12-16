@@ -68,8 +68,11 @@ export const VersionProductType = {
   flowPlugin: 42, // 工作表插件
   editAttachment: 43, // 附件编辑
   regularBackup: 44, // 定期备份
+  invoice: 45, // 电子发票
   editProtect: 46, //编辑保护
   quota: 47, // 额度管理
+  worldMap: 48, // 统计图，世界地图
+  workflowAgent: 49, // 工作流智能体
 };
 
 export const VersionProductHelpLink = {
@@ -107,3 +110,16 @@ export const FAST_GPT_CONFIG = JSON.parse(
     'eyJiYXNlVXJsIjoiaHR0cHM6Ly9hcGkuZmFzdGdwdC5pbi9hcGkiLCJhcHBJZCI6IjY2ODY0MDFhZDA5Nzg2YWQ0Y2Y1YWYzYiIsImFwaUtleSI6ImZhc3RncHQtZ2xSVWdHNzdCd0wyZjZEUDhQMzFSenJ2WE9DRkRxTWxTOHNmcWlwZzRKY0t6bTc5ODRGU1JURHVlUVYifQ==',
   ),
 );
+
+export const AI_FEATURE_TYPE = {
+  CREATE_SHEET: 1, // 创建工作表
+  CREATE_RECORD: 2, // 创建记录
+  CODEGEN_TABLE_FIELDS: 3, // 生成代码（工作表自定义字段）
+  CODEGEN_WORKFLOW_NODE: 4, // 生成代码（工作流代码块节点）
+  PROMPT_FOR_AGENT_NODE: 5, // 生成提示词（工作流智能体节点）
+  SAMPLE_DATA: 6, // 生成示例数据
+  I18N_APP: 7, // 应用多语言翻译
+  AGENT_SMART_PICK: 8, // agent 智能选择模型
+  GENERATE_APP_SHEET_DESCRIPTION: 9, // 生成应用/工作表描述
+  MISC_HELPERS: 10, // 其他辅助功能
+};

@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 
 const isMobile = browserIsMobile();
@@ -20,8 +21,8 @@ const Con = styled.div`
     color: #757575;
   }
   .btnText {
-    font-size: 14px;
-    color: #151515;
+    font-size: 13px;
+    color: #515151;
     margin-left: 4px;
   }
   &.size-small {
@@ -32,8 +33,10 @@ const Con = styled.div`
       font-size: 12px;
     }
   }
-  &:hover {
-    background-color: #f5f5f5;
+  &:not(.isMobile) {
+    &:hover {
+      background-color: #f5f5f5;
+    }
   }
   ${({ disabled }) =>
     disabled &&
@@ -64,19 +67,20 @@ function BgIconButton({
   onClick,
   tooltip,
   popupPlacement = 'bottom',
+  shortcut,
 }) {
   return (
     <Tooltip
-      text={tooltip && !isMobile ? <span>{tooltip}</span> : null}
-      popupPlacement={popupPlacement}
-      offset={[0, -3]}
-      autoCloseDelay={0}
+      title={tooltip && !isMobile ? <span>{tooltip}</span> : null}
+      placement={popupPlacement}
+      align={{ offset: [0, -3] }}
+      shortcut={shortcut}
     >
       <Con
-        className={cx(className, `size-${size}`)}
+        className={cx(className, `size-${size}`, { disabled, isMobile })}
         disabled={disabled}
         style={style}
-        onClick={disabled ? null : onClick}
+        onMouseDown={disabled ? null : onClick}
       >
         {iconComponent ? (
           iconComponent

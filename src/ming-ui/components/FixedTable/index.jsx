@@ -24,6 +24,15 @@ const Con = styled.div`
     box-sizing: border-box;
   }
   overscroll-behavior-x: none;
+  &:hover {
+    .scroll-x,
+    .scroll-y {
+      .os-scrollbar {
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+    }
+  }
 `;
 
 const TableBorder = styled.div`
@@ -89,6 +98,7 @@ function FixedTable(props, ref) {
     renderEmpty, // 渲染空状态
     disablePanVertical,
     tableFooter,
+    onScroll = () => {},
   } = props;
   let height = props.height;
   let withFooterHeight = props.height;
@@ -211,6 +221,7 @@ function FixedTable(props, ref) {
             right: 0,
             top: topFixedCount * columnHeadHeight,
             bottom: bottomFixedCount * 28 + (hasFooter ? tableFooter.height : 0),
+            height: 'auto',
           },
           contentStyle: {
             height: tableSize.height + (XIsScroll ? 10 : 0),
@@ -222,6 +233,7 @@ function FixedTable(props, ref) {
             set('top', y);
             setScrollY(cache, y);
           },
+          onScroll: onScroll,
         }}
       />
     ),
@@ -248,6 +260,7 @@ function FixedTable(props, ref) {
             set('left', x);
             setScrollX(cache, x);
           },
+          onScroll: onScroll,
         }}
       />
     ),
@@ -259,8 +272,8 @@ function FixedTable(props, ref) {
   // 更新滚动元素缓存
   const updateScrollElements = useCallback(() => {
     if (conRef.current) {
-      scrollElementsRef.current.$scrollX = conRef.current.querySelector('.scroll-x');
-      scrollElementsRef.current.$scrollY = conRef.current.querySelector('.scroll-y');
+      scrollElementsRef.current.$scrollX = cache.scrollX;
+      scrollElementsRef.current.$scrollY = cache.scrollY;
     }
   }, []);
 
@@ -337,8 +350,8 @@ function FixedTable(props, ref) {
     setHammer('topForHammer', hammerCache.topForHammer + hammerCache.lastPandeltaY - e.deltaY);
     setHammer('lastPandeltaX', e.deltaX);
     setHammer('lastPandeltaY', e.deltaY);
-    const $scrollX = conRef.current.querySelector('.scroll-x');
-    const $scrollY = conRef.current.querySelector('.scroll-y');
+    const $scrollX = conRef.current.querySelector('.scroll-x .scroll-viewport');
+    const $scrollY = conRef.current.querySelector('.scroll-y .scroll-viewport');
     if (isScrollVer) {
       if ($scrollY) {
         $scrollY.scrollTop = hammerCache.topForHammer;
@@ -360,14 +373,18 @@ function FixedTable(props, ref) {
     dom: conRef,
     forceUpdate,
     setScroll: (left, top) => {
-      const $scrollX = conRef.current.querySelector('.scroll-x');
-      const $scrollY = conRef.current.querySelector('.scroll-y');
+      const $scrollX = conRef.current.querySelector('.scroll-x .scroll-viewport');
+      const $scrollY = conRef.current.querySelector('.scroll-y .scroll-viewport');
       if (!_.isUndefined(left) && $scrollX) {
         $scrollX.scrollLeft = left;
       }
       if (!_.isUndefined(top) && $scrollY) {
         $scrollY.scrollTop = top;
       }
+    },
+    setScrollX: left => {
+      set('left', left);
+      setScrollX(cache, left);
     },
   }));
   useLayoutEffect(() => {
@@ -394,8 +411,8 @@ function FixedTable(props, ref) {
     conRef.current.addEventListener('wheel', handleMouseWheel);
     // --- 表格触摸事件处理 ---
     tablehammer.current = new Hammer(conRef.current, { inputClass: Hammer.TouchInput });
-    setHammer('leftForHammer', _.get(conRef.current.querySelector('.scroll-x'), 'scrollLeft') || 0);
-    setHammer('topForHammer', _.get(conRef.current.querySelector('.scroll-y'), 'scrollTop') || 0);
+    setHammer('leftForHammer', _.get(conRef.current.querySelector('.scroll-x .scroll-viewport'), 'scrollLeft') || 0);
+    setHammer('topForHammer', _.get(conRef.current.querySelector('.scroll-y .scroll-viewport'), 'scrollTop') || 0);
     setHammer('lastPandeltaX', 0);
     setHammer('lastPandeltaY', 0);
     tablehammer.current
@@ -405,8 +422,8 @@ function FixedTable(props, ref) {
     tablehammer.current.on('panend', handlePanEnd);
     // ---
     if (defaultScrollLeft) {
-      if (conRef.current.querySelector('.scroll-x')) {
-        conRef.current.querySelector('.scroll-x').scrollLeft = defaultScrollLeft;
+      if (conRef.current.querySelector('.scroll-x .scroll-viewport')) {
+        conRef.current.querySelector('.scroll-x .scroll-viewport').scrollLeft = defaultScrollLeft;
       }
     }
     return () => {
@@ -420,6 +437,12 @@ function FixedTable(props, ref) {
       throttledMouseWheel.cancel();
     };
   }, [updateScrollElements, throttledMouseWheel]);
+  useEffect(() => {
+    if (!XIsScroll && cache.scrollX) {
+      set('left', 0);
+      setScrollX(cache, 0);
+    }
+  }, [XIsScroll]);
   return (
     <Con ref={conRef} className={className} style={{ width, height: hasFooter ? withFooterHeight : height }}>
       <TableBorder

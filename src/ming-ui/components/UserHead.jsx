@@ -28,7 +28,7 @@ export default class UserHead extends React.Component {
   };
 
   getDefaultImg = accountId => {
-    let host = `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/`;
+    let host = `${md.global.FileStoreConfig.pictureHost}/UserAvatar/`;
     switch (accountId) {
       case 'user-self':
         return host + 'user-self.png';

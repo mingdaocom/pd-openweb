@@ -2,10 +2,11 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { generate } from '@ant-design/colors';
-import { Dropdown, Menu, Tooltip } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportRequestAjax from '../api/report';
 import { formatSummaryName } from 'statistics/common';
 import * as actions from 'statistics/redux/actions';
@@ -663,9 +664,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         {country.filterCode == '910000' ? (

@@ -1,0 +1,63 @@
+.payConfigWrap .configContent {
+  .mdAntSelect {
+    .ant-select-selector {
+      padding: 0 5px 0 11px;
+      .ant-select-selection-item {
+        padding-right: 0px;
+      }
+    }
+    .ant-select-arrow {
+      width: unset !important;
+      right: 5px;
+    }
+  }
+  .filterView {
+    padding-right: 5px !important;
+    .icon-arrow-down-border {
+      font-size: 13px !important;
+      color: #9e9e9e !important;
+    }
+  }
+}
+
+.merchantList {
+  .ming.MenuItem .Item-content:not(.disabled):hover {
+    .option {
+      color: #fff;
+    }
+  }
+
+  &.valueDisable .Dropdown--input .value {
+    color: #999;
+  }
+
+  &.ant-select-open .ant-select-selector {
+    border-color: #1677ff;
+    box-shadow: none;
+  }
+  .ant-select-item-option-disabled {
+    color: #bdbdbd !important;
+  }
+  .disabledTag {
+    background: #f5f5f5;
+    color: #bdbdbd;
+  }
+}
+
+.merchantDropDown.ant-select-dropdown {
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
+  .ant-select-item-option-disabled.ant-select-item-option-selected {
+    background-color: #fff !important;
+  }
+  .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+    background-color: #e6f7ff !important;
+  }
+  .ant-select-item-option-state {
+    margin-left: 10px;
+  }
+  .ant-select-item-option-disabled.ant-select-item-option-selected {
+    .ant-select-item-option-state {
+      display: none !important;
+    }
+  }
+}

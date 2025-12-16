@@ -82,6 +82,42 @@
               color: #1565c0 !important;
             }
           }
+          .setFieldContainer {
+            flex: 1;
+            display: flex;
+            align-items: center;
+
+            .setValueError > div > div {
+              & > :first-child,
+              .defaultOptionsWrap,
+              .CityPicker-input-container > input,
+              .tagInputareaIuput {
+                border-color: #f44336 !important;
+                box-shadow: unset;
+              }
+            }
+
+            .addField {
+              cursor: pointer;
+              color: #757575;
+              width: fit-content;
+              margin: 6px 0 6px auto;
+              position: relative;
+              &:hover {
+                color: #1677ff;
+              }
+            }
+            &.pRight42 {
+              padding-right: 42px;
+            }
+            .fieldItem {
+              background: #eaeaea;
+              border-radius: 4px;
+              padding: 0 12px;
+              flex: 1;
+              line-height: 36px;
+            }
+          }
           .addConditionIcon {
             width: 42px;
             line-height: 36px;
@@ -355,7 +391,6 @@
             border-radius: 3px;
             font-size: 13px;
             padding: 0 12px;
-            margin-top: 12px;
             display: block;
             margin: 12px 20px;
             flex: 1;
@@ -642,6 +677,18 @@
       flex: 1;
       min-width: 0;
       color: #151515;
+    }
+    .detailValue {
+      flex: 1;
+      min-width: 0;
+      .detailValueCon {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .title {
+        color: #707070;
+      }
     }
   }
 }

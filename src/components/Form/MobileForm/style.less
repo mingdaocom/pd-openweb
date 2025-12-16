@@ -1,7 +1,7 @@
 .customMobileFormContainer {
-  background: var(--color-third);
+  background: var(--color-background-primary);
   margin: 0 -12px;
-  color: var(--color-secondary);
+  color: var(--color-text-primary);
   line-height: normal;
   font-size: 16px;
   padding: 0 20px;
@@ -46,7 +46,7 @@
   // 字段之间的分割线
   .customFormLine {
     height: 1px;
-    background: var(--gray-f3);
+    background: var(--color-background-tertiary);
     clear: both;
     margin: 0 12px;
   }
@@ -93,8 +93,8 @@
   }
 
   .commonControlStyle {
-    background: var(--color-third);
-    border: 1px solid var(--gray-e0);
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
   }
 
@@ -126,7 +126,7 @@
     }
 
     &.controlEditReadonly {
-      background: var(--gray-f9) !important;
+      background: var(--color-background-secondary) !important;
       position: initial !important;
     }
 
@@ -140,14 +140,14 @@
       align-items: center;
       white-space: nowrap;
       overflow: hidden;
-      color: var(--gray-bd);
+      color: var(--color-text-disabled);
     }
 
     // 人员/部门/组织角色 多选边框无色
     &.customFormControlNoBorder {
       min-width: 0;
       height: auto !important;
-      border-color: var(--color-third) !important;
+      border-color: var(--color-background-primary) !important;
       padding: 0 !important;
       background: transparent !important;
     }
@@ -159,32 +159,32 @@
       border-color: var(--color-primary);
     }
     &:disabled {
-      background: var(--gray-f9);
+      background: var(--color-background-secondary);
     }
     &::placeholder {
-      color: var(--gray-bd);
+      color: var(--color-text-disabled);
     }
     &::-webkit-input-placeholder {
-      color: var(--gray-bd);
+      color: var(--color-text-disabled);
     }
     &::-moz-placeholder {
-      color: var(--gray-bd);
+      color: var(--color-text-disabled);
     }
     &::-ms-input-placeholder {
-      color: var(--gray-bd);
+      color: var(--color-text-disabled);
     }
   }
 
   .customFormNull {
     width: 22px;
     height: 6px;
-    background: var(--gray-e0);
+    background: var(--color-border-primary);
     margin: 15px 0;
     border-radius: 3px;
   }
 
   .commonFormIcon {
-    color: var(--gray-bd);
+    color: var(--color-text-disabled);
   }
 
   .maskIcon {
@@ -228,18 +228,18 @@
     }
 
     &.readonlyRefresh {
-      background: var(--gray-f9) !important;
+      background: var(--color-background-secondary) !important;
     }
   }
 
   .customFormPlaceholder {
-    color: var(--gray-bd);
+    color: var(--color-text-disabled);
   }
 
   .customFormAddBtn {
     width: 36px;
     height: 36px;
-    border: 1px solid var(--gray-e0);
+    border: 1px solid var(--color-border-primary);
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -247,7 +247,7 @@
 
     .icon {
       font-size: 24px;
-      color: var(--gray-9e);
+      color: var(--color-text-tertiary);
     }
   }
 
@@ -272,7 +272,7 @@
       white-space: initial;
 
       &--disabled {
-        color: var(--color-secondary) !important;
+        color: var(--color-text-primary) !important;
 
         .Radio-box,
         .Checkbox-box {
@@ -316,7 +316,7 @@
 
     .Icon {
       margin-right: 5px;
-      color: var(--gray-9e);
+      color: var(--color-text-tertiary);
 
       &.loading {
         margin-right: 0;
@@ -343,9 +343,9 @@
   .cardWrap {
     position: relative;
     width: 100%;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-sm);
     border-radius: 4px;
-    background: var(--color-third) center / contain no-repeat;
+    background: var(--color-background-primary) center / contain no-repeat;
 
     .removeBtn {
       position: absolute;
@@ -353,7 +353,7 @@
       right: 0;
       transform: translate(50%, -50%);
       font-size: 26px;
-      color: var(--gray-9e);
+      color: var(--color-text-tertiary);
     }
   }
 
@@ -367,7 +367,7 @@
     margin: 0 -12px;
     width: calc(100% + 24px);
     height: 10px;
-    background-color: var(--gray-f5);
+    background-color: var(--color-background-tertiary);
   }
 }
 
@@ -377,8 +377,8 @@
   display: inline-block;
   padding: 2px 12px;
   border-radius: 16px;
-  background: var(--gray-f3);
-  border: 1px solid var(--gray-f3);
+  background: var(--color-background-tertiary);
+  border: 1px solid var(--color-background-tertiary);
   word-break: break-all;
   white-space: pre-wrap;
 
@@ -391,7 +391,7 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--gray-f3);
+    background: var(--color-background-tertiary);
   }
 
   &.capsuleLink {
@@ -399,7 +399,7 @@
   }
 
   .capsuleDel {
-    color: var(--gray-9e);
+    color: var(--color-text-tertiary);
     position: absolute;
     top: -5px;
     right: -10px;
@@ -419,7 +419,7 @@
   transform: translateY(-5px);
   z-index: 3;
   left: 0;
-  color: var(--color-third);
+  color: var(--color-background-primary);
   padding: 3px 8px;
   white-space: nowrap;
   background: var(--color-error);

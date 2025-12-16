@@ -32,30 +32,38 @@
     height: 36px;
     padding: 0 10px;
     min-width: 0;
+    .MdLoader-path {
+      stroke: #fff;
+    }
     .icon {
-      font-size: 18px;
+      font-size: 22px;
       margin-right: 5px;
     }
     &.hasten,
     &.return,
     &.taskRevoke {
-      color: #fff;
-      background-color: @hastenColor;
+      color: #000;
+      background-color: #fff;
       border: 1px solid @hastenColor;
+      .icon {
+        color: @hastenColor;
+      }
     }
     &.overrule {
       color: #fff;
       background-color: @refuseColor;
       border: 1px solid @refuseColor;
     }
-    &.submit,
     &.revoke,
     &.pass {
       color: #fff;
       background-color: @passColor;
       border: 1px solid @passColor;
     }
-    &.disable {
+    &.submit {
+      color: #fff;
+      background-color: @submitColor;
+      border: 1px solid @submitColor;
     }
   }
   .moreOperation {

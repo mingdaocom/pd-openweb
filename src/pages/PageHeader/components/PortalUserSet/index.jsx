@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Dialog, Icon, Menu, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Menu } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import account from 'src/api/account';
 import accountSetting from 'src/api/accountSetting';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -227,7 +228,7 @@ export default class PortalUserSet extends Component {
                 }}
                 isCharge={false}
               >
-                <Tooltip placement="bottom" text={_l('应用语言')}>
+                <Tooltip placement="bottom" title={_l('应用语言')}>
                   <div
                     className={cx(
                       'h100 flexColumn justifyContentCenter',
@@ -535,7 +536,8 @@ export default class PortalUserSet extends Component {
             currentData={currentData
               .filter(
                 o =>
-                  !['avatar', 'firstLoginTime', 'roleid', 'status'].includes(o.alias) && o.fieldPermission[2] !== '1', //不收集的信息，用户个人信息不显示
+                  !['avatar', 'firstLoginTime', 'portal_logintime', 'roleid', 'status'].includes(o.alias) &&
+                  o.fieldPermission[2] !== '1', //不收集的信息，用户个人信息不显示
               )
               .map(o => {
                 if (['portal_mobile', 'portal_email'].includes(o.controlId)) {

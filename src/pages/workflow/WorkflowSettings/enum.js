@@ -32,7 +32,9 @@ export const NODE_TYPE = {
   RETURN: 30,
   AIGC: 31,
   PLUGIN: 32,
+  AGENT: 33,
   SYSTEM: 100,
+  TOOLS: 101,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
 };
@@ -100,6 +102,7 @@ export const ACTION_ID = {
   REFRESH_CREDENTIALS: '524',
   AIGC_TEXT: '531',
   AIGC_OBJECT: '532',
+  AGENT: '533',
 };
 
 export const APP_TYPE = {
@@ -124,6 +127,7 @@ export const APP_TYPE = {
   EXTERNAL_USER: 23,
   ORGANIZATION_ROLE: 24,
   EVENT_PUSH: 25,
+  AGGREGATION_SHEET: 26,
   NO_AUTH: 30,
   BASIC_AUTH: 31,
   OAUTH2: 32,
@@ -136,6 +140,8 @@ export const APP_TYPE = {
   LOOP_PROCESS: 45,
   AIGC: 46,
   PLUGIN: 47,
+  AGENT: 48,
+  CHATBOT: 49,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -457,9 +463,9 @@ export const SUPPORT_HREF = {
   // 循环
   29: 'https://help.mingdao.com/workflow/node-loop',
   // AIGC 文本
-  '31-531': 'https://help.mingdao.com/workflow/node-AI-text-generation',
+  '31-531': 'https://help.mingdao.com/workflow/node-ai-text-generation',
   // AIGC 对象
-  '31-532': 'https://help.mingdao.com/workflow/node-AI-generates-data-objects',
+  '31-532': 'https://help.mingdao.com/workflow/node-ai-generates-data-objects',
   // 获取单条系统信息
   1000: 'https://help.mingdao.com/workflow/node-get-single-data-from-user',
   // 获取多条系统信息
@@ -654,3 +660,51 @@ export const LANGUAGE_BCP47 = [
   { text: _l('印度尼西亚语'), value: 'id-ID' },
   { text: _l('马来语'), value: 'ms-MY' },
 ];
+
+export const AGENT_TOOLS = {
+  1: {
+    icon: 'icon-playlist_add',
+    range: true,
+    autoRange: _l('为本应用工作表新增记录'),
+    specificRange: _l('指定以下工作表新增记录'),
+    name: 'create_record',
+  },
+  2: {
+    icon: 'icon-workflow_update',
+    range: true,
+    autoRange: _l('为本应用工作表更新记录'),
+    specificRange: _l('指定以下工作表更新记录'),
+    name: 'update_record',
+  },
+  3: {
+    icon: 'icon-search',
+    range: true,
+    autoRange: _l('查询本应用所有工作表'),
+    specificRange: _l('查询以下指定工作表'),
+    name: 'get_record_list',
+  },
+  4: {
+    icon: 'icon-task_functions',
+    range: true,
+    autoRange: _l('获取本应用工作表汇总数据'),
+    specificRange: _l('指定以下工作表汇总数据'),
+    name: 'get_record_pivot_data',
+  },
+  5: {
+    icon: 'icon-api',
+    name: 'wf_api_',
+  },
+  6: {
+    icon: 'icon-pbc',
+    name: 'wf_pbp_',
+  },
+  7: {
+    icon: 'icon-notifications',
+    name: 'wf_send_',
+  },
+  8: {
+    icon: 'icon-workflow_email',
+    desc: true,
+    name: 'wf_email_',
+  },
+};

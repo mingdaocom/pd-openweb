@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAppFeaturesPath } from 'src/utils/app';
 
 /**
@@ -32,9 +33,9 @@ function PostFooter(props) {
         {!props.updateTime || props.createTime === props.updateTime ? (
           <span title={_l('点击查看详情')}>{createTimeSpan(props.createTime)}</span>
         ) : (
-          <span data-tip={_l('发布于 %0', createTimeSpan(props.createTime))}>
-            {_l('编辑于 %0', createTimeSpan(props.updateTime))}
-          </span>
+          <Tooltip title={_l('发布于 %0', createTimeSpan(props.createTime))}>
+            <span>{_l('编辑于 %0', createTimeSpan(props.updateTime))}</span>
+          </Tooltip>
         )}
       </a>
       {from && (

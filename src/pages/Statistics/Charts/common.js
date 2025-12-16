@@ -21,6 +21,7 @@ export const reportTypes = {
   GaugeChart: 14,
   ProgressChart: 15,
   TopChart: 16,
+  WorldMap: 17,
 };
 
 /**

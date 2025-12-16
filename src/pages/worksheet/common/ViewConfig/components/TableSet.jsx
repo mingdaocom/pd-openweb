@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Radio, Tooltip } from 'ming-ui';
+import { Icon, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { setList } from '../config';
@@ -70,7 +71,7 @@ export default function TableSet(props) {
                 />
                 <div className="switchText InlineBlock Normal mLeft12 mTop8">{o.txt}</div>
                 {o.tips && (
-                  <Tooltip text={<span>{o.tips}</span>} popupPlacement="top">
+                  <Tooltip title={o.tips}>
                     <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
                   </Tooltip>
                 )}
@@ -82,7 +83,7 @@ export default function TableSet(props) {
                     { value: 1, tips: _l('垂直居中对齐'), icon: 'align_vertical_center' },
                   ].map(item => {
                     return (
-                      <Tooltip text={<span>{item.tips}</span>} popupPlacement="top">
+                      <Tooltip title={item.tips}>
                         <div
                           className={cx('animaItem overflow_ellipsis pLeft16 pRight16', {
                             active: (_.get(view, 'advancedSetting.rctitlestyle') || '0') === item.value + '',

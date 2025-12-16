@@ -1,18 +1,18 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import flowNode from '../../../api/flowNode';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { getSummaryInfo } from 'src/utils/record';
-import { ACTION_ID, DATE_SHOW_TYPES } from '../../enum';
-import { getControlTypeName, getIcons, handleGlobalVariableName } from '../../utils';
+import { ACTION_ID, APP_TYPE, DATE_SHOW_TYPES } from '../../enum';
+import { checkConditionsIsNull, getControlTypeName, getIcons, handleGlobalVariableName } from '../../utils';
 import {
   CustomTextarea,
   DetailFooter,
@@ -161,8 +161,23 @@ export default class Formula extends Component {
     }
 
     if (actionId === ACTION_ID.WORKSHEET_TOTAL && !appId) {
-      alert(_l('必须先选择一个工作表'), 2);
+      alert(_l('必须先选择一个表'), 2);
       return;
+    }
+
+    if ((filters || []).length) {
+      let hasError = false;
+
+      filters.forEach(item => {
+        if (checkConditionsIsNull(item.conditions)) {
+          hasError = true;
+        }
+      });
+
+      if (hasError) {
+        alert(_l('筛选条件的判断值不能为空'), 2);
+        return;
+      }
     }
 
     if (saveRequest) {
@@ -427,14 +442,13 @@ export default class Formula extends Component {
 
         <div className="mTop20 Gray_75">
           {_l('设置参与运算时的方式')}
-          <span
-            className="mLeft5 workflowDetailTipsWidth"
-            data-tip={_l(
+          <Tooltip
+            title={_l(
               '如：可以将 2008/11/11 12:23 格式化为“日期”，以2008/11/11参与运算。+8h后，得到时间结果：2008/11/11 8:00',
             )}
           >
-            <i className="icon-help" />
-          </span>
+            <i className="icon-help mLeft5" />
+          </Tooltip>
         </div>
 
         <Dropdown
@@ -452,7 +466,6 @@ export default class Formula extends Component {
         <div className="mTop10 Gray_75">
           {_l('输入你想要 添加/减去 的时间。如：+8h+1m，+1M-12d, -1d+8h。当使用数值字段运算时，请不要忘记输入单位。')}
           <Tooltip
-            autoCloseDelay={0}
             title={() => {
               return (
                 <Fragment>
@@ -778,16 +791,18 @@ export default class Formula extends Component {
    */
   renderWorksheetTotalContent() {
     const { data } = this.state;
+    const isAggregationSheet = data.appType === APP_TYPE.AGGREGATION_SHEET;
     const selectAppItem = data.appList.find(({ id }) => id === data.appId);
     const list = data.appList
       .filter(item => !item.otherApkId)
       .map(({ name, id }) => ({
         text: name,
         value: id,
+        className: id === data.appId ? 'ThemeColor3' : '',
       }));
     const otherWorksheet = [
       {
-        text: _l('其它应用下的工作表'),
+        text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
         className: 'Gray_75',
       },
@@ -796,12 +811,27 @@ export default class Formula extends Component {
     return (
       <Fragment>
         <div className="Font14 Gray_75 workflowDetailDesc">
-          {_l(
-            '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当汇总他表字段或者数据频繁变更时可能有一定延时',
+          {isAggregationSheet
+            ? _l(
+                '从聚合表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当汇总他表字段或者数据频繁变更时可能有一定延时',
+              )
+            : _l(
+                '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当汇总他表字段或者数据频繁变更时可能有一定延时',
+              )}
+        </div>
+
+        <div className="mTop20 flexRow alignItemsCenter">
+          <div className="flex bold">{isAggregationSheet ? _l('选择聚合表') : _l('选择工作表')}</div>
+          {isAggregationSheet && (
+            <div
+              className="ThemeColor3 ThemeHoverColor2 pointer"
+              onClick={() => window.open(`/app/${this.props.relationId}/settings/aggregations`)}
+            >
+              + {_l('新建聚合表')}
+            </div>
           )}
         </div>
 
-        <div className="mTop20 bold">{_l('选择工作表')}</div>
         <Dropdown
           className={cx('flowDropdown mTop10 flowDropdownBorder', {
             'errorBorder errorBG': data.appId && !selectAppItem,
@@ -812,7 +842,11 @@ export default class Formula extends Component {
             !data.appId
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
-                ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+                ? () => (
+                    <span className="errorColor">
+                      {isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
+                    </span>
+                  )
                 : () => (
                     <Fragment>
                       <span>{selectAppItem.name}</span>
@@ -836,10 +870,7 @@ export default class Formula extends Component {
             <div className="mTop20 bold">{_l('筛选条件')}</div>
             <div className="Gray_75 mTop5 flexRow alignItemsCenter">
               {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获取所有数据')}
-              <Tooltip
-                autoCloseDelay={0}
-                title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}
-              >
+              <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
                 <i className="icon-info Font16 mLeft5 Gray_9e" />
               </Tooltip>
             </div>
@@ -1068,7 +1099,7 @@ export default class Formula extends Component {
         {showOtherWorksheet && (
           <SelectOtherWorksheetDialog
             projectId={this.props.companyId}
-            worksheetType={0}
+            worksheetType={data.appType === APP_TYPE.AGGREGATION_SHEET ? 2 : 0}
             selectedAppId={this.props.relationId}
             selectedWorksheetId={data.appId}
             visible

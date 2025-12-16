@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import { find, get } from 'lodash';
-import { TagTextarea, Tooltip } from 'ming-ui';
+import { TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { ROW_ID_CONTROL, SYSTEM_CONTROL } from '../../config/widget';
 import { ControlTag, SettingItem } from '../../styled';
@@ -44,7 +45,7 @@ export default function Concatenate({
               const invalidError =
                 originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
               return (
-                <Tooltip text={<span>{_l('ID: %0', id)}</span>} popupPlacement="bottom" disable={controlName}>
+                <Tooltip title={controlName ? '' : <span>{_l('ID: %0', id)}</span>} placement="bottom">
                   <ControlTag
                     className={cx('WordBreak', { invalid: !controlName || invalidError, Hand: !controlName })}
                   >

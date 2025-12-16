@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { FlexCenter } from 'worksheet/components/Basics';
@@ -150,9 +151,11 @@ export default function FiltersPopup(props) {
     >
       <div ref={btnRef} className="worksheetFilterTrigger">
         {!filteredText && (
-          <span data-tip={_l('筛选')} className={className}>
-            <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
-          </span>
+          <Tooltip title={_l('筛选')} placement="bottom">
+            <span className={className}>
+              <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
+            </span>
+          </Tooltip>
         )}
         {filteredText && (
           <SelectedFilter className="selectedFilter">

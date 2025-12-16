@@ -6,6 +6,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
@@ -488,9 +489,11 @@ export default function RelationSearch(props) {
               }}
               getPopupContainer={() => document.body}
             >
-              <div className="relateCoverSetting tip-bottom" data-tip={_l('设置封面')}>
-                <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverCid })}></span>
-              </div>
+              <Tooltip title={_l('设置封面')} placement="bottom">
+                <div className="relateCoverSetting">
+                  <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverCid })}></span>
+                </div>
+              </Tooltip>
             </Trigger>
           </RelateSheetCover>
         </SettingItem>

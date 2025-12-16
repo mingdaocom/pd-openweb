@@ -56,14 +56,14 @@ export default function (CodeMirror) {
       dir > 0
         ? Math.min(where.line + maxScanLines, cm.lastLine() + 1)
         : Math.max(cm.firstLine() - 1, where.line - maxScanLines);
-    for (var lineNo = where.line; lineNo != lineEnd; lineNo += dir) {
+    for (var lineNo = where.line; lineNo > lineEnd || lineNo < lineEnd; lineNo += dir) {
       var line = cm.getLine(lineNo);
       if (!line) continue;
       var pos = dir > 0 ? 0 : line.length - 1,
         end = dir > 0 ? line.length : -1;
       if (line.length > maxScanLen) continue;
       if (lineNo == where.line) pos = where.ch - (dir < 0 ? 1 : 0);
-      for (; pos != end; pos += dir) {
+      for (; pos > end || pos < end; pos += dir) {
         var ch = line.charAt(pos);
         if (re.test(ch) && (style === undefined || (cm.getTokenTypeAt(Pos(lineNo, pos + 1)) || '') == (style || ''))) {
           var match = matching[ch];

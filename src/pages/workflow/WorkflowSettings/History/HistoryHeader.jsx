@@ -9,6 +9,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { array, bool, func, string } from 'prop-types';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersionAjax from '../../api/instanceVersion';
 import Dropdown from '../../components/Dropdown';
 import Search from '../../components/Search';
@@ -162,26 +163,27 @@ export default class HistoryHeader extends Component {
 
         <div className="flex" />
 
-        <span
-          data-tip={isRefresh ? _l('刷新中...') : _l('刷新')}
-          id="historyRefresh"
-          onClick={() => {
-            if (isRefresh) return;
+        <Tooltip title={isRefresh ? _l('刷新中...') : _l('刷新')}>
+          <span
+            id="historyRefresh"
+            onClick={() => {
+              if (isRefresh) return;
 
-            this.setState({ isRefresh: true });
-            onRefresh(() => {
-              this.setState({ isRefresh: false });
-            });
-          }}
-        >
-          <Icon
-            className={cx(
-              'Font18 pointer ThemeHoverColor3 Block',
-              isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_75',
-            )}
-            icon="ic_refresh_black"
-          />
-        </span>
+              this.setState({ isRefresh: true });
+              onRefresh(() => {
+                this.setState({ isRefresh: false });
+              });
+            }}
+          >
+            <Icon
+              className={cx(
+                'Font18 pointer ThemeHoverColor3 Block',
+                isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_75',
+              )}
+              icon="ic_refresh_black"
+            />
+          </span>
+        </Tooltip>
 
         {showDialog && (
           <SerialProcessDialog processId={processId} onClose={() => this.setState({ showDialog: false })} />

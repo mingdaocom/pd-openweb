@@ -1,15 +1,18 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useSetState, useTitle } from 'react-use';
 import update from 'immutability-helper';
-import { find, findIndex, flatten, get, head, isEmpty, isEqual, isFunction, pick } from 'lodash';
+import { assign, find, findIndex, flatten, get, isEmpty, isEqual, isFunction, pick } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, FunctionWrap, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import worksheetAjax from 'src/api/worksheet';
+import { useGlobalStore } from 'src/common/GlobalStore';
+import { GlobalStoreProvider } from 'src/common/GlobalStore';
 import ErrorState from 'src/components/errorPage/errorState';
 import { navigateTo } from 'src/router/navigateTo';
+import { emitter, updateGlobalStoreForMingo } from 'src/utils/common';
 import { WHOLE_SIZE } from './config/Drag';
 import Content from './content';
 import Header from './Header';
@@ -19,6 +22,7 @@ import {
   fixedBottomWidgets,
   formatSearchConfigs,
   genControlsByWidgets,
+  genWidgetRowAndCol,
   genWidgetsByControls,
   getBoundRowByTab,
   getCurrentRowSize,
@@ -53,7 +57,8 @@ const WidgetConfig = styled.div`
   }
 `;
 
-export default function Container(props) {
+export default function Container({ isDialog, ...props }) {
+  const { store: { mingoIsCreatingWorksheetStatus } = {} } = useGlobalStore() || {};
   // 本表设置相关信息
   const [{ version }, setInfo] = useState({ version: 1 });
   // 所有的控件 二维数组方式保存
@@ -84,6 +89,8 @@ export default function Container(props) {
   const $switchArgs = useRef(null);
   const $contentRef = useRef(null);
 
+  const cache = useRef({});
+
   const [status, setStatus] = useSetState({
     saved: false,
     saveIndex: 0,
@@ -100,6 +107,8 @@ export default function Container(props) {
   const {
     data: { info: globalInfo, noAuth },
   } = useSheetInfo({ worksheetId: sourceId, getSwitchPermit: true, setConfigLoading: setLoading });
+
+  const [worksheetName, setWorksheetName] = useState();
 
   useTitle(_l('编辑字段 - %0', get(globalInfo, 'name') || ''));
 
@@ -176,9 +185,10 @@ export default function Container(props) {
   };
 
   const initData = ({ widgets, version }) => {
-    const flattenControls = flatten(widgets);
+    const widgetsWithRowAndCol = genWidgetRowAndCol(widgets);
+    const flattenControls = flatten(widgetsWithRowAndCol);
     $originControls.current = flattenControls;
-    setWidgets(widgets);
+    setWidgets(widgetsWithRowAndCol);
     setInfo({ version });
 
     // 如果是从关联记录点过来 url参数会带有targetControl参数 自动选中
@@ -196,6 +206,10 @@ export default function Container(props) {
         }
       }, 0);
       return;
+    }
+    if (isFunction(window.pendingTaskForEditWorksheet)) {
+      window.pendingTaskForEditWorksheet();
+      delete window.pendingTaskForEditWorksheet;
     }
   };
 
@@ -276,6 +290,17 @@ export default function Container(props) {
         setConfig({ encryData: res.encryptRules });
       });
     }
+    updateGlobalStoreForMingo(
+      {
+        activeModule: 'worksheetControlsEdit',
+        appId: globalInfo.appId,
+        appName: globalInfo.appName,
+        worksheetId: sourceId,
+        worksheetName: globalInfo.name,
+        projectId: globalInfo.projectId,
+      },
+      'clear',
+    );
   }, [globalInfo]);
 
   const saveControls = ({ actualWidgets, callback } = {}) => {
@@ -333,11 +358,9 @@ export default function Container(props) {
         localStorage.removeItem(`worksheetConfig-${sourceId}`);
 
         // 新控件保存后 替换激活控件Id
-        const nextActiveWidget = !isEmpty(activeWidgetPath)
-          ? get(nextWidgets, activeWidgetPath)
-          : head(flattenControls);
+        const nextActiveWidget = !isEmpty(activeWidgetPath) ? get(nextWidgets, activeWidgetPath) : '';
 
-        setActiveWidget(nextActiveWidget);
+        nextActiveWidget && setActiveWidget(nextActiveWidget);
         setBatchActive([]);
 
         //有配置查询，保存后拉取配置
@@ -399,7 +422,7 @@ export default function Container(props) {
 
   // 判断controls是否更改过
   const isControlsModified = () => {
-    const currentControls = flatten(widgets);
+    const currentControls = flatten(genWidgetRowAndCol(widgets));
     const prevControls = $originControls.current;
     if (currentControls.length !== prevControls.length) return true;
     return currentControls.some(item => {
@@ -451,6 +474,7 @@ export default function Container(props) {
   };
 
   const widgetProps = {
+    isDialog,
     activeWidget,
     setActiveWidget: handleActiveSet,
     widgets,
@@ -473,7 +497,11 @@ export default function Container(props) {
     batchDrag,
     setBatchDrag,
     // 全局表信息
-    globalSheetInfo: pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'groupId', 'roleType', 'appName']),
+    globalSheetInfo: assign(
+      {},
+      pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'desc', 'groupId', 'roleType', 'appName']),
+      worksheetName ? { name: worksheetName } : {},
+    ),
   };
 
   const cancelSubmit = ({ redirectfn } = {}) => {
@@ -512,6 +540,29 @@ export default function Container(props) {
     });
   };
 
+  cache.current.handleSave = handleSave;
+
+  const saveForEvent = useCallback(() => {
+    cache.current.handleSave();
+  }, []);
+
+  const updateWorksheetName = ({ worksheetId, worksheetName }) => {
+    if (worksheetId === sourceId) {
+      setWorksheetName(worksheetName);
+    }
+  };
+
+  useEffect(() => {
+    emitter.on('SAVE_WIDGET_CONFIG', saveForEvent);
+    emitter.on('UPDATE_WORKSHEET_NAME', updateWorksheetName);
+    return () => {
+      emitter.emit('UPDATE_GLOBAL_STORE', 'mingoCreateWorksheetAction', false);
+      emitter.emit('WIDGET_CONFIG_UNMOUNT');
+      emitter.off('SAVE_WIDGET_CONFIG', saveForEvent);
+      emitter.off('UPDATE_WORKSHEET_NAME', updateWorksheetName);
+    };
+  }, []);
+
   return (
     <Fragment>
       {getLoading ? (
@@ -529,15 +580,18 @@ export default function Container(props) {
         </div>
       ) : (
         <WidgetConfig>
-          <Header
-            {...globalInfo}
-            worksheetId={sourceId}
-            showSaveButton={!getLoading}
-            saveLoading={saveLoading}
-            onClose={handleClose}
-            onBack={handleClose}
-            onSave={handleSave}
-          />
+          {!mingoIsCreatingWorksheetStatus && (
+            <Header
+              {...globalInfo}
+              name={worksheetName || globalInfo?.name}
+              worksheetId={sourceId}
+              showSaveButton={!getLoading}
+              saveLoading={saveLoading}
+              onClose={handleClose}
+              onBack={handleClose}
+              onSave={handleSave}
+            />
+          )}
           <Content {...widgetProps} onRef={$contentRef} />
           {status.noTitleControl && <NoTitleControlDialog onClose={() => setStatus({ noTitleControl: false })} />}
           {status.modify && (
@@ -579,7 +633,9 @@ export const dialogEditWorksheet = props => {
         title={null}
         footer={null}
       >
-        <Container {...props} handleClose={() => props.onClose()} />
+        <GlobalStoreProvider>
+          <Container {...props} isDialog handleClose={() => props.onClose()} />
+        </GlobalStoreProvider>
       </Dialog>
     );
   };

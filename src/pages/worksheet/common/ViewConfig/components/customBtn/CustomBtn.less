@@ -119,8 +119,8 @@
     display: flex;
 
     & > span {
-      flex-shrink: 0;
       flex: 1;
+      flex-shrink: 0;
       .icon {
         display: inline-block;
       }
@@ -135,7 +135,7 @@
     opacity: 0;
   }
 
-  .icon-trash {
+  .icon-trash:not(.Alpha10) {
     opacity: 0;
     vertical-align: top;
   }

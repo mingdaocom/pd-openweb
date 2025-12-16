@@ -151,7 +151,7 @@ export default class Chart extends Component {
         />
       );
     }
-    if (reportTypes.CountryLayer === reportType) {
+    if ([reportTypes.CountryLayer, reportTypes.WorldMap].includes(reportType)) {
       const { map, country, summary } = reportData;
       return map.length ? (
         <Chart
@@ -162,6 +162,7 @@ export default class Chart extends Component {
             country,
             summary: settingVisible ? currentReport.summary : summary,
             locationMap,
+            valueMap,
           }}
         />
       ) : (

@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Dropdown, Icon, ScrollView, Support, Tooltip } from 'ming-ui';
+import { Dialog, Dropdown, Icon, ScrollView, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SYS, SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
@@ -249,7 +250,7 @@ export default function DialogMapping(props) {
               isDelete ? (
                 <span className="flex flexCenter ellipsis">
                   <Icon className="Font16 Red" icon="error1" />
-                  <Tooltip text={<span>{_l('ID: %0', showValue)}</span>} popupPlacement="bottom">
+                  <Tooltip title={_l('ID: %0', showValue)} placement="bottom">
                     <span className="mLeft10 ellipsis flex Red">{_l('字段已删除')} </span>
                   </Tooltip>
                 </span>
@@ -313,7 +314,7 @@ export default function DialogMapping(props) {
                 {selectOptions.length > 0 && (
                   <Fragment>
                     {renderHeader(true)}
-                    {renderForm(selectData, true)}
+                    {renderForm(selectData)}
                   </Fragment>
                 )}
                 {renderHeader()}

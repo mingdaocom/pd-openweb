@@ -107,10 +107,10 @@ export default function LingualList(props) {
         onSave={onGetAppLangs}
         onCancel={() => setVisible(false)}
       />
-      <div className="Font14 bold flexRow alignItemsCenter">{_l('原始语言')}</div>
+      <div className="Font14 bold flexRow alignItemsCenter">{_l('基准语言')}</div>
       <div className="Gray_75 TxtMiddle pTop10">
         {_l(
-          '原始语言指搭建应用时使用的语言，eg:搭建应用时的文本语言(字段名称、标题等)为法语，则可以选择法语为您的原始语言。',
+          '基准语言指搭建应用时使用的语言，eg:搭建应用时的文本语言(字段名称、标题等)为法语，则可以选择法语为您的基准语言。',
         )}
       </div>
       <Select

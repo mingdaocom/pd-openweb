@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Dropdown, Icon, RadioGroup, Switch, Tooltip } from 'ming-ui';
+import { Dropdown, Icon, RadioGroup, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/utils/enum';
@@ -101,11 +102,10 @@ export default function EditProtect(props) {
             <div className="labelText flexRow alignItemsCenter">
               <span>{_l('保护时长')}</span>
               <Tooltip
-                text={_l(
+                title={_l(
                   '指开启记录编辑保护模式后，用户长时间无操作时，系统自动退出保护状态的时间。超时后，其他用户可继续编辑记录。',
                 )}
-                autoCloseDelay={0}
-                popupPlacement="bottom"
+                placement="bottom"
               >
                 <Icon icon="help" className="Gray_9e Font16 mLeft10" />
               </Tooltip>

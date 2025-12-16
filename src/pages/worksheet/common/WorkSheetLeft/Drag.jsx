@@ -102,18 +102,16 @@ const Drag = props => {
       }
 
       if (collectProps.isOver) {
+        const clientOffset = monitor.getClientOffset();
+        const hoverBoundingRect = ref.current.getBoundingClientRect();
         // 判断能否移动到组内
         const getIsPushGroup = () => {
-          const clientOffset = monitor.getClientOffset();
-          const hoverBoundingRect = ref.current.getBoundingClientRect();
           const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
           const hoverClientY = clientOffset.y - hoverBoundingRect.top;
           return hoverClientY <= hoverMiddleY && hoverClientY >= 10;
         };
         // 判断是否是第一个项
         if (target.index === 0) {
-          const clientOffset = monitor.getClientOffset();
-          const hoverBoundingRect = ref.current.getBoundingClientRect();
           const hoverClientX = clientOffset.x - hoverBoundingRect.left;
           const hoverClientY = clientOffset.y - hoverBoundingRect.top;
           currentPcNaviStyle === 2 ? setActiveFirst(hoverClientX <= 30) : setActiveFirst(hoverClientY <= 10);
@@ -132,6 +130,8 @@ const Drag = props => {
           }
           if ([0, 1].includes(target.layerIndex)) {
             setActive(true);
+            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+            setActiveFirst(hoverClientY <= 10);
           }
         }
         // 二级应用
@@ -142,6 +142,8 @@ const Drag = props => {
           }
           if (target.layerIndex) {
             setActive(true);
+            const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+            setActiveFirst(hoverClientY <= 10);
           }
         }
       } else {

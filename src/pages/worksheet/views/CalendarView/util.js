@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
@@ -125,8 +125,8 @@ export const setDataFormat = pram => {
   calendarInfo.map(o => {
     const dataInfo = {
       ...data,
-      [o.begin]: data[o.begin] ? dateConvertToUserZone(moment(data[o.begin])) : data[o.begin],
-      [o.end]: data[o.end] ? dateConvertToUserZone(moment(data[o.end])) : data[o.end],
+      [o.begin]: isTimeStyle(o.startData) ? dateConvertToUserZone(moment(data[o.begin])) : data[o.begin],
+      [o.end]: isTimeStyle(o.endData) ? dateConvertToUserZone(moment(data[o.end])) : data[o.end],
     };
     let editable = controlState(o.startData).editable;
     if (dataInfo[o.begin]) {
@@ -171,7 +171,7 @@ const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
   const titleControls = getTitleControls(worksheetControls);
   return (
     (_.get(currentView, 'advancedSetting.viewtitle')
-      ? renderTitleByViewtitle(dataInfo, worksheetControls, currentView)
+      ? renderTitleByViewtitle(dataInfo, worksheetControls, currentView, true)
       : renderCellText({
           ...titleControls,
           value: dataInfo[titleControls.controlId],
@@ -311,8 +311,8 @@ export const isIllegal = item => {
 
 export const isIllegalFormat = (calendarInfo = []) => {
   let isErr = false;
-  calendarInfo.map(o => {
-    [o.endData, o.startData].map(item => {
+  calendarInfo.forEach(o => {
+    [o.endData, o.startData].forEach(item => {
       if (isIllegal(item)) {
         isErr = true;
       }

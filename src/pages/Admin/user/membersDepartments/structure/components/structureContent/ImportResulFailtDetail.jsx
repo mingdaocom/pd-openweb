@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Table } from 'antd';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import PageTableCon from 'src/pages/Admin/components/PageTableCon/index.js';
 import { downloadFile } from '../../../../../util';
 import alertImg from '../../assets/alert.png';
 
@@ -45,71 +45,6 @@ const FailInfoCon = styled.div`
       font-size: 13px;
       color: #fff;
       cursor: pointer;
-    }
-  }
-  .ant-table-wrapper {
-    width: 100%;
-    .ant-table-thead {
-      tr {
-        th {
-          background-color: #fff;
-          padding: 10px 0 12px;
-          color: #757575;
-          font-weight: 400;
-          .ant-checkbox-wrapper {
-            .ant-checkbox {
-              &.ant-checkbox-checked::after {
-                border: none;
-              }
-              .ant-checkbox-inner {
-                top: -8px;
-              }
-            }
-          }
-        }
-      }
-    }
-    .ant-table-tbody {
-      .ant-table-row {
-        .ant-table-cell {
-          padding: 8px 12px 8px 0;
-          border: none;
-          color: #151515;
-          .avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            vertical-align: middle;
-            margin-right: 10px;
-          }
-          .ant-checkbox-wrapper {
-            .ant-checkbox {
-              &.ant-checkbox-checked::after {
-                border: none;
-              }
-              .ant-checkbox-inner {
-                top: -8px;
-              }
-            }
-          }
-          &.ant-table-selection-column {
-            padding: 0;
-          }
-        }
-        &.ant-table-row-selected {
-          .ant-table-cell {
-            background: #fff;
-          }
-        }
-        &.ant-table-row-selected:hover {
-          .ant-table-cell {
-            background: #f5f5f5;
-          }
-        }
-      }
-      .ant-table-placeholder {
-        display: none;
-      }
     }
   }
 `;
@@ -204,19 +139,36 @@ export default class ImportResulFailtDetail extends Component {
             return record.department || record.departmentStr || '';
           },
         },
-        // { title: _l('工作地点'), dataIndex: 'workSite', ellipsis: true, width: 120, show: true },
-        // { title: _l('工号'), dataIndex: 'jobNumber', ellipsis: true, width: 120, show: true },
-        // {
-        //   title: _l('工作电话'),
-        //   dataIndex: 'workPhone',
-        //   ellipsis: true,
-        //   width: 160,
-        //   show: true,
-        //   render: (t, record) => {
-        //     return record.contactPhone || record.workPhone || '';
-        //   },
-        // },
-        { title: _l('失败原因'), dataIndex: 'failReason', ellipsis: true, width: 180, show: true },
+        {
+          title: _l('角色'),
+          dataIndex: 'orgRoleStr',
+          ellipsis: true,
+          width: 160,
+          show: true,
+          render: (t, record) => {
+            return record.orgRole || record.orgRoleStr || '';
+          },
+        },
+        { title: _l('工作地点'), dataIndex: 'workSite', ellipsis: true, width: 120, show: true },
+        { title: _l('工号'), dataIndex: 'jobNumber', ellipsis: true, width: 120, show: true },
+        {
+          title: _l('工作电话'),
+          dataIndex: 'workPhone',
+          ellipsis: true,
+          width: 160,
+          show: true,
+          render: (t, record) => {
+            return record.contactPhone || record.workPhone || '';
+          },
+        },
+        {
+          title: _l('加入时间'),
+          dataIndex: 'joinDate',
+          ellipsis: true,
+          width: 160,
+          show: true,
+        },
+        { title: _l('失败原因'), dataIndex: 'failReason', fixed: 'right', ellipsis: true, width: 180, show: true },
       ];
       return data.filter(item => item.show);
     };
@@ -249,7 +201,7 @@ export default class ImportResulFailtDetail extends Component {
     return (
       <Fragment>
         {!importError && (
-          <FailInfoCon>
+          <FailInfoCon className="flexColumn flex minHeight0">
             <div className="detailDes flexRow">
               <img src={alertImg} className="alertIcon" />
               <div>
@@ -269,13 +221,9 @@ export default class ImportResulFailtDetail extends Component {
                 </div>
               )}
             </div>
-            <Table
-              rowKey={record => record.accountId}
-              columns={this.columns()}
-              dataSource={dataSource}
-              pagination={false}
-              scroll={{ x: 300, y: 'calc(100vh - 300px)' }}
-            />
+            <div className="flex minHeight0">
+              <PageTableCon columns={this.columns()} dataSource={dataSource} />
+            </div>
           </FailInfoCon>
         )}
         {importError && (

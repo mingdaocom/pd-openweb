@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import RegExpValidator from 'src/utils/expression';
 import { loadImage } from '../utils';
 import './index.less';

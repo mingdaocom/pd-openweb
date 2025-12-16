@@ -1,5 +1,5 @@
 import _, { get } from 'lodash';
-import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { checkRuleLocked, updateRulesData } from 'src/components/Form/core/formUtils';
 import { emitter } from 'src/utils/common';
 import { controlState, replaceByIndex } from 'src/utils/control';
 
@@ -54,6 +54,7 @@ export function handleLifeEffect(
     showColumnWidthChangeMask,
     tableType,
     isSubList,
+    isRelateRecordList,
     cache = {},
     onCellEnter = () => {},
     onCellLeave = () => {},
@@ -61,6 +62,7 @@ export function handleLifeEffect(
     setScroll,
     focusCell,
     handleTableKeyDown,
+    onOuterClick = () => {},
   } = {},
 ) {
   const tableElement = document.querySelector(`.sheetViewTable.id-${tableId}-id`);
@@ -167,8 +169,10 @@ export function handleLifeEffect(
         setTimeout(() => {
           focusCell(newIndex);
         }, 100);
+        return;
       }
-      return;
+      setScroll(0, 0);
+      newIndex = 1;
     }
     const nextFocusElement = tableElement.querySelector('.cell-' + newIndex);
     if (nextFocusElement) {
@@ -231,8 +235,13 @@ export function handleLifeEffect(
     removeReadOnlyTip();
     const forceOutClick = _.includes(get(e, 'target.className') || '', 'allowOutClick');
     if (
-      (e.target.closest('.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
-        (!isSubList && e.target.closest('.workSheetRecordInfo'))) &&
+      (e.target.closest(
+        '.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup, .selectUserBox',
+      ) ||
+        (!(isSubList || isRelateRecordList) &&
+          e.target.closest('.workSheetRecordInfo') &&
+          !e.target.closest('.embedContainer')) ||
+        !e.target.isConnected) &&
       !forceOutClick
     ) {
       return;
@@ -249,6 +258,7 @@ export function handleLifeEffect(
         focusCell(-10000);
         window.activeTableId = undefined;
       }
+      onOuterClick();
     }
   }
   emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
@@ -284,7 +294,10 @@ export function getControlFieldPermissionsAfterRules(row, controls, rules) {
     }
     if (item.sectionId) {
       const sectionControl = _.find(formData, c => c.controlId === item.sectionId);
-      const sectionControlState = controlState(sectionControl);
+      const sectionControlState = controlState({
+        ...sectionControl,
+        controlPermissions: '111',
+      });
       const itemControlState = controlState(item);
       item.fieldPermission = replaceByIndex(
         item.fieldPermission,

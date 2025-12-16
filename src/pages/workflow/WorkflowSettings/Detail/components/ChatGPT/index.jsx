@@ -10,9 +10,12 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import filterXss from 'xss';
 import { Checkbox, Dialog, ScrollView, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import codeAjax from 'src/api/code';
 import sseAjax from 'src/api/sse';
+import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
 import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
+import { AI_FEATURE_TYPE } from 'src/utils/enum';
 
 const Null = styled.div`
   > div {
@@ -214,6 +217,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
   const [list, setList] = useState([]);
   const [controller, setController] = useState(null);
   const [clearParams, setClearParams] = useState(true);
+  const [error, setError] = useState();
   const generateCode = async () => {
     if (!list.length || !controller) return;
 
@@ -227,6 +231,13 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
           setList(newList);
           setController(null);
           saveGenerateCodeRecord(newList);
+          return;
+        }
+        if (event.event === 'error') {
+          setError({
+            errorMsg: _l('模型调用失败'),
+            sourceData: event.data,
+          });
           return;
         }
 
@@ -334,65 +345,75 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
                       '',
                     )
                   : ((item.content.match(/```python[\s\S]*?```/) || [])[0] || '').replace(/(```python\n)|\n```/g, '');
-
+              const lastShowError = !!error && item.role === 'assistant' && index === list.length - 1;
               return (
                 <div className="flexRow mBottom25" key={index}>
                   <Avatar>
                     {item.role === 'user' ? <img src={md.global.Account.avatar} /> : <i className="icon-ai1" />}
                   </Avatar>
                   <div className="flex">
-                    <ListContent
-                      className={cx(
-                        'chatGPTElement',
-                        {
-                          'ThemeBorderColor3 ThemeBGColor3 White Font14': item.role === 'user',
-                        },
-                        { w100: item.role !== 'user' },
-                      )}
-                    >
-                      {item.role === 'user' ? (
-                        item.content
-                      ) : (
-                        <Fragment>
-                          <div
-                            className="markdown-body"
-                            dangerouslySetInnerHTML={{ __html: getMarkdownContent(item.content) }}
-                          />
-                          {code && (
-                            <div className="mTop8 mBottom5 flexRow alignItemsCenter">
-                              <Checkbox
-                                className="InlineBlock"
-                                text={_l('使用时清空现有input参数与代码块')}
-                                checked={clearParams}
-                                onClick={checked => setClearParams(!checked)}
-                              />
-                              <div className="flex" />
-                              <UseBtn
-                                className="ThemeColor3 mLeft20"
-                                onClick={() => {
-                                  const inputData = {};
+                    {!lastShowError && (
+                      <ListContent
+                        className={cx(
+                          'chatGPTElement',
+                          {
+                            'ThemeBorderColor3 ThemeBGColor3 White Font14': item.role === 'user',
+                          },
+                          { w100: item.role !== 'user' },
+                        )}
+                      >
+                        {item.role === 'user' ? (
+                          item.content
+                        ) : (
+                          <Fragment>
+                            <div
+                              className="markdown-body"
+                              dangerouslySetInnerHTML={{ __html: getMarkdownContent(item.content) }}
+                            />
+                            {code && (
+                              <div className="mTop8 mBottom5 flexRow alignItemsCenter">
+                                <Checkbox
+                                  className="InlineBlock"
+                                  text={_l('使用时清空现有input参数与代码块')}
+                                  checked={clearParams}
+                                  onClick={checked => setClearParams(!checked)}
+                                />
+                                <div className="flex" />
+                                <UseBtn
+                                  className="ThemeColor3 mLeft20"
+                                  onClick={() => {
+                                    const inputData = {};
 
-                                  if (codeType === 1) {
-                                    (code.match(/input\..*?[),;\n ]/g) || []).forEach(key => {
-                                      inputData[key.replace(/(input.)|([),;\n ])/g, '')] = '';
-                                    });
-                                  } else {
-                                    (code.match(/input\[.*\]/g) || []).forEach(key => {
-                                      inputData[key.replace(/(input\[")|("\])/g, '')] = '';
-                                    });
-                                  }
+                                    if (codeType === 1) {
+                                      (code.match(/input\..*?[),;\n ]/g) || []).forEach(key => {
+                                        inputData[key.replace(/(input.)|([),;\n ])/g, '')] = '';
+                                      });
+                                    } else {
+                                      (code.match(/input\[.*\]/g) || []).forEach(key => {
+                                        inputData[key.replace(/(input\[")|("\])/g, '')] = '';
+                                      });
+                                    }
 
-                                  onSave({ clearParams, code, inputData });
-                                }}
-                              >
-                                {_l('使用')}
-                              </UseBtn>
-                            </div>
-                          )}
-                          {!item.content && index === list.length - 1 && controller && <Cursor />}
-                        </Fragment>
-                      )}
-                    </ListContent>
+                                    onSave({ clearParams, code, inputData });
+                                  }}
+                                >
+                                  {_l('使用')}
+                                </UseBtn>
+                              </div>
+                            )}
+                            {!item.content && index === list.length - 1 && controller && <Cursor />}
+                          </Fragment>
+                        )}
+                      </ListContent>
+                    )}
+                    {lastShowError && (
+                      <ResponseError
+                        style={{ marginTop: 0 }}
+                        aiFeatureType={AI_FEATURE_TYPE.CODEGEN_WORKFLOW_NODE}
+                        error={error}
+                        showFeedback
+                      />
+                    )}
                   </div>
                 </div>
               );
@@ -401,16 +422,17 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
         </ScrollView>
         <Footer className="mTop10 flexRow relative">
           {!!list.length && (
-            <div
-              className="clearBtn tip-top"
-              data-tip={_l('重新开始')}
-              onClick={() => {
-                saveGenerateCodeRecord([]);
-                setList([]);
-              }}
-            >
-              <i className="icon-cleaning_services" />
-            </div>
+            <Tooltip title={_l('重新开始')}>
+              <div
+                className="clearBtn"
+                onClick={() => {
+                  saveGenerateCodeRecord([]);
+                  setList([]);
+                }}
+              >
+                <i className="icon-cleaning_services" />
+              </div>
+            </Tooltip>
           )}
           {controller && (
             <div

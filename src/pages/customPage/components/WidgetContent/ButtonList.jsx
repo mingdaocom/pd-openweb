@@ -18,12 +18,11 @@ import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { showFilteredRecords } from 'worksheet/components/SearchRecordResult';
-import ScanQRCode from 'src/components/newCustomFields/components/ScanQRCode';
+import ScanQRCode from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { hrefReg } from 'src/pages/customPage/components/previewContent';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, getRequest } from 'src/utils/common';
 import { addBehaviorLog, dateConvertToServerZone, mdAppResponse } from 'src/utils/project';
 import { genUrl } from '../../util';
 import ButtonDisplay from '../editWidget/button/ButtonDisplay';
@@ -111,7 +110,21 @@ export function ButtonList({
     if (isMobile) {
       customBtnWorkflow();
     }
-  });
+    const { btnItemId } = getRequest();
+    if (btnItemId) {
+      const buttonList = _.get(widget, 'button.buttonList') || [];
+      const button = _.find(buttonList, { id: btnItemId });
+      const removeQueryParam = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('btnItemId');
+        history.replaceState(null, '', url.toString());
+      };
+      if (button) {
+        handleClick(button);
+        removeQueryParam();
+      }
+    }
+  }, []);
 
   async function runStartProcessByPBC(item, scanQRCodeResult) {
     const { id, processId, name, config } = item;
@@ -495,6 +508,7 @@ export function ButtonList({
           appId={appId}
           worksheetId={worksheetId}
           viewId={viewId}
+          projectId={projectId}
           writeControls={writeControls}
           sheetSwitchPermit={sheetSwitchPermit}
           showDraftsEntry={isMobile ? true : false}

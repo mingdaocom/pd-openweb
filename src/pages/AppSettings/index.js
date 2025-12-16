@@ -3,7 +3,8 @@ import Loadable from 'react-loadable';
 import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, Tooltip, UpgradeIcon } from 'ming-ui';
+import { Icon, LoadDiv, UpgradeIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { hasPermission } from 'src/components/checkPermission';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -249,7 +250,7 @@ class AppSettings extends Component {
                       }}
                     >
                       {collapseAppManageNav ? (
-                        <Tooltip popupPlacement="right" popupAlign={{ offset: [5, 0] }} text={<span>{text}</span>}>
+                        <Tooltip placement="right" align={{ offset: [5, 0] }} title={text}>
                           <Icon className="appConfigItemIcon Font18" icon={icon} />
                         </Tooltip>
                       ) : (
@@ -275,7 +276,7 @@ class AppSettings extends Component {
               })}
           </div>
           <div className={cx('collapseWrap TxtRight', { collapseHideWrap: collapseAppManageNav })}>
-            <Tooltip text={<span>{!collapseAppManageNav ? _l('收起') : _l('展开')}</span>}>
+            <Tooltip title={!collapseAppManageNav ? _l('收起') : _l('展开')}>
               <Icon
                 icon={!collapseAppManageNav ? 'menu_left' : 'menu_right'}
                 className="Font20 Gray_9e pointer collapseWrapIcon"
@@ -287,32 +288,34 @@ class AppSettings extends Component {
             </Tooltip>
           </div>
         </div>
-        <div className={cx('manageAppRight flex flexColumn', currentConfigType)}>
-          {loading ? (
-            <LoadDiv />
-          ) : md.global.Config.IsLocal &&
-            !md.global.Config.EnableDataPipeline &&
-            'aggregations' === currentConfigType ? (
-            <div className="flexColumn alignItemsCenter justifyContentCenter h100">
-              {upgradeVersionDialog({
-                hint: md.global.Config.IsPlatformLocal ? (
-                  _l('数据集成服务未部署，暂不可用')
-                ) : (
-                  <span>
-                    {_l('数据集成服务未部署，请参考')}
-                    <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
-                      {_l('帮助')}
-                    </a>
-                  </span>
-                ),
-                dialogType: 'content',
-              })}
-            </div>
-          ) : featureType && featureType === '2' && !['variables', 'aggregations'].includes(currentConfigType) ? (
-            <UpgradeCom projectId={projectId} featureId={featureId} />
-          ) : (
-            <Component {...componentProps} />
-          )}
+        <div className={cx('manageAppRight flex flexColumn minHeight0', currentConfigType)}>
+          <div className="flexColumn flex minHeight0" style={{ minWidth: 800 }}>
+            {loading ? (
+              <LoadDiv />
+            ) : md.global.Config.IsLocal &&
+              !md.global.Config.EnableDataPipeline &&
+              'aggregations' === currentConfigType ? (
+              <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+                {upgradeVersionDialog({
+                  hint: md.global.Config.IsPlatformLocal ? (
+                    _l('数据集成服务未部署，暂不可用')
+                  ) : (
+                    <span>
+                      {_l('数据集成服务未部署，请参考')}
+                      <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
+                        {_l('帮助')}
+                      </a>
+                    </span>
+                  ),
+                  dialogType: 'content',
+                })}
+              </div>
+            ) : featureType && featureType === '2' && !['variables', 'aggregations'].includes(currentConfigType) ? (
+              <UpgradeCom projectId={projectId} featureId={featureId} />
+            ) : (
+              <Component {...componentProps} />
+            )}
+          </div>
         </div>
         {delAppConfirmVisible && (
           <VerifyDel

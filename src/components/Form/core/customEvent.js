@@ -109,7 +109,7 @@ const canSearchMore = currentControl => {
 // 获取查询工作表数据
 const getSearchWorksheetData = async props => {
   const { formData, recordId, queryConfig = {}, control } = props;
-  const { items = [], templates = [], sourceId, moreSort, controlId, id } = queryConfig;
+  const { items = [], templates = [], sourceId, moreSort, controlId, id, moreType, recordsNotFound } = queryConfig;
   const currentControl = control || _.find(formData, da => da.controlId === controlId);
   const controls = _.get(templates[0] || {}, 'controls') || [];
   let queryCount = getDefaultCount(currentControl, queryConfig.queryCount);
@@ -146,10 +146,13 @@ const getSearchWorksheetData = async props => {
     if (_.get(resultData, 'resultCode') === 1) {
       let result = resultData.data || [];
       // 查询多条时不赋值
-      if (canSearchMore(currentControl) && resultData.count > 1 && (queryConfig || {}).moreType === 1) {
+      if (
+        (canSearchMore(currentControl) && resultData.count > 1 && moreType === 1) ||
+        (!resultData.count && recordsNotFound === 1)
+      ) {
         result = false;
       }
-      return result;
+      return { count: resultData.count, result };
     } else {
       return false;
     }
@@ -207,14 +210,25 @@ const getRelateSearchResult = (control, searchResult, isMix) => {
 
 // 查询工作表赋值
 const handleUpdateSearchResult = async props => {
-  const { handleChange, queryConfig = {}, searchResult = [], formData = [], isMix, control } = props;
-  const { configs = [], templates = {} } = queryConfig;
+  const { handleChange, queryConfig = {}, formData = [], isMix, control } = props;
+  const { configs = [], templates = {}, recordsNotFound, moreType } = queryConfig;
   const controls = _.get(templates[0] || {}, 'controls') || [];
+  const { count, result: searchResult } = props.searchResult || {};
+
+  // 保留原值
+  const keepOriginalValue =
+    (isMix ? count > 1 && moreType === 1 : canSearchMore(control) && count > 1 && moreType === 1) ||
+    (!count && recordsNotFound);
+
+  if (keepOriginalValue) return;
+
+  // 查询多条赋空值、未查询到赋空值
+  const emptyValue = c => (canSearchMore(c) && count > 1 && moreType === 2) || (!count && !recordsNotFound);
 
   if (control && _.includes([29, 35], control.type)) {
-    const newVal = getRelateSearchResult(control, searchResult);
-    handleChange(newVal, control.controlId, false);
-    return true;
+    const newVal = getRelateSearchResult(control, emptyValue(control) ? [] : searchResult);
+    handleChange(newVal, control.controlId, control, false);
+    return;
   }
   try {
     await Promise.all(
@@ -226,10 +240,10 @@ const handleUpdateSearchResult = async props => {
           if (_.includes([29, 35], currentControl.type)) {
             const newVal = getRelateSearchResult(
               currentControl,
-              safeParse(_.get(searchResult[0], [cid]) || '[]'),
+              emptyValue(currentControl) ? [] : safeParse(_.get(searchResult[0], [subCid]) || '[]'),
               isMix,
             );
-            handleChange(newVal, currentControl.controlId, false);
+            handleChange(newVal, currentControl.controlId, currentControl, false);
             // 子表赋值
           } else if (currentControl.type === 34) {
             const subMapConfigs = isMix
@@ -288,10 +302,12 @@ const handleUpdateSearchResult = async props => {
               {
                 action: 'clearAndSet',
                 isDefault: true,
-                rows: newValue,
+                rows: emptyValue(currentControl) ? [] : newValue,
                 fireWhenLoaded: true,
+                ..._.pick(props, ['isSetValueFromRule']),
               },
               currentControl.controlId,
+              currentControl,
               false,
             );
           } else {
@@ -301,15 +317,15 @@ const handleUpdateSearchResult = async props => {
               controls,
               searchResult: (searchResult[0] || {})[subCid],
             });
-            handleChange(itemVal, currentControl.controlId, false);
+            handleChange(emptyValue(currentControl) ? '' : itemVal, currentControl.controlId, currentControl, false);
           }
         }
       }),
     );
-    return true;
+    return;
   } catch (error) {
     console.log(error);
-    return true;
+    return;
   }
 };
 
@@ -447,7 +463,7 @@ const handleSearchApi = async props => {
     upgradeVersionDialog({
       projectId,
       okText: _l('立即充值'),
-      hint: _l('余额不足，请联系管理员充值'),
+      hint: _l('信用点不足，请联系管理员充值'),
       explainText: <div></div>,
       onOk: () => {
         location.href = `/admin/valueaddservice/${projectId}`;
@@ -511,6 +527,78 @@ const checkFiltersAvailable = async props => {
   return _.some(result, r => !!r);
 };
 
+// 处理设置字段值的操作
+export const handleSetValueActions = async (actionItems, props) => {
+  const { formData, recordId, searchConfig, handleChange } = props;
+
+  return Promise.all(
+    actionItems.map(async item => {
+      const control = _.find(formData, f => f.controlId === item.controlId);
+      const actionItemType = item.type === '0' ? '' : item.type;
+      if (control) {
+        // 已有记录关联列表不变更
+        const canNotSet =
+          control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
+        // 查询工作表单独更新
+        if (actionItemType === '2') {
+          const queryId = _.get(safeParse(item.value || '{}'), 'id');
+          const queryConfig = _.find(searchConfig, q => q.id === queryId);
+          if (!(canNotSet || props.disabled)) {
+            const searchResult = await getSearchWorksheetData({ ...props, queryConfig, control });
+            if (!(searchResult === false)) {
+              handleUpdateSearchResult({ ...props, searchResult, queryConfig, control });
+            }
+          }
+        } else {
+          let value = getDynamicData(props, {
+            ...control,
+            advancedSetting: {
+              // 当前人员需要
+              ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
+              [actionItemType === '1' ? 'defaultfunc' : 'defsource']: item.value,
+              defaulttype: actionItemType,
+            },
+          });
+          if (value !== control.value && !canNotSet) {
+            if (control.type === 29) {
+              try {
+                const records = safeParse(value || '[]');
+                if (_.isEmpty(records)) {
+                  value = 'deleteRowIds: all';
+                } else {
+                  value = JSON.stringify(
+                    records.map(record => ({
+                      ...record,
+                      count: records.length,
+                    })),
+                  );
+                }
+              } catch (err) {
+                console.log(err);
+              }
+            }
+            if (control.type === 34) {
+              try {
+                const records = safeParse(value || '[]');
+                value = {
+                  action: 'clearAndSet',
+                  isDefault: true,
+                  rows: records,
+                  fireWhenLoaded: true,
+                  ..._.pick(props, ['isSetValueFromEvent', 'isSetValueFromRule']),
+                };
+              } catch (err) {
+                console.log(err);
+              }
+            }
+            handleChange(value, item.controlId, control, false);
+          }
+        }
+      }
+    }),
+  );
+};
+
 // 成立则执行一下动作
 const triggerCustomActions = async props => {
   const {
@@ -560,69 +648,7 @@ const triggerCustomActions = async props => {
       // 设置字段值
       case ACTION_VALUE_ENUM.SET_VALUE:
         try {
-          await Promise.all(
-            actionItems.map(async item => {
-              const control = _.find(formData, f => f.controlId === item.controlId);
-              if (control) {
-                // 已有记录关联列表不变更
-                const canNotSet =
-                  control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
-                // 查询工作表单独更新
-                if (item.type === '2') {
-                  const queryId = _.get(safeParse(item.value || '{}'), 'id');
-                  const queryConfig = _.find(searchConfig, q => q.id === queryId);
-                  const searchResult = await getSearchWorksheetData({ ...props, queryConfig, control });
-                  if (!(searchResult === false || canNotSet || props.disabled)) {
-                    handleUpdateSearchResult({ ...props, searchResult, queryConfig, control });
-                  }
-                } else {
-                  let value = getDynamicData(props, {
-                    ...control,
-                    advancedSetting: {
-                      // 当前人员需要
-                      ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
-                      [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
-                      defaulttype: item.type,
-                    },
-                  });
-                  if (value !== control.value && !canNotSet) {
-                    if (control.type === 29) {
-                      try {
-                        const records = safeParse(value || '[]');
-                        if (_.isEmpty(records)) {
-                          value = 'deleteRowIds: all';
-                        } else {
-                          value = JSON.stringify(
-                            records.map(record => ({
-                              ...record,
-                              count: records.length,
-                            })),
-                          );
-                        }
-                      } catch (err) {
-                        console.log(err);
-                      }
-                    }
-                    if (control.type === 34) {
-                      try {
-                        const records = safeParse(value || '[]');
-                        value = {
-                          action: 'clearAndSet',
-                          isDefault: true,
-                          rows: records,
-                          fireWhenLoaded: true,
-                          isSetValueFromEvent: true,
-                        };
-                      } catch (err) {
-                        console.log(err);
-                      }
-                    }
-                    handleChange(value, item.controlId, control, false);
-                  }
-                }
-              }
-            }),
-          );
+          await handleSetValueActions(actionItems, { ...props, isSetValueFromEvent: true });
           completeActionsCount += 1;
         } catch (error) {
           console.log(error);
@@ -755,8 +781,8 @@ const triggerCustomActions = async props => {
         const queryConfig = _.find(searchConfig, q => q.id === queryId);
         const searchResult = await getSearchWorksheetData({ ...props, queryConfig });
         if (searchResult !== false) {
-          const isComplete = await handleUpdateSearchResult({ ...props, searchResult, queryConfig, isMix: true });
-          if (isComplete) completeActionsCount += 1;
+          await handleUpdateSearchResult({ ...props, searchResult, queryConfig, isMix: true });
+          completeActionsCount += 1;
         } else {
           completeActionsCount += 1;
         }

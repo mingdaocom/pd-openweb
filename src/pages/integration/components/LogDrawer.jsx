@@ -225,7 +225,7 @@ export default function (props) {
         if (!record.completeDate) {
           return '';
         }
-        return `${moment(record.completeDate).diff(moment(record.createdDate), 'seconds')} 秒`;
+        return `${moment(record.completeDate).diff(moment(record.createdDate), 'milliseconds')} ms`;
       },
     },
     {

@@ -1,11 +1,11 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { VerticalMiddle } from 'worksheet/components/Basics';
@@ -360,10 +360,7 @@ function GroupTitle(props) {
           <SvgIcon
             className="mRight4 mTop5"
             size={20}
-            url={
-              svgIcon.iconUrl ||
-              `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${svgIcon.icon}.svg`
-            }
+            url={svgIcon.iconUrl || `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon.icon}.svg`}
             fill="#757575"
           />
         )}

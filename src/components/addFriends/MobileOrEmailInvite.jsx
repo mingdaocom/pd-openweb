@@ -1,24 +1,25 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, RadioGroup } from 'ming-ui';
+import { Button, Icon, RadioGroup, Support } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import Requests from 'src/api/addressBook';
 import InviteController from 'src/api/invitation';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
 import EmailInput from 'src/pages/Role/PortalCon/components/Email';
 import Tel from 'src/pages/Role/PortalCon/components/Tel';
-import { encrypt, existAccountHint } from 'src/utils/common';
+import { encrypt } from 'src/utils/common';
 import { DETAIL_MODE, FROM_TYPE } from './enum';
+import inviteFailedDialog from './InviteFailedDialog';
 
 const DISPLAY_OPTIONS = [
   {
-    text: _l('手机'),
-    value: 1,
-  },
-  {
     text: _l('邮箱'),
     value: 2,
+  },
+  {
+    text: _l('手机'),
+    value: 1,
   },
 ];
 
@@ -37,7 +38,7 @@ export default class MobileOrEmailInvite extends Component {
       loading: false,
       keywords: '',
       searchData: null,
-      selectType: !md.global.SysSettings.enableSmsCustomContent ? TYPE_MODE.EMAIL : TYPE_MODE.MOBILE,
+      selectType: TYPE_MODE.EMAIL,
     };
   }
 
@@ -106,7 +107,11 @@ export default class MobileOrEmailInvite extends Component {
       fromType,
     })
       .then(result => {
-        existAccountHint(result);
+        inviteFailedDialog({
+          inviteTotal: _.isObject(accounts) ? Object.keys(accounts).length : accounts.length,
+          projectId,
+          result,
+        });
 
         // 1代表成功
         if (result && result.sendMessageResult === 1) {
@@ -240,7 +245,7 @@ export default class MobileOrEmailInvite extends Component {
             : [
                 {
                   accountId: 'default',
-                  avatarBig: `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`,
+                  avatarBig: `${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`,
                   fullname: this.getValue(),
                   subInfo: _l('该用户未注册，你可以邀请TA加入并成为好友'),
                 },
@@ -292,7 +297,7 @@ export default class MobileOrEmailInvite extends Component {
           )}
         </div>
 
-        {md.global.SysSettings.enableSmsCustomContent && (
+        {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.SysSettings.enableSmsCustomContent)) && (
           <RadioGroup
             size="middle"
             className="mBottom20"
@@ -301,6 +306,43 @@ export default class MobileOrEmailInvite extends Component {
             onChange={value => this.setState({ selectType: value, list: defaultList })}
           />
         )}
+        {md.global.SysSettings.enableSmsCustomContent && selectType === 1 && (
+          <div className="prompt flexRow mBottom20 Gray">
+            <div className="mRight3">
+              <Icon icon="info" className="Font16" />
+            </div>
+            <div className="flex">
+              <span>
+                {_l('受运营商政策影响，含链接的邀请短信可能被拦截。如未收到短信，请通过邮箱或邀请链接发送邀请')}
+              </span>
+              <Support
+                type={3}
+                className="mLeft5 mBottom3"
+                href="https://blog.mingdao.com/37103.html"
+                text={_l('详细')}
+              />
+            </div>
+          </div>
+        )}
+        {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.SysSettings.enableSmsCustomContent)) &&
+          selectType === 1 && (
+            <div className="prompt flexRow mBottom20 Gray">
+              <div className="mRight3">
+                <Icon icon="info" className="Font16" />
+              </div>
+              <div className="flex">
+                <span>
+                  {_l('受运营商政策影响，含链接的邀请短信可能被拦截。如未收到短信，请通过邮箱或邀请链接发送邀请')}
+                </span>
+                <Support
+                  type={3}
+                  className="mLeft5 mBottom3"
+                  href="https://blog.mingdao.com/37103.html"
+                  text={_l('详细')}
+                />
+              </div>
+            </div>
+          )}
         <div className="resultContent" style={{ minHeight: 230, overflow: 'unset' }}>
           {list.map((item, index) => this.renderItem(item, index))}
           <div className="addBox ThemeColor3">

@@ -17,6 +17,7 @@ export default {
    * @param {boolean} args.webMobileDisplay web移动端显示
    * @param {boolean} args.appDisplay app端显示
    * @param {string} args.dbInstanceId 数据库实例id
+   * @param {string} args.shortDesc 简短描述
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -145,6 +146,7 @@ export default {
    * @param {integer} args.expandType 展开方式  0 = 默认，1 = 手风琴
    * @param {boolean} args.hideFirstSection 隐藏首个分组
    * @param {array} args.appNavItemIds 移动端导航应用项ids
+   * @param {string} args.shortDesc 简短描述
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -298,6 +300,18 @@ export default {
     return mdyAPI('HomeApp', 'GetAppItemDetail', args, options);
   },
   /**
+   * 批量获取应用下应用项信息
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id（应用预览鉴权)
+   * @param {array} args.itemIds 应用项id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getItemDetailByAppId: function (args, options = {}) {
+    return mdyAPI('HomeApp', 'GetItemDetailByAppId', args, options);
+  },
+  /**
   * 获取应用详情（包含分组信息，请求参数可选）
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
@@ -318,6 +332,28 @@ export default {
   **/
   getApp: function (args, options = {}) {
     return mdyAPI('HomeApp', 'GetApp', args, options);
+  },
+  /**
+  * 获取应用语言信息
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.appId 应用id
+  * @param {boolean} args.getSection 是否获取分组信息
+  * @param {boolean} args.getManager 是否获取管理员列表信息
+  * @param {boolean} args.getProject 获取组织信息
+  * @param {boolean} args.getLang 是否获取应用语种信息
+  * @param {boolean} args.isMobile 是否是移动端
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  getAppLangInfo: function (args, options = {}) {
+    return mdyAPI('HomeApp', 'GetAppLangInfo', args, options);
   },
   /**
    * 验证应用有效性

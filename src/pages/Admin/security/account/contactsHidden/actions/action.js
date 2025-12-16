@@ -122,7 +122,7 @@ export const saveFn = (projectId, items, ruleId, ruleType, errorCallback) => dis
       dispatch(getRulesAll(projectId));
     } else {
       errorCallback(res.errorIds);
-      alert(_l(res.errorMessage || '已设置规则成员， 不能重复设置'), 2, 5000);
+      alert(_l(res.errorMessage || '已设置规则成员， 不能重复设置'), 2);
     }
   };
   if (!ruleId) {

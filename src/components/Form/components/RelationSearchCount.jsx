@@ -3,8 +3,8 @@ import { isNaN } from 'lodash';
 import useListenedValue from 'worksheet/hooks/useListenedValue';
 
 const RelationSearchCount = React.memo(
-  function RelationSearchCount({ control, recordId }) {
-    const countValue = useListenedValue(`relationSearchCount:${recordId}:${control.controlId}`);
+  function RelationSearchCount({ control }) {
+    const countValue = useListenedValue(`relationSearchCount:${control.controlId}`);
     const count = Number(countValue);
     if (isNaN(count) || count === 0) {
       return null;

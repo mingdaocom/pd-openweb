@@ -7,7 +7,8 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Menu, MenuItem, SortableList, Support, Tooltip } from 'ming-ui';
+import { Dialog, Menu, MenuItem, SortableList, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGET_GROUP_TYPE } from '../../../config/widget';
 import { checkWidgetMaxNumErr, enumWidgetType, getWidgetInfo } from '../../../util';
@@ -176,12 +177,12 @@ const SortableItem = ({ item, deleteWidget, copyWidget, configureWidget, DragHan
         </div>
       </div>
       <div className="iconOption">
-        <Tooltip text={_l('复制')}>
+        <Tooltip title={_l('复制')}>
           <i className="copy icon-copy pointer Gray_9e ThemeHoverColor3 Font16" onMouseDown={copyWidget}></i>
         </Tooltip>
       </div>
       <div className="iconOption mRight5">
-        <Tooltip text={_l('删除')}>
+        <Tooltip title={_l('删除')}>
           <i className="del icon-delete_12 pointer Font16" onMouseDown={deleteWidget}></i>
         </Tooltip>
       </div>

@@ -12,12 +12,11 @@ import { getNewRecordPageUrl, getRecordLandUrl } from 'src/utils/record';
  * 统计图 report [OK]
  */
 
-// TODO 更新回调
-
 const SHARE_SOURCE_TYPE = {
   worksheetApi: 45,
   customPage: 21,
   report: 31,
+  chatbot: 71,
 };
 
 export async function getUrl(args) {
@@ -82,6 +81,7 @@ export async function getPublicShare(args) {
     case 'worksheetApi':
     case 'customPage':
     case 'report':
+    case 'chatbot':
       res = await appManagementAjax.getEntityShare({
         appId: args.appId,
         sourceId: args.sourceId,
@@ -136,6 +136,7 @@ export async function updatePublicShareStatus(args) {
     case 'worksheetApi':
     case 'customPage':
     case 'report':
+    case 'chatbot':
       res = await appManagementAjax.editEntityShareStatus({
         appId: args.appId,
         sourceId: args.sourceId,

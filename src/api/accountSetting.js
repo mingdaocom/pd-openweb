@@ -55,6 +55,17 @@ PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetio
     return mdyAPI('AccountSetting', 'EditSign', args, options);
   },
   /**
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  testSign: function (args, options = {}) {
+    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+    return mdyAPI('AccountSetting', 'TestSign', args, options);
+  },
+  /**
   * 修改用户加入的组织排序
   * @param {Object} args 请求参数
   * @param {array} args.projectIds 所有的排序组织ID

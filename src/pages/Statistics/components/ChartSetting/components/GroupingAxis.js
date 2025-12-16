@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu, Tooltip } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
 import {
   areaParticleSizeDropdownData,
@@ -37,10 +38,20 @@ export default class GroupingAxis extends Component {
   }
   handleVerification = (data, isAlert = false) => {
     const { reportType, xaxes, yaxisList } = this.props;
-    if ([reportTypes.ScatterChart].includes(reportType) && _.find(yaxisList, { controlId: data.controlId })) {
+
+    if (
+      [reportTypes.ScatterChart, reportTypes.WorldMap].includes(reportType) &&
+      _.find(yaxisList, { controlId: data.controlId })
+    ) {
       isAlert && alert(_l('数值和颜色不允许重复'), 2);
       return false;
     }
+
+    if (reportTypes.WorldMap === reportType && data.type === 40) {
+      isAlert && alert(_l('不支持定位字段'), 2);
+      return false;
+    }
+
     if (
       [reportTypes.BarChart, reportTypes.RadarChart].includes(reportType) &&
       xaxes.controlId &&
@@ -49,6 +60,7 @@ export default class GroupingAxis extends Component {
       isAlert && alert(_l('多数值时不能同时配置维度和分组'), 2);
       return false;
     }
+
     if (isNumberControl(data.type)) {
       isAlert && alert('数值和公式字段不能分组', 2);
       return false;
@@ -97,7 +109,7 @@ export default class GroupingAxis extends Component {
     if (reportType === reportTypes.BidirectionalBarChart) {
       return _l('分组(数值1)');
     }
-    if (reportType === reportTypes.ScatterChart) {
+    if ([reportTypes.ScatterChart, reportTypes.WorldMap].includes(reportType)) {
       return _l('颜色(维度)');
     }
     return _l('分组');
@@ -200,7 +212,12 @@ export default class GroupingAxis extends Component {
           </Tooltip>
         )}
         {isTime && (
-          <Dropdown overlay={this.renderTimeOverlay(axis)} trigger={['click']} placement="bottomRight">
+          <Dropdown
+            overlay={this.renderTimeOverlay(axis)}
+            trigger={['click']}
+            placement="bottomRight"
+            getPopupContainer={() => document.querySelector('.ChartDialogContainer .setting')}
+          >
             <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
@@ -220,7 +237,12 @@ export default class GroupingAxis extends Component {
   }
   render() {
     const { name, split, yaxisList, reportType } = this.props;
-    const visible = [reportTypes.BarChart, reportTypes.RadarChart, reportTypes.ScatterChart].includes(reportType)
+    const visible = [
+      reportTypes.BarChart,
+      reportTypes.RadarChart,
+      reportTypes.ScatterChart,
+      reportTypes.WorldMap,
+    ].includes(reportType)
       ? true
       : yaxisList.length === 1;
     return visible ? (

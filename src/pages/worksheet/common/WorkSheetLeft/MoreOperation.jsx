@@ -3,7 +3,8 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, DeleteReconfirm, Dialog, Icon, Input, LoadDiv, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Checkbox, DeleteReconfirm, Dialog, Icon, Input, LoadDiv, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
 import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
@@ -140,23 +141,34 @@ const CopySheetConfirmDescription = props => {
 
 const handleDeleteWorkSheet = ({ projectId, appId, groupId, appItem, sheetListActions }) => {
   const { workSheetName: name, type } = appItem;
+  const nameMap = {
+    0: _l('工作表'),
+    1: _l('自定义页面'),
+    3: _l('对话机器人'),
+  };
+  const titleMap = {
+    0: _l('删除工作表 “%0”', name),
+    1: _l('删除自定义页面 “%0”', name),
+    3: _l('删除对话机器人 “%0”', name),
+  };
+  const isChatBot = type === 3;
   DeleteReconfirm({
     clickOmitText: true,
     style: { width: '560px' },
     title: (
       <div className="Bold">
         <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
-        {type ? _l('删除自定义页面 “%0”', name) : _l('删除工作表 “%0”', name)}
+        {titleMap[type]}
       </div>
     ),
     description: (
       <div>
         <span style={{ color: '#151515', fontWeight: 'bold' }}>
-          {type ? _l('注意：自定义页面下所有配置和数据将被删除。') : _l('注意：工作表下所有配置和数据将被删除。')}
+          {isChatBot
+            ? _l('对话机器人下所有配置和历史对话将被删除。')
+            : _l('注意：%0下所有配置和数据将被删除。', nameMap[type])}
         </span>
-        {type
-          ? _l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')
-          : _l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}
+        {_l('请务必确认所有应用成员都不再需要此%0后，再执行此操作。', nameMap[type])}
       </div>
     ),
     expandBtn: type ? null : (
@@ -171,7 +183,12 @@ const handleDeleteWorkSheet = ({ projectId, appId, groupId, appItem, sheetListAc
         />
       </span>
     ),
-    data: [{ text: type ? _l('我确认删除自定义页面和所有数据') : _l('我确认删除工作表和所有数据'), value: 1 }],
+    data: [
+      {
+        text: isChatBot ? _l('我确认删除对话机器人和所有历史对话') : _l('我确认删除%0和所有数据', nameMap[type]),
+        value: 1,
+      },
+    ],
     onOk: () => {
       sheetListActions.deleteSheet({
         type,
@@ -247,6 +264,17 @@ const handleCopyWorkSheet = props => {
           createType,
         },
       );
+    } else if (type === 3) {
+      sheetListActions.copyChatBot({
+        appId,
+        appSectionId: groupId,
+        name: copyArgs.name,
+        id: workSheetId,
+        icon,
+        iconColor,
+        iconUrl,
+        parentGroupId,
+      });
     } else {
       sheetListActions.copySheet(copyArgs, {
         icon,
@@ -257,14 +285,15 @@ const handleCopyWorkSheet = props => {
     }
     dialogConfirm();
   };
+  const nameMap = {
+    0: _l('工作表'),
+    1: _l('自定义页面'),
+    3: _l('对话机器人'),
+  };
   const dialogConfirm = Dialog.confirm({
     width: 480,
     className: 'copySheetDialog',
-    title: (
-      <span className="bold">
-        {type ? _l('复制自定义页面 “%0”', workSheetName) : _l('复制工作表 “%0”', workSheetName)}
-      </span>
-    ),
+    title: <span className="bold">{_l('复制%0 “%1”', nameMap[type], workSheetName)}</span>,
     description: (
       <CopySheetConfirmDescription
         type={type}
@@ -330,6 +359,7 @@ export default function MoreOperation(props) {
     0: _l('删除工作表%02029'),
     1: _l('删除自定义页面'),
     2: _l('删除分组%02012'),
+    3: _l('删除对话机器人'),
   };
 
   const handleCreateAppItem = (type, args) => {
@@ -576,9 +606,7 @@ export default function MoreOperation(props) {
                 <span className="text flexRow">
                   <span>{_l('从导航中隐藏%02020')}</span>
                   <Tooltip
-                    popupPlacement="top"
-                    autoCloseDelay={0}
-                    text={
+                    title={
                       <span>
                         {_l(
                           '设为隐藏后，普通用户在导航中将看不到此应用项入口，仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则。此配置通常用于不需要用户直接访问，仅作为配置用途的应用项，如：关联的明细表、参数表等。',
@@ -627,6 +655,18 @@ export default function MoreOperation(props) {
                 >
                   <span className="text">{_l('自定义页面%02013')}</span>
                 </MenuItem>
+                {appPkg.workflowAgentFeatureType === '1' && !md.global.SysSettings.hideAIBasicFun && (
+                  <MenuItem
+                    data-event="chatbot"
+                    icon={<Icon icon="AI_Agent" className="Font20" />}
+                    onClick={() => {
+                      setCreateType('chatbot');
+                      setPopupVisible(false);
+                    }}
+                  >
+                    <span className="text">{_l('对话机器人')}</span>
+                  </MenuItem>
+                )}
               </Fragment>
             )}
             <hr className="splitter" />
@@ -736,8 +776,16 @@ export default function MoreOperation(props) {
         />
       )}
       {!!createType &&
-        (['customPage', 'worksheet'].includes(createType) ? (
-          <CreateNew type={createType} onCreate={handleCreateAppItem} onCancel={() => setCreateType('')} />
+        (['customPage', 'worksheet', 'chatbot'].includes(createType) ? (
+          <CreateNew
+            type={createType}
+            onImportExcel={() => {
+              setCreateType('importExcel');
+              setPopupVisible(false);
+            }}
+            onCreate={handleCreateAppItem}
+            onCancel={() => setCreateType('')}
+          />
         ) : (
           <DialogImportExcelCreate
             projectId={projectId}

@@ -1,5 +1,4 @@
 import React, { Fragment, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { get, head } from 'lodash';
@@ -7,6 +6,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, Icon, RadioGroup, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util.js';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import FastFilter from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/fastFilterCon';

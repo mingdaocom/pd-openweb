@@ -153,6 +153,7 @@ export default class WorkSheetComment extends React.Component {
       exAccountDiscussEnum,
       allowExAccountDiscuss,
       isHide,
+      formFlag,
       viewType,
     } = this.props;
     const { worksheetInfo, disType } = this.state;
@@ -194,6 +195,7 @@ export default class WorkSheetComment extends React.Component {
       entityType,
       instanceId,
       workId,
+      formFlag,
       autoFocus,
     };
 

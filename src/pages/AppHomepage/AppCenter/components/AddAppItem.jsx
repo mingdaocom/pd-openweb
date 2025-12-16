@@ -13,6 +13,7 @@ import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImport
 import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus, getThemeColors } from 'src/utils/project';
+import CreateAppDialog from './CreateAppDialog';
 import ExternalLinkDialog from './ExternalLinkDialog';
 import SelectDBInstance from './SelectDBInstance';
 
@@ -46,7 +47,7 @@ export default class AddAppItem extends Component {
     DBInstances: [],
   };
 
-  state = { addTypeVisible: false, externalLinkDialogVisible: false };
+  state = { addTypeVisible: false, externalLinkDialogVisible: false, createAppDialogVisible: false };
 
   handleClick = ({ id, href, dbInstanceId }) => {
     const { projectId } = this.props;
@@ -86,6 +87,29 @@ export default class AddAppItem extends Component {
     }
   };
 
+  handleAiCreateApp = data => {
+    const { createAppDbInstanceId } = this.state;
+    const { projectId } = this.props;
+    const COLORS = getThemeColors(projectId);
+    const iconColor = COLORS[_.random(0, COLORS.length - 1)];
+    const lightColor = generate(iconColor)[0];
+    this.props.createAppFromEmpty(
+      {
+        projectId,
+        icon: '0_lego',
+        iconColor,
+        navColor: iconColor,
+        lightColor,
+        permissionType: 200,
+        dbInstanceId: createAppDbInstanceId,
+        ...data,
+      },
+      appId => {
+        navigateTo('/app/' + appId);
+      },
+    );
+  };
+
   renderImportApp = () => {
     const { projectId, groupId, groupType, myPermissions = [] } = this.props;
     const { importAppDialog } = this.state;
@@ -106,7 +130,7 @@ export default class AddAppItem extends Component {
             const hasDataBase =
               getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
             if (hasDataBase && hasAppResourceAuth) {
-              return this.getMyDbInstances({}, 'importApp');
+              return this.getMyDbInstances('importApp');
             }
           }}
           projectId={projectId}
@@ -119,11 +143,13 @@ export default class AddAppItem extends Component {
 
   handleSelectedDB = dbInstanceId => {
     const { openDBInstanceFrom, importAppParams } = this.state;
-    const { id, href } = ADD_APP_MODE[0];
     this.setState({ DBInstancesDialog: false, openDBInstanceFrom: undefined });
 
     if (openDBInstanceFrom === 'createFromEmpty') {
-      this.handleClick({ id, href, dbInstanceId });
+      this.setState({
+        createAppDialogVisible: true,
+        createAppDbInstanceId: dbInstanceId,
+      });
     } else if (openDBInstanceFrom === 'importApp') {
       window.mdyAPI(
         '',
@@ -163,7 +189,7 @@ export default class AddAppItem extends Component {
     this.setState({ addTypeVisible: true });
   };
 
-  getMyDbInstances = async ({ id, href }, from) => {
+  getMyDbInstances = async from => {
     const res = await homeAppAjax.getMyDbInstances({
       projectId: this.props.projectId,
     });
@@ -175,7 +201,11 @@ export default class AddAppItem extends Component {
       });
       if (from === 'importApp') return true;
     } else {
-      from === 'createFromEmpty' && this.handleClick({ id, href });
+      if (from === 'createFromEmpty') {
+        this.setState({
+          createAppDialogVisible: true,
+        });
+      }
     }
   };
 
@@ -189,7 +219,7 @@ export default class AddAppItem extends Component {
       createAppFromEmpty,
       myPermissions = [],
     } = this.props;
-    const { addTypeVisible, dialogImportExcel, externalLinkDialogVisible } = this.state;
+    const { addTypeVisible, dialogImportExcel, externalLinkDialogVisible, createAppDialogVisible } = this.state;
     const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     return (
@@ -204,42 +234,57 @@ export default class AddAppItem extends Component {
           }}
           popup={
             <Menu className="addAppItemMenu">
-              {ADD_APP_MODE.filter(o => !(o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary)).map(
-                ({ id, icon, text, href, featureId }) => {
-                  const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
-                  if (featureId && !featureType) return;
-                  return (
-                    <MenuItem
-                      key={id}
-                      icon={<Icon icon={icon} className="addItemIcon Font18" />}
-                      onClick={() => {
-                        this.setState({ addTypeVisible: false });
-                        if (featureType === 2) {
-                          buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
+              {ADD_APP_MODE.filter(
+                o =>
+                  !(md.global.Config.IsLocal && o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary),
+              ).map(({ id, icon, text, href, featureId }) => {
+                const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
+                if (featureId && !featureType) return;
+                return (
+                  <MenuItem
+                    key={id}
+                    icon={<Icon icon={icon} className="addItemIcon Font18" />}
+                    onClick={() => {
+                      this.setState({ addTypeVisible: false });
+                      if (featureType === 2) {
+                        buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
+                        return;
+                      }
+                      if (id === 'createFromEmpty') {
+                        const hasDataBase =
+                          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+                          !md.global.Config.IsPlatformLocal;
+                        if (hasDataBase && hasAppResourceAuth) {
+                          this.getMyDbInstances('createFromEmpty');
+                          return;
+                        } else {
+                          this.setState({
+                            createAppDialogVisible: true,
+                          });
                           return;
                         }
-                        if (id === 'createFromEmpty') {
-                          const hasDataBase =
-                            getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                            !md.global.Config.IsPlatformLocal;
+                      }
+                      if (id === 'createFromEmpty') {
+                        const hasDataBase =
+                          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+                          !md.global.Config.IsPlatformLocal;
 
-                          if (hasDataBase && hasAppResourceAuth) {
-                            this.getMyDbInstances({ id, href }, 'createFromEmpty');
+                        if (hasDataBase && hasAppResourceAuth) {
+                          this.getMyDbInstances({ id, href }, 'createFromEmpty');
 
-                            return;
-                          }
+                          return;
                         }
-                        if (id === 'importExcelCreateApp') {
-                          this.setState({ dialogImportExcel: true });
-                        }
-                        this.handleClick({ id, href });
-                      }}
-                    >
-                      {text}
-                    </MenuItem>
-                  );
-                },
-              )}
+                      }
+                      if (id === 'importExcelCreateApp') {
+                        this.setState({ dialogImportExcel: true });
+                      }
+                      this.handleClick({ id, href });
+                    }}
+                  >
+                    {text}
+                  </MenuItem>
+                );
+              })}
               <hr className="divider" />
               <MenuItem
                 key="externalLink"
@@ -263,7 +308,13 @@ export default class AddAppItem extends Component {
             )}
           </div>
         </Trigger>
-
+        {createAppDialogVisible && (
+          <CreateAppDialog
+            projectId={projectId}
+            onSave={this.handleAiCreateApp}
+            onCancel={() => this.setState({ createAppDialogVisible: false, createAppDbInstanceId: undefined })}
+          />
+        )}
         {dialogImportExcel && (
           <DialogImportExcelCreate
             projectId={projectId}

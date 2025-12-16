@@ -179,7 +179,7 @@ function ChooseControl(props) {
       </React.Fragment>
     );
   };
-  return <Wrap className="flexColumn">{renderDrop(props)}</Wrap>;
+  return <Wrap className="flexColumn">{renderDrop()}</Wrap>;
 }
 
 export default function ChooseControls(props) {

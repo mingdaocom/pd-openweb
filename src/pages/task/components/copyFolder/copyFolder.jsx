@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { dialogSelectUser } from 'ming-ui/functions';
@@ -19,9 +20,7 @@ export default class CopyFolder extends Component {
       showNetwork: false,
       projectId: props.projectId,
       taskAccountId: 'user-undefined',
-      taskAvatar:
-        md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-        '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+      taskAvatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
     };
   }
 
@@ -105,7 +104,7 @@ export default class CopyFolder extends Component {
   }
 
   submit() {
-    const folderName = $.trim($('#copyFolderName').val());
+    const folderName = $('#copyFolderName').val().trim();
     if (!folderName) {
       alert('项目标题不能为空');
       return false;
@@ -273,12 +272,11 @@ export default class CopyFolder extends Component {
               <div className="checked checkOperation" id="copyFolderCustomContent">
                 <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                 {_l('全部自定义任务内容')}
-                <span
-                  className="mLeft5 copyTip"
-                  data-tip={_l('项目的字段设置会被复制，每条任务的具体字段值不会被复制')}
-                >
-                  <i className="icon-info" />
-                </span>
+                <Tooltip title={_l('项目的字段设置会被复制，每条任务的具体字段值不会被复制')}>
+                  <span className="mLeft5 copyTip">
+                    <i className="icon-info" />
+                  </span>
+                </Tooltip>
               </div>
             </li>
           </ul>

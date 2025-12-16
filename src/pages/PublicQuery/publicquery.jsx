@@ -93,7 +93,7 @@ class Publicquery extends React.Component {
   }
 
   componentDidMount() {
-    import('src/components/newCustomFields').then(res => {
+    import('src/components/Form').then(res => {
       this.setState({ Components: res });
     });
   }

@@ -169,6 +169,9 @@ const appPermissions = Component => {
             if (wsType === 1) {
               window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}`, true);
             }
+            if (wsType === 3) {
+              window.mobileNavigateTo(`/mobile/chatbot/${appId}/${params.groupId}/${params.worksheetId}`, true);
+            }
           });
       }
       homeAppApi
@@ -195,7 +198,7 @@ const appPermissions = Component => {
           getLang: true,
         })
         .then(data => {
-          const { fixAccount, fixRemark, fixed, webMobileDisplay, permissionType } = data;
+          const { fixAccount, fixRemark, fixed, webMobileDisplay, permissionType, appDisplay } = data;
           const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
           window[`timeZone_${appId}`] = data.timeZone;
           window.appInfo = data;
@@ -205,6 +208,7 @@ const appPermissions = Component => {
               fixRemark,
               fixed: fixed && !isAuthorityApp,
               webMobileDisplay,
+              appDisplay,
             },
           });
           getAppLangDetail(data).then(() => {
@@ -215,6 +219,7 @@ const appPermissions = Component => {
     render() {
       const { params } = this.props.match;
       const { loading, appStatus, fixedData } = this.state;
+      const isNoPublish = window.isMingDaoApp ? fixedData.appDisplay : fixedData.webMobileDisplay;
       if (loading) {
         return (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
@@ -222,9 +227,9 @@ const appPermissions = Component => {
           </div>
         );
       }
-      if (fixedData.fixed || fixedData.webMobileDisplay) {
-        const { fixAccount, fixRemark, webMobileDisplay } = fixedData;
-        return <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />;
+      if (fixedData.fixed || isNoPublish) {
+        const { fixAccount, fixRemark } = fixedData;
+        return <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={isNoPublish} />;
       }
       if (appStatus !== 1) {
         return <AppPermissionsInfo appId={params.appId} appStatus={appStatus} />;
@@ -239,6 +244,4 @@ const run = () => {
   return Component => appPermissions(Component);
 };
 
-export default run(props => {
-  return <Fragment>{props.children}</Fragment>;
-});
+export default run();

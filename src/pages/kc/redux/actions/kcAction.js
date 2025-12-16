@@ -400,7 +400,7 @@ export function addNewFolder(folderName, cb = () => {}) {
         })
         .then(newFolder => {
           if (!newFolder) {
-            return Promise.reject();
+            throw new Error();
           }
           alert(_l('新建成功'));
           dispatch({
@@ -505,7 +505,7 @@ export function starNode(item) {
       .starNode({ id: item.id, star: isStared })
       .then(result => {
         if (!result) {
-          return Promise.reject();
+          throw new Error();
         }
         alert(isStared ? '标星成功' : '取消标星成功');
         item.isStared = isStared;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Dialog, Textarea } from 'ming-ui';
+import { Dialog, Textarea } from 'ming-ui';
 import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
 
 const BatchAddContent = styled.div`
@@ -14,8 +14,8 @@ const BatchAddContent = styled.div`
     overflow-y: auto;
   }
   .footerBox {
-    display: flex;
-    justify-content: space-between;
+    display: flex
+    justify-content: flex-end;
     .countBox {
       color: ${props => (props.disabled ? '#F52222' : '#9e9e9e')};
     }
@@ -25,10 +25,8 @@ const BatchAddContent = styled.div`
 export default function BatchAdd({ data, options, onOk, ...rest }) {
   const { controlId } = data;
   const [value, setValue] = useState('');
-  const [checked, setCheck] = useState(false);
   const isSaved = !controlId || (controlId && !controlId.includes('-'));
   const noDelOptions = options.filter(i => !i.isDeleted);
-  const deleteOptions = options.filter(i => i.isDeleted);
 
   useEffect(() => {
     if (!isSaved) {
@@ -39,13 +37,10 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
   }, []);
 
   const addOptions = _.uniqBy(value.split(/\n/).filter(_.identity));
-  const totalNum = isSaved ? addOptions.length + noDelOptions.length : addOptions.length;
-  // 显示列表重复
-  const noDelRepeat = _.some(isSaved ? noDelOptions : [], o => _.includes(addOptions, o.value));
-  // 回收站重复
-  const delRepeat = _.some(deleteOptions, o => _.includes(addOptions, o.value));
+  const filterAddOptions = isSaved ? addOptions.filter(a => !_.find(noDelOptions, o => o.value === a)) : addOptions;
+  const totalNum = isSaved ? filterAddOptions.length + noDelOptions.length : addOptions.length;
   // 没有新增、超过数量上限、与显示列重复
-  const okDisabled = !addOptions.length || totalNum > MAX_OPTIONS_COUNT || noDelRepeat || (delRepeat && !checked);
+  const okDisabled = !addOptions.length || totalNum > MAX_OPTIONS_COUNT;
 
   return (
     <Dialog
@@ -57,7 +52,7 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
       onOk={() => {
         let newOptions = isSaved ? [].concat(options) : [];
 
-        addOptions.forEach(a => {
+        filterAddOptions.forEach(a => {
           const deleteIndex = _.findIndex(newOptions, o => o.value === a && o.isDeleted);
           if (deleteIndex > -1) {
             newOptions[deleteIndex].isDeleted = false;
@@ -78,20 +73,14 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
 
         onOk(newOptions);
       }}
-      footerLeftElement={() => {
-        if (delRepeat) {
-          return (
-            <div className="flexCenter">
-              <Checkbox text={_l('保存时恢复回收站重复选项')} checked={checked} onClick={() => setCheck(!checked)} />
-            </div>
-          );
-        }
-        return null;
-      }}
       {...rest}
     >
       <BatchAddContent disabled={totalNum > MAX_OPTIONS_COUNT}>
-        <div className="hint Gray_9e">{_l('每个选项单列一行，重复选项无法添加（包括不得与回收站重复）')}</div>
+        <div className="hint Gray_9e">
+          {_l(
+            '每个选项单列一行。若选项与选项列表重复，保存时将忽略重复选项；若选项与回收站内选项重复，保存时将自动恢复回收站的选项',
+          )}
+        </div>
         <Textarea
           name="textarea"
           style={{ maxHeight: '600px', minHeight: '320px' }}
@@ -99,7 +88,6 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
           onChange={setValue}
         />
         <div className="footerBox">
-          <span>{(noDelRepeat || delRepeat) && <span className="Red">{_l('存在重复选项')}</span>}</span>
           <span className="countBox">{`${totalNum} / ${MAX_OPTIONS_COUNT}`}</span>
         </div>
       </BatchAddContent>

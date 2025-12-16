@@ -51,8 +51,8 @@ export const ACTION_TYPES = {
 export const TYPE_TO_STYLE = {
   approve: {
     icon: 'workflow_ea',
-    bg: '#7E57C2',
-    shallowBg: '#7E57C233',
+    bg: '#a00416',
+    shallowBg: '#a0041633',
   },
   notice: {
     icon: 'send',

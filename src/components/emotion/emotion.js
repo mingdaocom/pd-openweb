@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import twemoji from 'twemoji';
 import { getCaretPosition, setCaretPosition } from 'src/utils/common';
 import emotionData from './data';
@@ -58,8 +59,8 @@ function Emotion(el, options) {
 
   // 当最近表情为空时，将默认显示默认表情，否则将显示最近表情
   // 有指定的参数传进来时将以传进来的传进来的参数为准，这样用户就能强制性地显示他们想要默认显示的tab
-  options.defaultTab = this.getDefaultTab(Emotion.options);
   this.options = $.extend({}, Emotion.options, options);
+  options.defaultTab = this.getDefaultTab(this.options);
   this._init();
 }
 
@@ -84,6 +85,7 @@ Emotion.options = {
   divEditor: false, // 输入框是不是 content edit div
   offset: 24, // 尖角的位置偏移
   history: true, // 是否显示历史表情
+  hideClassic: false, // 是否隐藏经典表情
   historySize: 40,
   autoHide: true,
   historyKey: `${md.global.Account.accountId || ''}_emotions`,
@@ -144,9 +146,13 @@ Emotion.prototype.emotion = function emotion() {
       return;
     }
 
+    if (_this.options.hideClassic && index === 1) {
+      return;
+    }
+
     // 设置默认显示
     tab += `
-      <span class="tip-top tabItem tab${index + 1} ${index === _this.options.defaultTab ? 'active' : ''}" data-emotion-index="${index}" data-tip="${item.tab.name}">
+      <span class="tabItem tab${index + 1} ${index === _this.options.defaultTab ? 'active' : ''}" data-emotion-index="${index}" title="${item.tab.name}">
         <img src="/staticfiles/emotionimages/${item.tab.imageName}.png" class="tabItem-images" />
         ${item.tab.text || ''}
       </span>`;
@@ -349,7 +355,7 @@ Emotion.prototype._storeHistory = function _storeHistory(emotionStr) {
     }
     var htyEmotions = JSON.parse(window.localStorage[this.options.historyKey]);
     // 如果要记录的表情已存在，则将该表情的位置提前
-    var index = $.inArray(emotionStr, htyEmotions);
+    var index = _.indexOf(htyEmotions, emotionStr);
     if (index !== -1) {
       htyEmotions.splice(index, 1);
     }
@@ -428,9 +434,11 @@ Emotion.prototype.load = function (index) {
   if (_this.options.history && index === 0 && window.localStorage && window.localStorage[this.options.historyKey]) {
     $.each(JSON.parse(window.localStorage[_this.options.historyKey]), function (i, item) {
       // 如果设置不显示明道云熊，则在历史中过滤熊表情
-      if (_this.options.mdBear || (!_this.options.mdBear && item.indexOf('emotionItemBear') === -1)) {
+      if (_this.options.mdBear && item.indexOf('emotion/bear') !== -1) {
         content += item;
-      } else if (_this.options.showAru || (!_this.options.showAru && item.indexOf('emotionItemAru') === -1)) {
+      } else if (_this.options.showAru && item.indexOf('emotion/aru') !== -1) {
+        content += item;
+      } else if (item.indexOf('emotion/default') !== -1) {
         content += item;
       }
     });

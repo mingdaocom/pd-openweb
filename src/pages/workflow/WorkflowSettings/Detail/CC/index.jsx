@@ -341,7 +341,6 @@ export default class CC extends Component {
                 <EmailApproval
                   {...this.props}
                   title={_l('启用邮件通知')}
-                  desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费')}
                   flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
                   updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
                 />

@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { dialogSelectUser } from 'ming-ui/functions';
 import AppAjax from 'src/api/appManagement';
@@ -223,13 +224,12 @@ class Con extends React.Component {
               {(canEditApp || canEditUser) && (
                 <div className="flexRow pRight20 actCheckCon">
                   <Tooltip
-                    autoCloseDelay={0}
-                    text={
+                    title={
                       <span>
                         {_l('开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。')}
                       </span>
                     }
-                    popupPlacement={'top'}
+                    placement="top"
                   >
                     <span>
                       <Checkbox
@@ -242,13 +242,12 @@ class Con extends React.Component {
                     </span>
                   </Tooltip>
                   <Tooltip
-                    autoCloseDelay={0}
-                    text={
+                    title={
                       <span>
                         {_l('勾选时，普通角色可以查看应用下所有角色和人员。未勾选时，对普通角色直接隐藏用户入口')}
                       </span>
                     }
-                    popupPlacement={'top'}
+                    placement="top"
                   >
                     <span>
                       <Checkbox

@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import filterXSS from 'xss';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { renderText } from 'src/utils/control';
 import {
   EDIT_TYPE_TEXT,
@@ -416,7 +417,7 @@ export const renderTitleText = (data, extendParam) => {
     <React.Fragment>
       {content}
       {showTooltips && (
-        <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
+        <Tooltip placement="right" title={_l('部分字段无权限不可见')}>
           <Icon icon="info_outline" className="Font14 mLeft5" />
         </Tooltip>
       )}

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
-import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
+import CascaderDropdown from 'src/components/Form/DesktopForm/widgets/Cascader';
 import { BaseSelectedItem } from './Styles';
 
 const Con = styled.div`
@@ -117,7 +117,11 @@ export default function RelateRecord(props) {
             }}
             dataSource={control.dataSource}
             viewId={control.viewId}
-            advancedSetting={control.advancedSetting}
+            advancedSetting={{
+              ...control.advancedSetting,
+              anylevel: '0',
+              filters: '[]',
+            }}
             onPopupVisibleChange={visible => {
               if (!visible && cache.current.tempValue) {
                 if (!isMultiple) {

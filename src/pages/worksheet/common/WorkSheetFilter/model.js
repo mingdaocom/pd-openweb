@@ -67,6 +67,7 @@ class Actions {
   };
 
   loadFilters = (worksheetId, cb = () => {}) => {
+    if (!worksheetId) return;
     worksheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
       let filters = data.map(formatOriginFilterGroupValue);
       if (md.global.Account.isPortal) {

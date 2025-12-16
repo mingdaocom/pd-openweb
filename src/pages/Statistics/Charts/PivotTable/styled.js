@@ -61,6 +61,11 @@ const PivotTableContent = styled.div`
       border-top: 1px solid #f0f0f0;
     }
   }
+  &.firefoxScroll {
+    .ant-table-header table {
+      padding-right: 17px !important;
+    }
+  }
   &.cell-left .cell-content {
     text-align: left;
   }

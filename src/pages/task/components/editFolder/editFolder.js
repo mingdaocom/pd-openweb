@@ -175,7 +175,7 @@ $.extend(EditFolder.prototype, {
       })
       .then(source => {
         if (source.status) {
-          if ($.isFunction(settings.callback)) {
+          if (_.isFunction(settings.callback)) {
             settings.callback(folderObj);
           }
         } else {

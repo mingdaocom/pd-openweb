@@ -94,6 +94,11 @@ export const chartNav = [
     icon: 'map',
   },
   {
+    name: _l('地图'),
+    type: reportTypes.WorldMap,
+    icon: 'public',
+  },
+  {
     name: _l('透视表'),
     type: reportTypes.PivotTable,
     icon: 'table',
@@ -342,6 +347,10 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       };
     });
 
+    if (currentReport.reportType !== result.reportType && currentReport.xaxes.controlType === 40) {
+      result.xaxes = {};
+      currentReport.xaxes = {};
+    }
     if (reportTypes.ScatterChart === currentReport.reportType || reportTypes.NumberChart === reportType) {
       currentReport.split = {};
       result.split = {};
@@ -428,6 +437,15 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     if (reportTypes.GaugeChart === reportType) {
       const yaxisList = currentReport.yaxisList.filter(data => isNumberControl(data.controlType));
       result.yaxisList = yaxisList.length ? [yaxisList[0]] : [];
+    }
+    if (reportTypes.WorldMap === reportType) {
+      const { xaxes } = result;
+      if (!(isAreaControl(xaxes.type) || xaxes.type === 40)) {
+        result.xaxes = {};
+      }
+      if (result.yaxisList && result.yaxisList.length) {
+        result.summary.controlId = result.yaxisList[0].controlId;
+      }
     }
     if (result.displaySetup) {
       result.displaySetup.xdisplay.title = result.xaxes ? result.xaxes.controlName : null;
@@ -1204,6 +1222,12 @@ export const getAxisText = (reportType, showChartType) => {
       y: _l('数值%'),
     };
   }
+  if (reportTypes.WorldMap === reportType) {
+    return {
+      x: _l('地区(维度)'),
+      y: _l('数值%'),
+    };
+  }
   if (reportTypes.TopChart === reportType) {
     return {
       x: _l('维度'),
@@ -1478,7 +1502,7 @@ export const fillValueMap = (result, pageId) => {
     });
   }
 
-  if (reportType === reportTypes.CountryLayer) {
+  if ([reportTypes.CountryLayer, reportTypes.WorldMap].includes(reportType)) {
     result.contrastMap = [];
     result.map.forEach(item => {
       item.name = _.isEmpty(xaxisValueMap) ? item.code : xaxisValueMap[item.code] || item.code;
@@ -1599,10 +1623,36 @@ const fillTranslate = (result, pageId) => {
     result.desc = getTranslateInfo(appId, parentId, result.reportId).description || result.desc;
   }
   if (_.get(result, 'split.dataSource')) {
-    translateValueMap(result.split.dataSource, result.split.controlId);
+    const splitId = result.split.controlId;
+    const relationControl = _.get(result.split, 'relationControl');
+    if (relationControl) {
+      const relationControlDataSource = _.get(relationControl, 'dataSource');
+      // 他表字段
+      if (relationControlDataSource) {
+        // 选项集
+        translateValueMap(relationControlDataSource, splitId);
+      } else {
+        // 普通
+        translateValueMap(_.get(relationControl, 'controlId'), splitId);
+      }
+    } else {
+      // 本表
+      translateValueMap(_.get(result, 'split.dataSource'), splitId);
+    }
   }
   if (_.get(result, 'xaxes.dataSource')) {
-    translateValueMap(result.xaxes.dataSource, result.xaxes.controlId);
+    const xaxesId = result.xaxes.controlId;
+    const relationControl = _.get(result, 'xaxes.relationControl');
+    if (relationControl) {
+      const relationControlDataSource = _.get(relationControl, 'dataSource');
+      if (relationControlDataSource) {
+        translateValueMap(relationControlDataSource, xaxesId);
+      } else {
+        translateValueMap(_.get(relationControl, 'controlId'), xaxesId);
+      }
+    } else {
+      translateValueMap(_.get(result, 'xaxes.dataSource'), xaxesId);
+    }
   }
   if (result.valueMap) {
     for (let controlId in result.valueMap) {
@@ -2143,7 +2193,7 @@ function getFontRect(sum, el, px) {
   span.style.letterSpacing = '0';
   span.style.whiteSpace = 'nowrap';
   span.style.fontSize = px + 'px';
-  el.appendChild(span), (span.innerText = sum || '');
+  (el.appendChild(span), (span.innerText = sum || ''));
   let size = span.getBoundingClientRect();
   el.removeChild(span);
   return size;
@@ -2225,4 +2275,14 @@ export const formatterTooltipTitle = (xaxes, key) => {
     };
   }
   return undefined;
+};
+
+export const addCalculateControlHighlight = () => {
+  const className = 'highlight';
+  const highlightEl = document.querySelector('.addCalculateControl');
+  $(highlightEl)
+    .addClass(className)
+    .on('webkitAnimationEnd oAnimationEnd MSAnimationEnd animationend', function () {
+      $(this).removeClass(className);
+    });
 };

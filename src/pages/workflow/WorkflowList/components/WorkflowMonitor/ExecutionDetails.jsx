@@ -3,7 +3,8 @@ import { Button, Dropdown, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
@@ -213,13 +214,11 @@ export default class ExecutionDetails extends Component {
         )}
         {type === 'routerIndex' && (
           <Tooltip
-            autoCloseDelay={0}
-            popupClassName="passageTooltip Tooltip-black"
-            popupAlign={{
+            align={{
               points: ['tc', 'bc'],
               offset: [0, -20],
             }}
-            text={
+            title={
               <div>
                 <div>{_l('主要：用于处理需要及时响应的流程。')}</div>
                 <div>
@@ -323,7 +322,7 @@ export default class ExecutionDetails extends Component {
                 <span>{formatter(difference)}</span>
                 <span className="queueTimeInfo">
                   {Number(formatter(difference)) ? (
-                    <Tooltip action={['click']} text={<span>{queueTime}</span>} popupPlacement="right" offset={[0, -2]}>
+                    <Tooltip trigger={['click']} title={queueTime} placement="right" align={{ offset: [0, -2] }}>
                       <Icon
                         onClick={() => {
                           let totalMinutes = 0,
@@ -491,8 +490,7 @@ export default class ExecutionDetails extends Component {
               <Button type="ghostgray" className="mRight10" onClick={this.resetQueue}>
                 {_l('重置排队计数')}
                 <Tooltip
-                  autoCloseDelay={0}
-                  text={
+                  title={
                     <span>
                       {_l('将所选流程的排队计数重置为0。长期运行监控时可能偶发计数不准的问题，可通过此操作将计数归0')}
                     </span>

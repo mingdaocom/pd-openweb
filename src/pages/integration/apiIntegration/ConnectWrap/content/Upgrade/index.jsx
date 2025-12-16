@@ -4,12 +4,12 @@ import { Steps } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, QiniuUpload, Support, Tooltip } from 'ming-ui';
+import { Button, FullScreenCurtain, Icon, LoadDiv, QiniuUpload, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import { UPGRADE_ERRORMSG } from 'src/pages/AppSettings/config.js';
-import FullScreenCurtain from 'src/pages/workflow/components/FullScreenCurtain/index.jsx';
 import { formatFileSize } from 'src/utils/common';
 import UpgradeItemWrap from './UpgradeItemWrap';
 
@@ -212,7 +212,7 @@ export default function Upgrade(props) {
     const fileInfo = { ...file, key };
     setState({
       file: fileInfo,
-      url: md.global.FileStoreConfig.documentHost + fileInfo.key,
+      url: md.global.FileStoreConfig.documentHost + '/' + fileInfo.key,
       errTip: '',
       analyzeLoading: false,
     });
@@ -348,7 +348,7 @@ export default function Upgrade(props) {
       <Wrap className="">
         <div className="headerCon flexRow alignItemsCenter pLeft30">
           <div className="flex">
-            <Tooltip text={<span>{_l('返回上一步')}</span>} popupPlacement="bottom" tooltipClass="deleteHoverTips">
+            <Tooltip title={_l('返回上一步')} placement="bottom">
               <Icon icon="backspace mRight8 Hand ThemeHoverColor3 Font18" onClick={() => onClose()} />
             </Tooltip>
             <span className="Font18 Bold mLeft10">{_l('导入升级')}</span>

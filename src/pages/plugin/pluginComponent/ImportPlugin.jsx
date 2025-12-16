@@ -186,7 +186,7 @@ function ImportPlugin(props) {
 
   const onImport = async (needCheck, pluginId) => {
     setImporting(true);
-    const url = md.global.FileStoreConfig.documentHost + file.key;
+    const url = md.global.FileStoreConfig.documentHost + '/' + file.key;
     const checkSuccess = !needCheck || !!(await onCheckFile(url, true));
     if (checkSuccess) {
       pluginApi
@@ -225,7 +225,7 @@ function ImportPlugin(props) {
         onUploaded={(up, file, response) => {
           setUploading(false);
           setFile({ ...file, key: response.key });
-          const url = md.global.FileStoreConfig.documentHost + response.key;
+          const url = md.global.FileStoreConfig.documentHost + '/' + response.key;
           onCheckFile(url);
         }}
         onError={() => {

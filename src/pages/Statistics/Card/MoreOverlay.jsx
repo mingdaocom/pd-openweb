@@ -185,6 +185,7 @@ export default class MoreOverlay extends Component {
       permissionType,
       projectId,
       customPageConfig = {},
+      reportData,
       onSheetView,
       onOpenSetting,
       onRemove,
@@ -269,36 +270,39 @@ export default class MoreOverlay extends Component {
               </div>
             </Menu.Item>
           )}
-        {!window.isPublicApp && reportStatus > 0 && chartExportExcel && (
-          <Menu.SubMenu
-            data-event="export"
-            popupClassName="chartMenu chartSubOperate_export"
-            title={_l('导出Excel%06002')}
-            icon={<Icon className="Gray_9e Font18 mRight5" icon="download" />}
-            popupOffset={[0, 0]}
-          >
-            <Menu.Item
-              data-event="exportOriginal"
-              style={{ width: 180 }}
-              className="pLeft20"
-              onClick={() => {
-                this.handleExportExcel(0);
-              }}
+        {!window.isPublicApp &&
+          reportStatus > 0 &&
+          chartExportExcel &&
+          _.get(reportData, 'xaxes.controlType') !== 40 && (
+            <Menu.SubMenu
+              data-event="export"
+              popupClassName="chartMenu chartSubOperate_export"
+              title={_l('导出Excel%06002')}
+              icon={<Icon className="Gray_9e Font18 mRight5" icon="download" />}
+              popupOffset={[0, 0]}
             >
-              <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
-            </Menu.Item>
-            <Menu.Item
-              data-event="exportUnit"
-              style={{ width: 180 }}
-              className="pLeft20"
-              onClick={() => {
-                this.handleExportExcel(1);
-              }}
-            >
-              <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
-            </Menu.Item>
-          </Menu.SubMenu>
-        )}
+              <Menu.Item
+                data-event="exportOriginal"
+                style={{ width: 180 }}
+                className="pLeft20"
+                onClick={() => {
+                  this.handleExportExcel(0);
+                }}
+              >
+                <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
+              </Menu.Item>
+              <Menu.Item
+                data-event="exportUnit"
+                style={{ width: 180 }}
+                className="pLeft20"
+                onClick={() => {
+                  this.handleExportExcel(1);
+                }}
+              >
+                <div className="flexRow valignWrapper">{_l('按显示单位导出%06001')}</div>
+              </Menu.Item>
+            </Menu.SubMenu>
+          )}
         {[reportTypes.PivotTable].includes(reportType) && !md.global.Account.isPortal && (
           <Menu.Item
             data-event="print"

@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import { resourceTypes, types } from './config';
 
@@ -32,7 +33,7 @@ export default function ToolBar(props) {
   return (
     <ToolBarWrap className={cx('flexRow valignWrappe')} left={props.left} isM={isM}>
       {!isM && (
-        <Tooltip text={<span>{_l('导出为图片')}</span>}>
+        <Tooltip title={_l('导出为图片')}>
           <Icon
             icon="download"
             className="Gray_75 Font18 pointer pLeft16 H40"

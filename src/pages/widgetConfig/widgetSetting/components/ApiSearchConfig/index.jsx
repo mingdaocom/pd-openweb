@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, LoadDiv, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
 import processAjax from 'src/pages/workflow/api/processVersion';

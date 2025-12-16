@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import { Progress } from 'antd';
 import cx from 'classnames';
-import { Checkbox, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Checkbox, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createUploader from 'src/library/plupload/createUploader';
 import { formatFileSize } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
@@ -60,7 +61,7 @@ export default class ImportApp extends React.Component {
       init: {
         BeforeUpload: (up, file) => {
           if (RegExpValidator.getExtOfFileName(file.name) != 'mdy') {
-            alert(_l('上传失败，文件类型错误'), 2, 1000);
+            alert(_l('上传失败，文件类型错误'), 2);
             return false;
           }
           this.setState({ file: file });
@@ -76,7 +77,7 @@ export default class ImportApp extends React.Component {
           this.setState(
             {
               file: file,
-              url: md.global.FileStoreConfig.documentHost + key,
+              url: md.global.FileStoreConfig.documentHost + '/' + key,
               errTip: '',
             },
             () => {
@@ -99,6 +100,7 @@ export default class ImportApp extends React.Component {
 
   //验证密码是否正确
   checkPassword() {
+    const { step } = this.state;
     const params = {
       password: this.state.password,
       url: this.state.url,
@@ -112,6 +114,10 @@ export default class ImportApp extends React.Component {
         customParseResponse: true,
       })
       .then(({ data: { errorCode, apps = [], isHighVersions } }) => {
+        if (step >= 2 && (errorCode === 5 || ERRORMSG[errorCode])) {
+          alert(errorCode === 5 ? _l('解析失败，不是有效的应用文件') : ERRORMSG[errorCode], 2);
+        }
+
         if (errorCode === 5) {
           this.setState({ errTip: _l('解析失败，不是有效的应用文件') });
         } else if (ERRORMSG[errorCode]) {
@@ -292,9 +298,8 @@ export default class ImportApp extends React.Component {
                 {_l('导入时匹配人员部门职位')}
               </Checkbox>
               <Tooltip
-                popupPlacement="top"
-                text={<span>{_l('将工作表、工作流、角色中的人员部门职位与网络中的进行匹配可保证应用的完整性')}</span>}
-                autoCloseDelay={0}
+                placement="top"
+                title={_l('将工作表、工作流、角色中的人员部门职位与网络中的进行匹配可保证应用的完整性')}
               >
                 <span className="Gray_bd icon-help1 Font15"></span>
               </Tooltip>

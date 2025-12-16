@@ -80,7 +80,7 @@ export default class CreateNode extends Component {
     const { removeCopyBtn } = this.props;
     const { showOptions } = this.state;
     const LIST = [
-      { type: 4, name: _l('审批'), iconColor: '#7E57C2', iconName: 'icon-workflow_ea' },
+      { type: 4, name: _l('审批'), iconColor: '#A00416', iconName: 'icon-workflow_ea' },
       { type: 3, name: _l('填写%03025'), iconColor: '#00BCD4', iconName: 'icon-workflow_write' },
       { type: 5, name: _l('抄送%03026'), iconColor: '#1677ff', iconName: 'icon-send' },
       { type: 1, name: _l('分支'), iconColor: '#4C7D9E', iconName: 'icon-workflow_branch' },

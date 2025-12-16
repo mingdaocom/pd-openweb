@@ -44,7 +44,7 @@ RefreshReportInterval:int，刷新报表时间间隔（单位：秒），默认 
 AllowBindAccountNoVerify:bool，是否允许绑定账号不验证
 PasswordRegex:string，密码正则表达式
 PasswordRegexTip:string，密码正则表达式说明文字
-EnableTwoFactorAuthentication:bool，是否启用双因素认证
+TwoFactorAuthenticationSwitchType:int，双因素认证开关类型（1：全平台用户无需二次验证 2：全平台用户必须二次验证 3：用户自行设置）
 TwoFactorAuthenticationPriorityType:int，双因素认证优先的账号类型（1：手机号，2：邮箱）
 FirstLoginResetPassword:bool，首次登录需要重置密码
 PasswordOverdueDays:int，密码过期时间，0代表不过期
@@ -66,7 +66,7 @@ EnableSmsCustomContent:bool，是否支持自定义短信内容的功能
 EnableBackupWorksheetData:bool，是否支持备份工作表数据
 EnableFooterInfo:bool，是否显示页脚信息栏
 FooterThemeColor:int，页脚信息主题色 1:浅色,2:深色
-EnableMultipleDevicesUse:bool，是否允许多个设备同步登录
+MultipleDevicesUseSwitchType:int，多设备同时登录开关类型（1：全平台允许 2：全平台禁止 3：用户自行设置）
 EnableRequiredStrictVerification:bool，是否开启接口严格鉴权
 EnableMap:bool，是否开启地图功能
 EnableSso:bool，是否显示 SSO 登录
@@ -82,6 +82,8 @@ SessionApp:string，APP 内部用户会话有效期设置（格式：{t:1,v:5,r:
 SessionWebPortal:string，Web（PC/H5) 外部门户用户会话有效期设置（格式：{t:1,v:5,r:true}）
 SessionExpireRedirectType:int，会话过期后跳转方式 1:停留在原页面（默认） 2:跳转到登录页面
 GeoCountryRegionCode:string，国家与地区
+EnableVoiceToText:bool，是否开启语音转文字功能
+EnableOnlinSearch:bool，是否开启联网搜索
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

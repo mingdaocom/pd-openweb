@@ -4,7 +4,8 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
 import { getAppFeaturesVisible } from 'src/utils/app';
@@ -103,7 +104,7 @@ const Toolbar = props => {
           )}
           onClick={handleOpenSessionList}
         >
-          <Tooltip text={`${_l('消息')} (~)`} disable={isShowToolName} popupPlacement="left" autoCloseDelay={1000}>
+          <Tooltip title={isShowToolName ? '' : `${_l('消息')}`} shortcut="w" placement="left" mouseLeaveDelay={0.1}>
             <div className={cx('iconWrap', { active: sessionListVisible })}>
               <Icon className="Font22 Gray_75" icon={sessionListVisible ? 'chat-full' : 'chat-line'} />
             </div>
@@ -117,10 +118,10 @@ const Toolbar = props => {
             onClick={handleOpenGlobalSearch}
           >
             <Tooltip
-              text={`${_l('超级搜索')} (F)`}
-              disable={isShowToolName}
-              popupPlacement="left"
-              autoCloseDelay={1000}
+              title={isShowToolName ? '' : `${_l('超级搜索')}`}
+              shortcut="F"
+              placement="left"
+              mouseLeaveDelay={0.1}
             >
               <div className="iconWrap">
                 <Icon className="Font22 Gray_75" icon="search" />
@@ -137,7 +138,7 @@ const Toolbar = props => {
               localStorage.setItem('toolBarOpenType', 'favorite');
             }}
           >
-            <Tooltip text={_l('收藏')} disable={isShowToolName} popupPlacement="left" autoCloseDelay={1000}>
+            <Tooltip title={isShowToolName ? '' : _l('收藏')} placement="left" mouseLeaveDelay={0.1}>
               <div className={cx('iconWrap', { active: favoriteVisible })}>
                 <Icon className="Font22 Gray_75" icon={favoriteVisible ? 'fav-full' : 'fav-line'} />
               </div>

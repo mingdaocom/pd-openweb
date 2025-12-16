@@ -23,6 +23,7 @@ export default ({
   hasBack = false,
   onClose = () => {},
   isApproval,
+  hideStep = false,
 }) => {
   const [visible, setVisible] = useState(false);
   const isMobile = browserIsMobile();
@@ -36,7 +37,7 @@ export default ({
         <div className="Font17 bold">{processName}</div>
       </Btn>
       <div className="flex" />
-      {isApproval && (
+      {isApproval && !hideStep && (
         <div className="flexRow pointer alignItemsCenter Gray_75 ThemeHoverColor3" onClick={() => setVisible(true)}>
           <Icon className="Font16 mRight5" icon="department" />
           <div className="bold">{_l('流转图')}</div>

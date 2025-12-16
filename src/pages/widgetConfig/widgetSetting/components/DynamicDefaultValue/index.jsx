@@ -1,7 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 import { getAdvanceSetting as getAdvanceSettingByKey } from 'src/utils/control';
 import { SettingItem } from '../../../styled';
@@ -58,10 +59,7 @@ export default function DynamicDefaultValue(props) {
         <div className="settingItemTitle">
           {_l('默认值')}
           {type === 'department' && from !== DYNAMIC_FROM_MODE.FAST_FILTER && (
-            <Tooltip
-              autoCloseDelay={0}
-              text={<span>{_l('单选选择方式时，使用成员字段设置默认值，将取成员所在主部门')}</span>}
-            >
+            <Tooltip title={_l('单选选择方式时，使用成员字段设置默认值，将取成员所在主部门')}>
               <span className="Gray_9e pointer Font15">
                 <i className="icon-help"></i>
               </span>

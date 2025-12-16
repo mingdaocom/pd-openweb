@@ -330,6 +330,7 @@ export default function pivotTableCountPanelGenerator(props) {
           }
         })
         .filter(item => item.number || item.percent);
+
       changeCurrentReport(
         {
           pivotTable: {
@@ -338,6 +339,7 @@ export default function pivotTableCountPanelGenerator(props) {
               ...columnSummary,
               controlList: newControlList,
             },
+            showColumnTotal: newControlList.length ? true : false,
           },
         },
         isRequest,
@@ -383,6 +385,8 @@ export default function pivotTableCountPanelGenerator(props) {
         </Fragment>
       );
     };
+    const countYaxisList = yaxisList.filter(item => (isNumberControl(item.controlType) ? true : item.normType !== 7));
+
     return (
       <Collapse.Panel
         key="columnCount"
@@ -396,12 +400,28 @@ export default function pivotTableCountPanelGenerator(props) {
               event.stopPropagation();
             }}
             onChange={checked => {
+              const data = {
+                ...pivotTable,
+                showColumnTotal: checked,
+              };
+              if (checked) {
+                data.columnSummary = {
+                  ...columnSummary,
+                  controlList: countYaxisList.map(item => {
+                    return {
+                      controlId: item.controlId,
+                      name: '',
+                      sum: 0,
+                      type: 1,
+                      number: true,
+                      percent: false,
+                    };
+                  }),
+                };
+              }
               changeCurrentReport(
                 {
-                  pivotTable: {
-                    ...pivotTable,
-                    showColumnTotal: checked,
-                  },
+                  pivotTable: data,
                 },
                 true,
               );
@@ -426,21 +446,19 @@ export default function pivotTableCountPanelGenerator(props) {
             />
           </div>
           <Location summary={columnSummary} locationType="column" onChangeSummary={handleChangeColumnSummary} />
-          {yaxisList
-            .filter(item => (isNumberControl(item.controlType) ? true : item.normType !== 7))
-            .map(item => (
-              <Count
-                key={item.controlId}
-                yAxis={item}
-                isCollectMode={true}
-                isCalculateMode={true}
-                extra={renderExtra(item)}
-                summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
-                onChangeSummary={(data, isRequest) => {
-                  onChangeSummary(item.controlId, data, isRequest);
-                }}
-              />
-            ))}
+          {countYaxisList.map(item => (
+            <Count
+              key={item.controlId}
+              yAxis={item}
+              isCollectMode={true}
+              isCalculateMode={true}
+              extra={renderExtra(item)}
+              summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
+              onChangeSummary={(data, isRequest) => {
+                onChangeSummary(item.controlId, data, isRequest);
+              }}
+            />
+          ))}
         </Fragment>
       </Collapse.Panel>
     );

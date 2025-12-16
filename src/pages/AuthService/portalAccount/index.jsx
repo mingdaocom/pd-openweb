@@ -122,6 +122,12 @@ function ContainerCon(props) {
     accountId && setAccount({ accountId });
     request.mdAppId && setAppId(request.mdAppId);
     if (!request.status || (request.mdAppId && request.status)) {
+      if (request.mdAppId && request.wxState) {
+        window.clientId = request.wxState;
+        sessionStorage.setItem('clientId', request.wxState);
+        window.shareState.isPublicFormPreview = true;
+        window.shareState.isPublicForm = true;
+      }
       //微信登录后的跳转 进入正常登录流程 带mdAppId 获取登录相关配置信息
       getBaseInfo({
         cb: res => {

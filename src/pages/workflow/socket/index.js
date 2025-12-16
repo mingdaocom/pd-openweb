@@ -85,7 +85,7 @@ export default () => {
         alert({
           msg: content,
           type: promptType,
-          timeout: duration * 1000,
+          duration: duration * 1000,
         });
       }
 
@@ -163,8 +163,7 @@ export default () => {
         } else {
           const iTop = (window.screen.availHeight - 660) / 2; // 获得窗口的垂直位置;
           const iLeft = (window.screen.availWidth - 800) / 2; // 获得窗口的水平位置;
-          const options =
-            'width=800,height=600,toolbar=no,menubar=no,location=no,status=no,top=' + iTop + ',left=' + iLeft;
+          const options = `width=${data.windowSize?.width || 800},height=${data.windowSize?.height || 600},toolbar=no,menubar=no,location=no,status=no,top=${iTop},left=${iLeft}`;
 
           window.open(content, '_blank', options);
         }
@@ -224,5 +223,9 @@ export default () => {
     } else {
       actionFun(result[pushType], pushType);
     }
+  });
+  IM.socket.on('workflow_chatbot', result => {
+    const { chatbotId, conversationId, title } = result;
+    emitter.emit('CHATBOT_SOCKET_UPDATE_CONVERSATION', { chatbotId, conversationId, title });
   });
 };

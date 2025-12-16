@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, SortableList, Tooltip } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 
 export default function SortableColumn(props) {
@@ -20,6 +21,7 @@ export default function SortableColumn(props) {
     handleItemClick,
     handleSortEnd,
     forbiddenScroll,
+    disabled,
   } = props;
   let list = items;
   let filteredShowColumns = [];
@@ -47,6 +49,7 @@ export default function SortableColumn(props) {
   }, [selected]);
 
   const onItemClick = item => {
+    if (disabled) return;
     if (forbiddenScroll && listRef.current) {
       scrollTopRef.current = listRef.current.scrollTop;
     }
@@ -66,7 +69,7 @@ export default function SortableColumn(props) {
         <span className="flex overflow_ellipsis focusColor">
           {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
         </span>
-        <Tooltip popupPlacement="bottom" text={canDrag ? null : _l('前往')}>
+        <Tooltip placement="bottom" title={canDrag ? null : _l('前往')}>
           <i
             className={cx('icon Gray_9e Font16 Right ThemeHoverColor3 dragHandle', {
               'icon-drag': canDrag,
@@ -106,7 +109,7 @@ export default function SortableColumn(props) {
         >
           <Icon
             icon={selected.indexOf(item.controlId) > -1 ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="switchIcon Font30 mRight8 Hand"
+            className={cx('switchIcon Font30 mRight8 Hand', { cursorNotAllowed: disabled })}
             onClick={() => onItemClick(item)}
           />
           {canDrag ? <DragHandle className="overflow_ellipsis">{renderSortCon(item)}</DragHandle> : renderSortCon(item)}

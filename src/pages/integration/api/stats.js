@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var stats = {
-
+const stats = {
   /**
    * 获取历史统计数据
    *
@@ -66,7 +65,7 @@ var stats = {
     base.ajaxOptions.url = base.server(options) + 'stats/details';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'statsdetails', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default stats;

@@ -1,10 +1,10 @@
 import React, { Component, createRef, Fragment } from 'react';
 import { generate } from '@ant-design/colors';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { getThemeColors } from 'src/utils/project';
 import AddColorDialog from './AddColorDialog';
@@ -154,7 +154,7 @@ class SelectIcon extends Component {
         </div>
         <div className="navigationColor flexRow mTop10">
           {colors.map((data, index) => (
-            <Tooltip key={index} title={colorsText[index]} color="#000" placement="bottom">
+            <Tooltip key={index} title={colorsText[index]} placement="bottom">
               <div
                 className="colorItem flexRow alignItemsCenter justifyContentCenter pointer"
                 style={{ backgroundColor: data }}
@@ -185,7 +185,7 @@ class SelectIcon extends Component {
             />
           </li>
           {customColors.map((item, index) => (
-            <Tooltip key={index} title={item} color="#000" placement="bottom">
+            <Tooltip key={index} title={item} placement="bottom">
               <li
                 className={cx({ isCurrentColor: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}
                 style={{ backgroundColor: item }}
@@ -243,7 +243,7 @@ class SelectIcon extends Component {
                 <div className="bold">{_l('主题色')}</div>
                 <ul className="colorsWrap">
                   {colorList.map(item => (
-                    <Tooltip key={item} color="#000" placement="bottom">
+                    <Tooltip key={item} placement="bottom">
                       <li
                         className={cx({ isCurrentColor: item.toLocaleUpperCase() === iconColor.toLocaleUpperCase() })}
                         style={{ backgroundColor: item }}

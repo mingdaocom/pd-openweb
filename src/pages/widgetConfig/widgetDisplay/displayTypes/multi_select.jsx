@@ -7,7 +7,7 @@ import { Checkbox } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { isLightColor } from 'src/utils/control';
 import { CommonDisplay, OptionsWrap, OptionWrap } from '../../styled';
-import { getAdvanceSetting, getItemOptionWidth, getOptions, parseOptionValue } from '../../util/setting';
+import { getAdvanceSetting, getItemOptionWidth, getOptions } from '../../util/setting';
 
 const MultiSelectDrop = styled(CommonDisplay)`
   min-height: 34px;
@@ -17,7 +17,6 @@ const MultiSelectDrop = styled(CommonDisplay)`
     flex-wrap: wrap;
     max-height: 100%;
     overflow: hidden;
-    padding-bottom: 4px;
   }
   .optionItem {
     margin: 4px 6px 0 0;
@@ -26,8 +25,10 @@ const MultiSelectDrop = styled(CommonDisplay)`
 
 function MultiSelect({ data, fromType }) {
   const { options, hint } = data;
-  const { direction = '2', checktype = '0', width = '200' } = getAdvanceSetting(data);
-  const checkedValue = parseOptionValue(data.default);
+  const { direction = '2', checktype = '0', width = '200', defsource } = getAdvanceSetting(data);
+  const checkedValue = safeParse(defsource || '[]')
+    .map(item => item.staticValue)
+    .filter(_.identity);
   const params = { direction, width };
 
   if (checktype === '1') {

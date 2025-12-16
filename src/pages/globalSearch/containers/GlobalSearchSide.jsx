@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { GLOBAL_SEARCH_TYPE } from '../enum';
 
 const GlobalSearchSideCon = styled.ul`
@@ -37,9 +38,6 @@ const GlobalSearchSideCon = styled.ul`
   .sideItem.current span {
     border-left: 2px solid #1677ff;
   }
-  .sideTooltip {
-    width: 352px;
-  }
 `;
 
 export default class GlobalSearchSide extends Component {
@@ -59,9 +57,8 @@ export default class GlobalSearchSide extends Component {
               <span>{item.label}</span>
               {item.key === 'record' && (
                 <Tooltip
-                  tooltipClass="sideTooltip"
-                  autoCloseDelay={0}
-                  text={_l(
+                  placement="bottom"
+                  title={_l(
                     '可搜索的字段类型包含：文本、邮箱、电话、自动编号、证件、文本组合、关联字段、他表字段(仅存储)。',
                   )}
                 >

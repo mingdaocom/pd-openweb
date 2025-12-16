@@ -12,6 +12,18 @@ import { LAYOUT_CONFIG, LayoutContent } from '../../WidgetContent';
 import WidgetTools from '../../WidgetContent/WidgetTools';
 
 const ContentWrap = styled.div`
+  &.cardWrap {
+    &.cardStyleWrap,
+    &.editableWrap,
+    &.lucencyStyleWrap {
+      .tabsHeader {
+        top: 2px;
+      }
+      .cardsHeader {
+        padding-top: 5px;
+      }
+    }
+  }
   &.cardStyleWrap {
     border-radius: 6px;
     border: 1px solid var(--widget-color, #fff);
@@ -29,8 +41,6 @@ const ContentWrap = styled.div`
         background: var(--bg-color, #e6e6e6);
       }
     }
-  }
-  &.lucencyStyleWrap {
   }
   &.editableWrap {
     border-radius: 6px;
@@ -50,6 +60,9 @@ const ContentWrap = styled.div`
   }
   &.activeWrap {
     border-color: #1677ff;
+    .bodyContent .widgetContentTools {
+      display: none;
+    }
     // overflow: hidden;
   }
   .tabsHeader {
@@ -127,12 +140,13 @@ const ContentWrap = styled.div`
 `;
 
 export const Tabs = props => {
-  const { ids, editable, themeColor, adjustScreen = false, isMobile, widget, setWidget } = props;
+  const { ids, editable, themeColor, adjustScreen = false, isMobile, widget, setWidget, addRecord } = props;
   const { layoutType, components, customPageConfig = {}, activeContainerInfo = {} } = props;
   const { type, componentConfig = {}, config = {} } = widget;
   const { name, tabs = [], showType = 1, showBorder = true, showName = true } = componentConfig;
   const objectId = _.get(config, 'objectId');
-  const [currentTab, setCurrentTab] = useState(_.get(tabs[0], 'id'));
+  const historyTab = _.find(tabs, { id: localStorage.getItem(`${objectId}-tab-active`) }) || tabs[0];
+  const [currentTab, setCurrentTab] = useState(_.get(historyTab, 'id'));
   const isDark = customPageConfig.pageStyleType === 'dark';
   const titleStyles = customPageConfig.titleStyles || defaultTitleStyles;
   const isTabs = type === 9 || type === 'tabs';
@@ -232,10 +246,10 @@ export const Tabs = props => {
         if (isTabs) {
           return 3;
         } else {
-          return showName ? 2.5 : 1;
+          return showName ? 2 : 1;
         }
       } else {
-        return 1.5;
+        return 2;
       }
     };
     const maxH =
@@ -269,6 +283,7 @@ export const Tabs = props => {
   return (
     <ContentWrap
       className={cx('flexColumn h100', {
+        cardWrap: !isTabs,
         cardStyleWrap: showType === 2,
         lucencyStyleWrap: !editable && showType === 1,
         editableWrap: editable && showType === 1,
@@ -293,6 +308,7 @@ export const Tabs = props => {
               className={cx('tab disableDrag Font15 bold pointer', `tab-${tab.id}`, { active: tab.id === currentTab })}
               onClick={() => {
                 setCurrentTab(tab.id);
+                localStorage.setItem(`${objectId}-tab-active`, tab.id);
               }}
             >
               {tab.name}
@@ -343,6 +359,12 @@ export const Tabs = props => {
               const { type } = widget;
               const { titleVisible } = false;
               const enumType = getEnumType(type);
+              const isTransparent = enumType === 'analysis' && _.get(widget, 'config.showType') === 1;
+              const widgetConfig = {
+                ...customPageConfig,
+                originWidgetBgColor: customPageConfig.widgetBgColor,
+                widgetBgColor: isTransparent ? 'transparent' : customPageConfig.widgetBgColor,
+              };
               return (
                 <LayoutContent key={widget.id || index} className={cx('resizableWrap', { disableDrag: !isTabs })}>
                   <WidgetTools
@@ -354,6 +376,16 @@ export const Tabs = props => {
                     components={components}
                     widget={widget}
                     setWidget={setWidget}
+                    getChartData={() => {
+                      const { state } = displayRefs[index] || {};
+                      return _.get(state, 'reportData') || {};
+                    }}
+                    setChartData={data => {
+                      const chartRef = displayRefs[index];
+                      if (chartRef) {
+                        chartRef.handleChangeReportData(data);
+                      }
+                    }}
                   />
                   <div
                     className={cx('widgetContent', enumType, layoutType, {
@@ -363,7 +395,7 @@ export const Tabs = props => {
                       dashedBorder: showType === 2 && !showBorder && editable,
                     })}
                     style={{
-                      backgroundColor: customPageConfig.widgetBgColor,
+                      backgroundColor: widgetConfig.widgetBgColor,
                     }}
                   >
                     <div className="flex">
@@ -372,10 +404,11 @@ export const Tabs = props => {
                           <WidgetDisplay.default
                             ids={ids}
                             widget={widget}
-                            pageConfig={customPageConfig}
+                            pageConfig={widgetConfig}
                             pageComponents={components}
                             componentType={enumType}
                             apk={props.apk}
+                            addRecord={addRecord}
                           />
                         ) : (
                           <WidgetDisplay.default
@@ -384,7 +417,7 @@ export const Tabs = props => {
                             setWidget={setWidget}
                             editingWidget={props.editingWidget}
                             isCharge={props.isCharge}
-                            config={customPageConfig}
+                            config={widgetConfig}
                             themeColor={themeColor}
                             isLock={props.isLock}
                             permissionType={props.permissionType}
@@ -395,6 +428,7 @@ export const Tabs = props => {
                             ref={el => {
                               displayRefs[index] = el;
                             }}
+                            addRecord={addRecord}
                           />
                         ))}
                     </div>

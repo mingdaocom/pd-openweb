@@ -255,7 +255,7 @@ function AuthorizeToApp(props) {
         // 安装的不可复制和删除、自定义的可以复制与删除
         return (
           <div className="optionCon">
-            <span //data-tip={_l('移除')}
+            <span
               className="ThemeColor3 Hand"
               onClick={() => {
                 if (optionLoading) {

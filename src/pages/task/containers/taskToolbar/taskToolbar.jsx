@@ -2,6 +2,7 @@
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
@@ -169,32 +170,35 @@ class TaskToolbar extends Component {
         {!folderId ||
         (folderId && (viewType === config.folderViewType.treeView || viewType === config.folderViewType.stageView)) ? (
           <div className="Right">
-            <span
-              className={cx('taskFilterBtn pointerEventAll', { ThemeColor3: filterCount > 0 || showFilter })}
-              onMouseDown={this.showFilter}
-              data-tip={_l('筛选与排序')}
-            >
-              {filterCount === 0 ? (
-                showFilter ? (
-                  <i className="icon-screen_active" />
+            <Tooltip title={_l('筛选与排序')}>
+              <span
+                className={cx('taskFilterBtn pointerEventAll', { ThemeColor3: filterCount > 0 || showFilter })}
+                onMouseDown={this.showFilter}
+              >
+                {filterCount === 0 ? (
+                  showFilter ? (
+                    <i className="icon-screen_active" />
+                  ) : (
+                    <i className="icon-screen_normal" />
+                  )
                 ) : (
-                  <i className="icon-screen_normal" />
-                )
-              ) : (
-                <i className={'icon-screen_' + filterCount} />
-              )}
-            </span>
+                  <i className={'icon-screen_' + filterCount} />
+                )}
+              </span>
+            </Tooltip>
           </div>
         ) : undefined}
         {folderId && folderId !== 1 ? (
-          <div className="Right mRight20" data-tip={_l('设置')}>
-            <i
-              className="icon-settings folderSettingsBtn"
-              onMouseDown={evt =>
-                this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })
-              }
-            />
-          </div>
+          <Tooltip title={_l('设置')}>
+            <div className="Right mRight20">
+              <i
+                className="icon-settings folderSettingsBtn"
+                onMouseDown={evt =>
+                  this.checkMouseDownIsLeft(evt) && this.setState({ showOperator: !this.state.showOperator })
+                }
+              />
+            </div>
+          </Tooltip>
         ) : undefined}
 
         {showFilter && <Filter taskFilterLeave={this.taskFilterLeave} showReset={filterCount > 0} />}
@@ -246,12 +250,11 @@ class TaskToolbar extends Component {
             <li className="ThemeBGColor3" onClick={this.saveTemplate}>
               <i className="icon-task_set_administrator" />
               {_l('保存到我的模板')}
-              <span
-                className="mLeft5 tip-bottom-left"
-                data-tip={_l('项目及看板名称、自定义任务内容被保存为模板的信息')}
-              >
-                <i className="icon-info" />
-              </span>
+              <Tooltip title={_l('项目及看板名称、自定义任务内容被保存为模板的信息')} placement="bottomLeft">
+                <span className="mLeft5">
+                  <i className="icon-info" />
+                </span>
+              </Tooltip>
             </li>
 
             {isCharge || isAdmin ? (
@@ -455,7 +458,7 @@ class TaskToolbar extends Component {
     let isNotice = false;
     let companyName = _l('个人');
 
-    $.map(md.global.Account.projects, item => {
+    _.map(md.global.Account.projects, item => {
       if (item.projectId === projectId) {
         companyName = item.companyName;
       }
@@ -474,17 +477,17 @@ class TaskToolbar extends Component {
         <div className="flex relative">
           <div className="flexRow folderBarBox">
             {this.props.hideNavigation ? null : (
-              <span
-                className={cx('folderTop tip-bottom-right', { active: isTop })}
-                data-tip={isTop ? _l('取消置顶') : _l('置顶')}
-                onClick={this.updateFolderTop}
-              >
-                <i className="icon-set_top" />
-              </span>
+              <Tooltip title={isTop ? _l('取消置顶') : _l('置顶')} placement="bottomRight">
+                <span className={cx('folderTop', { active: isTop })} onClick={this.updateFolderTop}>
+                  <i className="icon-set_top" />
+                </span>
+              </Tooltip>
             )}
-            <span className="networkLabel tip-bottom-right" data-tip={companyName}>
-              <i className={projectId ? 'icon-business' : 'icon-charger'} />
-            </span>
+            <Tooltip title={companyName} placement="bottomRight">
+              <span className="networkLabel">
+                <i className={projectId ? 'icon-business' : 'icon-charger'} />
+              </span>
+            </Tooltip>
             {!this.state.showEdit ? (
               <span className={cx('folderName', { 'ThemeColor3 pointer': auth })} onClick={this.editFolderName}>
                 {folderName}
@@ -501,13 +504,11 @@ class TaskToolbar extends Component {
               />
             )}
             {auth ? (
-              <span
-                className="mLeft5 folderNoticeBtn"
-                data-tip={folderNotice ? _l('已关闭提醒') : _l('已开启提醒')}
-                onClick={this.updateFolderNotice}
-              >
-                <i className={folderNotice ? 'icon-chat-bell-nopush' : 'icon-inbox'} />
-              </span>
+              <Tooltip title={folderNotice ? _l('已关闭提醒') : _l('已开启提醒')} placement="bottomRight">
+                <span className="mLeft5 folderNoticeBtn" onClick={this.updateFolderNotice}>
+                  <i className={folderNotice ? 'icon-chat-bell-nopush' : 'icon-inbox'} />
+                </span>
+              </Tooltip>
             ) : undefined}
             {!this.state.showEdit && <div className="flex" />}
           </div>
@@ -609,7 +610,7 @@ class TaskToolbar extends Component {
    */
   saveFolderName = () => {
     this.setState({ showEdit: false });
-    const folderName = $.trim(this.state.folderName);
+    const folderName = this.state.folderName.trim();
     const { folderId } = this.props.taskConfig;
 
     if (folderName && folderName !== this.props.folderSettings.folderName) {

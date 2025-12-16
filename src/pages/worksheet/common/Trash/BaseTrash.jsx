@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv, Modal, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 
 const Header = styled.div`
@@ -169,18 +170,22 @@ export default function AppTrash(props) {
                         {cells[cellIndex]}
                       </Cell>
                     ))}
-                    <span data-tip={_l('恢复')} className="tip-bottom mLeft40 mRight25">
-                      <i
-                        className="operateIcon icon icon-restart Font14 Gray_9e Hand"
-                        onClick={() => onRestore(rowKey)}
-                      ></i>
-                    </span>
-                    <span data-tip={_l('彻底删除')} className="tip-bottom mRight35">
-                      <i
-                        className="operateIcon icon icon-trash Font16 Gray_9e Hand"
-                        onClick={() => onDelete(rowKey)}
-                      ></i>
-                    </span>
+                    <Tooltip title={_l('恢复')} placement="bottom">
+                      <span className="mLeft40 mRight25">
+                        <i
+                          className="operateIcon icon icon-restart Font14 Gray_9e Hand"
+                          onClick={() => onRestore(rowKey)}
+                        ></i>
+                      </span>
+                    </Tooltip>
+                    <Tooltip title={_l('彻底删除')} placement="bottom">
+                      <span className="mRight35">
+                        <i
+                          className="operateIcon icon icon-trash Font16 Gray_9e Hand"
+                          onClick={() => onDelete(rowKey)}
+                        ></i>
+                      </span>
+                    </Tooltip>
                   </TableRow>
                 ))}
               {loading && !!data.length && <LoadDiv className="mTop20" />}

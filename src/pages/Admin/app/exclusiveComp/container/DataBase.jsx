@@ -2,7 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Button, Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import ConnectDataBase from '../component/ConnectDataBase';
 import DataBaseImg from '../images/database.png';
@@ -185,7 +186,7 @@ function DataBase(props) {
                     <span className="name flex mRight8 Font15 Bold Hand">{item.name}</span>
                   </span>
                   {item.remark && (
-                    <Tooltip text={item.remark}>
+                    <Tooltip title={item.remark}>
                       <span className="icon-info_outline Font16 Gray_bd"></span>
                     </Tooltip>
                   )}

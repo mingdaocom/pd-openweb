@@ -264,12 +264,11 @@ export function handleDownloadOne(item, excludeIds) {
     return;
   }
   if (item && item.id) {
-    downloadOne(item.id, excludeIds, item.versionId);
+    downloadOne(item.id, excludeIds);
   }
 }
 
 /** 开始修改节点名称 */
-// TODO 修改事件是jquery绑定的  最后统一处理
 export function updateNodeName(item) {
   $('.nodeItem[data-id=' + item.id + ']')
     .find('.listNameEdit')
@@ -516,7 +515,7 @@ export function handleMoveOrCopy(options) {
     key,
     msg: _l('操作中…'),
     type: 3,
-    timeout: 0,
+    duration: 0,
   });
   ajax
     .then(data => {

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import loginController from 'src/api/login';
 import workWeiXinController from 'src/api/workWeiXin';
-import { checkReturnUrl, getDataByFilterXSS, toMDPage } from 'src/pages/AuthService/util.js';
+import { loginSuccessRedirect } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
@@ -70,12 +70,7 @@ export const loginCallback = ({ data, onChange }) => {
           return;
         }
 
-        if (request.ReturnUrl) {
-          checkReturnUrl(request.ReturnUrl);
-          location.replace(getDataByFilterXSS(request.ReturnUrl));
-        } else {
-          toMDPage();
-        }
+        loginSuccessRedirect();
       },
     );
   } else {
@@ -194,7 +189,11 @@ export const loginCallback = ({ data, onChange }) => {
       }
     }
     onChange({ loading: false });
-    alert(msg, 3, undefined, undefined, undefined, msgStyle);
+    alert({
+      msg,
+      type: 3,
+      style: msgStyle,
+    });
   }
 };
 

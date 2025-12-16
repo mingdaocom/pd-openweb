@@ -5,7 +5,6 @@ import { ScrollView } from 'ming-ui';
 import GroupByControl from 'mobile/components/GroupByControl';
 import { dealBoardViewData } from 'worksheet/views/BoardView/util';
 import { getCardWidth } from 'src/utils/worksheet';
-import { getAuthParams } from '../util';
 import RecordList from './RecordList';
 import './index.less';
 
@@ -35,7 +34,7 @@ const CommonBoard = props => {
 
   const { boardData, boardViewRecordCount } = boardView;
   const viewData = dealBoardViewData({ view, controls, data: boardData });
-  const authParams = getAuthParams(viewData);
+
   // 一级分组字段ids
   const { viewControl } = view;
 
@@ -98,11 +97,10 @@ const CommonBoard = props => {
               getSingleBoardGroup={getSingleBoardGroup}
               openRecord={openRecord}
               boardData={boardData}
-              authParams={authParams}
               addBoardViewRecord={addBoardViewRecord}
               viewData={viewData}
               viewRootEl={viewport}
-              {..._.pick(props, ['updateViewCard'])}
+              {..._.pick(props, ['updateViewCard', 'delBoardViewRecord'])}
             />
           );
         })}

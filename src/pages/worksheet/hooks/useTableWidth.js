@@ -25,7 +25,7 @@ export default function useTableWidth(props) {
   );
   const summedWidth = useMemo(
     () => sumControlWidth(visibleControls.map(c => ({ ...c, width: c.width || getDefaultWidth(c) }))),
-    [visibleControls],
+    [visibleControls, sheetColumnWidths],
   );
   const averageWidth = useMemo(
     () =>

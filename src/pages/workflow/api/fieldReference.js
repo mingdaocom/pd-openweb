@@ -1,8 +1,9 @@
 import base, { controllerName } from './base';
+
 /**
  * fieldReference
-*/
-var fieldReference = {
+ */
+const fieldReference = {
   /**
    * 刷新网络下所有流程
    * @param {Object} args 请求参数
@@ -11,10 +12,15 @@ var fieldReference = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  initProcessFieldReference: function(args, options) {
+  initProcessFieldReference: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/fieldReference/initProcessFieldReference';
     base.ajaxOptions.type = 'POST';
-    return mdyAPI(controllerName, 'fieldReferenceinitProcessFieldReference', JSON.stringify(args), $.extend(base, options));
+    return mdyAPI(
+      controllerName,
+      'fieldReferenceinitProcessFieldReference',
+      JSON.stringify(args),
+      $.extend(base, options),
+    );
   },
 };
 export default fieldReference;

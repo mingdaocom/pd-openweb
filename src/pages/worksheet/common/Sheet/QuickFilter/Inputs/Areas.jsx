@@ -55,7 +55,7 @@ export default function Areas(props) {
   const [keywords, setKeywords] = useState('');
   const [defaultValue, setDefaultValue] = useState(null);
   const tempArea = useRef();
-  const { enumDefault2, advancedSetting: { chooserange = 'CN' } = {} } = control;
+  const { enumDefault2, advancedSetting: { chooserange = 'CN', commcountries } = {} } = control;
 
   const onFetchData = _.debounce(value => {
     setKeywords(value);
@@ -73,6 +73,7 @@ export default function Areas(props) {
       destroyPopupOnHide
       defaultValue={defaultValue}
       chooserange={chooserange}
+      commcountries={commcountries}
       level={enumDefault2}
       projectId={projectId}
       callback={area => {

@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
@@ -53,29 +53,22 @@ export default function SubListStyle(props) {
       <WidgetRowHeight {...props} />
       <SettingItem>
         <div className="settingItemTitle">{_l('冻结列')}</div>
-        <AnimationWrap>
-          {DISPLAY_FROZEN_LIST.map(({ text, value }) => {
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', { active: (freezeIds[0] || '0') === value })}
-                onClick={() =>
-                  onChange(
-                    handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }),
-                  )
-                }
-              >
-                {text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Dropdown
+          border
+          value={freezeIds[0] || '0'}
+          maxHeight={250}
+          data={DISPLAY_FROZEN_LIST}
+          onChange={value => {
+            onChange(handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }));
+          }}
+        />
       </SettingItem>
       {isRelateTable && (
         <SettingItem>
           <div className="settingItemTitle">
             {_l('树形表格')}
             {isUnSupport && (
-              <Tooltip popupPlacement="bottom" title={_l('该关联记录字段不是一对多关系')}>
+              <Tooltip placement="bottom" title={_l('该关联记录字段不是一对多关系')}>
                 <Icon className="Font20 mLeft8 Red" icon="error1" />
               </Tooltip>
             )}
@@ -135,8 +128,7 @@ export default function SubListStyle(props) {
         <div className="settingItemTitle">
           {_l('默认空行')}
           <Tooltip
-            placement={'bottom'}
-            autoCloseDelay={0}
+            placement="bottom"
             title={_l('开启后无论子表中是否存在记录，都会显示固定数量的行数。当子表没有记录时，将显示空白行。')}
           >
             <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
@@ -208,19 +200,20 @@ export default function SubListStyle(props) {
             <AnimationWrap style={{ width: '112px' }}>
               {DISPLAY_RC_TITLE_STYLE.map(({ icon, text, value }) => {
                 return (
-                  <div
-                    className={cx('animaItem', { active: rctitlestyle === value })}
-                    data-tip={text}
-                    onClick={() => {
-                      onChange(
-                        handleAdvancedSettingChange(data, {
-                          rctitlestyle: value,
-                        }),
-                      );
-                    }}
-                  >
-                    <Icon icon={icon} className="Font18" />
-                  </div>
+                  <Tooltip title={text}>
+                    <div
+                      className={cx('animaItem', { active: rctitlestyle === value })}
+                      onClick={() => {
+                        onChange(
+                          handleAdvancedSettingChange(data, {
+                            rctitlestyle: value,
+                          }),
+                        );
+                      }}
+                    >
+                      <Icon icon={icon} className="Font18" />
+                    </div>
+                  </Tooltip>
                 );
               })}
             </AnimationWrap>

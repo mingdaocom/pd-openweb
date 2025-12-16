@@ -36,7 +36,11 @@ export default function DefCom(props) {
       return [{ cid: '', rcid: '', staticValue: value }];
     }
     if (36 === dataType) {
-      return [{ cid: '', rcid: '', staticValue: control.filterType === 2 ? '1' : '0' }];
+      if ([2, 6].includes(control.filterType)) {
+        return [{ cid: '', rcid: '', staticValue: control.filterType === 2 ? '1' : '0' }];
+      }
+      //检查框 默认为空值
+      return [];
     }
     return values.map(o => {
       let staticValue = o;
@@ -168,7 +172,7 @@ export default function DefCom(props) {
                 values: [],
                 value: '',
                 dynamicSource: [],
-                filterType: staticValue === '1' ? 2 : 6,
+                ...(staticValue === '1' ? { filterType: 2 } : staticValue === '0' ? { filterType: 6 } : {}),
               });
             }
             if ([29, 35].includes(dataType)) {

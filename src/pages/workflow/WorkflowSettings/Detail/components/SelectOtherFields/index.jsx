@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../../api/flowNode';
 import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
 import { APP_TYPE, GLOBAL_VARIABLE, NODE_TYPE } from '../../../enum';
@@ -88,21 +89,24 @@ export default class SelectOtherFields extends Component {
       return;
     }
 
-    flowNode[isFilter ? 'getFlowAppDtos' : 'getFlowNodeAppDtos'](
-      {
-        processId,
-        nodeId: selectNodeId,
-        sourceAppId,
-        type: item.type,
-        enumDefault: item.enumDefault,
-        selectNodeId: sourceNodeId,
-        conditionId,
-        dataSource,
-        current: showCurrent,
-        filterType,
-      },
-      { isIntegration },
-    ).then(result => {
+    const interfaceFunc = obj =>
+      flowNode[isFilter ? 'getFlowAppDtos' : 'getFlowNodeAppDtos'](
+        {
+          ...obj,
+          processId,
+          sourceAppId,
+          type: item.type,
+          enumDefault: item.enumDefault,
+          selectNodeId: sourceNodeId,
+          conditionId,
+          dataSource,
+          current: showCurrent,
+          filterType,
+        },
+        { isIntegration },
+      );
+
+    interfaceFunc({ nodeId: selectNodeId }).then(result => {
       const fieldsData = result.map(obj => {
         return {
           text: obj.nodeName,
@@ -113,6 +117,7 @@ export default class SelectOtherFields extends Component {
           appTypeName: obj.appTypeName,
           actionId: obj.actionId,
           isSourceApp: obj.isSourceApp,
+          toolsFunction: () => interfaceFunc({ nodeId: obj.nodeId, tool: true }),
           items: obj.controls.map(o => {
             return {
               type: o.type,
@@ -234,7 +239,7 @@ export default class SelectOtherFields extends Component {
    * 尾部
    */
   footer() {
-    const { item, disabledInterface } = this.props;
+    const { item, disabledInterface, closeLayer } = this.props;
 
     return (
       <ul className={cx('flowDetailUserList clearAllFields', { BorderTopGrayC: !disabledInterface })}>
@@ -254,6 +259,7 @@ export default class SelectOtherFields extends Component {
               isSourceApp: '',
               isClear: true,
             });
+            closeLayer();
           }}
         >
           {_l('清空')}
@@ -267,22 +273,23 @@ export default class SelectOtherFields extends Component {
 
     return (
       <Fragment>
-        <div
-          className="actionControlMore ThemeColor3 tip-bottom-left"
-          data-tip={_l('使用本流程节点对象的值')}
-          onClick={() => {
-            openLayer();
-            this.getFlowNodeAppDtos(item.type, item.enumDefault);
-          }}
-        >
-          <i
-            className={
-              item.fieldValueId || /\$.*\$/.test(item.fieldValue)
-                ? 'icon-workflow_ok ThemeColor3'
-                : 'icon-workflow_other'
-            }
-          />
-        </div>
+        <Tooltip title={_l('使用本流程节点对象的值')} placement="bottomLeft">
+          <div
+            className="actionControlMore ThemeColor3"
+            onClick={() => {
+              openLayer();
+              this.getFlowNodeAppDtos(item.type, item.enumDefault);
+            }}
+          >
+            <i
+              className={
+                item.fieldValueId || /\$.*\$/.test(item.fieldValue)
+                  ? 'icon-workflow_ok ThemeColor3'
+                  : 'icon-workflow_other'
+              }
+            />
+          </div>
+        </Tooltip>
         {this.renderOtherFieldsBox()}
       </Fragment>
     );

@@ -2,7 +2,9 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip, UserHead } from 'ming-ui';
+import { Icon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import dialogSelectUser from '../dialogSelectUser';
 import { openManageOftenUserDialog } from '../dialogSelectUser/GeneralSelect/ManageOftenUserDialog';
 
@@ -112,7 +114,7 @@ export const SearchUsers = styled.div`
 
 export function UserItem(props) {
   const { className, notShowCurrentUserName, user = {}, type, onClick, appId, projectId, select = false } = props;
-  const { accountId, phone, fullname, job, department } = user;
+  const { accountId, phone, fullname, job, department, onStatusOption } = user;
 
   return (
     <UserItemCon className={cx('flexRow userItem ', { select }, className)} onClick={onClick}>
@@ -127,8 +129,19 @@ export function UserItem(props) {
         projectId={projectId}
       />
       <div className="flex flexColumn text">
-        <div className="name ellipsis" title={fullname}>
-          {notShowCurrentUserName && accountId === md.global.Account.accountId ? _l('我自己') : fullname}
+        <div className="flexRow">
+          <div className="name ellipsis" title={fullname}>
+            {notShowCurrentUserName && accountId === md.global.Account.accountId ? _l('我自己') : fullname}
+          </div>
+          {/* 我自己不显示个人状态 */}
+          {!(notShowCurrentUserName && accountId === md.global.Account.accountId) && onStatusOption && (
+            <PersonalStatus
+              className="mLeft3 flexRow alignItemsCenter"
+              onlyEmoji
+              accountId={accountId}
+              onStatusOption={onStatusOption}
+            />
+          )}
         </div>
         <div
           className="description ellipsis"
@@ -247,7 +260,7 @@ export function Search(props) {
       />
       {keywords && <i className="icon icon-cancel close" onClick={() => setKeywords('')} />}
       {!isHidAddUser && type !== 'external' && type !== 'range' && (
-        <Tooltip zIndex={10002} destroyPopupOnHide popupPlacement="bottom" text={_l('从通讯录中选择')}>
+        <Tooltip zIndex={10002} placement="bottom" title={_l('从通讯录中选择')}>
           <i
             className="icon icon-topbar-addressList openAddress"
             onClick={e => {

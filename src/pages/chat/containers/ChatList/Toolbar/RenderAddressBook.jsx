@@ -2,11 +2,13 @@ import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import _ from 'lodash';
+import { dialogKeyboardShortcuts } from 'src/pages/chat/components/KeyboardShortcuts';
 import AddressBook from 'src/pages/chat/lib/addressBook';
 import * as actions from 'src/pages/chat/redux/actions';
 import Constant from 'src/pages/chat/utils/constant';
 import { createDiscussion } from 'src/pages/chat/utils/group';
 import * as socket from 'src/pages/chat/utils/socket';
+import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch/index';
 
 const RenderAddressBook = props => {
   const { showAddressBook } = props;
@@ -18,7 +20,7 @@ const RenderAddressBook = props => {
   const bindShortcut = () => {
     const callDialog = _.debounce(which => {
       switch (which) {
-        case 96:
+        case 119:
           document.querySelector('.toolbarWrap .sessionList').click();
           break;
         case 113:
@@ -35,10 +37,35 @@ const RenderAddressBook = props => {
           });
           break;
         case 101:
+        case 69:
           props.setShowAddressBook(true);
           break;
         case 109:
+        case 77:
           document.querySelector('.ChatList-wrapper .mingo').click();
+          break;
+        case 70:
+        case 102:
+          // 全局搜索
+          let path = location.pathname.split('/');
+          GlobalSearch({
+            match: {
+              params: {
+                appId:
+                  location.pathname.startsWith('/app/') && path.length > 2 && path[2].length > 20 ? path[2] : undefined,
+              },
+            },
+            onClose: () => {},
+          });
+          break;
+        case 75:
+        case 107:
+          // 键盘快捷键
+          let ele = $('.keyboardShortcutsDialog');
+          if (!ele.length) {
+            dialogKeyboardShortcuts();
+          }
+
           break;
         default:
           break;

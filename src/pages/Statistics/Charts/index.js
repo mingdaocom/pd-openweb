@@ -15,6 +15,7 @@ import ScatterChart from './ScatterChart';
 import TopChart from './TopChart';
 import VerificationDataLength from './VerificationDataLength';
 import WordCloudChart from './WordCloudChart';
+import WorldMap from './WorldMap';
 
 const charts = {
   [reportTypes.LineChart]: VerificationDataLength(LineChart),
@@ -32,6 +33,7 @@ const charts = {
   [reportTypes.GaugeChart]: GaugeChart,
   [reportTypes.ProgressChart]: ProgressChart,
   [reportTypes.TopChart]: TopChart,
+  [reportTypes.WorldMap]: WorldMap,
 };
 
 export default charts;

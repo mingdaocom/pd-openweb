@@ -4,7 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { browserIsMobile } from 'src/utils/common';
 import { accountResultAction, setAutoLoginKey, statusList } from './util';
 
@@ -132,7 +132,7 @@ export default function Info(props) {
         setLoading(false);
       });
 
-    import('src/components/newCustomFields').then(res => {
+    import('src/components/Form').then(res => {
       setComponents(res);
     });
   }, []);

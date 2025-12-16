@@ -5,7 +5,7 @@ import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import InvitationController from 'src/api/invitation';
 import ProjectController from 'src/api/project';
-import { existAccountHint } from 'src/utils/common';
+import { existAccountHint } from 'src/utils/inviteCommon';
 
 const Tips = {
   1: _l('暂无使用中的邀请链接'),

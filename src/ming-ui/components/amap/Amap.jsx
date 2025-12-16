@@ -15,7 +15,7 @@ import '../less/Amap.less';
 export default class Amap extends Component {
   static defaultProps = {
     mapTools: false,
-    mapOptions: { zoom: 15 },
+    mapOptions: { zoom: 18 },
     onAddressChange: () => {},
     placeholder: '请输入地址',
     inputAlign: 'left',

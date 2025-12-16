@@ -2,6 +2,7 @@
 import { createRoot } from 'react-dom/client';
 import Store from 'redux/configureStore';
 import doT from 'dot';
+import _ from 'lodash';
 import moment from 'moment';
 import filterXss from 'xss';
 import { Dialog, Dropdown, UserCard } from 'ming-ui';
@@ -98,7 +99,7 @@ $.extend(CreateTask.prototype, {
     }
 
     // 监测网络是否过期
-    $.map(md.global.Account.projects, function (project) {
+    _.map(md.global.Account.projects, function (project) {
       if (settings.ProjectID === project.projectId) {
         isExsit = true;
         if (project.licenseType === 0) {
@@ -113,7 +114,7 @@ $.extend(CreateTask.prototype, {
     }
 
     settings.companyName = _l('个人');
-    $.map(md.global.Account.projects, function (project) {
+    _.map(md.global.Account.projects, function (project) {
       if (project.projectId === settings.ProjectID) {
         settings.companyName = project.companyName;
         return;
@@ -340,7 +341,7 @@ $.extend(CreateTask.prototype, {
       },
       focus: function () {
         $(this).addClass('isFocus');
-        if ($.trim($(this).val()) && $('.linkageFolder li').length > 0) {
+        if ($(this).val().trim() && $('.linkageFolder li').length > 0) {
           $('.linkageFolder .nullFolder').removeClass('Hidden');
           $('.linkageFolder').removeClass('Hidden');
         } else {
@@ -399,7 +400,7 @@ $.extend(CreateTask.prototype, {
       },
       blur: function () {
         $(this).removeClass('isFocus').mouseout();
-        var folderName = $.trim($(this).val());
+        var folderName = $(this).val().trim();
         if (!folderName) {
           $('#folderStage').val('');
           $('#createTaskStage').addClass('Hidden');
@@ -431,7 +432,7 @@ $.extend(CreateTask.prototype, {
           $(this).removeClass('hover');
         },
         click: function () {
-          var folderName = $.trim($(this).find('.folderListName').text());
+          var folderName = ($(this).find('.folderListName').text() || '').trim();
           settings.FolderID = $(this).data('folderid');
           $('#txtTaskFolder').val(folderName);
           $('.createTaskFolder .createTaskFolderName, .createTaskFolder .nullFolder .folderListName').text(folderName);
@@ -748,7 +749,7 @@ $.extend(CreateTask.prototype, {
 CreateTask.Motheds = {
   // 获取项目列表
   searchTaskFolder: function () {
-    var keyWords = $.trim($('#txtTaskFolder').val());
+    var keyWords = $('#txtTaskFolder').val().trim();
     ajaxRequest
       .getFolderListForCreateTask({
         projectId: CreateTask.settings.ProjectID,
@@ -800,7 +801,7 @@ CreateTask.Motheds = {
               .html(htmlEncodeReg(keyWords));
           }
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(function () {
@@ -849,7 +850,7 @@ CreateTask.Motheds = {
             />,
           );
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(function () {
@@ -869,7 +870,7 @@ CreateTask.Motheds = {
       return false;
     }
 
-    var taskName = $.trim($('#txtTaskName').val());
+    var taskName = $('#txtTaskName').val().trim();
 
     // 名称是否为空
     if (taskName === '') {
@@ -883,9 +884,9 @@ CreateTask.Motheds = {
     var deadline = $('#txtLastDate').data('end');
     var description = filterXss($('#txtDescriptionbox').val().replace(/\n/g, '<br/>'));
     var folderID = settings.FolderID === 1 ? '' : settings.FolderID;
-    var folderName = $.trim($('#txtTaskFolder').val());
+    var folderName = $('#txtTaskFolder').val().trim();
     var toUserID = $('#taskUserBox').attr('data-id');
-    var stageId = $.trim($('#folderStage').val());
+    var stageId = $('#folderStage').val().trim();
     var members = [];
     var specialAccounts = {};
 
@@ -971,7 +972,7 @@ CreateTask.Motheds = {
             source.data.stageName = _l('未完成');
           }
 
-          if (settings.relationCallback && $.isFunction(settings.relationCallback)) {
+          if (settings.relationCallback && _.isFunction(settings.relationCallback)) {
             settings.relationCallback(source.data);
             $('.createTaskConfirm').parent().remove();
             return false;
@@ -984,7 +985,7 @@ CreateTask.Motheds = {
               content: _l('已转为任务'),
             });
 
-            if (settings.callback && $.isFunction(settings.callback)) {
+            if (settings.callback && _.isFunction(settings.callback)) {
               settings.callback();
             }
           }
@@ -995,7 +996,7 @@ CreateTask.Motheds = {
             return false;
           }
 
-          if (settings.callback && $.isFunction(settings.callback)) {
+          if (settings.callback && _.isFunction(settings.callback)) {
             settings.callback(source);
             if (settings.createShare === true) {
               if (source.data.limitedCount) {
@@ -1007,7 +1008,7 @@ CreateTask.Motheds = {
                 content: '任务创建成功',
               });
             }
-          } else if (settings.shareCallback && $.isFunction(settings.shareCallback)) {
+          } else if (settings.shareCallback && _.isFunction(settings.shareCallback)) {
             settings.shareCallback(source);
           } else if (!settings.itemId) {
             if (source.data.limitedCount) {
@@ -1030,7 +1031,7 @@ CreateTask.Motheds = {
   // 验证当前用户是否在该网络
   checkIsProject: function (projectId) {
     var isExist = false;
-    $.map(md.global.Account.projects, function (project) {
+    _.map(md.global.Account.projects, function (project) {
       if (projectId === project.projectId) {
         isExist = true;
       }

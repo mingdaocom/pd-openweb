@@ -6,7 +6,8 @@ import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { quickSelectRole } from 'ming-ui/functions';
-import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
+import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
+import { dealUserRange } from 'src/components/Form/core/utils';
 import EditableCellCon from '../EditableCellCon';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -193,9 +194,18 @@ export default class Text extends React.Component {
           {value.map(organize => (
             <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
               <div className="flexRow">
-                <div className="departmentName flex ellipsis">
-                  {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
-                </div>
+                {organize.disabled ? (
+                  <DisabledDepartmentAndRoleName
+                    className="departmentName flex ellipsis"
+                    disabled={organize.disabled}
+                    name={organize.organizeName}
+                    isRole={true}
+                  />
+                ) : (
+                  <div className="departmentName flex ellipsis">
+                    {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
+                  </div>
+                )}
                 {isediting && !(cell.required && value.length === 1) && (
                   <i
                     className="Font14 Gray_9e icon-close Hand"
@@ -244,9 +254,18 @@ export default class Text extends React.Component {
                 {value.map(organize => (
                   <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
                     <div className="flexRow">
-                      <div className="departmentName flex ellipsis">
-                        {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
-                      </div>
+                      {organize.disabled ? (
+                        <DisabledDepartmentAndRoleName
+                          className="departmentName flex ellipsis"
+                          disabled={organize.disabled}
+                          name={organize.organizeName}
+                          isRole={true}
+                        />
+                      ) : (
+                        <div className="departmentName flex ellipsis">
+                          {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
+                        </div>
+                      )}
                     </div>
                   </span>
                 ))}

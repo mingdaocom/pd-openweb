@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import { USER_TYPE } from '../../../enum';
 import Member from '../Member';
@@ -65,9 +65,9 @@ export default ({
       <div className="Font13 mTop20 bold">
         {title}
         {titleInfo && (
-          <span className="workflowDetailTipsWidth mLeft5 tip-top-right" data-tip={titleInfo}>
-            <Icon className="Font16 Gray_9e" icon="info" />
-          </span>
+          <Tooltip title={titleInfo}>
+            <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+          </Tooltip>
         )}
       </div>
       <Dropdown
@@ -81,7 +81,6 @@ export default ({
             {USER_TASK_NULL_TYPE.find(o => o.value === userTaskNullType).text}
             {userTaskNullType === 2 && (
               <Tooltip
-                autoCloseDelay={0}
                 title={_l(
                   '流程的拥有者默认为流程创建者，在流程配置中可修改流程拥有者。（当没有流程拥有者时，由应用拥有者代理）',
                 )}

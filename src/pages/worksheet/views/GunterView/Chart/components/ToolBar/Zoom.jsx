@@ -4,7 +4,8 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { PERIOD_TYPE, PERIODS } from 'worksheet/views/GunterView/config';
 import { browserIsMobile } from 'src/utils/common';
@@ -80,7 +81,7 @@ export default class Zoom extends Component {
     const addDisable = periodType === PERIOD_TYPE.day && minDayWidth >= defaultMinDayWidth;
     return (
       <Fragment>
-        <Tooltip disable={this.isMobile} text={<span>{_l('缩小')}</span>}>
+        <Tooltip title={this.isMobile ? '' : <span>{_l('缩小')}</span>}>
           <IconWrap
             className={cx('Font18 Gray_75 pointer mRight12 mLeft12', {
               disable: reduceDisable,
@@ -90,7 +91,7 @@ export default class Zoom extends Component {
             onClick={reduceDisable ? _.noop : this.handleReduce}
           />
         </Tooltip>
-        <Tooltip disable={this.isMobile} text={<span>{_l('放大')}</span>}>
+        <Tooltip title={this.isMobile ? '' : <span>{_l('放大')}</span>}>
           <IconWrap
             className={cx('Font18 Gray_75 pointer mLeft6', { disable: addDisable, hoverColor: !this.isMobile })}
             icon="add1"

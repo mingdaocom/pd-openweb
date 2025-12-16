@@ -176,7 +176,7 @@ export default function ImportDialog(props) {
   //升级check
   const checkUpgrade = file => {
     const fileName = file.name;
-    const url = md.global.FileStoreConfig.documentHost + file.key;
+    const url = md.global.FileStoreConfig.documentHost + '/' + file.key;
     AppManagementAjax.check(
       {
         fileName,

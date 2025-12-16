@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ManageOftenUserDialog from './ManageOftenUserDialog';
 import NoData from './NoData';
 import User from './User';
@@ -52,7 +53,7 @@ export default class DefaultUserList extends Component {
               <div className="GSelect-navTitle">
                 {_l('最常协作')}
                 {!this.props.hideManageOftenUsers && !window.isPublicApp && !md.global.Account.isPortal && (
-                  <Tooltip text={_l('管理最常协作人员')}>
+                  <Tooltip title={_l('管理最常协作人员')}>
                     <span className="listBtn Hand" onClick={() => this.setState({ manageOftenUserVisible: true })}>
                       <Icon icon="list" className="#9E9E9E Font20" />
                     </span>

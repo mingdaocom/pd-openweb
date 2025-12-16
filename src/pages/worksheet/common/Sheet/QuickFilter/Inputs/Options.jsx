@@ -3,8 +3,8 @@ import cx from 'classnames';
 import _, { filter, find } from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
-import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
+import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
+import Dropdown from 'src/components/Form/DesktopForm/widgets/Dropdown';
 import Option from './StyledOption';
 
 const Con = styled.div`
@@ -83,7 +83,13 @@ const Con = styled.div`
     }
     &.ant-select-multiple {
       .ant-select-selector .ant-select-selection-overflow {
-        ${({ isMultiple }) => (isMultiple ? '.ant-select-selection-search { margin: 0px; }' : 'display: none;')}
+        .ant-select-selection-search {
+          margin: 0px;
+        }
+        .ant-select-selection-overflow-item .customAntDropdownTitle {
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
+        }
       }
       .customAntDropdownTitleWithBG {
         margin-top: 4px !important;
@@ -175,13 +181,8 @@ export default function Options(props) {
           default={undefined}
           dropdownClassName="scrollInTable withIsEmpty"
           value={JSON.stringify(values)}
-          selectProps={{
-            onChange: newValue => {
-              if (_.isObject(newValue)) {
-                newValue = newValue.value;
-              }
-              handleChange({ values: newValue ? [newValue] : [] });
-            },
+          onChange={newValue => {
+            handleChange({ values: safeParse(newValue) });
           }}
         />
       </Con>

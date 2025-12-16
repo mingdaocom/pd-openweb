@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Input, LoadDiv, Radio, ScrollView, Switch, Tooltip } from 'ming-ui';
+import { Checkbox, Dropdown, Icon, Input, LoadDiv, Radio, ScrollView, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { actionList, PERMISSION_WAYS, roleDetailPropType, TEXTS } from 'src/pages/Role/config.js';
 import { WrapFooter } from 'src/pages/Role/style.jsx';
 import Search from 'src/pages/workflow/components/Search/index.jsx';
@@ -228,7 +229,7 @@ export default class extends PureComponent {
                   }}
                 />
                 <span className="mLeft10"> {_l('下属加入/拥有的记录')}</span>
-                <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')} </span>} popupPlacement="top">
+                <Tooltip title={_l('在组织管理【汇报关系】中管理用户的下属')}>
                   <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
                 </Tooltip>
               </div>
@@ -251,10 +252,7 @@ export default class extends PureComponent {
                     />
                     <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
                     {!isForPortal && (
-                      <Tooltip
-                        text={<span>{_l('在本应用【用户-扩展】中管理用户的权限标签')} </span>}
-                        popupPlacement="top"
-                      >
+                      <Tooltip title={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
                         <Icon icon="info_outline" className="Font16 Gray_9e mLeft3 TxtMiddle" />
                       </Tooltip>
                     )}
@@ -327,14 +325,13 @@ export default class extends PureComponent {
                           {o.txt}
                           {o.tips && (
                             <Tooltip
-                              text={
+                              title={
                                 <span>
                                   {this.props.isForPortal && o.key === 'generalDiscussion'
                                     ? _l('包含记录讨论')
                                     : o.tips}
                                 </span>
                               }
-                              popupPlacement="top"
                             >
                               <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
                             </Tooltip>
@@ -356,7 +353,7 @@ export default class extends PureComponent {
 
   renderAuthTable() {
     const {
-      roleDetail: { sheets = [], pages = [] } = {},
+      roleDetail: { sheets = [], pages = [], chatbots = [] } = {},
       showRoleSet,
       projectId,
       appId,
@@ -373,6 +370,7 @@ export default class extends PureComponent {
     //将工作表和自定义页面 混合排序
     const lists = sheets
       .concat(pages)
+      .concat(chatbots)
       .sort((a, b) => {
         return a.sortIndex - b.sortIndex;
       })
@@ -403,11 +401,11 @@ export default class extends PureComponent {
                   if (item.operatorKey === 'READ') {
                     checked =
                       !sheets.filter(obj => obj.views.filter(o => !o[item.key]).length).length &&
-                      !pages.filter(o => !o.checked).length;
+                      ![...pages, ...chatbots].filter(o => !o.checked).length;
                     clearselected =
                       !checked &&
                       (!!sheets.filter(obj => obj.views.filter(o => o[item.key]).length).length ||
-                        !!pages.filter(o => o.checked).length);
+                        !![...pages, ...chatbots].filter(o => o.checked).length);
                   } else if (item.operatorKey === 'ADD') {
                     checked = sheets.filter(obj => obj.canAdd).length === sheets.length && sheets.length > 0;
                     clearselected =
@@ -442,7 +440,7 @@ export default class extends PureComponent {
               <span className="flex flexShrink overflow_ellipsis" title={_l('数据操作权限')}>
                 {_l('数据操作权限')}
               </span>
-              <Tooltip text={<span>{_l('批量编辑')} </span>} popupPlacement="top">
+              <Tooltip title={_l('批量编辑')}>
                 <i
                   className={cx('icon-align_setting Font20 Gray_75 mLeft8 mRight8 TxtMiddle', {
                     'Hand ThemeHoverColor3': sheets.length > 0,
@@ -494,7 +492,7 @@ export default class extends PureComponent {
                   showRoleSet={showRoleSet}
                   isForPortal={this.props.isForPortal}
                   sheet={list}
-                  key={list.sheetId || list.pageId}
+                  key={list.sheetId || list.pageId || list.id}
                   onChange={this.updateSheetAuth}
                   updateLookPages={this.updateLookPages}
                   updateNavigateHide={this.updateNavigateHide}
@@ -518,13 +516,16 @@ export default class extends PureComponent {
     const { roleDetail, onChange } = this.props;
     const sheets = (roleDetail.sheets || []).map(item => changeSheetModel(item, key, checked));
     if (key === 'READ') {
-      let pages = _.cloneDeep(roleDetail.pages).map(o => {
-        return { ...o, checked, navigateHide: !checked ? false : o.navigateHide };
-      });
+      const getDatas = data => {
+        return _.cloneDeep(data).map(o => {
+          return { ...o, checked, navigateHide: !checked ? false : o.navigateHide };
+        });
+      };
       onChange({
         ...roleDetail,
         sheets,
-        pages,
+        pages: getDatas(roleDetail?.pages || []),
+        chatbots: getDatas(roleDetail?.chatbots || []),
       });
     } else {
       onChange({
@@ -534,41 +535,30 @@ export default class extends PureComponent {
     }
   }
 
-  updateNavigateHide = (isSheet, id, navigateHide) => {
+  updateNavigateHide = (type, id, navigateHide) => {
     const { roleDetail, onChange } = this.props;
-    if (isSheet) {
-      onChange({
-        sheets: _.cloneDeep(roleDetail.sheets).map(o => {
-          if (id === o.sheetId) {
-            return { ...o, navigateHide };
-          } else {
-            return o;
-          }
-        }),
-      });
-    } else {
-      onChange({
-        pages: _.cloneDeep(roleDetail.pages).map(o => {
-          if (id === o.pageId) {
-            return { ...o, navigateHide };
-          } else {
-            return o;
-          }
-        }),
-      });
-    }
+    const data = roleDetail[type];
+    onChange({
+      [type]: _.cloneDeep(data).map(o => {
+        if (id === o.sheetId || id === o.pageId || id === o.id) {
+          return { ...o, navigateHide };
+        } else {
+          return o;
+        }
+      }),
+    });
   };
 
-  updateLookPages = (id, checked) => {
+  updateLookPages = (id, checked, type) => {
     const { roleDetail, onChange } = this.props;
-    let pages = _.cloneDeep(roleDetail.pages).map(o => {
-      if (id === o.pageId) {
+    const data = _.cloneDeep(roleDetail[type]).map(o => {
+      if (id === o.pageId || id === o.id) {
         return { ...o, checked, navigateHide: !checked ? false : o.navigateHide };
       } else {
         return o;
       }
     });
-    onChange({ pages });
+    onChange({ [type]: data });
   };
 
   render() {
@@ -630,15 +620,9 @@ export default class extends PureComponent {
                       text={_l('隐藏应用')}
                     />
                     <Tooltip
-                      text={
-                        <span>
-                          {_l(
-                            '对当前角色下的用户仅授予权限，但不显示应用入口。通常用于跨应用关联数据或引用视图时，只需要用户从另一个应用中进行操作的场景。',
-                          )}
-                        </span>
-                      }
-                      autoCloseDelay={0}
-                      popupPlacement="top"
+                      title={_l(
+                        '对当前角色下的用户仅授予权限，但不显示应用入口。通常用于跨应用关联数据或引用视图时，只需要用户从另一个应用中进行操作的场景。',
+                      )}
                     >
                       <i className="icon-info_outline Font16 Gray_bd mLeft7" />
                     </Tooltip>

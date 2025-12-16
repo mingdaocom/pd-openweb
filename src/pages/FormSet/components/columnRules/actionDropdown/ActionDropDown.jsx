@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { Checkbox, Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import {
   deepSearch,
   getNewDropDownData,
@@ -190,7 +191,7 @@ export default class DropDownItem extends Component {
         {currentArr.map(item => {
           return (
             <span className={cx('valueText', { disabled: item.isDelete })}>
-              <Tooltip disable={!item.isDel} text={<span>{_l('ID: %0', item.controlId)}</span>} popupPlacement="bottom">
+              <Tooltip title={!item.isDel ? '' : <span>{_l('ID: %0', item.controlId)}</span>} placement="bottom">
                 <span className="ellipsis controlNameBox">{item.name}</span>
               </Tooltip>
               {item.showSetting && (

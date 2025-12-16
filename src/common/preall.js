@@ -46,6 +46,10 @@ const parseShareId = () => {
     window.shareState.isPublicChart = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/chart\/(\w{24})/) || '')[1];
   }
+  if (/\/public\/chatbot/.test(location.pathname)) {
+    window.shareState.isPublicChatbot = true;
+    window.shareState.shareId = (location.pathname.match(/.*\/public\/chatbot\/(\w{24})/) || '')[1];
+  }
 };
 
 const clearLocalStorage = () => {
@@ -59,6 +63,23 @@ const clearLocalStorage = () => {
   } catch (err) {
     console.log(err);
   }
+};
+
+// 格式化url末尾的斜杠
+const normalizeUrls = obj => {
+  for (const key in obj) {
+    const value = obj[key];
+    // AppFileServer、PluginRuntimeUrl、WebUrl、PlatformUrl 不处理
+    // AjaxApiUrl 应用库引用的library中没有斜杠，所以不处理
+    if (['AppFileServer', 'PluginRuntimeUrl', 'WebUrl', 'PlatformUrl', 'AjaxApiUrl'].includes(key)) {
+      continue;
+    }
+    // 是字符串、以http或https开头、斜杠结尾
+    if (typeof value === 'string' && /^https?:\/\/.*?\/$/i.test(value)) {
+      obj[key] = value.trim().replace(/\/$/, '');
+    }
+  }
+  return obj;
 };
 
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
@@ -94,12 +115,17 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   const data = global.getGlobalMeta(args, { ajaxOptions: { sync: true } });
 
   window.config = data.config || {};
-  window.md.global = _.merge(defaultGlobal, data['md.global']);
-
-  const LOAD_MOBILE_FORM = localStorage.getItem('LOAD_MOBILE_FORM');
-  if (!LOAD_MOBILE_FORM) {
-    safeLocalStorageSetItem('LOAD_MOBILE_FORM', 'new');
-  }
+  const formatUrlEnum = ['Config', 'FileStoreConfig'];
+  const globalData = _.merge(defaultGlobal, data['md.global']);
+  const formatGlobalData = {
+    ...globalData,
+    ...formatUrlEnum.reduce((acc, key) => {
+      const config = globalData[key];
+      acc[key] = normalizeUrls(config);
+      return acc;
+    }, {}),
+  };
+  window.md.global = formatGlobalData;
 
   if (allowNotLogin || window.isPublicApp) return;
 
@@ -153,6 +179,11 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
     );
 
     md.global.Account.projects = _.values(mergedProjects);
+  }
+
+  // HAP显示人事
+  if (!md.global.Config.IsLocal) {
+    md.global.SysSettings.forbidSuites = md.global.SysSettings.forbidSuites.replace('5', '');
   }
 
   // 加载KF5

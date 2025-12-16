@@ -3,7 +3,7 @@ import base, { controllerName } from './base';
 /**
  * app
  */
-var app = {
+const app = {
   /**
    * 获取时间
    * @param {Object} args 请求参数

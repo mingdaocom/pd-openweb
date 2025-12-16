@@ -1,4 +1,5 @@
 import React from 'react';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -53,7 +54,7 @@ export default function RecordInfoRight(props) {
     hiddenTabs.push('workflow');
   }
 
-  if (md.global.Account.isPortal) {
+  if (md.global.Account.isPortal || get(window, 'shareState.isPublicChatbot')) {
     //外部门户 需要判断当前是否开始讨论
     hiddenTabs.push('logs', 'files'); //外部门户不可见日志和文件
     if (!props.allowExAccountDiscuss) {

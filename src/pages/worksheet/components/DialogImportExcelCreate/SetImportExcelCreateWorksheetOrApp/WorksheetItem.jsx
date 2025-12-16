@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const SheetTabWrap = styled.div`
   padding: ${props => (props.disabled ? '' : '0 20px')};
@@ -143,6 +144,10 @@ export default class WorksheetItem extends Component {
     } = this.props;
     const { directionVisible, hideDirection } = this.state;
     const showDisabledDot = _.some(sheetList, it => it.disabled);
+    const worksheetExcelImportDataLimitCount = md.global.Config.IsLocal
+      ? md.global.SysSettings.worksheetExcelImportDataLimitCount
+      : 20000;
+
     return (
       <SheetTabWrap disabled={disabled}>
         {!disabled && (
@@ -160,8 +165,8 @@ export default class WorksheetItem extends Component {
                   {(sheetList || []).map(item => {
                     const cellsLength = item.rows && item.rows.length && item.rows[0].cells.length;
                     const tipsTxt =
-                      item.total - 1 > 20000
-                        ? _l('该sheet超过导入上限（上限20000行）')
+                      item.total - 1 > worksheetExcelImportDataLimitCount
+                        ? _l('该sheet超过导入上限（上限%0行）', worksheetExcelImportDataLimitCount)
                         : cellsLength > 200
                           ? _l('该sheet超过导入上限（上限200列）')
                           : item.isMerge
@@ -232,7 +237,7 @@ export default class WorksheetItem extends Component {
                         <span className={cx('flex ellipsis', { Gray_bd: item.disabled })}>
                           {item.sheetName}
                           {item.disabled && (
-                            <Tooltip placement="bottom" autoCloseDelay={0} text={<span>{tipsTxt}</span>}>
+                            <Tooltip placement="bottom" title={tipsTxt}>
                               <Icon
                                 icon="info_outline"
                                 className={cx('mLeft2 Font16', {

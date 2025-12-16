@@ -7,7 +7,7 @@ import { UserHead } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { quickSelectUser } from 'ming-ui/functions';
-import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
+import { dealUserRange } from 'src/components/Form/core/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import ChildTableContext from '../ChildTable/ChildTableContext';
@@ -210,11 +210,23 @@ export default class User extends React.Component {
           },
         );
       } else {
+        const validateResult = onValidate(JSON.stringify(data));
+        if (validateResult.errorType && !validateResult.ignoreErrorMessage) {
+          this.setState({
+            value: data,
+            isError: true,
+            validateResult,
+          });
+          return;
+        }
         let newData = [];
         try {
           newData = _.uniqBy(this.state.value.concat(data), 'accountId');
         } catch (err) {
           console.log(err);
+        }
+        if (validateResult.errorMessage) {
+          alert(validateResult.errorMessage, 3);
         }
         this.setState(
           {

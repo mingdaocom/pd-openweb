@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersion from '../../../api/instanceVersion';
 import process from '../../../api/process';
 import { FLOW_FAIL_REASON, FLOW_STATUS, STATUS2COLOR } from '../config';
@@ -22,6 +23,7 @@ export default ({
   onUpdateBatchIds,
   isPlugin,
   instanceType,
+  isChatbot,
 }) => {
   const isDelete = instanceType === -1;
   const { cause, nodeName, causeMsg } = instanceLog;
@@ -49,12 +51,12 @@ export default ({
           />
         )}
       </div>
+      <div className="triggerData flex overflow_ellipsis Font14">{title || (isChatbot ? _l('发送文件') : '')}</div>
       <div className={cx('status', status)}>
         <div className="iconWrap">
-          <HistoryStatus statusCode={isDelete ? -1 : status} />
+          <HistoryStatus isList statusCode={isDelete ? -1 : status} />
         </div>
       </div>
-      <div className="triggerData flex overflow_ellipsis Font14 ">{title}</div>
       <div
         className="cause flex overflow_ellipsis"
         style={{ color }}
@@ -88,71 +90,77 @@ export default ({
 
       <div className="retry">
         {(isDelete || showRetry || showSuspend) && (
-          <span
-            data-tip={isDelete ? _l('恢复') : showRetry ? _l('重试') : _l('中止')}
-            onClick={e => {
-              e.stopPropagation();
-              if (isRetry) return;
+          <Tooltip title={isDelete ? _l('恢复') : showRetry ? _l('重试') : _l('中止')}>
+            <span
+              onClick={e => {
+                e.stopPropagation();
+                if (isRetry) return;
 
-              setRetry(true);
+                setRetry(true);
 
-              (isDelete || showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id })
-                .then(res => {
-                  onUpdateBatchIds(
-                    batchIds.map(o => {
-                      if (o.id === id) {
-                        o.status = res.status;
-                        o.cause = res.instanceLog.cause;
-                      }
-
-                      return o;
-                    }),
-                  );
-                  updateSource(Object.assign(res, { id }), index);
-                  setRetry(false);
+                (isDelete || showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({
+                  instanceId: id,
                 })
-                .catch(() => {
-                  setRetry(false);
-                });
-            }}
-          >
-            <Icon
-              className="Font16 pointer ThemeHoverColor3 Block Gray_75"
-              icon={isDelete || showRetry ? 'rotate' : 'delete'}
-            />
-          </span>
+                  .then(res => {
+                    onUpdateBatchIds(
+                      batchIds.map(o => {
+                        if (o.id === id) {
+                          o.status = res.status;
+                          o.cause = res.instanceLog.cause;
+                        }
+
+                        return o;
+                      }),
+                    );
+                    updateSource(Object.assign(res, { id }), index);
+                    setRetry(false);
+                  })
+                  .catch(() => {
+                    setRetry(false);
+                  });
+              }}
+            >
+              <Icon
+                className="Font16 pointer ThemeHoverColor3 Block Gray_75"
+                icon={isDelete || showRetry ? 'rotate' : 'delete'}
+              />
+            </span>
+          </Tooltip>
         )}
       </div>
       <div className="version">
-        <span
-          className="tip-bottom-left"
-          data-tip={
+        <Tooltip
+          placement="bottomLeft"
+          title={
             _.includes(debugEvents, -1)
               ? _l('编辑版测试')
               : versionDate && typeof versionDate === 'string'
                 ? _l('版本：%0', versionDate)
                 : _l('加载中')
           }
-          onMouseOver={() => {
-            if (versionDate || _.includes(debugEvents, -1)) return;
-
-            setVersion(true);
-
-            process.getProcessPublish({ instanceId: id }).then(res => {
-              setVersion(moment(res.lastPublishDate).format('YYYY-MM-DD HH:mm'));
-              setWorkflowId(res.id);
-            });
-          }}
-          onClick={e => {
-            e.stopPropagation();
-
-            if (!currentWorkflowId) return;
-
-            window.open(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${currentWorkflowId}`);
-          }}
         >
-          <Icon className="Font16 ThemeHoverColor3 Block Gray_75" icon="info_outline" />
-        </span>
+          <span
+            onMouseOver={() => {
+              if (versionDate || _.includes(debugEvents, -1)) return;
+
+              setVersion(true);
+
+              process.getProcessPublish({ instanceId: id }).then(res => {
+                setVersion(moment(res.lastPublishDate).format('YYYY-MM-DD HH:mm'));
+                setWorkflowId(res.id);
+              });
+            }}
+            onClick={e => {
+              e.stopPropagation();
+
+              if (!currentWorkflowId) return;
+
+              window.open(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${currentWorkflowId}`);
+            }}
+          >
+            <Icon className="Font16 ThemeHoverColor3 Block Gray_75" icon="info_outline" />
+          </span>
+        </Tooltip>
       </div>
     </li>
   );

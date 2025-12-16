@@ -31,7 +31,7 @@ const Con = styled.div`
     }
   }
   .count {
-    color: var(--gray-9e);
+    color: var(--color-text-tertiary);
     font-size: 0.9em;
     margin: 0 8px;
   }
@@ -61,7 +61,7 @@ const IconWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gray-9e);
+  color: var(--color-text-tertiary);
   font-size: 1em;
   margin-right: 6px;
   cursor: pointer;

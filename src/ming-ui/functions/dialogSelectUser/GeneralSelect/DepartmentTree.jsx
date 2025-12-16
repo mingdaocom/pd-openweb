@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
 import NoData from './NoData';
 import User from './User';
@@ -353,7 +354,7 @@ export default class DepartmentTree extends Component {
           {groupList.length ? (
             <div className="h100 flexColumn">
               <div className="flexRow valignWrapper pLeft15 pBottom5">
-                <Tooltip text={_l('部门下所有人已加入')} disable={!isAllSelectedAccountIds}>
+                <Tooltip title={!isAllSelectedAccountIds ? '' : _l('部门下所有人已加入')}>
                   <span>
                     <Checkbox
                       checked={res.length === reallyGroupLength}

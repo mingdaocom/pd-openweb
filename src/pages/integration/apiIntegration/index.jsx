@@ -117,7 +117,7 @@ function APILibraryCon(props) {
       if (window.MDAPILibrary) {
         renderLibCon();
       } else {
-        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v3.js?${+new Date()}`, err => {
+        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v4.js?${+new Date()}`, err => {
           if (!err && window.MDAPILibrary) {
             renderLibCon();
           }

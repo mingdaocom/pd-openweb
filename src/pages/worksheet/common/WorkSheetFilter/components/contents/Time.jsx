@@ -7,7 +7,7 @@ import zh_TW from 'antd/es/date-picker/locale/zh_TW';
 import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import TimePicker from 'src/components/newCustomFields/widgets/Time';
+import TimePicker from 'src/components/Form/DesktopForm/widgets/Time';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 
 export default class Date extends Component {

@@ -580,7 +580,7 @@ export function addNewRecord(data, view) {
 }
 
 // 打开创建记录弹层
-export function openNewRecord({ isDraft } = {}) {
+export function openNewRecord({ isDraft, allowShowMingoCreate } = {}) {
   return (dispatch, getState) => {
     const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, appPkgData } = getState().sheet;
     const { appId, viewId, groupId, worksheetId } = base;
@@ -618,6 +618,7 @@ export function openNewRecord({ isDraft } = {}) {
       return addRecord({
         ...param,
         showFillNext: true,
+        allowShowMingoCreate,
         appId,
         viewId,
         worksheetId,

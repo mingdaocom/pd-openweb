@@ -2,8 +2,9 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
 import { Button, Qr } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import mingoHead from 'src/pages/chat/containers/ChatList/Mingo/images/mingo.png';
 import embedMingo from '../embed';
 
@@ -95,8 +96,6 @@ const WrappedButton = styled(Button)`
     }
   }
   &.new-chat {
-    background-color: var(--ai-primary-color) !important;
-    border-color: var(--ai-primary-color) !important;
     color: #fff !important;
     .icon {
       color: #fff !important;
@@ -171,14 +170,14 @@ export default function Header({ error, isShare, isFooter = false, isSmallMode, 
                 </QrCode>
               </WrappedButton>
             )}
-            <WrappedButton type="ghostgray" className="new-chat" onClick={onContinueChat}>
-              <i className="icon icon-newchat"></i>
+            <WrappedButton className="new-chat" onClick={onContinueChat}>
+              <i className="icon icon-new_chat"></i>
               {_l('对话')}
             </WrappedButton>
           </Fragment>
         )}
         {!isShare && md?.global?.Account?.avatar && (
-          <Tooltip text={md?.global?.Account?.fullname}>
+          <Tooltip title={md?.global?.Account?.fullname}>
             <div
               className="user-info t-flex t-items-center"
               onClick={() => {

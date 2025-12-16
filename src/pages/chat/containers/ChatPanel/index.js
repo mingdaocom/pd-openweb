@@ -20,7 +20,6 @@ const exceptions = [
   '.mdModal',
   '.ChatPanel-Trigger',
   '.attachmentsPreview',
-  '.Tooltip',
   '.mui-dialog-container',
   '.confirm',
   '.PositionContainer-wrapper',

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { getVisibleControls } from 'src/pages/Print/util';
 import { dialogEditWorksheet } from 'src/pages/widgetConfig';
@@ -104,10 +105,6 @@ export default function CustomErNode(props) {
     });
   };
 
-  const getTip = sign => {
-    return { [window.isSafari ? 'title' : 'data-tip']: TIPS[sign] };
-  };
-
   const renderMoreOp = () => {
     return (
       <Trigger
@@ -155,9 +152,11 @@ export default function CustomErNode(props) {
             className="editIconBox Gray_9e Hover_21 Hand"
             onClick={() => onFilter({ worksheetId: item.worksheetId, list })}
           >
-            <span {...getTip(0)}>
-              <Icon icon="gps_fixed" className="Font14 editIcon Hover_21" />
-            </span>
+            <Tooltip title={TIPS[0]}>
+              <span>
+                <Icon icon="gps_fixed" className="Font14 editIcon Hover_21" />
+              </span>
+            </Tooltip>
           </span>
         )}
         {renderMoreOp()}

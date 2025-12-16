@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dropdown, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectJob, dialogSelectOrgRole } from 'ming-ui/functions';
 import { DEPARTMENT_ORGANIZE, USER_ORGANIZE, USER_TYPE } from '../../../enum';
 import { handleGlobalVariableName } from '../../../utils';
@@ -139,9 +139,11 @@ export default class Member extends Component {
   renderOrganize(controlType, roleTypeId) {
     if (!roleTypeId) {
       return (
-        <span data-tip={controlType !== 27 ? _l('使用人员的组织结构关系') : _l('使用部门的组织结构关系')}>
-          <i className="icon-more_horiz flowDetailMemberOrganize" />
-        </span>
+        <Tooltip title={controlType !== 27 ? _l('使用人员的组织结构关系') : _l('使用部门的组织结构关系')}>
+          <span>
+            <i className="icon-more_horiz flowDetailMemberOrganize" />
+          </span>
+        </Tooltip>
       );
     }
 
@@ -351,9 +353,6 @@ export default class Member extends Component {
   renderOrgRoleInfo() {
     return (
       <Tooltip
-        zIndex={10000}
-        placement="bottom"
-        autoCloseDelay={0}
         title={_l(
           '由所选组织角色中设置的分管此部门的负责人进行审批。如：工会委员（组织角色）中张三分管部门A、B；则A、B部门的审批由张三作为负责人。',
         )}
@@ -391,9 +390,11 @@ export default class Member extends Component {
               {_.includes([USER_TYPE.JOB, USER_TYPE.ORGANIZE_ROLE], item.type) && this.renderTags(item)}
 
               {!(leastOne && accounts.length <= 1) && (
-                <span className="mLeft5 flowDetailMemberDel" data-tip={_l('刪除')} onClick={() => this.removeMember(i)}>
-                  <i className={cx('icon-delete', inline ? 'Font14' : 'Font18')} />
-                </span>
+                <Tooltip title={_l('刪除')}>
+                  <span className="mLeft5 flowDetailMemberDel" onClick={() => this.removeMember(i)}>
+                    <i className={cx('icon-delete', inline ? 'Font14' : 'Font18')} />
+                  </span>
+                </Tooltip>
               )}
               {!inline &&
                 _.includes([USER_TYPE.ROLE, USER_TYPE.DEPARTMENT, USER_TYPE.JOB, USER_TYPE.ORGANIZE_ROLE], item.type) &&

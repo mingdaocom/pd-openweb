@@ -1,8 +1,12 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef } from 'react';
 import cx from 'classnames';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { browserIsMobile } from 'src/utils/common';
 import useRecorder from './useRecorder';
 import VolumeBar from './VolumeBar';
+
+const isMobile = browserIsMobile();
 
 function secondToMMSS(seconds) {
   const minutes = Math.floor(seconds / 60);
@@ -17,6 +21,10 @@ const Core = forwardRef(
     const { status, recognizedText, volume, recordTime, start, stop } = useRecorder({
       onStop,
       authConfig,
+      onError: () => {
+        alert(_l('暂不支持当前设备'), 3);
+        onStop();
+      },
     });
     const cache = useRef({});
     useEffect(() => {
@@ -44,11 +52,17 @@ const Core = forwardRef(
     }));
     return (
       <Fragment>
-        <Tooltip text={_l('结束语音输入')} popupPlacement="top" offset={[0, -3]}>
+        {isMobile ? (
           <div className="recorderIcon t-flex t-content-center t-items-center" onClick={stop}>
-            <i className="icon icon-microphone"></i>
+            <i className="icon icon-close"></i>
           </div>
-        </Tooltip>
+        ) : (
+          <Tooltip title={_l('结束语音输入')} placement="top" align={{ offset: [0, -3] }}>
+            <div className="recorderIcon t-flex t-content-center t-items-center" onClick={stop}>
+              <i className="icon icon-close"></i>
+            </div>
+          </Tooltip>
+        )}
         <div className="recorderStatus t-flex-1">
           <VolumeBar progress={status === 'recording' ? volume : 0} />
         </div>

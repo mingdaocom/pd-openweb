@@ -11,8 +11,8 @@ import { WaterMark } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import customApi from 'statistics/api/custom';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
-import { loadSDK } from 'src/components/newCustomFields/tools/utils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { loadSDK } from 'src/components/Form/core/utils';
 import {
   getDefaultLayout,
   getEnumType,
@@ -20,6 +20,7 @@ import {
   reorderComponents,
   replaceColor,
 } from 'src/pages/customPage/util';
+import { insertPortal } from 'src/pages/customPage/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getTranslateInfo } from 'src/utils/app';
 import { compatibleMDJS } from 'src/utils/project';
@@ -255,11 +256,19 @@ export default class CustomPage extends Component {
             const { id, type } = widget;
             const { title, titleVisible } = widget.mobile;
             const componentType = getEnumType(type);
+            const isTransparent =
+              (componentType === 'analysis' && _.get(widget, 'config.showType') === 1) ||
+              (componentType === 'card' && _.get(widget, 'componentConfig.showType') === 1);
             const translateInfo = getTranslateInfo(
               apk.appId,
               null,
               componentType === 'analysis' ? widget.value : widget.id,
             );
+            const widgetConfig = {
+              ...pageConfig,
+              originWidgetBgColor: pageConfig.widgetBgColor,
+              widgetBgColor: isTransparent ? 'transparent' : pageConfig.widgetBgColor,
+            };
             return (
               <LayoutContent key={`${id || index}`} className="resizableWrap">
                 {titleVisible && (
@@ -268,12 +277,12 @@ export default class CustomPage extends Component {
                 <div
                   className={cx('widgetContent', componentType, { haveTitle: titleVisible })}
                   style={{
-                    backgroundColor: pageConfig.widgetBgColor,
+                    backgroundColor: widgetConfig.widgetBgColor,
                   }}
                 >
                   <WidgetDisplay
                     pageComponents={allPageComponents}
-                    pageConfig={pageConfig}
+                    pageConfig={widgetConfig}
                     componentType={componentType}
                     widget={widget}
                     apk={apk}
@@ -318,9 +327,10 @@ export default class CustomPage extends Component {
         );
       }
     });
+    const url = urlList.join('');
     return (
       <div className="h100 w100">
-        <iframe className="w100 h100" style={{ border: 'none' }} src={urlList.join('')} />
+        <iframe className="w100 h100" style={{ border: 'none' }} src={insertPortal(url)} />
       </div>
     );
   }

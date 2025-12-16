@@ -1,9 +1,8 @@
 import _, { get, isEmpty } from 'lodash';
-import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/newCustomFields/tools/config';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
-import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/formUtils';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/Form/core/config';
+import DataFormat from 'src/components/Form/core/DataFormat';
+import { checkRuleLocked, checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
+import { controlState } from 'src/components/Form/core/utils';
 import { browserIsMobile } from 'src/utils/common';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { filterEmptyChildTableRows } from 'src/utils/record';

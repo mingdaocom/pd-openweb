@@ -3,7 +3,8 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Input, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import Des from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/Des';
 import {
@@ -122,8 +123,12 @@ export default function SlideLayerTem(props) {
     });
   };
   const renderTemplate = (fields = [], isAppWorksheet, cb, hideIsNull) => {
-    const isAll = fields.filter(o => o.isCheck).length >= fields.length;
-    const isNotAll = fields.filter(o => o.isCheck).length < fields.length && fields.filter(o => o.isCheck).length > 0;
+    const canCheckFields = fields.filter(o => ![22].includes(o.mdType));
+    const hasUnsupportedFields = canCheckFields.length < fields.length; // 是否存在不可选字段
+    const isAll = canCheckFields.filter(o => o.isCheck).length >= canCheckFields.length;
+    const isNotAll =
+      canCheckFields.filter(o => o.isCheck).length < canCheckFields.length &&
+      canCheckFields.filter(o => o.isCheck).length > 0;
     const { onChangeInfo, state } = props;
     const { duplicates = [] } = state;
     return (
@@ -132,8 +137,8 @@ export default function SlideLayerTem(props) {
           <div className="itemBox itemBoxCheck">
             <Checkbox
               className="TxtMiddle InlineBlock mRight0 checked_selected checkBox "
-              checked={isAll}
-              clearselected={isNotAll}
+              checked={isAll && !hasUnsupportedFields}
+              clearselected={isNotAll || (isAll && hasUnsupportedFields)}
               onClick={() => {
                 cb({
                   fields: fields.map(o => {
@@ -188,7 +193,7 @@ export default function SlideLayerTem(props) {
                   }}
                 ></Checkbox>
               </div>
-              <div className="itemBox Gray TxtMiddle">
+              <div className="itemBox Gray TxtMiddle flexRow">
                 {isAppWorksheet && (
                   <Icon
                     icon={getIconByType(item.mdType, false)}
@@ -197,9 +202,11 @@ export default function SlideLayerTem(props) {
                 )}
                 <span className={cx({ Red: item.isErr })}> {item.name}</span>
                 {isNotSupport && (
-                  <div data-tip={_l('暂不支持同步')} className="tip-top pointer">
-                    <Icon icon="help" className="Gray_bd mLeft5" />
-                  </div>
+                  <Tooltip title={_l('暂不支持同步')}>
+                    <div className="pointer">
+                      <Icon icon="help" className="Gray_bd mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
                 {item.aggFuncType && (
                   <span className="Gray_9e">
@@ -207,15 +214,19 @@ export default function SlideLayerTem(props) {
                   </span>
                 )}
                 {item.isErr && (
-                  <div data-tip={_l('字段已删除')} className="tip-top">
-                    <Icon icon="info" className="Red mLeft5 isNoMatchOption" />
-                  </div>
+                  <Tooltip title={_l('字段已删除')}>
+                    <div>
+                      <Icon icon="info" className="Red mLeft5 isNoMatchOption" />
+                    </div>
+                  </Tooltip>
                 )}
                 {item.isTitle && isAppWorksheet && <Icon icon="ic_title" className="Gray_bd mLeft5" />}
                 {item.isPk && ( //!isAppWorksheet &&
-                  <div data-tip={_l('主键')} className="tip-top TxtMiddle">
-                    <Icon icon="key1" className="Gray_bd mLeft5" />
-                  </div>
+                  <Tooltip title={_l('主键')}>
+                    <div className="TxtMiddle">
+                      <Icon icon="key1" className="Gray_bd mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
               </div>
               {!isAppWorksheet && (
@@ -401,7 +412,7 @@ export default function SlideLayerTem(props) {
                     />
                   </div>
                   <span className="nowrap">{_l('为主键')}</span>
-                  <Tooltip text={_l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')} autoCloseDelay={0}>
+                  <Tooltip title={_l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')}>
                     <Icon icon="info_outline" className="Font16 Gray_bd pointer mLeft12" />
                   </Tooltip>
                 </div>
@@ -421,7 +432,7 @@ export default function SlideLayerTem(props) {
           </WrapCon>
         );
       case 'UNION':
-        return <WrapCon className={cx('flexColumn')}>{renderTemplateByUnion(node)}</WrapCon>;
+        return <WrapCon className={cx('flexColumn')}>{renderTemplateByUnion()}</WrapCon>;
       case 'DEST_TABLE':
         return (
           <WrapCon className={cx('flexColumn')}>
@@ -451,7 +462,7 @@ export default function SlideLayerTem(props) {
             };
           });
           let others = [];
-          preFields.map(o => {
+          preFields.forEach(o => {
             if (!field.find(it => it.id === o.id)) {
               others = [...others, { ...o, isCheck: false }];
             }

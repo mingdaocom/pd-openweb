@@ -10,7 +10,7 @@ import fixedDataController from 'src/api/fixedData';
 import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { AREA, TYPES } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants';
@@ -475,7 +475,7 @@ const GroupFilterList = props => {
         let list = ['', ...navfilters, 'null'];
         const data = navData;
         navData = [];
-        list.map(it => {
+        list.forEach(it => {
           navData = navData.concat(data.find(o => o.value === it));
         });
         navData = navData.filter(o => !!o);
@@ -779,6 +779,7 @@ const GroupFilterList = props => {
         className="full"
         visible={!!previewRecordId}
         enablePayment={worksheetInfo.enablePayment}
+        worksheetInfo={worksheetInfo}
         appId={base.appId}
         worksheetId={base.worksheetId}
         viewId={base.viewId}

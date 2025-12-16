@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
@@ -64,7 +65,7 @@ export default function DynamicInput({
             return <span className={isDel ? 'Red' : ''}>{!isDel ? info.text : _l('已删除')}</span>;
           }
         })}
-        <Tooltip text={<span>{_l('清除')}</span>}>
+        <Tooltip title={_l('清除')}>
           <div
             className="delete"
             onClick={() => {
@@ -87,7 +88,7 @@ export default function DynamicInput({
         </span>
       </div>
       <div className="options">
-        <Tooltip text={<span>{_l('清除')}</span>}>
+        <Tooltip title={_l('清除')}>
           <div className="delete" onClick={handleDelete}>
             <i className="icon-cancel"></i>
           </div>

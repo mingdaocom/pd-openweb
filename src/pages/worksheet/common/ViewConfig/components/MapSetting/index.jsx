@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/styled';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
@@ -144,7 +145,7 @@ export default function MapSetting(props) {
             <div className="title Bold mTop24">
               {_l('动态颜色')}
               {tagColorControl && tagColorControl.enumDefault2 !== 1 && (
-                <Tooltip className="mLeft6" text={_l('当前选择的字段未启用颜色')}>
+                <Tooltip className="mLeft6" title={_l('当前选择的字段未启用颜色')}>
                   <i className="icon icon-error1 Font16" style={{ color: '#ff9300' }}></i>
                 </Tooltip>
               )}

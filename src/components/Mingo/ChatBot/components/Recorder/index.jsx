@@ -16,12 +16,11 @@ const RecorderContent = styled.div`
     width: 36px;
     height: 36px;
     border-radius: 36px;
-    background: var(--mingdao-primary-color);
-    color: #fff;
+    color: #757575;
     font-size: 22px;
     cursor: pointer;
     &:hover {
-      background: #0175d1;
+      background: #f5f5f5;
     }
   }
   .recorderStatus {
@@ -96,13 +95,16 @@ function getRecorderAuthConfig() {
           expiredTime: data.expiredTime * 1000,
         };
         localStorage.setItem('RECORDER_AUTH_CONFIG', JSON.stringify(authConfig));
-        return Promise.resolve(authConfig);
+        return authConfig;
       } else {
-        return Promise.reject(_l('发生错误，请稍后重试'));
+        if (data.code === 10004) {
+          alert(_l('服务调用失败'), 2);
+        }
+        throw _l('发生错误，请稍后重试');
       }
     })
     .catch(() => {
-      return Promise.reject(_l('发生错误，请稍后重试'));
+      throw _l('发生错误，请稍后重试');
     });
 }
 

@@ -3,7 +3,8 @@ import { ConfigProvider, Dropdown, Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import PaginationWrap from '../PaginationWrap';
 import './index.less';
 
@@ -118,7 +119,7 @@ export default class PageTableCon extends Component {
                 onVisibleChange={visible => this.setState({ dropDownVisible: visible })}
                 placement="bottomRight"
               >
-                <Tooltip text={<span>{_l('自定义显示列')} </span>} popupPlacement="top">
+                <Tooltip title={_l('自定义显示列')}>
                   <Icon
                     icon="visibility"
                     className={cx('Hover_21', {
@@ -201,7 +202,7 @@ export default class PageTableCon extends Component {
               onVisibleChange={visible => this.setState({ dropDownVisible: visible })}
               placement="bottomRight"
             >
-              <Tooltip text={<span>{_l('自定义显示列')} </span>} popupPlacement="top">
+              <Tooltip title={_l('自定义显示列')}>
                 <Icon
                   icon="visibility"
                   className={cx('Hover_21', {

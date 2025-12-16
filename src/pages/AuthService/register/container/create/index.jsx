@@ -137,7 +137,7 @@ export default function (props) {
 
     extraList
       .filter(o => o.required === 1)
-      .map(o => {
+      .forEach(o => {
         if (!extraDatas[o.id]) {
           warnList.push({
             tipDom: o.id,

@@ -164,9 +164,9 @@ export default function (options) {
     postUpdater: function (obj) {
       var $mdUpdaterTextareaUpdater = $('#MDUpdater_textarea_Updater');
       $mdUpdaterTextareaUpdater.get(0).val(data => {
-        var postMsg = data;
+        var postMsg = data || '';
         if (
-          !$.trim(postMsg) ||
+          !postMsg.trim() ||
           postMsg == _l('知会工作是一种美德') + '...' ||
           postMsg == langUploadFiles ||
           postMsg == langShareLink ||
@@ -371,7 +371,7 @@ export default function (options) {
         })
         .blur(function () {
           mdUpdaterTextareaUpdaterEl.store();
-          if (!$.trim($(this).val())) {
+          if (!$(this).val().trim()) {
             $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
           }
         })

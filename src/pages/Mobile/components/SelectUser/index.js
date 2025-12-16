@@ -2,12 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { List } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, PopupWrapper, ScrollView, Switch } from 'ming-ui';
+import { Icon, LoadDiv, MobilePersonalInfo, PopupWrapper, ScrollView, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
+import personalStyleAjax from 'src/api/personalStyle';
 import userAjax from 'src/api/user';
 import { getAccounts } from 'src/ming-ui/functions/quickSelectUser/util';
+import SelectProject from '../SelectProject';
 import UserOrDepartmentItem from './components/UserOrDepartmentItem';
 import './index.less';
 
@@ -39,11 +41,16 @@ export default class SelectUser extends Component {
       oftenUsers: [],
       isOftenUsersShow: true,
       isPartnerShow: true,
+      // 个人信息层
+      personalInfoVisible: false,
+      projectId: props.projectId,
+      recordPartner: props.recordPartner,
     };
   }
   componentDidMount() {
     const { type, staticAccounts = [], advancedSetting = {}, userType } = this.props;
     if (type === 'user') {
+      this.updateRecordPartners();
       if (!_.isEmpty(staticAccounts) && advancedSetting.navshow === '2' && userType !== 2) {
         this.setState({ users: staticAccounts });
       } else {
@@ -54,7 +61,7 @@ export default class SelectUser extends Component {
                 ? [
                     {
                       avatar:
-                        md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+                        md.global.FileStoreConfig.pictureHost +
                         '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
                       fullname: advancedSetting.nullitemname || _l('为空'),
                       accountId: 'isEmpty',
@@ -74,6 +81,19 @@ export default class SelectUser extends Component {
       );
     }
   }
+
+  updateRecordPartners = () => {
+    const { recordPartner } = this.props;
+    if (!recordPartner || !recordPartner.length) return;
+    personalStyleAjax.getAccountsPersonalStatus({ accountIds: recordPartner.map(item => item.accountId) }).then(res => {
+      this.setState({
+        recordPartner: recordPartner.map(item => ({
+          ...item,
+          onStatusOption: res.onStatusOptions.find(it => it.accountId === item.accountId),
+        })),
+      });
+    });
+  };
 
   requestContactUserList = () => {
     const { loading, isMore, users, searchValue, selectedUsers, portalUserVisible } = this.state;
@@ -104,8 +124,8 @@ export default class SelectUser extends Component {
       this.request.abort();
     }
 
-    const { pageIndex, pageSize } = this.state;
-    const { projectId, selectRangeOptions, filterAccountIds = [], appointedAccountIds = [], appId } = this.props;
+    const { pageIndex, pageSize, projectId } = this.state;
+    const { selectRangeOptions, filterAccountIds = [], appointedAccountIds = [], appId } = this.props;
 
     if (userType === 2 || portalUserVisible) {
       this.request = externalPortalAjax.getUsersByApp({
@@ -181,8 +201,8 @@ export default class SelectUser extends Component {
     }
   };
   requestContactProjectDepartments = () => {
-    const { depPageIndex, onlyJoinDepartmentChecked = false, department } = this.state;
-    const { projectId, departrangetype = '0', filterAccountIds } = this.props;
+    const { depPageIndex, onlyJoinDepartmentChecked = false, department, projectId } = this.state;
+    const { departrangetype = '0', filterAccountIds } = this.props;
 
     if (!onlyJoinDepartmentChecked && departrangetype !== '0') {
       this.requestSearchDepartment(true);
@@ -216,7 +236,7 @@ export default class SelectUser extends Component {
     });
   };
   requestSearchDepartment = (ignoreLoading = false) => {
-    const { loading, searchValue } = this.state;
+    const { loading, searchValue, projectId } = this.state;
     const { departrangetype = '0', appointedDepartmentIds = [], appointedUserIds = [] } = this.props;
 
     if (loading && !ignoreLoading) {
@@ -227,11 +247,10 @@ export default class SelectUser extends Component {
       loading: true,
     });
 
-    const { projectId } = this.props;
-
     let param = {
       keywords: _.trim(searchValue),
       projectId,
+      includeDisabled: false,
     };
 
     if (departrangetype !== '0') {
@@ -269,7 +288,8 @@ export default class SelectUser extends Component {
   };
   handleSelectSubDepartment = (department, index) => {
     const { departmentId } = department;
-    const { projectId, selectDepartmentType, allPath } = this.props;
+    const { projectId } = this.state;
+    const { selectDepartmentType, allPath } = this.props;
     const { departmentPath, selectedUsers, rootData = [], treeData = [] } = this.state;
     const copyDepartmentPath =
       index || index === 0 ? departmentPath.slice(0, index + 1) : departmentPath.concat(department);
@@ -508,6 +528,26 @@ export default class SelectUser extends Component {
     }
   };
 
+  closePersonalInfoPopup = () => {
+    this.setState({
+      personalInfoVisible: false,
+    });
+  };
+
+  openPersonalInfoPopup = ({ accountId }) => {
+    this.setState({
+      personalInfoVisible: true,
+      accountId,
+    });
+  };
+
+  reloadUserList = ({ project = {} }) => {
+    this.setState(
+      { projectId: project.projectId, pageIndex: 1, users: [], departments: [], isMore: true },
+      this.requestContactUserList,
+    );
+  };
+
   // 已选择项
   renderSelected() {
     const { selectedUsers } = this.state;
@@ -553,6 +593,7 @@ export default class SelectUser extends Component {
         filterAccountIds={filterAccountIds}
         selectedUsers={selectedUsers}
         selectedAccount={this.selectedAccount}
+        openPersonalInfoPopup={this.openPersonalInfoPopup}
       />
     );
   }
@@ -613,8 +654,9 @@ export default class SelectUser extends Component {
       selectedAllUsers = [],
       selectUserDepPath,
       prefixUsers = [],
+      projectId,
     } = this.state;
-    const { projectId, type, filterAccountIds = [], includeUndefinedAndMySelf, userType } = this.props;
+    const { type, filterAccountIds = [], includeUndefinedAndMySelf, userType, enumDefault2 } = this.props;
 
     if (departmentVisible) {
       return (
@@ -636,24 +678,26 @@ export default class SelectUser extends Component {
                 >
                   {_l('全体人员')}
                 </span>
-                <span
-                  className={cx({ avtive: department })}
-                  onClick={() => {
-                    if (department) {
-                      this.setState(
-                        {
-                          department: null,
-                          departmentUsers: [],
-                          selectUserDepPath: [],
-                        },
-                        this.requestContactProjectDepartments,
-                      );
-                    }
-                  }}
-                >
-                  <i className="mRight3">{'>'}</i>
-                  {_l('按部门选择')}
-                </span>
+                {projectId && projectId !== 'external' && (
+                  <span
+                    className={cx({ avtive: department })}
+                    onClick={() => {
+                      if (department) {
+                        this.setState(
+                          {
+                            department: null,
+                            departmentUsers: [],
+                            selectUserDepPath: [],
+                          },
+                          this.requestContactProjectDepartments,
+                        );
+                      }
+                    }}
+                  >
+                    <i className="mRight3">{'>'}</i>
+                    {_l('按部门选择')}
+                  </span>
+                )}
                 {selectUserDepPath.map((department, index) => (
                   <span
                     className="avtive mLeft5"
@@ -739,9 +783,12 @@ export default class SelectUser extends Component {
     let currentAccount = md.global.Account || {};
     return (
       <Fragment>
+        {enumDefault2 === 0 && (
+          <SelectProject noCache filterExternal projectId={projectId} changeProject={this.reloadUserList} />
+        )}
         <div className="conditionSelectBox">
           <List>
-            {projectId && (
+            {projectId && projectId !== 'external' && (
               <List.Item
                 key="departmentSelect"
                 prefix={<Icon icon="department" className="selectIconBox TxtMiddle Font18 White" />}
@@ -760,7 +807,10 @@ export default class SelectUser extends Component {
                 prefix={<Icon icon="supervisor_account" className="portalIconBox TxtMiddle Font18 White" />}
                 arrowIcon={<Icon icon="arrow-right-border" className="Font20 Gray_75" />}
                 onClick={() => {
-                  this.setState({ portalUserVisible: true, pageIndex: 1, users: [] }, this.requestContactUserList);
+                  this.setState(
+                    { portalUserVisible: true, pageIndex: 1, users: [], isMore: true },
+                    this.requestContactUserList,
+                  );
                 }}
               >
                 <div className="conditionSelectInfo">{_l('外部门户')}</div>
@@ -788,8 +838,17 @@ export default class SelectUser extends Component {
 
   // 渲染人员列表
   renderUsers() {
-    const { selectRangeOptions, userType, staticAccounts = [], recordPartner = [] } = this.props;
-    const { users, loading, pageIndex, oftenUsers, isOftenUsersShow, isPartnerShow, searchValue } = this.state;
+    const { selectRangeOptions, userType, staticAccounts = [] } = this.props;
+    const {
+      users,
+      loading,
+      pageIndex,
+      oftenUsers,
+      isOftenUsersShow,
+      isPartnerShow,
+      searchValue,
+      recordPartner = [],
+    } = this.state;
     const isStatic =
       !_.isEmpty(staticAccounts) &&
       !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
@@ -922,20 +981,31 @@ export default class SelectUser extends Component {
     );
   }
   render() {
-    const { selectedUsers } = this.state;
-    const { type, visible, onClose, onlyOne, hideClearBtn = true } = this.props;
+    const { selectedUsers, personalInfoVisible, accountId, projectId } = this.state;
+    const { type, visible, onClose, onlyOne, appId, hideClearBtn = true } = this.props;
     return (
-      <PopupWrapper
-        bodyClassName="heightPopupBody40"
-        visible={visible}
-        title={type === 'user' ? _l('人员选择') : _l('部门选择')}
-        confirmDisable={!selectedUsers.length}
-        onClose={onClose}
-        onConfirm={onlyOne ? null : this.handleSave}
-        onClear={hideClearBtn ? null : this.onClear}
-      >
-        <div className="selectUserContentBox flexColumn">{this.renderContent()}</div>
-      </PopupWrapper>
+      <Fragment>
+        <PopupWrapper
+          bodyClassName="heightPopupBody40"
+          visible={visible}
+          title={type === 'user' ? _l('人员选择') : _l('部门选择')}
+          confirmDisable={!selectedUsers.length}
+          onClose={onClose}
+          onConfirm={onlyOne ? null : this.handleSave}
+          onClear={hideClearBtn ? null : this.onClear}
+        >
+          <div className="selectUserContentBox flexColumn">{this.renderContent()}</div>
+        </PopupWrapper>
+        {type === 'user' && (
+          <MobilePersonalInfo
+            visible={personalInfoVisible}
+            accountId={accountId}
+            appId={appId}
+            projectId={projectId}
+            onClose={this.closePersonalInfoPopup}
+          />
+        )}
+      </Fragment>
     );
   }
 }

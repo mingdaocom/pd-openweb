@@ -5,7 +5,8 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Checkbox, RadioGroup, Switch as SwitchComponent, Tooltip } from 'ming-ui';
+import { Checkbox, RadioGroup, Switch as SwitchComponent } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import { getSwitchItemNames } from 'src/utils/control';
 import { FROM } from './enum';
@@ -100,7 +101,7 @@ export default class Switch extends React.Component {
     }
 
     return (
-      <Tooltip text={<span>{hint}</span>} popupPlacement="bottom" disable={!hint} autoCloseDelay={0}>
+      <Tooltip title={hint ? <span>{hint}</span> : ''} placement="bottom">
         <div className="flexCenter">
           <Checkbox className="InlineBlock" disabled={!editable} checked={value} onClick={this.handleChange} />
         </div>

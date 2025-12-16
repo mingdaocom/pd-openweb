@@ -98,7 +98,7 @@ export default function CreateRecord(props) {
   }, [index, lines.length, pid]);
 
   const handleClick = type => {
-    createTextTitleRecord(type === 'multi' ? getLinesValue(value) : value.trim());
+    createTextTitleRecord(type === 'multi' ? getLinesValue() : value.trim());
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
   };

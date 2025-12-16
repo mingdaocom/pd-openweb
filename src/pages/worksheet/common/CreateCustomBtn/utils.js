@@ -20,7 +20,7 @@ export const formatControlsChildBySectionId = controls => {
       list.push(o);
     }
   });
-  list.map(o => {
+  list.forEach(o => {
     o.child = controls
       .filter(it => it.sectionId === o.controlId)
       .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1));

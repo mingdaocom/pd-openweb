@@ -67,7 +67,7 @@ const removeTopic = function (props) {
           alert(_l('删除成功'));
           props.removeCallback(props.discussionId);
         } else {
-          Promise.reject();
+          Promise.reject(false);
         }
       })
       .catch(() => {

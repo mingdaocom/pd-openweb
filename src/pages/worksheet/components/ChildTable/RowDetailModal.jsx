@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { Button, Modal, ScrollView } from 'ming-ui';
@@ -21,6 +21,18 @@ export default function RowDetailModal(props) {
   } = props;
   const formContent = useRef(null);
   const isMobile = browserIsMobile();
+
+  // 保存和恢复 window.activeTableId 以解决焦点问题
+  useEffect(() => {
+    const originalActiveTableId = window.activeTableId;
+    // 清除 activeTableId，让子表弹窗内的输入框可以正常获得焦点
+    window.activeTableId = undefined;
+
+    return () => {
+      // 恢复原始的 activeTableId
+      window.activeTableId = originalActiveTableId;
+    };
+  }, []);
   const content = (
     <ScrollView>
       <div className="rowDetailCon flexColumn">

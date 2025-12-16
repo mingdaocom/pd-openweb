@@ -83,7 +83,7 @@ export const setStateToStorage = (taskFilter, config) => {
 // 验证当前用户是否在该网络
 export const checkIsProject = projectId => {
   let isExist = false;
-  $.map(md.global.Account.projects, project => {
+  _.map(md.global.Account.projects, project => {
     if (projectId === project.projectId) {
       isExist = true;
     }
@@ -353,9 +353,9 @@ export const buildMyTaskIcon = (type, isBatch) => {
       break;
   }
   if (isBatch) {
-    return '<span class="myTaskIcon myTaskTip" data-tip="' + tip + '"><i class="icon-task-soon"></i></span>';
+    return '<span class="myTaskIcon myTaskTip" title="' + tip + '"><i class="icon-task-soon"></i></span>';
   }
-  return '<span class="myTaskIcon ' + className + iconName + ' myTaskTip" data-tip="' + tip + '"></span>';
+  return '<span class="myTaskIcon ' + className + iconName + ' myTaskTip" title="' + tip + '"></span>';
 };
 
 // 修改任务状态为未完成时出现弹层

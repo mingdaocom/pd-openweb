@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Checkbox, Icon, RadioGroup, Switch, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, RadioGroup, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getTranslateInfo } from 'src/utils/app';
 import delPng from './img/del.png';
 import editPng from './img/edit.png';
@@ -86,15 +87,13 @@ function TipsRender(props) {
           />
           {type !== 'look' && (
             <Tooltip
-              text={
+              title={
                 <span>
                   {_l(
                     '成员、部门、组织角色类型的字段，作为“拥有者”的记录，包含多个权限为“拥有者”字段时，权限为“或”关系',
                   )}
                 </span>
               }
-              autoCloseDelay={0}
-              popupPlacement="top"
             >
               <i className="icon-info_outline Font16 mLeft6 Gray_bd TxtMiddle" />
             </Tooltip>
@@ -117,7 +116,7 @@ function TipsRender(props) {
               {type === 'look' ? _l('额外包含下属加入的记录') : _l('额外包含下属拥有的记录')}
             </span>
             {type !== 'look' && (
-              <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')}</span>} popupPlacement="top">
+              <Tooltip title={_l('在组织管理【汇报关系】中管理用户的下属')}>
                 <i className="icon-info_outline Font16 mLeft6 Gray_bd" />
               </Tooltip>
             )}
@@ -142,7 +141,7 @@ function TipsRender(props) {
               />
               <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
               {!isForPortal && (
-                <Tooltip text={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
+                <Tooltip title={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
                   <Icon icon="info_outline" className="Gray_bd Font16 mLeft6" />
                 </Tooltip>
               )}

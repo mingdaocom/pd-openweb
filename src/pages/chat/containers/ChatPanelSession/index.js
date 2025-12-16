@@ -363,7 +363,7 @@ class ChatPanelSession extends Component {
     const textarea = $(`#ChatPanel-${id}`).find('.ChatPanel-textarea textarea');
     const textareaEl = textarea.get(0);
     let atList = [];
-    if (textareaEl.getMentions) {
+    if (textareaEl?.getMentions) {
       textareaEl.getMentions(users => {
         for (let i = 0; i < users.length; i++) {
           if (users[i].id === 'all') {

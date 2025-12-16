@@ -344,7 +344,7 @@ export default class SingleControlValue extends Component {
     evt.target.value = num;
 
     if (isBlur) {
-      this.updateSingleControlValue({ fieldValue: num }, i);
+      this.updateSingleControlValue({ fieldValue: num, nodeId: '' }, i);
     }
   }
 
@@ -692,6 +692,7 @@ export default class SingleControlValue extends Component {
               value={item.fieldValue || undefined}
               border
               isAppendToBody
+              openSearch
               onChange={fieldValue => this.updateSingleControlValue({ fieldValue }, i)}
             />
           )}
@@ -732,6 +733,7 @@ export default class SingleControlValue extends Component {
               label={label.join('、')}
               multipleLevel={false}
               multipleHideDropdownNav
+              filter
               onChange={(e, ids) => this.updateSingleControlValue({ fieldValue: ids.join(',') }, i)}
             />
           )}
@@ -942,6 +944,7 @@ export default class SingleControlValue extends Component {
               <CityPicker
                 search={keywords}
                 chooserange={_.get(currentControl || {}, 'advancedSetting.chooserange')}
+                commcountries={_.get(currentControl || {}, 'advancedSetting.commcountries')}
                 level={level}
                 projectId={this.props.companyId}
                 callback={citys => {

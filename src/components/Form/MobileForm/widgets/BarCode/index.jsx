@@ -17,7 +17,7 @@ const QRErrorCorrectLevel = {
 
 const BarCodeWrap = styled.span`
   display: inline-block;
-  ${({ isRecord }) => isRecord && 'border: 1px solid var(--gray-e0);'}
+  ${({ isRecord }) => isRecord && 'border: 1px solid var(--color-border-primary);'}
   ${({ isView }) => (isView ? 'height: 170px;' : '')}
 
   img {
@@ -31,7 +31,7 @@ const EmptyTag = styled.div`
   border-radius: 6px;
   width: 22px;
   height: 6px;
-  background-color: var(--gray-e0);
+  background-color: var(--color-border-primary);
   margin: 15px 0;
 `;
 

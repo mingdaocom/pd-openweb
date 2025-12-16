@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
-import { Input, Tooltip } from 'antd';
+import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { AnimationWrap, DisplayMode, SettingItem } from '../../styled';
 import { SectionItem } from '../components/SplitLineConfig/style';

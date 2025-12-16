@@ -11,13 +11,14 @@ import _, {
   mapValues,
   pick,
   pickBy,
+  sum,
   uniq,
 } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { treeDataUpdater } from 'worksheet/common/TreeTableHelper';
 import { handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper/index.js';
-import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
+import { getRuleErrorInfo } from 'src/components/Form/core/formUtils';
 import {
   SYSTEM_CONTROL,
   WIDGETS_TO_API_TYPE_ENUM,
@@ -84,7 +85,7 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, runT
     const { appId, viewId, worksheetId } = base;
     const { treeMap, maxLevel } = sheetview.treeTableViewData || {};
     const { rows = [] } = sheetview.sheetViewData || {};
-    if (runTimes > 10) {
+    if (runTimes > 20) {
       return;
     }
     dispatch(
@@ -178,7 +179,7 @@ export const fetchRows = ({
       });
     }
     let pageSize = isTreeTableView ? 1000 : savedPageSize || DEFAULT_PAGESIZE;
-    if (isGroupedView) {
+    if (isGroupedView && !chartId) {
       pageSize = 20;
     }
     const args = {
@@ -196,7 +197,7 @@ export const fetchRows = ({
       navGroupFilters,
       isGetWorksheet: updateWorksheetControls,
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
-      ...(showAsSheetView ? { getType: 0 } : {}),
+      ...(showAsSheetView || chartId ? { getType: 0 } : {}),
     };
     const groupControlId = !chartId && getGroupControlId(view);
     const groupControl = _.find(controls, { controlId: groupControlId });
@@ -214,7 +215,7 @@ export const fetchRows = ({
       args.pageIndex = 1;
       args.pageSize = maxCount;
     }
-    if (forcePageSize) {
+    if (forcePageSize && !groupControlId) {
       savedPageSize = undefined;
       args.pageSize = forcePageSize;
       dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize: forcePageSize, pageIndex: args.pageIndex });
@@ -268,6 +269,12 @@ export const fetchRows = ({
         rows,
         resultCode: res.resultCode,
       });
+      if (isGroupedView) {
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+          count: sum(rows.filter(r => r.rowid === 'groupTitle').map(r => r.count)),
+        });
+      }
       dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: false });
       if (isTreeTableView) {
         const { treeMap, maxLevel } = treeDataUpdater(
@@ -286,7 +293,7 @@ export const fetchRows = ({
         });
       }
     });
-    if (pageIndex === 1 && !chartId) {
+    if (pageIndex === 1 && !chartId && !isGroupedView) {
       const fetchRowsNumAjax = worksheetAjax.getFilterRowsTotalNum(getFilledRequestParams(args), { abortController });
       fetchRowsNumAjax.then(data => {
         if (!data || data === '-1') {
@@ -442,9 +449,13 @@ export function updateControlOfRow({ cell = {}, cells = [], recordId, rules }, o
         const control = _.find(controls, { controlId });
         if (control.type === 29) {
           try {
-            const parsedValue = JSON.parse(value);
-            if (_.isArray(parsedValue) && !_.isEmpty(parsedValue) && parsedValue[0].sourcevalue) {
-              value = JSON.stringify(parsedValue.map(v => _.omit(v, 'sourcevalue')));
+            if (value === 'deleteRowIds: all') {
+              value = '[]';
+            } else {
+              const parsedValue = JSON.parse(value);
+              if (_.isArray(parsedValue) && !_.isEmpty(parsedValue) && parsedValue[0].sourcevalue) {
+                value = JSON.stringify(parsedValue.map(v => _.omit(v, 'sourcevalue')));
+              }
             }
           } catch (err) {
             console.log(err);
@@ -525,8 +536,11 @@ export function insertToGroupedRow(newRow) {
       return;
     }
     const { sheetview } = getState().sheet;
-    const { rows } = sheetview.sheetViewData;
-    let lastRowIndexOfGroup = _.findLastIndex(rows, r => r.groupKey === newRow.group.key);
+    const { rows, count } = sheetview.sheetViewData;
+    let lastRowIndexOfGroup = _.findLastIndex(
+      rows,
+      r => r.groupKey === newRow.group.key && r.rowid !== 'loadGroupMore',
+    );
     if (lastRowIndexOfGroup === -1) {
       const groupIndex = _.findIndex(rows, r => r.key === newRow.group.key);
       if (groupIndex === -1) {
@@ -540,13 +554,17 @@ export function insertToGroupedRow(newRow) {
       ...rows.slice(lastRowIndexOfGroup + 1),
     ];
     newRows = newRows.map(row => {
-      if (row.rowid === 'groupTitle') {
+      if (row.rowid === 'groupTitle' && row.key === newRow?.group?.key) {
         row = {
           ...row,
-          count: newRows.filter(r => r.groupKey === row.key).length,
+          count: row.count + 1,
         };
       }
       return row;
+    });
+    dispatch({
+      type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+      count: count + 1,
     });
     dispatch({
       type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS',
@@ -754,10 +772,11 @@ export function changeToSelectCurrentPageFromSelectAll() {
   };
 }
 
-export const updateSheetColumnWidths = (controlId, value) => ({
+export const updateSheetColumnWidths = (controlId, value, changes) => ({
   type: 'WORKSHEET_SHEETVIEW_UPDATE_COLUMN_WIDTH',
   controlId,
   value,
+  changes,
 });
 
 export const hideColumn = controlId => ({
@@ -1152,7 +1171,7 @@ export function getWorksheetSheetViewSummary({ reset = false, groupArgs = {} } =
     let types = Object.assign(
       {},
       savedData,
-      reset ? configData : pickBy(configData, identity),
+      !isEmpty(pickBy(configData, identity)) && reset ? configData : pickBy(configData, identity),
       reset || groupArgs.groupKey ? {} : rowsSummary.types,
     );
     if (reset) {
@@ -1269,6 +1288,10 @@ export function addRecord(records, afterRowId) {
     if (!_.isArray(records)) {
       if (records.group) {
         dispatch(insertToGroupedRow(records));
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+          count: count + 1,
+        });
         return;
       }
       records = [records];

@@ -176,7 +176,7 @@ class QuickCreateTask {
       .on('click', '.stageDrop li', function () {
         const that = $(this);
         _this.settings.stageId = that.data('stageid');
-        _this.settings.stageName = $.trim(that.text());
+        _this.settings.stageName = that.text().trim();
         that.addClass('selected').siblings().removeClass('selected');
         $('ul.stageDrop').hide();
 
@@ -352,7 +352,7 @@ class QuickCreateTask {
     const _this = this;
     const settings = _this.settings;
     // 任务名称
-    const taskName = $.trim($('.createNewSingle .txtSingleName').val());
+    const taskName = $('.createNewSingle .txtSingleName').val().trim();
     if (taskName) {
       const start = $('.createNewSingle .createSingleDate').data('start');
       const end = $('.createNewSingle .createSingleDate').data('end');

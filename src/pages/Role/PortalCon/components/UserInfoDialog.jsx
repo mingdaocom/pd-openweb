@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 
 const UserInfoDialogWrap = styled.div`
   display: flex;

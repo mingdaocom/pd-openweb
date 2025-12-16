@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
@@ -226,7 +226,7 @@ const Group = props => {
               onClick={() => setChildrenVisible(!childrenVisible)}
             />
             <SvgIcon
-              url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon || '8_4_folder'}.svg`}
+              url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`}
               fill="#9e9e9e"
               className="mRight10"
             />
@@ -298,7 +298,7 @@ const Group = props => {
               style={{ paddingLeft: data.isAppItem ? (layerIndex === 1 ? 19 : 51) : 0 }}
             >
               {data.isAppItem ? (
-                <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon}.svg`} fill="#9e9e9e" />
+                <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon}.svg`} fill="#9e9e9e" />
               ) : (
                 <Fragment>
                   <Icon
@@ -307,7 +307,7 @@ const Group = props => {
                     onClick={() => setChildrenVisible(!childrenVisible)}
                   />
                   <SvgIcon
-                    url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon || '8_4_folder'}.svg`}
+                    url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`}
                     fill="#9e9e9e"
                   />
                 </Fragment>

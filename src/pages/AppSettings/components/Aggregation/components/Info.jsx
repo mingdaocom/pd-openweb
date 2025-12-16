@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, Icon, LoadDiv, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import CheckBox from 'ming-ui/components/Checkbox';
 import sheetAjax from 'src/api/worksheet';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
@@ -500,7 +500,6 @@ export default function Info(props) {
                     <span className="Gray_75 mLeft10">{`(${getGroupFields(flowData).length}/${GROUPMAX})`}</span>
                     <Tooltip
                       placement="bottom"
-                      autoCloseDelay={0}
                       title={
                         <span className="">
                           {_l('上限添加%0个归组字段，关联记录下数组类型字段最多%1个', GROUPMAX, GROUPMAXBYREL)}

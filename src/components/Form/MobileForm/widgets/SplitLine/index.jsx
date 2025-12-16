@@ -10,7 +10,7 @@ const SplitLine = props => {
   const sectionstyle = _.get(props, 'widgetStyle.sectionstyle') || '0';
   const {
     theme = 'var(--color-primary)',
-    color = 'var(--color-secondary)',
+    color = 'var(--color-text-primary)',
     icon = '',
     hidetitle,
   } = getAdvanceSetting(props);

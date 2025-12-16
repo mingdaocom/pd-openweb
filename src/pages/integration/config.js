@@ -59,7 +59,7 @@ export const CARD_TYE_LIST = [
   },
   {
     typeId: 8,
-    title: _l('API 请求参数'),
+    title: _l('API 请求'),
     des: _l('配置发送 API 请求时需要的 Query Param、Header、Body 等请求参数'),
     icon: 'tune',
     support: 'https://help.mingdao.com/integration/api#api-request',

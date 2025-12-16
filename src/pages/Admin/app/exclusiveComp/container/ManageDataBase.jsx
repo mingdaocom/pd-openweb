@@ -5,7 +5,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, Tooltip, UserHead } from 'ming-ui';
+import { Dropdown, Icon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
@@ -278,7 +279,7 @@ function ManageDataBase(props) {
           <span className="icon-backspace Font22 ThemeHoverColor3" onClick={() => history.go(-1)}></span>
           <span className="dataAuthorizeLabel">{_l('应用管理')}</span>
           <span className="dataAuthorizeName Gray_75 flex">{baseInfo.name}</span>
-          <Tooltip text={_l('刷新')}>
+          <Tooltip title={_l('刷新')}>
             <Icon icon="refresh1" className="Font22 Gray_9e Hover_21" onClick={() => getApp()} />
           </Tooltip>
         </div>

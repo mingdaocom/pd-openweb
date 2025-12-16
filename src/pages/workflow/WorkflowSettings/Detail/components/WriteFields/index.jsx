@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { NODE_TYPE } from '../../../enum';
 
 const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51, 52, 53, 54, 10010];
@@ -18,12 +18,6 @@ const Box = styled.ul`
     }
     > div:not(.flex) {
       width: 84px;
-    }
-    .tip-bottom-left {
-      &:after {
-        width: 200px;
-        white-space: normal;
-      }
     }
   }
 `;
@@ -172,6 +166,26 @@ export default class WriteFields extends Component {
         if (key === 'isdecrypt' && value === '0') {
           o.showCard = 0;
         }
+
+        // 标签页下的字段
+        if (item.sectionId) {
+          formProperties.forEach(o => {
+            if (item.sectionId === o.id) {
+              // 字段可见 标签页可见
+              if (value !== 4) {
+                o[key] = 1;
+              }
+
+              // 字段不可见 标签页下的所有字段不可见 标签页不可见
+              if (
+                value === 4 &&
+                !formProperties.filter(o => o.sectionId === item.sectionId && o.property !== 4).length
+              ) {
+                o[key] = 4;
+              }
+            }
+          });
+        }
       }
     });
 
@@ -292,12 +306,12 @@ export default class WriteFields extends Component {
           </div>
           {showCard && (
             <div className="mLeft16 mRight16 cursorDefault" style={{ width: 60 }}>
-              <span
-                className="tip-bottom-left"
-                data-tip={_l('指定摘要字段，使其在流程列表中直接显示，帮助您快速掌握待处理事项的内容。')}
+              <Tooltip
+                title={_l('指定摘要字段，使其在流程列表中直接显示，帮助您快速掌握待处理事项的内容。')}
+                placement="bottomLeft"
               >
-                {_l('摘要')}
-              </span>
+                <span>{_l('摘要')}</span>
+              </Tooltip>
             </div>
           )}
         </li>
@@ -345,28 +359,50 @@ export default class WriteFields extends Component {
                 <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分段') : _l('备注'))}>
                   {item.name || (item.type === 22 ? _l('分段') : _l('备注'))}
                 </div>
-                {item.datamask === '1' && !_.includes(hideTypes, 1) && item.type !== 30 && (
+                {item.datamask === '1' && !_.includes(hideTypes, 1) && (
                   <DecryptBox className="mLeft5">{_l('脱敏')}</DecryptBox>
                 )}
                 {item.type === 29 && !!(item.subFormProperties || []).length && selectNodeType !== NODE_TYPE.CC && (
-                  <div
-                    data-tip={_l('设置子表操作和列权限')}
-                    className="mLeft5 Gray_75 ThemeHoverColor3 pointer tip-bottom-right"
-                    style={{ display: 'inline-flex' }}
-                    onClick={() =>
-                      this.setState({
-                        showTableControls: true,
-                        selectItem: item,
-                      })
-                    }
-                  >
-                    <Icon type="settings" className="Font16" />
-                  </div>
+                  <Tooltip title={_l('设置子表操作和列权限')} placement="bottomRight">
+                    <div
+                      className="mLeft5 Gray_75 ThemeHoverColor3 pointer"
+                      style={{ display: 'inline-flex' }}
+                      onClick={() =>
+                        this.setState({
+                          showTableControls: true,
+                          selectItem: item,
+                        })
+                      }
+                    >
+                      <Icon type="settings" className="Font16" />
+                    </div>
+                  </Tooltip>
                 )}
               </div>
               <div className="mLeft16">
                 {!_.includes(hideTypes, 1) && (
-                  <Checkbox checked={item.property !== 4} onClick={checked => this.onChange(item, checked ? 4 : 1)} />
+                  <Checkbox
+                    clearselected={
+                      item.property !== 4 &&
+                      item.type === 52 &&
+                      data.filter(o => o.sectionId === item.id).length !==
+                        data.filter(o => o.sectionId === item.id && o.property !== 4).length
+                    }
+                    checked={item.property !== 4}
+                    onClick={checked =>
+                      this.onChange(
+                        item,
+                        checked &&
+                          item.type === 52 &&
+                          data.filter(o => o.sectionId === item.id).length !==
+                            data.filter(o => o.sectionId === item.id && o.property !== 4).length
+                          ? 1
+                          : checked
+                            ? 4
+                            : 1,
+                      )
+                    }
+                  />
                 )}
               </div>
               <div className="mLeft16">
@@ -385,7 +421,7 @@ export default class WriteFields extends Component {
                   )}
               </div>
               <div className="mLeft16">
-                {item.datamask === '1' && !_.includes(hideTypes, 1) && item.type !== 30 && (
+                {item.datamask === '1' && !_.includes(hideTypes, 1) && (
                   <Checkbox
                     checked={item.isdecrypt === '1'}
                     disabled={_.includes([2, 3], item.property)}
@@ -431,7 +467,7 @@ export default class WriteFields extends Component {
           </SearchBox>
           <div className="flex" />
           {!_.includes(hideTypes, 1) && (
-            <Tooltip autoCloseDelay={0} title={_l('勾选时，当工作表中新增字段时，新字段将自动设为允许查看')}>
+            <Tooltip title={_l('勾选时，当工作表中新增字段时，新字段将自动设为允许查看')}>
               <div>
                 <Checkbox
                   className="InlineBlock Font12 TxtMiddle"

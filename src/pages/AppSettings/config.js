@@ -1,6 +1,8 @@
 export const UPGARADE_TYPE_LIST = [
   { type: 'worksheets', name: _l('工作表'), icon: 'worksheet' },
   { type: 'pages', name: _l('自定义页面'), icon: 'dashboard' },
+  { type: 'chatBots', name: _l('对话机器人'), icon: 'AI_Agent' },
+  { type: 'aggregations', name: _l('聚合表'), icon: 'aggregate_table' },
   { type: 'roles', name: _l('角色'), icon: 'group' },
   { type: 'workflows', name: _l('工作流'), icon: 'workflow' },
 ];
@@ -73,9 +75,6 @@ export const SETTINGS = [
 
 // 更新方式
 export const UPDATE_METHOD = [
+  { modelType: 1, text: _l('覆盖更新') },
   { modelType: 0, text: _l('合并更新'), desc: _l('新增目标应用中缺失项，更新已有项，保留多余项。') },
-  {
-    modelType: 1,
-    text: _l('覆盖更新'),
-  },
 ];

@@ -7,10 +7,13 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import GroupController from 'src/api/group';
 import UserController from 'src/api/user';
+import DepartmentFullName from 'src/components/UserInfoComponents/DepartmentFullName';
 import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
 import { maskValue } from 'src/pages/Admin/security/account/utils';
+import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
 import { browserIsMobile } from 'src/utils/common';
 import placements from './placements';
@@ -109,6 +112,13 @@ const BusinessCardWrap = styled.div`
 
   .cardContent-wrapper {
     position: relative;
+  }
+
+  .cardContentDesc {
+    max-height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0 -16px 0 0;
   }
 
   .overflow_ellipsis_line2 {
@@ -317,6 +327,13 @@ class UserCard extends React.Component {
     this.setState({ visible: false });
   };
 
+  handleContentLoaded = () => {
+    // 当异步内容加载完成后，强制 rc-trigger 重新对齐位置
+    if (this.triggerRef && this.triggerRef.forcePopupAlign) {
+      this.triggerRef.forcePopupAlign();
+    }
+  };
+
   renderContent() {
     const { type, sourceId = '', accountId, groupId, chatButton, projectId } = this.props;
     const { data, isSourceValid } = this.state;
@@ -337,7 +354,7 @@ class UserCard extends React.Component {
           <BusinessCardWrap className="cardHeader BusinessCard flexRow">
             <span className="imgLink">
               <img
-                src={`${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/littleSecretary.png`}
+                src={`${md.global.FileStoreConfig.pictureHost}/UserAvatar/littleSecretary.png`}
                 className="circle avatar"
               />
             </span>
@@ -359,7 +376,7 @@ class UserCard extends React.Component {
             <a href={url} className="imgLink" target="_blank" onClick={e => flag && e.preventDefault()}>
               <img src={data.avatar} className="circle avatar" />
             </a>
-            <div className="flex mLeft12">
+            <div className="flex mLeft12 minWidth0">
               <a
                 className={cx('name ellipsis bold', {
                   ThemeColor3: flag,
@@ -375,13 +392,17 @@ class UserCard extends React.Component {
                 {data.status === USER_STATUS.LOGOFF && <span className="mLeft3">{_l('账号已注销')}</span>}
               </a>
               {!isOutsourcing && data.displayFieldForName && data[DisplayFieldForNameInfo[data.displayFieldForName]] ? (
-                <div className="Gray_75">
-                  {_.includes([56, 58], data.displayFieldForName)
-                    ? maskValue(
-                        data[DisplayFieldForNameInfo[data.displayFieldForName]],
-                        DisplayFieldForNameInfo[data.displayFieldForName],
-                      )
-                    : data[DisplayFieldForNameInfo[data.displayFieldForName]]}
+                <div className="Gray_75 ellipsis w100">
+                  {_.includes([56, 58], data.displayFieldForName) ? (
+                    maskValue(
+                      data[DisplayFieldForNameInfo[data.displayFieldForName]],
+                      DisplayFieldForNameInfo[data.displayFieldForName],
+                    )
+                  ) : _.includes([51, 52], data.displayFieldForName) ? (
+                    <DepartmentFullName noPath={true} projectId={projectId} departmentInfos={data.departmentInfos} /> // 名片层姓名下字段配置部门不显示全路径
+                  ) : (
+                    data[DisplayFieldForNameInfo[data.displayFieldForName]]
+                  )}
                 </div>
               ) : (!projectId && !isPortal) || isOutsourcing ? (
                 <div className="Gray_75">{data.companyName}</div>
@@ -391,16 +412,17 @@ class UserCard extends React.Component {
             </div>
 
             <div className="Font20">
-              <span
-                className="Hand"
-                data-tip={_l('刷新')}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.fetchData(true);
-                }}
-              >
-                <span className="actionButton icon-task-later ThemeHoverColor3 Gray_9e" />
-              </span>
+              <Tooltip title={_l('刷新')}>
+                <span
+                  className="Hand"
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.fetchData(true);
+                  }}
+                >
+                  <span className="actionButton icon-task-later ThemeHoverColor3 Gray_9e" />
+                </span>
+              </Tooltip>
               {data.status === USER_STATUS.NORMAL &&
                 md.global.Account &&
                 ![md.global.Account.accountId, 'user-workflow'].includes(data.accountId) &&
@@ -409,12 +431,17 @@ class UserCard extends React.Component {
                 chatButton &&
                 !notContact &&
                 !hideChat && (
-                  <span className="Hand mLeft10" data-tip={_l('发消息')} onClick={this.openChat}>
-                    <span className="actionButton icon-chat-session ThemeColor3" />
-                  </span>
+                  <Tooltip title={_l('发消息')}>
+                    <span className="Hand mLeft10" onClick={this.openChat}>
+                      <span className="actionButton icon-chat-session ThemeColor3" />
+                    </span>
+                  </Tooltip>
                 )}
             </div>
           </div>
+          {data.onStatusOption ? (
+            <PersonalStatus className="mBottom8 fitContent" onStatusOption={data.onStatusOption} />
+          ) : null}
           {isOutsourcing && <div className="cardContentTag">{_l('外协')}</div>}
           <div className="cardContent-wrapper">
             <div className="cardContentDesc userCard">
@@ -426,6 +453,7 @@ class UserCard extends React.Component {
                 currentUserProject={data.project || { projectId }}
                 userInfo={data}
                 updateUserInfo={data => this.setState({ data })}
+                onContentLoaded={this.handleContentLoaded}
               />
               {this.renderInfo(portalValues)}
             </div>
@@ -464,7 +492,7 @@ class UserCard extends React.Component {
     if (isMobile || disabled || isPublic || !md.global.Account.accountId) return this.props.children;
 
     return (
-      <Trigger key={wrapKey} {...props}>
+      <Trigger key={wrapKey} ref={ele => (this.triggerRef = ele)} {...props}>
         {this.props.children}
       </Trigger>
     );

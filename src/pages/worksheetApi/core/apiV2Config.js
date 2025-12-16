@@ -2065,7 +2065,7 @@ export const OPTIONS_FUNCTION_LIST = [
   },
   {
     id: 'delete',
-    title: _l('删除选项集 DELETE'),
+    title: _l('停用选项集 DELETE'),
     apiName: 'open/app/deleteOptionSet/{id}',
     data: [
       {

@@ -18,6 +18,7 @@ export const FLOW_TYPE = {
   APPROVAL: '11',
   EVENT_PUSH: '12',
   LOOP: '13',
+  CHATBOT: '14',
 };
 
 export const FLOW_TYPE_NULL = {
@@ -72,6 +73,10 @@ export const FLOW_TYPE_NULL = {
   13: {
     icon: 'loop',
     text: _l('在某个流程中执行一段循环的流程'),
+  },
+  14: {
+    icon: 'chatbot',
+    text: _l('当用户与机器人对话时运行流程'),
   },
 };
 
@@ -146,6 +151,11 @@ export const START_APP_TYPE = {
     iconColor: '#4C7D9E',
     text: _l('循环'),
   },
+  49: {
+    iconName: 'chat-full',
+    iconColor: '#2196f3',
+    text: _l('对话机器人'),
+  },
 };
 
 export const TYPES = [
@@ -155,6 +165,7 @@ export const TYPES = [
   { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
   { text: _l('Webhook'), value: FLOW_TYPE.WEBHOOK, icon: 'icon-workflow_webhook' },
   { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
+  { text: _l('对话'), value: FLOW_TYPE.CHATBOT, icon: 'icon-chat-full' },
   { text: _l('循环'), value: FLOW_TYPE.LOOP, icon: 'icon-arrow_loop' },
   { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
   { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
@@ -269,14 +280,14 @@ export const getActionTypeContent = (type, item, disable) => {
     return _l('子流程触发');
   }
 
-  // 封装业务流程
-  if (type === FLOW_TYPE.PBC) {
-    return _l('封装业务流程');
-  }
-
   // 人员或部门
   if (type === FLOW_TYPE.USER) {
     return userTriggerText[item.startAppType][item.triggerId];
+  }
+
+  // 封装业务流程
+  if (type === FLOW_TYPE.PBC) {
+    return _l('封装业务流程');
   }
 
   // 审批流程
@@ -297,6 +308,11 @@ export const getActionTypeContent = (type, item, disable) => {
       : item.triggerId === ACTION_ID.COUNT_LOOP
         ? _l('循环指定次数')
         : _l('循环触发');
+  }
+
+  // 对话机器人
+  if (type === FLOW_TYPE.CHATBOT) {
+    return _l('对话触发');
   }
 
   // 所有流程

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DEFAULT_COLUMNS } from '../../enum';
 import RelateBox from './RelateBox';
 
@@ -53,7 +54,7 @@ export default class RelateFilter extends Component {
   renderName = (item, nameList, i, isParent) => {
     if (!nameList) {
       return (
-        <Tooltip text={<span>{_l('ID: %0', item.cid)}</span>} popupPlacement="bottom">
+        <Tooltip title={_l('ID: %0', item.cid)} placement="bottom">
           <span className="isWrong">{_l('该字段已删除')}</span>
         </Tooltip>
       );

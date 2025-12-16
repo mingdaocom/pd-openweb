@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
-import { Popup } from 'antd-mobile';
+import { Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { AnimationWrap } from 'src/pages/widgetConfig/styled/index.js';
 import { getMapConfig } from 'src/utils/control';
@@ -64,10 +64,10 @@ class GDMap extends Component {
   conRef = React.createRef();
 
   initMapObject() {
-    const { defaultAddress } = this.props;
-
     this._maphHandler = new MapHandler(this._mapContainer, { zoom: 15 });
-    this._maphHandler.getCurrentPos(this.handleCurrPos, !defaultAddress); // 初始定位
+    this._maphHandler.getCurrentPos(this.handleCurrPos, false, {
+      locationFailedCallback: () => this.setState({ locationFailedDialogVisible: true }),
+    }); // 初始定位
 
     // 点击地图
     this._maphHandler.onClick((lng, lat, address, name) => {
@@ -180,6 +180,8 @@ class GDMap extends Component {
   }
 
   handleChange = () => {
+    if (!this._maphHandler) return;
+
     const { distance } = this.props;
     const centerInfo = this._maphHandler && this._maphHandler.map && this._maphHandler.map.getCenter();
     const { lat, lng } = centerInfo || {};
@@ -396,42 +398,117 @@ class GDMap extends Component {
   }
 
   render() {
-    const { isMobile } = this.props;
-    const { defaultLocation } = this.state;
+    const { isMobile, distance, onClose = () => {} } = this.props;
+    const { defaultLocation, locationFailedDialogVisible } = this.state;
 
     if (isMobile) {
       return (
-        <Popup className="MDMap mobileModal minFull topRadius mobileMap" visible>
-          <div className="flexColumn h100 relative">
-            {this.renderOperatorIcon()}
-            <div className="Relative">
-              <div className="mBottom10" style={{ height: 254 }} ref={container => (this._mapContainer = container)} />
-              {defaultLocation && <img src={markImg} className="markMapImg" />}
+        <Fragment>
+          <Popup className="MDMap mobileModal minFull topRadius mobileMap" visible>
+            <div className="flexColumn h100 relative">
+              {this.renderOperatorIcon()}
+              <div className="Relative">
+                <div
+                  className="mBottom10"
+                  style={{ height: 254 }}
+                  ref={container => (this._mapContainer = container)}
+                />
+                {defaultLocation && <img src={markImg} className="markMapImg" />}
+              </div>
+              <div className="MDMapSidebar flexColumn w100 flex">
+                {this.renderHeader()}
+                {this.renderMapContent()}
+              </div>
             </div>
-            <div className="MDMapSidebar flexColumn w100 flex">
-              {this.renderHeader()}
-              {this.renderMapContent()}
+          </Popup>
+          <Popup className="mobileModal mobileMap topRadius" visible={locationFailedDialogVisible}>
+            <div className="flexColumn h100 pTop20 pBottom7 pLeft20 pRight20 pLeft16 pRight16">
+              <div className="Font17 bold mBottom8">{_l('未能获取精确位置')}</div>
+              <div className="Font15 mBottom8 Gray_75 bold">
+                {distance
+                  ? _l('为提升定位准确性，可尝试：')
+                  : _l('当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试：')}
+              </div>
+              <div className="Gray_75 LineHeight22">
+                <div>{_l('· 确认已开启系统定位服务及应用定位权限')}</div>
+                <div>{_l('· 建议开启 Wi-Fi，可提升室内定位效果')}</div>
+                <div>{_l('· 若正在使用 VPN / 代理，尝试关闭后再试')}</div>
+              </div>
+              {!distance && <div className="Gray bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>}
+
+              <div className="flexRow justifyCenter mTop28">
+                {!distance && (
+                  <Button
+                    className="flex mRight6 Font13 bold Gray_75"
+                    onClick={() => this.setState({ locationFailedDialogVisible: false }, onClose)}
+                  >
+                    {_l('取消')}
+                  </Button>
+                )}
+                <Button
+                  color="primary"
+                  className="flex mLeft6 Font13 bold"
+                  onClick={() => {
+                    if (distance) {
+                      this.setState({ locationFailedDialogVisible: false }, onClose);
+                      return;
+                    }
+                    this.setState({ locationFailedDialogVisible: false });
+                  }}
+                >
+                  {distance ? _l('我已知晓') : _l('仍要定位')}
+                </Button>
+              </div>
             </div>
-          </div>
-        </Popup>
+          </Popup>
+        </Fragment>
       );
     }
 
     return (
-      <Dialog.DialogBase className="MDMap" width="1080" visible overlayClosable={false}>
-        {this.renderOperatorIcon()}
-        <div ref={this.conRef} className="flexRow" style={{ height: 600 }}>
-          <div className="MDMapSidebar flexColumn">
-            {this.renderHeader()}
-            {this.renderMapContent()}
-          </div>
+      <Fragment>
+        <Dialog.DialogBase className="MDMap" width="1080" visible overlayClosable={false}>
+          {this.renderOperatorIcon()}
+          <div ref={this.conRef} className="flexRow" style={{ height: 600 }}>
+            <div className="MDMapSidebar flexColumn">
+              {this.renderHeader()}
+              {this.renderMapContent()}
+            </div>
 
-          <div className="flex h100 Relative">
-            <div className="h100" ref={container => (this._mapContainer = container)} />
-            {defaultLocation && <img src={markImg} className="markMapImg" />}
+            <div className="flex h100 Relative">
+              <div className="h100" ref={container => (this._mapContainer = container)} />
+              {defaultLocation && <img src={markImg} className="markMapImg" />}
+            </div>
           </div>
-        </div>
-      </Dialog.DialogBase>
+        </Dialog.DialogBase>
+        <Dialog
+          width={600}
+          visible={locationFailedDialogVisible}
+          title={_l('未能获取精确位置')}
+          description={
+            <Fragment>
+              <div className="Font15 mBottom8 Gray_75 bold">
+                {distance
+                  ? _l('为提升定位准确性，可尝试：')
+                  : _l('当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试：')}
+              </div>
+              <div className="Gray_75 LineHeight22">
+                <div>{_l('· 确认已开启系统定位服务及应用定位权限')}</div>
+                <div>{_l('· 建议开启 Wi-Fi，可提升室内定位效果')}</div>
+                <div>{_l('· 若正在使用 VPN / 代理，尝试关闭后再试')}</div>
+              </div>
+              {!distance && <div className="Gray bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>}
+            </Fragment>
+          }
+          okText={distance ? _l('我已知晓') : _l('仍要定位')}
+          onCancel={() => this.setState({ locationFailedDialogVisible: false }, onClose)}
+          onOk={() =>
+            distance
+              ? this.setState({ locationFailedDialogVisible: false }, onClose)
+              : this.setState({ locationFailedDialogVisible: false })
+          }
+        />
+      </Fragment>
     );
   }
 }

@@ -147,7 +147,7 @@ export default function MoreAction(props) {
       const [_appLangs, _originLang] = values;
       setAppLangs(_appLangs);
       setOriginalLang(_originLang);
-      loadLangList(_appLangs, _originLang);
+      loadLangList(_appLangs);
     });
   };
 
@@ -247,7 +247,7 @@ export default function MoreAction(props) {
           ))}
           <div className="flexCenter langItem" onClick={() => handleSetLang('')}>
             <span className="Font15">
-              {_l('原始语言')}
+              {_l('基准语言')}
               {originalLang && `(${_.get(langList[originalLang], 'localLang')})`}
             </span>
             {!md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font30" />}

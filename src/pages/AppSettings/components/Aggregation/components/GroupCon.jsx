@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, MenuItem, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -94,7 +94,6 @@ export default function GroupCon(props) {
           {sourceTables.length <= 1 && (
             <Tooltip
               placement="bottom"
-              autoCloseDelay={0}
               title={
                 <span className="">
                   {_.get(item, 'resultField.parentFieldInfo.controlSetting.controlName') && (

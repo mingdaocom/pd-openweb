@@ -4,7 +4,6 @@ import cx from 'classnames';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import addRecord from 'worksheet/common/newRecord/addRecord';
-import { browserIsMobile } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
 import { dateConvertToServerZone } from 'src/utils/project';
 import { WrapChoose } from './styles';
@@ -114,7 +113,6 @@ export default function (props) {
       popup={renderPopup(item)}
       getPopupContainer={() => document.body}
       onPopupVisibleChange={visible => {
-        if (browserIsMobile()) return;
         if (visible) {
           if (calendarInfo.length <= 1) {
             useViewInfoUpdate(calendarInfo[0], item);

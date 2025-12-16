@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Config from 'src/pages/chat/utils/config';
@@ -81,9 +82,11 @@ export default class ImageMessage extends Component {
         onClick={this.handleMessageFilePreview.bind(this)}
       >
         {loading && message.kcFile ? (
-          <div className="Message-image-kcIcon tip-top" data-tip="来自知识中心">
-            <i className="icon icon-knowledge1" />
-          </div>
+          <Tooltip title={_l('来自知识中心')}>
+            <div className="Message-image-kcIcon">
+              <i className="icon icon-knowledge1" />
+            </div>
+          </Tooltip>
         ) : undefined}
         {loading ? (
           <img className={cx('Message-image-layer', { emotion: files.isEmotion })} src={previewUrl} alt={files.name} />

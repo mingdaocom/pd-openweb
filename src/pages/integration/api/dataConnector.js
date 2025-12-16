@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var dataConnector = {
-
+const dataConnector = {
   /**
    * 获取常用连接器类型列表
    *
@@ -15,7 +14,7 @@ var dataConnector = {
     base.ajaxOptions.url = base.server(options) + 'dataConnector/getCommonTypes';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'dataConnectorgetCommonTypes', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default dataConnector;

@@ -2,9 +2,10 @@ import React, { Fragment, useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { RECORD_COLOR_SHOW_TYPE } from 'worksheet/constants/enum';
-import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
+import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/components/style.jsx';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
@@ -248,7 +249,7 @@ function RecordColor(params) {
           <div className="Font3 Bold mTop16 mBottom8 valignWrapper">
             {_l('字段')}
             {selectedControl && selectedControl.enumDefault2 !== 1 && (
-              <Tooltip className="mLeft6" text={_l('当前选择的字段未启用颜色')}>
+              <Tooltip className="mLeft6" title={_l('当前选择的字段未启用颜色')}>
                 <i className="icon icon-error1 Font16" style={{ color: '#ff9300' }}></i>
               </Tooltip>
             )}

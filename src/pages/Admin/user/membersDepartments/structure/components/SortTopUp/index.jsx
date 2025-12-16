@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, Icon, SortableList, Tooltip, UserHead } from 'ming-ui';
+import { Dialog, Icon, SortableList, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import departmentAjax from 'src/api/department';
 import { List, Wrap } from './style';
 
@@ -57,7 +58,7 @@ function SortTopUp(props) {
 
         <UserHead projectId={projectId} size={28} user={{ userHead: item.avatar, accountId: item.accountId }} />
         <span className="flex overflow_ellipsis mLeft8">{item.fullname}</span>
-        <Tooltip text={_l('取消置顶')}>
+        <Tooltip title={_l('取消置顶')}>
           <Icon icon="close" className="mLeft8 Font14 Gray_9e Hover_21" onClick={() => onDelete(item)} />
         </Tooltip>
       </div>

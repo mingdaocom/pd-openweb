@@ -1,7 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, Radio, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 
 const RangeBox = styled.div`
@@ -150,7 +151,7 @@ class Range extends React.Component {
             text={
               <span className="TxtMiddle">
                 {_l('仅系统角色')}
-                <Tooltip popupPlacement="bottom" text={<span>{_l('包含管理员、运营者、开发者')}</span>}>
+                <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
                   <Icon icon="info_outline" className="Gray_9e Font16 TxtTop mLeft5" />
                 </Tooltip>
               </span>
@@ -207,6 +208,23 @@ class Range extends React.Component {
                       />
                     );
                   })}
+            </div>
+          </React.Fragment>
+        )}
+        {this.props.otherSet && (
+          <React.Fragment>
+            <div className="conLine"></div>
+            <div className="con">
+              <h5>{_l('其他')}</h5>
+              <Checkbox
+                text={<span className="Font14 Normal">{_l('显示流转图')}</span>}
+                checked={data.displayFlowChart !== 1}
+                onClick={() => {
+                  this.props.changeOtherSet({
+                    displayFlowChart: data.displayFlowChart !== 1 ? 1 : 0,
+                  });
+                }}
+              />
             </div>
           </React.Fragment>
         )}

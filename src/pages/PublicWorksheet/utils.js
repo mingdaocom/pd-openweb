@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
-import { FILLLIMIT_TYPE } from 'src/pages/publicWorksheetConfig/enum';
+import { FILLLIMIT_TYPE } from 'src/pages/FormExtend/enum';
 
 const userAgent = navigator.userAgent;
 

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import discussionAjax from 'src/api/discussion';
+import { FILTER_OPTIONS } from 'src/pages/worksheet/components/DiscussLogFile/config';
 import CommentListItem from './commentListItem';
 import { SOURCE_TYPE } from './config';
 import './css/commentList.less';
@@ -14,7 +15,6 @@ class CommentList extends React.Component {
     pageIndex: PropTypes.number,
     pageSize: PropTypes.number,
     isMore: PropTypes.bool,
-    isFocus: PropTypes.bool,
     containAttachment: PropTypes.bool,
 
     commentList: PropTypes.array, // 列表
@@ -29,7 +29,6 @@ class CommentList extends React.Component {
   static defaultProps = {
     pageIndex: 1,
     pageSize: 20,
-    isFocus: false,
     containAttachment: false,
     commentList: [],
     updateCommentList() {},
@@ -46,6 +45,7 @@ class CommentList extends React.Component {
       isLoading: false,
       hasMore: true,
       showDiscussionId: '',
+      isEmptyDiscussion: false,
     };
 
     this.fetch = this.fetch.bind(this);
@@ -59,24 +59,27 @@ class CommentList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const changeSource = nextProps.entityType !== this.props.entityType || this.props.sourceId !== nextProps.sourceId; //内部和外部讨论 || 源id改变
+    const hasNewComments = nextProps.commentList.length > this.props.commentList.length;
     if (
-      this.props.isFocus !== nextProps.isFocus ||
+      changeSource ||
       this.props.containAttachment !== nextProps.containAttachment ||
-      nextProps.entityType !== this.props.entityType || //内部和外部讨论
-      this.props.sourceId !== nextProps.sourceId ||
       this.props.focusType !== nextProps.focusType ||
-      this.props.keywords !== nextProps.keywords
+      this.props.keywords !== nextProps.keywords ||
+      this.props.isFocus !== nextProps.isFocus
     ) {
       this.abortRequest();
       this.setState(
         {
           pageIndex: 1,
-          isFocus: nextProps.isFocus,
           containAttachment: nextProps.containAttachment,
           showReplyCommentId: '',
+          isEmptyDiscussion: changeSource ? false : this.state.isEmptyDiscussion,
         },
         this.fetch,
       );
+    } else if (hasNewComments && this.state.isEmptyDiscussion) {
+      this.setState({ isEmptyDiscussion: false });
     }
   }
 
@@ -105,9 +108,19 @@ class CommentList extends React.Component {
   }
 
   fetch() {
-    const { sourceId, sourceType, isFocus, containAttachment, commentList, entityType, focusType, keywords } =
-      this.props;
-    const { pageIndex, pageSize } = this.state;
+    const {
+      sourceId,
+      sourceType,
+      containAttachment,
+      commentList,
+      entityType,
+      focusType,
+      keywords,
+      workId,
+      instanceId,
+    } = this.props;
+    const { pageIndex, pageSize, isEmptyDiscussion } = this.state;
+    if (isEmptyDiscussion) return;
 
     this.setState({
       isLoading: true,
@@ -115,13 +128,15 @@ class CommentList extends React.Component {
 
     this.ajax = discussionAjax.getDiscussions({
       sourceId,
+      workId,
+      instanceId,
       sourceType,
       pageIndex,
       pageSize,
-      isFocus,
+      isFocus: this.props.isFocus !== undefined ? this.props.isFocus : focusType !== 0,
       containAttachment,
       entityType,
-      focusType,
+      focusType: focusType === 4 ? 0 : focusType,
       keywords,
     });
     this.ajax
@@ -135,6 +150,7 @@ class CommentList extends React.Component {
             }
           }
           this.setState({
+            isEmptyDiscussion: res.data && res.data.length <= 0 && focusType == 0 && !containAttachment && !keywords,
             hasMore: res.data && res.data.length !== 0 && res.data.length >= pageSize,
           });
         } else {
@@ -165,20 +181,28 @@ class CommentList extends React.Component {
   };
 
   render() {
-    const { commentList, sourceId, sourceType, isFocus, containAttachment, children, nullCommentList } = this.props;
+    const {
+      commentList,
+      sourceId,
+      sourceType,
+      containAttachment,
+      children,
+      nullCommentList,
+      focusType = 0,
+    } = this.props;
     const { isLoading, showReplyCommentId, pageIndex } = this.state;
 
     const getEmptyText = () => {
-      switch (true) {
-        case isFocus && containAttachment:
-          return _l('暂无与我有关含附件的讨论');
-        case isFocus:
-          return _l('暂无与我有关的讨论');
-        case containAttachment:
-          return _l('暂无含附件的讨论');
-        default:
-          return _l('暂无讨论');
+      const filterText =
+        focusType !== 0 || containAttachment
+          ? focusType === 0
+            ? _l('包含附件')
+            : FILTER_OPTIONS.find(o => o.value === focusType).label + (containAttachment ? _l('且包含附件') : '')
+          : '';
+      if (filterText) {
+        return _l('暂无%0的讨论', filterText);
       }
+      return _l('暂无讨论');
     };
 
     // 加载

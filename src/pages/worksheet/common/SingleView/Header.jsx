@@ -4,16 +4,18 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import { bool, element, func, shape } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Pagination from 'worksheet/components/Pagination';
 import SearchInput from 'worksheet/components/SearchInput';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import SearchRecord from 'worksheet/views/components/SearchRecord';
+import { isPublicLink } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
-import { isPublicLink } from '../../../../components/newCustomFields/tools/utils';
+import { getGroupControlId } from 'src/utils/worksheet';
 
 const Con = styled.div`
   display: flex;
@@ -129,7 +131,7 @@ export default function Header(props) {
             updateSearchRecord(view, null);
           }}
         >
-          <Tooltip popupPlacement="bottom" text={<span>{_l('查找')}</span>}>
+          <Tooltip placement="bottom" title={_l('查找')}>
             <Icon icon="search" className="Gray_9e Font22 pointer ThemeHoverColor3 mTop2 mRight15" />
           </Tooltip>
         </SearchRecord>
@@ -144,7 +146,7 @@ export default function Header(props) {
           }}
         />
       )}
-      <Tooltip popupPlacement="bottom" text={<span>{_l('刷新')}</span>}>
+      <Tooltip placement="bottom" title={_l('刷新')}>
         <Icon
           icon="task-later"
           className="Gray_9e Font20 pointer mLeft2 mRight2"
@@ -156,6 +158,7 @@ export default function Header(props) {
       {(showAsSheetView || viewType === VIEW_DISPLAY_TYPE.sheet) && (
         <Pagination
           allowChangePageSize={!forcePageSize}
+          onlyShowCount={getGroupControlId(view)}
           className="pagination"
           pageIndex={pageIndex}
           pageSize={forcePageSize || pageSize}

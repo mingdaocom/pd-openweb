@@ -3,9 +3,11 @@ import _ from 'lodash';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { FIELD_REG_EXP } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 import { getAdvanceSetting } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
+import { dateConvertToServerZone } from 'src/utils/project';
 
 export const RENDER_RECORD_NECESSARY_ATTR = [
   'controlId',
@@ -187,7 +189,7 @@ export const getSearchData = sheet => {
           .filter(i => !!i)
           .join('/');
         value && data.push({ [titleControlId]: value, rowid: item.rowId });
-        if (item.children && item.children.length > 0 && item.pathId && item.pathId.length < 3) {
+        if (item.children && item.children.length > 0 && item.pathId && item.pathId.length < 5) {
           item.children.map(i => getPathId(i, newPathId));
         }
       };
@@ -208,14 +210,23 @@ export const getSearchData = sheet => {
   return { queryKey: titleControlId, data };
 };
 
-export const renderTitleByViewtitle = (row, controls, view) => {
+export const renderTitleByViewtitle = (row, controls, view, useDateConvertToServerZone) => {
   const viewtitle = _.get(view, 'advancedSetting.viewtitle');
   const controlFields = viewtitle.match(FIELD_REG_EXP) || [];
   const defaultValue = _.filter(viewtitle.split('$'), v => !_.isEmpty(v));
   let str = '';
   defaultValue.map(o => {
     if (controlFields.includes(`$${o}$`)) {
-      str = str + renderCellText({ ...controls.find(it => it.controlId === o), value: row[o] });
+      const control = controls.find(it => it.controlId === o);
+      str =
+        str +
+        renderCellText({
+          ...control,
+          value:
+            useDateConvertToServerZone && (isTimeStyle(control) || (control.type === 38 && control.enumDefault === 2))
+              ? dateConvertToServerZone(row[o])
+              : row[o],
+        });
       return;
     }
     str = str + o;

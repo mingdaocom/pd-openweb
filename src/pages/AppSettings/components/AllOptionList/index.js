@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import { groupBy, head, isEmpty, keys, maxBy, sortBy } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import EditOptionList from 'src/pages/widgetConfig/widgetSetting/components/OptionList/EditOptionList';
 import { getTranslateInfo } from 'src/utils/app';

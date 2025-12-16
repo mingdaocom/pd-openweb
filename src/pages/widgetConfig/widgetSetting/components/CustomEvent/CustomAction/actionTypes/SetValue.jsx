@@ -87,7 +87,6 @@ export default function SetValue(props) {
                           defaulttype: item.type,
                         })}
                         hideTitle={true}
-                        fromCustomEvent={true}
                         from={DYNAMIC_FROM_MODE.CUSTOM_EVENT}
                         showEmpty={true}
                         {...(queryId ? { queryConfig: _.find(customQueryConfig, c => c.id === queryId) || {} } : {})}

@@ -7,6 +7,7 @@ import worksheetAjax from 'src/api/worksheet';
 import 'mobile/index.less';
 import { SHARE_STATE, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import globalEvents from 'src/router/globalEvents';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
@@ -67,6 +68,7 @@ class WorksheetRowEdit extends Component {
                 requestParams: { projectId: data.projectId },
               },
             );
+            globalEvents();
           };
 
           if (data.resultCode === 1) {
@@ -158,7 +160,7 @@ class WorksheetRowEdit extends Component {
 
     return (
       <Fragment>
-        <DocumentTitle title={_.isEmpty(data) ? _l('加载中') : this.getTitle()} />
+        {!_.isEmpty(data) && <DocumentTitle title={this.getTitle()} />}
 
         {loading || !Components ? (
           <LoadDiv className="mTop20" />

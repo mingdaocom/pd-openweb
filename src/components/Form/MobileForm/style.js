@@ -7,7 +7,7 @@ export const CustomOptionCapsule = styled.span`
   ${props =>
     props.inPopup
       ? 'padding: 2px 0 2px 18px;'
-      : 'padding: 2px 12px 2px 30px;border-radius: 16px;border: 1px solid var(--gray-e0);'}
+      : 'padding: 2px 12px 2px 30px;border-radius: 16px;border: 1px solid var(--color-border-primary);'}
   word-break: break-all;
   white-space: pre-wrap;
 
@@ -20,6 +20,6 @@ export const CustomOptionCapsule = styled.span`
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: ${props => props.tagColor || 'var(--gray-f3)'};
+    background: ${props => props.tagColor || 'var(--color-background-tertiary)'};
   }
 `;

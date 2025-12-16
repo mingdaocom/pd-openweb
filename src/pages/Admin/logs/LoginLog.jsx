@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Button, Icon, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import actionLogAjax from 'src/api/actionLog';
 import downloadAjax from 'src/api/download';
@@ -71,7 +72,7 @@ export default class LoginLog extends Component {
             case 'accountId':
               if (!log.accountId) {
                 return (
-                  <Tooltip text={log.fullname}>
+                  <Tooltip title={log.fullname}>
                     <span>
                       {dealMaskValue({
                         value: log.fullname,
@@ -295,11 +296,7 @@ export default class LoginLog extends Component {
               className="icon-task-later Gray_9 hoverText mRight26 Font17"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
             />
-            <Tooltip
-              autoCloseDelay={0}
-              text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
-              popupPlacement="bottom"
-            >
+            <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
               <Button
                 type="primary"
                 className="export"

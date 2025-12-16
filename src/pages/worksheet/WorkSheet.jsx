@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import UseKey from 'react-use/lib/component/UseKey';
+import { generate } from '@ant-design/colors';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -13,13 +14,14 @@ import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import homeAppApi from 'src/api/homeApp';
 import DragMask from 'worksheet/common/DragMask';
 import UnNormal from 'worksheet/views/components/UnNormal';
+import CreateRecordSideMask from 'src/components/Mingo/modules/CreateRecordBot/CreateRecordSideMask';
+import Chatbot from 'src/pages/Chatbot';
 import CustomPageContent from 'src/pages/customPage/pageContent';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import { navigateTo } from 'src/router/navigateTo';
-import { browserIsMobile } from 'src/utils/common';
-import { findSheet } from 'src/utils/worksheet';
-import { getSheetListFirstId } from 'src/utils/worksheet';
-import { moveSheetCache } from 'src/utils/worksheet';
+import { emitter } from 'src/utils/common';
+import { browserIsMobile, updateGlobalStoreForMingo } from 'src/utils/common';
+import { findSheet, getSheetListFirstId, moveSheetCache } from 'src/utils/worksheet';
 import { WorksheetEmpty, WorkSheetLeft, WorkSheetPortal } from './common';
 import Sheet from './common/Sheet';
 import { updateBase, updateWorksheetLoading } from './redux/actions';
@@ -42,7 +44,8 @@ const Drag = styled.div(
 let request = null;
 
 const WorkSheetContainer = props => {
-  const { appId, id, type, params, sheetListLoading, isCharge, sheetList, appPkg } = props;
+  const { appId, id, currentSheet, params, sheetListLoading, isCharge, sheetList, appPkg } = props;
+  const { type } = currentSheet;
   const { appGroups = [], currentPcNaviStyle } = appPkg;
   const cache = useRef({});
   const [data, setData] = useState({});
@@ -79,10 +82,13 @@ const WorkSheetContainer = props => {
         });
       }
     } else {
-      setTimeout(() => {
-        setData({ wsType: type, resultCode: 1 });
-        setLoading(false);
-      }, 200);
+      setTimeout(
+        () => {
+          setData({ wsType: type, resultCode: 1 });
+          setLoading(false);
+        },
+        window.isWindows && window.isFirefox ? 500 : 200,
+      );
     }
   }, [id, params.groupId]);
 
@@ -137,17 +143,11 @@ const WorkSheetContainer = props => {
     }
   }
 
-  if (data.wsType) {
-    const currentSheet =
-      currentPcNaviStyle === 2 && data.urlTemplate
-        ? {
-            urlTemplate: data.urlTemplate,
-            configuration: data.configuration,
-            workSheetName: data.name,
-          }
-        : undefined;
-    return id ? <CustomPageContent currentSheet={currentSheet} ids={{ ...params, appId }} id={id} /> : null;
-  } else {
+  if (!id) {
+    return null;
+  }
+
+  if (data.wsType === 0) {
     return (
       <Sheet
         flag={qs.parse((location.search || '').slice(1)).flag}
@@ -160,6 +160,30 @@ const WorkSheetContainer = props => {
       />
     );
   }
+  if (data.wsType === 1) {
+    const currentSheet =
+      currentPcNaviStyle === 2 && data.urlTemplate
+        ? {
+            urlTemplate: data.urlTemplate,
+            configuration: data.configuration,
+            workSheetName: data.name,
+          }
+        : undefined;
+    return <CustomPageContent currentSheet={currentSheet} ids={{ ...params, appId }} id={id} />;
+  }
+  if (data.wsType === 3) {
+    const name = currentSheet.workSheetName || data.name;
+    return (
+      <Chatbot
+        data={{ ...currentSheet, name, appId, chatbotId: id, conversationId: params.viewId }}
+        navigateToConversation={(conversationId, isReplace = false) => {
+          navigateTo(`/app/${appId}/${params.groupId}/${id}/${conversationId || ''}`, isReplace);
+        }}
+      />
+    );
+  }
+
+  return null;
 };
 
 class WorkSheet extends Component {
@@ -174,6 +198,7 @@ class WorkSheet extends Component {
       navWidth: Number(localStorage.getItem(`appNavWidth-${params.appId}`)) || 240,
       dragMaskVisible: false,
     };
+    this.handleMingoCreateRecord = this.handleMingoCreateRecord.bind(this);
   }
   componentDidMount() {
     const { match, updateBase } = this.props;
@@ -194,9 +219,13 @@ class WorkSheet extends Component {
       worksheetId: id,
       chartId: new URL(location.href).searchParams.get('chartId'),
     });
+    updateGlobalStoreForMingo({
+      activeModule: 'worksheet',
+    });
     this.setCache(this.props.match.params);
     // 禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = 'none';
+    emitter.on('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);
   }
   componentWillReceiveProps(nextProps) {
     const { updateBase, worksheetId, updateWorksheetLoading, views } = nextProps;
@@ -245,6 +274,9 @@ class WorkSheet extends Component {
         groupId,
         worksheetId: id,
       });
+      updateGlobalStoreForMingo({
+        activeModule: 'worksheet',
+      });
     }
     this.setCache(nextProps.match.params);
     if (
@@ -265,6 +297,10 @@ class WorkSheet extends Component {
     document.body.style.overscrollBehaviorX = null;
     this.removeAppThemeColor();
     updateWorksheetLoading(true);
+    emitter.off('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);
+  }
+  handleMingoCreateRecord() {
+    this.setState({ createRecordSideMaskVisible: true });
   }
   changeAppThemeColor(themeColor) {
     if (themeColor) {
@@ -274,7 +310,7 @@ class WorkSheet extends Component {
         themeColor,
       )
         .darken(5)
-        .toString()}; }`;
+        .toString()};  --app-highlight-color: ${generate(themeColor)[0].toString()}}`;
       document.head.appendChild(style);
       this.appThemeColorStyle = style;
     } else if (!themeColor && this.appThemeColorStyle) {
@@ -338,7 +374,7 @@ class WorkSheet extends Component {
   render() {
     let { sheetList = [], match, appPkg, isCharge, sheetListLoading, sheetListIsUnfold } = this.props;
     const { projectId, currentPcNaviStyle } = appPkg;
-    const { navWidth, dragMaskVisible } = this.state;
+    const { navWidth, dragMaskVisible, createRecordSideMaskVisible } = this.state;
     let { appId, groupId, worksheetId } = match.params;
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -347,7 +383,7 @@ class WorkSheet extends Component {
     return (
       <WaterMark projectId={projectId}>
         <UseKey
-          filter={e => _.includes(['e', 'E'], e.key)}
+          filter={e => _.includes(['/'], e.key)}
           fn={e => {
             if (
               document.querySelector('.mdModalWrap') ||
@@ -355,7 +391,7 @@ class WorkSheet extends Component {
             ) {
               return;
             }
-            if ((window.isMacOs ? e.metaKey : e.shiftKey) && e.keyCode === 69) {
+            if ((window.isMacOs ? e.metaKey : e.ctrlKey) && e.keyCode === 191) {
               const fullEl = document.querySelector('.icon.fullRotate');
               fullEl && fullEl.click();
             }
@@ -403,7 +439,7 @@ class WorkSheet extends Component {
               <WorkSheetContainer
                 appId={appId}
                 id={worksheetId}
-                type={currentSheet.type}
+                currentSheet={currentSheet}
                 params={match.params}
                 sheetListLoading={sheetListLoading}
                 isCharge={isCharge}
@@ -423,7 +459,7 @@ class WorkSheet extends Component {
             <WorkSheetContainer
               appId={appId}
               id={worksheetId}
-              type={currentSheet.type}
+              currentSheet={currentSheet}
               params={match.params}
               sheetListLoading={sheetListLoading}
               isCharge={isCharge}
@@ -432,6 +468,14 @@ class WorkSheet extends Component {
             />
           )}
         </div>
+        {createRecordSideMaskVisible && (
+          <CreateRecordSideMask
+            appId={appId}
+            worksheetId={worksheetId}
+            viewId={match.params.viewId}
+            onClose={() => this.setState({ createRecordSideMaskVisible: false })}
+          />
+        )}
       </WaterMark>
     );
   }

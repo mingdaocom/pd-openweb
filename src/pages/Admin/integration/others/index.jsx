@@ -9,10 +9,10 @@ import {
   Icon,
   LoadDiv,
   Switch,
-  Tooltip,
   UpgradeIcon,
   VerifyPasswordConfirm,
 } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
 import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog, upgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -942,9 +942,8 @@ export default class OtherTool extends Component {
           <div className="formLabel TxtLeft">
             {_l('WEB-移动端')}
             <Tooltip
-              autoCloseDelay={0}
-              popupPlacement="bottom"
-              text={<span>{_l('若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录')}</span>}
+              placement="bottom"
+              title={_l('若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录')}
             >
               <Icon icon="info" className="Gray_9e mLeft10" />
             </Tooltip>

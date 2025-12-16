@@ -25,7 +25,6 @@ function isEmptyArray(arr) {
 }
 
 function getValueFromSelectedValue(selectedValue) {
-  // TODO: defaultValue
   let [start, end] = selectedValue;
   start = moment(start || getNow());
   end = moment(end || getNow());

@@ -7,6 +7,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
+import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { eventStr } from './util';
 
@@ -131,7 +132,7 @@ class External extends Component {
                   <div className={cx('timeStr', {})}>
                     {timeStr} <span className="pLeft3">{moment(it.date).format('dddd')}</span>
                   </div>
-                  {this.renderEventData(it.res, true)}
+                  {this.renderEventData(it.res)}
                 </div>
               );
             })}
@@ -139,7 +140,7 @@ class External extends Component {
         </React.Fragment>
       );
     } else {
-      return <div className="mcm">{this.renderEventData(eventData)}</div>;
+      return <div className="mcm">{this.renderEventData(eventData, true)}</div>;
     }
   };
 
@@ -179,7 +180,7 @@ class External extends Component {
                 if (o.start)
                   return (
                     <div className="Gray_9e Font13 mTop2">
-                      {isNot ? o.start : dateConvertToUserZone(o.start)}
+                      {isNot && isTimeStyle(o.info.startData) ? dateConvertToUserZone(o.start) : o.start}
                       <span className="mLeft10">{o.info.mark}</span>
                     </div>
                   );

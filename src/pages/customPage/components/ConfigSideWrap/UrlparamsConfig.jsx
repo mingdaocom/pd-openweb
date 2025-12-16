@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
-import { Input, Tooltip } from 'antd';
+import { Input } from 'antd';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 export default props => {
   const { urlParams, updatePageInfo } = props;

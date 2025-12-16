@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { func, shape } from 'prop-types';
 import styled from 'styled-components';
 import { Radio, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/components/Basics';
 
 const BaseBtnCon = styled(FlexCenter)`
@@ -101,9 +102,11 @@ export default function HomeSetting(props) {
 
   return (
     <React.Fragment>
-      <BaseBtnCon data-tip={_l('自定义')} onClick={() => setCustomDrawerVisible(!customDrawerVisible)}>
-        <i className="icon-tune Font20 Gray_75"></i>
-      </BaseBtnCon>
+      <Tooltip title={_l('自定义')} placement="bottom">
+        <BaseBtnCon onClick={() => setCustomDrawerVisible(!customDrawerVisible)}>
+          <i className="icon-tune Font20 Gray_75"></i>
+        </BaseBtnCon>
+      </Tooltip>
       <CustomDrawer
         maskStyle={{ backgroundColor: 'transparent' }}
         width={360}

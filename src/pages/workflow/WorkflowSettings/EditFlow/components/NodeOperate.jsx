@@ -1,22 +1,58 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon } from 'ming-ui';
+import { AILoading, Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import flowNode from '../../../api/flowNode';
 import { NODE_TYPE } from '../../enum';
+import logDialog from '../../History/components/logDialog';
 import CopyNode from './CopyNode';
 import 'rc-trigger/assets/index.css';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
+
 const Box = styled.span`
   color: ${props => (props.isBranch ? '#757575' : 'rgba(255, 255, 255, 0.8)')};
   &:hover {
     color: ${props => (props.isBranch ? '#1677ff' : '#fff')};
+  }
+`;
+
+const TestResultBox = styled.div`
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 16px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: pointer;
+  &:hover {
+    .icon-wysiwyg {
+      color: #2196f3;
+    }
+  }
+  .icon-loading_button {
+    color: #9e9e9e;
+    display: inline-block;
+    animation: rotate 1.2s linear infinite;
+  }
+  .icon-ok {
+    color: #01ca83;
+  }
+  .icon-error {
+    color: #f44336;
+  }
+  .icon-wysiwyg {
+    color: #9e9e9e;
+    display: none;
   }
 `;
 
@@ -95,7 +131,6 @@ export default class NodeOperate extends Component {
 
     return (
       <Tooltip
-        autoCloseDelay={0}
         className="workflowNotes"
         placement="bottom"
         arrowPointAtCenter={true}
@@ -383,6 +418,44 @@ export default class NodeOperate extends Component {
     this.setState({ showOperate: false });
   };
 
+  /**
+   * 渲染测试结果
+   */
+  renderTestResult() {
+    const { processId, item, workflowTestRunning = {}, isNestedProcess, openDetail } = this.props;
+    const { status, instanceId } = workflowTestRunning[`${processId}_${item.id}`] || {};
+
+    if (!instanceId) return null;
+
+    return (
+      <Fragment>
+        {status === 0 && <AILoading />}
+        <Tooltip title={_l('日志')}>
+          <TestResultBox className="testResultBox">
+            {status === 1 && <i className="icon-ok" />}
+            {status === 2 && <i className="icon-error" />}
+            {_.includes([1, 2], status) && (
+              <i
+                className="icon-wysiwyg"
+                onMouseDown={evt => {
+                  evt.stopPropagation();
+
+                  if (item.typeId === NODE_TYPE.AGENT) {
+                    logDialog({ processId, nodeId: item.id, instanceId });
+                  } else if (isNestedProcess) {
+                    openDetail(item.triggerId, item.triggerNodeId, NODE_TYPE.APPROVAL_PROCESS, instanceId);
+                  } else {
+                    openDetail(processId, item.id, item.typeId, instanceId);
+                  }
+                }}
+              />
+            )}
+          </TestResultBox>
+        </Tooltip>
+      </Fragment>
+    );
+  }
+
   render() {
     const { item, nodeClassName, noCopy, nodeStyle = {} } = this.props;
 
@@ -405,7 +478,9 @@ export default class NodeOperate extends Component {
 
         {this.renderMoreOperate()}
 
-        {item.typeId !== NODE_TYPE.FIRST && this.renderDeleteNode()}
+        {this.renderDeleteNode()}
+
+        {this.renderTestResult()}
       </Fragment>
     );
   }

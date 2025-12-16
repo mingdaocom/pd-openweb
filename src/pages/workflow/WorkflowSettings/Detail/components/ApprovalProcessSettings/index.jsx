@@ -1,10 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, Icon, Menu, MenuItem, Radio, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import sheetAjax from 'src/api/worksheet';
 import { NODE_TYPE, OPERATION_TYPE, USER_TYPE } from '../../../enum';
@@ -221,9 +221,11 @@ export default props => {
                       }
                     />
                     {item.desc && (
-                      <span style={{ height: 16, marginLeft: -35 }} data-tip={item.desc}>
-                        <Icon className="Font16 Gray_9e" icon="info" />
-                      </span>
+                      <Tooltip title={item.desc}>
+                        <span style={{ height: 16, marginLeft: -35 }}>
+                          <Icon className="Font16 Gray_9e" icon="info" />
+                        </span>
+                      </Tooltip>
                     )}
                   </Fragment>
                 );
@@ -426,14 +428,13 @@ export default props => {
 
       <div className="Font13 mTop20 bold">
         {_l('发起人为空时')}
-        <span
-          className="workflowDetailTipsWidth mLeft5 tip-bottom-right"
-          data-tip={_l(
+        <Tooltip
+          title={_l(
             '设置发起人为空时的处理方式。当设为自动进行下一节点时，如果退回到流程发起节点，也会自动由下一个节点进行处理',
           )}
         >
-          <Icon className="Font16 Gray_9e" icon="info" />
-        </span>
+          <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+        </Tooltip>
       </div>
       <Dropdown
         className="flowDropdown mTop10"
@@ -551,12 +552,9 @@ export default props => {
                     })
                   }
                 />
-                <span
-                  className="workflowDetailTipsWidth mLeft5"
-                  data-tip={_l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。')}
-                >
-                  <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3" />
-                </span>
+                <Tooltip title={_l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。')}>
+                  <Icon icon="info" className="Gray_9e Font16 mLeft5" />
+                </Tooltip>
               </div>
               <div className="flexRow mTop15 alignItemsCenter">
                 <Checkbox
@@ -720,13 +718,11 @@ export default props => {
               }
             />
             <Tooltip
-              overlayStyle={{ maxWidth: 320 }}
-              autoCloseDelay={0}
               title={_l(
                 '指在审批流程中当人员设置为直属上级、上级部门负责人时。如果当前人员没有直属上级，则由本人自己处理；如果当前人员、部门没有上级部门，则由本部门负责人处理。未勾选时，则按照为空处理。',
               )}
             >
-              <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3 mLeft5" />
+              <Icon icon="info" className="Gray_9e Font16 mLeft5" />
             </Tooltip>
           </div>
           <div className="flexRow mTop15 alignItemsCenter">
@@ -740,8 +736,6 @@ export default props => {
               }
             />
             <Tooltip
-              overlayStyle={{ maxWidth: 320 }}
-              autoCloseDelay={0}
               title={
                 <div>
                   <div>
@@ -758,20 +752,13 @@ export default props => {
                 </div>
               }
             >
-              <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3 mLeft5" />
+              <Icon icon="info" className="Gray_9e Font16 mLeft5" />
             </Tooltip>
           </div>
 
           <EmailApproval
             {...props}
             title={_l('启用邮件通知')}
-            desc={
-              <span>
-                {_l('启用后，审批结果会以邮件的形式发送给发起人。')}
-                {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
-                  _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
-              </span>
-            }
             flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
             updateSource={(obj, callback) =>
               updateSource(

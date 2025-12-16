@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import downloadAjax from 'src/api/download';
@@ -194,7 +195,7 @@ export default class ByApp extends Component {
         render: item => {
           if (!item.appId) return;
           return (
-            <Tooltip text={<span>{_l('使用分析')}</span>}>
+            <Tooltip title={_l('使用分析')}>
               <Icon
                 icon="poll"
                 className="chartIcon Font20"
@@ -326,7 +327,7 @@ export default class ByApp extends Component {
           const { app } = item;
           if (!app.name) return;
           return (
-            <Tooltip text={<span>{_l('使用分析')}</span>}>
+            <Tooltip title={_l('使用分析')}>
               <Icon
                 icon="poll"
                 className="chartIcon Font20"

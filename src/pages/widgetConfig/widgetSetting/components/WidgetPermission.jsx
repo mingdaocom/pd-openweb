@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import AutoIcon from '../../components/Icon';
 import { NOT_NEED_SET_READONLY_CONTROL } from '../../config';
 import { updateConfig } from '../../util/setting';
@@ -31,7 +31,6 @@ export default ({ from, data, onChange }) => {
             <span style={{ marginRight: '4px' }}>{_l('只读')}</span>
             <Tooltip
               placement="bottom"
-              autoCloseDelay={0}
               title={
                 type === 52
                   ? _l('设为只读后，标签页内所有字段均为只读。但仍可在自定义按钮和工作流中编辑')
@@ -61,7 +60,6 @@ export default ({ from, data, onChange }) => {
           <span style={{ marginRight: '4px' }}>{_l('隐藏')}</span>
           <Tooltip
             placement="bottom"
-            autoCloseDelay={0}
             title={_l('设为隐藏的字段将不会对用户直接显示。但仍可以在自定义按钮和工作流中调用')}
           >
             <AutoIcon icon="help" />
@@ -88,7 +86,6 @@ export default ({ from, data, onChange }) => {
             <span style={{ marginRight: '4px' }}>{_l('新增记录时隐藏')}</span>
             <Tooltip
               placement="bottom"
-              autoCloseDelay={0}
               title={_l(
                 '通常用于隐藏一些不需要在新增记录时显示的字段。如：用于新订单的后续处理的字段，可以在新增记录时隐藏。',
               )}

@@ -21,7 +21,7 @@ export default function getTableColumnWidth(
       conForRender.style.top = '-10000px';
       conForRender.style.left = '-10000px';
       if (_.includes([29], control.type)) {
-        conForRender.style.width = '600px';
+        conForRender.style.width = '200px';
       } else {
         conForRender.style.maxWidth = '600px';
         conForRender.style.display = 'inline-block';

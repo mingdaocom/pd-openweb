@@ -3,7 +3,8 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import localForage from 'localforage';
 import styled from 'styled-components';
-import { Icon, MdLink, Tooltip } from 'ming-ui';
+import { Icon, MdLink } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import LanguageList from 'src/pages/PageHeader/components/LanguageList';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
@@ -75,9 +76,11 @@ export default props => {
     if (!canDebug) {
       return (
         <MdLink to={`/app/${appId}/role`}>
-          <div className="flexRow appExtensionItem" data-tip={_l('用户')}>
-            <Icon className="Font20" icon="group" />
-          </div>
+          <Tooltip title={_l('用户')}>
+            <div className="flexRow appExtensionItem">
+              <Icon className="Font20" icon="group" />
+            </div>
+          </Tooltip>
         </MdLink>
       );
     }
@@ -86,7 +89,7 @@ export default props => {
       <RoleDebugSelectWrap className="roledebugSelectWrap mRight12" navColor={navColor} borderColor={getBorderColor()}>
         {roleEntryVisible && (
           <MdLink to={`/app/${appId}/role`}>
-            <Tooltip placement="bottom" text={_l('用户')}>
+            <Tooltip placement="bottom" title={_l('用户')}>
               <div className="mLeft4 roledebugSelectWrap-iconWrap mRight10">
                 <Icon icon="group" className="Font20" />
               </div>
@@ -104,7 +107,7 @@ export default props => {
                 ? roleSelectValue[0].name
                 : _l('%0个角色', roleSelectValue.length)}
           </span>
-          <Tooltip disable={!roleSelectValue.length} placement="bottom" text={_l('清空调试')}>
+          <Tooltip placement="bottom" title={!roleSelectValue.length ? '' : _l('清空调试')}>
             <Icon
               icon={roleSelectValue.length ? 'cancel' : 'expand_more'}
               className="Font16 mRight12 iconHover"
@@ -135,9 +138,11 @@ export default props => {
     <div className="appExtensionWrap">
       {otherAllShow && !window.isPublicApp && canEditApp(permissionType, isLock) && (
         <MdLink to={`/app/${appId}/workflow`}>
-          <div className="flexRow appExtensionItem" data-tip={_l('工作流')}>
-            <Icon className="Font20" icon="workflow" />
-          </div>
+          <Tooltip title={_l('工作流')}>
+            <div className="flexRow appExtensionItem">
+              <Icon className="Font20" icon="workflow" />
+            </div>
+          </Tooltip>
         </MdLink>
       )}
       {(roleEntryVisible || canDebug) && renderRoleDebugSelect()}
@@ -146,7 +151,7 @@ export default props => {
         app={appPkg}
         isCharge={canEditApp(permissionType, sourceType === 60 ? false : isLock)}
       >
-        <Tooltip placement="bottom" text={_l('应用语言')}>
+        <Tooltip placement="bottom" title={_l('应用语言')}>
           <div className="mLeft4 appExtensionItem mRight10">
             <Icon icon="language" className="Font20" />
           </div>

@@ -1,8 +1,8 @@
 ﻿import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import ToolTip from 'ming-ui/components/Tooltip';
 import DiscussionController from 'src/api/discussion';
 import PostController from 'src/api/post';
 import { SOURCE_TYPE } from '../../constants';
@@ -75,16 +75,12 @@ export default class ReplyTo extends React.Component {
 
   render() {
     return (
-      <ToolTip
-        text={this.state.replayMsg ? <span>{this.state.replayMsg}</span> : <LoadDiv />}
-        themeColor={'white'}
-        autoCloseDelay={0}
-      >
+      <Tooltip title={this.state.replayMsg || <LoadDiv />} type="white" mouseEnterDelay={0.3}>
         <i
           className="mLeft2 mRight2 ThemeColor4 icon-replyto Hand ThemeColor4"
           onMouseOver={this.fetchReplyMsg.bind(this)}
         />
-      </ToolTip>
+      </Tooltip>
     );
   }
 }

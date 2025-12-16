@@ -26,14 +26,16 @@ import {
 } from 'worksheet/redux/actions';
 import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 import { isHaveCharge } from 'worksheet/redux/actions/util';
+import DataFormat from 'src/components/Form/core/DataFormat';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/components/Form/core/enum';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
+import { openMingoCreateRecord } from 'src/components/Mingo/modules/CreateRecordBot';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { putControlByOrder } from 'src/pages/widgetConfig/util';
 import { renderBatchSetDialog } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
+import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
 import { browserIsMobile, emitter, getLRUWorksheetConfig } from 'src/utils/common';
 import { getAdvanceSetting, getHighAuthControls } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
@@ -332,6 +334,7 @@ const MemoizedRowHead = React.memo(
   (prevProps, nextProps) => {
     // 自定义比较函数，只在关键属性变化时重新渲染
     const keyProps = [
+      'className',
       'layoutChangeVisible',
       'rowIndex',
       'data',
@@ -409,6 +412,7 @@ class TableView extends React.Component {
     if (isFunction(props.initAbortController)) {
       props.initAbortController();
     }
+    this.handlePaste = this.handlePaste.bind(this);
   }
 
   componentDidMount() {
@@ -428,6 +432,7 @@ class TableView extends React.Component {
     }
     document.body.addEventListener('click', this.outerClickEvent);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
+    emitter.addListener('RELOAD_SHEET_VIEW', this.props.refresh);
     this.bindShift();
     window[`getTableColumnWidth-${this.props.worksheetId}`] = control => {
       const width = getTableColumnWidth(
@@ -439,6 +444,7 @@ class TableView extends React.Component {
       );
       return width;
     };
+    window.addEventListener('paste', this.handlePaste);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -654,6 +660,7 @@ class TableView extends React.Component {
   componentWillUnmount() {
     const { abortRequest = () => {} } = this.props;
     document.body.removeEventListener('click', this.outerClickEvent);
+    emitter.removeListener('RELOAD_SHEET_VIEW', this.props.refresh);
     emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     this.unbindShift();
     if (this.refreshTimer) {
@@ -664,6 +671,24 @@ class TableView extends React.Component {
     // 清理缓存
     this._columnsCache = null;
     this._lastPropsHash = null;
+    window.removeEventListener('paste', this.handlePaste);
+  }
+
+  handlePaste(e) {
+    if (
+      !!document.querySelector('.ant-modal-root') ||
+      window.cellisediting ||
+      window.newRecordActive ||
+      this.state.recordInfoVisible ||
+      !this.tableConfig.allowAdd ||
+      !isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) ||
+      document.activeElement.tagName.toLowerCase() === 'input' ||
+      document.activeElement.tagName.toLowerCase() === 'textarea'
+    ) {
+      return;
+    }
+    const text = e.clipboardData.getData('text');
+    openMingoCreateRecord(text);
   }
 
   bindShift() {
@@ -699,8 +724,11 @@ class TableView extends React.Component {
 
   outerClickEvent = e => {
     const { clearHighLight } = this.props;
+    if (!e.target.isConnected) return;
     if (
-      !$(e.target).closest('.sheetViewTable, .recordInfoCon, .workSheetNewRecord, .mdModal')[0] ||
+      !$(e.target).closest(
+        '.sheetViewTable, .recordInfoCon, .workSheetNewRecord, .createRecordSideMask, .mdModal',
+      )[0] ||
       /-grid/.test(e.target.className)
     ) {
       clearHighLight(this.tableId);
@@ -732,16 +760,15 @@ class TableView extends React.Component {
     }
   };
 
-  handleCellClick = (cell, row, rowIndex) => {
+  handleCellClick = (cell, row) => {
     const { allowOpenRecord = true } = this.props;
     if (get(this, 'props.worksheetInfo.isRequestingRelationControls') || allowOpenRecord === false) {
       return;
     }
 
-    const { setHighLight, worksheetId, view } = this.props;
+    const { worksheetId, view } = this.props;
     handleRecordClick(view, row, () => {
       addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
-      setHighLight(this.tableId, rowIndex);
       const newState = {
         recordInfoVisible: row,
         recordId: row.rowid,
@@ -1063,6 +1090,12 @@ class TableView extends React.Component {
     return rows.filter(({ rowid }) => rowid === 'groupTitle');
   }
 
+  get allowShowGenDataFromMingo() {
+    const { appPkg } = this.props;
+    const { isOwner, isAdmin, isRunner, isDeveloper } = getUserRole(appPkg.permissionType);
+    return isOwner || isDeveloper || isRunner || isAdmin;
+  }
+
   renderSummaryCell = ({ className = '', style, columnIndex }) => {
     const { viewId, sheetViewData, changeWorksheetSheetViewSummaryType, sheetViewConfig } = this.props;
     const { allWorksheetIsSelected, sheetSelectedRows } = sheetViewConfig;
@@ -1137,6 +1170,7 @@ class TableView extends React.Component {
               }
             : control
         }
+        columns={this.columns}
         disabledFunctions={this.disabledFunctions}
         readonly={this.readonly}
         disabled={(this.needClickToSearch && _.isEmpty(quickFilter)) || control.type === 'operates'}
@@ -1203,6 +1237,14 @@ class TableView extends React.Component {
           if (window.shareState.shareId) return;
           addBehaviorLog('worksheetBatchDecode', worksheetId, { controlId: control.controlId });
           this.setState({ disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true } });
+        }}
+        scrollToLeftStart={() => {
+          if (_.isFunction(_.get(this.table, 'current.table.refs.setScrollX'))) {
+            this.table.current.table.refs.setScrollX(0);
+          }
+          if (_.isFunction(_.get(this.table, 'current.table.refs.setScroll'))) {
+            this.table.current.table.refs.setScroll(0);
+          }
         }}
         {...rest}
       />
@@ -1365,7 +1407,7 @@ class TableView extends React.Component {
   };
 
   renderOperates = ({ className, style, control, row, rowIndex, onCellClick }) => {
-    const { view, addRecord, setHighLight, hideRows, controls, worksheetInfo = {} } = this.props;
+    const { view, addRecord, setHighLight, hideRows, controls, worksheetInfo = {}, sheetViewData = {} } = this.props;
     const recordId = row.rowid;
     const { buttonsCheckStatus } = this.state;
     const status = buttonsCheckStatus ? Object.values(buttonsCheckStatus)[0] || {} : {};
@@ -1379,13 +1421,14 @@ class TableView extends React.Component {
             e.target.closest('.viewCon')
           ) {
             onCellClick(control, row, rowIndex);
-          } else {
+          } else if (!e.target.closest('.recordOperateDialog')) {
             e.stopPropagation();
           }
         }}
       >
         <OperateButtons
           status={status}
+          refreshFlag={sheetViewData.refreshFlag}
           row={row}
           rowHeight={ROW_HEIGHT[view.rowHeight] || 34}
           recordId={recordId}
@@ -1597,6 +1640,7 @@ class TableView extends React.Component {
 
   render() {
     const {
+      type,
       isCharge,
       fullShowTable,
       minRowCount,
@@ -1617,6 +1661,7 @@ class TableView extends React.Component {
       controls,
       printCharge,
       operateButtonLoading,
+      updateDefaultScrollLeft,
     } = this.props;
     // function
     const {
@@ -1644,7 +1689,7 @@ class TableView extends React.Component {
       style: operatesButtonsStyle.style,
       visibleNum: operatesButtonsStyle.visibleNum,
       showIcon: operatesButtonsStyle.showIcon,
-      rows,
+      rows: rows.filter(r => r.rowid !== 'groupTitle' && r.rowid !== 'loadGroupMore'),
     });
     const { sheetSelectedRows = [], sheetColumnWidths, columnStyles, defaultScrollLeft } = sheetViewConfig;
     const { worksheetId, projectId, allowAdd, rules = [], isWorksheetQuery } = worksheetInfo;
@@ -1759,6 +1804,7 @@ class TableView extends React.Component {
         {!loading && !(showOperatesInRow && operateButtonLoading) && (
           <WorksheetTable
             isDraft={isDraft}
+            inView={true}
             showControlStyle={this.showControlStyle}
             isTreeTableView={isTreeTableView}
             treeTableViewData={treeTableViewData}
@@ -1803,11 +1849,17 @@ class TableView extends React.Component {
                 filters.keyWords ||
                 get(filters, 'filterControls.length') ||
                 get(filters, 'filtersGroup.length') ||
-                !_.isEmpty(quickFilter)
+                !_.isEmpty(quickFilter) ||
+                !_.isEmpty(view?.filters)
               )
             }
             showNewRecord={openNewRecord}
             defaultScrollLeft={defaultScrollLeft}
+            onScroll={() => {
+              if (defaultScrollLeft) {
+                updateDefaultScrollLeft(0);
+              }
+            }}
             sheetSwitchPermit={this.sheetSwitchPermit}
             noFillRows
             selectedIds={sheetSelectedRows.map(r => r.rowid)}
@@ -1846,6 +1898,17 @@ class TableView extends React.Component {
               !this.chartId &&
               showSummary &&
               !(get(window, 'shareState.isPublicView') || get(window, 'shareState.isPublicPage'))
+            }
+            showGenDataFromMingo={
+              this.allowShowGenDataFromMingo &&
+              !get(md, 'global.Account.isPortal') &&
+              allowAdd &&
+              !this.chartId &&
+              !isDraft &&
+              type !== 'single' &&
+              (this.isManageView ||
+                (isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) && allowAdd)) &&
+              !window.isPublicApp
             }
             showVerticalLine={showVerticalLine}
             showAsZebra={showAsZebra && !isGroupTableView}

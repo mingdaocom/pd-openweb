@@ -307,6 +307,13 @@ export function hierarchyViewState(state = [], action) {
     // 添加子记录
     case 'ADD_HIERARCHY_CHILDREN_RECORD_STATE':
       return addChildrenRecordState({ state, ...data });
+    // 分页未展开记录时，直接更新数量
+    case 'ADD_RECORD_CHILDREN_WITH_ONLY_PAGINATION':
+      return update(state, {
+        [data.index]: {
+          children: { $push: [data.rowId] },
+        },
+      });
     // 添加顶级记录
     case 'ADD_TOP_LEVEL_STATE':
       return addTopLevelRecordState({ state, data });

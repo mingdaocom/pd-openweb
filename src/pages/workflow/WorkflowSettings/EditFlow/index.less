@@ -92,8 +92,8 @@
   .BGGreen {
     background: #01ca83;
   }
-  .BGViolet {
-    background: #7e57c2;
+  .BGDarkRed {
+    background: #a00416;
   }
   .BGBlueAsh {
     background: #4c7d9e;
@@ -110,6 +110,9 @@
   .BGRed {
     background: #f15b75;
   }
+  .BGDarkViolet {
+    background: #6e09f9;
+  }
   .workflowItem {
     width: 261px;
     background: #fff;
@@ -120,9 +123,19 @@
     flex-direction: column;
     cursor: pointer;
     &:hover {
+      box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.16);
       .workflowNodeDel,
       .workflowBranchCopy {
         display: inline-block;
+      }
+      .testResultBox {
+        .icon-ok,
+        .icon-error {
+          display: none;
+        }
+        .icon-wysiwyg {
+          display: block;
+        }
       }
     }
     &.active {
@@ -643,6 +656,9 @@
         align-items: center;
         display: flex;
         justify-content: center;
+        &.BGDarkViolet {
+          background: linear-gradient(135deg, #cb67fd 0%, #491cfd 100%);
+        }
         i {
           font-size: 22px;
           color: #fff;

@@ -4,7 +4,8 @@ import ClipboardButton from 'react-clipboard.js';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Icon, LoadDiv, Tooltip, UserName } from 'ming-ui';
+import { Button, Icon, LoadDiv, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectAjax from 'src/api/project';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
@@ -215,21 +216,21 @@ function ExplanList(props) {
 
             <span className="Font15 mRight10">
               <Tooltip
-                autoCloseDelay={0}
-                text={
+                title={
                   <div>
                     <div className="Gray_bd">{_l('资源ID')}</div>
                     <div className="mTop9">
                       {item.resourceId}
-                      <ClipboardButton
-                        className="Hand tip-top"
-                        component="span"
-                        data-clipboard-text={item.resourceId}
-                        onSuccess={() => alert(_l('复制成功'))}
-                        data-tip={_l('复制资源ID')}
-                      >
-                        <span className="icon-content-copy mLeft8 Gray_bd Hover_49 Hand"></span>
-                      </ClipboardButton>
+                      <Tooltip title={_l('复制资源ID')} placement="top">
+                        <ClipboardButton
+                          className="Hand"
+                          component="span"
+                          data-clipboard-text={item.resourceId}
+                          onSuccess={() => alert(_l('复制成功'))}
+                        >
+                          <span className="icon-content-copy mLeft8 Gray_bd Hover_49 Hand"></span>
+                        </ClipboardButton>
+                      </Tooltip>
                     </div>
                   </div>
                 }

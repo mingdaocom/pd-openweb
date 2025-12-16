@@ -1,0 +1,1347 @@
+.customFieldsContainer {
+  background: var(--color-background-primary);
+  margin: 0 -12px;
+  color: var(--color-text-primary);
+  line-height: normal;
+
+  &:after {
+    content: '';
+    clear: both;
+    display: block;
+  }
+
+  .customFormItem {
+    float: left;
+    width: 100%;
+    position: relative;
+    flex-direction: column;
+    padding: 6px 12px;
+    box-sizing: border-box;
+
+    .formItemHoverShow {
+      display: none;
+    }
+
+    &.isFilledByAi .customFormItemLabel .controlLabelName {
+      color: var(--color-mingo-dark);
+    }
+
+    &.isFilledByAi {
+      .customFormControlBox {
+        animation: mingoAnimation 0.8s;
+        background-color: #6e09f90f;
+      }
+    }
+
+    &.customFormItemRow {
+      flex-direction: row;
+      .customFormItemLabel {
+        width: auto;
+        align-items: flex-start;
+      }
+      &::after {
+        display: none;
+      }
+    }
+
+    &:after {
+      content: '';
+      display: block;
+      width: 100%;
+      clear: both;
+    }
+
+    &:hover {
+      .formItemHoverShow {
+        display: inline-block;
+      }
+    }
+  }
+
+  .customFormLine {
+    height: 1px;
+    background: var(--color-background-tertiary);
+    clear: both;
+    margin: 0 12px;
+  }
+
+  .customFormItemLabel {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    position: relative;
+    font-weight: bold;
+    width: 100%;
+    line-height: 24px;
+    min-height: 24px;
+    padding-top: 0px;
+    padding-bottom: 4px;
+    transform: translate3d(0, 0, 0);
+
+    .requiredBtnBox {
+      position: absolute;
+      left: -13px;
+      .requiredBtn {
+        color: var(--color-error);
+      }
+    }
+
+    .hideTitleLabel {
+      display: none;
+    }
+
+    .customFormItemLoading {
+      display: block;
+      animation: rotate 2s linear infinite;
+    }
+  }
+
+  .descBoxInfo {
+    float: left;
+    position: relative;
+    z-index: 1;
+  }
+
+  .customFormItemControlCreate.customFormItemControl:not(.customFormItemTabFocus) {
+    .customFormControlBox:not(.customFormMarkdown),
+    .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+      border: 1px solid var(--color-border-primary);
+      &:not(.controlDisabled):hover {
+        border-color: var(--color-text-placeholder);
+        background-color: transparent;
+      }
+      &.active,
+      &:focus {
+        border-color: var(--color-primary) !important;
+        background: var(--color-background-primary) !important;
+        box-shadow: none !important;
+      }
+    }
+
+    .textMarkdown {
+      border: 1px solid var(--color-border-primary) !important;
+      background-color: transparent !important;
+      .vditor-reset {
+        border: none !important;
+        background-color: transparent !important;
+      }
+    }
+
+    .customFormControlMobileHover {
+      &:hover .customFormControlBox {
+        border-color: var(--color-text-placeholder);
+        background-color: transparent;
+      }
+      input.customFormControlBox {
+        border: 1px solid var(--color-border-primary);
+        background: transparent;
+        &.customFormPhoneBox {
+          border: none;
+          background: transparent;
+        }
+        &:not(.controlDisabled):hover {
+          border-color: var(--color-text-placeholder);
+          background-color: transparent;
+        }
+      }
+    }
+
+    .customCascader,
+    .customAntSelect {
+      &.ant-select-open {
+        .ant-select-selector {
+          border-color: var(--color-primary) !important;
+          background-color: var(--color-background-primary) !important;
+        }
+      }
+
+      &:not(.ant-select-open):not(.ant-select-disabled) {
+        .ant-select-selector {
+          border: 1px solid var(--color-border-primary) !important;
+          background-color: transparent !important;
+        }
+        .ant-select-selector {
+          &:hover {
+            border-color: var(--color-text-placeholder) !important;
+            background-color: transparent !important;
+          }
+        }
+      }
+    }
+  }
+
+  .customFormItem:not(.isFilledByAi) {
+    .customFormItemControlCreate.customFormItemControl:not(.customFormItemTabFocus) {
+      .customFormControlBox:not(.customFormMarkdown),
+      .RelateRecordDropdown .RelateRecordDropdown-selected:not(.readonly) {
+        background-color: transparent;
+      }
+    }
+  }
+
+  .customFormItemControl {
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    &:hover {
+      .RefreshBtn {
+        display: inline-block;
+      }
+    }
+
+    .optionDisabled.ant-select-disabled {
+      cursor: text;
+      .ant-select-selector {
+        pointer-events: none;
+        .ant-select-selection-item {
+          cursor: text !important;
+          user-select: all !important;
+        }
+      }
+    }
+    .scaleContent .scaleText {
+      cursor: text !important;
+      user-select: all !important;
+    }
+
+    .RefreshBtn {
+      position: absolute;
+      right: 0;
+      top: 12px;
+      display: none;
+      i {
+        display: block;
+        &.isLoading {
+          animation: rotate 2s linear infinite;
+          color: var(--color-primary);
+        }
+      }
+    }
+
+    .numberControlBox {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 36px;
+      &.disabled {
+        .iconWrap {
+          cursor: not-allowed;
+          color: var(--color-text-disabled) !important;
+        }
+      }
+      .iconWrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-left: 1px solid var(--color-border-primary);
+        border-top: 1px solid var(--color-border-primary);
+        flex: auto;
+        background: var(--color-background-secondary);
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.2s linear;
+        &:hover {
+          i {
+            color: var(--color-primary);
+          }
+        }
+        &:first-child {
+          border-top: none;
+        }
+        i {
+          font-size: 13px;
+          color: var(--color-text-secondary);
+        }
+      }
+    }
+
+    .maskIcon {
+      position: absolute;
+      right: 12px;
+      font-size: 16px;
+      top: 9px;
+    }
+
+    .customFormControlMobileHover {
+      &:hover {
+        .customFormControlBox {
+          border-color: var(--color-background-tertiary);
+          background: var(--color-background-tertiary);
+        }
+      }
+    }
+
+    .maskHoverTheme {
+      cursor: pointer;
+      i {
+        font-size: 16px;
+        vertical-align: middle;
+      }
+      &:hover {
+        color: var(--color-primary) !important;
+        i {
+          color: var(--color-text-tertiary) !important;
+        }
+      }
+    }
+
+    .descBoxInfo {
+      position: absolute;
+      left: 65px;
+      top: 8px;
+    }
+
+    .descBox {
+      .descTxt {
+        position: relative;
+        max-height: 48px;
+        height: auto;
+        overflow-y: hidden;
+        display: block;
+        line-height: 16px !important;
+        width: 100%;
+        overflow-x: hidden;
+        white-space: pre-wrap;
+        word-break: break-all;
+
+        span {
+          display: block;
+          height: auto;
+        }
+
+        .descText::after {
+          content: '更多';
+          color: var(--color-background-primary);
+          padding-left: 6px;
+          word-wrap: break-word;
+          word-break: break-all;
+        }
+
+        .moreDesc {
+          position: absolute;
+          right: 0;
+          bottom: -1px;
+          background: var(--color-background-primary);
+          color: var(--color-primary);
+          border: 1px solid rgba(0, 0, 0, 0);
+          padding: 0 3px;
+          line-height: 16px;
+        }
+
+        .moreDesc:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .iti--allow-dropdown {
+      width: 100%;
+    }
+
+    .iti__country-list {
+      max-height: 300px;
+    }
+
+    .customFormNull {
+      width: 22px;
+      height: 6px;
+      background: var(--color-border-secondary);
+      margin: 15px 0;
+      border-radius: 3px;
+    }
+
+    .customFormControlVerify {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      input {
+        min-width: 110px;
+        max-width: 180px;
+        margin-right: 8px;
+        &.verifyCodeStyle {
+          max-width: 100%;
+          margin-right: 0;
+          margin-bottom: 8px;
+        }
+      }
+      .Button {
+        width: 110px;
+        padding: 0;
+        font-size: 13px;
+      }
+    }
+
+    .customFormControlBox,
+    .customFormTextarea {
+      &::-webkit-input-placeholder {
+        color: var(--color-text-disabled);
+      }
+
+      &:-moz-placeholder {
+        color: var(--color-text-disabled);
+      }
+
+      &::-moz-placeholder {
+        color: var(--color-text-disabled);
+      }
+
+      &:-ms-input-placeholder {
+        color: var(--color-text-disabled);
+      }
+    }
+
+    .customLocationDisabled {
+      box-sizing: border-box;
+      height: 36px;
+      border: 1px solid var(--color-border-primary);
+      font-size: 13px;
+      background: var(--color-background-tertiary);
+      border-radius: 4px;
+      padding: 0 12px;
+      width: 100%;
+      outline: none;
+      -webkit-appearance: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: not-allowed;
+      color: var(--color-text-disabled);
+    }
+
+    .customFormControlUser {
+      flex-wrap: wrap;
+      min-width: 0;
+      align-items: center;
+      height: auto !important;
+      background: var(--color-background-primary) !important;
+      border-color: var(--color-background-primary) !important;
+      padding: 0 !important;
+    }
+
+    .customFormControlBox {
+      box-sizing: border-box;
+      height: 36px;
+      border: 1px solid var(--color-background-secondary);
+      font-size: 13px;
+      background: var(--color-background-secondary);
+      border-radius: 4px;
+      padding: 0 12px;
+      width: 100%;
+      outline: none;
+      -webkit-appearance: none;
+      transform: rotateZ(360deg);
+
+      &.signature {
+        transform: unset !important;
+      }
+
+      &:not(.controlDisabled):hover {
+        border-color: var(--color-background-tertiary);
+        background: var(--color-background-tertiary);
+        .maskIcon {
+          color: var(--color-text-tertiary) !important;
+        }
+      }
+
+      &:focus {
+        border-color: var(--color-primary) !important;
+        background: var(--color-background-primary) !important;
+        box-shadow: none !important;
+      }
+
+      &.readOnlyDisabled {
+        .Checkbox--disabled,
+        .Radio--disabled {
+          cursor: pointer !important;
+          &.checked {
+            .Radio-box {
+              border-color: #1e88e5 !important;
+              opacity: 0.7;
+            }
+            .Radio-box-round {
+              background-color: #1e88e5 !important;
+            }
+          }
+          .Checkbox-box,
+          .Radio-box {
+            display: inline-block !important;
+          }
+        }
+      }
+
+      &.controlDisabled {
+        background: transparent !important;
+        border-color: transparent !important;
+        padding-left: 0;
+        padding-right: 0;
+        .Dropdown--input {
+          padding-left: 0 !important;
+        }
+        .mdEditorContent {
+          max-height: inherit !important;
+        }
+        .Radio--disabled,
+        .Checkbox--disabled {
+          cursor: unset !important;
+        }
+      }
+
+      &.customFormFileBox:not(.controlDisabled) {
+        color: var(--color-text-secondary);
+        padding: 8px 10px 7px;
+      }
+
+      &.dateTimeIcon {
+        .dateClearIcon {
+          display: none;
+          cursor: pointer;
+          color: var(--color-text-disabled);
+          &:hover {
+            color: #777 !important;
+          }
+        }
+        &:hover,
+        &:focus {
+          .dateClearIcon {
+            display: inline-block;
+          }
+          .bellScheduleIcon {
+            display: none;
+          }
+        }
+      }
+
+      .worksheetRecordCard {
+        margin-bottom: 10px;
+
+        &:first-child {
+          margin-top: 10px;
+        }
+      }
+
+      &.mdEditor {
+        min-height: 90px;
+        height: inherit;
+
+        .mdEditorContent {
+          padding: 0 15px;
+          margin: 0 -13px;
+
+          img {
+            max-width: 100%;
+          }
+        }
+      }
+
+      &.customFormEditor {
+        background: var(--color-background-primary) !important;
+        border-color: var(--color-primary) !important;
+      }
+
+      &.formBoxNoBorder {
+        padding: 5px 0 0;
+        background: var(--color-background-primary) !important;
+        border-color: var(--color-background-primary) !important;
+        width: auto;
+      }
+
+      &.customDropdownBox {
+        padding: 0;
+        height: auto;
+        min-height: 36px;
+        .Dropdown--border {
+          height: auto !important;
+          border: none !important;
+          min-height: 34px;
+          padding-top: 0;
+          padding-bottom: 0;
+          .value {
+            white-space: normal !important;
+          }
+          .Dropdown--placeholder {
+            line-height: 34px;
+          }
+        }
+      }
+
+      &.customFormControlOCR {
+        padding: 0 16px;
+        display: inline-flex !important;
+        align-items: center;
+        cursor: pointer;
+        border-color: var(--color-border-primary) !important;
+        background: var(--color-background-primary);
+        justify-content: center;
+        max-width: 320px;
+        &:hover {
+          background: var(--color-background-tertiary) !important;
+        }
+        .customOCRLoading {
+          display: block;
+          animation: rotate 2s linear infinite;
+          color: var(--color-primary);
+        }
+      }
+      &.customFormSwitchColumn {
+        height: auto;
+        .customFormCheck {
+          flex-wrap: wrap;
+          label.Radio {
+            max-width: 100%;
+            margin-top: 6px;
+            margin-bottom: 6px;
+          }
+        }
+      }
+      &.customFormControlSwitch {
+        height: auto !important;
+        .Checkbox {
+          margin-top: 8px;
+        }
+      }
+      .mobileFormSwitchDisabled {
+        opacity: 0.4;
+        &.ming.Switch--off {
+          background-color: var(--color-text-placeholder) !important;
+        }
+        &.ming.Switch--on {
+          background: #01ca83 !important;
+        }
+      }
+      &.customFormControlSwitch,
+      &.customFormControlScore {
+        background: none !important;
+        border: none !important;
+        padding-left: 0 !important;
+      }
+    }
+
+    &.richTextDisabledControl {
+      .ck .ck-content {
+        min-height: 36px !important;
+      }
+    }
+
+    .textAreaDisabledControl {
+      min-height: 36px !important;
+    }
+
+    .customFormTextareaBox {
+      padding: 8px 12px 6px;
+      height: auto;
+      white-space: pre-wrap;
+      min-height: 36px;
+    }
+
+    .customFormTextarea {
+      box-sizing: border-box;
+      padding: 6px 12px;
+      vertical-align: top;
+      border-color: var(--color-primary);
+      background: var(--color-background-primary);
+      font-size: 13px;
+    }
+
+    .smallInput {
+      width: 1px;
+      height: 18px;
+      vertical-align: top;
+      border: none;
+      display: inline-block;
+      background: transparent;
+      padding: 0;
+      margin-left: -1px;
+    }
+
+    .customFormButton {
+      text-align: left;
+      outline: none;
+      align-items: center;
+      cursor: pointer;
+
+      &:focus {
+        border-color: var(--color-background-tertiary) !important;
+        background: var(--color-background-tertiary) !important;
+      }
+
+      &:not(.controlDisabled):hover {
+        > .ming.Icon:not(.customFormButtoDel) {
+          color: var(--color-primary) !important;
+        }
+        .customFormButtoDel {
+          display: block;
+          &:hover {
+            color: rgba(0, 0, 0, 0.45) !important;
+          }
+          & ~ i {
+            display: none;
+          }
+        }
+      }
+
+      .customFormButtoDel {
+        display: none;
+      }
+    }
+
+    .customFormCheck {
+      width: 100%;
+      display: flex;
+      flex-wrap: nowrap;
+      label.Radio {
+        display: inline-block;
+        max-width: 50%;
+        margin-right: 0;
+        padding-right: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      &.Checkbox {
+        display: flex;
+        white-space: normal !important;
+      }
+      .Checkbox-box {
+        flex-shrink: 0;
+      }
+    }
+
+    .customFormReadonly {
+      border-color: var(--color-background-primary) !important;
+      background: var(--color-background-primary) !important;
+      padding-left: 0 !important;
+      line-height: 20px;
+      &.spacing {
+        letter-spacing: 2px;
+      }
+    }
+
+    .Score-wrapper {
+      .StarScore-item {
+        i {
+          font-size: 20px;
+        }
+      }
+    }
+
+    .index {
+      z-index: 1;
+    }
+
+    .customFormRelationBtn {
+      background: transparent;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      outline: none;
+      width: max-content;
+      padding: 0 16px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 13px;
+      &:hover {
+        background-color: var(--color-background-tertiary);
+      }
+    }
+
+    > .ming.Dropdown {
+      &.controlDisabled {
+        .Dropdown--border {
+          &:not(:hover):not(.active),
+          &:hover {
+            border-color: var(--color-background-primary) !important;
+          }
+        }
+
+        .icon-arrow-down-border {
+          display: none;
+        }
+      }
+
+      .Dropdown--input {
+        > .value {
+          max-width: 100%;
+        }
+      }
+
+      .Dropdown--border {
+        &:not(:hover):not(.active) {
+          border-color: var(--color-background-secondary) !important;
+        }
+
+        &:hover,
+        &.active {
+          border-color: var(--color-background-tertiary) !important;
+        }
+      }
+
+      .List {
+        width: 100%;
+
+        .MenuItem {
+          height: 36px;
+          line-height: 36px;
+
+          .Item-content:not(.disabled):hover {
+            background: var(--color-background-tertiary) !important;
+            color: var(--color-text-primary) !important;
+          }
+        }
+      }
+    }
+
+    .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupRow,
+    .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupColumn {
+      &.ming.CheckboxGroup {
+        flex-direction: column;
+        .Checkbox {
+          width: 100% !important;
+          margin-right: 0 !important;
+        }
+      }
+
+      .RadioGroupCon {
+        flex-direction: column;
+        .Radio {
+          width: 100% !important;
+          margin-right: 0 !important;
+        }
+      }
+
+      .ellipsis {
+        max-width: 100% !important;
+        white-space: normal;
+        height: auto !important;
+        line-height: 20px !important;
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+      .nowrap {
+        white-space: nowrap;
+      }
+    }
+
+    .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupRow {
+      &.ming.CheckboxGroup {
+        flex-direction: row !important;
+        .Checkbox {
+          margin-right: 20px !important;
+        }
+      }
+      .RadioGroupCon {
+        flex-direction: row !important;
+        .Radio {
+          margin-right: 20px !important;
+        }
+      }
+    }
+
+    .ming.RadioGroup2 {
+      .RadioGroupCon {
+        display: flex;
+        flex-wrap: wrap;
+
+        .Radio {
+          display: flex;
+          min-width: 0;
+          margin-bottom: 10px;
+
+          &--disabled {
+            color: var(--color-text-primary);
+
+            .Radio-box {
+              display: none;
+            }
+          }
+
+          &-box {
+            margin-right: 8px;
+            vertical-align: top;
+            margin-top: 3px;
+          }
+
+          &-text {
+            flex: 1;
+            min-width: 0;
+
+            .ellipsis {
+              display: inline-block;
+              height: 24px;
+              line-height: 24px;
+              max-width: 100%;
+            }
+          }
+        }
+      }
+      .horizonArrangementRadio {
+        flex-direction: row !important;
+        .Radio {
+          margin-right: 20px !important;
+        }
+      }
+    }
+
+    .ming.CheckboxGroup {
+      display: flex;
+      flex-wrap: wrap;
+
+      .flexWidth > span:nth-child(2) {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .Checkbox {
+        display: flex;
+        min-width: 0;
+        margin-bottom: 10px;
+        margin-right: 20px;
+
+        &--disabled {
+          color: var(--color-text-primary);
+
+          .Checkbox-box {
+            display: none;
+          }
+        }
+
+        &-box {
+          margin-right: 8px;
+          vertical-align: top;
+          margin-top: 3px;
+          min-width: 18px;
+        }
+
+        .ellipsis {
+          display: inline-block;
+          height: 24px;
+          line-height: 24px;
+        }
+      }
+    }
+
+    .addBtn {
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 50%;
+      display: inline-flex;
+      vertical-align: top;
+      margin: 4px 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dropdownTitle {
+      height: 24px;
+      line-height: 24px;
+      border-radius: 12px;
+      padding: 0 12px;
+      display: inline-block;
+      vertical-align: top;
+      max-width: 95%;
+      box-sizing: border-box;
+    }
+
+    .customAntPicker {
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--color-background-secondary);
+      font-size: 13px;
+      background: var(--color-background-secondary);
+      border-radius: 4px;
+      transition: none;
+      &.ant-picker-focused {
+        box-shadow: none;
+      }
+      &.ant-picker-focused:not(.controlDisabled) {
+        border-color: var(--color-primary) !important;
+        background: var(--color-background-primary) !important;
+        .ant-picker-clear {
+          opacity: 1;
+        }
+      }
+      .ant-picker-input {
+        padding: 0;
+        height: 34px !important;
+      }
+    }
+
+    .customCascaderDel {
+      top: 11px;
+      right: 11px;
+      color: var(--color-text-tertiary);
+      background: var(--color-background-primary);
+      cursor: pointer;
+      &:hover {
+        color: var(--color-text-secondary);
+      }
+    }
+
+    .customTreeSelect {
+      .ant-select-selection-placeholder,
+      .ant-select-selection-item {
+        line-height: 34px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+
+    .customFormControlTel {
+      .iti__selected-country {
+        display: none;
+      }
+      .customFormControlBox {
+        padding-left: 0 !important;
+        &:not(.controlDisabled) {
+          padding-left: 12px !important;
+        }
+      }
+    }
+  }
+
+  .customFormItemControl.customFormItemTabFocus {
+    .customFormLocation,
+    .customAntPicker,
+    .CityPicker-input-container .customFormButton,
+    .customCascader .ant-select-selector,
+    .customAntSelect .ant-select-selector {
+      border-color: var(--color-primary) !important;
+      background-color: var(--color-background-primary) !important;
+    }
+
+    .customAntPicker .icon-access_time,
+    .customFormLocation .icon-location {
+      color: var(--color-primary) !important;
+    }
+
+    .customFormRelationBtn,
+    .location {
+      outline: 3px solid var(--color-primary-focus-outer);
+      outline-offset: 1px;
+      transition:
+        outline-offset 0s,
+        outline 0s;
+    }
+
+    .customFormControlBox,
+    .signature {
+      .customFormCheck {
+        overflow: unset;
+        .Checkbox-text {
+          overflow: hidden;
+        }
+      }
+
+      .customFormCheck > label:first-child {
+        overflow: unset;
+        .Radio-text {
+          overflow: hidden;
+        }
+      }
+
+      .signatureDisplay,
+      &.customFormControlSwitch .Switch,
+      .addSignature,
+      .relateRecordBtn,
+      &.customFormAttachmentBox .triggerTraget,
+      .customFormCheck .Checkbox-box,
+      .customFormCheck > label:first-child .Radio-box,
+      &.customFormControlUser .addBtn {
+        outline: 3px solid var(--color-primary-focus-outer);
+        outline-offset: 1px;
+        transition:
+          outline-offset 0s,
+          outline 0s;
+      }
+    }
+  }
+}
+
+.customFormErrorMessage {
+  position: absolute;
+  bottom: 100%;
+  transform: translateY(-5px);
+  z-index: 3;
+  left: 0;
+  color: var(--color-background-primary);
+  padding: 3px 8px;
+  white-space: nowrap;
+  background: var(--color-error);
+  font-size: 12px;
+  margin: 0 12px;
+  right: 0;
+  max-width: fit-content;
+
+  &.isChildTable {
+    transform: translateY(15px);
+  }
+
+  span {
+    white-space: normal;
+    .delIcon {
+      cursor: pointer;
+      color: rgba(0, 0, 0, 0.24);
+      &:hover {
+        color: rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+
+  .customFormErrorArrow {
+    position: absolute;
+    transform: translateY(-5px);
+    z-index: 1;
+    left: 0;
+    background: transparent;
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent var(--color-error);
+    bottom: -11px;
+  }
+}
+
+.customRadioItem {
+  border-radius: 12px;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 24px;
+  font-size: 13px;
+  align-items: center;
+  vertical-align: middle !important;
+  max-width: 100%;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+input.customFormControlBox:disabled {
+  color: var(--color-text-primary);
+  opacity: 1;
+  -webkit-text-fill-color: var(--color-text-primary);
+}
+.customCascader {
+  .ant-select-selection-placeholder {
+    line-height: 34px !important;
+  }
+}
+
+.customCascader,
+.customAntSelect {
+  &.ant-select-open {
+    .ant-select-selector {
+      border-color: var(--color-primary) !important;
+      background-color: var(--color-background-primary) !important;
+    }
+    .ant-select-arrow {
+      display: none;
+    }
+    .ant-select-selection-item {
+      opacity: 0.4;
+      color: var(--color-text-primary);
+    }
+  }
+
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder {
+    line-height: 34px !important;
+    font-size: 13px !important;
+  }
+
+  &.ant-select-disabled {
+    .ant-select-selector {
+      color: var(--color-text-primary) !important;
+      border-color: var(--color-background-primary) !important;
+      background: var(--color-background-primary) !important;
+      padding: 0 !important;
+    }
+    .ant-select-selection-item {
+      color: var(--color-text-primary);
+      padding: 0;
+    }
+    .ant-select-arrow {
+      display: none;
+    }
+  }
+
+  &:not(.ant-select-open):not(.ant-select-disabled) {
+    .ant-select-selector {
+      &:hover {
+        border-color: var(--color-background-tertiary) !important;
+        background-color: var(--color-background-tertiary) !important;
+      }
+    }
+  }
+
+  .ant-select-selector {
+    min-height: 36px;
+    padding: 0 12px !important;
+    height: auto !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    border-color: var(--color-background-secondary) !important;
+    background-color: var(--color-background-secondary) !important;
+  }
+
+  &.ant-select-multiple {
+    .ant-select-selector {
+      > span {
+        max-width: 95%;
+      }
+    }
+    .ant-select-selection-search {
+      left: 0 !important;
+      margin-left: -1px;
+    }
+    .ant-select-selection-search-input {
+      margin-left: 0 !important;
+    }
+    .customAntDropdownTitle,
+    .customAntDropdownTitleWithBG {
+      max-width: 100%;
+      display: inline-flex;
+      .icon-close {
+        opacity: 0.7;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .ant-select-selection-search {
+    left: 12px !important;
+  }
+
+  .ant-select-selection-search-input {
+    padding: 0;
+    height: 34px !important;
+  }
+
+  .ant-select-selection-item {
+    overflow: inherit;
+    max-width: 100%;
+    white-space: inherit;
+  }
+
+  .customAntSelectPlaceHolder {
+    display: inline-block;
+    height: 20px;
+    line-height: 20px;
+    box-sizing: initial;
+    padding-top: 8px;
+    font-size: 13px;
+  }
+
+  .anticon {
+    color: var(--color-text-tertiary);
+    background: transparent;
+    &:hover {
+      color: var(--color-text-secondary);
+    }
+  }
+  .ant-select-selection-placeholder {
+    color: var(--color-text-disabled);
+  }
+}
+
+.customAntDropdownTitle,
+.customAntDropdownTitleWithBG {
+  height: 24px;
+  line-height: 24px;
+  border-radius: 12px;
+  display: inline-block;
+  vertical-align: top;
+  max-width: 95%;
+}
+
+.customAntDropdownTitleWithBG {
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.customFormControlTags {
+  height: 28px;
+  border-radius: 26px;
+  background: var(--color-background-secondary) !important;
+  display: inline-flex;
+  align-items: center;
+  margin: 3px 8px 3px 0;
+  padding-right: 10px;
+  vertical-align: top;
+  position: relative;
+  max-width: 100%;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  .departWrap {
+    width: 26px;
+    height: 26px;
+    color: var(--color-background-primary);
+    border-radius: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  &.clickActive {
+    border: 1px solid var(--color-primary);
+  }
+  &:hover,
+  &.selected {
+    .tagDel {
+      opacity: 1;
+    }
+  }
+  &.isDelete {
+    .departWrap {
+      background-color: var(--color-text-tertiary) !important;
+    }
+    & > span {
+      color: var(--color-text-secondary);
+    }
+  }
+  .tagDel {
+    cursor: pointer;
+    color: var(--color-text-tertiary);
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    opacity: 0;
+    transition: all 0.2s ease-out;
+    background-color: var(--color-background-primary);
+    border-radius: 50%;
+    &:hover {
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+.quickConfigPopover {
+  .ant-popover-inner-content {
+    padding: 6px 0;
+    width: 180px;
+    max-height: 300px;
+    overflow-x: hidden;
+  }
+  &.ant-popover-placement-bottomLeft {
+    padding-top: 0px !important;
+  }
+  &.ant-popover-placement-rightTop {
+    padding-left: 0px !important;
+  }
+  .ant-popover-arrow {
+    display: none !important;
+  }
+}
+
+@keyframes mingoAnimation {
+  0% {
+    background-color: #6e09f929;
+  }
+  100% {
+    background-color: #6e09f90f;
+  }
+}

@@ -4,8 +4,6 @@ import PropTypes from 'prop-types';
 import RecordInfoContext from '../RecordInfoContext';
 import CustomButtonsAutoWidth from './CustomButtonsAutoWidth';
 
-// TODO 更新记录
-
 export default class Operates extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -87,6 +85,7 @@ export default class Operates extends Component {
     } = this.props;
     const { customBtns, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
+    if (iseditting) return <div className="flex" style={{ lineHeight: 1, overflowX: 'hidden' }}></div>;
     return (
       <React.Fragment>
         <div className="flex" style={{ lineHeight: 1, overflowX: 'hidden' }} ref={this.customButtonsCon}>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, PriceTip } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import SmsSignSet from 'src/components/SmsSignSet';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
@@ -90,18 +90,12 @@ export default function TextMessage(props) {
   return (
     <Wrap>
       <div className="content">
-        {md.global.SysSettings.enableSmsCustomContent && (
+        {(!md.global?.Config?.IsLocal || md.global?.SysSettings?.enableSmsCustomContent) && (
           <React.Fragment>
             <h6 className="Font16 Gray Bold mBottom0">
               {_l('短信通知')}
               {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-                <Tooltip
-                  autoCloseDelay={0}
-                  title={_l(
-                    '短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
-                    _.get(md, 'global.PriceConfig.SmsPrice'),
-                  )}
-                >
+                <Tooltip title={<PriceTip text={_l('短信费用自动从组织信用点中扣除')} />}>
                   <i className="icon-help mLeft5 Gray_9e"></i>
                 </Tooltip>
               )}
@@ -115,7 +109,6 @@ export default function TextMessage(props) {
             <h6 className="Font16 Gray Bold mBottom0 mTop24">
               {_l('短信签名')}
               <Tooltip
-                autoCloseDelay={0}
                 title={_l('此签名适用的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)')}
               >
                 <i className="icon-help mLeft5 Gray_9e"></i>
@@ -129,7 +122,7 @@ export default function TextMessage(props) {
                   setSign(value);
                   onChangePortalSet({ portalSetModel: { ...props.portalSet.portalSetModel, smsSignature: value } });
                 }}
-            suffix={_.get(portalSet, 'portalSetModel.customizeName')}
+                suffix={_.get(portalSet, 'portalSetModel.customizeName')}
               />
             </div>
 
@@ -143,14 +136,8 @@ export default function TextMessage(props) {
 
         <h6 className={cx('Font16 Gray Bold mBottom0', { mTop24: md.global.SysSettings.enableSmsCustomContent })}>
           {_l('邮件通知')}
-          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-            <Tooltip
-              autoCloseDelay={0}
-              title={_l(
-                '邮件收费标准：邮件%0/封，自动从企业账务中心扣费。',
-                _.get(md, 'global.PriceConfig.EmailPrice'),
-              )}
-            >
+          {md.global.Config.IsPlatformLocal && (
+            <Tooltip title={<PriceTip text={_l('邮件费用自动从组织信用点中扣除')} />}>
               <i className="icon-help mLeft5 Gray_9e"></i>
             </Tooltip>
           )}

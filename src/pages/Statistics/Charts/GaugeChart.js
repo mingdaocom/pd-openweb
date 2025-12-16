@@ -150,10 +150,10 @@ export default class extends Component {
       nextProps.themeColor !== this.props.themeColor
     ) {
       const GaugeChartConfig = this.getComponentConfig(nextProps);
-      this.GaugeChart.update(GaugeChartConfig);
+      this.GaugeChart && this.GaugeChart.update(GaugeChartConfig);
     }
     if (displaySetup.showChartType !== oldDisplaySetup.showChartType || nextProps.direction !== this.props.direction) {
-      this.GaugeChart.destroy();
+      this.GaugeChart && this.GaugeChart.destroy();
       setTimeout(() => {
         this.renderGaugeChart(nextProps);
       }, 0);

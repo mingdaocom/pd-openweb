@@ -6,7 +6,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem, Tooltip, UserHead } from 'ming-ui';
+import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import AppManagement from 'src/api/appManagement.js';
 import departmentController from 'src/api/department';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -294,14 +295,11 @@ function User(props) {
               </div>
             )}
             <div className={'memberInfo flex pLeft8 flexRow alignItemsCenter'}>
-              <Tooltip
-                text={<span>{fullDepartmentInfo[data.id] ? fullDepartmentInfo[data.id] : data.name}</span>}
-                popupPlacement="top"
-              >
+              <Tooltip title={fullDepartmentInfo[data.id] ? fullDepartmentInfo[data.id] : data.name}>
                 <span className={'memberName overflow_ellipsis Block TxtLeft breakAll'}>{data.name}</span>
               </Tooltip>
               {isHead && (
-                <Tooltip text={<span>{_l('角色负责人')} </span>} popupPlacement="top">
+                <Tooltip title={_l('角色负责人')}>
                   <i className="icon-people_5 Font14 mLeft7" style={{ color: '#FBBB44' }} />
                 </Tooltip>
               )}
@@ -562,8 +560,7 @@ function User(props) {
     },
   };
   const triggerProps = {
-    popupClassName: 'ming Tooltip-white Normal',
-    prefixCls: 'Tooltip',
+    popupClassName: 'Normal',
     action: ['click'],
     popup: renderPopup(),
     builtinPlacements,
@@ -633,13 +630,11 @@ function User(props) {
           <WrapBar>
             {isExternal && (
               <Tooltip
-                text={
+                title={
                   <span>
                     {_l('开启时，当用户被添加、移除、变更角色时会收到系统通知，关闭时，以上操作不通知用户。')}
                   </span>
                 }
-                autoCloseDelay={0}
-                popupPlacement={'top'}
               >
                 <span className="InlineBlock mRight20 LineHeight36 TxtTop">
                   <Checkbox

@@ -150,7 +150,7 @@ export default option => {
       if (option.before_upload_check) {
         beforeUploadCheck = option.before_upload_check(up, validFiles);
         if (beforeUploadCheck === false) {
-          beforeUploadCheck = Promise.reject();
+          beforeUploadCheck = Promise.reject(false);
         }
       }
 
@@ -173,7 +173,7 @@ export default option => {
           if (initFunc.FilesAdded) {
             initFunc.FilesAdded(up, []);
           }
-          option.remove_files_callback && option.remove_files_callback(up);
+          option.remove_files_callback && option.remove_files_callback(up, exceedFiles);
           alert(_l('%0个文件无法上传：单个文件大小超过%1MB', exceedFiles.length, res[0].size), 2);
         }
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { updateCursor, updateSelectedAccountIds, updateType, updateTypeCursor } from '../../actions/current';
-import { getFullTree, loadAllUsers, loadDepartments, loadUsers } from '../../actions/entities';
+import { expandedKeysUpdate, getFullTree, loadAllUsers, loadDepartments } from '../../actions/entities';
 import { clearSearchKeywords, fetchSearchResult, getCustomList } from '../../actions/search';
 import Result from './searchResult';
 
@@ -36,7 +36,7 @@ class SearchBox extends Component {
   }, 600);
 
   handleClear = () => {
-    const { dispatch } = this.props;
+    const { dispatch, projectId } = this.props;
     this.setState(
       {
         showResult: false,
@@ -44,6 +44,8 @@ class SearchBox extends Component {
       },
       () => {
         dispatch(clearSearchKeywords());
+        dispatch(loadAllUsers(projectId, 1));
+        dispatch(expandedKeysUpdate([]));
         const afterRequest = () => {
           dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: '' });
         };
@@ -114,19 +116,7 @@ class SearchBox extends Component {
               searchValue: name,
             },
             () => {
-              dispatch(
-                getFullTree({
-                  departmentId,
-                  collapseAll: true,
-                  afterRequest() {
-                    dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: name });
-                    dispatch(updateType(0));
-                    dispatch(updateTypeCursor(0));
-                    dispatch(updateCursor(departmentId)); //设置选中的部门
-                    dispatch(loadUsers(departmentId));
-                  },
-                }),
-              );
+              dispatch(getFullTree({ departmentId, parentId: '', searchValue: name }));
               dispatch(clearSearchKeywords());
             },
           );

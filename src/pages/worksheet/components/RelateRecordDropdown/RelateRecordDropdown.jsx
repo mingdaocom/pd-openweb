@@ -6,11 +6,12 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { ClickAway, SortableList } from 'ming-ui';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
-import { FROM } from 'src/components/newCustomFields/tools/config';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { FROM } from 'src/components/Form/core/config';
+import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
+import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
 import { getTranslateInfo } from 'src/utils/app';
 import { checkIsTextControl } from 'src/utils/control';
 import AutoWidthInput from './AutoWidthInput';
@@ -148,12 +149,15 @@ export default class RelateRecordDropdown extends React.Component {
   }
 
   get popupWidth() {
-    const { insheet, showCoverAndControls, showControls } = this.props;
-    const width = showCoverAndControls && showControls.length ? 480 : 313;
+    const { insheet } = this.props;
     if (!insheet && this.cell.current) {
-      return Math.max(this.cell.current.clientWidth, width);
+      return Math.max(this.cell.current.clientWidth, 480);
     } else {
-      return width;
+      if (this.cell.current && this.cell.current.clientWidth < 480) {
+        return Math.max(this.cell.current.clientWidth, 313);
+      } else {
+        return 480;
+      }
     }
   }
 
@@ -389,19 +393,21 @@ export default class RelateRecordDropdown extends React.Component {
     return (
       <React.Fragment>
         {!!selected.length && !keywords && (
-          <span
-            title={title}
-            className="normalSelectedItem placeholder ellipsis"
-            onClick={e => {
-              if (!allowOpenRecord || isMobileTable) {
-                return;
-              }
-              this.setState({ previewRecord: { recordId: selected[0].rowid } });
-              e.stopPropagation();
-            }}
-          >
-            {selected[0].rowid ? title : _l('关联当前%0', entityName)}
-          </span>
+          <ViewHoverRelateRecordCard record={selected[0]} {...this.props}>
+            <span
+              title={title}
+              className="normalSelectedItem placeholder ellipsis"
+              onClick={e => {
+                if (!allowOpenRecord || isMobileTable) {
+                  return;
+                }
+                this.setState({ previewRecord: { recordId: selected[0].rowid } });
+                e.stopPropagation();
+              }}
+            >
+              {selected[0].rowid ? title : _l('关联当前%0', entityName)}
+            </span>
+          </ViewHoverRelateRecordCard>
         )}
         {((_.isEmpty(staticRecords) && canSelect) || isQuickFilter) && active && (
           <AutoWidthInput
@@ -492,45 +498,49 @@ export default class RelateRecordDropdown extends React.Component {
               const record = options.item;
               const title = getTitleTextFromRelateControl(this.control, record);
               return active || insheet ? (
-                <div
-                  key={record.rowid}
-                  className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (!allowOpenRecord || active || /^temp/.test(record.rowid) || active) {
-                      return;
-                    }
-                    this.setState({ previewRecord: { recordId: record.rowid } });
-                  }}
-                >
-                  <span className="name InlineBlock ellipsis">
-                    {record.rowid ? title : _l('关联当前%0', this.entityName)}
-                  </span>
-                  {active && (this.allowRemove || record.isNewAdd) && (
-                    <i
-                      className="icon icon-close"
-                      onClick={e => {
-                        e.stopPropagation();
-                        this.handleDelete(record);
-                      }}
-                    ></i>
-                  )}
-                </div>
+                <ViewHoverRelateRecordCard record={record} {...this.props}>
+                  <div
+                    key={record.rowid}
+                    className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (!allowOpenRecord || active || /^temp/.test(record.rowid) || active) {
+                        return;
+                      }
+                      this.setState({ previewRecord: { recordId: record.rowid } });
+                    }}
+                  >
+                    <span className="name InlineBlock ellipsis">
+                      {record.rowid ? title : _l('关联当前%0', this.entityName)}
+                    </span>
+                    {active && (this.allowRemove || record.isNewAdd) && (
+                      <i
+                        className="icon icon-close"
+                        onClick={e => {
+                          e.stopPropagation();
+                          this.handleDelete(record);
+                        }}
+                      ></i>
+                    )}
+                  </div>
+                </ViewHoverRelateRecordCard>
               ) : (
-                <div
-                  key={record.rowid}
-                  className={cx('normalSelectedItem ellipsis multiple', { isEnd: index === length - 1 })}
-                  title={title}
-                  onClick={e => {
-                    if (!allowOpenRecord) {
-                      return;
-                    }
-                    this.setState({ previewRecord: { recordId: record.rowid } });
-                    e.stopPropagation();
-                  }}
-                >
-                  {title}
-                </div>
+                <ViewHoverRelateRecordCard record={record} {...this.props}>
+                  <div
+                    key={record.rowid}
+                    className={cx('normalSelectedItem ellipsis multiple', { isEnd: index === length - 1 })}
+                    title={title}
+                    onClick={e => {
+                      if (!allowOpenRecord) {
+                        return;
+                      }
+                      this.setState({ previewRecord: { recordId: record.rowid } });
+                      e.stopPropagation();
+                    }}
+                  >
+                    {title}
+                  </div>
+                </ViewHoverRelateRecordCard>
               );
             }}
           />

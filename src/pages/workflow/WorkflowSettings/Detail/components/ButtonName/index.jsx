@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const MessageBox = styled.div`
   height: 36px;
@@ -42,21 +43,25 @@ export default ({ buttons = [], data, updateSource }) => {
         </div>
 
         {!!buttonNames.length && (
-          <span data-tip={_l('清空')} className="mRight15">
-            <Icon type="trash" className="Gray_75 Font14 pointer" onClick={() => updateSource(generateData(true))} />
-          </span>
+          <Tooltip title={_l('清空')}>
+            <span className="mRight15">
+              <Icon type="trash" className="Gray_75 Font14 pointer" onClick={() => updateSource(generateData(true))} />
+            </span>
+          </Tooltip>
         )}
 
-        <span data-tip={_l('编辑')}>
-          <Icon
-            type="edit"
-            className="Gray_75 ThemeHoverColor3 Font14 pointer"
-            onClick={() => {
-              setCacheData(generateData());
-              setVisible(true);
-            }}
-          />
-        </span>
+        <Tooltip title={_l('编辑')}>
+          <span>
+            <Icon
+              type="edit"
+              className="Gray_75 ThemeHoverColor3 Font14 pointer"
+              onClick={() => {
+                setCacheData(generateData());
+                setVisible(true);
+              }}
+            />
+          </span>
+        </Tooltip>
       </MessageBox>
 
       {visible && (

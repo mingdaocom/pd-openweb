@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -14,7 +14,7 @@ const EmbedWrap = styled.div`
   ${props => (props.isMobileView ? `height: ${props.height}px;` : '')}
   .embedContainer {
     width: 100%;
-    border: 1px solid var(--gray-e0);
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     ${props => (props.viewType === VIEW_DISPLAY_TYPE.sheet && !isPublicLink() ? '' : `height: ${props.height}px;`)}
     ${props =>
@@ -66,32 +66,39 @@ const Embed = props => {
     triggerCustomEvent,
     addRefreshEvents,
     appId,
+    flag,
   } = props;
   const iframeRef = useRef(null);
   const embedWatch = useRef(null);
+  const viewControlsRef = useRef([]);
   const latestResultData = useRef('');
   const latestProps = useRef(props);
   const { appid, reportid, wsid } = enumDefault === 1 ? {} : safeParse(dataSource || '{}');
   const { height, rownum = '10' } = advancedSetting;
-  const [{ resultData, needUpdate, ChartComponents, viewType, controls }, setState] = useSetState({
+  const [{ resultData, needUpdate, ChartComponents, viewType }, setState] = useSetState({
     resultData: '',
     needUpdate: Math.random(),
     ChartComponents: null,
     viewType: '',
-    controls: [],
   });
 
-  const getControls = component => {
-    worksheetAjax.getWorksheetInfo({ worksheetId: wsid, getViews: true }).then(({ template = {}, views = [] }) => {
-      const curView = _.find(views, v => v.viewId === reportid);
-      setState({
-        ChartComponents: component,
-        viewType: String(_.get(curView, 'viewType')),
-        controls: _.get(template, 'controls') || [],
+  latestProps.current = props;
+  latestResultData.current = resultData;
+
+  const getControls = useCallback(
+    component => {
+      worksheetAjax.getWorksheetInfo({ worksheetId: wsid, getViews: true }).then(({ template = {}, views = [] }) => {
+        const curView = _.find(views, v => v.viewId === reportid);
+        setState({
+          ChartComponents: component,
+          viewType: String(_.get(curView, 'viewType')),
+        });
+        viewControlsRef.current = _.get(template, 'controls') || [];
+        setValue();
       });
-      setValue();
-    });
-  };
+    },
+    [dataSource],
+  );
 
   const handleReloadIFrame = () => {
     if (_.isFunction(_.get(iframeRef, 'current.contentDocument.location.reload'))) {
@@ -133,8 +140,14 @@ const Embed = props => {
       }
     } else {
       const filterResult = getFilter({
-        control: { ...props, relationControls: controls || [], recordId, ignoreFilterControl: enumDefault === 2 },
+        control: {
+          ...props,
+          relationControls: viewControlsRef.current || [],
+          recordId,
+          ignoreFilterControl: enumDefault === 2,
+        },
         formData,
+        ignoreEmptyRule: true,
       }) || [{}];
 
       if (!_.isEqual(_resultData, filterResult)) {
@@ -149,15 +162,23 @@ const Embed = props => {
     return () => {
       clearInterval(embedWatch.current);
     };
-  }, [controls]);
+  }, []);
 
   useEffect(() => {
-    latestResultData.current = resultData;
-  }, [resultData]);
-
-  useEffect(() => {
-    latestProps.current = props;
-  }, [props]);
+    initFunc(() => {
+      // 嵌入链接无法主动刷新，变更src刷新
+      if (enumDefault === 1 && iframeRef.current) {
+        const tmpUrl = _.get(iframeRef, 'current.src');
+        iframeRef.current.src = 'about:blank';
+        const _t = setTimeout(() => {
+          iframeRef.current.src = tmpUrl;
+          clearTimeout(_t);
+        }, 300);
+      } else {
+        setState({ needUpdate: Math.random() });
+      }
+    });
+  }, [flag, recordId]);
 
   const getContent = () => {
     const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;

@@ -71,9 +71,10 @@ export default function (props) {
           description={value}
           permissionType={100} //可编辑的权限
           isEditing={true}
-          cacheKey={'remarkDes'}
+          cacheKey={'richInputDes'}
           onSave={tempValue => {
-            handleChange(tempValue === null ? value : tempValue);
+            const description = tempValue.description;
+            handleChange(description === null ? value : description);
             setVisible(false);
           }}
           onCancel={() => {

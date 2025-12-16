@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Tabs } from 'antd-mobile';
+import { Popup, Tabs } from 'antd-mobile';
 import _ from 'lodash';
 import { Icon, LoadDiv } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
@@ -51,6 +51,7 @@ class Discuss extends Component {
       discussionInfo: {},
       pageType: undefined,
       temporaryDiscuss: {}, // 暂存填写内容
+      focusUsers: [],
     };
   }
   componentDidMount() {
@@ -198,8 +199,34 @@ class Discuss extends Component {
     const { getDiscussionsCount } = this.props;
     getDiscussionsCount();
   };
+
+  handleShowAttention = e => {
+    e.stopPropagation();
+    this.setState({ attentionVisible: true });
+  };
+
+  setFollow = () => {
+    const { focusUsers, focusLoading } = this.state;
+    const isAttention = focusUsers.findIndex(v => v.accountId === md.global.Account.accountId) > -1; //  是否关注讨论
+    if (focusLoading) return;
+    const { params } = this.props.match;
+    const { worksheetId, rowId, viewId } = params;
+    this.setState({ focusLoading: true });
+    worksheetAjax.setFollow({ worksheetId, rowId, viewId, checkView: true, setFollow: !isAttention }).then(res => {
+      this.setState({ focusLoading: false });
+      if (res) {
+        if (res.resultCode === 7) {
+          alert(_l('您没有权限关注此记录'), 3);
+        } else {
+          alert(!isAttention ? _l('关注成功') : _l('取消关注'));
+          this.setState({ focusUsers: res?.users || [], attentionVisible: false });
+        }
+      }
+    });
+  };
+
   render() {
-    const { isModal, onClose, originalData, discussionCount } = this.props;
+    const { isModal, onClose, originalData, discussionCount, projectId } = this.props;
     const { params } = this.props.match;
     const { appId, worksheetId, rowId } = params;
     const { replyVisible, discussionInfo, recordPartner = [] } = this.state;
@@ -210,7 +237,10 @@ class Discuss extends Component {
       exAccountDiscussEnum,
       loading,
       temporaryDiscuss,
+      attentionVisible,
+      focusUsers,
     } = this.state;
+    const isAttention = focusUsers.findIndex(v => v.accountId === md.global.Account.accountId) > -1; //  是否关注讨论
     const recordDiscussSwitch = isOpenPermit(permitList.recordDiscussSwitch, switchPermit, params.viewId);
     const recordLogSwitch = isOpenPermit(permitList.recordLogSwitch, switchPermit, params.viewId);
     // 外部用户且未开启讨论 不能内部讨论
@@ -261,6 +291,8 @@ class Discuss extends Component {
         {recordDiscussSwitch && pageType === 1 && (
           <div className="flex overflowHidden">
             <DiscussList
+              appId={appId}
+              projectId={projectId}
               worksheetId={worksheetId}
               rowId={rowId}
               entityType={entityType}
@@ -298,14 +330,15 @@ class Discuss extends Component {
           >
             {_.isEmpty(firstTemporaryDiscuss) ? (
               <Fragment>
-                <div className="text flex">{_l('参与讨论...')}</div>
-                {discussionCount ? (
-                  <Fragment>
-                    <i className="icon icon-chat Font24 Gray_9e mTop3" />
-                    <span className="Font15 Gray_75 mLeft5 mTop2">{discussionCount}</span>
-                  </Fragment>
-                ) : (
-                  ''
+                <i className="icon icon-chat Font24 Gray_9e mTop3" />
+                {discussionCount ? <span className="Font15 Gray_75 mLeft5 mTop2">{discussionCount}</span> : null}
+                <div className="flex"></div>
+                {!md.global.Account.isPortal && entityType !== 2 && rowId && (
+                  <div onClick={this.handleShowAttention}>
+                    <i
+                      className={`icon Font24 mTop3 ${isAttention ? 'icon-notification_turn_on ThemeColor3' : 'icon-Silent Gray_9e'}`}
+                    />
+                  </div>
                 )}
               </Fragment>
             ) : (
@@ -368,6 +401,36 @@ class Discuss extends Component {
               this.setState({ temporaryDiscuss });
             }}
           />
+        )}
+        {attentionVisible && (
+          <Popup
+            className="mobileModal topRadius"
+            visible={attentionVisible}
+            closeOnMaskClick
+            onClose={() => this.setState({ attentionVisible: false })}
+          >
+            <div className="header flexRow">
+              <span className="Font13">{_l('关注讨论')}</span>
+              <div className="closeIcon TxtCenter" onClick={() => this.setState({ attentionVisible: false })}>
+                <Icon icon="close" />
+              </div>
+            </div>
+            <div
+              className={`flexRow alignItemsCenter pLeft15 pRight15 mBottom20 ${isAttention ? 'ThemeColor3' : 'Gray_9e'}`}
+              onClick={this.setFollow}
+            >
+              <i className="icon icon-notification_turn_on Font24 mRight12" />
+              <div className="flex">
+                <div className={`Font15 bold ${isAttention ? 'ThemeColor3' : 'Gray'}`}>
+                  {!isAttention ? _l('关注') : _l('关注中...')}
+                </div>
+                <div className="Font12">
+                  {isAttention ? _l('通知所有讨论') : _l('关注后接收全部提醒，未关注仅@你或回复时通知')}
+                </div>
+              </div>
+              {isAttention ? <i className="icon icon-done Font24" /> : null}
+            </div>
+          </Popup>
         )}
       </div>
     );

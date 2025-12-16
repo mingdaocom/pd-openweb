@@ -7,7 +7,8 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, RichText, Tooltip } from 'ming-ui';
+import { Icon, RichText } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Statistics from 'statistics';
 import { BatchOperate } from 'worksheet/common';
 import Discussion from 'worksheet/common/Discussion';
@@ -124,7 +125,17 @@ function SheetHeader(props) {
   } = props;
   const { pageSize, sortControls } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
-  const { worksheetId, desc, resume, projectId, allowAdd, entityName, roleType, advancedSetting = {} } = worksheetInfo;
+  const {
+    worksheetId,
+    desc,
+    resume,
+    remark,
+    projectId,
+    allowAdd,
+    entityName,
+    roleType,
+    advancedSetting = {},
+  } = worksheetInfo;
   const name = getTranslateInfo(appId, null, worksheetId).name || worksheetInfo.name || '';
   const cache = useRef({});
   const [sheetDescVisible, setSheetDescVisible] = useState();
@@ -154,6 +165,8 @@ function SheetHeader(props) {
   useEffect(() => {
     cache.current.canNewRecord = canNewRecord;
   }, [canNewRecord]);
+
+  useEffect(() => {}, []);
 
   let selectedLength = allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length;
 
@@ -219,7 +232,6 @@ function SheetHeader(props) {
     return batchOperateComp;
   }
   const { ln } = getAppFeaturesVisible();
-
   return (
     <Fragment>
       <Con className="sheetHeader">
@@ -228,14 +240,7 @@ function SheetHeader(props) {
           {!ln && <span className="mLeft10" />}
           <span className={cx('fixed pointer', { hide: !ln })}>
             {appPkg.currentPcNaviStyle === 2 ? (
-              <Tooltip
-                text={
-                  <span>
-                    {_l('退出')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
-                  </span>
-                }
-                popupPlacement="bottom"
-              >
+              <Tooltip title={_l('退出全屏')} shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'} placement="bottom">
                 <Icon
                   className="fullRotate hoverGray Font20"
                   icon="close_fullscreen"
@@ -247,12 +252,9 @@ function SheetHeader(props) {
               </Tooltip>
             ) : (
               <Tooltip
-                text={
-                  <span>
-                    {inFull ? _l('退出') : _l('展开')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
-                  </span>
-                }
-                popupPlacement="bottom"
+                title={inFull ? _l('退出全屏') : _l('应用全屏')}
+                shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
+                placement="bottom"
               >
                 <Icon
                   className={cx('fullRotate hoverGray', inFull ? 'Font20' : 'Font17')}
@@ -305,6 +307,7 @@ function SheetHeader(props) {
             title={_l('工作表说明')}
             isCharge={isCharge}
             permissionType={_.get(appPkg, 'permissionType')}
+            cacheKey="sheetIntroDescription"
             visible={sheetDescVisible}
             worksheetId={worksheetId}
             isEditing={descIsEditing}
@@ -312,7 +315,9 @@ function SheetHeader(props) {
             desc={
               descIsEditing ? desc || '' : desc ? getTranslateInfo(appId, null, worksheetId).description || desc : desc
             }
+            data={worksheetInfo}
             resume={resume}
+            remark={remark}
             onClose={() => {
               setSheetDescVisible(false);
             }}
@@ -333,7 +338,10 @@ function SheetHeader(props) {
             controls={controls}
             sheetSwitchPermit={lastSheetSwitchPermit}
             // funcs
-            setSheetDescVisible={setSheetDescVisible}
+            setSheetDescVisible={value => {
+              isCharge && setDescIsEditing(value);
+              setSheetDescVisible(value);
+            }}
             setEditNameVisible={setEditNameVisible}
             updateWorksheetInfo={updateWorksheetInfo}
             reloadWorksheet={() => refreshSheet(view)}
@@ -431,7 +439,7 @@ function SheetHeader(props) {
               </Fragment>
             )}
             {!window.isPublicApp && (showPublic || (showSelf && !md.global.Account.isPortal)) && (
-              <Tooltip popupPlacement="bottom" text={<span>{_l('统计')}</span>}>
+              <Tooltip placement="bottom" title={_l('统计')}>
                 <span className="actionWrap">
                   <Icon
                     className={cx('openStatisticsBtn Gray_9e Font18 actionIcon', {
@@ -447,7 +455,7 @@ function SheetHeader(props) {
             {!window.isPublicApp &&
               !md.global.Account.isPortal &&
               !!isOpenPermit(permitList.discussSwitch, lastSheetSwitchPermit) && (
-                <Tooltip popupPlacement="bottom" text={<span>{_l('讨论')}</span>}>
+                <Tooltip placement="bottom" title={_l('讨论')}>
                   <span className="actionWrap">
                     <Icon
                       className="Font18 Gray_9e actionIcon"
@@ -478,7 +486,7 @@ function SheetHeader(props) {
               <span
                 style={{ backgroundColor: appPkg.iconColor || '#1677ff' }}
                 className="addRow mLeft8 overflow_ellipsis WordBreak"
-                onClick={openNewRecord}
+                onClick={() => openNewRecord({ allowShowMingoCreate: true })}
               >
                 <span className="Icon icon icon-plus Font13 mRight5 White" />
                 <span className="White bold">{advancedSetting.btnname || entityName || _l('记录')}</span>

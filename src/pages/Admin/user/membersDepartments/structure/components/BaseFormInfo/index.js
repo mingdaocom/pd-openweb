@@ -5,7 +5,8 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Icon, Tooltip } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectDept, quickSelectRole } from 'ming-ui/functions';
 import departmentController from 'src/api/department';
 import jobAjax from 'src/api/job';
@@ -58,7 +59,14 @@ const DelIconWrap = styled.div`
 export default class BaseFormInfo extends Component {
   constructor(props) {
     super(props);
-    this.state = { jobIds: [], worksiteList: [], orgRoles: [], useMultiJobs: false, departmentJobInfos: [] };
+    this.state = {
+      jobIds: [],
+      worksiteList: [],
+      orgRoles: [],
+      useMultiJobs: false,
+      departmentJobInfos: [],
+      departmentInfos: props.actType === 'add' && props.departmentInfos ? [props.departmentInfos] : [],
+    };
   }
   componentDidMount() {
     const { typeCursor, editCurrentUser = {}, actType } = this.props;
@@ -96,7 +104,7 @@ export default class BaseFormInfo extends Component {
       ]),
       departmentIds: depIds,
       jobIds: [2, 3].includes(typeCursor) ? jobInfos.map(it => it.id || it.jobId) : baseInfo.jobIds,
-      departmentInfos,
+      departmentInfos: props.actType === 'add' && props.departmentInfos ? [props.departmentInfos] : [],
       jobInfos,
       departmentJobInfos: (baseInfo.departmentJobInfos || []).map(item => ({
         key: item.department.id,
@@ -416,22 +424,17 @@ export default class BaseFormInfo extends Component {
     return (
       <span
         key={item.departmentId || item.key}
-        className={cx('itemSpan mAll5', { disabledDepartment: typeCursor === 2 })}
+        className={cx('itemSpan mAll5', { disabled: typeCursor === 2 })}
         onMouseEnter={() => this.getDepartmentFullName([item.departmentId])}
       >
         <Icon className="departmentIcon Font14 TxtMiddle mRight6" icon="department" />
         {
-          <Tooltip
-            tooltipClass="departmentFullNametip"
-            popupPlacement="bottom"
-            text={<div>{fullName}</div>}
-            mouseEnterDelay={0.5}
-          >
+          <Tooltip placement="bottom" title={fullName} mouseEnterDelay={0.5}>
             <span>{item.departmentName}</span>
           </Tooltip>
         }
         {i === 0 && (
-          <Tooltip popupPlacement="top" text={_l('主属部门')}>
+          <Tooltip placement="top" title={_l('主属部门')}>
             <Icon icon="main-department" className="Font22 ThemeColor mLeft8 mRight8" />
           </Tooltip>
         )}
@@ -450,6 +453,7 @@ export default class BaseFormInfo extends Component {
       useMultiJobs,
       departmentJobInfos = [],
     } = this.state;
+
     let jobResult = [...jobList];
     if (keywords) {
       jobResult = jobResult.filter(item => item.jobName.indexOf(keywords) > -1);
@@ -497,14 +501,14 @@ export default class BaseFormInfo extends Component {
         {type === 'multiple' && (
           <div className="flexRow alignItemsCenter">
             {index === 0 && (
-              <Tooltip popupPlacement="top" text={_l('主属部门')}>
+              <Tooltip placement="top" title={_l('主属部门')}>
                 <Icon icon="main-department" className="Font22 ThemeColor mRight6" />
               </Tooltip>
             )}
             <span className="Gray_75">{_l('任职信息%0', index + 1)}</span>
             {typeCursor !== 2 && this.renderMoreOption(departmentItem, index)}
             <Divider className="mLeft8 minWidth0 flex" />
-            <Tooltip popupPlacement="top" text={_l('删除')}>
+            <Tooltip placement="top" title={_l('删除')}>
               <DelIconWrap onClick={() => this.onDeleteMultiJobItem(departmentItem)}>
                 <Icon icon="trash" className="Font14 Gray_bd" />
               </DelIconWrap>

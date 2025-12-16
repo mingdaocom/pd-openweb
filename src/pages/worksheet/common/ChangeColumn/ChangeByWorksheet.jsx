@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Icon, Tooltip } from 'ming-ui';
+import { Button, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const PopupCon = styled.div`
   width: 360px;
@@ -65,7 +66,7 @@ export default function ChangedIcon(props) {
           overflow: { adjustX: true, adjustY: true },
         }}
       >
-        <Tooltip text={_l('重置')} popupPlacement="bottom">
+        <Tooltip title={_l('重置')} placement="bottom">
           <Icon icon="loop" className="Font20" />
         </Tooltip>
       </Trigger>

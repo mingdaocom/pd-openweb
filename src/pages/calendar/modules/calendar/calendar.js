@@ -570,7 +570,7 @@ Calendar.Method = {
       if ($('.fc-time-grid').find('.rect').length == 0 && isToday) {
         var data = CurrentDate;
         var time = data.getHours() + parseFloat((data.getMinutes() / 60).toFixed(2));
-        var h = time * 40 + (window.isFirefox ? 0 : data.getHours()) - 4.5 + 'px';
+        var h = time * 40.5 - 3.5 + 'px';
 
         var div = '<div style="text-align:right;width: 100%;top:' + h + ';position: absolute;z-index: 8;left:54px;">';
         div += '<div class="rect"></div><div class="rectLine"></div>';
@@ -582,7 +582,7 @@ Calendar.Method = {
       $('.fc-slats')
         .find('.fc-axis')
         .each(function () {
-          var timeVal = $.trim($(this).text());
+          var timeVal = ($(this).text() || '').trim();
           if (timeVal != '') {
             var top = timeVal == '00:00' ? '-5px' : '-10px';
             $(this).html('<span style="position: relative;left: 0;top: ' + top + '">' + timeVal + '</span>');

@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import 'rc-trigger/assets/index.css';
 
 const Box = styled.div`
@@ -142,7 +142,7 @@ export default props => {
         )}
       </div>
       {info && (
-        <Tooltip title={info} autoCloseDelay={0}>
+        <Tooltip title={info}>
           <Icon type="info_outline" className="Font14 Gray_75 mLeft5" />
         </Tooltip>
       )}

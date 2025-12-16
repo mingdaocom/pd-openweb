@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { ACTION_ID, APP_TYPE } from '../../enum';
@@ -285,7 +285,8 @@ export default class GetMoreRecord extends Component {
     const { isPlugin } = this.props;
     const { data } = this.state;
     const actionTypes = {
-      [ACTION_ID.FROM_WORKSHEET]: _l('从工作表获取记录'),
+      [ACTION_ID.FROM_WORKSHEET]:
+        data.appType === APP_TYPE.AGGREGATION_SHEET ? _l('从聚合表获取记录') : _l('从工作表获取记录'),
       [ACTION_ID.FROM_RECORD]: _l('从记录获取关联记录'),
       [ACTION_ID.FROM_ADD]: _l('从新增节点获取记录'),
       [ACTION_ID.FROM_ARTIFICIAL]: _l('从人工节点获取操作明细'),
@@ -514,10 +515,7 @@ export default class GetMoreRecord extends Component {
           <Fragment>
             {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据')}
             {data.actionId === ACTION_ID.FROM_WORKSHEET && (
-              <Tooltip
-                autoCloseDelay={0}
-                title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}
-              >
+              <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
                 <i className="icon-info Font16 mLeft5 Gray_9e" />
               </Tooltip>
             )}
@@ -535,6 +533,7 @@ export default class GetMoreRecord extends Component {
    */
   renderWorksheet() {
     const { data } = this.state;
+    const isAggregationSheet = data.appType === APP_TYPE.AGGREGATION_SHEET;
     const selectAppItem = data.appList.find(({ id }) => id === data.appId);
     const list = data.appList
       .filter(item => !item.otherApkId)
@@ -544,7 +543,7 @@ export default class GetMoreRecord extends Component {
       }));
     const otherWorksheet = [
       {
-        text: _l('其它应用下的工作表'),
+        text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
         className: 'Gray_75',
       },
@@ -552,7 +551,18 @@ export default class GetMoreRecord extends Component {
 
     return (
       <Fragment>
-        <div className="mTop20 bold">{_l('选择工作表')}</div>
+        <div className="mTop20 flexRow alignItemsCenter">
+          <div className="flex bold">{isAggregationSheet ? _l('选择聚合表') : _l('选择工作表')}</div>
+          {isAggregationSheet && (
+            <div
+              className="ThemeColor3 ThemeHoverColor2 pointer"
+              onClick={() => window.open(`/app/${this.props.relationId}/settings/aggregations`)}
+            >
+              + {_l('新建聚合表')}
+            </div>
+          )}
+        </div>
+
         <Dropdown
           className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
           data={[list, otherWorksheet]}
@@ -561,7 +571,11 @@ export default class GetMoreRecord extends Component {
             !data.appId
               ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
-                ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+                ? () => (
+                    <span className="errorColor">
+                      {isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
+                    </span>
+                  )
                 : () => (
                     <Fragment>
                       <span>{selectAppItem.name}</span>
@@ -919,7 +933,7 @@ export default class GetMoreRecord extends Component {
         {showOtherWorksheet && (
           <SelectOtherWorksheetDialog
             projectId={this.props.companyId}
-            worksheetType={0}
+            worksheetType={data.appType === APP_TYPE.AGGREGATION_SHEET ? 2 : 0}
             selectedAppId={this.props.relationId}
             selectedWorksheetId={data.appId}
             visible

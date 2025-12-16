@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, ClickAway } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 
 const WeekdayWrap = styled.ul`
@@ -117,7 +117,7 @@ export default function WeekdaySetting({ data, onChange }) {
             }}
           >
             <span style={{ marginRight: '6px' }}>{_l('不显示负值')}</span>
-            <Tooltip popupPlacement="bottom" title={<span>{_l('勾选后，当计算结果为负数时，则显示为空')}</span>}>
+            <Tooltip placement="bottom" title={_l('勾选后，当计算结果为负数时，则显示为空')}>
               <i className="icon-help Gray_bd Font16 pointer"></i>
             </Tooltip>
           </Checkbox>

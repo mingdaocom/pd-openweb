@@ -15,7 +15,7 @@ import worksheetAjax from 'src/api/worksheet';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
-import { getDynamicValue } from 'src/components/newCustomFields/tools/formUtils.js';
+import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
@@ -624,7 +624,7 @@ function Hierarchy(props) {
           showFillNext
           visible
           onAdd={record => {
-            addHierarchyRecord({ data: record, ...addRecordPath });
+            addHierarchyRecord({ data: record, ...addRecordPath, reGetData: true });
           }}
           hideNewRecord={() => setState({ createRecordVisible: false })}
           defaultFormData={getDefaultValueInCreate()}

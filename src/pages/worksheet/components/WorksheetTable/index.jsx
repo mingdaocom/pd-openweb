@@ -83,9 +83,15 @@ const StyledFixedTable = styled(FixedTable)`
     &.noRightBorder {
       border-right: none !important;
     }
+    &.emptyForResize.row-id-groupTitle {
+      background-color: #fafafa !important;
+    }
   }
   .row-head {
     background-color: #fafafa !important;
+  }
+  .cell.emptyForResize.row-foot {
+    background: #f6f6f6 !important;
   }
   .readOnlyTip {
     position: absolute;
@@ -148,6 +154,11 @@ const StyledFixedTable = styled(FixedTable)`
       }
     }
   }
+  &:not(.xIsScroll) {
+    .cell.emptyForResize {
+      width: 100% !important;
+    }
+  }
 `;
 
 /**
@@ -184,6 +195,7 @@ function WorksheetTable(props, ref) {
     viewId,
     tableType,
     triggerClickImmediate,
+    showGenDataFromMingo,
     className,
     noRenderEmpty,
     masterRecord,
@@ -233,6 +245,8 @@ function WorksheetTable(props, ref) {
     onColumnHeadHeightUpdate = () => {},
     isDraft,
     getRowHeight = () => props.rowHeight || 34,
+    inView,
+    onScroll = () => {},
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -296,8 +310,9 @@ function WorksheetTable(props, ref) {
   const visibleColumns = useMemo(
     () =>
       [{ type: 'rowHead', width: showRowHead ? rowHeadWidth : 10, empty: !showRowHead }]
-        .concat(columns)
-        .concat(showEmptyForResize && !rightFixedCount ? { type: 'emptyForResize', width: 60 } : [])
+        .concat(columns.filter(c => c.type !== 'operates'))
+        .concat(showEmptyForResize ? { type: 'emptyForResize', width: 60 } : [])
+        .concat(columns.filter(c => c.type === 'operates'))
         .filter(c => !_.includes(SHEET_VIEW_HIDDEN_TYPES, c.type)),
     [columns, rowHeadWidth],
   );
@@ -372,10 +387,23 @@ function WorksheetTable(props, ref) {
       },
     });
   }
+  function addHighlightClassOfRow(rowIndex) {
+    [...tableRef.current.dom.current.querySelectorAll(`.cell.row-${rowIndex}`)].forEach(ele =>
+      ele.classList.add('highlight'),
+    );
+    window[`activeRowIndex-${tableId}`] = rowIndex;
+  }
+  function removeHighlightClassOfRow() {
+    [...tableRef.current.dom.current.querySelectorAll('.cell')].forEach(ele => {
+      ele.classList.remove('highlight');
+    });
+    window[`activeRowIndex-${tableId}`] = -10000;
+  }
   function focusCell(newIndex) {
     setCache('focusIndex', newIndex > 0 ? newIndex : undefined);
     [...tableRef.current.dom.current.querySelectorAll('.cell')].forEach(ele => {
       ele.classList.remove('focus');
+      ele.classList.remove('highlight');
       ele.classList.remove('rowHadFocus');
       const input = ele.querySelector('input');
       if (input) {
@@ -386,6 +414,7 @@ function WorksheetTable(props, ref) {
         }
       }
     });
+    window[`activeRowIndex-${tableId}`] = -10000;
     if (newIndex === -10000) {
       return;
     }
@@ -395,6 +424,8 @@ function WorksheetTable(props, ref) {
       `.cell-${newIndex - (newIndex % cellColumnCount)}`,
     );
     if (focusElement) {
+      const rowIndex = _.get(focusElement.className.match(/row-(\d+)/), 1);
+      addHighlightClassOfRow(rowIndex);
       const checkResult = checkCellFullVisible(focusElement);
       if (!checkResult.fullvisible) {
         tableRef.current.setScroll(checkResult.newLeft);
@@ -421,7 +452,7 @@ function WorksheetTable(props, ref) {
           }
           e.stopPropagation();
         };
-        input.focus();
+        input.focus({ preventScroll: true });
       }
       focusRowHeadElement.classList.add('rowHadFocus');
     }
@@ -464,6 +495,9 @@ function WorksheetTable(props, ref) {
     rules,
   }));
   function loadRules() {
+    if (!worksheetId) {
+      return;
+    }
     worksheetApi
       .getControlRules({
         type: 1,
@@ -517,6 +551,7 @@ function WorksheetTable(props, ref) {
     fixedColumnCount,
     columns.map(c => c.controlId).join(','),
     JSON.stringify(sheetColumnWidths),
+    getColumnWidth,
   ]);
   useEffect(() => {
     setCache('data', data);
@@ -571,6 +606,9 @@ function WorksheetTable(props, ref) {
   }, [columns]);
   useEffect(
     handleLifeEffect.bind(null, tableId, {
+      onOuterClick: () => {
+        removeHighlightClassOfRow();
+      },
       cache,
       tableType,
       isSubList,
@@ -580,6 +618,7 @@ function WorksheetTable(props, ref) {
       handleTableKeyDown,
       addNewRow,
       setScroll: (...args) => tableRef.current.setScroll(...args),
+      setScrollX: left => tableRef.current.setScrollX(left),
     }),
     [],
   );
@@ -606,6 +645,7 @@ function WorksheetTable(props, ref) {
           hideVerticalLine: !showVerticalLine,
           showAsZebra,
           isChangeColumnWidth,
+          xIsScroll,
         })}
         width={width}
         height={tableHeight}
@@ -615,11 +655,12 @@ function WorksheetTable(props, ref) {
         sheetColumnWidths={sheetColumnWidths}
         rowHeight={rowHeight}
         defaultScrollLeft={defaultScrollLeft}
+        onScroll={onScroll}
         getColumnWidth={getColumnWidth}
         getRowHeight={getRowHeight}
         rowCount={(rowCount || data.length) > 0 ? tableRowCount : rowCount || data.length}
         columnCount={visibleColumns.length}
-        leftFixedCount={fixedColumnCount + 1}
+        leftFixedCount={fixedColumnCount >= cellColumnCount ? 1 : fixedColumnCount + 1}
         rightFixedCount={rightFixedCount}
         Cell={Cell}
         showHead={showHead}
@@ -672,11 +713,18 @@ function WorksheetTable(props, ref) {
           headTitleCenter, // 列头垂直居中
           // functions
           clearCellError,
-          updateSheetColumnWidths: ({ controlId, value }) => {
-            onColumnWidthChange(controlId, value);
-            setState({
-              sheetColumnWidths: Object.assign({}, sheetColumnWidths, { [controlId]: value }),
-            });
+          inView,
+          updateSheetColumnWidths: ({ controlId, value, changes }) => {
+            onColumnWidthChange(controlId, value, changes);
+            if (changes) {
+              setState({
+                sheetColumnWidths: Object.assign({}, sheetColumnWidths, changes),
+              });
+            } else {
+              setState({
+                sheetColumnWidths: Object.assign({}, sheetColumnWidths, { [controlId]: value }),
+              });
+            }
           },
           // 获取浮层插入位置
           getPopupContainer: isFixed => {
@@ -688,16 +736,26 @@ function WorksheetTable(props, ref) {
               document.body
             );
           },
-          enterEditing: cellIndex => {
+          enterEditing: (cellIndex, rowIndex) => {
             if (tableType === 'classic') {
               if (cache.focusIndex !== cellIndex) {
                 focusCell(cellIndex);
               }
+            } else {
+              removeHighlightClassOfRow();
+              addHighlightClassOfRow(rowIndex);
             }
           },
-          onCellClick,
+          onCellClick: (...args) => {
+            onCellClick(...args);
+            if (tableType !== 'classic') {
+              const [, , rowIndex = -10000] = args;
+              removeHighlightClassOfRow();
+              addHighlightClassOfRow(rowIndex);
+            }
+          },
           onFocusCell: ({ row, cellIndex, rowIndex, columnIndex }) => {
-            onFocusCell(row, cellIndex);
+            onFocusCell(row, cellIndex, rowIndex);
             focusCell(rowIndex * cellColumnCount + columnIndex);
           },
           // 校验
@@ -763,6 +821,7 @@ function WorksheetTable(props, ref) {
               sheetIsFiltered={sheetIsFiltered}
               allowAdd={allowAdd && noRecordAllowAdd}
               showNewRecord={showNewRecord}
+              showGenDataFromMingo={showGenDataFromMingo}
             />
           );
         }}

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
         <meta charset="UTF-8" />
@@ -147,7 +147,7 @@
                                             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
                                                 /[xy]/g,
                                                 function (c) {
-                                                    var r = (16 * Math.random()) | 0,
+                                                    var r = Math.trunc(16 * Math.random()),
                                                         v = 'x' === c ? r : (3 & r) | 8;
                                                     return v.toString(16);
                                                 },

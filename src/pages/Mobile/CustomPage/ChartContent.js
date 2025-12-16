@@ -294,6 +294,7 @@ function ChartComponent(props) {
               isHorizontal={!_.isUndefined(isHorizontal) ? isHorizontal : true}
               pageComponents={pageComponents}
               data={zoomData}
+              widget={widget}
               {...chartProps}
               onLoadBeforeData={index => {
                 const data = pageComponents[index];

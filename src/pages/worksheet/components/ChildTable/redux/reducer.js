@@ -23,7 +23,7 @@ function baseLoading(state = true, action) {
 function base(state = {}, action) {
   // controls, searchConfig, rules, projectId, workflowChildTableSwitch, entityName, appId
   // masterData, recordId
-  // TODO 属性排查
+
   switch (action.type) {
     case 'UPDATE_BASE':
       return {

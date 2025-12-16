@@ -11,10 +11,11 @@ import Table from 'src/pages/Role/component/Table';
 import ChangeRoleDialog from 'src/pages/Role/PortalCon/components/ChangeRoleDialog';
 import ReviewFree from 'src/pages/Role/PortalCon/components/ReviewFree';
 import UserInfoWrap from 'src/pages/Role/PortalCon/components/UserInfoWrap';
+import { pageSizeForPortal } from 'src/pages/Role/PortalCon/tabCon/config';
 import { renderText as renderCellText } from 'src/utils/control';
 import * as actions from '../../redux/actions';
 import PortalBar from '../portalComponent/PortalBar';
-import { formatDataForPortalControl, formatPortalData, pageSize, renderText } from '../util';
+import { formatDataForPortalControl, formatPortalData, renderText } from '../util';
 
 const Wrap = styled.div`
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -149,6 +150,7 @@ function PendingReview(props) {
           ![
             'portal_avatar',
             'partal_regtime',
+            'portal_logintime',
             'portal_regtime',
             'portal_role',
             'portal_status',
@@ -330,7 +332,7 @@ function PendingReview(props) {
       <Table
         showCheck
         showTips
-        pageSize={pageSize}
+        pageSize={pageSizeForPortal}
         columns={columns}
         controls={controls}
         selectedIds={selectedIds}
@@ -349,7 +351,7 @@ function PendingReview(props) {
         onScrollEnd={() => {
           if (
             props.portal.list.length >= unApproveCount ||
-            props.portal.list.length < pageIndex * pageSize ||
+            props.portal.list.length < pageIndex * pageSizeForPortal ||
             props.portal.loading
           ) {
             return;

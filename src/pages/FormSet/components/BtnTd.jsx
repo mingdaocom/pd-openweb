@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Dialog, Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Dialog, Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
 import MoreOption from '../components/MoreOption';
@@ -165,7 +166,7 @@ export default function BtnTd(props) {
             }}
           />
         ) : (
-          <Tooltip text={it.name}>
+          <Tooltip title={it.name}>
             <span className="overflow_ellipsis">{it.name}</span>
           </Tooltip>
         )}

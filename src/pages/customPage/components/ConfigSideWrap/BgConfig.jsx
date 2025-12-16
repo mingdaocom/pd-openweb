@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
 import { ReactSVG } from 'react-svg';
 import { generate } from '@ant-design/colors';
-import { Popover, Tooltip } from 'antd';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { isLightColor } from 'src/utils/control';
 import { replaceColor } from '../../util';
 import { defaultTitleStyles } from './util';
@@ -147,6 +148,7 @@ export default props => {
               titleStyles: {
                 ...titleStyles,
                 color: '#fff',
+                isInitial: true,
                 index: Date.now(),
               },
             });
@@ -163,7 +165,7 @@ export default props => {
           <div className="flexRow alignItemsCenter pageBgColors">
             {colors.map(data =>
               data.title ? (
-                <Tooltip key={data.value || data.color} title={data.title} color="#000" placement="bottom">
+                <Tooltip key={data.value || data.color} title={data.title} placement="bottom">
                   <div
                     className={cx('colorWrap', data.className, { active: data.value === config.pageBgColor })}
                     style={{ backgroundColor: data.color }}
@@ -207,7 +209,10 @@ export default props => {
                           style={{ width: 178, height: 100 }}
                           src={item.value}
                           beforeInjection={svg => {
-                            svg.setAttribute('fill', appPkg.iconColor);
+                            svg.setAttribute(
+                              'fill',
+                              backgroundColor === appPkg.iconColor ? appPkg.lightColor : appPkg.iconColor,
+                            );
                           }}
                         />
                       </div>
@@ -217,12 +222,21 @@ export default props => {
               }
             >
               {pageBgImage ? (
-                <div className="colorWrap overflowHidden" style={{ width: 50, backgroundColor }}>
+                <div
+                  className="colorWrap overflowHidden"
+                  style={{
+                    width: 50,
+                    backgroundColor,
+                  }}
+                >
                   <ReactSVG
                     style={{ width: '100%', height: '100%' }}
                     src={_.get(_.find(bgImages, { name: pageBgImage }), 'value')}
                     beforeInjection={svg => {
-                      svg.setAttribute('fill', appPkg.iconColor);
+                      svg.setAttribute(
+                        'fill',
+                        backgroundColor === appPkg.iconColor ? appPkg.lightColor : appPkg.iconColor,
+                      );
                     }}
                   />
                 </div>

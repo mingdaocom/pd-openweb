@@ -34,9 +34,11 @@ export const getViewActionInfo = ({
   let isHaveSelectControl = true;
   let canAddRecord =
     !hideAddRecord && isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && !batchOptVisible; // 新建记录
-  let recordActionWrapBottom = !isHideTabBar && appNaviStyle === 2 ? 70 : 20;
+  const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航(含底部tab)
+  let recordActionWrapBottom = !isHideTabBar && isBottomNav ? 70 : 20;
+  const isPublic = _.get(window, 'shareState.isPublicView');
   let showBatchBtn = false; // 批量操作
-  let showBackBtn = !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal);
+  let showBackBtn = !(isBottomNav && md.global.Account.isPortal);
 
   switch (viewType) {
     case sheet:
@@ -44,7 +46,8 @@ export const getViewActionInfo = ({
         !hideAddRecord &&
         (canDelete || showCusTomBtn) &&
         !batchOptVisible &&
-        (_.isEmpty(navGroup) || isGroupFilter || appnavtype !== '1');
+        (_.isEmpty(navGroup) || isGroupFilter || appnavtype !== '1') &&
+        !isPublic;
       break;
     case board:
       isHaveSelectControl =
@@ -119,7 +122,7 @@ export const getViewActionInfo = ({
   }
 
   // 导航模式
-  if (!isHideTabBar && appNaviStyle === 2 && location.href.includes('mobile/app') && hasDebugRoles) {
+  if (!isHideTabBar && isBottomNav && hasDebugRoles) {
     recordActionWrapBottom = recordActionWrapBottom + 40;
   }
 

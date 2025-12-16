@@ -14,7 +14,9 @@ const Item = ({ onDelete, DragHandle, item }) => {
 
   const renderIcon = (data, key) => {
     if (key === 'sys') {
-      return <Icon icon={data.icon} style={{ color: data.color }} className={cx('mRight12 Font18 InlineFlex')} />;
+      return (
+        <Icon icon={data.icon} style={{ color: data.color }} className={cx('mRight12 Font18 InlineFlex Alpha10')} />
+      );
     }
     if (key === 'btn') {
       const { color, icon, iconUrl } = data;

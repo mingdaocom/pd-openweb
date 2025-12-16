@@ -304,7 +304,7 @@ export default function setJavascriptMode(CodeMirror) {
       // (Less wasteful than consing up a hundred closures on every call.)
       cx.state = state;
       cx.stream = stream;
-      (cx.marked = null), (cx.cc = cc);
+      ((cx.marked = null), (cx.cc = cc));
       cx.style = style;
 
       if (!state.lexical.hasOwnProperty('align')) state.lexical.align = true;
@@ -1062,12 +1062,22 @@ export default function setJavascriptMode(CodeMirror) {
           }
         while (
           (lexical.type == 'stat' || lexical.type == 'form') &&
-          (firstChar == '}' ||
-            ((top = state.cc[state.cc.length - 1]) &&
-              (top == maybeoperatorComma || top == maybeoperatorNoComma) &&
-              !/^[,\.=+\-*:?[\(]/.test(textAfter)))
-        )
+          (top = state.cc[state.cc.length - 1]) &&
+          (top == maybeoperatorComma || top == maybeoperatorNoComma) &&
+          !/^[,\.=+\-*:?[\(]/.test(textAfter)
+        ) {
+          if (
+            !(
+              firstChar == '}' ||
+              ((top = state.cc[state.cc.length - 1]) &&
+                (top == maybeoperatorComma || top == maybeoperatorNoComma) &&
+                !/^[,\.=+\-*:?[\(]/.test(textAfter))
+            )
+          ) {
+            break;
+          }
           lexical = lexical.prev;
+        }
         if (statementIndent && lexical.type == ')' && lexical.prev.type == 'stat') lexical = lexical.prev;
         var type = lexical.type,
           closing = firstChar == type;

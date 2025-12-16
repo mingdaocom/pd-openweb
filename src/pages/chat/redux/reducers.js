@@ -107,11 +107,11 @@ const messages = (state = {}, action) => {
     case 'SET_MESSAGE':
       return Object.assign({}, state, { [action.id]: action.result });
     case 'ADD_MESSAGE':
-      return Object.assign({}, state, { [action.id]: state[action.id].concat([action.result]) });
+      return Object.assign({}, state, { [action.id]: (state[action.id] || []).concat([action.result]) });
     case 'ADD_PAGE_MESSAGE':
       return Object.assign({}, state, { [action.id]: action.result.concat(state[action.id]) });
     case 'PUSH_PAGE_MESSAGE':
-      return Object.assign({}, state, { [action.id]: state[action.id].concat(action.result) });
+      return Object.assign({}, state, { [action.id]: (state[action.id] || []).concat(action.result) });
     case 'REMOVE_MESSAGE':
       const targetState = state[action.id];
       return targetState

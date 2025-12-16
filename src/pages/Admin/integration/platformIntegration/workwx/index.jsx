@@ -3,8 +3,10 @@ import { Input, Popover, Radio, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Checkbox, Icon, LoadDiv, MdLink, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
 import CancelIntegration from '../components/CancelIntegration';
+import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
@@ -59,6 +61,7 @@ export default class Workwx extends React.Component {
       syncWXLabel: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 'job' : 'organize',
       qwQuickAprData: {},
       currentTab: 'base',
+      isProxy: false, // 是否开启网络代理
     };
   }
 
@@ -107,6 +110,7 @@ export default class Workwx extends React.Component {
             encodingAESKey: res.workWxAesKey,
           },
           openQuickApproval: !!res.workWxCallBackUrl,
+          isProxy: res.isProxy,
         });
       }
     });
@@ -312,17 +316,16 @@ export default class Workwx extends React.Component {
           )}
           {((isHasInfo && show2) || intergrationType === 2) && (
             <span className="Font13 Gray_75 Right closeDing">
-              <span
-                className="mLeft10 switchBtn tip-bottom-left"
-                data-tip={_l('关闭企业微信集成后，无法再从企业微信处进入应用')}
-              >
-                <Switch
-                  checked={!isCloseDing}
-                  onClick={checked => {
-                    this.editDingStatus(checked ? 2 : 1);
-                  }}
-                />
-              </span>
+              <Tooltip title={_l('关闭企业微信集成后，无法再从企业微信处进入应用')} placement="bottomLeft">
+                <span className="mLeft10 switchBtn">
+                  <Switch
+                    checked={!isCloseDing}
+                    onClick={checked => {
+                      this.editDingStatus(checked ? 2 : 1);
+                    }}
+                  />
+                </span>
+              </Tooltip>
             </span>
           )}
           {((!isCloseDing && show2) || intergrationType === 2) && (
@@ -373,11 +376,12 @@ export default class Workwx extends React.Component {
     );
   };
 
-  editWXProjectSettingStatus = (tag, callback) => {
+  editWXProjectSettingStatus = (tag, callback, isProxy) => {
     // 状态：0 提交申请；2关闭集成；1重新开启集成 tag
     Ajax.editWXProjectSettingStatus({
       projectId: this.props.projectId,
       status: tag,
+      isProxy: _.isUndefined(isProxy) ? this.state.isProxy : isProxy,
     }).then(res => {
       if (res) {
         callback();
@@ -505,7 +509,7 @@ export default class Workwx extends React.Component {
                 href={
                   intergrationType !== 2
                     ? `/wxappSyncCourse/${projectId}#scanWorkwx`
-                    : 'https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login'
+                    : 'https://help.mingdao.com/wecom/ways-login-hap#scan-code-login'
                 }
                 updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
                 customNameIcon={customNameIcon}
@@ -662,7 +666,7 @@ export default class Workwx extends React.Component {
     }
   };
   render() {
-    let { intergrationType, currentTab, status } = this.state;
+    let { intergrationType, currentTab, status, isProxy } = this.state;
     const { projectId } = this.props;
 
     if (this.state.pageLoading) {
@@ -731,7 +735,7 @@ export default class Workwx extends React.Component {
         ) : (
           <Fragment>
             <div className="orgManagementHeader">
-              <div className="h100 flexRow alignItemsCenter">
+              <div className="w100 h100 flexRow alignItemsCenter">
                 {status !== 1 && (
                   <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={this.props.onClose} />
                 )}
@@ -769,6 +773,21 @@ export default class Workwx extends React.Component {
                     );
                   })}
                 </div>
+                {intergrationType === 1 && (
+                  <EnabledWebProxy
+                    isProxy={isProxy}
+                    handleChangeProxy={checked =>
+                      this.editWXProjectSettingStatus(
+                        this.state.status,
+                        () => {
+                          alert(_l('设置成功'));
+                          this.setState({ isProxy: !checked });
+                        },
+                        !checked,
+                      )
+                    }
+                  />
+                )}
               </div>
               {status === 1 && (
                 <CancelIntegration

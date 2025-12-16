@@ -9,6 +9,8 @@ import { emitter } from 'src/utils/common';
 import { controlBatchCanEdit } from 'src/utils/control';
 import { fieldCanSort, getSortData } from 'src/utils/control';
 
+const maxAllowFrozenColumnIndex = 10;
+
 export default function ColumnHead(props) {
   const {
     iseditting,
@@ -127,7 +129,7 @@ export default function ColumnHead(props) {
               {_l('显示所有列')}
             </MenuItem>
           )}
-          {columnIndex <= 3 && fixedColumnCount !== columnIndex + 1 && (
+          {columnIndex <= maxAllowFrozenColumnIndex && fixedColumnCount !== columnIndex + 1 && (
             <MenuItem
               onClick={() => {
                 frozen(columnIndex);

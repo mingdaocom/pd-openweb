@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
@@ -77,7 +78,7 @@ export default function FilterDrop(props) {
         }}
         zIndex={100}
       >
-        <Tooltip popupPlacement="bottom" text={<span>{_l('筛选')}</span>}>
+        <Tooltip placement="bottom" title={_l('筛选')}>
           <Icon className="mRight12 Font16 Hand actIcon InlineBlock TxtMiddle" icon="worksheet_filter" />
         </Tooltip>
       </Trigger>

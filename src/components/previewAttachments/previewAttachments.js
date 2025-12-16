@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-var previewAttachments = function (options, extra) {
+const previewAttachments = function (options, extra) {
   import('src/pages/kc/common/AttachmentsPreview').then(AttachmentsPreview => {
     AttachmentsPreview = AttachmentsPreview.default;
     const rootContainer = document.createElement('div');

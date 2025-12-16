@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'ming-ui/components/Checkbox';
 
 function CalendarPrivate(props) {
@@ -11,15 +12,16 @@ function CalendarPrivate(props) {
         {isCreateUser ? (
           <span>{_l('私密日程 (仅成员可见)')}</span>
         ) : (
-          <span data-tip={_l('仅日程组织者可修改')}>{_l('私密日程 (仅成员可见)')}</span>
+          <Tooltip title={_l('仅日程组织者可修改')}>
+            <span>{_l('私密日程 (仅成员可见)')}</span>
+          </Tooltip>
         )}
       </Checkbox>
-      <span
-        className="tip-top mLeft10 privateTip"
-        data-tip={_l('日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。')}
-      >
-        <i className="icon-help Font16 tip-top" />
-      </span>
+      <Tooltip title={_l('日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。')}>
+        <span className="mLeft10 privateTip">
+          <i className="icon-help Font16" />
+        </span>
+      </Tooltip>
     </div>
   );
 }

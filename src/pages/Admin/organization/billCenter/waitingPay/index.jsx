@@ -7,7 +7,7 @@ import orderController from 'src/api/order';
 import { checkPermission } from 'src/components/checkPermission';
 import { payDialogFunc } from 'src/components/pay/payDialog';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
-import { addToken, encrypt } from 'src/utils/common';
+import { addToken, encrypt, getRequest } from 'src/utils/common';
 import Config from '../../../config';
 import billCommon from '../common';
 import './style.less';
@@ -15,11 +15,6 @@ import './style.less';
 const params = Config.params;
 const orderId = params[3];
 const _payStyleArr = [
-  {
-    name: _l('余额付款'),
-    id: 'balancePay',
-    icon: 'icon-sp_account_balance_wallet_white Font24',
-  },
   {
     name: _l('支付宝付款'),
     id: 'aliPay',
@@ -34,6 +29,11 @@ const _payStyleArr = [
     name: _l('银行转账'),
     id: 'bankPay',
     icon: 'icon-credit-card Font24',
+  },
+  {
+    name: _l('信用点付款'),
+    id: 'balancePay',
+    icon: 'icon-local_activity_black Font24',
   },
 ];
 
@@ -59,37 +59,50 @@ export default class WaitingPay extends Component {
       return false;
     }
     const _this = this;
-    Promise.all([
-      Config.AdminController.getHidBalance({
-        projectId: Config.projectId,
-      }),
-      orderController.getTransactionRecordByOrderId({
+
+    orderController
+      .getTransactionRecordByOrderId({
         projectId: Config.projectId,
         orderId: orderId,
-      }),
-    ]).then(function ([balance, data]) {
-      _this.setState(
-        {
-          balance: parseFloat(balance) || 0,
-          currRecordObj: data,
-        },
-        () => {
+      })
+      .then(data => {
+        _this.setState({ currRecordObj: data }, () => {
           if (data) {
             _this.viewByCurrRecordObj();
           } else {
-            window.location.href = '/admin/billinfo/' + Config.projectId;
+            _this.backNavigate();
           }
-        },
-      );
-    });
+        });
+      });
   }
+
+  getHidBalance = () => {
+    const { currRecordObj = {} } = this.state;
+    const { price } = currRecordObj;
+
+    Config.AdminController.getHidBalance({
+      projectId: Config.projectId,
+    }).then(balance => {
+      const balanceNotEnough = parseFloat(price) > parseFloat(balance);
+      this.setState({ balance: parseFloat(balance) || 0, balanceNotEnough });
+    });
+  };
+
+  backNavigate = () => {
+    const request = getRequest();
+    if (request.ReturnUrl) {
+      window.location.href = request.ReturnUrl;
+    } else {
+      window.location.href = '/admin/billinfo/' + Config.projectId;
+    }
+  };
 
   /**
    * [viewByCurrRecordObj 根据当前记录处理页面视图]
    * @return {[type]} [description]
    */
   viewByCurrRecordObj() {
-    const { currRecordObj, balance } = this.state;
+    const { currRecordObj } = this.state;
     const { ReCharge, Ultimate, Enterprise } = billCommon.orderRecordType || {};
     if (!currRecordObj) return;
     const { status, recordType, price } = currRecordObj;
@@ -97,7 +110,7 @@ export default class WaitingPay extends Component {
 
     //如果状态不在待付款状态直接返回首页
     if (status !== billCommon.orderRecordStatus.wating) {
-      window.location.href = '/admin/billinfo/' + Config.projectId;
+      this.backNavigate();
       return false;
     }
     let temp = _payStyleArr.filter(it => {
@@ -116,17 +129,11 @@ export default class WaitingPay extends Component {
 
     //payStyle默认第一项
     const firstItem = temp[0].id;
-    const balanceNotEnough = parseFloat(price) > parseFloat(balance);
     this.setState({
       payStyleArr: temp,
-      balanceNotEnough,
       payStyle: firstItem,
       loading: false,
     });
-  }
-
-  handleBack() {
-    window.location.href = '/admin/billinfo/' + Config.projectId;
   }
 
   renderTitle() {
@@ -185,8 +192,10 @@ export default class WaitingPay extends Component {
               key={item.id}
               className={cx('itemBoxContent', { active: item.id === payStyle })}
               onClick={() => {
-                this.setState({
-                  payStyle: item.id,
+                this.setState({ payStyle: item.id }, () => {
+                  if (item.id === 'balancePay') {
+                    this.getHidBalance();
+                  }
                 });
               }}
             >
@@ -216,6 +225,8 @@ export default class WaitingPay extends Component {
   }
 
   handlePay() {
+    const request = getRequest();
+
     if (this.state.payStyle == 'bankPay') {
       this.bankPay();
     } else if (this.state.payStyle == 'balancePay') {
@@ -225,7 +236,7 @@ export default class WaitingPay extends Component {
     } else if (this.state.payStyle == 'wechartPay') {
       if (confirm(_l('确定以【微信支付】方式进行本次付款？'))) {
         window.open(`/wechatPay/${Config.projectId}/${orderId}`);
-        payDialogFunc({ url: `/admin/billinfo/${Config.projectId}` });
+        payDialogFunc({ url: request.ReturnUrl || `/admin/billinfo/${Config.projectId}` });
       }
     } else if (this.state.payStyle == 'aliPay') {
       this.aliPay();
@@ -247,11 +258,11 @@ export default class WaitingPay extends Component {
     );
   }
 
-  //余额支付
+  //信用点支付
   balancePay = () => {
-    if (confirm(_l('确定以【余额付款】方式进行本次付款？'))) {
+    if (confirm(_l('确定以【信用点付款】方式进行本次付款？'))) {
       this.setState({ isPay: true });
-      alert({ msg: _l('正在提交，请稍候...'), type: 1, timeout: false, key: 'pay' });
+      alert({ msg: _l('正在提交，请稍候...'), duration: 0, key: 'pay' });
       orderController
         .balancePayOrder({
           projectId: Config.projectId,
@@ -262,19 +273,16 @@ export default class WaitingPay extends Component {
           if (data.isSuccess) {
             alert({
               msg: _l('付款成功'),
-              type: 1,
               key: 'pay',
-              timeout: 1000,
-              callback: () => {
-                window.location.href = '/admin/billinfo/' + Config.projectId;
-              },
+              duration: 1000,
+              onClose: () => this.backNavigate(),
             });
           } else {
             this.setState({ isPay: false });
             if (data.validateResult == 2) {
               alert({ msg: _l('密码错误'), type: 3, key: 'pay' });
             } else if (data.validateResult == 3) {
-              alert({ msg: _l('余额不足'), type: 3, key: 'pay' });
+              alert({ msg: _l('信用点不足'), type: 3, key: 'pay' });
             } else {
               alert({ msg: _l('操作失败'), type: 2, key: 'pay' });
             }
@@ -285,11 +293,12 @@ export default class WaitingPay extends Component {
 
   //支付宝
   aliPay() {
+    const request = getRequest();
     if (confirm(_l('确定以【支付宝付款】方式进行本次付款？'))) {
       window.open(
         addToken(md.global.Config.AjaxApiUrl + 'pay/alipay?projectId=' + Config.projectId + '&orderNumber=' + orderId),
       );
-      payDialogFunc({ url: '/admin/billinfo/' + Config.projectId });
+      payDialogFunc({ url: request.ReturnUrl || `/admin/billinfo/${Config.projectId}` });
       //操作日志
       orderController.addThreePartPayOrderLog({
         projectId: Config.projectId,
@@ -299,14 +308,14 @@ export default class WaitingPay extends Component {
   }
 
   render() {
-    const { payStyle, balanceNotEnough, currRecordObj, needEmail, isPay, loading } = this.state;
+    const { payStyle, balanceNotEnough, currRecordObj, needEmail, isPay, loading, balance } = this.state;
     if (loading) {
       return <LoadDiv />;
     }
     return (
       <div className="warpCenter waitingPay">
         <div className="valueAddServerHeader">
-          <Icon icon="backspace" className="Hand mRight18 TxtMiddle Font24" onClick={() => this.handleBack()}></Icon>
+          <Icon icon="backspace" className="Hand mRight18 TxtMiddle Font24" onClick={this.backNavigate}></Icon>
           <span className="Font17 Bold">{_l('支付订单')}</span>
         </div>
         <div className="warpMainView">
@@ -320,16 +329,16 @@ export default class WaitingPay extends Component {
             <div className={cx('warpShowBankAcountInfo mTop30', { Hidden: payStyle !== 'bankPay' })}>
               <div className="color_b Font13 LineHeight26">{_l('收款账号信息')}</div>
               <div className="color_b Font13 LineHeight26">
-                {_l('用户名：')}
+                {_l('开户名称：')}
                 <span>{_l('上海万企明道软件有限公司')}</span>
               </div>
               <div className="color_b Font13 LineHeight26">
-                &nbsp;&nbsp;&nbsp;{_l('账号：')}
-                <span>641967782</span>
+                {_l('开户银行：')}
+                <span>{_l('民生银行上海大宁支行')}</span>
               </div>
               <div className="color_b Font13 LineHeight26">
-                {_l('开户行：')}
-                <span>{_l('民生银行上海大宁支行')}</span>
+                {_l('银行账号：')}
+                <span>641967782</span>
               </div>
             </div>
             {/** 余额支付 */}
@@ -347,7 +356,14 @@ export default class WaitingPay extends Component {
           </div>
           <div className="payItemRow mTop30">
             <div className="payItemLabel">{_l('总计')}</div>
-            <div className="payItemResult Font24 Bold color_b">￥{Math.abs(currRecordObj.price)}</div>
+            <div className="payItemResult Font24 Bold color_b">
+              ￥{Math.abs(currRecordObj.price)}
+              {payStyle === 'balancePay' && (
+                <span className="mLeft10 Gray_9 bold Font13">
+                  {_l('现有 %0 信用点，需扣减 %1 信用点', balance, Math.abs(currRecordObj.price))}
+                </span>
+              )}
+            </div>
           </div>
           <div className="mTop40 flexRow alignItemsCenter">
             <Button

@@ -4,10 +4,20 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { isRelateMoreList } from 'src/components/newCustomFields/tools/formUtils.js';
-import { filterData, getActionLabelByType, getNameWidth, getTextById, hasRuleChanged, TAB_TYPES } from './config';
+import { isRelateMoreList } from 'src/components/Form/core/formUtils';
+import DynamicText from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/components/DynamicText';
+import {
+  checkRuleEnableLimit,
+  filterData,
+  getActionLabelByType,
+  getNameWidth,
+  getTextById,
+  hasRuleChanged,
+  TAB_TYPES,
+} from './config';
 import * as actions from './redux/actions/columnRules';
 import * as columnRules from './redux/actions/columnRules';
 
@@ -91,30 +101,76 @@ class RuleItems extends React.Component {
   }
 
   renderActionItem = (actionItem, disabled) => {
-    const { worksheetControls } = this.props;
+    const { worksheetControls, projectId } = this.props;
     let leftText = _.includes([7], actionItem.type) ? '' : getActionLabelByType(actionItem.type);
     if (this.props.activeTab === TAB_TYPES.LOCK_RULE) {
       leftText = _l('锁定记录');
     }
+    const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type, 'rule') || [];
 
-    let text = '';
-    if (_.includes([7], actionItem.type)) {
-      text = getActionLabelByType(actionItem.type);
-    } else {
-      const currentArr = getTextById(worksheetControls, actionItem.controls, actionItem.type, 'rule') || [];
-      if (actionItem.type === 6) {
-        text = _.isEmpty(currentArr)
-          ? actionItem.message
-          : `${currentArr.map(cur => cur.name).join('、')}：${actionItem.message}`;
-      } else {
-        text = currentArr.map(cur => cur.name).join(', ');
+    const renderDetailValue = () => {
+      function renderDynamicValue(value, controlId) {
+        const dynamicValue = safeParse(value, 'array');
+
+        let currentControl = { type: 2 };
+        if (controlId) {
+          currentControl = _.find(worksheetControls, a => a.controlId === controlId);
+        }
+
+        return (
+          <DynamicText
+            globalSheetInfo={{ projectId }}
+            dynamicValue={dynamicValue}
+            data={currentControl}
+            controls={worksheetControls}
+          />
+        );
       }
-    }
+      if (actionItem.type === 9) {
+        return (
+          <span className={cx('detailValue mTop6', { Gray_bd: disabled })}>
+            {currentArr.map(cur => {
+              if (cur.isDel) {
+                return <span className="detailValueCon LineHeight30 Red">{_l('字段已删除')}</span>;
+              }
+              return (
+                <div className="detailValueCon LineHeight30">
+                  <span className="title">{_l('将')}</span>
+                  <span className="mLeft10 mRight10" title={_.get(cur, 'name')}>
+                    {_.get(cur, 'name')}
+                  </span>
+                  <span className="title mRight10">{_l('值设为')}</span>
+                  {cur.type === '1'
+                    ? _l('函数计算')
+                    : cur.type === '2'
+                      ? _l('查询工作表')
+                      : renderDynamicValue(cur.value, cur.controlId)}
+                </div>
+              );
+            })}
+          </span>
+        );
+      } else {
+        let text = '';
+        if (_.includes([7], actionItem.type)) {
+          text = getActionLabelByType(actionItem.type);
+        } else {
+          if (actionItem.type === 6) {
+            text = _.isEmpty(currentArr)
+              ? actionItem.message
+              : `${currentArr.map(cur => cur.name).join('、')}：${actionItem.message}`;
+          } else {
+            text = currentArr.map(cur => cur.name).join(', ');
+          }
+        }
+        return <span className={cx('rightLabel WordBreak', { Gray_bd: disabled })}>{text}</span>;
+      }
+    };
 
     return (
-      <span className="ruleItemTextRow mTop10">
-        <span className={cx('leftLabel', { Gray_bd: disabled })}>{leftText}</span>
-        <span className={cx('rightLabel WordBreak', { Gray_bd: disabled })}>{text}</span>
+      <span className={cx('ruleItemTextRow', { mTop10: actionItem.type !== 9 })}>
+        <span className={cx('leftLabel', { Gray_bd: disabled, mTop10: actionItem.type === 9 })}>{leftText}</span>
+        {renderDetailValue()}
       </span>
     );
   };
@@ -164,16 +220,21 @@ class RuleItems extends React.Component {
         {ruleItems.map(actionItem => this.renderActionItem(actionItem, disabled))}
 
         <div className="ruleItemOptions" onClick={e => e.stopPropagation()}>
-          <Tooltip popupPlacement="bottom" text={<span>{disabled ? _l('停用') : _l('开启')}</span>}>
+          <Tooltip placement="bottom" title={disabled ? _l('停用') : _l('开启')}>
             <Icon
               className="Font24 Hand"
               icon={ruleData.disabled ? 'ic_toggle_off' : 'ic_toggle_on'}
               style={{ color: ruleData.disabled ? '#bdbdbd' : '#43bd36' }}
-              onClick={() => updateRuleAttr('disabled', !ruleData.disabled, ruleId)}
+              onClick={() => {
+                if (ruleData.disabled && !checkRuleEnableLimit(columnRulesListData)) {
+                  return;
+                }
+                updateRuleAttr('disabled', !ruleData.disabled, ruleId);
+              }}
             />
           </Tooltip>
           {type !== TAB_TYPES.LOCK_RULE && (
-            <Tooltip popupPlacement="bottom" text={<span>{_l('复制')}</span>}>
+            <Tooltip placement="bottom" title={_l('复制')}>
               <Icon icon="copy" className="Font16 Hand Gray_9e Hover_49" onClick={() => copyControlRules(ruleData)} />
             </Tooltip>
           )}
@@ -205,7 +266,7 @@ class RuleItems extends React.Component {
               </div>
             }
           >
-            <Tooltip popupPlacement="bottom" text={<span>{_l('删除')}</span>}>
+            <Tooltip placement="bottom" title={_l('删除')}>
               <Icon icon="trash" className="Font16 Red Hand RedHover" />
             </Tooltip>
           </Trigger>

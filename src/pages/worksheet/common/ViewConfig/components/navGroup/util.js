@@ -132,7 +132,7 @@ export const getSetDefault = control => {
     dataType: type,
   };
   let data = {};
-  [OPTIONS, OPTIONSOTHER, RELATES, CASCADER, AREA].map(o => {
+  [OPTIONS, OPTIONSOTHER, RELATES, CASCADER, AREA].forEach(o => {
     if (o.keys.includes(type) || o.keys.includes(sourceControlType)) {
       o.data.map(it => {
         data = {
@@ -151,7 +151,7 @@ export const getSetDefault = control => {
 export const getSetHtmlData = type => {
   let data = [];
   type &&
-    [OPTIONS, OPTIONSOTHER, RELATES, CASCADER, AREA].map(it => {
+    [OPTIONS, OPTIONSOTHER, RELATES, CASCADER, AREA].forEach(it => {
       if (it.keys.includes(type)) {
         it.data.map(o => {
           data.push({

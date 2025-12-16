@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { SheetViewWrap } from '../../../styled';
 import { formatViewToDropdown, isSheetDisplay } from '../../../util';
@@ -74,11 +74,7 @@ export default function RelateSearchOperate(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { allowexport: String(+!checked) }))}
           >
             <span style={{ marginRight: '4px' }}>{_l('允许导出')}</span>
-            <Tooltip
-              placement="bottom"
-              autoCloseDelay={0}
-              title={_l('勾选后支持在主记录详情中将查询到的可见记录导出为 Excel')}
-            >
+            <Tooltip placement="bottom" title={_l('勾选后支持在主记录详情中将查询到的可见记录导出为 Excel')}>
               <i className="icon-help Gray_9e Font16"></i>
             </Tooltip>
           </Checkbox>

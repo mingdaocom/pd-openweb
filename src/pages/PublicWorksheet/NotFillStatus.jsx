@@ -6,8 +6,10 @@ import styled from 'styled-components';
 import { RichText } from 'ming-ui';
 import { Hr } from 'worksheet/components/Basics';
 import FixedContent from 'src/components/FixedContent';
+import { INVOICE_STATUS } from 'src/pages/invoice/constant';
 import { getRequest } from 'src/utils/common';
 import { renderText } from 'src/utils/control';
+import ApplyInvoiceBtn from '../invoice/ApplyInvoiceBtn';
 import { FILL_STATUS } from './enum';
 import FilledRecord from './FilledRecord';
 import { canSubmitByLimitFrequency } from './utils';
@@ -24,6 +26,23 @@ const Con = styled.div`
     padding-bottom: 100px;
     .unusualContent {
       box-shadow: none !important;
+    }
+  }
+  .invoiceBtn {
+    width: fit-content;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 3px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    &:hover {
+      color: #1677ff;
+      i {
+        color: #1677ff !important;
+      }
     }
   }
 `;
@@ -61,12 +80,10 @@ function getIcon(status, worksheetId) {
   if (!worksheetId) {
     return { icon: 'icon-cancel', color: '#f44133' };
   }
-  switch (status) {
-    case FILL_STATUS.COMPLETED:
-      return { icon: 'icon-check_circle', color: '#4CAF50' };
-    default:
-      return { icon: 'icon-error1', color: '#FF6200' };
+  if (status === FILL_STATUS.COMPLETED) {
+    return { icon: 'icon-check_circle', color: '#4CAF50' };
   }
+  return { icon: 'icon-error1', color: '#FF6200' };
 }
 
 function getTip(worksheetId, status) {
@@ -83,8 +100,6 @@ function getTip(worksheetId, status) {
       return _l('此表单仅限在微信客户端中填写');
     case FILL_STATUS.NO_PROJECT_USER:
       return _l('此表单仅限本组织用户填写');
-    case FILL_STATUS.COMPLETED:
-      return _l('提交成功');
     default:
       return '';
   }
@@ -94,10 +109,7 @@ const StatusIcon = ({ status, worksheetId }) => {
   return (
     <i
       className={`icon ${getIcon(status, worksheetId).icon}`}
-      style={{
-        fontSize: 80,
-        color: getIcon(status, worksheetId).color,
-      }}
+      style={{ fontSize: 80, color: getIcon(status, worksheetId).color }}
     ></i>
   );
 };
@@ -105,7 +117,8 @@ const StatusIcon = ({ status, worksheetId }) => {
 StatusIcon.propTypes = { status: PropTypes.string };
 
 export default function NotFillStatus(props) {
-  const { status, publicWorksheetInfo, onRefill, formData, rules, fillData = [] } = props;
+  const { status, publicWorksheetInfo, onRefill, formData, rules, fillData = [], submitRes = {} } = props;
+  const { isPaySuccessAddRecord, isOpenInvoice, orderId, amount } = submitRes || {};
   const {
     worksheetId,
     name,
@@ -119,7 +132,7 @@ export default function NotFillStatus(props) {
   } = publicWorksheetInfo;
   const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
   const request = getRequest();
-  const afterSubmit = safeParse(extendDatas.afterSubmit);
+  const afterSubmit = safeParse(extendDatas?.afterSubmit);
 
   const handleReceive = () => {
     const text = afterSubmit.content || '';
@@ -152,15 +165,28 @@ export default function NotFillStatus(props) {
       ) : (
         <div style={{ width: '100%' }}>
           <StatusIcon status={status} worksheetId={worksheetId} />
-
-          {worksheetId && name && <Tip1 className="mTop10">{name}</Tip1>}
-
-          <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>
-
+          {status === FILL_STATUS.COMPLETED ? (
+            <Tip1 className="mTop10">{isPaySuccessAddRecord ? _l('支付成功，表单已提交') : _l('表单提交成功')}</Tip1>
+          ) : (
+            worksheetId && name && <Tip1 className="mTop10">{name}</Tip1>
+          )}
+          {getTip(worksheetId, status) && <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>}
           {status === FILL_STATUS.NOT_OPEN && (
             <Tip2 className="mTop8">
               {_l('表单将于') + moment(linkSwitchTime.startTime).format('YYYY年MM月DD日 HH:mm') + _l('开放填写')}
             </Tip2>
+          )}
+
+          {isPaySuccessAddRecord && (
+            <ApplyInvoiceBtn
+              icon="wysiwyg"
+              className="invoiceBtn mTop20 bold"
+              orderInfo={{ orderId, orderStatus: 1, amount }}
+              isOpenInvoice={isOpenInvoice}
+              invoiceStatus={INVOICE_STATUS.UN_INVOICED}
+              worksheetId={worksheetId}
+              landPageOpen={request.notDialog}
+            />
           )}
 
           {status === FILL_STATUS.COMPLETED &&
@@ -184,7 +210,6 @@ export default function NotFillStatus(props) {
                 )}
               </Tip2>
             )}
-
           <div style={{ minHeight: !receipt ? '224px' : '200px' }}>
             {afterSubmit.action === 1 && afterSubmit.content && status === FILL_STATUS.COMPLETED && (
               <React.Fragment>

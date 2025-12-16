@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import { filterEmptyChildTableRows } from 'src/utils/record';
 
 /** 获取选项 */
 export function getSelectedOptions(options, value, control) {
@@ -39,8 +40,8 @@ export function getSelectedOptions(options, value, control) {
 }
 
 function transformLat(lng, lat) {
-  var pi = 3.14159265358979324;
-  var dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+  let pi = 3.14159265358979324;
+  let dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
   dLat += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLat += ((20.0 * Math.sin(lat * pi) + 40.0 * Math.sin((lat / 3.0) * pi)) * 2.0) / 3.0;
   dLat += ((160.0 * Math.sin((lat / 12.0) * pi) + 320 * Math.sin((lat * pi) / 30.0)) * 2.0) / 3.0;
@@ -48,8 +49,8 @@ function transformLat(lng, lat) {
 }
 
 function transformLng(lng, lat) {
-  var pi = 3.14159265358979324;
-  var dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+  let pi = 3.14159265358979324;
+  let dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
   dLng += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLng += ((20.0 * Math.sin(lng * pi) + 40.0 * Math.sin((lng / 3.0) * pi)) * 2.0) / 3.0;
   dLng += ((150.0 * Math.sin((lng / 12.0) * pi) + 300.0 * Math.sin((lng / 30.0) * pi)) * 2.0) / 3.0;
@@ -57,21 +58,21 @@ function transformLng(lng, lat) {
 }
 
 export function wgs84togcj02(longitude, latitude) {
-  var lng = parseFloat(longitude);
-  var lat = parseFloat(latitude);
-  var a = 6378245.0;
-  var ee = 0.00669342162296594323;
-  var pi = 3.14159265358979324;
-  var dLat = transformLat(lng - 105.0, lat - 35.0);
-  var dLng = transformLng(lng - 105.0, lat - 35.0);
-  var radLat = (lat / 180.0) * pi;
-  var magic = Math.sin(radLat);
+  let lng = parseFloat(longitude);
+  let lat = parseFloat(latitude);
+  let a = 6378245.0;
+  let ee = 0.00669342162296594323;
+  let pi = 3.14159265358979324;
+  let dLat = transformLat(lng - 105.0, lat - 35.0);
+  let dLng = transformLng(lng - 105.0, lat - 35.0);
+  let radLat = (lat / 180.0) * pi;
+  let magic = Math.sin(radLat);
   magic = 1 - ee * magic * magic;
-  var sqrtMagic = Math.sqrt(magic);
+  let sqrtMagic = Math.sqrt(magic);
   dLat = (dLat * 180.0) / (((a * (1 - ee)) / (magic * sqrtMagic)) * pi);
   dLng = (dLng * 180.0) / ((a / sqrtMagic) * Math.cos(radLat) * pi);
-  var mgLat = lat + dLat;
-  var mgLng = lng + dLng;
+  let mgLat = lat + dLat;
+  let mgLng = lng + dLng;
   return [mgLng, mgLat];
 }
 
@@ -217,7 +218,9 @@ export function formatControlValue(cell) {
         }
         return cell.enumDefault === 1 ? parsedData.slice(0, 1) : parsedData;
       case 34: // SUBLIST 子表
-        return _.isObject(value) ? _.get(value, 'rows') : [...new Array(value ? Number(value) : 0)];
+        return _.isObject(value)
+          ? filterEmptyChildTableRows(_.get(value, 'rows', []))
+          : [...new Array(value ? Number(value) : 0)];
       case 30: // SHEETFIELD 他表字段
         return formatControlValue(
           _.assign({}, cell, {

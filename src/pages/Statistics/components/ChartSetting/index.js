@@ -252,21 +252,9 @@ export default class ChartSetting extends Component {
       .filter(item => item.particleSizeType)
       .map(item => `${item.controlId}-${item.particleSizeType}`);
 
-    return (
-      <Fragment>
-        {xAxisVisible && (
-          <XAxis
-            name={x}
-            disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
-            currentReport={currentReport}
-            onChangeCurrentReport={changeCurrentReport}
-            allControls={worksheetInfo.columns}
-            axisControls={axisControls}
-            addXaxes={this.props.addXaxes}
-            removeXaxes={this.props.removeXaxes}
-          />
-        )}
-        {reportTypes.ScatterChart === reportType ? (
+    const renderYAxis = () => {
+      if (reportTypes.ScatterChart === reportType) {
+        return (
           <Fragment>
             <YAxis
               name={_l('X轴(数值)')}
@@ -338,19 +326,90 @@ export default class ChartSetting extends Component {
               }}
             />
           </Fragment>
-        ) : (
-          <YAxis
-            name={y}
-            split={split}
-            yaxisList={yaxisList}
+        );
+      }
+      if (reportTypes.WorldMap === reportType) {
+        return (
+          <Fragment>
+            <YAxis
+              name={y}
+              yaxisList={_.isEmpty(yaxisList[0]) ? [] : [yaxisList[0]]}
+              currentReport={currentReport}
+              axisControls={axisControls.concat(formulas)}
+              allControls={worksheetInfo.columns}
+              onChangeCurrentReport={data => {
+                yaxisList[0] = data.yaxisList[0];
+                this.props.changeYaxisList({
+                  ...data,
+                  yaxisList,
+                });
+              }}
+              onRemoveAxis={() => {
+                yaxisList[0] = {};
+                this.props.changeYaxisList({
+                  yaxisList,
+                });
+              }}
+              onAddAxis={data => {
+                this.props.addIndexYaxisList(data, 0);
+              }}
+            />
+            <YAxis
+              name={_l('点大小')}
+              yaxisList={_.isEmpty(yaxisList[1]) ? [] : [yaxisList[1]]}
+              currentReport={currentReport}
+              axisControls={axisControls.concat(formulas)}
+              allControls={worksheetInfo.columns}
+              onChangeCurrentReport={data => {
+                yaxisList[1] = data.yaxisList[0];
+                this.props.changeYaxisList({
+                  ...data,
+                  yaxisList,
+                });
+              }}
+              onRemoveAxis={() => {
+                yaxisList[1] = null;
+                this.props.changeYaxisList({
+                  yaxisList: yaxisList.filter(_ => _),
+                });
+              }}
+              onAddAxis={data => {
+                this.props.addIndexYaxisList(data, 1);
+              }}
+            />
+          </Fragment>
+        );
+      }
+      return (
+        <YAxis
+          name={y}
+          split={split}
+          yaxisList={yaxisList}
+          currentReport={currentReport}
+          axisControls={axisControls.concat(formulas)}
+          allControls={worksheetInfo.columns}
+          onChangeCurrentReport={this.props.changeYaxisList}
+          onRemoveAxis={this.props.removeYaxisList}
+          onAddAxis={this.props.addYaxisList}
+        />
+      );
+    };
+
+    return (
+      <Fragment>
+        {xAxisVisible && (
+          <XAxis
+            name={x}
+            disableParticleSizeTypes={filterDisableParticleSizeTypes(xaxes.controlId, disableParticleSizeTypes)}
             currentReport={currentReport}
-            axisControls={axisControls.concat(formulas)}
+            onChangeCurrentReport={changeCurrentReport}
             allControls={worksheetInfo.columns}
-            onChangeCurrentReport={this.props.changeYaxisList}
-            onRemoveAxis={this.props.removeYaxisList}
-            onAddAxis={this.props.addYaxisList}
+            axisControls={axisControls}
+            addXaxes={this.props.addXaxes}
+            removeXaxes={this.props.removeXaxes}
           />
         )}
+        {renderYAxis()}
         {isMultiaxis && (
           <YAxis
             name={isDualAxes ? _l('辅助Y轴(数值)') : _l('方向2(数值)')}
@@ -370,6 +429,7 @@ export default class ChartSetting extends Component {
           reportTypes.DualAxes,
           reportTypes.RadarChart,
           reportTypes.ScatterChart,
+          reportTypes.WorldMap,
         ].includes(reportType) && (
           <GroupingAxis
             reportType={reportType}

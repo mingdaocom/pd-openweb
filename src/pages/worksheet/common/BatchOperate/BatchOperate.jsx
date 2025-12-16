@@ -1,9 +1,10 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Tooltip } from 'ming-ui';
+import { Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { mdNotification } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
@@ -289,12 +290,14 @@ class BatchOperate extends React.Component {
       if (_.find(controls, item => _.includes([10, 11], item.type) && /color/.test(item.value))) {
         refreshWorksheetControls();
       }
-      if (allWorksheetIsSelected || args.hasFilters || _.find(controls, c => c.type === 29)) {
+      if (allWorksheetIsSelected || args.hasFilters || _.find(controls, c => includes([29, 19, 23, 24], c.type))) {
         reload();
       } else {
         updateRows(
           rowIds,
-          [{}, ...controls].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })),
+          [{}, ...controls].reduce((a, b) =>
+            Object.assign({}, a, { [b.controlId]: isEditSingle ? get(data, `data.${b.controlId}`, []) : b.value }),
+          ),
         );
       }
       getWorksheetSheetViewSummary();
@@ -653,7 +656,8 @@ class BatchOperate extends React.Component {
                             if (
                               allWorksheetIsSelected ||
                               selectedRows.length === pageSize ||
-                              selectedRows.length === rows.length
+                              selectedRows.length === rows.length ||
+                              getGroupControlId(view)
                             ) {
                               reload();
                             } else {
@@ -763,7 +767,7 @@ class BatchOperate extends React.Component {
             ) : (
               <div className="flex" />
             )}
-            <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
+            <Tooltip placement="bottom" title={_l('刷新视图')}>
               <i
                 className={cx(
                   'refreshBtn icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop5 mRight12',

@@ -42,6 +42,8 @@ const SettingWrap = styled.div`
   }
   .settingContentWrap {
     width: 100%;
+    flex: 1;
+    min-height: 0;
     padding: 0px 20px 60px 20px;
     overflow-x: hidden;
   }

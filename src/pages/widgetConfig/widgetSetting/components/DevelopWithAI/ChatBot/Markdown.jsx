@@ -17,7 +17,15 @@ function genContentFromWithImage(content) {
 // 使用 React.memo 包装组件，只在 content 发生变化时重新渲染
 const Markdown = React.memo(
   function Markdown(props) {
-    const { id, content, isStreaming, codeIsClosed, onAiCodeUpdate = () => {} } = props;
+    const {
+      id,
+      content,
+      isStreaming,
+      codeIsClosed,
+      onAiCodeUpdate = () => {},
+      renderCustomBlock = () => null,
+      flag,
+    } = props;
     const markdown = useMemo(() => {
       const md = new Remarkable({
         breaks: true,
@@ -71,13 +79,20 @@ const Markdown = React.memo(
   ${codeIsClosed === false ? '<div class="border-beam"></div>' : ''}
 </div>`;
         }
+        if (lang.startsWith('custom_block_')) {
+          return renderCustomBlock({
+            type: lang,
+            content: token.content,
+            isStreaming,
+          });
+        }
 
         // 其他语言的代码块使用默认的fence处理器
         return defaultFence.call(self, tokens, idx, options, env, self);
       };
 
       return md;
-    }, [isStreaming, codeIsClosed, id]);
+    }, [isStreaming, codeIsClosed, id, flag, renderCustomBlock]);
     return (
       <MarkdownWithCSS
         dangerouslySetInnerHTML={{
@@ -87,7 +102,11 @@ const Markdown = React.memo(
     );
   },
   (prevProps, nextProps) => {
-    return prevProps.content === nextProps.content;
+    return (
+      prevProps.content === nextProps.content &&
+      prevProps.isStreaming === nextProps.isStreaming &&
+      prevProps.flag === nextProps.flag
+    );
   },
 );
 

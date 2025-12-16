@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Card, Dialog, Input, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
+import { Icon, ScrollView } from 'ming-ui';
 import { ROLE_CONFIG, sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import Back from '../components/Back';
@@ -113,7 +113,7 @@ class Members extends Component {
     const otherList = data.filter(o => !sysRoleType.includes(o.roleType));
 
     return (
-      <div className="memberListCon">
+      <ScrollView className="memberListCon flex">
         <div className="roleTypeTitle">{_l('系统')}</div>
         {this.renderCard(sysList, isAdmin)}
         {otherList && otherList.length ? (
@@ -124,7 +124,7 @@ class Members extends Component {
         ) : (
           ''
         )}
-      </div>
+      </ScrollView>
     );
   }
   renderApplyList() {
@@ -180,7 +180,7 @@ class Members extends Component {
       const isAdmin =
         detail.permissionType === APP_ROLE_TYPE.POSSESS_ROLE || detail.permissionType === APP_ROLE_TYPE.ADMIN_ROLE;
       return (
-        <div className="memberListMobile h100">
+        <div className="memberListMobile h100 flexColumn">
           {isAdmin && memberData.applyList && memberData.applyList.length > 0 && this.renderApplyList()}
           {this.renderRoleList(memberData.listData, isAdmin)}
           {!window.isPublicApp && this.renderBtn()}

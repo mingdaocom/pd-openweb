@@ -306,7 +306,7 @@ export default class CommonInfo extends Component {
 
               <div className="common-info-row">
                 <div className="common-info-row-label">
-                  {_l('组织LOGO')}
+                  {_l('LOGO')}
                   {Config.project.licenseType === 0 && <UpgradeIcon className="mTop2" />}
                 </div>
                 <div className="common-info-row-content">
@@ -325,7 +325,7 @@ export default class CommonInfo extends Component {
                 {/** 上传图片 */}
               </div>
               <div className="common-info-row mTop24">
-                <div className="common-info-row-label">{_l('组织名称')}</div>
+                <div className="common-info-row-label">{_l('名称')}</div>
                 {companyName && <span className="mRight16">{companyName}</span>}
               </div>
               <div className="common-info-row mTop24">
@@ -353,7 +353,7 @@ export default class CommonInfo extends Component {
                 </Button>
               </div>
               <div className="common-info-row mTop24">
-                <div className="common-info-row-label">{_l('组织门牌号')}</div>
+                <div className="common-info-row-label">{_l('门牌号')}</div>
                 <div className="common-info-row-content">
                   <ClipboardButton
                     className="adminHoverColor Hand"
@@ -380,7 +380,7 @@ export default class CommonInfo extends Component {
                 </div>
               </div>
               <div className="common-info-row mTop24">
-                <div className="common-info-row-label">{_l('组织编号(ID)')}</div>
+                <div className="common-info-row-label">{_l('编号(ID)')}</div>
                 <div className="common-info-row-content">
                   <ClipboardButton
                     className="adminHoverColor Hand"
@@ -406,7 +406,7 @@ export default class CommonInfo extends Component {
                       />
                       <div className="set-describe mTop4">
                         {_l(
-                          '试用、免费版需组织完成身份认证后可充值余额；自定义短信签名等功能需完成组织身份认证（注意：非个人身份）',
+                          '试用、免费版需组织完成身份认证后可充值信用点；自定义短信签名等功能需完成组织身份认证（注意：非个人身份）',
                         )}
                       </div>
                     </div>

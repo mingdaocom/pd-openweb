@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Popup, Tabs } from 'antd-mobile';
+import { ActionSheet, Button, Checkbox, Popup, Tabs } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -136,6 +136,7 @@ export default class ProcessMatters extends Component {
       encryptType: null,
       filterVisible: false,
       queryParam: {},
+      batchLoadingType: '',
     };
   }
   componentDidMount() {
@@ -336,7 +337,7 @@ export default class ProcessMatters extends Component {
   };
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const { approveCards } = this.state;
+    const { approveCards, batchLoadingType } = this.state;
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
@@ -350,18 +351,23 @@ export default class ProcessMatters extends Component {
         return data;
       }
     });
+    if (batchLoadingType) return;
+    this.setState({ batchLoadingType: approveType });
     instanceVersion
-      .batch({
+      .batch2({
         type: 4,
         batchOperationType: approveType,
         selects,
       })
       .then(result => {
-        if (result) {
-          alert(_l('操作成功'), 1);
+        const { success = [], fail = [] } = result;
+        const callBack = () => {
+          handler.close();
           this.setState(
             {
+              batchLoadingType: false,
               batchApproval: false,
+              rejectVisible: false,
               approveCards: [],
               list: [],
               pageIndex: 1,
@@ -372,7 +378,42 @@ export default class ProcessMatters extends Component {
               this.getTodoList();
             },
           );
-        }
+        };
+        const handler = ActionSheet.show({
+          extra: (
+            <div className="w100">
+              {!!success.length && (
+                <div className="flexRow alignItemsCenter mTop12">
+                  <Icon icon="check_circle1" className="Font36 mRight10" style={{ color: '#4CB050' }} />
+                  <div className="Gray Font20">{_l('%0 条执行完成', success.length)}</div>
+                </div>
+              )}
+              {!!fail.length && (
+                <div className="flexRow mTop12">
+                  <Icon icon="report" className="Font36 mRight10" style={{ color: '#F54337' }} />
+                  <div className="w100">
+                    <div className="Font20 mBottom5" style={{ color: '#F54337' }}>
+                      {_l('%0 条异常', fail.length)}
+                    </div>
+                    <div style={{ maxHeight: 500, overflowY: 'auto' }}>
+                      {fail.map(key => {
+                        const [id, workId] = key.split(',');
+                        const card = _.find(cards, { id, workId });
+                        return card ? (
+                          <div className="Gray Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <Button block color="primary" size="small" className="mTop24" onClick={callBack}>
+                {_l('关闭')}
+              </Button>
+            </div>
+          ),
+          onClose: callBack,
+        });
       });
   };
   renderSignatureDialog() {
@@ -475,7 +516,7 @@ export default class ProcessMatters extends Component {
     return (
       <ModalWrap
         visible={true}
-        className="mobileModal full topRadius"
+        className="mobileModal minFull topRadius"
         onClose={() => {
           this.setState({ rejectVisible: false });
         }}
@@ -720,6 +761,7 @@ export default class ProcessMatters extends Component {
       approveType,
       encryptType,
       rejectVisible,
+      batchLoadingType,
     } = this.state;
     const currentTabs = bottomTab.tabs;
     const allowApproveList = list.filter(c => _.get(c, 'flowNode.batchApprove'));
@@ -751,7 +793,7 @@ export default class ProcessMatters extends Component {
             </Tabs>
             {batchApproval && (
               <div className="batchApprovalHeader valignWrapper Font16">
-                <div className="bold">
+                <div className="bold Gray">
                   {_l('待审批')}
                   {countData.waitingApproval && `(${countData.waitingApproval})`}
                 </div>
@@ -784,21 +826,21 @@ export default class ProcessMatters extends Component {
                     }
                   }}
                 />
-                <div className="mLeft5">
+                <div className="mLeft5 Font17">
                   {_l('全选')}
                   {approveCards.length
                     ? _l('（已选择%0/%1条）', approveCards.length, list.length)
                     : list.length !== countData.waitingApproval && _l('（已加载%0条）', list.length)}
                 </div>
               </div>
-              <div className="valignWrapper mTop10">
+              <div className="valignWrapper mTop20">
                 <div
                   className={cx('passApprove flex mRight10', { all: approveCards.length })}
                   onClick={() => {
                     this.hanndleApprove(4, 'auth.passTypeList');
                   }}
                 >
-                  {_l('同意')}
+                  {batchLoadingType === 4 ? <LoadDiv size="small" /> : _l('同意')}
                 </div>
                 <div
                   className={cx('rejectApprove flex', {
@@ -815,7 +857,7 @@ export default class ProcessMatters extends Component {
                     }
                   }}
                 >
-                  <span className="mRight5">{_l('拒绝')}</span>
+                  {batchLoadingType === 5 ? <LoadDiv size="small" /> : <span className="mRight5">{_l('拒绝')}</span>}
                   {!(approveCards.length && rejectList.length === approveCards.length) &&
                     !!rejectList.length &&
                     rejectList.length}

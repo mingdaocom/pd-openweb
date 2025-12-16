@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Button, Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig.jsx';
 import { filterUnavailableConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -61,6 +62,7 @@ export default function ViewFilter(props) {
 
   useEffect(() => {
     const { worksheetId } = props;
+    if (!worksheetId) return;
     sheetAjax
       .getWorksheetFilters({ worksheetId })
       .then(data => {
@@ -135,7 +137,7 @@ export default function ViewFilter(props) {
               </Menu>
             }
           >
-            <Tooltip disable={showMoreMenu} popupPlacement="bottom" text={<span>{_l('已保存的筛选器')}</span>}>
+            <Tooltip placement="bottom" title={showMoreMenu ? '' : <span>{_l('已保存的筛选器')}</span>}>
               <div className="valignWrapper more pointer">
                 <span>{_l('更多')}</span>
                 <Icon icon="arrow-down" />

@@ -54,15 +54,14 @@
     position: relative;
     background-color: transparent;
     .cell:not(.columnHead) {
-      &.control-31, // FORMULA_NUMBER 公式
-      &.control-38, // FORMULA_DATE 公式
-      &.control-37, // SUBTOTAL 汇总
-      &.control-30, // SHEET_FIELD 他表字段
-      &.control-33, // AUTO_ID 自动编号
-      &.control-32, // CONCATENATE  文本组合
-      &.control-10010, // REMARK  备注
-      &.control-25 // MONEY_CN 大写金额
-      {
+      &.control-31, /* FORMULA_NUMBER 公式 */
+      &.control-38, /* FORMULA_DATE 公式 */
+      &.control-37, /* SUBTOTAL 汇总 */
+      &.control-30, /* SHEET_FIELD 他表字段 */
+      &.control-33, /* AUTO_ID 自动编号 */
+      &.control-32, /* CONCATENATE  文本组合 */
+      &.control-10010, /* REMARK  备注 */
+      &.control-25 /* MONEY_CN 大写金额 */ {
         background-color: #f5f5f5 !important;
       }
     }
@@ -211,6 +210,9 @@
       .icon {
         font-size: 20px;
         color: #9e9e9e;
+      }
+      .themeIcon {
+        color: var(--color-primary);
       }
     }
   }

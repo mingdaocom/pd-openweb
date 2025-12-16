@@ -2,7 +2,7 @@
  * [Common 账务中心公用模块]
  * @type {Object}
  */
-var Common = {};
+const Common = {};
 /**
  * [respEnum ajax 响应枚举]
  * @type {Object}

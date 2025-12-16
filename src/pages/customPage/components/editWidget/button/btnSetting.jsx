@@ -6,6 +6,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet';
@@ -247,8 +248,9 @@ let sheetRequest = null;
 function BtnSetting(props) {
   const { pageId, activeIndex, appPkg = {}, btnSetting, btnConfig, components, setBtnSetting, onDel, onCopy } = props;
   const appId = appPkg.id;
+  const btnSettingParam = _.get(btnSetting, 'param') || [];
   const [displayType, setDisplayType] = useState('setting');
-  const [paras, setParas] = useState(btnSetting.param || []);
+  const [paras, setParas] = useState(btnSettingParam);
   const [sheetLoading, setSheetLoading] = useState(true);
   const projectId = appPkg.projectId || appPkg.id;
 
@@ -260,8 +262,8 @@ function BtnSetting(props) {
   const { action, viewId, searchId, filterId, openMode, btnId, value, config } = btnSetting;
 
   useEffect(() => {
-    setParas(btnSetting.param || []);
-  }, [btnSetting.param]);
+    setParas(btnSettingParam);
+  }, [btnSettingParam]);
 
   useEffect(() => {
     appManagementAjax.getAppForManager({ projectId }).then(data => {
@@ -818,7 +820,7 @@ function BtnSetting(props) {
 
     if (_.get(data, ['config', 'isNewBtn'])) {
       const { svgIcon } = _.find(CLICK_ACTION, { value });
-      const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${svgIcon}.svg`;
+      const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon}.svg`;
       delete data.config.isNewBtn;
       data.config = {
         ...data.config,
@@ -841,12 +843,16 @@ function BtnSetting(props) {
       </ul>
       {displayType === 'setting' && (
         <div className="delBtn">
-          <div className="iconWrap mRight8" data-tip={_l('复制')} onClick={onCopy}>
-            <i className="icon-copy_custom Font20"></i>
-          </div>
-          <div className="iconWrap" data-tip={_l('删除')} onClick={onDel}>
-            <i className="icon-delete_12 Font18"></i>
-          </div>
+          <Tooltip title={_l('复制')}>
+            <div className="iconWrap mRight8" onClick={onCopy}>
+              <i className="icon-copy_custom Font20"></i>
+            </div>
+          </Tooltip>
+          <Tooltip title={_l('删除')}>
+            <div className="iconWrap" onClick={onDel}>
+              <i className="icon-delete_12 Font18"></i>
+            </div>
+          </Tooltip>
         </div>
       )}
       <div className="settingsBox Relative">

@@ -90,6 +90,7 @@ class DetailView extends Component {
               notModal={true}
               visible={true}
               enablePayment={worksheetInfo.enablePayment}
+              worksheetInfo={worksheetInfo}
               appId={base.appId}
               worksheetId={base.worksheetId}
               viewId={base.viewId || view.viewId}

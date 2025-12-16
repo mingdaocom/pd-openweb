@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import DataFormat from 'src/components/Form/core/DataFormat';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { checkRulesErrorOfRow } from 'src/utils/rule';
@@ -93,8 +93,8 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const hadValueRows = rows.filter(
         row =>
           typeof row[c.controlId] !== 'undefined' &&
-          !row[c.controlId].startsWith('deleteRowIds') &&
-          !checkCellIsEmpty(row[c.controlId]),
+          !checkCellIsEmpty(row[c.controlId]) &&
+          !row[c.controlId].startsWith('deleteRowIds'),
       );
       const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));
       if (hadValueRows.length !== uniqueValueRows.length) {
@@ -118,3 +118,51 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
     throw err;
   }
 }
+
+export const addWidthToColumns = (columns, dataSource) => {
+  // 创建一个隐藏的 div 用来计算文字宽度
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'absolute';
+  wrapper.style.visibility = 'hidden';
+  wrapper.style.whiteSpace = 'nowrap';
+  wrapper.style.fontSize = '16px';
+  document.body.appendChild(wrapper);
+
+  const tempDiv = document.createElement('div');
+  tempDiv.style.fontSize = '1em';
+  wrapper.appendChild(tempDiv);
+
+  const MIN_WIDTH = 80;
+  const MAX_WIDTH = 200;
+  const PADDING = 20; // 左右各 10
+  const TOLERANCE = 10; // 预留10像素容错，避免计算误差
+
+  const newColumns = columns.map(col => {
+    if (col.controlId === 'delete') {
+      return col;
+    }
+    // 获取该列的所有值（加上列标题）
+    const values = [col.controlName, ...dataSource.map(row => row[col.controlId] ?? '')];
+    // 计算最大宽度
+    let maxTextWidth = 0;
+    values.forEach(value => {
+      tempDiv.innerText = String(value);
+      maxTextWidth = Math.max(maxTextWidth, tempDiv.offsetWidth);
+    });
+
+    // 加上 padding + 容错
+    let finalWidth = maxTextWidth + PADDING + TOLERANCE;
+    // 限制范围
+    if (finalWidth < MIN_WIDTH) finalWidth = MIN_WIDTH;
+    if (finalWidth > MAX_WIDTH) finalWidth = MAX_WIDTH;
+
+    return {
+      ...col,
+      width: finalWidth,
+    };
+  });
+
+  document.body.removeChild(wrapper);
+
+  return newColumns;
+};

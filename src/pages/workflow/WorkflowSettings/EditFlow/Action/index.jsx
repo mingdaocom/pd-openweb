@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import { getIcons } from '../../utils';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
 export default class Action extends Component {
   constructor(props) {
@@ -35,15 +35,11 @@ export default class Action extends Component {
       if (item.selectNodeName) {
         return (
           <Fragment>
-            {item.appType !== APP_TYPE.EXTERNAL_USER && (
-              <div className="workflowContentInfo ellipsis workflowContentBG">
-                <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
-              </div>
-            )}
+            {item.appType !== APP_TYPE.EXTERNAL_USER && <WorksheetMessage item={item} />}
             {item.fields.length === 0 ? (
-              <div className="pLeft8 pRight8 mTop8 yellow pBottom5">{_l('未设置可执行的动作')}</div>
+              <div className="pLeft8 pRight8 mTop4 yellow pBottom5">{_l('未设置可执行的动作')}</div>
             ) : (
-              <div className="pLeft8 pRight8 mTop8 Gray_75 pBottom5">
+              <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
                 {item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
                   ? _l('校准了%0个字段', item.fields.length)
                   : _l('修改了%0个字段', item.fields.length)}
@@ -69,10 +65,8 @@ export default class Action extends Component {
       if (item.appName) {
         return (
           <Fragment>
-            <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
-            </div>
-            {item.selectNodeId && <div className="pLeft8 pRight8 mTop8 Gray_75">{_l('批量新增')}</div>}
+            <WorksheetMessage item={item} />
+            {item.selectNodeId && <div className="pLeft8 pRight8 mTop4 Gray_75">{_l('批量新增')}</div>}
 
             {item.fields.length === 0 ? (
               <div className={cx('pLeft8 pRight8 yellow pBottom5', item.selectNodeId ? 'mTop4' : 'mTop8')}>
@@ -103,9 +97,7 @@ export default class Action extends Component {
       if (item.appName) {
         return (
           <Fragment>
-            <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
-            </div>
+            <WorksheetMessage item={item} />
             <div className="workflowContentInfo ellipsis Gray_75 mTop4">{_l('删除记录')}</div>
           </Fragment>
         );
@@ -157,9 +149,7 @@ export default class Action extends Component {
       if (item.appName) {
         return (
           <Fragment>
-            <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
-            </div>
+            <WorksheetMessage item={item} />
             <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
               {_l('填写了%0个字段', item.fields.length)}
               {item.errorFields.length > 0 ? '，' : ''}
@@ -287,7 +277,7 @@ export default class Action extends Component {
               {
                 errorShadow:
                   (((item.appId || item.selectNodeId) &&
-                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], item.appType)) ||
+                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.EXTERNAL_USER], item.appType)) ||
                     (_.includes(
                       [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
                       item.appType,

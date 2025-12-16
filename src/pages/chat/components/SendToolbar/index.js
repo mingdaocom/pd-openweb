@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import { Tooltip } from 'ming-ui/antd-components';
 import chatAjax from 'src/api/chat';
 import { SOURCE_TYPE } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion/emotion';
@@ -301,7 +302,7 @@ export default class SendToolbar extends Component {
         })
         .then(result => {
           if (!result || !result.node) {
-            return Promise.reject();
+            throw new Error();
           }
           result.node.forEach(item => {
             this.handleSendCardToChat(item);
@@ -380,9 +381,11 @@ export default class SendToolbar extends Component {
         popupAlign={{ offset: [id === 'file-transfer' ? -50 : -20, -20] }}
         getPopupContainer={() => document.querySelector('.ChatPanel-wrapper')}
       >
-        <div className="icon-btn tip-top" data-tip={_l('发送本地文件')}>
-          <i className="icon-attachment" />
-        </div>
+        <Tooltip title={_l('发送本地文件')}>
+          <div className="icon-btn">
+            <i className="icon-attachment" />
+          </div>
+        </Tooltip>
       </Trigger>
     );
   }
@@ -392,40 +395,45 @@ export default class SendToolbar extends Component {
 
     return (
       <div className="ChatPanel-sendToolbar">
-        <div
-          onClick={this.handleRecord.bind(this)}
-          ref={emotion => {
-            this.emotion = emotion;
-          }}
-          className="icon-btn tip-top"
-          data-tip={_l('发表情')}
-        >
-          <i className="icon-smilingFace" />
-        </div>
+        <Tooltip title={_l('发表情')}>
+          <div
+            onClick={this.handleRecord.bind(this)}
+            ref={emotion => {
+              this.emotion = emotion;
+            }}
+            className="icon-btn"
+          >
+            <i className="icon-smilingFace" />
+          </div>
+        </Tooltip>
         {this.renderFile()}
         {session.isGroup ? (
-          <div
-            onClick={this.handleOpenAt.bind(this)}
-            ref={at => {
-              this.at = at;
-            }}
-            className="icon-btn tip-top-left"
-            data-tip={_l('@聊天成员，给ta发送一个抖动')}
-          >
-            <i className="icon-chat-at" />
-          </div>
+          <Tooltip title={_l('@聊天成员，给ta发送一个抖动')} placement="topRight">
+            <div
+              onClick={this.handleOpenAt.bind(this)}
+              ref={at => {
+                this.at = at;
+              }}
+              className="icon-btn"
+            >
+              <i className="icon-chat-at" />
+            </div>
+          </Tooltip>
         ) : id === 'file-transfer' ? undefined : (
-          <div onClick={this.props.onShake.bind(this)} className="icon-btn tip-top" data-tip={_l('抖动ta的屏幕')}>
-            <i className="icon-chat-shake" />
-          </div>
+          <Tooltip title={_l('抖动ta的屏幕')}>
+            <div onClick={this.props.onShake.bind(this)} className="icon-btn">
+              <i className="icon-chat-shake" />
+            </div>
+          </Tooltip>
         )}
-        <div
-          className={cx('icon-btn tip-top', { btnCapture: !window.isMDClient })}
-          data-tip={_l('截屏')}
-          onClick={this.handleIpcRenderer.bind(this)}
-        >
-          <i className="icon-outil_capture" />
-        </div>
+        <Tooltip title={_l('截屏')}>
+          <div
+            className={cx('icon-btn', { btnCapture: !window.isMDClient })}
+            onClick={this.handleIpcRenderer.bind(this)}
+          >
+            <i className="icon-outil_capture" />
+          </div>
+        </Tooltip>
       </div>
     );
   }

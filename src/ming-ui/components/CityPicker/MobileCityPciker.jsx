@@ -182,7 +182,7 @@ export default class MobileCityPicker extends Component {
                 <LoadDiv />
               ) : (
                 <div className="popupListBox">
-                  {data.length > 0 &&
+                  {data.length > 0 && listData.length > 0 ? (
                     listData.map(item => {
                       return (
                         <div
@@ -221,7 +221,10 @@ export default class MobileCityPicker extends Component {
                           </div>
                         </div>
                       );
-                    })}
+                    })
+                  ) : (
+                    <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('无地区数据，请联系管理员')}</div>
+                  )}
                 </div>
               )}
             </div>

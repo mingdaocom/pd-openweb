@@ -5,9 +5,11 @@ import { Collapse, Dropdown, Menu } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { reportTypes } from 'statistics/Charts/common';
 import { formatrChartTimeText, getAlreadySelectControlId, isTimeControl } from 'statistics/common';
 import * as actions from 'statistics/redux/actions';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
@@ -314,18 +316,20 @@ export default class DataSource extends Component {
   }
   renderAddCalculateControl() {
     return (
-      <div className="tip-top-left mRight5 addCalculateControl" data-tip={_l('添加计算字段')}>
-        <Icon
-          icon="add"
-          className="Font18 Gray_9e pointer"
-          onClick={event => {
-            event.stopPropagation();
-            this.setState({
-              calculateControlModalVisible: true,
-            });
-          }}
-        />
-      </div>
+      <Tooltip title={_l('添加计算字段')} placement="topLeft">
+        <div className="mRight5 addCalculateControl">
+          <Icon
+            icon="add"
+            className="Font18 Gray_9e pointer"
+            onClick={event => {
+              event.stopPropagation();
+              this.setState({
+                calculateControlModalVisible: true,
+              });
+            }}
+          />
+        </div>
+      </Tooltip>
     );
   }
   renderCalculateControl(alreadySelectControlId) {
@@ -391,6 +395,7 @@ export default class DataSource extends Component {
   }
   renderControls() {
     const { currentReport } = this.props;
+    const { reportType } = currentReport;
     const alreadySelectControlId = getAlreadySelectControlId(currentReport);
     const { currentAxisControls } = this.state;
     return (
@@ -403,16 +408,23 @@ export default class DataSource extends Component {
         >
           <Collapse.Panel header={<div className="flex Gray_9e">{_l('工作表')}</div>} key="sheetControl">
             <div>
-              {currentAxisControls.map(item => (
-                <ControlItem
-                  key={item.controlId}
-                  item={item}
-                  isActive={alreadySelectControlId.includes(item.controlId)}
-                  onChangeCheckbox={event => {
-                    this.handleChangeCheckbox(event, item);
-                  }}
-                />
-              ))}
+              {currentAxisControls
+                .filter(c => {
+                  if (reportType === reportTypes.WorldMap) {
+                    return true;
+                  }
+                  return c.type !== 40;
+                })
+                .map(item => (
+                  <ControlItem
+                    key={item.controlId}
+                    item={item}
+                    isActive={alreadySelectControlId.includes(item.controlId)}
+                    onChangeCheckbox={event => {
+                      this.handleChangeCheckbox(event, item);
+                    }}
+                  />
+                ))}
               {_.isEmpty(currentAxisControls) && <div className="centerAlign pTop30">{_l('无搜索结果')}</div>}
             </div>
           </Collapse.Panel>

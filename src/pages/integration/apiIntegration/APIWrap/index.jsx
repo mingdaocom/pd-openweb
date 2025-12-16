@@ -6,7 +6,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Menu, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, Menu, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process.js';
@@ -249,7 +250,7 @@ function APISetting(props) {
         curId: props.listId,
         isFix: false,
       });
-      getInfo(props.listId, props.data);
+      getInfo(props.listId);
     }
   }, [props.listId]);
 
@@ -355,7 +356,7 @@ function APISetting(props) {
         companyId: localStorage.getItem('currentProjectId'),
         explain: '',
         iconColor: '#455a64',
-        iconName: md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/10_13_rocket.svg',
+        iconName: md.global.FileStoreConfig.pubHost + '/customIcon/10_13_rocket.svg',
         name: '未命名 API',
         relationId: props.id,
         relationType: 40, //props.startAppType, //startAppType
@@ -366,7 +367,7 @@ function APISetting(props) {
     let newRes = {
       ...res,
       iconColor: '#455a64',
-      iconName: md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/10_13_rocket.svg',
+      iconName: md.global.FileStoreConfig.pubHost + '/customIcon/10_13_rocket.svg',
       name: '未命名 API',
       type: 1,
       ownerAccount: {
@@ -376,7 +377,7 @@ function APISetting(props) {
       },
     };
     setState({ data: newRes, curId: newRes.id });
-    getInfo(newRes.id, newRes);
+    getInfo(newRes.id);
     props.onChange && props.onChange(newRes);
   };
   /**
@@ -429,7 +430,7 @@ function APISetting(props) {
               };
               setState({ data: newData, isFix: false });
               props.onChange && props.onChange(newData);
-              getInfo(data.id, newData);
+              getInfo(data.id);
             }}
           />
         );
@@ -602,7 +603,7 @@ function APISetting(props) {
         }
       }}
     >
-      <DocumentTitle title={props.forPage ? `${_l('集成')}-${data.name || _l('未命名 API')}` : ''} />
+      {props.forPage && <DocumentTitle title={`${_l('集成')}-${data.name || _l('未命名 API')}`} />}
 
       <div className="conSetting" style={{ background: tab === 2 ? '#fff' : 'none' }}>
         <div className={cx('headTop', { isFix })} ref={headerRef}>
@@ -661,10 +662,9 @@ function APISetting(props) {
               <div className={cx('apiTop', { flex: !isFix, w150: !props.forPage })}>
                 <div className="flexRow">
                   <Tooltip
-                    autoCloseDelay={0}
-                    text={<span>{_l('API建议命名为动作+名词，如：获取订单列表、删除订单')}</span>}
-                    action={['click']}
-                    popupPlacement={'bottomLeft'}
+                    title={_l('API建议命名为动作+名词，如：获取订单列表、删除订单')}
+                    trigger={['click']}
+                    placement="bottomLeft"
                   >
                     <div className="forTip" ref={TipRef}></div>
                   </Tooltip>

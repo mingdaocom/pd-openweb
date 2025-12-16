@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { isLightColor } from 'src/utils/control';
 import { MAX_OPTIONS_COUNT } from '../../../config';
 

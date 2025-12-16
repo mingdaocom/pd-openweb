@@ -7,8 +7,7 @@ import { formatValuesOfOriginConditions, redefineComplexControl } from 'workshee
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { fillUrl } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesPath } from 'src/utils/app';
+import { getAppFeaturesPath, getTranslateInfo } from 'src/utils/app';
 import { getFilledRequestParams } from 'src/utils/common';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import {
@@ -123,7 +122,8 @@ export const getReportData = ({ reload = false } = {}) => {
       base;
     const data = getNewReport(getState().statistics);
     const success = result => {
-      const data = fillValueMap(result);
+      result.reportId = report.id;
+      const data = fillValueMap(result, pageId);
       if (permissions) {
         const param = mergeReportData(currentReport, result, report.id);
         dispatch({
@@ -131,7 +131,8 @@ export const getReportData = ({ reload = false } = {}) => {
           data: {
             ...currentReport,
             ...param,
-            // yaxisList: data.yaxisList || currentReport.yaxisList
+            name: data.name || currentReport.name,
+            // yaxisList: data.yaxisList,
           },
         });
       } else {
@@ -147,7 +148,7 @@ export const getReportData = ({ reload = false } = {}) => {
         }
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-          data: _.isEmpty(currentReport) ? data : currentReport,
+          data: !_.isNumber(currentReport.status) ? data : currentReport,
         });
       }
       dispatch({
@@ -907,7 +908,8 @@ export const addXaxes = (control, isRequest = true) => {
             return 1;
           }
           if (isArea) {
-            return control.enumDefault === 1 ? 4 : 1;
+            const data = filterAreaParticleSizeDropdownData(control)[0];
+            return _.get(data, 'value');
           }
           return 0;
         })(),
@@ -921,6 +923,7 @@ export const addXaxes = (control, isRequest = true) => {
           ...displaySetup.xdisplay,
           title: reportType === reportTypes.ScatterChart ? displaySetup.xdisplay.title : control.controlName,
         },
+        showRowList: control.type === 40 ? false : displaySetup.showRowList,
       },
     };
     if (isTime && showtype === '4') {
@@ -1049,7 +1052,7 @@ export const changeConfig = (data, isRequest = true) => {
 export const addYaxisList = (data, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { yaxisList, reportType, pivotTable } = currentReport;
+    const { yaxisList = [], reportType, pivotTable } = currentReport;
     const firstYAxis = reportType !== reportTypes.PivotTable && yaxisList[0];
     const { advancedSetting = {} } = data;
     const isPercent = advancedSetting.numshow === '1';
@@ -1118,8 +1121,8 @@ export const addYaxisList = (data, isRequest = true) => {
 export const addIndexYaxisList = (data, index, isRequest = true) => {
   return (dispatch, getState) => {
     const { currentReport } = getState().statistics;
-    const { yaxisList, displaySetup } = currentReport;
-    const firstYAxis = yaxisList[0];
+    const { reportType, yaxisList, displaySetup, summary } = currentReport;
+    const firstYAxis = _.isEmpty(yaxisList[0]) ? null : yaxisList[0];
     const { advancedSetting = {} } = data;
     const isPercent = advancedSetting.numshow === '1';
     const isNumber = isNumberControl(data.type, false);
@@ -1149,6 +1152,9 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
     };
     if (index === 0) {
       displaySetup.xdisplay.title = data.controlName;
+      if (reportType === reportTypes.WorldMap) {
+        summary.controlId = axis.controlId;
+      }
     }
     if (index === 1) {
       displaySetup.ydisplay.title = data.controlName;
@@ -1159,6 +1165,7 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
         {
           yaxisList,
           displaySetup,
+          summary,
         },
         isRequest,
       ),
@@ -1280,7 +1287,8 @@ export const changeSplit = (data, isRequest = true) => {
         }
       }
       if (isArea) {
-        param.split.particleSizeType = data.enumDefault === 1 ? 4 : 1;
+        const dropdownData = filterAreaParticleSizeDropdownData(data)[0];
+        param.split.particleSizeType = _.get(dropdownData, 'value');
       }
     }
     if (deleteId) {

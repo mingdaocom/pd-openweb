@@ -62,8 +62,8 @@
     .header {
       position: absolute;
       top: 0;
-      left: 0;
-      width: 100%;
+      right: 0;
+      width: 50%;
       z-index: 1;
     }
     .operateIconWrap > span {
@@ -78,7 +78,9 @@
   }
   &.hideNumberChartName {
     .reportName,
-    .reportDesc {
+    .reportDesc,
+    .filterCriteriaIcon,
+    .headerBottomLine {
       display: none;
     }
   }
@@ -87,6 +89,7 @@
     flex: 1;
     box-sizing: border-box;
     height: 100%;
+    min-height: 0;
     overflow: hidden;
     padding: 0 15px 16px;
     .count {

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import ClipboardButton from 'react-clipboard.js';
-import { Tooltip } from 'antd';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
 import { downloadFile } from 'src/utils/common';
 import { API_EXTENDS, PLUGIN_TYPE, pluginApiConfig, pluginConfigType, pluginConstants } from '../config';

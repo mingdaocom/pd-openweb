@@ -1,9 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Drawer, Input, Tooltip } from 'antd';
+import { Checkbox, Drawer, Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 
 const CheckboxWrap = styled(Checkbox)`

@@ -13,6 +13,7 @@ import {
   QR_LAYOUT,
   QR_POSITION,
 } from 'worksheet/common/PrintQrBarCode/enum';
+import { getCompressedFontSize } from './util';
 
 export const QRErrorCorrectLevel = {
   L: 1, // 7%
@@ -391,13 +392,6 @@ export default class Label {
     );
     this.renderBarCode(labelData.value);
   }
-  getCompressedFontSize(value, width) {
-    let count = 0;
-    value.split('').forEach(char => {
-      count += /[0x00-0x7F]/.test(char) ? 1.2 : 2;
-    });
-    return (width / count) * 2;
-  }
   renderTexts(texts = [], { left = 0, top = 0, fontSize = 10, color = '#151515', width = 100 } = {}) {
     const _this = this;
     this.drawLine(top, width);
@@ -406,7 +400,7 @@ export default class Label {
       ...text,
       value: _.replace(text.value, /\n/g, ''),
     }));
-    const { doc, getCompressedFontSize } = this;
+    const { doc } = this;
     doc.fillColor(color);
     let textTop = top;
     function render(textsForRender) {
@@ -420,7 +414,7 @@ export default class Label {
             }) || 1
           : 1;
         if (forceInLine) {
-          const newFontSize = getCompressedFontSize(value, width);
+          const newFontSize = getCompressedFontSize(value, width) * (window.isMacOs ? 1 : 0.95);
           if (newFontSize < textFontSize) {
             textFontSize = newFontSize;
           }

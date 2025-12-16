@@ -39,7 +39,7 @@ export const useSheetInfo = ({ worksheetId, saveIndex = 0, setConfigLoading, ...
         setLoading(false);
       });
   }, [worksheetId, saveIndex]);
-  return { loading, data };
+  return { loading, data, setData };
 };
 
 export const useFocus = () => {

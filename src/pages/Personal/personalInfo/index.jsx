@@ -3,7 +3,8 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
-import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import account from 'src/api/account';
 import fixedDataAjax from 'src/api/fixedData.js';
 import CertificationButton from 'src/pages/certification/CertificationButton';
@@ -124,7 +125,7 @@ export default class PersonalInfo extends React.Component {
             <Fragment>
               <span className="accountTag">{_l('付费版')}</span>
               <span className="Gray_9e mLeft10 mRight5">{_l('剩余 %0 天', accountInfo.expireDays)}</span>
-              <Tooltip popupPlacement="top" text={<span>{_l('到期时间：根据您所在组织最晚到期时间为准。')}</span>}>
+              <Tooltip placement="top" title={_l('到期时间：根据您所在组织最晚到期时间为准。')}>
                 <span className="icon-help Font15 Gray_bd mLeft2 Hand" />
               </Tooltip>
             </Fragment>
@@ -416,7 +417,7 @@ export default class PersonalInfo extends React.Component {
                   <span>
                     {baseDetail.fullname}
                     {md.global.SysSettings.enableEditAccountInfo && (
-                      <Tooltip popupPlacement="top" text={<span>{_l('编辑姓名')}</span>}>
+                      <Tooltip placement="top" title={_l('编辑姓名')}>
                         <span
                           className="Font15 Hand Hover_49 Gray_bd mLeft10 icon-create"
                           onClick={() =>

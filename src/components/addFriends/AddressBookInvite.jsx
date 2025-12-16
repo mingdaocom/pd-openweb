@@ -4,7 +4,7 @@ import { dialogSelectUser } from 'ming-ui/functions';
 import Result from 'ming-ui/functions/dialogSelectUser/GeneralSelect/Result';
 import InviteController from 'src/api/invitation';
 import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/structure/components/dialogSettingInviteRules';
-import { existAccountHint } from 'src/utils/common';
+import inviteFailedDialog from './InviteFailedDialog';
 
 export default class AddressBookInvite extends Component {
   constructor(props) {
@@ -52,7 +52,7 @@ export default class AddressBookInvite extends Component {
       fromType,
     })
       .then(result => {
-        existAccountHint(result);
+        inviteFailedDialog({ inviteTotal: selectUsers.length, projectId, result });
         onCancel();
         this.setState({ loading: false });
       })

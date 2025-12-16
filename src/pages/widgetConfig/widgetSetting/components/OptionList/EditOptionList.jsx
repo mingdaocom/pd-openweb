@@ -1,28 +1,24 @@
 import React, { useRef, useState } from 'react';
-import ClipboardButton from 'react-clipboard.js';
-import { Input, Tooltip } from 'antd';
+import { Input } from 'antd';
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
-import AutoIcon from '../../../components/Icon';
 import { EditOptionDialog, SettingItem } from '../../../styled';
 import { checkOptionsRepeat } from '../../../util';
 import { getDefaultOptions } from '../../../util/setting';
-import DeleteDialog from './DelateDialog';
+import MoreOption from './MoreOption';
 import Options from './Options';
 
 export default function EditOptionList(props) {
   const { onOk, options = [], globalSheetInfo = {}, onCancel, ...rest } = props;
   const appId = props.appId || globalSheetInfo.appId;
   const $ref = useRef(null);
+  const optionsRef = useRef(null);
   const [name, setName] = useState(props.name);
   const [data, setData] = useState(_.isEmpty(options) ? getDefaultOptions() : options);
   const [colorful, setColorful] = useState(props.colorful);
   const [enableScore, setEnableScore] = useState(props.enableScore);
   const [quoteVisible, setQuoteVisible] = useState(false);
-  const [deleteVisible, setDeleteVisible] = useState(false);
-
-  const deleteOptions = (data || []).filter(i => i.isDeleted);
 
   const handleOk = () => {
     if (!name) {
@@ -47,11 +43,6 @@ export default function EditOptionList(props) {
 
   const getOptionCount = () => {
     return data.filter(item => !item.isDeleted).length;
-  };
-
-  const getCopyValue = () => {
-    const copyOptions = data.filter(i => !i.isDeleted);
-    return copyOptions.reduce((p, c, i) => (i === data.length - 1 ? `${p}${c.value}` : `${p}${c.value}\n`), '');
   };
 
   const checkQuote = () => {
@@ -91,23 +82,18 @@ export default function EditOptionList(props) {
             ></i>
             <span style={{ marginLeft: '8px' }}>{_l('彩色')}</span>
           </div>
-          <div className="flexCenter">
-            <ClipboardButton
-              component="span"
-              data-clipboard-text={getCopyValue()}
-              onSuccess={() => alert(_l('复制成功，请去批量添加选项'))}
-              data-tip={_l('复制')}
-            >
-              <AutoIcon icon="content-copy" className="Font16 hoverText" />
-            </ClipboardButton>
-            {deleteOptions.length > 0 && (
-              <Tooltip title={_l('恢复选项')} placement="bottom">
-                <span className="mLeft15 flexCenter pointer" onClick={() => setDeleteVisible(true)}>
-                  <AutoIcon icon="trash-loop" className="Font20" />
-                </span>
-              </Tooltip>
-            )}
-          </div>
+          <MoreOption
+            options={data}
+            colorful={colorful}
+            globalSheetInfo={globalSheetInfo}
+            addOption={callback => {
+              if (optionsRef && optionsRef.current) {
+                optionsRef.current.addOption(true);
+                callback();
+              }
+            }}
+            handleChange={obj => setData(obj.options)}
+          />
         </div>
       </SettingItem>
       <Options
@@ -115,6 +101,7 @@ export default function EditOptionList(props) {
         isDialog={true}
         mode="list"
         options={data}
+        ref={optionsRef}
         colorful={colorful}
         enableScore={enableScore}
         showAssign={true}
@@ -134,16 +121,6 @@ export default function EditOptionList(props) {
           title={_l('查看引用')}
           onOk={() => setQuoteVisible(false)}
           onCancel={() => setQuoteVisible(false)}
-        />
-      )}
-      {deleteVisible && (
-        <DeleteDialog
-          options={data}
-          colorful={colorful}
-          onCancel={() => setDeleteVisible(false)}
-          onOk={newOptions => {
-            setData(newOptions);
-          }}
         />
       )}
     </EditOptionDialog>

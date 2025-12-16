@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dialog, Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import WorksheetItem from 'src/pages/worksheet/components/DialogImportExcelCreate/SetImportExcelCreateWorksheetOrApp/WorksheetItem';
 import './index.less';
 
@@ -143,12 +144,14 @@ class ErrorDialog extends Component {
       <Fragment>
         <div className={cx('flexRow', { pTop15: isBatch })}>
           <div>{this.renderTitle()}</div>
-          <div
-            className="successText"
-            data-tip={_l('错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示')}
+          <Tooltip
+            title={_l('错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示')}
+            placement="bottom"
           >
-            <Icon icon="help" className="Font14 pointer Gray_9e mLeft5" />
-          </div>
+            <div className="successText">
+              <Icon icon="help" className="Font14 pointer Gray_9e mLeft5" />
+            </div>
+          </Tooltip>
           <div className="flex" />
           <a
             className="ThemeColor3 ThemeHoverColor2 pointer"

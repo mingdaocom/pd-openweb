@@ -42,7 +42,7 @@ export default class Text extends Component {
     };
   }
 
-  onSearch = value => this.setState({ searchValue: filterXSS(value) });
+  onSearch = value => this.setState({ searchValue: value });
 
   onChange = value => {
     this.props.onChange({ values: value });

@@ -2,31 +2,11 @@ import React, { memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { CityPicker, Icon } from 'ming-ui';
-
-const HINT_TEXT = {
-  1: _l('省'),
-  2: _l('省-市'),
-  3: _l('省-市-县'),
-};
-
-const SPECIAL_HINT_TEXT = {
-  1: _l('市'),
-  2: _l('市-县'),
-};
+import { getAreaHintText } from 'src/pages/widgetConfig/util/setting';
 
 const Area = props => {
-  const {
-    disabled,
-    value,
-    advancedSetting = {},
-    recordId,
-    controlId,
-    formDisabled,
-    enumDefault,
-    enumDefault2,
-    projectId,
-  } = props;
-  const { anylevel, chooserange = 'CN' } = advancedSetting;
+  const { disabled, value, advancedSetting = {}, recordId, controlId, formDisabled, enumDefault2, projectId } = props;
+  const { anylevel, chooserange = 'CN', commcountries } = advancedSetting;
   const city = value ? JSON.parse(value) : null;
 
   const onChange = data => {
@@ -34,7 +14,7 @@ const Area = props => {
     const index = last.path.split('/').length;
 
     // 必须选择最后一级
-    if (anylevel === '1' && !last.last && (enumDefault === 1 || enumDefault2 > index)) {
+    if (anylevel === '1' && !last.last && enumDefault2 < index) {
       return;
     }
 
@@ -44,11 +24,7 @@ const Area = props => {
   const getShowText = () => {
     if (city) return city.name;
 
-    if (enumDefault === 1 || !_.includes(['CN', 'TW', 'MO', 'HK'], chooserange)) {
-      return _l('请选择');
-    }
-
-    return _.includes(['TW', 'MO', 'HK'], chooserange) ? SPECIAL_HINT_TEXT[enumDefault2] : HINT_TEXT[enumDefault2];
+    return getAreaHintText(props);
   };
 
   return (
@@ -57,6 +33,7 @@ const Area = props => {
       defaultValue={city ? city.name : ''}
       level={enumDefault2}
       chooserange={chooserange}
+      commcountries={commcountries}
       disabled={disabled}
       mustLast={anylevel === '1'}
       callback={onChange}

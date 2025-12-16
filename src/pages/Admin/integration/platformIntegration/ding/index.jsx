@@ -2,8 +2,10 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Icon, Input, LoadDiv, MdLink, Radio, Support, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Ajax from 'src/api/workWeiXin';
 import CancelIntegration from '../components/CancelIntegration';
+import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
@@ -53,6 +55,7 @@ export default class Ding extends React.Component {
       isSetPassword: false,
       passwordError: false,
       currentTab: 'base',
+      isProxy: false, // 是否开启网络代理
     };
   }
 
@@ -86,6 +89,7 @@ export default class Ding extends React.Component {
             'customNameIcon',
             'isEnableRobot',
             'robotCode',
+            'isProxy',
           ]),
         });
       }
@@ -139,15 +143,6 @@ export default class Ding extends React.Component {
       newStr = str;
     }
     return newStr;
-  };
-
-  editDingStatus = (num, callback = () => {}) => {
-    this.editDDProjectSettingStatus(num, () => {
-      callback();
-      this.setState({
-        isCloseDing: !this.state.isCloseDing,
-      });
-    });
   };
 
   inputRender = (strId, w, labelId) => {
@@ -239,12 +234,14 @@ export default class Ding extends React.Component {
           )}
           {this.state.isHasInfo && this.state.show2 && (
             <span className="Font13 Gray_75 Right closeDing">
-              <span
-                className="mLeft10 switchBtn tip-bottom-left"
-                data-tip={_l('关闭钉钉集成后，无法再从钉钉处进入应用')}
-              >
-                <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
-              </span>
+              <Tooltip title={_l('关闭钉钉集成后，无法再从钉钉处进入应用')} placement="bottomLeft">
+                <span className="mLeft10 switchBtn">
+                  <Switch
+                    checked={!this.state.isCloseDing}
+                    onClick={checked => this.editDDProjectSettingStatus({ tag: checked ? 2 : 1 })}
+                  />
+                </span>
+              </Tooltip>
             </span>
           )}
           {!this.state.isCloseDing && this.state.show2 && (
@@ -303,14 +300,22 @@ export default class Ding extends React.Component {
     );
   };
 
-  editDDProjectSettingStatus = (tag, callback) => {
+  editDDProjectSettingStatus = ({ tag, isProxy, isClose } = {}) => {
     // 状态：0 提交申请；2关闭集成；1重新开启集成 tag
     Ajax.editDDProjectSettingStatus({
       projectId: this.props.projectId,
       status: tag,
+      isProxy: _.isUndefined(isProxy) ? this.state.isProxy : isProxy,
     }).then(res => {
       if (res) {
-        callback();
+        this.setState({ isProxy, isCloseDing: tag === 1 ? false : true });
+        if (isClose) {
+          this.props.onClose();
+          alert(_l('取消成功'));
+        }
+        if (!_.isUndefined(isProxy)) {
+          alert(_l('设置成功'));
+        }
       } else {
         integrationFailed(this.props.projectId);
       }
@@ -453,8 +458,17 @@ export default class Ding extends React.Component {
 
   render() {
     const { projectId } = this.props;
-    const { currentTab, CorpId, AppKey, AppSecret, AgentId, intergrationScanEnabled, isCloseDing, customNameIcon } =
-      this.state;
+    const {
+      currentTab,
+      CorpId,
+      AppKey,
+      AppSecret,
+      AgentId,
+      intergrationScanEnabled,
+      isCloseDing,
+      customNameIcon,
+      isProxy,
+    } = this.state;
 
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -482,15 +496,14 @@ export default class Ding extends React.Component {
               })}
             </div>
           </div>
+          <EnabledWebProxy
+            isProxy={isProxy}
+            handleChangeProxy={checked =>
+              this.editDDProjectSettingStatus({ tag: this.state.isCloseDing ? 2 : 1, isProxy: !checked })
+            }
+          />
           {!this.state.isCloseDing && CorpId && AppKey && AppSecret && AgentId && (
-            <CancelIntegration
-              clickCancel={() =>
-                this.editDingStatus(2, () => {
-                  this.props.onClose();
-                  alert(_l('取消成功'));
-                })
-              }
-            />
+            <CancelIntegration clickCancel={() => this.editDDProjectSettingStatus({ tag: 2, isClose: true })} />
           )}
         </div>
         <div className="orgManagementContent">

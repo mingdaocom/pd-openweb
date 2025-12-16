@@ -300,7 +300,7 @@ export default class CalendarDetail extends Component {
           catName: item.catName,
           color: item.color,
         });
-        if ($.isFunction(Config.saveCallback)) {
+        if (_.isFunction(Config.saveCallback)) {
           Config.saveCallback();
         }
       });
@@ -453,7 +453,7 @@ export default class CalendarDetail extends Component {
           members,
           isChildCalendar: !isAllCalendar,
         });
-        if ($.isFunction(Config.saveCallback)) {
+        if (_.isFunction(Config.saveCallback)) {
           Config.saveCallback();
         }
       });
@@ -468,7 +468,7 @@ export default class CalendarDetail extends Component {
           thirdUser,
           isChildCalendar: !isAllCalendar,
         });
-        if ($.isFunction(Config.saveCallback)) {
+        if (_.isFunction(Config.saveCallback)) {
           Config.saveCallback();
         }
       });
@@ -490,7 +490,7 @@ export default class CalendarDetail extends Component {
           members,
           isChildCalendar: !isAllCalendar,
         });
-        if ($.isFunction(Config.saveCallback)) {
+        if (_.isFunction(Config.saveCallback)) {
           Config.saveCallback();
         }
       });

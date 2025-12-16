@@ -3,7 +3,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
-import { getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getCurrentValue } from 'src/components/Form/core/formUtils';
 import { compatibleMDJS } from 'src/utils/project';
 import ScanQRCode from './ScanQRCode';
 

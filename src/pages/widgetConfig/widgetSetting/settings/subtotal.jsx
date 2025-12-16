@@ -2,7 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _, { get, includes, isEmpty } from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, RadioGroup, Tooltip } from 'ming-ui';
+import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import WidgetDropdown from '../../components/Dropdown';
 import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../config/widget';
@@ -270,7 +271,7 @@ export default function Subtotal(props) {
                         controlName
                       )
                     ) : (
-                      <Tooltip text={<span>{_l('ID: %0', value)}</span>} popupPlacement="bottom">
+                      <Tooltip title={_l('ID: %0', value)} placement="bottom">
                         <span>{_l('字段已删除')}</span>
                       </Tooltip>
                     )}
@@ -292,7 +293,7 @@ export default function Subtotal(props) {
                     <span>
                       {item.text}
                       {item.tips && (
-                        <Tooltip text={item.tips} popupPlacement="bottom" autoCloseDelay={0}>
+                        <Tooltip title={item.tips} placement="bottom">
                           <span className="icon-help Font14 Gray_9e mLeft4" />
                         </Tooltip>
                       )}

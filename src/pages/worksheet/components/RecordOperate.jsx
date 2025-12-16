@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
-import _ from 'lodash';
+import _, { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import favoriteApi from 'src/api/favorite';
 import worksheetAjax from 'src/api/worksheet';
 import { deleteRecord, handleCustomWidget, handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
@@ -21,8 +22,6 @@ import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
 import MoveRecordToOtherGroup from './MoveRecordToOtherGroup';
-
-// TODO 完善菜单关闭交互
 
 const Loading = styled.div`
   display: flex;
@@ -449,6 +448,16 @@ export default function RecordOperate(props) {
               '.templateListSelect',
             ]}
             onClickAway={() => changePopupVisible(false)}
+            onMouseLeave={
+              action[0] === 'hover'
+                ? e => {
+                    if (e.relatedTarget.closest('.rowIndex')) {
+                      return;
+                    }
+                    changePopupVisible(false);
+                  }
+                : noop
+            }
           >
             {showRemoveRelation && (
               <React.Fragment>
@@ -582,7 +591,7 @@ export default function RecordOperate(props) {
                 {_l('复制ID')}
               </MenuItemWrap>
             )}
-            {showCopy && showCopyId && showRecreate && <Hr />}
+            {(showCopyId || showRecreate || showCopyId) && <Hr />}
             {canFav && (
               <MenuItemWrap
                 data-event="collect"
@@ -732,7 +741,22 @@ export default function RecordOperate(props) {
       {children ? (
         React.cloneElement(children, popupVisible ? { style: { display: 'inline-block' } } : {})
       ) : (
-        <MoreOperate className="moreOperate" style={popupVisible ? { display: 'inline-block' } : {}}>
+        <MoreOperate
+          className="moreOperate"
+          style={popupVisible ? { display: 'inline-block' } : {}}
+          onMouseLeave={
+            action[0] === 'hover'
+              ? e => {
+                  if (e.relatedTarget.className.includes('recordOperate')) {
+                    return;
+                  }
+                  setTimeout(() => {
+                    changePopupVisible(false);
+                  }, 100);
+                }
+              : noop
+          }
+        >
           <i className="icon icon-more_horiz"></i>
         </MoreOperate>
       )}

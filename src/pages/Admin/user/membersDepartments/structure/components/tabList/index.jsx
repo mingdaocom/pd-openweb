@@ -92,12 +92,12 @@ class TabList extends React.Component {
   };
 
   render() {
-    const { typeCursor = 0, approveNumber, inActiveNumber, root, cursor } = this.props;
+    const { typeCursor = 0, approveNumber, inActiveNumber, cursor } = this.props;
     return (
       <React.Fragment>
         <div className="departmentTop">
           <ul>
-            <li className={cx('Hand flexRow', { current: cursor === root && (typeCursor === 1 || typeCursor === 0) })}>
+            <li className={cx('Hand flexRow', { current: !cursor && (typeCursor === 1 || typeCursor === 0) })}>
               <div
                 className="flex"
                 onClick={() => {
@@ -128,7 +128,7 @@ class TabList extends React.Component {
               onClick={() => {
                 this.handleClick(2);
               }}
-              className={cx('Hand', { current: cursor === root && typeCursor === 2 })}
+              className={cx('Hand', { current: !cursor && typeCursor === 2 })}
             >
               <Icon className="Font16 Gray_9e listName mRight10" icon="check_circle" />
               <span>
@@ -140,7 +140,7 @@ class TabList extends React.Component {
               onClick={() => {
                 this.handleClick(3);
               }}
-              className={cx('Hand', { current: cursor === root && typeCursor === 3 })}
+              className={cx('Hand', { current: !cursor && typeCursor === 3 })}
             >
               <Icon className="Font16 Gray_9e listName mRight10" icon="watch_later" />
               <span>
@@ -177,7 +177,6 @@ const mapStateToProps = state => {
       isSearch,
       typeNum,
       typeCursor,
-      root,
     },
     pagination,
   } = state;
@@ -194,7 +193,6 @@ const mapStateToProps = state => {
     isSearch,
     typeNum,
     typeCursor,
-    root,
     cursor: departmentId,
     departmentName: department ? department.departmentName : '',
     isLoading,

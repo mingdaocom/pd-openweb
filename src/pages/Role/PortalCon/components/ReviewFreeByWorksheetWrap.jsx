@@ -155,7 +155,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
                   </Menu>
                   {canChooseOtherApp && (
                     <div
-                      className="otherWorksheet"
+                      className="otherWorksheet pLeft16 Hand ThemeHoverColor3"
                       onClick={() => {
                         setShowMenu(false);
                         setvisible(true);

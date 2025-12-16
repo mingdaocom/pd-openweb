@@ -32,7 +32,7 @@ export default class UploadFile extends Component {
           if (isUploading) {
             up.stop();
             up.removeFile(file);
-            alert(_l('数据导入中，请稍后使用该功能'), 3, 1000);
+            alert(_l('数据导入中，请稍后使用该功能'), 3);
             return false;
           }
 
@@ -40,7 +40,7 @@ export default class UploadFile extends Component {
             RegExpValidator.getExtOfFileName(file.name) != 'xlsx' &&
             RegExpValidator.getExtOfFileName(file.name) != 'xls'
           ) {
-            alert(_l('上传失败，文件错误，请下载专用模板'), 2, 1000);
+            alert(_l('上传失败，文件错误，请下载专用模板'), 2);
             up.stop();
             up.removeFile(file);
             return false;
@@ -52,7 +52,7 @@ export default class UploadFile extends Component {
           up.stop();
           _this.props.updateUploadInfo({
             fileName: file.name,
-            fileUrl: md.global.FileStoreConfig.documentHost + info.response.key,
+            fileUrl: md.global.FileStoreConfig.documentHost + '/' + info.response.key,
           });
 
           isUploading = false;

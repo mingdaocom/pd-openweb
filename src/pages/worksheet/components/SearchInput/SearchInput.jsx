@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import Tooltip from 'ming-ui/components/Tooltip';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
 import './SearchInput.less';
 
@@ -60,7 +60,7 @@ export default class SearchInput extends Component {
         style={style}
       >
         <div className="inputCon">
-          <Tooltip disable={isFocus} popupPlacement="bottom" text={<span>{placeholder || _l('搜索')}</span>}>
+          <Tooltip placement="bottom" title={isFocus ? '' : <span>{placeholder || _l('搜索')}</span>}>
             {!isFocus && searchIcon ? (
               <span
                 onClick={() => {
@@ -136,16 +136,17 @@ export default class SearchInput extends Component {
             }}
           />
           {showCaseSensitive && (
-            <div
-              className={cx('caseSensitive', { ThemeColor3: isCaseSensitive })}
-              onMouseDown={() => {
-                this.setState({ isCaseSensitive: !isCaseSensitive });
-                onOk(value, { isCaseSensitive: !isCaseSensitive });
-              }}
-              data-tip={isCaseSensitive ? _l('取消区分大小写') : _l('区分大小写')}
-            >
-              <i className="icon icon-case"></i>
-            </div>
+            <Tooltip title={isCaseSensitive ? _l('取消区分大小写') : _l('区分大小写')} placement="bottom">
+              <div
+                className={cx('caseSensitive', { ThemeColor3: isCaseSensitive })}
+                onMouseDown={() => {
+                  this.setState({ isCaseSensitive: !isCaseSensitive });
+                  onOk(value, { isCaseSensitive: !isCaseSensitive });
+                }}
+              >
+                <i className="icon icon-case"></i>
+              </div>
+            </Tooltip>
           )}
         </div>
       </div>

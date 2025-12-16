@@ -154,7 +154,8 @@ class RecordList extends Component {
   render() {
     const { worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { detail = {}, appName } = appDetail;
-    const { webMobileDisplay } = detail;
+    const { webMobileDisplay, appDisplay } = detail;
+    const isNoPublish = window.isMingDaoApp ? appDisplay : webMobileDisplay;
 
     if (webMobileDisplay) {
       return (
@@ -162,7 +163,7 @@ class RecordList extends Component {
           <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
             <span className="Gray Font24 LineHeight80 InlineBlock Bold">{appName}</span>
           </div>
-          <FixedPage isNoPublish={webMobileDisplay} />
+          <FixedPage isNoPublish={isNoPublish} />
         </div>
       );
     }

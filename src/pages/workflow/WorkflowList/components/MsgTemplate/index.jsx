@@ -159,7 +159,7 @@ export default class MsgTemplate extends Component {
               </li>
               <ScrollView className="workflowMsgTemplateScrollView" onScrollEnd={this.handleScroll}>
                 {data.map((template, index) => {
-                  const { companySignature, messageContent, status, createDate, type } = template;
+                  const { companySignature, messageContent, createDate, type } = template;
                   return (
                     <li key={index} className="templates">
                       <Checkbox

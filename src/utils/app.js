@@ -164,7 +164,7 @@ const getBrowserLang = () => {
       langKey = 'ko';
       break;
     default:
-      langKey = navigator.language || 'en';
+      langKey = 'en';
   }
   return langKey;
 };

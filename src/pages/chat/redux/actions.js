@@ -1667,7 +1667,7 @@ export const refresh = () => (dispatch, getState) => {
             type: isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER,
           })
           .then(res => {
-            res = $.isArray(res) ? res.reverse() : [];
+            res = _.isArray(res) ? res.reverse() : [];
             const newMessages = {
               [id]: utils.formatMessages(res),
             };

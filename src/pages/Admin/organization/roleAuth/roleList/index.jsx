@@ -113,6 +113,7 @@ class RoleList extends React.Component {
             isApply={isApply}
             role={role}
             projectId={projectId}
+            selectedRole={role.roleId === drawer.role?.roleId}
             onOpenDrawer={type => onOpenDrawer(role, type)}
             onRefreshRoleList={this.getMyRoles}
           />

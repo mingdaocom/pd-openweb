@@ -152,6 +152,13 @@ export default function FilterControl(props) {
                 if ([9, 11].includes(c.type) && [9, 11].includes(c.type) === [9, 11].includes(firstControlData.type)) {
                   return true;
                 }
+                // 兼容时间控件(日期和日期时间)
+                if (
+                  [15, 16].includes(c.type) &&
+                  [15, 16].includes(c.type) === [15, 16].includes(firstControlData.type)
+                ) {
+                  return true;
+                }
                 return c.type === firstControlData.type;
               } else {
                 return true;
@@ -162,6 +169,18 @@ export default function FilterControl(props) {
                 if (c.controlId === 'rowid') {
                   return true;
                 }
+
+                if (c.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
+                  return (
+                    c.sourceControlId === firstControlData.controlId ||
+                    c.sourceControlId === firstControlData.sourceControlId ||
+                    _.get(c.sourceControl, 'dataSource') === firstControlData.dataSource
+                  );
+                }
+                if (firstControlData.originType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && c.dataSource) {
+                  return c.dataSource === _.get(firstControlData.sourceControl, 'dataSource');
+                }
+
                 if (c.dataSource && firstControlData.dataSource) {
                   return c.dataSource === firstControlData.dataSource;
                 } else {

@@ -105,7 +105,7 @@ class AttachmentsPreview extends React.Component {
       }
     }
     if (evt.keyCode === 27 && this.props.fullscreen) {
-      // TODO 全屏处理
+      // 全屏处理
       this.props.actions.toggleFullScreen();
     }
     if (evt.keyCode === 37) {
@@ -243,7 +243,7 @@ class AttachmentsPreview extends React.Component {
       previewType = PREVIEW_TYPE.IFRAME;
     }
 
-    const isFullScreen = this.props.fullscreen; // ***** TODO 全屏
+    const isFullScreen = this.props.fullscreen; // 全屏
     const cauUseWpsPreview = !md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext));
 
     return (
@@ -402,7 +402,7 @@ class AttachmentsPreview extends React.Component {
                       )}.${ext}`;
                     }
 
-                    if (md.global.Config.HttpOnly) {
+                    if (md.global.Config.HttpOnly || window.self !== window.top) {
                       viewUrl = addToken(viewUrl, false);
                     }
 

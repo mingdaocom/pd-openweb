@@ -261,15 +261,17 @@ function ConnectCon(props) {
       });
   };
   const upperConnect = info => {
-    packageVersionAjax.upper({ id: connectData.id, ...info }, { isIntegration: true }).then(res => {
-      if (res) {
-        setState({ show: false });
-        getDetailInfo(connectData.id); //上架成功，重新获取一次详情
-        alert(_l('已申请上架，请等待审核'));
-      } else {
-        alert(_l('申请失败，请稍后再试'), 2);
-      }
-    });
+    packageVersionAjax
+      .upper({ id: connectData.id, ...info, companyId: currentProjectId || info.companyId }, { isIntegration: true })
+      .then(res => {
+        if (res) {
+          setState({ show: false });
+          getDetailInfo(connectData.id); //上架成功，重新获取一次详情
+          alert(_l('已申请上架，请等待审核'));
+        } else {
+          alert(_l('申请失败，请稍后再试'), 2);
+        }
+      });
   };
 
   const openNewPage = () => {
@@ -295,8 +297,7 @@ function ConnectCon(props) {
 
   return (
     <React.Fragment>
-      <DocumentTitle title={props.forPage ? `${_l('集成')}-${connectData.name || _l('未命名连接')}` : ''} />
-
+      <DocumentTitle title={`${_l('集成')}-${connectData?.name || _l('未命名连接')}`} />
       <ScrollView
         onScroll={() => {
           if (!WrapRef.current) return;

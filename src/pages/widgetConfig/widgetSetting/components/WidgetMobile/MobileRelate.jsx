@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from '../../../styled';
 import { formatControlsToDropdown } from '../../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../util/setting';
@@ -25,8 +25,7 @@ export default function WidgetRelate(props) {
         <div className="settingItemTitle">
           {_l('移动端输入')}
           <Tooltip
-            placement={'bottom'}
-            autoCloseDelay={0}
+            placement="bottom"
             title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
           >
             <i className="icon-help Gray_9e Font16 pointer"></i>
@@ -102,7 +101,7 @@ export default function WidgetRelate(props) {
                 onClick={checked => onChange(handleAdvancedSettingChange(data, { dismanual: String(+!checked) }))}
                 text={_l('禁止手动输入')}
               />
-              <Tooltip placement={'bottom'} title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
+              <Tooltip placement="bottom" title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
                 <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
               </Tooltip>
             </div>

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _, { isUndefined } from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import 'src/pages/AppSettings/components/Aggregation/components/style.less';
 import { canArraySplit, GROUPLIMITTYPES, GROUPMAX, GROUPMAXBYREL, isUnique } from '../config';
 import {
@@ -320,8 +320,7 @@ export default function GroupDialog(props) {
                       {_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) && (
                         <Tooltip
                           placement="bottomLeft"
-                          offset={[-20, 0]}
-                          autoCloseDelay={0}
+                          align={{ offset: [-20, 0] }}
                           title={
                             <span className="">
                               {_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) && (

@@ -150,7 +150,7 @@ export default function WidgetContainer(props) {
         allow="geolocation; microphone; camera; fullscreen;"
         allowFullscreen
         ref={iframeRef}
-        src={`${(get(md, 'global.Config.PluginRuntimeUrl') || '').replace(/\/$/, '')}/widgetview`}
+        src={`${get(md, 'global.Config.PluginRuntimeUrl') || '/'}widgetview`}
       />
       {side &&
         (side.type === 'html' ? (

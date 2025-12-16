@@ -1,7 +1,7 @@
 import React from 'react';
-import { Tooltip } from 'antd';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, Icon, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import mingoLogo from '../ChatList/Mingo/images/mingo.png';
 
 const Mingo = styled.div`
@@ -26,7 +26,7 @@ export default props => {
     commonAppOpenType,
     messageListShowType,
   } = accountSettings;
-  const isLocal = md.global.Config.IsLocal && !location.hostname.includes('nocoly');
+  const isLocal = md.global.Config.IsLocal && !location.hostname.includes('nocoly.com');
 
   return (
     <div className="flex">
@@ -55,7 +55,7 @@ export default props => {
         <Icon icon="search" className="Font22 Gray_75 mLeft10" />
         <span className="mLeft5 mRight10">{_l('超级搜索')}</span>
       </div>
-      {!isLocal && (
+      {!md.global.SysSettings.hideAIBasicFun && !isLocal && (
         <div className="flexRow alignItemsCenter widthMaxContent mBottom15">
           <Switch
             checked={isOpenMingoAI}

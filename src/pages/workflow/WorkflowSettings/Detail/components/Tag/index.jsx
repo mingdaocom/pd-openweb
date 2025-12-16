@@ -1,6 +1,6 @@
 import React from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIcons } from '../../../utils';
 import './index.less';
 
@@ -15,12 +15,13 @@ export default ({
   onClick = () => {},
   isSourceApp,
   actualityValue = '',
+  errorMessage = '',
 }) => {
   const errorClass = !nodeName || !controlName ? 'error' : '';
 
   if (isSourceApp) {
     return (
-      <Tooltip title={controlName || !controlId ? null : `ID：${controlId}`}>
+      <Tooltip title={controlName || !controlId ? null : errorMessage || `ID：${controlId}`}>
         <div className="flowDetailTagBox">
           <div
             className={cx('flowDetailMemberNodeName ellipsis bold', errorClass)}
@@ -35,7 +36,7 @@ export default ({
   }
 
   return (
-    <Tooltip title={controlName || !controlId ? null : `ID：${controlId}`}>
+    <Tooltip title={controlName || !controlId ? null : errorMessage || `ID：${controlId}`}>
       <div className={cx('flowDetailTagBox', className)} onClick={onClick}>
         <div className={cx('flowDetailMemberNodeName ellipsis bold', errorClass)} title={nodeName || _l('节点删除')}>
           <i

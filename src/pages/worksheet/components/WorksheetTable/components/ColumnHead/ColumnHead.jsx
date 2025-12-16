@@ -20,7 +20,7 @@ import {
   sortByControl,
   updateColumnStyles,
 } from 'worksheet/redux/actions/sheetview';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { showTypeData } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
@@ -97,10 +97,24 @@ class ColumnHead extends Component {
     });
   }
 
-  handleColumnWidthLRUSave(controlId, value) {
+  handleColumnWidthLRUSave(controlId, value, changes) {
     const { readonly, saveColumnStylesToLocal, updateColumnStyles } = this.props;
 
     if (readonly) return;
+
+    if (changes) {
+      const newChanges = _.reduce(
+        changes,
+        (acc, width, controlId) => {
+          acc[controlId] = { width };
+          return acc;
+        },
+        {},
+      );
+      saveColumnStylesToLocal(newChanges);
+      updateColumnStyles(newChanges);
+      return;
+    }
 
     saveColumnStylesToLocal({ [controlId]: { width: value } });
     updateColumnStyles({ [controlId]: { width: value } });
@@ -161,8 +175,11 @@ class ColumnHead extends Component {
       canBatchEdit = true,
       columnStyles = {},
       rows = [],
+      columns = [],
+      updateSheetColumnWidths,
       onShowFullValue = () => {},
       onBatchSetColumns = () => {},
+      scrollToLeftStart = () => {},
     } = this.props;
     const hideColumnFilter = _.get(this.context, 'config.hideColumnFilter');
     let control = { ...this.props.control };
@@ -205,7 +222,7 @@ class ColumnHead extends Component {
         className={className}
         style={style}
         control={control}
-        showDropdown
+        showDropdown={!!control.controlId}
         isLast={isLast}
         isAsc={this.isAsc}
         columnStyle={columnStyle}
@@ -515,7 +532,6 @@ class ColumnHead extends Component {
               )}
             <Trigger
               getPopupContainer={() => this.conRef.current}
-              popupClassName="Relative"
               action={['hover']}
               popupPlacement="bottom"
               popupAlign={{
@@ -526,43 +542,7 @@ class ColumnHead extends Component {
               destroyPopupOnHide={true}
               popup={
                 <div className="changeColumnWidthPanel">
-                  <Input
-                    className="w100"
-                    defaultValue={style.width}
-                    onBlur={e => {
-                      let newWidth = Number(e.target.value);
-                      if (isNaN(newWidth)) {
-                        return;
-                      }
-                      if (newWidth < 60) {
-                        newWidth = 60;
-                      }
-                      if (newWidth > 600) {
-                        newWidth = 600;
-                      }
-                      this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
-                      closeMenu();
-                    }}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
-                        let newWidth = Number(e.target.value);
-                        if (isNaN(newWidth)) {
-                          return;
-                        }
-                        if (newWidth < 60) {
-                          newWidth = 60;
-                        }
-                        if (newWidth > 600) {
-                          newWidth = 600;
-                        }
-                        this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
-                        closeMenu();
-                      }
-                    }}
-                  />
-                  <div className="px">px</div>
-                  <div
-                    className="resize"
+                  <MenuItem
                     onClick={() => {
                       const width = getTableColumnWidth(
                         document.querySelector('.sheetViewTable'),
@@ -575,14 +555,75 @@ class ColumnHead extends Component {
                       closeMenu();
                     }}
                   >
-                    {_l('列宽适合内容')}
+                    {_l('适合内容（当前列）')}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      const changes = {};
+                      columns.forEach(o => {
+                        const width = getTableColumnWidth(
+                          document.querySelector('.sheetViewTable'),
+                          rows,
+                          o,
+                          columnStyle,
+                          worksheetId,
+                        );
+                        changes[o.controlId] = width;
+                      });
+                      this.handleColumnWidthLRUSave(undefined, undefined, changes);
+                      updateSheetColumnWidths({ changes });
+                      setTimeout(() => {
+                        scrollToLeftStart();
+                      }, 100);
+                      closeMenu();
+                    }}
+                  >
+                    {_l('适合内容（所有列）')}
+                  </MenuItem>
+                  <div className="customInputWrap">
+                    <div className="customInputTitle">{_l('指定列宽')}</div>
+                    <Input
+                      className="w100"
+                      defaultValue={style.width}
+                      onBlur={e => {
+                        let newWidth = Number(e.target.value);
+                        if (isNaN(newWidth)) {
+                          return;
+                        }
+                        if (newWidth < 60) {
+                          newWidth = 60;
+                        }
+                        if (newWidth > 600) {
+                          newWidth = 600;
+                        }
+                        this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
+                        closeMenu();
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          let newWidth = Number(e.target.value);
+                          if (isNaN(newWidth)) {
+                            return;
+                          }
+                          if (newWidth < 60) {
+                            newWidth = 60;
+                          }
+                          if (newWidth > 600) {
+                            newWidth = 600;
+                          }
+                          this.updateColumnWidth({ controlId: control.controlId, value: newWidth });
+                          closeMenu();
+                        }
+                      }}
+                    />
+                    <div className="px">px</div>
                   </div>
                 </div>
               }
             >
               <MenuItem>
                 <i className="icon icon-sheets_rtl"></i>
-                {_l('列宽适合内容')}
+                {_l('列宽')}
                 <i
                   className="icon icon-arrow-right-tip Right"
                   style={{

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4, validate } from 'uuid';
 import { Checkbox, Dialog, Dropdown, Radio, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import homeAppAjax from 'src/api/homeApp';
 import { FIELD_TYPE_LIST } from '../../enum';
@@ -338,48 +339,48 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             <div className="flex flexRow mLeft10">{renderControlAlias(item)}</div>
             <div className="flex flexRow mLeft10">{renderControlDesc(item)}</div>
             <div className="mLeft10">{renderControlRequired(item)}</div>
-            <span
-              className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft2"
-              data-tip={_l('编辑')}
-              onClick={() => {
-                setControlId(item.controlId);
-                cacheItem = _.cloneDeep(item);
-              }}
-            >
-              <i className="icon-edit" />
-            </span>
-            <span
-              className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10"
-              data-tip={_l('删除')}
-              onClick={() => {
-                let controls = [].concat(data.controls);
-                let objArrayIds = [];
+            <Tooltip title={_l('编辑')}>
+              <span
+                className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft2"
+                onClick={() => {
+                  setControlId(item.controlId);
+                  cacheItem = _.cloneDeep(item);
+                }}
+              >
+                <i className="icon-edit" />
+              </span>
+            </Tooltip>
+            <Tooltip title={_l('删除')}>
+              <span
+                className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10"
+                onClick={() => {
+                  let controls = [].concat(data.controls);
+                  let objArrayIds = [];
 
-                _.remove(controls, o => {
-                  const isDelete = o.controlId === item.controlId || o.dataSource === item.controlId;
+                  _.remove(controls, o => {
+                    const isDelete = o.controlId === item.controlId || o.dataSource === item.controlId;
 
-                  if (isDelete && o.type === 10000007) {
-                    objArrayIds.push(o.controlId);
-                  }
+                    if (isDelete && o.type === 10000007) {
+                      objArrayIds.push(o.controlId);
+                    }
 
-                  return isDelete;
-                });
+                    return isDelete;
+                  });
 
-                // 移除普通数组的子项
-                _.remove(controls, o => _.includes(objArrayIds, o.dataSource));
+                  // 移除普通数组的子项
+                  _.remove(controls, o => _.includes(objArrayIds, o.dataSource));
 
-                updateSource({ controls });
-              }}
-            >
-              <i className="icon-trash" />
-            </span>
-            <span
-              className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10"
-              data-tip={_l('添加')}
-              onClick={() => addParameters(item)}
-            >
-              <i className="icon-add" />
-            </span>
+                  updateSource({ controls });
+                }}
+              >
+                <i className="icon-trash" />
+              </span>
+            </Tooltip>
+            <Tooltip title={_l('添加')}>
+              <span className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10" onClick={() => addParameters(item)}>
+                <i className="icon-add" />
+              </span>
+            </Tooltip>
           </div>
           {renderList(data.controls.filter(o => o.dataSource === item.controlId))}
         </Fragment>

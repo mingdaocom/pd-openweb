@@ -2,7 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
@@ -93,7 +95,7 @@ class TaskDetail extends Component {
         },
       );
 
-      if ($.isFunction(nextProps.closeForceUpdate)) {
+      if (_.isFunction(nextProps.closeForceUpdate)) {
         nextProps.closeForceUpdate();
       }
     }
@@ -470,9 +472,11 @@ class TaskDetail extends Component {
             </div>
           ) : null}
           {openType === OPEN_TYPE.dialog ? (
-            <span className="taskCloseBtn ThemeColor3" data-tip={_l('关闭')} onMouseDown={this.closeDetail}>
-              <i className="icon-delete" />
-            </span>
+            <Tooltip title={_l('关闭')}>
+              <span className="taskCloseBtn ThemeColor3" onMouseDown={this.closeDetail}>
+                <i className="icon-delete" />
+              </span>
+            </Tooltip>
           ) : null}
           <ErrorState
             text={!result.status ? _l('任务已删除，无法查看') : _l('您的权限不足，无法查看此任务')}

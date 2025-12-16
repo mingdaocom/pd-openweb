@@ -1,15 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const Con = styled.div`
-  // background: #fff;
-  &.scroll-x:hover::-webkit-scrollbar-thumb {
-    border: 1px solid transparent;
-  }
-`;
+import { ScrollView } from 'ming-ui';
 
 export default function ScrollBar(props) {
-  const { type = 'y', barWidth, setRef, setScrollY = () => {}, setScrollX = () => {} } = props;
+  const { type = 'y', barWidth, setRef, onScroll = () => {}, setScrollY = () => {}, setScrollX = () => {} } = props;
   let style = { ...props.style };
   let contentStyle = { ...props.contentStyle };
   style.position = 'absolute';
@@ -24,19 +17,26 @@ export default function ScrollBar(props) {
     contentStyle.height = barWidth;
   }
   return (
-    <Con
+    <ScrollView
       className={'scroll-' + type}
-      style={style}
-      ref={setRef}
-      onScroll={e => {
+      style={{
+        ...style,
+        ...(type === 'y' ? { right: 1 } : {}),
+      }}
+      setViewPortRef={setRef}
+      tabIndex={-1}
+      customScroll={instance => {
+        onScroll(instance);
+        const { scrollOffsetElement } = instance.elements();
+        const { scrollTop, scrollLeft } = scrollOffsetElement;
         if (type === 'x') {
-          setScrollX(e.target.scrollLeft);
+          setScrollX(scrollLeft);
         } else if (type === 'y') {
-          setScrollY(e.target.scrollTop);
+          setScrollY(scrollTop);
         }
       }}
     >
       <div className="content" style={contentStyle}></div>
-    </Con>
+    </ScrollView>
   );
 }

@@ -8,9 +8,9 @@ import loginApi from 'src/api/login';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
 import preall from 'src/common/preall';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
-import { themes } from 'src/pages/publicWorksheetConfig/enum';
-import { getDisabledControls, overridePos } from 'src/pages/publicWorksheetConfig/utils';
+import { formatControlToServer } from 'src/components/Form/core/utils';
+import { themes } from 'src/pages/FormExtend/enum';
+import { getDisabledControls, overridePos } from 'src/pages/FormExtend/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
 import { browserIsMobile, getRequest } from 'src/utils/common';
@@ -21,7 +21,7 @@ import {
   replaceControlsTranslateInfo,
   replaceRulesTranslateInfo,
 } from 'src/utils/translate';
-import { WECHAT_FIELD_KEY } from '../publicWorksheetConfig/enum';
+import { WECHAT_FIELD_KEY } from '../FormExtend/enum';
 import { isSheetDisplay } from '../widgetConfig/util';
 import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
 import { getInfo } from './utils';
@@ -227,7 +227,7 @@ async function getStatus(data, shareId) {
   }
 
   const wxUserInfo = JSON.parse(localStorage.getItem('wxUserInfo') || '{}');
-  if (writeScope === 1 && !wxUserInfo.openId) {
+  if (writeScope === 1 && !(weChatSetting.isCollectWxInfo && wxUserInfo.openId)) {
     if (canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting)) {
       return isWithinLimitWriteTime ? FILL_STATUS.NORMAL : FILL_STATUS.NOT_IN_FILL_TIME;
     } else {
@@ -581,12 +581,12 @@ function fillReportSource(receiveControls, publicWorksheetInfo) {
 
 function formatFileControls(controls) {
   return controls.map(control => {
-    if (control.type === 14 && control.value) {
+    if (control.type === 14 && control.value && !_.isEmpty(safeParse(control.value))) {
       const parsed = JSON.parse(control.value);
-      parsed.attachmentData = parsed.attachmentData.filter(item => {
+      parsed.attachmentData = parsed.attachmentData?.filter(item => {
         return item.accountId;
       });
-      parsed.attachments = parsed.attachments.filter(item => {
+      parsed.attachments = parsed.attachments?.filter(item => {
         return item.key;
       });
       return {

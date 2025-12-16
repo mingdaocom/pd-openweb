@@ -101,6 +101,7 @@ export default function DisplayControl(props) {
               handleChangeSort({ newControlSorts, newShowControls: showList });
             }
           }}
+          disabled={props.saveViewSetLoading}
         />
       </div>
       {/* 移动端只有appshowtype==='1'才能选择是否显示字段名称 */}

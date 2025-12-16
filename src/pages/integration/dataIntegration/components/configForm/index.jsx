@@ -4,9 +4,10 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon, Input, LoadDiv, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../api/datasource';
 import appManagementApi from 'src/api/appManagement';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 import { CREATE_TYPE, CREATE_TYPE_RADIO_LIST, DATABASE_TYPE, sourceNamePattern, TEST_STATUS } from '../../constant';
 import { getExtraParams } from '../../utils';
 import ExistSourceModal from '../ExistSourceModal';
@@ -290,9 +291,11 @@ export default function ConfigForm(props) {
           <h3 className="Gray Font20 mBottom0">{connectorConfigData[roleType].name}</h3>
           <span className="Font14 Gray_9e">{getCardDescription(connectorConfigData[roleType].type)}</span>
         </div>
-        <div className="selectIcon" data-tip={_l('更换数据源类型')}>
-          <Icon icon="arrow-down-border" />
-        </div>
+        <Tooltip title={_l('更换数据源类型')}>
+          <div className="selectIcon">
+            <Icon icon="arrow-down-border" />
+          </div>
+        </Tooltip>
       </SelectCard>
       {selectModalVisible && (
         <SourceSelectModal

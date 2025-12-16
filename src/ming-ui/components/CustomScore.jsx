@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getDefaultData } from 'src/pages/widgetConfig/config/score.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
 import { browserIsMobile } from 'src/utils/common';
@@ -126,13 +127,13 @@ class CustomScore extends Component {
       <div className={cx('Score-wrapper customScoreWrap', className)}>
         {list.map((item, index) => {
           const tipText = `${_.get(itemnames[index], 'value') || index + 1}`;
-          let tipProps = { popupPlacement: 'top', offset: [0, 1] };
+          let tipProps = { placement: 'top', offset: [0, 1] };
           if (isMobile) {
             if (index === 0 && getStringBytes(tipText) >= 10) {
-              tipProps = { popupPlacement: 'topLeft', offset: [-12, 1] };
+              tipProps = { placement: 'topLeft', offset: [-12, 1] };
             }
             if (index === list.length - 1 && getStringBytes(tipText) >= 10) {
-              tipProps = { popupPlacement: 'topRight', offset: [12, 1] };
+              tipProps = { placement: 'topRight', offset: [12, 1] };
             }
           }
           return (
@@ -153,7 +154,7 @@ class CustomScore extends Component {
                   })}
             >
               <CustomScoreIcon color={score > 0 && index < score ? selectColor : backgroundColor || '#bdbdbd'}>
-                <Tooltip text={<span>{tipText}</span>} {...tipProps} disable={this.props.disabled || hideTip}>
+                <Tooltip title={this.props.disabled || hideTip ? '' : <span>{tipText}</span>} {...tipProps}>
                   <Icon className={cx('scoreIcon', from === 'recordInfo' ? 'Font24' : 'Font18')} icon={itemicon} />
                 </Tooltip>
               </CustomScoreIcon>

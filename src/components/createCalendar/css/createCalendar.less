@@ -37,8 +37,12 @@
     border-width: 1px;
     border-style: solid;
   }
-  .infoInput:not(:focus):not(:hover) {
+  .infoInput {
     border-color: #9e9e9e !important;
+    &:focus,
+    &:hover {
+      border-color: #2196f3 !important;
+    }
   }
   .createCalendarTitle .createCalendarLabel {
     top: 9px;
@@ -185,7 +189,7 @@
   .calendarTime .timezone {
     height: 28px;
     line-height: 28px;
-    width: 50px;
+    padding: 0 10px;
     text-align: center;
     position: absolute;
     border-width: 1px;

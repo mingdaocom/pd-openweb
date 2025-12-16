@@ -106,7 +106,7 @@ class TaskCanvas extends Component {
     const updateIds = (toUpdate || []).map(o => o.nodeId);
     let map = _.omit(flowNodes, updateIds);
     map = _.omit(map, toDeleteIds || []);
-    [...(toUpdate || []), ...(toAdd || [])].map(o => {
+    [...(toUpdate || []), ...(toAdd || [])].forEach(o => {
       map[o.nodeId] = o;
     });
     _.mapKeys(map, o => {

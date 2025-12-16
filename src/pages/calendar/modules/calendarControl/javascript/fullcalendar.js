@@ -9,7 +9,7 @@
  * Docs & License: http://arshaw.com/fullcalendar/
  * (c) 2013 Adam Shaw
  */
-
+import _ from 'lodash';
 import moment from 'moment';
 
 var defaults = {
@@ -180,7 +180,7 @@ $.fn.fullCalendar = function (options) {
 
     // a method call
     if (typeof options === 'string') {
-      if (calendar && $.isFunction(calendar[options])) {
+      if (calendar && _.isFunction(calendar[options])) {
         singleRes = calendar[options].apply(calendar, args);
         if (!i) {
           res = singleRes; // record the first method call result
@@ -484,7 +484,6 @@ function Calendar(element, instanceOptions) {
 
   // Given an event's allDay status and start date, return swhat its fallback end date should be.
   t.getDefaultEventEnd = function (allDay, start) {
-    // TODO: rename to computeDefaultEventEnd
     var end = start.clone();
 
     if (allDay) {
@@ -505,7 +504,7 @@ function Calendar(element, instanceOptions) {
 
   // Like the vanilla formatRange, but with calendar-specific settings applied.
   t.formatRange = function (m1, m2, formatStr) {
-    // a function that returns a formatStr // TODO: in future, precompute this
+    // a function that returns a formatStr
     if (typeof formatStr === 'function') {
       formatStr = formatStr.call(t, options, localeData);
     }
@@ -515,7 +514,7 @@ function Calendar(element, instanceOptions) {
 
   // Like the vanilla formatDate, but with calendar-specific settings applied.
   t.formatDate = function (mom, formatStr) {
-    // a function that returns a formatStr // TODO: in future, precompute this
+    // a function that returns a formatStr
     if (typeof formatStr === 'function') {
       formatStr = formatStr.call(t, options, localeData);
     }
@@ -743,7 +742,6 @@ function Calendar(element, instanceOptions) {
 
   /* Event Fetching/Rendering
         -----------------------------------------------------------------------------*/
-  // TODO: going forward, most of this stuff should be directly handled by the view
 
   function refetchEvents() {
     // can be called as an API method
@@ -946,7 +944,6 @@ function Calendar(element, instanceOptions) {
 
 /* Top toolbar area with buttons and title
     ----------------------------------------------------------------------------------------------------------------------*/
-// TODO: rename all header-related things to "toolbar"
 
 function Header(calendar, options) {
   var t = this;
@@ -1218,7 +1215,7 @@ function EventManager(options) {
 
   function fetchEventSource(source, fetchID) {
     _fetchEventSource(source, function (events) {
-      var isArraySource = $.isArray(source.events);
+      var isArraySource = _.isArray(source.events);
       var i;
       var event;
 
@@ -1273,7 +1270,7 @@ function EventManager(options) {
 
     var events = source.events;
     if (events) {
-      if ($.isFunction(events)) {
+      if (_.isFunction(events)) {
         pushLoading();
         events.call(
           t, // this, the Calendar object
@@ -1285,7 +1282,7 @@ function EventManager(options) {
             popLoading();
           },
         );
-      } else if ($.isArray(events)) {
+      } else if (_.isArray(events)) {
         callback(events);
       } else {
         callback();
@@ -1297,9 +1294,9 @@ function EventManager(options) {
         var error = source.error;
         var complete = source.complete;
 
-        // retrieve any outbound GET/POST $.ajax data from the options
+        // retrieve any outbound GET/POST data from the options
         var customData;
-        if ($.isFunction(source.data)) {
+        if (_.isFunction(source.data)) {
           // supplied as a function that returns a key/value object
           customData = source.data();
         } else {
@@ -1333,7 +1330,7 @@ function EventManager(options) {
           .then(function (events) {
             events = events.data.calendars || [];
             var res = applyAll(success, this, arguments);
-            if ($.isArray(res)) {
+            if (_.isArray(res)) {
               events = res;
             }
             events.forEach(item => {
@@ -1359,27 +1356,6 @@ function EventManager(options) {
             applyAll(error, this, arguments);
             callback();
           });
-
-        //插件原来加载数据方法
-        // $.ajax($.extend({}, ajaxDefaults, source, {
-        //     data: data,
-        //     success: function (events) {
-        //         events = events || [];
-        //         var res = applyAll(success, this, arguments);
-        //         if ($.isArray(res)) {
-        //             events = res;
-        //         }
-        //         callback(events);
-        //     },
-        //     error: function () {
-        //         applyAll(error, this, arguments);
-        //         callback();
-        //     },
-        //     complete: function () {
-        //         applyAll(complete, this, arguments);
-        //         popLoading();
-        //     }
-        // }));
       } else {
         callback();
       }
@@ -1404,7 +1380,7 @@ function EventManager(options) {
     var source;
     var i;
 
-    if ($.isFunction(sourceInput) || $.isArray(sourceInput)) {
+    if (_.isFunction(sourceInput) || _.isArray(sourceInput)) {
       source = { events: sourceInput };
     } else if (typeof sourceInput === 'string') {
       source = { url: sourceInput };
@@ -1413,7 +1389,6 @@ function EventManager(options) {
     }
 
     if (source) {
-      // TODO: repeat code, same code for event classNames
       if (source.className) {
         if (typeof source.className === 'string') {
           source.className = source.className.split(/\s+/);
@@ -1424,7 +1399,7 @@ function EventManager(options) {
       }
 
       // for array sources, we convert to standard Event Objects up front
-      if ($.isArray(source.events)) {
+      if (_.isArray(source.events)) {
         source.events = $.map(source.events, function (eventInput) {
           return buildEvent(eventInput, source);
         });
@@ -1439,11 +1414,11 @@ function EventManager(options) {
   }
 
   function removeEventSource(source) {
-    sources = $.grep(sources, function (src) {
+    sources = _.filter(sources, function (src) {
       return !isSourcesEqual(src, source);
     });
     // remove all client events from that source
-    cache = $.grep(cache, function (e) {
+    cache = _.filter(cache, function (e) {
       return !isSourcesEqual(e.source, source);
     });
     reportEvents(cache);
@@ -1525,7 +1500,7 @@ function EventManager(options) {
       filter = function () {
         return true;
       }; // will always match
-    } else if (!$.isFunction(filter)) {
+    } else if (!_.isFunction(filter)) {
       // an event ID
       eventID = filter + '';
       filter = function (event) {
@@ -1534,14 +1509,14 @@ function EventManager(options) {
     }
 
     // Purge event(s) from our local cache
-    cache = $.grep(cache, filter, true); // inverse=true
+    cache = _.reject(cache, filter); // inverse=true
 
     // Remove events from array sources.
     // This works because they have been converted to official Event Objects up front.
     // (and as a result, event._id has been calculated).
     for (i = 0; i < sources.length; i++) {
-      if ($.isArray(sources[i].events)) {
-        sources[i].events = $.grep(sources[i].events, filter, true);
+      if (_.isArray(sources[i].events)) {
+        sources[i].events = _.reject(sources[i].events, filter);
       }
     }
 
@@ -1549,12 +1524,12 @@ function EventManager(options) {
   }
 
   function clientEvents(filter) {
-    if ($.isFunction(filter)) {
-      return $.grep(cache, filter);
+    if (_.isFunction(filter)) {
+      return _.filter(cache, filter);
     } else if (filter != null) {
       // not null, not undefined. an event ID
       filter += '';
-      return $.grep(cache, function (e) {
+      return _.filter(cache, function (e) {
         return e._id == filter;
       });
     }
@@ -2116,7 +2091,9 @@ fc.applyAll = applyAll; // export
 
 // Create an object that has the given prototype. Just like Object.create
 function createObject(proto) {
-  var f = function () {};
+  var f = function () {
+    console.log('');
+  };
   f.prototype = proto;
   return new f();
 }
@@ -2132,7 +2109,7 @@ function extend(a, b) {
 }
 
 function applyAll(functions, thisObj, args) {
-  if ($.isFunction(functions)) {
+  if (_.isFunction(functions)) {
     functions = [functions];
   }
   if (functions) {
@@ -2278,7 +2255,7 @@ function makeMoment(args, parseAsUTC, parseZone) {
         isAmbigTime = !ambigMatch[5]; // no time part?
         isAmbigZone = true;
       }
-    } else if ($.isArray(input)) {
+    } else if (_.isArray(input)) {
       // arrays have no timezone information, so assume ambiguous zone
       isAmbigZone = true;
     }
@@ -2376,13 +2353,7 @@ FCMoment.prototype.stripTime = function () {
   // set the internal UTC flag
   moment.fn.utc.call(this); // call the original method, because we don't want to affect _ambigZone
 
-  this.year(a[0]) // TODO: find a way to do this in one shot
-    .month(a[1])
-    .date(a[2])
-    .hours(0)
-    .minutes(0)
-    .seconds(0)
-    .milliseconds(0);
+  this.year(a[0]).month(a[1]).date(a[2]).hours(0).minutes(0).seconds(0).milliseconds(0);
 
   // Mark the time as ambiguous. This needs to happen after the .utc() call, which calls .zone(), which
   // clears all ambig flags. Same concept with the .year/month/date calls in the case of moment-timezone.
@@ -2409,13 +2380,7 @@ FCMoment.prototype.stripZone = function () {
 
   moment.fn.utc.call(this); // set the internal UTC flag
 
-  this.year(a[0]) // TODO: find a way to do this in one shot
-    .month(a[1])
-    .date(a[2])
-    .hours(a[3])
-    .minutes(a[4])
-    .seconds(a[5])
-    .milliseconds(a[6]);
+  this.year(a[0]).month(a[1]).date(a[2]).hours(a[3]).minutes(a[4]).seconds(a[5]).milliseconds(a[6]);
 
   if (wasAmbigTime) {
     // the above call to .utc()/.zone() unfortunately clears the ambig flags, so reassign
@@ -2460,13 +2425,7 @@ FCMoment.prototype.local = function () {
   if (wasAmbigZone) {
     // If the moment was ambiguously zoned, the date fields were stored as UTC.
     // We want to preserve these, but in local time.
-    this.year(a[0]) // TODO: find a way to do this in one shot
-      .month(a[1])
-      .date(a[2])
-      .hours(a[3])
-      .minutes(a[4])
-      .seconds(a[5])
-      .milliseconds(a[6]);
+    this.year(a[0]).month(a[1]).date(a[2]).hours(a[3]).minutes(a[4]).seconds(a[5]).milliseconds(a[6]);
   }
 
   return this; // for chaining
@@ -2634,7 +2593,6 @@ function formatDateWithChunk(date, chunk) {
 
 // Date Range Formatting
 // -------------------------------------------------------------------------------------------------
-// TODO: make it work with timezone offset
 
 // Using a formatting string meant for a single date, generate a range string, like
 // "Sep 2 - 9 2013", that intelligently inserts a separator where the dates differ.
@@ -2722,7 +2680,6 @@ var similarUnitMap = {
   m: 'second', // minute
   s: 'second', // second
 };
-// TODO: week maybe?
 
 // Given a formatting chunk, and given that both dates are similar in the regard the
 // formatting chunk is concerned, format date1 against `chunk`. Otherwise, return `false`.
@@ -2761,7 +2718,7 @@ function getFormatStringChunks(formatStr) {
 // Break the formatting string into an array of chunks
 function chunkFormatString(formatStr) {
   var chunks = [];
-  var chunker = /\[([^\]]*)\]|\(([^\)]*)\)|(LT|(\w)\4*o?)|([^\w\[\(]+)/g; // TODO: more descrimination
+  var chunker = /\[([^\]]*)\]|\(([^\)]*)\)|(LT|(\w)\4*o?)|([^\w\[\(]+)/g;
   var match;
 
   while ((match = chunker.exec(formatStr))) {
@@ -2930,7 +2887,6 @@ Popover.prototype = {
 
   // Triggers a callback. Calls a function in the option hash of the same name.
   // Arguments beyond the first `name` are forwarded on.
-  // TODO: better code reuse for this. Repeat code
   trigger: function (name) {
     if (this.options[name]) {
       this.options[name].apply(this, Array.prototype.slice.call(arguments, 1));
@@ -3065,7 +3021,6 @@ ComboCoordMap.prototype = {
 
 /* Tracks mouse movements over a CoordMap and raises events about which cell the mouse is over.
     ----------------------------------------------------------------------------------------------------------------------*/
-// TODO: implement scrolling
 
 function DragListener(coordMap, options) {
   this.coordMap = coordMap;
@@ -5095,7 +5050,7 @@ $.extend(DayGrid.prototype, {
   // `row` is the row number.
   computeRowLevelLimit: function (row) {
     var rowEl = this.rowEls.eq(row); // the containing "fake" row div
-    var rowHeight = rowEl.height(); // TODO: cache somehow?
+    var rowHeight = rowEl.height();
     var trEls = this.rowStructs[row].tbodyEl.children();
     var i, trEl;
 
@@ -6756,7 +6711,7 @@ function View(calendar) {
     // days-of-week are hidden. Record in both hashes (one is the reverse of the other).
     for (var dayIndex = 0, cellIndex = 0; dayIndex < 7; dayIndex++) {
       dayToCellMap[dayIndex] = cellIndex;
-      isHiddenDayHash[dayIndex] = $.inArray(dayIndex, hiddenDays) != -1;
+      isHiddenDayHash[dayIndex] = _.indexOf(hiddenDays, dayIndex) != -1;
       if (!isHiddenDayHash[dayIndex]) {
         cellToDayMap[cellIndex] = dayIndex;
         cellIndex++;
@@ -6935,7 +6890,7 @@ function View(calendar) {
         var segmentCellLast = cellOffsetToCell(segmentCellOffsetLast);
 
         // view might be RTL, so order by leftmost column
-        var cols = [segmentCellFirst.col, segmentCellLast.col].sort();
+        var cols = [segmentCellFirst.col, segmentCellLast.col].sort((a, b) => a - b);
 
         // Determine if segment's first/last cell is the beginning/end of the date range.
         // We need to compare "day offset" because "cell offsets" are often ambiguous and
@@ -7348,7 +7303,6 @@ $.extend(MonthView.prototype, {
 
 /* A week view with simple day cells running horizontally
     ----------------------------------------------------------------------------------------------------------------------*/
-// TODO: a WeekView mixin for calculating dates and titles
 
 fcViews.basicWeek = BasicWeekView; // register this view
 
@@ -7816,7 +7770,6 @@ $.extend(AgendaView.prototype, {
 
 /* A week view with an all-day cell area at the top, and a time grid below
     ----------------------------------------------------------------------------------------------------------------------*/
-// TODO: a WeekView mixin for calculating dates and titles
 
 fcViews.agendaWeek = AgendaWeekView; // register the view
 

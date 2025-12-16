@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, Menu, MenuItem, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Dropdown, Icon, Menu, MenuItem, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 
@@ -250,8 +251,7 @@ export default function UserExtendInfo(props) {
           <div className="Font13 Gray mBottom15 mTop32 valignWrapper">
             {_l('必须同时匹配标签时才能拥有权限')}
             <Tooltip
-              autoCloseDelay={0}
-              text={_l(
+              title={_l(
                 '以下权限标签与其他权限的叠加方式为且。如设置权限标签【密级】，则表示必须密级同时也满足时才能拥有权限。当密级不匹配时，即使加入记录或满足其他标签时也没有权限。',
               )}
             >

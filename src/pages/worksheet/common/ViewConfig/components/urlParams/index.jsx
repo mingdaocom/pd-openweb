@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Input, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';

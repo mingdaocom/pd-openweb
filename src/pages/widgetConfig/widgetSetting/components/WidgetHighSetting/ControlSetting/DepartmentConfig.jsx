@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import { Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept } from 'ming-ui/functions';
 import { SettingItem } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
@@ -102,11 +102,7 @@ export default function DepartmentConfig(props) {
     <SettingItem>
       <div className="settingItemTitle">
         {_l('选择范围')}
-        <Tooltip
-          placement="bottom"
-          autoCloseDelay={0}
-          title={_l('使用成员字段设置选择范围时，成员所在的所有部门可选。')}
-        >
+        <Tooltip placement="bottom" title={_l('使用成员字段设置选择范围时，成员所在的所有部门可选。')}>
           <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
         </Tooltip>
       </div>

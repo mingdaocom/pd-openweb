@@ -133,15 +133,9 @@ export const MarkdownWithCSS = styled.div`
   }
 
   hr {
-    box-sizing: content-box;
-    overflow: hidden;
-    background: transparent;
-    border-bottom: 1px solid #d1d9e0b3;
-    height: 0.25em;
-    padding: 0;
-    margin: 1.5rem 0;
-    background-color: #d1d9e0;
-    border: 0;
+    border: none;
+    border-bottom: 1px solid #d1d9e0;
+    margin: 32px 0;
   }
 
   input {
@@ -330,7 +324,21 @@ export const MarkdownWithCSS = styled.div`
   ol {
     margin-top: 0;
     margin-bottom: 0;
-    padding-left: 1em;
+    padding-left: 2em;
+  }
+
+  li {
+    list-style: initial;
+  }
+
+  /* 强制显示有序列表序号，覆盖全局重置 */
+  ol {
+    list-style-type: decimal !important;
+  }
+
+  ol li {
+    list-style-type: decimal !important;
+    display: list-item !important;
   }
 
   ol ol,
@@ -582,6 +590,7 @@ export const MarkdownWithCSS = styled.div`
   table td {
     padding: 6px 13px;
     border: 1px solid #d1d9e0;
+    min-width: 100px;
   }
 
   table td > :last-child {
@@ -1260,13 +1269,27 @@ export const MarkdownWithCSS = styled.div`
       content: '';
       position: absolute;
       aspect-ratio: 1/1;
-      width: calc(var(--size, 80px));
-      background: linear-gradient(to left, var(--color-from, #1677ff20), var(--color-to, #1677ff), transparent);
+      width: calc(var(--size, 120px));
+      background: linear-gradient(to left, var(--color-from, #6e09f920), var(--color-to, #6e09f9), transparent);
       offset-anchor: calc(var(--anchor, 90)) 50%;
-      offset-path: rect(0 auto auto 0 round calc(var(--size, 80px)));
+      offset-path: rect(0 auto auto 0 round calc(var(--size, 120px)));
       animation: ${borderBeamAnimation} calc(var(--duration, 6s)) infinite linear;
       animation-delay: calc(var(--delay, 0s));
       will-change: auto;
+    }
+  }
+
+  // 自定义部分
+  .infor {
+    color: var(--adm-color-primary);
+    cursor: pointer;
+  }
+
+  &.isMobile {
+    table th,
+    table td {
+     min-width: 100px;
+     max-width: 200px;
     }
   }
 `;

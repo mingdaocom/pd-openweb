@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { isEmpty } from 'lodash';
 import { Dialog } from 'ming-ui';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { getAdvanceSetting } from '../../../util/setting';
+import EmptyRuleConfig from '../EmptyRuleConfig';
 import '../FilterData/filterDialog.less';
 
 export default function FilterDialog(props) {
@@ -19,6 +20,7 @@ export default function FilterDialog(props) {
   } = props;
 
   const [filters, setFilters] = useState(getAdvanceSetting(data, 'filters'));
+  const ruleRef = useRef(null);
 
   return (
     <Dialog
@@ -30,7 +32,16 @@ export default function FilterDialog(props) {
       cancelText={_l('取消')}
       className="filterDialog"
       onCancel={onClose}
-      onOk={() => onOk(filters)}
+      onOk={() => {
+        const ruleConfig = ruleRef.current ? { emptyRule: ruleRef.current } : {};
+        const newFilters = filters.map(i => {
+          if (i.isGroup) {
+            return { ...i, groupFilters: (i.groupFilters || []).map(g => ({ ...g, ...ruleConfig })) };
+          }
+          return { ...i, ...ruleConfig };
+        });
+        onOk(newFilters);
+      }}
     >
       <div>{titleCom}</div>
       <FilterConfig
@@ -44,12 +55,14 @@ export default function FilterDialog(props) {
         sourceControlId={sourceControlId}
         filterResigned={false}
         from={'relateSheet'}
-        currentColumns={allControls}
+        currentColumns={allControls.map(a => ({ ...a, type: a.type === 30 ? a.sourceControlType : a.type }))}
         showCustom={true}
         onConditionsChange={conditions => {
           setFilters(conditions);
         }}
       />
+
+      <EmptyRuleConfig {...props} filters={filters} handleChange={value => (ruleRef.current = value)} />
     </Dialog>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { UNIT_TYPE } from '../../../config/setting';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting } from '../../../util';
@@ -30,8 +30,7 @@ export default function InputSuffix({ data, onChange }) {
           >
             <span style={{ marginRight: '6px' }}>{_l('自动进位')}</span>
             <Tooltip
-              popupPlacement="bottom"
-              autoCloseDelay={0}
+              placement="bottom"
               title={
                 <span>
                   {_l(

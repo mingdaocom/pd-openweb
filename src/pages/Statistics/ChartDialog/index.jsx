@@ -5,16 +5,20 @@ import store from 'redux/configureStore';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
 import DocumentTitle from 'react-document-title';
-import { Button, ConfigProvider, Tabs, Tooltip } from 'antd';
+import { Button, ConfigProvider, Tabs } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportConfig from '../api/reportConfig';
 import projectController from 'src/api/project';
 import worksheetAjax from 'src/api/worksheet';
+import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import MoreOverlay from '../Card/MoreOverlay';
 import { reportTypes } from '../Charts/common';
 import { chartNav, getNewReport } from '../common';
@@ -152,6 +156,7 @@ export default class ChartDialog extends Component {
       reportName: currentReport.name,
       reportDesc: currentReport.desc,
     });
+    this.props.closeCurrentReport();
   };
   handleSave = () => {
     const { appType } = this.props.base;
@@ -176,9 +181,22 @@ export default class ChartDialog extends Component {
   };
   handleVerifySave = () => {
     const { yaxisList, reportType } = this.props.currentReport;
+    const { status } = this.props.reportData;
     if (!reportType) {
       alert(_l('请选择图表类型'), 2);
       return;
+    }
+    if (status !== 1) {
+      if (status === -1) {
+        alert(_l('无权限'), 2);
+        return;
+      } else if (status === -2) {
+        // alert(_l('数据量过大，请添加时间范围或添加筛选条件减少数据量'), 2);
+        // return;
+      } else {
+        alert(_l('选择或将字段拖拽到右侧维度、数值栏添加数据'), 2);
+        return;
+      }
     }
     if (reportType == reportTypes.NumberChart) {
       if (_.isEmpty(yaxisList)) {
@@ -342,56 +360,70 @@ export default class ChartDialog extends Component {
   }
   renderCharts() {
     const { geoCountryRegionCode } = this.state;
-    const { currentReport } = this.props;
+    const { projectId, currentReport } = this.props;
     const { reportType, displaySetup } = currentReport;
     return (
       <div className="charts flexRow pLeft20 pRight20">
         {chartNav
-          .filter(l => l.icon !== 'map' || !geoCountryRegionCode || geoCountryRegionCode === 'CN')
+          .filter(item => {
+            if (item.type === reportTypes.CountryLayer) {
+              return !geoCountryRegionCode || geoCountryRegionCode === 'CN';
+            }
+            return true;
+          })
           .map((item, index) => (
             <Fragment key={index}>
-              <div
-                data-tip={item.name}
-                onClick={() => {
-                  if (item.type === reportTypes.BarChart) {
-                    this.props.changeCurrentReport({
-                      displaySetup: {
-                        ...displaySetup,
-                        showChartType: 1,
-                      },
-                    });
-                  }
-                  this.handleUpdateReportType(item.type);
-                }}
-                className={cx('chartItem', {
-                  active:
-                    item.type === reportTypes.BarChart
-                      ? reportType === reportTypes.BarChart && displaySetup.showChartType === 1
-                      : reportType === item.type,
-                })}
-              >
-                <Icon icon={item.icon} />
-              </div>
-              {item.type === reportTypes.BarChart && (
+              <Tooltip title={item.name}>
                 <div
-                  data-tip={_l('横向柱图')}
                   onClick={() => {
-                    this.props.changeCurrentReport({
-                      displaySetup: {
-                        ...displaySetup,
-                        showChartType: 2,
-                      },
-                    });
-                    if (reportType !== reportTypes.BarChart) {
-                      this.handleUpdateReportType(item.type);
+                    if (item.type === reportTypes.BarChart) {
+                      this.props.changeCurrentReport({
+                        displaySetup: {
+                          ...displaySetup,
+                          showChartType: 1,
+                        },
+                      });
                     }
+                    if (
+                      item.type === reportTypes.WorldMap &&
+                      getFeatureStatus(projectId, VersionProductType.worldMap) === '2'
+                    ) {
+                      buriedUpgradeVersionDialog(projectId, VersionProductType.worldMap);
+                      return;
+                    }
+                    this.handleUpdateReportType(item.type);
                   }}
                   className={cx('chartItem', {
-                    active: reportType === reportTypes.BarChart && displaySetup.showChartType === 2,
+                    active:
+                      item.type === reportTypes.BarChart
+                        ? reportType === reportTypes.BarChart && displaySetup.showChartType === 1
+                        : reportType === item.type,
                   })}
                 >
-                  <Icon icon="stats_bar_chart1" />
+                  <Icon icon={item.icon} />
                 </div>
+              </Tooltip>
+              {item.type === reportTypes.BarChart && (
+                <Tooltip title={_l('横向柱图')}>
+                  <div
+                    onClick={() => {
+                      this.props.changeCurrentReport({
+                        displaySetup: {
+                          ...displaySetup,
+                          showChartType: 2,
+                        },
+                      });
+                      if (reportType !== reportTypes.BarChart) {
+                        this.handleUpdateReportType(item.type);
+                      }
+                    }}
+                    className={cx('chartItem', {
+                      active: reportType === reportTypes.BarChart && displaySetup.showChartType === 2,
+                    })}
+                  >
+                    <Icon icon="stats_bar_chart1" />
+                  </div>
+                </Tooltip>
               )}
             </Fragment>
           ))}
@@ -419,7 +451,17 @@ export default class ChartDialog extends Component {
   }
   renderSetting() {
     const { projectId, reportData, currentReport, sourceType, themeColor, customPageConfig = {} } = this.props;
+    const { reportType, xaxes } = currentReport;
     const { chartIsUnfold } = this.state;
+    const getAnalyseVisible = (function () {
+      if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
+        return false;
+      }
+      if (reportType === reportTypes.WorldMap) {
+        return xaxes.controlType !== 40;
+      }
+      return true;
+    })();
 
     if (!chartIsUnfold) {
       return (
@@ -467,7 +509,7 @@ export default class ChartDialog extends Component {
                   customPageConfig={customPageConfig}
                 />
               </Tabs.TabPane>
-              {![reportTypes.GaugeChart, reportTypes.ProgressChart].includes(currentReport.reportType) && (
+              {getAnalyseVisible && (
                 <Tabs.TabPane tab={_l('分析')} key="analyse" disabled={reportData.status <= 0}>
                   <ChartAnalyse sourceType={sourceType} reportId={this.state.reportId} />
                 </Tabs.TabPane>

@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportConfig from '../api/reportConfig';
 import { defaultTitleStyles, replaceTitleStyle } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -35,7 +35,13 @@ export default class Header extends Component {
     const { appId, report, permissions, currentReport, reportData, themeColor, customPageConfig = {} } = this.props;
     const pageTitleStyles = customPageConfig.titleStyles || {};
     const titleStyles = _.get(currentReport.style, 'titleStyles') || defaultTitleStyles;
-    const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
+    const newTitleStyles =
+      pageTitleStyles.index >= titleStyles.index
+        ? {
+            ...pageTitleStyles,
+            color: pageTitleStyles.isInitial ? '#333' : pageTitleStyles.color,
+          }
+        : titleStyles;
     const { displaySetup = {} } = reportData;
     const { isEdit, editDescVisible } = this.state;
     const translateInfo = getTranslateInfo(appId, null, report.id);
@@ -54,59 +60,61 @@ export default class Header extends Component {
         ) : (
           <div className="nameWrapper valignWrapper flex">
             {(window.shareState.shareId ? displaySetup.showTitle : true) && (
-              <span className="ellipsis" style={{ ...replaceTitleStyle(newTitleStyles, themeColor) }}>
-                {translateInfo.name || currentReport.name}
-              </span>
-            )}
-            {permissions && (
-              <Icon
-                icon="workflow_write"
-                className="Font18 pointer Gray_9e mLeft7"
-                onClick={() => {
-                  this.setState({
-                    isEdit: true,
-                  });
-                }}
-              />
-            )}
-            {(permissions ? true : currentReport.desc) && (
-              <Trigger
-                action={['click']}
-                popup={
-                  <ChartDesc
-                    reportId={report.id}
-                    desc={currentReport.desc}
-                    onSave={desc => {
-                      this.props.changeCurrentReport({ desc });
-                    }}
-                    onClose={() => {
-                      this.setState({ editDescVisible: false });
-                    }}
-                  />
-                }
-                popupVisible={editDescVisible}
-                onPopupVisibleChange={visible => {
-                  if (!permissions) return;
-                  this.setState({ editDescVisible: visible });
-                }}
-                popupAlign={{
-                  points: ['tr', 'br'],
-                  offset: [10, 10],
-                  overflow: { adjustX: true, adjustY: true },
-                }}
-              >
-                <Tooltip
-                  title={translateInfo.description || currentReport.desc || _l('编辑图表说明')}
-                  placement="bottom"
-                >
+              <Fragment>
+                <span className="ellipsis" style={{ ...replaceTitleStyle(newTitleStyles, themeColor) }}>
+                  {translateInfo.name || currentReport.name}
+                </span>
+                {permissions && (
                   <Icon
-                    icon="info"
-                    className={cx('Font18 pointer Gray_9e mLeft7', {
-                      hideDesc: !editDescVisible && _.isEmpty(currentReport.desc),
-                    })}
+                    icon="workflow_write"
+                    className="Font18 pointer Gray_9e mLeft7"
+                    onClick={() => {
+                      this.setState({
+                        isEdit: true,
+                      });
+                    }}
                   />
-                </Tooltip>
-              </Trigger>
+                )}
+                {(permissions ? true : currentReport.desc) && (
+                  <Trigger
+                    action={['click']}
+                    popup={
+                      <ChartDesc
+                        reportId={report.id}
+                        desc={currentReport.desc}
+                        onSave={desc => {
+                          this.props.changeCurrentReport({ desc });
+                        }}
+                        onClose={() => {
+                          this.setState({ editDescVisible: false });
+                        }}
+                      />
+                    }
+                    popupVisible={editDescVisible}
+                    onPopupVisibleChange={visible => {
+                      if (!permissions) return;
+                      this.setState({ editDescVisible: visible });
+                    }}
+                    popupAlign={{
+                      points: ['tr', 'br'],
+                      offset: [10, 10],
+                      overflow: { adjustX: true, adjustY: true },
+                    }}
+                  >
+                    <Tooltip
+                      title={translateInfo.description || currentReport.desc || _l('编辑图表说明')}
+                      placement="bottom"
+                    >
+                      <Icon
+                        icon="info"
+                        className={cx('Font18 pointer Gray_9e mLeft7', {
+                          hideDesc: !editDescVisible && _.isEmpty(currentReport.desc),
+                        })}
+                      />
+                    </Tooltip>
+                  </Trigger>
+                )}
+              </Fragment>
             )}
           </div>
         )}

@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { Fragment, memo, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
@@ -76,7 +76,13 @@ const HeaderWrap = styled.header`
       font-weight: 500;
       transition: all 0.3s ease-out;
       border-bottom: 3px solid transparent;
-      &:hover,
+      & > span {
+        display: flex;
+        align-items: center;
+        &:hover {
+          color: var(--color-primary);
+        }
+      }
       &.active {
         color: var(--color-primary);
         border-color: var(--color-primary);
@@ -105,11 +111,20 @@ const CommonHeader = props => {
   const { backgroundColor, fillColor } = getIconColor(dataApp);
   const [shareVisible, setShareVisible] = useState(false);
 
+  const externalLink = e => {
+    e.stopPropagation();
+    const lang = window.getCurrentLang();
+    window.open(
+      `${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}`,
+      '_blank',
+    );
+  };
+
   return (
     <HeaderWrap className="flexRow">
       <div className="appInfoBox">
         {data && (
-          <React.Fragment>
+          <Fragment>
             <span
               className="appIconWrapIcon"
               style={{ backgroundColor }}
@@ -127,7 +142,7 @@ const CommonHeader = props => {
             >
               {dataApp.name}
             </span>
-          </React.Fragment>
+          </Fragment>
         )}
         {_l('API说明')}
       </div>
@@ -141,8 +156,13 @@ const CommonHeader = props => {
               })}
               onClick={() => updateTabIndex(item.tabIndex)}
             >
-              {item.name}
-              {item.tabIndex === TAB_TYPE.API_V3 && <Beta />}
+              <span>
+                {item.name}
+                {item.tabIndex === TAB_TYPE.API_V3 && <Beta />}
+              </span>
+              {item.tabIndex === TAB_TYPE.API_V3 && (
+                <Icon icon="external_collaboration" className="Font16 ThemeColor" onClick={externalLink} />
+              )}
             </div>
           ))}
       </div>

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 import styled from 'styled-components';
 import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.jsx';
+import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
 
 const InfoTopWrap = styled.div`
@@ -11,6 +12,9 @@ const InfoTopWrap = styled.div`
     width: 58px;
     height: 58px;
     border-radius: 50%;
+  }
+  .personalStatus {
+    max-width: fit-content;
   }
 `;
 
@@ -27,6 +31,9 @@ class InfoTop extends React.PureComponent {
     const { userInfo = {}, isMe, dispatch } = this.props;
     const { currentUserCard } = this.state;
     const { userCards = [] } = userInfo;
+    const commonOrg = _.filter(userCards, card =>
+      _.some(_.get(md, 'global.Account.projects', []), project => project.projectId === card.projectId),
+    );
 
     const sendMessage = () => {
       dispatch(actions.addUserSession(userInfo.accountId));
@@ -34,14 +41,18 @@ class InfoTop extends React.PureComponent {
 
     return (
       <InfoTopWrap className="pTop20 pRight20 pBottom10 pLeft20">
-        <div className="flexRow alignItemsCenter mBottom30">
+        <div
+          className={`flexRow alignItemsCenter ${_.get(userInfo, 'onStatusOption.durationOption') ? '' : 'mBottom30'}`}
+        >
           <img src={userInfo.avatar} className="userAvatar" />
           <div className="flex mLeft12" title={userInfo.fullname}>
             <div className="bold">{userInfo.fullname}</div>
-            {userCards.length > 1 ? (
-              <div className="ThemeColor">{_l('%0个共同组织', userCards.length)}</div>
+            {userInfo.accountId !== md.global.Account.accountId && commonOrg.length > 0 ? (
+              <div className="ThemeColor">{_l('%0个共同组织', commonOrg.length)}</div>
+            ) : userInfo.companyName ? (
+              <div className="Gray_75">{userInfo.companyName}</div>
             ) : (
-              <div className="Gray_75">{currentUserCard.companyName || userInfo.companyName}</div>
+              ''
             )}
           </div>
           {isMe ? (
@@ -67,6 +78,9 @@ class InfoTop extends React.PureComponent {
             </React.Fragment>
           )}
         </div>
+        {_.get(userInfo, 'onStatusOption.durationOption') ? (
+          <PersonalStatus className="personalStatus mTop12 mBottom30" onStatusOption={userInfo.onStatusOption} />
+        ) : null}
         <UserBaseProfile
           infoWrapClassName="flexRow"
           projects={userCards}

@@ -8,24 +8,14 @@ const initialState = {
 };
 
 export default (state = initialState, action) => {
-  const { type, keywords } = action;
+  const { type, isSearching, result } = action;
   switch (type) {
     case 'PROJECT_ID_CHANGED':
       return initialState;
-    case ACTIONS.SEARCH_REQUEST:
-      return {
-        ...state,
-        keywords,
-        isSearching: true,
-      };
-    case ACTIONS.SEARCH_SUCCESS:
-    case ACTIONS.SEARCH_FAILURE:
-      const { response } = action;
-      return {
-        ...state,
-        result: response,
-        isSearching: false,
-      };
+    case 'UPDATE_IS_SEARCHING':
+      return { ...state, isSearching };
+    case 'SEARCH_SUCCESS':
+      return { ...state, result };
     case ACTIONS.CLEAR_KEYWORDS:
       return {
         ...state,

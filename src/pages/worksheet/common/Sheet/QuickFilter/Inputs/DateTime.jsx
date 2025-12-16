@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Dropdown, MdAntDateRangePicker } from 'ming-ui';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
-import DatePicker from 'src/components/newCustomFields/widgets/Date';
+import DatePicker from 'src/components/Form/DesktopForm/widgets/Date';
 import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
@@ -140,6 +140,7 @@ export default function DateTime(props) {
   const filterType = props.filterType || FILTER_CONDITION_TYPE.DATE_BETWEEN;
   let dateOptions = DATE_TYPE.concat([[{ text: _l('指定时间'), value: 18 }]]);
   const [active, setActive] = useState();
+  const [pickerVisible, setPickerVisible] = useState();
   if (dateRangeType) {
     control.advancedSetting.showtype = String(dateRangeType);
     if (includes(['3', '4', '5'], String(dateRangeType))) {
@@ -185,7 +186,10 @@ export default function DateTime(props) {
             showTime={timeFormat ? { format: timeFormat } : false}
             picker={getPicker(showType)}
             format={showValueFormat}
+            open={pickerVisible}
+            onOpenChange={setPickerVisible}
             onChange={moments => {
+              setPickerVisible(false);
               if (!moments || !_.isArray(moments)) {
                 moments = [];
               }
@@ -208,6 +212,7 @@ export default function DateTime(props) {
             hideIcon={true}
             value={value && moment(value)}
             dropdownClassName="scrollInTable"
+            showDatePicker={pickerVisible}
             onChange={date => {
               onChange({
                 dateRange: 18,
@@ -239,6 +244,9 @@ export default function DateTime(props) {
                   maxValue: undefined,
                   dateRangeType,
                 };
+                if (newValue === 18) {
+                  setPickerVisible(true);
+                }
                 onChange(change);
               }}
               onVisibleChange={setActive}

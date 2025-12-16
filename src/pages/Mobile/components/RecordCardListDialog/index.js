@@ -7,13 +7,13 @@ import { Icon, LoadDiv, PopupWrapper, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
+import { FROM } from 'src/components/Form/core/config';
+import { getCurrentValue } from 'src/components/Form/core/formUtils';
 import RecordCoverCard from 'src/components/Form/MobileForm/components/RelateRecordCards/RecordCoverCard';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
+import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
-import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
-import { FROM } from 'src/components/newCustomFields/tools/config';
-import { getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
-import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
+import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { fieldCanSort } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
@@ -751,12 +751,13 @@ export default class RecordCardListDialog extends Component {
           </div>
         ) : null}
         {showNewRecord && (
-          <NewRecord
+          <MobileNewRecord
             hideFillNext
             appId={appId}
             viewId={viewId}
             worksheetId={relateSheetId}
             projectId={worksheet.projectId}
+            worksheetInfo={worksheetInfo}
             addType={2}
             entityName={worksheet.entityName}
             filterRelateSheetIds={[relateSheetId]}
@@ -859,11 +860,12 @@ export default class RecordCardListDialog extends Component {
   render() {
     const {
       visible,
-      onClose,
+      onClose = () => {},
       multiple,
       disabledManualWrite,
       filterRowIds,
-      onClear,
+      control = {},
+      onClear = () => {},
       className,
       handleReplaceHistoryState = () => {},
     } = this.props;
@@ -874,7 +876,7 @@ export default class RecordCardListDialog extends Component {
         className={className}
         bodyClassName="heightPopupBody40"
         visible={visible}
-        title={_l('关联记录')}
+        title={control?.controlName || _l('关联记录')}
         confirmDisable={!selectedRecords.length}
         confirmText={selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
         onClose={() => {

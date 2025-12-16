@@ -1,9 +1,8 @@
 import base, { controllerName } from './base';
 
-var test = {
-
+const test = {
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.wsId No comments found.
@@ -18,7 +17,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.aggtableId No comments found.
@@ -35,7 +34,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
@@ -50,7 +49,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
@@ -65,7 +64,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -79,7 +78,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.wsId No comments found.
@@ -94,7 +93,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.flowId No comments found.
@@ -110,7 +109,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.flowId No comments found.
@@ -125,7 +124,7 @@ var test = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.projectId No comments found.
@@ -137,7 +136,7 @@ var test = {
     base.ajaxOptions.url = base.server(options) + 'test/role/isAppManager';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'testrole', args, $.extend(base, options));
-  }
+  },
 };
 
 export default test;

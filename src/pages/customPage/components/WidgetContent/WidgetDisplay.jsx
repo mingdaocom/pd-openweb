@@ -77,7 +77,8 @@ const WidgetContent = styled.div`
       background-color: var(--widget-color) !important;
     }
     .header .iconItem,
-    .header .reportDesc {
+    .header .reportDesc,
+    .header .filterCriteriaIcon .icon {
       color: var(--widget-icon-color) !important;
       &:hover {
         color: var(--widget-icon-hover-color) !important;
@@ -186,6 +187,7 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           isLock={props.isLock}
           permissionType={props.permissionType}
           editingWidget={props.editingWidget}
+          addRecord={props.addRecord}
         />
       );
     }

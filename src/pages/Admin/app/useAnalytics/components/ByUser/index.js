@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Tooltip, UserHead } from 'ming-ui';
+import { Button, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
 import downloadAjax from 'src/api/download';
@@ -81,10 +82,8 @@ export default class ByUser extends Component {
           return (
             <div className="ellipsis" onMouseEnter={() => this.getDepartmentFullName(departments)}>
               <Tooltip
-                tooltipClass="departmentFullNametip"
-                popupPlacement="bottom"
-                autoCloseDelay={0}
-                text={
+                placement="bottom"
+                title={
                   <div>
                     {departments.map((v, depIndex) => {
                       const fullName = (this.state.fullDepartmentInfo[v.departmentId] || '').split('/');

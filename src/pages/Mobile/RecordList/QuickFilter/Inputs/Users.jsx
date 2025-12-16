@@ -52,7 +52,7 @@ const UserItem = styled.span`
 `;
 
 const emptyAvatar = _.get(md, 'global.FileStoreConfig.pictureHost')
-  ? md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+  ? md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
   : '';
 
 export default function Users(props) {
@@ -130,8 +130,7 @@ export default function Users(props) {
               ? [
                   {
                     avatar:
-                      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-                      '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+                      md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
                     fullname: nullitemname || _l('为空'),
                     accountId: 'isEmpty',
                   },

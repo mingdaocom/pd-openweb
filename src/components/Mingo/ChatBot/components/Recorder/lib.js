@@ -23,7 +23,7 @@ export default function init() {
         c = Math.ceil(r).toFixed();
       o[t] = i[a] + (i[c] - i[a]) * (r - a);
     }
-    return (o[s - 1] = i[i.length - 1]), o;
+    return ((o[s - 1] = i[i.length - 1]), o);
   }
   const o = `
 class MyProcessor extends AudioWorkletProcessor {
@@ -65,7 +65,7 @@ registerProcessor('my-processor', MyProcessor);
     navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
   class r {
     constructor(t, e, i) {
-      (this.audioData = []),
+      ((this.audioData = []),
         (this.allAudioData = []),
         (this.stream = null),
         (this.audioContext = null),
@@ -76,7 +76,7 @@ registerProcessor('my-processor', MyProcessor);
         (this.bitCount = 0),
         (this.mediaStreamSource = null),
         (this.isLog = i),
-        (this.params = e);
+        (this.params = e));
     }
     static isSupportMediaDevicesMedia() {
       return !!(navigator.getUserMedia || (navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
@@ -97,7 +97,7 @@ registerProcessor('my-processor', MyProcessor);
       return 'function' == typeof e.createScriptProcessor;
     }
     start() {
-      (this.frameTime = []),
+      ((this.frameTime = []),
         (this.frameCount = 0),
         (this.allAudioData = []),
         (this.audioData = []),
@@ -107,20 +107,20 @@ registerProcessor('my-processor', MyProcessor);
         (this.audioContext = null),
         (this.mediaStreamSource = null),
         (this.stream = null),
-        (this.preTime = 0);
+        (this.preTime = 0));
       try {
         r.isSupportAudioContext()
           ? (this.audioContext = new (window.AudioContext || window.webkitAudioContext)())
           : (this.isLog && console.log(this.requestId, '浏览器不支持AudioContext', n),
             this.OnError('浏览器不支持AudioContext'));
       } catch (t) {
-        this.isLog && console.log(this.requestId, '浏览器不支持webAudioApi相关接口', t, n),
-          this.OnError('浏览器不支持webAudioApi相关接口');
+        (this.isLog && console.log(this.requestId, '浏览器不支持webAudioApi相关接口', t, n),
+          this.OnError('浏览器不支持webAudioApi相关接口'));
       }
       this.getUserMedia(this.requestId, this.getAudioSuccess, this.getAudioFail);
     }
     stop() {
-      (/Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)) ||
+      ((/Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)) ||
         (this.audioContext && this.audioContext.suspend()),
         this.audioContext && this.audioContext.suspend(),
         this.isLog &&
@@ -130,7 +130,7 @@ registerProcessor('my-processor', MyProcessor);
             JSON.stringify(this.frameTime),
             n,
           ),
-        this.OnStop(this.allAudioData);
+        this.OnStop && this.OnStop(this.allAudioData));
     }
     destroyStream() {
       this.stream &&
@@ -149,7 +149,7 @@ registerProcessor('my-processor', MyProcessor);
         ? navigator.mediaDevices
             .getUserMedia(o)
             .then(t => {
-              (this.stream = t), i.call(this, e, t);
+              ((this.stream = t), i.call(this, e, t));
             })
             .catch(t => {
               s.call(this, e, t);
@@ -158,7 +158,7 @@ registerProcessor('my-processor', MyProcessor);
           ? navigator.getUserMedia(
               o,
               t => {
-                (this.stream = t), i.call(this, e, t);
+                ((this.stream = t), i.call(this, e, t));
               },
               function (t) {
                 s.call(this, e, t);
@@ -180,27 +180,27 @@ registerProcessor('my-processor', MyProcessor);
     }
     async getAudioSuccess(t, e) {
       if (!this.audioContext) return !1;
-      this.mediaStreamSource && (this.mediaStreamSource.disconnect(), (this.mediaStreamSource = null)),
-        (this.audioTrack = e.getAudioTracks()[0]);
+      (this.mediaStreamSource && (this.mediaStreamSource.disconnect(), (this.mediaStreamSource = null)),
+        (this.audioTrack = e.getAudioTracks()[0]));
       e = new MediaStream();
-      e.addTrack(this.audioTrack),
+      (e.addTrack(this.audioTrack),
         (this.mediaStreamSource = this.audioContext.createMediaStreamSource(e)),
         r.isSupportMediaStreamSource(t, this.audioContext)
           ? r.isSupportAudioWorklet(this.audioContext)
             ? this.audioWorkletNodeDealAudioData(this.mediaStreamSource, t)
             : this.scriptNodeDealAudioData(this.mediaStreamSource, t)
           : (this.isLog && console.log(this.requestId, '不支持MediaStreamSource', n),
-            this.OnError('不支持MediaStreamSource'));
+            this.OnError('不支持MediaStreamSource')));
     }
     getAudioFail(t, e) {
-      e &&
+      (e &&
         e.err &&
         'NotAllowedError' === e.err.name &&
         this.isLog &&
         console.log(t, '授权失败', JSON.stringify(e.err), n),
         this.isLog && console.log(this.requestId, 'getAudioFail', JSON.stringify(e), n),
         this.OnError(e),
-        this.stop();
+        this.stop());
     }
     scriptNodeDealAudioData(t, e) {
       r.isSupportCreateScriptProcessor(e, this.audioContext)
@@ -210,7 +210,7 @@ registerProcessor('my-processor', MyProcessor);
           (e.onaudioprocess = t => {
             this.getDataCount += 1;
             var t = i(s(t.inputBuffer.getChannelData(0), this.audioContext.sampleRate));
-            this.audioData.push(...new Int8Array(t.buffer)),
+            (this.audioData.push(...new Int8Array(t.buffer)),
               this.allAudioData.push(...new Int8Array(t.buffer)),
               100 < new Date().getTime() - this.preTime &&
                 (this.frameTime.push(Date.now() + '-' + this.frameCount),
@@ -220,7 +220,7 @@ registerProcessor('my-processor', MyProcessor);
                 this.OnReceivedData(t),
                 (this.audioData = []),
                 (this.sampleCount += 1),
-                (this.bitCount += 1));
+                (this.bitCount += 1)));
           }))
         : this.isLog && console.log(this.requestId, '不支持createScriptProcessor', n);
     }
@@ -234,28 +234,25 @@ registerProcessor('my-processor', MyProcessor);
               numberOfOutputs: 1,
               channelCount: 1,
             }));
-        (s.onprocessorerror = t => (this.scriptNodeDealAudioData(e, this.requestId), !1)),
+        ((s.onprocessorerror = t => (this.scriptNodeDealAudioData(e, this.requestId), !1)),
           (s.port.onmessage = t => {
-            this.frameTime.push(Date.now() + '-' + this.frameCount),
+            (this.frameTime.push(Date.now() + '-' + this.frameCount),
               this.OnReceivedData(t.data.audioData),
               (this.frameCount += 1),
               this.allAudioData.push(...t.data.audioData),
               (this.sampleCount = t.data.sampleCount),
-              (this.bitCount = t.data.bitCount);
+              (this.bitCount = t.data.bitCount));
           }),
           (s.port.onmessageerror = t => (this.scriptNodeDealAudioData(e, i), !1)),
-          e && e.connect(s).connect(this.audioContext.destination);
+          e && e.connect(s).connect(this.audioContext.destination));
       } catch (t) {
-        this.isLog && console.log(this.requestId, 'audioWorkletNodeDealAudioData catch error', JSON.stringify(t), n),
-          this.OnError(t);
+        (this.isLog && console.log(this.requestId, 'audioWorkletNodeDealAudioData catch error', JSON.stringify(t), n),
+          this.OnError(t));
       }
     }
-    OnReceivedData(t) {}
-    OnError(t) {}
-    OnStop(t) {}
   }
   'undefined' != typeof window && (window.WebRecorder = r);
-  (a = Math),
+  ((a = Math),
     (g = (S = {}).lib = {}),
     (e = g.Base =
       {
@@ -274,7 +271,7 @@ registerProcessor('my-processor', MyProcessor);
         },
         create: function () {
           var t = this.extend();
-          return t.init.apply(t, arguments), t;
+          return (t.init.apply(t, arguments), t);
         },
         init: function () {},
         mixIn: function (t) {
@@ -288,7 +285,7 @@ registerProcessor('my-processor', MyProcessor);
     (c = g.WordArray =
       e.extend({
         init: function (t, e) {
-          (t = this.words = t || []), (this.sigBytes = null != e ? e : 4 * t.length);
+          ((t = this.words = t || []), (this.sigBytes = null != e ? e : 4 * t.length));
         },
         toString: function (t) {
           return (t || h).stringify(this);
@@ -302,19 +299,19 @@ registerProcessor('my-processor', MyProcessor);
               e[(s + o) >>> 2] |= ((i[o >>> 2] >>> (24 - (o % 4) * 8)) & 255) << (24 - ((s + o) % 4) * 8);
           else if (65535 < i.length) for (o = 0; o < t; o += 4) e[(s + o) >>> 2] = i[o >>> 2];
           else e.push.apply(e, i);
-          return (this.sigBytes += t), this;
+          return ((this.sigBytes += t), this);
         },
         clamp: function () {
           var t = this.words,
             e = this.sigBytes;
-          (t[e >>> 2] &= 4294967295 << (32 - (e % 4) * 8)), (t.length = a.ceil(e / 4));
+          ((t[e >>> 2] &= 4294967295 << (32 - (e % 4) * 8)), (t.length = a.ceil(e / 4)));
         },
         clone: function () {
           var t = e.clone.call(this);
-          return (t.words = this.words.slice(0)), t;
+          return ((t.words = this.words.slice(0)), t);
         },
         random: function (t) {
-          for (var e = [], i = 0; i < t; i += 4) e.push((4294967296 * a.random()) | 0);
+          for (var e = [], i = 0; i < t; i += 4) e.push(Math.trunc(4294967296 * a.random()));
           return new c.init(e, t);
         },
       })),
@@ -326,7 +323,7 @@ registerProcessor('my-processor', MyProcessor);
           t = t.sigBytes;
           for (var i = [], s = 0; s < t; s++) {
             var o = (e[s >>> 2] >>> (24 - (s % 4) * 8)) & 255;
-            i.push((o >>> 4).toString(16)), i.push((15 & o).toString(16));
+            (i.push((o >>> 4).toString(16)), i.push((15 & o).toString(16)));
           }
           return i.join('');
         },
@@ -365,10 +362,10 @@ registerProcessor('my-processor', MyProcessor);
     (t = g.BufferedBlockAlgorithm =
       e.extend({
         reset: function () {
-          (this._data = new c.init()), (this._nDataBytes = 0);
+          ((this._data = new c.init()), (this._nDataBytes = 0));
         },
         _append: function (t) {
-          'string' == typeof t && (t = d.parse(t)), this._data.concat(t), (this._nDataBytes += t.sigBytes);
+          ('string' == typeof t && (t = d.parse(t)), this._data.concat(t), (this._nDataBytes += t.sigBytes));
         },
         _process: function (t) {
           var e = this._data,
@@ -380,29 +377,29 @@ registerProcessor('my-processor', MyProcessor);
             s = a.min(4 * (t = n * o), s);
           if (t) {
             for (var r = 0; r < t; r += o) this._doProcessBlock(i, r);
-            (r = i.splice(0, t)), (e.sigBytes -= s);
+            ((r = i.splice(0, t)), (e.sigBytes -= s));
           }
           return new c.init(r, s);
         },
         clone: function () {
           var t = e.clone.call(this);
-          return (t._data = this._data.clone()), t;
+          return ((t._data = this._data.clone()), t);
         },
         _minBufferSize: 0,
       })),
     (g.Hasher = t.extend({
       cfg: e.extend(),
       init: function (t) {
-        (this.cfg = this.cfg.extend(t)), this.reset();
+        ((this.cfg = this.cfg.extend(t)), this.reset());
       },
       reset: function () {
-        t.reset.call(this), this._doReset();
+        (t.reset.call(this), this._doReset());
       },
       update: function (t) {
-        return this._append(t), this._process(), this;
+        return (this._append(t), this._process(), this);
       },
       finalize: function (t) {
-        return t && this._append(t), this._doFinalize();
+        return (t && this._append(t), this._doFinalize());
       },
       blockSize: 16,
       _createHelper: function (i) {
@@ -416,7 +413,7 @@ registerProcessor('my-processor', MyProcessor);
         };
       },
     })),
-    (l = S.algo = {});
+    (l = S.algo = {}));
   var a,
     e,
     c,
@@ -432,8 +429,10 @@ registerProcessor('my-processor', MyProcessor);
     S,
     y,
     w = S;
-  function C() {}
-  (p = (S = (g = w).lib).WordArray),
+  function C() {
+    console.log('');
+  }
+  ((p = (S = (g = w).lib).WordArray),
     (f = S.Hasher),
     (m = []),
     (S = g.algo.SHA1 =
@@ -443,7 +442,7 @@ registerProcessor('my-processor', MyProcessor);
         },
         _doProcessBlock: function (t, e) {
           for (var i, s = this._hash.words, o = s[0], n = s[1], r = s[2], a = s[3], c = s[4], h = 0; h < 80; h++)
-            (m[h] = h < 16 ? 0 | t[e + h] : ((i = m[h - 3] ^ m[h - 8] ^ m[h - 14] ^ m[h - 16]) << 1) | (i >>> 31)),
+            ((m[h] = h < 16 ? 0 | t[e + h] : ((i = m[h - 3] ^ m[h - 8] ^ m[h - 14] ^ m[h - 16]) << 1) | (i >>> 31)),
               (i = ((o << 5) | (o >>> 27)) + c + m[h]),
               (i =
                 h < 20
@@ -457,12 +456,12 @@ registerProcessor('my-processor', MyProcessor);
               (a = r),
               (r = (n << 30) | (n >>> 2)),
               (n = o),
-              (o = i);
-          (s[0] = (s[0] + o) | 0),
-            (s[1] = (s[1] + n) | 0),
-            (s[2] = (s[2] + r) | 0),
-            (s[3] = (s[3] + a) | 0),
-            (s[4] = (s[4] + c) | 0);
+              (o = i));
+          ((s[0] = Math.trunc(s[0] + o)),
+            (s[1] = Math.trunc(s[1] + n)),
+            (s[2] = Math.trunc(s[2] + r)),
+            (s[3] = Math.trunc(s[3] + a)),
+            (s[4] = Math.trunc(s[4] + c)));
         },
         _doFinalize: function () {
           var t = this._data,
@@ -480,7 +479,7 @@ registerProcessor('my-processor', MyProcessor);
         },
         clone: function () {
           var t = f.clone.call(this);
-          return (t._hash = this._hash.clone()), t;
+          return ((t._hash = this._hash.clone()), t);
         },
       })),
     (g.SHA1 = f._createHelper(S)),
@@ -488,7 +487,7 @@ registerProcessor('my-processor', MyProcessor);
     (y = w.enc.Utf8),
     (w.algo.HMAC = w.lib.Base.extend({
       init: function (t, e) {
-        (t = this._hasher = new t.init()), 'string' == typeof e && (e = y.parse(e));
+        ((t = this._hasher = new t.init()), 'string' == typeof e && (e = y.parse(e)));
         var i = t.blockSize,
           s = 4 * i;
         (e = e.sigBytes > s ? t.finalize(e) : e).clamp();
@@ -497,37 +496,41 @@ registerProcessor('my-processor', MyProcessor);
           r < i;
           r++
         )
-          (o[r] ^= 1549556828), (n[r] ^= 909522486);
-        (t.sigBytes = e.sigBytes = s), this.reset();
+          ((o[r] ^= 1549556828), (n[r] ^= 909522486));
+        ((t.sigBytes = e.sigBytes = s), this.reset());
       },
       reset: function () {
         var t = this._hasher;
-        t.reset(), t.update(this._iKey);
+        (t.reset(), t.update(this._iKey));
       },
       update: function (t) {
-        return this._hasher.update(t), this;
+        return (this._hasher.update(t), this);
       },
       finalize: function (t) {
         var e = this._hasher;
-        return (t = e.finalize(t)), e.reset(), e.finalize(this._oKey.clone().concat(t));
+        return ((t = e.finalize(t)), e.reset(), e.finalize(this._oKey.clone().concat(t)));
       },
     })),
-    window && (window.CryptoJSTest = w);
+    window && (window.CryptoJSTest = w));
   const x = ['appid', 'secretkey', 'signCallback', 'echoCancellation'];
   const O = () =>
     'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (t) {
-      var e = (16 * Math.random()) | 0;
+      var e = Math.trunc(16 * Math.random());
       return ('x' === t ? e : (3 & e) | 8).toString(16);
     });
   async function k(t, e) {
     if (!e.appid || !e.secretid)
-      return t.isLog && console.log(t.requestId, '请确认是否填入账号信息', v), t.OnError('请确认是否填入账号信息'), !1;
+      return (
+        t.isLog && console.log(t.requestId, '请确认是否填入账号信息', v),
+        t.OnError('请确认是否填入账号信息'),
+        !1
+      );
     t = (function (t, i) {
       let s = '',
         e = 'asr.cloud.tencent.com/asr/v2/';
       t.appid && (e += t.appid);
       var o = Object.keys(i);
-      o.sort();
+      o.sort((a, b) => String(a).localeCompare(String(b)));
       for (let t = 0, e = o.length; t < e; t++) s += `&${o[t]}=` + i[o[t]];
       return e + '?' + s.slice(1);
     })(
@@ -538,11 +541,11 @@ registerProcessor('my-processor', MyProcessor);
           s = await new Promise((t, e) => {
             try {
               const i = new XMLHttpRequest();
-              i.open('GET', 'https://asr.cloud.tencent.com/server_time', !0),
+              (i.open('GET', 'https://asr.cloud.tencent.com/server_time', !0),
                 i.send(),
                 (i.onreadystatechange = function () {
                   4 === i.readyState && 200 === i.status && t(i.responseText);
-                });
+                }));
             } catch (t) {
               e(t);
             }
@@ -565,7 +568,7 @@ registerProcessor('my-processor', MyProcessor);
       (i = e.signCallback
         ? e.signCallback(t)
         : (function (t, e) {
-            (e = window.CryptoJSTest.HmacSHA1(e, t)),
+            ((e = window.CryptoJSTest.HmacSHA1(e, t)),
               (t = (function (e) {
                 let i = '';
                 for (let t = 0; t < e.length; t++) i += String.fromCharCode(e[t]);
@@ -578,7 +581,7 @@ registerProcessor('my-processor', MyProcessor);
                   for (let t = 0; t < i; t++) s[t] = (e[t >>> 2] >>> (24 - (t % 4) * 8)) & 255;
                   return s;
                 })(e),
-              ));
+              )));
             return window.btoa(t);
           })(e.secretkey, t)),
       `wss://${t}&signature=` + encodeURIComponent(i)
@@ -587,7 +590,7 @@ registerProcessor('my-processor', MyProcessor);
   const v = 'SpeechRecognizer';
   class R {
     constructor(t, e, i) {
-      (this.socket = null),
+      ((this.socket = null),
         (this.isSignSuccess = !1),
         (this.isSentenceBegin = !1),
         (this.query = { ...t }),
@@ -595,7 +598,7 @@ registerProcessor('my-processor', MyProcessor);
         (this.requestId = e),
         (this.isLog = i),
         (this.sendCount = 0),
-        (this.getMessageList = []);
+        (this.getMessageList = []));
     }
     stop() {
       this.socket && 1 === this.socket.readyState
@@ -603,7 +606,7 @@ registerProcessor('my-processor', MyProcessor);
         : this.socket && 1 === this.socket.readyState && this.socket.close();
     }
     async start() {
-      (this.socket = null), (this.getMessageList = []);
+      ((this.socket = null), (this.getMessageList = []));
       var t = await k(this, this.query);
       if (t) {
         if ((this.isLog && console.log(this.requestId, 'get ws url', t, v), 'WebSocket' in window))
@@ -612,11 +615,11 @@ registerProcessor('my-processor', MyProcessor);
           if (!('MozWebSocket' in window))
             return (
               this.isLog && console.log(this.requestId, '浏览器不支持WebSocket', v),
-              void this.OnError('浏览器不支持WebSocket')
+              this.OnError('浏览器不支持WebSocket')
             );
           this.socket = new MozWebSocket(t);
         }
-        (this.socket.onopen = t => {
+        ((this.socket.onopen = t => {
           this.isLog && console.log(this.requestId, '连接建立', t, v);
         }),
           (this.socket.onmessage = async t => {
@@ -642,9 +645,9 @@ registerProcessor('my-processor', MyProcessor);
             }
           }),
           (this.socket.onerror = t => {
-            this.isLog && console.log(this.requestId, 'socket error callback', t, v),
+            (this.isLog && console.log(this.requestId, 'socket error callback', t, v),
               this.socket.close(),
-              this.OnError(t);
+              this.OnError(t));
           }),
           (this.socket.onclose = t => {
             try {
@@ -655,8 +658,8 @@ registerProcessor('my-processor', MyProcessor);
               this.isLog &&
                 console.log(this.requestId, 'socket is onclose catch' + this.sendCount, JSON.stringify(t), v);
             }
-          });
-      } else this.isLog && console.log(this.requestId, '鉴权失败', v), this.OnError('鉴权失败');
+          }));
+      } else (this.isLog && console.log(this.requestId, '鉴权失败', v), this.OnError('鉴权失败'));
     }
     close() {
       this.socket && 1 === this.socket.readyState && this.socket.close(1e3);
@@ -670,43 +673,38 @@ registerProcessor('my-processor', MyProcessor);
             }, 40),
             !1
           );
-        (this.sendCount += 1), this.socket.send(t);
+        ((this.sendCount += 1), this.socket.send(t));
       } catch (t) {
         this.isLog && console.log(this.requestId, '发送数据 error catch', t, v);
       }
     }
-    OnRecognitionStart(t) {}
-    OnSentenceBegin(t) {}
-    OnRecognitionResultChange() {}
-    OnSentenceEnd() {}
-    OnRecognitionComplete() {}
-    OnError() {}
   }
   'undefined' != typeof window && (window.SpeechRecognizer = R);
   class D {
     constructor(t, e) {
-      (this.params = t),
+      ((this.params = t),
         (this.recorder = null),
         (this.speechRecognizer = null),
         (this.isCanSendData = !1),
         (this.isNormalEndStop = !1),
         (this.audioData = []),
         (this.isLog = e),
-        (this.requestId = null);
+        (this.requestId = null));
     }
     start() {
       try {
-        this.isLog && console.log('start function is click'),
+        const Rr = r;
+        (this.isLog && console.log('start function is click'),
           (this.requestId = O()),
-          (this.recorder = new r(this.requestId, this.params, this.isLog)),
+          (this.recorder = new Rr(this.requestId, this.params, this.isLog)),
           (this.recorder.OnReceivedData = t => {
             this.isCanSendData && this.speechRecognizer && this.speechRecognizer.write(t);
           }),
           (this.recorder.OnError = t => {
-            this.speechRecognizer && this.speechRecognizer.close(), this.stop(), this.OnError(t);
+            (this.speechRecognizer && this.speechRecognizer.close(), this.stop(), this.OnError(t));
           }),
           (this.recorder.OnStop = t => {
-            this.speechRecognizer && this.speechRecognizer.stop(), this.OnRecorderStop(t);
+            (this.speechRecognizer && this.speechRecognizer.stop(), this.OnRecorderStop(t));
           }),
           this.recorder.start(),
           this.speechRecognizer || (this.speechRecognizer = new R(this.params, this.requestId, this.isLog)),
@@ -725,33 +723,26 @@ registerProcessor('my-processor', MyProcessor);
             this.OnSentenceEnd(t);
           }),
           (this.speechRecognizer.OnRecognitionComplete = t => {
-            this.OnRecognitionComplete(t), (this.isCanSendData = !1), (this.isNormalEndStop = !0);
+            (this.OnRecognitionComplete(t), (this.isCanSendData = !1), (this.isNormalEndStop = !0));
           }),
           (this.speechRecognizer.OnError = t => {
-            this.speechRecognizer && !this.isNormalEndStop && this.OnError(t),
+            (this.speechRecognizer && !this.isNormalEndStop && this.OnError(t),
               (this.speechRecognizer = null),
               this.recorder && this.recorder.stop(),
-              (this.isCanSendData = !1);
+              (this.isCanSendData = !1));
           }),
-          this.speechRecognizer.start();
+          this.speechRecognizer.start());
       } catch (t) {
         console.log(t);
       }
     }
     stop() {
-      this.isLog && console.log('stop function is click'), this.recorder && this.recorder.stop();
+      (this.isLog && console.log('stop function is click'), this.recorder && this.recorder.stop());
     }
     destroyStream() {
-      this.isLog && console.log('destroyStream function is click', this.recorder),
-        this.recorder && this.recorder.destroyStream();
+      (this.isLog && console.log('destroyStream function is click', this.recorder),
+        this.recorder && this.recorder.destroyStream());
     }
-    OnRecognitionStart(t) {}
-    OnSentenceBegin(t) {}
-    OnRecognitionResultChange() {}
-    OnSentenceEnd() {}
-    OnRecognitionComplete() {}
-    OnError() {}
-    OnRecorderStop() {}
   }
-  return 'undefined' != typeof window && (window.WebAudioSpeechRecognizer = D), D;
+  return ('undefined' != typeof window && (window.WebAudioSpeechRecognizer = D), D);
 }

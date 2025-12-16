@@ -18,15 +18,15 @@ const RecordList = props => {
     itemFirstGroup,
     getSingleBoardGroup,
     openRecord,
-    authParams,
     boardData,
     addBoardViewRecord,
     viewData,
     viewRootEl,
     updateViewCard,
+    delBoardViewRecord,
   } = props;
   const { viewControl } = view;
-  const showAdd = isShowAddRecord(worksheetInfo, authParams, viewControl, sheetSwitchPermit);
+  const showAdd = isShowAddRecord(worksheetInfo, itemFirstGroup, viewControl, sheetSwitchPermit);
   const pendingFlag = useRef(false);
   const [{ pageIndex, loading }, setState] = useSetState({
     pageIndex: 1,
@@ -88,6 +88,7 @@ const RecordList = props => {
                 sheetSwitchPermit={sheetSwitchPermit}
                 viewRootEl={viewRootEl}
                 updateViewCard={updateViewCard}
+                onDeleteSuccess={() => delBoardViewRecord({ key: itemFirstGroup.key, rowId: _row.rowid })}
                 onClick={() =>
                   openRecord(
                     {
@@ -104,7 +105,7 @@ const RecordList = props => {
         </ScrollView>
       </div>
       {allowOperation && showAdd && (
-        <div className={cx('pRight10', { mTop10: itemFirstGroup.rows?.length })}>
+        <div className={cx('mLeft10 mRight10', { mTop10: itemFirstGroup.rows?.length })}>
           <AddRecordBtn
             view={view}
             appId={appId}

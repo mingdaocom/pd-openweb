@@ -131,11 +131,11 @@ export const putControlByOrder = controls => {
       obj[row] = [item];
     } else {
       // 兼容row相同控件排列问题
-      if (getCurrentRowSize(obj[row]) + item.size > WHOLE_SIZE) {
-        cacheData.push(item);
-      } else {
-        obj[row] = update(obj[row], { $splice: [[col, 0, item]] });
-      }
+      // if (getCurrentRowSize(obj[row]) + item.size > WHOLE_SIZE) {
+      //   cacheData.push(item);
+      // } else {
+      obj[row] = update(obj[row], { $splice: [[col, 0, item]] });
+      // }
     }
 
     if (row > maxRow) {
@@ -187,7 +187,7 @@ export const replaceHalfWithSizeControls = controls =>
 const replaceRowWithControls = widgets => {
   const { commonWidgets = [], tabWidgets = [] } = getSectionWidgets(widgets);
   const flattenTabs = [];
-  tabWidgets.map(item => {
+  tabWidgets.forEach(item => {
     flattenTabs.push([item]);
     const childWidgets = _.get(item, 'type') === 52 ? putControlByOrder(item.relationControls || []) : [];
     if (childWidgets.length > 0) {
@@ -450,7 +450,7 @@ export const getSectionWidgets = widgets => {
   let commonWidgets = [];
   let tabWidgets = [];
 
-  flattenWidgets.map(i => {
+  flattenWidgets.forEach(i => {
     if (fixedBottomWidgets(i)) {
       tabWidgets.push(i);
     } else {
@@ -544,11 +544,19 @@ export const supportSettingCollapse = (props, key) => {
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
       }
     case 'security':
-      if (_.includes([2, 6], type) && isCustom) return false;
+      let currentControl = { ...data };
+      if (currentControl.type === 30) {
+        const parsedDataSource = parseDataSource(dataSource);
+        const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
+        const parsedControl = getControlByControlId(relationControls, sourceControlId);
+        currentControl = parsedControl;
+      }
+      if (_.includes([2, 6], currentControl.type) && isCustomWidget(currentControl)) return false;
+
       return (
-        HAVE_MASK_WIDGET.includes(type) ||
-        (type === 2 && enumDefault === 2) ||
-        (type === 6 && advancedSetting.showtype !== '2')
+        HAVE_MASK_WIDGET.includes(currentControl.type) ||
+        (currentControl.type === 2 && currentControl.enumDefault === 2) ||
+        (currentControl.type === 6 && currentControl.advancedSetting.showtype !== '2')
       );
     case 'relate':
       return from !== 'subList' && globalSheetInfo.worksheetId !== dataSource && type === 29 && sourceControl.controlId;

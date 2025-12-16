@@ -14,7 +14,7 @@
 //    Order (if >1 country with same dial code),
 //    Area codes
 // ]
-var allCountries = [
+const allCountries = [
   ['Afghanistan (‫افغانستان‬‎)', 'af', '93'],
   ['Albania (Shqipëri)', 'al', '355'],
   ['Algeria (‫الجزائر‬‎)', 'dz', '213'],

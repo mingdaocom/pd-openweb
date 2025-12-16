@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useUpdateEffect } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _, { isUndefined } from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import PasteDialog from '../PasteDialog';

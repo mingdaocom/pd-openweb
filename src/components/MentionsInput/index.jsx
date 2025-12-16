@@ -7,8 +7,10 @@ import functionWrap from 'ming-ui/components/FunctionWrap';
 import { dialogSelectUser } from 'ming-ui/functions';
 import categoryApi from 'src/api/category';
 import groupApi from 'src/api/group';
+import personalStyleAjax from 'src/api/personalStyle';
 import userApi from 'src/api/user';
 import { AT_ALL_TEXT, SOURCE_TYPE } from 'src/components/comment/config';
+import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import { getCaretPosition, setCaretPosition } from 'src/utils/common';
 import { htmlEncodeReg } from 'src/utils/common';
 import './index.less';
@@ -425,7 +427,7 @@ const MentionsInput = props => {
     }
   };
 
-  const getUsers = (query, recordAtdatas = []) => {
+  const getUsers = async (query, recordAtdatas = []) => {
     if (promiseObj && promiseObj.abort) {
       promiseObj.abort();
     }
@@ -549,6 +551,21 @@ const MentionsInput = props => {
       props.forReacordDiscussion && populateDropdown(query, responseInitData);
     }
 
+    // 获取参与者的个人状态
+    const statusOptionsData = recordAtdatas.length
+      ? await personalStyleAjax.getAccountsPersonalStatus({
+          accountIds: recordAtdatas.map(o => o.accountId),
+        })
+      : null;
+
+    recordAtdatas =
+      statusOptionsData && statusOptionsData.onStatusOptions && statusOptionsData.onStatusOptions.length
+        ? recordAtdatas.map(account => ({
+            ...account,
+            onStatusOption: statusOptionsData.onStatusOptions.find(o => o.accountId === account.accountId),
+          }))
+        : recordAtdatas;
+
     promiseObj = userApi.getUsersByKeywords({
       search: searchType,
       keywords: query,
@@ -556,6 +573,7 @@ const MentionsInput = props => {
     });
 
     promiseObj.then(function getUsersByKeywordsCb(responseData) {
+      const originAccounts = _.cloneDeep(responseData.accounts);
       if (!query) {
         if (recordAtdatas.length > 0 && props.forReacordDiscussion) {
           let ids = recordAtdatas.map(o => o.accountId);
@@ -602,6 +620,8 @@ const MentionsInput = props => {
           type: 'user',
           id: item.id || item.accountId,
           showFullname: highlightTerm(htmlEncodeReg(item.fullname), query),
+          onStatusOption:
+            item?.onStatusOption || originAccounts.find(v => v.accountId === item.accountId)?.onStatusOption,
         };
       });
       responseData.groups = responseData.groups.map(item => {
@@ -703,10 +723,17 @@ const MentionsInput = props => {
                   <img className="avatar" src={item.avatarMiddle || item.avatar} />
                 )}
                 <div className="flex mLeft10 overflowHidden">
-                  <div
-                    className="fullname Gray ellipsis"
-                    dangerouslySetInnerHTML={{ __html: item.showFullname || item.fullname }}
-                  ></div>
+                  <div className="flexRow">
+                    <div
+                      className="fullname Gray ellipsis"
+                      dangerouslySetInnerHTML={{
+                        __html: item.showFullname || item.fullname,
+                      }}
+                    ></div>
+                    {item.onStatusOption ? (
+                      <PersonalStatus onlyEmoji accountId={item.accountId} onStatusOption={item.onStatusOption} />
+                    ) : null}
+                  </div>
                   {sourceType !== SOURCE_TYPE.CHAT && (
                     <div className="Gray_9e ellipsis">
                       {!item.department && !item.job ? (

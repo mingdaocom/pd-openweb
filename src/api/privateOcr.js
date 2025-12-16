@@ -14,8 +14,10 @@ export default {
    * @param {Object} args 请求参数
    * @param {integer} args.type 类型 1:自主集成  2:Tengxunyun
    * @param {string} args.secretId 密钥Id
-   * @param {string} args.secretKey 密钥Key（需要RSA加密传输）
+   * @param {string} args.secretKey 密钥Key
    * @param {string} args.baseUrl 服务地址（仅自主集成类型需要）
+   * @param {boolean} args.enableProxy 是否开启代理
+   * @param {boolean} args.enableSsl 是否开启SSL证书认证
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

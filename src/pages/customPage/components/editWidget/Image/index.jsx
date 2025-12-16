@@ -41,7 +41,7 @@ const ContentWrap = styled.div`
 export default props => {
   const { editable, widget, themeColor, customPageConfig = {} } = props;
   const { componentConfig = {} } = widget;
-  const { name, url, showType = 1, showName = true, action = 0, openMode = 1, linkUrl } = componentConfig;
+  const { name, url, showType = 1, showName = true, action = 0, openMode = 1, linkUrl, fill = 1 } = componentConfig;
   const isDark = customPageConfig.pageStyleType === 'dark';
   const previewUrl = componentConfig.previewUrl || url;
 
@@ -95,7 +95,14 @@ export default props => {
       )}
       <div className="imageBody flex">
         {previewUrl ? (
-          <div className="image fill" style={{ backgroundImage: `url(${previewUrl})` }} />
+          fill === 3 ? (
+            <img src={previewUrl} className="w100 h100" />
+          ) : (
+            <div
+              className={cx('image', { fill: fill === 1, full: fill === 2 })}
+              style={{ backgroundImage: `url(${previewUrl})` }}
+            />
+          )
         ) : (
           <div className="h100 flexColumn alignItemsCenter justifyContentCenter Gray_9e">
             <Icon className="Font40" icon="insert_photo_21" />

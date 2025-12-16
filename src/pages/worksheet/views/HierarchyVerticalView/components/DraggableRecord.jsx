@@ -142,8 +142,6 @@ export default function DraggableRecord(props) {
   const [isEditTitle, setEditTitle] = useState(false);
   const [realCardHeight, setRealCardHeight] = useState(skeletonHeight);
   const [skeletonRows, setSkeletonRows] = useState(Math.floor(skeletonHeight / 40));
-
-  // TODO 发布前调整为200
   const shouldSkip = hierarchyTopLevelDataCount < 200;
   const { ref, inView: inViewRaw } = useInView({
     root: null,

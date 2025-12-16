@@ -49,8 +49,7 @@ const StyleDefault = props => {
   const defaultConfig = isOldConfig ? safeParse(defaultStyle || '{}') : getAdvanceSetting(data, [editKey]) || {};
   const sizeResult = defaultConfig.size || (editKey === 'rowtitlestyle' || data.type === 34 ? '1' : '0');
   const colorResult =
-    defaultConfig.color ||
-    (_.includes(['titledefault', 'cardtitlestyle'], editKey) && data.type !== 34 ? '#757575' : '#151515');
+    defaultConfig.color || (_.includes(['cardtitlestyle'], editKey) && data.type !== 34 ? '#757575' : '#151515');
   return (
     <Fragment>
       <SectionItem key={editKey}>

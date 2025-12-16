@@ -26,7 +26,6 @@ const Wrap = styled.div`
 `;
 export default function Remark({ data, onChange }) {
   const [show, setShow] = useState(false);
-  const [hasChange, setHasChange] = useState(false);
   return (
     <Fragment>
       <SettingItem>
@@ -65,11 +64,10 @@ export default function Remark({ data, onChange }) {
               permissionType={100} //可编辑的权限
               isEditing={true}
               cacheKey={'remarkDes'}
-              changeSetting={setHasChange}
-              onSave={value => {
-                onChange({ dataSource: !value ? (hasChange ? value : data.dataSource) : value });
+              onSave={data => {
+                const description = data.description;
+                onChange({ dataSource: description === null ? data.dataSource : description });
                 setShow(false);
-                setHasChange(false);
               }}
               onCancel={() => {
                 setShow(false);

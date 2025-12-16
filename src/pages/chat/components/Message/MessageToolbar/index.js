@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
+import { Tooltip } from 'ming-ui/antd-components';
 import Dialog from 'ming-ui/components/Dialog';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { downloadFile } from 'src/utils/common';
@@ -289,6 +290,7 @@ export default class MessageToolbar extends Component {
       chatAt: true,
     };
     setTimeout(() => {
+      textarea.focus();
       textarea.get(0).addMention(at);
     }, 0);
   };
@@ -301,12 +303,11 @@ export default class MessageToolbar extends Component {
   renderBtn(toolbarConfig) {
     return (
       <div className="Message-toolbarItem" onClick={toolbarConfig.fn}>
-        <span
-          className={cx('Message-toolbarItemBtn ThemeColor3', toolbarConfig.className)}
-          data-tip={toolbarConfig.name}
-        >
-          <i className={toolbarConfig.icon} />
-        </span>
+        <Tooltip title={toolbarConfig.name}>
+          <span className={cx('Message-toolbarItemBtn ThemeColor3', toolbarConfig.className)}>
+            <i className={toolbarConfig.icon} />
+          </span>
+        </Tooltip>
       </div>
     );
   }

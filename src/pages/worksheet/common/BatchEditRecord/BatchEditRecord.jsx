@@ -6,7 +6,7 @@ import { Modal } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import useApi from 'worksheet/hooks/useApi';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { controlBatchCanEdit } from 'src/utils/control';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';

@@ -3,30 +3,21 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, LoadDiv } from 'ming-ui';
+import { BgIconButton, Button, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
+import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
 import NewRecord from 'src/pages/worksheet/common/newRecord';
 import { navigateTo } from 'src/router/navigateTo';
+import { emitter } from 'src/utils/common';
 import successPng from './success.png';
 import './index.less';
 
-const ScaleButton = styled.div`
+const ScaleButton = styled(BgIconButton.Group)`
   position: absolute;
   z-index: 2;
-  right: 4px;
-  top: 24px;
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 40px;
-  width: 40px;
-  text-align: center;
-  color: #9e9e9e;
-  > span {
-    line-height: 1.4em;
-  }
-  &:hover {
-    color: #1677ff;
-  }
+  right: 12px;
+  top: 30px;
 `;
 
 const Success = styled.div`
@@ -58,6 +49,13 @@ export default class NewRecordLand extends Component {
       isLarge: localStorage.getItem('NEW_RECORD_IS_LARGE') === 'true',
       status: STATUS.NORMAL,
     };
+    this.handleMingoCreateRecordActive = this.handleMingoCreateRecordActive.bind(this);
+  }
+  componentDidMount() {
+    emitter.on('MINGO_CREATE_RECORD_ACTIVE', this.handleMingoCreateRecordActive);
+  }
+  componentWillUnmount() {
+    emitter.off('MINGO_CREATE_RECORD_ACTIVE', this.handleMingoCreateRecordActive);
   }
   handleAddWorksheetRow(args, callBack) {
     sheetAjax.addWorksheetRow(args).then(res => {
@@ -71,10 +69,13 @@ export default class NewRecordLand extends Component {
       }
     });
   }
+  handleMingoCreateRecordActive(value) {
+    this.setState({ mingoActive: value });
+  }
   render() {
-    const { match = {}, appPkg } = this.props;
-    const { appId, worksheetId, viewId } = match.params || {};
-    const { isLarge, status } = this.state;
+    const { match = {}, appPkg = {}, createOptions, isMingoCreate, onClose, onAdd = () => {} } = this.props;
+    const { appId, worksheetId, viewId } = createOptions || match.params || {};
+    const { isLarge, status, mingoActive } = this.state;
 
     if (!appPkg.id) {
       return (
@@ -85,17 +86,41 @@ export default class NewRecordLand extends Component {
     }
 
     return (
-      <div className={cx('newRecordLand')} style={isLarge ? { width: 'calc(100% - 64px)', maxWidth: '1200px' } : {}}>
+      <div
+        className={cx('newRecordLand', { isMingoCreate })}
+        style={isLarge ? { width: 'calc(100% - 64px)', maxWidth: '1600px' } : {}}
+      >
         {status === STATUS.NORMAL && (
-          <ScaleButton
-            onClick={() => {
-              safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
-              this.setState({ isLarge: !isLarge });
-            }}
-          >
-            <span data-tip={isLarge ? _l('缩小') : _l('放大')}>
-              <i className={`icon icon-${isLarge ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
-            </span>
+          <ScaleButton gap={12}>
+            {!mingoActive && (
+              <BgIconButton
+                className="mingoCreate"
+                text={_l('AI 填写')}
+                iconComponent={<img src={mingoCreateIcon} />}
+                onClick={() => {
+                  window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT };
+                  emitter.emit('SET_MINGO_VISIBLE');
+                }}
+              />
+            )}
+            {isMingoCreate && (
+              <BgIconButton
+                tooltip={_l('清空')}
+                icon="clean"
+                onClick={() => {
+                  emitter.emit('MINGO_NEW_RECORD_CLEAN');
+                }}
+              />
+            )}
+            <BgIconButton
+              icon={isLarge ? 'worksheet_narrow' : 'worksheet_enlarge'}
+              tooltip={isLarge ? _l('缩小') : _l('放大')}
+              onClick={() => {
+                safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
+                this.setState({ isLarge: !isLarge });
+              }}
+            />
+            <BgIconButton icon="close" onClick={onClose} />
           </ScaleButton>
         )}
         {status !== STATUS.NORMAL && (
@@ -122,7 +147,10 @@ export default class NewRecordLand extends Component {
         {status === STATUS.NORMAL && (
           <div className="newRecordCon" style={{ minHeight: window.innerHeight - 130 + 'px' }}>
             <NewRecord
+              noDisableClick
               showFillNext
+              isMingoCreate={isMingoCreate}
+              needCache={!isMingoCreate}
               notDialog
               className="flexColumn"
               appId={appId}
@@ -132,11 +160,20 @@ export default class NewRecordLand extends Component {
               visible
               changeWorksheetStatusCode={() => this.setState({ status: STATUS.ERROR })}
               onAdd={(row, { continueAdd }) => {
+                if (isMingoCreate) {
+                  if (continueAdd) {
+                    emitter.emit('MINGO_CREATE_RECORD_CLEAN', row);
+                  } else {
+                    onAdd();
+                    onClose();
+                  }
+                  return;
+                }
                 if (!continueAdd) {
-                  //
                   this.setState({ status: STATUS.SUCCESS });
                 }
               }}
+              hideNewRecord={onClose}
             />
           </div>
         )}

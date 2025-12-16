@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from '../Charts/common';
 import Sort from '../components/Sort';
 import * as actions from '../redux/actions.js';
@@ -25,9 +25,10 @@ const Operation = ({
   getReportData,
   getTableData,
 }) => {
+  const { reportType, xaxes = {} } = reportData;
   const { report = {}, pageId } = base;
   const isPublicShare = _.get(window, 'shareState.shareId') || window.shareAuthor;
-  const isSheetView = ![reportTypes.PivotTable].includes(reportData.reportType);
+  const isSheetView = ![reportTypes.PivotTable].includes(reportType) && xaxes?.controlType !== 40;
   const { style } = currentReport;
   const { pivotTableColumnWidthConfig } = style || {};
   return (
@@ -99,28 +100,30 @@ const Operation = ({
             />
           </Tooltip>
         )}
-      <Sort
-        reportId={report.id}
-        pageId={pageId}
-        sourceType={sourceType}
-        currentReport={currentReport}
-        reportType={reportData.reportType}
-        map={reportData.map}
-        valueMap={reportData.valueMap}
-        reportData={reportData}
-        onChangeCurrentReport={data => {
-          changeCurrentReport(data, true);
-          if (sheetVisible) {
-            getTableData();
-          }
-        }}
-      >
-        <span>
-          <Tooltip title={_l('排序')} placement="bottom">
-            <Icon icon="import_export" className="Font20 pointer Bold mLeft16 Gray_9e hoverHighlight" />
-          </Tooltip>
-        </span>
-      </Sort>
+      {reportData.status > 0 && (
+        <Sort
+          reportId={report.id}
+          pageId={pageId}
+          sourceType={sourceType}
+          currentReport={currentReport}
+          reportType={reportData.reportType}
+          map={reportData.map}
+          valueMap={reportData.valueMap}
+          reportData={reportData}
+          onChangeCurrentReport={data => {
+            changeCurrentReport(data, true);
+            if (sheetVisible) {
+              getTableData();
+            }
+          }}
+        >
+          <span>
+            <Tooltip title={_l('排序')} placement="bottom">
+              <Icon icon="import_export" className="Font20 pointer Bold mLeft16 Gray_9e hoverHighlight" />
+            </Tooltip>
+          </span>
+        </Sort>
+      )}
     </div>
   );
 };

@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useKey, useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'ming-ui/components/Checkbox';
 import { captcha } from 'ming-ui/functions';
 import appManagementController from 'src/api/appManagement';
@@ -173,7 +174,7 @@ export default function (props) {
                   navigateTo('/login');
                 }}
               >
-                <Tooltip text={<span>{_l('返回登录')}</span>} popupPlacement="bottom" tooltipClass="deleteHoverTips">
+                <Tooltip title={_l('返回登录')} placement="bottom">
                   <Icon icon="backspace mRight8" />
                 </Tooltip>
               </div>
@@ -250,23 +251,27 @@ export default function (props) {
             >
               <Checkbox checked={hasCheckPrivacy} className="InlineBlock" />
               {_l('同意')}
-              <a
-                target="_blank"
+              <span
                 className="terms Hand mLeft3 mRight3"
-                href={`/legalportal/terms`}
-                onClick={e => e.stopPropagation()}
+                onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  location.href = '/legalportal/terms';
+                }}
               >
                 {_l('《使用条款》%14000')}
-              </a>
+              </span>
               {_l('和')}
-              <a
-                target="_blank"
+              <span
                 className="terms Hand mLeft3 mRight3"
-                href={`/legalportal/privacy`}
-                onClick={e => e.stopPropagation()}
+                onClick={e => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  location.href = '/legalportal/privacy';
+                }}
               >
                 {_l('《隐私条款》')}
-              </a>
+              </span>
             </span>
           </div>
         </div>

@@ -500,41 +500,14 @@
   }
 }
 
-.actRoleDrop {
-  width: 160px;
-  box-shadow:
-    0 3px 6px -4px rgba(0, 0, 0, 0.12),
-    0 6px 16px 0 rgba(0, 0, 0, 0.08),
-    0 9px 28px 8px rgba(0, 0, 0, 0.05);
-  padding: 6px 0;
-  background-color: #fff !important;
-
-  .ant-menu-item {
-    margin: 0 !important;
-    height: 36px !important;
-    line-height: 36px !important;
-
-    &:hover {
-      background-color: #f5f5f5;
-      color: rgba(0, 0, 0, 0.85);
-    }
+.importExportAction {
+  .ming.Item .Item-content .Icon {
+    position: static;
   }
+}
 
-  .delRole {
-    color: #f51744 !important;
-  }
-
-  &.importExportMenuWrap {
-    width: auto;
-  }
-
-  .importExportAction {
-    .ant-menu-item {
-      height: 32px !important;
-      line-height: 32px !important;
-      margin-bottom: 0;
-    }
-  }
+.delRole {
+  color: #f51744 !important;
 }
 
 .delConfirmWrap {
@@ -554,5 +527,17 @@
 .roleSetDeptRangeDialog {
   .GSelect-department .onlySelf {
     display: none;
+  }
+}
+
+.disabledOrgRoleDialog {
+  .mui-dialog-desc {
+    color: #151515 !important;
+  }
+  .orgRoleStatusWrap {
+    display: inline-block;
+    padding: 0px 10px;
+    border-radius: 22px;
+    background: #f7f7f7;
   }
 }

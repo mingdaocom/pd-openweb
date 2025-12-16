@@ -18,6 +18,7 @@ import {
 } from 'lodash';
 import styled from 'styled-components';
 import { Button, Menu, MenuItem, Modal } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import QuickFilter from 'worksheet/common/Sheet/QuickFilter/QuickFilter';
@@ -156,6 +157,7 @@ export default function SelectDialog({ ...args }) {
     defaultRelatedSheet,
     filterRelatesheetControlIds,
     parentWorksheetId,
+    showMoreControls,
     formData,
     allowNewRecord,
     selectedCount,
@@ -238,6 +240,9 @@ export default function SelectDialog({ ...args }) {
   const showTable = !loading && !isWaitToClickSearch;
   if (isEmpty(controlsForShow)) {
     controlsForShow = [titleControl].filter(identity);
+    if (showMoreControls) {
+      controlsForShow = controls.filter(c => c.controlId !== titleControl.controlId).slice(0, 4);
+    }
   }
   const coverControl = get(control, 'coverCid') && find(controls, { controlId: get(control, 'coverCid') });
   const tableConfig = getTableConfig(controlsForShow, {
@@ -549,6 +554,7 @@ export default function SelectDialog({ ...args }) {
             ) : (
               <Table id="selectRecordsTableCon">
                 <WorksheetTable
+                  hightLightRowWhenClick={false}
                   watchHeight
                   ref={tableRef}
                   enableRules={false}
@@ -660,6 +666,7 @@ export default function SelectDialog({ ...args }) {
                                 controlId: control.controlId,
                                 isAsc: newIsAsc,
                               };
+                          setActiveRowIndex(undefined);
                           handleUpdateSortControl(newSortControl);
                         }}
                       />
@@ -758,15 +765,13 @@ export default function SelectDialog({ ...args }) {
               >
                 {_l('取消')}
               </Button>
-              <Button
-                type="primary"
-                className="tip-top"
-                data-tip={window.isMacOs ? '⌘ + Enter' : 'Ctrl + Enter'}
-                disabled={!selectedRowIds.length}
-                onClick={handleConfirm}
-              >
-                {_l('确定')}
-              </Button>
+              <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
+                <div>
+                  <Button type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
+                    {_l('确定')}
+                  </Button>
+                </div>
+              </Tooltip>
             </Fragment>
           )}
         </Footer>

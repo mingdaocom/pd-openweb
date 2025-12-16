@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, LoadDiv, Tooltip } from 'ming-ui';
+import { Checkbox, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
 import { VersionProductType } from 'src/utils/enum';
@@ -91,7 +92,7 @@ export default function Set(props) {
                     {o.txt}
                   </Checkbox>
                   {o.tips && (
-                    <Tooltip text={<span>{o.tips} </span>} popupPlacement="top">
+                    <Tooltip title={o.tips}>
                       <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
                     </Tooltip>
                   )}
@@ -149,7 +150,7 @@ export default function Set(props) {
                     }}
                   >
                     {o.description ? (
-                      <Tooltip text={<span>{o.description}</span>} popupPlacement="top">
+                      <Tooltip title={o.description}>
                         <span>{o.name}</span>
                       </Tooltip>
                     ) : (
@@ -157,7 +158,7 @@ export default function Set(props) {
                     )}
                   </Checkbox>
                   {o.tips && (
-                    <Tooltip text={<span>{o.tips} </span>} popupPlacement="top">
+                    <Tooltip title={o.tips}>
                       <i className="icon-info_outline Font16 Gray_9e mLeft3" />
                     </Tooltip>
                   )}

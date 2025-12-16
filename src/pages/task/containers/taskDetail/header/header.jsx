@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dialog, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import ajaxRequest from 'src/api/taskCenter';
@@ -358,54 +359,50 @@ class Header extends Component {
         </div>
 
         {(isCharge || isMember) && (
-          <div
-            className="taskDetailHeaderBtn ThemeColor3 mLeft15"
-            data-tip={_l('点击添加子任务')}
-            onClick={(isCharge || isMember) && this.addSubtask}
-          >
-            <i className="icon-task-card Font16" />
-            {_l('子任务')}
-          </div>
+          <Tooltip title={_l('点击添加子任务')}>
+            <div
+              className="taskDetailHeaderBtn ThemeColor3 mLeft15"
+              onClick={(isCharge || isMember) && this.addSubtask}
+            >
+              <i className="icon-task-card Font16" />
+              {_l('子任务')}
+            </div>
+          </Tooltip>
         )}
 
         {data.isTaskMember && (
-          <div
-            className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left"
-            data-tip={_l('关闭后将不再接收此任务消息推送（但仍可收到讨论中@你的消息）')}
-            onClick={this.updateTaskNotice}
-          >
-            <i className={cx('Font16', data.notice ? 'icon-more_horiz' : 'icon-chat-bell-nopush')} />
-            {data.notice ? _l('已开启提醒') : _l('已关闭提醒')}
-          </div>
+          <Tooltip title={_l('关闭后将不再接收此任务消息推送（但仍可收到讨论中@你的消息）')} placement="bottomLeft">
+            <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" onClick={this.updateTaskNotice}>
+              <i className={cx('Font16', data.notice ? 'icon-more_horiz' : 'icon-chat-bell-nopush')} />
+              {data.notice ? _l('已开启提醒') : _l('已关闭提醒')}
+            </div>
+          </Tooltip>
         )}
 
         {isCharge && (
-          <div
-            className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left"
-            data-tip={_l('锁定后任务成员将无法完成和修改任务内容（但仍可参与任务讨论）')}
-            onClick={this.updateTaskLocked}
-          >
-            <i className={cx('Font16', data.locked ? 'icon-lock' : 'icon-task-new-no-locked')} />
-            {data.locked ? _l('已锁定') : _l('未锁定')}
-          </div>
+          <Tooltip title={_l('锁定后任务成员将无法完成和修改任务内容（但仍可参与任务讨论）')} placement="bottomLeft">
+            <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" onClick={this.updateTaskLocked}>
+              <i className={cx('Font16', data.locked ? 'icon-lock' : 'icon-task-new-no-locked')} />
+              {data.locked ? _l('已锁定') : _l('未锁定')}
+            </div>
+          </Tooltip>
         )}
 
-        <div
-          className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left taskDetailHeaderMoreBtn"
-          data-tip={_l('更多操作')}
-          onClick={() => this.setState({ showOperator: !showOperator })}
-        >
-          <i className="Font16 icon-moreop" />
-        </div>
+        <Tooltip title={_l('更多操作')} placement="bottomLeft">
+          <div
+            className="taskDetailHeaderBtn ThemeColor3 mLeft15 taskDetailHeaderMoreBtn"
+            onClick={() => this.setState({ showOperator: !showOperator })}
+          >
+            <i className="Font16 icon-moreop" />
+          </div>
+        </Tooltip>
 
         {openType === OPEN_TYPE.dialog && (
-          <div
-            className="taskDetailHeaderBtn ThemeColor3 mLeft15 tip-bottom-left"
-            data-tip={_l('关闭')}
-            onMouseDown={closeDetail}
-          >
-            <i className="Font16 icon-delete" />
-          </div>
+          <Tooltip title={_l('关闭')} placement="bottomLeft">
+            <div className="taskDetailHeaderBtn ThemeColor3 mLeft15" onMouseDown={closeDetail}>
+              <i className="Font16 icon-delete" />
+            </div>
+          </Tooltip>
         )}
 
         <div className="taskContentShadow" />

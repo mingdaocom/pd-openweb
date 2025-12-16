@@ -3,7 +3,8 @@ import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
-import { Button, Icon, Input, LoadDiv, Menu, MenuItem, ScrollView, Switch, Tooltip, UserHead } from 'ming-ui';
+import { Button, Icon, Input, LoadDiv, Menu, MenuItem, ScrollView, Switch, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import projectEncryptAjax from 'src/api/projectEncrypt';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -182,7 +183,7 @@ export default class EncryptRules extends Component {
                     <div className="flex ellipsis">
                       {item.name}
                       {!!item.remark && (
-                        <Tooltip text={item.remark} autoCloseDelay={0}>
+                        <Tooltip title={item.remark}>
                           <Icon icon="info_outline" className="Gray_bd mLeft5" />
                         </Tooltip>
                       )}

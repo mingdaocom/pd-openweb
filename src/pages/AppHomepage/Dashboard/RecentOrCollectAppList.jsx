@@ -4,7 +4,8 @@ import _ from 'lodash';
 import collectAppEmptyPng from 'staticfiles/images/collect_app.png';
 import recentEmptyPng from 'staticfiles/images/time.png';
 import styled from 'styled-components';
-import { Icon, SortableList, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, SortableList, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { navigateToAppItem } from 'src/pages/widgetConfig/util/data';
 import { navigateTo } from 'src/router/navigateTo';
@@ -235,7 +236,7 @@ const RecentOrCollectAppList = forwardRef(props => {
             )}
           </div>
         </div>
-        <Tooltip text={item.isMarked ? _l('取消收藏') : _l('收藏')} popupPlacement="bottom">
+        <Tooltip title={item.isMarked ? _l('取消收藏') : _l('收藏')} placement="bottom">
           <div
             className="markStarIcon stopPropagation"
             onClick={e => {

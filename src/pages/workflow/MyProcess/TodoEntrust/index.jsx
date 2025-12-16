@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import delegationApi from '../../api/delegation';
 import TodoEntrustList from './TodoEntrustList';
 import TodoEntrustModal from './TodoEntrustModal';
@@ -57,13 +58,15 @@ export default function TodoEntrust() {
 
   return (
     <React.Fragment>
-      <IconWrapper data-tip={_l('待办委托')} onClick={onEntrustIconClick}>
-        <div className="relative">
-          <Icon icon="lift" className="Font22 Gray_75" />
-          {entrustCount > 0 && <RedDot />}
-        </div>
-        <div className="iconText nowrap">{_l('委托')}</div>
-      </IconWrapper>
+      <Tooltip title={_l('待办委托')} popupPlacement="bottom">
+        <IconWrapper onClick={onEntrustIconClick}>
+          <div className="relative">
+            <Icon icon="lift" className="Font22 Gray_75" />
+            {entrustCount > 0 && <RedDot />}
+          </div>
+          <div className="iconText nowrap">{_l('委托')}</div>
+        </IconWrapper>
+      </Tooltip>
 
       <Motion
         style={{
@@ -89,6 +92,7 @@ export default function TodoEntrust() {
               '.dropdownTrigger',
               '.mui-dialog-container',
               '.ant-picker-dropdown',
+              '.userCardSite',
             ]}
           />
         )}

@@ -1,12 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
 import { Checkbox, Dialog, Dropdown, Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
 import { filterSysControls } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';

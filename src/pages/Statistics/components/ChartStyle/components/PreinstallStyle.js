@@ -1,10 +1,11 @@
 import React from 'react';
 import store from 'redux/configureStore';
-import { Checkbox, Select, Tooltip } from 'antd';
+import { Checkbox, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { isLightColor } from 'src/pages/customPage/util';
 import { defaultPivotTableStyle } from '../../../enum';
 
@@ -129,7 +130,6 @@ const PreinstallStyle = props => {
       <div className="mBottom10 mTop16 flexRow valignWrapper">
         {_l('列宽模式')}
         <Tooltip
-          autoCloseDelay={0}
           title={
             <div className="pTop5 pBottom5">
               <div className="mBottom2">{_l('自动')}</div>

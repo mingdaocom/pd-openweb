@@ -2,10 +2,11 @@ import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import MingoContent from 'src/components/Mingo/ChatBot/Content';
+import HelpBot from 'src/components/Mingo/modules/HelpBot';
 import { navigateTo } from 'src/router/navigateTo';
 
 const Con = styled.div`
+  width: 100%;
   .mingo-content {
     height: 100%;
     width: 100%;
@@ -31,6 +32,7 @@ const Mingo = forwardRef(
       infoLoading,
       messageListHeader,
       isSmallMode,
+      hideHeader,
     },
     ref,
   ) => {
@@ -42,7 +44,7 @@ const Mingo = forwardRef(
     }));
     return (
       <Con className={cx(className, { isSmallMode, isShare: window.isMingoShare })}>
-        <MingoContent
+        <HelpBot
           isLand
           allowEdit={!window.isMingoShare}
           infoLoading={infoLoading}
@@ -58,7 +60,7 @@ const Mingo = forwardRef(
           onNewChatClick={onNewChatClick}
           onInsertChatHistory={chatItem => {
             emitter.emit('insertChatHistory', chatItem);
-            navigateTo(`/mingo/chat/${chatItem.chatId}`);
+            navigateTo(`/mingo/chat/${chatItem.chatId}${hideHeader ? '?header=0' : ''}`);
           }}
         />
       </Con>

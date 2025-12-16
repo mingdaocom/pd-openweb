@@ -26,3 +26,11 @@ export const TABS = [
   { text: _l('手机/邮箱邀请'), value: 2, subText: _l('搜索用户') },
   { text: _l('从通讯录邀请'), value: 3 },
 ];
+
+export const INVITE_FAILED_REASON = {
+  removed: _l('成员已离职，不能重复邀请'),
+  exist: _l('成员已存在，不能重复邀请'),
+  limit: _l('超过邀请数量限制，无法邀请'),
+  forbid: _l('账号来源类型受限，无法邀请'),
+  failed: _l('邀请失败'),
+};

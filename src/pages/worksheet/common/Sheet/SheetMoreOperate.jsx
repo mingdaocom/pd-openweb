@@ -113,6 +113,7 @@ export default function SheetMoreOperate(props) {
                     {[
                       { type: 'publicform', text: _l('公开发布%02024') },
                       { type: 'pay', text: _l('支付') },
+                      { type: 'invoice', text: _l('开票') },
                     ].map(({ type, text }) => (
                       <MenuItem
                         data-event={type}

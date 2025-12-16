@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import worksheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { Option } from './Options';
 
 const useCompare = value => {

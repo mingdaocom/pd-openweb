@@ -2,14 +2,21 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import Tooltip from 'ming-ui/components/Tooltip';
+import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import GroupController from 'src/api/group';
+import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import settingGroup from 'src/pages/Group/settingGroup';
 import * as actions from '../../redux/actions';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import { createDiscussion } from '../../utils/group';
 import * as socket from '../../utils/socket';
+
+const PersonalStatusWrap = styled(PersonalStatus)`
+  flex: 1;
+  min-width: 0;
+`;
 
 const { GROUPACTION } = Constant;
 
@@ -273,7 +280,7 @@ class ChatPanelHeader extends Component {
     return (
       <div className="ChatPanel-header">
         {session.isPost && (
-          <Tooltip popupPlacement="bottomLeft" themeColor="white" text={this.getGroupMessage()} autoCloseDelay={0}>
+          <Tooltip placement="bottomLeft" type="white" title={this.getGroupMessage()}>
             <i
               className={cx('mRight10 Font20', session.project ? 'icon-business' : 'icon-person_new')}
               style={{ color: session.project ? '#1677ff' : '#ff7f00' }}
@@ -281,15 +288,18 @@ class ChatPanelHeader extends Component {
           </Tooltip>
         )}
 
-        <div className="title" title={name}>
-          <span onClick={this.handleGoto.bind(this)} className="ThemeColor3 name">
+        <div className="title overflowHidden">
+          <span onClick={this.handleGoto.bind(this)} className="ThemeColor3 name" title={name}>
             {name}
           </span>
           {session.isGroup && !session.isPushNotice ? (
-            <Tooltip popupPlacement="top" text={<span>{_l('关闭消息免打扰')}</span>}>
+            <Tooltip placement="top" title={_l('关闭消息免打扰')}>
               <i onClick={this.handleUpdateGroupPushNotice.bind(this)} className="icon-chat-bell-nopush" />
             </Tooltip>
           ) : undefined}
+          {session.onStatusOption ? (
+            <PersonalStatusWrap className="noBorder pAll0 pLeft12" onStatusOption={session.onStatusOption} />
+          ) : null}
           {isSet ? this.renderSetting() : undefined}
         </div>
         <div className="flex" />
@@ -314,13 +324,13 @@ class ChatPanelHeader extends Component {
             </div>
           )}
           {session.isGroup || isFileTrsnsfer || hideChat ? undefined : (
-            <Tooltip text={<span>{_l('发起聊天')}</span>}>
+            <Tooltip title={_l('发起聊天')}>
               <i onClick={this.handleAddSession.bind(this)} className="icon-invite ThemeColor3 iconHover" />
             </Tooltip>
           )}
 
           {(session.isPost || session.accountId || isFileTrsnsfer) && (
-            <Tooltip text={<span>{_l('查看文件')}</span>}>
+            <Tooltip title={_l('查看文件')}>
               <i
                 onClick={this.props.onOpenFile.bind(this, !isOpenFile)}
                 className={cx('icon-task-folder-solid ThemeColor3', { iconHover: !isOpenFile })}
@@ -329,7 +339,7 @@ class ChatPanelHeader extends Component {
           )}
 
           {session.isGroup ? (
-            <Tooltip popupPlacement="top" text={<span>{infoVisible ? _l('隐藏会话详情') : _l('显示会话详情')}</span>}>
+            <Tooltip placement="top" title={infoVisible ? _l('隐藏会话详情') : _l('显示会话详情')}>
               {infoVisible ? (
                 <i
                   onClick={this.props.onSetInfoVisible.bind(this, false)}
@@ -344,7 +354,7 @@ class ChatPanelHeader extends Component {
             </Tooltip>
           ) : undefined}
           {!isFileTrsnsfer && (
-            <Tooltip text={<span>{_l('新窗口聊天')}</span>}>
+            <Tooltip title={_l('新窗口聊天')}>
               <i onClick={this.handleOpenChatWindow.bind(this)} className={`icon-maximizing_a ThemeColor3 iconHover`} />
             </Tooltip>
           )}

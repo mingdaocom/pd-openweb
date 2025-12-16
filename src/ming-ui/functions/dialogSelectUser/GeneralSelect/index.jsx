@@ -2,6 +2,7 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import departmentController from 'src/api/department';
 import groupController from 'src/api/group';
 import structureController from 'src/api/structure';
@@ -1616,18 +1617,18 @@ export default class GeneraSelect extends Component {
             </div>
           </div>
           <div>
-            <Button
-              className="tip-top"
-              data-tip={window.isMacOs ? '⌘ + Enter' : 'Ctrl + Enter'}
-              onClick={evt => {
-                evt.nativeEvent.stopImmediatePropagation();
-                this.submit();
-              }}
-              fullWidth
-            >
-              {this.commonSettings.btnName +
-                (this.state.selectedData.length ? ` (${this.state.selectedData.length})` : '')}
-            </Button>
+            <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
+              <Button
+                onClick={evt => {
+                  evt.nativeEvent.stopImmediatePropagation();
+                  this.submit();
+                }}
+                fullWidth
+              >
+                {this.commonSettings.btnName +
+                  (this.state.selectedData.length ? ` (${this.state.selectedData.length})` : '')}
+              </Button>
+            </Tooltip>
           </div>
         </div>
       </div>

@@ -58,6 +58,16 @@ function tableState(
         sheetColumnWidths: state.sheetColumnWidths,
         ...(action.doNotClearKeywords ? { keywords: state.keywords } : {}),
       };
+    case 'CANCEL_CHANGE':
+      return {
+        ...state,
+        pageIndex: 1,
+        count: action.count,
+        countForShow: action.count,
+        originalRecords: action.records,
+        records: action.records,
+        keywords: '',
+      };
     case 'DELETE_ALL':
       return {
         ...initialTableState,
@@ -115,8 +125,18 @@ function changes(state = cloneDeep(initialChanges), action) {
         ...initialChanges,
         isDeleteAll: true,
       };
+    case 'CANCEL_CHANGE':
     case 'RESET':
       return cloneDeep(initialChanges);
+    default:
+      return state;
+  }
+}
+
+function originFirstPageResult(state = [], action) {
+  switch (action.type) {
+    case 'INIT_FIRST_PAGE_RESULT':
+      return action.value;
     default:
       return state;
   }
@@ -154,6 +174,8 @@ function records(state = [], action) {
     case 'CLEAR_RECORDS':
     case 'DELETE_ALL':
       return [];
+    case 'CANCEL_CHANGE':
+      return action.records || [];
     default:
       return state;
   }
@@ -174,6 +196,7 @@ export default combineReducers({
   base,
   treeTableViewData,
   controls,
+  originFirstPageResult,
   records,
   tableState,
   changes,

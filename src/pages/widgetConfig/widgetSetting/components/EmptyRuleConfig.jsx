@@ -40,7 +40,7 @@ export default function EmptyRuleConfig({ filters, handleChange }) {
 
   return (
     <SettingItem className="mTop10">
-      <div className="settingItemTitle">{_l('当条件使用的动态值为空时，如何处理？')}</div>
+      <div className="settingItemTitle settingItemSubTitle">{_l('当条件使用的动态值为空时，如何处理？')}</div>
       <Dropdown
         border
         value={emptyRule || undefined}

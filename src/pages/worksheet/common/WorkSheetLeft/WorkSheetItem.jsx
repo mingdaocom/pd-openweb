@@ -3,8 +3,9 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, MdLink, SvgIcon, Tooltip } from 'ming-ui';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { Icon, MdLink, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -121,9 +122,8 @@ export default class WorkSheetItem extends Component {
       return (
         ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
           <Tooltip
-            popupPlacement="right"
-            autoCloseDelay={0}
-            text={<span>{_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}</span>}
+            placement="right"
+            title={_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}
           >
             <Icon
               className="Font16 mRight10 visibilityIcon"
@@ -152,7 +152,7 @@ export default class WorkSheetItem extends Component {
           {workSheetName}
         </span>
         {isNewOpen && (
-          <Tooltip popupPlacement="bottom" text={<span>{_l('新页面打开')}</span>}>
+          <Tooltip placement="bottom" title={_l('新页面打开')}>
             <Icon className="Font16 mRight10 mTop2 openIcon" icon="launch" />
           </Tooltip>
         )}
@@ -162,11 +162,11 @@ export default class WorkSheetItem extends Component {
     return (
       <Drag appItem={appItem} appPkg={appPkg} isCharge={isCharge}>
         <Tooltip
-          autoCloseDelay={0}
-          popupAlign={{ offset: [-10, 0] }}
-          disable={_.isUndefined(disableTooltip) ? sheetListVisible : disableTooltip}
-          popupPlacement="right"
-          text={<span>{workSheetName}</span>}
+          align={{ offset: [-10, 0] }}
+          placement="right"
+          title={
+            (_.isUndefined(disableTooltip) ? sheetListVisible : disableTooltip) ? '' : <span>{workSheetName}</span>
+          }
         >
           <Wrap
             style={{
@@ -194,6 +194,10 @@ export default class WorkSheetItem extends Component {
                   if (type == 1) {
                     //浏览自定义页面埋点
                     addBehaviorLog('customPage', workSheetId);
+                  }
+                  if (type == 3) {
+                    // 对话机器人
+                    addBehaviorLog('robot', workSheetId);
                   }
                   this.setState({ flag: Date.now() });
                 }}

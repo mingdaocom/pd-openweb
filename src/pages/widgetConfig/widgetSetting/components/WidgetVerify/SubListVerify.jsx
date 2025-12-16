@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { NumberRange } from '../../../styled';
 import InputValue from './InputValue';
@@ -36,7 +36,7 @@ export default function SubListVerify(props) {
         >
           <span>
             {_l('限制添加行数')}
-            <Tooltip placement={'bottom'} title={_l('未勾选时，最大支持输入1000行')}>
+            <Tooltip placement="bottom" title={_l('未勾选时，最大支持输入1000行')}>
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
             </Tooltip>
           </span>

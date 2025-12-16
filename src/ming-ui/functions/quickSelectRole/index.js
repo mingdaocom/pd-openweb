@@ -441,7 +441,9 @@ export default function quickSelectRole(target, props = {}) {
 
   function destory() {
     root.unmount();
-    document.body.removeChild($con);
+    if ($con && $con.parentNode === document.body && document.body.contains($con)) {
+      document.body.removeChild($con);
+    }
   }
 
   root.render(
@@ -459,4 +461,8 @@ export default function quickSelectRole(target, props = {}) {
       }}
     />,
   );
+
+  return {
+    destory,
+  };
 }

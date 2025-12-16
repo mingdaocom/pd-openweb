@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Select, Tooltip } from 'antd';
+import { Checkbox, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ColorPicker, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { replaceColor } from 'statistics/Charts/PivotTable';
 import { defaultPivotTableStyle } from '../../../enum';
 
@@ -317,7 +318,6 @@ const TitleStyle = props => {
                 </Select>
                 <Tooltip
                   title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')}
-                  overlayStyle={{ width: 170 }}
                   placement="bottomRight"
                   arrowPointAtCenter
                 >
@@ -353,7 +353,6 @@ const TitleStyle = props => {
                 </Checkbox>
                 <Tooltip
                   title={_l('移动端屏幕尺寸较小，设置时请注意宽度和高度')}
-                  overlayStyle={{ width: 170 }}
                   placement="bottomRight"
                   arrowPointAtCenter
                 >

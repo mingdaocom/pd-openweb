@@ -1,6 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
-import { Dialog, Icon, Tooltip } from 'ming-ui';
+import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
@@ -120,7 +121,7 @@ export default class ItemCon extends React.Component {
           data.totalCount > 0 && <span className="num">{data.totalCount}</span>
         )}
         {!!data.description && (
-          <Tooltip text={<span>{data.description}</span>} popupPlacement="top" autoCloseDelay={0}>
+          <Tooltip title={data.description}>
             <i className="icon-info_outline Font16 Gray_9e mLeft7" />
           </Tooltip>
         )}

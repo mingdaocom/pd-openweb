@@ -1,0 +1,135 @@
+.mobileMyStatus {
+  display: inline-block;
+  height: 32px;
+  line-height: 32px;
+  background: #f8f8f8;
+  border-radius: 16px;
+  padding: 0 14px;
+  .icon-add_reaction {
+    vertical-align: sub;
+  }
+}
+
+.mobileOnStatusWrap {
+  margin: 0 16px;
+  padding: 0 15px;
+  background: #f3faff;
+  height: 32px;
+  font-size: 15px;
+  img {
+    width: 20px;
+    height: 20px;
+  }
+  .remark {
+    margin: 0 12px 0 8px !important;
+    font-weight: bold;
+  }
+  .time {
+    color: #757575 !important;
+  }
+}
+
+.mobileMyStatusModal {
+  .Gray_15 {
+    color: #151515;
+  }
+  .adm-popup-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+  .statusListContainer {
+    margin: 0 -16px;
+    padding: 0 16px;
+    overflow-y: auto;
+  }
+  .statusListWrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+    gap: 10px;
+    min-height: 0;
+    .statusItem {
+      height: 100px;
+      background: #f8f8f8;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #f8f8f8;
+      &.active {
+        background: rgba(33, 150, 243, 0.08);
+        border: 1px solid #2196f3;
+      }
+      .remark {
+        min-height: 26px;
+        padding: 0 10px;
+      }
+    }
+    .emojiWrap {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 15px;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    &.edit {
+      min-width: 120px;
+      max-width: 80%;
+      height: 120px;
+      margin: 0 auto 32px;
+      .statusItem {
+        width: 100%;
+        height: 100%;
+      }
+      .emojiWrap {
+        width: 36px;
+        height: 36px;
+        margin-bottom: 16px;
+        img {
+          width: 100%;
+        }
+      }
+    }
+  }
+  .durationWrap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .durationItem {
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    background: #f8f8f8;
+    border-radius: 3px;
+    &.active {
+      background: rgba(33, 150, 243, 0.08);
+      color: #2196f3;
+    }
+  }
+  .datePickerWrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #eaeaea;
+  }
+  .Input.error {
+    border-color: #ff0000;
+  }
+  .footerBtn {
+    height: 40px !important;
+    background-color: #2196f3;
+    border: 1px solid #2196f3;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+    border-radius: 20px;
+    margin: 16px 0 12px;
+  }
+}

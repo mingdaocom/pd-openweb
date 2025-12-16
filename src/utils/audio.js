@@ -22,17 +22,23 @@ export class SpeechSynthesizer {
 
   // 加载语音包
   _loadVoices() {
-    this.synth.onvoiceschanged = () => {
-      const voices = this.synth.getVoices();
-      this.voice = voices.find(v => v.lang === this.defaultOptions.lang) || voices[0];
-    };
+    try {
+      if (this.synth) {
+        this.synth.onvoiceschanged = () => {
+          const voices = this.synth && this.synth.getVoices();
+          this.voice = voices.find(v => v.lang === this.defaultOptions.lang) || voices[0];
+        };
+      }
+    } catch (error) {
+      console.error('loadVoices error', error);
+    }
   }
 
   // 清除队列和当前播放
   clear() {
     this.queue = [];
     this.speaking = false;
-    this.synth.cancel();
+    this.synth && this.synth.cancel();
     if (this.bufferTimer) {
       clearTimeout(this.bufferTimer);
       this.bufferTimer = null;
@@ -43,7 +49,7 @@ export class SpeechSynthesizer {
   speak(text, options = {}) {
     this.clear(); // 清除前面所有任务
     const utterance = this._createUtterance(text, options);
-    this.synth.speak(utterance);
+    this.synth && this.synth.speak(utterance);
   }
 
   // 播放流式文本，智能缓冲
@@ -119,7 +125,7 @@ export class SpeechSynthesizer {
 
     const utterance = this._createUtterance(mergedText, options);
     this.speaking = true;
-    this.synth.speak(utterance);
+    this.synth && this.synth.speak(utterance);
   }
 
   // 合并队列内容为一个 utterance（保留此方法用于其他场景）
@@ -130,6 +136,6 @@ export class SpeechSynthesizer {
     this.queue = [];
     const utterance = this._createUtterance(mergedText, options);
     this.speaking = true;
-    this.synth.speak(utterance);
+    this.synth && this.synth.speak(utterance);
   }
 }

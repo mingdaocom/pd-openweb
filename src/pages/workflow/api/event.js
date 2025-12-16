@@ -1,8 +1,9 @@
 import base, { controllerName } from './base';
+
 /**
  * event
-*/
-var event = {
+ */
+const event = {
   /**
    * 订阅
    * @param {Object} args 请求参数
@@ -11,7 +12,7 @@ var event = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  subscribe: function(args, options) {
+  subscribe: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/event/subscribe';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'eventsubscribe', JSON.stringify(args), $.extend(base, options));
@@ -24,7 +25,7 @@ var event = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  unsubscribe: function(args, options) {
+  unsubscribe: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/event/unsubscribe';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'eventunsubscribe', JSON.stringify(args), $.extend(base, options));

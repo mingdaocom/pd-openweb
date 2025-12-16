@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, VerifyPasswordInput } from 'ming-ui';
+import { Icon, LoadDiv, VerifyPasswordInput } from 'ming-ui';
 import instanceApi from 'src/pages/workflow/api/instance';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import verifyPassword from 'src/components/verifyPassword';
@@ -34,7 +34,7 @@ export default class Footer extends Component {
     this.actionVerifyPasswordHandler = ActionSheet.show({
       actions: [],
       extra: (
-        <div className="TxtLeft sheetProcessRowRecord">
+        <div className="TxtLeft w100 sheetProcessRowRecord">
           <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
           <VerifyPasswordInput
             autoFocus={true}
@@ -158,6 +158,7 @@ export default class Footer extends Component {
     } else {
       onSubmit({
         noSave: true,
+        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], id),
         callback: err => {
           if (!err) {
             openOperatorDialog();
@@ -210,7 +211,7 @@ export default class Footer extends Component {
         ignoreError: isStash,
         ignoreAlert: isStash,
         silent: isStash,
-        ignoreDialog: action !== 'submit',
+        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], action),
       });
     }
   };
@@ -361,10 +362,14 @@ export default class Footer extends Component {
     const { instance } = this.props;
     const { operationTypeList } = instance;
     const baseActionList = [3, 4, 5, 9, 17, 18, 19];
-    const actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
-    const newOperationTypeList = operationTypeList[1]
+    let actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
+    let newOperationTypeList = operationTypeList[1]
       .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))
       .filter(item => ![12, 13].includes(item));
+    if (actionList.includes(5) && actionList.includes(17)) {
+      actionList = actionList.filter(n => n !== 17);
+      newOperationTypeList = newOperationTypeList.concat(17);
+    }
     const buttons = newOperationTypeList.map(item => {
       return {
         ...MOBILE_OPERATION_LIST[item],
@@ -410,7 +415,7 @@ export default class Footer extends Component {
         {this.renderFlowIcon()}
         <div className="flexRow flex">
           {actionList.map(item => {
-            const { id, text } = ACTION_LIST[item];
+            const { id, text, icon } = ACTION_LIST[item];
             const disable = isRequest || (isUrged && id === 'urge');
             return (
               <div
@@ -422,9 +427,10 @@ export default class Footer extends Component {
                 }}
               >
                 {isRequest && submitAction === id ? (
-                  _l('提交中...')
+                  <LoadDiv size="small" className="mTop5" />
                 ) : (
                   <Fragment>
+                    <Icon icon={icon} />
                     <span className="ellipsis">{id === 'urge' && isUrged ? _l('已催办') : btnMap[item] || text}</span>
                   </Fragment>
                 )}

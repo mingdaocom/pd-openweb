@@ -111,7 +111,7 @@ export default class TextInput extends Component {
         ) : (
           <TagTextarea
             className="tagTextAreaWrap"
-            placeholder={_l('请输入')}
+            placeholder={this.props.placeholder || _l('请输入')}
             renderTag={tag => {
               const [cid = '', rcid = ''] = tag.split('~');
               return <OtherField className="tagTextField overflow_ellipsis" item={{ cid, rcid }} {...this.props} />;

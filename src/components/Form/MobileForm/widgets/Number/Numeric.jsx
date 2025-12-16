@@ -1,13 +1,11 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { accAdd, accDiv, accMul, accSub } from 'src/utils/common';
 import { formatNumberThousand, formatStrZero, toFixed } from 'src/utils/control';
-import { addBehaviorLog } from 'src/utils/project.js';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 
 const NumWrap = styled.span`
@@ -24,7 +22,7 @@ const MobileAction = styled.div`
   cursor: pointer;
   margin-right: ${props => (props.type === 'subtract' ? '6px' : 0)};
   margin-left: ${props => (props.type === 'add' ? '6px' : 0)};
-  border: 1px solid var(--gray-e0);
+  border: 1px solid var(--color-border-primary);
   .icon {
     color: var(--color-primary);
   }
@@ -43,13 +41,15 @@ const Numeric = props => {
     hint,
     disabled,
     formDisabled,
-    maskPermissions,
     dot,
     enumDefault,
-    advancedSetting: { datamask, dotformat, showtype, showformat, numinterval, numshow, thousandth },
+    advancedSetting: { dotformat, showtype, showformat, numinterval, numshow, thousandth },
     triggerCustomEvent,
-    value,
     otherSheetControlType,
+    renderMaskContent = () => {},
+    handleMaskClick = () => {},
+    showMaskValue = false,
+    isMaskReadonly = false,
   } = props;
   let { prefix, suffix = props.unit, currency } = props.advancedSetting || {};
   if (type === 8 && _.includes(['1', '2'], showformat)) {
@@ -68,12 +68,8 @@ const Numeric = props => {
   const inputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
-  const [maskStatus, setMaskStatus] = useState(datamask === '1');
   const [currentValue, setCurrentValue] = useState(getEditValue());
   const isStepNumber = showtype === '3';
-  const isMask = useMemo(() => {
-    return maskPermissions && (value || value === 0) && maskStatus;
-  }, [maskPermissions, value, maskStatus]);
 
   const isEffective = (val = currentValue) => {
     // 允许为 0
@@ -85,7 +81,7 @@ const Numeric = props => {
 
     value = value || value === 0 ? getAutoValue(dotformat, toFixed(value, dot)) : '';
     // 数值、金额字段掩码时，不显示千分位
-    if (maskStatus && value) {
+    if (showMaskValue && value) {
       value = dealMaskValue({ ...props, value });
     } else {
       // 数值兼容老的千分位配置enumDefault
@@ -132,6 +128,10 @@ const Numeric = props => {
     }
 
     setCurrentValue(resValue);
+
+    if (inputRef.current) {
+      inputRef.current.value = resValue;
+    }
 
     if (numshow === '1' && !isNaN(parseFloat(resValue))) {
       resValue = accDiv(parseFloat(resValue), 100);
@@ -191,10 +191,10 @@ const Numeric = props => {
 
   useEffect(() => {
     setCurrentValue(getEditValue());
-    if (inputRef && inputRef.current) {
-      inputRef.current.value = getEditValue() ? getEditValue() : '';
+    if (inputRef.current) {
+      inputRef.current.value = props.value ? props.value : '';
     }
-  }, [isEditing]);
+  }, [isEditing, props.value]);
 
   return (
     <div className="flexCenter flexRow">
@@ -219,23 +219,14 @@ const Numeric = props => {
           )}
 
           <NumWrap
-            isMaskReadonly={disabled && isMask}
+            isMaskReadonly={isMaskReadonly}
             className={cx('ellipsis', {
-              maskHoverTheme: disabled && isMask,
               Gray_bd: !isEffective(),
             })}
-            onClick={() => {
-              if (disabled && isMask) {
-                addBehaviorLog('worksheetDecode', props.worksheetId, {
-                  rowId: props.recordId,
-                  controlId: props.controlId,
-                });
-                setMaskStatus(false);
-              }
-            }}
+            onClick={handleMaskClick}
           >
             {getShowValue()}
-            {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
+            {renderMaskContent()}
           </NumWrap>
 
           {!isEffective() && (
@@ -252,7 +243,6 @@ const Numeric = props => {
             style={{ paddingRight: suffix ? 32 : 12 }}
             ref={inputRef}
             disabled={disabled}
-            value={currentValue}
             maxLength={16}
             onFocus={onFocus}
             onBlur={onBlur}
@@ -275,7 +265,6 @@ Numeric.propTypes = {
   type: PropTypes.number,
   hint: PropTypes.string,
   disabled: PropTypes.bool,
-  maskPermissions: PropTypes.bool,
   value: PropTypes.string,
   dot: PropTypes.number,
   unit: PropTypes.string,
@@ -289,7 +278,7 @@ Numeric.propTypes = {
 
 export default memo(Numeric, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'disabled', 'formDisabled']),
-    _.pick(nextProps, ['value', 'disabled', 'formDisabled']),
+    _.pick(prevProps, ['value', 'disabled', 'formDisabled', 'showMaskValue', 'isMaskReadonly']),
+    _.pick(nextProps, ['value', 'disabled', 'formDisabled', 'showMaskValue', 'isMaskReadonly']),
   );
 });

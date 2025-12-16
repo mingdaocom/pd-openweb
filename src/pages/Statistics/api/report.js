@@ -3,7 +3,7 @@ import base, { controllerName } from './base';
 /**
  * report
  */
-var report = {
+const report = {
   /**
    * 导出图表
    * @param {Object} args 请求参数

@@ -3,6 +3,7 @@ import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
 import { formatChartData as formatBarChartData } from './BarChart';
 import {
@@ -86,11 +87,11 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
-      this.BidirectionalBarChart.update(config);
+      this.BidirectionalBarChart && this.BidirectionalBarChart.update(config);
     }
 
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.BidirectionalBarChart.destroy();
+      this.BidirectionalBarChart && this.BidirectionalBarChart.destroy();
       this.renderBidirectionalBarChart(nextProps);
     }
   }
@@ -256,7 +257,7 @@ export default class extends Component {
       },
       rawFields: ['originalId'],
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: data => {
         const id = data['series-field-key'];
@@ -475,9 +476,9 @@ export default class extends Component {
             {summary.showTotal ? (
               <div>
                 <span>{formatSummaryName(summary)}: </span>
-                <span data-tip={originalLeftCount ? originalLeftCount : null} className="count">
-                  {leftCount}
-                </span>
+                <Tooltip title={originalLeftCount ? originalLeftCount : null}>
+                  <span className="count">{leftCount}</span>
+                </Tooltip>
               </div>
             ) : (
               <div></div>
@@ -485,9 +486,9 @@ export default class extends Component {
             {rightY && rightY.summary.showTotal ? (
               <div>
                 <span>{formatSummaryName(rightY.summary)}: </span>
-                <span data-tip={originalRightCount ? originalRightCount : null} className="count">
-                  {rightCount}
-                </span>
+                <Tooltip title={originalRightCount ? originalRightCount : null}>
+                  <span className="count">{rightCount}</span>
+                </Tooltip>
               </div>
             ) : (
               <div></div>

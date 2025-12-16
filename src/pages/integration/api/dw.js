@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var dw = {
-
+const dw = {
   /**
    * 获取数据表字段信息
    *
@@ -217,7 +216,7 @@ var dw = {
     base.ajaxOptions.url = base.server(options) + 'dw/delete';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'dwdelete', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default dw;

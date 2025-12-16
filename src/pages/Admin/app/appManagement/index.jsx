@@ -16,10 +16,10 @@ import {
   ScrollView,
   SvgIcon,
   Switch,
-  Tooltip,
   UpgradeIcon,
   UserHead,
 } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { checkIsAppAdmin, dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
@@ -40,53 +40,12 @@ import { emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import SelectUser from '../../components/SelectUser';
+import { DataDBInstances, dialogHeader, optionData, terminals } from './constant';
 import AppLog from './modules/AppLog';
 import { decryptFunc } from './modules/Dectypt';
 import ExportApp from './modules/ExportApp';
 import SelectApp from './modules/SelectApp';
 import './index.less';
-
-const optionData = [
-  {
-    label: _l('导出应用'),
-    icon: 'cloud_download',
-    action: 'handleExportAll',
-    hasBeta: true,
-    featureId: VersionProductType.appImportExport,
-  },
-  {
-    label: _l('导入应用'),
-    icon: 'unarchive',
-    action: 'handleUpdateAll',
-    hasBeta: true,
-    featureId: VersionProductType.appBackupRestore,
-  },
-  { label: _l('日志'), icon: 'assignment', action: 'handleLog', hasBeta: false },
-  {
-    label: _l('应用回收站'),
-    icon: 'knowledge-recycle',
-    action: 'openAppTrash',
-    hasBeta: false,
-    featureId: VersionProductType.recycle,
-  },
-  {
-    label: _l('获取文件密码'),
-    icon: 'key1',
-    action: 'openDecryptUpload',
-    hasBeta: false,
-  },
-];
-
-const dialogHeader = {
-  selectAppVisible: _l('选择要导出的应用'),
-  singleAppVisible: _l('导出应用'),
-  uploadVisible: _l('导入应用'),
-};
-
-const DataDBInstances = [
-  { label: _l('全部数据库'), value: 'all', status: 1 },
-  { label: _l('系统默认数据库'), value: '', status: 1 },
-];
 
 export default class AppManagement extends Component {
   constructor(props) {
@@ -301,7 +260,7 @@ export default class AppManagement extends Component {
             <SvgIcon url={item.iconUrl} fill="#fff" size={24} />
             {item.createType === 1 && (
               <div className="linkIcon">
-                <Tooltip text={_l('外部链接')}>
+                <Tooltip title={_l('外部链接')}>
                   <Icon icon="link1" />
                 </Tooltip>
               </div>
@@ -326,12 +285,12 @@ export default class AppManagement extends Component {
                 {item.appName}
               </div>
               {item.sourceType === 60 && (
-                <Tooltip text={_l('通过市场安装')}>
+                <Tooltip title={_l('通过市场安装')}>
                   <Icon icon="merchant" className="Gray_bd mLeft20 Font16" />
                 </Tooltip>
               )}
               {item.isLock && (
-                <Tooltip text={_l('应用已锁定')}>
+                <Tooltip title={_l('应用已锁定')}>
                   <Icon icon="lock" className="Gray_bd mLeft20 Font16" />
                 </Tooltip>
               )}
@@ -341,6 +300,12 @@ export default class AppManagement extends Component {
         {hasDataBase && <div className="columnWidth dataBase">{item.dbInstance || _l('系统默认数据库')}</div>}
         <div className="columnWidth">
           {item.createType !== 1 ? item.sheetCount.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,') : '-'}
+        </div>
+        <div className="columnWidth terminal">
+          {terminals
+            .filter(v => !item[v.value])
+            .map(v => v.label)
+            .join('、')}
         </div>
         <div className="columnWidth">
           {item.createType !== 1 ? (
@@ -365,7 +330,7 @@ export default class AppManagement extends Component {
         </div>
         <div className="w50 mRight20 TxtCenter flexRow">
           {getFeatureStatus(projectId, VersionProductType.analysis) && (
-            <Tooltip text={<span>{_l('使用分析')}</span>}>
+            <Tooltip title={_l('使用分析')}>
               <span
                 className={cx('Gray_9e Hand Font18 icon-worksheet_column_chart Hover_49 mRight16 chartIcon', {
                   isShow: item.createType !== 1,
@@ -436,7 +401,7 @@ export default class AppManagement extends Component {
                                   });
                                   this.updateState({});
                                 } else {
-                                  return Promise.reject();
+                                  throw new Error();
                                 }
                               })
                               .catch(() => {
@@ -727,176 +692,182 @@ export default class AppManagement extends Component {
       !_.isEmpty(version) && Number(version.versionIdV2) < 2 ? Number(version.versionIdV2) + 1 : undefined;
 
     return (
-      <div className="orgManagementWrap appManagementList flex flexColumn">
+      <div className="orgManagementWrap appManagementList flex">
         <AdminTitle prefix={_l('应用')} />
-
-        <div className="orgManagementHeader flexRow">
-          <div className="Font17 bold flex">
-            {_l('应用')}
-            {total ? `（${total}）` : ''}
-          </div>
-          <Trigger
-            popupVisible={moreVisible}
-            onPopupVisibleChange={visible => this.setState({ moreVisible: visible })}
-            action={['click']}
-            popup={() => {
-              return (
-                <ul className="optionPanelTrigger moreOptionPanelTrigger">
-                  {optionData.map(item => {
-                    const featureType = getFeatureStatus(projectId, item.featureId);
-
-                    if (
-                      _.includes(['handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) &&
-                      !featureType
-                    ) {
-                      return;
-                    }
-
-                    return (
-                      <li
-                        key={item.action}
-                        onClick={() => {
-                          if (featureType === '2') {
-                            this.setState({ moreVisible: false });
-                            buriedUpgradeVersionDialog(projectId, item.featureId);
-                            this.setState({ moreVisible: false });
-                            return;
-                          }
-                          this[item.action]();
-                          this.handleChangeVisible('moreVisible', true);
-                        }}
-                      >
-                        <Icon icon={item.icon} className="mRight12 Gray_9e" />
-                        {item.label}
-                        {item.featureId && featureType === '2' && <UpgradeIcon />}
-                      </li>
-                    );
-                  })}
-                </ul>
-              );
-            }}
-            popupAlign={{
-              offset: [-125, 5],
-              points: ['tr', 'tl'],
-            }}
-          >
-            <span className="Gray_9e Font18 icon-more_horiz Hand mLeft25 ThemeHoverColor3"></span>
-          </Trigger>
-        </div>
-
-        {maxCount > 0 && (
-          <div className="appManagementCount flexRow">
-            <span className="Gray_9e mRight5">{_l('已创建工作表（含聚合表）')}</span>
-            <span className="bold">{count}</span>
-
-            <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
-            <span className="bold" style={{ color: maxCount - count > 10 ? '#151515' : '#f44336' }}>
-              {maxCount - count < 0 ? 0 : maxCount - count}
-            </span>
-
-            {!md.global.Config.IsLocal && (_.isEmpty(version) || version.versionIdV2 === '1') && (
-              <Fragment>
-                {licenseType === 1 ? (
-                  <MdLink
-                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                    to={`/admin/upgradeservice/${this.props.match.params.projectId}${
-                      vertionType ? '/' + vertionType : ''
-                    }`}
-                  >
-                    {_l('升级版本')}
-                  </MdLink>
-                ) : (
-                  <a
-                    href="javascript:void(0);"
-                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                    onClick={() => {
-                      purchaseMethodFunc({ projectId: this.props.match.params.projectId });
-                    }}
-                  >
-                    {_l('购买付费版')}
-                  </a>
-                )}
-              </Fragment>
-            )}
-          </div>
-        )}
-
-        <div className="manageListSearch flexRow">
-          <Dropdown
-            className="w180"
-            data={statusList}
-            value={status}
-            border
-            onChange={value => this.updateState({ status: value })}
-          />
-          {hasDataBase && (
-            <Select
-              className="w180 mdAntSelect mLeft15 Hand"
-              showSearch
-              defaultValue={dbInstanceId}
-              options={dataDBInstances}
-              onFocus={() => dataDBInstances.length === 2 && this.getDBInstances()}
-              filterOption={(inputValue, option) =>
-                dataDBInstances
-                  .find(item => item.value === option.value)
-                  .label.toLowerCase()
-                  .indexOf(inputValue.toLowerCase()) > -1
-              }
-              suffixIcon={<Icon icon="arrow-down-border Font14" />}
-              notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
-              onChange={value => this.updateState({ dbInstanceId: value })}
-            />
-          )}
-          <SelectUser
-            className="mdAntSelect w180 mLeft15"
-            placeholder={_l('搜索拥有者')}
-            projectId={projectId}
-            userInfo={userInfo}
-            changeData={data => this.updateState({ userInfo: data })}
-          />
-          <div className="flex" />
-          <Search
-            placeholder={_l('应用名称')}
-            handleChange={_.debounce(keyword => this.updateState({ keyword }), 500)}
-          />
-        </div>
-
-        <div className="flexRow manageList manageListHeader bold mTop16">
-          <div className="flex mLeft10 appName">{_l('应用名称')}</div>
-          {hasDataBase && <div className="columnWidth dataBase">{_l('所属数据库')}</div>}
-          <div className="columnWidth flexRow">
-            <div className="pointer ThemeHoverColor3 pRight12" style={{ zIndex: 1 }}>
-              {_l('工作表数')}
+        <div className="appManagementContent flexColumn">
+          <div className="orgManagementHeader flexRow">
+            <div className="Font17 bold flex">
+              {_l('应用')}
+              {total ? `（${total}）` : ''}
             </div>
-          </div>
-          <div className="columnWidth">{_l('状态')}</div>
-          <div className="columnWidth flexRow">
-            <div
-              className="pointer ThemeHoverColor3 pRight12"
-              style={{ zIndex: 1 }}
-              onClick={() => this.updateState({ order: order === 3 ? 4 : 3 })}
+            <Trigger
+              popupVisible={moreVisible}
+              onPopupVisibleChange={visible => this.setState({ moreVisible: visible })}
+              action={['click']}
+              popup={() => {
+                return (
+                  <ul className="optionPanelTrigger moreOptionPanelTrigger">
+                    {optionData.map(item => {
+                      const featureType = getFeatureStatus(projectId, item.featureId);
+
+                      if (
+                        _.includes(['handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) &&
+                        !featureType
+                      ) {
+                        return;
+                      }
+
+                      return (
+                        <li
+                          key={item.action}
+                          onClick={() => {
+                            if (featureType === '2') {
+                              this.setState({ moreVisible: false });
+                              buriedUpgradeVersionDialog(projectId, item.featureId);
+                              this.setState({ moreVisible: false });
+                              return;
+                            }
+                            this[item.action]();
+                            this.handleChangeVisible('moreVisible', true);
+                          }}
+                        >
+                          <Icon icon={item.icon} className="mRight12 Gray_9e" />
+                          {item.label}
+                          {item.featureId && featureType === '2' && <UpgradeIcon />}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              }}
+              popupAlign={{
+                offset: [-125, 5],
+                points: ['tr', 'tl'],
+              }}
             >
-              {_l('创建时间')}
-            </div>
-            <div className="flexColumn manageListOrder">
-              <Icon icon="arrow-up" className={cx({ ThemeColor3: order === 4 })} />
-              <Icon icon="arrow-down" className={cx({ ThemeColor3: order === 3 })} />
-            </div>
+              <span className="Gray_9e Font18 icon-more_horiz Hand mLeft25 ThemeHoverColor3"></span>
+            </Trigger>
           </div>
-          <div className="columnWidth">{_l('拥有者')}</div>
-          <div className="w50 mRight20" />
+
+          {maxCount > 0 && (_.isEmpty(version) || version.versionIdV2 === '1') && (
+            <div className="appManagementCount flexRow">
+              <span className="Gray_9e mRight5">
+                {md.global.Config.IsLocal ? _l('已创建工作表（含聚合表）') : _l('已创建工作表')}
+              </span>
+              <span className="bold">{count}</span>
+
+              <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
+              <span className="bold" style={{ color: maxCount - count > 10 ? '#151515' : '#f44336' }}>
+                {maxCount - count < 0 ? 0 : maxCount - count}
+              </span>
+
+              {(!md.global.Config.IsLocal ||
+                (md.global.Config.IsLocal && (_.isEmpty(version) || version.versionIdV2 === '1'))) && (
+                <Fragment>
+                  {licenseType === 1 ? (
+                    <MdLink
+                      className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                      to={`/admin/upgradeservice/${this.props.match.params.projectId}${
+                        vertionType ? '/' + vertionType : ''
+                      }`}
+                    >
+                      {_l('升级版本')}
+                    </MdLink>
+                  ) : (
+                    <a
+                      href="javascript:void(0);"
+                      className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                      onClick={() => {
+                        purchaseMethodFunc({ projectId: this.props.match.params.projectId });
+                      }}
+                    >
+                      {_l('购买付费版')}
+                    </a>
+                  )}
+                </Fragment>
+              )}
+            </div>
+          )}
+
+          <div className="manageListSearch flexRow">
+            <Dropdown
+              className="w180"
+              data={statusList}
+              value={status}
+              border
+              onChange={value => this.updateState({ status: value })}
+            />
+            {hasDataBase && (
+              <Select
+                className="w180 mdAntSelect mLeft15 Hand"
+                showSearch
+                defaultValue={dbInstanceId}
+                options={dataDBInstances}
+                onFocus={() => dataDBInstances.length === 2 && this.getDBInstances()}
+                filterOption={(inputValue, option) =>
+                  dataDBInstances
+                    .find(item => item.value === option.value)
+                    .label.toLowerCase()
+                    .indexOf(inputValue.toLowerCase()) > -1
+                }
+                suffixIcon={<Icon icon="arrow-down-border Font14" />}
+                notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+                onChange={value => this.updateState({ dbInstanceId: value })}
+              />
+            )}
+            <SelectUser
+              className="mdAntSelect w180 mLeft15"
+              placeholder={_l('搜索拥有者')}
+              projectId={projectId}
+              userInfo={userInfo}
+              changeData={data => this.updateState({ userInfo: data })}
+            />
+            <div className="flex" />
+            <Search
+              placeholder={_l('应用名称')}
+              handleChange={_.debounce(keyword => this.updateState({ keyword }), 500)}
+            />
+          </div>
+
+          <div className="flexRow manageList manageListHeader bold mTop16">
+            <div className="flex mLeft10 appName">{_l('应用名称')}</div>
+            {hasDataBase && <div className="columnWidth dataBase">{_l('所属数据库')}</div>}
+            <div className="columnWidth flexRow">
+              <div className="pointer ThemeHoverColor3 pRight12" style={{ zIndex: 1 }}>
+                {_l('工作表数')}
+              </div>
+            </div>
+            <div className="columnWidth terminal">{_l('可见终端')}</div>
+            <div className="columnWidth">{_l('状态')}</div>
+            <div className="columnWidth flexRow">
+              <div
+                className="pointer ThemeHoverColor3 pRight12"
+                style={{ zIndex: 1 }}
+                onClick={() => this.updateState({ order: order === 3 ? 4 : 3 })}
+              >
+                {_l('创建时间')}
+              </div>
+              <div className="flexColumn manageListOrder">
+                <Icon icon="arrow-up" className={cx({ ThemeColor3: order === 4 })} />
+                <Icon icon="arrow-down" className={cx({ ThemeColor3: order === 3 })} />
+              </div>
+            </div>
+            <div className="columnWidth">{_l('拥有者')}</div>
+            <div className="w50 mRight20" />
+          </div>
+
+          {loading && <LoadDiv className="mTop15" />}
+
+          <div className="flex flexColumn mTop16 overflowHidden">{this.renderList()}</div>
+          <div className="listContainer"></div>
+
+          <PaginationWrap
+            total={total}
+            pageIndex={pageIndex}
+            pageSize={50}
+            onChange={pageIndex => this.setState({ pageIndex }, this.getAppList)}
+          />
         </div>
-
-        {loading && <LoadDiv className="mTop15" />}
-
-        <div className="flex flexColumn mTop16 overflowHidden">{this.renderList()}</div>
-
-        <PaginationWrap
-          total={total}
-          pageIndex={pageIndex}
-          pageSize={50}
-          onChange={pageIndex => this.setState({ pageIndex }, this.getAppList)}
-        />
 
         <Drawer
           className="appLogDrawerContainer"

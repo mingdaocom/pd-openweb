@@ -559,7 +559,7 @@ export class CreateActions {
             value: {
               name,
               icon,
-              iconUrl: `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${icon}.svg`,
+              iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`,
               groupType,
             },
           });
@@ -652,7 +652,7 @@ export class CreateActions {
       })
       .then(res => {
         if (!res.data) {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(() => {
@@ -780,7 +780,7 @@ export class CreateActions {
             });
           }
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(() => {
@@ -798,7 +798,7 @@ export class CreateActions {
             this.loadDashboardInfo({ projectId });
           }
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(() => {

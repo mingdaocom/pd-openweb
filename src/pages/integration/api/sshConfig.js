@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var sshConfig = {
-
+const sshConfig = {
   /**
    * 添加新ssh配置
    *
@@ -134,7 +133,7 @@ var sshConfig = {
     base.ajaxOptions.url = base.server(options) + 'sshConfig/deleteSshConfig';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'sshConfigdeleteSshConfig', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default sshConfig;

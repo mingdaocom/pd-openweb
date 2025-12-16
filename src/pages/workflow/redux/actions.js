@@ -330,3 +330,78 @@ export const updateBranchSort = (processId, nodeId, flowIds) => (dispatch, getSt
       });
     });
 };
+
+/**
+ * 更新工作流测试状态 0: 进行中 1: 成功 2: 失败
+ */
+export const updateTestRunning = result => (dispatch, getState) => {
+  const { workflowTestRunning } = _.cloneDeep(getState().workflow);
+  const { processId, flowNodeId, preFlowNodeId, running, instanceId, exception, toolNode } = result;
+  const getToolId = ({ name }) => {
+    let toolNameReg = '';
+    const TOOL_REG_MAP = {
+      get_record_list: /^(.*?)(get_record_list)(.*?)$/,
+      create_record: /^(.*?)(create_record)(.*?)$/,
+      update_record: /^(.*?)(update_record)(.*?)$/,
+      get_record_pivot_data: /^(.*?)(get_record_pivot_data)(.*?)$/,
+      wf_pbp_: /^(.*?wf_pbp_)(.*?)$/,
+      wf_api_: /^(.*?wf_api_)(.*?)$/,
+      wf_email_: /^(.*?)(wf_email_)(.*?)$/,
+      wf_send_: /^(.*?)(wf_send_)(.*?)$/,
+    };
+
+    for (const [key, value] of Object.entries(TOOL_REG_MAP)) {
+      if (name.includes(key)) {
+        toolNameReg = value;
+      }
+    }
+
+    return name.replace(toolNameReg, '$2');
+  };
+
+  // 错误状态
+  if (exception || workflowTestRunning[`${processId}_${flowNodeId}`]?.status === 2) {
+    workflowTestRunning[`${processId}_${flowNodeId}`] = { status: 2, instanceId };
+
+    dispatch({
+      type: 'UPDATE_WORKFLOW_TEST_RUNNING',
+      data: workflowTestRunning,
+    });
+
+    return;
+  }
+
+  if (running) {
+    if (toolNode) {
+      workflowTestRunning[`${processId}_${flowNodeId}`] = {
+        ...workflowTestRunning[`${processId}_${flowNodeId}`],
+        toolName: getToolId(toolNode),
+      };
+      workflowTestRunning[`${processId}_${flowNodeId}_${getToolId(toolNode)}`] = { status: 0 };
+    } else {
+      workflowTestRunning[`${processId}_${flowNodeId}`] = { status: 0, instanceId };
+      workflowTestRunning[`${processId}_${preFlowNodeId}`] = { status: 1, instanceId };
+    }
+  } else {
+    if (toolNode) {
+      workflowTestRunning[`${processId}_${flowNodeId}_${getToolId(toolNode)}`] = { status: 1 };
+    } else {
+      workflowTestRunning[`${processId}_${flowNodeId}`] = { status: 1, instanceId };
+    }
+  }
+
+  dispatch({
+    type: 'UPDATE_WORKFLOW_TEST_RUNNING',
+    data: workflowTestRunning,
+  });
+};
+
+/**
+ * 清空工作流测试状态
+ */
+export const clearTestRunning = () => {
+  return {
+    type: 'CLEAR_WORKFLOW_TEST_RUNNING',
+    data: {},
+  };
+};

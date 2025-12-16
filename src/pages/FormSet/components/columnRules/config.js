@@ -52,6 +52,7 @@ export const ACTION_DISPLAY = [
     label: _l('只读所有字段'),
     warnText: _l('只读所有字段在记录保存后生效，生效后不允许用户直接编辑，但可以通过自定义动作和工作流进行填写'),
   },
+  { value: 9, label: _l('设置字段值') },
 ];
 
 export const SUBMIT_DISPLAY = [
@@ -190,6 +191,7 @@ export function getTextById(data, controls = [], actionType, from) {
             ? _l('%0 / %1', sectionNode.controlName, parentNode.controlName)
             : _.get(parentNode, 'controlName') || _l('字段已删除'),
         isDel: !parentNode,
+        ...(actionType === 9 ? { ..._.pick(controlsItem, ['type', 'value']) } : {}),
       });
     } else {
       // 子表、关联列表可编辑在父级已配置情况下不显示子集
@@ -565,7 +567,7 @@ export const filterDataRelationText = (dynamicSource = [], columns) => {
   if (dynamicSource.length <= 0) {
     data = '';
   } else {
-    dynamicSource.map(item => {
+    dynamicSource.forEach(item => {
       let list = [];
       let type = 1;
       let id = '';
@@ -627,7 +629,7 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
 
       const value =
         isSetting && item.dynamicSource && item.dynamicSource.length > 0
-          ? filterDataRelationText(item.dynamicSource, columns, sourceControlId)
+          ? filterDataRelationText(item.dynamicSource, columns)
           : filterText(conditionGroupType, item, control);
       dataList.push({
         id: item.controlId,
@@ -685,6 +687,8 @@ export function getActionError(value = {}) {
   } else if (type === 6) {
     // 错误提示，验证时错误信息
     return !message;
+  } else if (type === 9) {
+    return !controls.length || !controls.every(i => i.controlId && !_.isEmpty(safeParse(i.value || '{}')));
   } else {
     return !controls.length;
   }
@@ -713,7 +717,7 @@ export const getErrorControls = (controls = []) => {
   const newData = [];
   controls
     .map(i => (i.type === 52 ? i : { ...i, relationControls: [] }))
-    .map(i => {
+    .forEach(i => {
       if (i.type === 52) {
         const sectionChild = controls.filter(c => c.sectionId === i.controlId);
         newData.push({ ...i, relationControls: (sectionChild || []).filter(r => filterControl(r)) });
@@ -723,4 +727,15 @@ export const getErrorControls = (controls = []) => {
     });
 
   return newData.filter(i => !(i.type === 52 && _.isEmpty(i.relationControls)));
+};
+
+// 校验业务规则启用上限
+export const checkRuleEnableLimit = (data = []) => {
+  const MAX_ENABLE_LIMIT = 100;
+  const availableData = data.filter(i => !i.disabled);
+  if (availableData.length >= MAX_ENABLE_LIMIT) {
+    alert(_l('业务规则开启大于%0个', MAX_ENABLE_LIMIT), 3);
+    return false;
+  }
+  return true;
 };

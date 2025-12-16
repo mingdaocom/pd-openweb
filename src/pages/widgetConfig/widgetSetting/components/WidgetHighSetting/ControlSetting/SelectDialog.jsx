@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dropdown } from 'antd';
 import update from 'immutability-helper';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
 import { DropdownContentWrap } from '../../../../styled';
@@ -136,6 +137,93 @@ export default function SelectCountryDialog(props) {
               ))
             ) : (
               <div className="text Gray_bd">{type === 'allowData' ? _l('全部') : _l('请选择')}</div>
+            )}
+          </div>
+        </SelectInfoWrap>
+      </Dropdown>
+    </Dialog>
+  );
+}
+
+const SelectAreaCountryDropdown = ({ data, setData, selectableData, style }) => {
+  const [value, setValue] = useState('');
+  const filteredData = value
+    ? data.filter(item => (item.name || '').toLowerCase().includes(value.toLowerCase()))
+    : data;
+  return (
+    <DropdownContentWrap style={style}>
+      <div className="searchWrap" onClick={e => e.stopPropagation()}>
+        <i className="icon-search Font16 Gray_75"></i>
+        <input
+          autoFocus
+          value={value}
+          placeholder={_l('搜索')}
+          onChange={e => {
+            setValue(e.target.value);
+          }}
+        />
+      </div>
+      {filteredData.length > 0 ? (
+        <div className="countryContent">
+          {filteredData.map(item => {
+            return (
+              <div
+                key={item.id}
+                className="item"
+                onClick={e => {
+                  e.stopPropagation();
+                  if (!selectableData.some(id => id === item.id)) {
+                    setData(update(selectableData, { $push: [item.id] }));
+                  }
+                }}
+              >
+                <span className="countryName overflow_ellipsis">{item.name}</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="emptyText">{_l(value ? '暂无搜索结果' : _l('暂无可选项'))}</div>
+      )}
+    </DropdownContentWrap>
+  );
+};
+
+export function SelectAreaCountryDialog(props) {
+  const { title, data, onOk, onCancel } = props;
+  const [selectableData, setSelectData] = useState(props.selectableData || []);
+
+  return (
+    <Dialog title={title} visible onOk={() => onOk(selectableData)} onCancel={onCancel}>
+      <Dropdown
+        trigger={['click']}
+        overlay={<SelectAreaCountryDropdown data={data} setData={setSelectData} selectableData={selectableData} />}
+      >
+        <SelectInfoWrap>
+          <div className="countryList">
+            {selectableData.length > 0 ? (
+              selectableData.map((id, index) => {
+                const name = _.get(
+                  _.find(data, d => d.id === id),
+                  'name',
+                );
+                if (!name) return null;
+                return (
+                  <div key={id} className="countryItem">
+                    <span className="countryName overflow_ellipsis">{name}</span>
+                    <i
+                      className="icon-close"
+                      onClick={e => {
+                        e.stopPropagation();
+                        const nextData = update(selectableData, { $splice: [[index, 1]] });
+                        setSelectData(nextData);
+                      }}
+                    ></i>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text Gray_bd">{_l('请选择')}</div>
             )}
           </div>
         </SelectInfoWrap>

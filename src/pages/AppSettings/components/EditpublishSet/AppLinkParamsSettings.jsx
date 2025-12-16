@@ -4,7 +4,8 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const LinkParamSettings = styled.div`
   width: 324px;
@@ -71,7 +72,7 @@ export default function AppLinkParamsSettings(props) {
           <div className="flex ellipsis" title={appLinkUrl}>
             {appLinkUrl}
           </div>
-          <Tooltip popupPlacement="bottom" text={<span>{_l('新窗口打开')}</span>}>
+          <Tooltip placement="bottom" title={_l('新窗口打开')}>
             <span className="Font14 Gray_9d mLeft6 hoverText" onClick={() => window.open(appLinkUrl)}>
               <i className="icon icon-task-new-detail" />
             </span>

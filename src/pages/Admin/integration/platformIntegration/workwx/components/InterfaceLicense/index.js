@@ -287,7 +287,7 @@ export default class InterfaceLicense extends Component {
             <div className="headerItem">{_l('类型')}</div>
             <div className="headerItem">{_l('账号数量')}</div>
             <div className="headerItem">{_l('时长')}</div>
-            <div className="headerItem">{_l('金额')}</div>
+            <div className="headerItem TxtRight pRight20">{_l('金额')}</div>
             <div className="headerItem">{_l('状态')}</div>
             <div className="headerItem">{_l('下单时间')}</div>
             <div className="headerItem">{_l('下单人')}</div>
@@ -301,7 +301,7 @@ export default class InterfaceLicense extends Component {
                     <div className="bodyItem ellipsis">{orderTypes[item.orderType]}</div>
                     <div className="bodyItem ellipsis">{_l('%0个', item.accountCount)}</div>
                     <div className="bodyItem ellipsis">{_l('%0天', item.accountDuration)}</div>
-                    <div className="bodyItem ellipsis">{item.price}</div>
+                    <div className="bodyItem ellipsis TxtRight pRight20">{item.price}</div>
                     <div className="bodyItem ellipsis">{orderStatus[item.orderStatus]}</div>
                     <div className="bodyItem ellipsis">{moment(item.createTime).format('YYYY-MM-DD')}</div>
                     <div className="bodyItem ellipsis">{item.operatorName}</div>

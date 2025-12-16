@@ -1,10 +1,12 @@
 import React, { Fragment } from 'react';
+import { Popover } from 'antd';
 import copy from 'copy-to-clipboard';
 import { saveAs } from 'file-saver';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Tooltip } from 'ming-ui';
+import { Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { TextBlock } from 'worksheet/components/Basics';
 import SendToChat from './SendToChat';
 import './ShareUrl.less';
@@ -197,7 +199,7 @@ export default class ShareUrl extends React.Component {
           <span>{btn.text}</span>
         </SeparateDisplayButton>
       ) : (
-        <Tooltip key={index} autoCloseDelay={0} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
+        <Tooltip key={index} placement="bottom" title={btn.tip}>
           <Icon style={btn.style} theme={theme} className={btn.className} onClick={btn.onClick}>
             <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
           </Icon>
@@ -215,7 +217,7 @@ export default class ShareUrl extends React.Component {
       return !copyTip ? (
         renderCopyDom()
       ) : (
-        <Tooltip popupPlacement="bottom" autoCloseDelay={0} text={<span>{copyTip}</span>}>
+        <Tooltip placement="bottomLeft" title={copyTip}>
           {renderCopyDom()}
         </Tooltip>
       );
@@ -248,7 +250,7 @@ export default class ShareUrl extends React.Component {
                   {url}
                 </div>
                 {refreshShareUrl && (
-                  <Tooltip popupPlacement="bottom" text={<span>{_l('重新生成链接')}</span>}>
+                  <Tooltip placement="bottom" title={_l('重新生成链接')}>
                     <i
                       className="icon-refresh Font18 InlineBlock Hand Gray_9e LineHeight36 mLeft10"
                       onClick={() => this.handleRefreshShareUrl()}
@@ -256,7 +258,7 @@ export default class ShareUrl extends React.Component {
                   </Tooltip>
                 )}
                 {editUrl && (
-                  <Tooltip autoCloseDelay={0} popupPlacement="bottom" text={<span>{editTip}</span>}>
+                  <Tooltip placement="bottom" title={editTip}>
                     <i
                       className="icon-edit Font18 InlineBlock Hand Gray_9e LineHeight36"
                       onClick={e => {
@@ -269,7 +271,7 @@ export default class ShareUrl extends React.Component {
               </React.Fragment>
             )}
             {inputBtns.map((btn, index) => (
-              <Tooltip key={index} autoCloseDelay={0} popupPlacement="bottom" text={<span>{btn.tip}</span>}>
+              <Tooltip key={index} placement="bottom" title={btn.tip}>
                 <InputIcon theme={theme} onClick={btn.onClick}>
                   <i style={btn.iconStyle} className={`icon-${btn.icon}`}></i>
                 </InputIcon>
@@ -286,32 +288,30 @@ export default class ShareUrl extends React.Component {
                   <span className="text">{_l('复制')}</span>
                 </TextIcon>
               ) : (
-                <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
+                <Tooltip placement="bottom" title={copyTip}>
                   <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
                     <span className="text">{_l('复制')}</span>
                   </TextIcon>
                 </Tooltip>
               )
             ) : (
-              <Tooltip popupPlacement="bottom" text={<span>{_l('复制链接')}</span>}>
+              <Tooltip placement="bottom" title={_l('复制链接')}>
                 <Icon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
                   <i className="icon-content-copy"></i>
                 </Icon>
               </Tooltip>
             )}
             {qrVisible && (
-              <Tooltip
-                autoCloseDelay={0}
-                themeColor="white"
-                tooltipClass="qrHoverPanel"
-                popupPlacement="bottomRight"
-                popupAlign={{
+              <Popover
+                overlayClassName="qrHoverPanel"
+                placement="bottomRight"
+                align={{
                   overflow: { adjustX: true, adjustY: true },
                 }}
-                text={
+                content={
                   <React.Fragment>
                     <img src={qrurl} />
-                    <p className="ThemeColor3">
+                    <p className="ThemeColor3 pBottom8">
                       <span
                         className="Hand"
                         onClick={() => {
@@ -334,10 +334,11 @@ export default class ShareUrl extends React.Component {
                     <i className="icon-qr_code Font22 LineHeight36"></i>
                   </Icon>
                 )}
-              </Tooltip>
+              </Popover>
             )}
+
             {allowSendToChat && !md.global.SysSettings.forbidSuites.includes('6') && (
-              <Tooltip popupPlacement="bottom" text={<span>{_l('发消息')}</span>}>
+              <Tooltip placement="bottom" title={_l('发消息')}>
                 <Icon
                   style={chatVisible ? { borderColor: '#1677ff' } : {}}
                   theme={theme}

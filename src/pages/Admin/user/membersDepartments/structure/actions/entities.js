@@ -1,36 +1,34 @@
-﻿import { getCurrentProject } from 'src/utils/project';
+﻿import _ from 'lodash';
+import departmentController from 'src/api/department';
 import Config from '../../../../config';
-import { COMPANY_DEPARMENTID, PAGE_SIZE } from '../constant';
+import { PAGE_SIZE } from '../constant';
 import { CALL_API } from '../middleware/api';
+import { getParentNode, getParentsId, updateTreeData } from '../modules/util';
 
-// async actions and action creator
-export const DEPARTMENT_REQUEST = 'DEPARTMENT_REQUEST';
-export const DEPARTMENT_SUCCESS = 'DEPARTMENT_SUCCESS';
-export const DEPARTMENT_FAILURE = 'DEPARTMENT_FAILURE';
 /**
- * fetch departments
- * relies on middleware `api`
+ * 根据部门父Id获取子部门,departmentId为null表示父部门是网络
+ * @param {*} departmentId 部门id
+ * @param {*} pageIndex 页码
+ * @param {*} afterRequest 回调函数
+ * @returns
  */
-const fetchDepartments = (departmentId, pageIndex, afterRequest) => {
-  const params = { departmentId, returnCount: true, pageIndex, pageSize: 100 };
-  return {
+
+export const loadDepartments = (departmentId, pageIndex, afterRequest) => (dispatch, getState) => {
+  const { showDisabledDepartment } = getState().entities;
+  const params = {
+    projectId: Config.projectId,
     departmentId,
-    [CALL_API]: {
-      types: [DEPARTMENT_REQUEST, DEPARTMENT_SUCCESS, DEPARTMENT_FAILURE],
-      params,
-      afterRequest,
-    },
+    returnCount: true,
+    pageIndex,
+    pageSize: 100,
+    includeDisabled: showDisabledDepartment,
   };
-};
-
-/**
- * fetch departments beforehand
- * relies on redux-thunk
- */
-
-export const loadDepartments = (departmentId, pageIndex, afterRequest) => dispatch => {
-  // TODO: check fields if necessary
-  return dispatch(fetchDepartments(departmentId, pageIndex, afterRequest));
+  departmentController.pagedSubDepartments(params).then(res => {
+    if (res) {
+      dispatch(updateNewDepartments(res));
+      _.isFunction(afterRequest) && afterRequest();
+    }
+  });
 };
 
 export const DEPARTMENT_UPDATE = 'DEPARTMENT_UPDATE';
@@ -74,33 +72,7 @@ const fetchUser = (departmentId, pageIndex) => {
  * relies on redux-thunk
  */
 export const loadUsers = (departmentId, pageIndex) => dispatch => {
-  // TODO: check fields if necessary
   return dispatch(fetchUser(departmentId, pageIndex || 1));
-};
-
-// sync actions and action creator
-
-export const INIT_ROOT = 'INIT_ROOT';
-/**
- * initRoot Creator
- * @param departmentId
- * @returns {{type: string, response: *[]}}
- */
-export const initRoot = departmentId => {
-  // 获取网络信息
-  const departmentName = getCurrentProject(Config.projectId, true).companyName;
-  return {
-    type: INIT_ROOT,
-    response: [
-      {
-        departmentName,
-        departmentId,
-        isExpired: true,
-        collapsed: false, // 默认展开
-        haveSubDepartment: true, // 默认有子部门
-      },
-    ],
-  };
 };
 
 export const DEPARTMENT_TOGGLE = 'DEPARTMENT_TOGGLE';
@@ -114,18 +86,113 @@ export const toggle = departmentId => ({
   departmentId,
 });
 
-export const DELETE_DEPARTMENT = 'DELETE_DEPARTMENT';
 /**
- * delete department
+ * 更新newDepartments
+ * @param {*} newDepartments
+ * @returns
+ */
+export const updateNewDepartments = newDepartments => dispatch => {
+  dispatch({
+    type: 'UPDATE_NEW_DEPARTMENT',
+    newDepartments,
+  });
+};
+
+/**
+ * 删除部门
  * @param departmentId
  * @param parentId
  */
-export const deleteDepartment = ({ departmentId, parentId, expandedKeys }) => ({
-  type: DELETE_DEPARTMENT,
-  departmentId,
-  parentId,
-  expandedKeys,
-});
+export const deleteDepartment = departmentId => (dispatch, getState) => {
+  const { newDepartments } = getState().entities;
+  const parentNode = getParentNode(newDepartments, departmentId);
+  departmentController
+    .deleteDepartments({
+      projectId: Config.projectId,
+      departmentId,
+    })
+    .then(res => {
+      if (res === 1) {
+        const updatedDepartments = updateTreeData({ type: 'delete', departments: newDepartments, departmentId });
+        dispatch(updateNewDepartments(updatedDepartments));
+        if (parentNode) {
+          dispatch({ type: 'UPDATE_CURSOR', departmentId: parentNode.departmentId });
+          dispatch(loadUsers(parentNode.departmentId, 1));
+        } else {
+          dispatch({ type: 'UPDATE_CURSOR', departmentId: '' });
+          dispatch(loadAllUsers(Config.projectId, 1));
+        }
+        alert(_l('删除成功'));
+      } else if (res === 3) {
+        alert(_l('部门存在成员，无法删除'), 3);
+      } else if (res === 2) {
+        alert(_l('部门存在子部门，无法删除'), 3);
+      } else {
+        alert(_l('删除失败'), 2);
+      }
+    });
+};
+
+/**
+ * 部门拖拽
+ * @param {*} movingDepartmentId
+ * @param {*} sortedDepartmentIds
+ * @param {*} moveToParentId
+ */
+export const sortDepartmentsFn =
+  (data, movingDepartmentId, sortedDepartmentIds, moveToParentId, callback = () => {}) =>
+  dispatch => {
+    departmentController
+      .moveDepartment({
+        projectId: Config.projectId, //网络id
+        sortedDepartmentIds: sortedDepartmentIds, // 排好序的 部门Ids
+        moveToParentId: moveToParentId, //拖入的 上级部门Id
+        movingDepartmentId: movingDepartmentId, //被拖拽的 部门Id
+      })
+      .then(res => {
+        if (res) {
+          const updatedDepartments = updateTreeData({
+            type: 'edit',
+            departments: data,
+            departmentId: movingDepartmentId,
+            parentId: moveToParentId,
+          });
+          dispatch(updateNewDepartments(updatedDepartments));
+          callback(updatedDepartments);
+          alert(_l('调整成功'));
+        } else {
+          alert(_l('调整失败'), 2);
+        }
+      });
+  };
+
+/**
+ * 部门停用/启用
+ */
+export const disabledAndEnabledDepartments = (departmentId, disabled, parentId) => (dispatch, getState) => {
+  const { newDepartments } = getState().entities;
+  const request = disabled ? departmentController.enabledDepartment : departmentController.disabledDepartments;
+
+  request({
+    projectId: Config.projectId,
+    departmentId,
+  }).then(res => {
+    if (res) {
+      const updatedDepartments = updateTreeData({
+        type: 'updateDisabled',
+        departments: newDepartments,
+        departmentId,
+        parentId,
+        updateDataInfo: { disabled: !disabled },
+      });
+
+      dispatch(updateNewDepartments(updatedDepartments));
+      alert(disabled ? _l('恢复成功') : _l('停用成功'));
+    } else {
+      alert(disabled ? _l('恢复失败', 2) : _l('停用失败', 2));
+    }
+  });
+};
 
 export const EDIT_DEPARTMENT = 'EDIT_DEPARTMENT';
 /**
@@ -139,10 +206,6 @@ export const editDepartment = ({ newDepartments, expandedKeys }) => ({
   expandedKeys,
 });
 
-export const FULL_TREE_REQUEST = 'FULL_TREE_REQUEST';
-export const FULL_TREE_SUCCESS = 'FULL_TREE_SUCCESS';
-export const FULL_TREE_FAILURE = 'FULL_TREE_FAILURE';
-
 /**
  * 获取root到该部门的树状结构
  * @param departmentId
@@ -150,22 +213,27 @@ export const FULL_TREE_FAILURE = 'FULL_TREE_FAILURE';
  * @param afterRequest
  */
 export const getFullTree =
-  ({ departmentId, collapseAll = false, expandedKeys = [], afterRequest, isGetAll }) =>
+  ({ departmentId, isGetAll, parentId, searchValue }) =>
   dispatch => {
-    return dispatch({
-      departmentId: COMPANY_DEPARMENTID,
-      curDepartmentId: departmentId,
-      collapseAll,
-      expandedKeys,
+    const request = isGetAll
+      ? departmentController.getProjectDepartmentFullTreeByDepartmentId
+      : departmentController.getOneDepartmentFullTree;
+
+    request({
+      projectId: Config.projectId,
+      departmentId,
       isGetAll,
-      [CALL_API]: {
-        types: [FULL_TREE_REQUEST, FULL_TREE_SUCCESS, FULL_TREE_FAILURE],
-        params: {
-          departmentId,
-          isGetAll,
-        },
-        afterRequest,
-      },
+    }).then(res => {
+      const updatedDepartments = updateTreeData({ type: 'create', departments: res, departmentId, parentId });
+      if (searchValue) {
+        dispatch({ type: 'UPDATE_SEARCH_VALUYE', data: searchValue });
+        dispatch({ type: 'UPDATE_TYPE_CURSOR', typeCursor: 0 }); //设置选中的部门
+        dispatch({ type: 'UPDATE_TYPE', typeNum: 0 });
+      }
+      dispatch(updateNewDepartments(updatedDepartments));
+      dispatch({ type: 'UPDATE_CURSOR', departmentId });
+      dispatch({ type: 'EXPANDED_KEYS_UPDATE', expandedKeys: getParentsId(updatedDepartments, departmentId) });
+      dispatch(loadUsers(departmentId));
     });
   };
 
@@ -197,7 +265,6 @@ const fetchApprovalUser = (projectId, pageIndex, userStatus) => {
  * relies on redux-thunk
  */
 export const loadApprovalUsers = (projectId, pageIndex) => (dispatch, getState) => {
-  // TODO: check fields if necessary
   const { userStatus } = getState().current;
   return dispatch(fetchApprovalUser(projectId, pageIndex || 1, userStatus));
 };
@@ -238,7 +305,6 @@ const fetchInactiveUser = (
  * relies on redux-thunk
  */
 export const loadInactiveUsers = (projectId, pageIndex) => dispatch => {
-  // TODO: check fields if necessary
   return dispatch(fetchInactiveUser(projectId, pageIndex || 1));
 };
 
@@ -277,7 +343,6 @@ const fetchAllUser = (projectId, pageIndex) => {
  * relies on redux-thunk
  */
 export const loadAllUsers = (projectId, pageIndex) => dispatch => {
-  // TODO: check fields if necessary
   return dispatch(fetchAllUser(projectId, pageIndex || 1));
 };
 
@@ -293,3 +358,11 @@ export const updateImportExportResult = importExportResult => ({
   type: 'UPDATE_IMPORT_EXPORT_RESULT',
   importExportResult,
 });
+
+// 显示停用部门
+export const handleShowDisabledDepartment = flag => dispatch => {
+  localStorage.setItem('showDisabledDepartment', flag);
+  dispatch({ type: 'UPDATE_SHOW_DISABLED_DEPARTMENT', showDisabledDepartment: flag });
+  dispatch(expandedKeysUpdate([]));
+  dispatch(loadDepartments('', 1));
+};

@@ -2,6 +2,7 @@
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import GanttDialog from '../../component/ganttDialog';
@@ -214,13 +215,11 @@ class FolderToolbar extends Component {
           })}
         </ul>
 
-        <span
-          className="folderGanttLevelBtn pointer"
-          data-tip={_l('展开层级')}
-          onMouseDown={evt => this.showTaskLevel(evt)}
-        >
-          <i className="icon-task-show-tree Font15" />
-        </span>
+        <Tooltip title={_l('展开层级')}>
+          <span className="folderGanttLevelBtn pointer" onMouseDown={evt => this.showTaskLevel(evt)}>
+            <i className="icon-task-show-tree Font15" />
+          </span>
+        </Tooltip>
 
         {this.state.showLevel ? (
           <ClickAwayable

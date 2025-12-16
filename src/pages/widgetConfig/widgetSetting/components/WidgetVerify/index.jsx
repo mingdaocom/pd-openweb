@@ -1,8 +1,8 @@
 import React from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { canAsUniqueWidget, getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { NumberRange, SettingItem } from '../../../styled';
 import AttachmentVerify from './AttachmentVerify';
@@ -112,8 +112,7 @@ export default function WidgetVerify(props) {
               <span>
                 {_l('写入时强制校验必填')}
                 <Tooltip
-                  placement={'bottom'}
-                  autoCloseDelay={0}
+                  placement="bottom"
                   title={_l(
                     '忽略业务规则的配置，在所有写入数据的场景中校验必填，包括工作流、批量导入、API写入、数据集成同步等',
                   )}
@@ -132,8 +131,7 @@ export default function WidgetVerify(props) {
                 {_l('不允许重复输入')}
                 {!isSubList && (
                   <Tooltip
-                    placement={'bottom'}
-                    autoCloseDelay={0}
+                    placement="bottom"
                     title={
                       <span>
                         {_l(
@@ -230,11 +228,7 @@ export default function WidgetVerify(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { otherrequired: checked ? '0' : '1' }))}
           >
             <span>{_l('选择“%0”时，补充信息必填', otherText)}</span>
-            <Tooltip
-              placement={'bottom'}
-              autoCloseDelay={0}
-              title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}
-            >
+            <Tooltip placement="bottom" title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}>
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
@@ -248,11 +242,7 @@ export default function WidgetVerify(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { chooseothertype: checked ? '0' : '1' }))}
           >
             <span>{_l('选择“%0”时，不能选择常规选项', otherText)}</span>
-            <Tooltip
-              placement={'bottom'}
-              autoCloseDelay={0}
-              title={_l('勾选后，选择“其他”时清空常规选项，选择常规选项时清空“其他”。')}
-            >
+            <Tooltip placement="bottom" title={_l('勾选后，选择“其他”时清空常规选项，选择常规选项时清空“其他”。')}>
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
             </Tooltip>
           </Checkbox>

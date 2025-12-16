@@ -42,6 +42,8 @@ class SearchMember extends Component {
       result: [],
       flattenResult: [],
       currentIndex: -1,
+      accountsVisible: true,
+      groupsVisible: true,
     };
   }
   inputRef = React.createRef();
@@ -64,7 +66,7 @@ class SearchMember extends Component {
     const { value } = this.state;
     this.setState({ loading: true });
     this.ajax && this.ajax.abort();
-    this.ajax = ajax.getAllAddressbookByKeywords(value);
+    this.ajax = ajax.getAllAddressbookByKeywords(value.trim());
     this.ajax.then(result => {
       this.setState({
         loading: false,
@@ -75,7 +77,7 @@ class SearchMember extends Component {
   };
   adjustViewport(direction) {
     const { flattenResult, currentIndex } = this.state;
-    const { viewport } = this.scrollView.getScrollInfo();
+    const { viewport } = this.scrollView && this.scrollView.getScrollInfo();
     const $scrollViewEl = $(viewport);
     const current = flattenResult[currentIndex] || {};
     const id = current.accountId ? (current.user ? current.user.userId : current.accountId) : current.groupId;
@@ -84,21 +86,23 @@ class SearchMember extends Component {
     if (!viewport || currentIndex === -1) {
       return;
     }
+    const position = $currentEl.position() || {};
     if (direction === 'up') {
-      if ($currentEl.position().top < 0 || $currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
+      if (position.top < 0 || position.top + $currentEl.height() >= $scrollViewEl.height()) {
         this.scrollView.scrollToElement($currentEl[0]);
       }
     } else if (direction === 'down') {
-      if ($currentEl.position().top + $currentEl.height() >= $scrollViewEl.height()) {
+      if (position.top + $currentEl.height() >= $scrollViewEl.height()) {
         const { scrollTop, scrollHeight, maxScrollTop } = this.scrollView.getScrollInfo() || {};
-        const bottom = scrollHeight - scrollTop - $currentEl.position().top - $currentEl.height();
+        const bottom = scrollHeight - scrollTop - position.top - $currentEl.height();
         this.scrollView.scrollTo({ top: maxScrollTop - bottom });
-      } else if ($currentEl.position().top < 0) {
+      } else if (position.top < 0) {
         this.scrollView.scrollToElement($currentEl[0]);
       }
     }
   }
   handleChange = _.debounce(value => {
+    if (!value.trim()) return;
     this.setState(
       {
         value,
@@ -200,27 +204,41 @@ class SearchMember extends Component {
     );
   }
   renderProject() {
-    const { result, loading, flattenResult, currentIndex } = this.state;
+    const { result, loading, flattenResult, currentIndex, accountsVisible, groupsVisible } = this.state;
     const currentResult = flattenResult[currentIndex] || {};
     const count = result.groups.list.length + result.accounts.list.length;
     return (
       <div className="content">
         {!!result.accounts.list.length && (
           <div>
-            <div className="project-container-head bold">
-              {_l('联系人')}
-              <span className="mLeft5 ThemeColor">{result.accounts.list.length}</span>
+            <div
+              className="project-container-head flexRow alignItemsCenter"
+              onClick={() => this.setState({ accountsVisible: !accountsVisible })}
+            >
+              <div className="flex bold">
+                {_l('联系人')}
+                <span className="mLeft5 ThemeColor">{result.accounts.list.length}</span>
+              </div>
+              <Icon icon={accountsVisible ? 'arrow-up-border' : 'arrow-down-border'} className="Gray_75 Font16" />
             </div>
-            <div>{result.accounts.list.map(account => this.renderAccount(account, currentResult))}</div>
+            {accountsVisible && (
+              <div>{result.accounts.list.map(account => this.renderAccount(account, currentResult))}</div>
+            )}
           </div>
         )}
         {!!result.groups.list.length && (
           <div>
-            <div className="project-container-head bold">
-              {_l('聊天/群组')}
-              <span className="mLeft5 ThemeColor">{result.groups.list.length}</span>
+            <div
+              className="project-container-head flexRow alignItemsCenter"
+              onClick={() => this.setState({ groupsVisible: !groupsVisible })}
+            >
+              <div className="flex bold">
+                {_l('聊天/群组')}
+                <span className="mLeft5 ThemeColor">{result.groups.list.length}</span>
+              </div>
+              <Icon icon={groupsVisible ? 'arrow-up-border' : 'arrow-down-border'} className="Gray_75 Font16" />
             </div>
-            <div>{result.groups.list.map(group => this.renderGroup(group, currentResult))}</div>
+            {groupsVisible && <div>{result.groups.list.map(group => this.renderGroup(group, currentResult))}</div>}
           </div>
         )}
         {!loading && !count ? (
@@ -266,14 +284,14 @@ class SearchMember extends Component {
             placeholder={_l('搜索用户 / 群组')}
             value={value}
             onChange={event => {
-              const value = event.target.value.trim();
+              const value = event.target.value;
               this.setState({ value }, () => {
                 this.handleChange(value);
               });
             }}
             onKeyDown={this.handleKeyDown}
           />
-          {value && (
+          {value.trim() && (
             <Icon
               icon="cancel"
               className="Gray_75 Font20 pointer Absolute"
@@ -281,7 +299,7 @@ class SearchMember extends Component {
             />
           )}
         </SearchWrap>
-        {value && this.renderContent()}
+        {value.trim() && this.renderContent()}
       </Fragment>
     );
   }

@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -357,7 +358,7 @@ export default function NavShow(props) {
             />
             <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“全部”项')}</div>
           </SwitchStyle>
-          <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+          <Tooltip title={_l('重命名')}>
             <i
               className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
               onClick={() => {
@@ -397,7 +398,7 @@ export default function NavShow(props) {
             />
             <div className="switchText InlineBlock Normal mLeft12 mTop8">{_l('显示“空”项')}</div>
           </SwitchStyle>
-          <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+          <Tooltip title={_l('重命名')}>
             <i
               className="icon-rename_input Font18 mLeft3 TxtMiddle Hand"
               onClick={() => {

@@ -100,7 +100,7 @@ export default class Date extends React.Component {
     this.state.search && this.setState({ search: '', keywords: '' });
 
     // 必须选择最后一级
-    if (anylevel === '1' && !last.last && (cell.enumDefault === 1 ? true : cell.enumDefault2 > index)) {
+    if (anylevel === '1' && !last.last && cell.enumDefault2 < index) {
       return;
     }
 
@@ -163,12 +163,15 @@ export default class Date extends React.Component {
     const isMobile = browserIsMobile();
     const anylevel = _.get(cell, 'advancedSetting.anylevel');
     const chooserange = _.get(cell, 'advancedSetting.chooserange');
+    const commcountries = _.get(cell, 'advancedSetting.commcountries');
 
     return (
       <CityPicker
         search={keywords}
         popupVisible={isediting}
+        selectCode={tempValue ? safeParse(tempValue).code : ''}
         chooserange={chooserange}
+        commcountries={commcountries}
         hasContentContainer={false}
         popupClassName="filterTrigger cellControlAreaPopup cellNeedFocus"
         defaultValue={[]}

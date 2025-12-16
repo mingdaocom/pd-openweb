@@ -1,0 +1,115 @@
+.customFormRelationList {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+
+  & > li {
+    display: flex;
+    height: 36px;
+    align-items: center;
+    border-radius: 3px;
+    box-shadow:
+      rgba(0, 0, 0, 0.12) 0px 1px 4px 0px,
+      rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
+    padding: 0 8px 0 11px;
+    margin: 10px 0;
+    background: var(--color-background-primary);
+    position: relative;
+    &:after {
+      content: '';
+      display: block;
+      height: 0;
+      clear: both;
+    }
+    &:last-child {
+      margin-bottom: 5px;
+    }
+    &:hover {
+      box-shadow:
+        rgba(0, 0, 0, 0.12) 0px 4px 12px 0px,
+        rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
+    }
+
+    & > .type-icon {
+      width: 18px;
+      height: 20px;
+      padding: 8px 9px 8px 0;
+      box-sizing: initial;
+      & > i {
+        display: block;
+        width: 18px;
+        height: 20px;
+        font-size: 16px;
+        line-height: 20px;
+        text-align: center;
+        color: var(--color-text-tertiary);
+      }
+    }
+
+    & > a {
+      flex: 1;
+      display: flex;
+      box-sizing: border-box;
+      height: 36px;
+      padding: 8px 11px;
+      padding-left: 0;
+      font-size: 14px;
+      line-height: 20px;
+      text-decoration: none;
+      color: var(--color-text-primary);
+      overflow: hidden;
+      & > span {
+        display: block;
+        height: 20px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        &.link-name {
+          flex: 1;
+        }
+        &.text-a,
+        &.text-b {
+          max-width: 40%;
+          padding-left: 16px;
+          box-sizing: border-box;
+          color: var(--color-text-primary) !important;
+        }
+      }
+    }
+
+    & > .user-img {
+      width: 24px;
+      height: 24px;
+      padding: 6px;
+      float: right;
+      box-sizing: initial;
+
+      img {
+        display: block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+      }
+    }
+
+    & > .Icon {
+      display: none;
+      position: absolute;
+      cursor: pointer;
+      line-height: 1em;
+      top: -11px;
+      right: -10px;
+      font-size: 20px;
+      color: var(--color-text-secondary);
+      &:hover {
+        color: #515151;
+      }
+    }
+    &:hover {
+      background-color: #fcfcfc;
+      .Icon {
+        display: inline-block;
+      }
+    }
+  }
+}

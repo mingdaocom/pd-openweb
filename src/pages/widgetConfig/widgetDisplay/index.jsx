@@ -24,5 +24,9 @@ const DisplayWrap = styled.div`
 `;
 export default function WidgetPreview(props) {
   const { getLoading } = props;
-  return <DisplayWrap id="widgetConfigDisplayArea">{getLoading ? <LoadDiv /> : <DisplayRow {...props} />}</DisplayWrap>;
+  return (
+    <DisplayWrap id="widgetConfigDisplayArea">
+      {getLoading ? <LoadDiv /> : <DisplayRow {...props} showCreateByMingo />}
+    </DisplayWrap>
+  );
 }

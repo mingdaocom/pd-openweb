@@ -7,6 +7,7 @@ import { match } from 'path-to-regexp';
 import { Button, Dialog, LoadDiv, Qr } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
 import preall from 'src/common/preall';
+import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import PayErrorIcon from '../components/PayErrorIcon';
@@ -249,8 +250,20 @@ export default class OrderPay extends Component {
   // 成功、超时等状态
   renderPayStatus = () => {
     const { orderInfo, errorMessage } = this.state;
-    const { description, amount, payOrderType, paidTime, createTime, shortName, merchantOrderId, orderId, msg } =
-      orderInfo;
+    const {
+      description,
+      amount,
+      payOrderType,
+      paidTime,
+      createTime,
+      shortName,
+      merchantOrderId,
+      orderId,
+      msg,
+      invoiceStatus,
+      isOpenInvoice,
+      invoiceId,
+    } = orderInfo;
     const orderStatus = errorMessage || msg ? -1 : this.state.orderStatus;
     const { text, icon, color } = getOrderStatusInfo(msg || errorMessage ? -1 : orderStatus, msg || errorMessage);
     const isMobile = browserIsMobile();
@@ -315,6 +328,14 @@ export default class OrderPay extends Component {
                   </div>
                 </Fragment>
               )}
+
+              <ApplyInvoiceBtn
+                className="invoiceBtn"
+                orderInfo={{ orderId, orderStatus, amount }}
+                isOpenInvoice={isOpenInvoice}
+                invoiceStatus={invoiceStatus}
+                invoiceId={invoiceId}
+              />
             </Fragment>
           )}
         </div>

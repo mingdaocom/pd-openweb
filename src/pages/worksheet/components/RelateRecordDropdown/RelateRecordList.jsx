@@ -334,6 +334,7 @@ export default class RelateRecordList extends React.PureComponent {
       showCoverAndControls,
       staticRecords,
       prefixRecords = [],
+      ignoreRowIds = [],
       onItemClick,
       allowNewRecord,
       onNewRecord,
@@ -494,6 +495,7 @@ export default class RelateRecordList extends React.PureComponent {
                     parentWorksheetId: parentWorksheetId,
                     showControls: showControls,
                     filterRowIds: selectedIds,
+                    ignoreRowIds,
                     onOk: records => {
                       onChange(records);
                     },

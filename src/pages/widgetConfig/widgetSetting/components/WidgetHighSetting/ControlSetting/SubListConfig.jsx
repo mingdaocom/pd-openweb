@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 
 export default function SubListConfig(props) {
@@ -24,7 +24,7 @@ export default function SubListConfig(props) {
             )
           }
         >
-          <Tooltip popupPlacement="bottom" title={<span>{_l('在表单中显示子表的数量')}</span>}>
+          <Tooltip placement="bottom" title={_l('在表单中显示子表的数量')}>
             <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
           </Tooltip>
         </Checkbox>
@@ -46,8 +46,7 @@ export default function SubListConfig(props) {
             }}
           >
             <Tooltip
-              popupPlacement="bottom"
-              autoCloseDelay={0}
+              placement="bottom"
               title={
                 <span>
                   {_l(

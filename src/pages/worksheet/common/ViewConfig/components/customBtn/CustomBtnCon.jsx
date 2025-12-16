@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, RadioGroup, SortableList, SvgIcon, Tooltip } from 'ming-ui';
+import { Dialog, Icon, RadioGroup, SortableList, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import CustomBtnList from './CustomBtnList.jsx';
 import './CustomBtn.less';
@@ -38,11 +39,7 @@ const Item = ({
       >
         <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
           {disable ? (
-            <Tooltip
-              placement="bottom"
-              autoCloseDelay={0}
-              text={<span>{_l('批量操作的按钮不支持关联形态表单填写')}</span>}
-            >
+            <Tooltip placement="bottom" title={_l('批量操作的按钮不支持关联形态表单填写')}>
               <Icon icon={'error1'} style={{ color: 'red' }} className={cx('mRight12 Font18')} />
             </Tooltip>
           ) : !!iconUrl && !!icon && icon.endsWith('_svg') ? (

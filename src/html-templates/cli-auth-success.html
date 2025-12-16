@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
     <head>
         <meta charset="UTF-8" />
@@ -27,6 +27,7 @@
             }
             .flex {
                 display: flex;
+                flex: none !important;
             }
             .flex-1 {
                 flex: 1;
@@ -80,25 +81,6 @@
                 <div class="m-top30">您可以关闭此窗口了</div>
             </div>
         </div>
-        <script>
-            var accountId;
-            fetch('/api/Global/GetGlobalMeta', {
-                headers: {
-                    'content-type': 'application/json',
-                },
-                method: 'POST',
-                body: '{}',
-            })
-                .then(res => res.json())
-                .then(res => {
-                    try {
-                        accountId = res.data['md.global'].Account.accountId;
-                        console.log(res.data['md.global'].Account);
-                    } catch (err) {
-                        console.log(err);
-                        location.href = '/login?ReturnUrl=' + encodeURIComponent(location.href);
-                    }
-                });
-        </script>
+        <script src="webpack[single]?src/pages/Mdye/AuthSuccess"></script>
     </body>
 </html>

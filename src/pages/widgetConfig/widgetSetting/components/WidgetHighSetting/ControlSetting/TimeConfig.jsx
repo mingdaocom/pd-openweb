@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { Dropdown, Tooltip } from 'antd';
+import { Dropdown } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DropdownContent, DropdownPlaceholder } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import TimeInput from '../../DynamicDefaultValue/inputTypes/TimeInput.jsx';
@@ -83,8 +84,7 @@ export default function TimeConfig(props) {
         >
           <span>{_l('预设分钟间隔')}</span>
           <Tooltip
-            placement={'bottom'}
-            autoCloseDelay={0}
+            placement="bottom"
             title={_l('用于控制时间选择器上的分钟按多少间隔显示，但依然可手动输入任意分钟数')}
           >
             <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>

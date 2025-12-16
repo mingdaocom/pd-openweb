@@ -276,14 +276,22 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   }
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {
-    return _.includes([DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)
+    return _.includes(
+      [DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.SEARCH_WORKSHEET, DYNAMIC_FROM_MODE.RULES],
+      from,
+    )
       ? _.filter(controls, item => _.includes([27], item.type))
       : _.filter(controls, filterFn);
   }
   // 默认值支持成员，选择范围不支持成员
   if (_.includes([48], type)) {
     return _.includes(
-      [DYNAMIC_FROM_MODE.ORG_CONFIG, DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.SEARCH_WORKSHEET],
+      [
+        DYNAMIC_FROM_MODE.ORG_CONFIG,
+        DYNAMIC_FROM_MODE.CUSTOM_EVENT,
+        DYNAMIC_FROM_MODE.SEARCH_WORKSHEET,
+        DYNAMIC_FROM_MODE.RULES,
+      ],
       from,
     )
       ? _.filter(controls, item => _.includes([48], item.type))
@@ -351,7 +359,7 @@ const MAP_FILTER = {
   // 文本
   2: item => _.includes([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 28, 36, 46], item.type),
   // 数值
-  6: item => _.includes([6, 8, 9, 10, 11, 28, 36], item.type) || relateSheetFiledIsNumber(item),
+  6: item => _.includes([2, 6, 8, 9, 10, 11, 28, 36], item.type) || relateSheetFiledIsNumber(item),
   // 日期
   16: item => _.includes(CAN_AS_DATE_TIME_DYNAMIC_FIELD, item.type) || isFormulaResultAsDateTime(item),
   // 人员

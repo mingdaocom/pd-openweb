@@ -141,7 +141,7 @@ class EditPrint extends React.Component {
       init: {
         BeforeUpload: (up, file) => {
           if (RegExpValidator.getExtOfFileName(file.name).toLocaleLowerCase() !== SUFFIX[fileType]) {
-            alert(_l('上传失败，文件错误'), 3, 1000);
+            alert(_l('上传失败，文件错误'), 3);
             return false;
           }
           this.setState({
@@ -168,7 +168,7 @@ class EditPrint extends React.Component {
               loading: false,
               suc: true,
               loadPer: file.percent,
-              url: md.global.FileStoreConfig.documentHost + key,
+              url: md.global.FileStoreConfig.documentHost + '/' + key,
               key: key,
               file: file,
               createType: undefined,

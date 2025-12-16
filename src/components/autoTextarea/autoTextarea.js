@@ -21,7 +21,7 @@ export default (function ($) {
 
       var initTextArea = function () {
         $this.css('height', 0);
-        var origHeight = $.trim($this.val()) === '' ? opts.minHeight : $this.get(0).scrollHeight - opts.gap;
+        var origHeight = $this.val().trim() === '' ? opts.minHeight : $this.get(0).scrollHeight - opts.gap;
 
         if (origHeight > opts.maxHeight) {
           origHeight = opts.maxHeight;
@@ -55,8 +55,7 @@ export default (function ($) {
             if (opts.maxHeight && this.scrollHeight > opts.maxHeight + opts.gap) {
               height = opts.maxHeight;
               $(this).css('overflowY', 'scroll');
-              // zhongpng 增加改变方法
-              if ($.isFunction(opts.onChange)) {
+              if (_.isFunction(opts.onChange)) {
                 opts.onChange(opts.maxHeight);
               }
             } else {
@@ -65,13 +64,13 @@ export default (function ($) {
             }
             $(this).height(height);
             //
-            if ($.isFunction(opts.onChange)) {
+            if (_.isFunction(opts.onChange)) {
               opts.onChange(height);
             }
           } else {
             $(this).height(opts.minHeight);
             $(this).css('overflowY', 'hidden');
-            if ($.isFunction(opts.onChange)) {
+            if (_.isFunction(opts.onChange)) {
               opts.onChange(opts.minHeight);
             }
           }

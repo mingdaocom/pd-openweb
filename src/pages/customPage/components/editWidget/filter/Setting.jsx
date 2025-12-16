@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { Divider, Input, Switch, Tooltip } from 'antd';
+import { Divider, Input, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import FilterControl from './FilterControl';
 import FilterListSort from './FilterListSort';
 import FilterObject from './FilterObject';
@@ -170,9 +171,11 @@ function Setting(props) {
         <div className="settingsBox Relative">
           <div className="flexRow valignWrapper Gray_9e">
             <div className="flex Font13">{_l('设置筛选器')}</div>
-            <div data-tip={_l('删除')}>
-              <Icon icon="trash" className="Font20 pointer" onClick={removeFilter} />
-            </div>
+            <Tooltip title={_l('删除')}>
+              <div>
+                <Icon icon="trash" className="Font20 pointer" onClick={removeFilter} />
+              </div>
+            </Tooltip>
           </div>
           <Divider className="mTop15 mBottom15" />
           <div className="Font13 bold mBottom10">{_l('筛选器名称')}</div>
@@ -224,11 +227,7 @@ function Setting(props) {
           <div className="flexRow valignWrapper">
             <div className="flexRow valignWrapper flex bold">
               {_l('在执行筛选查询后显示数据')}
-              <Tooltip
-                title={_l('勾选后，进入页面初始不显示数据，查询后显示符合筛选条件的数据。')}
-                placement="bottom"
-                autoCloseDelay={0}
-              >
+              <Tooltip title={_l('勾选后，进入页面初始不显示数据，查询后显示符合筛选条件的数据。')} placement="bottom">
                 <Icon className="Font17 pointer Gray_9e mLeft10" icon="help" />
               </Tooltip>
             </div>

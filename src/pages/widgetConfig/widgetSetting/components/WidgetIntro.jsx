@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { SETTING_MODE_DISPLAY } from '../../config/setting';
@@ -110,6 +110,10 @@ export default function WidgetIntro(props) {
     });
     setSwitchList(newList);
   }, [controlId, data]);
+
+  useEffect(() => {
+    setVisible(false);
+  }, [controlId]);
 
   const switchType = info => {
     setVisible(false);
@@ -391,7 +395,7 @@ export default function WidgetIntro(props) {
           if (!supportWidgetIntroOptions(data, item.value, from, isRecycle)) return null;
 
           return (
-            <Tooltip title={item.text} autoCloseDelay={0} placement="bottom">
+            <Tooltip title={item.text} placement="bottom">
               <div
                 className={cx('optionIcon', { active: settingMode === item.value })}
                 onClick={() => setSettingMode(item.value)}

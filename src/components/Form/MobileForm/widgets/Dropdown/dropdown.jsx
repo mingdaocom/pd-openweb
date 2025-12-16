@@ -2,10 +2,20 @@ import React, { Fragment, memo } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Icon, MobileRadio } from 'ming-ui';
 import { getCheckAndOther } from '../../../core/utils';
 import { CustomOptionCapsule } from '../../style';
 import OtherInput from '../Checkbox/OtherInput';
+
+// 多选下拉 转 单选，可能存在多个选项值
+const OptionsWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+`;
 
 const Dropdown = props => {
   const { value, disabled, advancedSetting = {}, enumDefault2, options, hint, selectProps = {}, formDisabled } = props;
@@ -58,7 +68,7 @@ const Dropdown = props => {
             controlDisabled: formDisabled,
           })}
         >
-          <div className="flex minWidth0">
+          <OptionsWrap>
             {checkIds.length ? (
               noDelOptions
                 .concat(delOptions)
@@ -69,7 +79,7 @@ const Dropdown = props => {
             ) : (
               <span className="Gray_bd">{hint || _l('请选择')}</span>
             )}
-          </div>
+          </OptionsWrap>
           {(!disabled || !formDisabled) && (
             <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
           )}

@@ -79,7 +79,7 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
                 cb(rootId);
               }
             } else {
-              return Promise.reject(data.message);
+              throw data.message;
             }
           })
           .catch(err => alert(err || _l('%0失败，请稍后重试', messageTitle), 3));
@@ -93,7 +93,7 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
                 cb(rootId);
               }
             } else {
-              return Promise.reject(data.message);
+              throw data.message;
             }
           })
           .catch(err => alert(err || _l('删除失败，请稍后重试'), 3));

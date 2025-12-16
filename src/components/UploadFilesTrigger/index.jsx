@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import Button from 'ming-ui/components/Button';
 import Icon from 'ming-ui/components/Icon';
@@ -42,8 +43,8 @@ export default class UploadFilesTrigger extends Component {
     }
   }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.popupVisible) {
-      this.setTriggerPanelVisible(true);
+    if (_.isBoolean(nextProps.popupVisible) && nextProps.popupVisible !== this.props.popupVisible) {
+      this.setTriggerPanelVisible(nextProps.popupVisible);
     }
   }
   show = e => {

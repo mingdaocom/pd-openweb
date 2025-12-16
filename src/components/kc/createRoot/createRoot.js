@@ -6,7 +6,7 @@ import { Dialog, ScrollView, UserHead } from 'ming-ui';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import kcAjax from 'src/api/kc';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
-import { existAccountHint } from 'src/utils/common';
+import { existAccountHint } from 'src/utils/inviteCommon';
 import addMemberTpl from './tpl/addMember.html';
 import htmlTpl from './tpl/createRoot.html';
 import '../layerMain.css';
@@ -149,7 +149,7 @@ $.extend(RootSettings.prototype, {
                 } else {
                   inviteMembers.push({
                     account: $el.data('account'),
-                    fullname: $.trim($el.find('.memberName .added').html()),
+                    fullname: ($el.find('.memberName .added').html() || '').trim(),
                     permission: $el.find('.permission').data('permission') || PERMISSION_TYPE.NORMAL,
                   });
                 }
@@ -406,7 +406,7 @@ $.extend(RootSettings.prototype, {
                 })
                 .then(function (result) {
                   if (!result) {
-                    return Promise.reject();
+                    throw new Error();
                   }
                   alert('操作成功');
                   var $changedMember = $('.folderMemberBox .memberItem[data-account-id="' + accountId + '"]');
@@ -464,7 +464,7 @@ $.extend(RootSettings.prototype, {
           })
           .then(function (result) {
             if (!result) {
-              return Promise.reject();
+              throw new Error();
             }
             alert('操作成功');
             $checkMemberLi
@@ -506,7 +506,7 @@ $.extend(RootSettings.prototype, {
                     }),
                   );
                 } else {
-                  return Promise.reject(data.message);
+                  throw data.message;
                 }
               })
               .catch(function (err) {
@@ -527,7 +527,7 @@ $.extend(RootSettings.prototype, {
             .starRoot({ id: root.id, star: star })
             .then(function (res) {
               if (!res) {
-                return Promise.reject();
+                throw new Error();
               }
               alert('操作成功');
               $this
@@ -560,7 +560,7 @@ $.extend(RootSettings.prototype, {
       $createFolderBox.find('.folderName .txtFolderName').on({
         blur: function () {
           var $this = $(this),
-            name = $.trim($this.val());
+            name = $this.val().trim();
           if (name == root.name) {
             return;
           }
@@ -575,7 +575,7 @@ $.extend(RootSettings.prototype, {
             .updateRootName({ id: root.id, name: name })
             .then(function (result) {
               if (!result) {
-                return Promise.reject();
+                throw new Error();
               }
 
               alert('操作成功');
@@ -736,7 +736,7 @@ $.extend(RootSettings.prototype, {
                       );
                     }
                   } else {
-                    return Promise.reject(data.message);
+                    throw data.message;
                   }
                 })
                 .catch(function (err) {
@@ -768,7 +768,7 @@ $.extend(RootSettings.prototype, {
                 .updateRootOwner({ id: root.id, memberId: newOwner.accountId })
                 .then(function (result) {
                   if (!result) {
-                    return Promise.reject();
+                    throw new Error();
                   }
                   alert('托付成功');
                   var members = root.members.slice(0);
@@ -818,7 +818,7 @@ $.extend(RootSettings.prototype, {
           .resendInvite({ id: rootId, memberId: inviterId })
           .then(function (result) {
             if (!result) {
-              return Promise.reject();
+              throw new Error();
             }
             alert('邀请成功');
           })
@@ -892,7 +892,7 @@ $.extend(RootSettings.prototype, {
           });
 
         $('.folderMembers .folderMemberBox ul li.Hidden').slideDown();
-        if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
+        if (callbackInviteResult && _.isFunction(callbackInviteResult)) {
           callbackInviteResult({ status: 1 });
         }
         if (existingUsers && existingUsers.length) {
@@ -913,7 +913,7 @@ $.extend(RootSettings.prototype, {
         })
         .then(function (res) {
           if (!res) {
-            return Promise.reject();
+            throw new Error();
           }
 
           var successMembers = res.successMembers;
@@ -926,9 +926,9 @@ $.extend(RootSettings.prototype, {
             !(existAccountInfos && existAccountInfos.length) &&
             !(res.successAccountInfos && res.successAccountInfos.length)
           ) {
-            return Promise.reject();
+            throw new Error();
           }
-          if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
+          if (callbackInviteResult && _.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
           }
 
@@ -980,12 +980,12 @@ $.extend(RootSettings.prototype, {
         })
         .catch(function () {
           alert('邀请失败，请稍后重试', 2);
-          if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
+          if (callbackInviteResult && _.isFunction(callbackInviteResult)) {
             callbackInviteResult({ status: 1 });
           }
         });
     } else {
-      if (callbackInviteResult && $.isFunction(callbackInviteResult)) {
+      if (callbackInviteResult && _.isFunction(callbackInviteResult)) {
         callbackInviteResult({ status: 0 });
       }
       alert('您邀请的用户已在共享文件夹中', 3);
@@ -1007,7 +1007,7 @@ $.extend(RootSettings.prototype, {
       return false;
     } else {
       if (name && name.length > 255) {
-        alert('文件名称过长,请保持名称在255个字符以内', 3, 3000);
+        alert('文件名称过长,请保持名称在255个字符以内', 3);
         return false;
       }
       var illegalChars = /[/\\:*?"<>|]/g,

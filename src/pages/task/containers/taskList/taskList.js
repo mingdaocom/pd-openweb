@@ -581,8 +581,8 @@ class TaskList extends Component {
     let flag = false;
 
     // 没有关闭的`我的任务`分类
-    const classify = $.grep([0, 1, 2, 3], i => {
-      return $.inArray(i, config.FilterMeTaskClassify) == -1;
+    const classify = _.filter([0, 1, 2, 3], i => {
+      return _.indexOf(config.FilterMeTaskClassify, i) == -1;
     });
 
     if (classify.length == 0) {
@@ -725,8 +725,8 @@ class TaskList extends Component {
    * 判断`我的任务` 分类 isMore
    */
   updateMyTaskIsMore(data) {
-    const classify = $.grep([0, 1, 2, 3], i => {
-      return $.inArray(i, config.FilterMeTaskClassify) == -1;
+    const classify = _.filter([0, 1, 2, 3], i => {
+      return _.indexOf(config.FilterMeTaskClassify, i) == -1;
     });
     let sumList = 0;
     /* 判断 是否分类还有更多
@@ -988,7 +988,7 @@ class TaskList extends Component {
         $tr
           .find('.taskListDate')
           .prepend(
-            '<i class="icon-task-card" data-tip="' +
+            '<i class="icon-task-card" title="' +
               _l('子任务') +
               '"></i><span class="subCounts"><span class="completedNum">0</span>/<span class="subCount">1</span></span> ',
           );

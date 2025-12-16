@@ -12,7 +12,8 @@ export default {
    * @param {} args.location
    * @param {string} args.extendsId 扩展ID(工作表:appId|viewId)
    * @param {} args.entityType
-   * @param {object} args.extends 扩展参数
+   * @param {string} args.instanceId 流程实例id
+   * @param {string} args.workId 运行节点id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -32,6 +33,8 @@ export default {
    * @param {} args.entityType
    * @param {integer} args.focusType 与我相关类型is_focus传true 0:默认老逻辑全部 1:我发布的 2:我回复别人 3:别人回复我
    * @param {string} args.keywords 关键字
+   * @param {string} args.instanceId 流程实例id
+   * @param {string} args.workId 运行节点id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -51,6 +54,8 @@ export default {
    * @param {} args.entityType
    * @param {integer} args.focusType 与我相关类型is_focus传true 0:默认老逻辑全部 1:我发布的 2:我回复别人 3:别人回复我
    * @param {string} args.keywords 关键字
+   * @param {string} args.instanceId 流程实例id
+   * @param {string} args.workId 运行节点id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

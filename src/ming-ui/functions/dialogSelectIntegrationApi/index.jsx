@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, FunctionWrap, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import './index.less';
@@ -13,8 +13,7 @@ const LINK_TYPES = [
   { text: _l('授权'), value: 3 },
 ];
 const totalItem = [{ id: '', name: _l('全部'), iconName: 'icon-apps' }];
-const pageSize = 1000;
-const pageIndex = 1;
+const pageSize = 100;
 
 class SelectIntegrationApi extends Component {
   constructor(props) {
@@ -27,6 +26,10 @@ class SelectIntegrationApi extends Component {
       apiKeyword: '',
       linkLoading: false,
       apiLoading: false,
+      pageIndex: 1,
+      isMore: false,
+      isApiMore: false,
+      pageApiIndex: 1,
       linkType: 1, // 1: 自定义，2: 安装，3: 授权
     };
   }
@@ -40,9 +43,7 @@ class SelectIntegrationApi extends Component {
    */
   getLinkList = () => {
     const { projectId, appId } = this.props;
-    const { linkType, keyword, relationId, linkLoading } = this.state;
-
-    if (linkLoading) return;
+    const { linkType, keyword, relationId, pageIndex, linkList = [] } = this.state;
 
     if (this.postList) {
       this.postList.abort();
@@ -78,15 +79,15 @@ class SelectIntegrationApi extends Component {
     }
 
     this.postList.then(res => {
-      const resultList = (linkType === 3 || keyword ? [] : totalItem).concat(res);
+      const resultList =
+        pageIndex === 1 ? (linkType === 3 || keyword ? [] : totalItem).concat(res) : linkList.concat(res);
       this.setState(
         {
           linkList: resultList,
           pageIndex: pageIndex + 1,
           linkLoading: false,
           isMore: res.length === pageSize,
-          relationId:
-            relationId && _.find(res, r => r.id === relationId) ? relationId : _.get(_.head(resultList), 'id') || '',
+          relationId: keyword ? _.get(_.head(res), 'id') || '' : relationId,
         },
         () => {
           this.getApiList();
@@ -100,9 +101,7 @@ class SelectIntegrationApi extends Component {
    */
   getApiList = () => {
     const { projectId, appId } = this.props;
-    const { relationId, apiKeyword, apiLoading, linkType } = this.state;
-
-    if (apiLoading) return;
+    const { relationId, apiKeyword, linkType, pageApiIndex, apiList = [] } = this.state;
 
     if (this.apiPostList) {
       this.apiPostList.abort();
@@ -114,7 +113,7 @@ class SelectIntegrationApi extends Component {
       {
         companyId: projectId,
         apkId: appId,
-        pageIndex,
+        pageIndex: pageApiIndex,
         pageSize,
         keyword: apiKeyword,
         types: [linkType],
@@ -125,7 +124,9 @@ class SelectIntegrationApi extends Component {
 
     this.apiPostList.then(res => {
       this.setState({
-        apiList: res,
+        apiList: pageApiIndex === 1 ? res : apiList.concat(res),
+        pageApiIndex: pageApiIndex + 1,
+        isApiMore: res.length === pageSize,
         apiLoading: false,
       });
     });
@@ -145,6 +146,7 @@ class SelectIntegrationApi extends Component {
 
   renderSearch(type) {
     const keyName = type === 'link' ? 'keyword' : 'apiKeyword';
+    const pageIndex = type === 'link' ? { pageIndex: 1, pageApiIndex: 1 } : { pageApiIndex: 1 };
 
     return (
       <div className={cx('searchBox', { searchLink: type === 'link' })}>
@@ -155,14 +157,16 @@ class SelectIntegrationApi extends Component {
           onChange={e => this.setState({ [keyName]: e.target.value.trim() })}
           onKeyDown={evt => {
             if (evt.keyCode === 13) {
-              this.handleSearch(type);
+              this.setState({ ...pageIndex }, () => {
+                this.handleSearch(type);
+              });
             }
           }}
         />
         {this.state[keyName] && (
           <i
             className="icon-cancel Gray_9e Font15 pointer"
-            onClick={() => this.setState({ [keyName]: '' }, () => this.handleSearch(type))}
+            onClick={() => this.setState({ [keyName]: '', ...pageIndex }, () => this.handleSearch(type))}
           ></i>
         )}
       </div>
@@ -170,8 +174,19 @@ class SelectIntegrationApi extends Component {
   }
 
   render() {
-    const { onClose } = this.props;
-    const { linkList = [], apiList = [], linkLoading, apiLoading, relationId, linkType } = this.state;
+    const { onClose, excludeTypes = [] } = this.props;
+    const {
+      linkList = [],
+      apiList = [],
+      linkLoading,
+      apiLoading,
+      relationId,
+      linkType,
+      pageIndex,
+      pageApiIndex,
+      isApiMore,
+      isMore,
+    } = this.state;
 
     return (
       <Dialog
@@ -186,7 +201,7 @@ class SelectIntegrationApi extends Component {
           <div className="linkContent">
             <div className="title">{_l('选择API')}</div>
             <div className="linkBox">
-              {LINK_TYPES.map(l => (
+              {LINK_TYPES.filter(l => !excludeTypes.includes(l.value)).map(l => (
                 <div
                   className={cx('linkItem', { active: linkType === l.value })}
                   onClick={() =>
@@ -194,6 +209,9 @@ class SelectIntegrationApi extends Component {
                       {
                         linkType: l.value,
                         pageIndex: 1,
+                        pageApiIndex: 1,
+                        isMore: false,
+                        isApiMore: false,
                         keyword: '',
                         apiKeyword: '',
                         relationId: '',
@@ -214,9 +232,9 @@ class SelectIntegrationApi extends Component {
             {this.renderSearch('link')}
 
             <div className="apiGroup">
-              {linkLoading ? (
+              {pageIndex === 1 && linkLoading ? (
                 <LoadDiv className="mTop15" size="small" />
-              ) : _.isEmpty(linkList) ? (
+              ) : !linkLoading && _.isEmpty(linkList) ? (
                 <div className="emptyChildContent emptyLink">
                   <span className="emptyIcon">
                     <i className="Gray_bd icon-connect" />
@@ -224,12 +242,23 @@ class SelectIntegrationApi extends Component {
                   <span className="Font15 Gray_9e Bold">{_l('暂无可用连接')}</span>
                 </div>
               ) : (
-                <ScrollView className="apiGroupContent">
+                <ScrollView
+                  className="apiGroupContent"
+                  onScrollEnd={() => {
+                    if (pageIndex > 1 && ((linkLoading && isMore) || !isMore)) return;
+                    this.getLinkList();
+                  }}
+                >
                   {linkList.map((item, index) => (
                     <div
                       key={index}
                       className={cx('groupItem', { active: relationId === item.id })}
-                      onClick={() => this.setState({ relationId: item.id }, () => this.getApiList())}
+                      onClick={() =>
+                        this.setState(
+                          { relationId: item.id, pageApiIndex: 1, isApiMore: false, apiList: [], apiKeyword: '' },
+                          () => this.getApiList(),
+                        )
+                      }
                     >
                       {item.iconName && item.id ? (
                         <img src={item.iconName} />
@@ -241,6 +270,7 @@ class SelectIntegrationApi extends Component {
                       <span className="ellipsis">{item.name}</span>
                     </div>
                   ))}
+                  {linkLoading && <LoadDiv className="mTop15" size="small" />}
                 </ScrollView>
               )}
             </div>
@@ -251,58 +281,63 @@ class SelectIntegrationApi extends Component {
           </div>
 
           <div className="apiContent">
-            {this.renderSearch('api')}
-            {apiLoading ? (
+            {pageApiIndex === 1 && apiLoading ? (
               <LoadDiv className="mTop15" size="small" />
+            ) : !apiLoading && (_.isEmpty(apiList) || _.isEmpty(linkList)) ? (
+              <div className="emptyChildContent">
+                <span className="emptyIcon">
+                  <i className="Gray_bd icon-api" />
+                </span>
+                <span className="Font15 Gray_9e Bold">{_l('暂无可用API')}</span>
+              </div>
             ) : (
               <Fragment>
-                {_.isEmpty(apiList) ? (
-                  <div className="emptyChildContent">
-                    <span className="emptyIcon">
-                      <i className="Gray_bd icon-api" />
-                    </span>
-                    <span className="Font15 Gray_9e Bold">{_l('暂无可用API')}</span>
-                  </div>
-                ) : (
-                  <div className="childListContent">
-                    <ScrollView className="flex">
-                      {apiList.map((child, index) => (
+                {this.renderSearch('api')}
+                <div className="childListContent">
+                  <ScrollView
+                    className="flex"
+                    onScrollEnd={() => {
+                      if (pageApiIndex > 1 && ((apiLoading && isApiMore) || !isApiMore)) return;
+                      this.getApiList();
+                    }}
+                  >
+                    {apiList.map((child, index) => (
+                      <div
+                        key={index}
+                        className="childItem"
+                        onClick={() => {
+                          this.props.onOk(child.id, child.name);
+                          this.props.onClose();
+                        }}
+                      >
                         <div
-                          key={index}
-                          className="childItem"
-                          onClick={() => {
-                            this.props.onOk(child.id);
-                            this.props.onClose();
-                          }}
+                          className="iconWrap"
+                          style={{ backgroundColor: getRgbaByColor(child.iconColor || '#757575', '0.08') }}
                         >
-                          <div
-                            className="iconWrap"
-                            style={{ backgroundColor: getRgbaByColor(child.iconColor || '#757575', '0.08') }}
-                          >
-                            <SvgIcon url={child.iconName} fill={child.iconColor} size={32} />
-                            <Tooltip placement="bottom" title={(child.apiPackage || {}).name}>
-                              {(child.apiPackage || {}).iconName ? (
-                                <img src={child.apiPackage.iconName} />
-                              ) : (
-                                <div className="defaultIcon">
-                                  <i className="icon-connect"></i>
-                                </div>
-                              )}
-                            </Tooltip>
-                          </div>
-                          <div className="iconDesc">
-                            <span className="Bold Font14 ellipsis">{child.name}</span>
-                            {child.explain && (
-                              <span className="Font12 mTop8 Gray_a ellipsis" title={child.explain}>
-                                {child.explain}
-                              </span>
+                          <SvgIcon url={child.iconName} fill={child.iconColor} size={32} />
+                          <Tooltip placement="bottom" title={(child.apiPackage || {}).name}>
+                            {(child.apiPackage || {}).iconName ? (
+                              <img src={child.apiPackage.iconName} />
+                            ) : (
+                              <div className="defaultIcon">
+                                <i className="icon-connect"></i>
+                              </div>
                             )}
-                          </div>
+                          </Tooltip>
                         </div>
-                      ))}
-                    </ScrollView>
-                  </div>
-                )}
+                        <div className="iconDesc">
+                          <span className="Bold Font14 ellipsis">{child.name}</span>
+                          {child.explain && (
+                            <span className="Font12 mTop8 Gray_a ellipsis" title={child.explain}>
+                              {child.explain}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    {apiLoading && <LoadDiv className="mTop15" size="small" />}
+                  </ScrollView>
+                </div>
               </Fragment>
             )}
           </div>

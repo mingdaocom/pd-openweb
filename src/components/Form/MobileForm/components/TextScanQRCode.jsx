@@ -10,7 +10,7 @@ const Box = styled(ScanQRCode)`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--gray-e0);
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
   position: absolute;
   right: 0;

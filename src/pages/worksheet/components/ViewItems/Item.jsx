@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Icon, MdLink, Tooltip } from 'ming-ui';
+import { Icon, MdLink } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { PLUGIN_INFO_SOURCE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
@@ -124,8 +125,7 @@ export default class Item extends Component {
         >
           {showWidgetDebugIcon && (
             <Tooltip
-              autoCloseDelay={0}
-              text={
+              title={
                 customViewDebugUrl
                   ? _l('开发调试中，本地脚本: %0', customViewDebugUrl)
                   : codeUrl

@@ -44,6 +44,7 @@ export default {
    * @param {string} args.appId 应用Id
    * @param {string} args.appKey 应用Key
    * @param {string} args.appSecret 应用密钥
+   * @param {string} args.packageName 包名
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

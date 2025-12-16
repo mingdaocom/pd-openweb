@@ -90,12 +90,8 @@ export default function (props) {
           if (_.includes([1, 6], projectIntergrationType)) {
             location.href =
               projectIntergrationType === 1
-                ? `${
-                    md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                  }auth/dingding?p=${projectId}`
-                : `${
-                    md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                  }auth/feishu?p=${projectId}`;
+                ? `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'}auth/dingding?p=${projectId}`
+                : `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'}auth/feishu?p=${projectId}`;
           } else {
             const request = getRequest();
             getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
@@ -139,7 +135,7 @@ export default function (props) {
             (canChangeSysOrLDAP || intergrationScanEnabled || isOpenSso || isCanWeixin || isCanQQ) && (
               <div className="title Font14">{_l('或通过以下方式')}</div>
             )}
-          {canChangeSysOrLDAP && renderSysOrLDAPBtn(modeType === 1 && ldapIcon)}
+          {canChangeSysOrLDAP && renderSysOrLDAPBtn()}
           {isOpenSso && renderSsoBtn()}
           {intergrationScanEnabled && renderIntegrationBtn()}
           {isCanWeixin &&

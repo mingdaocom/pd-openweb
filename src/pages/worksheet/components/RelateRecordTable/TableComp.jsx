@@ -155,7 +155,7 @@ function TableComp(props) {
   const { showQuickFromSetting, allowOpenRecord, allowDeleteFromSetting } = tableConfig;
   const emptyRowCount = isTab ? 3 : 1;
   if (recordId && !base.saveSync && pageIndex === 1) {
-    records = addedRecords.concat(records);
+    records = addedRecords.concat(records.filter(r => !find(addedRecords, { rowid: r.rowid })));
   }
   const isNewRecord = !recordId;
   const pageSize = tableState.pageSize || PAGE_SIZE;

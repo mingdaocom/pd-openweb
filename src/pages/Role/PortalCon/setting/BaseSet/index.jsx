@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Radio } from 'ming-ui';
+import { Checkbox, PriceTip, Radio } from 'ming-ui';
 import AppManagement from 'src/api/appManagement';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
 import BasicSet from './BasicSet';
@@ -106,6 +106,8 @@ export default function BaseSet(props) {
       cb();
     }
   };
+  //微信登录方式受开关hideWeixin控制
+  const LOGIN_WAY_LIST = LOGIN_WAY.filter(o => o.key !== 'weChat' || !md.global.SysSettings.hideWeixin);
 
   return (
     <Wrap>
@@ -159,7 +161,7 @@ export default function BaseSet(props) {
         </div>
         <h6 className={cx('Font16 Gray Bold mBottom0 mTop24', { mTop24: isFrontDomain })}>{_l('登录方式')}</h6>
         <div className="">
-          {LOGIN_WAY.map(o => {
+          {LOGIN_WAY_LIST.map(o => {
             const { portalSet = {} } = props;
             const { portalSetModel = {} } = portalSet;
             const { loginMode = {} } = portalSetModel;
@@ -169,38 +171,47 @@ export default function BaseSet(props) {
                 text={o.txt}
                 checked={loginMode[o.key]}
                 onClick={() => {
-                  changeMode(!loginMode[o.key], o.key, 'loginMode', LOGIN_WAY, () => {
+                  changeMode(!loginMode[o.key], o.key, 'loginMode', LOGIN_WAY_LIST, () => {
                     alert(_l('至少选择一种登录方式'), 3);
                   });
                 }}
               />
             );
           })}
-          <br />
-          {_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !loading && (
-            <div className={cx('Gray_9e mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
-              {!isWXExist ? (
-                <React.Fragment>
-                  {_l('暂未绑定服务号，请前往')}
-                  <a className="Hand mLeft5 mRight5 InlineBlock" href={`/admin/weixin/${projectId}`} target="_blank">
-                    {_l('组织管理')}
-                  </a>
-                  {_l('添加微信服务号')}
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  {_l('官方认证服务号')}
-                  <a className="mLeft5">{authorizerInfo.nickName}</a>
-                </React.Fragment>
+          {!md.global.SysSettings.hideWeixin && (
+            <>
+              <br />
+              {_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !loading && (
+                <div className={cx('Gray_9e mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
+                  {!isWXExist ? (
+                    <React.Fragment>
+                      {_l('暂未绑定服务号，请前往')}
+                      <a
+                        className="Hand mLeft5 mRight5 InlineBlock"
+                        href={`/admin/weixin/${projectId}`}
+                        target="_blank"
+                      >
+                        {_l('组织管理')}
+                      </a>
+                      {_l('添加微信服务号')}
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      {_l('官方认证服务号')}
+                      <a className="mLeft5">{authorizerInfo.nickName}</a>
+                    </React.Fragment>
+                  )}
+                </div>
               )}
-            </div>
+              <p className="Font12 Gray_9e mTop4 LineHeight18">
+                <PriceTip
+                  text={_l(
+                    '只勾选微信登录时首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。发送验证码的短信或邮件费用将自动从组织信用点中扣除。',
+                  )}
+                />
+              </p>
+            </>
           )}
-          <p className="Font12 Gray_9e mTop4 LineHeight18">
-            {_l('只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。')}
-            <br />
-            {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
-              _l('验证码每条%0，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.SmsPrice'))}
-          </p>
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('允许访问的用户')}</h6>
         <div className="mTop16">

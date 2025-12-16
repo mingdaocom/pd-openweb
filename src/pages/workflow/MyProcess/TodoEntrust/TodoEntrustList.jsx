@@ -3,7 +3,8 @@ import { Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Dialog, Icon, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import delegationApi from '../../api/delegation';
 import DelegationConfigModal from 'mobile/Process/ProcessDelegation/DelegationConfigModal';
@@ -39,42 +40,53 @@ const FlexRow = styled.div`
 const RowLabelText = styled.div`
   flex: 1;
   color: #757575;
-  font-size: ${props => (props.isMobile ? '13px' : '14px')};
 `;
 
 const RowValue = styled.div`
   flex: 4;
   color: #151515;
-  font-size: ${props => (props.isMobile ? '13px' : '14px')};
   overflow: hidden;
 `;
 
-const EntrustButton = styled.button(
-  ({ isAdd, isMobile }) => `
-display: flex;
-justify-content: center;
-align-items: center;
-margin-top: 20px;
-line-height: 36px;
-border: 0;
-border-radius: 4px;
-background-color: ${isMobile ? (isAdd ? '#fff' : '#1677ff') : isAdd ? '#f5f5f5' : '#f7f7f7'} ;
-color: ${isMobile && !isAdd ? '#fff' : '#1677ff'};
-font-size: ${isMobile ? '13px' : '14px'};
-cursor: pointer;
+const EntrustButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  line-height: 36px;
+  border: 0;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+  color: #1677ff;
+  font-size: 14px;
+  cursor: pointer;
 
-&:hover {
-  color: ${!isAdd && '#fff'}
-  background-color: ${!isAdd ? '#1677ff' : '#fff'};
-}
-&.mobileStyle {
-  height: 32px;
-  line-height: 32px;
-  width: 102px;
-  border-radius: 5px;
-}
-`,
-);
+  &:hover {
+    color: #fff;
+    background-color: #1677ff;
+  }
+
+  &.isAdd {
+    background-color: #f5f5f5;
+    &:hover {
+      color: #1677ff;
+      background-color: #fff;
+    }
+  }
+
+  &.isMobile {
+    font-size: 13px;
+    height: 32px;
+    line-height: 32px;
+    border-radius: 5px;
+    color: #fff;
+    background-color: #1677ff;
+    &.isAdd {
+      color: #1677ff;
+      background-color: #fff;
+    }
+  }
+`;
 
 const Btn = styled(Button)`
   border: 1px solid #eee !important;
@@ -155,9 +167,8 @@ function TodoEntrustList(props) {
               <div className="flexRow alignItemsCenter">
                 <span className="bold">{_l('待办委托')}</span>
                 <Tooltip
-                  autoCloseDelay={0}
-                  text={_l('待办事项如果匹配到多条待办委托，将分配给委托开始时间最早的待办委托')}
-                  popupPlacement="bottom"
+                  placement="bottom"
+                  title={_l('待办事项如果匹配到多条待办委托，将分配给委托开始时间最早的待办委托')}
                 >
                   <Icon icon="info_outline" className="pointer Font16 Gray_bd mLeft5" />
                 </Tooltip>
@@ -172,8 +183,8 @@ function TodoEntrustList(props) {
                 <CardWrapper key={item.id} className="pointer" onClick={() => onCardItemClick(item)}>
                   <CardTitle>{item.companyName}</CardTitle>
                   <FlexRow>
-                    <RowLabelText isMobile={isMobile}>{_l('委托给')}</RowLabelText>
-                    <RowValue isMobile={isMobile}>
+                    <RowLabelText className={isMobile ? 'Font13' : 'Font14'}>{_l('委托给')}</RowLabelText>
+                    <RowValue className={isMobile ? 'Font13' : 'Font14'}>
                       <div className="flexRow">
                         {isMobile ? (
                           <div className="trusteeAvatarWrapper valignWrapper mRight10">
@@ -185,10 +196,7 @@ function TodoEntrustList(props) {
                                   width: '22px',
                                   height: '22px',
                                 }}
-                                placeholder={`${md.global.FileStoreConfig.pictureHost.replace(
-                                  /\/$/,
-                                  '',
-                                )}/UserAvatar/default.gif`}
+                                placeholder={`${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`}
                                 className="circle"
                                 src={
                                   item.trustee.avatar
@@ -225,10 +233,10 @@ function TodoEntrustList(props) {
                     </RowValue>
                   </FlexRow>
                   <FlexRow>
-                    <RowLabelText isMobile={isMobile}>
+                    <RowLabelText className={isMobile ? 'Font13' : 'Font14'}>
                       {isShowStartDate(item.startDate) ? _l('委托时间') : _l('截止时间')}
                     </RowLabelText>
-                    <RowValue isMobile={isMobile}>
+                    <RowValue className={isMobile ? 'Font13' : 'Font14'}>
                       {isShowStartDate(item.startDate) ? (
                         <React.Fragment>
                           {moment(item.startDate).format('YYYY-MM-DD HH:mm')}
@@ -241,36 +249,32 @@ function TodoEntrustList(props) {
                     </RowValue>
                   </FlexRow>
                   <FlexRow>
-                    <RowLabelText isMobile={isMobile}>{_l('委托范围')}</RowLabelText>
-                    <RowValue isMobile={isMobile}>
+                    <RowLabelText className={isMobile ? 'Font13' : 'Font14'}>{_l('委托范围')}</RowLabelText>
+                    <RowValue className={isMobile ? 'Font13' : 'Font14'}>
                       {!item.apks ? _l('所有工作流') : _l('%0个应用', item.apks.length)}
                     </RowValue>
                   </FlexRow>
-                  <EntrustButton isMobile={isMobile} className="w100" onClick={e => onFinishEntrust(e, item)}>
+                  <EntrustButton className={cx('w100', { isMobile })} onClick={e => onFinishEntrust(e, item)}>
                     {_l('结束委托')}
                   </EntrustButton>
                 </CardWrapper>
               );
             })}
 
-            {delegationList.length < md.global.Account.projects.length && (
-              <EntrustButton
-                isMobile={isMobile}
-                className="mobileStyle"
-                isAdd={true}
-                onClick={() => {
-                  setEntrustData({});
-                  if (isMobile) {
-                    setMobileConfigVisble(true);
-                    return;
-                  }
-                  setModalVisible(true);
-                }}
-              >
-                <Icon icon="add" className="Font24" />
-                {_l('发起委托')}
-              </EntrustButton>
-            )}
+            <EntrustButton
+              className={cx({ isMobile, isAdd: true })}
+              onClick={() => {
+                setEntrustData({});
+                if (isMobile) {
+                  setMobileConfigVisble(true);
+                  return;
+                }
+                setModalVisible(true);
+              }}
+            >
+              <Icon icon="add" className="Font24" />
+              {_l('发起委托')}
+            </EntrustButton>
           </div>
 
           {modalVisible && (

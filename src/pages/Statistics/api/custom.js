@@ -3,7 +3,7 @@ import base, { controllerName } from './base';
 /**
  * custom
  */
-var custom = {
+const custom = {
   /**
    * 获取自定义页面
    * @param {Object} args 请求参数

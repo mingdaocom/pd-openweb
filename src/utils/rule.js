@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { updateRulesData } from 'src/components/Form/core/formUtils';
 
 /**
  * 获取记录字段规则错误

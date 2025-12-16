@@ -84,7 +84,7 @@ export default class CreateEditDeptDialog extends Component {
           })
           .then(data => {
             if (data.resultStatus === RESULTS.SUCCESS) {
-              callback({ response: data.departmentInfo });
+              callback(data.departmentInfo, departmentId);
               _this.props.onCancel();
             } else if (data.resultStatus === RESULTS.FAILED) {
               alert(_l('创建失败'), 2);
@@ -110,18 +110,19 @@ export default class CreateEditDeptDialog extends Component {
           })
           .then(data => {
             const { departmentInfo = {} } = data;
-            const newInfo = updateTreeData(
-              newDepartments,
-              departmentInfo.departmentId,
-              departmentInfo.departmentName,
-              parentDepartment.departmentId,
-            );
+            const updatedDepartments = updateTreeData({
+              type: 'edit',
+              departments: newDepartments,
+              departmentId: departmentInfo.departmentId,
+              parentId: parentDepartment.departmentId,
+              updateDataInfo: departmentInfo,
+            });
             if (data.resultStatus === RESULTS.SUCCESS) {
               callback({
                 response: {
                   departmentId: departmentInfo.departmentId,
                   parentId: parentDepartment.departmentId,
-                  ...newInfo,
+                  newDepartments: updatedDepartments,
                 },
               });
               _this.props.onCancel();

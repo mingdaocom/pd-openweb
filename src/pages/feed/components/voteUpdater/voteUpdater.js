@@ -372,7 +372,7 @@ const VoteUpdater = {
     voteVisble = voteAnonymous.length > 0;
 
     return {
-      invalid: $.grep($voteItems, function (voteItem) {
+      invalid: _.filter($voteItems, function (voteItem) {
         var $voteItemInput = $(voteItem).find('input[type = "text"]');
         $voteItemInput.val(_.trim($voteItemInput.val()));
         return $voteItemInput.val() === '' || $voteItemInput.val() === _l('请输入投票项');
@@ -387,7 +387,7 @@ const VoteUpdater = {
     };
   },
   alertInvalidData: function ($el) {
-    var $emptyInput = $.grep($el.find('.voteOptions li input[type = "text"]'), function (voteItemInput) {
+    var $emptyInput = _.filter($el.find('.voteOptions li input[type = "text"]'), function (voteItemInput) {
       var $voteItemInput = $(voteItemInput);
       $voteItemInput.val(_.trim($voteItemInput.val()));
       return $voteItemInput.val() === '' || $voteItemInput.val() === _l('请输入投票项');

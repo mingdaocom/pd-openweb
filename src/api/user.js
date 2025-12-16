@@ -277,6 +277,7 @@ export default {
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织Id
    * @param {string} args.userContact 用户的联系方式
+   * @param {string} args.accountId 用户的账号Id
    * @param {string} args.departmentId 部门Id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

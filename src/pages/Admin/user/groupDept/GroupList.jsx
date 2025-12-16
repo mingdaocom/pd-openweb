@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { ConfigProvider, Dropdown, Input, Select, Spin, Table } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
-import { LoadDiv, Tooltip, VerifyPasswordConfirm } from 'ming-ui';
+import { LoadDiv, VerifyPasswordConfirm } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import { dialogSelectDept } from 'ming-ui/functions';
 import groupController from 'src/api/group';
@@ -63,7 +64,7 @@ export default class GroupsList extends Component {
           return (
             <div className="typeBox">
               {text ? (
-                <Tooltip popupPlacement="bottom" text={<span>{_l('关联部门：%0', record.mapDepartmentName)}</span>}>
+                <Tooltip placement="bottom" title={_l('关联部门：%0', record.mapDepartmentName)}>
                   <i className="TxtMiddle mRight5 icon-official-group Font10 color_y"></i>
                 </Tooltip>
               ) : (

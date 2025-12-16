@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { DeleteReconfirm, Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip, UserHead } from 'ming-ui';
+import { DeleteReconfirm, Dialog, Icon, LoadDiv, ScrollView, SvgIcon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
@@ -306,7 +307,7 @@ export default function TrashDialog(props) {
       render: data => {
         return (
           <div className="flex">
-            <Tooltip text={<span>{_l('恢复')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('恢复')} placement="bottom">
               <i
                 className="icon icon-reply1"
                 onClick={() => {
@@ -314,7 +315,7 @@ export default function TrashDialog(props) {
                 }}
               ></i>
             </Tooltip>
-            <Tooltip text={<span>{_l('彻底删除')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('彻底删除')} placement="bottom">
               <i
                 className="icon icon-trash mLeft25"
                 onClick={() => {

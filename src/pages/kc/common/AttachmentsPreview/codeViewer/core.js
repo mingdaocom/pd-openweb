@@ -33,7 +33,7 @@ export function renderMarkdown(src, cb = () => {}) {
   fetch(src)
     .then(res => res.text())
     .then(text => {
-      if (new Blob([text]).size < 100 * 1024) {
+      if (new Blob([text]).size < 5 * 1024 * 1024) {
         const md = new Remarkable({
           highlight(str) {
             return `<div class="mdcode"><code class="language-">${highlight(str, languages.js)}</code></div>`;

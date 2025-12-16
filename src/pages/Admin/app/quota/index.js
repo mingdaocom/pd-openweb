@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import datalimitAjax from 'src/api/dataLimit';
 import workflowDataLimitAjax from 'src/pages/workflow/api/DataLimit';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -78,7 +79,7 @@ export default function Quota(props) {
             <div className="flex pLeft10">{_l('资源类型')}</div>
             <div className="globalQuota">
               <span className="TxtMiddle"> {_l('全局额度')}</span>
-              <Tooltip text={<div>{_l('设置为“不限”，实际使用不得超过系统限制')}</div>} autoCloseDelay={0}>
+              <Tooltip title={_l('设置为“不限”，实际使用不得超过系统限制')}>
                 <Icon icon="info_outline" className="Font16 Gray_9e mLeft5 TxtMiddle" />
               </Tooltip>
             </div>

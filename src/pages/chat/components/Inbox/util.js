@@ -118,6 +118,9 @@ export const formatInboxItem = function (inboxItem) {
     case MSGTYPES.WorkSheetRowComment:
       typeName = _l('发表了%0讨论', discussion.entityName);
       break;
+    case MSGTYPES.FocusMessage:
+      typeName = _l('在%0中发布了讨论', discussion.entityName);
+      break;
 
     default:
       break;

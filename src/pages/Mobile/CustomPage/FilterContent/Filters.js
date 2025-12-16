@@ -141,6 +141,7 @@ function QuickFilter(props) {
             filtersData={filtersData}
             projectId={props.projectId}
             appId={props.appId}
+            showTextAdvanced={false}
             // worksheetId={props.worksheetId}
             onChange={(change = {}) => {
               store.current.activeType = item.control.type;

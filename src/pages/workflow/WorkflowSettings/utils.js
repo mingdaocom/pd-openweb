@@ -50,6 +50,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-sending';
       } else if (appType === APP_TYPE.LOOP_PROCESS) {
         icon = 'icon-arrow_loop';
+      } else if (appType === APP_TYPE.CHATBOT) {
+        icon = 'icon-chat-full';
       } else {
         icon = 'icon-table';
       }
@@ -186,6 +188,9 @@ export const getIcons = (type, appType, actionId) => {
     case NODE_TYPE.PLUGIN:
       icon = 'icon-workflow';
       break;
+    case NODE_TYPE.AGENT:
+      icon = 'icon-AI_Agent';
+      break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
@@ -195,6 +200,23 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-global_variable';
       } else {
         icon = 'icon-application_custom';
+      }
+      break;
+    case NODE_TYPE.TOOLS:
+      if (appType === APP_TYPE.PBC) {
+        icon = 'icon-pbc';
+      } else if (appType === APP_TYPE.API) {
+        icon = 'icon-api';
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.ADD) {
+        icon = 'icon-playlist_add';
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.EDIT) {
+        icon = 'icon-workflow_update';
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.WORKSHEET_TOTAL) {
+        icon = 'icon-task_functions';
+      } else if (appType === APP_TYPE.SHEET && actionId === ACTION_ID.WORKSHEET_FIND) {
+        icon = 'icon-search';
+      } else {
+        icon = 'icon-AI_Agent';
       }
       break;
     case NODE_TYPE.FIND_SINGLE_MESSAGE:
@@ -649,4 +671,39 @@ export const formatTestParameters = (source, testMap, isArray) => {
  */
 export const getControlTypeName = ({ type, originalType }) => {
   return (originalType === 30 ? `${CONTROLS_NAME[originalType]}-` : '') + CONTROLS_NAME[type];
+};
+
+/**
+ * 获取工具名称
+ */
+export const getToolName = (name = '') => {
+  let toolName = '';
+  const TOOL_NAME_MAP = {
+    get_app_info: _l('获取应用信息'),
+    get_worksheet_structure: _l('获取工作表结构'),
+    get_record_relations: _l('获取关联记录'),
+    get_role_list: _l('获取角色列表'),
+    get_role_details: _l('获取角色详情'),
+    find_member: _l('查找成员'),
+    find_department: _l('查找部门'),
+    get_regions: _l('获取地区信息'),
+    get_time: _l('获取当前时间'),
+    get_record_list: _l('查询记录'),
+    create_record: _l('新增记录'),
+    update_record: _l('更新记录'),
+    get_record_pivot_data: _l('汇总'),
+    wf_pbp_: _l('封装业务流程'),
+    wf_api_: _l('集成API'),
+    wf_email_: _l('发送邮件'),
+    wf_send_: _l('发送站内通知%03028'),
+  };
+
+  // 遍历映射对象，查找匹配的键
+  for (const [key, value] of Object.entries(TOOL_NAME_MAP)) {
+    if (name?.includes(key)) {
+      toolName = value;
+    }
+  }
+
+  return toolName;
 };

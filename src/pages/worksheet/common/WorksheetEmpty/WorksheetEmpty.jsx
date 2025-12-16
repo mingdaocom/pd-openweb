@@ -43,7 +43,7 @@ class WorksheetEmpty extends Component {
   renderCreate() {
     const { sheetList, appId, groupId, isCharge } = this.props;
     const { createType, visible, dialogImportExcel } = this.state;
-    const { appGroups = [], projectId } = store.getState().appPkg;
+    const { appGroups = [], projectId, workflowAgentFeatureType } = store.getState().appPkg;
     const sheetCount = sheetList.length;
     const isAdd = !(appGroups.length > 1 && !sheetCount);
 
@@ -86,12 +86,12 @@ class WorksheetEmpty extends Component {
           <div className="flexRow createOperate">
             <div className="createBtn createWorksheet Hand Relative flexRow">
               <span
-                className="flex w117  hover14"
+                className="flex w117 bold hover14"
                 onClick={() => {
                   this.setState({ visible: false, createType: 'worksheet' });
                 }}
               >
-                {_l('创建工作表')}
+                {_l('创建工作表%12031')}
               </span>
               <div className="line"></div>
               <Trigger
@@ -132,18 +132,34 @@ class WorksheetEmpty extends Component {
               </Trigger>
             </div>
             <div
-              className="createBtn createCustom Hand"
+              className="createBtn createCustom Hand mRight20"
               onClick={() => {
                 this.setState({ createType: 'customPage' });
               }}
             >
+              <Icon icon="dashboard" className="Font16 Gray_9e mRight5" />
               {_l('创建自定义页面')}
             </div>
+            {workflowAgentFeatureType === '1' && !md.global?.SysSettings?.hideAIBasicFun && (
+              <div
+                className="createBtn createCustom Hand"
+                onClick={() => {
+                  this.setState({ createType: 'chatbot' });
+                }}
+              >
+                <Icon icon="AI_Agent" className="Font16 Gray_9e mRight5" />
+                {_l('创建对话机器人%12032')}
+              </div>
+            )}
           </div>
         )}
         {createType ? (
           <CreateNew
             type={createType}
+            onImportExcel={() => {
+              this.setState({ dialogImportExcel: true });
+              this.setState({ createType: '' });
+            }}
             onCreate={this.handleCreate}
             onCancel={() => this.setState({ createType: '' })}
           />

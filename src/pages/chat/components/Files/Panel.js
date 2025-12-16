@@ -3,10 +3,10 @@ import cx from 'classnames';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import { ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DatePicker from 'ming-ui/components/DatePicker';
 import Dropdown from 'ming-ui/components/Dropdown';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import Tooltip from 'ming-ui/components/Tooltip';
 import * as ajax from '../../utils/ajax';
 import config from '../../utils/config';
 import { FileItem, splitFiles } from './index';
@@ -225,13 +225,11 @@ export default class FilesPanel extends Component {
       <div className="filter-data">
         {start && end ? (
           <Tooltip
-            text={
+            title={
               <span>
                 {startDate.format('YYYY-MM-DD')} ~ {endDate.format('YYYY-MM-DD')}
               </span>
             }
-            autoCloseDelay={0}
-            popupPlacement="top"
           >
             <span>
               {startDate.format('MM-DD')}~{endDate.format('MM-DD')}

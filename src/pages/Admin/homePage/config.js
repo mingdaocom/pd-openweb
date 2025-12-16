@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 export const QUICK_ENTRY_CONFIG = [
   {
     icon: 'people_5',
@@ -67,6 +65,7 @@ export const UPLOAD_COUNT = [
     limit: 'limitWorksheetCount',
     text: _l('工作表总数'),
     unit: _l('个'),
+    link: 'app',
     numUnit: _l('个'),
     isLocalFilter: true,
   },
@@ -75,6 +74,7 @@ export const UPLOAD_COUNT = [
     limit: 'limitAllWorksheetRowCount',
     text: _l('行记录总数'),
     unit: _l('行'),
+    link: 'app',
     numUnit: _l('行'),
     isLocalFilter: true,
   },
@@ -130,7 +130,7 @@ export const UPLOAD_COUNT = [
     numUnit: _l('次'),
     PurchaseExpandPack: true,
     autoPurchase: 'autoPurchaseWorkflowExtPack',
-    autoPurchaseText: _l('用量不足时自动消耗余额增补，10元/1,000次'),
+    autoPurchaseText: _l('用量不足时自动消耗信用点增补'),
     isLocalFilter: true,
   },
   {
@@ -143,7 +143,7 @@ export const UPLOAD_COUNT = [
     numUnit: _l('行'),
     PurchaseExpandPack: true,
     autoPurchase: 'autoPurchaseDataPipelineExtPack',
-    autoPurchaseText: _l('用量不足时自动消耗余额增补，10元/1万行'),
+    autoPurchaseText: _l('用量不足时自动消耗信用点增补'),
   },
   {
     key: 'effectiveApkStorageCount',
@@ -154,25 +154,6 @@ export const UPLOAD_COUNT = [
     numUnit: 'GB',
     PurchaseExpandPack: true,
     autoPurchase: 'autoPurchaseApkStorageExtPack',
-    autoPurchaseText: _l('用量不足时自动消耗余额增补，20元/1GB'),
+    autoPurchaseText: _l('用量不足时自动消耗信用点增补'),
   },
 ];
-
-function pow1024(num) {
-  return Math.pow(1024, num);
-}
-
-function roundFun(value, n) {
-  return Math.round(value * Math.pow(10, n)) / Math.pow(10, n);
-}
-
-export const formatFileSize = size => {
-  if (!size) return 0 + ' MB';
-  if (size < pow1024(3)) return roundFun(size / pow1024(2), 3) + ' MB';
-  if (size < pow1024(4)) return roundFun(size / pow1024(3), 3) + ' GB';
-  return roundFun(size / pow1024(4), 3) + ' TB';
-};
-
-export const formatValue = num => {
-  return _.isNumber(num) ? (num + '').replace(/(\d)(?=(\d{3})+$)/g, '$1,') : '-';
-};

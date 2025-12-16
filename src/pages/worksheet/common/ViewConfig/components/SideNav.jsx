@@ -36,7 +36,6 @@ export default function SideNav(props) {
   const {
     view = {},
     viewSetting = baseSetList[VIEW_DISPLAY_TYPE[view.viewType]][0],
-    columns,
     currentSheetInfo,
     formatColumnsListForControlsWithoutHide,
     onChangeType,
@@ -45,7 +44,7 @@ export default function SideNav(props) {
   const { filters = [], controls = [], moreSort = [], fastFilters = [] } = view;
   const { icon } = VIEW_TYPE_ICON.find(it => it.id === VIEW_DISPLAY_TYPE[view.viewType]) || {};
   const viewTypeText = VIEW_DISPLAY_TYPE[view.viewType];
-  const columnsList = formatColumnsListForControlsWithoutHide(columns);
+  const columnsList = formatColumnsListForControlsWithoutHide(currentSheetInfo?.template?.controls || []);
   const controlsList = formatColumnsListForControlsWithoutHide(controls);
   let daConfig = [
     {

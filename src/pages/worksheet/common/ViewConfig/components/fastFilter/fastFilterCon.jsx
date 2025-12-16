@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, SortableList, Tooltip } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
@@ -110,11 +111,7 @@ const Item = ({ name, type, controlId, onEdit, onDelete, isErr, showOtherField, 
         <span className="overflow_ellipsis Font13 WordBreak">
           <Icon icon={getIconByType(type, false)} className={cx('mRight12 Font18 customIcon', { Red: isErr })} />
           {isErr ? (
-            <Tooltip
-              text={<span>{_l('ID: %0', controlId)}</span>}
-              popupPlacement="bottom"
-              tooltipClass="deleteHoverTips"
-            >
+            <Tooltip title={_l('ID: %0', controlId)} placement="bottom">
               <span>{_l('该字段已删除')}</span>
             </Tooltip>
           ) : showOtherField ? (
@@ -126,7 +123,7 @@ const Item = ({ name, type, controlId, onEdit, onDelete, isErr, showOtherField, 
         {!!onEdit && !isErr && !showOtherField && <Icon className="Font16 Hand editIcon" icon="edit" />}
       </span>
       {!!onDelete && (
-        <Tooltip text={<span>{_l('删除')}</span>}>
+        <Tooltip title={_l('删除')}>
           <Icon
             className="Font16 Hand deleteIcon mLeft15 mRight15"
             icon="trash"

@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Input, Tooltip } from 'antd';
+import { Checkbox, Input } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
 import { formatNumberFromInput } from 'src/utils/control';
 
@@ -45,7 +46,6 @@ export default class XAxis extends Component {
                 '勾选时，当位置不够，文字会自动倾斜以保证完整显示。未勾选时，将始终水平显示%0文字。',
                 isBarChart ? _l('Y轴') : _l('X轴'),
               )}
-              autoCloseDelay={0}
               placement="bottom"
             >
               <Icon className="Gray_9e Font17 pointer" icon="info" />

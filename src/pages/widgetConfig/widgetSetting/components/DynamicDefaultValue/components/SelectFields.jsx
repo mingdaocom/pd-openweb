@@ -168,7 +168,7 @@ export default class SelectFields extends Component {
   };
   render() {
     const { searchValue } = this.state;
-    const { onClick, data, dynamicValue, from } = this.props;
+    const { onClick, data, dynamicValue, from, hideRelateSheetHeader } = this.props;
     const otherList = getOtherSelectField(data, searchValue);
     const { sheetList, filteredList } = this.filterFieldList();
     const filteredControlCount = this.getControlCount(filteredList) + this.getOtherCount(otherList);
@@ -178,6 +178,7 @@ export default class SelectFields extends Component {
           !_.includes(
             [
               DYNAMIC_FROM_MODE.CUSTOM_EVENT,
+              DYNAMIC_FROM_MODE.RULES,
               DYNAMIC_FROM_MODE.H5_WATER_MASK,
               DYNAMIC_FROM_MODE.WATER_MASK,
               DYNAMIC_FROM_MODE.API_AUTH_ACCOUNT,
@@ -196,9 +197,11 @@ export default class SelectFields extends Component {
             return list && list.length > 0 ? (
               <ul className="relateSheetList">
                 <li>
-                  <div className="title">
-                    <span>{name}</span>
-                  </div>
+                  {!hideRelateSheetHeader && (
+                    <div className="title">
+                      <span>{name}</span>
+                    </div>
+                  )}
                   <ul className="fieldList">
                     {list.map(({ type, controlName, controlId, id, isEqualSource }) => {
                       const ids = {

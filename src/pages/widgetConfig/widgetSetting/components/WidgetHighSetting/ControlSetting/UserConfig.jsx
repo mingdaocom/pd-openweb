@@ -1,9 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { Dropdown, Tooltip } from 'antd';
+import { Dropdown } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import { Dropdown as MingDropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import { DropdownContent, SettingItem } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
@@ -177,7 +178,6 @@ export default function UserConfig(props) {
             {_l('选择范围')}
             <Tooltip
               placement="bottom"
-              autoCloseDelay={0}
               title={_l(
                 '用户通讯录指当前操作人的通讯录；组织通讯录指当前组织的通讯录。此外，使用部门作为选择范围时，所设置部门及所有子部门中的人员可选；使用组织角色作为选择范围时，所设置角色下的所有人员可选。',
               )}
@@ -211,7 +211,7 @@ export default function UserConfig(props) {
                 overlay={
                   <DropdownContent>
                     {USER_RANGE.map(item => (
-                      <div className="item" onClick={e => handleClick(item, e)}>
+                      <div className="item" onClick={() => handleClick(item)}>
                         {item.text}
                       </div>
                     ))}

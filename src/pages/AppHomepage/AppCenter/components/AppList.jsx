@@ -31,8 +31,8 @@ export default function AppList(props) {
         onCopy={({ id, appId }) => {
           actions.copyApp({ id, groupId }, appId);
         }}
-        createAppFromEmpty={app => {
-          actions.createAppFromEmpty({ ...app, groupId, groupType }, setNewAppItemId);
+        createAppFromEmpty={(app, cb) => {
+          actions.createAppFromEmpty({ ...app, groupId, groupType }, cb || setNewAppItemId);
         }}
         handleApp={({ mode, ...args }) => {
           if (mode === 'del') {

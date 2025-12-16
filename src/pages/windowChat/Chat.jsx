@@ -27,6 +27,11 @@ const Wrap = styled.div`
   .SessionList-item:first-child {
     margin-top: 0;
   }
+  .personalStatus,
+  .personalStatus .remark {
+    flex: 1;
+    min-width: 0;
+  }
 `;
 
 const Drag = styled.div(

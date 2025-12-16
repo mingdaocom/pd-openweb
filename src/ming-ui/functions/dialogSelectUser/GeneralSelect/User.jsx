@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Tooltip, UserHead } from 'ming-ui';
+import { Checkbox, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import departmentAjax from 'src/api/department.js';
 
 export default class User extends Component {
@@ -67,7 +68,7 @@ export default class User extends Component {
         id={`GSelect-User-${user.accountId}`}
       >
         {!hideChecked && (
-          <Tooltip text={_l('已加入')} disable={!disabled || !checked}>
+          <Tooltip title={!disabled || !checked ? '' : _l('已加入')}>
             <span>
               <Checkbox className="GSelect-User--checkbox" checked={checked} disabled={disabled} />
             </span>
@@ -96,7 +97,7 @@ export default class User extends Component {
           <div className="GSelect-User__companyName">
             {projectId ? (
               <Fragment>
-                <Tooltip text={departmentNames[departmentId] || ''} mouseEnterDelay={0.8}>
+                <Tooltip title={departmentNames[departmentId] || ''} mouseEnterDelay={0.8}>
                   <span
                     onMouseEnter={() => {
                       if (departmentNames[departmentId]) return;

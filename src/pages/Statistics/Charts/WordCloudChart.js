@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { formatChartData } from './BarChart';
 import { formatrChartValue, formatYaxisList, getChartColors } from './common';
@@ -44,10 +45,10 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const WordCloudChartConfig = this.getComponentConfig(nextProps);
-      this.WordCloudChart.update(WordCloudChartConfig);
+      this.WordCloudChart && this.WordCloudChart.update(WordCloudChartConfig);
     }
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.WordCloudChart.destroy();
+      this.WordCloudChart && this.WordCloudChart.destroy();
       this.renderWordCloudChart(nextProps);
     }
   }
@@ -169,7 +170,7 @@ export default class extends Component {
         fontSize: [ydisplay.minValue || 20, ydisplay.maxValue || 60],
       },
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       tooltip: {
         domStyles: isDark
@@ -246,9 +247,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

@@ -1,30 +1,34 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
+import chatbotIcon from 'worksheet/common/WorkSheetLeft/assets/chatbot.png';
+import customPageIcon from 'worksheet/common/WorkSheetLeft/assets/dashboard.png';
+import worksheetIcon from 'worksheet/common/WorkSheetLeft/assets/worksheet.png';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
 import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
 import { addFirstAppSection, createAppItem, getSheetList } from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import { CREATE_ITEM_LIST } from 'src/pages/worksheet/common/WorkSheetLeft/enum';
 import { findSheet } from 'src/utils/worksheet';
 
-const CREATE_ITEM_LIST = [
-  { icon: 'plus', text: _l('从空白创建'), createType: 'worksheet' },
-  { icon: 'new_excel', text: _l('从Excel创建'), createType: 'importExcel' },
-  { icon: 'dashboard', text: _l('创建自定义页面'), createType: 'customPage' },
-  { icon: 'add-files', text: _l('分组'), createType: 'group' },
-];
-
 function CreateAppItem(props) {
-  const { isCharge, projectId, appId, groupId, worksheetId, children } = props;
+  const { isCharge, projectId, appId, groupId, worksheetId, children, appPkg } = props;
   const { appSectionDetail } = props;
   const { addFirstAppSection } = props;
+  const { workflowAgentFeatureType } = appPkg;
   const [createMenuVisible, setCreateMenuVisible] = useState(false);
   const [createType, setCreateType] = useState('');
   const [dialogImportExcel, setDialogImportExcel] = useState(false);
   const singleRef = getAppSectionRef(groupId);
   const appItem = findSheet(worksheetId, appSectionDetail);
+  const iconMaps = {
+    worksheet: worksheetIcon,
+    customPage: customPageIcon,
+    chatbot: chatbotIcon,
+  };
 
   useEffect(() => {
     window.__worksheetLeftReLoad = () => {
@@ -86,45 +90,35 @@ function CreateAppItem(props) {
           popup={
             <div className="createNewMenu">
               <Menu>
-                {CREATE_ITEM_LIST.map((item, index) => (
+                {CREATE_ITEM_LIST.filter(item => {
+                  if (item.createType === 'chatbot') {
+                    return workflowAgentFeatureType === '1' && !md.global?.SysSettings?.hideAIBasicFun;
+                  }
+                  return true;
+                }).map((item, index) => (
                   <Fragment key={index}>
-                    {item.createType === 'customPage' && <div className="spaceLine mTop4 mBottom4"></div>}
-                    {item.createType === 'worksheet' && (
-                      <div class="Gray_9e pLeft12 pTop7 pBottom3">{_l('工作表')}</div>
-                    )}
-                    {item.subList ? (
-                      <Trigger
-                        getPopupContainer={() => document.querySelector('.createWorksheetApp .Item-content')}
-                        action={['hover']}
-                        popupAlign={{ points: ['tl', 'tr'], offset: [0, -5] }}
-                        popup={
-                          <Menu className="createNewMenu subMenu">
-                            {item.subList.map(item => (
-                              <MenuItem key={item.createType} onClick={() => handleSwitchCreateType(item.createType)}>
-                                <Icon icon={item.icon} className="Font18 Gray_9e" />
-                                <span className="mLeft20">{item.text}</span>
-                              </MenuItem>
-                            ))}
-                          </Menu>
-                        }
-                      >
-                        <MenuItem className="createWorksheetApp" key={item.createType}>
-                          <Icon icon={item.icon} className="Font18" />
-                          <span className="mLeft20">{item.text}</span>
-                          <Icon icon="arrow-right-tip" className="Font15" />
-                        </MenuItem>
-                      </Trigger>
-                    ) : (
-                      <MenuItem
-                        key={item.createType}
-                        onClick={() => {
-                          handleSwitchCreateType(item.createType);
-                        }}
-                      >
-                        <Icon icon={item.icon} className="Font18" />
-                        <span className="mLeft20">{item.text}</span>
-                      </MenuItem>
-                    )}
+                    {item.createType === 'group' && <div className="spaceLine mTop4 mBottom4"></div>}
+                    <MenuItem
+                      key={item.createType}
+                      onClick={() => {
+                        handleSwitchCreateType(item.createType);
+                      }}
+                    >
+                      {iconMaps[item.createType] ? (
+                        <img className="createIcon" src={iconMaps[item.createType]} />
+                      ) : (
+                        <Icon
+                          icon={item.icon}
+                          className={cx('Font18', {
+                            Visibility: ['worksheet', 'importExcel'].includes(item.createType),
+                          })}
+                        />
+                      )}
+                      <span className={item.className}>{item.text}</span>
+                      {item.createType === 'chatbot' && (
+                        <Icon icon="auto_awesome" className="Font15 mLeft5" style={{ color: '#9709f2' }} />
+                      )}
+                    </MenuItem>
                   </Fragment>
                 ))}
               </Menu>
@@ -135,7 +129,15 @@ function CreateAppItem(props) {
         </Trigger>
       )}
       {!!createType && (
-        <CreateNew type={createType} onCreate={handleCreate} onCancel={() => handleSwitchCreateType('')} />
+        <CreateNew
+          type={createType}
+          onImportExcel={() => {
+            handleSwitchCreateType('importExcel');
+            setCreateType('');
+          }}
+          onCreate={handleCreate}
+          onCancel={() => handleSwitchCreateType('')}
+        />
       )}
       {dialogImportExcel && (
         <DialogImportExcelCreate

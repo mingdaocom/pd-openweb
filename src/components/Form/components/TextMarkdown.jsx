@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdMarkdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import MarkdownDialog from 'src/ming-ui/components/MdMarkdown/MarkdownDialog.js';
 import { browserIsMobile } from 'src/utils/common';
 import { ADD_EVENT_ENUM } from '../core/enum';
+import { useWidgetEvent } from '../core/useFormEventManager';
 
 const TextMarkdownWrap = styled.div`
   position: relative;
@@ -50,16 +52,42 @@ export default function TextMarkdown(props) {
     onChange,
     onBlur,
     recordId,
+    formItemId,
   } = props;
   const [{ isEditing, originValue, visible }, setState] = useSetState({
     isEditing: false,
     originValue: '',
     visible: false,
   });
+  const markdownRef = useRef(null);
 
   const isMobile = browserIsMobile();
   const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
-  const maxHeight = isMobile ? 10000 : Number(advancedSetting.maxheight || '400');
+  const maxHeight = isMobile ? 10000 : advancedSetting.maxheight ? Number(advancedSetting.maxheight) : 'auto';
+
+  useWidgetEvent(
+    formItemId,
+    useCallback(data => {
+      const { triggerType } = data;
+      switch (triggerType) {
+        // case 'trigger_tab_enter':
+        //   if (markdownRef.current) {
+        //     const $dom = markdownRef.current.vditor.ir.element;
+        //     const range = document.createRange();
+        //     const sel = window.getSelection();
+        //     range.selectNodeContents($dom);
+        //     range.collapse(false);
+        //     sel.removeAllRanges();
+        //     sel.addRange(range);
+        //     markdownRef.current.focus();
+        //   }
+        //   break;
+        case 'trigger_tab_leave':
+          markdownRef.current && markdownRef.current.blur();
+          break;
+      }
+    }, []),
+  );
 
   const getCommonProps = () => {
     return {
@@ -107,17 +135,17 @@ export default function TextMarkdown(props) {
       className="textMarkdown"
     >
       {!disabled && isEditing && !isMobile && (
-        <span
-          data-tip={_l('全屏编辑')}
-          className="tip-bottom iconFullScreen"
-          onMouseDown={handleFullScreen}
-          onPointerDown={handleFullScreen}
-        >
-          <Icon icon="fullscreen" />
-        </span>
+        <Tooltip title={_l('全屏编辑')} placement="bottom">
+          <span className="iconFullScreen" onMouseDown={handleFullScreen} onPointerDown={handleFullScreen}>
+            <Icon icon="fullscreen" />
+          </span>
+        </Tooltip>
       )}
       <MdMarkdown
         {...getCommonProps()}
+        registerRef={ref => {
+          markdownRef.current = ref;
+        }}
         hideToolbar={true}
         handleFocus={handleFocus}
         handleBlur={handleBlur}

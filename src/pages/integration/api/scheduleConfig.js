@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var scheduleConfig = {
-
+const scheduleConfig = {
   /**
    * 根据定时配置id删除--同时删除对应的定时任务
    *
@@ -140,7 +139,7 @@ var scheduleConfig = {
     base.ajaxOptions.url = base.server(options) + 'scheduleConfig/list';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'scheduleConfiglist', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default scheduleConfig;

@@ -16,12 +16,12 @@ const ErrorWrap = styled.div`
     height: 94px;
     border-radius: 50%;
     justify-content: center;
-    background-color: var(--gray-f5);
+    background-color: var(--color-background-tertiary);
   }
 `;
 
 const QrInputWrap = styled.div`
-  color: var(--color-third);
+  color: var(--color-background-primary);
   width: auto;
   height: 36px;
   padding: 0 24px;
@@ -508,7 +508,7 @@ export default class Widgets extends Component {
         if (state === 2) {
           await this.html5QrCode.stop();
         }
-        await this.html5QrCode.clear();
+        this.html5QrCode?.clear();
         this.html5QrCode = null;
       } catch (error) {
         console.log('清除html5QRCode异常：', error);

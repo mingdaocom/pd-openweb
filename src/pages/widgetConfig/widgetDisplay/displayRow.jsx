@@ -1,9 +1,12 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
+import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { useGlobalStore } from 'src/common/GlobalStore';
+import GeneratingHeader from '../components/GeneratingHeader';
 import { MAX_CONTROLS_COUNT } from '../config';
 import { getSectionWidgets } from '../util';
 import BottomDragPointer from './components/BottomDragPointer';
@@ -85,12 +88,24 @@ const DisplayRowListWrap = styled.div`
 `;
 
 export default function DisplayRow(props) {
-  const { allControls, widgets, fromType, widgetPanelFixed, widgetVisible, setPanelVisible = () => {} } = props;
+  const {
+    store: { mingoCreateWorksheetAction, mingoIsCreatingWorksheetStatus },
+  } = useGlobalStore();
+  const {
+    showCreateByMingo,
+    isDialog,
+    allControls,
+    widgets,
+    fromType,
+    widgetPanelFixed,
+    widgetVisible,
+    setPanelVisible = () => {},
+  } = props;
   const { commonWidgets = [], tabWidgets = [] } = getSectionWidgets(widgets);
-
+  const noWidgets = isEmpty(widgets);
   const rowsContent = (
     <Fragment>
-      <div className="rowsWrap">
+      <div className={cx('rowsWrap', { flex: noWidgets })}>
         {commonWidgets.map((row, index) => {
           const id = row.reduce((p, c) => p + c.controlId, '');
           return (
@@ -106,12 +121,23 @@ export default function DisplayRow(props) {
             )
           );
         })}
-        <BottomDragPointer displayItemType="common" rowIndex={commonWidgets.length} showEmpty={!commonWidgets.length} />
+        <BottomDragPointer
+          isDialog={isDialog}
+          showCreateByMingo={!!noWidgets && showCreateByMingo}
+          displayItemType="common"
+          rowIndex={commonWidgets.length}
+          showEmpty={!commonWidgets.length}
+          globalSheetInfo={props.globalSheetInfo}
+        />
       </div>
-      {isEmpty(tabWidgets) ? (
-        <BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
-      ) : (
-        <DisplayTab {...props} commonLength={commonWidgets.length} tabWidgets={tabWidgets} />
+      {!noWidgets && (
+        <Fragment>
+          {isEmpty(tabWidgets) ? (
+            <BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
+          ) : (
+            <DisplayTab {...props} commonLength={commonWidgets.length} tabWidgets={tabWidgets} />
+          )}
+        </Fragment>
       )}
     </Fragment>
   );
@@ -143,17 +169,25 @@ export default function DisplayRow(props) {
                   </Tooltip>
                 )}
                 <span className="Font17 Bold mLeft12">{_l('表单设计')}</span>
-                <span className="controlNum Font12 Gray_9e pTop3" data-tip={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
-                  {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
-                </span>
+                <Tooltip title={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
+                  <span className="controlNum Font12 Gray_9e pTop3">
+                    {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
+                  </span>
+                </Tooltip>
               </div>
-              {!isEmpty(widgets) && (
+              {!isEmpty(widgets) && !mingoCreateWorksheetAction && (
                 <div className="flexRow">
                   <WidgetStyle {...props} />
                   <FieldRecycleBin {...props} />
                 </div>
               )}
             </div>
+            {mingoIsCreatingWorksheetStatus && (
+              <GeneratingHeader
+                globalSheetInfo={props.globalSheetInfo}
+                mingoIsCreatingWorksheetStatus={mingoIsCreatingWorksheetStatus}
+              />
+            )}
             {rowsContent}
           </div>
         </ScrollView>

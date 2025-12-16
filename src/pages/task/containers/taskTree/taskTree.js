@@ -436,7 +436,7 @@ class TaskTree extends Component {
         // 只有在 项目中没有任务 且 阶段名称没有修改过
         if (
           stages.length === 1 &&
-          $.trim(stages[0].name) === _l('进行中') &&
+          stages[0].name.trim() === _l('进行中') &&
           !stages[0].tasks &&
           taskTreeSettings.pageIndex === 1
         ) {

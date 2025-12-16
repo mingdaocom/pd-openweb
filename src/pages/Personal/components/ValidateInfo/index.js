@@ -80,7 +80,6 @@ export default class ValidateInfoCon extends Component {
     };
     this.iti = null;
   }
-  componentDidMount() {}
 
   changeValue = (e, filed) => {
     let val = e.target.value;

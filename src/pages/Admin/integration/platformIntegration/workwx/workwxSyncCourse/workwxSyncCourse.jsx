@@ -155,7 +155,7 @@ export default class WorkwxSyncCourse extends React.Component {
               className="download Hidden"
               target="_blank"
               download={'md' + moment().format('YYYY-MM-DD') + '.png'}
-              href={`${md.global.FileStoreConfig.pubHost}logo_app.png`}
+              href={`${md.global.FileStoreConfig.pubHost}/logo_app.png`}
             >
               {_l('点击下载')}
             </a>

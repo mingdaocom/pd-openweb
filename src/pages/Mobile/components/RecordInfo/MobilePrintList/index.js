@@ -101,6 +101,7 @@ export default function MobilePrintList(props) {
     switchPermit,
     hidePrintIcon,
     hideRecordActionVisible = () => {},
+    updatePrintList = () => {},
   } = props;
   const [printList, setPrintList] = useState([]);
   const [showPrintListVisible, setShowPrintListVisible] = useState(false);
@@ -119,18 +120,18 @@ export default function MobilePrintList(props) {
         let list = !viewId ? tempList.filter(o => o.range === 1) : tempList;
 
         const systemPrintPermission = isOpenPermit(permitList.recordPrintSwitch, switchPermit, viewId);
+        const tempPrintList = list
+          .filter(v => [2, 5].includes(v.type))
+          .filter(v => (systemPrintPermission ? true : v.type !== 0))
+          .filter(l => !l.disabled)
+          .sort(
+            (a, b) =>
+              PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] -
+              PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)],
+          );
 
-        setPrintList(
-          list
-            .filter(v => [2, 5].includes(v.type))
-            .filter(v => (systemPrintPermission ? true : v.type !== 0))
-            .filter(l => !l.disabled)
-            .sort(
-              (a, b) =>
-                PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] -
-                PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)],
-            ),
-        );
+        setPrintList(tempPrintList);
+        updatePrintList(tempPrintList);
       });
   };
 

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Icon, MenuItem, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { extractBetweenDollars, getDefaultOperationDatas } from 'src/pages/AppSettings/components/Aggregation/util.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -199,7 +199,6 @@ function FormatWrap(props) {
                   title={_l(
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                   )}
-                  autoCloseDelay={0}
                 >
                   <i className="icon-help Gray_bd Font15"></i>
                 </Tooltip>
@@ -276,7 +275,6 @@ export default function AggregationCon(props) {
           {!item.isCalculateField && (
             <Tooltip
               placement="bottom"
-              autoCloseDelay={0}
               title={
                 <span className="">
                   {_.get(item, 'parentFieldInfo.controlSetting.controlName') && (

@@ -16,7 +16,6 @@ class MobileGalleryView extends Component {
     this.state = {};
   }
 
-  componentWillUnmount() {}
   renderWithoutRows() {
     const {
       appId,

@@ -36,19 +36,22 @@ rewrite (?i)^/public/record /recordshare.html break;
 rewrite (?i)^/public/query /publicQuery.html break;
 rewrite (?i)^/public/chart /statisticschartshare.html break;
 rewrite (?i)^/public/page /custompageshare.html break;
+rewrite (?i)^/public/print /recordshare.html break;
+rewrite (?i)^/public/form/ /publicworksheet.html break;
+rewrite (?i)^/public/apidoc /worksheetapi.html break;
+rewrite (?i)^/public/workflow /workflowrecordshare.html break;
+rewrite (?i)^/public/chatbot /chatbotshare.html break;
 rewrite (?i)^/embed/page /custompageembed.html break;
 rewrite (?i)^/embed/chart /chartembed.html break;
 rewrite (?i)^/embed/view /viewembed.html break;
+rewrite (?i)^/embed/chatbot /chatbotembed.html break;
 rewrite (?i)^/windowChat /windowChat.html break;
-rewrite (?i)^/public/print /recordshare.html break;
-rewrite (?i)^/public/form/ /publicworksheet.html break;
 rewrite (?i)^/weixinAuth /weixinAuth.html break;
 rewrite (?i)^/worksheetapi/ /worksheetapi.html break;
-rewrite (?i)^/public/apidoc /worksheetapi.html break;
-rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
 rewrite (?i)^/mingo /mingo-land.html break;
+rewrite (?i)^/invoice /invoice-land.html break;
 
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;
@@ -124,6 +127,7 @@ rewrite (?i)^/aggregation /index.html break;
 rewrite (?i)^/dataMirrorPreview /index.html break;
 rewrite (?i)^/certification /index.html break;
 rewrite (?i)^/certificationDetail /index.html break;
+rewrite (?i)^/approveInvoice /index.html break;
 
 # 个人身份认证
 rewrite (?i)^/identityAuth /identityAuth.html break;
@@ -144,3 +148,6 @@ rewrite (?i)^/freefield /free-field-sandbox.html break;
 
 #HAPAI问答窗口
 rewrite (?i)^/hapai /hapAI.html break;
+
+#HAPAI价格落地页
+rewrite (?i)^/billingrules /billing.html break;

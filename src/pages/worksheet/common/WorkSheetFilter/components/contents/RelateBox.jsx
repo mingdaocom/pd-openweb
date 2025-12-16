@@ -39,7 +39,7 @@ export default class RelateBox extends Component {
           'controlId',
         )
       : '';
-    if (!id || (isTop && _.includes(['rowid'], id)) || (!isTop && !_.includes(['rowid'], id))) return null;
+    if (!id || id === 'rowid' || (!isTop && !_.includes(['rowid'], id))) return null;
     const { onChangeFn } = this.props;
     let showData = _.find(data, i => i.controlId === id);
     if (!showData) return null;
@@ -65,9 +65,14 @@ export default class RelateBox extends Component {
       defaultValue,
       widgetControlData = {},
       from,
+      showCustom,
     } = this.props;
     const dynamicControls = isGlobal ? globalSheetControls : columns;
     let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue);
+    // 当前记录支持rowid
+    if (showCustom && control.type === 2 && !isGlobal) {
+      avaControls = avaControls.concat(ROW_ID_CONTROL);
+    }
     const { globalSheetId, dataSource, controlId } = widgetControlData;
 
     if (isGlobal && _.isUndefined(globalSheetControls)) return avaControls;

@@ -12,8 +12,8 @@ import RelationSearch from '../widgets/RelationSearch';
 
 const TabCon = styled.div`
   .md-adm-tabs {
-    background-color: var(--color-third);
-    border-bottom: 1px solid var(--gray-e0);
+    background-color: var(--color-background-primary);
+    border-bottom: 1px solid var(--color-border-primary);
     .adm-tabs-header {
       border: none !important;
     }
@@ -38,12 +38,12 @@ const TabCon = styled.div`
     display: flex;
   }
   .adm-tabs-tab .tabName {
-    color: var(--gray-75);
+    color: var(--color-text-secondary);
     max-width: 100px;
     display: block;
   }
   .adm-tabs-tab {
-    color: var(--gray-75);
+    color: var(--color-text-secondary);
   }
   .adm-tabs-tab-active .tabName,
   .adm-tabs-tab-active .count {
@@ -56,7 +56,7 @@ const TabCon = styled.div`
     left: -12px;
     top: 15px;
     position: absolute;
-    background-color: var(--gray-e0);
+    background-color: var(--color-border-primary);
   }
   &.hide {
     display: block !important;
@@ -89,7 +89,7 @@ function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
         <Icon
           icon={icon}
           className="Font14"
-          style={{ color: isActiveCurrentTab ? 'var(--color-primary)' : 'var(--gray-75)' }}
+          style={{ color: isActiveCurrentTab ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
         />
       </IconCon>
     ) : null;
@@ -102,7 +102,7 @@ function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
           <Icon
             icon="subheader"
             className="Font14"
-            style={{ color: isActiveCurrentTab ? 'var(--color-primary)' : 'var(--gray-75)' }}
+            style={{ color: isActiveCurrentTab ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}
           />
         </IconCon>
       );
@@ -114,7 +114,7 @@ function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
     <IconCon>
       <SvgIcon
         url={iconUrl}
-        fill={isActiveCurrentTab ? 'var(--color-primary)' : 'var(--gray-75)'}
+        fill={isActiveCurrentTab ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
         size={16}
         addClassName="mTop1"
       />
@@ -158,6 +158,9 @@ function MobileWidgetSection(props) {
   }, []);
 
   useEffect(() => {
+    if (activeControl.type === 52) {
+      return;
+    }
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
     changeMobileTab(tabControls[0]);
   }, [flag]);

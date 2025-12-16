@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import homeAppApi from 'api/homeApp';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import worksheet from 'src/api/worksheet';
 import MobileSingleView from 'mobile/components/SingleView';
 import SingleView from 'worksheet/common/SingleView';
 import preall from 'src/common/preall';
+import socketInit from 'src/socket';
+import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 
 const Con = styled.div`
@@ -37,10 +41,32 @@ export default function ViewLand() {
   const isMobile = browserIsMobile();
   const Component = isMobile ? MobileSingleView : SingleView;
 
-  useEffect(() => {
+  useEffect(async () => {
+    socketInit();
     setLoading(true);
     window.hideColumnHeadFilter = true;
+
+    const data = await homeAppApi.getApp({
+      appId,
+      getLang: true,
+    });
+
+    const { langInfo } = data;
+    if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+      const lang = await appManagementApi.getAppLangDetail({
+        projectId: data.projectId,
+        appId,
+        appLangId: langInfo.appLangId,
+      });
+      window[`langData-${appId}`] = lang.items;
+      window[`langVersion-${appId}`] = langInfo.version;
+    }
+
     worksheet.getWorksheetInfo({ worksheetId, getViews: true }).then(worksheetInfo => {
+      worksheetInfo.name = getTranslateInfo(appId, null, worksheetId).name || worksheetInfo.name;
+      worksheetInfo.views.forEach(view => {
+        view.name = getTranslateInfo(appId, worksheetId, view.viewId).name || view.name;
+      });
       const view = _.find(worksheetInfo.views, v => v.viewId === viewId) || {};
       const isSingleRecordDetailView = _.get(view, 'viewType') === 6 && String(_.get(view, 'childType')) === '1';
       setShowHeader(isMobile ? true : !isSingleRecordDetailView);

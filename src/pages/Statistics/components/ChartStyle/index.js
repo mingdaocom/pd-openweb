@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Checkbox, Collapse, Input, Switch, Tooltip } from 'antd';
+import { Checkbox, Collapse, Input, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { LegendTypeData, reportTypes } from 'statistics/Charts/common';
 import * as actions from 'statistics/redux/actions';
 import allCountPanelGenerator from './components/AllCount';
@@ -42,6 +43,25 @@ export default class ChartStyle extends Component {
         displaySetup: {
           ...displaySetup,
           ...data,
+        },
+      },
+      isRequest,
+    );
+  };
+  handleChangeYDisplaySetup = (data, isRequest = false) => {
+    const { rightY } = this.props.currentReport;
+    const { display } = rightY;
+    this.props.changeCurrentReport(
+      {
+        rightY: {
+          ...rightY,
+          display: {
+            ...display,
+            ydisplay: {
+              ...display.ydisplay,
+              ...data,
+            },
+          },
         },
       },
       isRequest,
@@ -116,6 +136,7 @@ export default class ChartStyle extends Component {
       >
         <Fragment>
           <Count
+            reportType={reportType}
             smallTitle={
               isMultiaxis ? (
                 <Checkbox
@@ -157,6 +178,7 @@ export default class ChartStyle extends Component {
           />
           {isMultiaxis && (
             <Count
+              reportType={reportType}
               smallTitle={
                 isMultiaxis ? (
                   <Checkbox
@@ -232,6 +254,10 @@ export default class ChartStyle extends Component {
       return null;
     }
 
+    if (reportTypes.WorldMap === reportType) {
+      return null;
+    }
+
     return (
       <Collapse.Panel
         key="legend"
@@ -269,40 +295,13 @@ export default class ChartStyle extends Component {
   }
   renderLabel() {
     const { currentReport } = this.props;
-    const { showNumber, showPileTotal, hideOverlapText, percent } = currentReport.displaySetup;
-    const switchChecked = showNumber || showPileTotal || hideOverlapText || percent.enable;
     return (
-      <Collapse.Panel
-        key="label"
-        header={_l('数据标签')}
-        className={cx({ collapsible: !switchChecked })}
-        extra={
-          <Switch
-            size="small"
-            checked={switchChecked}
-            onClick={(checked, event) => {
-              event.stopPropagation();
-            }}
-            onChange={checked => {
-              this.handleChangeDisplaySetup({
-                showNumber: checked,
-                showDimension: checked,
-                showPercent: checked,
-                showPileTotal: checked,
-                hideOverlapText: checked,
-                percent: {
-                  ...percent,
-                  enable: checked,
-                },
-              });
-            }}
-          />
-        }
-      >
+      <Collapse.Panel key="label" header={_l('数据标签')}>
         <Label
           currentReport={currentReport}
           onChangeDisplayValue={this.handleChangeDisplayValue}
           onChangeDisplaySetup={this.handleChangeDisplaySetup}
+          onChangeYDisplaySetup={this.handleChangeYDisplaySetup}
           onChangeStyle={this.handleChangeStyle}
         />
       </Collapse.Panel>
@@ -757,6 +756,7 @@ export default class ChartStyle extends Component {
             reportTypes.PivotTable,
             reportTypes.WordCloudChart,
             reportTypes.TopChart,
+            reportTypes.WorldMap,
           ].includes(reportType) && this.renderLabel()}
           {reportTypes.GaugeChart === reportType && (
             <Fragment key="gaugeChart">
@@ -777,6 +777,7 @@ export default class ChartStyle extends Component {
             reportTypes.GaugeChart,
             reportTypes.ProgressChart,
             reportTypes.ScatterChart,
+            reportTypes.WorldMap,
           ].includes(reportType) && this.renderDataFilter()}
           {![reportTypes.NumberChart, reportTypes.PivotTable, reportTypes.GaugeChart].includes(reportType) &&
             this.renderColor()}

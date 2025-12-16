@@ -11,7 +11,7 @@ export default {
     return mdyAPI('AdminManage', 'ExpansionInfos', args, options);
   },
   /**
-   * 获取余额
+   * 获取组织余额
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络id
    * @param {Object} options 配置参数

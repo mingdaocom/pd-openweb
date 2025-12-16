@@ -4,21 +4,17 @@ import cx from 'classnames';
 import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, Modal } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
 import ChildTable from 'worksheet/components/ChildTable';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
-import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils';
+import { onValidator } from 'src/components/Form/core/formUtils';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
 import { emitter } from 'src/utils/common';
-
-/**
- * TODO
- * 从记录详细打开记录共用 store 太乱了，请重构
- */
 
 const Con = styled.div`
   width: 100%;
@@ -212,7 +208,7 @@ export default function ChildTableDialog(props) {
       });
     }
   }, []);
-  useKey('e', e => {
+  useKey('/', e => {
     if (window.isMacOs ? e.metaKey : e.ctrlKey) {
       setIsFullScreen(old => !old);
       e.preventDefault();
@@ -238,46 +234,48 @@ export default function ChildTableDialog(props) {
               {control.controlName}
             </div>
             <div className="flex"></div>
-            <IconBtn
-              className="mRight10 ThemeHoverColor3"
-              data-tip={
-                isFullScreen
-                  ? _l('退出%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
-                  : _l('全屏%0', window.isMacOs ? '(⌘ + E)' : '(Ctrl + E)')
-              }
-              onClick={() => {
-                if (callFromDialog) {
-                  onClose();
-                } else {
-                  setIsFullScreen(!isFullScreen);
-                }
-              }}
+            <Tooltip
+              title={isFullScreen ? _l('退出') : _l('全屏')}
+              shortcut={window.isMacOs ? '⌘/' : 'Ctrl+/'}
+              placement="bottom"
             >
-              <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
-            </IconBtn>
-            {!callFromDialog && (
               <IconBtn
-                className={cx('ThemeHoverColor3', { mRight10: changed })}
-                data-tip={_l('关闭(Esc)')}
+                className="mRight10 ThemeHoverColor3"
                 onClick={() => {
-                  if (!changed || openFrom !== 'cell') {
+                  if (callFromDialog) {
                     onClose();
-                    return;
+                  } else {
+                    setIsFullScreen(!isFullScreen);
                   }
-                  Dialog.confirm({
-                    title: _l('您是否保存此次更改'),
-                    description: _l('当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。'),
-                    cancelType: 'ghost',
-                    okText: _l('是，保存更改'),
-                    cancelText: _l('否，放弃更改'),
-                    onlyClose: true,
-                    onOk: () => handleSave(true),
-                    onCancel: onClose,
-                  });
                 }}
               >
-                <i className="icon icon-close"></i>
+                <i className={`icon icon-${isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
               </IconBtn>
+            </Tooltip>
+            {!callFromDialog && (
+              <Tooltip title={_l('关闭')} shortcut={'Esc'} placement="bottom">
+                <IconBtn
+                  className={cx('ThemeHoverColor3', { mRight10: changed })}
+                  onClick={() => {
+                    if (!changed || openFrom !== 'cell') {
+                      onClose();
+                      return;
+                    }
+                    Dialog.confirm({
+                      title: _l('您是否保存此次更改'),
+                      description: _l('当前有尚末保存的更改，您在离开当前页面前是否需要保存这些更改。'),
+                      cancelType: 'ghost',
+                      okText: _l('是，保存更改'),
+                      cancelText: _l('否，放弃更改'),
+                      onlyClose: true,
+                      onOk: () => handleSave(true),
+                      onCancel: onClose,
+                    });
+                  }}
+                >
+                  <i className="icon icon-close"></i>
+                </IconBtn>
+              </Tooltip>
             )}
           </div>
           {openFrom === 'cell' && changed && (
@@ -315,6 +313,7 @@ export default function ChildTableDialog(props) {
                     ...control,
                     fieldPermission: '100',
                   }),
+              worksheetId,
               addRefreshEvents: (name, value) => {
                 cache.current.reload = value;
               },
@@ -380,9 +379,6 @@ export default function ChildTableDialog(props) {
                 )
               ) {
                 setChanged(true);
-                setTimeout(() => {
-                  onChange(changedValues, 'childTableDialog');
-                }, 0);
               }
             }}
             mobileIsEdit={mobileIsEdit}

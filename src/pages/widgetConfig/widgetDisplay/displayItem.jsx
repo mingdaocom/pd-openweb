@@ -302,7 +302,7 @@ export default function DisplayItem(props) {
 
       return {
         mode: DRAG_MODE.INSERT_NEW_LINE,
-        activePath: [_.includes(['view_top', 'top'], location) ? path[0] - 1 : path[0], 0],
+        activePath: [_.includes(['view_top', 'top'], location) ? path[0] - 1 : path[0], path[1]],
         rowIndex: _.includes(['view_top', 'top'], location) ? path[0] : path[0] + 1,
         sectionId,
         displayItemType,
@@ -412,6 +412,9 @@ export default function DisplayItem(props) {
     }
 
     if (mode === 'delete') {
+      if (!settingPanelFixed && settingPanelVisible && controlId === activeWidget.controlId) {
+        setPanelVisible({ settingVisible: false });
+      }
       // 如果是关联本表 则要删除对应的控件
       if (type === 29 && dataSource === globalSheetId) {
         const nextWidgets = deleteWidgetById({ widgets, controlId, path });

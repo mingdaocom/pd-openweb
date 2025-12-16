@@ -1,6 +1,6 @@
 import qs from 'query-string';
 
-var Common = {};
+const Common = {};
 
 Common.url = function (params) {
   return location.pathname + '?' + qs.stringify(params);

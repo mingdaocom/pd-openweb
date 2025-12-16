@@ -16,7 +16,7 @@ import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import FillRecordControls from 'src/pages/worksheet/common/recordInfo/FillRecordControls/MobileFillRecordControls';
 import { getTranslateInfo } from 'src/utils/app';
 import { appendDataToLocalPushUniqueId, emitter, getRequest } from 'src/utils/common';
-import { getCurrentProject } from 'src/utils/project';
+import { getCurrentProject, handlePushState } from 'src/utils/project';
 import { handleRecordError } from 'src/utils/record';
 import MobilePrintList from '../MobilePrintList';
 import CustomButtons from './CustomButtons';
@@ -138,7 +138,7 @@ class RecordAction extends Component {
           btnRowId: rowId,
         });
       } else {
-        trigger(btn);
+        trigger();
       }
     };
     const handleTrigger = () => {
@@ -239,7 +239,7 @@ class RecordAction extends Component {
 
   triggerImmediately = btn => {
     this.disableCustomButton(btn.btnId);
-    const { worksheetId, rowId } = this.props;
+    const { worksheetId, rowId, isViewCard } = this.props;
     processAjax
       .startProcess({
         appId: worksheetId,
@@ -251,16 +251,23 @@ class RecordAction extends Component {
         if (data) {
           this.props.loadRow();
           this.props.loadCustomBtns();
-          setTimeout(() => {
-            this.setState({ btnDisable: {} });
-            this.props.updateBtnDisabled({});
-          }, 500);
+          if (!isViewCard) {
+            setTimeout(() => {
+              this.setState({ btnDisable: {} });
+              this.props.updateBtnDisabled({});
+            }, 500);
+          }
         } else {
           alert(_l('操作失败'), 2);
         }
       });
   };
   disableCustomButton = id => {
+    if (this.props.isViewCard) {
+      this.props.updateBtnDisabled(id);
+      return;
+    }
+
     this.setState({
       btnDisable: { ...this.state.btnDisable, [id]: true },
     });
@@ -341,6 +348,7 @@ class RecordAction extends Component {
           controlId: addRelationControl.controlId,
           worksheetId: worksheetId,
         };
+        window.isMingDaoApp && handlePushState('page', 'newRecord');
         this.setState({
           newRecordVisible: true,
         });
@@ -509,7 +517,7 @@ class RecordAction extends Component {
       });
   };
   fillRecordControls = (newControls, targetOptions, customwidget, cb = () => {}) => {
-    const { worksheetId, rowId, handleUpdateWorksheetRow } = this.props;
+    const { worksheetId, rowId, handleUpdateWorksheetRow, onUpdate } = this.props;
     const args = {
       appId: targetOptions.appId,
       viewId: targetOptions.viewId,
@@ -534,6 +542,9 @@ class RecordAction extends Component {
         this.props.loadCustomBtns();
         if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
           alert(get(this.tipConfig, 'tipText'));
+        }
+        if (_.isFunction(onUpdate) && targetOptions.recordId === rowId) {
+          onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
         }
         if (!this.continueFill) {
           this.setState({
@@ -573,7 +584,7 @@ class RecordAction extends Component {
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
     const isBatchRecordLock = batchOptCheckedData
       .map(item => _.find(currentSheetRows, v => v.rowid == item))
-      .some(s => s.sys_lock);
+      .some(s => s?.sys_lock);
     if (!this.state.fillRecordVisible) return null;
 
     return (
@@ -675,10 +686,11 @@ class RecordAction extends Component {
       loading,
       isFavorite,
       changeActionSheetModalIndex,
-      handleCollectRecord = () => {},
       isRecordLock,
-      updateRecordLock = () => {},
       isEditLock,
+      handleCollectRecord = () => {},
+      updateRecordLock = () => {},
+      updatePrintList = () => {},
     } = this.props;
     const { btnDisable, rowInfo } = this.state;
     const projectId = sheetRow.projectId || worksheetInfo.projectId;
@@ -691,6 +703,14 @@ class RecordAction extends Component {
         isOpenPermit(permitList.embeddedLink, sheetRow.switchPermit, viewId)) &&
       !md.global.Account.isPortal;
     const roleType = sheetRow.roleType;
+    const isPublicShare =
+      _.get(window, 'shareState.isPublicRecord') ||
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage') ||
+      _.get(window, 'shareState.isPublicQuery') ||
+      _.get(window, 'shareState.isPublicForm') ||
+      _.get(window, 'shareState.isPublicWorkflowRecord') ||
+      _.get(window, 'shareState.isPublicPrint');
 
     return (
       <Popup
@@ -742,7 +762,8 @@ class RecordAction extends Component {
                       </div>
                     </div>
                   )}
-                  {_.isFunction(this.props.handlePrint) &&
+                  {!isPublicShare &&
+                    _.isFunction(this.props.handlePrint) &&
                     window.isMingDaoApp &&
                     !window.isWeiXin &&
                     !window.isWeLink &&
@@ -754,18 +775,23 @@ class RecordAction extends Component {
                         </div>
                       </div>
                     )}
-                  {!window.isMingDaoApp && !window.isWeiXin && !window.isWeLink && !window.isDingTalk && (
-                    <MobilePrintList
-                      appId={appId}
-                      worksheetId={worksheetId}
-                      viewId={viewId}
-                      rowId={rowId}
-                      projectId={projectId}
-                      controls={rowInfo.receiveControls}
-                      hideRecordActionVisible={hideRecordActionVisible}
-                      switchPermit={switchPermit}
-                    />
-                  )}
+                  {!isPublicShare &&
+                    !window.isMingDaoApp &&
+                    !window.isWeiXin &&
+                    !window.isWeLink &&
+                    !window.isDingTalk && (
+                      <MobilePrintList
+                        appId={appId}
+                        worksheetId={worksheetId}
+                        viewId={viewId}
+                        rowId={rowId}
+                        projectId={projectId}
+                        controls={rowInfo.receiveControls}
+                        hideRecordActionVisible={hideRecordActionVisible}
+                        switchPermit={switchPermit}
+                        updatePrintList={updatePrintList}
+                      />
+                    )}
                   {!window.shareState.shareId && !md.global.Account.isPortal && !isExternal && (
                     <div className="flexRow extraBtnItem">
                       <Icon
@@ -821,9 +847,10 @@ class RecordAction extends Component {
     );
   };
   render() {
+    const { isViewCard } = this.props;
     return (
       <div ref={this.recef}>
-        {this.renderRecordAction()}
+        {!isViewCard && this.renderRecordAction()}
         {this.renderFillRecord()}
         {this.renderNewRecord()}
         {this.renderRecordInfo()}

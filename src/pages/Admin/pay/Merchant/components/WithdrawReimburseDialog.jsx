@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, FunctionWrap, Input, VerifyPasswordConfirm } from 'ming-ui';
+import merchantInvoiceApi from 'src/api/merchantInvoice';
 import paymentAjax from 'src/api/payment';
 
 const InputWrap = styled.div`
@@ -42,50 +43,62 @@ function WithdrawReimburseDialog(props) {
   const [isFocus, setIsFocus] = useState(false);
   const inputRef = useRef();
 
+  const onRefund = () => {
+    // 退款
+    updateStatus(true);
+    paymentAjax
+      .applyRefund({
+        projectId,
+        merchantNo,
+        orderId,
+        merchantOrderId,
+        amount: +amount,
+        taxFee: taxAmount,
+        description,
+        refundSourceType,
+        viewId,
+      })
+      .then(res => {
+        if (res) {
+          updateList();
+          alert(refundSourceType === 1 ? _l('操作成功') : _l('退款成功'));
+        } else {
+          alert(refundSourceType === 1 ? _l('操作失败') : _l('退款失败'), 2);
+        }
+      })
+      .catch(() => {
+        updateStatus(false);
+      });
+  };
+
   const onOk = () => {
     if (type === 'reimburse') {
-      updateStatus(true);
-      // 退款
-      paymentAjax
-        .applyRefund({
-          projectId,
-          merchantNo,
-          orderId,
-          merchantOrderId,
-          amount: +amount,
-          taxFee: taxAmount,
-          description,
-          refundSourceType,
-          viewId,
-        })
-        .then(res => {
-          if (res) {
-            updateList();
-            alert(refundSourceType === 1 ? _l('操作成功') : _l('退款成功'));
-          } else {
-            alert(refundSourceType === 1 ? _l('操作失败') : _l('退款失败'), 2);
-          }
-        })
-        .catch(() => {
-          updateStatus(false);
-        });
+      // 校验是否有申请中的发票，如果存在，则提示
+      refundSourceType === 1
+        ? onRefund()
+        : merchantInvoiceApi.isTipsForRefund({ orderId, refundAmount: +amount }).then(res => {
+            if (res) {
+              Dialog.confirm({
+                title: _l('确认继续退款？'),
+                description: _l('当前订单正在申请开票，全额退款后，系统会将开票状态改为已取消'),
+                buttonType: 'danger',
+                okText: _l('继续退款'),
+                onOk: onRefund,
+              });
+            } else {
+              onRefund();
+            }
+          });
     } else {
       // 提现
-      paymentAjax
-        .applyWithDraw({
-          projectId,
-          merchantNo,
-          amount: +amount,
-          description,
-        })
-        .then(res => {
-          if (res) {
-            setTimeout(updateList, 1000);
-            alert(_l('提现成功'));
-          } else {
-            alert(_l('提现失败'), 2);
-          }
-        });
+      paymentAjax.applyWithDraw({ projectId, merchantNo, amount: +amount, description }).then(res => {
+        if (res) {
+          setTimeout(updateList, 1000);
+          alert(_l('提现成功'));
+        } else {
+          alert(_l('提现失败'), 2);
+        }
+      });
     }
   };
 

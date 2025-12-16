@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Dropdown, LoadDiv, Radio, RichText, ScrollView } from 'ming-ui';
+import { Dropdown, LoadDiv, PriceTip, Radio, RichText, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID } from '../../enum';
 import { getControlTypeName } from '../../utils';
@@ -168,10 +168,9 @@ export default class Email extends Component {
 
     return (
       <Fragment>
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+        {md.global.Config.IsPlatformLocal && (
           <div className="Gray_75 workflowDetailDesc">
-            {!_.get(md, 'global.Config.IsLocal') && _l('仅支持通过明道云代发邮件。')}
-            {_l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+            <PriceTip text={_l('邮件费用自动从组织信用点中扣除')} />
           </div>
         )}
         <div className="mTop20 bold">{_l('发送方式')}</div>
@@ -392,36 +391,38 @@ export default class Email extends Component {
     const { processId, selectNodeId } = this.props;
 
     if (!this.state.fieldsData.length) {
-      flowNode
-        .getFlowNodeAppDtos({
+      const interfaceFunc = obj =>
+        flowNode.getFlowNodeAppDtos({
+          ...obj,
           processId,
-          nodeId: selectNodeId,
           type: 2,
-        })
-        .then(result => {
-          const fieldsData = result.map(obj => {
-            return {
-              text: obj.nodeName,
-              id: obj.nodeId,
-              nodeTypeId: obj.nodeTypeId,
-              appName: obj.appName,
-              appType: obj.appType,
-              appTypeName: obj.appTypeName,
-              actionId: obj.actionId,
-              nAlias: obj.alias,
-              items: obj.controls.map(o => {
-                return {
-                  type: o.type,
-                  value: o.controlId,
-                  field: getControlTypeName(o),
-                  text: o.controlName,
-                  cAlias: o.alias,
-                };
-              }),
-            };
-          });
-          this.setState({ fieldsData, fieldsVisible: true });
         });
+
+      interfaceFunc({ nodeId: selectNodeId }).then(result => {
+        const fieldsData = result.map(obj => {
+          return {
+            text: obj.nodeName,
+            id: obj.nodeId,
+            nodeTypeId: obj.nodeTypeId,
+            appName: obj.appName,
+            appType: obj.appType,
+            appTypeName: obj.appTypeName,
+            actionId: obj.actionId,
+            nAlias: obj.alias,
+            toolsFunction: () => interfaceFunc({ nodeId: obj.nodeId, tool: true }),
+            items: obj.controls.map(o => {
+              return {
+                type: o.type,
+                value: o.controlId,
+                field: getControlTypeName(o),
+                text: o.controlName,
+                cAlias: o.alias,
+              };
+            }),
+          };
+        });
+        this.setState({ fieldsData, fieldsVisible: true });
+      });
     } else {
       this.setState({ fieldsVisible: true });
     }

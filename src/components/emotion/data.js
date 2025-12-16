@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 // 默认表情
 // 默认表情
-var defaultData = [
+let defaultData = [
   [{ 'zh-Hans': '呵呵', en: 'Smile' }, 'wx_thumb.gif'],
   [{ 'zh-Hans': '哈哈', en: 'Grin' }, 'hanx_thumb.gif'],
   [{ 'zh-Hans': '泪', en: 'Sob' }, 'lei_thumb.gif'],
@@ -51,7 +51,7 @@ var defaultData = [
   [{ 'zh-Hans': 'I LOVE MY TEAM', en: 'I LOVE MY TEAM' }, 'team.gif'],
 ];
 // 熊
-var bearData = [
+let bearData = [
   [{ 'zh-Hans': 'x 嗨', en: 'x Hello' }, '01.png'],
   [{ 'zh-Hans': 'x 哈哈', en: 'x Haha' }, '02.png'],
   [{ 'zh-Hans': 'x 害羞', en: 'x Shy' }, '03.png'],
@@ -78,7 +78,7 @@ var bearData = [
   [{ 'zh-Hans': 'x I LOVE MY TEAM', en: 'x I LOVE MY TEAM' }, '24.png'],
 ];
 // emoji 表情
-var emojiData = {};
+let emojiData = {};
 
 emojiData[0] = {
   name: 'Smileys & People',
@@ -558,10 +558,11 @@ emojiData[3] = {
     '🎌',
     '🏴',
     '🏳',
+    '🏖',
   ],
 };
 
-var AruData = [
+let AruData = [
   [null, '01.png'],
   [null, '02.png'],
   [null, '03.png'],
@@ -654,7 +655,7 @@ var AruData = [
   [null, '90.png'],
 ];
 
-var emotionData = [
+const emotionData = [
   {
     tab: {
       name: _l('历史'),
@@ -744,9 +745,9 @@ var emotionData = [
 // 表情转换
 // ===========================================================
 (function (emotions) {
-  for (var i = 0; i < emotions.length; i++) {
-    for (var j = 0; j < emotions[i].length; j++) {
-      var common = emotions[i][j];
+  for (let i = 0; i < emotions.length; i++) {
+    for (let j = 0; j < emotions[i].length; j++) {
+      let common = emotions[i][j];
       emotions[i][j] = {
         key: _.isObject(common[0]) ? common[0][window.getCurrentLang() === 'zh-Hans' ? 'zh-Hans' : 'en'] : common[0],
         img: common[1],

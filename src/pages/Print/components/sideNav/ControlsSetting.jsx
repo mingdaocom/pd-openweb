@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon, Radio, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { PRINT_FILE_OPTIONS, SYST_PRINT, TIME_FORMAT, UN_PRINT_CONTROL, USER_CONTROLS } from '../../config';
 import { isRelation, sortByShowControls } from '../../util';
@@ -167,7 +168,7 @@ export default function ControlsSetting(props) {
               onClick={() => handleFileRadio(id, l.value)}
             />
             {l.tips && (
-              <Tooltip text={l.tips}>
+              <Tooltip title={l.tips}>
                 <Icon icon="help" className="Gray_9d hoverText Font16" />
               </Tooltip>
             )}

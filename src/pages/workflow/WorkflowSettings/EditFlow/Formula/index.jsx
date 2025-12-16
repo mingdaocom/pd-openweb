@@ -2,9 +2,9 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { SUMMARY_LIST } from 'src/utils/record';
-import { ACTION_ID } from '../../enum';
+import { ACTION_ID, APP_TYPE } from '../../enum';
 import { getIcons } from '../../utils';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
 export default class Formula extends Component {
   constructor(props) {
@@ -65,16 +65,16 @@ export default class Formula extends Component {
         return (
           <div className="pLeft8 pRight8 red">
             <i className="icon-report Font18 mRight5" />
-            {_l('工作表已删除')}
+            {item.appType === APP_TYPE.SHEET ? _l('工作表已删除') : _l('聚合表已删除')}
           </div>
         );
       }
 
       return (
         <Fragment>
-          <div className="workflowContentInfo ellipsis workflowContentBG">
-            <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
-          </div>
+          <WorksheetMessage
+            item={{ ...item, appTypeName: item.appType === APP_TYPE.SHEET ? _l('工作表') : _l('聚合表') }}
+          />
           <div className="workflowContentInfo ellipsis mTop4 pBottom5">
             {_l('汇总方式：')}
             {fields && fields[0].fieldId

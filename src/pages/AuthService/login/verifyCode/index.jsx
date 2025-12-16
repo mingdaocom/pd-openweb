@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';
 import { browserIsMobile, getRequest } from 'src/utils/common';
@@ -223,24 +224,40 @@ export default function (props) {
         const msgStyle = browserIsMobile() ? { 'margin-top': '180px' } : {};
         // 3：验证码错误，这个复用之前密码错误的状态码
         if (data.accountResult === 3) {
-          alert(_l('登录失败'), 3, undefined, undefined, undefined, msgStyle);
+          alert({
+            msg: _l('登录失败'),
+            type: 3,
+            style: msgStyle,
+          });
           return;
         }
         // 0：如果没有点击发送过验证码，直接返回失败
         if (data.accountResult === 0) {
-          alert(_l('登录失败'), 3, undefined, undefined, undefined, msgStyle);
+          alert({
+            msg: _l('登录失败'),
+            type: 3,
+            style: msgStyle,
+          });
           return;
         }
         // 11：验证码过期或者失效，需要重新发送 用户再次点击发送验证码
         if ([11].includes(data.accountResult)) {
           setState({ isfrequentLogin: true });
-          alert(_l('验证码过期或者失效'), 3, undefined, undefined, undefined, msgStyle);
+          alert({
+            msg: _l('验证码过期或者失效'),
+            type: 3,
+            style: msgStyle,
+          });
           return;
         }
         //5频繁登录错误，需要验证码
         if ([5].includes(data.accountResult)) {
           setState({ isfrequentLogin: true });
-          alert(_l('验证码错误'), 3, undefined, undefined, undefined, msgStyle);
+          alert({
+            msg: _l('验证码错误'),
+            type: 3,
+            style: msgStyle,
+          });
           return;
         }
         loginCallback({
@@ -278,7 +295,7 @@ export default function (props) {
             onChange({ step: '' });
           }}
         >
-          <Tooltip text={<span>{_l('返回上一步')}</span>} popupPlacement="bottom" tooltipClass="deleteHoverTips">
+          <Tooltip title={_l('返回上一步')} placement="bottom">
             <Icon icon="backspace mRight8" />
           </Tooltip>
         </div>

@@ -3,10 +3,11 @@ import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
+import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import BarCode from 'src/components/Form/MobileForm/widgets/BarCode/index.jsx';
-import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { isDocument } from 'src/components/UploadFiles/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -20,6 +21,7 @@ import { checkCellIsEmpty, getControlStyles } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
+import OperateButtons from './components/OperateButtons';
 import './index.less';
 
 const Con = styled.div`
@@ -51,7 +53,7 @@ export default class RecordCard extends Component {
     this.state = {
       checked: data[view.advancedSetting.checkradioid] === '1',
       coverError: false,
-      appshowtype: _.includes([1, 3, 6], view.viewType) ? '1' : _.get(view, 'advancedSetting.appshowtype') || '0',
+      appshowtype: _.includes([1, 3, 4, 6], view.viewType) ? '1' : _.get(view, 'advancedSetting.appshowtype') || '0',
     };
   }
   componentDidMount() {
@@ -76,7 +78,7 @@ export default class RecordCard extends Component {
     }
     let coverControlData;
     try {
-      coverControlData = getCoverControlData(JSON.parse(data[coverCid]) || []);
+      coverControlData = getCoverControlData(data[coverCid] ? JSON.parse(data[coverCid]) : []);
     } catch (err) {
       console.log(err);
       return null;
@@ -163,6 +165,8 @@ export default class RecordCard extends Component {
   }
   handleCoverClick = e => {
     const { view, data } = this.props;
+    const { opencover } = view.advancedSetting || {};
+    if (opencover === '2') return;
     const { cover } = this;
     let coverControlData;
     try {
@@ -255,7 +259,7 @@ export default class RecordCard extends Component {
           coverType ? (
             <img
               onClick={this.handleCoverClick}
-              className={cx('img', { w100: coverType === 0 && coverFillType === 1 })}
+              className={cx('img', { w100: coverType === 0 && coverFillType === 1, mLeft6: coverPosition === '1' })}
               src={url}
               role="presentation"
             />
@@ -275,7 +279,7 @@ export default class RecordCard extends Component {
     );
   }
   renderControl(id, nameVisible = false) {
-    const { data, view, projectId, controls } = this.props;
+    const { data, view, projectId, controls, sheetSwitchPermit } = this.props;
     const { cardControls } = this;
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
     const cell = Object.assign({}, visibleControl, { value: data[visibleControl.controlId] });
@@ -287,7 +291,7 @@ export default class RecordCard extends Component {
           <div className="controlName ellipsis">
             {visibleControl.desc ? (
               <Tooltip
-                text={
+                title={
                   <span
                     className="Block"
                     style={{
@@ -301,10 +305,9 @@ export default class RecordCard extends Component {
                     {visibleControl.desc}
                   </span>
                 }
-                autoCloseDelay={0}
-                action={['click']}
-                popupPlacement={'topLeft'}
-                offset={[-12, 0]}
+                trigger={['click']}
+                placement="topLeft"
+                align={{ offset: [-12, 0] }}
               >
                 <i
                   className="icon-info_outline descBoxInfo pointer Font16 Gray_9e mRight5"
@@ -328,6 +331,7 @@ export default class RecordCard extends Component {
               rowHeight={34}
               cell={cell}
               from={4}
+              sheetSwitchPermit={sheetSwitchPermit}
             />
           ) : (
             <div className="emptyTag"></div>
@@ -337,7 +341,7 @@ export default class RecordCard extends Component {
     );
   }
   renderContent() {
-    const { data, view, controls, sheetSwitchPermit } = this.props;
+    const { data, view, controls, sheetSwitchPermit, mark } = this.props;
     const { advancedSetting, showControlName, viewId } = view;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let titleControl = _.find(controls, control => control.attribute === 1) || {};
@@ -381,6 +385,7 @@ export default class RecordCard extends Component {
           border: recordColor && recordColorConfig.showBg ? `1px solid ${recordColor.lightColor}` : undefined,
         }}
       >
+        {mark && <div className="mark">{mark}</div>}
         {recordColor && recordColorConfig.showLine && (
           <div
             className={cx('colorTag', { colorTagRight: coverPosition === '1' })}
@@ -425,11 +430,31 @@ export default class RecordCard extends Component {
     }
   };
   render() {
-    const { className, view, data, onClick, batchOptVisible, batchOptCheckedData, controls } = this.props;
+    const {
+      className,
+      view,
+      data,
+      onClick,
+      batchOptVisible,
+      batchOptCheckedData,
+      controls,
+      onDeleteSuccess,
+      updateRow,
+    } = this.props;
     const { coverCid } = view;
     let batchOptChecked = batchOptVisible && batchOptCheckedData.includes(data.rowid);
     const showControlStyle = _.get(view, 'advancedSetting.controlstyleapp') === '1';
     const { coverPosition } = getCoverStyle(view);
+    const showOperateButtons = [0, 1, 3].includes(view.viewType);
+    const isPublicShare =
+      _.get(window, 'shareState.isPublicRecord') ||
+      _.get(window, 'shareState.isPublicView') ||
+      _.get(window, 'shareState.isPublicPage') ||
+      _.get(window, 'shareState.isPublicQuery') ||
+      _.get(window, 'shareState.isPublicForm') ||
+      _.get(window, 'shareState.isPublicWorkflowRecord') ||
+      _.get(window, 'shareState.isPublicPrint') ||
+      window.isPublicApp;
 
     const controlStyles =
       showControlStyle &&
@@ -440,28 +465,37 @@ export default class RecordCard extends Component {
           .filter(_.identity),
       );
     return (
-      <Con
-        ref={node => (this.cardWrap = node)}
-        controlStyles={controlStyles}
-        className={cx('mobileWorksheetRecordCard', className, {
-          coverRight: ['0'].includes(coverPosition),
-          converTop: ['2'].includes(coverPosition),
-          batchOptStyle: batchOptChecked,
-        })}
-        onClick={batchOptVisible ? e => this.checkedCurrentRow(e, data) : onClick}
-        key={data.rowid}
-      >
-        {coverCid && this.renderCover()}
-        {this.renderContent()}
-        {batchOptVisible && (
-          <div
-            className={cx('batchOptCheck', { batchOptChecked: batchOptChecked })}
-            onClick={e => this.checkedCurrentRow(e, data)}
-          >
-            <Icon icon="done" />
-          </div>
+      <div className={cx('mobileViewRecordCardContainer', { batchOptStyle: batchOptChecked })}>
+        <Con
+          ref={node => (this.cardWrap = node)}
+          controlStyles={controlStyles}
+          className={cx('mobileWorksheetRecordCard', className, {
+            coverRight: ['0'].includes(coverPosition),
+            converTop: ['2'].includes(coverPosition),
+          })}
+          onClick={batchOptVisible ? e => this.checkedCurrentRow(e, data) : onClick}
+          key={data.rowid}
+        >
+          {coverCid && this.renderCover()}
+          {this.renderContent()}
+          {batchOptVisible && (
+            <div
+              className={cx('batchOptCheck', { batchOptChecked: batchOptChecked })}
+              onClick={e => this.checkedCurrentRow(e, data)}
+            >
+              <Icon icon="done" />
+            </div>
+          )}
+        </Con>
+        {showOperateButtons && !isPublicShare && (
+          <OperateButtons
+            key={`operateButtons-${data.rowid}`}
+            row={data}
+            onDeleteSuccess={onDeleteSuccess}
+            updateRow={updateRow}
+          />
         )}
-      </Con>
+      </div>
     );
   }
 }

@@ -10,21 +10,6 @@ export const MODULE_TYPE_TO_NAME = {
   editProtect: _l('编辑保护'),
 };
 
-export const SUBMIT_NEXT_ACTION_LIST = [
-  {
-    value: '1',
-    text: _l('关闭弹层'),
-  },
-  {
-    value: '2',
-    text: _l('继续创建下一条'),
-  },
-  {
-    value: '3',
-    text: _l('打开刚刚创建的记录'),
-  },
-];
-
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论

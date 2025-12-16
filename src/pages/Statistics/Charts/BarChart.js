@@ -3,6 +3,7 @@ import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, formatterTooltipTitle, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { toFixed } from 'src/utils/control';
 import {
@@ -374,7 +375,7 @@ export default class extends Component {
           : undefined,
       rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: data => {
         const controlId = formatControlInfo(data.groupName).id;
@@ -495,7 +496,7 @@ export default class extends Component {
       label:
         showNumber || showPercent
           ? {
-              position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
+              position: isPile || isPerPile ? 'middle' : isVertical ? undefined : 'right',
               layout: [
                 hideOverlapText ? { type: 'hide-overlap' } : null,
                 isPile || isPerPile ? { type: 'adjust-color' } : null,
@@ -681,9 +682,9 @@ export default class extends Component {
       return (
         <Fragment>
           <span>{formatSummaryName(data)}: </span>
-          <span data-tip={originalCount ? originalCount : null} className="count Font22">
-            {count || 0}
-          </span>
+          <Tooltip title={originalCount ? originalCount : null}>
+            <span className="count Font22">{count || 0}</span>
+          </Tooltip>
         </Fragment>
       );
     };

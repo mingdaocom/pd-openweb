@@ -50,7 +50,7 @@
   }
 
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected {
-    .listName,
+    .treeNodeIcon,
     .departmentName {
       color: #1677ff !important;
     }
@@ -86,6 +86,9 @@
     }
     .ant-tree-draggable-icon {
       display: none !important;
+    }
+    .disabledDepartmentIcon {
+      color: #fd5d22 !important;
     }
   }
 
@@ -176,13 +179,6 @@
       z-index: 0;
       position: relative;
 
-      &:first-child,
-      &:nth-child(2) {
-        .diaActionTree {
-          bottom: -45px !important;
-        }
-      }
-
       .ant-tree-title {
         z-index: 0;
 
@@ -209,12 +205,6 @@
               color: #1677ff;
             }
           }
-        }
-
-        .diaActionTree {
-          position: absolute;
-          z-index: 10;
-          bottom: 0;
         }
       }
 
@@ -333,5 +323,17 @@
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected:hover::before,
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected::before {
     background: #dbeeff 0 0 no-repeat padding-box !important;
+  }
+}
+
+.disabledDepartmentDialog {
+  .mui-dialog-desc {
+    color: #151515 !important;
+  }
+  .departmentStatusWrap {
+    display: inline-block;
+    padding: 0px 10px;
+    border-radius: 22px;
+    background: #f7f7f7;
   }
 }

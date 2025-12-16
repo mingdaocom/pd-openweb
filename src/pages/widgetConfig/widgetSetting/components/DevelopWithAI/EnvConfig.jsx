@@ -1,11 +1,12 @@
-import React, { Fragment, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'antd';
-import { find, get, pick } from 'lodash';
+import { find, get, pick, pickBy } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Dropdown, Switch } from 'ming-ui';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import worksheetAjax from 'src/api/worksheet';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { selectRecords } from 'src/components/SelectRecords';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
 import CustomReference from '../CustomWidget/CustomReference';
@@ -206,7 +207,39 @@ function getValueToShow({ formData, reference, control, envIsMobile, envIsDisabl
   return result;
 }
 
-function getEnvValueForShow({ control, valueToShow, selectedEnv, formData } = {}) {
+function EnvValueShow({ worksheetId, recordId, control, data }) {
+  const [loading, setLoading] = useState(control.type === 34);
+  const [rows, setRows] = useState([]);
+  useEffect(() => {
+    if (loading) {
+      setLoading(false);
+      const maxLength = 3;
+      worksheetAjax
+        .getRowRelationRows({
+          worksheetId,
+          rowId: recordId,
+          controlId: control.controlId,
+          pageIndex: 1,
+          pageSize: 200,
+        })
+        .then(res => {
+          setLoading(false);
+          setRows(
+            res.data
+              .slice(0, maxLength)
+              .map(r => pickBy(r, (value, key) => key.length === 24))
+              .concat(res.data.length > maxLength ? '...' : []),
+          );
+        });
+    }
+  }, []);
+  if (loading) {
+    return 'loading...';
+  }
+  return JSON.stringify(Object.assign({}, data, control.type === 34 ? { rows } : {}), null, 2);
+}
+
+function getEnvValueForShow({ worksheetId, control, valueToShow, selectedEnv, formData, recordId } = {}) {
   let showItem = find(valueToShow, { value: selectedEnv });
   if (!showItem) {
     return '';
@@ -223,7 +256,15 @@ function getEnvValueForShow({ control, valueToShow, selectedEnv, formData } = {}
           <div className="envValueArea">{showItem.valueToShow}</div>
           <div className="envSecTitle">{_l('引用字段信息')}</div>
           <div className="envValueArea flex">
-            {JSON.stringify(pick(matchControl, ['controlId', 'controlName', 'options', 'value']), null, 2)}
+            <EnvValueShow
+              worksheetId={worksheetId}
+              recordId={recordId}
+              control={matchControl}
+              data={pick(
+                matchControl,
+                ['controlId', 'controlName', 'options', 'value'].concat(matchControl.type === 34 ? ['rows'] : []),
+              )}
+            />
           </div>
         </Fragment>
       );
@@ -368,7 +409,16 @@ export default function EnvConfig(props) {
             data={valueToShow.map(item => ({ text: item.text, value: item.value }))}
             onChange={value => setSelectedEnv(value)}
           />
-          <div className="content">{getEnvValueForShow({ control, valueToShow, selectedEnv, formData })}</div>
+          <div className="content">
+            {getEnvValueForShow({
+              control,
+              valueToShow,
+              selectedEnv,
+              formData,
+              worksheetId,
+              recordId: mockRecord?.rowid,
+            })}
+          </div>
           <i className="icon icon-close close" onClick={() => setDrawerVisible(false)}></i>
         </DrawerContent>
       </Drawer>

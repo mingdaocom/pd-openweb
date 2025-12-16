@@ -146,7 +146,7 @@ export default function (props) {
         filterControls: [],
       };
       sheetAjax.getFilterRows(args).then(res => {
-        formatSettingData(res.data, res.template ? res.template.controls : []);
+        formatSettingData(res.data);
       });
     }
   };
@@ -320,7 +320,7 @@ export default function (props) {
               } else if (isSameType([27], controlInfo)) {
                 addDep(e, true);
               } else if (isSameType([48], controlInfo)) {
-                addRole(e, true);
+                addRole(e);
               } else {
                 setState({
                   setting: setting.concat(['add']),

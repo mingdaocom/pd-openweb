@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Input as AntdInput } from 'antd';
+import { Input as AntdInput, Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, LoadDiv, QiniuUpload, SortableList, Tooltip } from 'ming-ui';
+import { Button, Dialog, Icon, Input, LoadDiv, QiniuUpload, SortableList } from 'ming-ui';
 import RegExpValidator from 'src/utils/expression';
 import suggestImg from './image/suggest.png';
 import { coverUrls } from './utils';
@@ -186,7 +186,7 @@ export default function BulletinSetting(props) {
     !bulletinBoards.length
       ? [
           {
-            url: md.global.FileStoreConfig.pictureHost + coverUrls[0],
+            url: `${md.global.FileStoreConfig.pictureHost}/${coverUrls[0]}`,
             key: coverUrls[0],
             link: '',
             title: '',
@@ -257,7 +257,7 @@ export default function BulletinSetting(props) {
     const picKey = coverUrls[_.random(0, 7)];
     const newBulletins = bulletins.concat({
       key: picKey,
-      url: md.global.FileStoreConfig.pictureHost + picKey,
+      url: `${md.global.FileStoreConfig.pictureHost}/${picKey}`,
       title: '',
       link: '',
       bucket: 4,
@@ -356,15 +356,13 @@ export default function BulletinSetting(props) {
           <span>
             {_l('支持 jpg、jpeg、png、gif格式，2MB以内')} <span></span>
           </span>
-          <Tooltip
-            themeColor="white"
-            tooltipClass="suggestWrapper"
-            popupPlacement="bottom"
-            popupAlign={{
+          <Popover
+            overlayClassName="suggestWrapper"
+            placement="bottom"
+            align={{
               overflow: { adjustX: true, adjustY: true },
             }}
-            autoCloseDelay={0}
-            text={
+            content={
               <React.Fragment>
                 <div className="title">{_l('设计建议')}</div>
                 <div className="description">
@@ -377,7 +375,7 @@ export default function BulletinSetting(props) {
             }
           >
             <span className="ThemeColor3 mLeft4 pointer bold">{_l('设计建议')}</span>
-          </Tooltip>
+          </Popover>
         </div>
         <div
           className="image"
@@ -422,7 +420,7 @@ export default function BulletinSetting(props) {
         <div className="picList">
           {coverUrls.map((item, index) => {
             const isActive = item === bulletins[activeIndex].key;
-            const url = md.global.FileStoreConfig.pictureHost + item;
+            const url = `${md.global.FileStoreConfig.pictureHost}/${item}`;
             return (
               <div
                 key={index}

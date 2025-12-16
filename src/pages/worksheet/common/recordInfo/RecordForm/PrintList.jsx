@@ -5,7 +5,8 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, MenuItem, Tooltip } from 'ming-ui';
+import { Icon, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import webCacheAjax from 'src/api/webCache';
 import worksheetAjax from 'src/api/worksheet';
 import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum';
@@ -15,6 +16,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
 import { getDownLoadUrl } from 'src/pages/Print/util';
+import { browserIsMobile, emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import IconBtn from './IconBtn';
@@ -79,6 +81,7 @@ export async function handleTemplateRecordPrint({
   attriData,
   workId,
   instanceId,
+  customWin,
 }) {
   const it = template;
 
@@ -130,7 +133,12 @@ export async function handleTemplateRecordPrint({
       key: `${printKey}`,
       value: JSON.stringify(printData),
     });
-    window.open(`${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`);
+    const printViewUrl = `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`;
+    if (browserIsMobile()) {
+      (customWin || window).location.href = printViewUrl;
+    } else {
+      window.open(printViewUrl);
+    }
   }
 }
 
@@ -159,12 +167,17 @@ export default class PrintList extends Component {
 
   componentDidMount() {
     this.getData();
+    emitter.on('RELOAD_RECORD_INFO_PRINT_LIST', this.getData);
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.worksheetId !== prevProps.worksheetId || this.props.recordId !== prevProps.recordId) {
       this.getData();
     }
+  }
+
+  componentWillUnmount() {
+    emitter.off('RELOAD_RECORD_INFO_PRINT_LIST', this.getData);
   }
 
   getData = () => {
@@ -342,7 +355,7 @@ export default class PrintList extends Component {
                           <span className="detail">{getPrintCardInfoOfTemplate(it).text}</span>
                         ) : (isCharge || !it.allowDownloadPermission) && showDownload ? (
                           <span className="detail" onClick={e => this.getDownload(it, e)}>
-                            <Tooltip text={_l('导出')} popupPlacement="bottom">
+                            <Tooltip title={_l('导出')} placement="bottom" className="Block">
                               <Icon icon="download" className="Font16 downloadIcon" />
                             </Tooltip>
                           </span>
@@ -373,7 +386,7 @@ export default class PrintList extends Component {
         >
           {type === 1 ? (
             <IconBtn data-event="print">
-              <Tooltip offset={[0, 0]} text={_l('打印')} popupPlacement="bottom">
+              <Tooltip title={_l('打印')} placement="bottom" align={{ offset: [0, 0] }}>
                 <Icon icon="print" className="Font22 Hand" />
               </Tooltip>
             </IconBtn>

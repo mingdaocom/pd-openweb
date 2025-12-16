@@ -119,7 +119,6 @@ export function getTypeKey(type) {
   return typeKey;
 }
 
-// TODO
 export function formatValuesOfOriginConditions(conditions) {
   return conditions.map(condition =>
     condition.isGroup && condition.groupFilters
@@ -986,6 +985,12 @@ export function relateDy(conditionType, controls, control, defaultValue) {
     case API_ENUM_TO_TYPE.AREA_INPUT_24:
     case API_ENUM_TO_TYPE.AREA_INPUT_19:
     case API_ENUM_TO_TYPE.AREA_INPUT_23:
+      return _.filter(controls, items =>
+        _.includes(
+          [API_ENUM_TO_TYPE.AREA_INPUT_19, API_ENUM_TO_TYPE.AREA_INPUT_23, API_ENUM_TO_TYPE.AREA_INPUT_24],
+          items.type,
+        ),
+      );
     case API_ENUM_TO_TYPE.SWITCH:
     case API_ENUM_TO_TYPE.ATTACHMENT:
       return [];
@@ -1203,20 +1208,9 @@ export function fillConditionValue({
         { noMask: true },
       ),
     ];
-  } else if (
-    dataType === 6 ||
-    dataType === 8 ||
-    dataType === 31 ||
-    dataType === 46
-    // TODO 汇总数值类
-  ) {
+  } else if (dataType === 6 || dataType === 8 || dataType === 31 || dataType === 46) {
     condition.value = value;
-  } else if (
-    dataType === 15 ||
-    dataType === 16
-    // || dataType === 38 // 公式日期
-    // TODO 汇总日期类
-  ) {
+  } else if (dataType === 15 || dataType === 16) {
     try {
       condition.value = moment(value).format(
         getDatePickerConfigs({
@@ -1313,7 +1307,7 @@ export function fillConditionValue({
       dataType,
     )
   ) {
-    condition.values = [value];
+    condition.values = [safeParse(value, '{}').code];
   } else if (dataType === 28 || dataType === 33) {
     if (_.includes([FILTER_CONDITION_TYPE.EQ, FILTER_CONDITION_TYPE.NE], condition.filterType)) {
       condition.values = [value];

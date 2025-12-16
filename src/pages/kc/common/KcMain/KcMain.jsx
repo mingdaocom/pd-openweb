@@ -8,6 +8,7 @@ import { min } from 'lodash';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withDragSelect from 'ming-ui/decorators/withDragSelect';
@@ -464,9 +465,11 @@ class KcMain extends Component {
             )}
           >
             <div className={cx('kcToolbar boxSizing', { hide: !validList.size })}>
-              <span className="selectAll boderRadAll_3" data-tip={_l('全选')} onClick={() => selectAllItems(false)}>
-                <i className={cx('icon-ok', { hide: !(selectAll && list.size === selectedItems.size) })} />
-              </span>
+              <Tooltip title={_l('全选')}>
+                <span className="selectAll boderRadAll_3" onClick={() => selectAllItems(false)}>
+                  <i className={cx('icon-ok', { hide: !(selectAll && list.size === selectedItems.size) })} />
+                </span>
+              </Tooltip>
               <span className={cx('kcToolbarSingle', { hide: selectedItems.size >= 2 || !isList })}>
                 <span
                   className={cx('kcToolbarLabel', { disabledSort: currentRoot === PICK_TYPE.RECENT })}
@@ -517,39 +520,51 @@ class KcMain extends Component {
               </span>
               <span className={cx('kcToolbarMultiple', { hide: selectedItems.size < 2 })}>
                 {_l('已选中') + selectedCount + _l('项')}
-                <span className={cx({ hide: isRecycle })} data-tip={_l('批量下载')}>
-                  <i className="icon-kc-hover-download ThemeColor3 pointer" onClick={batchDownload} />
-                </span>
-                <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量移动')}>
-                  <i
-                    className="icon-task-replace ThemeColor3 pointer"
-                    onClick={() =>
-                      moveOrCopyClick(
-                        NODE_OPERATOR_TYPE.MOVE,
-                        typeof currentRoot === 'object' &&
-                          currentRoot.permission != ROOT_PERMISSION_TYPE.OWNER &&
-                          currentRoot.permission != ROOT_PERMISSION_TYPE.ADMIN
-                          ? currentRoot.id
-                          : null,
-                      )
-                    }
-                  />
-                </span>
-                <span className={cx({ hide: isRecycle })} data-tip={_l('批量复制')}>
-                  <i
-                    className="icon-knowledge-more-folder ThemeColor3 pointer"
-                    onClick={() => moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}
-                  />
-                </span>
-                <span className={cx({ hide: isRecycle || isReadOnly })} data-tip={_l('批量删除')}>
-                  <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.RECYCLED)} />
-                </span>
-                <span className={cx({ hide: !isRecycle })} data-tip="批量彻底删除">
-                  <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.DELETED)} />
-                </span>
-                <span className={cx({ hide: !isRecycle })} data-tip={_l('批量还原')}>
-                  <i className="icon-rotate ThemeColor3 pointer" onClick={restoreNode} />
-                </span>
+                <Tooltip title={_l('批量下载')}>
+                  <span className={cx({ hide: isRecycle })}>
+                    <i className="icon-kc-hover-download ThemeColor3 pointer" onClick={batchDownload} />
+                  </span>
+                </Tooltip>
+                <Tooltip title={_l('批量移动')}>
+                  <span className={cx({ hide: isRecycle || isReadOnly })}>
+                    <i
+                      className="icon-task-replace ThemeColor3 pointer"
+                      onClick={() =>
+                        moveOrCopyClick(
+                          NODE_OPERATOR_TYPE.MOVE,
+                          typeof currentRoot === 'object' &&
+                            currentRoot.permission != ROOT_PERMISSION_TYPE.OWNER &&
+                            currentRoot.permission != ROOT_PERMISSION_TYPE.ADMIN
+                            ? currentRoot.id
+                            : null,
+                        )
+                      }
+                    />
+                  </span>
+                </Tooltip>
+                <Tooltip title={_l('批量复制')}>
+                  <span className={cx({ hide: isRecycle })}>
+                    <i
+                      className="icon-knowledge-more-folder ThemeColor3 pointer"
+                      onClick={() => moveOrCopyClick(NODE_OPERATOR_TYPE.COPY)}
+                    />
+                  </span>
+                </Tooltip>
+                <Tooltip title={_l('批量删除')}>
+                  <span className={cx({ hide: isRecycle || isReadOnly })}>
+                    <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.RECYCLED)} />
+                  </span>
+                </Tooltip>
+                <Tooltip title={_l('批量彻底删除')}>
+                  <span className={cx({ hide: !isRecycle })}>
+                    <i className="icon-trash ThemeColor3 pointer" onClick={() => removeNode(NODE_STATUS.DELETED)} />
+                  </span>
+                </Tooltip>
+                <Tooltip title={_l('批量还原')}>
+                  <span className={cx({ hide: !isRecycle })}>
+                    <i className="icon-rotate ThemeColor3 pointer" onClick={restoreNode} />
+                  </span>
+                </Tooltip>
               </span>
             </div>
             {kclist}

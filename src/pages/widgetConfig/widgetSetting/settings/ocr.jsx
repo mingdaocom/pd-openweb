@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
-import { RadioGroup } from 'ming-ui';
+import { PriceTip, RadioGroup } from 'ming-ui';
 import WidgetDropdown from '../../components/Dropdown';
 import { TEMPLATE_TYPE } from '../../config/ocr';
 import { ALL_SYS } from '../../config/widget';
@@ -115,10 +115,7 @@ export default function OcrDisplay(props) {
         />
         {ocrapitype !== '1' && (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
           <div className="mTop10 Gray_9e">
-            {_l(
-              '使用系统集成的识别服务，单次识别收费为%0/次，批量处理按照%0/附件数量计费，费用将直接从企业账务中心扣除。',
-              _.get(md, 'global.PriceConfig.DataPipelinePrice'),
-            )}
+            <PriceTip text={_l('使用系统集成的识别服务，费用自动从组织信用点中扣除')} />
           </div>
         )}
       </SettingItem>

@@ -3,10 +3,11 @@ import cx from 'classnames';
 import { every, find, findIndex, get, includes, isEmpty, isEqual, isFunction, isUndefined } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { checkCellIsEmpty, controlIsNumber, isRelateRecordTableControl } from 'src/utils/control';
 import { getRecordColor } from 'src/utils/record';
@@ -138,7 +139,6 @@ const AddChildBtn = styled.div`
 `;
 
 /**
- * TODO
  * getIndex
  * 键盘事件改为 数据驱动型
  */
@@ -282,6 +282,7 @@ function Cell(props) {
     treeLayerControlId,
     headTitleCenter,
     // functions
+    setActiveRow,
     updateSheetColumnWidths,
     renderFunctions,
     clearCellError,
@@ -295,6 +296,7 @@ function Cell(props) {
     actions = {},
     getColumnWidth,
     isDraft,
+    inView,
   } = data;
   const cellCache = useRef({});
   const { columnIndex, rowIndex } = getIndex({
@@ -320,11 +322,8 @@ function Cell(props) {
   if (row.isSubListFooter) {
     return <span style={{ ...cellStyle, height: 26 }} />;
   }
-  if (control.type === 'emptyForResize') {
-    return <div style={style} />;
-  }
   const value = row[control.controlId];
-  const cellType = getCellType(grid.id, control, rowIndex, columnIndex);
+  const cellType = getCellType(grid.id);
   const needHightLight =
     !isUndefined(window[`sheetTableHighlightRow${tableId}`]) && window[`sheetTableHighlightRow${tableId}`] === rowIndex;
   let className = cx(
@@ -353,7 +352,7 @@ function Cell(props) {
       fixedRow: rowIndex === 0,
       lastFixedColumn: columnIndex === fixedColumnCount && fixedColumnCount !== 0,
       // focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
-      highlight: needHightLight,
+      highlight: needHightLight || String(window[`activeRowIndex-${tableId}`]) === String(rowIndex),
       highlightFromProps: sheetViewHighlightRows[row.rowid],
       focusShowEditIcon:
         tableType === 'classic' &&
@@ -402,6 +401,20 @@ function Cell(props) {
     if (headTitleCenter) {
       className += ' headAlignCenter';
     }
+  }
+  if (control.type === 'emptyForResize') {
+    return (
+      <div
+        style={cellStyle}
+        className={cx(className, 'emptyForResize')}
+        onClick={() => {
+          if (control.key === 'number' || !row.rowid || allowlink === '0') return;
+          if (!isEmpty(row)) {
+            onCellClick(control, row, rowIndex);
+          }
+        }}
+      />
+    );
   }
   const recordColor =
     recordColorConfig &&
@@ -518,6 +531,7 @@ function Cell(props) {
       isTrash={isTrash}
       from={from}
       isDraft={isDraft}
+      inView={inView}
       allowlink={allowlink}
       leftFixedCount={leftFixedCount}
       isSubList={isSubList}
@@ -546,11 +560,12 @@ function Cell(props) {
       masterData={masterData}
       columnStyle={currentColumnStyle}
       // functions
+      setActiveRow={setActiveRow}
       rowFormData={tableDataWithRowFormData[rowIndex]}
       getRow={getRow}
       clearCellError={clearCellError}
       getPopupContainer={getPopupContainer}
-      enterEditing={() => enterEditing(cellIndex)}
+      enterEditing={() => enterEditing(cellIndex, rowIndex)}
       onCellClick={onCellClick}
       onFocusCell={() => onFocusCell({ row, cellIndex, rowIndex, columnIndex })}
       scrollTo={scrollTo}
@@ -562,22 +577,15 @@ function Cell(props) {
   );
   if (control.isTreeExpandCell && treeNodeData) {
     const targetControlId = treeLayerControlId || _.get(view, 'viewControl');
-    const addParentControl = find(controls, c => c.controlId === targetControlId);
-    const addChildControl = find(controls, c => c.sourceControlId === targetControlId);
+    let addParentControl = { ...find(controls, c => c.controlId === targetControlId) };
+    let addChildControl = { ...find(controls, c => c.sourceControlId === targetControlId) };
+    addChildControl.fieldPermission =
+      rulePermissions[`${row.rowid}-${addChildControl.controlId}`] || addChildControl.fieldPermission || '111';
     const treeStyle = get(view, 'advancedSetting.treestyle') || '1';
     const expandShowAsPlus = treeStyle === '2';
-    const addSubRecordVisible =
-      addParentControl &&
-      allowAdd &&
-      lineEditable &&
-      controlState({
-        ...addParentControl,
-        ...(isSubList
-          ? {
-              fieldPermission: addParentControl.originalFieldPermission || addParentControl.fieldPermission,
-            }
-          : {}),
-      }).editable;
+    const addSubRecordVisible = allowAdd && lineEditable && addChildControl && controlState(addChildControl).editable;
+
+    const showShortcutTip = !(isSubList || isRelateRecordList) && !get(treeTableViewData, 'expandedAllKeys.' + row.key);
     return (
       <CellCon
         className={cx('expandCell', `row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex}`, {
@@ -609,12 +617,9 @@ function Cell(props) {
               getRelateRecordCountOfControlFromRow(addChildControl, row) > 0)) && (
             <Tooltip
               mouseEnterDelay={0.8}
-              text={
-                !(isSubList || isRelateRecordList) &&
-                !get(treeTableViewData, 'expandedAllKeys.' + row.key) &&
-                _l('Shift + 点击展开所有下级')
-              }
-              popupPlacement="bottom"
+              title={showShortcutTip ? _l('展开所有下级') : ''}
+              shortcut={showShortcutTip ? (window.isMacOs ? '⇧单击' : 'shift + 单击') : ''}
+              placement="bottom"
             >
               <TreeExpandIcon
                 onClick={e => {
@@ -644,7 +649,7 @@ function Cell(props) {
         </TreeExpandCell>
         {cell}
         {addSubRecordVisible && (
-          <Tooltip mouseEnterDelay={0.6} text={_l('添加子记录')} popupPlacement="bottom">
+          <Tooltip mouseEnterDelay={0.6} title={_l('添加子记录')} placement="bottom">
             <AddChildBtn
               className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
               style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}

@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import discussionAjax from 'src/api/discussion';
 import favoriteApi from 'src/api/favorite.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
@@ -86,7 +87,9 @@ export default function InfoHeader(props) {
     _.get(window, 'shareState.isPublicQuery') ||
     _.get(window, 'shareState.isPublicForm') ||
     _.get(window, 'shareState.isPublicWorkflowRecord') ||
-    _.get(window, 'shareState.isPublicPrint');
+    _.get(window, 'shareState.isPublicPrint') ||
+    _.get(window, 'shareState.isPublicChatbot');
+
   const project = getCurrentProject(projectId);
   const showFav =
     !window.shareState.shareId &&
@@ -152,7 +155,7 @@ export default function InfoHeader(props) {
   const sideBarBtn = () => {
     return (
       <SideBarIcon className="Hand ThemeHoverColor3" onClick={onSideIconClick}>
-        <Tooltip offset={[0, 0]} text={<span>{sideVisible ? _l('收起') : _l('展开')}</span>} popupPlacement="bottom">
+        <Tooltip title={sideVisible ? _l('收起') : _l('展开')} placement="bottom" align={{ offset: [0, 0] }}>
           <span>
             <i className={`icon ${sideVisible ? 'icon-sidebar_close' : 'icon-sidebar_open'}`} />
           </span>
@@ -183,7 +186,7 @@ export default function InfoHeader(props) {
     return notDialog ? (
       btn
     ) : (
-      <Tooltip offset={[0, 0]} text={<span className="nowrap">{_l('关闭（esc）')}</span>} popupPlacement="bottom">
+      <Tooltip title={_l('关闭')} placement="bottom" align={{ offset: [0, 0] }} shortcut={'Esc'}>
         {btn}
       </Tooltip>
     );
@@ -240,7 +243,7 @@ export default function InfoHeader(props) {
       </IconBtn>
     );
     return (
-      <Tooltip offset={[0, 0]} text={<span>{isFavorite ? _l('取消收藏') : _l('收藏')}</span>} popupPlacement="bottom">
+      <Tooltip title={isFavorite ? _l('取消收藏') : _l('收藏')} placement="bottom" align={{ offset: [0, 0] }}>
         {btn}
       </Tooltip>
     );
@@ -273,11 +276,11 @@ export default function InfoHeader(props) {
               onRefresh();
             }}
           >
-            <Tooltip offset={[0, 0]} text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('刷新')} placement="bottom" align={{ offset: [0, 0] }}>
               <i className="icon icon-task-later" />
             </Tooltip>
           </span>
-          {!isPublicShare && !iseditting ? (
+          {!isPublicShare ? (
             <Operates
               isCharge={isCharge}
               addRefreshEvents={addRefreshEvents}

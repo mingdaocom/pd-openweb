@@ -3,7 +3,8 @@ import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Dropdown, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
 import { SettingItem } from 'src/pages/widgetConfig/styled';
@@ -170,7 +171,7 @@ export default class ExcelControlSetting extends Component {
                   <div className="flex">{item.text}</div>
                   <span>
                     {data.attribute === 1 && (item.value === 14 || item.value === 36 || item.value === 'next') && (
-                      <Tooltip text={<span>{_l('标题字段不能设置为此类型')}</span>} action={['hover']}>
+                      <Tooltip title={_l('标题字段不能设置为此类型')}>
                         <Icon icon="info_outline" className="Gray_bd mLeft8 Hand Font15" />
                       </Tooltip>
                     )}

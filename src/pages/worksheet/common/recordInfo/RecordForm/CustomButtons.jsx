@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _, { find, get, includes, isFunction, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Button, Dialog, Icon, MenuItem, SvgIcon, VerifyPasswordConfirm } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import { mdNotification } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
@@ -187,13 +187,6 @@ export default class CustomButtons extends React.Component {
     return get(this.activeBtn, 'advancedSetting.continuewrite') === '1';
   }
   get tipConfig() {
-    return {
-      enableTip: get(this.activeBtn, 'advancedSetting.opentip') !== '0',
-      tipText: get(this.activeBtn, 'advancedSetting.tiptext') || _l('操作完成'),
-    };
-  }
-
-  getTipConfigWithTranslate() {
     const { appId, worksheetId } = this.props;
     const translateInfo = getTranslateInfo(appId, worksheetId, this.activeBtn.btnId);
     return {
@@ -231,7 +224,7 @@ export default class CustomButtons extends React.Component {
       return;
     }
     this.activeBtn = btn;
-    appendDataToLocalPushUniqueId(_this.getTipConfigWithTranslate());
+    appendDataToLocalPushUniqueId(_this.tipConfig);
     function run({ remark } = {}) {
       function trigger(btn) {
         if (handleTriggerCustomBtn) {
@@ -525,7 +518,7 @@ export default class CustomButtons extends React.Component {
      * btn.writeObject 对象 1：本记录 2：关联记录
      * btn.writeType 类型 1：填写字段 2：新建关联记录
      **/
-    const { isAll, worksheetId, recordId, selectedRows = [], changeToSelectCurrentPageFromSelectAll } = this.props;
+    const { isAll, worksheetId, recordId, changeToSelectCurrentPageFromSelectAll } = this.props;
     let rowInfo;
     if (recordId) {
       rowInfo = await getRowDetail({
@@ -947,13 +940,13 @@ export default class CustomButtons extends React.Component {
         );
         if (button.desc && type === 'button' && button.style !== 'icon') {
           return (
-            <Tooltip mouseEnterDelay={0} placement="bottom" title={<span>{button.desc}</span>}>
+            <Tooltip placement="bottom" title={button.desc}>
               {buttonComponent}
             </Tooltip>
           );
         } else if (button.style === 'icon') {
           return (
-            <Tooltip placement="bottom" mouseEnterDelay={0} title={<span>{button.name}</span>}>
+            <Tooltip placement="bottom" title={button.name}>
               {buttonComponent}
             </Tooltip>
           );
@@ -963,7 +956,7 @@ export default class CustomButtons extends React.Component {
       });
     } else if (type === 'iconText') {
       buttonComponents = buttons.map(button => (
-        <Tooltip mouseEnterDelay={0} placement="bottom" title={button.desc && <span>{button.desc}</span>}>
+        <Tooltip placement="bottom" title={button.desc}>
           <span>
             <IconText
               title={button.name}
@@ -1019,13 +1012,7 @@ export default class CustomButtons extends React.Component {
         >
           <span className="btnName mLeft15 ellipsis">{button.name}</span>
           {button.desc && (
-            <Tooltip
-              autoCloseDelay={0}
-              destroyPopupOnHide
-              placement="bottom"
-              overlayStyle={{ maxWidth: 350 }}
-              title={<span>{button.desc}</span>}
-            >
+            <Tooltip placement="bottom" title={button.desc}>
               <i className="icon icon-info_outline Font17 mTop9 Right" />
             </Tooltip>
           )}

@@ -4,7 +4,8 @@ import { useSetState } from 'react-use';
 import homeAppApi from 'api/homeApp';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { FlexCenter } from 'worksheet/components/Basics';
 import Pagination from 'worksheet/components/Pagination';
@@ -262,7 +263,7 @@ export default function PreviewData(props) {
   };
   let filteredText;
   let countFilter = [];
-  (filters || []).map(o => {
+  (filters || []).forEach(o => {
     if (o.isGroup) {
       countFilter = [...countFilter, ...o.groupFilters];
     } else {
@@ -300,17 +301,17 @@ export default function PreviewData(props) {
             />
             <div className="">
               {!filteredText && (
-                <span
-                  data-tip={_l('筛选')}
-                  className={``}
-                  onClick={() => {
-                    setState({
-                      filterVisible: true,
-                    });
-                  }}
-                >
-                  <i className="icon icon-filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
-                </span>
+                <Tooltip title={_l('筛选')}>
+                  <span
+                    onClick={() => {
+                      setState({
+                        filterVisible: true,
+                      });
+                    }}
+                  >
+                    <i className="icon icon-filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
+                  </span>
+                </Tooltip>
               )}
               {filteredText && (
                 <SelectedFilter
@@ -337,7 +338,7 @@ export default function PreviewData(props) {
               )}
               {renderFilterDialog()}
             </div>
-            <Tooltip popupPlacement="bottom" text={<span>{_l('刷新')}</span>}>
+            <Tooltip placement="bottom" title={_l('刷新')}>
               <Icon
                 icon="task-later"
                 className="Gray_9e Font18 pointer mLeft10 mRight2 ThemeHoverColor3"

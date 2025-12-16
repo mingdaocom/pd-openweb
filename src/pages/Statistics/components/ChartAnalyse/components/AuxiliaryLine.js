@@ -4,6 +4,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
 import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetColor';
 import { formatNumberFromInput } from 'src/utils/control';
@@ -432,15 +433,17 @@ export default class AuxiliaryLine extends Component {
                 }}
               />
             </InputWrap>
-            <DeleteWrap data-tip={_l('删除')}>
-              <Icon
-                className="Gray_9e pointer Font19"
-                icon="trash"
-                onClick={() => {
-                  this.handleRemoveLine(item.id);
-                }}
-              />
-            </DeleteWrap>
+            <Tooltip title={_l('删除')}>
+              <DeleteWrap>
+                <Icon
+                  className="Gray_9e pointer Font19"
+                  icon="trash"
+                  onClick={() => {
+                    this.handleRemoveLine(item.id);
+                  }}
+                />
+              </DeleteWrap>
+            </Tooltip>
           </div>
         ))}
         <Dropdown

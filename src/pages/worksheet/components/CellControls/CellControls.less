@@ -198,6 +198,10 @@
     margin-right: 6px;
     border-radius: 13px;
     padding: 0 8px;
+    &.disabledDepartmentOrRole {
+      color: #757575 !important;
+      text-decoration: line-through !important;
+    }
     &.isDelete {
       .iconWrap {
         background-color: #9e9e9e !important;
@@ -404,10 +408,10 @@
   }
 }
 
-.control-6, // 数值
-.control-8, // 金额
-.control-31, // 公式
-.control-38, // 日期公式
+.control-6, /* 数值 */
+.control-8, /* 金额 */
+.control-31, /* 公式 */
+.control-38, /* 日期公式 */
 .control-7 {
   // 汇总
   > div.worksheetCellPureString {
@@ -439,6 +443,7 @@
   }
   .cellControlOptionsRadio,
   .cellControlOptionsCheckbox {
+    padding: 0 !important;
     .RadioGroupCon {
       flex-wrap: nowrap;
     }
@@ -784,6 +789,7 @@
     .guideText {
       font-size: 13px;
       display: inline-block !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
 }

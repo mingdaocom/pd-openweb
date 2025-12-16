@@ -32,7 +32,7 @@ export default props => {
     { text: 'English', value: 'en', display: 'EN' },
     { text: '简体中文', value: 'zh-Hans', display: 'CN' },
     { text: '繁體中文', value: 'zh-Hant', display: 'TC' },
-    { text: '日本語', value: 'ja', display: 'JA' },
+    { text: '日本語', value: 'ja', display: 'JP' },
   ];
   const currentValue = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
 

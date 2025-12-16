@@ -62,6 +62,14 @@ const ContentWrap = styled.div`
 
 const getTabsContainerForCard = event => {
   const tabContainers = document.querySelectorAll('.widgetContent.tabs, .widgetContent.card');
+  const otherContainers = [...document.querySelectorAll('.widgetContent')]
+    .filter(el => !(el.classList.contains('tabs') || el.classList.contains('card')))
+    .map(el => el.parentNode);
+  for (let container of otherContainers) {
+    if (container.contains(event.target)) {
+      return null;
+    }
+  }
   for (let container of tabContainers) {
     if (container.contains(event.target)) {
       return container.querySelector('.tabs') || container.querySelector('.card');
@@ -90,7 +98,8 @@ function WebLayout(props) {
   const widgetIsDark = pageConfig.widgetBgColor && !isLightColor(pageConfig.widgetBgColor);
   const backgroundColor =
     appPkg.pcNaviStyle === 1 ? pageConfig.darkenPageBgColor || pageConfig.pageBgColor : pageConfig.pageBgColor;
-  const lowAlphaIconColor = new TinyColor(iconColor).setAlpha(0.25).toRgbString();
+  const lowAlphaIconColor =
+    backgroundColor === iconColor ? appPkg.lightColor : new TinyColor(iconColor).setAlpha(0.25).toRgbString();
 
   useEffect(() => {
     const componentsWrap = document.querySelector('#componentsWrap');

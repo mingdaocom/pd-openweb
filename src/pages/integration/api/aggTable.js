@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var aggTable = {
-
+const aggTable = {
   /**
    * 获取聚合表预览任务状态
    *
@@ -190,7 +189,7 @@ var aggTable = {
     base.ajaxOptions.url = base.server(options) + 'aggTable/getAggTableSources';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'aggTablegetAggTableSources', args, $.extend(base, options));
-  }
+  },
 };
 
 export default aggTable;

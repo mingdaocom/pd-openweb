@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
@@ -83,7 +83,7 @@ export default function PermissionList(props) {
       if (
         (item.permissionId === 19500 && md.global.SysSettings.hidePlugin) ||
         (_.includes([19100, 19300], item.permissionId) && md.global.SysSettings.hideIntegration) ||
-        (item.permissionId === 19000 && md.global.SysSettings.hidePlugin && md.global.SysSettings.hidePlugin)
+        (item.permissionId === 19000 && md.global.SysSettings.hideIntegration && md.global.SysSettings.hidePlugin)
       )
         return null;
 

@@ -7,6 +7,9 @@ import { Icon } from 'ming-ui';
 import attachmentApi from 'src/api/attachment';
 import worksheetApi from 'src/api/worksheet';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
+import { checkFileAvailable } from 'src/components/UploadFiles/utils';
+import MapHandler from 'src/ming-ui/components/amap/MapHandler';
+import MapLoader from 'src/ming-ui/components/amap/MapLoader';
 import { getRowGetType } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
@@ -56,14 +59,19 @@ export default class Widgets extends Component {
       mobileCameraFiles: [],
       mobileCamcorderFiles: [],
       knowledgeAtts: [],
+      gettingLocation: false,
+      temporaryAttachments: [],
     };
     this.mobileFileRef = {};
+    this._mapHandler = null;
   }
 
   componentDidMount() {
     if (this.state.loading) {
       this.loadAttachments();
     }
+
+    this.laodMap();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -79,6 +87,11 @@ export default class Widgets extends Component {
         this.setState({ value: nextProps.value });
       }
     }
+  }
+
+  componentWillUnmount() {
+    this._mapHandler?.destroyMap();
+    this._mapHandler = null;
   }
 
   checkFileNeedLoad(value) {
@@ -252,7 +265,7 @@ export default class Widgets extends Component {
   };
 
   mingDaoAppChooseImage = () => {
-    const { mingdaoAppError, knowledgeAtts } = this.state;
+    const { mingdaoAppError, knowledgeAtts = [], mobileFiles = [] } = this.state;
     const { projectId, appId, worksheetId, controlId, formData, advancedSetting } = this.props;
     const control = _.find(formData, { controlId }) || {};
     let h5watermark = '';
@@ -267,6 +280,9 @@ export default class Widgets extends Component {
         })
         .join('');
     }
+    const count = advancedSetting.maxcount
+      ? Number(advancedSetting.maxcount) - knowledgeAtts.length - mobileFiles.length
+      : undefined;
 
     compatibleMDJS(
       mingdaoAppError ? 'showUploadingImage' : 'chooseImage',
@@ -283,6 +299,7 @@ export default class Widgets extends Component {
             control,
             watermark: advancedSetting.watermark,
             h5watermark,
+            count,
             checkValueByFilterRegex: this.checkValueByFilterRegex,
             success: res => {
               // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
@@ -293,6 +310,16 @@ export default class Widgets extends Component {
               // 出错数量
               this.setState({ mingdaoAppError: error });
               // 有成功上传的文件就会返回
+
+              const isAvailable = checkFileAvailable(
+                advancedSetting,
+                completed,
+                knowledgeAtts.length + mobileFiles.length,
+              );
+
+              if (!isAvailable && _.isUndefined(count) && count <= 0) {
+                return;
+              }
 
               if (completed) {
                 const attrs = completed.filter(v => v.refId);
@@ -352,6 +379,79 @@ export default class Widgets extends Component {
     }
   };
 
+  // 加载地图
+  laodMap(callback = () => {}) {
+    const { advancedSetting = {} } = this.props;
+    const h5Watermark = (_.get(advancedSetting, 'h5watermark') || '').split('$').filter(v => !!v);
+    const watermark = h5Watermark.length ? h5Watermark : JSON.parse(advancedSetting.watermark || null) || [];
+    const needLocation = _.findIndex(watermark, v => v === 'xy' || v === 'address') > -1;
+
+    // 只有在需要水印且包含位置信息&还未加载地图时才加载地图
+    if (!needLocation) {
+      return;
+    }
+
+    new MapLoader()
+      .loadJs()
+      .then(() => {
+        callback();
+      })
+      .catch(err => {
+        console.log('地图API预加载失败:', err);
+        alert(_l('定位获取失败，请重试'), 2);
+      });
+  }
+
+  // 获取定位
+  getLocation = e => {
+    // 阻止事件冒泡，避免触发父级的拍照事件
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    const { gettingLocation, currentLocation } = this.state;
+
+    // 获取定位中 ｜｜ 已获取定位
+    if (gettingLocation || currentLocation) {
+      return;
+    }
+
+    // 处理获取精确位置触发拍照
+    const handleGetPosition = () => {
+      // 开始获取定位
+      this.setState({ gettingLocation: true });
+
+      if (!this._mapHandler) {
+        this._mapHandler = new MapHandler();
+      }
+      this._mapHandler.getCurrentPos(
+        (status, result) => {
+          const { formattedAddress, position } = result;
+          if (status === 'complete' && formattedAddress) {
+            this.setState({ currentLocation: { formattedAddress, position }, gettingLocation: false });
+          } else {
+            alert(_l('定位获取失败，请重试'), 2);
+            this.setState({ gettingLocation: false });
+          }
+        },
+        err => {
+          console.log(err);
+          alert(_l('定位获取失败，请重试'), 2);
+          this.setState({ gettingLocation: false });
+        },
+      );
+    };
+
+    // 地图已加载即调用定位
+    if (window.AMap && window.AMap.Map) {
+      handleGetPosition();
+    } else {
+      // 再次加载地图
+      this.laodMap(handleGetPosition);
+    }
+  };
+
   renderMobileUploadTrigger = ({
     className,
     originCount,
@@ -361,9 +461,10 @@ export default class Widgets extends Component {
     iconClass,
     styles = {},
     type,
+    watermarkNeedLocation,
   }) => {
     const { from, appId, worksheetId, projectId, enumDefault2, advancedSetting, strDefault = '10', hint } = this.props;
-    const { isComplete, uploadStart, mingdaoAppUploading, mingdaoAppError } = this.state;
+    const { isComplete, uploadStart, mingdaoAppUploading, mingdaoAppError, currentLocation } = this.state;
     const addFileName = customHint ? customHint : hint || _l('添加附件');
 
     const Content = (
@@ -410,8 +511,10 @@ export default class Widgets extends Component {
           disabledGallery={strDefault.split('')[0] === '1'}
           files={[]}
           formData={this.props.formData}
+          currentLocation={currentLocation}
           onChange={(files, isComplete = false) => {
             this.setState({
+              temporaryAttachments: files,
               isComplete,
               uploadStart: isComplete ? false : true,
             });
@@ -467,6 +570,8 @@ export default class Widgets extends Component {
         >
           {Content}
         </UploadFileWrapper>
+        {/* 连续拍照标识 */}
+        {watermarkNeedLocation && <div className="photoContinuously"></div>}
       </div>
     );
   };
@@ -490,7 +595,7 @@ export default class Widgets extends Component {
       isDraft,
       sourceControlId,
     } = this.props;
-    const { loading, value, showType } = this.state;
+    const { loading, value, showType, currentLocation, gettingLocation, temporaryAttachments } = this.state;
     const allowUpload = (advancedSetting.allowupload || '1') === '1';
     const allowDelete = (advancedSetting.allowdelete || '1') === '1';
     const allowDownload = (advancedSetting.allowdownload || '1') === '1';
@@ -544,11 +649,15 @@ export default class Widgets extends Component {
       attachments,
       knowledgeAtts,
       attachmentData,
+      temporaryAttachments,
       checkValueByFilterRegex: this.checkValueByFilterRegex,
       onAttachmentName: this.handleAttachmentName,
       onChangedAllFiles: this.filesChangedAll,
       onChangeAttachments: res => this.filesChanged(res, 'attachments'),
-      onChangeKnowledgeAtts: res => this.filesChanged(res, 'knowledgeAtts'),
+      onChangeKnowledgeAtts: (res = []) => {
+        this.filesChanged(res, 'knowledgeAtts');
+        this.setState({ knowledgeAtts: res });
+      },
       onChangeAttachmentData: res => this.filesChanged(res, 'attachmentData'),
       onRemoveFile: file => {
         this.handleCheckMobileFiles(file);
@@ -563,11 +672,15 @@ export default class Widgets extends Component {
     const styles = {
       maxWidth:
         showCamera && showCamcorder && showFile
-          ? 'calc(100% - 172px)'
+          ? 'calc(100% - 192px)'
           : (showCamera || showCamcorder) && showFile
             ? 'calc(100% - 86px)'
             : '100%',
     };
+
+    const h5Watermark = (_.get(advancedSetting, 'h5watermark') || '').split('$').filter(v => !!v);
+    const watermark = h5Watermark.length ? h5Watermark : JSON.parse(advancedSetting.watermark || null) || [];
+    const watermarkNeedLocation = _.findIndex(watermark || [], v => v === 'xy' || v === 'address') > -1;
 
     return (
       <div
@@ -591,18 +704,42 @@ export default class Widgets extends Component {
                     type: 'file',
                     iconClass: 'Font16',
                   })}
-                {showCamera &&
-                  this.renderMobileUploadTrigger({
-                    originCount,
-                    strDefault,
-                    attachments,
-                    customHint: _l('拍照'),
-                    customUploadType: 'camara',
-                    className: cx({ mLeft6: showFile }),
-                    icon: 'camera_alt',
-                    iconClass: 'Font18',
-                    type: 'camera',
-                  })}
+                {showCamera ? (
+                  <div className={cx('Relative cameraWrap', { mLeft6: showFile })} style={styles}>
+                    {!currentLocation && watermarkNeedLocation ? (
+                      <div
+                        className="getLocationEle Font13 flexRow alignItemsCenter justifyContentCenter"
+                        onClick={this.getLocation}
+                      >
+                        {gettingLocation ? (
+                          <Fragment>
+                            <Icon icon="hr_work_location" className="Font16 ThemeColor mRight3" />
+                            <span className="ThemeColor">{_l('定位中...')}</span>
+                          </Fragment>
+                        ) : (
+                          <Fragment>
+                            <Icon icon="photo_camera_20" className="Font16 Gray_9e mRight3" />
+                            <span className="flex ellipsis">{_l('定位后拍照')}</span>
+                          </Fragment>
+                        )}
+                      </div>
+                    ) : (
+                      this.renderMobileUploadTrigger({
+                        originCount,
+                        strDefault,
+                        attachments,
+                        customHint: _l('拍照'),
+                        customUploadType: 'camara',
+                        icon: 'camera_alt',
+                        iconClass: 'Font18',
+                        type: 'camera',
+                        watermarkNeedLocation,
+                      })
+                    )}
+                  </div>
+                ) : (
+                  ''
+                )}
                 {showCamcorder &&
                   this.renderMobileUploadTrigger({
                     originCount,

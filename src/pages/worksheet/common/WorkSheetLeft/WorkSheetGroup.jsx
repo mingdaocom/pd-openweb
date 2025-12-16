@@ -2,7 +2,8 @@ import React, { Fragment, useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
 import Drag from './Drag';
@@ -90,9 +91,8 @@ export default function WorkSheetGroup(props) {
     return (
       [2, 3, 4].includes(status) && (
         <Tooltip
-          popupPlacement="right"
-          autoCloseDelay={0}
-          text={<span>{_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}</span>}
+          placement="right"
+          title={_l('仅系统角色在导航中可见（包含管理员、开发者），应用项权限依然遵循角色权限原则')}
         >
           <Icon
             className="Font16 mRight10 visibilityIcon"
@@ -120,12 +120,15 @@ export default function WorkSheetGroup(props) {
             if (sheetListVisible) {
               const { classList } = e.target;
               if (classList.contains('nameWrap') || classList.contains('name') || classList.contains('arrowIcon')) {
-                setChildrenVisible(!childrenVisible);
                 if (!childrenVisible) {
                   localStorage.setItem(childrenOpenKey, 1);
                   setGroupHide(false);
+                  setTimeout(() => {
+                    setChildrenVisible(!childrenVisible);
+                  }, 0);
                 } else {
                   localStorage.removeItem(childrenOpenKey);
+                  setChildrenVisible(!childrenVisible);
                   setTimeout(() => {
                     setGroupHide(true);
                   }, 300);
@@ -157,7 +160,7 @@ export default function WorkSheetGroup(props) {
             {showIcon && (
               <div className="iconWrap mRight10">
                 <SvgIcon
-                  url={iconUrl ? iconUrl : `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`}
+                  url={iconUrl ? iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
                   fill={svgColor()}
                   size={22}
                 />

@@ -4,7 +4,8 @@ import { Dropdown } from 'antd';
 import classNames from 'classnames';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import {
   addUserToSet,
   fetchApproval,
@@ -273,7 +274,7 @@ class UserTable extends React.Component {
               onVisibleChange={this.handleVisibleChange}
               placement="bottomRight"
             >
-              <Tooltip text={<span>{_l('自定义显示列')} </span>} popupPlacement="top">
+              <Tooltip title={_l('自定义显示列')}>
                 <Icon
                   icon="visibility"
                   className="visibiliityIcon"

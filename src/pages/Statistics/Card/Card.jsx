@@ -1,9 +1,10 @@
 import React, { Component, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Provider } from 'react-redux';
-import { Popover, Tooltip } from 'antd';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportApi from '../api/report';
 import login from 'src/api/login';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
@@ -76,6 +77,15 @@ class Card extends Component {
         });
       }
     }, refresh * 1000);
+  };
+  handleChangeReportData = data => {
+    const { reportData } = this.state;
+    this.setState({
+      reportData: {
+        ...reportData,
+        ...data,
+      },
+    });
   };
   abortRequest = () => {
     if (this.request && this.request.abort) {
@@ -246,6 +256,7 @@ class Card extends Component {
         reportTypes.ScatterChart,
         reportTypes.WordCloudChart,
         reportTypes.TopChart,
+        reportTypes.WorldMap,
       ].includes(reportType)
     ) {
       return map.length || contrastMap.length || isDisplayEmptyData ? this.renderChart() : <WithoutData />;
@@ -308,7 +319,7 @@ class Card extends Component {
     const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
     const isLight = pageStyleType === 'light';
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
-    const isSheetView = ![reportTypes.PivotTable].includes(reportType);
+    const isSheetView = ![reportTypes.PivotTable].includes(reportType) && xaxes?.controlType !== 40;
     const translateInfo = getTranslateInfo(appId, null, report.id);
     const getBgColor = () => {
       const hideNumberChartName = [reportTypes.NumberChart].includes(reportType)
@@ -365,12 +376,12 @@ class Card extends Component {
           >
             <div
               className="pointer ellipsis reportName"
-              style={{ maxWidth: '80%', ...replaceTitleStyle(newTitleStyles, themeColor) }}
+              style={{ maxWidth: '60%', ...replaceTitleStyle(newTitleStyles, themeColor) }}
             >
               {translateInfo.name || reportData.name}
             </div>
             {reportData.desc && (
-              <Tooltip title={translateInfo.description || reportData.desc} placement="bottom" autoCloseDelay={0}>
+              <Tooltip title={translateInfo.description || reportData.desc} placement="bottom">
                 <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 reportDesc" />
               </Tooltip>
             )}
@@ -412,8 +423,8 @@ class Card extends Component {
                   </div>
                 }
               >
-                <Tooltip title={_l('作用于图表的条件')} placement="bottom">
-                  <span className={cx('mLeft7 pTop5 filterCriteriaIcon', { 'tip-bottom-right': !showTitle })}>
+                <Tooltip title={_l('作用于图表的条件')} placement={!showTitle ? 'bottomRight' : 'bottom'}>
+                  <span className={'mLeft7 pTop5 filterCriteriaIcon'}>
                     <Icon icon="filter_criteria" className="Font18 pointer Gray_9e" />
                   </span>
                 </Tooltip>
@@ -554,7 +565,7 @@ class Card extends Component {
               />
             )}
           </div>
-          {!this.state.loading && titleStyle === 3 && (
+          {!this.state.loading && titleStyle === 3 && showTitle && (
             <div
               className="headerBottomLine"
               style={{ background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})` }}

@@ -295,8 +295,8 @@ function formatAttachment(attachments, callfrom) {
             ? attachment.viewUrl
             : attachment.path;
     } else if (previewType === PREVIEW_TYPE.CODE || previewType === PREVIEW_TYPE.MARKDOWN) {
-      if (size > 512 * 1024) {
-        // 大于 0.5M 的文件不预览
+      if (size >= 5 * 1024 * 1024) {
+        // 大于 5M 的文件不预览
         previewType = PREVIEW_TYPE.OTHER;
       } else {
         if (previewAttachmentType === 'KC') {
@@ -661,9 +661,7 @@ export function saveToKnowlwdge(savePath) {
             alert(message || _l('保存失败'), 3);
           });
       })
-      .catch(() => {
-        // alert(_l('保存失败'), 2, 3000);
-      });
+      .catch(() => {});
   };
 }
 

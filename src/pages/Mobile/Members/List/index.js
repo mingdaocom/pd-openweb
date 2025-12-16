@@ -28,6 +28,8 @@ class MemberList extends Component {
       selectDepartmentType: '', // current: 仅当前部门， all: 选择当前部门下所有子部门
       selectJobVisible: false,
       selectOrgnizedRoleVisible: false,
+      personalInfoVisible: false,
+      accountId: null,
     };
   }
 
@@ -327,6 +329,21 @@ class MemberList extends Component {
     });
   };
 
+  // openPersonalInfoPopup = (e, accountId) => {
+  //   e.stopPropagation();
+  //   this.setState({
+  //     personalInfoVisible: true,
+  //     accountId,
+  //   });
+  // };
+
+  closePersonalInfoPopup = () => {
+    this.setState({
+      personalInfoVisible: false,
+      accountId: null,
+    });
+  };
+
   renderUserTag = (roleType, isOwner) => {
     if (isOwner) {
       return (
@@ -523,6 +540,8 @@ class MemberList extends Component {
   };
 
   renderList = data => {
+    // const { personalInfoVisible, accountId } = this.state;
+    // const { params } = this.props.match;
     const { detail } = this.props.memberList;
     let { isOwner, isAdmin } = getUserRole(detail.permissionType);
     isAdmin = isAdmin || isOwner;
@@ -544,6 +563,15 @@ class MemberList extends Component {
               {_l('添加人员')}
             </div>
           )}
+        {/* {personalInfoVisible && (
+          <MobilePersonalInfo
+            visible={personalInfoVisible}
+            accountId={accountId}
+            appId={params.appId}
+            projectId={detail.projectId}
+            onClose={this.closePersonalInfoPopup}
+          />
+        )} */}
       </div>
     );
   };

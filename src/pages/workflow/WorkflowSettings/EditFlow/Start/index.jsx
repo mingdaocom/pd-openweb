@@ -14,7 +14,7 @@ import {
   TRIGGER_ID,
 } from '../../enum';
 import { getIcons, getStartNodeColor } from '../../utils';
-import { CreateNode, MembersName, NodeOperate, WhiteNode } from '../components';
+import { CreateNode, MembersName, NodeOperate, WhiteNode, WorksheetMessage } from '../components';
 
 export default class Start extends Component {
   constructor(props) {
@@ -66,9 +66,7 @@ export default class Start extends Component {
     if (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType)) {
       return (
         <Fragment>
-          <div className="workflowContentInfo ellipsis workflowContentBG">
-            <span className="Gray_75">{item.appTypeName}</span>“{item.appName}”
-          </div>
+          <WorksheetMessage item={item} />
           <div className="workflowContentInfo ellipsis mTop4">
             {(item.triggerId === TRIGGER_ID.EDIT || item.triggerId === TRIGGER_ID.ONLY_EDIT) && (
               <span>
@@ -154,9 +152,7 @@ export default class Start extends Component {
     if (item.appType === APP_TYPE.DATE) {
       return (
         <Fragment>
-          <div className="workflowContentInfo ellipsis workflowContentBG">
-            <span className="Gray_75">{item.appTypeName}</span>“{item.appName}”
-          </div>
+          <WorksheetMessage item={item} />
           <div className="workflowContentInfo ellipsis mTop4">
             <span className={cx({ red: !item.assignFieldName })}>{item.assignFieldName || _l('字段不存在')}</span>
             {!!item.number && (
@@ -196,11 +192,8 @@ export default class Start extends Component {
     if (item.appType === APP_TYPE.CUSTOM_ACTION) {
       return (
         <Fragment>
-          <div className="workflowContentInfo ellipsis">
-            <span className="Gray_75">{_l('按钮：')}</span>
-            {item.triggerName}
-          </div>
-          <div className="workflowContentInfo ellipsis Gray_75">{CUSTOM_ACTION_TEXT[item.clickType || 1]}</div>
+          <WorksheetMessage item={{ ...item, appTypeName: _l('按钮'), appName: item.triggerName }} />
+          <div className="workflowContentInfo ellipsis Gray_75 mTop4">{CUSTOM_ACTION_TEXT[item.clickType || 1]}</div>
         </Fragment>
       );
     }
@@ -266,10 +259,7 @@ export default class Start extends Component {
 
       return (
         <Fragment>
-          <div className="workflowContentInfo ellipsis workflowContentBG">
-            <span className="Gray_75">{_l('数据对象：')}</span>
-            {_l('工作表“%0”', item.appName)}
-          </div>
+          <WorksheetMessage item={{ ...item, appTypeName: _l('数据对象') }} />
           <div className="pLeft8 pRight8 mTop9 Gray_75 pBottom5">
             “{item.triggerName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}”
             <span className="mLeft5">{_l('触发')}</span>
@@ -290,6 +280,16 @@ export default class Start extends Component {
               : _l('循环触发')}
           </span>
         </div>
+      );
+    }
+
+    // 对话机器人
+    if (item.appType === APP_TYPE.CHATBOT) {
+      return (
+        <Fragment>
+          <WorksheetMessage item={{ ...item, appTypeName: _l('对话机器人') }} />
+          <div className="workflowContentInfo ellipsis Gray_75 mTop4">{_l('用户对话后立即执行')}</div>
+        </Fragment>
       );
     }
   }
@@ -360,7 +360,7 @@ export default class Start extends Component {
             </div>
           </div>
 
-          <CreateNode {...this.props} />
+          <CreateNode {...this.props} disabled={item.appType === APP_TYPE.CHATBOT} />
         </section>
       </div>
     );

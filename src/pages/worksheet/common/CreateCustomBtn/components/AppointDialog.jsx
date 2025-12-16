@@ -2,7 +2,8 @@ import React from 'react';
 import cx from 'classnames';
 import _, { isArray } from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Dropdown, Icon, RadioGroup, Tooltip } from 'ming-ui';
+import { Dialog, Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { DEF_R_TYPES, DEF_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
 import {
@@ -247,12 +248,11 @@ class AppointDialog extends React.Component {
                     <span className="">{controlName || (type === 22 ? _l('分段') : _l('备注'))}</span>
                     {canNotForWrite && (
                       <Tooltip
-                        autoCloseDelay={0}
-                        tooltipClass="pointTooltip"
-                        action={['click']}
-                        popupPlacement="bottomRight"
-                        offset={[14, 0]}
-                        text={<span style={{ color: '#fff' }}>{_l('该字段不支持自定义填写')}</span>}
+                        trigger="click"
+                        color="#ff4d4f"
+                        placement="bottomRight"
+                        align={{ offset: [14, 0] }}
+                        title={_l('该字段不支持自定义填写')}
                       >
                         <Icon icon="error_outline" className={cx('Font14 Red mRight15 iconErr')} />
                       </Tooltip>

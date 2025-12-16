@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sheetAjax from 'src/api/worksheet';
-import { controlState, getDynamicValue } from 'src/components/newCustomFields/tools/formUtils';
+import { controlState, getDynamicValue } from 'src/components/Form/core/formUtils';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import {
   changeViewConfig,
@@ -19,6 +19,7 @@ import {
   getWorkDays,
   getYears,
   groupingTimeBlock,
+  isTimeStyle,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
 import { getFilledRequestParams } from 'src/utils/common';
@@ -85,20 +86,27 @@ export const fetchRows = callBackFun => {
         setTimeout(
           () => {
             const { gunterView } = getState().sheet;
-            const { colorId, startId, endId, startType, endType, showgroupcolor } = gunterView.viewConfig;
+            const { colorId, startId, endId, startType, endType, showgroupcolor, startControl, endControl } =
+              gunterView.viewConfig;
             const startFormat = startType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
             const endFormat = endType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
             const selectControlOptions = _.get(selectControl, 'options') || [];
+            const isStartTimeStyle = isTimeStyle(startControl);
+            const isEndTimeStyle = isTimeStyle(endControl);
             const grouping = sortGrouping(
               data.map(item => {
                 const rows = (item.rows || []).map(row => {
                   const data = formatRecordTime(JSON.parse(row), gunterView.viewConfig);
-                  const startTime = data.startTime
-                    ? moment(dateConvertToUserZone(data.startTime)).format(startFormat)
-                    : data.startTime;
-                  const endTime = data.endTime
-                    ? moment(dateConvertToUserZone(data.endTime)).format(endFormat)
-                    : data.endTime;
+                  const startTime =
+                    data.startTime && isStartTimeStyle
+                      ? moment(dateConvertToUserZone(data.startTime)).format(startFormat)
+                      : data.startTime;
+                  const endTime =
+                    data.endTime && isEndTimeStyle
+                      ? moment(dateConvertToUserZone(data.endTime)).format(endFormat)
+                      : data.endTime;
+                  data.originalStartTime = data.startTime;
+                  data.originalEndTime = data.endTime;
                   data[startId] = startTime;
                   data[endId] = endTime;
                   data.startTime = startTime;
@@ -320,6 +328,8 @@ export const updateViewConfig = () => {
         .map(c => _.find(controls, { controlId: c }))
         .filter(_ => _),
       colorId: colorid,
+      startControl,
+      endControl,
       startFormat: startControl.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
       endFormat: endControl.type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
       endZeroFormat: endControl.type === 16 ? 'YYYY-MM-DD 00:00' : 'YYYY-MM-DD',

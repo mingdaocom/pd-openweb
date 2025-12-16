@@ -1,15 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Dropdown, Menu } from 'antd';
+import { bindActionCreators } from 'redux';
 import _ from 'lodash';
 import moment from 'moment';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { emitter } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 import { downloadFile } from '../../../../../util';
-import { updateCursor } from '../../actions/current';
-import { getFullTree, loadUsers, updateImportType, updateShowExport } from '../../actions/entities';
+import * as currentActions from '../../actions/current';
+import * as entitiesActions from '../../actions/entities';
 import { createEditDeptDialog } from '../CreateEditDeptDialog';
 
 const Wrap = styled.div`
@@ -19,23 +21,29 @@ const Wrap = styled.div`
   align-items: center;
 `;
 
+const MenuWrap = styled(Menu)`
+  .ming.Item .Item-content .Icon {
+    position: static;
+  }
+`;
+
 class CreateBtn extends Component {
   constructor(props) {
     super(props);
-
+    this.state = {
+      popupVisible: false,
+    };
     this.handleClick = this.handleClick.bind(this);
     emitter.addListener('handleClick', this.handleClick);
   }
 
   componentDidMount() {
-    const { autoShow, dispatch } = this.props;
+    const { autoShow, updateAutoShow = () => {} } = this.props;
     if (autoShow) {
       setTimeout(() => {
         this.handleClick();
       }, 0);
-      dispatch({
-        type: 'UPDATE_AUTO_SHOW',
-      });
+      updateAutoShow();
     }
   }
 
@@ -43,26 +51,14 @@ class CreateBtn extends Component {
     if (e) {
       e.stopPropagation();
     }
-    const { projectId, dispatch } = this.props;
+    const { projectId, getFullTree } = this.props;
     createEditDeptDialog({
       type: 'create',
       projectId,
       departmentId: '',
       isLevel0: true,
-      callback(payload) {
-        const {
-          response: { departmentId },
-        } = payload;
-        dispatch(
-          getFullTree({
-            departmentId,
-            isGetAll: true,
-            afterRequest() {
-              dispatch(updateCursor(departmentId));
-              dispatch(loadUsers(departmentId));
-            },
-          }),
-        );
+      callback: (departmentInfo, parentId) => {
+        getFullTree({ departmentId: departmentInfo.departmentId, parentId, isGetAll: true });
       },
     });
   }
@@ -86,20 +82,26 @@ class CreateBtn extends Component {
   };
 
   render() {
-    const { newDepartments, dispatch } = this.props;
+    const {
+      showDisabledDepartment,
+      newDepartments,
+      updateShowExport = () => {},
+      updateImportType = () => {},
+      handleShowDisabledDepartment = () => {},
+    } = this.props;
+
+    const { popupVisible } = this.state;
     return (
       <Wrap>
         <span className="bold mLeft12">{_l('部门')}</span>
         <Tooltip
-          autoCloseDelay={0}
-          text={
+          title={
             <span>
               {_l(
                 '在进行工作表和工作流的所有下级部门检索时，若所有下级部门总数超过2000（含），系统将默认仅获取当前部门的“一级子部门”所有部门。',
               )}
             </span>
           }
-          action={['hover']}
         >
           <Icon className="Font16 Gray_bd Hand mLeft4" icon="info_outline" />
         </Tooltip>
@@ -108,45 +110,51 @@ class CreateBtn extends Component {
           <i className="mRight3 icon-add Font18 TxtMiddle" />
           {_l('添加')}
         </span>
-        <Dropdown
-          overlayClassName="createMoreDropDown"
-          trigger={['click']}
-          placement="bottomLeft"
-          overlay={
-            <Menu>
-              <Menu.Item
+        <Trigger
+          action={['click']}
+          popupAlign={{
+            points: ['tl', 'bl'],
+            offset: [0, 0],
+            overflow: { adjustX: true, adjustY: true },
+          }}
+          popupVisible={popupVisible}
+          onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+          popup={
+            <MenuWrap>
+              <MenuItem onClick={() => handleShowDisabledDepartment(!showDisabledDepartment)}>
+                <Checkbox text={_l('显示停用部门')} checked={showDisabledDepartment} />
+              </MenuItem>
+              <MenuItem
                 key="0"
                 onClick={() => {
-                  dispatch(updateShowExport(true));
-                  dispatch(updateImportType('importDepartment'));
+                  updateShowExport(true);
+                  updateImportType('importDepartment');
                 }}
               >
                 {_l('导入部门')}
-              </Menu.Item>
-              <Menu.Item key="1" disabled={_.isEmpty(newDepartments)} onClick={this.exportDepartmentList}>
+              </MenuItem>
+              <MenuItem key="1" disabled={_.isEmpty(newDepartments)} onClick={this.exportDepartmentList}>
                 {_l('导出部门')}
-              </Menu.Item>
-            </Menu>
+              </MenuItem>
+            </MenuWrap>
           }
         >
           <Icon icon="moreop" className="Gray_9e Hand Font20 iconHover mRight12" />
-        </Dropdown>
+        </Trigger>
       </Wrap>
     );
   }
 }
 
-const mapStateToProps = state => {
-  const {
-    current,
-    entities: { newDepartments = [] },
-  } = state;
-  return {
-    ...current,
-    newDepartments,
-  };
-};
-
-const ConnectedCreateBtn = connect(mapStateToProps)(CreateBtn);
+const ConnectedCreateBtn = connect(
+  state => {
+    const {
+      current,
+      entities: { newDepartments = [], showDisabledDepartment },
+    } = state;
+    return { ...current, newDepartments, showDisabledDepartment };
+  },
+  dispatch => bindActionCreators({ ...currentActions, ...entitiesActions }, dispatch),
+)(CreateBtn);
 
 export default ConnectedCreateBtn;

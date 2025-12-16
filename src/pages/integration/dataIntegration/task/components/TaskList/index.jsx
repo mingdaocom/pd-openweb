@@ -6,7 +6,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Checkbox, Icon, LoadDiv, MdLink, ScrollView } from 'ming-ui';
-import ToolTip from 'ming-ui/components/Tooltip';
+import { Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../../api/datasource';
 import syncTaskApi from '../../../../api/syncTask';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
@@ -530,22 +530,22 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <MdLink className="flexRow alignItemsCenter pRight8 pointer" to={`/integration/taskCon/${item.flowId}`}>
             <div className="flexRow alignItemsCenter pLeft8 titleColumn">
-              <ToolTip text={item.sourceTypeName}>
+              <Tooltip title={item.sourceTypeName}>
                 <TaskIcon>
                   <svg className="icon svg-icon" aria-hidden="true">
                     <use xlinkHref={`#icon${item.sourceClassName}`} />
                   </svg>
                   {item.sourceNum > 1 && <div className="sourceNum">{item.sourceNum}</div>}
                 </TaskIcon>
-              </ToolTip>
+              </Tooltip>
               <Icon icon="arrow_down" className="arrowIcon" />
-              <ToolTip text={item.destTypeName}>
+              <Tooltip title={item.destTypeName}>
                 <TaskIcon>
                   <svg className="icon svg-icon" aria-hidden="true">
                     <use xlinkHref={`#icon${item.destClassName}`} />
                   </svg>
                 </TaskIcon>
-              </ToolTip>
+              </Tooltip>
             </div>
 
             <span title={item.name} className="titleText overflow_ellipsis">
@@ -688,9 +688,9 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               />
             </div>
 
-            <ToolTip className="mLeft5 h16" text={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}>
+            <Tooltip className="mLeft5 h16" title={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}>
               <Icon icon="info_outline" className="Gray_9e Font16" />
-            </ToolTip>
+            </Tooltip>
           </div>
         );
       },

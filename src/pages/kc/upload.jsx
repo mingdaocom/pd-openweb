@@ -2,7 +2,7 @@
 import UploadAssistant from './common/UploadAssistant';
 import './main.css';
 
-// TODO: 隐藏 chat、mobileShare
+// 隐藏 chat、mobileShare
 
 export default class KcUploadEntrypoint extends Component {
   componentDidMount() {

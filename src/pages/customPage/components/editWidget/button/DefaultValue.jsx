@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetApi from 'src/api/worksheet';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import Input from 'src/pages/worksheet/common/CreateCustomBtn/components/Inputs';
@@ -40,7 +41,7 @@ const SortColumnsWrap = styled.div`
     border-radius: 3px;
   }
   .quickOperate {
-    display: none;
+    display: none !important;
   }
   .columnCheckList {
     max-height: 360px !important;
@@ -235,7 +236,7 @@ function DefaultValue(props) {
     <div className="settingItem">
       <div className="settingTitle valignWrapper mBottom10">
         <span>{_l('默认值')}</span>
-        <Tooltip text={<span>{_l('通过点击按钮创建记录时，将会优先生效此处配置的默认值')}</span>}>
+        <Tooltip title={_l('通过点击按钮创建记录时，将会优先生效此处配置的默认值')}>
           <Icon className="mLeft5 Gray_9e Font16 pointer" icon="help" />
         </Tooltip>
       </div>
@@ -249,6 +250,7 @@ function DefaultValue(props) {
             adjustY: true,
           },
         }}
+        getPopupContainer={() => document.querySelector('.editWidgetDialogWrap .settingsBox')}
         popup={
           <SortColumnsWrap>
             <SortColumns

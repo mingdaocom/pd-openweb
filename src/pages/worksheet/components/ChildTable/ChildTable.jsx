@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _, {
+  debounce,
   filter,
   find,
   findIndex,
@@ -22,7 +23,8 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Menu, MenuItem, Skeleton, Tooltip } from 'ming-ui';
+import { Menu, MenuItem, Skeleton } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { createRequestPool } from 'worksheet/api/standard';
 import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
@@ -35,9 +37,9 @@ import MobileSearchInput from 'worksheet/components/SearchInput';
 import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
 import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { SHEET_VIEW_HIDDEN_TYPES, SYSTEM_CONTROLS, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/Form/core/config';
+import DataFormat from 'src/components/Form/core/DataFormat';
+import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { selectRecords } from 'src/components/SelectRecords';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
@@ -157,6 +159,8 @@ const createElementFromHtml = html => {
   return con.firstElementChild;
 };
 
+const maxAllowFrozenColumnIndex = 10;
+
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -215,6 +219,7 @@ class ChildTable extends React.Component {
     };
     this.dataFormatCacheMap = new Map();
     props.registerCell(this);
+    this.rowsLoading = {};
   }
 
   componentDidMount() {
@@ -414,7 +419,7 @@ class ChildTable extends React.Component {
         if (control.type === 52) {
           control.hidden = true;
         } else {
-          control.fieldPermission = '000';
+          control.fieldPermission = (control.fieldPermission || '000').replace(/^\d(\d)\d$/, '0$10');
         }
       } else {
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
@@ -467,7 +472,11 @@ class ChildTable extends React.Component {
   }
 
   handleKeyDown = e => {
-    if (e.ctrlKey && e.key === 'Enter' && this.childTableCon.querySelector('.cell.focus')) {
+    if (
+      (window.isMacOs ? e.metaKey : e.ctrlKey) &&
+      e.key === 'Enter' &&
+      this.childTableCon.querySelector('.cell.focus')
+    ) {
       e.preventDefault();
       e.stopPropagation();
       this.handleAddRowByLine();
@@ -533,7 +542,7 @@ class ChildTable extends React.Component {
           let newControls = (_.get(res, 'worksheet.template.controls') || _.get(res, 'template.controls')).concat(
             systemControls,
           );
-          // TODO 这里要和 getControls 一起统一到 action 内处理
+          // 这里要和 getControls 一起统一到 action 内处理
           const { uniqueControlIds } = parseAdvancedSetting(control.advancedSetting);
           newControls = newControls.map(c => ({
             ...c,
@@ -733,37 +742,26 @@ class ChildTable extends React.Component {
         noAutoSubmit: true,
         updateLoadingItems: loadingInfo => {
           if (!row || !row.needShowLoading) return;
-          this.setState(prev => {
-            const newRowsLoadingStatus = {
-              ...prev.rowsLoadingStatus,
-              [rowId]: !_.every(Object.values(loadingInfo), b => !b),
-            };
-            const newShowLoadingMask = !Object.values(newRowsLoadingStatus).every(v => v === false);
+          this.rowsLoading[rowId] = !_.every(Object.values(loadingInfo), b => !b);
+          const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
+          if (newShowLoadingMask !== this.showLoadingMask) {
             this.setState({
               showLoadingMask: newShowLoadingMask,
             });
-            return {
-              ...prev,
-              rowsLoadingStatus: newRowsLoadingStatus,
-            };
-          });
+          }
+          this.showLoadingMask = newShowLoadingMask;
         },
         onAsyncChange: (changes, dataFormat) => {
           flushSync(() => {
             if (rowId && row && row.needShowLoading) {
-              this.setState(prev => {
-                const newRowsLoadingStatus = {
-                  ...prev.rowsLoadingStatus,
-                  [rowId]: !_.every(Object.values(dataFormat.loadingInfo), b => !b),
-                };
+              this.rowsLoading[rowId] = !_.every(Object.values(dataFormat.loadingInfo), b => !b);
+              const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
+              if (newShowLoadingMask !== this.showLoadingMask) {
                 this.setState({
-                  showLoadingMask: !Object.values(newRowsLoadingStatus).every(v => v === false),
+                  showLoadingMask: newShowLoadingMask,
                 });
-                return {
-                  ...prev,
-                  rowsLoadingStatus: newRowsLoadingStatus,
-                };
-              });
+              }
+              this.showLoadingMask = newShowLoadingMask;
             }
             if (!_.isEmpty(changes.controlIds)) {
               changes.controlIds.forEach(cid => {
@@ -973,12 +971,12 @@ class ChildTable extends React.Component {
         control,
       },
     );
-    function update() {
+    const update = debounce(() => {
       if (_.isFunction(options.updateSuccessCb)) {
         options.updateSuccessCb(newRow);
       }
       updateRow({ rowid: row.rowid, value: newRow }, { asyncUpdate: options.asyncUpdate });
-    }
+    }, 300);
     // 处理新增自定义选项
     if (
       _.includes([WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN], control.type) &&
@@ -1437,41 +1435,43 @@ class ChildTable extends React.Component {
             />
           )}
         {!isMobileSearchFocus && recordId && !valueChanged && (
-          <span
-            className="mLeft6 Hand"
-            data-tip={_l('刷新')}
-            style={{ height: 28 }}
-            onClick={() => {
-              this.refresh();
-            }}
-          >
-            <IconBtn>
-              <i className="icon icon-task-later" />
-            </IconBtn>
-          </span>
+          <Tooltip title={_l('刷新')} placement="bottom">
+            <span
+              className="mLeft6 Hand"
+              style={{ height: 28 }}
+              onClick={() => {
+                this.refresh();
+              }}
+            >
+              <IconBtn>
+                <i className="icon icon-task-later" />
+              </IconBtn>
+            </span>
+          </Tooltip>
         )}
         {mode !== 'dialog' && from !== FROM.DRAFT && recordId && !isMobile && (
-          <span
-            className="mLeft6"
-            data-tip={_l('全屏')}
-            onClick={() =>
-              openChildTable({
-                ...this.props,
-                valueChanged,
-                allowEdit: !disabled,
-                worksheetId: this.props.masterData.worksheetId,
-                title:
-                  (_.last([...document.querySelectorAll('.recordTitle')]) || {}).innerText ||
-                  _.get(this, 'props.masterData.formData')
-                    ? getTitleTextFromControls(_.get(this, 'props.masterData.formData'))
-                    : '',
-              })
-            }
-          >
-            <IconBtn className="Hand ThemeHoverColor3">
-              <i className="icon icon-worksheet_enlarge" />
-            </IconBtn>
-          </span>
+          <Tooltip title={_l('全屏')} placement="bottom">
+            <span
+              className="mLeft6"
+              onClick={() =>
+                openChildTable({
+                  ...this.props,
+                  valueChanged,
+                  allowEdit: !disabled,
+                  worksheetId: this.props.masterData.worksheetId,
+                  title:
+                    (_.last([...document.querySelectorAll('.recordTitle')]) || {}).innerText ||
+                    _.get(this, 'props.masterData.formData')
+                      ? getTitleTextFromControls(_.get(this, 'props.masterData.formData'))
+                      : '',
+                })
+              }
+            >
+              <IconBtn className="Hand ThemeHoverColor3">
+                <i className="icon icon-worksheet_enlarge" />
+              </IconBtn>
+            </span>
+          </Tooltip>
         )}
       </Fragment>
     );
@@ -1561,8 +1561,8 @@ class ChildTable extends React.Component {
                         overflow: { adjustY: true },
                       }}
                     >
-                      <div className={cx('importFromFile tip-bottom', { disabled: isExceed })}>
-                        <Tooltip popupPlacement="bottom" text={<span className="preWrap">{_l('导入数据')}</span>}>
+                      <div className={cx('importFromFile', { disabled: isExceed })}>
+                        <Tooltip placement="bottom" title={<span className="preWrap">{_l('导入数据')}</span>}>
                           <div className="content" onClick={isExceed ? () => {} : this.handleImport}>
                             <i className="icon icon-file_upload Font16 Gray_75"></i>
                           </div>
@@ -1876,7 +1876,9 @@ class ChildTable extends React.Component {
                     !SYS.filter(o => o !== 'ownerid').includes(control.controlId);
 
                   const showEdit = selectedRowIds.length && controlAllowEdit && allowEdit;
-                  const showFrozen = frozenIndex === columnIndex || (frozenIndex !== columnIndex && columnIndex <= 3);
+                  const showFrozen =
+                    frozenIndex === columnIndex ||
+                    (frozenIndex !== columnIndex && columnIndex <= maxAllowFrozenColumnIndex);
                   const showRemoveMask = maskData && !get(window, 'shareState.shareId');
                   return (
                     <ColumnHead
@@ -1926,7 +1928,7 @@ class ChildTable extends React.Component {
                                   {_l('解冻')}
                                 </Fragment>
                               )}
-                              {frozenIndex !== columnIndex && columnIndex <= 3 && (
+                              {frozenIndex !== columnIndex && columnIndex <= maxAllowFrozenColumnIndex && (
                                 <Fragment>
                                   <i className="icon icon-lock font16 mRight6"></i>
                                   {_l('冻结')}
@@ -1999,6 +2001,11 @@ class ChildTable extends React.Component {
                 }}
                 onUpdateRules={newRules => {
                   updateBase({ worksheetInfo: { ...this.worksheetInfo, rules: newRules } });
+                }}
+                onCellClick={(_, __, rowIndex, ___, { isSpace } = {}) => {
+                  if (isSpace) {
+                    this.openDetail(rowIndex);
+                  }
                 }}
                 tableFooter={tableFooter}
                 actions={{

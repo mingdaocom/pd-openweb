@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { Tabs, Tooltip } from 'antd';
+import { Tabs } from 'antd';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import { replaceColor } from 'statistics/Charts/NumberChart';
 import Color from './Color';
 import Custom from './Custom';

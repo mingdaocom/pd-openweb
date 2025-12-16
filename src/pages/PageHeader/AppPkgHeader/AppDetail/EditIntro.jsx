@@ -39,7 +39,9 @@ export default class AppIntro extends Component {
   }
 
   handleSave = val => {
-    this.props.onSave(val);
+    this.props.onSave({
+      description: val,
+    });
     // this.setState({ isEditing: false });
   };
 
@@ -47,6 +49,7 @@ export default class AppIntro extends Component {
     const {
       description: summary,
       resume,
+      remark,
       permissionType,
       onCancel,
       changeSetting,
@@ -63,6 +66,7 @@ export default class AppIntro extends Component {
         className="appIntroDescriptionEditor"
         summary={summary}
         resume={resume}
+        remark={remark}
         isEditing={isEditing}
         permissionType={permissionType}
         changeEditState={isEditing => {

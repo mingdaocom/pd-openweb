@@ -4,7 +4,6 @@ import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import zh_CN from 'antd/es/date-picker/locale/zh_CN';
 import zh_TW from 'antd/es/date-picker/locale/zh_TW';
-import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
@@ -302,7 +301,7 @@ export default function TodoEntrustModal(props) {
     const isTrustee = userType === 'trustee';
 
     return (
-      <div className={cx({ selectUserItem: type === 2 })}>
+      <div className={type === 2 ? 'selectUserItem' : 'w100'}>
         <div className="flexRow valignWrapper">
           <span className="bold">{isTrustee ? _l('受托人') : _l('委托人')}</span>
           <span className="Red bold mLeft4">*</span>

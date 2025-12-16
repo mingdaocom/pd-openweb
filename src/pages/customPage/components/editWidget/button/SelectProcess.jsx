@@ -5,7 +5,7 @@ import homeAppApi from 'src/api/homeApp';
 import processApi from 'src/pages/workflow/api/process';
 import processVersionApi from 'src/pages/workflow/api/processVersion';
 import customApi from 'statistics/api/custom';
-import SelectOtherPBCDialog from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectOtherPBCDialog';
+import selectPBPDialog from 'src/pages/workflow/components/selectPBPDialog';
 import ProcessInput from './ProcessInput';
 
 export default function SelectProcess(props) {
@@ -15,7 +15,6 @@ export default function SelectProcess(props) {
   const [processList, setProcessList] = useState([]);
   const [inputList, setInputList] = useState([]);
   const [otherAppProcess, setOtherAppProcess] = useState(null);
-  const [otherProcessVisible, setOtherProcessVisible] = useState(false);
   const [processLoading, setProcessLoading] = useState(true);
 
   const getList = () => {
@@ -167,7 +166,7 @@ export default function SelectProcess(props) {
           onChange={value => {
             if (value === processId) return;
             if (value === 'other') {
-              setOtherProcessVisible(true);
+              selectPBPDialog({ appId, companyId: projectId, onOk: data => changeProcessId(data.selectPBCId) });
             } else {
               changeProcessId(value);
             }
@@ -208,18 +207,6 @@ export default function SelectProcess(props) {
             }}
           />
         ))
-      )}
-      {otherProcessVisible && (
-        <SelectOtherPBCDialog
-          appId={appId}
-          companyId={projectId}
-          onOk={data => {
-            changeProcessId(data.selectPBCId);
-          }}
-          onCancel={() => {
-            setOtherProcessVisible(false);
-          }}
-        />
       )}
     </Fragment>
   );

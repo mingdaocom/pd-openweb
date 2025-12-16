@@ -86,6 +86,7 @@ export default props => {
         <div style={{ width: 120 }}>{_l('参数类型')}</div>
         <div className="flex mLeft15">{_l('参数名称')}</div>
         <div className="flex mLeft15">{_l('说明')}</div>
+        <div style={{ width: 56 }} />
       </div>
 
       {list.map((item, index) => {

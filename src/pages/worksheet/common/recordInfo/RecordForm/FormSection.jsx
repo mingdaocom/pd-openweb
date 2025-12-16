@@ -1,10 +1,10 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
-import { renderTabs } from 'src/components/newCustomFields/components/SectionTableNav.jsx';
-import { FROM } from 'src/components/newCustomFields/tools/config.js';
+import { Tooltip } from 'ming-ui/antd-components';
+import { renderTabs } from 'src/components/Form/components/SectionTableNav';
+import { FROM } from 'src/components/Form/core/config';
 import { browserIsMobile } from 'src/utils/common';
 
 const FormSectionWrap = styled.div`
@@ -127,7 +127,7 @@ function FormSection(props, ref) {
     <FormSectionWrap className="formSection" isFixedRight={widgetStyle.tabposition === '4'} isUnfold={isUnfold}>
       {showIcon === '1' && (
         <div className="expandIcon">
-          <Tooltip title={isUnfold ? _l('收起') : _l('展开')} popupPlacement="right">
+          <Tooltip title={isUnfold ? _l('收起') : _l('展开')} placement="right">
             <Icon
               icon={isUnfold ? (widgetStyle.tabposition === '4' ? 'menu_right' : 'menu_left') : 'menu'}
               className="Font20 Gray_9e pointer"

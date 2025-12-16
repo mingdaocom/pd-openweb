@@ -80,7 +80,7 @@ export default function MobileDatePicker(props) {
       <div className="customHeaderBox">
         <span className="headerText">{customHeader}</span>
         <span className={`btnClear ${clearDisable ? 'btnDisable' : ''}`} onClick={handleClear}>
-          {_l('移除')}
+          {_l('清除')}
         </span>
       </div>
     );

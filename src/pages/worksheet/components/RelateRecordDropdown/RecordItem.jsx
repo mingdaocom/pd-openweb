@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import { renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 
@@ -108,7 +108,7 @@ export default class RecordItem extends React.PureComponent {
         }}
       >
         {texts.map(text => (
-          <div className={`${baseCle}-control ellipsis`}>{text}</div>
+          <div className={`${baseCle}-control`}>{text}</div>
         ))}
       </div>
     );

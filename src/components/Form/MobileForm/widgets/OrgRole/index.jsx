@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import SelectOrgRole from 'mobile/components/SelectOrgRole';
+import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
 import { dealUserRange } from '../../../core/utils';
 
 function OrgRole(props) {
@@ -48,7 +49,16 @@ function OrgRole(props) {
   const renderItem = item => {
     return (
       <span key={item.organizeId} className="customFormCapsule">
-        {item.organizeName}
+        {item.disabled ? (
+          <DisabledDepartmentAndRoleName
+            className="ellipsis"
+            disabled={item.disabled}
+            name={item.organizeName}
+            isRole={true}
+          />
+        ) : (
+          item.organizeName
+        )}
         {!isUnique && !disabled && (
           <i className="icon-minus-square capsuleDel" onClick={() => removeOrgRole(item.organizeId)} />
         )}

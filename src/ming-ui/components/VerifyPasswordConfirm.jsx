@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { bool, func, number, string } from 'prop-types';
 import { Dialog, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
@@ -19,7 +19,7 @@ export default function VerifyPasswordConfirm(props) {
   const [password, setPassword] = useState('');
   const [isNoneVerification, setIsNoneVerification] = useState(false);
 
-  function handleConfirm() {
+  const handleConfirm = useCallback(() => {
     if (isRequired && (!password || !password.trim())) {
       alert(_l('请输入密码'), 3);
       return;
@@ -34,7 +34,22 @@ export default function VerifyPasswordConfirm(props) {
         onOk(password);
       },
     });
-  }
+  }, [isRequired, password, isNoneVerification, closeImageValidation]);
+
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleConfirm();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isRequired, password, isNoneVerification, closeImageValidation]);
+
   return (
     <Dialog
       visible

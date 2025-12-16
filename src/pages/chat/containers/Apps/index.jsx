@@ -5,7 +5,8 @@ import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import { getAppNavigateUrl, transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { navigateTo } from 'src/router/navigateTo';
@@ -160,7 +161,7 @@ const Apps = props => {
         ) : (
           <Fragment>
             {navApps.map(app => (
-              <Tooltip key={app.id} popupPlacement="left" offset={[-5, 0]} text={app.name} autoCloseDelay={1000}>
+              <Tooltip key={app.id} placement="left" align={{ offset: [-5, 0] }} title={app.name} mouseLeaveDelay={0.1}>
                 <AppWrap
                   className={cx('flexRow alignItemsCenter justifyContentCenter pointer mBottom10', {
                     active: appId === app.id,

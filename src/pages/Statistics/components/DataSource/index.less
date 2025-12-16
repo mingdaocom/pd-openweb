@@ -77,13 +77,35 @@
         position: absolute !important;
       }
     }
-    .addCalculateControl {
-      display: flex;
+  }
+
+  .addCalculateControl {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    .icon-add:hover {
+      color: #1677ff !important;
     }
   }
 
-  .icon-add:hover {
-    color: #1677ff !important;
+  .highlight {
+    animation-name: shining;
+    animation-timing-function: linear;
+    animation-duration: 0.3s;
+    animation-direction: alternate;
+    animation-iteration-count: 4;
+    animation-fill-mode: forwards;
+    .icon {
+      color: #fff !important;
+    }
+  }
+  @keyframes shining {
+    from {
+      background-color: #fff;
+    }
+    to {
+      background-color: #1677ff;
+    }
   }
 }
 

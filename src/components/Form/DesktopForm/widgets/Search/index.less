@@ -1,0 +1,121 @@
+.searchListModals {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .searchBox {
+    display: flex;
+    height: 36px;
+    border-radius: 18px;
+    position: relative;
+    margin: 10px 11px;
+    padding-left: 38px;
+    .searchIcon {
+      width: 14px;
+      height: 14px;
+      position: absolute;
+      top: 8px;
+      left: 16px;
+    }
+    .cursorText {
+      width: 100%;
+      font-size: 14px;
+      border: none;
+      border-radius: 0 18px 18px 0;
+      background-color: var(--color-background-secondary);
+      height: 36px;
+    }
+    &.selectSearchBox {
+      background: var(--color-background-primary);
+      padding-left: 0;
+      line-height: 36px;
+      .cursorText {
+        border-radius: 18px;
+        padding: 13px;
+      }
+      .searchBtn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 36px;
+        height: 36px;
+        background: var(--color-background-secondary);
+        border-radius: 50%;
+        margin-left: 9px;
+      }
+    }
+  }
+  .searchItem {
+    padding: 0 12px 0 22px;
+
+    .itemContent {
+      border-bottom: 1px solid var(--color-border-secondary);
+      padding: 8px 11px 8px 0;
+
+      .itemTitleBox {
+        font-size: 13px;
+      }
+    }
+  }
+  .searchResult {
+    overflow-y: auto;
+    margin-bottom: 43px;
+  }
+  .Font50 {
+    font-size: 50px;
+    color: var(--color-border-primary);
+  }
+}
+
+.customSelectIcon {
+  .ant-select-arrow {
+    display: flex !important;
+  }
+}
+
+.customApiSelect {
+  padding-right: 36px;
+  .ant-select-selection-item {
+    padding: 8px 18px 6px 0px !important;
+    line-height: 22px !important;
+  }
+  .ant-select-arrow {
+    height: 36px !important;
+    width: 36px !important;
+    right: 0 !important;
+    top: 6px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    pointer-events: all !important;
+  }
+  .ant-select-selector {
+    border-radius: 4px 0px 0px 4px !important;
+  }
+  .ant-select-clear {
+    right: 46px !important;
+  }
+  .searchIconBox {
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-background-primary);
+    border-radius: 0px 3px 3px 0px;
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-secondary);
+    &:hover {
+      i {
+        color: var(--color-primary);
+      }
+    }
+    &.disabled {
+      i {
+        color: var(--color-text-disabled) !important;
+      }
+    }
+  }
+}

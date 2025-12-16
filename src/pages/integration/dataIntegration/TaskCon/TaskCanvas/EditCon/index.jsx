@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import TaskFlow from 'src/pages/integration/api/taskFlow.js';
 import CellControl from 'worksheet/components/CellControls';
@@ -171,6 +172,7 @@ const WrapR = styled.div`
     .tableHeader {
       position: sticky;
       top: 0;
+      z-index: 1;
       .itemCon {
         background: #f5f5f5;
       }
@@ -486,9 +488,7 @@ export default class EditorCon extends Component {
                   : _l('预览数据仅显示从数据源同步至当前节点时的前100行记录')}
                 {!['SOURCE_TABLE'].includes(nodeType) && (
                   <Tooltip
-                    text={_l('由于预览数据基于流式实时传输，显示的数据可能与实际入库的数据部分不一致，仅供参考')}
-                    popupPlacement="top"
-                    autoCloseDelay={0}
+                    title={_l('由于预览数据基于流式实时传输，显示的数据可能与实际入库的数据部分不一致，仅供参考')}
                   >
                     <Icon icon="info" className="Gray_bd mLeft5 Font18" />
                   </Tooltip>

@@ -3,7 +3,8 @@ import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Checkbox, ColorPicker, Icon, RadioGroup, SvgIcon, Tooltip } from 'ming-ui';
+import { Checkbox, ColorPicker, Icon, RadioGroup, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import sheetAjax from 'src/api/worksheet';
 import process from 'src/pages/workflow/api/process';
@@ -544,11 +545,7 @@ class CreateCustomBtnCon extends React.Component {
           text={
             <span>
               {_l('登录密码验证')}
-              <Tooltip
-                autoCloseDelay={0}
-                popupPlacement="bottom"
-                text={<span>{_l('启用后，用户需要输入登录密码通过校验后才可执行自定义按钮')}</span>}
-              >
+              <Tooltip placement="bottom" title={_l('启用后，用户需要输入登录密码通过校验后才可执行自定义按钮')}>
                 <Icon icon="help_center" className="Gray_9e mLeft5 Font16 TxtMiddle" />
               </Tooltip>
             </span>
@@ -1038,12 +1035,21 @@ class CreateCustomBtnCon extends React.Component {
         )}
         {this.state.showWorkflowDialog && (
           <WorkflowDialog
+            needChat
             flowId={this.state.workflowId}
             onBack={value => {
-              this.setState({
-                showWorkflowDialog: false,
-                flowEnabled: value,
-              });
+              this.setState(
+                {
+                  showWorkflowDialog: false,
+                  flowEnabled: value,
+                },
+                () => {
+                  const { btnId } = this.state;
+                  if (btnId) {
+                    this.getProcessByTriggerId(null, true);
+                  }
+                },
+              );
             }}
           />
         )}

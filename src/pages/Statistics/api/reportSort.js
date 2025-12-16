@@ -3,7 +3,7 @@ import base, { controllerName } from './base';
 /**
  * reportSort
  */
-var reportSort = {
+const reportSort = {
   /**
    * 更新图表的排序
    * @param {Object} args 请求参数

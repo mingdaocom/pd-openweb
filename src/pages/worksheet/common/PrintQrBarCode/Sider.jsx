@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, func, number, shape } from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Input, RadioGroup, Slider, Switch, Tooltip } from 'ming-ui';
+import { Dropdown, Input, RadioGroup, Slider, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ControlSelect from 'worksheet/components/ControlSelect';
 import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import {
@@ -124,15 +125,18 @@ const InputGroup = styled.div`
 `;
 
 const SetAsTitle = styled.i`
-  position: absolute;
-  right: 24px;
-  top: 15px;
   font-size: 18px;
   color: #9e9e9e;
   cursor: pointer;
   &.on {
     color: #1677ff;
   }
+`;
+
+const SetAsTitleTooltip = styled(Tooltip)`
+  position: absolute;
+  right: 24px;
+  top: 15px;
 `;
 
 function setHr(list, indexList = []) {
@@ -269,19 +273,21 @@ function LabeSizeConfig(props) {
                   }
                 }}
               />
-              <span data-tip={_l('交换')}>
-                <i
-                  className="switchWH icon-sync1 ThemeHoverColor3 Hand"
-                  onClick={() => {
-                    const newSize = { height: size.width, width: size.height };
-                    setSize(newSize);
-                    onChange({
-                      type,
-                      ...newSize,
-                    });
-                  }}
-                />
-              </span>
+              <Tooltip title={_l('交换')}>
+                <span>
+                  <i
+                    className="switchWH icon-sync1 ThemeHoverColor3 Hand"
+                    onClick={() => {
+                      const newSize = { height: size.width, width: size.height };
+                      setSize(newSize);
+                      onChange({
+                        type,
+                        ...newSize,
+                      });
+                    }}
+                  />
+                </span>
+              </Tooltip>
               <Input
                 value={size.height}
                 onChange={value => {
@@ -626,12 +632,12 @@ export default function Sider(props) {
       </div>
       <Tip>{_l('当前尺寸下最大容纳%0行文字，字段内容超过1行后，默认向下换行直到完整显示。', maxLineNumber)}</Tip>
       <div className="Relative">
-        <Tooltip text={<span>{_l('显示为标题')}</span>}>
+        <SetAsTitleTooltip title={_l('显示为标题')}>
           <SetAsTitle
             className={cx('icon-title', { on: firstIsBold })}
             onClick={() => onUpdate({ firstIsBold: !firstIsBold })}
           />
-        </Tooltip>
+        </SetAsTitleTooltip>
       </div>
       {[...new Array(maxLineNumber)].map((o, i) => (
         <SelectControlWithInput

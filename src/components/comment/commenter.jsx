@@ -2,6 +2,7 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import Button from 'ming-ui/components/Button';
 import Icon from 'ming-ui/components/Icon';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -110,7 +111,7 @@ class Commenter extends React.Component {
     // 缓存未发送成功的讨论
     if (this.props.storageId) {
       $textarea.on('keyup', function () {
-        const text = $.trim($(this).val());
+        const text = $(this).val().trim();
         if (!text) {
           window.localStorage.removeItem('commenter-' + comp.props.storageId);
         } else {
@@ -251,7 +252,7 @@ class Commenter extends React.Component {
           textarea.val(data => resolve(data));
         });
     getMessagePromise.then(data => {
-      let message = $.trim(data);
+      let message = (data || '').trim();
 
       if (!message || message.length > 3000) {
         if (message) {
@@ -457,30 +458,35 @@ class Commenter extends React.Component {
           defaultValue={window.localStorage.getItem('commenter-' + this.props.storageId) || ''}
         />
         <div className="commentActionsBox Gray" style={style}>
-          <span className="tip-top commentIconBtn" data-tip={_l('上传附件')}>
-            <Icon
-              id={this.textareaId + '-attachment'}
-              className={cx('Hand commentAttachBtn ThemeHoverColor3', { ThemeColor3: this.state.showAttachment })}
-              icon="attachment"
-              onClick={() => this.setState({ showAttachment: !this.state.showAttachment })}
-            />
-          </span>
-          <span
-            ref={faceBtn => {
-              this.faceBtn = faceBtn;
-            }}
-            className="tip-top commentIconBtn ThemeHoverColor3"
-            data-tip={_l('表情')}
-          >
-            <Icon className="Hand" icon="smile" />
-          </span>
-          {!this.props.disableShareToPost && !md.global.Account.isPortal ? (
-            <span className="tip-top commentIconBtn" data-tip={_l('同时转发此条')}>
-              <i
-                className={cx('icon-forward2 Font19 ThemeColor3', { hoverRelayBtn: !this.state.isReshare })}
-                onClick={() => this.setState({ isReshare: !this.state.isReshare })}
+          <Tooltip title={_l('上传附件')}>
+            <span className="commentIconBtn">
+              <Icon
+                id={this.textareaId + '-attachment'}
+                className={cx('Hand commentAttachBtn ThemeHoverColor3', { ThemeColor3: this.state.showAttachment })}
+                icon="attachment"
+                onClick={() => this.setState({ showAttachment: !this.state.showAttachment })}
               />
             </span>
+          </Tooltip>
+          <Tooltip title={_l('表情')}>
+            <span
+              ref={faceBtn => {
+                this.faceBtn = faceBtn;
+              }}
+              className="commentIconBtn ThemeHoverColor3"
+            >
+              <Icon className="Hand" icon="smile" />
+            </span>
+          </Tooltip>
+          {!this.props.disableShareToPost && !md.global.Account.isPortal ? (
+            <Tooltip title={_l('同时转发此条')}>
+              <span className="commentIconBtn">
+                <i
+                  className={cx('icon-forward2 Font19 ThemeColor3', { hoverRelayBtn: !this.state.isReshare })}
+                  onClick={() => this.setState({ isReshare: !this.state.isReshare })}
+                />
+              </span>
+            </Tooltip>
           ) : null}
           <div className="flex" />
           {this.state.isReshare && (

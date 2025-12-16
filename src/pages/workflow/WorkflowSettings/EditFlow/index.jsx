@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, EditingBar, LoadDiv, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import {
   addFlowNode,
@@ -40,6 +41,7 @@ class EditFlow extends Component {
       refreshPosition: '',
       refreshThumbnail: '',
       showThumbnail: false,
+      instanceId: '',
     };
   }
 
@@ -295,7 +297,7 @@ class EditFlow extends Component {
    * render节点
    */
   renderNode = ({ processId, data, firstId, excludeFirstId = false, isApproval }) => {
-    const { flowInfo, workflowDetail, isPlugin } = this.props;
+    const { flowInfo, workflowDetail, isPlugin, workflowTestRunning } = this.props;
     const { startEventId, flowNodeMap, child, isSimple } = workflowDetail;
     const firstNode = flowNodeMap[startEventId];
     const disabled =
@@ -331,6 +333,7 @@ class EditFlow extends Component {
         isNestedProcess: isApproval,
         isSimple,
         isPlugin,
+        workflowTestRunning,
         renderNode: this.renderNode,
         selectAddNodeId: this.selectAddNodeId,
         selectCopy: this.selectCopy,
@@ -385,11 +388,11 @@ class EditFlow extends Component {
   /**
    * 打开详情
    */
-  openDetail = (processId, id, type) => {
+  openDetail = (processId, id, type, instanceId) => {
     const { flowInfo, workflowDetail, changeFlowInfo } = this.props;
     const { isCopy } = this.state;
     const switchDetail = () => {
-      this.setState({ nodeId: '', selectProcessId: processId, selectNodeId: id, selectNodeType: type });
+      this.setState({ nodeId: '', selectProcessId: processId, selectNodeId: id, selectNodeType: type, instanceId });
       this.change = false;
     };
 
@@ -567,6 +570,7 @@ class EditFlow extends Component {
       refreshThumbnail,
       showThumbnail,
       selectProcessId,
+      instanceId,
     } = this.state;
 
     if (_.isEmpty(workflowDetail)) {
@@ -577,8 +581,9 @@ class EditFlow extends Component {
     const detailProps = {
       selectNodeId,
       selectNodeType,
-      instanceId: urlParams.operator === 'execHistory' && urlParams.operatorId ? urlParams.operatorId : '',
-      debugEvents: flowInfo.debugEvents,
+      instanceId:
+        urlParams.operator === 'execHistory' && urlParams.operatorId ? urlParams.operatorId : instanceId || '',
+      debugEvents: instanceId ? [-1] : flowInfo.debugEvents,
       isIntegration: location.href.indexOf('integration') > -1,
       isPlugin,
       closeDetail: this.closeDetail,
@@ -635,40 +640,47 @@ class EditFlow extends Component {
         )}
 
         <div className={cx('workflowEditBtn', { addTop: startNodeError })}>
-          <span data-tip={_l('画布概览')}>
-            <i
-              className={cx('icon-map ThemeHoverColor3', { ThemeColor3: showThumbnail })}
-              onClick={() => {
-                if (Object.keys(flowNodeMap).length > 500) {
-                  alert(_l('节点数量过多此功能不可用'), 2);
-                  return false;
-                }
+          <Tooltip title={_l('画布概览')}>
+            <span>
+              <i
+                className={cx('icon-map ThemeHoverColor3', { ThemeColor3: showThumbnail })}
+                onClick={() => {
+                  if (Object.keys(flowNodeMap).length > 500) {
+                    alert(_l('节点数量过多此功能不可用'), 2);
+                    return false;
+                  }
 
-                this.setState({ showThumbnail: !showThumbnail, refreshPosition: +new Date() });
-              }}
-            />
-          </span>
+                  this.setState({ showThumbnail: !showThumbnail, refreshPosition: +new Date() });
+                }}
+              />
+            </span>
+          </Tooltip>
           <span className="workflowEditBtnLine" />
+          <Tooltip title={_l('缩小')}>
+            <span>
+              <i
+                className={cx('icon-minus ThemeHoverColor3', { disabled: scale === 50 })}
+                onClick={() => scale > 50 && this.setState({ scale: scale - 10, refreshThumbnail: +new Date() })}
+              />
+            </span>
+          </Tooltip>
 
-          <span data-tip={_l('缩小')}>
-            <i
-              className={cx('icon-minus ThemeHoverColor3', { disabled: scale === 50 })}
-              onClick={() => scale > 50 && this.setState({ scale: scale - 10, refreshThumbnail: +new Date() })}
-            />
-          </span>
           <span className="Font14 mRight8 TxtCenter" style={{ width: 40 }}>
             {scale}%
           </span>
-          <span data-tip={_l('放大')}>
-            <i
-              className={cx('icon-add ThemeHoverColor3', { disabled: scale === 100 })}
-              onClick={() => scale < 100 && this.setState({ scale: scale + 10, refreshThumbnail: +new Date() })}
-            />
-          </span>
-
-          <span data-tip={_l('适应高度')}>
-            <i className="icon-settings_overscan ThemeHoverColor3" onClick={this.fullDisplay} />
-          </span>
+          <Tooltip title={_l('放大')}>
+            <span>
+              <i
+                className={cx('icon-add ThemeHoverColor3', { disabled: scale === 100 })}
+                onClick={() => scale < 100 && this.setState({ scale: scale + 10, refreshThumbnail: +new Date() })}
+              />
+            </span>
+          </Tooltip>
+          <Tooltip title={_l('适应高度')}>
+            <span>
+              <i className="icon-settings_overscan ThemeHoverColor3" onClick={this.fullDisplay} />
+            </span>
+          </Tooltip>
         </div>
 
         {startNodeError && (

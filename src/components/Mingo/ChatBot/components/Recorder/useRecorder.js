@@ -20,7 +20,7 @@ const asrParams = {
  * useRecorder
  * 管理录音与识别生命周期，暴露状态与操作
  */
-export default function useRecorder({ authConfig, onStop = () => {} }) {
+export default function useRecorder({ authConfig, onStop = () => {}, onError = () => {} }) {
   const [status, setStatus] = useState('ready'); // ready, connecting, recording, error
   const [recognizedText, setRecognizedText] = useState('');
   const [mediaStream, setMediaStream] = useState(null);
@@ -160,6 +160,9 @@ export default function useRecorder({ authConfig, onStop = () => {} }) {
             })
             .catch(err => {
               console.error('关闭音频上下文失败:', err);
+            })
+            .finally(() => {
+              // onStop();
             });
         }
         return null;
@@ -182,87 +185,91 @@ export default function useRecorder({ authConfig, onStop = () => {} }) {
 
   // 开始识别和录音
   const start = useCallback(async () => {
-    if (!window.WebRecorder || !window.SpeechRecognizer) {
-      alert('请确保已加载腾讯云语音识别SDK');
-      return;
-    }
-
-    setStatus('connecting');
-    setRecognizedText('');
-    setRecordTime(0); // 重置录音时间
-    resultTextRef.current = '';
-    speechRecognizerRef.current = null;
-    isCanSendDataRef.current = false;
-
     try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      setAudioContext(audioCtx);
-
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-      });
-      setMediaStream(stream);
-
-      // 创建音量分析器
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.8;
-      analyserRef.current = analyser;
-
-      // 连接音频流到分析器
-      const source = audioCtx.createMediaStreamSource(stream);
-      source.connect(analyser);
-
-      recorderRef.current = new window.WebRecorder();
-      recorderRef.current.OnReceivedData = res => {
-        if (isCanSendDataRef.current && speechRecognizerRef.current) {
-          speechRecognizerRef.current.write(res);
-        }
-      };
-      recorderRef.current.OnError = err => {
-        console.error('OnError:', err);
-        setStatus('error');
-        stop();
-      };
-      recorderRef.current.start();
-
-      if (!speechRecognizerRef.current) {
-        speechRecognizerRef.current = new window.SpeechRecognizer(params);
+      if (!window.WebRecorder || !window.SpeechRecognizer) {
+        alert('请确保已加载腾讯云语音识别SDK');
+        return;
       }
-      speechRecognizerRef.current.OnRecognitionStart = () => {
-        isCanSendDataRef.current = true;
-        isCanStopRef.current = true;
-        setStatus('recording');
-        startVolumeCheck(); // 开始音量检测
-        startRecordTime(); // 开始录音时间计时
-      };
-      speechRecognizerRef.current.OnSentenceBegin = res => {
-        if (isDebug) console.log('OnSentenceBegin:', res);
-      };
-      speechRecognizerRef.current.OnRecognitionResultChange = res => {
-        if (isDebug) console.log('OnRecognitionResultChange', res);
-        const currentText = `${resultTextRef.current}${res.result.voice_text_str}`;
-        setRecognizedText(currentText);
-      };
-      speechRecognizerRef.current.OnSentenceEnd = res => {
-        if (isDebug) console.log('OnSentenceEnd:', res);
-        resultTextRef.current += res.result.voice_text_str;
-        setRecognizedText(resultTextRef.current);
-      };
-      speechRecognizerRef.current.OnRecognitionComplete = res => {
-        if (isDebug) console.log('OnRecognitionComplete:', res);
-        onStop(cache.current);
-        cache.current = {};
-      };
-      speechRecognizerRef.current.OnError = () => {
+      setStatus('connecting');
+      setRecognizedText('');
+      setRecordTime(0); // 重置录音时间
+      resultTextRef.current = '';
+      speechRecognizerRef.current = null;
+      isCanSendDataRef.current = false;
+
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        setAudioContext(audioCtx);
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        });
+        setMediaStream(stream);
+
+        // 创建音量分析器
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.8;
+        analyserRef.current = analyser;
+
+        // 连接音频流到分析器
+        const source = audioCtx.createMediaStreamSource(stream);
+        source.connect(analyser);
+
+        recorderRef.current = new window.WebRecorder();
+        recorderRef.current.OnReceivedData = res => {
+          if (isCanSendDataRef.current && speechRecognizerRef.current) {
+            speechRecognizerRef.current.write(res);
+          }
+        };
+        recorderRef.current.OnError = err => {
+          console.error('OnError:', err);
+          onError(err);
+          stop();
+        };
+        recorderRef.current.start();
+
+        if (!speechRecognizerRef.current) {
+          speechRecognizerRef.current = new window.SpeechRecognizer(params);
+        }
+        speechRecognizerRef.current.OnRecognitionStart = () => {
+          isCanSendDataRef.current = true;
+          isCanStopRef.current = true;
+          setStatus('recording');
+          startVolumeCheck(); // 开始音量检测
+          startRecordTime(); // 开始录音时间计时
+        };
+        speechRecognizerRef.current.OnSentenceBegin = res => {
+          if (isDebug) console.log('OnSentenceBegin:', res);
+        };
+        speechRecognizerRef.current.OnRecognitionResultChange = res => {
+          if (isDebug) console.log('OnRecognitionResultChange', res);
+          const currentText = `${resultTextRef.current}${res.result.voice_text_str}`;
+          setRecognizedText(currentText);
+        };
+        speechRecognizerRef.current.OnSentenceEnd = res => {
+          if (isDebug) console.log('OnSentenceEnd:', res);
+          resultTextRef.current += res.result.voice_text_str;
+          setRecognizedText(resultTextRef.current);
+        };
+        speechRecognizerRef.current.OnRecognitionComplete = res => {
+          if (isDebug) console.log('OnRecognitionComplete:', res);
+          onStop(cache.current);
+          cache.current = {};
+        };
+        speechRecognizerRef.current.OnError = () => {
+          setStatus('error');
+          stop();
+        };
+        speechRecognizerRef.current.start();
+      } catch (error) {
+        console.log(error);
+        alert(_l('开启麦克风权限失败，权限设置了不允许或您的设备不支持该功能'), 3);
         setStatus('error');
-        stop();
-      };
-      speechRecognizerRef.current.start();
-    } catch (error) {
-      console.log(error);
-      alert(_l('请允许麦克风权限以使用语音输入功能'), 3);
-      setStatus('error');
+      }
+    } catch (err) {
+      console.error('OnError:', err);
+      onError(err);
     }
   }, []);
   // 组件卸载时清理资源

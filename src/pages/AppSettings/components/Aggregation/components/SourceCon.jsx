@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet.jsx';
 import { getTranslateInfo } from 'src/utils/app';
@@ -39,6 +39,12 @@ export default function SourceCon(props) {
     }
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const groupDt = getNodeInfo(props.flowData, 'GROUP');
+    const appName = dataInfo.appName
+      ? getTranslateInfo(dataInfo.appId, null, dataInfo.appId).name || dataInfo.appName
+      : '';
+    const tableName = dataInfo.tableName
+      ? getTranslateInfo(dataInfo.appId, null, dataInfo.workSheetId).name || dataInfo.tableName
+      : '';
     return (
       <Fragment>
         <div className="Dropdown--input Dropdown--border">
@@ -55,9 +61,12 @@ export default function SourceCon(props) {
                 fill={'#9e9e9e'}
                 size={16}
               />
-              <span className="flex mLeft5 Bold WordBreak overflow_ellipsis">
-                {getTranslateInfo(dataInfo.appId, null, dataInfo.workSheetId).name || dataInfo.tableName}
-              </span>
+              <Tooltip title={tableName ? (appName ? `${tableName} (${appName})` : tableName) : ''} placement="topLeft">
+                <span className="flex mLeft5 Bold WordBreak overflow_ellipsis">
+                  {tableName}
+                  {appName && <span className="Gray_75 mLeft5">({appName})</span>}
+                </span>
+              </Tooltip>
             </React.Fragment>
           )}
           <Tooltip title={_l('筛选')}>
@@ -84,8 +93,11 @@ export default function SourceCon(props) {
             />
           </Tooltip>
           {canChange && (
-            <Tooltip title={_l('更改数据源')} onClick={() => setState({ isChange: true })}>
-              <div className="ming Icon icon icon-swap_horiz mLeft8 Gray_9e Font16 Hand ThemeHoverColor3 mRight8" />
+            <Tooltip title={_l('更改数据源')}>
+              <div
+                className="ming Icon icon icon-swap_horiz mLeft8 Gray_9e Font16 Hand ThemeHoverColor3 mRight8"
+                onClick={() => setState({ isChange: true })}
+              />
             </Tooltip>
           )}
           {dataInfo.workSheetId && !canChange && (
@@ -179,7 +191,7 @@ export default function SourceCon(props) {
                 {sourceDtList.length > 1 && (
                   <div className="colorByWorksheet" style={{ backgroundColor: DEFAULT_COLORS[index] }}></div>
                 )}
-                {renderSourceItem(o, canChange, filters, index)}
+                {renderSourceItem(o, canChange, filters)}
                 {!o.isRelative && filters.length > 0 && !hideIds.includes(o.workSheetId) && (
                   <FilterItemTexts
                     className={'filterConByWorksheet mTop0'}

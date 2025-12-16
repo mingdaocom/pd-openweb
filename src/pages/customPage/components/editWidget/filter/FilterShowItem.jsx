@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import { EditInfo } from 'src/pages/widgetConfig/styled';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';

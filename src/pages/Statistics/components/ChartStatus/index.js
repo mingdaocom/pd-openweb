@@ -33,8 +33,26 @@ export const Overload = () => {
 
 export const Abnormal = props => {
   const { isEdit, status } = props;
+  const withoutPermission = (
+    <div className="flex flexColumn valignWrapper Gray_c" style={style}>
+      <Icon icon="password" className="Font64 Gray_c mBottom10" />
+      <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
+      <div className="Gray_9e Font16">{_l('无权限')}</div>
+    </div>
+  );
+  const dataSizeOverload = (
+    <div className="flex flexColumn valignWrapper Gray_c" style={style}>
+      <Icon icon="password" className="Font64 Gray_c mBottom10" />
+      <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
+      <div className="Gray_9e Font16">{_l('数据量过大，请添加时间范围或添加筛选条件减少数据量')}</div>
+    </div>
+  );
   if (isEdit) {
-    if (status === -3) {
+    if (status === -1) {
+      return withoutPermission;
+    } else if (status === -2) {
+      return dataSizeOverload;
+    } else if (status === -3) {
       return (
         <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
           {_l('服务异常，请稍后重试')}
@@ -49,21 +67,9 @@ export const Abnormal = props => {
     }
   } else {
     if (status === -1) {
-      return (
-        <div className="flex flexColumn valignWrapper Gray_c" style={style}>
-          <Icon icon="password" className="Font64 Gray_c mBottom10" />
-          <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
-          <div className="Gray_9e Font16">{_l('无权限')}</div>
-        </div>
-      );
+      return withoutPermission;
     } else if (status === -2) {
-      return (
-        <div className="flex flexColumn valignWrapper Gray_c" style={style}>
-          <Icon icon="password" className="Font64 Gray_c mBottom10" />
-          <div className="Gray_9e Font20 mBottom2">{_l('无法形成图表')}</div>
-          <div className="Gray_9e Font16">{_l('数据量过大，请添加时间范围或添加筛选条件减少数据量')}</div>
-        </div>
-      );
+      return dataSizeOverload;
     } else {
       return (
         <div className="flex flexColumn valignWrapper Gray_c" style={style}>

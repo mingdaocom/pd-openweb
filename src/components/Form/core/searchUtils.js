@@ -3,6 +3,7 @@ import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
+import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { isEmptyValue } from 'src/utils/control';
 import { getAttachmentData, getDynamicValue } from './formUtils';
 
@@ -173,7 +174,7 @@ export const getParamsByConfigs = (recordId, requestMap = [], formData = [], key
 
         params[item.id] = rows.map((row = {}) => {
           let rowItem = {};
-          childMap.map(c => {
+          childMap.forEach(c => {
             const { cid, rcid } = safeParse(c.defsource || '[]')[0] || {};
             const totalRelations = (curControl.relationControls || [])
               .concat(WORKFLOW_SYSTEM_CONTROL)
@@ -290,7 +291,7 @@ export const dealAuthAccount = (authaccount = '', formData) => {
       accountId: _.get(authIdAccounts, '0.roleId'),
       keywords: getDynamicValue(formData, {
         type: 2,
-        advancedSetting: { defsource: JSON.stringify([{ cid: authIdKeywords, rcid: '', staticValue: '' }]) },
+        advancedSetting: { defsource: JSON.stringify(transferValue(authIdKeywords)) },
       }),
     });
   }

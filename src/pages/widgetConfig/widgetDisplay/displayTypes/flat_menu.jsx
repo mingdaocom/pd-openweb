@@ -1,15 +1,17 @@
 import React from 'react';
 import cx from 'classnames';
-import { includes } from 'lodash';
+import { identity, includes } from 'lodash';
 import { Radio } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { isLightColor } from 'src/utils/control';
 import { OptionsWrap, OptionWrap } from '../../styled';
-import { getAdvanceSetting, getItemOptionWidth, getOptions, parseOptionValue } from '../../util/setting';
+import { getAdvanceSetting, getItemOptionWidth, getOptions } from '../../util/setting';
 
 function FlatMenu({ data, fromType }) {
-  const { direction = '2', width = '200' } = getAdvanceSetting(data);
-  const checkedValue = parseOptionValue(data.default);
+  const { direction = '2', width = '200', defsource } = getAdvanceSetting(data);
+  const checkedValue = safeParse(defsource || '[]')
+    .map(item => item.staticValue)
+    .filter(identity);
   const params = { direction, width };
 
   return (

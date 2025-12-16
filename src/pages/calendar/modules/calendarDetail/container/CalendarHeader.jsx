@@ -69,7 +69,7 @@ export default class CalendarHeader extends Component {
   }
 
   handleChangeTitle(value) {
-    if ($.trim(value).length <= 266) {
+    if (value.trim().length <= 266) {
       this.props.changeTitle(value);
       this.setState({ title: value });
     } else {

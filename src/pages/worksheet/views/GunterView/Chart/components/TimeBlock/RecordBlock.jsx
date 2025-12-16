@@ -56,7 +56,7 @@ const getLastWorkEndTime = (time, dayOff) => {
 @connect(
   state => ({
     ..._.pick(state.sheet.gunterView, ['searchRecordId', 'viewConfig', 'chartScroll', 'grouping']),
-    ..._.pick(state.sheet, ['controls', 'base', 'isCharge', 'worksheetInfo', 'views']),
+    ..._.pick(state.sheet, ['controls', 'base', 'isCharge', 'worksheetInfo', 'views', 'sheetSwitchPermit']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -479,6 +479,11 @@ export default class RowBlock extends Component {
       views,
       removeRecord = () => {},
     } = this.props;
+    const newRow = {
+      ...row,
+      [viewConfig.startId]: row.originalStartTime,
+      [viewConfig.endId]: row.originalEndTime,
+    };
     const { appId, projectId } = worksheetInfo;
     const view = _.find(views, { viewId: base.viewId }) || {};
     const titleId = view.viewtitle ? view.viewtitle : _.get(_.find(controls, { attribute: 1 }), 'controlId');
@@ -491,7 +496,7 @@ export default class RowBlock extends Component {
       controls.map(c => {
         return {
           ...c,
-          value: row[c.controlId] || undefined,
+          value: newRow[c.controlId] || undefined,
         };
       }),
       view.controlsSorts || [],
@@ -523,7 +528,7 @@ export default class RowBlock extends Component {
             .concat([titleId])
             .map(id => _.find(formData, { controlId: id }))
             .filter(_ => _),
-          rawRow: row,
+          rawRow: newRow,
           rowId: row.rowid,
           formData,
           recordColorConfig: {
@@ -536,7 +541,7 @@ export default class RowBlock extends Component {
         currentView={{ ...view, appId, projectId }}
         allowCopy={worksheetInfo.allowAdd}
         allowRecreate={worksheetInfo.allowAdd}
-        sheetSwitchPermit={[]}
+        sheetSwitchPermit={this.props.sheetSwitchPermit}
         onUpdate={() => {}}
         updateTitleData={() => {}}
         onDelete={({ recordId }) => {
@@ -563,7 +568,7 @@ export default class RowBlock extends Component {
   renderTitle() {
     const { row, controls, viewConfig } = this.props;
     const titleControl = _.find(controls, { attribute: 1 });
-    const value = row[titleControl.controlId] || row.titleValue;
+    const value = row[titleControl?.controlId] || row.titleValue;
     const emptyValue = _l('未命名');
     const title = _.get(viewConfig, 'viewtitle')
       ? renderTitleByViewtitle(row, controls, { advancedSetting: { viewtitle: _.get(viewConfig, 'viewtitle') } })

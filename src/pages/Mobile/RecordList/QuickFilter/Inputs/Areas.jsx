@@ -54,7 +54,7 @@ const AreaItem = styled.span`
 
 export default function Areas(props) {
   const { values = [], control, isMultiple, onChange = () => {}, projectId } = props;
-  const { chooserange = 'CN' } = control.advancedSetting;
+  const { chooserange = 'CN', commcountries } = control.advancedSetting;
   const tempArea = useRef();
 
   const deleteCurrentArea = item => {
@@ -75,6 +75,7 @@ export default function Areas(props) {
           <CityPicker
             level={control.enumDefault2}
             chooserange={chooserange}
+            commcountries={commcountries}
             showConfirmBtn={true}
             projectId={projectId}
             callback={area => {
@@ -104,6 +105,7 @@ export default function Areas(props) {
           <CityPicker
             level={control.enumDefault2}
             chooserange={chooserange}
+            commcountries={commcountries}
             showConfirmBtn={true}
             projectId={projectId}
             callback={area => {

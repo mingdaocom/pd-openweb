@@ -52,14 +52,14 @@ class ProgressChart extends Component {
       nextProps.color !== this.props.color
     ) {
       const { ProgressChartConfig } = this.getComponentConfig(nextProps);
-      this.ProgressChart.update(ProgressChartConfig);
+      this.ProgressChart && this.ProgressChart.update(ProgressChartConfig);
     }
     if (
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       style.columnCount !== oldStyle.columnCount ||
       nextProps.direction !== this.props.direction
     ) {
-      this.ProgressChart.destroy();
+      this.ProgressChart && this.ProgressChart.destroy();
       setTimeout(() => {
         this.renderProgressChart(nextProps);
       }, 0);

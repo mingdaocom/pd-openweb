@@ -5,12 +5,15 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import systemIcon from 'staticfiles/svg/system.svg';
-import { Dropdown, Icon, LoadDiv, ScrollView, Tooltip, UserHead } from 'ming-ui';
+import { Dropdown, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import applicationAjax from 'src/api/application';
+import downloadAjax from 'src/api/download';
 import orderAjax from 'src/api/order';
 import projectAjax from 'src/api/project';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
 import { AccountIdOperation, BillInfoWrap } from 'src/pages/Admin/common/styled';
+import { navigateTo } from 'src/router/navigateTo';
 import { formatNumberThousand } from 'src/utils/control';
 import { getCurrentProject } from 'src/utils/project';
 import PaginationWrap from '../../../components/PaginationWrap';
@@ -20,20 +23,28 @@ import {
   enumInvoiceStatus,
   enumOrderRecordStatus,
   invoiceTypeText,
+  orderRecordPaidTypeDropdownData,
+  orderRecordRechargeTypeDropdownData,
   orderRecordStatusDropdownData,
   orderRecordText,
   orderRecordType,
   orderTypeText,
   PAID_RECORD_TYPE,
+  PAY_TYPE,
   RECHARGE_RECORD_TYPE,
 } from './config';
 import InvoiceSetting from './invoiceSetting';
 import 'rc-trigger/assets/index.css';
 
 export default function BillInfo({ match }) {
-  const { 0: projectId } = _.get(match, 'params');
+  const { projectId, type = localStorage.getItem('billInfoType') || 'paid' } = _.get(match, 'params');
   const [data, setData] = useSetState({});
-  const [paras, setPara] = useSetState({ pageIndex: 1, pageSize: 50, status: 0, recordTypes: PAID_RECORD_TYPE });
+  const [paras, setPara] = useSetState({
+    pageIndex: 1,
+    pageSize: 50,
+    status: 0,
+    recordTypes: type === 'paid' ? PAID_RECORD_TYPE : RECHARGE_RECORD_TYPE,
+  });
   const [
     { applyInvoiceVisible, applyOrderId, invoiceVisible, operateMenuVisible, datePickerVisible, hideBalance },
     setVisible,
@@ -46,28 +57,54 @@ export default function BillInfo({ match }) {
     hideBalance: true,
   });
   const [loading, setLoading] = useState(false);
-  const [displayRecordType, setType] = useState('paid');
+  const [disabledExportBtn, setDisabledExportBtn] = useState(false);
+  const [displayRecordType, setType] = useState(type && _.includes(['paid', 'recharge'], type) ? type : 'paid');
   const { balance, list = [], allCount } = data;
-  const { pageIndex, status, pageSize, startDate, endDate } = paras;
+  const { pageIndex, status, pageSize, startDate, endDate, recordTypes } = paras;
   const { companyName, licenseType } = getCurrentProject(projectId, true);
   const isPaid = licenseType === 1;
   const isRechargeType = displayRecordType === 'recharge';
-  const refreshData = () => {
+
+  const getData = () => {
     setLoading(true);
     orderAjax
       .getTransactionRecordByPage({ projectId, ...paras, status: displayRecordType === 'recharge' ? 0 : paras.status })
-      .then(({ list }) => {
-        setData({ list });
+      .then(({ list, allCount }) => {
+        setData({ list, allCount });
       })
       .finally(() => {
         setLoading(false);
       });
   };
 
+  // 导出
+  const exportOrderRecord = () => {
+    setDisabledExportBtn(true);
+    downloadAjax
+      .exportTransactionRecords({
+        projectId,
+        ...paras,
+        status: displayRecordType === 'recharge' ? 0 : paras.status,
+        exportType: type === 'paid' ? 0 : 1,
+        fileName: type === 'paid' ? _l('支付记录') : _l('扣费记录'),
+      })
+      .then(() => {
+        setDisabledExportBtn(false);
+      })
+      .catch(() => {
+        setDisabledExportBtn(false);
+      });
+  };
+
   const cancelOrderFn = ({ recordType, orderId }) => {
     if (confirm(_l('确定取消该订单？'))) {
       if (_.includes([5, 6], recordType)) {
-        alert(_l('正在取消订单...'), 1, 80000);
+        const alertKey = `cancelOrderFn_${orderId}`;
+        alert({
+          msg: _l('正在取消订单...'),
+          duration: 0,
+          key: alertKey,
+        });
         applicationAjax
           .updateAppBillingStatus({
             projectId,
@@ -76,10 +113,17 @@ export default function BillInfo({ match }) {
           })
           .then(function (data) {
             if (data.success) {
-              alert(_l('已成功取消订单'));
-              refreshData();
+              alert({
+                msg: _l('已成功取消订单'),
+                key: alertKey,
+              });
+              getData();
             } else {
-              alert(_l('取消订单失败'), 2);
+              alert({
+                msg: _l('取消订单失败'),
+                key: alertKey,
+                type: 2,
+              });
             }
           });
       } else {
@@ -91,7 +135,7 @@ export default function BillInfo({ match }) {
           .then(function (data) {
             if (data) {
               alert(_l('已成功取消订单'));
-              refreshData();
+              getData();
             } else {
               alert(_l('取消订单失败'), 2);
             }
@@ -99,6 +143,13 @@ export default function BillInfo({ match }) {
       }
     }
   };
+
+  const handleClick = type => {
+    if (type === 'recharge') {
+      location.href = `/admin/valueaddservice/${projectId}`;
+    }
+  };
+
   useEffect(() => {
     document.title = _l('组织管理 - 账务 - %0', companyName);
   }, []);
@@ -110,21 +161,8 @@ export default function BillInfo({ match }) {
   }, [displayRecordType]);
 
   useEffect(() => {
-    setLoading(true);
-    orderAjax
-      .getTransactionRecordByPage({ projectId, ...paras, status: displayRecordType === 'recharge' ? 0 : paras.status })
-      .then(({ list, allCount }) => {
-        setData({ list, allCount });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    getData();
   }, [paras]);
-  const handleClick = type => {
-    if (type === 'recharge') {
-      location.href = `/admin/valueaddservice/${projectId}`;
-    }
-  };
 
   const renderRecordList = () => {
     if (loading) return <LoadDiv />;
@@ -144,26 +182,31 @@ export default function BillInfo({ match }) {
                 invoiceStatus,
                 createAccountInfo,
                 recordTypeTitle,
+                payType,
               },
               index,
             ) => (
               <li key={orderId || recordId} className="recordItem">
                 <div className="time overflow_ellipsis item Font14 Gray_75">{createTime}</div>
-                <div className={cx('type item', { rechargeType: displayRecordType === 'recharge' })}>
+                <div
+                  className={cx('type item flex overflow_ellipsis', { rechargeType: displayRecordType === 'recharge' })}
+                >
                   <Tooltip
-                    popupPlacement="bottom"
-                    text={
+                    placement="bottom"
+                    title={
                       orderTypeText[orderRecordType[recordType]] +
                       (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')
                     }
                   >
-                    <span className="InlineBlock overflow_ellipsis">
+                    <span>
                       {orderTypeText[orderRecordType[recordType]] +
                         (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
                     </span>
                   </Tooltip>
                 </div>
-                <div className={cx('amount item', { isPositive: price > 0 })}>{formatNumberThousand(price)}</div>
+                <div className={`item TxtRight ${displayRecordType === 'paid' ? 'mRight20' : 'mRight60'}`}>
+                  {formatNumberThousand(price)}
+                </div>
                 {isRechargeType ? (
                   <Fragment>
                     <div className="createPerson overflow_ellipsis item">
@@ -188,7 +231,10 @@ export default function BillInfo({ match }) {
                   </Fragment>
                 ) : (
                   <Fragment>
-                    <div className="billStatus overflow_ellipsis item">
+                    <div className="payType overflow_ellipsis item pLeft20">
+                      {payType && price !== 0 ? PAY_TYPE[payType] : '-'}
+                    </div>
+                    <div className="billStatus overflow_ellipsis item pLeft20">
                       {orderRecordText[enumOrderRecordStatus[status]]}
                     </div>
                     <div className={cx('invoiceStatus overflow_ellipsis item', enumInvoiceStatus[invoiceStatus])}>
@@ -212,6 +258,13 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       )}
                     </div>
+
+                    {!md.global.Config.IsLocal && (
+                      <div className="paidPerson overflow_ellipsis item">
+                        {renderPay({ status, payAccountInfo, orderId, recordType })}
+                      </div>
+                    )}
+
                     <Trigger
                       popupVisible={operateMenuVisible === index}
                       onPopupVisibleChange={visible => setVisible({ operateMenuVisible: visible ? index : -1 })}
@@ -261,6 +314,7 @@ export default function BillInfo({ match }) {
       </ScrollView>
     );
   };
+
   return (
     <BillInfoWrap>
       <div className="billInfoHeader orgManagementHeader">
@@ -277,8 +331,7 @@ export default function BillInfo({ match }) {
       <div className="orgManagementContent flexColumn">
         <div className="accountInfo">
           <i className="icon-sp_account_balance_wallet_white Font24" />
-          <span>{_l('账户余额')}</span>
-          <span className="moneySymbol Gray_75">(￥)</span>
+          <span>{_l('信用点')}</span>
           <span className={cx('balance Font24', { mRight0: hideBalance })}>
             {loading ? '-' : hideBalance ? '*****' : formatNumberThousand(balance)}
           </span>
@@ -300,51 +353,86 @@ export default function BillInfo({ match }) {
               onClick={() => {
                 setType('paid');
                 setPara({ recordTypes: PAID_RECORD_TYPE, pageIndex: 1 });
+                localStorage.setItem('billInfoType', 'paid');
+                navigateTo(`/admin/billinfo/${projectId}/paid`);
               }}
             >
-              {_l('支付记录')}
+              <span className="TxtMiddle">{_l('支付记录')}</span>
             </li>
             <li
               className={cx({ active: displayRecordType === 'recharge' })}
               onClick={() => {
                 setType('recharge');
                 setPara({ recordTypes: RECHARGE_RECORD_TYPE, pageIndex: 1 });
+                localStorage.setItem('billInfoType', 'recharge');
+                navigateTo(`/admin/billinfo/${projectId}/recharge`);
               }}
             >
-              {_l('扣费记录')}
+              <span className="TxtMiddle"> {_l('扣费记录')}</span>
+              <Tooltip
+                title={_l(
+                  '异步执行的工作流扣费存在约 5 分钟延迟，同时系统会将 5 分钟内相同操作自动合并成一条扣费记录，如5分钟内相同流程的扣费信息',
+                )}
+              >
+                <i className="icon icon-help Font14 mLeft5 Gray_bd ThemeHoverColor3 TxtMiddle" />
+              </Tooltip>
             </li>
           </ul>
-          <div className="dataFilter">
-            <Trigger
-              popupVisible={datePickerVisible}
-              onPopupVisibleChange={visible => setVisible({ datePickerVisible: visible })}
-              action={['click']}
-              popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
-              popup={
-                <DatePickerFilter
-                  updateData={data => {
-                    setPara({ ...data });
-                    setVisible({ datePickerVisible: false });
-                  }}
-                />
-              }
-            >
-              <div className="date Gray_75" data-tip={_l('按照时间筛选')}>
-                <i className="Font18 icon-sidebar_calendar" />
+          <div className="flexRow alignCenter">
+            <div className="dataFilter">
+              <Trigger
+                popupVisible={datePickerVisible}
+                onPopupVisibleChange={visible => setVisible({ datePickerVisible: visible })}
+                action={['click']}
+                popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
+                popup={
+                  <DatePickerFilter
+                    updateData={data => {
+                      setPara({ ...data });
+                      setVisible({ datePickerVisible: false });
+                    }}
+                  />
+                }
+              >
+                <Tooltip title={_l('按照时间筛选')} placement="top">
+                  <div className="date Gray_75">
+                    <i className="Font18 icon-sidebar_calendar" />
+                  </div>
+                </Tooltip>
+              </Trigger>
+              {startDate ? (
+                <div className="dateRange">
+                  {_l('%0 ~ %1', startDate, endDate)}
+                  <i className="icon-close" onClick={() => setPara({ startDate: '', endDate: '' })} />
+                </div>
+              ) : null}
+            </div>
+            <Tooltip title={_l('导出')} placement="top">
+              <div className={cx('exportBtn mLeft10', { disabledExportBtn })} onClick={exportOrderRecord}>
+                <i className="icon icon-download Gray_75 Font18 LineHeight24" />
               </div>
-            </Trigger>
-            {startDate ? (
-              <div className="dateRange">
-                {_l('%0 ~ %1', startDate, endDate)}
-                <i className="icon-close" onClick={() => setPara({ startDate: '', endDate: '' })} />
-              </div>
-            ) : null}
+            </Tooltip>
           </div>
         </div>
         <div className="listTitle">
           <div className="time item">{_l('时间')}</div>
-          <div className={cx('type item', { rechargeType: isRechargeType })}>{_l('类型')}</div>
-          <div className="amount item Gray_75">{_l('金额')}</div>
+          <div className={cx('type item flex', { rechargeType: isRechargeType })}>
+            <Dropdown
+              data={
+                displayRecordType === 'paid' ? orderRecordPaidTypeDropdownData : orderRecordRechargeTypeDropdownData
+              }
+              value={recordTypes.length > 1 ? 0 : recordTypes[0]}
+              onChange={value => {
+                setPara({
+                  recordTypes: value === 0 ? (type === 'paid' ? PAID_RECORD_TYPE : RECHARGE_RECORD_TYPE) : [value],
+                  pageIndex: 1,
+                });
+              }}
+            />
+          </div>
+          <div className={`item TxtRight ${displayRecordType === 'paid' ? 'mRight20' : 'mRight60'}`}>
+            {displayRecordType === 'paid' ? _l('应付/结算') : _l('信用点')}
+          </div>
           {isRechargeType ? (
             <Fragment>
               <div className="createPerson item">{_l('创建人')}</div>
@@ -352,7 +440,8 @@ export default function BillInfo({ match }) {
             </Fragment>
           ) : (
             <Fragment>
-              <div className="billStatus item">
+              {displayRecordType === 'paid' && <div className="payType item pLeft20">{_l('支付方式')}</div>}
+              <div className="billStatus item pLeft20">
                 <Dropdown
                   data={orderRecordStatusDropdownData}
                   value={status}
@@ -363,7 +452,7 @@ export default function BillInfo({ match }) {
               </div>
               <div className="invoiceStatus item">{_l('发票状态')}</div>
               <div className="createPerson item">{_l('创建人')}</div>
-              {/* <div className="paidPerson item">{_l('付款人')}</div> */}
+              {!md.global.Config.IsLocal && <div className="paidPerson item">{_l('付款人')}</div>}
               <div className="operation item">{_l('操作')}</div>
             </Fragment>
           )}

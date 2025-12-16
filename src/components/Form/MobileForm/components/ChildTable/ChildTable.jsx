@@ -13,8 +13,8 @@ import { createRequestPool } from 'worksheet/api/standard';
 import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { SHEET_VIEW_HIDDEN_TYPES, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
-import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
+import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/Form/core/config';
+import DataFormat from 'src/components/Form/core/DataFormat';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
@@ -364,7 +364,6 @@ class ChildTable extends React.Component {
           let newControls = (_.get(res, 'worksheet.template.controls') || _.get(res, 'template.controls')).concat(
             systemControls,
           );
-          // TODO 这里要和 getControls 一起统一到 action 内处理
           const { uniqueControlIds } = parseAdvancedSetting(control.advancedSetting);
           newControls = newControls.map(c => ({
             ...c,
@@ -1055,7 +1054,7 @@ class ChildTable extends React.Component {
             }}
           >
             <div className="operateBtnBox">
-              <i className={cx('icon', { 'ThemeColor icon-zoom_out2': showExpand, 'icon-enlarge1': !showExpand })} />
+              <i className={cx('icon', { 'themeIcon icon-zoom_out2': showExpand, 'icon-enlarge1': !showExpand })} />
             </div>
           </span>
         )}

@@ -83,9 +83,7 @@ export default function Users(props) {
   const tabType = getTabTypeBySelectUser(props.control);
   let staticAccounts = [];
 
-  const emptyAvatar =
-    md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-    '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90';
+  const emptyAvatar = md.global.FileStoreConfig.pictureHost + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90';
 
   if (navshow === '2') {
     staticAccounts = safeParse(navfilters)

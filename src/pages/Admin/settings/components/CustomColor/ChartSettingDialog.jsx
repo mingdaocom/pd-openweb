@@ -3,7 +3,8 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { ColorPicker, Dialog, Icon, Input, Tooltip } from 'ming-ui';
+import { ColorPicker, Dialog, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import IllustrationTrigger from './IllustrationTrigger';
 
 const CustomChartContentWrap = styled.div`
@@ -321,7 +322,7 @@ export default function ChartSettingDialog(props) {
       <CustomChartContentWrap>
         <div className="label mBottom12">
           {_l('名称')}
-          <Tooltip text={_l('最多15个字符')}>
+          <Tooltip title={_l('最多15个字符')}>
             <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
           </Tooltip>
         </div>
@@ -341,7 +342,7 @@ export default function ChartSettingDialog(props) {
               {renderColorSelectWrap(color, index)}
               <div className="Font13 flex">{_l('色值%0', index + 1)}</div>
               {colors.length > 8 && (
-                <Tooltip text={_l('删除')}>
+                <Tooltip title={_l('删除')}>
                   <Icon
                     icon="delete_12"
                     className="Gray_9e deleteIcon"

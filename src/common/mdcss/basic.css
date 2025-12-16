@@ -672,6 +672,10 @@ body .Hidden {
   margin-right: 3px !important;
 }
 
+.mRight4 {
+  margin-right: 4px !important;
+}
+
 .mRight5 {
   margin-right: 5px !important;
 }
@@ -1582,6 +1586,10 @@ body .Hidden {
 
 .Hover_9e:hover {
   color: #9e9e9e !important;
+}
+
+.Font0 {
+  font-size: 0;
 }
 
 .font8 {
@@ -3025,28 +3033,13 @@ html:not(.appHomeMobile) .ant-message {
   font-weight: unset;
   color: #fff;
   background-color: #1677ff;
+
   .icon {
     color: #fff !important;
   }
 }
 
 /* ----> antd Select 样式 end */
-
-.ant-tooltip {
-  color: #212121;
-}
-
-.ant-tooltip .ant-tooltip-inner {
-  background-color: #212121;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: bold;
-  padding: 5px 10px;
-}
-
-.ant-tooltip .ant-tooltip-arrow-content {
-  --antd-arrow-background-color: #212121;
-}
 
 .hoverText:hover {
   cursor: pointer;
@@ -3108,6 +3101,10 @@ input::-webkit-contacts-auto-fill-button {
 
 .t-flex {
   display: flex;
+}
+
+.t-inline-flex {
+  display: inline-flex;
 }
 
 .t-flex-1 {

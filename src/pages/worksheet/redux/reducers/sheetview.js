@@ -32,7 +32,9 @@ export function sheetViewConfig(state = initialSheetViewConfig, action) {
     case 'WORKSHEET_SHEETVIEW_INIT_COLUMN_WIDTH':
       return { ...state, sheetColumnWidths: { ...action.value } };
     case 'WORKSHEET_SHEETVIEW_UPDATE_COLUMN_WIDTH':
-      return { ...state, sheetColumnWidths: { ...state.sheetColumnWidths, [action.controlId]: action.value } };
+      return action.changes
+        ? { ...state, sheetColumnWidths: { ...state.sheetColumnWidths, ...action.changes } }
+        : { ...state, sheetColumnWidths: { ...state.sheetColumnWidths, [action.controlId]: action.value } };
     // 列临时隐藏逻辑
     case 'WORKSHEET_SHEETVIEW_HIDE_COLUMN':
       return { ...state, sheetHiddenColumns: [...state.sheetHiddenColumns, action.controlId] };

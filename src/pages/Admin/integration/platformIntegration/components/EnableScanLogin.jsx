@@ -6,8 +6,33 @@ import dingIcon from '../images/ding.png';
 import feishuIcon from '../images/feishu.png';
 import workWxIcon from '../images/workwx.png';
 
-const integrationText = { 1: _l('钉钉'), 3: _l('企业微信'), 6: _l('飞书'), 7: 'Lark' };
 const integrationIcon = { 1: dingIcon, 3: workWxIcon, 6: feishuIcon };
+const integrationText = {
+  1: {
+    title: _l('钉钉扫码登录'),
+    subTitle: _l('开启后，在二级域名下使用钉钉扫一扫，直接登录'),
+    hrefTxt: _l('如何实现钉钉扫码登录'),
+    defaultName: _l('钉钉登录'),
+  },
+  3: {
+    title: _l('企业微信扫码登录'),
+    subTitle: _l('开启后，在二级域名下使用企业微信扫一扫，直接登录'),
+    hrefTxt: _l('如何实现企业微信扫码登录'),
+    defaultName: _l('企业微信登录'),
+  },
+  6: {
+    title: _l('飞书扫码登录'),
+    subTitle: _l('开启后，在二级域名下使用飞书扫一扫，直接登录'),
+    hrefTxt: _l('如何实现飞书扫码登录'),
+    defaultName: _l('飞书登录'),
+  },
+  7: {
+    title: _l('Lark扫码登录'),
+    subTitle: _l('开启后，在二级域名下使用Lark扫一扫，直接登录'),
+    hrefTxt: _l('如何实现Lark扫码登录'),
+    defaultName: _l('Lark登录'),
+  },
+};
 
 export default function EnableScanLogin(props) {
   const {
@@ -56,13 +81,12 @@ export default function EnableScanLogin(props) {
 
   return (
     <Fragment>
-      <h3 className="stepTitle Font16 Gray mBottom24">{_l(`%0扫码登录`, integrationText[integrationType])}</h3>
+      <h3 className="stepTitle Font16 Gray mBottom24">{(integrationText[integrationType] || {}).title}</h3>
       <Switch disabled={disabled} checked={scanEnabled} onClick={handleChangeScanEnabled} />
       <div className="mTop16 syncBox">
-        <span className="Font14 Gray_75">
-          {_l(`开启后，在二级域名下使用%0扫一扫，直接登录`, integrationText[integrationType])}
-        </span>
+        <span className="Font14 Gray_75">{(integrationText[integrationType] || {}).subTitle}</span>
       </div>
+
       {customDoc ? (
         <Support
           className="mTop16 Font14"
@@ -72,7 +96,7 @@ export default function EnableScanLogin(props) {
         />
       ) : (
         <a target="_blank" href={href} className="helpEntry">
-          {_l(`如何实现%0扫码登录？`, integrationText[integrationType])}
+          {(integrationText[integrationType] || {}).hrefTxt}
         </a>
       )}
 
@@ -82,7 +106,7 @@ export default function EnableScanLogin(props) {
           iconClassName={`iconBg ${
             integrationType === 1 ? 'dingIcon' : [6, 7].includes(integrationType) ? 'feishuIcon' : 'workWxIcon'
           }`}
-          defaultName={_l('%0登录', integrationText[integrationType])}
+          defaultName={(integrationText[integrationType] || {}).defaultName}
           name={customNameIcon.name}
           iconUrl={customNameIcon.iconUrl}
           defaultIcon={integrationIcon[integrationType]}

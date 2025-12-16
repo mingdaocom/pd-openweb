@@ -4,6 +4,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import { Button, Dialog, Icon, Menu, MenuItem, SvgIcon, VerifyPasswordInput } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instance from '../../api/instance';
 import verifyPassword from 'src/components/verifyPassword';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -134,7 +135,7 @@ export default class Header extends Component {
     } else {
       onSubmit({
         noSave: true,
-        ignoreDialog: id !== 'submit',
+        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], id),
         callback: err => {
           if (!err) {
             openOperatorDialog();
@@ -247,7 +248,7 @@ export default class Header extends Component {
         ignoreError: isStash,
         ignoreAlert: isStash,
         silent: isStash,
-        ignoreDialog: action !== 'submit',
+        ignoreDialog: !_.includes(['submit', 'pass', 'overrule', 'return', 'after'], action),
       });
     }
   };
@@ -434,12 +435,14 @@ export default class Header extends Component {
                 )}
 
                 <div
-                  className="more flexRow tip-bottom mLeft15"
+                  className="more flexRow mLeft15"
                   onClick={() => this.setState({ moreOperationVisible: !moreOperationVisible })}
                 >
-                  <div className="iconWrap flexRow" data-tip={_l('更多操作')}>
-                    <Icon icon="more_horiz Gray_75 ThemeHoverColor3" />
-                  </div>
+                  <Tooltip title={_l('更多操作')} placement="bottom">
+                    <div className="iconWrap flexRow">
+                      <Icon icon="more_horiz Gray_75 ThemeHoverColor3" />
+                    </div>
+                  </Tooltip>
 
                   {moreOperationVisible && (
                     <Menu

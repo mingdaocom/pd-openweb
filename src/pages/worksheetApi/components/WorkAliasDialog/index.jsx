@@ -41,7 +41,7 @@ export default function WorkAliasDialog(props) {
   };
 
   return (
-    <Dialog className="" visible={true} onCancel={onClose} title={_l('设置%0别名', workType)} onOk={() => onOk(alias)}>
+    <Dialog className="" visible={true} onCancel={onClose} title={_l('设置%0别名', workType)} onOk={() => onOk()}>
       <Wrap>
         <input
           type="text"

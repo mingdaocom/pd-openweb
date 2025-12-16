@@ -1,12 +1,13 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, Input, Tooltip } from 'antd';
+import { Collapse, Input } from 'antd';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import img from 'staticfiles/images/colour.png';
 import styled from 'styled-components';
 import { Checkbox, Dropdown, Icon, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
 import { SettingCollapseWrap } from 'src/pages/widgetConfig/widgetSetting/content/styled.js';
 import { SUPPORT_RELATE_SEARCH } from '../../config';
@@ -221,7 +222,7 @@ export function WidgetStyleSetting(props) {
                   {_l('在关联表中可以被搜索')}
                 </span>
                 <Tooltip
-                  popupPlacement="bottom"
+                  placement="bottom"
                   title={
                     <span>
                       {_l(
@@ -486,11 +487,7 @@ export function WidgetStyleSetting(props) {
                 onClick={checked => handleChange({ hidetab: checked ? '0' : '1' })}
               >
                 <span style={{ marginRight: '4px' }}>{_l('当只有一个标签页时隐藏')}</span>
-                <Tooltip
-                  placement="bottom"
-                  autoCloseDelay={0}
-                  title={_l('勾选后，当只有一个标签页时隐藏此标签页标题。直接显示内部内容')}
-                >
+                <Tooltip placement="bottom" title={_l('勾选后，当只有一个标签页时隐藏此标签页标题。直接显示内部内容')}>
                   <i className="icon-help Gray_9e Font16 Hand"></i>
                 </Tooltip>
               </Checkbox>

@@ -6,7 +6,13 @@ import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
 import { HAVE_VALUE_STYLE_WIDGET, MAX_CONTROLS_COUNT, NO_CONTENT_CONTROL, NOT_HAVE_WIDTH_CONFIG } from '../config';
-import { DATE_SHOW_TYPES, DISPLAY_TYPE } from '../config/setting';
+import {
+  AREA_DISPLAY_OPTION,
+  AREA_INTERNATION_DISPLAY_OPTION,
+  AREA_SPECIAL_DISPLAY_OPTION,
+  DATE_SHOW_TYPES,
+  DISPLAY_TYPE,
+} from '../config/setting';
 import { getRowById, isFullLineControl } from './widgets';
 
 export const getAdvanceSetting = (data, key) => {
@@ -32,9 +38,20 @@ export const handleAdvancedSettingChange = (data, obj) => {
   };
 };
 
+// 根据row、col排序controls
+export const sortControlsByRowAndCol = (controls = []) => {
+  return controls.sort((a, b) => {
+    if (a.row === b.row) {
+      return a.col - b.col;
+    }
+    return a.row - b.row;
+  });
+};
+
 export const getControlsSorts = (data, controls, key = 'controlssorts') => {
   const parsedSorts = getAdvanceSetting(data, [key]) || [];
-  const defaultSorts = controls.map(item => item.controlId);
+  // 显示字段没有配置，默认按原表row、col排序
+  const defaultSorts = sortControlsByRowAndCol(controls).map(item => item.controlId);
   try {
     if (_.isEmpty(parsedSorts)) return defaultSorts;
     return parsedSorts;
@@ -377,7 +394,10 @@ export const getShowFormat = data => {
     if (showformat === '1') return _l('YYYY年M月');
     if (_.includes(['2', '3'], showformat)) return 'M/YYYY';
     if (showformat === '4') return 'YYYY/M';
-    const yearMonthShowType = _.get(showType.match(/((y|Y|M)+(-|\.|年|月|年-|月-){0,1}(M|y|Y)+(年|月){0,1})/), '0');
+    const yearMonthShowType = _.get(
+      showType.match(/((y|Y|M)+(-|\.|年|月|年-|月-){0,1}(M|y|Y)+(年|月份|月){0,1})/),
+      '0',
+    );
     return yearMonthShowType || formatMode;
   }
   if (type === 16) {
@@ -465,4 +485,19 @@ export const canSetWidgetStyle = (item = {}) => {
     (type === 2 && enumDefault !== 3) ||
     (type === 51 && (enumDefault === 1 ? showControls.length === 1 : showtype === '3'))
   );
+};
+
+// 根据配置获取地区提示文案
+export const getAreaHintText = data => {
+  const { enumDefault, enumDefault2, advancedSetting = {} } = data;
+  const chooserange = advancedSetting.chooserange || 'CN';
+  if (enumDefault === 1) {
+    return _.get(_.find(AREA_INTERNATION_DISPLAY_OPTION, { value: enumDefault2 }), 'text') || _l('请选择');
+  } else {
+    if (chooserange === 'CN') {
+      return _.get(_.find(AREA_DISPLAY_OPTION, { value: enumDefault2 }), 'text') || _l('请选择');
+    } else {
+      return _.get(_.find(AREA_SPECIAL_DISPLAY_OPTION, { value: enumDefault2 }), 'text') || _l('请选择');
+    }
+  }
 };

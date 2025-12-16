@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Icon, LoadDiv, ScrollView, Support, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
@@ -354,11 +355,7 @@ export default class Write extends Component {
                     text={
                       <span>
                         {_l('登录密码验证')}
-                        <Tooltip
-                          popupPlacement="bottom"
-                          autoCloseDelay={0}
-                          text={<span>{_l('启用后，用户输入登录密码后才可进行提交')}</span>}
-                        >
+                        <Tooltip title={_l('启用后，用户输入登录密码后才可进行提交')}>
                           <Icon
                             className="Font16 Gray_9e mLeft5"
                             style={{ verticalAlign: 'text-bottom' }}
@@ -402,13 +399,6 @@ export default class Write extends Component {
                   <EmailApproval
                     {...this.props}
                     title={_l('启用邮件通知')}
-                    desc={
-                      <span>
-                        {_l('启用后，待办消息同时会以邮件的形式发送给相关负责人。')}
-                        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
-                          _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
-                      </span>
-                    }
                     flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
                     updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
                   />

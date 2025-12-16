@@ -179,7 +179,7 @@ export function registerNodeItemEvent(element, args) {
             .updateNode({ id: item.id, name })
             .then(result => {
               if (!result) {
-                return Promise.reject();
+                throw new Error();
               }
               alert(_l('修改成功'));
               kcService.getNodeById(item.id).then(node => {

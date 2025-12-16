@@ -1,8 +1,8 @@
+import _ from 'lodash';
 import AdminController from 'src/api/adminManage';
-import { htmlEncodeReg } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
 
-var Config = {
+const Config = {
   params: null, // parameters from url， eg: /admin/:routeType/:projectId
   projectId: null, // current projectId
   project: null, // current project info (from `md.global`)
@@ -30,7 +30,7 @@ Config.templates = {
 
 Config.getParams = function () {
   const reqArray = location.pathname.split('/');
-  const controlIndex = $.inArray('admin', reqArray);
+  const controlIndex = _.indexOf(reqArray, 'admin');
   let arr = [];
 
   reqArray.forEach(function (item, index) {
@@ -49,8 +49,8 @@ Config.setPageTitle = function (prefix) {
 
 Config.getTitle = function (prefix) {
   const project = getCurrentProject(Config.projectId, true);
-  const companyName = htmlEncodeReg((project && project.companyName) || '');
-  return [_l('组织管理'), prefix, companyName].join(' - ');
+  const companyName = project?.companyName;
+  return _.filter([_l('组织管理'), prefix, companyName]).join(' - ');
 };
 
 Config.EVENTS = {

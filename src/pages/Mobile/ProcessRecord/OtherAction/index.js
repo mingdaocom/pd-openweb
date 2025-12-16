@@ -138,6 +138,11 @@ export default class extends Component {
       return;
     }
 
+    if ($('.otherActionWrapper').find('.Progress--circle').length) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
+
     const parameter = {
       action,
       content,
@@ -507,7 +512,8 @@ export default class extends Component {
     const { action, instance, projectId } = this.props;
     const { content, customApproveContent, files, opinionList = [] } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
-    const { opinionTemplate, flowNode, app = {}, btnMap = {} } = instance || {};
+    const { opinionTemplate, flowNode, app = {} } = instance || {};
+    const btnMap = _.get(instance, 'btnMap') || {};
     const { inputType } = opinionTemplate || {};
     const opinionTemplateOpinions = _.get(opinionTemplate, 'opinions') || [];
     const { auth, allowUploadAttachment } = flowNode || {};

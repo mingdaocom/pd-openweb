@@ -93,6 +93,7 @@ export default class Controls extends React.Component {
             )}
             onChange={this.columnChange}
             showTabs={true}
+            disabled={this.props.saveViewSetLoading}
           />
         </div>
       </div>

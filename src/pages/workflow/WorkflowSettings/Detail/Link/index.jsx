@@ -3,7 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
+import worksheet from 'src/api/worksheet';
 import { ACTION_ID } from '../../enum';
 import {
   ButtonName,
@@ -22,6 +24,7 @@ export default class Link extends Component {
     this.state = {
       data: {},
       saveRequest: false,
+      views: [],
     };
   }
 
@@ -54,6 +57,7 @@ export default class Link extends Component {
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, selectNodeId: sId, instanceId })
       .then(result => {
         this.setState({ data: result });
+        result.selectNodeObj.appId && this.getWorksheetInfo(result.selectNodeObj.appId);
       });
   }
 
@@ -83,6 +87,7 @@ export default class Link extends Component {
       submitType,
       modifyTime,
       addNotAllowView,
+      viewId,
     } = data;
     const newPassword = password.trim();
 
@@ -108,6 +113,11 @@ export default class Link extends Component {
       return;
     }
 
+    if (linkType === 5 && !viewId) {
+      alert(_l('请选择视图'), 2);
+      return;
+    }
+
     if (saveRequest) {
       return;
     }
@@ -129,6 +139,7 @@ export default class Link extends Component {
         submitType,
         modifyTime,
         addNotAllowView,
+        viewId,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -144,6 +155,12 @@ export default class Link extends Component {
   renderContent() {
     const { selectNodeType } = this.props;
     const { data } = this.state;
+    const views = this.state.views.map(o => ({
+      text: o.name,
+      value: o.viewId,
+      className: data.viewId === o.viewId ? 'ThemeColor3' : '',
+    }));
+    const selectView = _.find(views, o => o.value === data.viewId);
 
     return (
       <Fragment>
@@ -153,7 +170,7 @@ export default class Link extends Component {
                 '根据当前流程节点中的记录对象，生成特定的对外支付链接，可以通过邮件、短信的正文里引用此节点，邀请用户下单或者付款',
               )
             : _l(
-                '根据当前流程节点中的记录对象，生成特定的对外分享链接。可以通过在邮件、短信的正文里引用此节点，邀请外部用户查看或填写指定的记录。',
+                '根据当前流程节点中的记录对象，生成特定的对外分享链接或内部链接。内部链接仅在登录后并有权限时可以查看。可以通过在邮件、短信的正文里引用此节点，邀请外部用户查看或填写指定的记录。',
               )}
         </div>
 
@@ -187,6 +204,7 @@ export default class Link extends Component {
               ]
             : [
                 { text: _l('分享链接'), value: 1 },
+                { text: _l('内部链接'), value: 5 },
                 { text: _l('填写链接'), value: 2 },
               ]
           ).map(item => (
@@ -203,33 +221,58 @@ export default class Link extends Component {
           ))}
         </div>
 
-        <div className="mTop20">
-          <span className="bold">{_l('链接名称（仅用于发送邮件时）')}</span>
-          <span
-            className="pointer Gray_75 workflowDetailTipsWidth"
-            data-tip={_l(
-              '通过工作流发送邮件时，链接可以按照设置的链接名称显示。如：在邮件中将链接显示为【点击查看记录】',
-            )}
-          >
-            <Icon className="Font16 Gray_9e" icon="help" />
-          </span>
-        </div>
-        <div className="mTop10">
-          <CustomTextarea
-            projectId={this.props.companyId}
-            processId={this.props.processId}
-            relationId={this.props.relationId}
-            selectNodeId={this.props.selectNodeId}
-            type={2}
-            height={0}
-            content={data.linkName}
-            formulaMap={data.formulaMap}
-            onChange={(err, value) => this.updateSource({ linkName: value })}
-            updateSource={this.updateSource}
-          />
-        </div>
+        {data.linkType === 5 ? (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('视图')}</div>
+            <Dropdown
+              className={cx('flowDropdown mTop10', {
+                'errorBorder errorBG': data.viewId && !!views.length && !selectView,
+              })}
+              isAppendToBody
+              disabled={!data.selectNodeId}
+              data={views}
+              value={data.viewId}
+              renderTitle={
+                !data.viewId || !views.length
+                  ? () => <span className="Gray_75">{_l('请选择')}</span>
+                  : data.viewId && !selectView
+                    ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
+                    : () => <span>{selectView.text}</span>
+              }
+              border
+              onChange={viewId => this.updateSource({ viewId })}
+            />
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="mTop20">
+              <span className="bold">{_l('链接名称（仅用于发送邮件时）')}</span>
+              <Tooltip
+                title={_l(
+                  '通过工作流发送邮件时，链接可以按照设置的链接名称显示。如：在邮件中将链接显示为【点击查看记录】',
+                )}
+              >
+                <Icon className="Font16 Gray_9e mLeft5" icon="help" />
+              </Tooltip>
+            </div>
+            <div className="mTop10">
+              <CustomTextarea
+                projectId={this.props.companyId}
+                processId={this.props.processId}
+                relationId={this.props.relationId}
+                selectNodeId={this.props.selectNodeId}
+                type={2}
+                height={0}
+                content={data.linkName}
+                formulaMap={data.formulaMap}
+                onChange={(err, value) => this.updateSource({ linkName: value })}
+                updateSource={this.updateSource}
+              />
+            </div>
+          </Fragment>
+        )}
 
-        {data.linkType !== 4 && (
+        {_.includes([1, 2, 3], data.linkType) && (
           <Fragment>
             <div className="mTop20 bold">{_l('密码')}</div>
             <div className="flexRow mTop10">
@@ -274,7 +317,7 @@ export default class Link extends Component {
           </Fragment>
         )}
 
-        {data.time.enable && data.linkType !== 4 && (
+        {data.time.enable && _.includes([1, 2, 3], data.linkType) && (
           <div className="mTop10 mLeft26">
             <div className="flexRow">
               {[
@@ -370,7 +413,7 @@ export default class Link extends Component {
           </Fragment>
         )}
 
-        {data.selectNodeId && data.linkType !== 4 && (
+        {data.selectNodeId && _.includes([1, 2, 3], data.linkType) && (
           <Fragment>
             <div className="Font13 bold mTop25 mBottom15">{_l('设置字段')}</div>
             <WriteFields
@@ -414,7 +457,7 @@ export default class Link extends Component {
       });
     }
 
-    this.updateSource({ linkType, formProperties });
+    this.updateSource({ linkType, formProperties, viewId: '' });
   }
 
   /**
@@ -426,6 +469,19 @@ export default class Link extends Component {
     evt.currentTarget.value = password;
     this.updateSource({ password });
   };
+
+  /**
+   * 获取工作表详情
+   */
+  getWorksheetInfo(worksheetId) {
+    worksheet.getWorksheetInfo({ worksheetId, getViews: true }).then(result => {
+      if (result.resultCode === 1) {
+        this.setState({ views: result.views });
+      } else {
+        this.setState({ views: [] });
+      }
+    });
+  }
 
   render() {
     const { data } = this.state;

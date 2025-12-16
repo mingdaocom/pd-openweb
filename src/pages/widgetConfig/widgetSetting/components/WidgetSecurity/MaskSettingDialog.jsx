@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { CUSTOM_DISPLAY, DISPLAY_MASK } from 'src/pages/widgetConfig/config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
@@ -298,7 +298,6 @@ export default function MaskSettingDialog(props) {
               <span style={{ marginRight: '4px' }}>{_l('虚拟掩码长度')}</span>
               <Tooltip
                 placement="bottom"
-                autoCloseDelay={0}
                 title={_l('未勾选时，按照真实字数显示掩码；勾选后，按照虚拟字数显示掩码，不暴露真实长度')}
               >
                 <Icon icon="help" className="Font15 Gray_9e TxtMiddle" />

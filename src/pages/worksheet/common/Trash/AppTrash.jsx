@@ -92,7 +92,7 @@ export default function AppTrash(props) {
                 url={
                   app.iconUrl.startsWith('http')
                     ? app.iconUrl
-                    : `${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${app.iconUrl}.svg`
+                    : `${md.global.FileStoreConfig.pubHost}/customIcon/${app.iconUrl}.svg`
                 }
                 fill="#fff"
                 size={24}
@@ -151,7 +151,7 @@ export default function AppTrash(props) {
                 alert(_l('恢复成功'));
                 setPendingCache(app.id, false);
               } else {
-                return Promise.reject();
+                throw new Error();
               }
             })
             .catch(() => {
@@ -185,7 +185,7 @@ export default function AppTrash(props) {
                     setApps(oldApps => oldApps.filter(a => a.id !== app.id));
                     alert(_l('彻底删除成功'));
                   } else {
-                    return Promise.reject();
+                    throw new Error();
                   }
                 })
                 .catch(() => {

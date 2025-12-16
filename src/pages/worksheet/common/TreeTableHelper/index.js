@@ -224,14 +224,14 @@ export const handleUpdateTreeNodeExpansion =
         ? row.childrenids
         : JSON.stringify(_.uniq(safeParse(row.childrenids, 'array').concat(childRows.map(r => r.rowid))));
       if (forceUpdate) {
-        (updateRows([recordId], {
+        updateRows([recordId], {
           childrenids: newChildrenIds,
         }),
           Object.keys(treeMap).forEach(key => {
             if (treeMap[key].parentKeys.includes(row.key)) {
               needDeleteKeys[key] = undefined;
             }
-          }));
+          });
       }
       const currentTreeNode = treeMap[treeMapKey] || {};
       const treeDataUpdaterResult = isAddsSubTree

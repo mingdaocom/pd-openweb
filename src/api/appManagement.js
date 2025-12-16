@@ -11,6 +11,7 @@ export default {
    * @param {array} args.sheets 工作表权限集合
    * @param {array} args.userIds 角色成员id集合
    * @param {array} args.pages 自定义页面
+   * @param {array} args.chatbots 自定义 对话机器人
    * @param {array} args.extendAttrs 用户扩展权限字段
    * @param {} args.generalAdd
    * @param {} args.gneralShare
@@ -580,6 +581,7 @@ export default {
    * @param {string} args.projectId 组织id
    * @param {array} args.appIds 应用ids
    * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
+   * @param {boolean} args.isFilterChatBot 是否过滤对话机器人
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -729,6 +731,7 @@ export default {
    * @param {string} args.urlTemplate 链接
    * @param {object} args.configuration 链接配置
    * @param {string} args.resume 摘要
+   * @param {integer} args.sourceType 来源 1 = mingo修改
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -754,17 +757,35 @@ export default {
    * @param {string} args.appId 应用id
    * @param {string} args.appSectionId SectionId
    * @param {string} args.name 名称
+   * @param {string} args.remark 描述
    * @param {string} args.icon Logo
-   * @param {integer} args.type 类型 0=工作表 1=自定义页面
+   * @param {integer} args.type 类型 0=工作表 1=自定义页面,3 = 对话机器人
    * @param {integer} args.createType 创建类型（创建自定义页面得时候需要传）0-表示普通 1-表示外部链接
    * @param {string} args.urlTemplate 链接
    * @param {object} args.configuration 链接配置
+   * @param {integer} args.sourceType 创建来源类型（默认0，1= ai创建）
+   * @param {string} args.prompt 创建机器人提示词
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
    **/
   addWorkSheet: function (args, options = {}) {
     return mdyAPI('AppManagement', 'AddWorkSheet', args, options);
+  },
+  /**
+   * 更新对话机器人说明
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id
+   * @param {string} args.id 应用项id
+   * @param {string} args.remark 描述
+   * @param {string} args.desc 详细说明
+   * @param {string} args.resume 说明
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateChatBotDesc: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'UpdateChatBotDesc', args, options);
   },
   /**
    * 新增工作表（级联数据源及子表）
@@ -806,6 +827,20 @@ export default {
    **/
   copyCustomPage: function (args, options = {}) {
     return mdyAPI('AppManagement', 'CopyCustomPage', args, options);
+  },
+  /**
+   * 复制对话机器人
+   * @param {Object} args 请求参数
+   * @param {string} args.appId 应用id
+   * @param {string} args.appSectionId SectionId
+   * @param {string} args.name 名称
+   * @param {string} args.id 自定义页面id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  copyChatBot: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'CopyChatBot', args, options);
   },
   /**
    * 新增应用授权
@@ -1151,7 +1186,7 @@ export default {
    * 修改应用实体分享信息
    * @param {Object} args 请求参数
    * @param {string} args.sourceId 分享来源id （页面id，图标id等）
-   * @param {integer} args.sourceType 分享类型  21 =自定义页面，31 = 图表
+   * @param {integer} args.sourceType 分享类型  21 =自定义页面，31 = 图表，70 = 对话机器人，71 = 对话机器人对话历史
    * @param {integer} args.status 状态  0 = 关闭，1 =启用
    * @param {string} args.password 密码
    * @param {string} args.validTime 有效时间
@@ -1452,6 +1487,7 @@ export default {
    * @param {string} args.projectId 组织id
    * @param {array} args.appIds 应用ids
    * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
+   * @param {boolean} args.isFilterChatBot 是否过滤对话机器人
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

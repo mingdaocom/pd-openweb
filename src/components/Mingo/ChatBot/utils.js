@@ -1,13 +1,14 @@
 import localforage from 'localforage';
-import { get } from 'lodash';
+import { find, get } from 'lodash';
 import mingoAjax from 'src/api/mingo';
+import { getMimeTypeByExt } from 'src/utils/common';
 import { FAST_GPT_CONFIG } from 'src/utils/enum';
 
 export async function insertChatHistory(chatId, title) {
   if (!chatId || !title) {
     return;
   }
-  const newHistory = { chatId, title, updateTime: new Date().toISOString() };
+  const newHistory = { chatId, title, updateTime: new Date().getTime() };
   const notLogin = !md?.global?.Account?.accountId;
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
@@ -15,6 +16,7 @@ export async function insertChatHistory(chatId, title) {
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
+  newHistory.updateTime = new Date(newHistory.updateTime).toISOString();
   return mingoAjax.saveRecord(newHistory);
 }
 
@@ -25,7 +27,7 @@ export async function updateChatTitle(chatId, title) {
   const notLogin = !md?.global?.Account?.accountId;
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
-    const newHistories = histories.map(item => (item.chatId === chatId ? { ...item, title } : item));
+    const newHistories = (histories || []).map(item => (item.chatId === chatId ? { ...item, title } : item));
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
@@ -42,7 +44,7 @@ export async function deleteChat(chatId) {
   const notLogin = !md?.global?.Account?.accountId;
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
-    const newHistories = histories.filter(item => item.chatId !== chatId);
+    const newHistories = (histories || []).filter(item => item.chatId !== chatId);
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
@@ -55,14 +57,15 @@ export async function updateChatHistory(chatId, { title, updateTime } = {}) {
   if (!chatId) {
     return;
   }
-  const newHistory = { chatId, title, updateTime: new Date(updateTime).toISOString() };
+  const newHistory = { chatId, title, updateTime: new Date(updateTime).getTime() };
   const notLogin = !md?.global?.Account?.accountId;
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
-    const newHistories = histories.map(item => (item.chatId === chatId ? newHistory : item));
+    const newHistories = (histories || []).map(item => (item.chatId === chatId ? newHistory : item));
     await localforage.setItem('mingo-chat-histories', newHistories);
     return newHistories;
   }
+  newHistory.updateTime = new Date(newHistory.updateTime).toISOString();
   return mingoAjax.saveRecord(newHistory);
 }
 
@@ -70,7 +73,7 @@ export async function getChatHistories() {
   const notLogin = !md?.global?.Account?.accountId;
   if (notLogin) {
     const histories = await localforage.getItem('mingo-chat-histories');
-    return histories || [];
+    return (histories || []).sort((a, b) => b.updateTime - a.updateTime);
   }
   return mingoAjax.getHistoryRecord({
     pageIndex: 1,
@@ -133,7 +136,8 @@ export async function getRecommendMessage(chatId) {
 4.为 HAP 使用相关话题的合理延伸，符合用户可能感兴趣的领域。
 5.保持于现有对话的语气风格一致，选项多样。
 6.若偏离主题，需引导回 HAP 使用。
-7.返回语言使用 ${md.global.Account.lang}
+7.返回的问题要自然，回答具体问题就好不用强行在问题里加入 HAP 字样。
+8.返回语言使用 ${md.global.Account.lang}
 `,
       },
     }),
@@ -198,5 +202,101 @@ export function getContentFromMessage(message = '') {
       result += `![image](${item.image_url.url})\n`;
     }
   });
+  return result;
+}
+
+export function mapWidgetTypeToControlType(type) {
+  switch (type) {
+    case 'text':
+      return 'TEXT';
+    case 'longText':
+      return 'TEXT';
+    case 'number':
+      return 'NUMBER';
+    case 'amount':
+      return 'MONEY';
+    case 'region':
+      return 'AREA_PROVINCE';
+    case 'location':
+      return 'LOCATION';
+    case 'date':
+      return 'DATE';
+    case 'dateTime':
+      return 'DATE_TIME';
+    case 'boolean':
+      return 'SWITCH';
+    case 'dropdown':
+      return 'DROP_DOWN';
+    case 'radio':
+      return 'DROP_DOWN';
+    case 'checkbox':
+      return 'SWITCH';
+    case 'autoid':
+      return 'AUTO_ID';
+    case 'member':
+      return 'USER_PICKER';
+    case 'department':
+      return 'DEPARTMENT';
+    case 'phone':
+      return 'MOBILE_PHONE';
+    case 'email':
+      return 'EMAIL';
+    case 'attachment':
+      return 'ATTACHMENT';
+    case 'formula':
+      return 'FORMULA_NUMBER';
+    case 'subform':
+      return 'SUB_LIST';
+    case 'related':
+      return 'RELATE_SHEET';
+    case 'multiRelated':
+      return 'RELATE_SHEET';
+    case 'relatedTable':
+      return 'RELATE_SHEET';
+    case 'section':
+      return 'SPLIT_LINE';
+    // case 'tab':
+    //   return 'TAB';
+    default:
+      return;
+  }
+}
+
+function formatMediaToFiles(media) {
+  if (typeof media === 'string') {
+    return safeParse(media, 'array').map(item => ({
+      id: item.fileID,
+      name: item.oldOriginalFileName + item.fileExt,
+      url: item.url,
+      type: getMimeTypeByExt(item.fileExt),
+    }));
+  }
+  return media.map(item => ({
+    id: item.fileID,
+    name: item.originalFilename + item.ext,
+    url: item.viewUrl,
+    type: getMimeTypeByExt(item.ext),
+    source: item,
+  }));
+}
+
+function formatImageUrlToFiles(imageUrl) {
+  return imageUrl.map(item => ({
+    id: item.image_url.url,
+    name: 'image.jpg',
+    url: item.image_url.url,
+    type: 'image/png',
+  }));
+}
+
+export function convertModelMessageToUIMessage(message) {
+  const result = { ...message };
+  if (message.media) {
+    result.files = formatMediaToFiles(message.media);
+  }
+  if (find(message.content, item => item.type === 'image_url')) {
+    result.files = formatImageUrlToFiles(message.content.filter(item => item.type === 'image_url'));
+    result.content = message.content.filter(item => item.type !== 'image_url');
+  }
   return result;
 }

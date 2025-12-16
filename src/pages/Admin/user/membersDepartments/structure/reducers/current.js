@@ -1,7 +1,6 @@
 ﻿import _ from 'lodash';
 import Config from '../../../../config';
 import * as ACTIONS from '../actions/current';
-import { COMPANY_DEPARMENTID } from '../constant';
 
 const initialState = () => {
   let typeCursor = 0;
@@ -13,8 +12,7 @@ const initialState = () => {
   }
   return {
     projectId: Config.projectId,
-    root: COMPANY_DEPARMENTID,
-    departmentId: COMPANY_DEPARMENTID,
+    departmentId: '',
     selectedAccountIds: [], // 批量选中的用户
     activeAccountId: null, // 当前活动用户设置列表的accountId
     approveNumber: 0, // 网络未激活人数
@@ -87,7 +85,7 @@ export default (state = initialState(), action) => {
     case ACTIONS.REMOVE_CURSOR:
       return {
         ...state,
-        departmentId: COMPANY_DEPARMENTID,
+        departmentId: '',
       };
     case ACTIONS.UPDATE_ACTIVE_OPLIST:
       return {

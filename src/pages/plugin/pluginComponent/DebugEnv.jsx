@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Dialog, Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import homeAppApi from 'src/api/homeApp';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';

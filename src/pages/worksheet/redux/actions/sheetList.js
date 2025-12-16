@@ -7,6 +7,7 @@ import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import webCache from 'src/api/webCache';
 import sheetApi from 'src/api/worksheet';
+import processApi from 'src/pages/workflow/api/process';
 import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
 import { updateEditPageVisible, updatePageInfo } from 'src/pages/customPage/redux/action';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
@@ -15,6 +16,7 @@ import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { navigateTo } from 'src/router/navigateTo';
+import { emitter } from 'src/utils/common';
 import { moveSheetCache } from 'src/utils/worksheet';
 import { getSheetListFirstId } from 'src/utils/worksheet';
 
@@ -114,6 +116,7 @@ export function getAllAppSectionDetail(appId, callBack) {
         getSection: true,
       })
       .then(result => {
+        emitter.emit('UPDATE_GLOBAL_STORE', 'appInfo', result);
         const { permissionType, isLock, sections = [] } = result;
         const isCharge = canEditApp(permissionType, isLock);
         const filterSections = isCharge
@@ -465,12 +468,9 @@ export function addWorkSheet(args, cb) {
   return function (dispatch) {
     const { appId, appSectionId, firstGroupId, name, projectId, type } = args;
     appManagementApi
-      .addWorkSheet({
-        ...args,
-        icon: type === 0 ? 'table' : 'dashboard',
-      })
+      .addWorkSheet(args)
       .then(result => {
-        const { pageId, workSheetId, templateId } = result;
+        const { pageId, workSheetId, templateId, chatbotId } = result;
         if (type === 1 && pageId) {
           cb(result);
           const data = {
@@ -497,20 +497,53 @@ export function addWorkSheet(args, cb) {
           }
           return;
         }
-        if (workSheetId) {
-          getCustomWidgetUri({
-            sourceName: name,
-            templateId,
-            sourceId: workSheetId,
-            projectId,
-            appconfig: {
-              appId,
-              appSectionId: firstGroupId || appSectionId, // 二级分组创建应用项时，回跳还是用一级分组id
-            },
-          });
-        } else {
-          alert(_l('创建工作表失败'), 2);
-          cb && cb(result);
+        if (type === 0) {
+          if (workSheetId) {
+            getCustomWidgetUri({
+              sourceName: name,
+              templateId,
+              sourceId: workSheetId,
+              projectId,
+              appconfig: {
+                appId,
+                appSectionId: firstGroupId || appSectionId, // 二级分组创建应用项时，回跳还是用一级分组id
+              },
+            });
+          } else {
+            alert(_l('创建工作表失败'), 2);
+            cb && cb(result);
+          }
+        }
+        if (type === 3) {
+          if (chatbotId) {
+            const data = {
+              workSheetName: args.name,
+              workSheetId: chatbotId,
+              navigateHide: false,
+              status: 1,
+              ...pick(args, ['icon', 'iconColor', 'iconUrl', 'type']),
+            };
+            sessionStorage.setItem(`chatbotNewCreate-${chatbotId}`, true);
+            if (firstGroupId) {
+              data.parentGroupId = args.appSectionId;
+              dispatch({
+                type: 'ADD_LEFT_SUB_ITEM',
+                data: {
+                  id: appSectionId,
+                  data,
+                },
+              });
+            } else {
+              dispatch({
+                type: 'ADD_LEFT_ITEM',
+                data: data,
+              });
+            }
+            cb && cb(result);
+          } else {
+            alert(_l('创建对话机器人失败'), 2);
+            cb && cb(result);
+          }
         }
       })
       .catch(() => {
@@ -524,7 +557,7 @@ export function addAppSection(args) {
     const { appId, groupId } = args;
     const name = _l('未命名分组');
     const icon = '8_4_folder';
-    const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`;
+    const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
     homeAppApi
       .addAppSection({
         appId,
@@ -554,23 +587,34 @@ export function addAppSection(args) {
   };
 }
 
+const iconMap = {
+  worksheet: 'table',
+  customPage: 'dashboard',
+  chatbot: 'sys_17_6_reddit',
+};
+const enumTypeMap = {
+  worksheet: 0,
+  customPage: 1,
+  chatbot: 3,
+};
 export function createAppItem(args) {
   return function (dispatch) {
-    let { appId, firstGroupId, groupId, type, name, configuration, urlTemplate } = args;
+    let { appId, firstGroupId, groupId, type, name, remark, configuration, urlTemplate, robotInfo } = args;
 
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
     }
 
     const { iconColor, projectId } = store.getState().appPkg;
-    const enumType = type === 'worksheet' ? 0 : 1;
-    const icon = type === 'customPage' ? 'dashboard' : 'table';
-    const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`;
+    const enumType = enumTypeMap[type];
+    const icon = iconMap[type];
+    const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
     const createArgs = {
       appId,
       appSectionId: groupId,
       firstGroupId,
       name,
+      remark,
       iconColor,
       projectId,
       icon,
@@ -579,14 +623,33 @@ export function createAppItem(args) {
       configuration,
       urlTemplate,
       createType: enumType === 1 ? (urlTemplate ? 1 : 0) : undefined,
+      prompt: _.get(robotInfo, 'systemPrompt'),
     };
     const callBack = res => {
-      const { pageId } = res || {};
+      const { pageId, chatbotId } = res || {};
       if (type === 'customPage' && pageId) {
         navigateTo(`/app/${appId}/${firstGroupId || groupId}/${pageId}`);
         store.dispatch(updatePageInfo({ pageName: name, pageId }));
         if (!urlTemplate) {
           store.dispatch(updateEditPageVisible(true));
+        }
+      }
+      if (type === 'chatbot' && chatbotId) {
+        if (robotInfo) {
+          const { name, greeting, suggestedQuestions = [] } = robotInfo;
+          processApi
+            .saveChatbotConfig({
+              chatbotId,
+              name,
+              welcomeText: greeting,
+              presetQuestion: suggestedQuestions.join('\n'),
+              uploadPermission: '11',
+            })
+            .then(() => {
+              navigateTo(`/app/${appId}/${firstGroupId || groupId}/${chatbotId}`);
+            });
+        } else {
+          navigateTo(`/app/${appId}/${firstGroupId || groupId}/${chatbotId}`);
         }
       }
     };
@@ -615,6 +678,48 @@ export function copyCustomPage(para, externalLink) {
           iconColor: para.iconColor || '#616161',
           iconUrl: para.iconUrl,
           ...externalLink,
+        };
+        if (parentGroupId) {
+          item.parentGroupId = parentGroupId;
+          dispatch({
+            type: 'ADD_LEFT_SUB_ITEM',
+            data: {
+              id: parentGroupId,
+              data: item,
+            },
+          });
+        } else {
+          dispatch({
+            type: 'ADD_LEFT_ITEM',
+            data: item,
+          });
+        }
+      } else {
+        alert(_l('复制失败'), 2);
+      }
+    });
+  };
+}
+
+// 复制对话机器人
+export function copyChatBot(para) {
+  return function (dispatch) {
+    const { parentGroupId } = para;
+    if (parentGroupId) {
+      para.appSectionId = parentGroupId;
+      delete para.parentGroupId;
+    }
+    appManagementApi.copyChatBot(para).then(data => {
+      if (data) {
+        alert(_l('复制成功'));
+        const item = {
+          workSheetId: data,
+          workSheetName: para.name,
+          type: 3,
+          status: 1,
+          icon: para.icon || 'sys_17_6_reddit',
+          iconColor: para.iconColor || '#616161',
+          iconUrl: para.iconUrl,
         };
         if (parentGroupId) {
           item.parentGroupId = parentGroupId;

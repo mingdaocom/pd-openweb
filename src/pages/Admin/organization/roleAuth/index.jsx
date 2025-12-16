@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
-import { Button, Checkbox, Icon, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectSettingAjax from 'src/api/projectSetting';
 import roleApi from 'src/api/role';
 import Config from '../../config';
@@ -76,10 +77,7 @@ export default class RoleAuth extends React.Component {
         <Checkbox className="LineHeight36 mRight5" checked={allowApplyManage} onClick={this.allowApplyAdmin}>
           {_l('允许申请管理员')}
         </Checkbox>
-        <Tooltip
-          text={_l('勾选后，组织下所有人都可查看组织中的管理员角色（除超级管理员外），并申请加入')}
-          autoCloseDelay={0}
-        >
+        <Tooltip title={_l('勾选后，组织下所有人都可查看组织中的管理员角色（除超级管理员外），并申请加入')}>
           <Icon icon="help" className="Font16 Gray_9e" />
         </Tooltip>
         <div className="Hand Gray_75 bold mRight32 mLeft32" onClick={() => this.setState({ showApplyForRole: true })}>

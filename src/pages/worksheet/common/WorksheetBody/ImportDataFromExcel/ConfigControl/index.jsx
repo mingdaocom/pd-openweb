@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import filterXSS from 'xss';
-import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, ScrollView, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, Dropdown, Icon, LoadDiv, Menu, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -205,6 +206,7 @@ export default class ConfigControl extends Component {
       return (
         controlItem.type !== 22 &&
         ((fieldPermission[0] === '1' &&
+          fieldPermission[1] === '1' &&
           fieldPermission[2] === '1' &&
           controlPermissions[0] === '1' &&
           controlPermissions[2] === '1') ||
@@ -458,7 +460,7 @@ export default class ConfigControl extends Component {
 
       worksheetControls
         .filter(o => o.type !== 30 && o.required === '1')
-        .map(o => {
+        .forEach(o => {
           if (!controlMappingFilter.find(obj => obj.ControlId === o.controlId)) {
             requiredFiledNoSetArray.push(o.controlName);
           }
@@ -788,8 +790,7 @@ export default class ConfigControl extends Component {
                   }}
                 />
                 <Tooltip
-                  autoCloseDelay={0}
-                  text={
+                  title={
                     <span>
                       {_l(
                         '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、自动编号、记录ID、成员单选',
@@ -820,8 +821,7 @@ export default class ConfigControl extends Component {
                   }
                 />
                 <Tooltip
-                  autoCloseDelay={0}
-                  text={
+                  title={
                     <span>
                       {_l('未勾选时，对于错误的数据仅跳过错误字段，其他字段仍然导入。勾选后将跳过整行数据。')}
                     </span>
@@ -945,8 +945,7 @@ export default class ConfigControl extends Component {
 
           {/** 提示文字 */}
           <Tooltip
-            autoCloseDelay={0}
-            text={
+            title={
               <span>
                 {controlItem.type === 26
                   ? _l('支持的字段类型包括：姓名、手机号、邮箱、工号、人员ID')
@@ -999,8 +998,7 @@ export default class ConfigControl extends Component {
 
           {/** 提示文字 */}
           <Tooltip
-            autoCloseDelay={0}
-            text={
+            title={
               <span>
                 {_l(
                   '选择关联表的一个字段作为映射的匹配字段，支持的字段类型包括：文本框、电话号码、邮件地址、证件、文本拼接、自动编号、记录ID',
@@ -1196,8 +1194,7 @@ export default class ConfigControl extends Component {
                               {[9, 10, 11].includes(controlItem.type) && !isHiddenConfig && (
                                 <Fragment>
                                   <Tooltip
-                                    autoCloseDelay={0}
-                                    text={_l('勾选后，当匹配不到已有选项时会添加为新的选项。未勾选时，则导入为空')}
+                                    title={_l('勾选后，当匹配不到已有选项时会添加为新的选项。未勾选时，则导入为空')}
                                   >
                                     <i className="icon-help Gray_9e Font16" />
                                   </Tooltip>

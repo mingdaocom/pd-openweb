@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { func, string } from 'prop-types';
+import { bool, func, string } from 'prop-types';
+import { FullScreenCurtain } from 'ming-ui';
 import WorkflowSettings from '../../WorkflowSettings';
-import FullScreenCurtain from '../FullScreenCurtain';
 
 export default class WorkflowDialog extends Component {
   static propTypes = {
+    needChat: bool,
     flowId: string,
     onBack: func,
   };
@@ -15,7 +16,7 @@ export default class WorkflowDialog extends Component {
   };
 
   render() {
-    const { flowId, onBack } = this.props;
+    const { flowId, needChat, onBack } = this.props;
     const match = {
       params: {
         flowId,
@@ -23,7 +24,7 @@ export default class WorkflowDialog extends Component {
     };
 
     return (
-      <FullScreenCurtain>
+      <FullScreenCurtain needChat={needChat}>
         <WorkflowSettings match={match} onBack={onBack} />
       </FullScreenCurtain>
     );

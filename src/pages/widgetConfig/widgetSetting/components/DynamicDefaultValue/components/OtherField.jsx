@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
 import {
   CUR_EMPTY_TYPES,
@@ -105,7 +106,7 @@ export default function OtherField(props) {
         _.find(controls, item => _.includes([item.controlId, item.id], fieldId)),
         'controlName',
       ) || (
-        <Tooltip text={<span>{_l('ID: %0', fieldId)}</span>} popupPlacement="bottom">
+        <Tooltip title={_l('ID: %0', fieldId)} placement="bottom">
           <span>{_l('已删除')}</span>
         </Tooltip>
       )

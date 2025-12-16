@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getControlTypeName } from '../../../utils';
 
 export default function ({ controls, selectedIds, placeholder = _l('请选择'), updateSource }) {

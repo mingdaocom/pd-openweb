@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Radio, ScrollView, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, Radio, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import pluginAPI from '../../../api/Plugin';
 import { checkCertification } from 'src/components/checkCertification';
@@ -81,6 +82,13 @@ export default class CreateNodeDialog extends Component {
                       name: _l('查询工作表'),
                       describe: _l('根据查询条件从工作表中获取一条记录'),
                     },
+                    {
+                      type: 7,
+                      appType: 26,
+                      actionId: '406',
+                      name: _l('查询聚合表'),
+                      describe: _l('根据查询条件从聚合表中获取一条记录'),
+                    },
                   ],
                 },
                 {
@@ -142,6 +150,13 @@ export default class CreateNodeDialog extends Component {
                       actionId: '400',
                       name: _l('查询工作表'),
                       describe: _l('获取后什么也不做，在以后节点使用'),
+                    },
+                    {
+                      type: 13,
+                      appType: 26,
+                      actionId: '400',
+                      name: _l('查询聚合表'),
+                      describe: _l('从聚合表中按筛选条件选择符合的多条记录数据，供后续节点使用'),
                     },
                   ],
                 },
@@ -254,6 +269,15 @@ export default class CreateNodeDialog extends Component {
                 },
                 {
                   type: 9,
+                  name: _l('从聚合表汇总'),
+                  appType: 26,
+                  actionId: '107',
+                  describe: _l(
+                    '从聚合表中筛选符合条件的数据并进行汇总计算，如:记录数量、求和、平均、最大、最小等。注意:聚合表的数据有一定延时。',
+                  ),
+                },
+                {
+                  type: 9,
                   name: _l('获取数据条数'),
                   actionId: '105',
                   describe: _l('汇总流程中的多条数据对象的条数'),
@@ -294,11 +318,21 @@ export default class CreateNodeDialog extends Component {
           name: _l('AIGC'),
           items: [
             {
+              type: 33,
+              featureId: VersionProductType.workflowAgent,
+              name: _l('AI Agent'),
+              appType: 48,
+              actionId: '533',
+              iconColor: '#6E09F9',
+              iconName: 'icon-AI_Agent',
+              describe: _l('基于指令理解，自动调用工具完成任务'),
+            },
+            {
               type: 31,
               name: _l('AI 生成文本'),
               appType: 46,
               actionId: '531',
-              iconColor: '#F15B75',
+              iconColor: '#6E09F9',
               iconName: 'icon-text_ai',
               describe: _l('基于大模型 AI 技术用提示词生成一段文本'),
             },
@@ -307,7 +341,7 @@ export default class CreateNodeDialog extends Component {
               name: _l('AI 生成数据对象'),
               appType: 46,
               actionId: '532',
-              iconColor: '#F15B75',
+              iconColor: '#6E09F9',
               iconName: 'icon-text_ai',
               describe: _l('基于大模型 AI 技术提取文本的数据作为参数输出'),
             },
@@ -316,7 +350,7 @@ export default class CreateNodeDialog extends Component {
             //   name: _l('AI 生成图像'),
             //   appType: 46,
             //   actionId: '532',
-            //   iconColor: '#F15B75',
+            //   iconColor: '#6E09F9',
             //   iconName: 'icon-AI_image',
             // },
           ],
@@ -353,7 +387,7 @@ export default class CreateNodeDialog extends Component {
             // {
             //   type: 4,
             //   name: _l('审批'),
-            //   iconColor: '#7E57C2',
+            //   iconColor: '#A00416',
             //   iconName: 'icon-workflow_ea',
             //   describe: _l('添加一个人工审批节点，流程将等待执行后再继续'),
             // },
@@ -1031,7 +1065,12 @@ export default class CreateNodeDialog extends Component {
       );
     });
 
-    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环、支付
+    // 关闭的ai功能，则移除整个 AIGC 分类
+    if (md.global.SysSettings.hideAIBasicFun) {
+      _.remove(this.state.list, o => o.id === 'ai');
+    }
+
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环、支付、智能体
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
       { featureId: VersionProductType.codeBlockNode, type: [NODE_TYPE.CODE] },
@@ -1040,6 +1079,7 @@ export default class CreateNodeDialog extends Component {
       { featureId: VersionProductType.globalVariable, type: [NODE_TYPE.ACTION], appType: APP_TYPE.GLOBAL_VARIABLE },
       { featureId: VersionProductType.WFLP, type: [NODE_TYPE.LOOP] },
       { featureId: VersionProductType.PAY, type: [NODE_TYPE.LINK], actionId: ACTION_ID.RECORD_LINK_PAY },
+      { featureId: VersionProductType.workflowAgent, type: [NODE_TYPE.AGENT] },
     ].forEach(obj => {
       if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
         this.state.list.forEach(o => {
@@ -1266,6 +1306,7 @@ export default class CreateNodeDialog extends Component {
           NODE_TYPE.SNAPSHOT,
           NODE_TYPE.LOOP,
           NODE_TYPE.PLUGIN,
+          NODE_TYPE.AGENT,
         ],
         item.type,
       ) ||
@@ -1622,7 +1663,7 @@ export default class CreateNodeDialog extends Component {
           <ScrollView
             className="flex mTop20"
             ref={contentScroll => (this.contentScroll = contentScroll)}
-            onScrollEnd={this.onScroll}
+            onScroll={this.onScroll}
           >
             {source.map(data => {
               return (
@@ -1632,7 +1673,10 @@ export default class CreateNodeDialog extends Component {
                     {data.items.map((item, i) => {
                       return (
                         <li key={i} className={cx({ w100: mode === 1 })} onClick={() => this.onCreateNode(item)}>
-                          <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
+                          <span
+                            className={cx('nodeListIcon', { BGDarkViolet: item.appType === APP_TYPE.AGENT })}
+                            style={{ backgroundColor: item.iconColor }}
+                          >
                             {item.iconUrl ? (
                               <SvgIcon url={item.iconUrl} fill="#fff" size={22} />
                             ) : (
@@ -1645,9 +1689,8 @@ export default class CreateNodeDialog extends Component {
                               <div className="Font14 bold">{item.name}</div>
                               {item.type === NODE_TYPE.APPROVAL && (
                                 <Tooltip
-                                  autoCloseDelay={0}
-                                  popupPlacement="bottom"
-                                  text={_l(
+                                  placement="bottom"
+                                  title={_l(
                                     '使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。',
                                   )}
                                 >

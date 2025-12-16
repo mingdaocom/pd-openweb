@@ -2,12 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { generate } from '@ant-design/colors';
-import { Dropdown, Menu, Tooltip } from 'antd';
+import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportRequestAjax from '../api/report';
 import { formatSummaryName } from 'statistics/common';
+import { countryLayerCodeMap } from 'statistics/enum';
 import * as actions from 'statistics/redux/actions';
 import { fillValueMap, version } from '../common';
 import { formatrChartValue, formatYaxisList, getChartColors, getControlMinAndMax, getStyleColor } from './common';
@@ -45,7 +47,8 @@ const ZoomWrapper = styled.div`
   }
 `;
 
-const municipality = ['110000', '310000', '120000', '500000'];
+const municipality = ['110000', '310000', '120000', '500000', '810000', '820000'];
+const municipalityRegExp = /^(11|12|31|50|81|82)/;
 const colorsLength = 6;
 
 const setColorLavel = data => {
@@ -64,7 +67,13 @@ const setColorLavel = data => {
     }
     current.colorLavel = lavel;
   }
-  return res;
+  return res.map(item => {
+    return {
+      ...item,
+      originalCode: item.code,
+      code: countryLayerCodeMap[item.code] || item.code,
+    };
+  });
 };
 
 export class CountryLayer extends Component {
@@ -79,6 +88,7 @@ export class CountryLayer extends Component {
       linkageMatch: null,
       path: [],
       drillDownLoading: false,
+      drillDownCode: null,
     };
     this.CountryLayerChart = null;
     this.DotLayerChart = null;
@@ -162,9 +172,10 @@ export class CountryLayer extends Component {
     const { path } = this.state;
     const { isThumbnail, reportData } = this.props;
     const { xaxes, country, appId, reportId, name, reportType, style } = reportData;
-    const { code, value, level } = feature.properties;
+    const { code, originalCode, value, level } = feature.properties;
+    const codeValue = originalCode || code;
 
-    if (!value || (isThumbnail && level === 'district')) return;
+    if (!value || (!country.municipality && isThumbnail && level === 'district')) return;
 
     const param = {};
     const linkageMatch = {
@@ -177,15 +188,23 @@ export class CountryLayer extends Component {
     if (path.length) {
       // 省
       if (country.particleSizeType === 1) {
-        param[`${xaxes.controlId}-${path.length}`] = code;
+        if (municipalityRegExp.test(codeValue)) {
+          param[`${xaxes.controlId}-${3}`] = codeValue;
+        } else {
+          param[`${xaxes.controlId}-${path.length}`] = codeValue;
+        }
       }
       // 市
       if (country.particleSizeType === 2) {
-        param[`${xaxes.controlId}-${path.length + 1}`] = code;
+        if (municipalityRegExp.test(codeValue)) {
+          param[`${xaxes.controlId}-${3}`] = codeValue;
+        } else {
+          param[`${xaxes.controlId}-${path.length + 1}`] = codeValue;
+        }
       }
     } else {
       const { name } = feature.properties;
-      param[xaxes.cid] = code;
+      param[xaxes.cid] = codeValue;
       linkageMatch.value = param[xaxes.cid];
       linkageMatch.filters.push({
         controlId: xaxes.controlId,
@@ -257,7 +276,7 @@ export class CountryLayer extends Component {
       country: {
         ...country,
         drillFilterCode: code,
-        drillParticleSizeType: particleSizeType,
+        drillParticleSizeType: municipalityRegExp.test(code) ? 3 : particleSizeType,
       },
     });
 
@@ -266,12 +285,12 @@ export class CountryLayer extends Component {
         reportId: id,
         version,
         filterCode: code,
-        particleSizeType,
+        particleSizeType: municipalityRegExp.test(code) ? 3 : particleSizeType,
         filters: filtersGroup ? [filtersGroup] : undefined,
       })
       .then(result => {
         result = fillValueMap(result);
-        this.setState({ drillDownLoading: false, dropdownVisible: false });
+        this.setState({ drillDownLoading: false, dropdownVisible: false, drillDownCode: code });
         const { locationMap = {} } = result;
         const data = setColorLavel(result.map);
         const renderDotLayerChart = level => {
@@ -328,6 +347,7 @@ export class CountryLayer extends Component {
     const { path } = this.state;
     const { isThumbnail, reportData, base = {} } = this.props;
     const { country } = reportData;
+
     const renderDotLayerChart = level => {
       if (this.DotLayerChart) {
         const { data, locationMap } = this[`${level}Data`];
@@ -369,7 +389,7 @@ export class CountryLayer extends Component {
           this.CountryLayerChart.drillUp(undefined, 'province');
           renderDotLayerChart('province');
         }
-        this.setState({ path: [] });
+        this.setState({ path: [], drillDownCode: null });
         this.depthColorLavels = null;
       }
     } else {
@@ -393,7 +413,7 @@ export class CountryLayer extends Component {
         });
         this.CountryLayerChart.drillUp(undefined, 'province');
       }
-      this.setState({ path: [] });
+      this.setState({ path: [], drillDownCode: null });
     }
 
     if (base.sheetVisible) {
@@ -585,7 +605,7 @@ export class CountryLayer extends Component {
       zIndex: 0,
       source: {
         data: data.map(item => {
-          const [lng, lat] = (locationMap[item.code] || '').split(',');
+          const [lng, lat] = (locationMap[item.originalCode || item.code] || '').split(',');
           return {
             name: item.name,
             value: item.value,
@@ -615,8 +635,9 @@ export class CountryLayer extends Component {
   }
   renderOverlay() {
     const { reportData, isThumbnail } = this.props;
-    const { path, drillDownLoading } = this.state;
+    const { path, drillDownLoading, drillDownCode } = this.state;
     const { style, country } = reportData || {};
+
     return (
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Fragment>
@@ -639,7 +660,8 @@ export class CountryLayer extends Component {
         </Fragment>
         {_.get(style, 'isDrillDownLayer') &&
           [1, 2].includes(country.particleSizeType) &&
-          path.length < (country.particleSizeType === 1 ? 3 : 2) && (
+          path.length < (country.particleSizeType === 1 ? 3 : 2) &&
+          !municipality.includes(drillDownCode) && (
             <Menu.Item onClick={this.handleDrillDownTriggerData} key="dataDrill">
               <div className="flexRow valignWrapper">
                 <Icon icon="drill_down" className="mRight8 Gray_9e Font20" />
@@ -671,9 +693,9 @@ export class CountryLayer extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         {country.filterCode == '910000' || (chooserange && chooserange !== 'CN') ? (

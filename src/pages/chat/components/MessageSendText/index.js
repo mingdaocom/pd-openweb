@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Tooltip } from 'ming-ui/antd-components';
 import config from '../../utils/config';
 import Constant from '../../utils/constant';
 import './index.less';
@@ -24,12 +25,16 @@ export default class MessageSendText extends Component {
     const { value } = this.props;
     return (
       <div className="chatPanel-message-send-text" style={{ visibility: value ? 'initial' : 'hidden' }}>
-        <div data-tip={_l('点击切换输入方式')} className="tip-top" onClick={this.handleSwitchSendWay.bind(this)}>
-          {type === Constant.INPUT_MODE_CTRLENTER ? _l('Enter换行，') : _l('Ctrl+Enter换行，')}
-        </div>
-        <div data-tip={_l('点击发送')} className="tip-top" onClick={this.props.onSendMsg.bind(this, '')}>
-          {type === Constant.INPUT_MODE_CTRLENTER ? _l('Ctrl+Enter发送') : _l('Enter发送')}
-        </div>
+        <Tooltip title={_l('点击切换输入方式')}>
+          <div onClick={this.handleSwitchSendWay.bind(this)}>
+            {type === Constant.INPUT_MODE_CTRLENTER ? _l('Enter换行，') : _l('Ctrl+Enter换行，')}
+          </div>
+        </Tooltip>
+        <Tooltip title={_l('点击发送')}>
+          <div onClick={this.props.onSendMsg.bind(this, '')}>
+            {type === Constant.INPUT_MODE_CTRLENTER ? _l('Ctrl+Enter发送') : _l('Enter发送')}
+          </div>
+        </Tooltip>
       </div>
     );
   }

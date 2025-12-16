@@ -3,11 +3,9 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { get } from 'lodash';
 import loginAjax from 'src/api/login';
-import { CodeTypeEnum } from 'src/pages/AuthService/config.js';
 import { LoginResult } from 'src/pages/AuthService/login/config.js';
-import { checkReturnUrl, getDataByFilterXSS } from 'src/pages/AuthService/util.js';
+import { loginSuccessRedirect } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getRequest } from 'src/utils/common';
 import { setPssId } from 'src/utils/pssId';
 
 function useInterval(callback, delay) {
@@ -123,13 +121,7 @@ export default function Twofactor(props) {
               window.Android.Save(str);
             }
           } else {
-            const request = getRequest();
-            if (request.ReturnUrl) {
-              checkReturnUrl(request.ReturnUrl);
-              location.replace(getDataByFilterXSS(request.ReturnUrl));
-            } else {
-              window.location.replace('/dashboard');
-            }
+            loginSuccessRedirect();
           }
         } else {
           setSending(false);
@@ -229,7 +221,7 @@ export default function Twofactor(props) {
             id="btnSendVerifyCode"
             value={verifyCodeText || (codeLoading ? _l('再次获取...') : !account ? _l('获取验证码') : _l('再次获取'))}
             onClick={() => {
-              handleSendVerifyCode(CodeTypeEnum.message);
+              handleSendVerifyCode();
             }}
           />
           <div

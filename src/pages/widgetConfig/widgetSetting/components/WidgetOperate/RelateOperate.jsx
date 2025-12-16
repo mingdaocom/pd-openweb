@@ -1,10 +1,10 @@
 import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import { Checkbox, Dialog, Dropdown } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { SYSTEM_CONTROL } from '../../../config/widget';
 import { SettingItem, SheetViewWrap } from '../../../styled';

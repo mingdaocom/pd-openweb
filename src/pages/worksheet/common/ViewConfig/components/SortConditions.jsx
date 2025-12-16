@@ -4,7 +4,8 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Dropdown, Icon, SortableList, Support, Tooltip } from 'ming-ui';
+import { Dropdown, Icon, SortableList, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { SYSTEM_DATE_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { filterSysControls } from 'src/pages/widgetConfig/util';
@@ -58,9 +59,8 @@ const Item = props => {
       <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
         {[9, 10, 11].includes(controlType) && (
           <Tooltip
-            autoCloseDelay={0}
-            popupPlacement={'bottom'}
-            text={
+            placement="bottom"
+            title={
               <span>
                 {_l(
                   '按照记录当时存储的选项序号进行排序。当每次修改了选项顺序后，需要重新刷新历史数据的选项序号以校准排序。',

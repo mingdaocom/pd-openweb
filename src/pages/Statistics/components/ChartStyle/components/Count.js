@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Input, Select, Tooltip } from 'antd';
+import { Input, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { reportTypes } from 'statistics/Charts/common';
 import { normTypes } from '../../../enum';
 
 export class Count extends Component {
@@ -11,6 +13,7 @@ export class Count extends Component {
   }
   render() {
     const {
+      reportType,
       smallTitle,
       isCollectMode,
       isCalculateMode = true,
@@ -37,9 +40,11 @@ export class Count extends Component {
                 });
               }}
             >
-              <Select.Option className="selectOptionWrapper" value="">
-                {_l('全部')}
-              </Select.Option>
+              {reportType !== reportTypes.WorldMap && (
+                <Select.Option className="selectOptionWrapper" value="">
+                  {_l('全部')}
+                </Select.Option>
+              )}
               {yaxisList.map(item => (
                 <Select.Option className="selectOptionWrapper" key={item.controlId} value={item.controlId}>
                   {item.controlName}
@@ -54,7 +59,6 @@ export class Count extends Component {
               <div>{_l('汇总方式')}</div>
               {isCollectMode && summary.type === 5 && (
                 <Tooltip
-                  autoCloseDelay={0}
                   placement="bottom"
                   title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}
                 >
@@ -101,7 +105,7 @@ export class Count extends Component {
             onChange={event => {
               onChangeSummary(
                 {
-                  name: event.target.value,
+                  name: event.target.value.slice(0, 20),
                 },
                 false,
               );

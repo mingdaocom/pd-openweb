@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import { Button, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetApi from 'src/api/worksheet';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { EditWidgetContent, Header } from '../../../styled';

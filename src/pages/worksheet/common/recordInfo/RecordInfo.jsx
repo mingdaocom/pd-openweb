@@ -9,8 +9,8 @@ import paymentAjax from 'src/api/payment.js';
 import worksheetAjax from 'src/api/worksheet';
 import DragMask from 'worksheet/common/DragMask';
 import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { checkRuleLocked } from 'src/components/newCustomFields/tools/formUtils';
-import { getTitleTextFromControls, isPublicLink } from 'src/components/newCustomFields/tools/utils';
+import { checkRuleLocked } from 'src/components/Form/core/formUtils';
+import { getTitleTextFromControls, isPublicLink } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
@@ -462,7 +462,7 @@ export default class RecordInfo extends Component {
           return newControl;
         }
       });
-      if ((isWorksheetRowLand && (!viewId || (viewId && !data.isViewData))) || isPublicShare) {
+      if ((isWorksheetRowLand && viewId && !data.isViewData) || isPublicShare) {
         data.allowEdit = false;
       }
       if (_.isBoolean(closeWhenNotViewData) && closeWhenNotViewData && viewId && !data.isViewData) {
@@ -700,6 +700,8 @@ export default class RecordInfo extends Component {
           alert(_l('没有更多了'), 3);
         }
       }
+      e.preventDefault();
+      e.stopPropagation();
     } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 190) {
       if (showPrevNext) {
         if (canNext) {
@@ -708,6 +710,8 @@ export default class RecordInfo extends Component {
           alert(_l('没有更多了'), 3);
         }
       }
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 
@@ -1063,6 +1067,7 @@ export default class RecordInfo extends Component {
       emitter.emit('RELOAD_RECORD_INFO_DISCUSS');
     }
     emitter.emit('RELOAD_RECORD_INFO_LOG');
+    emitter.emit('RELOAD_RECORD_INFO_PRINT_LIST');
   };
 
   refreshAsyncLoadControl = () => {
@@ -1235,7 +1240,7 @@ export default class RecordInfo extends Component {
 
     const formWidth = width - (sideVisible ? sideWidth : 0) - formSectionWidth;
     const isDraft = from === RECORD_INFO_FROM.DRAFT && !isRelateRecord;
-
+    const hideStep = sheetSwitchPermit?.find(o => o.type === permitList.approveDetailsSwitch)?.displayFlowChart === 1;
     return (
       <Con {...(useWaterMark ? { projectId: recordinfo.projectId } : {})}>
         <RecordInfoContext.Provider
@@ -1276,7 +1281,7 @@ export default class RecordInfo extends Component {
               saveShortCut
               updateText={_l('保存')}
               onOkMouseDown={() => {
-                // hasFocusingRelateRecordTags 点击保存是不是有正在编辑的关联记录卡片字段 TODO: 后面从relateRecordTags组件交互方面解决这个问题
+                // hasFocusingRelateRecordTags 点击保存是不是有正在编辑的关联记录卡片字段
                 this.hasFocusingRelateRecordTags = !!this.con.querySelector(
                   '.cellRelateRecordTags.cellControlEdittingStatus',
                 );
@@ -1477,6 +1482,7 @@ export default class RecordInfo extends Component {
                     this.refreshEvents[id] = fn;
                   },
                   updateRelationControls: (controlId, newControls) => {
+                    if (!this.recordform?.current) return;
                     this.recordform.current.dataFormat.data = this.recordform.current.dataFormat.data.map(item => {
                       if (item.type === 34 && item.controlId === controlId) {
                         return { ...item, relationControls: newControls };
@@ -1484,7 +1490,7 @@ export default class RecordInfo extends Component {
                         return item;
                       }
                     });
-                    this.recordform.current.setState({ renderData: this.recordform.current.getFilterDataByRule() });
+                    this.recordform.current.updateRenderData();
                   },
                   sideVisible,
                   formWidth,
@@ -1618,7 +1624,14 @@ export default class RecordInfo extends Component {
                   className={cx({ hide: hideRight })}
                   style={{ width: sideWidth }}
                   recordbase={recordbase}
-                  workflow={workflow ? React.cloneElement(workflow, { controls: recordinfo.formData }) : null}
+                  workflow={
+                    workflow
+                      ? React.cloneElement(workflow, {
+                          controls: recordinfo.formData,
+                          hideStep: hideStep,
+                        })
+                      : null
+                  }
                   approval={
                     <SheetWorkflow
                       projectId={this.props.projectId || recordinfo.projectId}
@@ -1631,6 +1644,7 @@ export default class RecordInfo extends Component {
                       appId={appId}
                       controls={recordinfo.formData}
                       reloadRecord={() => this.handleRefresh({ doNotResetPageIndex: true, reloadDiscuss: false })}
+                      hideStep={hideStep}
                     />
                   }
                   sheetSwitchPermit={sheetSwitchPermit}

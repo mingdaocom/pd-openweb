@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 import { getDisabledTabs } from './controller';
 
 const TabContainer = styled.div`
@@ -120,6 +120,7 @@ export default function EditControlItem(props) {
                 from={3}
                 hideControlName
                 disableRules
+                disabledTabs
                 isCharge={isCharge}
                 recordId="FAKE_RECORD_ID_FROM_BATCH_EDIT"
                 showTitle={false}

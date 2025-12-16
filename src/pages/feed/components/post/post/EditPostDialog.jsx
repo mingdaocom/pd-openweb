@@ -141,7 +141,7 @@ export default class EditPostDialog extends React.Component {
     const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
     $textarea.get(0).val(data => {
       const postMsg = data;
-      if (!postMsg || !$.trim(postMsg)) {
+      if (!postMsg || !(postMsg || '').trim()) {
         alert(_l('发表内容不能为空'), 3);
         return false;
       } else if (postMsg.length > 6000) {

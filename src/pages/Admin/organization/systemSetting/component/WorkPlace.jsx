@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { ConfigProvider, Spin, Table } from 'antd';
+import _ from 'lodash';
 import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import workSiteController from 'src/api/workSite';
 import Empty from 'src/pages/Admin/common/TableEmpty';
@@ -112,7 +113,7 @@ export default class WorkPlace extends Component {
         mergeVisible: true,
       });
     } else {
-      alert(_l('请至少选择2个要合并的工作地点'), 3, 1000);
+      alert(_l('请至少选择2个要合并的工作地点'), 3);
     }
   }
 
@@ -130,7 +131,7 @@ export default class WorkPlace extends Component {
 
   deleteSite(ids) {
     const reqData = {
-      workSiteIds: $.isArray(ids) ? ids : [ids],
+      workSiteIds: _.isArray(ids) ? ids : [ids],
       projectId: Config.projectId,
     };
     if (reqData.workSiteIds.length > 0) {
@@ -187,7 +188,7 @@ export default class WorkPlace extends Component {
 
   handleChange(e) {
     this.setState({
-      keywords: $.trim(e.target.value),
+      keywords: (e.target.value || '').trim(),
     });
   }
 

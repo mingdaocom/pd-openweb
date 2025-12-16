@@ -21,6 +21,7 @@ export default class HeaderDisplaySetup extends Component {
         ...displaySetup,
         isPile: false,
         isAccumulate: false,
+        accumulatePerPile: false,
         isPerPile: false,
       };
     }
@@ -42,7 +43,12 @@ export default class HeaderDisplaySetup extends Component {
       }
     }
     if (reportType === reportTypes.LineChart) {
-      if (displaySetup.isPile || displaySetup.isAccumulate || displaySetup.isPerPile) {
+      if (
+        displaySetup.isPile ||
+        displaySetup.isAccumulate ||
+        displaySetup.accumulatePerPile ||
+        displaySetup.isPerPile
+      ) {
         return false;
       } else {
         return true;
@@ -65,6 +71,12 @@ export default class HeaderDisplaySetup extends Component {
         isPile: name === 'isPile' ? !checked : false,
         isPerPile: name === 'isPerPile' ? !checked : false,
       };
+    } else if (name === 'isAccumulate' || name === 'accumulatePerPile') {
+      newData = {
+        ...displaySetup,
+        isAccumulate: name === 'isAccumulate' ? !checked : false,
+        accumulatePerPile: name === 'accumulatePerPile' ? !checked : false,
+      };
     } else {
       newData = {
         ...displaySetup,
@@ -74,13 +86,13 @@ export default class HeaderDisplaySetup extends Component {
     this.props.onUpdateDisplaySetup(newData, name);
   }
   render() {
-    const { displaySetup, xAxisisTime, mapKeys, reportType, chartType, title } = this.props;
+    const { displaySetup, mapKeys, reportType, chartType, title } = this.props;
     const isPile = [reportTypes.LineChart, reportTypes.BarChart].includes(reportType) && mapKeys.length >= 2;
     const isPerPile =
       (reportType === reportTypes.BarChart ||
         (reportType === reportTypes.LineChart && displaySetup.showChartType === 2)) &&
       mapKeys.length >= 2;
-    const isAccumulate = reportTypes.LineChart === reportType && xAxisisTime;
+    const isAccumulate = reportTypes.LineChart === reportType;
     const isHide = !isPile && !isPerPile && !isAccumulate;
     return (
       <Fragment>
@@ -118,6 +130,14 @@ export default class HeaderDisplaySetup extends Component {
               onClick={this.handleCheck.bind(this, 'isAccumulate', displaySetup.isAccumulate)}
             >
               {_l('累计')}
+            </div>
+          )}
+          {isAccumulate && (
+            <div
+              className={cx('item', { active: displaySetup.accumulatePerPile })}
+              onClick={this.handleCheck.bind(this, 'accumulatePerPile', displaySetup.accumulatePerPile)}
+            >
+              {_l('累计百分比')}
             </div>
           )}
         </div>

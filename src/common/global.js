@@ -222,10 +222,10 @@ window.md = {
       },
     },
     PriceConfig: {
-      SmsPrice: window._l ? _l('0.05元') : '0.05元',
-      EmailPrice: window._l ? _l('0.03元') : '0.03元',
-      PdfPrice: window._l ? _l('0.15元') : '0.15元',
-      DataPipelinePrice: window._l ? _l('0.1元') : '0.1元',
+      SmsPrice: _l('0.05信用点'),
+      EmailPrice: _l('0.03信用点'),
+      PdfPrice: _l('0.15信用点'),
+      DataPipelinePrice: _l('0.15信用点'),
     },
     getCaptchaType: () => {
       return window.localStorage.getItem('captchaType')
@@ -455,6 +455,9 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'X-Requested-With': 'XMLHttpRequest',
     ...(ajaxOptions.header || {}),
   };
+  if (ajaxOptions.noAccountIdHeader) {
+    delete headers.AccountId;
+  }
   const clientId = window.clientId || sessionStorage.getItem('clientId');
   const needClientIdControllerNames = [
     'AppManagement',
@@ -467,6 +470,8 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'Workflow',
     'Payment',
     'Integration',
+    'WorksheetSetting',
+    'MerchantInvoice',
   ];
 
   if (
@@ -500,7 +505,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     headers['x-nonce'] = encryptAES256CBC(uuidv4() + '_' + moment().unix());
   }
 
-  if (window.isMingDaoApp && window.access_token) {
+  if (window.isMingDaoApp && window.access_token && !getPssId()) {
     headers.Authorization = `access_token ${window.access_token}`;
   }
 
@@ -648,6 +653,15 @@ window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, cle
   });
 };
 
+function JSONParseForEncryption(jsonString = '') {
+  try {
+    return JSON.parse(jsonString.replace(/\t/g, '\\t'));
+  } catch (error) {
+    console.error(error);
+    return {};
+  }
+}
+
 /**
  * 接口数据解密
  */
@@ -663,7 +677,7 @@ const interfaceDataDecryption = (response, actionName = '') => {
 
   // 返回解密后的数据
   if (encrypted) {
-    return { data: JSON.parse(getDecryptedValue(key, data)) };
+    return { data: JSONParseForEncryption(getDecryptedValue(key, data)) };
   } else if (
     _.includes(['GetRowByID', 'GetRowDetail', 'GetFilterRows', 'GetRowRelationRows'], actionName) &&
     !['meihua.mingdao.com', 'www.mingdao.com'].includes(location.host)
@@ -680,7 +694,7 @@ const interfaceDataDecryption = (response, actionName = '') => {
     });
 
     return {
-      data: JSON.parse(dataStr),
+      data: JSONParseForEncryption(dataStr),
     };
   }
 
@@ -712,7 +726,10 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   const isSync = ajaxOptions.sync;
   const customParseResponse = options.customParseResponse; // 自定义解析返回内容
   const isReadableStream = options.isReadableStream; // 流式响应
-  const { url, headers, data } = disposeRequestParams(controllerName, actionName, requestData || {}, ajaxOptions);
+  const { url, headers, data } = disposeRequestParams(controllerName, actionName, requestData || {}, {
+    ...ajaxOptions,
+    noAccountIdHeader: options.noAccountIdHeader,
+  });
 
   // 私有部署 非主站接口 5分钟自动延期登录状态
   if (_.get(md.global.Config, 'IsLocal') && url.indexOf('wwwapi') === -1 && _.get(md, 'global.Account.accountId')) {
@@ -865,11 +882,11 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
     item.prepend =
       item.prepend ||
       function () {
-        var argArr = Array.prototype.slice.call(arguments),
+        const argArr = Array.prototype.slice.call(arguments),
           docFrag = document.createDocumentFragment();
 
         argArr.forEach(function (argItem) {
-          var isNode = argItem instanceof Node;
+          const isNode = argItem instanceof Node;
           docFrag.appendChild(isNode ? argItem : document.createTextNode(String(argItem)));
         });
 

@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import store from 'redux/configureStore';
-import { Button, Checkbox, ConfigProvider, Modal, Tooltip } from 'antd';
+import { Button, Checkbox, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportApi from 'statistics/api/report';
 import { enumWidgetType } from 'src/pages/customPage/util';
 
@@ -112,10 +113,7 @@ export default class AutoLinkage extends Component {
         title={
           <Fragment>
             {_l('选择联动筛选相关组件')}({selectIds.length}/{components.length})
-            <Tooltip
-              title={_l('联动筛选指定组件后，将取消自动模式下，使用相同数据集的组件自动关联。')}
-              autoCloseDelay={0}
-            >
+            <Tooltip title={_l('联动筛选指定组件后，将取消自动模式下，使用相同数据集的组件自动关联。')}>
               <Icon className="mLeft5 Gray_9e pointer" icon="info" />
             </Tooltip>
           </Fragment>

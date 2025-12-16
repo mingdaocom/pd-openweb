@@ -64,13 +64,6 @@ export default class ResetPassword extends React.Component {
         state: request.state,
       })
       .then(res => {
-        if (res.actionResult == 0) {
-          alert(_l('参数错误'), 2);
-          setTimeout(() => {
-            location.href = '/login';
-          }, 3000);
-          return;
-        }
         this.setState({
           type: res.type,
           loading: false,
@@ -107,10 +100,7 @@ export default class ResetPassword extends React.Component {
       isRight = false;
     }
     if (passwordCopy !== password && isRight) {
-      warnList.push({
-        tipDom: 'passwordCopy',
-        warnTxt: _l('请确保确认密码与密码一致'),
-      });
+      warnList.push({ tipDom: 'passwordCopy', warnTxt: _l('请确保确认密码与密码一致') });
       isRight = false;
     }
     this.setState({ warnList });
@@ -132,12 +122,15 @@ export default class ResetPassword extends React.Component {
       .then(res => {
         this.setState({ sending: false });
         if (res.actionResult == 1) {
-          alert(_l('密码修改成功，请使用新密码重新登录'), 1, 3000, function () {
-            if (request.ReturnUrl) {
-              navigateTo('/login?ReturnUrl=' + encodeURIComponent(request.ReturnUrl));
-            } else {
-              navigateTo('/login');
-            }
+          alert({
+            msg: _l('密码修改成功，请使用新密码重新登录'),
+            onClose: function () {
+              if (request.ReturnUrl) {
+                navigateTo('/login?ReturnUrl=' + encodeURIComponent(request.ReturnUrl));
+              } else {
+                navigateTo('/login');
+              }
+            },
           });
         } else if (res.actionResult == 20) {
           alert(_l('新密码不可与旧密码一样'), 3);
@@ -250,7 +243,7 @@ export default class ResetPassword extends React.Component {
     return (
       <WrapCom className="flexColumn">
         <DocumentTitle title={_l('修改密码')} />
-        {!loading ? (
+        {!loading && (
           <div className="loginBox flex">
             <div className="loginContainer">
               {!SysSettings.hideBrandLogo && (
@@ -261,8 +254,6 @@ export default class ResetPassword extends React.Component {
               {this.renderCon()}
             </div>
           </div>
-        ) : (
-          <div className="h100 flex" />
         )}
         {_.get(md, 'global.SysSettings.enableFooterInfo') && <Footer />}
       </WrapCom>

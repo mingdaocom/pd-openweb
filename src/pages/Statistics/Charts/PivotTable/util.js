@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import {
+  // eslint-disable-next-line no-unused-vars
   areaParticleSizeDropdownData,
   isAreaControl,
-  isTimeControl,
+  isTimeControl, // eslint-disable-next-line no-unused-vars
   timeParticleSizeDropdownData,
 } from 'statistics/common';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
@@ -144,10 +145,13 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         return value;
       });
       const target = _.find(lines, { cid: key }) || {};
+      // eslint-disable-next-line no-unused-vars
       const isTime = isTimeControl(target.controlType);
+      // eslint-disable-next-line no-unused-vars
       const isArea = isAreaControl(target.controlType);
       const name = target.rename || target.controlName;
       const { xaxisEmptyType } = target;
+      /*
       if (isTime) {
         return {
           key,
@@ -168,6 +172,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
           data: res,
         };
       }
+      */
       return {
         key,
         xaxisEmptyType,
@@ -209,7 +214,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
           value: valueKey
             ? valueKey[n.value]
               ? renderValue(valueKey[n.value], advancedSetting)
-              : defaultValue
+              : n.value || defaultValue
             : renderValue(n.value, advancedSetting),
         };
       } else {
@@ -217,7 +222,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
         return valueKey
           ? valueKey[n]
             ? renderValue(valueKey[n], advancedSetting)
-            : defaultValue
+            : n || defaultValue
           : renderValue(n, advancedSetting);
       }
     });
@@ -239,8 +244,10 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
 };
 
 export const getColumnName = column => {
+  // eslint-disable-next-line no-unused-vars
   const { rename, controlName, controlType, particleSizeType } = column;
   const name = rename || controlName;
+  /*
   const isTime = isTimeControl(controlType);
   const isArea = isAreaControl(controlType);
   if (isTime) {
@@ -253,6 +260,7 @@ export const getColumnName = column => {
       ? `${name}(${_.find(areaParticleSizeDropdownData, { value: particleSizeType }).text})`
       : name;
   }
+  */
   return name;
 };
 

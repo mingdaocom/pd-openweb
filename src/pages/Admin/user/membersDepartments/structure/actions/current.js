@@ -184,3 +184,7 @@ export const fetchCancelImportUser = (accountIds, callback) => (dispatch, getSta
       }
     });
 };
+
+export const updateAutoShow = autoShow => dispatch => {
+  dispatch({ type: 'UPDATE_AUTO_SHOW', autoShow });
+};

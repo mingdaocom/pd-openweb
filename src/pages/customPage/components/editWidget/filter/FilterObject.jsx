@@ -1,9 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Checkbox, Divider, Dropdown, Input, Space, Tooltip } from 'antd';
+import { Checkbox, Divider, Dropdown, Input, Space } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import reportApi from 'statistics/api/report';
 import { enumWidgetType } from 'src/pages/customPage/util';
 
@@ -254,7 +255,6 @@ export default function FilterObject(props) {
         <div className="flex Font13 bold">{_l('筛选对象')}</div>
         <div className="valignWrapper">
           <Tooltip
-            autoCloseDelay={0}
             title={_l('勾选时，组件内的筛选器使用相同的筛选对象；取消勾选后，可以为每个筛选器设置单独的筛选对象。')}
           >
             <Checkbox checked={filter.global} onChange={changeGlobal}>

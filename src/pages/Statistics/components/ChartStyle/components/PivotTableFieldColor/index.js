@@ -3,7 +3,8 @@ import { Dropdown, Menu, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import RuleColor from '../Color/RuleColor';
 import DataBarColor from './DataBarColor';
 
@@ -228,7 +229,7 @@ export default class PivotTableFieldColor extends Component {
                 </Select.Option>
               ))}
             </Select>
-            <Tooltip text={<span>{_l('字体色')}</span>}>
+            <Tooltip title={_l('字体色')}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
                 onClick={() => {
@@ -258,7 +259,7 @@ export default class PivotTableFieldColor extends Component {
                 )}
               </EntranceWrapper>
             </Tooltip>
-            <Tooltip text={<span>{_l('背景色')}</span>}>
+            <Tooltip title={_l('背景色')}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
                 onClick={() => {
@@ -288,7 +289,7 @@ export default class PivotTableFieldColor extends Component {
                 )}
               </EntranceWrapper>
             </Tooltip>
-            <Tooltip text={<span>{_l('数据条')}</span>}>
+            <Tooltip title={_l('数据条')}>
               <EntranceWrapper
                 className="ruleIcon flexRow valignWrapper pointer"
                 onClick={() => {

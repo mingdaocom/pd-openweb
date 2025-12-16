@@ -17,11 +17,11 @@ import {
   ScrollView,
   Support,
   SvgIcon,
-  Tooltip,
   UpgradeIcon,
   UserHead,
   WaterMark,
 } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import processVersion from '../api/processVersion';
@@ -32,6 +32,7 @@ import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import TrashDialog from 'src/pages/workflow/WorkflowList/components/Trash';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { getAppFeaturesPath, getAppLangDetail, getTranslateInfo, setFavicon } from 'src/utils/app';
+import { emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import Search from '../components/Search';
@@ -229,6 +230,7 @@ class AppWorkflowList extends Component {
         sortType: '',
       });
       this.getList(type);
+      this.getCount();
     }
   }
 
@@ -248,6 +250,7 @@ class AppWorkflowList extends Component {
     const appId = this.props.match.params.appId;
 
     homeApp.getApp({ appId, getLang: true }).then(appDetail => {
+      emitter.emit('UPDATE_GLOBAL_STORE', 'appInfo', appDetail);
       getAppLangDetail(appDetail).then(() => {
         appDetail.name = getTranslateInfo(appId, null, appId).name || appDetail.name;
         this.setState({ appDetail });
@@ -342,7 +345,7 @@ class AppWorkflowList extends Component {
 
     return (
       <HeaderWrap className="flexRow alignItemsCenter">
-        <Tooltip popupPlacement="bottomLeft" text={<span>{_l('应用：%0', appDetail.name)}</span>}>
+        <Tooltip placement="bottomLeft" title={_l('应用：%0', appDetail.name)}>
           <div
             className="flexRow pointer Gray_bd alignItemsCenter"
             onClick={() => {
@@ -661,7 +664,7 @@ class AppWorkflowList extends Component {
           {!list.length && (
             <div className="flowEmptyWrap flexColumn">
               <div className="flowEmptyPic flowEmptyPic-search" />
-              <div className="Gray_75 Font14 mTop20">{_l('没有搜索到流程')}</div>
+              <div className="Gray_75 Font17 mTop20">{_l('没有搜索到流程')}</div>
             </div>
           )}
           {list.map(item => this.renderListItem(item))}
@@ -683,26 +686,27 @@ class AppWorkflowList extends Component {
 
     return (
       <Fragment key={item.groupId}>
-        {!_.includes([FLOW_TYPE.WEBHOOK], type) && !_.includes(['createdDate', 'lastModifiedDate'], sortType) && (
-          <div className="manageListName flexRow">
-            {type !== FLOW_TYPE.OTHER_APP && item.groupId !== 'otherSubProcess' && (
-              <Fragment>
-                {item.iconUrl ? (
-                  <SvgIcon url={item.iconUrl} fill="#757575" size={20} addClassName="mTop2 mRight5" />
-                ) : (
-                  <i className={cx('Gray_75 Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
-                )}
-              </Fragment>
-            )}
-            {item.groupId === 'timer'
-              ? _l('定时触发')
-              : item.groupId === 'User'
-                ? _l('组织人员事件触发')
-                : item.groupId === 'ExternalUser'
-                  ? _l('外部用户事件触发')
-                  : item.groupName}
-          </div>
-        )}
+        {!_.includes([FLOW_TYPE.WEBHOOK, FLOW_TYPE.CHATBOT], type) &&
+          !_.includes(['createdDate', 'lastModifiedDate'], sortType) && (
+            <div className="manageListName flexRow">
+              {type !== FLOW_TYPE.OTHER_APP && item.groupId !== 'otherSubProcess' && (
+                <Fragment>
+                  {item.iconUrl ? (
+                    <SvgIcon url={item.iconUrl} fill="#757575" size={20} addClassName="mTop2 mRight5" />
+                  ) : (
+                    <i className={cx('Gray_75 Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
+                  )}
+                </Fragment>
+              )}
+              {item.groupId === 'timer'
+                ? _l('定时触发')
+                : item.groupId === 'User'
+                  ? _l('组织人员事件触发')
+                  : item.groupId === 'ExternalUser'
+                    ? _l('外部用户事件触发')
+                    : item.groupName}
+            </div>
+          )}
 
         {item.processList.map(data => (
           <div key={data.id} className={cx('flexRow manageList', { active: selectFlowId === data.id })}>
@@ -811,7 +815,14 @@ class AppWorkflowList extends Component {
         </MenuItem>
 
         {!_.includes(
-          [FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.EVENT_PUSH, FLOW_TYPE.LOOP],
+          [
+            FLOW_TYPE.OTHER_APP,
+            FLOW_TYPE.APPROVAL,
+            FLOW_TYPE.CUSTOM_ACTION,
+            FLOW_TYPE.EVENT_PUSH,
+            FLOW_TYPE.LOOP,
+            FLOW_TYPE.CHATBOT,
+          ],
           type,
         ) && (
           <MenuItem>
@@ -852,9 +863,8 @@ class AppWorkflowList extends Component {
             </MenuItem>
           )}
 
-        {type === FLOW_TYPE.OTHER_APP ||
-        (type === FLOW_TYPE.APPROVAL && data.triggerId) ||
-        type === FLOW_TYPE.CUSTOM_ACTION ? null : (
+        {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT], type) ||
+        (type === FLOW_TYPE.APPROVAL && data.triggerId) ? null : (
           <MenuItem>
             <DeleteFlowBtn
               item={data}
@@ -949,7 +959,7 @@ class AppWorkflowList extends Component {
 
     return (
       <div className="manageListSearch flexRow">
-        {!_.includes([FLOW_TYPE.WEBHOOK, FLOW_TYPE.PBC], type) && (
+        {!_.includes([FLOW_TYPE.WEBHOOK, FLOW_TYPE.PBC, FLOW_TYPE.CHATBOT], type) && (
           <DropdownBox className={cx('w180 relative mRight10', { active: groupFilter !== '' })}>
             <Dropdown
               className="w100"
@@ -1039,9 +1049,8 @@ class AppWorkflowList extends Component {
               dateFilter === 8
                 ? () => (
                     <Tooltip
-                      autoCloseDelay={0}
-                      popupPlacement="bottomLeft"
-                      text={
+                      placement="bottomLeft"
+                      title={
                         !rangeDate.length ? (
                           ''
                         ) : (
@@ -1133,7 +1142,7 @@ class AppWorkflowList extends Component {
     return (
       <div className="flowEmptyWrap flexColumn">
         <div className={cx('flowEmptyPic', `flowEmptyPic-${FLOW_TYPE_NULL[type].icon}`)} />
-        <div className="Gray_75 Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
+        <div className="Gray_75 Font17 mTop20">{FLOW_TYPE_NULL[type].text}</div>
       </div>
     );
   }

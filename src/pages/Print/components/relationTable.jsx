@@ -66,6 +66,7 @@ export default class TableRelation extends React.Component {
       fileStyle,
       user_info,
       dataInfo,
+      tableList,
     } = props;
     let list = [];
 
@@ -120,7 +121,7 @@ export default class TableRelation extends React.Component {
       }
     });
 
-    controlsList.map(it => {
+    controlsList.forEach(it => {
       if (it.type !== 22) {
         let isIn = this.isIn(it.controlId);
         let w = this.setDefaultWidth(controlsList, orderNumberCheck);
@@ -162,7 +163,14 @@ export default class TableRelation extends React.Component {
               value: record[it.controlId],
               fileStyle,
               user_info,
-              dataSource: it.type === 47 ? it.dataSource : id,
+              ...(it.type === 47
+                ? {
+                    worksheetId: tableList.dataSource,
+                    dataSource: tableList.dataSource,
+                    recordId: record.rowid,
+                    viewIdForPermit: '',
+                  }
+                : { dataSource: id }),
               controls: getFormData(controls, record),
               allControls: getFormData(allControls, record),
             });
@@ -215,7 +223,7 @@ export default class TableRelation extends React.Component {
     let data = [];
     let sumW = _.sum(list.map(it => it.width));
 
-    list.map(it => {
+    list.forEach(it => {
       if (it.controlId === controlId) {
         data.push({
           ...it,

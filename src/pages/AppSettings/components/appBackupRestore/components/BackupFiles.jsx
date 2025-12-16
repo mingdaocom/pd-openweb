@@ -6,7 +6,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView, Support, Tooltip } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, Menu, MenuItem, ScrollView, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -381,8 +382,7 @@ export default function BackupFiles(props) {
 
                     {validLimit !== -1 && (expired || expiredSoon) ? (
                       <Tooltip
-                        autoCloseDelay={0}
-                        text={
+                        title={
                           expired ? (
                             <span>
                               {_l('备份文件已过期，升级旗舰版后可恢复下载')}
@@ -435,8 +435,7 @@ export default function BackupFiles(props) {
                                     </MenuItem>
                                   ) : (
                                     <Tooltip
-                                      autoCloseDelay={0}
-                                      text={
+                                      title={
                                         !containData ? (
                                           ''
                                         ) : dataStatus === 0 ? (

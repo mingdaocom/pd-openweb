@@ -57,9 +57,16 @@ export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) 
     // 他表字段
     if (c.type === 30) {
       const { dataSource } = _.find(controls, { controlId: c.dataSource.replace(/\$/g, '') }) || {};
-      if (dataSource && [9, 10, 11].includes(c.sourceControlType)) {
-        const optionTranslateInfo = getTranslateInfo(appId, dataSource, data.sourceControlId);
+      // 选项集
+      if (c.sourceControl.dataSource && [9, 10, 11].includes(c.sourceControlType)) {
+        const optionTranslateInfo = getTranslateInfo(appId, null, c.sourceControl.dataSource);
         replaceOptionControlTranslateInfo(data, { translateInfo, optionTranslateInfo });
+      } else {
+        // 普通控件
+        if (dataSource && [9, 10, 11].includes(c.sourceControlType)) {
+          const optionTranslateInfo = getTranslateInfo(appId, dataSource, data.sourceControlId);
+          replaceOptionControlTranslateInfo(data, { translateInfo, optionTranslateInfo });
+        }
       }
     }
     // 填充备注字段内容

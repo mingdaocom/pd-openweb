@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { formatRecordToRelateRecord } from 'src/utils/record';
 import { getRelateRecordCountFromValue } from 'src/utils/record';
 import { RELATE_RECORD_SHOW_TYPE } from '../../../core/enum';

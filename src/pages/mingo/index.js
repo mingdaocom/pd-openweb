@@ -18,4 +18,5 @@ const WrappedComp = preall(
   ),
   { allowNotLogin: true },
 );
+
 root.render(<WrappedComp />);

@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Checkbox, Icon, Support, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { formatStr } from 'src/pages/integration/config.js';
 import { CardTopWrap } from '../apiIntegration/style';
@@ -310,10 +311,9 @@ function ConnectParam(props) {
               <div className="option Gray_75">
                 {_l('隐藏')}
                 <Tooltip
-                  action={['hover']}
-                  popupPlacement="topLeft"
-                  offset={[-15, 0]}
-                  text={<span style={{ color: '#fff' }}>{_l('隐藏参数会加密存储，不可取消隐藏')}</span>}
+                  placement="topLeft"
+                  align={{ offset: [-15, 0] }}
+                  title={<span style={{ color: '#fff' }}>{_l('隐藏参数会加密存储，不可取消隐藏')}</span>}
                 >
                   <Icon icon="error_outline" className={cx('mLeft5')} />
                 </Tooltip>

@@ -49,7 +49,7 @@ export default function Resource(props) {
   };
   const [{ dragMaskVisible, directoryWidth, maxWidth, showGroup, canvasType }, setState] = useSetState({
     dragMaskVisible: false,
-    directoryWidth: getDirectoryWidth(view.viewId),
+    directoryWidth: getDirectoryWidth(),
     maxWidth: 3000,
     showGroup: true,
     canvasType:

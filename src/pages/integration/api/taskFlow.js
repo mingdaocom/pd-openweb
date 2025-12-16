@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var taskFlow = {
-
+const taskFlow = {
   /**
    * 全量保存任务流
    *
@@ -372,7 +371,7 @@ var taskFlow = {
     base.ajaxOptions.url = base.server(options) + 'taskFlow/addNode';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'taskFlowaddNode', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default taskFlow;

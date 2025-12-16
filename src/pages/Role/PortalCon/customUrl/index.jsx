@@ -4,7 +4,8 @@ import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Input, Tooltip } from 'ming-ui';
+import { Checkbox, Dialog, Dropdown, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ExternalPortalApi from 'src/api/externalPortal.js';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import { LOGIN_WAY, REJISTER_WAY } from 'src/pages/Role/config.js';
@@ -233,7 +234,7 @@ function Setting(props) {
                     url={`${_.get(props, 'baseSetResult.portalUrl')}/${o.ext}`}
                     copyTip={_l('复制')}
                   />
-                  <Tooltip popupPlacement="bottom" text={<span>{_l('设置')}</span>}>
+                  <Tooltip placement="bottom" title={_l('设置')}>
                     <CustomUrlSet
                       className="customUrlSet mLeft6"
                       onClick={() => {

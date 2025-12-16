@@ -5,7 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, Input, SortableList, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Input, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { getDefaultViewSet } from 'worksheet/constants/common';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
@@ -502,7 +503,7 @@ export default class ViewItems extends Component {
         <div className="drawerWorksheetRecycleListTitle Gray_9e valignWrapper" onClick={this.handleExpandRecycle}>
           <span className="flex valignWrapper">
             {_l('最近删除')}
-            <Tooltip text={_l('视图60天后将被自动删除')}>
+            <Tooltip title={_l('视图60天后将被自动删除')}>
               <Icon icon="info" className="Gray_9e Font14 mLeft8" />
             </Tooltip>
           </span>
@@ -559,11 +560,10 @@ export default class ViewItems extends Component {
 
     return (
       <Tooltip
-        text={_l(
+        title={_l(
           '数据管理视图中的记录不受字段属性和业务规则的隐藏、只读、验证影响，始终可查看、编辑所有数据。（仅应用管理员可访问此视图）',
         )}
-        autoCloseDelay={0}
-        popupPlacement={'right'}
+        placement="right"
       >
         <div
           className={cx('manageViewItem Hand valignWrapper mBottom6', {
@@ -669,7 +669,7 @@ export default class ViewItems extends Component {
     return (
       <div className="valignWrapper flex">
         <div>
-          <Tooltip popupPlacement="bottom" text={<span>{_l('全部视图%05005')}</span>}>
+          <Tooltip placement="bottom" title={_l('全部视图%05005')}>
             <Icon
               icon="menu-02"
               className={cx('Font14 mLeft10 pointer Gray_75 allVieListwIcon hoverGray', {
@@ -754,7 +754,7 @@ export default class ViewItems extends Component {
               />
             }
           >
-            <Tooltip popupPlacement="bottom" text={<span>{_l('添加视图')}</span>}>
+            <Tooltip placement="bottom" title={_l('添加视图')}>
               <Icon
                 icon="add"
                 className={cx('Font20 Gray_75 pointer addViewIcon mLeft8 hoverGray', { menuVisible: addMenuVisible })}

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { match } from 'path-to-regexp';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
 import CommonUserHandle from '../components/CommonUserHandle';
 import './index.less';
@@ -67,18 +68,19 @@ export default class NetManageHeader extends Component {
     return (
       <div className="netManageHeaderWrap">
         <div className="netManageLogo">
-          <HomeEntry
-            data-tip={_l('工作台')}
-            onClick={() => {
-              const { params } = fn(location.pathname) || {};
-              if (!_.isEmpty(params)) {
-                localStorage.setItem('currentProjectId', params.projectId);
-              }
-              navigateTo('/dashboard');
-            }}
-          >
-            <i className="icon-home_page Font18"></i>
-          </HomeEntry>
+          <Tooltip title={_l('工作台')}>
+            <HomeEntry
+              onClick={() => {
+                const { params } = fn(location.pathname) || {};
+                if (!_.isEmpty(params)) {
+                  localStorage.setItem('currentProjectId', params.projectId);
+                }
+                navigateTo('/dashboard');
+              }}
+            >
+              <i className="icon-home_page Font18"></i>
+            </HomeEntry>
+          </Tooltip>
           {text && <div className="netManageTitle">{text}</div>}
         </div>
         <CommonUserHandle />

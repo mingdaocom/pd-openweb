@@ -111,6 +111,8 @@ export default class AdminEntryPoint extends PureComponent {
             return;
         }
 
+        if (!md.global.Config.IsLocal && key === 'quota') return;
+
         const itemMenu = subMenuArray.filter(sub => sub.key === key)[0] || {};
         let featureType = getFeatureStatus(projectId, itemMenu.featureId);
 

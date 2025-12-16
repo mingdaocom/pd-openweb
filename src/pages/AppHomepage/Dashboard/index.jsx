@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
-import { Tooltip } from 'antd';
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import RecordFav from 'src/pages/AppHomepage/RecordFav';
@@ -190,7 +190,7 @@ export default function Dashboard(props) {
                     boardSwitch: true,
                     bulletinBoards: [
                       {
-                        url: md.global.FileStoreConfig.pictureHost + key,
+                        url: `${md.global.FileStoreConfig.pictureHost}/${key}`,
                         key,
                         bucket: 4,
                         link: theme.bulletinLink,
@@ -298,7 +298,7 @@ export default function Dashboard(props) {
               <div className="logoWrapper">
                 {logoSwitch && logo && (
                   <img
-                    src={`${md.global.FileStoreConfig.pictureHost}ProjectLogo/${logo}?imageView2/2/h/200/q/90`}
+                    src={`${md.global.FileStoreConfig.pictureHost}/ProjectLogo/${logo}?imageView2/2/h/200/q/90`}
                     alt="logo"
                   />
                 )}

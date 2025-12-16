@@ -58,7 +58,7 @@ export default function CreateVerticalRecord(props) {
   const lines = getLinesValue();
 
   const handleClick = type => {
-    createTextTitleRecord(type === 'multi' ? getLinesValue(value) : value);
+    createTextTitleRecord(type === 'multi' ? getLinesValue() : value);
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
   };

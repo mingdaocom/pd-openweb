@@ -8,6 +8,7 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { LoadDiv, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
@@ -799,7 +800,7 @@ class TaskNavigation extends Component {
           // 分割线
           const $dividerLine = $folderSettingBox.find('.dividerLine');
           if (
-            $.makeArray($dividerLine.nextAll())
+            _.toArray($dividerLine.nextAll())
               .map(el => {
                 return $(el).is(':visible');
               })
@@ -1099,7 +1100,7 @@ class TaskNavigation extends Component {
           const $this = $(this);
           $this.removeClass('ThemeBGColor8 ThemeColor10');
 
-          const text = $.trim($this.val());
+          const text = $this.val().trim();
           if (text.length <= 0) {
             alert(_l('请输入文件夹名称'), 3);
             $(this).focus();
@@ -1344,7 +1345,7 @@ class TaskNavigation extends Component {
         .addClass('Hidden');
     }
 
-    if ($.isFunction(callback) && isExistList) {
+    if (_.isFunction(callback) && isExistList) {
       callback();
     } else {
       $folderList.show();
@@ -1746,7 +1747,7 @@ class TaskNavigation extends Component {
     const folderIdArr = [];
     const $lis = $projectFolder.find('.projectFolderUl li');
     const projectId = $projectFolder.closest('.networkFolderList').attr('data-projectid');
-    const fileName = $.trim($this.val());
+    const fileName = $this.val().trim();
 
     $.each($lis, (i, item) => {
       folderIdArr.push($(item).data('id'));
@@ -1816,7 +1817,7 @@ class TaskNavigation extends Component {
    * 修改项目文件夹名称
    */
   updateUserFolderFileName(fileId, $this) {
-    const newFileName = $.trim($this.val());
+    const newFileName = $this.val().trim();
     const old = $this.attr('title');
     const updateFileNameFun = function () {
       $this
@@ -2045,9 +2046,11 @@ class TaskNavigation extends Component {
             className={cx('otherAndMe ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 7 })}
             data-type="otherAndMe"
           >
-            <span className="tip-bottom-right" data-tip={_l('我与他共同参与的任务')}>
-              <i className="icon-charger typeIcon ThemeColor9" />
-            </span>
+            <Tooltip title={_l('我与他共同参与的任务')} placement="bottomLeft">
+              <span>
+                <i className="icon-charger typeIcon ThemeColor9" />
+              </span>
+            </Tooltip>
             <span className="typeName responsibleText ThemeColor10">{_l('与他协作的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
           </li>
@@ -2055,16 +2058,20 @@ class TaskNavigation extends Component {
             className={cx('responsible ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 2 })}
             data-type="responsible"
           >
-            <span className="tip-bottom-right" data-tip={_l('他作为负责人的任务')}>
-              <i className="icon-task-responsible typeIcon ThemeColor9" />
-            </span>
+            <Tooltip title={_l('他作为负责人的任务')} placement="bottomLeft">
+              <span>
+                <i className="icon-task-responsible typeIcon ThemeColor9" />
+              </span>
+            </Tooltip>
             <span className="typeName responsibleText ThemeColor10">{_l('他负责的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
           </li>
           <li className={cx('trust ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 3 })} data-type="trust">
-            <span className="tip-bottom-right" data-tip={_l('他托付给其他人负责的任务')}>
-              <i className="icon-task-trust typeIcon typeIconTrust ThemeColor9" />
-            </span>
+            <Tooltip title={_l('他托付给其他人负责的任务')} placement="bottomLeft">
+              <span>
+                <i className="icon-task-trust typeIcon typeIconTrust ThemeColor9" />
+              </span>
+            </Tooltip>
             <span className="typeName ThemeColor10">{_l('他托付的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
           </li>
@@ -2072,9 +2079,11 @@ class TaskNavigation extends Component {
             className={cx('participate ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 1 })}
             data-type="participate"
           >
-            <span className="tip-bottom-right" data-tip={_l('他仅作为任务参与者的任务')}>
-              <i className="icon-double-loop typeIcon typeIconParticipate ThemeColor9" />
-            </span>
+            <Tooltip title={_l('他仅作为任务参与者的任务')} placement="bottomRight">
+              <span>
+                <i className="icon-double-loop typeIcon typeIconParticipate ThemeColor9" />
+              </span>
+            </Tooltip>
             <span className="typeName ThemeColor10">{_l('他参与的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
           </li>
@@ -2090,9 +2099,11 @@ class TaskNavigation extends Component {
             className={cx('otherAndMe ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 7 })}
             data-type="otherAndMe"
           >
-            <span className="tip-bottom-right" data-tip={_l('我与他共同参与的任务')}>
-              <i className="icon-charger typeIcon ThemeColor9" />
-            </span>
+            <Tooltip title={_l('我与他共同参与的任务')} placement="bottomRight">
+              <span>
+                <i className="icon-charger typeIcon ThemeColor9" />
+              </span>
+            </Tooltip>
             <span className="typeName responsibleText ThemeColor10">{_l('与他协作的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
           </li>
@@ -2100,9 +2111,11 @@ class TaskNavigation extends Component {
             className={cx('otherResponsible ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 10 })}
             data-type="otherResponsible"
           >
-            <span className="tip-bottom-right" data-tip={_l('我可见的由他负责的任务')}>
-              <i className="icon-task_custom_personnel typeIcon ThemeColor9" />
-            </span>
+            <Tooltip title={_l('我可见的由他负责的任务')} placement="bottomRight">
+              <span>
+                <i className="icon-task_custom_personnel typeIcon ThemeColor9" />
+              </span>
+            </Tooltip>
             <span className="typeName responsibleText ThemeColor10">{_l('他负责的任务')}</span>
             <span className="allCountTask Right ThemeColor8" />
           </li>
@@ -2118,16 +2131,20 @@ class TaskNavigation extends Component {
           })}
           data-type="myTask"
         >
-          <span className="tip-bottom-right" data-tip={_l('我的任务')}>
-            <i className="icon-charger typeIcon ThemeColor9" />
-          </span>
+          <Tooltip title={_l('我的任务')} placement="bottomRight">
+            <span>
+              <i className="icon-charger typeIcon ThemeColor9" />
+            </span>
+          </Tooltip>
           <span className="typeName responsibleText ThemeColor10">{_l('我的任务')}</span>
           <span className="allCountTask Right ThemeColor8" />
         </li>
         <li className={cx('aboutMeStar ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 8 })} data-type="star">
-          <span className="tip-bottom-right" data-tip={_l('所有添加星标的任务')}>
-            <i className="icon-task-star typeIcon ThemeColor9" />
-          </span>
+          <Tooltip title={_l('所有添加星标的任务')} placement="bottomRight">
+            <span>
+              <i className="icon-task-star typeIcon ThemeColor9" />
+            </span>
+          </Tooltip>
           <span className="typeName ThemeColor10">{_l('星标任务')}</span>
           <span className="allCountTask Right ThemeColor8" />
         </li>
@@ -2135,9 +2152,11 @@ class TaskNavigation extends Component {
           className={cx('taskSubordinate ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 9 })}
           data-type="subordinate"
         >
-          <span className="tip-bottom-right" data-tip={_l('下属任务')}>
-            <i className="icon-group typeIcon ThemeColor9" />
-          </span>
+          <Tooltip title={_l('下属任务')} placement="bottomRight">
+            <span>
+              <i className="icon-group typeIcon ThemeColor9" />
+            </span>
+          </Tooltip>
           <span className="typeName ThemeColor10">{_l('下属任务')}</span>
           <span className="allCountTask Right ThemeColor8" />
         </li>

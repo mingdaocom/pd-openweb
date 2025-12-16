@@ -1,8 +1,8 @@
 import React, { createRef, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const Con = styled.div`
   display: flex;

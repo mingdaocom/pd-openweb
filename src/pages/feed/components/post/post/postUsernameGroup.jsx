@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { UserCard, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 /**
  * 动态发布者姓名和发布到的群组
@@ -97,7 +98,11 @@ class PostUsernameGroup extends React.Component {
         break;
     }
     if (icon) {
-      children.push(<i key="icon" className={'mLeft5 Font16 ThemeColor3 icon-' + icon} data-tip={postTypeName} />);
+      children.push(
+        <Tooltip title={postTypeName}>
+          <i key="icon" className={'mLeft5 Font16 ThemeColor3 icon-' + icon} />
+        </Tooltip>,
+      );
     }
     return <div {...props}>{children}</div>;
   }

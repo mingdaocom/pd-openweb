@@ -2,7 +2,8 @@
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Tooltip, UserHead } from 'ming-ui';
+import { UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { dialogSelectUser } from 'ming-ui/functions';
@@ -346,13 +347,14 @@ class SubordinateMembers extends Component {
 
                   {item.account.hidden ? undefined : <span>({this.getTaskCount(item.taskTimeBars)})</span>}
 
-                  <span
-                    className="ganttMembersAddTask Font16 ThemeColor3 tip-bottom-left"
-                    data-tip={_l('创建新任务')}
-                    onClick={evt => this.createTask(item.account, evt)}
-                  >
-                    <i className="icon-plus" />
-                  </span>
+                  <Tooltip title={_l('创建新任务')} placement="bottomLeft">
+                    <span
+                      className="ganttMembersAddTask Font16 ThemeColor3"
+                      onClick={evt => this.createTask(item.account, evt)}
+                    >
+                      <i className="icon-plus" />
+                    </span>
+                  </Tooltip>
 
                   {item.account.type === 3 || item.account.type === 4 ? (
                     <Trigger
@@ -375,7 +377,7 @@ class SubordinateMembers extends Component {
           <div className="ganttSubordinate ThemeColor3" onClick={evt => this.addFollowMembers(evt)}>
             <i className="icon-hr_person_add Font18 mRight5" />
             {_l('添加同事')}
-            <Tooltip popupPlacement="top" text={this.tooltip()} autoCloseDelay={0}>
+            <Tooltip placement="top" title={this.tooltip()}>
               <i className="icon-info Font14 mLeft5" />
             </Tooltip>
           </div>

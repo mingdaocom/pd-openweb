@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { DatePicker } from 'antd';
 import en_US from 'antd/es/date-picker/locale/en_US';
 import ja_JP from 'antd/es/date-picker/locale/ja_JP';
@@ -19,8 +19,14 @@ const Comp = styled(DatePicker.RangePicker)`
   }
 `;
 
-export default function MdAntDateRangePicker(props) {
+const MdAntDateRangePicker = (props, ref) => {
   return (
-    <Comp locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN} {...props} />
+    <Comp
+      ref={ref}
+      locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+      {...props}
+    />
   );
-}
+};
+
+export default forwardRef(MdAntDateRangePicker);

@@ -6,7 +6,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, Input, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
@@ -237,7 +238,7 @@ function PluginSettings(params) {
       >
         <Icon icon={switchSettings.showRefresh === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
         <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('自动刷新')}</div>
-        <Tooltip text={<span>{_l('每隔一段时间后自动刷新当前视图')}</span>} popupPlacement="right">
+        <Tooltip title={_l('每隔一段时间后自动刷新当前视图')} placement="right">
           <i className="icon-help Gray_9e Font16"></i>
         </Tooltip>
       </SwitchStyle>
@@ -296,7 +297,7 @@ function PluginSettings(params) {
             <span className="Red">*</span>
           </div>
           <div className="actionCon TxtRight">
-            <Tooltip text={<span>{_l('清空参数')}</span>} popupPlacement="top">
+            <Tooltip title={_l('清空参数')}>
               <i
                 className="icon-clean_all Font20 Gray_9e ThemeHoverColor3 Hand"
                 onClick={() => {

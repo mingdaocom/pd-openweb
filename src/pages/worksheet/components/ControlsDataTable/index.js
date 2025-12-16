@@ -140,7 +140,7 @@ export default function ControlsDataTable(props) {
           )}
           <span className="ellipsis">{control.controlName}</span>
           {typeof isAsc !== 'undefined' && controlId === control.controlId && (
-            <span className="sortIcon">{getSortIcon(control)}</span>
+            <span className="sortIcon">{getSortIcon()}</span>
           )}
         </ColumnHead>
       )}

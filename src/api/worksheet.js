@@ -114,8 +114,9 @@ export default {
    * 修改表格描述
    * @param {Object} args 请求参数
    * @param {string} args.worksheetId 工作表id
-   * @param {string} args.dec 描述
-   * @param {string} args.resume
+   * @param {string} args.dec 详细说明
+   * @param {string} args.resume 摘要
+   * @param {string} args.remark 工作表描述（新加的 支持AI生成）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1516,16 +1517,9 @@ export default {
    * 获取表控件
    * @param {Object} args 请求参数
    * @param {string} args.worksheetId 工作表id
-   * @param {string} args.relationWorksheetId 关联表的id
-   * @param {boolean} args.getTemplate 是否获取Template
-   * @param {boolean} args.getViews 是否获取Views
-   * @param {string} args.appId 应用Id
-   * @param {boolean} args.handleDefault 处理默认值
+   * @param {string} args.relationWorksheetId
    * @param {} args.getControlType
-   * @param {array} args.worksheetIds 批量工作表id
-   * @param {boolean} args.handControlSource 是否处理关联的原始类型
-   * @param {boolean} args.getRules 是否需要验证规则
-   * @param {boolean} args.getSwitchPermit 是否获取功能开关
+   * @param {array} args.controlIds 批量工作表id
    * @param {boolean} args.getRelationSearch 获取查下记录控件
    * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
    * @param {Object} options 配置参数
@@ -1534,6 +1528,22 @@ export default {
    **/
   getWorksheetControls: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetWorksheetControls', args, options);
+  },
+  /**
+   * 获取控件
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 工作表id
+   * @param {string} args.relationWorksheetId
+   * @param {} args.getControlType
+   * @param {array} args.controlIds 批量工作表id
+   * @param {boolean} args.getRelationSearch 获取查下记录控件
+   * @param {integer} args.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getControlsByIds: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetControlsByIds', args, options);
   },
   /**
    * 获取工作表字段智能建议
@@ -2063,6 +2073,7 @@ export default {
    * @param {} args.type
    * @param {} args.roleType
    * @param {array} args.viewIds
+   * @param {integer} args.displayFlowChart 显示流转图 （0 = 显示，1 = 不显示）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -2106,6 +2117,18 @@ export default {
    **/
   getWorksheetApiInfo: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetWorksheetApiInfo', args, options);
+  },
+  /**
+   * 格式化AI请求参数
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 工作表id
+   * @param {array} args.rows
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  handleAIRequest: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'HandleAIRequest', args, options);
   },
   /**
    * 获取应用下选项集
@@ -2307,10 +2330,11 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    * @param {array} args.items 筛选条件
    * @param {array} args.configs 映射字段
    * @param {integer} args.moreType 0 = 获取第一条时，按配置来，1= 不赋值
+   * @param {integer} args.recordsNotFound 0 = 赋空值 1 = 保留原值
    * @param {array} args.moreSort 排序
    * @param {integer} args.queryCount 查询条数
    * @param {integer} args.resultType 结果类型 0=查询到记录，1=仅查询到一条记录，2=查询到多条记录，3=未查询到记录
-   * @param {integer} args.eventType 0 = 常规字段默认值，1 = 表单事件
+   * @param {integer} args.eventType 0 = 常规字段默认值，1 = 表单事件，2 = 业务规则设置字段默认值
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -2488,5 +2512,35 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    **/
   getWorksheetCurrencyInfos: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetWorksheetCurrencyInfos', args, options);
+  },
+  /**
+   * 设置/取消关注
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 表id
+   * @param {string} args.rowId 记录id
+   * @param {string} args.viewId 视图id
+   * @param {boolean} args.checkView 是否校验视图权限
+   * @param {boolean} args.setFollow 是否关注
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setFollow: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'SetFollow', args, options);
+  },
+  /**
+   * 关注的人
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 表id
+   * @param {string} args.rowId 记录id
+   * @param {string} args.viewId 视图id
+   * @param {boolean} args.checkView 是否校验视图权限
+   * @param {boolean} args.setFollow 是否关注
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getFollower: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetFollower', args, options);
   },
 };

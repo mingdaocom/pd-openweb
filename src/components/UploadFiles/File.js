@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import Icon from 'ming-ui/components/Icon';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
@@ -421,42 +422,45 @@ export default class FileComponent extends Component {
           {isKc ? (
             this.props.isDeleteKcFile && (
               <div>
-                <div
-                  onClick={event => {
-                    event.nativeEvent.stopImmediatePropagation();
-                    event.stopPropagation();
-                    this.handleConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
-                  }}
-                  className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                  data-tip={_l('删除')}
-                >
-                  <i className="icon-trash" />
-                </div>
+                <Tooltip title={_l('删除')}>
+                  <div
+                    onClick={event => {
+                      event.nativeEvent.stopImmediatePropagation();
+                      event.stopPropagation();
+                      this.handleConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
+                    }}
+                    className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
+                  >
+                    <i className="icon-trash" />
+                  </div>
+                </Tooltip>
               </div>
             )
           ) : (
             <div>
-              <div
-                onClick={event => {
-                  const { onDeleteFile } = this.props;
-                  event.nativeEvent.stopImmediatePropagation();
-                  event.stopPropagation();
-                  onDeleteFile && onDeleteFile(fileResponse.fileID, event);
-                }}
-                className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}
-              >
-                <i className="icon-trash" />
-              </div>
-              <div
-                onClick={event => {
-                  this.handleEdit(event);
-                }}
-                className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
-                data-tip={_l('重命名')}
-              >
-                <i className="ThemeHoverColor3 icon-rename_input" />
-              </div>
+              <Tooltip title={_l('删除')}>
+                <div
+                  onClick={event => {
+                    const { onDeleteFile } = this.props;
+                    event.nativeEvent.stopImmediatePropagation();
+                    event.stopPropagation();
+                    onDeleteFile && onDeleteFile(fileResponse.fileID, event);
+                  }}
+                  className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
+                >
+                  <i className="icon-trash" />
+                </div>
+              </Tooltip>
+              <Tooltip title={_l('重命名')}>
+                <div
+                  onClick={event => {
+                    this.handleEdit(event);
+                  }}
+                  className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
+                >
+                  <i className="ThemeHoverColor3 icon-rename_input" />
+                </div>
+              </Tooltip>
             </div>
           )}
         </div>
@@ -579,42 +583,45 @@ export default class FileComponent extends Component {
           <div />
           {isKc ? (
             <div>
-              <div
-                onClick={event => {
-                  event.nativeEvent.stopImmediatePropagation();
-                  event.stopPropagation();
-                  // this.handleConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
-                  this.props.onDeleteKcFile(fileResponse.refId, event);
-                }}
-                className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}
-              >
-                <i className="icon-trash" />
-              </div>
+              <Tooltip title={_l('删除')}>
+                <div
+                  onClick={event => {
+                    event.nativeEvent.stopImmediatePropagation();
+                    event.stopPropagation();
+                    // this.handleConfirmDelete(this.props.onDeleteKcFile.bind(this, fileResponse.refId, event));
+                    this.props.onDeleteKcFile(fileResponse.refId, event);
+                  }}
+                  className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
+                >
+                  <i className="icon-trash" />
+                </div>
+              </Tooltip>
             </div>
           ) : (
             <div>
-              <div
-                onClick={event => {
-                  const { onDeleteFile } = this.props;
-                  event.nativeEvent.stopImmediatePropagation();
-                  event.stopPropagation();
-                  onDeleteFile && onDeleteFile(fileResponse.fileID, event);
-                }}
-                className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                data-tip={_l('删除')}
-              >
-                <i className="icon-trash" />
-              </div>
-              <div
-                onClick={event => {
-                  this.handleEdit(event);
-                }}
-                className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
-                data-tip={_l('重命名')}
-              >
-                <i className="ThemeHoverColor3 icon-rename_input" />
-              </div>
+              <Tooltip title={_l('删除')}>
+                <div
+                  onClick={event => {
+                    const { onDeleteFile } = this.props;
+                    event.nativeEvent.stopImmediatePropagation();
+                    event.stopPropagation();
+                    onDeleteFile && onDeleteFile(fileResponse.fileID, event);
+                  }}
+                  className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
+                >
+                  <i className="icon-trash" />
+                </div>
+              </Tooltip>
+              <Tooltip title={_l('重命名')}>
+                <div
+                  onClick={event => {
+                    this.handleEdit(event);
+                  }}
+                  className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
+                >
+                  <i className="ThemeHoverColor3 icon-rename_input" />
+                </div>
+              </Tooltip>
             </div>
           )}
         </div>
@@ -774,31 +781,33 @@ export default class FileComponent extends Component {
           <div className="UploadFiles-panelBtns">
             <div>
               {this.props.isDeleteFile && (
-                <div
-                  onClick={event => {
-                    event.nativeEvent.stopImmediatePropagation();
-                    event.stopPropagation();
-                    this.handleConfirmDelete(this.props.onDeleteMDFile.bind(this, fileResponse, event));
-                  }}
-                  className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
-                  data-tip={_l('删除')}
-                >
-                  <i className="icon-trash" />
-                </div>
+                <Tooltip title={_l('删除')}>
+                  <div
+                    onClick={event => {
+                      event.nativeEvent.stopImmediatePropagation();
+                      event.stopPropagation();
+                      this.handleConfirmDelete(this.props.onDeleteMDFile.bind(this, fileResponse, event));
+                    }}
+                    className="UploadFiles-panelBtn UploadFiles-panelBtn-delete"
+                  >
+                    <i className="icon-trash" />
+                  </div>
+                </Tooltip>
               )}
             </div>
             <div className={cx({ hide: !browse })}>
               {/* 是否不可下载 */}
               {!hideDownload && (
-                <div
-                  onClick={event => {
-                    this.handleDownload(event, isDownload, downloadUrl);
-                  }}
-                  className="UploadFiles-panelBtn"
-                  data-tip={_l('下载')}
-                >
-                  <i className="ThemeHoverColor3 icon-download" />
-                </div>
+                <Tooltip title={_l('下载')}>
+                  <div
+                    onClick={event => {
+                      this.handleDownload(event, isDownload, downloadUrl);
+                    }}
+                    className="UploadFiles-panelBtn"
+                  >
+                    <i className="ThemeHoverColor3 icon-download" />
+                  </div>
+                </Tooltip>
               )}
               {((!isMDLink && !hideDownload) ||
                 !hideDownload ||
@@ -812,16 +821,17 @@ export default class FileComponent extends Component {
                     }}
                   >
                     <i className={cx('icon-more_horiz', { ThemeColor3: !!moreVisible })} />
-                    <div
-                      className="UploadFiles-panelBtnMask"
-                      data-tip={_l('更多')}
-                      onMouseEnter={() => {
-                        this.setState({ moreVisible: true });
-                      }}
-                      onMouseLeave={() => {
-                        this.setState({ moreVisible: false });
-                      }}
-                    />
+                    <Tooltip title={_l('更多')}>
+                      <div
+                        className="UploadFiles-panelBtnMask"
+                        onMouseEnter={() => {
+                          this.setState({ moreVisible: true });
+                        }}
+                        onMouseLeave={() => {
+                          this.setState({ moreVisible: false });
+                        }}
+                      />
+                    </Tooltip>
                     <Menu
                       style={{ width: 120, right: 0, left: 'inherit', top: 0, zIndex: 100 }}
                       className={cx('UploadFiles-menuWrapper', { Hidden: !this.state.menuVisible })}
@@ -918,17 +928,18 @@ export default class FileComponent extends Component {
               <div className="UploadFiles-panelTextName" style={{ display: base.isPic ? 'none' : '' }}>
                 <span style={vertical}>{`${base.fileName || _l('未命名')}${base.fileExt}`}</span>
               </div>
-              <div
-                className={cx('UploadFiles-loadfileClose', {
-                  //  Hidden: !parseInt(progress)
-                })}
-                data-tip={_l('取消上传')}
-                onClick={() => {
-                  this.props.removeUploadingFile(base.id);
-                }}
-              >
-                <i className="ThemeHoverColor3 icon-close" />
-              </div>
+              <Tooltip title={_l('取消上传')}>
+                <div
+                  className={cx('UploadFiles-loadfileClose', {
+                    //  Hidden: !parseInt(progress)
+                  })}
+                  onClick={() => {
+                    this.props.removeUploadingFile(base.id);
+                  }}
+                >
+                  <i className="ThemeHoverColor3 icon-close" />
+                </div>
+              </Tooltip>
             </div>
           )}
         </div>

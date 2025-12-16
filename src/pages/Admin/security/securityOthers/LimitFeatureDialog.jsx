@@ -17,6 +17,7 @@ const limitData = [
   { text: _l('创建 API 连接'), value: 'apiIntgOnlyManager' },
   // { text: _l('数据集成'), value: 'dataPipeOnlyManager' },
   { text: _l('开发插件'), value: 'pluginsOnlyManager' },
+  { text: _l('超级搜索 - 搜索记录'), value: 'superSearchOnlyManager' },
 ];
 
 function LimitFeatureDialog(props) {

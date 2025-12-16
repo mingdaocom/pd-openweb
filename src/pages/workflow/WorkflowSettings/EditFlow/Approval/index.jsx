@@ -84,9 +84,9 @@ export default class Approval extends Component {
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <i className={cx('workflowAvatar icon-workflow_ea', item.selectNodeId ? 'BGViolet' : 'BGGray')} />
+              <i className={cx('workflowAvatar icon-workflow_ea', item.selectNodeId ? 'BGDarkRed' : 'BGGray')} />
             </div>
-            <NodeOperate nodeClassName="BGViolet" {...this.props} />
+            <NodeOperate nodeClassName="BGDarkRed" {...this.props} />
             <div className="workflowContent">
               {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>

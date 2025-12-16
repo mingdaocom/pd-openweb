@@ -34,7 +34,9 @@ export default class SelectUserDropDown extends Component {
    */
   getUserAppDtos(props) {
     const { processId, nodeId, specialType, schedule } = props;
-    flowNode.getUserAppDtos({ processId, nodeId, type: specialType, schedule }).then(result => {
+    const interfaceFunc = obj => flowNode.getUserAppDtos({ ...obj, processId, type: specialType, schedule });
+
+    interfaceFunc({ nodeId }).then(result => {
       const fieldsData = result.map(obj => {
         return {
           ...obj,
@@ -43,6 +45,7 @@ export default class SelectUserDropDown extends Component {
           nodeTypeId: obj.nodeTypeId,
           appType: obj.appType,
           actionId: obj.actionId,
+          toolsFunction: () => interfaceFunc({ nodeId: obj.nodeId, tool: true }),
           items: obj.controls.map(o => {
             return {
               type: o.type,

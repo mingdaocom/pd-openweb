@@ -143,5 +143,3 @@ SingleFilter.propTypes = {
   globalSheetControls: arrayOf(shape({})),
   filterDept: bool,
 };
-
-// TODO 初始化会更新

@@ -92,6 +92,7 @@ class SheetRows extends Component {
       groupDataInfo,
       colNum = 1,
       changeBatchOptData = () => {},
+      onDeleteSuccess,
     } = this.props;
 
     return (
@@ -112,6 +113,8 @@ class SheetRows extends Component {
         changeBatchOptData={changeBatchOptData}
         viewRootEl={this.state.scrollViewEl}
         updateViewCard={this.updateViewCard}
+        onDeleteSuccess={() => onDeleteSuccess({ rowId: item.rowid })}
+        updateRow={this.props.updateRow}
         onClick={() => {
           const { clicktype, clickcid } = view.advancedSetting || {};
           // clicktype：点击操作 空或者0：打开记录 1：打开链接 2：无
@@ -139,10 +142,6 @@ class SheetRows extends Component {
         }}
       />
     );
-  };
-
-  updateRow = (rowId, value, isviewdata) => {
-    this.props.updateRow(rowId, value, isviewdata);
   };
 
   // 分组
@@ -251,6 +250,7 @@ class SheetRows extends Component {
           sheetSwitchPermit={sheetSwitchPermit}
           canLoadSwitchRecord={true}
           isCharge={isCharge}
+          worksheetInfo={worksheetInfo}
           currentSheetRows={
             isGroup && currentGroupKey
               ? (_.find(groupData, v => v.key === currentGroupKey) || {}).rows.map(o => safeParse(o))
@@ -263,7 +263,7 @@ class SheetRows extends Component {
             this.setState({ currentGroupKey: undefined });
             this.props.updatePreviewRecordId('');
           }}
-          updateRow={this.updateRow}
+          updateRow={this.props.updateRow}
         />
       </Fragment>
     );
@@ -319,6 +319,7 @@ export default connect(
         'updateRow',
         'updateGroupDataInfo',
         'loadGroupMore',
+        'onDeleteSuccess',
       ]),
       dispatch,
     ),

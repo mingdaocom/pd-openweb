@@ -379,7 +379,7 @@ export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount =
           return false;
         }
       }
-      if (max && (itemField.size || itemField.fileSize) > parseFloat(max) * 1024 * 1024) {
+      if (max && (itemField.size || itemField.fileSize) > parseFloat(max) * 1000 * 1000) {
         alert(_l('上传失败，无法上传大于%0MB的文件', max), 2);
         return false;
       }

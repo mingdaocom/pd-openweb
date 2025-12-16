@@ -1,10 +1,11 @@
 import React from 'react';
 import { useSetState } from 'react-use';
-import { Checkbox, InputNumber, Modal, Tooltip } from 'antd';
+import { Checkbox, InputNumber, Modal } from 'antd';
 import cx from 'classnames';
 import _, { get } from 'lodash';
 import styled from 'styled-components';
 import { Button, Dropdown, Icon } from 'ming-ui';
+import Tooltip from 'ming-ui/antd-components/Tooltip';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
 import { WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
@@ -335,7 +336,7 @@ export default function BatchSetDialog(props) {
   const onChangeBatchDirection = data => {
     const allList = [...showList, ...hideList];
     let batchStyles = [];
-    allList.map(o => {
+    allList.forEach(o => {
       let direction = data;
       if ('sys' === direction || (2 === direction && !canSetDirection(o))) {
         direction = controlIsNumber(o) ? 2 : 0;
@@ -351,12 +352,16 @@ export default function BatchSetDialog(props) {
   const onChangeBatchAutoWidth = value => {
     if (value === 'autoWidth') {
       if (window[`getTableColumnWidth-${worksheetId}`]) {
-        const widths = columns.map(o => window[`getTableColumnWidth-${worksheetId}`](o));
+        const widths = columns
+          .map(o => ({
+            [o.controlId]: window[`getTableColumnWidth-${worksheetId}`](o),
+          }))
+          .reduce((a, b) => ({ ...a, ...b }), {});
         setState({
-          styles: [...showList, ...hideList].map((o, i) => ({
+          styles: [...showList, ...hideList].map(o => ({
             ...(styles.find(s => s.cid === o.controlId) || {}),
             cid: o.controlId,
-            width: widths[i],
+            width: widths[o.controlId],
           })),
         });
       }
@@ -409,8 +414,8 @@ export default function BatchSetDialog(props) {
                     {
                       value: 'sys',
                       text: (
-                        <Tooltip title={_l('数值类型的字段右对齐，其他字段左对齐')} zIndex="10000" placement="left">
-                          {_l('系统默认')}
+                        <Tooltip title={_l('数值类型的字段右对齐，其他字段左对齐')} zIndex={10000} placement="left">
+                          <div>{_l('系统默认')}</div>
                         </Tooltip>
                       ),
                     },

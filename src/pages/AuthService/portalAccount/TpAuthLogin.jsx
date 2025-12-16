@@ -105,7 +105,7 @@ export default function () {
               break;
             case 32:
               //32状态值，需要后续展现关注服务号的二维码
-              getUrl(state);
+              getUrl();
               break;
             default:
               goPortalLogin(
@@ -120,7 +120,7 @@ export default function () {
             accountResultAction(res);
           } else if (accountResult === 32) {
             //32状态值，需要后续展现关注服务号的二维码
-            getUrl(state);
+            getUrl();
           } else {
             goPortalLogin(
               `mdAppId=${mdAppId || ''}&wxState=${res.state || ''}&status=${accountResult}&accountId=${accountId}${

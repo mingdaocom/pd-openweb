@@ -11,10 +11,10 @@ import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
-import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
-import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
-import { FROM } from 'src/components/newCustomFields/tools/config';
-import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { FROM } from 'src/components/Form/core/config';
+import { controlState, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode';
+import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { selectRecords } from 'src/components/SelectRecords';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
@@ -267,6 +267,14 @@ class RelateRecordCards extends Component {
       }
     }
     if (nextProps.flag !== this.props.flag) {
+      let showLoadMore = true;
+      try {
+        if ((nextProps.records || []).length >= nextProps.count) {
+          showLoadMore = false;
+        }
+      } catch (err) {
+        console.error(err);
+      }
       if (
         (_.get(window, 'shareState.isPublicForm') &&
           _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
@@ -279,7 +287,14 @@ class RelateRecordCards extends Component {
           this.loadMoreRecords(1, nextProps),
         );
       } else {
-        this.setState({ records: nextProps.records, count: nextProps.count, addedIds: [], deletedIds: [] });
+        this.setState({
+          showLoadMore,
+          pageIndex: 1,
+          records: nextProps.records,
+          count: nextProps.count,
+          addedIds: [],
+          deletedIds: [],
+        });
         if (_.get(this, 'props.control.isSubList')) {
           if (nextProps.records.length < nextProps.count) {
             this.loadMoreRecords(1, nextProps);

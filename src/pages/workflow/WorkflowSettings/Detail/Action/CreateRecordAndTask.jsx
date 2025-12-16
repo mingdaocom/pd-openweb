@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dropdown, Radio } from 'ming-ui';
+import { Dropdown, PriceTip, Radio, Support } from 'ming-ui';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { APP_TYPE, NODE_TYPE, RELATION_TYPE } from '../../enum';
 import { AddOptions, SelectNodeObject, SingleControlValue } from '../components';
@@ -67,11 +67,21 @@ export default class CreateRecordAndTask extends Component {
       <Fragment>
         {data.appType === APP_TYPE.EXTERNAL_USER && (
           <div className="Font14 Gray_75 workflowDetailDesc mBottom20">
-            {_l(
-              '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。',
+            <PriceTip
+              text={_l(
+                '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信费用自动从组织信用点中扣除',
+              )}
+            />
+            {!_.get(md, 'global.Config.IsLocal') && (
+              <Fragment>
+                <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
+                <Support
+                  type={3}
+                  href="https://help.mingdao.com/workflow/sms-failure"
+                  text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
+                />
+              </Fragment>
             )}
-            {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
-              _l('短信%0/条，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.SmsPrice'))}
           </div>
         )}
 
@@ -223,9 +233,7 @@ export default class CreateRecordAndTask extends Component {
               </div>
               {item.fieldId === 'portal_mobile' &&
                 (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-                  <div className="Gray_75 mTop5">
-                    {_l('根据此字段发送邀请短信，短信%0/条', _.get(md, 'global.PriceConfig.SmsPrice'))}
-                  </div>
+                  <div className="Gray_75 mTop5">{_l('根据此字段发送邀请短信')}</div>
                 )}
               <SingleControlValue
                 companyId={this.props.companyId}

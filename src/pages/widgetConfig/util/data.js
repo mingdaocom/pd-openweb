@@ -14,7 +14,8 @@ import cx from 'classnames';
 import update from 'immutability-helper';
 import _, { filter, find, findIndex, flatten, get, head, includes, isEmpty, last, omit } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
-import { Dialog, Support, Tooltip } from 'ming-ui';
+import { Dialog, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -416,7 +417,7 @@ export function genControlTag(allControls, id) {
   const invalid = isEmpty(control);
   const invalidError = control && control.type === 30 && (control.strDefault || '')[0] === '1';
   return (
-    <Tooltip text={<span>{_l('ID: %0', id)}</span>} popupPlacement="bottom" disable={!invalid}>
+    <Tooltip title={!invalid ? '' : <span>{_l('ID: %0', id)}</span>} placement="bottom">
       <ControlTag className={cx({ invalid: invalid || invalidError, Hand: invalid })}>
         {invalid ? _l('字段已删除') : invalidError ? _l('%0(无效类型)', control.controlName) : control.controlName}
       </ControlTag>
@@ -469,7 +470,7 @@ export const dealControlPos = controls => {
 };
 
 // 自定义事件保存时处理执行动作内默认值
-const dealCusTomEventActions = (actionItems = [], controls = []) => {
+export const dealCusTomEventActions = (actionItems = [], controls = []) => {
   return (actionItems || []).map(item => {
     // 函数、查询不处理，动态值处理
     if (_.includes(['1', '2'], item.type)) return item;
@@ -567,7 +568,7 @@ export const checkWidgetErrorBeforeSave = (controls = [], originControls = []) =
 
 // 重置等处理
 export const checkWidgetBeforeSave = (controls = [], originControls = [], globalInfo = {}, deep = 0) => {
-  controls.map(data => {
+  controls.forEach(data => {
     // 自动编号重置
     if (data.type === 33 && !data.controlId.includes('-')) {
       checkAutoIdReset(data, originControls, globalInfo);
@@ -907,10 +908,118 @@ export const scrollToVisibleRange = (data, widgetProps) => {
   }
 };
 
+// 清除所有原有控件，全部换成新的
+export const clearAndSetWidgets = (data, para = {}, widgetProps, callback) => {
+  const { setWidgets, globalSheetInfo = {} } = widgetProps;
+
+  // 检查是否超出控件数量限制
+  if (isExceedMaxControlLimit([], data.length)) {
+    alert(_l('当前表存在的控件已达到最大值，无法添加继续添加新控件!'), 3);
+    return;
+  }
+
+  // 检查特性版本限制
+  const tempData = head(data);
+  if (tempData) {
+    const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
+    if (_.includes([49, 50], tempData.type) && featureType === '2') {
+      buriedUpgradeVersionDialog(globalSheetInfo.projectId, tempData.featureId);
+      return;
+    }
+  }
+
+  // 将数据转换为二维数组格式（每个控件单独一行）
+  const newWidgets = data.map(item => [item]);
+
+  // 设置新的控件列表
+  setWidgets(newWidgets);
+
+  // 执行回调
+  if (_.isFunction(callback)) {
+    callback();
+  }
+};
+
+export const handleDeleteWidgetsForMingo = ({ needDeleteWidgets } = {}, widgetProps, callback) => {
+  const { widgets, setWidgets } = widgetProps;
+  // 根据alias删除控件, alias === needDeleteWidget.alias immutable update
+  const newWidgets = update(widgets, {
+    $apply: arr =>
+      arr.map(inner => inner.filter(w => !needDeleteWidgets.some(d => d.alias === w.alias || d === w.controlId))),
+  });
+  setWidgets(newWidgets);
+  if (_.isFunction(callback)) {
+    callback({ newWidgets });
+  }
+};
+
+// 更新某个属性
+export const handleUpdateWidgetsAttribute = ({ needUpdateWidgets } = {}, widgetProps, callback) => {
+  const { widgets, setWidgets } = widgetProps;
+  const newWidgets = update(widgets, {
+    $apply: arr =>
+      arr.map(inner => {
+        return inner.map(w => {
+          const matched = needUpdateWidgets.find(d => d.alias === w.alias);
+          if (matched) {
+            return { ...w, ...matched };
+          }
+          return w;
+        });
+      }),
+  });
+  setWidgets(newWidgets);
+  if (_.isFunction(callback)) {
+    setTimeout(() => {
+      callback({ newWidgets });
+    }, 0);
+  }
+};
+
+export function batchUpdateWidgetsLayout(layoutOfAllWidgets = {}, widgetProps, callback) {
+  const { widgets, setWidgets } = widgetProps;
+  // widgets 是原控件，是二维数组，根据row来划分二维数组，同一个row表示同一行
+  // layoutOfAllWidgets 所有控件的布局属性 { [widget.controlId]: { row, col, size } }
+  // 根据layoutOfAllWidgets对widgets元素col row size进行更新，并且按照新的配置组织数组
+
+  // 1. 扁平化所有控件
+  const flattenWidgets = flatten(widgets);
+
+  // 2. 更新每个控件的 row, col, size 属性
+  const updatedWidgets = flattenWidgets.map(widget => {
+    const layout = layoutOfAllWidgets[widget.controlId];
+    if (layout) {
+      return {
+        ...widget,
+        row: layout.row,
+        col: layout.col,
+        size: layout.size,
+      };
+    }
+    return widget;
+  });
+
+  // 3. 按照 row 分组
+  const groupedByRow = _.groupBy(updatedWidgets, 'row');
+
+  // 4. 转换为二维数组，每行内按 col 排序
+  const newWidgets = Object.keys(groupedByRow)
+    .sort((a, b) => Number(a) - Number(b)) // 按 row 排序
+    .map(row => {
+      return groupedByRow[row].sort((a, b) => (a.col || 0) - (b.col || 0)); // 每行内按 col 排序
+    });
+
+  // 5. 更新 widgets
+  setWidgets(newWidgets);
+  if (_.isFunction(callback)) {
+    setTimeout(callback, 100);
+  }
+}
+
 // 批量添加
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
-  const { mode, path, location, displayItemType, rowIndex, activePath } = para;
+  const { mode, path, location, displayItemType, rowIndex, activePath, isMingo } = para;
   const tempData = head(data);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
   if (_.includes([49, 50], tempData.type) && featureType === '2') {
@@ -1009,7 +1118,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
     }
 
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
-    if (isHaveGap(newWidgets[currentRowIndex], item)) {
+    if (isHaveGap(newWidgets[currentRowIndex], item) && !_.isEmpty(newWidgets)) {
       // 表单为空，直接添加
       newWidgets = _.isEmpty(newWidgets) ? [[item]] : update(newWidgets, { [currentRowIndex]: { $push: [item] } });
     } else {
@@ -1023,7 +1132,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
 
   // 所有控件都添加完成后，统一执行状态更新操作
   setWidgets(newWidgets);
-  if (lastItem) {
+  if (lastItem && !isMingo) {
     setActiveWidget(lastItem);
     setTimeout(() => {
       scrollToVisibleRange(lastItem, { ...widgetProps, activeWidget: lastItem });
@@ -1031,7 +1140,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   }
 
   if (_.isFunction(callback)) {
-    callback();
+    callback({ newWidgets });
   }
 };
 
@@ -1076,7 +1185,7 @@ export const dealCopyWidgetId = (data = {}) => {
     controlId: uuidv4(),
     alias: '',
     controlName: _l('%0-复制', data.controlName),
-    advancedSetting: { ...data.advancedSetting, custom_event: '' },
+    advancedSetting: { ...data.advancedSetting, custom_event: '', dynamicsrc: '', defaulttype: '' },
   };
 
   let ids = {};
@@ -1140,7 +1249,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
   let sectionIds = {};
   let newActiveWidget = {};
 
-  selectWidgets.map(item => {
+  selectWidgets.forEach(item => {
     copyWidgets.push(item);
     if (item.type === 52 && get(item, 'relationControls.length')) {
       copyWidgets.push(...item.relationControls);

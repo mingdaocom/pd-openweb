@@ -3,10 +3,13 @@ import { Popover } from 'antd';
 import cx from 'classnames';
 import localForage from 'localforage';
 import _ from 'lodash';
-import { Icon } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import accountSettingApi from 'src/api/accountSetting';
 import loginApi from 'src/api/login';
 import langConfig from 'src/common/langConfig';
+import { dialogKeyboardShortcuts } from 'src/pages/chat/components/KeyboardShortcuts';
+import MyStatus from 'src/pages/chat/components/MyStatus';
 import Avatar from 'src/pages/PageHeader/components/Avatar';
 import { navigateTo } from 'src/router/navigateTo';
 import { navigateToLogin } from 'src/router/navigateTo';
@@ -118,6 +121,7 @@ export default props => {
           >
             {_l('管理我的账户')}
           </div>
+          <MyStatus />
         </div>
       </div>
       <div className="content flex">
@@ -141,6 +145,7 @@ export default props => {
               overlayClassName="userConfigPopover"
               overlayStyle={{ padding: 0 }}
               content={renderProjectsPopover(props)}
+              getPopupContainer={() => document.querySelector('.userDrawerWrap')}
             >
               <div className="flexRow alignItemsCenter pointer itemWrap mTop10">
                 <Icon className="Gray_9e Font22" icon="business" />
@@ -194,33 +199,44 @@ export default props => {
           <Icon className="Gray_9e Font22" icon="sidebar" />
           <div className="flex mLeft15">{_l('右侧栏设置')}</div>
         </div>
-
-        {(!md.global.SysSettings.hideHelpTip || !md.global.SysSettings.hideDownloadApp) && (
-          <Fragment>
-            <div className="divider mTop10 mBottom10" />
-            {ss && !md.global.SysSettings.hideHelpTip && (
-              <div
-                className="flexRow alignItemsCenter pointer itemWrap"
-                onClick={() => {
-                  window.open('https://help.mingdao.com/');
-                }}
-              >
-                <Icon className="Gray_9e Font22" icon="help" />
-                <div className="flex mLeft15">{_l('帮助')}</div>
-              </div>
-            )}
-            {!md.global.SysSettings.hideDownloadApp && (
-              <div
-                className="flexRow alignItemsCenter pointer itemWrap"
-                onClick={() => {
-                  location.href = '/appInstallSetting';
-                }}
-              >
-                <Icon className="Gray_9e Font18" icon="phonelink" />
-                <div className="flex mLeft15">{_l('下载客户端')}</div>
-              </div>
-            )}
-          </Fragment>
+        {md.global.Config.HDPUrl && (
+          <div
+            className="flexRow alignItemsCenter pointer itemWrap"
+            onClick={() => {
+              window.open(md.global.Config.HDPUrl);
+              onClose();
+            }}
+          >
+            <Icon className="Gray_9e Font22" icon="hdp" />
+            <div className="flex mLeft15">{_l('HDP 超级数据平台')}</div>
+          </div>
+        )}
+        <div className="divider mTop10 mBottom10" />
+        {ss && !md.global.SysSettings.hideHelpTip && (
+          <Support href="https://help.mingdao.com">
+            <div className="flexRow alignItemsCenter pointer itemWrap">
+              <Icon className="Gray_9e Font22" icon="help" />
+              <div className="flex mLeft15">{_l('帮助')}</div>
+            </div>
+          </Support>
+        )}
+        <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => dialogKeyboardShortcuts()}>
+          <Icon className="Gray_9e Font22" icon="keyboard" />
+          <div className="flex mLeft15">{_l('键盘快捷键')}</div>
+          <Tooltip title={_l('快捷键')} placement="bottom">
+            <div className="Gray_75 shortcutKey">K</div>
+          </Tooltip>
+        </div>
+        {!md.global.SysSettings.hideDownloadApp && (
+          <div
+            className="flexRow alignItemsCenter pointer itemWrap"
+            onClick={() => {
+              location.href = '/appInstallSetting';
+            }}
+          >
+            <Icon className="Gray_9e Font18" icon="phonelink" />
+            <div className="flex mLeft15">{_l('下载客户端')}</div>
+          </div>
         )}
         {md.global.Account.superAdmin && (
           <Fragment>
@@ -228,7 +244,9 @@ export default props => {
             <div
               className="flexRow alignItemsCenter pointer itemWrap"
               onClick={() => {
-                location.href = md.global.Config.WebUrl + 'pm/sysconfig';
+                const { PlatformUrl, WebUrl } = md?.global?.Config || {};
+                const url = PlatformUrl || WebUrl; //没有PlatformUrl就还是WebUrl
+                window.open(url + 'sysconfig');
               }}
             >
               <Icon className="Gray_9e Font22" icon="settings1" />

@@ -10,7 +10,7 @@ import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import processAjax from 'src/pages/workflow/api/processVersion';
-import { updateRulesData } from 'src/components/newCustomFields/tools/formUtils';
+import { updateRulesData } from 'src/components/Form/core/formUtils';
 import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -231,7 +231,7 @@ class PrintForm extends React.Component {
 
     if (printType && printType === 'flow') return;
 
-    const { worksheetId, rowId, workId, appId } = params;
+    const { worksheetId, rowId, appId } = params;
 
     let approvalIds = printData.approvalIds;
     let promiseList = [
@@ -520,7 +520,7 @@ class PrintForm extends React.Component {
         );
       } else {
         Promise.all(infoPromiseList).then(res => {
-          res.map((item, index) => {
+          res.forEach((item, index) => {
             const oldControls = receiveControls[controlIndexList[index]].relationControls.map(l => l.controlId);
             let newControls = getVisibleControls(
               (
@@ -852,7 +852,7 @@ class PrintForm extends React.Component {
           onClose={() => this.setState({ showPdf: false, showHeader: true })}
         />
         <iframe
-          className="iframeDiv"
+          className={cx('iframeDiv', { Block: browserIsMobile() })}
           onLoad={() => {
             $('.iframeLoad').hide();
             $('.iframeDiv').show();

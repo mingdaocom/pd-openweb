@@ -325,4 +325,14 @@ export default {
   getScanUploadToken: function (args, options = {}) {
     return mdyAPI('Attachment', 'GetScanUploadToken', args, options);
   },
+  /**
+   * 获取客户端下载地址
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getClientUrl: function (args, options = {}) {
+    return mdyAPI('Attachment', 'GetClientUrl', args, options);
+  },
 };

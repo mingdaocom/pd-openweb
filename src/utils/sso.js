@@ -2,22 +2,22 @@ import { PUBLIC_KEY } from 'src/utils/enum';
 import { getPssId } from 'src/utils/pssId';
 
 export const browserIsMobile = () => {
-  var sUserAgent = navigator.userAgent.toLowerCase();
-  var bIsIpad = sUserAgent.match(/ipad/i) == 'ipad';
-  var bIsIphoneOs = sUserAgent.match(/iphone os/i) == 'iphone os';
-  var bIsMidp = sUserAgent.match(/midp/i) == 'midp';
-  var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == 'rv:1.2.3.4';
-  var bIsUc = sUserAgent.match(/ucweb/i) == 'ucweb';
-  var bIsAndroid = sUserAgent.match(/android/i) == 'android';
-  var bIsCE = sUserAgent.match(/windows ce/i) == 'windows ce';
-  var bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
+  let sUserAgent = navigator.userAgent.toLowerCase();
+  let bIsIpad = sUserAgent.match(/ipad/i) == 'ipad';
+  let bIsIphoneOs = sUserAgent.match(/iphone os/i) == 'iphone os';
+  let bIsMidp = sUserAgent.match(/midp/i) == 'midp';
+  let bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == 'rv:1.2.3.4';
+  let bIsUc = sUserAgent.match(/ucweb/i) == 'ucweb';
+  let bIsAndroid = sUserAgent.match(/android/i) == 'android';
+  let bIsCE = sUserAgent.match(/windows ce/i) == 'windows ce';
+  let bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
 
   return bIsIpad || bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM;
 };
 
 export const ajax = {
   get: function (url, fn) {
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.onreadystatechange = function () {
       if ((xhr.readyState == 4 && xhr.status == 200) || xhr.status == 304) {
@@ -27,8 +27,8 @@ export const ajax = {
     xhr.send();
   },
   post: function (params) {
-    var md_pss_id = getPssId();
-    var xhr = new XMLHttpRequest();
+    let md_pss_id = getPssId();
+    let xhr = new XMLHttpRequest();
     xhr.open('POST', params.url, params.async);
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     if (md_pss_id) {
@@ -40,7 +40,7 @@ export const ajax = {
     xhr.withCredentials = 'withCredentials' in params ? params.withCredentials : true;
     xhr.onreadystatechange = function () {
       if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-        var result = JSON.parse(xhr.responseText);
+        let result = JSON.parse(xhr.responseText);
         if (result.state) {
           if (result.encrypted) {
             interfaceDataDecryption(result).then(data => {
@@ -85,7 +85,7 @@ export const login = () => {
 };
 
 export const getScript = (src, func) => {
-  var script = document.createElement('script');
+  let script = document.createElement('script');
   script.async = 'async';
   script.src = src;
   if (func) {
@@ -193,13 +193,13 @@ export const getGlobalMeta = () => {
 };
 
 export const getCurrentTime = time => {
-  var date = time ? time : new Date();
-  var month = zeroFill(date.getMonth() + 1);
-  var day = zeroFill(date.getDate());
-  var hour = zeroFill(date.getHours());
-  var minute = zeroFill(date.getMinutes());
-  var second = zeroFill(date.getSeconds());
-  var curTime = date.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
+  let date = time ? time : new Date();
+  let month = zeroFill(date.getMonth() + 1);
+  let day = zeroFill(date.getDate());
+  let hour = zeroFill(date.getHours());
+  let minute = zeroFill(date.getMinutes());
+  let second = zeroFill(date.getSeconds());
+  let curTime = date.getFullYear() + '-' + month + '-' + day + ' ' + hour + ':' + minute + ':' + second;
   return curTime;
 };
 
@@ -222,9 +222,9 @@ export const isBefore = time => {
 };
 
 export const setCookie = (name, value, expire) => {
-  var expireDate;
+  let expireDate;
   if (!expire) {
-    var nextyear = new Date();
+    let nextyear = new Date();
     nextyear.setFullYear(nextyear.getFullYear() + 10);
     expireDate = nextyear.toGMTString();
   } else {

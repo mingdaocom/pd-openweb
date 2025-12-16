@@ -1,8 +1,9 @@
 import base, { controllerName } from './base';
+
 /**
  * packageVersion
-*/
-var packageVersion = {
+ */
+const packageVersion = {
   /**
    * 创建API管理
    * @param {Object} args 请求参数
@@ -11,7 +12,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  add: function(args, options) {
+  add: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/add';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageadd', JSON.stringify(args), $.extend(base, options));
@@ -24,7 +25,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  addApi: function(args, options) {
+  addApi: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/addApi';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageaddApi', JSON.stringify(args), $.extend(base, options));
@@ -37,7 +38,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  authorize: function(args, options) {
+  authorize: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/authorize';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageauthorize', JSON.stringify(args), $.extend(base, options));
@@ -50,7 +51,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  authorizeApkIds: function(args, options) {
+  authorizeApkIds: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/authorizeApkIds';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageauthorizeApkIds', JSON.stringify(args), $.extend(base, options));
@@ -63,7 +64,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  copy: function(args, options) {
+  copy: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/copy';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagecopy', JSON.stringify(args), $.extend(base, options));
@@ -76,7 +77,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  count: function(args, options) {
+  count: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/count';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagecount', JSON.stringify(args), $.extend(base, options));
@@ -89,7 +90,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  delete: function(args, options) {
+  delete: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/delete';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagedelete', JSON.stringify(args), $.extend(base, options));
@@ -102,7 +103,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  deleteApi: function(args, options) {
+  deleteApi: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/deleteApi';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagedeleteApi', JSON.stringify(args), $.extend(base, options));
@@ -115,7 +116,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  executeApi: function(args, options) {
+  executeApi: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/executeApi';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageexecuteApi', JSON.stringify(args), $.extend(base, options));
@@ -128,7 +129,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getApiDetail: function(args, options) {
+  getApiDetail: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getApiDetail';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetApiDetail', JSON.stringify(args), $.extend(base, options));
@@ -141,7 +142,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getApiList: function(args, options) {
+  getApiList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getApiList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetApiList', JSON.stringify(args), $.extend(base, options));
@@ -154,7 +155,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getApiRelationList: function(args, options) {
+  getApiRelationList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getApiRelationList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetApiRelationList', JSON.stringify(args), $.extend(base, options));
@@ -167,7 +168,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getAuthorizationList: function(args, options) {
+  getAuthorizationList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getAuthorizationList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetAuthorizationList', JSON.stringify(args), $.extend(base, options));
@@ -180,7 +181,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getDetail: function(args, options) {
+  getDetail: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getDetail';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetDetail', JSON.stringify(args), $.extend(base, options));
@@ -193,7 +194,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getHistoryDetail: function(args, options) {
+  getHistoryDetail: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getHistoryDetail';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'v1packagegetHistoryDetail', args, $.extend(base, options));
@@ -214,7 +215,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getHistoryList: function(args, options) {
+  getHistoryList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getHistoryList';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'v1packagegetHistoryList', args, $.extend(base, options));
@@ -227,7 +228,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getList: function(args, options) {
+  getList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetList', JSON.stringify(args), $.extend(base, options));
@@ -240,7 +241,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  install: function(args, options) {
+  install: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/install';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageinstall', JSON.stringify(args), $.extend(base, options));
@@ -253,7 +254,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  sortApis: function(args, options) {
+  sortApis: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/sortApis';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagesortApis', JSON.stringify(args), $.extend(base, options));
@@ -266,7 +267,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  update: function(args, options) {
+  update: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/update';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdate', JSON.stringify(args), $.extend(base, options));
@@ -279,7 +280,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  updateAuthorization: function(args, options) {
+  updateAuthorization: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateAuthorization';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdateAuthorization', JSON.stringify(args), $.extend(base, options));
@@ -292,7 +293,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  updateAuthorizeStatus: function(args, options) {
+  updateAuthorizeStatus: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateAuthorizeStatus';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdateAuthorizeStatus', JSON.stringify(args), $.extend(base, options));
@@ -305,7 +306,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  updateIndex: function(args, options) {
+  updateIndex: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateIndex';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdateIndex', JSON.stringify(args), $.extend(base, options));
@@ -318,7 +319,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  updateInstallCount: function(args, options) {
+  updateInstallCount: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateInstallCount';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdateInstallCount', JSON.stringify(args), $.extend(base, options));
@@ -331,7 +332,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  updateShowType: function(args, options) {
+  updateShowType: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateShowType';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdateShowType', JSON.stringify(args), $.extend(base, options));
@@ -344,7 +345,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  updateStatus: function(args, options) {
+  updateStatus: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/updateStatus';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupdateStatus', JSON.stringify(args), $.extend(base, options));
@@ -357,7 +358,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  upper: function(args, options) {
+  upper: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/upper';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageupper', JSON.stringify(args), $.extend(base, options));
@@ -370,7 +371,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  validate: function(args, options) {
+  validate: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/validate';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagevalidate', JSON.stringify(args), $.extend(base, options));
@@ -383,7 +384,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getInstallApiList: function(args, options) {
+  getInstallApiList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getInstallApiList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetInstallApiList', JSON.stringify(args), $.extend(base, options));
@@ -396,7 +397,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  getInstallList: function(args, options) {
+  getInstallList: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/getInstallList';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packagegetInstallList', JSON.stringify(args), $.extend(base, options));
@@ -409,7 +410,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  unInstall: function(args, options) {
+  unInstall: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v1/package/unInstall';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v1packageunInstall', JSON.stringify(args), $.extend(base, options));
@@ -422,7 +423,7 @@ var packageVersion = {
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
-  install: function(args, options) {
+  install: function (args, options) {
     base.ajaxOptions.url = base.server(options) + '/v2/package/install';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'v2packageinstall', JSON.stringify(args), $.extend(base, options));

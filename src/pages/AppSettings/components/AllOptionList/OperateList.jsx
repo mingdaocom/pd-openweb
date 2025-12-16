@@ -3,7 +3,8 @@ import update from 'immutability-helper';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import DeleteOptionList from './DeleteOptionList';
@@ -58,7 +59,7 @@ export default function OperateList(props) {
     if (_.isEmpty(data)) {
       Dialog.confirm({
         title: (
-          <span className="Bold" style={{ color: '#f44336' }}>
+          <span className="Bold" style={{ color: '#f44336', wordBreak: 'break-all' }}>
             {_l('删除选项集 “%0”', name)}
           </span>
         ),
@@ -161,8 +162,7 @@ export default function OperateList(props) {
               {_l('移动至其他应用')}
             </MenuItem>
             <Tooltip
-              autoCloseDelay={0}
-              text={
+              title={
                 status === 9 ? _l('启用后支持被新字段引用') : _l('停用不影响已引用字段的使用，但是新字段无法再引用')
               }
             >

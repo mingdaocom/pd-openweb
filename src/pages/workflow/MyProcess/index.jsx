@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Tooltip } from 'antd';
+import { Checkbox } from 'antd';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Dialog, Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import ArchivedList from 'src/components/ArchivedList';
 import verifyPassword from 'src/components/verifyPassword';
@@ -185,7 +187,7 @@ export default class MyProcess extends Component {
       selectCard: null,
       approveCards: [],
       param: {},
-      visible: false,
+      visible: localStorage.getItem('myProcessFilterOpen') || false,
       isLoading: true,
       isResetFilter: false,
       countData: {},
@@ -205,6 +207,12 @@ export default class MyProcess extends Component {
       this.updateCountData(countData);
     });
     this.removeEscEvent = this.bindEscEvent();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.visible !== this.state.visible) {
+      const key = 'myProcessFilterOpen';
+      this.state.visible ? localStorage.setItem(key, 'true') : localStorage.removeItem(key);
+    }
   }
   componentWillUnmount() {
     this.removeEscEvent();
@@ -415,13 +423,14 @@ export default class MyProcess extends Component {
       this.setState({ rejectLoading: true });
     }
     instanceVersion
-      .batch({
+      .batch2({
         type: 4,
         batchOperationType: approveType,
         selects,
       })
       .then(result => {
-        if (result) {
+        const { success = [], fail = [] } = result;
+        const callBack = () => {
           alert(_l('操作成功'));
           this.setState({
             approveCards: [],
@@ -432,7 +441,84 @@ export default class MyProcess extends Component {
           getTodoCount().then(countData => {
             this.updateCountData(countData);
           });
+        };
+        if (!success.length && !fail.length) {
+          callBack();
+          return;
         }
+        if (success.length === 1 && !fail.length) {
+          callBack();
+          return;
+        }
+        Dialog.confirm({
+          width: 480,
+          title: <span className="bold">{_l('批量审批结果')}</span>,
+          description: (
+            <div>
+              {success.length && !fail.length ? (
+                <div className="flexColumn alignItemsCenter justifyContentCenter mTop20">
+                  <Icon icon="check_circle1" className="Font64" style={{ color: '#4CB050' }} />
+                  <div className="Gray Font18 mTop20 mBottom50">
+                    {_l('成功')}
+                    {': '}
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: _l('%0 条', `<span style="color: #4CB050;font-weight: bold;">${success.length}</span>`),
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                !!(success.length || fail.length) && (
+                  <Fragment>
+                    {!!fail.length && <div className="Gray">{_l('已完成批量操作，部分记录处理失败，请查看详情')}</div>}
+                    {!!success.length && (
+                      <div className="flexRow alignItemsCenter mTop10">
+                        <Icon icon="check_circle1" className="Font24 mRight5" style={{ color: '#4CB050' }} />
+                        <div className="Gray Font18">
+                          {_l('成功')}
+                          {': '}
+                          <span
+                            dangerouslySetInnerHTML={{
+                              __html: _l('%0 条', `<span style="color: #4CB050;">${success.length}</span>`),
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {!!fail.length && (
+                      <div className="flexRow mTop10">
+                        <Icon icon="report" className="Font24 mRight5" style={{ color: '#F54337' }} />
+                        <div className="w100">
+                          <div className="Gray Font18 mBottom5">
+                            {_l('异常')}
+                            {': '}
+                            <span
+                              dangerouslySetInnerHTML={{
+                                __html: _l('%0 条', `<span style="color: #F54337;">${fail.length}</span>`),
+                              }}
+                            />
+                          </div>
+                          <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+                            {fail.map(key => {
+                              const [id, workId] = key.split(',');
+                              const card = _.find(cards, { id, workId });
+                              return card ? (
+                                <div className="Gray Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
+                              ) : null;
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Fragment>
+                )
+              )}
+            </div>
+          ),
+          noFooter: true,
+          onCancel: callBack,
+        });
       });
   };
   handleSave = item => {
@@ -553,46 +639,56 @@ export default class MyProcess extends Component {
             }}
             customRender={() => {
               return (
-                <div data-tip={_l('查看已归档数据')} className="mRight26">
-                  <div
-                    className={cx(
-                      'flexRow valignWrapper mBottom3 pointer Hover_21',
-                      _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor',
-                    )}
-                  >
-                    <Icon icon="drafts_approval" className="Font24" />
-                    <div className="Font14 mLeft5 nowrap">{_l('归档')}</div>
+                <Tooltip title={_l('查看已归档数据')} placement="bottom">
+                  <div className="mRight26">
+                    <div
+                      className={cx(
+                        'flexRow valignWrapper mBottom3 pointer Hover_21',
+                        _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor',
+                      )}
+                    >
+                      <Icon icon="drafts_approval" className="Font24" />
+                      <div className="Font14 mLeft5 nowrap">{_l('归档')}</div>
+                    </div>
                   </div>
-                </div>
+                </Tooltip>
               );
             }}
           />
           <TodoEntrust />
           {location.href.indexOf('myprocess') === -1 ? (
             <Fragment>
-              <span className="mRight15" data-tip={_l('新页面打开')}>
-                <Icon
-                  icon="launch"
-                  className="pointer Font22 Gray_9d ThemeHoverColor3"
-                  onClick={() => {
-                    if (_.includes([TABS.COMPLETE], stateTab) && filter) {
-                      let secondType;
+              <Tooltip title={_l('新页面打开')} placement="bottom">
+                <span className="mRight15">
+                  <Icon
+                    icon="launch"
+                    className="pointer Font22 Gray_9d ThemeHoverColor3"
+                    onClick={() => {
+                      if (_.includes([TABS.COMPLETE], stateTab) && filter) {
+                        let secondType;
 
-                      SECOND_TABS[stateTab].forEach((item, index) => {
-                        if (item.value.type === filter.type) {
-                          secondType = index + 1;
-                        }
-                      });
-                      window.open(`/myprocess/${stateTab}/${secondType}`);
-                    } else {
-                      window.open(`/myprocess/${stateTab}`);
-                    }
-                  }}
-                />
-              </span>
-              <span data-tip={_l('关闭')}>
-                <Icon icon="close" className="pointer Font28 Gray_9d ThemeHoverColor3" onClick={this.props.onCancel} />
-              </span>
+                        SECOND_TABS[stateTab].forEach((item, index) => {
+                          if (item.value.type === filter.type) {
+                            secondType = index + 1;
+                          }
+                        });
+                        window.open(`/myprocess/${stateTab}/${secondType}`);
+                      } else {
+                        window.open(`/myprocess/${stateTab}`);
+                      }
+                    }}
+                  />
+                </span>
+              </Tooltip>
+              <Tooltip title={_l('关闭')} placement="bottom">
+                <span>
+                  <Icon
+                    icon="close"
+                    className="pointer Font28 Gray_9d ThemeHoverColor3"
+                    onClick={this.props.onCancel}
+                  />
+                </span>
+              </Tooltip>
             </Fragment>
           ) : null}
         </div>
@@ -619,16 +715,15 @@ export default class MyProcess extends Component {
     const { stateTab, visible, filter, approveCards, list } = this.state;
     const { approveLoading, rejectLoading } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
-    const { waitingApproval, waitingWrite, waitingExamine, mySponsor } = countData;
+    const { waitingApproval } = countData;
 
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL].includes(stateTab)) {
       const isApprove = TABS.WAITING_APPROVE === stateTab;
-      const count = isApprove ? waitingApproval : waitingWrite;
       const { passVisible, rejectVisible } = this.state;
       const allowApproveList = list.filter(c => _.get(c, 'flowNode.batchApprove'));
       const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
       return (
-        <div className={cx('filterWrapper', { hide: count <= 0 })}>
+        <div className={cx('filterWrapper', { hide: !list.length })}>
           <div className="valignWrapper flex">
             <Filter
               visible={visible}
@@ -666,8 +761,7 @@ export default class MyProcess extends Component {
                     : list.length !== waitingApproval && _l('（已加载%0条）', list.length)}
                 </div>
               </div>
-              <Tooltip
-                autoCloseDelay={0}
+              <Popover
                 overlayClassName="myProcessApproveOverlay"
                 overlayStyle={{ width: 320, maxWidth: 320 }}
                 align={{ offset: [40, -5] }}
@@ -675,7 +769,7 @@ export default class MyProcess extends Component {
                 arrowPointAtCenter={true}
                 trigger={['click']}
                 color="#FFF"
-                title={
+                content={
                   <div className="pAll10 flexColumn">
                     <span className="Gray Font15">{_l('您将通过选择的%0个审批事项', approveCards.length)}</span>
                     <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
@@ -718,7 +812,7 @@ export default class MyProcess extends Component {
                 <div className={cx('passApprove bold pointer', { active: passVisible, all: approveCards.length })}>
                   {approveLoading ? _l('处理中...') : _l('同意')}
                 </div>
-              </Tooltip>
+              </Popover>
               <div
                 className={cx('rejectApprove bold pointer', {
                   active: rejectVisible,
@@ -749,7 +843,7 @@ export default class MyProcess extends Component {
     if (stateTab === TABS.WAITING_EXAMINE) {
       const { allReadLoading } = this.state;
       return (
-        <div className={cx('filterWrapper', { hide: waitingExamine <= 0 })}>
+        <div className={cx('filterWrapper', { hide: !list.length })}>
           <div className="valignWrapper w100">
             <div className="valignWrapper flex">
               <Filter
@@ -771,7 +865,7 @@ export default class MyProcess extends Component {
     }
     if (stateTab === TABS.MY_SPONSOR) {
       return (
-        <div className={cx('filterWrapper', { hide: mySponsor <= 0 })}>
+        <div className={cx('filterWrapper', { hide: !list.length })}>
           <Filter
             visible={visible}
             filter={filter}

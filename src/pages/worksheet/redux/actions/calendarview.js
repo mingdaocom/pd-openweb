@@ -4,10 +4,9 @@ import sheetAjax from 'src/api/worksheet';
 import { getShowExternalData, setDataFormat } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendartypeData, getTimeControls, isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
-import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
+import { getFilledRequestParams } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import { formatQuickFilter } from 'src/utils/filter';
-import { dateConvertToUserZone } from 'src/utils/project';
 
 let getRows;
 let getRowsIds = [];
@@ -20,10 +19,12 @@ export const fetch = searchArgs => {
     }
     getRowsIds.push(viewId);
     if (searchArgs.beginTime) {
-      searchArgs.beginTime = dateConvertToUserZone(searchArgs.beginTime);
+      searchArgs.beginTime = moment(searchArgs.beginTime, 'YYYY-MM-DD HH:mm')
+        .subtract(1, 'days')
+        .format('YYYY-MM-DD HH:mm');
     }
     if (searchArgs.endTime) {
-      searchArgs.endTime = dateConvertToUserZone(searchArgs.endTime);
+      searchArgs.endTime = moment(searchArgs.endTime, 'YYYY-MM-DD HH:mm').add(1, 'days').format('YYYY-MM-DD HH:mm');
     }
     dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: true });
     getRows = sheetAjax.getFilterRows(
@@ -67,7 +68,7 @@ export function updateFormatData() {
     const { viewId } = base;
     const { calendar = [], calendarData = {} } = calendarview;
     let list = [];
-    calendar.map(item => {
+    calendar.forEach(item => {
       let data = setDataFormat({
         ...item,
         // allowNoBegin: true, //允许开始时间为空的数据
@@ -78,7 +79,6 @@ export function updateFormatData() {
       list.push(...data);
     });
     dispatch({ type: 'CHANGE_CALENDAR_FORMAT', data: list });
-    dispatch({ type: 'CHANGE_MOBILE_CURRENTDATA', data: list });
   };
 }
 
@@ -101,13 +101,8 @@ export const fetchExternal = () => {
   return (dispatch, getState) => {
     const { base = {} } = getState().sheet;
     const { worksheetId, viewId } = base;
-    let isMobile = browserIsMobile();
     const initType = dispatch(getInitType());
-    if (
-      !(getShowExternalData() || []).includes(`${worksheetId}-${viewId}`) &&
-      !isMobile &&
-      'eventNoScheduled' !== initType
-    ) {
+    if (!(getShowExternalData() || []).includes(`${worksheetId}-${viewId}`) && 'eventNoScheduled' !== initType) {
       dispatch(getEventScheduledData('eventNoScheduled'));
     }
     dispatch(getEventScheduledData(initType));
@@ -150,7 +145,7 @@ const getCardByDays = (arrB = [], arrT = []) => {
   let newList = arrT.concat(arrB);
   let newListKeys = _.uniq(newList.map(o => o.date));
   let list = [];
-  newListKeys.map(o => {
+  newListKeys.forEach(o => {
     list.push({
       date: o,
       res: _.flatMap(newList.filter(item => item.date === o).map(o => o.res)),
@@ -348,7 +343,7 @@ export function getEventList({
     };
     getFilterRowsIds.push(viewId);
     let list = [];
-    calendarInfo.map(o => {
+    calendarInfo.forEach(o => {
       list.push({
         controlId: o.begin,
         datatype: o.startData.type,
@@ -361,7 +356,7 @@ export function getEventList({
       if (!keyWords) {
         if (isUp) {
           //早于今天
-          list.map(o => {
+          list.forEach(o => {
             filterControls.push({
               ...o,
               filterType: 15,
@@ -370,7 +365,7 @@ export function getEventList({
           });
         } else {
           //晚于昨天
-          list.map(o => {
+          list.forEach(o => {
             filterControls.push({
               ...o,
               filterType: 13,
@@ -379,7 +374,7 @@ export function getEventList({
           });
         }
       } else {
-        list.map(o => {
+        list.forEach(o => {
           filterControls.push({
             ...o,
             spliceType: 2, //或
@@ -405,7 +400,7 @@ export function getEventList({
     } else if (typeEvent === 'eventNoScheduled') {
       let filterControls = [];
       //开始时间为空
-      list.map(o => {
+      list.forEach(o => {
         filterControls.push({
           ...o,
           spliceType: 1, //且
@@ -433,7 +428,7 @@ export function getEventList({
       let s = rowsData.data;
       if (keyWords) {
         let searchDataList = [];
-        s.map(it => {
+        s.forEach(it => {
           searchDataList.push(
             ...setDataFormat({
               ...it,
@@ -460,7 +455,7 @@ export function getEventList({
           l = s;
         }
         let events = [];
-        s.map(it => {
+        s.forEach(it => {
           events.push(
             ...setDataFormat({
               ...it,
@@ -616,7 +611,7 @@ export function updateEventData(rowId, data, time) {
     if (keyWords) {
       // 搜索状态 直接更新卡片数据
       let da = [];
-      searchData.map(it => {
+      searchData.forEach(it => {
         if (it.extendedProps.rowid === rowId) {
           da.push(
             ...setDataFormat({
@@ -676,7 +671,7 @@ export function updateEventData(rowId, data, time) {
           });
         }
         let events = [];
-        da.map(it => {
+        da.forEach(it => {
           events.push(
             ...setDataFormat({
               ...it,
@@ -715,24 +710,3 @@ export function updateEventData(rowId, data, time) {
     }
   };
 }
-
-export const mobileIsShowMoreClick = flag => dispatch => {
-  dispatch({
-    type: 'SHOW_MOBILE_MORE_CLICK',
-    flag,
-  });
-};
-
-export const changeMobileCurrentData = data => dispatch => {
-  dispatch({
-    type: 'CHANGE_MOBILE_CURRENTDATA',
-    data,
-  });
-};
-
-export const changeMobileCurrentDate = date => dispatch => {
-  dispatch({
-    type: 'CHANGE_MOBILE_CURRENTDATE',
-    date,
-  });
-};

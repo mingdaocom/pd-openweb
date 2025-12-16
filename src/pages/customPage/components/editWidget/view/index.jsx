@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import { Button, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { EditWidgetContent, Header } from '../../../styled';
 import Preview from './Preview';
 import Setting from './Setting';

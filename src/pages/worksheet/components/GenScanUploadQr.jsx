@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -7,37 +7,7 @@ import { LoadDiv, Qr } from 'ming-ui';
 import attachmentAjax from 'src/api/attachment';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { UPLOAD_TYPE } from 'worksheet/constants/enum';
-
-function generateFileOId() {
-  const prefix = 'o_';
-
-  // 使用当前时间戳作为基础（更具唯一性）
-  const timestamp = Date.now().toString(36); // 转成36进制，包含数字+字母
-
-  // 随机部分，用于增加复杂度和避免冲突
-  const randomPart = Array.from({ length: 20 }, () => Math.random().toString(36)[2]).join('');
-
-  return prefix + timestamp + randomPart;
-}
-
-export function getTemporaryAttachmentFromUrl({ fileUrl, fileName = '', fileSize } = {}) {
-  const urlObj = new URL(fileUrl);
-  const name = fileName.replace(/\.[^.]+$/, '');
-  const ext = get(fileName.match(/\.[^.]+$/), '0');
-  const fileNameOfUrl = get(urlObj.pathname.match(/\/([^/]*$)/, ''), '1').replace(/\.[^.]+$/, '');
-  return {
-    fileID: generateFileOId(),
-    fileSize: fileSize || 0,
-    serverName: urlObj.origin + '/',
-    filePath: urlObj.pathname.replace(/\/([^/]*$)/, '').replace(/^\//, '') + '/',
-    fileName: fileNameOfUrl,
-    fileExt: ext,
-    originalFileName: name,
-    key: urlObj.pathname.replace(/^\//, ''),
-    oldOriginalFileName: name,
-    url: fileUrl,
-  };
-}
+import { getTemporaryAttachmentFromUrl } from 'src/utils/common';
 
 const Popup = styled.div`
   position: relative;
@@ -274,7 +244,7 @@ function QrPopup({
           </div>
         ) : (
           <Qr
-            content={`${md.global.Config.WebUrl.replace(/\/$/, '')}/recordfileupload/${scanId}?lang=${window.getCurrentLang()}`}
+            content={`${md.global.Config.WebUrl}recordfileupload/${scanId}?lang=${window.getCurrentLang()}`}
             width={200}
             height={200}
             style={{ height: 200 }}

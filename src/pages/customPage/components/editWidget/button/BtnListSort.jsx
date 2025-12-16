@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Modal } from 'antd';
 import styled from 'styled-components';
 import { Button, Icon, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const SortableBtnIconWrap = styled.div`
   display: flex;
@@ -61,9 +62,11 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
   const [visible, setVisible] = useState(false);
   return (
     <Fragment>
-      <SortableBtnIconWrap data-tip={_l('按钮排序')} className="mLeft10" onClick={() => setVisible(true)}>
-        <Icon className="Font24 Gray_9e ThemeHoverColor3" icon="import_export" />
-      </SortableBtnIconWrap>
+      <Tooltip title={_l('按钮排序')}>
+        <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
+          <Icon className="Font24 Gray_9e ThemeHoverColor3" icon="import_export" />
+        </SortableBtnIconWrap>
+      </Tooltip>
       <Modal
         title={_l('自定义按钮排序')}
         maskStyle={{ zIndex: 1051 }}

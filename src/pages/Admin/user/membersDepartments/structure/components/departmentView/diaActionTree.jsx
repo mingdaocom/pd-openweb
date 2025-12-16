@@ -1,38 +1,28 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import copy from 'copy-to-clipboard';
+import { Dialog, Menu, MenuItem } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import departmentController from 'src/api/department';
-import { removeCursor, updateCursor, updateTypeCursor } from '../../actions/current';
-import { deleteDepartment, editDepartment, getFullTree, loadAllUsers, loadUsers } from '../../actions/entities';
+import DisabledDepartmentAndRoleName from 'src/components/DisabledDepartmentAndRoleName';
+import {
+  deleteDepartment,
+  disabledAndEnabledDepartments,
+  editDepartment,
+  getFullTree,
+  loadUsers,
+} from '../../actions/entities';
+import { getParentsId } from '../../modules/util';
 import { createEditDeptDialog } from '../CreateEditDeptDialog';
-import './index.less';
+import './departmentTree.less';
 
 const handleDialogCallback = (dispatch, payload) => {
-  const { response = {}, pageIndex, type, expandedKeys, projectId } = payload;
-  const { departmentId = '', parentDepartmentId = '', newDepartments = [] } = response;
+  const { response = {}, pageIndex, type, expandedKeys } = payload;
+  const { departmentId = '', newDepartments = [] } = response;
 
   switch (type) {
     case 'EDIT': {
-      // dispatch(getFullTree({ departmentId, expandedKeys }));
       dispatch(editDepartment({ newDepartments, expandedKeys }));
       dispatch(loadUsers(departmentId, pageIndex));
-      break;
-    }
-    case 'DELETE': {
-      //跟部门不可删除
-      if (parentDepartmentId === '') {
-        dispatch(removeCursor());
-        dispatch(deleteDepartment({ departmentId, parentId: parentDepartmentId, expandedKeys }));
-        // dispatch(loadDepartments(''));
-        dispatch(updateTypeCursor(0));
-        dispatch(loadAllUsers(projectId, 1));
-      } else {
-        dispatch(deleteDepartment({ departmentId, parentId: parentDepartmentId, expandedKeys }));
-        dispatch(updateCursor(parentDepartmentId));
-        // dispatch(getFullTree({ departmentId: parentDepartmentId, expandedKeys }));
-        dispatch(loadUsers(parentDepartmentId, 1));
-      }
       break;
     }
     default:
@@ -43,7 +33,6 @@ const handleDialogCallback = (dispatch, payload) => {
 class DiaActionTree extends React.Component {
   constructor(props) {
     super(props);
-    this.diaUl = null;
   }
 
   componentDidMount() {
@@ -55,26 +44,15 @@ class DiaActionTree extends React.Component {
   }
 
   handleClick = () => {
-    const { departmentId, projectId, dispatch, expandedKeys } = this.props;
+    const { departmentId, projectId, dispatch } = this.props;
     this.props.closeAction();
     createEditDeptDialog({
       type: 'create',
       projectId,
       departmentId,
       isLevel0: false,
-      callback: ({ response = {} }) => {
-        const { departmentId } = response;
-        dispatch(
-          getFullTree({
-            departmentId,
-            isGetAll: true,
-            expandedKeys,
-            afterRequest() {
-              dispatch(updateCursor(departmentId));
-              dispatch(loadUsers(departmentId));
-            },
-          }),
-        );
+      callback: (departmentInfo, parentId) => {
+        dispatch(getFullTree({ departmentId: departmentInfo.departmentId, parentId, isGetAll: true }));
       },
     });
   };
@@ -100,66 +78,96 @@ class DiaActionTree extends React.Component {
   };
 
   // 删除部门
-  deleteCurrentDepartment = () => {
-    const { departmentId, projectId, expandedKeys, dispatch, newDepartments } = this.props;
+  deleteCurrentDepartment = department => {
+    const { dispatch, users = [] } = this.props;
+    this.props.closeAction();
 
-    departmentController
-      .deleteDepartments({
-        projectId,
-        departmentId,
-      })
-      .then(res => {
-        this.props.closeAction();
-        if (res === 1) {
-          alert(_l('删除成功'));
-          handleDialogCallback(dispatch, {
-            type: 'DELETE',
-            projectId,
-            expandedKeys,
-            response: {
-              departmentId,
-              newDepartments,
-            },
-          });
-        } else if (res === 3) {
-          alert(_l('部门存在成员，无法删除'), 3);
-        } else if (res === 2) {
-          return alert(_l('部门存在子部门，无法删除'), 3);
-        } else {
-          alert(_l('删除失败'), 2);
-        }
-      })
-      .catch(() => {
-        alert(_l('删除失败'), 2);
-      });
+    // 如果部门有子部门和用户，还是保持以往交互，先tost 提示用户调整。
+    if (department.haveSubDepartment || users.length) {
+      dispatch(deleteDepartment(department.departmentId));
+      return;
+    }
+    Dialog.confirm({
+      className: 'disabledDepartmentDialog',
+      okText: _l('删除'),
+      title: _l('删除“%0”', department.departmentName),
+      buttonType: 'danger',
+      description: <div className="Red">{_l('删除后将无法恢复，请谨慎操作')}</div>,
+      onOk: () => {
+        dispatch(deleteDepartment(department.departmentId));
+      },
+    });
+  };
+
+  // 停用部门二次确认
+  handleDisableDepartmentConfirm = department => {
+    this.props.closeAction();
+    Dialog.confirm({
+      className: 'disabledDepartmentDialog',
+      okText: _l('停用'),
+      title: _l('停用“%0”', department.departmentName),
+      description: (
+        <div>
+          <div>{_l('停用后，当前停用的部门将对用户隐藏，部门下的成员不会移除。')}</div>
+          <div className="mBottom10">
+            {_l('已停用的部门在记录中将呈现如下的停用状态：')}
+            <div className="departmentStatusWrap">
+              <DisabledDepartmentAndRoleName name={department.departmentName} disabled />
+            </div>
+          </div>
+        </div>
+      ),
+      onOk: () => {
+        this.handleDisableDepartment(department);
+      },
+    });
+  };
+
+  // 停用/启用部门
+  handleDisableDepartment = department => {
+    const { departmentId, dispatch, newDepartments, parentData = {}, departments } = this.props;
+    this.props.closeAction();
+    if (department.disabled) {
+      const allParentIds = getParentsId(newDepartments, departmentId).filter(id => id !== departmentId);
+      const existDisabledDepartment = allParentIds.some(id => departments[id]?.disabled);
+      if (existDisabledDepartment) {
+        alert(_l('存在未恢复的上级部门，请先恢复'), 3);
+        return;
+      }
+    }
+    dispatch(disabledAndEnabledDepartments(departmentId, department.disabled, parentData.departmentId));
   };
 
   render() {
-    const { showAction } = this.props;
-    if (!showAction) {
-      return '';
-    }
+    const { item } = this.props;
+
     return (
-      <ul
-        className="diaActionTree"
-        ref={diaUl => (this.diaUl = diaUl)}
-        style={{ left: this.props.dropData.left, top: this.props.dropData.top }}
-      >
-        <li onClick={this.handleClick}>{_l('添加子部门')}</li>
-        <li onClick={this.openSettingDialog}>{_l('编辑部门')}</li>
-        <li
+      <Menu className="Static">
+        {item.disabled ? null : (
+          <Fragment>
+            <MenuItem onClick={this.handleClick}>{_l('添加子部门')}</MenuItem>
+            <MenuItem onClick={this.openSettingDialog}>{_l('编辑')}</MenuItem>
+          </Fragment>
+        )}
+        <MenuItem
           onClick={() => {
-            this.props.closeAction();
             copy(this.props.departmentId);
             alert(_l('复制成功'));
           }}
         >
           {_l('复制ID')}
-        </li>
-        <li onClick={this.deleteCurrentDepartment} style={{ color: '#f51744' }}>
+        </MenuItem>
+        <MenuItem
+          onClick={() =>
+            !item.disabled ? this.handleDisableDepartmentConfirm(item) : this.handleDisableDepartment(item)
+          }
+        >
+          {item.disabled ? _l('恢复使用') : _l('停用')}
+        </MenuItem>
+        <MenuItem onClick={() => this.deleteCurrentDepartment(item)} style={{ color: '#f51744' }}>
           {_l('删除')}
-        </li>
-      </ul>
+        </MenuItem>
+      </Menu>
     );
   }
 }
@@ -167,23 +175,20 @@ class DiaActionTree extends React.Component {
 const mapStateToProps = state => {
   const {
     current,
-    pagination: { userList },
     entities,
+    pagination: { userList = {} },
   } = state;
-  const { departmentId, root, projectId } = current;
-  const isRoot = departmentId === root;
-  const { departments, expandedKeys } = state.entities;
-  const department = departments[departmentId];
+  const { departmentId, projectId } = current;
+  const { expandedKeys, newDepartments, departments, users } = entities;
+
   return {
-    isRoot,
     expandedKeys,
     departmentId,
     projectId,
-    isSearch: userList && userList.isSearchResult,
-    allCount: userList && userList.allCount,
-    pageIndex: userList && userList.pageIndex,
-    departmentName: department ? department.departmentName : '',
-    newDepartments: entities.newDepartments,
+    pageIndex: userList?.pageIndex,
+    newDepartments,
+    departments,
+    users,
   };
 };
 

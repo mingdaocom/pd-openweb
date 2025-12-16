@@ -5,7 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Input, Tooltip } from 'ming-ui';
+import { Dialog, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import ControlSelect from 'worksheet/components/ControlSelect';
 
@@ -180,9 +181,9 @@ export default function SelectControlWithInput(props) {
   }
   return (
     <React.Fragment>
-      <Title>
-        {_l('字段%0', index + 1)}
-        <Tooltip text={<span>{_l('强制单行')}</span>}>
+      <Title className="flexRow alignItemsCenter">
+        <span className="flex"> {_l('字段%0', index + 1)}</span>
+        <Tooltip title={_l('强制单行')}>
           <i
             className={cx('icon-compress_width compressWidth', { on: forceInLine })}
             onClick={() => {
@@ -248,7 +249,7 @@ export default function SelectControlWithInput(props) {
               )}
             </Selected>
             {!disabled && type === 1 && (
-              <Tooltip text={<span>{_l('重命名')}</span>}>
+              <Tooltip title={_l('重命名')}>
                 <i
                   className="icon-rename_input setName"
                   onClick={e => {
@@ -259,9 +260,11 @@ export default function SelectControlWithInput(props) {
               </Tooltip>
             )}
           </Content>
-          <DropdownBtn className="dropdownBtn" data-tip={_l('使用动态值')}>
-            <i className="icon-workflow_other"></i>
-          </DropdownBtn>
+          <Tooltip title={_l('使用动态值')} placement="bottom">
+            <DropdownBtn className="dropdownBtn">
+              <i className="icon-workflow_other"></i>
+            </DropdownBtn>
+          </Tooltip>
         </Con>
       </ControlSelect>
       {editNameVisible && (

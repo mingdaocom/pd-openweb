@@ -11,7 +11,6 @@ import createGroup from 'src/pages/Group/createGroup';
 import { navigateTo } from 'src/router/navigateTo';
 import postEnum from '../../constants/postEnum';
 import { searchAll } from '../../redux/postActions';
-// TODO 放入 store
 import MDLeftNav from '../common/mdLeftNav';
 import MDLeftNavSearch from '../common/mdLeftNav/mdLeftNavSearch';
 import './feedLeftNav.css';

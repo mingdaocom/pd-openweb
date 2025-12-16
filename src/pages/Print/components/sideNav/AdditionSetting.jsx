@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { POSITION_OPTION } from '../../config';
 
@@ -14,7 +15,7 @@ const AdditionSettingConfig = [
     text: (
       <span>
         {_l('企业Logo')}
-        <Tooltip popupPlacement="top" text={<span>{_l('在企业管理后台中设置')}</span>}>
+        <Tooltip placement="top" title={_l('在企业管理后台中设置')}>
           <Icon icon="help" className="Font13 mLeft8 Gray_bd" />
         </Tooltip>
       </span>
@@ -153,7 +154,7 @@ export default function AdditionSetting(props) {
           </div>
         );
       })}
-      {renderFormatDialog(printData.advanceSettings)}
+      {renderFormatDialog()}
     </React.Fragment>
   );
 }

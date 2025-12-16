@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import ToolTip from 'ming-ui/components/Tooltip';
+import { Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../../api/datasource';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { navigateTo } from 'src/router/navigateTo';
@@ -346,13 +346,13 @@ export default function SourceList(props) {
             className="flexRow alignItemsCenter pLeft8 pointer"
             onClick={() => navigateTo('/integration/sourceDetail/' + item.id)}
           >
-            <ToolTip text={_.get(item, 'dsTypeInfo.name')}>
+            <Tooltip title={_.get(item, 'dsTypeInfo.name')}>
               <div className="titleIcon" style={{ background: _.get(item, 'dsTypeInfo.iconBgColor') }}>
                 <svg className="icon svg-icon" aria-hidden="true">
                   <use xlinkHref={`#icon${_.get(item, 'dsTypeInfo.className')}`} />
                 </svg>
               </div>
-            </ToolTip>
+            </Tooltip>
             <span title={item.name} className="titleText overflow_ellipsis">
               {item.name}
             </span>
@@ -477,9 +477,11 @@ export default function SourceList(props) {
       title: '',
       renderTitle: () => {
         return (
-          <div className="optionIcon" data-tip={_l('刷新')} onClick={() => setFetchState({ loading: true, pageNo: 0 })}>
-            <Icon icon="refresh1" className="Font18 pointer" />
-          </div>
+          <Tooltip title={_l('刷新')}>
+            <div className="optionIcon" onClick={() => setFetchState({ loading: true, pageNo: 0 })}>
+              <Icon icon="refresh1" className="Font18 pointer" />
+            </div>
+          </Tooltip>
         );
       },
       render: item => (

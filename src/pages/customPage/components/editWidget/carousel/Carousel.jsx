@@ -8,7 +8,7 @@ import homeAppApi from 'src/api/homeApp';
 import homeAppAjax from 'src/api/homeApp';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
+import { getBarCodeValue } from 'src/components/Form/core/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';

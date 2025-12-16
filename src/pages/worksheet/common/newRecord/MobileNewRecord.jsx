@@ -1,15 +1,20 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { ActionSheet, Button, Popup } from 'antd-mobile';
 import cx from 'classnames';
-import _, { isArray } from 'lodash';
+import _, { find, get, isArray } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView } from 'ming-ui';
+import mingoAjax from 'src/api/mingo';
 import MobileDraft from 'src/pages/Mobile/MobileDraft';
-import { getRequest, removeTempRecordValueFromLocal } from 'src/utils/common';
+import photo from 'src/pages/worksheet/assets/photo.png';
+import { emitter, getRequest, removeTempRecordValueFromLocal } from 'src/utils/common';
+import { formatAiGenControlValue } from 'src/utils/control';
 import { compatibleMDJS, handleReplaceState } from 'src/utils/project';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import NewRecordContent from './NewRecordContent';
+import ProcessToast from './ProcessToast';
+import UploadFiles from './UploadFiles';
 
 const ModalWrap = styled(Popup)`
   .mobileContainer {
@@ -17,6 +22,9 @@ const ModalWrap = styled(Popup)`
   }
   .mobileNewRecord {
     -webkit-overflow-scrolling: touch;
+  }
+  .photoImg {
+    width: 32px;
   }
 `;
 
@@ -71,14 +79,20 @@ function NewRecord(props) {
     sheetSwitchPermit,
     customButtonConfirm,
     isDraft,
+    projectId,
     ...rest
   } = props;
   const { appId, worksheetInfo } = rest;
   const newRecordContent = useRef(null);
   const cache = useRef({});
+  const aiParseRef = useRef(null);
+  const propsRef = useRef(props);
   const [loading, setLoading] = useState();
   const [autoFill, setAutoFill] = useState(null);
   const [sessionId, setSessionId] = useState(Date.now().toString());
+  const [uploadSessionId, setUploadSessionId] = useState('');
+  const [aiToastVisible, setAiToastVisible] = useState(false);
+  const [aiToastType, setAiToastType] = useState('upload');
   const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
   const promptCancelAddRecord = localStorage.getItem('promptCancelAddRecord') === 'true';
   const allowDraft =
@@ -151,6 +165,62 @@ function NewRecord(props) {
     };
   }, []);
 
+  useEffect(() => {
+    // App 触发 Mingo 新建记录
+    // compatibleMDJS('uploadFileReady', {
+    //   sessionId: uploadSessionId,
+    //   appDidUploadFiles: res => {
+    //     const { sid, file } = res;
+    //     setSessionId(sid);
+    //     setAiToastVisible(true);
+    //     generateRecordByMobile(file.url);
+    //   },
+    //   success: res => {
+    //     const sid = res.sid;
+    //     setUploadSessionId(sid);
+    //   },
+    // });
+
+    return () => {
+      abortAiParse();
+    };
+  }, []);
+
+  useEffect(() => {
+    propsRef.current = props;
+  }, [props]);
+
+  const abortAiParse = () => {
+    setAiToastVisible(false);
+    if (aiParseRef.current?.abort) {
+      aiParseRef.current.abort();
+    }
+  };
+
+  const handleAppUpload = () => {
+    compatibleMDJS('chooseImage', {
+      sessionId: uploadSessionId,
+      count: 1,
+      mediaType: 'image',
+      format: ['jpg', 'jpeg', 'png'],
+      knowledge: false,
+      success: res => {
+        const { sessionId, completed, error, uploading } = res;
+        setUploadSessionId(sessionId);
+        if (completed?.length) {
+          const file = completed[0];
+          setAiToastVisible(true);
+          generateRecordByMobile(file.url);
+        }
+
+        if (!uploading && error) {
+          alert(_l('上传失败'), 2);
+        }
+      },
+      cancel: () => {},
+    });
+  };
+
   const showActionSheetWithOptions = (isRetainFunc = () => {}) => {
     let actionHandler = ActionSheet.show({
       actions: [],
@@ -208,6 +278,10 @@ function NewRecord(props) {
               className="flex mLeft6 mRight6 Font13 bold ellipsis"
               color="primary"
               onClick={() => {
+                if (checkUploading()) {
+                  alert(_l('附件正在上传，请稍后'), 3);
+                  return;
+                }
                 newRecordContent.current.newRecord({
                   isContinue,
                   autoFill: isAutoFill,
@@ -224,9 +298,21 @@ function NewRecord(props) {
     });
   };
 
+  const checkUploading = () => {
+    return (
+      $('.customFormFileBox').find('.uploadingProcessCircle').length ||
+      $('.customFormFileBox').find('.fileUpdateLoading').length
+    );
+  };
+
   const handleAdd = async (isContinue, appScanAutoFill) => {
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+
+    if (checkUploading()) {
+      alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
 
@@ -259,13 +345,7 @@ function NewRecord(props) {
       });
     };
 
-    if (
-      advancedSetting.autoFillVisible &&
-      endAction === 2 &&
-      _.isNull(autoFill) &&
-      _.isUndefined(appScanAutoFill) &&
-      offlineUpload !== '1'
-    ) {
+    if (advancedSetting.autoFillVisible && endAction === 2 && _.isNull(autoFill) && offlineUpload !== '1') {
       if (isContinue && advancedSetting.autoreserve === '1') {
         setAutoFill(true);
         isRetainFunc(true);
@@ -289,6 +369,12 @@ function NewRecord(props) {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+
+    if (checkUploading()) {
+      alert(_l('附件正在上传，请稍后'), 3);
+      return;
+    }
+
     newRecordContent.current.newRecord({
       autoFill,
       rowStatus: 21,
@@ -352,6 +438,71 @@ function NewRecord(props) {
     }
   };
 
+  const generateRecordByMobile = url => {
+    setAiToastType('parse');
+    const { worksheetInfo, worksheetId } = propsRef.current;
+    aiParseRef.current = mingoAjax.generateRecordByMobile({
+      projectId: worksheetInfo?.projectId || projectId,
+      worksheetId,
+      messageList: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: {
+                url,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    aiParseRef.current
+      .then((data = '') => {
+        if (data.length) {
+          try {
+            const match = data.match(/```custom_block_mingo_generate_record_jsonl([\s\S]*?)```/);
+            const jsonlStr = match[1].trim();
+            const fieldsData = jsonlStr.split('\n').filter(Boolean);
+            const parsedArray = fieldsData.map(line => safeParse(line));
+            if (!parsedArray?.length) {
+              alert(_l('未识别到有效信息'), 3);
+              return;
+            }
+            const controls = get(worksheetInfo, 'template.controls');
+            const aiValue = parsedArray.reduce((acc, cur) => {
+              const control = find(controls, { controlId: cur.controlId });
+              if (!control) return acc;
+              acc[cur.controlId] = formatAiGenControlValue(control, cur.value);
+              return acc;
+            }, {});
+            emitter.emit('MINGO_FILL_NEW_RECORD_VALUE_BY_AI_MOBILE', aiValue);
+            alert(_l('信息已填充'));
+          } catch (error) {
+            console.error(error);
+          }
+        } else {
+          alert(_l('未识别到有效信息'), 3);
+        }
+      })
+      .catch(({ errorCode }) => {
+        if (errorCode !== 1) {
+          alert(_l('识别失败'), 2);
+        }
+      })
+      .finally(() => {
+        setAiToastVisible(false);
+        setAiToastType('upload');
+      });
+  };
+
+  const handleUploaded = (up, file) => {
+    up.disableBrowse(false);
+    generateRecordByMobile(file.url);
+  };
+
   const header = (
     <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
       <div className="title Font18 Gray flex bold leftAlign ellipsis">
@@ -367,15 +518,41 @@ function NewRecord(props) {
           addNewRecord={props.onAdd}
         />
       )}
-      <i
-        className="icon icon-cancel Gray_9e Font22"
-        onClick={() => {
-          hideNewRecordModal();
-          if (location.search && window.isMingDaoApp) {
-            history.back();
-          }
-        }}
-      ></i>
+      {!md.global.SysSettings.hideAIBasicFun ? (
+        window.isMingDaoApp ? (
+          <div className="mRight5">
+            <img className="photoImg" src={photo} onClick={handleAppUpload} />
+          </div>
+        ) : (
+          <div className="mRight14">
+            <UploadFiles
+              onAdd={up => {
+                setAiToastVisible(true);
+                setAiToastType('upload');
+                up.disableBrowse();
+              }}
+              onUploaded={handleUploaded}
+              onError={() => {
+                setAiToastVisible(false);
+              }}
+            >
+              <img className="photoImg" src={photo} />
+            </UploadFiles>
+          </div>
+        )
+      ) : null}
+      {!window.isMingDaoApp && (
+        <i
+          className="icon icon-cancel Gray_9e Font22"
+          onClick={() => {
+            hideNewRecordModal();
+            if (location.search && window.isMingDaoApp) {
+              history.back();
+            }
+          }}
+        ></i>
+      )}
+      <ProcessToast type={aiToastType} visible={aiToastVisible} onAbort={abortAiParse} />
     </div>
   );
   const content = (
@@ -410,7 +587,10 @@ function NewRecord(props) {
         </div>
       )}
       {advancedSetting.continueBtnVisible && offlineUpload !== '1' && (
-        <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={() => handleAdd(true)}>
+        <Button
+          className="flex mLeft6 mRight6 Font13 bold Gray_75"
+          onClick={() => handleAdd(true, window.isMingDaoApp)}
+        >
           {advancedSetting.continueBtnText || _l('提交并继续创建')}
         </Button>
       )}
@@ -429,13 +609,7 @@ function NewRecord(props) {
       <div className="flexColumn leftAlign h100">
         {notDialog ? null : header}
         <ScrollView options={{ overflow: { x: 'hidden' } }}>
-          <div
-            className={cx('h100', {
-              'pAll20 pTop0': localStorage.getItem('LOAD_MOBILE_FORM') === 'old',
-            })}
-          >
-            {content}
-          </div>
+          <div className="h100">{content}</div>
         </ScrollView>
         {footer}
       </div>

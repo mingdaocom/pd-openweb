@@ -2,40 +2,52 @@ import React from 'react';
 import { Button, Popup } from 'antd-mobile';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { FunctionWrap } from 'ming-ui';
 
 const PopupWrap = styled(Popup)`
+  .wrapperBody {
+    overflow: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    border-radius: 12px 12px 0 0;
+    max-height: calc(100% - 40px);
+    display: flex;
+    flex-direction: column;
+  }
   .titleBox {
     display: flex;
     padding: 24px 15px 30px;
     .descIconBox {
       margin-right: 15px;
       .success {
-        color: #4caf50;
+        color: var(--color-success);
         font-size: 20px;
       }
       .error {
-        color: #f44336;
+        color: var(--color-error);
       }
       .warning {
-        color: #fb0;
+        color: var(--color-warning);
       }
       .info {
-        color: #1c97f3;
+        color: var(--color-info);
       }
     }
     .title {
       font-size: 17px;
       font-weight: 500;
-      color: #151515;
+      color: var(--color-text-primary);
     }
     .subDesc {
       margin-top: 10px;
       font-size: 13px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .contentBox {
     padding: 0 15px 24px;
+    flex: 1;
+    overflow-y: auto;
   }
   .footerBox {
     padding: 10px;
@@ -47,7 +59,15 @@ const PopupWrap = styled(Popup)`
       font-weight: 500;
     }
     .cancel {
-      color: #757575;
+      color: var(--color-text-secondary);
+    }
+    .primary {
+      background-color: var(--color-info);
+      color: var(--color-text-inverse);
+    }
+    .delete {
+      background-color: var(--color-error);
+      color: var(--color-text-inverse);
     }
   }
 `;
@@ -60,6 +80,7 @@ const ConfirmPopup = props => {
     subDesc,
     cancelText = _l('取消'),
     confirmText = _l('确认'),
+    confirmType = 'primary',
     removeCancelBtn = false,
     onCancel,
     onConfirm,
@@ -68,7 +89,12 @@ const ConfirmPopup = props => {
   } = props;
 
   return (
-    <PopupWrap className={`mobileModal topRadius ${className || ''}`} onClose={onCancel} visible={visible}>
+    <PopupWrap
+      className={`mobileModal topRadius ${className || ''}`}
+      bodyClassName="wrapperBody"
+      onClose={onCancel}
+      visible={visible}
+    >
       {/* 标题 */}
       <div className="titleBox">
         {descIcon && <div className="descIconBox">{descIcon}</div>}
@@ -89,7 +115,7 @@ const ConfirmPopup = props => {
         )}
         {/* 确认 */}
         {confirmText && onConfirm && (
-          <Button color="primary" onClick={onConfirm} data-id="confirmBtn">
+          <Button className={confirmType} onClick={onConfirm} data-id="confirmBtn">
             {confirmText}
           </Button>
         )}
@@ -109,5 +135,7 @@ ConfirmPopup.propTypes = {
   onCancel: PropTypes.func,
   onConfirm: PropTypes.func,
 };
+
+export const mobileConfirmPopupFunc = props => FunctionWrap(ConfirmPopup, { ...props });
 
 export default ConfirmPopup;

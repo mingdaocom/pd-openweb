@@ -15,7 +15,6 @@ export function setStructureForAll(params) {
       },
       () => {
         alert(_l('操作失败'), 2);
-        return Promise.reject();
       },
     );
 }
@@ -32,7 +31,6 @@ export function setStructureSelfEdit(params) {
       },
       () => {
         alert(_l('操作失败'), 2);
-        return Promise.reject();
       },
     );
 }

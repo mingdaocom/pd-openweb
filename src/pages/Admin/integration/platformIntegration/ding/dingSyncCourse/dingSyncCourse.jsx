@@ -226,7 +226,7 @@ export default class DingSyncCourse extends React.Component {
         $('.download').attr('href', canvas.toDataURL())[0].click();
       });
     } else {
-      $('.download').attr('href', `${md.global.FileStoreConfig.pubHost}logo_app.png`)[0].click();
+      $('.download').attr('href', `${md.global.FileStoreConfig.pubHost}/logo_app.png`)[0].click();
     }
   };
 
@@ -328,7 +328,7 @@ export default class DingSyncCourse extends React.Component {
             className="download Hidden"
             target="_blank"
             download={this.state.name + moment().format('YYYY-MM-DD') + '.png'}
-            href={this.state.addApp ? '' : `${md.global.FileStoreConfig.pubHost}logo_app.png`}
+            href={this.state.addApp ? '' : `${md.global.FileStoreConfig.pubHost}/logo_app.png`}
           >
             {_l('点击下载')}
           </a>

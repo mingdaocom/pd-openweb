@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { ACTION_ID } from '../../enum';
-import { CreateNode, NodeOperate } from '../components';
+import { ACTION_ID, APP_TYPE } from '../../enum';
+import { CreateNode, NodeOperate, WorksheetMessage } from '../components';
 
 export default class Search extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class Search extends Component {
       return (
         <div className="pLeft8 pRight8 red">
           <i className="icon-report Font18 mRight5" />
-          {_l('工作表已删除')}
+          {item.appType === APP_TYPE.SHEET ? _l('工作表已删除') : _l('聚合表已删除')}
         </div>
       );
     }
@@ -66,12 +66,14 @@ export default class Search extends Component {
 
     return (
       <Fragment>
-        <div className="workflowContentInfo ellipsis workflowContentBG">
-          <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
-        </div>
+        <WorksheetMessage
+          item={{ ...item, appTypeName: item.appType === APP_TYPE.SHEET ? _l('工作表') : _l('聚合表') }}
+        />
         <div className="workflowContentInfo ellipsis Gray_75 mTop4 pBottom5">
           {_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], item.actionId)
-            ? _l('从工作表获得')
+            ? item.appType === APP_TYPE.SHEET
+              ? _l('从工作表获得')
+              : _l('从聚合表获得')
             : _l('从记录链接获得')}
           {item.executeType === 0 && <span>{_l('，无结果时中止或执行查找结果分支')}</span>}
           {item.executeType === 1 && <span>{_l('，无结果时新增记录')}</span>}

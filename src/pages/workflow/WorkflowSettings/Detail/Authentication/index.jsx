@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
-import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, LoadDiv, RadioGroup, ScrollView } from 'ming-ui';
+import { Checkbox, Dropdown, LoadDiv, RadioGroup, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import { formatTestParameters } from '../../utils';
@@ -16,32 +14,12 @@ import {
   TestParameter,
 } from '../components';
 
-const Tabs = styled.ul`
-  border-bottom: 3px solid #f5f5f5;
-  height: 36px;
-  margin-top: 10px;
-  li {
-    border-bottom: 3px solid transparent;
-    box-sizing: initial;
-    cursor: pointer;
-    height: 33px;
-    line-height: 33px;
-    padding: 0 25px;
-    font-weight: bold;
-    &:not(.active) {
-      border-color: transparent !important;
-      color: #151515 !important;
-    }
-  }
-`;
 export default class Authentication extends Component {
   constructor(props) {
     super(props);
     this.state = {
       data: {},
       saveRequest: false,
-      showParameterList: [],
-      tab: '1',
       showTestDialog: false,
       testArray: [],
     };
@@ -85,10 +63,7 @@ export default class Authentication extends Component {
               {
                 method: 1,
                 url: '',
-                params: [
-                  { name: 'app_id', value: '' },
-                  { name: 'app_secret', value: '' },
-                ],
+                params: [],
                 headers: [],
                 contentType: 1,
                 formControls: [],
@@ -266,24 +241,7 @@ export default class Authentication extends Component {
    */
   renderOAuth2Content() {
     const { isIntegration, hasAuth } = this.props;
-    const { data, showParameterList, tab } = this.state;
-    const TABS = {
-      1: {
-        text: 'Params',
-        sourceKey: 'params',
-        btnText: '+ Query Param',
-      },
-      2: {
-        text: 'Headers',
-        sourceKey: 'headers',
-        btnText: '+ Header',
-      },
-      3: {
-        text: 'Body',
-        sourceKey: 'formControls',
-        btnText: '+ Form',
-      },
-    };
+    const { data } = this.state;
 
     return (
       <Fragment>
@@ -307,10 +265,6 @@ export default class Authentication extends Component {
           {data.actionId === ACTION_ID.REFRESH_CREDENTIALS ? _l('Refresh Token URL') : _l('Access Token URL')}
         </div>
         {data.webHookNodes.map((item, i) => {
-          if (_.includes([1, 4, 5], item.method)) {
-            delete TABS['3'];
-          }
-
           return (
             <Fragment>
               <div className="flexRow">
@@ -339,101 +293,16 @@ export default class Authentication extends Component {
                 </div>
               </div>
 
-              <div className="flexRow mTop10">
-                <div className="flex" />
-                <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => this.switchParameterVisible(i)}>
-                  {_.includes(showParameterList, i) ? _l('隐藏请求参数详情') : _l('显示请求参数详情')}
-                  <Icon
-                    type={_.includes(showParameterList, i) ? 'arrow-up-border' : 'arrow-down-border'}
-                    className="Font14 mLeft5"
-                  />
-                </div>
-              </div>
-
-              {_.includes(showParameterList, i) && (
-                <Fragment>
-                  <Tabs className="flexRow">
-                    {Object.keys(TABS).map(key => {
-                      return (
-                        <li
-                          key={key}
-                          className={cx('ThemeBorderColor3 ThemeColor3', { active: tab === key })}
-                          onClick={() => this.setState({ tab: key })}
-                        >
-                          {TABS[key].text}
-                        </li>
-                      );
-                    })}
-                    <li className="flex cursorDefault" />
-                  </Tabs>
-                  {tab === '3' && (
-                    <div className="mTop15">
-                      <RadioGroup
-                        className="Font12"
-                        data={[
-                          // { text: 'none', value: 0, checked: item.contentType === 0 },
-                          { text: 'x-www-form-urlencoded', value: 1, checked: item.contentType === 1 },
-                          { text: 'raw(JSON)', value: 2, checked: item.contentType === 2 },
-                        ]}
-                        onChange={value => {
-                          const newObj = { contentType: value };
-
-                          if (value === 0) {
-                            newObj.formControls = [];
-                            newObj.body = '';
-                          } else if (value === 1) {
-                            newObj.body = '';
-                          } else {
-                            newObj.formControls = [];
-                          }
-
-                          this.updateAjaxParameter(newObj, i);
-                        }}
-                      />
-                    </div>
-                  )}
-                  {(_.includes(['1', '2'], tab) || (tab === '3' && item.contentType === 1)) && (
-                    <div className="mTop15">
-                      <KeyPairs
-                        key={this.props.selectNodeId + tab}
-                        projectId={this.props.companyId}
-                        processId={this.props.processId}
-                        relationId={this.props.relationId}
-                        selectNodeId={this.props.selectNodeId}
-                        isIntegration={this.props.isIntegration}
-                        source={item[TABS[tab].sourceKey]}
-                        sourceKey={TABS[tab].sourceKey}
-                        btnText={TABS[tab].btnText}
-                        formulaMap={data.formulaMap}
-                        updateSource={(obj, callback = () => {}) => {
-                          if (obj.formulaMap) {
-                            this.updateSource({ formulaMap: obj.formulaMap }, callback);
-                          } else {
-                            this.updateAjaxParameter({ [TABS[tab].sourceKey]: obj[TABS[tab].sourceKey] }, i);
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
-                  {tab === '3' && item.contentType === 2 && (
-                    <div className="mTop15">
-                      <CustomTextarea
-                        className="minH100"
-                        projectId={this.props.companyId}
-                        processId={this.props.processId}
-                        relationId={this.props.relationId}
-                        selectNodeId={this.props.selectNodeId}
-                        isIntegration={this.props.isIntegration}
-                        type={2}
-                        content={item.body}
-                        formulaMap={data.formulaMap}
-                        onChange={(err, value) => this.updateAjaxParameter({ body: value }, i)}
-                        updateSource={this.updateSource}
-                      />
-                    </div>
-                  )}
-                </Fragment>
-              )}
+              {['Params', 'Headers', 'Body']
+                .filter(text => !_.includes([1, 4, 5], item.method) || text !== 'Body')
+                .map((text, index) => {
+                  return (
+                    <Fragment key={index}>
+                      <div className="Font13 bold mTop20">{text}</div>
+                      {this.renderOAuth2Parameter(item, i, text)}
+                    </Fragment>
+                  );
+                })}
             </Fragment>
           );
         })}
@@ -493,13 +362,105 @@ export default class Authentication extends Component {
   }
 
   /**
+   * 渲染OAuth2参数
+   */
+  renderOAuth2Parameter(item, index, key) {
+    const { data } = this.state;
+    const TABS = {
+      Params: {
+        sourceKey: 'params',
+        btnText: '+ Query Param',
+      },
+      Headers: {
+        sourceKey: 'headers',
+        btnText: '+ Header',
+      },
+      Body: {
+        sourceKey: 'formControls',
+        btnText: '+ Form',
+      },
+    };
+
+    return (
+      <Fragment>
+        {key === 'Body' && (
+          <div className="mTop15">
+            <RadioGroup
+              className="Font12"
+              data={[
+                // { text: 'none', value: 0, checked: item.contentType === 0 },
+                { text: 'x-www-form-urlencoded', value: 1, checked: item.contentType === 1 },
+                { text: 'raw(JSON)', value: 2, checked: item.contentType === 2 },
+              ]}
+              onChange={value => {
+                const newObj = { contentType: value };
+
+                if (value === 0) {
+                  newObj.formControls = [];
+                  newObj.body = '';
+                } else if (value === 1) {
+                  newObj.body = '';
+                } else {
+                  newObj.formControls = [];
+                }
+
+                this.updateAjaxParameter(newObj, index);
+              }}
+            />
+          </div>
+        )}
+        {(_.includes(['Params', 'Headers'], key) || (key === 'Body' && item.contentType === 1)) && (
+          <div className="mTop5">
+            <KeyPairs
+              key={this.props.selectNodeId + key}
+              projectId={this.props.companyId}
+              processId={this.props.processId}
+              relationId={this.props.relationId}
+              selectNodeId={this.props.selectNodeId}
+              isIntegration={this.props.isIntegration}
+              source={item[TABS[key].sourceKey]}
+              sourceKey={TABS[key].sourceKey}
+              btnText={TABS[key].btnText}
+              formulaMap={data.formulaMap}
+              updateSource={(obj, callback = () => {}) => {
+                if (obj.formulaMap) {
+                  this.updateSource({ formulaMap: obj.formulaMap }, callback);
+                } else {
+                  this.updateAjaxParameter({ [TABS[key].sourceKey]: obj[TABS[key].sourceKey] }, index);
+                }
+              }}
+            />
+          </div>
+        )}
+        {key === 'Body' && item.contentType === 2 && (
+          <div className="mTop15">
+            <CustomTextarea
+              className="minH100"
+              projectId={this.props.companyId}
+              processId={this.props.processId}
+              relationId={this.props.relationId}
+              selectNodeId={this.props.selectNodeId}
+              isIntegration={this.props.isIntegration}
+              type={2}
+              content={item.body}
+              formulaMap={data.formulaMap}
+              onChange={(err, value) => this.updateAjaxParameter({ body: value }, index)}
+              updateSource={this.updateSource}
+            />
+          </div>
+        )}
+      </Fragment>
+    );
+  }
+
+  /**
    * 更新请求参数
    */
   updateAjaxParameter(obj, i) {
     const { data } = this.state;
     const webHookNodes = _.cloneDeep(data.webHookNodes);
 
-    Object.keys(obj).map(key => {
+    Object.keys(obj).forEach(key => {
       if (key === 'method' && _.includes([1, 4, 5], obj[key])) {
         webHookNodes[i].contentType = 1;
         webHookNodes[i].formControls = [];
@@ -510,21 +471,6 @@ export default class Authentication extends Component {
     });
 
     this.updateSource({ webHookNodes });
-  }
-
-  /**
-   * 显示隐藏参数详情
-   */
-  switchParameterVisible(i) {
-    const { showParameterList } = this.state;
-
-    if (_.includes(showParameterList, i)) {
-      _.remove(showParameterList, index => index === i);
-    } else {
-      showParameterList.push(i);
-    }
-
-    this.setState({ showParameterList });
   }
 
   /**

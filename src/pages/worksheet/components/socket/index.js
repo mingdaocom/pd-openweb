@@ -65,6 +65,7 @@ export default function initWorksheetSocket() {
       title,
       executeType,
       close,
+      hideStep,
     } = data;
 
     const recordId = rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId;
@@ -106,7 +107,7 @@ export default function initWorksheetSocket() {
         btnList = [
           {
             text: _l('查看详情'),
-            onClick: () => workflowHistory({ title, storeId }),
+            onClick: () => workflowHistory({ title, storeId, hideStep }),
           },
         ];
       }
@@ -145,7 +146,7 @@ export default function initWorksheetSocket() {
       alert({
         msg: description,
         type: isOperate ? 4 : promptType,
-        timeout: 1000,
+        duration: 1000,
         key: 'workflow',
       });
     }

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { ACTION_ID, OPERATION_TYPE, RELATION_TYPE } from '../../enum';
+import { ACTION_ID, APP_TYPE, OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { checkConditionsIsNull, clearFlowNodeMapParameter, getControlTypeName } from '../../utils';
 import {
   CustomTextarea,
@@ -131,7 +131,7 @@ export default class Search extends Component {
       _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], data.actionId) &&
       !appId
     ) {
-      alert(_l('必须先选择一个工作表'), 2);
+      alert(_l('必须先选择一个表'), 2);
       return;
     }
 
@@ -254,6 +254,7 @@ export default class Search extends Component {
    */
   renderWorksheet() {
     const { data } = this.state;
+    const isAggregationSheet = data.appType === APP_TYPE.AGGREGATION_SHEET;
     const singleItem = (data.findFields || []).length ? data.findFields[0] : { fieldId: '' };
     const list = _.filter(
       data.controls,
@@ -280,7 +281,17 @@ export default class Search extends Component {
 
     return (
       <Fragment>
-        <div className="mTop20 bold">{_l('选择工作表')}</div>
+        <div className="mTop20 flexRow alignItemsCenter">
+          <div className="flex bold">{isAggregationSheet ? _l('选择聚合表') : _l('选择工作表')}</div>
+          {isAggregationSheet && (
+            <div
+              className="ThemeColor3 ThemeHoverColor2 pointer"
+              onClick={() => window.open(`/app/${this.props.relationId}/settings/aggregations`)}
+            >
+              + {_l('新建聚合表')}
+            </div>
+          )}
+        </div>
         {this.selectWorksheet()}
 
         {data.findFields.length ? (
@@ -424,6 +435,7 @@ export default class Search extends Component {
    */
   selectWorksheet() {
     const { data } = this.state;
+    const isAggregationSheet = data.appType === APP_TYPE.AGGREGATION_SHEET;
     const selectAppItem = data.appList.find(({ id }) => id === data.appId);
     const appList = data.appList
       .filter(item => !item.otherApkId)
@@ -436,7 +448,7 @@ export default class Search extends Component {
       });
     const otherWorksheet = [
       {
-        text: _l('其它应用下的工作表'),
+        text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
         className: 'Gray_75',
       },
@@ -454,9 +466,13 @@ export default class Search extends Component {
         value={data.appId}
         renderTitle={
           !data.appId
-            ? () => <span className="Gray_75">{_l('请选择工作表')}</span>
+            ? () => <span className="Gray_75">{isAggregationSheet ? _l('请选择聚合表') : _l('请选择工作表')}</span>
             : data.appId && !selectAppItem
-              ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
+              ? () => (
+                  <span className="errorColor">
+                    {isAggregationSheet ? _l('聚合表无效或已删除') : _l('工作表无效或已删除')}
+                  </span>
+                )
               : () => (
                   <Fragment>
                     <span>{selectAppItem.name}</span>
@@ -466,7 +482,7 @@ export default class Search extends Component {
         }
         border
         openSearch
-        noData={_l('暂无工作表，请先在应用里创建')}
+        noData={isAggregationSheet ? _l('暂无聚合表，请先在应用里创建') : _l('暂无工作表，请先在应用里创建')}
         onChange={appId => {
           if (appId === 'other') {
             this.setState({ showOtherWorksheet: true });
@@ -640,7 +656,7 @@ export default class Search extends Component {
   }
 
   /**
-   * 渲染新新记录
+   * 渲染新增记录
    */
   renderAddRecord(data, key, updateSource) {
     const { cacheKey } = this.state;
@@ -714,7 +730,7 @@ export default class Search extends Component {
         {showOtherWorksheet && (
           <SelectOtherWorksheetDialog
             projectId={this.props.companyId}
-            worksheetType={0}
+            worksheetType={data.appType === APP_TYPE.AGGREGATION_SHEET ? 2 : 0}
             selectedAppId={this.props.relationId}
             selectedWorksheetId={data.appId}
             visible

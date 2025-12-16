@@ -251,7 +251,7 @@ export default function HierarchyViewSetting(props) {
         filter: item => [14, 47].includes(item.type) || [14, 47].includes(item.sourceControlType),
       });
       setControls({
-        availableControls: getSelectableControls(data, existSheet),
+        availableControls: getSelectableControls(data),
       });
       handleChange({
         viewControls: viewControls.concat({

@@ -107,7 +107,6 @@ export function UserSelector(props) {
     const res = [_.pick(user, ['accountId', 'avatar', 'fullname', 'job'])];
     onSelect(res);
     selectCb(res);
-    setKeywords('');
     onClose();
   }
   useClickAway(conRef, e => {
@@ -153,7 +152,7 @@ export function UserSelector(props) {
           debounceLoadList({ type, keywords: value });
         }}
         onKeyDown={e => {
-          if (e.key !== 'Escape') {
+          if (!_.includes(['Escape', 'Tab'], e.key)) {
             e.stopPropagation();
           }
           let newIndex;
@@ -379,7 +378,7 @@ export default function quickSelectUser(target, props = {}) {
 
   function destory() {
     root.unmount();
-    if ($con && $con.parentNode === document.body) {
+    if ($con && $con.parentNode === document.body && document.body.contains($con)) {
       document.body.removeChild($con);
     }
   }
@@ -401,4 +400,8 @@ export default function quickSelectUser(target, props = {}) {
       />
     </BrowserRouter>,
   );
+
+  return {
+    destory,
+  };
 }

@@ -74,7 +74,7 @@ export default class WidgetsVerifyCode extends Component {
               {
                 3: _l('图形验证码失败'),
                 8: _l('该手机号发送过于频繁'),
-                22: _l('短信余额不足，请联系表单发布者'),
+                22: _l('短信信用点不足，请联系表单发布者'),
               }[data] || _l('发送失败'),
               2,
             );

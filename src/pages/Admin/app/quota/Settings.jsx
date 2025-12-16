@@ -3,7 +3,8 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Icon, Input, LoadDiv, Radio, SvgIcon, Tooltip, UserHead } from 'ming-ui';
+import { Button, Dialog, Icon, Input, LoadDiv, Radio, SvgIcon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectApp, dialogSelectWorksheet } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import dataLimitAjax from 'src/api/dataLimit';
@@ -41,6 +42,11 @@ const ContentWrap = styled.div`
   }
   .size {
     margin-right: 70px;
+  }
+
+  .action {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .footer {
@@ -128,6 +134,23 @@ const ContentWrap = styled.div`
     &:hover {
       color: #1565c0;
     }
+  }
+`;
+
+const ResetDialog = styled(Dialog)`
+  /* .resetDialogContent {
+    height: 24px;
+    align-items: center;
+    .appIcon {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      margin-right: 8px;
+      text-align: center;
+    }
+  } */
+  .mui-dialog-desc {
+    background-color: #f5f5f5;
   }
 `;
 
@@ -367,6 +390,45 @@ export default class LimitAttachmentUpload extends Component {
     this.setState({ limits });
   };
 
+  handleReset = (app, projectId) => {
+    Dialog.confirm({
+      title: _l('重置应用的附件上传量'),
+      description: (
+        <div className="Gray flexRow alignItemsCenter" style={{ height: '24px' }}>
+          <span>{_l('确认将')}</span>
+          <div className="mLeft10 mRight10 flexRow alignItemsCenter" style={{ height: '24px' }}>
+            <div
+              className="appIcon"
+              style={{
+                background: app.appIconColor,
+                width: '24px',
+                height: '24px',
+                borderRadius: '4px',
+                marginRight: '8px',
+                textAlign: 'center',
+              }}
+            >
+              <SvgIcon url={app.appIconUrl} fill="#fff" size={18} className="mTop3" />
+            </div>
+            <span className="flex ellipsis" title={app.appName}>
+              {app.appName}
+            </span>
+          </div>
+          <span>{_l('的已使用附件上传量重置为0?')}</span>
+        </div>
+      ),
+      onOk: () => {
+        dataLimitAjax.resetUsage({ projectId: projectId, appId: app.appId }).then(res => {
+          if (res) {
+            alert(_l('重置成功'));
+          } else {
+            alert(_l('重置失败'), 2);
+          }
+        });
+      },
+    });
+  };
+
   remove = entityId => {
     const { limits, total } = this.state;
     this.setState({ limits: limits.filter(v => v.entityId !== entityId), total: total - 1 });
@@ -515,7 +577,7 @@ export default class LimitAttachmentUpload extends Component {
         <div className="flexRow mBottom20 alignItemsCenter">
           <Radio className="mRight8" checked={size === -1} onClick={() => this.setState({ size: -1 })} />
           <span>{_l('不限')}</span>
-          <Tooltip text={<div>{_l('设置为“不限”，实际使用不得超过系统限制')}</div>} autoCloseDelay={0}>
+          <Tooltip title={_l('设置为“不限”，实际使用不得超过系统限制')}>
             <Icon icon="info_outline" className="Font16 Gray_9e mLeft5 Hand" />
           </Tooltip>
         </div>
@@ -613,9 +675,16 @@ export default class LimitAttachmentUpload extends Component {
         );
       case 'action':
         return (
-          <div className="Gray_bd Hand Hover_21" onClick={() => this.remove(entityId)}>
-            {_l('移除')}
-          </div>
+          <Fragment>
+            {!!createTime && app.appName && (
+              <div className="Gray_bd Hand Hover_21 mRight10" onClick={() => this.handleReset(app, projectId)}>
+                {_l('重置')}
+              </div>
+            )}
+            <div className="Gray_bd Hand Hover_21" onClick={() => this.remove(entityId)}>
+              {_l('移除')}
+            </div>
+          </Fragment>
         );
       default:
     }

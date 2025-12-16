@@ -2,7 +2,8 @@ import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Dropdown, Icon, Tooltip, VerifyPasswordInput } from 'ming-ui';
+import { Checkbox, Dialog, Dropdown, Icon, VerifyPasswordInput } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import verifyPassword from 'src/components/verifyPassword';
 import 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/style.less';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -121,7 +122,7 @@ export default function PublishSetDialog(props) {
                 setState({ writeMode });
               }}
             />
-            <Tooltip text={_l('“覆盖”会导致数据同步变慢')} popupPlacement="top">
+            <Tooltip title={_l('“覆盖”会导致数据同步变慢')}>
               <Icon icon="info_outline" className="Gray_bd mLeft5 Font18" />
             </Tooltip>
           </div>

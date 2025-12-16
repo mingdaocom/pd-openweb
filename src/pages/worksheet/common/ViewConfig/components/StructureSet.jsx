@@ -253,7 +253,7 @@ export default function StructureSet(props) {
                 <DynamicDefaultValue
                   {...props}
                   getType={7}
-                  data={topFiltersToDefsource(columns.find(o => o.controlId === view.viewControl) || {})}
+                  data={topFiltersToDefsource()}
                   hideTitle={true}
                   multiple={true}
                   hideSearchAndFun={true}

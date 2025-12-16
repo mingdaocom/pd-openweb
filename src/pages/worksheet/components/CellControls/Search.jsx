@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import Search from 'src/components/newCustomFields/widgets/Search';
+import Search from 'src/components/Form/DesktopForm/widgets/Search';
 import EditableCellCon from '../EditableCellCon';
 
 const Con = styled(EditableCellCon)`
@@ -112,7 +112,7 @@ export default function CellSearch(props) {
             defaultSelectProps={{ open: true, dropdownMatchSelectWidth: 420 }}
             onChange={(value, id) => {
               if (id) {
-                // TODO 重写子表数据更新逻辑
+                // 重写子表数据更新逻辑
                 setTimeout(() => {
                   if (typeof value === 'string') {
                     updateControlValue({ controlId: id, value });

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const LoadingDots = ({ dotNumber = 6 }) => {
+const LoadingDots = ({ className, dotNumber = 6 }) => {
   const [dotCount, setDotCount] = useState(1);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ const LoadingDots = ({ dotNumber = 6 }) => {
   }, []);
 
   return (
-    <div style={{ display: 'flex', gap: '2px', alignItems: 'center', height: '26px' }}>
+    <div className={className} style={{ display: 'flex', gap: '2px', alignItems: 'center', height: '26px' }}>
       {[...Array(dotNumber)].map((_, index) => (
         <span
           key={index}

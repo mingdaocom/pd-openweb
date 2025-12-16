@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var scheduleJob = {
-
+const scheduleJob = {
   /**
    * 获得定时任务
    *
@@ -171,7 +170,7 @@ var scheduleJob = {
     base.ajaxOptions.url = base.server(options) + 'scheduleJob/add';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'scheduleJobadd', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default scheduleJob;

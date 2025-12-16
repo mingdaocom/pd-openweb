@@ -177,3 +177,56 @@ export function createBarLabeObjectFromConfig(config = {}, value, texts = [], { 
   });
   return barLabel;
 }
+
+class TextMeasure {
+  constructor() {
+    this.canvas = null;
+    this.ctx = null;
+    this.initCanvas();
+  }
+
+  initCanvas() {
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d');
+
+    // 隐藏但不添加到 DOM
+    this.canvas.style.cssText = `
+      position: absolute;
+      visibility: hidden;
+    `;
+  }
+
+  measureText(text, fontSize, fontFamily) {
+    this.ctx.font = `${fontSize}px ${fontFamily}`;
+    return this.ctx.measureText(text).width;
+  }
+
+  findOptimalFontSize(text, containerWidth, options = {}) {
+    const { minFontSize = 2, maxFontSize = 72, fontFamily = 'sans-serif', precision = 0.2 } = options;
+
+    let low = minFontSize;
+    let high = maxFontSize;
+    let bestSize = minFontSize;
+
+    for (let i = 0; i < 20; i++) {
+      const mid = (low + high) / 2;
+      const textWidth = this.measureText(text, mid, fontFamily);
+
+      if (textWidth <= containerWidth) {
+        bestSize = mid;
+        low = mid;
+      } else {
+        high = mid;
+      }
+
+      if (high - low < precision) break;
+    }
+
+    return Math.floor(bestSize * 10) / 10;
+  }
+}
+
+export function getCompressedFontSize(value, width, options = {}) {
+  const textMeasure = new TextMeasure();
+  return textMeasure.findOptimalFontSize(value, width, options);
+}

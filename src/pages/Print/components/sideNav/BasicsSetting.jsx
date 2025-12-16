@@ -1,7 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Icon, Slider, Tooltip } from 'ming-ui';
+import { Checkbox, Icon, Slider } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DefaultNameWidth, FONT_OPTION, fromType, typeForCon } from '../../config';
 
 const BasicsSettingConfig = [
@@ -85,7 +86,7 @@ export default function BasicsSetting(props) {
             text={item.label}
           />
           {item.tip && (
-            <Tooltip popupPlacement="right" text={<span>{item.tip}</span>}>
+            <Tooltip placement="right" title={item.tip}>
               <div className="Gray_9e help InlineBlock TxtTop mLeft5">
                 <Icon icon="help" className="Font14" />
               </div>

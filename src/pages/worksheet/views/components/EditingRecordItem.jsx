@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import BaseCard from './BaseCard';
 import EditText from './EditText';

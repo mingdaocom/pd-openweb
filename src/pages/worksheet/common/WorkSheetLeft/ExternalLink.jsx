@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon, RadioGroup, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { LINK_PARA_FIELDS } from 'src/pages/customPage/config';
@@ -200,9 +201,11 @@ const ExternalLink = props => {
                   </DropdownContent>
                 }
               >
-                <div className="iconWrap Font17 pointer tip-bottom-left" data-tip={_l('使用动态参数')}>
-                  <Icon className="Gray_9e" icon="workflow_other" />
-                </div>
+                <Tooltip title={_l('使用动态参数')} placement="bottom">
+                  <div className="iconWrap Font17 pointer">
+                    <Icon className="Gray_9e" icon="workflow_other" />
+                  </div>
+                </Tooltip>
               </Dropdown>
             </TagTextareaWrap>
           </div>

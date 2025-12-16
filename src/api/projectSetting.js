@@ -526,6 +526,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
    * @param {boolean} args.apiIntgOnlyManager 是否 只允许管理员创建应用（可空，空置不设置该值）
    * @param {boolean} args.dataPipeOnlyManager 数据集成 仅管理员 可用开关（可空，空置不设置该值）
    * @param {boolean} args.pluginsOnlyManager 插件 仅管理员 可用开关（可空，空置不设置该值）
+   * @param {boolean} args.superSearchOnlyManager 超级搜索 仅管理员 可用开关（可空，空置不设置该值）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

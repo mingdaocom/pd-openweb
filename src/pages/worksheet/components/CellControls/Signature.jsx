@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
+import SignatureComp from 'src/components/Form/DesktopForm/widgets/Signature';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { browserIsMobile } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
@@ -120,6 +120,7 @@ export default class Signature extends React.Component {
       editable,
       isediting,
       updateEditingStatus,
+      fromEmbed,
     } = this.props;
     const { value } = this.state;
     if (from === FROM.CARD || (from === FROM.DRAFT && browserIsMobile())) {
@@ -144,7 +145,8 @@ export default class Signature extends React.Component {
         visible={isediting}
         popupContainer={
           tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-          tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
+          tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD ||
+          fromEmbed
             ? document.body
             : popupContainer()
         }

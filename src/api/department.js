@@ -54,10 +54,35 @@ export default {
     return mdyAPI('Department', 'DeleteDepartments', args, options);
   },
   /**
+   * 停用部门 及 所有子部门（Admin）
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {string} args.departmentId 部门id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  disabledDepartments: function (args, options = {}) {
+    return mdyAPI('Department', 'DisabledDepartments', args, options);
+  },
+  /**
+   * 启用部门（Admin）
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {string} args.departmentId 部门id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  enabledDepartment: function (args, options = {}) {
+    return mdyAPI('Department', 'EnabledDepartment', args, options);
+  },
+  /**
    * 网络管理 - 根据部门父Id获取子部门,departmentId为null表示父部门是网络（Admin）
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络id
    * @param {string} args.parentId 上级部门Id（可空，空则 为 顶级部门）
+   * @param {boolean} args.includeDisabled 是否 包括已停用（true 包括，false 不包括）
    * @param {integer} args.pageIndex 页码（默认第一页：1）
    * @param {integer} args.pageSize 页大小（默认50）
    * @param {Object} options 配置参数
@@ -73,6 +98,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {string} args.departmentId 部门id
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包括已停用（true 包括，false 不包括）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -85,6 +111,7 @@ export default {
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络Id
    * @param {string} args.keywords 查找关键词
+   * @param {boolean} args.includeDisabled 是否 包括已停用（true 包括； false 不包括）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -150,6 +177,7 @@ export default {
    * @param {string} args.departmentId 部门id
    * @param {string} args.keywords 关键词
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包含停用部门（默认 否）
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 每页条数
    * @param {Object} options 配置参数
@@ -166,6 +194,7 @@ export default {
    * @param {string} args.departmentId 部门id
    * @param {string} args.keywords 关键词
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包括已停用（true 包括，false 不包括）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -329,6 +358,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {string} args.departmentId 部门id
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包含停用部门
    * @param {integer} args.pageIndex
    * @param {integer} args.pageSize
    * @param {Object} options 配置参数
@@ -378,6 +408,7 @@ export default {
    * @param {string} args.parentId
    * @param {string} args.keyword 关键字搜索
    * @param {boolean} args.onlyMyJoin 仅看我加入的部门
+   * @param {boolean} args.includeDisabled 是否 包含 停用部门（默认 否）
    * @param {integer} args.pageIndex
    * @param {integer} args.pageSize
    * @param {Object} options 配置参数
@@ -394,6 +425,7 @@ export default {
    * @param {string} args.parentId
    * @param {string} args.keyword 关键字搜索
    * @param {boolean} args.onlyMyJoin 仅看我加入的部门
+   * @param {boolean} args.includeDisabled 是否 包含 停用部门（默认 否）
    * @param {integer} args.pageIndex
    * @param {integer} args.pageSize
    * @param {Object} options 配置参数
@@ -470,6 +502,7 @@ export default {
    * @param {string} args.departmentId 部门id
    * @param {string} args.keywords 关键词
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包括已停用（true 包括，false 不包括）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -485,6 +518,7 @@ export default {
    * @param {array} args.appointedDepartmentIds 指定 部门ids（支持 当前用户的部门：user-departments）
    * @param {array} args.appointedUserIds 指定 用户Ids（支持 当前用户：user-self）
    * @param {string} args.keywords 关键词
+   * @param {boolean} args.includeDisabed 是否包含 停用部门
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 每页条数
    * @param {Object} options 配置参数
@@ -501,6 +535,7 @@ export default {
    * @param {string} args.departmentId 部门id
    * @param {string} args.keywords 关键词
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包含停用部门（默认 否）
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 每页条数
    * @param {string} args.token 接口返回的校验Token(必填)
@@ -518,6 +553,7 @@ export default {
    * @param {string} args.departmentId 部门id
    * @param {string} args.keywords 关键词
    * @param {boolean} args.returnCount 是否返回用户数量
+   * @param {boolean} args.includeDisabled 是否 包含停用部门（默认 否）
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 每页条数
    * @param {Object} options 配置参数

@@ -2,9 +2,9 @@ import { MENU_LIST as MENU_LIST_API_V2, SIDEBAR_LIST as SIDEBAR_LIST_API_V2 } fr
 import { MENU_LIST as MENU_LIST_APP, SIDEBAR_LIST as SIDEBAR_LIST_APP } from './applicationConfig';
 
 export const TAB_TYPE = {
-  APPLICATION: 1,
-  API_V2: 2,
-  API_V3: 3,
+  APPLICATION: '1',
+  API_V2: '2',
+  API_V3: '3',
 };
 
 export const SIDEBAR_LIST_MAP = {

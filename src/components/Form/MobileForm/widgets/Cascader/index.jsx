@@ -58,7 +58,7 @@ const PopupContentBox = styled.div`
     .icon {
       margin-bottom: 16px;
       font-size: 120px;
-      color: var(--gray-bd);
+      color: var(--color-text-disabled);
     }
     .errorInfo {
       font-size: 17px;
@@ -394,7 +394,7 @@ const Cascader = props => {
       />
       {!item.isLeaf && (
         <Fragment>
-          <div style={{ borderRight: '1px solid var(--gray-e0)', height: 18 }} />
+          <div style={{ borderRight: '1px solid var(--color-border-primary)', height: 18 }} />
           <div
             className="pLeft10 Font16 Gray_9e"
             onClick={e => {
@@ -542,7 +542,7 @@ const Cascader = props => {
         <PopupWrapper
           bodyClassName="heightPopupBody40"
           visible={visible}
-          title={(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
+          title={(layersName || [])[operatePath.length] || _l('%0级', operatePath.length + 1)}
           confirmDisable={!(minLayer && !+anylevel ? operatePath.length > minLayer || selectItem.id : !+anylevel)}
           clearDisable={!value}
           onClose={handleClose}

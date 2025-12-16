@@ -7,7 +7,7 @@ import { findIndex, includes, isEmpty, keys } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
-import { compareWithTime } from 'src/components/newCustomFields/tools/formUtils';
+import { compareWithTime } from 'src/components/Form/core/formUtils';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';

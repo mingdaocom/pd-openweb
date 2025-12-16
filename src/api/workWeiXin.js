@@ -83,6 +83,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 主站需要用到的值：0代表提交申请；2代表之前集成过但关闭集成；1重新开启使用
+  * @param {boolean} args.isProxy 是否使用代理
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -97,6 +98,7 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {boolean} args.isProxy 是否使用代理
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -111,6 +113,7 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {boolean} args.isProxy 是否使用代理
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -124,6 +127,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {} args.projectIntergrationType
    * @param {integer} args.status 1代表开通；2代表关闭
+   * @param {boolean} args.isProxy 是否使用代理
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -253,6 +257,7 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
+  * @param {boolean} args.isProxy 是否使用代理
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -266,6 +271,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {} args.projectIntergrationType
    * @param {integer} args.status 1代表开通；2代表关闭
+   * @param {boolean} args.isProxy 是否使用代理
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -293,6 +299,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {} args.projectIntergrationType
    * @param {integer} args.status 1代表开通；2代表关闭
+   * @param {boolean} args.isProxy 是否使用代理
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -330,6 +337,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {} args.projectIntergrationType
    * @param {integer} args.status 1代表开通；2代表关闭
+   * @param {boolean} args.isProxy 是否使用代理
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -478,6 +486,7 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {boolean} args.isLark 是否是国外lark
+  * @param {boolean} args.isProxy 是否使用代理
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -564,12 +573,39 @@ export default {
   * @param {string} args.projectId 网络id
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {boolean} args.isLark 是否是国外lark
+  * @param {boolean} args.isProxy 是否使用代理
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
   editFeishuProjectSettingStatus: function (args, options = {}) {
     return mdyAPI('WorkWeiXin', 'EditFeishuProjectSettingStatus', args, options);
+  },
+  /**
+   * 设置飞书是否开启同步到待办
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {boolean} args.enableTodo 开通关闭状态
+   * @param {boolean} args.isLark 是否是国外lark
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editFeishuTodoMessageEnabled: function (args, options = {}) {
+    return mdyAPI('WorkWeiXin', 'EditFeishuTodoMessageEnabled', args, options);
+  },
+  /**
+   * 编辑飞书审批定义名称
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {string} args.approveName 审批定义名称
+   * @param {boolean} args.isLark 是否是国外lark
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editFeishuApproveName: function (args, options = {}) {
+    return mdyAPI('WorkWeiXin', 'EditFeishuApproveName', args, options);
   },
   /**
    * 飞书自建应用集成通讯录同步到明道云

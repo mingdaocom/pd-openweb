@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/styled';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -236,15 +237,14 @@ export default class CardAppearance extends Component {
                       <div className="switchText InlineBlock Normal mLeft12 mTop8">
                         {_l('启用“未指定”看板')}
                         <Tooltip
-                          autoCloseDelay={0}
-                          text={
+                          title={
                             <span>
                               {_l(
                                 '开启后，第1个看板显示“未指定”。将所有未设置分组的记录显示在“未指定”看板中。当没有未分组数据时，自动隐藏此看板',
                               )}
                             </span>
                           }
-                          popupPlacement="top"
+                          placement="top"
                         >
                           <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
                         </Tooltip>
@@ -252,7 +252,7 @@ export default class CardAppearance extends Component {
                     </SwitchStyle>
                   </div>
                   {navempty === '1' && (
-                    <Tooltip text={<span>{_l('重命名')}</span>} popupPlacement="top">
+                    <Tooltip title={_l('重命名')}>
                       <i
                         className="icon-rename_input Font18 Gray_9e mLeft3 TxtMiddle Hand pRight5"
                         onClick={() => {
@@ -283,11 +283,7 @@ export default class CardAppearance extends Component {
                   />
                   <div className="switchText InlineBlock Normal mLeft12">
                     {_l('固定第1个看板')}
-                    <Tooltip
-                      autoCloseDelay={0}
-                      text={<span>{_l('当看板滚动时，始终固定第1个看板在左侧，方便向其他看板中拖拽记录。')} </span>}
-                      popupPlacement="top"
-                    >
+                    <Tooltip title={_l('当看板滚动时，始终固定第1个看板在左侧，方便向其他看板中拖拽记录。')}>
                       <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
                     </Tooltip>
                   </div>

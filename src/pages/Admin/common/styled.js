@@ -62,9 +62,6 @@ export const BillInfoWrap = styled.div`
         color: #1565c0;
       }
     }
-    .moneySymbol {
-      margin-left: 4px;
-    }
   }
   .emptyList {
     text-align: center;
@@ -116,6 +113,13 @@ export const BillInfoWrap = styled.div`
       }
     }
 
+    .exportBtn {
+      cursor: pointer;
+      &.disabledExportBtn {
+        cursor: not-allowed;
+      }
+    }
+
     .switchPage {
       cursor: pointer;
       display: flex;
@@ -136,7 +140,6 @@ export const BillInfoWrap = styled.div`
   .listTitle {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 12px 0;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
@@ -193,12 +196,6 @@ export const BillInfoWrap = styled.div`
         text-align: center;
       }
 
-      .amount {
-        color: #ff9a00;
-        &.isPositive {
-          color: #47b14b;
-        }
-      }
       .billStatus {
         padding: 0 5px;
         .ming.Menu {

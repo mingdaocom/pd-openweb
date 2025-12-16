@@ -27,6 +27,7 @@ export const MODULE_LIST = [
   { value: 11, label: _l('聚合表') },
   { value: 4, label: _l('用户') },
   { value: 12, label: _l('打印模板') },
+  { value: 20, label: _l('对话机器人') },
   // { value: 5, label: _l('统计图表') },
   // { value: 6, label: _l('外部门户') },
 ];

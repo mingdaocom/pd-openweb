@@ -1,8 +1,8 @@
 ﻿import React from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import { UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import postAjax from 'src/api/post';
 import PostComponent from '../postComponent';
 import FastCreateTaskSchedule from './fastCreateTaskSchedule';

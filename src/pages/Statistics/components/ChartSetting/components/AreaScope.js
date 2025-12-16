@@ -54,7 +54,7 @@ export default class extends Component {
     );
   };
   handleChangeFilterCode = data => {
-    const { country } = this.props;
+    const { country, style } = this.props;
     const last = data[data.length - 1];
 
     if (country.particleSizeType - 1 !== data.length && !particularlyCity.includes(last.id)) {
@@ -67,6 +67,11 @@ export default class extends Component {
           ...country,
           filterCode: last.id,
           filterCodeName: data.map(item => item.name).join('/'),
+          particleSizeType: particularlyCity.includes(last.id) ? 3 : country.particleSizeType,
+        },
+        style: {
+          ...style,
+          isDrillDownLayer: particularlyCity.includes(last.id) ? false : !style.isDrillDownLayer,
         },
       },
       true,
@@ -102,22 +107,24 @@ export default class extends Component {
             <Input readOnly className="w100 pointer mBottom15" value={country.filterCodeName} />
           </CityPicker>
         )}
-        <div className="flexRow valignWrapper">
-          <Checkbox
-            className="mLeft0 mBottom16 Font13"
-            checked={style.isDrillDownLayer}
-            onChange={() => {
-              onChangeCurrentReport({
-                style: {
-                  ...style,
-                  isDrillDownLayer: !style.isDrillDownLayer,
-                },
-              });
-            }}
-          >
-            {_l('允许选取地图')}
-          </Checkbox>
-        </div>
+        {!particularlyCity.includes(country.filterCode) && (
+          <div className="flexRow valignWrapper">
+            <Checkbox
+              className="mLeft0 mBottom16 Font13"
+              checked={style.isDrillDownLayer}
+              onChange={() => {
+                onChangeCurrentReport({
+                  style: {
+                    ...style,
+                    isDrillDownLayer: !style.isDrillDownLayer,
+                  },
+                });
+              }}
+            >
+              {_l('允许选取地图')}
+            </Checkbox>
+          </div>
+        )}
       </div>
     );
   }

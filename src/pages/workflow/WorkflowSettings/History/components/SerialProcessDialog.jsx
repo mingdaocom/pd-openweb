@@ -3,6 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, LoadDiv, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import activityAJAX from '../../../api/activity';
 import emptyListPng from '../images/emptyList.png';
 
@@ -145,9 +146,11 @@ export default ({ processId, onClose = () => {} }) => {
               <div className="w150">{item.createDate ? moment(item.createDate).format('YYYY-MM-DD HH:mm:ss') : ''}</div>
               <div className="w40">
                 {index === 0 && (
-                  <span data-tip={_l('中止')} onClick={() => removePendingProcess(item.id)}>
-                    <i className="icon-delete Font16 pointer ThemeHoverColor3 Gray_75" />
-                  </span>
+                  <Tooltip title={_l('中止')}>
+                    <span onClick={() => removePendingProcess(item.id)}>
+                      <i className="icon-delete Font16 pointer ThemeHoverColor3 Gray_75" />
+                    </span>
+                  </Tooltip>
                 )}
               </div>
             </li>

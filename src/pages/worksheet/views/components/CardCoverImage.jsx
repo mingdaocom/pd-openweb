@@ -4,7 +4,7 @@ import { head, includes } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
-import BarCode from 'src/components/newCustomFields/widgets/BarCode';
+import BarCode from 'src/components/Form/DesktopForm/widgets/BarCode';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';

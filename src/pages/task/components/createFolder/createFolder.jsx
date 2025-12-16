@@ -34,7 +34,7 @@ export default class CreateFolder extends Component {
     }
 
     // 监测网络是否过期
-    $.map(md.global.Account.projects, project => {
+    _.map(md.global.Account.projects, project => {
       if (projectId === project.projectId && project.licenseType === 0) {
         projectId = '';
         return;
@@ -46,7 +46,7 @@ export default class CreateFolder extends Component {
       projectId = '';
     }
 
-    $.map(md.global.Account.projects, project => {
+    _.map(md.global.Account.projects, project => {
       if (project.projectId === projectId) {
         companyName = project.companyName;
         return;
@@ -135,7 +135,7 @@ export default class CreateFolder extends Component {
    */
   create() {
     const { scope } = this.state;
-    const folderName = $.trim($('#folderName').val());
+    const folderName = $('#folderName').val().trim();
     let visibility;
     let groupIds = [];
 
@@ -179,7 +179,7 @@ export default class CreateFolder extends Component {
           safeLocalStorageSetItem('lastProjectId', this.state.projectId);
           alert(_l('创建成功'));
 
-          if ($.isFunction(this.props.createFolderCallback)) {
+          if (_.isFunction(this.props.createFolderCallback)) {
             this.props.createFolderCallback(source.data);
           }
         } else {

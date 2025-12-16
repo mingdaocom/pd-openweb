@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
-import { Dialog, Tooltip, UpgradeIcon, VCenterIconText } from 'ming-ui';
+import { Dialog, UpgradeIcon, VCenterIconText } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
@@ -296,7 +297,7 @@ export default function FilterDetail(props) {
             </AddCondition>
           )}
           {supportGroup && featureType && (
-            <Tooltip popupPlacement="bottom" text={featureType === '2' ? _l('条件组为专业版功能') : ''}>
+            <Tooltip placement="bottom" title={featureType === '2' ? _l('条件组为专业版功能') : ''}>
               <AddButton
                 icon="add"
                 textLeft={4}
@@ -322,7 +323,7 @@ export default function FilterDetail(props) {
             </Tooltip>
           )}
           {supportGroup && (
-            <Tooltip text={_l('添加条件组，结合 且/或 条件进行筛选')}>
+            <Tooltip title={_l('添加条件组，结合 且/或 条件进行筛选')}>
               <i className="addGroupTip icon icon-help Font16 mLeft6"></i>
             </Tooltip>
           )}

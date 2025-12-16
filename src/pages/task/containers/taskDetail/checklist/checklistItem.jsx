@@ -147,7 +147,7 @@ export default class ChecklistItem extends Component {
         evt.preventDefault();
       }
 
-      const name = $.trim(evt.currentTarget.value);
+      const name = (evt.currentTarget.value || '').trim();
 
       this.setState({ isEditName: false });
       this.props.noDragIndexUpdate(-1);

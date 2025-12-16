@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, Tooltip, UpgradeIcon, UserHead } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, UpgradeIcon, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import SearchInput from 'worksheet/components/SearchInput';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -183,7 +184,7 @@ export default class FieldRecycleBin extends Component {
       >
         <div className="flex name">
           <Icon className="icon Font17 mRight5" icon={icon} />
-          <Tooltip text={<span>{_l('ID: %0', item.controlId)}</span>} popupPlacement="bottom">
+          <Tooltip title={_l('ID: %0', item.controlId)} placement="bottom">
             <div className="ellipsis InlineBlock Font14">{item.controlName}</div>
           </Tooltip>
         </div>
@@ -199,7 +200,7 @@ export default class FieldRecycleBin extends Component {
         <div className="columnWidth Gray_9e ellipsis">{item.deleteTime}</div>
         {isAdmin && (
           <div className="editOption">
-            <Tooltip text={<span>{_l('恢复')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('恢复')} placement="bottom">
               <Icon
                 icon="reply1"
                 className="mRight20 Gray_9d"
@@ -209,7 +210,7 @@ export default class FieldRecycleBin extends Component {
                 }}
               />
             </Tooltip>
-            <Tooltip text={<span>{_l('彻底删除')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('彻底删除')} placement="bottom">
               <Icon
                 icon="hr_delete"
                 className="Gray_9d"

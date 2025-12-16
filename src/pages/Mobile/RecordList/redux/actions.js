@@ -1,8 +1,16 @@
 import update from 'immutability-helper';
-import _, { get, some } from 'lodash';
+import _, { find, flatten, get, some } from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
 import { sortDataByCustomItems } from 'worksheet/redux/actions/util';
+import { getBoardItemKey } from 'worksheet/redux/util';
+import {
+  getCalendartypeData,
+  getCalendarViewType,
+  getTimeControls,
+  isTimeStyle,
+  setDataFormat,
+} from 'worksheet/views/CalendarView/util';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
@@ -10,11 +18,10 @@ import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkShe
 import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
 import { canEditApp, sortDataByGroupItems } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
-import { getRequest } from 'src/utils/common';
-import { getFilledRequestParams } from 'src/utils/common';
-import { needHideViewFilters } from 'src/utils/filter';
-import { formatQuickFilter } from 'src/utils/filter';
-import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
+import { getFilledRequestParams, getRequest } from 'src/utils/common';
+import { getAdvanceSetting } from 'src/utils/control';
+import { formatQuickFilter, needHideViewFilters } from 'src/utils/filter';
+import { addBehaviorLog, compatibleMDJS, dateConvertToUserZone } from 'src/utils/project';
 import {
   replaceAdvancedSettingTranslateInfo,
   replaceControlsTranslateInfo,
@@ -287,6 +294,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
 };
 
 export const loadSavedFilters = worksheetId => dispatch => {
+  if (!worksheetId) return;
   sheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
     let filters = data.map(formatOriginFilterGroupValue);
     if (md.global.Account.isPortal) {
@@ -326,7 +334,7 @@ export const fetchSheetRows =
           );
     const view = _.find(views, v => v.viewId === viewId) || views[0];
     let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
-    if (hasGroupFilter && !_.includes([0, 1, 3, 6], view.viewType)) return;
+    if (hasGroupFilter && !_.includes([0, 1, 3, 4, 6], view.viewType)) return;
     const defaultViewId = _.get(views[0], 'viewId');
     const showCurrentView = _.some(views, v => v.viewId === viewId);
     const isMobileSingleView = type === 'single';
@@ -338,6 +346,8 @@ export const fetchSheetRows =
     const { chartId } = getRequest();
     // 看板
     const isKanban = view.viewType === 1;
+    // 日历
+    const isCalendar = view.viewType === 4;
 
     let pageIndex = param.pageIndex || sheetView.pageIndex || param.kanbanIndex;
     let extraParams = param;
@@ -386,13 +396,12 @@ export const fetchSheetRows =
     }
     const requestId = viewId || defaultViewId;
     const promiseRequest = promiseRequests[requestId];
-    if (promiseRequest && promiseRequest.abort) {
+    if (promiseRequest && promiseRequest.abort && base.type !== 'single') {
       promiseRequest.abort();
     }
 
     dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
     dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex } });
-
     const params = getFilledRequestParams({
       worksheetId,
       appId,
@@ -472,6 +481,15 @@ export const fetchSheetRows =
             hasMoreData: !(sheetRowsAndTem.data < params.kanbanSize),
           }),
         );
+      }
+
+      if (isCalendar) {
+        dispatch({
+          type: 'MOBILE_CHANGE_CALENDAR_LIST',
+          data: listData,
+        });
+        dispatch(updateFormatData(listData));
+        dispatch({ type: 'MOBILE_CHANGE_CALENDAR_LOADING', data: false });
       }
 
       dispatch(changeSheetControls());
@@ -631,7 +649,7 @@ export const updateActiveSavedFilter = filter => dispatch => {
   dispatch({ type: 'MOBILE_UPDATE_FILTER_CONTROLS', filterControls: formatForSave(filter) });
 };
 
-export const updateFiltersGroup = filter => dispatch => {
+export const updateFiltersGroup = (filter, view) => dispatch => {
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS_GROUP',
     filter: filter,
@@ -641,6 +659,9 @@ export const updateFiltersGroup = filter => dispatch => {
     sheetView: { pageIndex: 1 },
   });
   dispatch(fetchSheetRows());
+  if (view?.viewType === 4) {
+    dispatch(getNotScheduledEventList({ onlyGetCount: true }));
+  }
 };
 
 export const resetSheetView = () => dispatch => {
@@ -775,14 +796,16 @@ export const updatePreviewRecordId = data => dispatch => {
   dispatch({ type: 'UPDATE_PREVIEW_RECORD', data });
 };
 
-export const updateRow = (rowId, value, isViewData) => dispatch => {
-  dispatch({
-    type: 'MOBILE_UPDATE_SHEET_ROW_BY_ROWID',
-    rowId,
-    rowUpdatedValue: value,
-    isViewData,
-  });
-};
+export const updateRow =
+  ({ recordId, rowData, isViewData }) =>
+  dispatch => {
+    dispatch({
+      type: 'MOBILE_UPDATE_SHEET_ROW_BY_ROWID',
+      recordId,
+      rowUpdatedValue: rowData,
+      isViewData,
+    });
+  };
 
 export const updateGroupDataInfo = data => (dispatch, getState) => {
   const { batchOptVisible, groupDataInfo, batchOptCheckedData } = getState().mobile;
@@ -925,9 +948,11 @@ export const getSingleBoardGroup = ({ pageIndex = 1, kanbanKey } = {}, callback)
 export function updateBoardViewRecord(data) {
   return dispatch => {
     dispatch({ type: 'MOBILE_UPDATE_BOARD_VIEW_RECORD', data });
-    if (data.targetKey) {
-      updateBoardViewRecordCount([data.key, -1]);
-      updateBoardViewRecordCount([data.target, 1]);
+    if (data.target) {
+      let targetKey = getBoardItemKey(data.target);
+      if (targetKey === 'user-undefined') targetKey = '-1';
+      dispatch(updateBoardViewRecordCount([data.key, -1]));
+      dispatch(updateBoardViewRecordCount([targetKey, 1]));
     }
   };
 }
@@ -955,3 +980,296 @@ export const updateViewCard = data => {
     dispatch({ type: 'MOBILE_UPDATE_VIEW_CARD', data });
   };
 };
+
+export const initCalendarViewData = searchArgs => {
+  return dispatch => {
+    if (searchArgs.beginTime) {
+      searchArgs.beginTime = dateConvertToUserZone(searchArgs.beginTime);
+    }
+    if (searchArgs.endTime) {
+      searchArgs.endTime = dateConvertToUserZone(searchArgs.endTime);
+    }
+    if (!searchArgs.isSilent) {
+      dispatch({ type: 'MOBILE_CHANGE_CALENDAR_LOADING', data: true });
+    }
+    dispatch(
+      fetchSheetRows({
+        beginTime: searchArgs.beginTime,
+        endTime: searchArgs.endTime,
+        pageSize: 10000000,
+      }),
+    );
+  };
+};
+
+export const getCalendarData = () => {
+  return (dispatch, getState) => {
+    const { base, worksheetInfo } = getState().mobile;
+    const { viewId = '', worksheetId } = base;
+    const { views, template } = worksheetInfo;
+    const view = _.find(views, { viewId }) || {};
+    const controls = (template && template.controls) || [];
+    let {
+      calendarType = '0',
+      unweekday = '',
+      colorid = '',
+      begindate = '',
+      enddate = '',
+      calendarcids = '[]',
+    } = getAdvanceSetting(view);
+    try {
+      calendarcids = JSON.parse(calendarcids);
+    } catch (error) {
+      calendarcids = [];
+      console.log(error);
+    }
+    let colorList = colorid ? controls.find(it => it.controlId === colorid) || [] : [];
+    let timeControls = getTimeControls(controls);
+    if (calendarcids.length <= 0) {
+      calendarcids = [{ begin: begindate ? begindate : (timeControls[0] || {}).controlId, end: enddate }]; //兼容老数据
+    }
+    let calendarInfo = calendarcids.map(o => {
+      const startData = o.begin ? timeControls.find(it => it.controlId === o.begin) || {} : {};
+      const endData = o.end ? timeControls.find(it => it.controlId === o.end) || {} : {};
+      return {
+        ...o,
+        startData,
+        startFormat: isTimeStyle(startData) ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
+        endData,
+        endFormat: isTimeStyle(endData) ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD',
+      };
+    });
+
+    let viewType = getCalendartypeData()[`${worksheetId}-${viewId}`];
+    let typeStr = '';
+    if (viewType) {
+      if (['dayGridWeek', 'timeGridWeek'].includes(viewType)) {
+        typeStr = isTimeStyle(calendarInfo[0].startData) ? 'timeGridWeek' : 'dayGridWeek';
+      } else if (['timeGridDay', 'dayGridDay'].includes(viewType)) {
+        typeStr = isTimeStyle(calendarInfo[0].startData) ? 'timeGridDay' : 'dayGridDay';
+      } else {
+        typeStr = viewType;
+      }
+    }
+    dispatch({
+      type: 'MOBILE_CHANGE_CALENDAR_DATA',
+      data: {
+        calendarInfo,
+        unweekday,
+        colorOptions: colorList.options || [],
+        initialView: typeStr ? typeStr : getCalendarViewType(calendarType, calendarInfo[0].startData),
+      },
+    });
+  };
+};
+
+export const updateFormatData = listData => {
+  return (dispatch, getState) => {
+    const { calendarView = {}, base, worksheetInfo } = getState().mobile;
+    const { viewId = '' } = base;
+    const { views, template } = worksheetInfo;
+    const controls = (template && template.controls) || [];
+    const view = _.find(views, { viewId }) || {};
+    const { calendarData = {} } = calendarView;
+    let list = [];
+    listData.map(item => {
+      let data = setDataFormat({
+        ...item,
+        worksheetControls: controls,
+        currentView: view,
+        calendarData,
+      });
+      list.push({
+        ...data[0],
+        originalProps: item,
+      });
+    });
+    dispatch({ type: 'MOBILE_CHANGE_CALENDAR_FORMAT_DATA', data: list });
+  };
+};
+
+const getCalendarEventListPara = (sheet = {}) => {
+  const { base } = sheet;
+  const { appId, worksheetId, viewId } = base;
+  const { chartId } = getRequest();
+  const params = getFilledRequestParams({
+    worksheetId,
+    appId,
+    status: 1,
+    viewId,
+    reportId: chartId ? chartId : undefined,
+    pageSize: 20,
+    beginTime: '',
+    endTime: '',
+  });
+
+  return params;
+};
+
+export const formatEventList = ({ listData, controls, view, calendarData, typeEvent }) => {
+  const formatList = [];
+  listData.map(item => {
+    let data = setDataFormat({
+      ...item,
+      worksheetControls: controls,
+      currentView: view,
+      calendarData,
+      byRowId: typeEvent !== 'eventScheduled',
+    });
+    formatList.push(...data);
+  });
+  return formatList;
+};
+
+export const getNotScheduledEventList = ({
+  pageIndex = 1,
+  keyWords = '',
+  onlyGetCount = false,
+  callback = _.noop,
+} = {}) => {
+  return (dispatch, getState) => {
+    const sheet = getState().mobile;
+    const { calendarView, calenderNotScheduled, sheetFiltersGroup } = sheet;
+    const { calendarData = {} } = calendarView;
+    const { calendarInfo = [] } = calendarData;
+    const { list = [], loading, total } = calenderNotScheduled;
+
+    if (loading) return;
+    const filterControls = calendarInfo.map(o => ({
+      controlId: o.begin,
+      datatype: o.startData.type,
+      values: [],
+      spliceType: 1, //且
+      filterType: 7,
+      dateRange: 0,
+    }));
+
+    let params = {
+      pageIndex,
+      keyWords,
+      filterControls: [...sheetFiltersGroup, ...filterControls],
+      ...getCalendarEventListPara(sheet),
+    };
+    if (!onlyGetCount) {
+      dispatch({
+        type: 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED',
+        data: {
+          loading: true,
+          ...(pageIndex === 1 ? { list: [] } : {}),
+        },
+      });
+    }
+    sheetAjax
+      .getFilterRows(params)
+      .then(({ data = [], count = 0 }) => {
+        // 初始化时获取未排期数量
+        if (onlyGetCount) {
+          dispatch({
+            type: 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED_TOTAL',
+            total: count,
+          });
+          return;
+        }
+        const hasMore = list.length + data.length < count;
+        // 有搜索条件的时候，还是以实际数量为准
+        const realTotal = keyWords ? total : count;
+        const base = { total: realTotal, hasMore, loading: false };
+        const newList = {
+          ...base,
+          list: pageIndex === 1 ? data : [...(list || []), ...(data || [])],
+        };
+
+        dispatch({
+          type: 'MOBILE_CHANGE_CALENDAR_NOT_SCHEDULED',
+          data: newList,
+        });
+      })
+      .finally(() => {
+        callback();
+      });
+  };
+};
+
+export const resetCalendarNotScheduled = () => {
+  return dispatch => {
+    dispatch({ type: 'MOBILE_RESET_CALENDAR_NOT_SCHEDULED' });
+  };
+};
+
+export const deleteCalendarNotScheduled = rowid => {
+  return dispatch => {
+    dispatch({ type: 'MOBILE_DELETE_CALENDAR_NOT_SCHEDULED', rowid });
+  };
+};
+
+export const updateCalendarNotScheduled = (rowid, rowData = {}) => {
+  return (dispatch, getState) => {
+    const sheet = getState().mobile;
+    const { calendarView } = sheet;
+    const { calendarData = {} } = calendarView;
+    const { calendarInfo = [] } = calendarData;
+    const beginControlId = calendarInfo.map(o => o.begin) || [];
+    const hasScheduled = beginControlId.some(key => !!rowData[key]);
+    if (hasScheduled) {
+      dispatch(deleteCalendarNotScheduled(rowid));
+      return;
+    }
+    dispatch({ type: 'MOBILE_UPDATE_CALENDAR_NOT_SCHEDULED', rowid, rowData });
+  };
+};
+
+export function loadCustomButtons({ appId, worksheetId }, cb = () => {}) {
+  return dispatch => {
+    if (!worksheetId || _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
+      return;
+    }
+    sheetAjax
+      .getWorksheetBtns({
+        appId,
+        worksheetId,
+      })
+      .then(buttons => {
+        dispatch({
+          type: 'MOBILE_WORKSHEET_UPDATE_SHEET_BUTTONS',
+          buttons,
+        });
+        cb();
+      });
+  };
+}
+
+export function handleLoadOperateButtons({ worksheetInfo }) {
+  return dispatch => {
+    const actionColumn = flatten(
+      worksheetInfo.views.map(v => safeParse(get(v, 'advancedSetting.actioncolumn'), 'array')),
+    );
+    const needLoadCustomButtons = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'btn');
+    const needLoadPrintList = !get(window, 'shareState.shareId') && find(actionColumn, c => c.type === 'print');
+
+    const { appId, worksheetId } = worksheetInfo;
+
+    if (needLoadCustomButtons) {
+      dispatch(
+        loadCustomButtons({
+          appId,
+          worksheetId,
+        }),
+      );
+    }
+    if (needLoadPrintList) {
+      sheetAjax.getPrintList({ worksheetId }).then(data => {
+        dispatch({
+          type: 'MOBILE_WORKSHEET_UPDATE_PRINT_LIST',
+          printList: data,
+        });
+      });
+    }
+  };
+}
+
+export function onDeleteSuccess({ rowId }) {
+  return (dispatch, getState) => {
+    const { currentSheetRows } = getState().mobile;
+    dispatch(changeMobileSheetRows(currentSheetRows.filter(r => r.rowid !== rowId)));
+  };
+}

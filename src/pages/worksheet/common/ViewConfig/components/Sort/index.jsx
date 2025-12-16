@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Divider } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { CAN_NOT_AS_VIEW_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
@@ -194,10 +195,8 @@ export default function (props) {
               }}
             />
             <Tooltip
-              autoCloseDelay={0}
-              popupPlacement="bottom"
-              tooltipStyle={{ 'max-width': 320 }}
-              text={_l(
+              placement="bottom"
+              title={_l(
                 '当可以保证配置的自定义排序严格有序，或已经为自定义排序创建了索引时，可以勾选不追加默认排序。注意：如果不满足以上条件就取消了追加的默认排序，可能会因为同顺序下有多条记录，而导致翻页时数据缺少或重复。',
               )}
             >

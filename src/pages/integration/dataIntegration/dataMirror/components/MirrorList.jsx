@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import dataMirrorApi from 'src/pages/integration/api/dw.js';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { formatDate } from 'src/pages/integration/config.js';
@@ -231,14 +232,7 @@ export default function MirrorList(props) {
               {item.wsName || _l('未命名')}
             </span>
             {!item.workSheetIsExist && (
-              <Tooltip
-                tooltipStyle={{
-                  maxWidth: 350,
-                  maxHeight: 300,
-                  overflow: 'auto',
-                }}
-                text={<span className="InlineBlock WordBreak">{_l('表被删除')}</span>}
-              >
+              <Tooltip title={<span className="InlineBlock WordBreak">{_l('表被删除')}</span>}>
                 <Icon type={'error'} className="Red Font16 TxtMiddle InlineBlock mLeft5" />
               </Tooltip>
             )}
@@ -314,7 +308,7 @@ export default function MirrorList(props) {
       render: item => {
         return (
           <div className="flexRow alignItemsCenter Hand">
-            <Tooltip text={_.get(item, 'dataSourceInfo')} autoCloseDelay={0}>
+            <Tooltip title={_.get(item, 'dataSourceInfo')}>
               <div
                 className="titleIcon Relative"
                 style={{ background: _.get(item, 'dataSourceIcon.iconBgColor') }}
@@ -331,15 +325,7 @@ export default function MirrorList(props) {
               {item.tableName}
             </span>
             {item.errorInfo && (
-              <Tooltip
-                autoCloseDelay={0}
-                tooltipStyle={{
-                  maxWidth: 350,
-                  maxHeight: 300,
-                  overflow: 'auto',
-                }}
-                text={<span className="InlineBlock WordBreak">{item.errorInfo}</span>}
-              >
+              <Tooltip title={<span className="InlineBlock WordBreak">{item.errorInfo}</span>}>
                 <Icon type={'error'} className="Red Font16 TxtMiddle InlineBlock mLeft5" />
               </Tooltip>
             )}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRef } from 'react';
 import { useDragLayer } from 'react-dnd-latest';
 import cx from 'classnames';
@@ -44,7 +44,7 @@ const ItemLayer = styled.div`
 `;
 
 export default function ListItemLayer(props) {
-  const { listPanelVisible, setPanelVisible = () => {} } = props;
+  const { listPanelVisible, setPanelVisible = () => {}, containerRef } = props;
   const $init = useRef(null);
   const $layerItem = useRef(null);
   const { isDragging, item, itemType, initialClientOffset, currentOffset } = useDragLayer(monitor => {
@@ -57,6 +57,12 @@ export default function ListItemLayer(props) {
     };
     return data;
   });
+
+  useEffect(() => {
+    if (listPanelVisible) {
+      containerRef.current = isDragging;
+    }
+  }, [isDragging]);
 
   if ([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_TAB].includes(itemType)) return null;
   if ((itemType || '').includes('dragType')) return null;
@@ -82,6 +88,7 @@ export default function ListItemLayer(props) {
 
     const resetPanelStatus = () => {
       if ($dom && $dom.isPanelSet && listPanelVisible) {
+        containerRef.current = false;
         setPanelVisible({ widgetVisible: false });
         $dom.isPanelSet = false;
 

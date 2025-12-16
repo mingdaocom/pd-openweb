@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, Dialog, Icon, Input, LoadDiv, RadioGroup, Tooltip } from 'ming-ui';
+import { Checkbox, Dialog, Icon, Input, LoadDiv, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import dataSourceApi from '../../../../api/datasource';
 import worksheetApi from 'src/api/worksheet';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -627,7 +628,7 @@ export default function OnlySyncStep(props) {
             />
           </div>
           {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) === 'OVERWRITE' && (
-            <Tooltip text={_l('“覆盖”会导致数据同步变慢。')}>
+            <Tooltip title={_l('“覆盖”会导致数据同步变慢。')}>
               <Icon icon="info_outline" className="Font16 Gray_bd pointer" />
             </Tooltip>
           )}
@@ -737,8 +738,7 @@ export default function OnlySyncStep(props) {
           </div>
           <span className="nowrap">{_l('为主键')}</span>
           <Tooltip
-            autoCloseDelay={0}
-            text={
+            title={
               !isSourceAppType
                 ? _l('只可以选非空字段。仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')
                 : _l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')

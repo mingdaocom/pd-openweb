@@ -9,7 +9,7 @@ const SearchWrapper = styled.div`
   align-items: center;
   padding: 7px 10px;
   margin: 10px 15px;
-  background-color: var(--gray-f8);
+  background-color: var(--color-background-secondary);
   border-radius: 24px;
 
   input {
@@ -21,11 +21,11 @@ const SearchWrapper = styled.div`
 
   .icon-h5_search {
     font-size: 14px;
-    color: var(--gray-75);
+    color: var(--color-text-secondary);
   }
   .icon-workflow_cancel {
     font-size: 15px;
-    color: var(--gray-bd);
+    color: var(--color-text-disabled);
   }
 `;
 

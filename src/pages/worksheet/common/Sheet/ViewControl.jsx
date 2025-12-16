@@ -5,7 +5,8 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Slider, Tooltip } from 'ming-ui';
+import { Slider } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { copyViewConfig } from 'worksheet/common/CopyViewConfig';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
 import { exportSheet } from 'worksheet/common/ExportSheet';
@@ -64,6 +65,8 @@ const Con = styled.div`
 
 function ViewControl(props) {
   const {
+    type,
+    emitter,
     base,
     appId,
     groupId,
@@ -166,6 +169,52 @@ function ViewControl(props) {
     });
   };
 
+  const handleExport = ({ allowExportStatistics = true }) => {
+    const hasCharge = isCharge || canEditData(_.get(appPkg, 'permissionType'));
+    exportSheet({
+      sheetHiddenColumns,
+      allCount: count,
+      allWorksheetIsSelected,
+      appId: appId,
+      exportView: view,
+      worksheetId: worksheetId,
+      projectId: projectId,
+      chartId,
+      searchArgs: filters,
+      selectRowIds: sheetSelectedRows.map(item => item.rowid),
+      sheetSwitchPermit: newSheetSwitchPermit,
+      columns: hasCharge
+        ? controls.filter(item => {
+            return item.controlId !== 'rowid';
+          })
+        : filterHidedControls(controls, view.controls, false).filter(item => {
+            return (
+              ((item.controlPermissions && item.controlPermissions[0] === '1') || !item.controlPermissions) &&
+              item.controlId !== 'rowid'
+            );
+          }),
+      downLoadUrl: worksheetInfo.downLoadUrl,
+      worksheetSummaryTypes: rowsSummary.types,
+      quickFilter,
+      navGroupFilters,
+      sortControls,
+      isCharge: hasCharge,
+      // 支持列统计结果
+      hideStatistics: !allowExportStatistics,
+    });
+  };
+
+  useEffect(() => {
+    if (!emitter || !chartId) return;
+    emitter.on('EXPORT_CURRENT_VIEW_AS_EXCEL', handleExport);
+    return () => {
+      emitter.off('EXPORT_CURRENT_VIEW_AS_EXCEL', handleExport);
+    };
+  }, []);
+
+  if (type == 'exportSheetButton') {
+    return null;
+  }
   return (
     <Con>
       <ViewItems
@@ -223,40 +272,7 @@ function ViewControl(props) {
             },
           });
         }}
-        onExport={() => {
-          const hasCharge = isCharge || canEditData(_.get(appPkg, 'permissionType'));
-          exportSheet({
-            sheetHiddenColumns,
-            allCount: count,
-            allWorksheetIsSelected,
-            appId: appId,
-            exportView: view,
-            worksheetId: worksheetId,
-            projectId: projectId,
-            chartId,
-            searchArgs: filters,
-            selectRowIds: sheetSelectedRows.map(item => item.rowid),
-            sheetSwitchPermit: newSheetSwitchPermit,
-            columns: hasCharge
-              ? controls.filter(item => {
-                  return item.controlId !== 'rowid';
-                })
-              : filterHidedControls(controls, view.controls, false).filter(item => {
-                  return (
-                    ((item.controlPermissions && item.controlPermissions[0] === '1') || !item.controlPermissions) &&
-                    item.controlId !== 'rowid'
-                  );
-                }),
-            downLoadUrl: worksheetInfo.downLoadUrl,
-            worksheetSummaryTypes: rowsSummary.types,
-            quickFilter,
-            navGroupFilters,
-            sortControls,
-            isCharge: hasCharge,
-            // 支持列统计结果
-            hideStatistics: false,
-          });
-        }}
+        onExport={handleExport}
         onExportAttachment={() => {
           const hasCharge = isCharge || canEditData(_.get(appPkg, 'permissionType'));
           exportAttachment({
@@ -307,17 +323,17 @@ function ViewControl(props) {
               updateSearchRecord(view, null);
             }}
           >
-            <Tooltip popupPlacement="bottom" text={<span>{_l('查找')}</span>}>
+            <Tooltip placement="bottom" title={_l('查找')}>
               <i className={cx('icon icon-search Gray_9e Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
             </Tooltip>
           </SearchRecord>
         )}
-      <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
+      <Tooltip placement="bottom" title={_l('刷新视图')}>
         <i
           className={cx('icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop2')}
           onClick={() => {
             if (cache.current.isRefreshing) {
-              alert(_l('刷新频率过快'), 3);
+              alert(_l('刷新过于频繁，请稍后再试'), 3);
               return;
             }
             refreshSheet(view, { updateWorksheetControls: true, isRefreshBtn: true });
@@ -359,10 +375,11 @@ function ViewControl(props) {
         <div className="detailAllCount">{_l('共') + detailView.detailViewRowsCount + _l('条')}</div>
       )}
 
-      {Number(view && view.viewType) === 0 && !getGroupControlId(view) && (
+      {Number(view && view.viewType) === 0 && (
         <Pagination
           disabled={!!get(base, 'forcePageSize')}
           abnormalMode={pageCountAbnormal}
+          onlyShowCount={getGroupControlId(view)}
           className="pagination"
           pageIndex={pageIndex}
           pageSize={pageSize}
@@ -422,11 +439,8 @@ function ViewControl(props) {
             '.quickAddControlDialog',
             '.ant-modal-root',
             '.ant-tooltip',
-            '.deleteHoverTips',
             '.CodeMirror-hints',
-            '.Tooltip-wrapper',
             '.selectRoleDialog',
-            '.Tooltip',
             '#quickSelectDept',
             '.ant-drawer-mask',
             '.attachmentsPreview',

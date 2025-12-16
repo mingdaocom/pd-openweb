@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { arrayOf, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Button, Checkbox, Dropdown, LoadDiv, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getWithToken } from 'src/utils/common';
 import convert from './convertData';
 import PreviewTable from './PreviewTable';
@@ -156,18 +157,22 @@ export default function PreviewData(props) {
                       .map((e, i) => ({ text: i === 0 ? _l('没有表头行') : _l('第%0行', i), value: i }))}
                     onChange={setHeadRowIndex}
                   />
-                  <span data-tip={_l('只有表头下方的数据才会被导入')} className="mLeft8 LineHeight1em">
-                    <i className="icon-info_outline Font18 Gray_bd"></i>
-                  </span>
+                  <Tooltip title={_l('只有表头下方的数据才会被导入')} placement="bottom">
+                    <span className="mLeft8 LineHeight1em">
+                      <i className="icon-info_outline Font18 Gray_bd"></i>
+                    </span>
+                  </Tooltip>
                 </div>
                 <div className="flexRow mLeft30 valignWrapper">
                   <Checkbox text={_l('按名称匹配')} checked={mapByExcel} onClick={() => setMapByExcel(!mapByExcel)} />
-                  <span
-                    data-tip={_l('勾选时，自动匹配与表头行名称的一致的字段。取消勾选时，默认按照字段顺序依次匹配')}
-                    className="mLeft8 LineHeight1em"
+                  <Tooltip
+                    title={_l('勾选时，自动匹配与表头行名称的一致的字段。取消勾选时，默认按照字段顺序依次匹配')}
+                    placement="bottom"
                   >
-                    <i className="icon-info_outline Font18 Gray_bd"></i>
-                  </span>
+                    <span className="mLeft8 LineHeight1em">
+                      <i className="icon-info_outline Font18 Gray_bd"></i>
+                    </span>
+                  </Tooltip>
                 </div>
               </div>
             )}

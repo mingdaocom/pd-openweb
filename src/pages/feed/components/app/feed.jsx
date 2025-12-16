@@ -10,7 +10,7 @@ import './style.css';
 
 class Feed extends React.Component {
   static propTypes = {
-    defaultExpandedGroup: PropTypes.array, // TODO: 群组加入 store
+    defaultExpandedGroup: PropTypes.array, // 群组加入 store
   };
 
   render() {

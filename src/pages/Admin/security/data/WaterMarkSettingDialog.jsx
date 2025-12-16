@@ -2,10 +2,18 @@ import React, { useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Dialog, TagTextarea, Tooltip } from 'ming-ui';
+import styled from 'styled-components';
+import { Dialog, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import projectSettingAjax from 'src/api/projectSetting';
 import { ControlTag, SelectFieldsWrap } from 'src/pages/widgetConfig/styled/index';
 import Config from '../../config';
+
+const WaterMarkTextarea = styled(TagTextarea)`
+  .CodeMirror-placeholder {
+    color: #757575 !important;
+  }
+`;
 
 const CONTROLS = [
   {
@@ -84,8 +92,10 @@ function WaterMarkSettingDialog(props) {
             overflow: { adjustX: true, adjustY: true },
           }}
         >
-          <TagTextarea
+          <WaterMarkTextarea
+            className="waterMarkTextarea"
             defaultValue={value}
+            placeholder={_l('请输入文字或选择变量组合（默认显示：姓名+手机/邮箱）')}
             maxHeight={140}
             getRef={tagTextarea => {
               $tagTextarea.current = tagTextarea;
@@ -94,7 +104,7 @@ function WaterMarkSettingDialog(props) {
               const originControl = _.find(CONTROLS, item => item.controlId === id);
               const controlName = _.get(originControl, 'controlName');
               return (
-                <Tooltip text={<span>{_l('ID: %0', id)}</span>} popupPlacement="bottom" disable={controlName}>
+                <Tooltip title={controlName ? '' : <span>{_l('ID: %0', id)}</span>} placement="bottom">
                   <ControlTag className={cx({ invalid: !controlName, Hand: !controlName })}>{controlName}</ControlTag>
                 </Tooltip>
               );

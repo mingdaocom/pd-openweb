@@ -639,6 +639,7 @@ export default {
    * @param {array} args.sheets 工作表权限集合
    * @param {array} args.userIds 角色成员id集合
    * @param {array} args.pages 自定义页面
+   * @param {array} args.chatbots 自定义 对话机器人
    * @param {array} args.extendAttrs 用户扩展权限字段
    * @param {} args.generalAdd
    * @param {} args.gneralShare

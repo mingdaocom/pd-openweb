@@ -1,7 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { addBehaviorLog } from 'src/utils/project';
 
 const RecordItem = styled.div`
@@ -165,7 +166,7 @@ export default function Item(props) {
               <div className="divider mLeft16 mRight5" />
             </React.Fragment>
           )}
-          <Tooltip text={_l('在新页面中打开')} popupPlacement="bottom">
+          <Tooltip title={_l('在新页面中打开')} placement="bottom">
             <div
               className="toDes"
               onClick={e => {
@@ -182,7 +183,7 @@ export default function Item(props) {
               <Icon className="Font20" icon="launch" />
             </div>
           </Tooltip>
-          <Tooltip text={_l('取消收藏')} popupPlacement="bottom">
+          <Tooltip title={_l('取消收藏')} placement="bottom">
             <div
               className="delFav"
               onClick={e => {
@@ -196,7 +197,7 @@ export default function Item(props) {
           </Tooltip>
         </div>
         {isTop && !forCard && <div className="divider mRight10 nameDivider"></div>}
-        <Tooltip text={isTop ? _l('取消置顶') : _l('置顶')} popupPlacement="bottom">
+        <Tooltip title={isTop ? _l('取消置顶') : _l('置顶')} placement="bottom">
           <div
             className={cx('stickyTop mRight12', { hide: !isTop || forCard })}
             onClick={e => {

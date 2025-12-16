@@ -246,7 +246,7 @@ $.extend(FolderSelect.prototype, {
               getNodeAjax = true;
               var nodeData = await ajax.getNodeDetail({ path: $lastNode.data('path') });
               if (!nodeData) {
-                return Promise.reject();
+                throw new Error();
               }
               let resObj = { type: parseInt(resultType), node: nodeData };
               if (resultType === PICK_TYPE.CHILDNODE && settings.reRootName) {
@@ -351,7 +351,7 @@ $.extend(FolderSelect.prototype, {
       $folderSearch.find('.icon-search').on({
         click: function (evt) {
           evt.stopPropagation();
-          var searchName = $.trim($searchFolder.val());
+          var searchName = $searchFolder.val().trim();
           if (!searchName && $searchFolder.width() > 160) {
             $searchFolder.blur();
             return;
@@ -378,14 +378,14 @@ $.extend(FolderSelect.prototype, {
       });
       $searchFolder.on({
         blur: function () {
-          var searchName = $.trim($(this).val());
+          var searchName = $(this).val().trim();
           if (!searchName || searchName == '请输入文件名称并回车') {
             folderSelect.removeSearch();
           }
         },
         keydown: function (evt) {
           if (evt.keyCode == 13) {
-            var searchName = $.trim($(this).val());
+            var searchName = $(this).val().trim();
             if (searchName && searchName.length) {
               settings.keywords = searchName;
               settings.skip = 0;
@@ -417,7 +417,7 @@ $.extend(FolderSelect.prototype, {
                 .updateNode({ id: nodeData.id, visibleType: visibleId })
                 .then(function (result) {
                   if (!result) {
-                    return Promise.reject();
+                    throw new Error();
                   }
                   alert(_l('修改成功'));
                   nodeData.visibleType = visibleId;
@@ -589,7 +589,7 @@ $.extend(FolderSelect.prototype, {
     if (isScroll) {
       $folderHtml = $folderNode.find('.nodeList');
       $folderHtml.append(loading);
-      var inputText = $.trim($folderUrl.find('.operation .searchFolder').val());
+      var inputText = ($folderUrl.find('.operation .searchFolder').val() || '').trim();
       if (settings.keywords && settings.keywords !== inputText) {
         settings.skip = 0;
       }
@@ -802,7 +802,6 @@ $.extend(FolderSelect.prototype, {
                 if (i > positionArr.length - 4) {
                   var href = positionArr.slice(0, i + 1).join('/');
                   var flex = i == positionArr.length - 1 ? 'flex' : '';
-                  //使用$.data(path,'xx/xx') 避免路径中带有 &#39;  获取路径值时为 ’ 问题
                   var $pathItem = $(pathItmeTpl({ flex: flex, name: part }));
                   $pathItem.filter('.levelName').data('path', href);
                   if (!path) {
@@ -866,7 +865,7 @@ $.extend(FolderSelect.prototype, {
           el = $(el);
           html += el.attr('title') ? el.attr('title') : $(el).html();
         });
-        $folderPath.addClass('tip-top').attr('title', html);
+        $folderPath.attr('title', html);
 
         if (settings.appointRoot) {
           $folderPath.find('.startTag').removeClass('ThemeColor3');
@@ -1035,7 +1034,7 @@ $.extend(FolderSelect.prototype, {
           //新建文件夹
           blur: function () {
             var $this = $(this);
-            var name = $.trim($this.val());
+            var name = $this.val().trim();
             if (!name) {
               $this.closest('.addNewFolder').remove();
               //alert('文件名不能为空', 2);
@@ -1043,7 +1042,7 @@ $.extend(FolderSelect.prototype, {
               return false;
             }
             if (name && name.length > 255) {
-              alert(_l('文件名称过长,请保持名称在255个字符以内'), 2, 3000);
+              alert(_l('文件名称过长,请保持名称在255个字符以内'), 2);
               $this.select();
               return false;
             }
@@ -1131,7 +1130,7 @@ $.extend(FolderSelect.prototype, {
       })
       .then(function (result) {
         if (!result) {
-          return Promise.reject();
+          throw new Error();
         }
         $this
           .closest('li.addNewFolder')

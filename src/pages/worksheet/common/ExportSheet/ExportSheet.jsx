@@ -1,8 +1,8 @@
 ﻿import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Checkbox, Dialog, Icon, LoadDiv, Radio, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagement from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -811,8 +811,6 @@ export default class ExportSheet extends Component {
                 <span>
                   {_l('加速导出')}
                   <Tooltip
-                    autoCloseDelay={0}
-                    overlayStyle={{ maxWidth: 350 }}
                     title={
                       <Fragment>
                         <div>{_l('导出以下字段时，将使用冗余值，可能会导出旧数据：')}</div>
@@ -852,8 +850,6 @@ export default class ExportSheet extends Component {
                     <span>
                       {_l('导出为Excel数值类型')}
                       <Tooltip
-                        autoCloseDelay={0}
-                        overlayStyle={{ maxWidth: 350 }}
                         title={
                           <div>
                             <div>{_l('以下类型有效')}</div>

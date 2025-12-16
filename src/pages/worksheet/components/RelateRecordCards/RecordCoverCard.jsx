@@ -3,8 +3,8 @@ import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { validate } from 'uuid';
-import { getTitleControlId, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { Tooltip } from 'ming-ui/antd-components';
+import { getTitleControlId, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { browserIsMobile } from 'src/utils/common';
 import { getRecordCardStyle } from 'src/utils/control';
@@ -121,7 +121,7 @@ export default function RecordCoverCard(props) {
     viewId,
     allowlink,
     sourceEntityName = '',
-    parentControl,
+    parentControl = {},
     isCharge,
     sheetSwitchPermit = [],
     onReplaceRecord = () => {},
@@ -179,15 +179,16 @@ export default function RecordCoverCard(props) {
       {!disabled && !showAddAsDropdown && (
         <div className="operateButton">
           {allowReplaceRecord && (
-            <CardButton
-              className="mRight8 tip-bottom"
-              style={isMobile ? { visibility: 'visible' } : {}}
-              onClick={click(onReplaceRecord)}
-              data-tip={isMobile ? '' : _l('重新选择')}
-              isMobile={isMobile}
-            >
-              <i className="icon icon-swap_horiz"></i>
-            </CardButton>
+            <Tooltip title={isMobile ? '' : _l('重新选择')} placement="bottom">
+              <CardButton
+                className="mRight8"
+                style={isMobile ? { visibility: 'visible' } : {}}
+                onClick={click(onReplaceRecord)}
+                isMobile={isMobile}
+              >
+                <i className="icon icon-swap_horiz"></i>
+              </CardButton>
+            </Tooltip>
           )}
           <CardButton
             className={isMobile ? '' : 'red'}

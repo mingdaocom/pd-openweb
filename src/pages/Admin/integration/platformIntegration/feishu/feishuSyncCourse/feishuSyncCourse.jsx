@@ -10,6 +10,8 @@ import Ajax from 'src/api/workWeiXin';
 import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
 import fsImg4 from './img/4.png';
 import fsImg7 from './img/7.png';
+import larkSyncApproval from './img/larkSyncApproval.png';
+import syncApproval from './img/syncApproval.png';
 import './style.less';
 
 const PlatformName = {
@@ -25,29 +27,35 @@ export default class WorkwxSyncCourse extends React.Component {
       loading: true,
       scanSafeDomain: '',
       type: _.get(qs.parse(location.search), 'type') || 'feishu',
+      position: _.get(qs.parse(location.search), 'position') || '',
     };
   }
 
   componentDidMount() {
+    const { position } = this.state;
     let match = this.props.match;
+
     if (!match.params.projectId) {
       return;
     }
+
     Ajax.getFeishuSsoUrlInfo({
       projectId: match.params.projectId,
       apkId: match.params.apkId,
     }).then(result => {
       if (result) {
         const { homeUrl, scanSafeDomain } = result;
-        this.setState({
-          loading: false,
-          homeUrl,
-          scanSafeDomain,
-        });
+        this.setState({ loading: false, homeUrl, scanSafeDomain });
       } else {
-        this.setState({
-          loading: false,
-        });
+        this.setState({ loading: false });
+      }
+
+      if (position === 'processSync') {
+        setTimeout(() => {
+          if (this.syncApprovalRef) {
+            this.syncApprovalRef.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
       }
     });
   }
@@ -84,7 +92,7 @@ export default class WorkwxSyncCourse extends React.Component {
               className="download"
               target="_blank"
               download={'md' + moment().format('YYYY-MM-DD') + '.png'}
-              href={`${md.global.FileStoreConfig.pubHost}logo_app.png`}
+              href={`${md.global.FileStoreConfig.pubHost}/logo_app.png`}
             >
               {_l('点击下载')}
             </a>
@@ -141,6 +149,8 @@ export default class WorkwxSyncCourse extends React.Component {
             <li className="mTop5">{_l('k.获取用户手机号')}</li>
             <li className="mTop5">{_l('l.以应用的身份发消息')}</li>
             <li className="mTop5">{_l('m.给多个用户批量发消息')}</li>
+            <li className="mTop5">{_l('n.查看、创建、更新、删除审批应用相关信息')}</li>
+            {!isLark && <li className="mTop5">{_l('o.查看、创建、更新、删除三方审批定义相关信息')}</li>}
           </ul>
           <img src={require(`./img/${isLark ? 'lark_5' : '5'}.png`)} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">
@@ -164,7 +174,7 @@ export default class WorkwxSyncCourse extends React.Component {
     const isLark = type === 'lark';
 
     return (
-      <div className="scanWorkwx" style={{ height: 2240 }}>
+      <div className="scanWorkwx" style={{ height: 'max-content' }}>
         <h3 className="Font18 Gray mTop40">{_l('%0扫码登录（可选）', PlatformName[type])}</h3>
         <p className="mTop24">{_l('开启后，在二级域名下使用%0扫一扫，直接登录', PlatformName[type])}</p>
         <p className="Font14 Gray_75 mTop20 LineHeight22">{_l('1.设置二级域名')}</p>
@@ -194,6 +204,30 @@ export default class WorkwxSyncCourse extends React.Component {
     );
   };
 
+  // 流程待办同步至飞书审批中心
+  renderSyncApproval = () => {
+    const { type } = this.state;
+    const isLark = type === 'lark';
+    return (
+      <div ref={ele => (this.syncApprovalRef = ele)}>
+        <h3 className="Font18 Gray mTop40">
+          {isLark ? _l('流程待办同步至Lark审批中心') : _l('流程待办同步至飞书审批中心')}
+        </h3>
+        <p className="mTop24 Font14">
+          {isLark
+            ? _l(
+                '需要增加两个待办相关的权限，请前往Lark开放平台找到当前集成的应用，在权限管理-点击开通权限找到审批相关的以下两个权限，选择并确认开通权限。',
+              )
+            : _l(
+                '需要增加两个待办相关的权限，请前往飞书开放平台找到当前集成的应用，在权限管理-点击开通权限找到审批相关的以下两个权限,选择并确认开通权限。',
+              )}
+        </p>
+        <p className="Font14 mTop10">{_l('开通后需要重新发布版本，发布成功后才可生效。')}</p>
+        <img src={isLark ? larkSyncApproval : syncApproval} />
+      </div>
+    );
+  };
+
   render() {
     if (this.state.loading) {
       return (
@@ -208,6 +242,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <h1 className="Gray">{_l('获取对接信息')}</h1>
           {this.renderDing()}
           {this.renderScanContent()}
+          {this.renderSyncApproval()}
         </div>
       </div>
     );

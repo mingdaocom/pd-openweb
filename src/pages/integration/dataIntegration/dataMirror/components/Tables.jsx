@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dropdown, Icon, Input, LoadDiv, Tooltip } from 'ming-ui';
+import { Dropdown, Icon, Input, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import dataMirrorAjax from 'src/pages/integration/api/dw.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
@@ -167,7 +168,7 @@ function Controls(props) {
                 {item.wsFieldName}
               </span>
               {item.description && (
-                <Tooltip text={item.description} placement="topRight">
+                <Tooltip title={item.description} placement="topRight">
                   <Icon icon="info" className="Gray_9e mLeft4 pointer" />
                 </Tooltip>
               )}
@@ -451,7 +452,7 @@ export default function Tables(props) {
             ) : (
               <React.Fragment>
                 {item.isErr && (
-                  <Tooltip text={_l('表已存在')}>
+                  <Tooltip title={_l('表已存在')}>
                     <Icon icon="info" className="Font18 mRight3 warn" />
                   </Tooltip>
                 )}

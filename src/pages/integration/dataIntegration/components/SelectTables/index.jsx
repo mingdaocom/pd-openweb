@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import datasourceApi from '../../../api/datasource';
 import homeAppApi from 'src/api/homeApp';
 import { isValidName } from '../../constant';
@@ -60,7 +61,7 @@ export default function SelectTables(props) {
                   isSameTable || !isValidTable ? (
                     <div className="flexRow alignItemsCenter">
                       <span className="Gray_9e">{item.workSheetName}</span>
-                      <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
+                      <Tooltip title={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
                         <Icon icon="info" className="Gray_bd mLeft24 pointer" />
                       </Tooltip>
                     </div>
@@ -114,7 +115,7 @@ export default function SelectTables(props) {
                   <div className="flexRow alignItemsCenter">
                     <span className="Gray_9e">{item}</span>
                     <Tooltip
-                      text={
+                      title={
                         isSameTable
                           ? _l('不可选与数据源相同的表')
                           : !pgSqlValid

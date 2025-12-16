@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var datasource = {
-
+const datasource = {
   /**
    * 获取数据源类型列表
    *
@@ -361,7 +360,7 @@ var datasource = {
     base.ajaxOptions.url = base.server(options) + 'datasource/fillJdbcType';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'datasourcefillJdbcType', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default datasource;

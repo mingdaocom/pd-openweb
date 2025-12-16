@@ -203,6 +203,7 @@ export default class Show extends React.Component {
             }}
             isShowColumns={true}
             sortAutoChange={true}
+            disabled={this.props.saveViewSetLoading}
           />
         ) : (
           <SysSortColumn>
@@ -219,6 +220,7 @@ export default class Show extends React.Component {
                 this.onChangeColumns({ newShowControls, newControlSorts });
               }}
               sortAutoChange={true}
+              disabled={this.props.saveViewSetLoading}
             />
           </SysSortColumn>
         )}

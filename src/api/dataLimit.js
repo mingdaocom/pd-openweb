@@ -136,4 +136,16 @@ export default {
   getLimitRowTotal: function (args, options = {}) {
     return mdyAPI('DataLimit', 'GetLimitRowTotal', args, options);
   },
+  /**
+   * 重置应用使用用量
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.appId 应用idid
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  resetUsage: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'ResetUsage', args, options);
+  },
 };

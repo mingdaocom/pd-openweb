@@ -12,6 +12,25 @@
       }
     }
   }
+  &.autoHeightPopupBody {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(~'100% - 40px');
+    .popupWrapper {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      .popupHeaderBox {
+        flex-shrink: 0;
+      }
+      .popupContentBox {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+      }
+    }
+  }
 }
 
 .popupWrapper {
@@ -24,12 +43,18 @@
     height: 44px;
     font-size: 15px;
     font-weight: 600;
+    &.justify-center {
+      justify-content: center;
+    }
+    &.justify-left {
+      justify-content: flex-start;
+    }
 
     .popupTitle {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      max-width: 120px;
+      max-width: 150px;
       color: #151515;
     }
 
@@ -43,7 +68,7 @@
 
     .rightBtnBox {
       display: flex;
-      gap: 27px;
+      gap: 16px;
 
       .btnClear {
         color: #f44336;
@@ -56,6 +81,58 @@
 
     .btnDisable {
       opacity: 0.5;
+    }
+
+    .widthIconTitle-center {
+      max-width: 180px;
+      color: #151515;
+      font-size: 18px;
+    }
+    .widthIconTitle-left {
+      max-width: 200px;
+      color: #9e9e9e;
+      font-size: 13px;
+    }
+    .closeIcon {
+      position: absolute;
+      right: 16px;
+      top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 12px;
+      background-color: #e6e6e6;
+      font-size: 18px;
+      color: #9e9e9e;
+    }
+  }
+  .popupContentBox {
+    // 通用按钮容器
+    .commonButtonBox {
+      padding: 0 18px 12px;
+      .commonButton {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        .icon {
+          font-size: 20px;
+          color: var(--color-text-tertiary);
+        }
+        .buttonText {
+          margin-left: 25px;
+          font-size: 15px;
+          font-weight: 600;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: var(--color-text-primary);
+        }
+        .error {
+          color: var(--color-error);
+        }
+      }
     }
   }
 }

@@ -7,7 +7,8 @@ import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls } from 'src/components/Form/core/utils';
+import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/utils/common';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
@@ -80,7 +81,7 @@ export default function FilledRecord(props) {
   } = publicWorksheetInfo;
   const isMobile = browserIsMobile();
   const [recordDetail, setRecordDetail] = useState({ visible: false });
-  const [filledRecord, setFilledRecord] = useSetState({ list: [], count: 0, isPayOrder: false });
+  const [filledRecord, setFilledRecord] = useSetState({ list: [], count: 0, isPayOrder: false, isOpenInvoice: false });
   const [listDialogVisible, setListDialogVisible] = useState(false);
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
@@ -115,6 +116,7 @@ export default function FilledRecord(props) {
           list: fetchState.pageIndex > 1 ? filledRecord.list.concat(res.data) : res.data,
           count: res.count,
           isPayOrder: res.isPayOrder,
+          isOpenInvoice: res.isOpenInvoice,
         });
         setFetchState({ loading: false, noMore: res.data.length < 50 });
       }
@@ -268,6 +270,16 @@ export default function FilledRecord(props) {
                         {_l('支付')}
                       </div>
                     )}
+
+                    <ApplyInvoiceBtn
+                      className="operateBtn invoice"
+                      orderInfo={_.pick(item, ['orderId', 'orderStatus', 'amount'])}
+                      isOpenInvoice={filledRecord.isOpenInvoice}
+                      invoiceStatus={item.invoiceStatus}
+                      invoiceId={item.invoiceId}
+                      worksheetId={worksheetId}
+                    />
+
                     {isAllowEdit(item.ctime) && item.allowedit && !isMobile && (
                       <div
                         className="edit operateBtn"

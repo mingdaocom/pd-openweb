@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
 import {
   formatControlInfo,
@@ -116,10 +117,10 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
-      this.RadarChart.update(config);
+      this.RadarChart && this.RadarChart.update(config);
     }
     if (nextProps.isLinkageData !== this.props.isLinkageData) {
-      this.RadarChart.destroy();
+      this.RadarChart && this.RadarChart.destroy();
       this.renderRadarChart(nextProps);
     }
   }
@@ -327,7 +328,7 @@ export default class extends Component {
       limitInPlot: true,
       area: {},
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: colors,
       tooltip: {
@@ -459,9 +460,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'} ref={el => (this.chartEl = el)}></div>

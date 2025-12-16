@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Select, Tooltip } from 'antd';
+import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Dropdown, Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import {
   API_ENUM_TO_TYPE,
@@ -27,14 +28,7 @@ const listType = [
   FILTER_CONDITION_TYPE.DATE_NBETWEEN,
 ];
 // 附件 检查框 地区 地区 地区
-const listControlType = [
-  API_ENUM_TO_TYPE.ATTACHMENT,
-  API_ENUM_TO_TYPE.SWITCH,
-  API_ENUM_TO_TYPE.AREA_INPUT_24,
-  API_ENUM_TO_TYPE.AREA_INPUT_19,
-  API_ENUM_TO_TYPE.AREA_INPUT_23,
-  API_ENUM_TO_TYPE.LOCATION,
-];
+const listControlType = [API_ENUM_TO_TYPE.ATTACHMENT, API_ENUM_TO_TYPE.SWITCH, API_ENUM_TO_TYPE.LOCATION];
 export default class Condition extends Component {
   static propTypes = {
     isRules: PropTypes.bool,
@@ -232,9 +226,8 @@ export default class Condition extends Component {
             <div className="deletedColumn">
               <i className="icon icon-info"></i>
               <Tooltip
-                overlayClassName="deleteHoverTips"
                 overlayInnerStyle={{ padding: '8px 10px' }}
-                title={<span>{_l('ID: %0', condition.controlId)}</span>}
+                title={_l('ID: %0', condition.controlId)}
                 placement="bottom"
               >
                 <span className="Hand">{_l('该字段已删除')}</span>
@@ -251,7 +244,7 @@ export default class Condition extends Component {
           )}
         </div>
         <div className="conditionItemContent">
-          {/* // 附件 检查框 地区 地区 地区 为空 不为空  在范围内 不在范围内没有动态筛选 */}
+          {/* // 附件 检查框 为空 不为空  在范围内 不在范围内没有动态筛选 */}
           {isDynamicStyle && (
             <Select
               className="dynamicSource"

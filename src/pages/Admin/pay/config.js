@@ -98,14 +98,6 @@ export const PAY_METHOD = [
   { label: _l('支付宝'), value: 0 },
 ];
 
-export const INVOICE_STATUS = [
-  { label: _l('申请开票'), value: 1 },
-  { label: _l('未开票'), value: 2 },
-  { label: _l('已开票'), value: 3 },
-  { label: _l('开票中'), value: 4 },
-  { label: _l('开票失败'), value: 5 },
-];
-
 export const INCOME_INFO = [
   { id: 'totalAmount', text: _l('总收入') },
   { id: 'dateRangeTotalAmount', text: '' },

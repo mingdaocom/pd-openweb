@@ -8,7 +8,7 @@ import roleApi from 'src/api/role';
 import { getCurrentProject } from 'src/utils/project';
 
 export default function RoleItem(props) {
-  const { role, projectId, isApply, onRefreshRoleList, onOpenDrawer } = props;
+  const { role, projectId, isApply, onRefreshRoleList, onOpenDrawer, selectedRole } = props;
   const [hasApply, setHasApply] = useState(false);
   const [popupVisibleId, setPopupVisibleId] = useState(null);
   const [isMembersOverflow, setIsMembersOverflow] = useState(false);
@@ -117,7 +117,7 @@ export default function RoleItem(props) {
 
   return (
     <React.Fragment>
-      <div className={cx('roleItem', { disabled: isApply })} onClick={() => !isApply && onOpenDrawer()}>
+      <div className={cx('roleItem', { disabled: isApply, selectedRole })} onClick={() => !isApply && onOpenDrawer()}>
         <div className="roleName">
           {role.roleName}
           {role.isSuperAdmin && <Icon icon="people_5" className="Font15 mLeft4 superIcon" />}

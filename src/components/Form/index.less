@@ -1,7 +1,7 @@
 .ignoreErrorMessage {
-  background: #f8932c;
+  background: var(--color-warning);
   .customFormErrorArrow {
-    border-color: transparent transparent transparent #f8932c;
+    border-color: transparent transparent transparent var(--color-warning);
   }
 }
 
@@ -12,6 +12,14 @@
   .errorItem {
     display: flex;
     align-items: center;
+  }
+}
+
+.ruleErrorMsgDialog {
+  width: 98% !important;
+  max-width: 480px;
+  .mui-dialog-desc {
+    padding-top: 16px !important;
   }
 }
 

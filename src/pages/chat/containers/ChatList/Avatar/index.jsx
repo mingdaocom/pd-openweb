@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Drawer } from 'antd';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Setting from 'src/pages/chat/containers/SettingDrawer';
 import User from 'src/pages/chat/containers/UserDrawer';
 import * as actions from 'src/pages/chat/redux/actions';
@@ -16,7 +17,7 @@ const AvatarSetting = props => {
   return (
     <Fragment>
       <div className="flexColumn alignItemsCenter justifyContentCenter mTop8 mBottom8">
-        <Tooltip text={md.global.Account.fullname} popupPlacement={embed ? 'bottom' : 'left'} autoCloseDelay={1000}>
+        <Tooltip title={md.global.Account.fullname} placement={embed ? 'bottom' : 'left'} mouseLeaveDelay={0.1}>
           <div
             onClick={() => {
               setToolbarConfig({
@@ -35,17 +36,18 @@ const AvatarSetting = props => {
       </div>
       <Drawer
         placement="right"
+        className="userDrawerWrap"
         visible={userDrawerVisible}
-        destroyOnClose={true}
         closable={false}
         maskStyle={{
           backgroundColor: 'transparent',
         }}
         onClose={() => setToolbarConfig({ userDrawerVisible: false })}
-        getContainer={() => (embed ? document.body : document.querySelector('#containerWrapper'))}
+        getContainer={() => document.body}
         style={{
           position: embed ? undefined : 'absolute',
           zIndex: 20,
+          right: embed ? 0 : 52,
         }}
         bodyStyle={{
           padding: 0,

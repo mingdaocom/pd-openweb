@@ -6,7 +6,7 @@ import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { loadSDK } from 'src/components/newCustomFields/tools/utils';
+import { loadSDK } from 'src/components/Form/core/utils';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
@@ -15,6 +15,7 @@ import { emitter } from 'src/utils/common';
 import { mdAppResponse } from 'src/utils/project';
 import GroupFilter from '../GroupFilter';
 import GroupFilterList from '../GroupFilter/GroupFilterList';
+import MobileSheetContext from '../MobileSheetContext';
 import { WithoutRows } from '../SheetRows';
 import BoardView from './BoardView';
 import CalendarView from './CalendarView';
@@ -45,6 +46,7 @@ const TYPE_TO_COMP = {
 class View extends Component {
   constructor(props) {
     super(props);
+    this.viewComRef = React.createRef();
   }
   componentDidMount() {
     const { view, base = {} } = this.props;
@@ -66,7 +68,7 @@ class View extends Component {
     if (_.includes([0, 3, 6], view.viewType)) {
       if (this.props.mobileNavGroupFilters.length) {
         this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
-      } else {
+      } else if (base.type !== 'single') {
         this.props.fetchSheetRows();
       }
     }
@@ -75,6 +77,7 @@ class View extends Component {
     if (base.type !== 'single') {
       workflowPushSoket();
     }
+    this.props.handleLoadOperateButtons({ worksheetInfo: this.props.worksheetInfo });
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
@@ -87,6 +90,7 @@ class View extends Component {
     if (!window.IM) return;
     IM.socket.off('workflow_push');
   }
+
   refreshList = ({ worksheetId, recordId }) => {
     const { view, base = {}, currentSheetRows = [], updateRow } = this.props;
 
@@ -136,6 +140,8 @@ class View extends Component {
       filterControls,
       updateFilters = () => {},
       updateActiveSavedFilter = () => {},
+      sheetButtons,
+      printList,
     } = this.props;
 
     const { viewType, advancedSetting = {} } = view;
@@ -188,86 +194,103 @@ class View extends Component {
     const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航
     let checkedCount = batchOptCheckedData.length;
 
+    const providerValue = {
+      isCharge,
+      base,
+      view,
+      controls,
+      sheetButtons,
+      printList,
+      sheetSwitchPermit,
+      worksheetInfo,
+    };
+
     if (
       hasGroupFilter &&
       ((String(view.viewType) === sheet && advancedSetting.appnavtype === '1') || String(view.viewType) !== sheet)
     ) {
       return (
-        <div className="overflowHidden flex Relative mobileView">
-          <GroupFilter
-            {...this.props}
-            changeMobielSheetLoading={this.props.changeMobielSheetLoading}
-            groupId={this.props.base.groupId}
-          />
-        </div>
+        <MobileSheetContext.Provider value={providerValue}>
+          <div className="overflowHidden flex Relative mobileView">
+            <GroupFilter
+              {...this.props}
+              changeMobielSheetLoading={this.props.changeMobielSheetLoading}
+              groupId={this.props.base.groupId}
+            />
+          </div>
+        </MobileSheetContext.Provider>
       );
     }
 
     return (
-      <div className="overflowHidden flex mobileView flexColumn Relative">
-        {batchOptVisible && (
-          <div className="batchOptBar flexRow Font16">
-            <a
-              onClick={() => {
-                this.props.changeBatchOptVisible(false);
-                this.props.changeBatchOptData([]);
-              }}
-            >
-              {_l('取消')}
-            </a>
-            {_.isEmpty(batchOptCheckedData) && <span>{_l('请选择')}</span>}
-            {!_.isEmpty(batchOptCheckedData) && <span>{_l(`已选中%0条`, checkedCount)}</span>}
-            <a onClick={() => this.props.updateBatchCheckAll(!batchCheckAll)}>
-              {batchCheckAll ? _l('取消全选') : _l('全选')}
-            </a>
-          </div>
-        )}
-        {(_.includes([gallery, resource, board, sheet], String(viewType)) ||
-          (String(viewType) === detail && view.childType !== 1) ||
-          (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
-          <QuickFilterSearch
-            className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
-            showSearch={String(viewType) === customize ? false : true}
-            isFilter={isFilter}
-            filters={filters}
-            detail={detail}
-            view={view}
-            worksheetInfo={worksheetInfo}
-            filterControls={filterControls}
-            sheetControls={sheetControls}
-            updateFilters={updateFilters}
-            quickFilterWithDefault={quickFilterWithDefault}
-            savedFilters={savedFilters}
-            activeSavedFilter={activeSavedFilter}
-            updateActiveSavedFilter={updateActiveSavedFilter}
-            base={base}
-          />
-        )}
-        {_.includes(
-          [gallery, resource, customize, board],
-          String(viewType) || (String(viewType) === detail && view.childType !== 1),
-        ) &&
-        needClickToSearch &&
-        _.isEmpty(quickFilter) ? (
-          <WithoutRows text={_l('执行查询后显示结果')} />
-        ) : hasGroupFilter &&
-          String(view.viewType) === sheet &&
-          advancedSetting.appnavtype === '3' &&
-          !_.includes([29, 35], navData.type) ? (
-          <div className="flexRow h100">
-            <GroupFilterList
-              className="columnGroupFilter"
-              style={{ width: advancedSetting.appnavwidth ? +advancedSetting.appnavwidth : 60 }}
-              showSearch={false}
-            />
-            <div className="flex">
-              <Component {...viewProps} />
+      <MobileSheetContext.Provider value={providerValue}>
+        <div className="overflowHidden flex mobileView flexColumn Relative">
+          {batchOptVisible && (
+            <div className="batchOptBar flexRow Font16">
+              <a
+                onClick={() => {
+                  this.props.changeBatchOptVisible(false);
+                  this.props.changeBatchOptData([]);
+                }}
+              >
+                {_l('取消')}
+              </a>
+              {_.isEmpty(batchOptCheckedData) && <span>{_l('请选择')}</span>}
+              {!_.isEmpty(batchOptCheckedData) && <span>{_l(`已选中%0条`, checkedCount)}</span>}
+              <a onClick={() => this.props.updateBatchCheckAll(!batchCheckAll)}>
+                {batchCheckAll ? _l('取消全选') : _l('全选')}
+              </a>
             </div>
-          </div>
-        ) : (
-          <Component {...viewProps} />
-        )}
-      </div>
+          )}
+          {(_.includes([gallery, resource, board, sheet], String(viewType)) ||
+            (String(viewType) === detail && view.childType !== 1) ||
+            (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
+            <QuickFilterSearch
+              className={
+                String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''
+              }
+              showSearch={String(viewType) === customize ? false : true}
+              isFilter={isFilter}
+              filters={filters}
+              detail={detail}
+              view={view}
+              worksheetInfo={worksheetInfo}
+              filterControls={filterControls}
+              sheetControls={sheetControls}
+              updateFilters={updateFilters}
+              quickFilterWithDefault={quickFilterWithDefault}
+              savedFilters={savedFilters}
+              activeSavedFilter={activeSavedFilter}
+              updateActiveSavedFilter={updateActiveSavedFilter}
+              base={base}
+            />
+          )}
+          {_.includes(
+            [gallery, resource, customize, board],
+            String(viewType) || (String(viewType) === detail && view.childType !== 1),
+          ) &&
+          needClickToSearch &&
+          _.isEmpty(quickFilter) ? (
+            <WithoutRows text={_l('执行查询后显示结果')} />
+          ) : hasGroupFilter &&
+            String(view.viewType) === sheet &&
+            advancedSetting.appnavtype === '3' &&
+            !_.includes([29, 35], navData.type) ? (
+            <div className="flexRow h100">
+              <GroupFilterList
+                className="columnGroupFilter"
+                style={{ width: advancedSetting.appnavwidth ? +advancedSetting.appnavwidth : 60 }}
+                showSearch={false}
+              />
+              <div className="flex">
+                <Component ref={this.viewComRef} {...viewProps} />
+              </div>
+            </div>
+          ) : (
+            <Component ref={this.viewComRef} {...viewProps} />
+          )}
+        </div>
+      </MobileSheetContext.Provider>
     );
   }
 }
@@ -296,6 +319,8 @@ export default connect(
       'batchCheckAll',
       'batchOptCheckedData',
       'filterControls',
+      'sheetButtons',
+      'printList',
     ]),
   }),
   dispatch =>
@@ -318,8 +343,11 @@ export default connect(
           'changeBatchOptData',
           'updateBatchCheckAll',
           'updateFilterControls',
+          'handleLoadOperateButtons',
         ]),
       },
       dispatch,
     ),
+  null,
+  { forwardRef: true },
 )(View);

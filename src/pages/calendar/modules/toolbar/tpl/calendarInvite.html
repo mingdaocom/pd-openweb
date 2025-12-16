@@ -33,12 +33,15 @@
                         <span
                             class="pointer mRight15 InlineBlock mBottom5 Relative showBusinessCard"
                             data-id="{{!calendar.createUser}}"
-                            data-avatar="{{!calendar.head}}"
+                            data-avatar="{{!calendar.head.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48')}}"
                             data-status="{{!calendar.status}}"
                             data-name="{{!calendar.createUserName}}"
                             data-isCalendar="true"
                         >
-                            <img class="circle userHead" src="{{!calendar.head}}" />
+                            <img
+                                class="circle userHead"
+                                src="{{!calendar.head.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48')}}"
+                            />
                             <span class="TxtTop calendarName">{{!calendar.createUserName}}</span>
                             <span class="Gray_6 TxtTop calendarName">{{=_l('(发起人)')}}</span>
                         </span>
@@ -50,10 +53,13 @@
                             class="pointer mRight15 InlineBlock mBottom5 Relative showBusinessCard"
                             data-id="{{!member.accountID}}"
                             data-status="{{!member.status}}"
-                            data-avatar="{{!member.head}}"
+                            data-avatar="{{!member.head.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48')}}"
                             data-name="{{!member.memberName}}"
                         >
-                            <img class="circle userHead" src="{{!member.head}}" />
+                            <img
+                                class="circle userHead"
+                                src="{{!member.head.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48')}}"
+                            />
                             {{? member.status==0}}
                             <span class="userStatus calendarCenterLabelNosubmit"></span>
                             {{?? member.status==1}}
@@ -74,7 +80,10 @@
                                 class="pointer mRight15 InlineBlock mBottom5 Relative showBusinessCard"
                                 data-thirdId="{{!thirdUser.thirdID}}"
                             >
-                                <img class="circle userHead" src="{{!thirdUser.face}}" />
+                                <img
+                                    class="circle userHead"
+                                    src="{{!thirdUser.face.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/48/h/48')}}"
+                                />
                                 <span class="userStatus calendarCenterLabelSubmit"></span>
                                 <span class="TxtTop calendarName overflow_ellipsis">{{!thirdUser.nickName}}</span>
                             </span>

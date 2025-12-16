@@ -3,7 +3,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Input, Tooltip } from 'ming-ui';
+import { Icon, Input } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getCurrentProjectId } from '../utils';
 import './OrgSelect.less';
 
@@ -82,7 +83,7 @@ export default function OrgSelect(props) {
             <div className="orgSearchCon">
               <Icon icon="search Font16 Gray_9d" />
               <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
-              <Tooltip text={_l('记录仅支持单个组织搜索，且不支持外部协作组织')}>
+              <Tooltip title={_l('记录仅支持单个组织搜索，且不支持外部协作组织')}>
                 <Icon icon="info_outline" className="Font14 Gray_9d" />
               </Tooltip>
             </div>

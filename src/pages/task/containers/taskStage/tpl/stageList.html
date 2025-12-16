@@ -4,7 +4,7 @@
         <li class="addNewStageToNext">{{=_l('在此后添加新看板')}}</li>
         <li class="stageCharge">
             <span class="text mRight5">{{=_l('设置默认负责人')}}</span>
-            <span data-tip="{{=_l('设置负责人后，凡新添加进此看板的任务负责人会被统一设置所选的看板负责人')}}">
+            <span title="{{=_l('设置负责人后，凡新添加进此看板的任务负责人会被统一设置所选的看板负责人')}}">
                 <i class="icon-info Font14" />
             </span>
         </li>
@@ -12,40 +12,43 @@
         <li class="delStage">{{=_l('删除看板')}}</li>
     </ul>
     {{~it.stages:stage}}
-        <li class="singleStage" data-stageid="{{=stage.id}}" data-chargeid="{{=stage.owner.accountID}}" data-avatar="{{=stage.owner.avatar}}" data-edit="{{=it.isEdit}}">
-            <div class="stageHeader boderRadAll_3">
-                <span class="stageChargeAvatar updateUserHeadSign circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}" data-src="{{=stage.owner.avatar}}">
-                    <img class="circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}" src="{{=stage.owner.avatar}}">
-                </span>
-                <span class="listStageName overflow_ellipsis">{{!stage.name}}</span>
-                <span class="listStageTaskCount">{{=stage.count > 0 ? ' (<span class="taskCount">'+ stage.count +'</span>)' : '' }}</span>
-                {{? it.isEdit }}
-                <span class="Right icon-arrow-down-border Relative ThemeColor3"></span>
-                {{? }}
+    <li class="singleStage" data-stageid="{{=stage.id}}" data-chargeid="{{=stage.owner.accountID}}"
+        data-avatar="{{=stage.owner.avatar}}" data-edit="{{=it.isEdit}}">
+        <div class="stageHeader boderRadAll_3">
+            <span class="stageChargeAvatar updateUserHeadSign circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}"
+                data-src="{{=stage.owner.avatar}}">
+                <img class="circle {{=!stage.chargeAccountID ? 'Hidden' : ''}}" src="{{=stage.owner.avatar}}">
+            </span>
+            <span class="listStageName overflow_ellipsis">{{!stage.name}}</span>
+            <span class="listStageTaskCount">{{=stage.count > 0 ? ' (<span class="taskCount">'+ stage.count +'</span>)'
+                : '' }}</span>
+            {{? it.isEdit }}
+            <span class="Right icon-arrow-down-border Relative ThemeColor3"></span>
+            {{? }}
+        </div>
+        <div class="stageContentBox boderRadAll_3 bottomNullAdd" data-page='1'>
+            <div class="listStageContent">
+                <ul>
+                    {{? stage.tasks}}
+                    {{var statusObj; }}
+                    {{~stage.tasks:task}}
+                    {{?task.charge}}
+                    {{ statusObj=it.formatStatus(task.status,task.locked,task.auth); }}
+                    #include.nodeLiComm
+                    {{??}}
+                    {{console.log(task);}}
+                    {{?}}
+                    {{~}}
+                    {{?}}
+                </ul>
             </div>
-            <div class="stageContentBox boderRadAll_3 bottomNullAdd" data-page='1'>
-                <div class="listStageContent">
-                    <ul>
-                        {{? stage.tasks}}
-                            {{var statusObj; }}
-                            {{~stage.tasks:task}}
-                                {{?task.charge}}
-                                    {{ statusObj=it.formatStatus(task.status,task.locked,task.auth); }}
-                                    #include.nodeLiComm
-                                {{??}}
-                                    {{console.log(task);}}
-                                {{?}}
-                            {{~}}
-                        {{?}}
-                    </ul>
-                </div>
-            </div>
-            <a class="bottomNewBox borderBottomRadius_3">
-                <span class="btnBottomNew ThemeBGColor3">+ {{=_l('新任务') }}</span>
-            </a>
-        </li>
+        </div>
+        <a class="bottomNewBox borderBottomRadius_3">
+            <span class="btnBottomNew ThemeBGColor3">+ {{=_l('新任务') }}</span>
+        </a>
+    </li>
     {{~}}
     {{? it.isEdit}}
-        <li class="addNewStage"><i class="icon-plus"></i>{{=_l('新建看板') }}</li>
+    <li class="addNewStage"><i class="icon-plus"></i>{{=_l('新建看板') }}</li>
     {{?}}
 </ul>

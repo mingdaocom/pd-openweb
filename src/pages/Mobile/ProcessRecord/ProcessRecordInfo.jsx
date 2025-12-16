@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
 import instanceApi from 'src/pages/workflow/api/instance';
@@ -33,7 +34,7 @@ export default class ProcessRecordInfo extends Component {
       this.setState({ RecordInfo: component.default });
     });
   }
-  getWorkItem() {
+  getWorkItem = async () => {
     const { instanceId, workId, isModal } = this.props;
     Promise.all([
       worksheetApi.getWorkItem({
@@ -45,13 +46,28 @@ export default class ProcessRecordInfo extends Component {
         workId,
       }),
     ])
-      .then(data => {
+      .then(async data => {
         const [workItem, instance] = data;
+        const appId = _.get(instance, 'app.id');
+        if (!window[`langData-${appId}`]) {
+          const langInfo = await homeAppApi.getAppLangInfo({
+            appId,
+          });
+          if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+            const lang = await appManagementApi.getAppLangDetail({
+              appId,
+              appLangId: langInfo.appLangId,
+              projectId: langInfo.projectId,
+            });
+            window[`langData-${appId}`] = lang.items;
+            window[`langVersion-${appId}`] = langInfo.version;
+          }
+        }
         // 落地页，调用 app 接口获取状态
-        if (!isModal && _.get(instance, 'app.id')) {
+        if (!isModal && appId) {
           homeAppApi
             .getApp({
-              appId: _.get(instance, 'app.id'),
+              appId,
             })
             .then(data => {
               addBehaviorLog('worksheetRecord', workItem.worksheetId, { rowId: workItem.rowId });
@@ -77,7 +93,7 @@ export default class ProcessRecordInfo extends Component {
           errorMsg: _.get(err, 'errorMessage') || _l('流程已关闭或删除'),
         });
       });
-  }
+  };
   handleStash = () => {
     this.processFooter.current.handleClick('stash');
   };
@@ -115,7 +131,7 @@ export default class ProcessRecordInfo extends Component {
       </div>
     );
   }
-  renderWorkflow = ({ formData }) => {
+  renderWorkflow = ({ formData, hideStep }) => {
     const { workItem, instance } = this.state;
     return (
       <WorkflowStepItem
@@ -124,6 +140,7 @@ export default class ProcessRecordInfo extends Component {
         worksheetId={workItem.worksheetId}
         recordId={workItem.rowId}
         controls={formData}
+        hideStep={hideStep}
       />
     );
   };
@@ -136,7 +153,7 @@ export default class ProcessRecordInfo extends Component {
       return <Loading />;
     }
 
-    if (appInfo.webMobileDisplay) {
+    if ((window.isMingDaoApp && appInfo.appDisplay) || (!window.isMingDaoApp && appInfo.webMobileDisplay)) {
       return <FixedPage isNoPublish={true} backVisible={false} />;
     }
 

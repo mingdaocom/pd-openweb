@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import cx from 'classnames';
-import { Dialog, Input, LoadDiv, Tooltip } from 'ming-ui';
+import Trigger from 'rc-trigger';
+import { Dialog, Input, LoadDiv } from 'ming-ui';
 import marketplaceApi from 'src/api/marketplace';
 import marketplacePaymentApi from 'src/api/marketplacePayment';
 import './index.less';
@@ -80,16 +81,15 @@ export default function ProductLicenseInfo(props) {
 
   return (
     <React.Fragment>
-      <Tooltip
+      <Trigger
+        action={['hover']}
         popupAlign={{
           overflow: { adjustX: true, adjustY: true },
           points: ['tr', 'br'],
           offset: [5, -50],
           ...popupAlign,
         }}
-        action={['hover']}
         popupClassName="licensePopup"
-        autoCloseDelay={0}
         popup={
           <div
             className="Menu ming flexColumn pAll20 appLicenseWrap"
@@ -152,7 +152,7 @@ export default function ProductLicenseInfo(props) {
         }
       >
         {children}
-      </Tooltip>
+      </Trigger>
       {updateSocketVisible && (
         <Dialog
           visible={true}

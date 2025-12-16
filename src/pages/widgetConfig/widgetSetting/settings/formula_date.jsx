@@ -1,7 +1,7 @@
 import React, { Fragment, useLayoutEffect, useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { Dropdown, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { CALC_TYPE, OUTPUT_FORMULA_DATE } from '../../config/setting';
 import { ControlTag, SettingItem } from '../../styled';
 import { getAdvanceSetting, getControlByControlId, parseDataSource } from '../../util';
@@ -113,7 +113,6 @@ export default function FormulaDate(props) {
             <p className="Font12 Gray_9e">
               {_l('输入你想要 添加/减去 的时间。如：+8h+1m，-1d+8h。当使用数值类型的字段运算时，请不要忘记输入单位。')}
               <Tooltip
-                autoCloseDelay={0}
                 title={
                   <Fragment>
                     <div>{_l('年：Y（大写)')}</div>

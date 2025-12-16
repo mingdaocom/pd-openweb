@@ -12,9 +12,11 @@ const MingoDrawer = props => {
     <Mingo
       drawerVisible={drawerVisible}
       mingoFixing={mingoFixing}
-      onFixing={() => {
+      onFixing={({ saveStateToLocal = true }) => {
         setToolbarConfig({ mingoFixing: !mingoFixing });
-        localStorage.setItem('mingoFixing', !mingoFixing);
+        if (saveStateToLocal) {
+          localStorage.setItem('mingoFixing', !mingoFixing);
+        }
       }}
       onClose={() => {
         setToolbarConfig({ mingoVisible: false });

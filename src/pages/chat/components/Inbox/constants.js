@@ -59,6 +59,7 @@ export const TYPES = {
   WorkFlowTaskMessage: '45',
   WorkFlowUserTaskMessage: '46',
   WorkFlowSendTaskMessage: '47',
+  FocusMessage: '48',
 };
 
 /**
@@ -162,6 +163,8 @@ export const MSGTYPES = {
   WorkFlowUserTaskMessage: 46,
   // 工作流抄送系统消息
   WorkFlowSendTaskMessage: 47,
+  // 关注消息
+  FocusMessage: 48,
 };
 
 // Code Enums 代码枚举

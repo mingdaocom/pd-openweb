@@ -380,37 +380,39 @@ export default class Sort extends Component {
     const sortData = isCustomSort(item) && index !== 3 ? [...getSortData(item), customSort] : getSortData(item);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
+    if (_.isEmpty(sortData)) {
+      return null;
+    }
+    this.isRenderSort = true;
     return (
-      !_.isEmpty(sortData) && (
-        <div className="sortItem" key={`${item.controlId}-${index}`}>
-          <div className="Gray Font14 ellipsis">
-            {item.particleSizeType
-              ? `${item.controlName}(${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text})`
-              : item.controlName}
-          </div>
-          <div className="sortSelect flexRow">
-            {[defaultSort, ...sortData].map(data => (
-              <div
-                key={data.value}
-                className={cx('item', { active: (_.isArray(value) ? customSort.value : value) === data.value })}
-                onClick={() => {
-                  if (data.value == customSort.value) {
-                    this.getCustomSort(item.originalControlId || item.controlId, sortsItem);
-                    this.setState({ currentCustomSort: item.controlId, visible: false });
-                  } else {
-                    fn(data.value, item);
-                  }
-                }}
-              >
-                {data.text}
-                {data.value == customSort.value && (_.isArray(value) ? customSort.value : value) === data.value && (
-                  <Icon icon="arrow-down" className="Font12 mLeft2" />
-                )}
-              </div>
-            ))}
-          </div>
+      <div className="sortItem" key={`${item.controlId}-${index}`}>
+        <div className="Gray Font14 ellipsis">
+          {item.particleSizeType
+            ? `${item.controlName}(${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text})`
+            : item.controlName}
         </div>
-      )
+        <div className="sortSelect flexRow">
+          {[defaultSort, ...sortData].map(data => (
+            <div
+              key={data.value}
+              className={cx('item', { active: (_.isArray(value) ? customSort.value : value) === data.value })}
+              onClick={() => {
+                if (data.value == customSort.value) {
+                  this.getCustomSort(item.originalControlId || item.controlId, sortsItem);
+                  this.setState({ currentCustomSort: item.controlId, visible: false });
+                } else {
+                  fn(data.value, item);
+                }
+              }}
+            >
+              {data.text}
+              {data.value == customSort.value && (_.isArray(value) ? customSort.value : value) === data.value && (
+                <Icon icon="arrow-down" className="Font12 mLeft2" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     );
   }
   renderFooter() {
@@ -531,13 +533,15 @@ export default class Sort extends Component {
     const { visible, currentCustomSort, customSortValue, sortList, customSortLoading } = this.state;
     const { children } = this.props;
     const sortListHeight = sortList.length * 38;
+    const Content = this.renderContent();
+    if (!this.isRenderSort) return null;
     return (
       <Fragment>
         {this.getIsSort() && (
           <Dropdown
             visible={visible}
             onVisibleChange={this.handleChangeVisible}
-            overlay={this.renderContent()}
+            overlay={Content}
             trigger={['click']}
             placement="bottomRight"
           >
@@ -574,7 +578,7 @@ export default class Sort extends Component {
                 currentCustomSort && (
                   <SortableList
                     useDragHandle
-                    items={sortList}
+                    items={sortList || []}
                     itemKey="id"
                     renderItem={options => renderSortableItem({ ...options })}
                     onSortEnd={this.handleSortEnd}

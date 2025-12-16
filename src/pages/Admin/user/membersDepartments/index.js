@@ -3,30 +3,18 @@ import cx from 'classnames';
 import Config from '../../config';
 import Resigned from './resignation';
 import Members from './structure';
-import DialogSettingInviteRules from './structure/components/dialogSettingInviteRules';
 
 export default class MembersDepartments extends Component {
   constructor(props) {
     super(props);
     this.state = {
       currentTab: 'member',
-      showDialogSettingInviteRules: false,
       showHeader: true,
     };
   }
-  changeInviteRulesDialog = () => {
-    this.setState({
-      showDialogSettingInviteRules: !this.state.showDialogSettingInviteRules,
-    });
-  };
-  setValue = ({ showDialogSettingInviteRules }) => {
-    this.setState({
-      showDialogSettingInviteRules: showDialogSettingInviteRules,
-    });
-  };
 
   render() {
-    const { currentTab, showDialogSettingInviteRules, showHeader } = this.state;
+    const { currentTab, showHeader } = this.state;
     const projectId = Config.projectId;
 
     return (
@@ -49,12 +37,6 @@ export default class MembersDepartments extends Component {
                 );
               })}
             </div>
-            {/* {currentTab === 'member' && (
-              <div className="Gray_9e Hand" onClick={this.changeInviteRulesDialog}>
-                <i className="icon-settings Font16 mRight6 TxtMiddle" />
-                <span className="Font12">{_l('人员加入规则')}</span>
-              </div>
-            )} */}
           </div>
         )}
         <div className={cx('orgManagementContent', { pAll0: currentTab === 'member' })}>
@@ -68,14 +50,6 @@ export default class MembersDepartments extends Component {
             <Resigned projectId={projectId} authority={this.props.authority} />
           )}
         </div>
-
-        {showDialogSettingInviteRules && (
-          <DialogSettingInviteRules
-            showDialogSettingInviteRules={showDialogSettingInviteRules}
-            setValue={this.setValue}
-            projectId={projectId}
-          />
-        )}
       </div>
     );
   }

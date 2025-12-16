@@ -10,7 +10,6 @@ class RoleUserList extends Component {
   constructor(props) {
     super(props);
   }
-  componentDidMount() {}
   renderThead = () => {
     const { selectUserIds = [], userList = [] } = this.props;
     let temp =

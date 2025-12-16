@@ -39,7 +39,6 @@ export default class CalendarEntrypoint extends Component {
       }
     }
     this.props.dispatch(changeListType(options));
-    // TODO: 添加 account store 后从 accountInfo 里获取姓名，去掉 changeTitle
     this.props.dispatch(changeTitle(null));
   }
   render() {

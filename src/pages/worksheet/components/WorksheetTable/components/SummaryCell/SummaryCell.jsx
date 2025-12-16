@@ -99,11 +99,19 @@ export default class extends React.Component {
     }
     const { menuVisible } = this.state;
     if (!control) {
-      return <div style={style} className={className} />;
+      return (
+        <div
+          style={{
+            ...style,
+            backgroundColor: '#f6f6f6',
+          }}
+          className={className}
+        />
+      );
     }
     let type = control.sourceControlType || control.type;
     if (_.includes([10010, 33, 45, 47], type) || (control.type === 30 && control.strDefault === '10')) {
-      return <div className={cx('sheetSummaryInfo disabled', className)} style={style} />;
+      return <div className={cx('sheetSummaryInfo withBackground disabled', className)} style={style} />;
     }
     if (type === 'summaryhead') {
       return (

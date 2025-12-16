@@ -10,9 +10,9 @@ import { mobileSelectRecord } from 'mobile/components/RecordCardListDialog';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
-import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
-import { FROM } from 'src/components/newCustomFields/tools/config';
-import { controlState, getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { FROM } from 'src/components/Form/core/config';
+import { controlState, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -431,13 +431,15 @@ class RelateRecordCards extends Component {
   };
 
   handleClear = () => {
-    this.setState(
-      {
-        records: [],
-        count: 0,
-      },
-      this.handleChange,
-    );
+    const { records, addedIds, deletedIds } = this.state;
+    const recordIds = records.map(r => r.rowid);
+    const changes = {
+      deletedIds: _.uniq(deletedIds.concat(recordIds)),
+      records: [],
+      addedIds: addedIds.filter(r => !_.includes(recordIds, r.rowid)),
+      count: 0,
+    };
+    this.setState(changes, this.handleChange);
   };
 
   deleteAllRecord = cb => {

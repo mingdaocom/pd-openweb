@@ -88,6 +88,14 @@ export default class RefundOrder extends Component {
         },
       },
       {
+        title: _l('对账 ID'),
+        dataIndex: 'channelCheckId',
+        width: 350,
+        render: (text, record) => {
+          return record.channelCheckId || '-';
+        },
+      },
+      {
         title: _l('申请时间'),
         dataIndex: 'createTime',
         width: 220,

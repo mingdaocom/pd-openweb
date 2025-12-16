@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useSetState } from 'react-use';
-import { Button, ConfigProvider, Modal, Tooltip } from 'antd';
+import { Button, ConfigProvider, Modal } from 'antd';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dealUserId } from 'src/pages/widgetConfig/util/data.js';
 import { getThemeColors } from 'src/utils/project';
 import { EditWidgetContent, Header } from '../../../styled';
@@ -74,7 +75,7 @@ export default function Btn(props) {
     const data = { name: _l('我是按钮'), color, id: uuidv4() };
     if (btnType === 2) {
       const icon = 'custom_actions';
-      const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`;
+      const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
       data.config = {
         icon,
         iconUrl,

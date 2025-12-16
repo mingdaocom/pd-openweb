@@ -4,7 +4,8 @@ import { Input } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Button, Dialog, Tooltip, VerifyPasswordInput } from 'ming-ui';
+import { Button, Dialog, VerifyPasswordInput } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { captcha } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
@@ -100,8 +101,8 @@ const actionFeedback = (msg, { onCancel, refreshPage }) => {
 
   alert({
     msg,
-    timeout: 1000,
-    callback: refreshPage,
+    duration: 1000,
+    onClose: refreshPage,
   });
 };
 
@@ -195,12 +196,12 @@ function LockApp(props) {
               passwordInputRef.current.focus();
             }}
           >
-            <Tooltip text={<span>{_l('编辑')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('编辑')} placement="bottom">
               <i className="icon-edit Gray_9e Font14" />
             </Tooltip>
           </IconWrap>
           <IconWrap>
-            <Tooltip offset={[5, 0]} text={<span>{_l('复制')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('复制')} placement="bottom" align={{ offset: [5, 0] }}>
               <ClipboardButton component="span" data-clipboard-text={password} onSuccess={() => alert(_l('复制成功'))}>
                 <i className="icon-content-copy Font14" />
               </ClipboardButton>
@@ -220,7 +221,6 @@ class UnLockDialog extends Component {
     super(props);
     this.state = {};
   }
-  componentDidMount() {}
 
   // 解锁应用
   handleUnlock = () => {

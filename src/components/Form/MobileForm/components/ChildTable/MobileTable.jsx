@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 import { getAdvanceSetting, getControlStyles, isRelateRecordTableControl } from 'src/utils/control';
 import { updateRulesData } from '../../../core/formUtils';
 

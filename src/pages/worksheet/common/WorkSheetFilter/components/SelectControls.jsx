@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, shape, string } from 'prop-types';
@@ -17,26 +17,28 @@ export default function SelectControls(props) {
     selected = [],
     onAdd = () => {},
     onClose = () => {},
-    visible,
   } = props;
-  const inputRef = useRef();
+  const inputRef = useRef(null);
   const [keyword, setKeyword] = useState('');
   const controls = keyword
     ? props.controls.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
     : props.controls;
 
-  useLayoutEffect(() => {
-    if (visible && inputRef.current) {
-      inputRef.current.focus();
+  useEffect(() => {
+    // 延迟聚焦，防止页面重排，导致外层滚动条跳动
+    if (inputRef.current) {
+      const timer = setTimeout(() => {
+        inputRef.current.focus();
+      }, 200);
+      return () => clearTimeout(timer);
     }
-  }, [visible]);
+  }, []);
 
   return (
     <div className={cx('addFilterPopup', className)} style={style}>
       <div className="columnsFilter">
         <i className="icon-search"></i>
         <Input
-          autoFocus
           placeholder={_l('搜索字段')}
           manualRef={inputRef}
           value={keyword}

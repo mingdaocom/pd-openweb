@@ -122,18 +122,20 @@ export const DefaultEmpty = styled.div`
 `;
 
 export const EmptyControl = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  height: 100px;
   border: 1px dashed #e6e6e6;
   border-radius: 4px;
   padding-top: 8px;
   .emptyText {
-    line-height: 86px;
-    width: 100%;
-    text-align: center;
     color: #9e9e9e;
+  }
+  .mingoGenWidgets {
+    margin: 20px 0;
   }
 `;
 

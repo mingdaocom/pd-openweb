@@ -76,6 +76,7 @@ function View(props) {
   let activeViewStatus = props.activeViewStatus;
 
   const viewProps = _.pick(props, [
+    'type',
     'isCharge',
     'allowOpenRecord',
     'allowAddNewRecord',

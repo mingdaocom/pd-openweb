@@ -3,6 +3,7 @@ import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 
 const isChecked = (id, ids) => {
   let result = false;
@@ -50,12 +51,21 @@ export default function UserItem({
         <div className="checkItemInfoBox" onMouseDown={event => event.preventDefault()}>
           <img src={avatar} className="avatar" />
           <div className="useInfoBox">
-            <div className={cx('fullname ellipsis', { bold: renderKey === 'prefix' })}>
-              {renderKey === 'prefix' &&
-              !filterAccountIds.includes(md.global.Account.accountId) &&
-              item.accountId === md.global.Account.accountId
-                ? _l('我自己')
-                : item.fullname}
+            <div className="flexRow">
+              <div className={cx('fullname ellipsis', { bold: renderKey === 'prefix' })}>
+                {renderKey === 'prefix' &&
+                !filterAccountIds.includes(md.global.Account.accountId) &&
+                item.accountId === md.global.Account.accountId
+                  ? _l('我自己')
+                  : item.fullname}
+              </div>
+              {item.onStatusOption ? (
+                <PersonalStatus
+                  className="mLeft3 flexRow alignItemsCenter"
+                  onlyEmoji
+                  onStatusOption={item.onStatusOption}
+                />
+              ) : null}
             </div>
             <div className="departmentInfo ellipsis">
               {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}

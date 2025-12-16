@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import { Dialog, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { checkConditionsIsNull } from '../../utils';
 import { TriggerCondition } from '../components';

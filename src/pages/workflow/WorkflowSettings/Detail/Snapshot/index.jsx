@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SelectStaticChartFromSheet from 'src/pages/widgetConfig/widgetSetting/components/embed/SelectStaticChartFromSheet';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
@@ -170,13 +171,11 @@ export default class Snapshot extends Component {
               {data.actionId === '1' ? _l('选择自定义页面') : _l('选择统计图表')}
               <span className="mLeft5 red">*</span>
               {data.actionId === '2' && (
-                <span
-                  className="mLeft5 tip-top-right"
-                  style={{ height: 18 }}
-                  data-tip={_l('快照不能获取已配置按权限访问的图表')}
-                >
-                  <Icon className="Font16 Gray_9e" icon="info" />
-                </span>
+                <Tooltip title={_l('快照不能获取已配置按权限访问的图表')} placement="topRight">
+                  <span className="mLeft5" style={{ height: 18 }}>
+                    <Icon className="Font16 Gray_9e" icon="info" />
+                  </span>
+                </Tooltip>
               )}
             </div>
             <div

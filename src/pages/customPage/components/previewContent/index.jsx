@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { browserIsMobile } from 'src/utils/common';
-import { genUrl, parseLink } from '../../util';
+import { genUrl, insertPortal, parseLink } from '../../util';
 
 const PreviewWrap = styled.div`
   height: 100%;
@@ -97,7 +98,7 @@ function PreviewContent(props) {
   function parseLink(link) {
     const url = genUrl(link, param, info);
     if (!/^https?:\/\//.test(url)) return `https://${url}`;
-    return url;
+    return insertPortal(url);
   }
 
   const renderContent = () => {
@@ -140,7 +141,7 @@ export function PreviewWraper(props) {
               onClick={handleReLoad}
             />
           ) : (
-            <Tooltip text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('刷新')} placement="bottom">
               <Icon
                 icon="task-later"
                 className={cx('Gray_bd InlineBlock Font20 Hand actionIcon', { turn: now })}
@@ -155,7 +156,7 @@ export function PreviewWraper(props) {
           browserIsMobile() ? (
             <Icon icon="launch" className="Gray_bd mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
           ) : (
-            <Tooltip text={<span>{_l('打开')}</span>} popupPlacement="bottom">
+            <Tooltip title={_l('打开')} placement="bottom">
               <Icon icon="launch" className="Gray_bd mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
             </Tooltip>
           )

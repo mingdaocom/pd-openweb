@@ -5,10 +5,11 @@ import _, { get, isFunction } from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { deleteAttachmentOfControl } from 'worksheet/api';
 import { downloadAttachmentById, openControlAttachmentInNewTab } from 'worksheet/controllers/record';
-import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/formUtils.js';
+import { checkValueByFilterRegex, controlState } from 'src/components/Form/core/formUtils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -157,11 +158,13 @@ const HoverPreviewPanelCon = styled.div`
   .fileSize {
     color: #9e9e9e;
   }
-  .downloadBtn {
+  .downloadBtn,
+  .openInNewTabBtn {
     margin-right: 16px;
   }
   .downloadBtn,
-  .deleteBtn {
+  .deleteBtn,
+  .openInNewTabBtn {
     cursor: pointer;
     float: right;
     color: #9e9e9e;
@@ -327,6 +330,7 @@ function previewAttachment({
       worksheetId,
       rowId: recordId,
       controlId,
+      download: allowDownload === '1' && (!!_.get(window, 'shareState.shareId') || recordAttachmentSwitch),
     },
     () => {
       previewAttachments(
@@ -371,6 +375,7 @@ function HoverPreviewPanel(props) {
     deleteLocalAttachment,
     sheetSwitchPermit,
     masterData,
+    from,
   } = props;
   const { originalFilename, ext = '', filesize } = attachment;
   const { controlId, advancedSetting, sourceControlId } = cell;
@@ -387,6 +392,22 @@ function HoverPreviewPanel(props) {
     attachment.fileID.length === 36 &&
     allowDownload === '1';
   const imageUrl = attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160');
+  const allowNewPage = recordId && !recordId.startsWith('temp-') && _.isEmpty(window.shareState);
+  const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
+    addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
+    openControlAttachmentInNewTab(
+      _.assign(
+        _.pick(cellInfo, ['appId', 'recordId', 'worksheetId']),
+        {
+          viewId: !isSubList ? cell.viewId : undefined,
+          controlId,
+          fileId,
+          getType: from === 21 ? from : undefined,
+        },
+        options,
+      ),
+    );
+  };
   useEffect(() => {
     const image = new Image();
     image.onload = () => {
@@ -418,7 +439,14 @@ function HoverPreviewPanel(props) {
     }
   }
   return (
-    <HoverPreviewPanelCon onClick={e => e.stopPropagation()}>
+    <HoverPreviewPanelCon
+      onClick={e => {
+        e.stopPropagation();
+        if (e.shiftKey) {
+          handleOpenControlAttachmentInNewTab(attachment.fileID);
+        }
+      }}
+    >
       {isPicture && (
         <ImageCoverCon>
           <ImageCover
@@ -433,7 +461,7 @@ function HoverPreviewPanel(props) {
         <div className="panelFooter">
           <span className="fileSize">{formatFileSize(filesize)}</span>
           {allowDelete === '1' && (
-            <Tooltip text={<span>{_l('删除')}</span>} popupPlacement="top">
+            <Tooltip title={_l('删除')}>
               <i
                 className={cx('icon icon-trash deleteBtn', { disabled: !editable })}
                 onClick={editable ? handleDelete : () => {}}
@@ -441,7 +469,7 @@ function HoverPreviewPanel(props) {
             </Tooltip>
           )}
           {downloadable && (
-            <Tooltip text={<span>{_l('下载')}</span>} popupPlacement="top">
+            <Tooltip title={_l('下载')}>
               <i
                 className="icon icon-download downloadBtn ThemeHoverColor3"
                 onClick={() =>
@@ -456,6 +484,22 @@ function HoverPreviewPanel(props) {
                     sourceControlId: sourceControlId,
                   })
                 }
+              ></i>
+            </Tooltip>
+          )}
+          {allowNewPage && (
+            <Tooltip title={_l('浮窗打开')}>
+              <i
+                className="icon icon-rectangle_2 openInNewTabBtn ThemeHoverColor3"
+                onClick={() => handleOpenControlAttachmentInNewTab(attachment.fileID, { openAsPopup: true })}
+              ></i>
+            </Tooltip>
+          )}
+          {allowNewPage && (
+            <Tooltip title={_l('新页面打开')} shortcut={window.isMacOs ? _l('⇧单击') : _l('Shift+单击')}>
+              <i
+                className="icon icon-launch openInNewTabBtn ThemeHoverColor3"
+                onClick={() => handleOpenControlAttachmentInNewTab(attachment.fileID)}
               ></i>
             </Tooltip>
           )}
@@ -496,6 +540,7 @@ function Attachment(props) {
     editable,
     index,
     viewId,
+    row = {},
     cell,
     cellInfo,
     cellWidth,
@@ -516,10 +561,113 @@ function Attachment(props) {
   );
 
   const isSingleFile = attachments.length === 1;
+  const clickTimeoutRef = useRef(null);
 
   useEffect(() => {
     setIsPicture(RegExpValidator.fileIsPicture(attachment.ext));
   }, [attachment.ext]);
+
+  const handleClick = e => {
+    e.stopPropagation();
+
+    if (row.fakeCreatedAt) {
+      return;
+    }
+
+    if (attachment && !!attachment.refId && !attachment.shareUrl) {
+      alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
+      return;
+    }
+
+    // Shift+单击：在新页面打开
+    if (e.shiftKey && !isTrash && !browserIsMobile()) {
+      openControlAttachmentInNewTab({
+        appId,
+        recordId,
+        viewId: !isSubList ? viewId : undefined,
+        worksheetId,
+        controlId: cell.controlId,
+        fileId: attachment.fileID,
+        getType: from === 21 ? from : undefined,
+      });
+      return;
+    }
+
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+      // 双击事件，直接返回
+      return;
+    }
+
+    clickTimeoutRef.current = setTimeout(() => {
+      clickTimeoutRef.current = null;
+      previewAttachment({
+        attachments,
+        index,
+        sheetSwitchPermit,
+        viewId,
+        disableDownload: cellInfo.disableDownload,
+        handleOpenControlAttachmentInNewTab:
+          isTrash || browserIsMobile()
+            ? undefined
+            : (fileId, options = {}) => {
+                openControlAttachmentInNewTab({
+                  appId,
+                  recordId,
+                  viewId: !isSubList ? viewId : undefined,
+                  worksheetId,
+                  controlId: cell.controlId,
+                  fileId,
+                  getType: from === 21 ? from : undefined,
+                  ...options,
+                });
+              },
+        worksheetId,
+        recordId,
+        fileId: attachment.fileID,
+        controlId: cell.controlId,
+        from,
+        advancedSetting: cell.advancedSetting,
+        allowEdit: controlState(cell, from).editable && _.get(cell, 'advancedSetting.allowedit') === '1',
+        onlyEditSelf: _.get(cell, 'advancedSetting.onlyeditself') === '1',
+        projectId,
+        masterWorksheetId: (masterData() || {}).worksheetId,
+        masterRecordId: (masterData() || {}).recordId,
+        masterControlId: (masterData() || {}).controlId,
+        sourceControlId: cell.sourceControlId,
+      });
+    }, 300);
+  };
+
+  const handleDoubleClick = e => {
+    e.stopPropagation();
+    if (isTrash || browserIsMobile()) return;
+    if (attachment && !!attachment.refId && !attachment.shareUrl) {
+      alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
+      return;
+    }
+    openControlAttachmentInNewTab({
+      appId,
+      recordId,
+      viewId: !isSubList ? viewId : undefined,
+      worksheetId,
+      controlId: cell.controlId,
+      fileId: attachment.fileID,
+      getType: from === 21 ? from : undefined,
+      openAsPopup: true,
+    });
+  };
+
+  useEffect(() => {
+    // 清理定时器
+    return () => {
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <Trigger
       action={browserIsMobile() ? [] : ['hover']}
@@ -536,6 +684,7 @@ function Attachment(props) {
           masterData={masterData()}
           onUpdate={onUpdate}
           deleteLocalAttachment={deleteLocalAttachment}
+          from={from}
         />
       }
       getPopupContainer={() => document.body}
@@ -553,49 +702,8 @@ function Attachment(props) {
       <AttachmentCon
         className="AttachmentCon"
         style={{ maxWidth: cellWidth }}
-        onClick={e => {
-          e.stopPropagation();
-
-          if (attachment && !!attachment.refId && !attachment.shareUrl) {
-            alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
-            return;
-          }
-          previewAttachment({
-            attachments,
-            index,
-            sheetSwitchPermit,
-            viewId,
-            disableDownload: cellInfo.disableDownload,
-            handleOpenControlAttachmentInNewTab:
-              isTrash || browserIsMobile()
-                ? undefined
-                : (fileId, options = {}) => {
-                    openControlAttachmentInNewTab({
-                      appId,
-                      recordId,
-                      viewId: !isSubList ? viewId : undefined,
-                      worksheetId,
-                      controlId: cell.controlId,
-                      fileId,
-                      getType: from === 21 ? from : undefined,
-                      ...options,
-                    });
-                  },
-            worksheetId,
-            recordId,
-            fileId: attachment.fileID,
-            controlId: cell.controlId,
-            from,
-            advancedSetting: cell.advancedSetting,
-            allowEdit: controlState(cell, from).editable && _.get(cell, 'advancedSetting.allowedit') === '1',
-            onlyEditSelf: _.get(cell, 'advancedSetting.onlyeditself') === '1',
-            projectId,
-            masterWorksheetId: (masterData() || {}).worksheetId,
-            masterRecordId: (masterData() || {}).recordId,
-            masterControlId: (masterData() || {}).controlId,
-            sourceControlId: cell.sourceControlId,
-          });
-        }}
+        onClick={handleClick}
+        onDoubleClick={handleDoubleClick}
       >
         {isPicture ? (
           <AttachmentImage
@@ -642,6 +750,7 @@ function CellAttachments(props, sourceRef) {
     sheetSwitchPermit,
     isediting,
     columnStyle,
+    row = {},
     cell = {},
     rowHeight = 34,
     popupContainer,
@@ -765,6 +874,7 @@ function CellAttachments(props, sourceRef) {
       isTrash={isTrash}
       isSubList={isSubList}
       editable={editable}
+      row={row}
       cell={cell}
       popupContainer={popupContainer}
       attachment={attachment}

@@ -107,6 +107,7 @@ export const addBehaviorLog = (type, entityId, params = {}, isLinkVisited) => {
     previewFile: 11, // 文件预览
     worksheetDecode: 12, // 工作表解码(字段只读状态下记日志，包含H5记录呈现态)
     worksheetBatchDecode: 13, // 工作表批量解码
+    robot: 20, // 对话机器人
   };
 
   if (type === 'worksheetDecode' && !params.rowId) return;

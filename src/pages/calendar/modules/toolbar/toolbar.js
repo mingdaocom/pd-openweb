@@ -129,7 +129,7 @@ Toolbar.Event = function () {
           $list.each(function () {
             $li = $(this);
             catId = $li.attr('catid') || '';
-            catName = $.trim($li.find('.classificationListName').val());
+            catName = $li.find('.classificationListName').val().trim();
             // 分类名称不为空
             if (catName !== '') {
               catColor = Toolbar.Method.colorValue(
@@ -307,7 +307,7 @@ Toolbar.Event = function () {
           if (userCount > 0) {
             for (var i = 0; i < userCount; i++) {
               user = users[i];
-              if (user.accountId && $.inArray(user.accountId, Toolbar.Comm.settings.otherUsers) < 0) {
+              if (user.accountId && _.indexOf(Toolbar.Comm.settings.otherUsers, user.accountId) < 0) {
                 Toolbar.Comm.settings.otherUsers.push(user.accountId);
                 safeLocalStorageSetItem(
                   'otherUsers' + md.global.Account.accountId,
@@ -338,7 +338,7 @@ Toolbar.Event = function () {
     if ($this.hasClass('icon-calendar-nocheck')) {
       className = 'icon-calendar-check';
       Toolbar.Comm.settings.otherUsers.splice(
-        $.inArray(md.global.Account.accountId, Toolbar.Comm.settings.otherUsers),
+        _.indexOf(Toolbar.Comm.settings.otherUsers, md.global.Account.accountId),
         1,
       );
     } else {
@@ -355,7 +355,7 @@ Toolbar.Event = function () {
   $tb_OtherUserCalendar.on('click', '.addOtherUserDelImg', function () {
     var accountId = $(this).closest('.addOtherUser').attr('data-id');
 
-    Toolbar.Comm.settings.otherUsers.splice($.inArray(accountId, Toolbar.Comm.settings.otherUsers), 1);
+    Toolbar.Comm.settings.otherUsers.splice(_.indexOf(Toolbar.Comm.settings.otherUsers, accountId), 1);
     safeLocalStorageSetItem('otherUsers' + md.global.Account.accountId, Toolbar.Comm.settings.otherUsers.join(','));
 
     $(this).closest('.addOtherUser').remove();
@@ -527,7 +527,7 @@ Toolbar.Method = {
             if (source.code == 1) {
               _.remove(Toolbar.settings.oldCategoryList, obj => obj.catID == catId);
               if (Toolbar.Comm.settings.categorys.length) {
-                Toolbar.Comm.settings.categorys.splice($.inArray(catId, Toolbar.Comm.settings.categorys), 1);
+                Toolbar.Comm.settings.categorys.splice(_.indexOf(Toolbar.Comm.settings.categorys, catId), 1);
                 safeLocalStorageSetItem('categorys', Toolbar.Comm.settings.categorys);
               }
               $('.calendarTypeList li[catid=' + catId + ']').remove();
@@ -811,7 +811,7 @@ Toolbar.Method = {
       );
     });
 
-    if ($.inArray(md.global.Account.accountId, Toolbar.Comm.settings.otherUsers) < 0) {
+    if (_.indexOf(Toolbar.Comm.settings.otherUsers, md.global.Account.accountId) < 0) {
       $hideOneself.find('.cbComplete').removeClass('icon-calendar-nocheck').addClass('icon-calendar-check');
     }
   },

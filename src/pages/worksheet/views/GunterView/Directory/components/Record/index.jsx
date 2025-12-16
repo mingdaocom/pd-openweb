@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
@@ -397,7 +397,7 @@ export default class Record extends Component {
   renderTitle() {
     const { row, groupKey, controls, gunterView, widthConfig } = this.props;
     const titleControl = _.find(controls, { attribute: 1 });
-    const value = row[titleControl.controlId] || row.titleValue;
+    const value = row[titleControl?.controlId] || row.titleValue;
     const emptyValue = _l('未命名');
     const title = titleControl ? renderCellText({ ...titleControl, value }) : emptyValue;
     const { titleDisable, hideTitle } = gunterView.viewConfig;

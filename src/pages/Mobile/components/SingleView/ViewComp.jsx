@@ -18,6 +18,8 @@ import {
   updateFiltersGroup,
 } from 'mobile/RecordList/redux/actions';
 import View from 'mobile/RecordList/View';
+import ShareCardConfig from 'src/components/ShareCardConfig';
+import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SlideGroupFilter from 'src/pages/Mobile/RecordList/GroupFilter/SlideGroupFilter.jsx';
@@ -64,10 +66,11 @@ const AddBtn = styled.div`
   align-items: center;
   z-index: 10;
   button {
-    width: 66px !important;
-    height: 66px !important;
-    min-width: 66px !important;
+    width: 60px !important;
+    height: 60px !important;
+    min-width: initial !important;
     display: flex !important;
+    justify-content: center;
     align-items: center;
     border-radius: 50% !important;
     padding: 0px 15px !important;
@@ -117,13 +120,29 @@ function ViewComp(props) {
     view.viewType === 0 &&
     (canDelete || showCusTomBtn) &&
     !batchOptVisible &&
-    (_.isEmpty(view.navGroup) || appNavType !== '1');
+    (_.isEmpty(view.navGroup) || appNavType !== '1') &&
+    !_.get(window, 'shareState.isPublicView') &&
+    !_.get(window, 'shareState.isPublicPage') &&
+    !_.get(window, 'shareState.shareId') &&
+    !_.get(window, 'shareState.isPublicForm');
 
   useEffect(() => {
     if (appId && worksheetId) {
       loadWorksheet(true);
     }
   }, [appId, worksheetId]);
+
+  useEffect(() => {
+    if (window.isWeiXin && view?.viewId && worksheetInfo?.worksheetId) {
+      ShareCardConfig({
+        title: `${worksheetInfo?.name}-${view?.name}`,
+        projectId: worksheetInfo?.projectId,
+        worksheetId,
+        type: SHARECARDTYPS.VIEW,
+        viewType: view?.viewType,
+      });
+    }
+  }, [view, worksheetInfo, worksheetId]);
 
   useEffect(() => {
     getAppInfo();
@@ -133,11 +152,11 @@ function ViewComp(props) {
     if (!workSheetLoading && viewId) {
       if (_.get(view, 'navGroup.length')) {
         updateFilters({ filtersGroup }, view);
-        updateFiltersGroup(filtersGroup);
+        updateFiltersGroup(filtersGroup, view);
         return;
       }
-      if ([0, 3, 6].includes(view.viewType)) {
-        updateFiltersGroup(filtersGroup);
+      if ([0, 3, 4, 6].includes(view.viewType)) {
+        updateFiltersGroup(filtersGroup, view);
       } else {
         updateFilters({ filtersGroup }, view);
       }
@@ -233,7 +252,7 @@ function ViewComp(props) {
               style={{ backgroundColor: appColor }}
               onClick={addRecord}
             >
-              <Icon icon="add" className="Font36 LineHeight60" />
+              <Icon icon="add" className="Font36" />
             </Button>
           )}
         </AddBtn>

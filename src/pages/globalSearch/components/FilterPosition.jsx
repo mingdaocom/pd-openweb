@@ -2,7 +2,8 @@ import React, { Fragment, useEffect } from 'react';
 import { useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import smartSearchAjax from 'src/api/smartSearch';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
@@ -147,7 +148,7 @@ export default function FilterPosition(props) {
 
   return (
     <Fragment>
-      <Tooltip text={_l('不搜索的位置')}>
+      <Tooltip title={_l('不搜索的位置')}>
         <FilterCountWrap className={`${className} filterCount`} onClick={() => setVisible(true)}>
           <Icon icon="a-search_off_black_24dp1" className="mRight10 Font18" />
           {filterCount}

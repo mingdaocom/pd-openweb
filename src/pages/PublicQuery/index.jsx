@@ -7,6 +7,7 @@ import sheetAjax from 'src/api/worksheet';
 import preall from 'src/common/preall';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
+import globalEvents from 'src/router/globalEvents';
 import { shareGetAppLangDetail } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import WorksheetShareHeader from './header';
@@ -68,6 +69,8 @@ class WorksheetSahre extends React.Component {
         }
 
         preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId } });
+
+        globalEvents();
 
         shareAuthor && (window.shareAuthor = shareAuthor);
         localStorage.setItem('currentProjectId', projectId);

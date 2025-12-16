@@ -536,7 +536,7 @@ export const getResultField = (fields = [], flowData, aggFuncType) => {
   }
   const getShowtype = () => {
     let list = [];
-    fields.map(o => {
+    fields.forEach(o => {
       if (
         isFormulaResultAsTime(o.controlSetting) ||
         isFormulaResultAsDate(o.controlSetting) ||
@@ -875,7 +875,7 @@ export const setResultFieldSettingByAggFuncType = data => {
 export const getSourceIndex = (flowData, o) => {
   let index = -1;
   const sourceList = getAllSourceList(flowData) || [];
-  sourceList.find((it, i) => {
+  sourceList.forEach((it, i) => {
     if (
       (o.oid && o.oid.indexOf(it.workSheetId) >= 0) ||
       (_.get(o, 'resultField.oid') && _.get(o, 'resultField.oid').indexOf(it.workSheetId) >= 0) ||

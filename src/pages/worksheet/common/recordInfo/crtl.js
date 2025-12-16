@@ -5,8 +5,8 @@ import publicWorksheetApi from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
-import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/formUtils';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { getRuleErrorInfo } from 'src/components/Form/core/formUtils';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { replacePorTalUrl } from 'src/pages/AuthService/portalAccount/util';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { postWithToken } from 'src/utils/common';
@@ -358,7 +358,7 @@ export class RecordApi {
     this.baseArgs = {
       appId,
       worksheetId,
-      viewId,
+      viewId: viewId === 'null' ? '' : viewId,
       rowId: recordId,
     };
   }

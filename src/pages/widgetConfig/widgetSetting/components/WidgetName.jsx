@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Input, Tooltip } from 'antd';
+import { Input } from 'antd';
 import _ from 'lodash';
 import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SettingItem } from '../../styled';
 import { isSheetDisplay } from '../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
@@ -51,7 +52,7 @@ export default function WidgetName(props) {
           }
         }}
         onChange={e => onChange({ controlName: e.target.value })}
-        maxLength="100"
+        maxLength="150"
       />
     </SettingItem>
   );

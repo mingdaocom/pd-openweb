@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import doT from 'dot';
+import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
 import calendarController from 'src/api/calendar';
 import inviteSingleTpl from './tpl/refuserDialogHtml.html';
@@ -8,7 +9,7 @@ import inviteSingleTpl from './tpl/refuserDialogHtml.html';
 // 公用配置
 // 页面 初始化
 // 公用配置
-var Comm = {};
+const Comm = {};
 // 公共设置
 Comm.settings = {
   date: '',
@@ -131,7 +132,7 @@ Comm.errorMessage = function (error) {
 Comm.getUserAllCalCategories = function (callback) {
   calendarController.getUserAllCalCategories().then(function (source) {
     if (source.code == 1) {
-      if ($.isFunction(callback)) {
+      if (_.isFunction(callback)) {
         callback(source.data);
       }
     } else {

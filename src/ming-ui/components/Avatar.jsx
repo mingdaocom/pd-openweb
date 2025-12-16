@@ -27,7 +27,7 @@ export default class Avatar extends Component {
         <img
           style={{ width: '100%', height: '100%' }}
           className={`${shape}`}
-          src={src || `${md.global.FileStoreConfig.pictureHost.replace(/\/$/, '')}/UserAvatar/default.gif`}
+          src={src || `${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`}
           alt="avatar"
         />
       </span>

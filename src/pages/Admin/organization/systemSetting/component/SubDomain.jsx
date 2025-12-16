@@ -26,7 +26,7 @@ export default class SubDomain extends Component {
   componentDidMount() {
     this.setState({ isLoading: true });
     Promise.all([this.getSubDomainInfo(), this.getSysColor()]).then(([res, { homeImage }]) => {
-      const attUrl = `${md.global.FileStoreConfig.pictureHost}ProjectLogo/`;
+      const attUrl = `${md.global.FileStoreConfig.pictureHost}/ProjectLogo/`;
       this.images = new Array(5).fill(1).map(function (item, index) {
         return `${attUrl}HomeImage_1${index + 1}.jpg?imageView2/2/w/194/h/52/q/90`;
       });
@@ -90,7 +90,7 @@ export default class SubDomain extends Component {
 
   handleChange(e) {
     this.setState({
-      dialogName: $.trim(e.target.value),
+      dialogName: (e.target.value || '').trim(),
     });
   }
 

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Icon, Tooltip } from 'ming-ui';
+import { Checkbox, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const ChartColorSettingBox = styled.div(
   ({ select = false }) => `
@@ -195,7 +196,7 @@ export default function ChartColorSetting(props) {
       )}
       <div className="titleWrap" onClick={openDialog}>
         <span className="ellipsis flex Bold">
-          <Tooltip text={name} autoCloseDelay={0}>
+          <Tooltip title={name}>
             <span>{name}</span>
           </Tooltip>
         </span>

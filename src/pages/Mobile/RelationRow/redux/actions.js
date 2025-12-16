@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
-import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
+import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {

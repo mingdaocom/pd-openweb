@@ -4,7 +4,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Dialog, Icon, LoadDiv, Tooltip, UserHead, UserName } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, UserHead, UserName } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
@@ -13,6 +14,7 @@ import MaskText from 'src/pages/Admin/components/MaskText';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import { navigateTo } from 'src/router/navigateTo';
+import { getRequest } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import DatePickerFilter from '../../../common/datePickerFilter';
@@ -68,6 +70,7 @@ export default class TransactionDetails extends Component {
       dateItem: 'today',
       startDate: moment().format('YYYY-MM-DD'),
       endDate: moment().format('YYYY-MM-DD'),
+      searchValues: { orderId: getRequest()?.orderId || '' },
     };
     this.appPromise = null;
     this.isInit = true;
@@ -104,7 +107,7 @@ export default class TransactionDetails extends Component {
         title: (
           <Fragment>
             <span className="TxtMiddle">{_l('结算金额')}</span>
-            <Tooltip text={<span>{_l('微信/支付宝直连无法获取结算金额')}</span>}>
+            <Tooltip title={_l('微信/支付宝直连无法获取结算金额')}>
               <i className="icon icon-info Gray_9e Font14 mLeft5 TxtMiddle" />
             </Tooltip>
           </Fragment>
@@ -120,7 +123,7 @@ export default class TransactionDetails extends Component {
         title: (
           <Fragment>
             <span className="TxtMiddle">{_l('结算手续费')}</span>
-            <Tooltip text={<span>{_l('微信/支付宝直连无法获取手续费')}</span>}>
+            <Tooltip title={_l('微信/支付宝直连无法获取手续费')}>
               <i className="icon icon-info Gray_9e Font14 mLeft5 TxtMiddle" />
             </Tooltip>
           </Fragment>
@@ -136,7 +139,7 @@ export default class TransactionDetails extends Component {
         title: (
           <Fragment>
             <span className="TxtMiddle">{_l('结算手续费率')}</span>
-            <Tooltip text={<span>{_l('微信/支付宝直连无法获取手续费率')}</span>}>
+            <Tooltip title={_l('微信/支付宝直连无法获取手续费率')}>
               <i className="icon icon-info Gray_9e Font14 mLeft5 TxtMiddle" />
             </Tooltip>
           </Fragment>
@@ -154,6 +157,14 @@ export default class TransactionDetails extends Component {
         width: 150,
         render: (text, record) => {
           return _.includes([3, 5], record.status) ? <div className="color_47">{text}</div> : '-';
+        },
+      },
+      {
+        title: _l('对账 ID'),
+        dataIndex: 'channelCheckId',
+        width: 350,
+        render: (text, record) => {
+          return record.channelCheckId || '-';
         },
       },
       {
@@ -886,8 +897,7 @@ export default class TransactionDetails extends Component {
                     {text}
                     {_.includes(['totalAmount', 'realAmount'], id) && (
                       <Tooltip
-                        autoCloseDelay={0}
-                        text={
+                        title={
                           id === 'totalAmount'
                             ? _l('交易金额的总和')
                             : _l('总收入-手续费-退款金额，微信/支付宝直连无法获取手续费')
@@ -900,7 +910,7 @@ export default class TransactionDetails extends Component {
                   </span>
                 )}
                 <span
-                  className={cx('Font26 bold mLeft5', {
+                  className={cx('Font26 bold mLeft10', {
                     ThemeColor: _.includes(['totalAmount', 'dateRangeTotalAmount', 'realAmount'], id),
                   })}
                   zw

@@ -37,7 +37,7 @@ export default function WidgetDisplay(props) {
     hidetitle,
     titlesize = '0',
     titlestyle = '0000',
-    titlecolor = '#757575',
+    titlecolor = 'var(--color-text-title)',
     showtype,
     customtype,
   } = getAdvanceSetting(data);
@@ -72,6 +72,7 @@ export default function WidgetDisplay(props) {
           WordBreak: displayRow,
           overflow_ellipsis: !displayRow,
           hideTitle: !showTitle,
+          isMingo: data.isMingo,
         })}
       >
         {controlName}

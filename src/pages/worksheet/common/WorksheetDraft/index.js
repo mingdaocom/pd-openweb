@@ -4,14 +4,15 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import withEscClose from 'ming-ui/decorators/withEscClose';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { SYSTEM_ENUM } from 'src/components/Form/core/config';
+import { controlState } from 'src/components/Form/core/utils';
 import { resortControlByColRow } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
 import { updateDraftTotalInfo } from './utils';
@@ -55,9 +56,15 @@ const Body = styled.div`
 `;
 
 const TotalNumWrap = styled.span`
-  background-color: #eaeaea;
-  padding: 2px 6px;
+  color: var(--color-primary);
+  background-color: var(--color-primary-transparent);
+  padding: 0px 6px;
+  line-height: 20px;
   border-radius: 10px;
+`;
+
+const DraftTxt = styled.span`
+  color: #515151;
 `;
 
 function DraftModal(props) {
@@ -107,7 +114,7 @@ function DraftModal(props) {
   const numberWidth = 16;
 
   useEffect(() => {
-    loadRows({ appId, worksheetId });
+    loadRows();
   }, []);
 
   const loadRows = () => {
@@ -216,7 +223,7 @@ function DraftModal(props) {
           <Header>
             <div className="title">{records.length ? `${_l('草稿箱')}（${records.length}/10）` : _l('草稿箱')}</div>
             <div className="flex"></div>
-            <span className="refreshBtn mRight10" onClick={() => loadRows({ appId, worksheetId })}>
+            <span className="refreshBtn mRight10" onClick={() => loadRows()}>
               <i className="icon icon-refresh1" />
             </span>
             <span className="closeBtn" onClick={onCancel}>
@@ -327,7 +334,8 @@ function DraftModal(props) {
     </BrowserRouter>
   );
 }
-export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
+export const openWorkSheetDraft = props =>
+  functionWrap(withEscClose(DraftModal), { ...props, closeFnName: 'onCancel' });
 
 let request = null;
 function WorksheetDraft(props) {
@@ -341,10 +349,10 @@ function WorksheetDraft(props) {
     setHighLightOfRows,
     isNewRecord,
     className = '',
-    totalNumStyle = {},
   } = props;
   const { worksheetId } = worksheetInfo;
   const [total, setTotal] = useState(_.get(window, `draftTotalNumInfo[${worksheetId}]`));
+  const draftEntryRef = useRef(null);
 
   // 获取草稿箱计数
   const loadDraftDataCount = () => {
@@ -362,6 +370,9 @@ function WorksheetDraft(props) {
       getType: 21,
     }).then(res => {
       const total = Number(res) || 0;
+      if (isNewRecord && !total) {
+        $(draftEntryRef.current).parent().remove();
+      }
       updateDraftTotalInfo({ worksheetId, total });
       setTotal(total);
     });
@@ -387,7 +398,7 @@ function WorksheetDraft(props) {
 
   // v11.1变更: 草稿箱入口不受存草稿开关限制（有草稿记录就显示草稿箱列表入口）
   if ((isNewRecord && !total) || (_.get(worksheetInfo, 'advancedSetting.closedrafts') === '1' && !Number(total))) {
-    return null;
+    return <div ref={draftEntryRef}></div>;
   }
 
   return (
@@ -411,14 +422,8 @@ function WorksheetDraft(props) {
       }}
     >
       <Icon icon="drafts_approval" className="Font18 Gray_9e" />
-      <span className="mLeft5 Font13 Gray_75 draftTxt">{_l('草稿箱')}</span>
-      {total ? (
-        <TotalNumWrap className="mLeft5 Gray Font13" style={totalNumStyle}>
-          {total}
-        </TotalNumWrap>
-      ) : (
-        ''
-      )}
+      <DraftTxt className="mLeft5 Font13">{_l('草稿箱')}</DraftTxt>
+      {total ? <TotalNumWrap className="mLeft5 Font13">{total}</TotalNumWrap> : ''}
     </span>
   );
 }

@@ -228,50 +228,32 @@ export function QuickFilter(props) {
       })),
     );
 
+  const openAppFilter = () => {
+    compatibleMDJS('customizeFilterForWorksheet', {
+      filterId: appFilterId, // 初次使用传空, App随机生成, 需要H5临时存储在对应场景下
+      item: worksheetInfo, // 工作表详细
+      viewId: view.viewId, // 当前视图ID, 可能影响关联记录, 待确认是否需要
+      success: function (res) {
+        // filter 对应API使用的filterControls, 直接使用即可
+        const filterId = res.filterId; // 本地存储, 非API使用参数
+        const filter = res.filter && JSON.parse(res.filter);
+        setAppFilterId(filterId);
+        filter && updateFilterControls(filter);
+      },
+      cancel: function (res) {
+        console.log('cancel', res);
+      },
+    });
+  };
+
   return (
     <Con className="flexColumn h100 overflowHidden" style={{ width }}>
       <div className="header flexRow valignWrapper">
         <Icon className="Gray_9e close" icon="close" onClick={onHideSidebar} />
       </div>
       <div className="flex body">
-        {items.map((item, i) => (
-          <Item
-            requiredError={
-              requiredErrorVisible &&
-              item.isRequired &&
-              !validate({
-                ...item,
-                ...values[i],
-              })
-            }
-          >
-            <FilterInput
-              controls={controls}
-              key={item.controlId}
-              {...item}
-              {...values[i]}
-              filtersData={filtersData}
-              projectId={props.projectId}
-              appId={props.appId}
-              worksheetId={props.worksheetId}
-              filterText={props.filterText}
-              onChange={(change = {}) => {
-                store.current.activeType = item.control.type;
-                const newValues = { ...values, [i]: { ...values[i], ...change } };
-                setValues(newValues);
-              }}
-              onRemove={() => {
-                values[i] = { ...values[i], dateRange: 0, minValue: undefined, maxValue: undefined, value: undefined };
-                const newValues = { ...values };
-                setValues(newValues);
-              }}
-            />
-          </Item>
-        ))}
-
         {showSavedFilter && !_.isEmpty(savedFilters) && (
           <Fragment>
-            <SpaceLine></SpaceLine>
             <div className="Font14 Gray bold pTop16 pBottom16">{_l('常用筛选')}</div>
             {[
               { title: _l('个人'), data: savedFilters.filter(s => s.type === 1) },
@@ -301,35 +283,62 @@ export function QuickFilter(props) {
         {/* APP网页集成自定义筛选 */}
         {window.isMingDaoApp && (
           <Fragment>
-            <SpaceLine></SpaceLine>
-            <div
-              className="flexRow alignCenter Font14 pTop16 pBottom16"
-              onClick={() => {
-                compatibleMDJS('customizeFilterForWorksheet', {
-                  filterId: appFilterId, // 初次使用传空, App随机生成, 需要H5临时存储在对应场景下
-                  item: worksheetInfo, // 工作表详细
-                  viewId: view.viewId, // 当前视图ID, 可能影响关联记录, 待确认是否需要
-                  success: function (res) {
-                    // filter 对应API使用的filterControls, 直接使用即可
-                    const filterId = res.filterId; // 本地存储, 非API使用参数
-                    const filter = res.filter && JSON.parse(res.filter);
-                    setAppFilterId(filterId);
-                    filter && updateFilterControls(filter);
-                  },
-                  cancel: function (res) {
-                    console.log('cancel', res);
-                  },
-                });
-              }}
-            >
+            <div className="flexRow alignCenter Font14 pTop16 pBottom16" onClick={openAppFilter}>
               <span className="bold Gray">{_l('自定义筛选')}</span>
               <div className="flex"></div>
-              {props.filterControls && !!props.filterControls.length && (
+              {props.filterControls && !!props.filterControls.length ? (
                 <span className="ThemeColor">{_l('选中 %0 项', props.filterControls.length)}</span>
+              ) : (
+                <i className="icon icon-arrow-right-border Fon18 Gray_9e LineHeight22" />
               )}
             </div>
           </Fragment>
         )}
+
+        {showSavedFilter && !_.isEmpty(savedFilters) && items.length ? <SpaceLine></SpaceLine> : ''}
+
+        <div className="pTop16">
+          {items.map((item, i) => (
+            <Item
+              requiredError={
+                requiredErrorVisible &&
+                item.isRequired &&
+                !validate({
+                  ...item,
+                  ...values[i],
+                })
+              }
+            >
+              <FilterInput
+                controls={controls}
+                key={item.controlId}
+                {...item}
+                {...values[i]}
+                filtersData={filtersData}
+                projectId={props.projectId}
+                appId={props.appId}
+                worksheetId={props.worksheetId}
+                filterText={props.filterText}
+                onChange={(change = {}) => {
+                  store.current.activeType = item.control.type;
+                  const newValues = { ...values, [i]: { ...values[i], ...change } };
+                  setValues(newValues);
+                }}
+                onRemove={() => {
+                  values[i] = {
+                    ...values[i],
+                    dateRange: 0,
+                    minValue: undefined,
+                    maxValue: undefined,
+                    value: undefined,
+                  };
+                  const newValues = { ...values };
+                  setValues(newValues);
+                }}
+              />
+            </Item>
+          ))}
+        </div>
       </div>
       <div className="footer flexRow valignWrapper">
         <div className="flex Font16 centerAlign" onClick={handleReset}>

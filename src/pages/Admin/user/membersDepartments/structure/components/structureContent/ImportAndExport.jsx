@@ -27,20 +27,20 @@ const ImportBtn = styled.div`
   cursor: ${props => (props.notAllowed ? 'not-allowed' : 'pointer')};
 `;
 
-const userTemplatePaths = {
-  0: md.global.Config.IsPlatformLocal
-    ? '/staticfiles/template/成员导入模板.xlsx'
-    : '/staticfiles/template/成员导入模板_v2.xlsx',
-  1: md.global.Config.IsPlatformLocal
-    ? '/staticfiles/template/User Import Template.xlsx'
-    : '/staticfiles/template/User Import Template_v2.xlsx',
-  2: md.global.Config.IsPlatformLocal
-    ? '/staticfiles/template/メンバーインポートテンプレート.xlsx'
-    : '/staticfiles/template/メンバーインポートテンプレート_v2.xlsx',
-  3: md.global.Config.IsPlatformLocal
-    ? '/staticfiles/template/成員導入模板.xlsx'
-    : '/staticfiles/template/成員導入模板_v2.xlsx',
-};
+const userTemplatePaths =
+  !md.global.Config.IsLocal || md.global.Config.IsPlatformLocal
+    ? {
+        0: '/staticfiles/template/成员导入模板.xlsx',
+        1: '/staticfiles/template/User Import Template .xlsx',
+        2: '/staticfiles/template/メンバーインポートテンプレート.xlsx',
+        3: '/staticfiles/template/成員導入模板.xlsx',
+      }
+    : {
+        0: '/staticfiles/template/private/成员导入模板.xlsx',
+        1: '/staticfiles/template/private/User Import Template .xlsx',
+        2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
+        3: '/staticfiles/template/private/成員導入模板.xlsx',
+      };
 class ImportAndExport extends Component {
   constructor(props) {
     super(props);
@@ -53,7 +53,6 @@ class ImportAndExport extends Component {
       importFileLoading: false,
     };
   }
-  componentDidMount() {}
 
   changeTab = currentTab => {
     this.setState({ currentTab, fileName: '', fileUrl: '' });
@@ -246,7 +245,7 @@ class ImportAndExport extends Component {
   render() {
     let { currentTab, isShowFailList, fileName, importFileLoading } = this.state;
     return (
-      <div className="exportContainer">
+      <div className="exportContainer flexColumn">
         <div className="exportHeader">
           <Icon
             icon="backspace"

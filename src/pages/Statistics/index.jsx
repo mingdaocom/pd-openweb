@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import report from './api/report';
@@ -29,7 +29,6 @@ const exceptions = [
   '.ant-tooltip',
   '.ant-cascader-menus',
   '.ant-tree-select-dropdown',
-  '.Tooltip-wrapper',
   '.CityPickerPanelTrigger',
   '.ant-modal-mask',
   '.ant-modal-wrap',

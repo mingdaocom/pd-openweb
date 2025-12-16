@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Button, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Button, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import Pagination from 'worksheet/components/Pagination';
@@ -532,16 +533,7 @@ function Preview(props) {
                 <React.Fragment>
                   <span className="Bold">{_l('预览失败')}</span>
                   {(errorMsgList || []).length > 0 && (
-                    <Tooltip
-                      placement="bottom"
-                      autoCloseDelay={0}
-                      tooltipStyle={{
-                        maxWidth: 350,
-                        maxHeight: 300,
-                        overflow: 'auto',
-                      }}
-                      text={<span className="InlineBlock WordBreak">{errorMsgList}</span>}
-                    >
+                    <Tooltip placement="bottom" title={<span className="InlineBlock WordBreak">{errorMsgList}</span>}>
                       <Icon type={'error'} className="Gray_9e Font16 mLeft5 TxtMiddle InlineBlock" />
                     </Tooltip>
                   )}
@@ -586,7 +578,7 @@ function Preview(props) {
               <React.Fragment>
                 {/* 聚合及聚合完成 或者当前页面已预览过 都显示刷新 */}
                 {worksheetId && !isHasChange(flowData).isAllChange && (
-                  <Tooltip popupPlacement="bottom" text={<span>{_l('刷新')}</span>}>
+                  <Tooltip placement="bottom" title={_l('刷新')}>
                     <Icon
                       icon="task-later"
                       className="Gray_9e Font18 pointer mLeft10 mRight2 ThemeHoverColor3"

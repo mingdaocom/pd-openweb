@@ -1,9 +1,8 @@
 import base, { controllerName } from './base';
 
-var migrate = {
-
+const migrate = {
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -17,7 +16,7 @@ var migrate = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {object} args.jobIds No comments found.,[array of string]
@@ -32,7 +31,7 @@ var migrate = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -46,7 +45,7 @@ var migrate = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -60,7 +59,7 @@ var migrate = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -74,7 +73,7 @@ var migrate = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -88,7 +87,7 @@ var migrate = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -99,7 +98,7 @@ var migrate = {
     base.ajaxOptions.url = base.server(options) + 'migrate/stopReportingTask';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'migratestopReportingTask', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default migrate;

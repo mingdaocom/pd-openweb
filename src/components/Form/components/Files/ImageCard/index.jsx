@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem, Progress } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { handleDownload, handleShare, loadImage } from '../utils';
 import './index.less';
 
@@ -84,7 +84,7 @@ const ImageCard = props => {
       {allowNewPage && (
         <MenuItem
           key="newWindow"
-          icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
+          icon={<Icon icon="rectangle_2" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
             onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
@@ -149,7 +149,15 @@ const ImageCard = props => {
       className={cx('attachmentFile', { hover: dropdownVisible || isEdit })}
       onClick={e => {
         e.stopPropagation();
-        browse ? onMDPreview(data) : alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
+        if (browse) {
+          if (e.shiftKey && allowNewPage && data.fileID) {
+            onOpenControlAttachmentInNewTab(data.fileID);
+            return;
+          }
+          onMDPreview(data);
+          return;
+        }
+        alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
       }}
     >
       {isMobile && isDeleteFile && (
@@ -490,7 +498,7 @@ export default props => {
           }}
         />
         <div className="attachmentFile h100 flexColumn">
-          <div className="flexRow alignItemsCenter justifyContentCenter flex">
+          <div className="flexRow alignItemsCenter justifyContentCenter flex uploadingProcessCircle">
             <Progress.Circle
               key="text"
               isAnimation={false}

@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
+import { Popover } from 'antd';
 import cx from 'classnames';
 import img from 'staticfiles/images/markdown.png';
 import styled from 'styled-components';
@@ -68,11 +68,11 @@ export default function Text(props) {
         <DisplayMode>
           {DISPLAY_OPTIONS.map(item => {
             return (
-              <Tooltip
-                autoCloseDelay={0}
-                title={item.value === 3 ? <MarkdownTips /> : ''}
-                placement="bottomRight"
+              <Popover
+                color="black"
                 overlayClassName="textMarkdownTipsContainer"
+                content={item.value === 3 ? <MarkdownTips /> : ''}
+                placement="bottomRight"
               >
                 <div
                   className={cx('displayItem', { active: currentEnumDefault === item.value })}
@@ -103,7 +103,7 @@ export default function Text(props) {
                   </div>
                   <span className="text">{item.text}</span>
                 </div>
-              </Tooltip>
+              </Popover>
             );
           })}
         </DisplayMode>

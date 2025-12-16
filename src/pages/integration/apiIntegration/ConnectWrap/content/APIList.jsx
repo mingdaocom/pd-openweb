@@ -59,7 +59,7 @@ const Wrap = styled.div`
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
-  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v3.js' + '?' + moment().format('YYYYMMDD');
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v4.js' + '?' + moment().format('YYYYMMDD');
   const featureType = getFeatureStatus(props.companyId, VersionProductType.apiIntergration);
   const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
     useSetState({

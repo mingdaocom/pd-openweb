@@ -1,7 +1,12 @@
 {
   "plugins": [
     "@babel/plugin-transform-runtime",
-    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "legacy": true
+      }
+    ],
     [
       "import",
       {
@@ -10,6 +15,15 @@
         "camel2DashComponentName": false
       },
       "import-ming-ui-functions"
+    ],
+    [
+      "import",
+      {
+        "libraryName": "ming-ui/antd-components",
+        "libraryDirectory": "",
+        "camel2DashComponentName": false
+      },
+      "import-ming-ui-antd-components"
     ],
     [
       "import",
@@ -28,6 +42,12 @@
         "style": "css"
       },
       "import-antd"
+    ],
+    [
+      "babel-plugin-direct-import",
+      {
+        "modules": ["lodash"]
+      }
     ]
   ],
   "env": {

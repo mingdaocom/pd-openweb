@@ -13,7 +13,7 @@ function smi(i32) {
 function hashString(string) {
   let hash = 0;
   for (let ii = 0; ii < string.length; ii++) {
-    hash = (31 * hash + string.charCodeAt(ii)) | 0;
+    hash = Math.trunc(31 * hash + string.charCodeAt(ii));
   }
   return smi(hash);
 }
@@ -127,7 +127,7 @@ export function getRootNameAndLink(baseUrl, root) {
 }
 
 /**
- * 移除文件名中的非法字符 TODO: 这个方法参数传的太乱了，抽空优化
+ * 移除文件名中的非法字符
  * @param  {String} str 传入的字符串
  */
 export function validateFileName(str, shouldAlert = true, out = null, options = {}) {
@@ -400,5 +400,5 @@ export const getUrlByBucketName = bucketName => {
     mdmedia: md.global.FileStoreConfig.mediaHost,
     mdpub: md.global.FileStoreConfig.pubHost,
   };
-  return config[bucketName] || md.global.FileStoreConfig.pictureHost;
+  return `${config[bucketName] || md.global.FileStoreConfig.pictureHost}/`;
 };

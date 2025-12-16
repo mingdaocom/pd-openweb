@@ -5,16 +5,16 @@
             {{= _l('标记完成') }}
         </div>
         <ul class="Right relative">
-            <li data-tip="{{= _l('批量关闭消息提醒') }}" class="batchIcon iconTaskNoNews ThemeColor3">
+            <li title="{{= _l('批量关闭消息提醒') }}" class="batchIcon iconTaskNoNews ThemeColor3">
                 <i class="icon-chat-bell-nopush"></i>
             </li>
             <li
-                data-tip="{{= it.isLocked ? _l('批量锁定任务') : _l('批量解锁任务') }}"
+                title="{{= it.isLocked ? _l('批量锁定任务') : _l('批量解锁任务') }}"
                 class="batchIcon iconTaskNewLocked ThemeColor3"
             >
                 <i class="{{=it.isLocked ? 'icon-lock' : 'icon-task-new-no-locked'}}"></i>
             </li>
-            <li data-tip="{{= _l('更多')}}" class="batchIcon batchMore ThemeColor3">
+            <li title="{{= _l('更多')}}" class="batchIcon batchMore ThemeColor3">
                 <i class="icon-arrow-down-border"></i>
             </li>
             <ul class="batchOperator boderRadAll_3 boxShadow5 Hidden">
@@ -31,7 +31,7 @@
         <div class="detailTimeLabelText">
             <div
                 class="detailTimeNowStart ThemeColor3 ThemeBorderColor3 pointer ThemeHoverColor2 ThemeHoverBorderColor2"
-                data-tip="{{=_l('批量启动所有未开始的任务')}}"
+                title="{{=_l('批量启动所有未开始的任务')}}"
             >
                 {{=_l('现在开始')}}
             </div>
@@ -49,12 +49,10 @@
     <div class="barchTaskContent">
         {{? it.isShowChargeFolder}}
         <div class="batchFolder">
-            <span class="batchFolderIcon" data-tip="{{= _l('批量关联项目')}}"><i class="icon-project-new"></i></span>
+            <span class="batchFolderIcon" title="{{= _l('批量关联项目')}}"><i class="icon-project-new"></i></span>
             <div class="batchFolderContent Hidden show">
                 <span class="batchFolderText">{{= _l('批量关联项目')}}</span>
-                <span class="folderNameEdit tip-bottom-left" data-tip="{{= _l('批量关联项目')}}"
-                    ><i class="icon-edit"></i
-                ></span>
+                <span class="folderNameEdit" title="{{= _l('批量关联项目')}}"><i class="icon-edit"></i></span>
             </div>
             <div class="autoBatchFolder Hidden">
                 <input type="text" id="batchTaskFolder" class="boderRadAll_3" />
@@ -62,10 +60,10 @@
         </div>
         {{?}}
         <div class="markStatus">
-            <span data-tip="{{=_l('批量更改主负责人')}}">
+            <span title="{{=_l('批量更改主负责人')}}">
                 <img
                     class="batchCharge circle"
-                    src="{{=md.global.FileStoreConfig.pictureHost}}UserAvatar/default.gif?imageView2/1/w/48/h/48/q/90"
+                    src="{{=md.global.FileStoreConfig.pictureHost}}/UserAvatar/default.gif?imageView2/1/w/48/h/48/q/90"
                 />
             </span>
             <span class="batchTaskCount">{{= _l('已选择%0条任务','<span id="backTaskCount">?</span>')}}</span>
@@ -76,9 +74,9 @@
             <div class="categoryList" id="txtCategory"></div>
         </div>
         <div class="batchMember mTop5">
-            <span data-tip="{{=_l('批量添加任务参与者')}}"><i class="icon-group"></i></span>
+            <span title="{{=_l('批量添加任务参与者')}}"><i class="icon-group"></i></span>
             <div class="members">
-                <span class="ThemeColor3" id="batchAddTask" data-tip="{{=_l('添加任务参与者')}}"
+                <span class="ThemeColor3" id="batchAddTask" title="{{=_l('添加任务参与者')}}"
                     ><i class="icon-task-add-member-circle"></i
                 ></span>
             </div>

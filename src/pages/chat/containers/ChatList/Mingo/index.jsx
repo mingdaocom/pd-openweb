@@ -1,11 +1,13 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'src/pages/chat/redux/actions';
+import { emitter } from 'src/utils/common';
 import mingoActiveHover from './images/mingo-active-hover.gif';
 import mingoActive from './images/mingo-active.png';
 import mingoClick from './images/mingo-click.gif';
@@ -64,6 +66,13 @@ const Mingo = props => {
     }
   };
 
+  const handleForcedSetMingoVisible = ({ mingoVisible = true } = {}) => {
+    setToolbarConfig({
+      mingoVisible,
+      mingoFixing: true,
+    });
+  };
+
   const getLogo = () => {
     if (clickNow || isPlaying) {
       return mingoClick;
@@ -96,13 +105,20 @@ const Mingo = props => {
     </Wrap>
   );
 
+  useEffect(() => {
+    emitter.on('SET_MINGO_VISIBLE', handleForcedSetMingoVisible);
+    return () => {
+      emitter.off('SET_MINGO_VISIBLE', handleForcedSetMingoVisible);
+    };
+  }, []);
+
   return (
     <Fragment>
       {isOpenMingoAI &&
         (mingoVisible ? (
           Content
         ) : (
-          <Tooltip text="mingo (M)" popupPlacement="left" offset={[10, 0]} autoCloseDelay={1000}>
+          <Tooltip title="mingo" shortcut="M" placement="left" align={{ offset: [10, 0] }} mouseLeaveDelay={0.1}>
             {Content}
           </Tooltip>
         ))}

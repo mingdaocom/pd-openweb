@@ -166,7 +166,7 @@ export default class Signature extends Component {
                     this.setState({
                       isEdit: false,
                       signature: get(files, '0.url'),
-                      key: replace(files[0].url.replace(/\?.*$/, ''), md.global.FileStoreConfig.pictureHost, ''),
+                      key: replace(files[0].url.replace(/\?.*$/, ''), `${md.global.FileStoreConfig.pictureHost}/`, ''),
                     });
                     if (get(window, 'md.global.Account.accountId')) {
                       accountSettingAjax.editSign({ url: get(files, '0.url') });

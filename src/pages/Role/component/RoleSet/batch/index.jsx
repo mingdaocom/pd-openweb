@@ -3,7 +3,8 @@ import { useSetState } from 'react-use';
 import { Checkbox, List, Modal, Radio } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, Radio as MDRadio, SvgIcon, Switch, Tooltip } from 'ming-ui';
+import { Button, Icon, Radio as MDRadio, SvgIcon, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import delPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/del.png';
 import editPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/edit.png';
 import lookPng from 'src/pages/Role/component/RoleSet/TooltipSetting/img/look.png';
@@ -145,7 +146,7 @@ export default function (props) {
                     {o.txt}
                   </Checkbox>
                   {o.tips && (
-                    <Tooltip text={<span>{o.tips} </span>} popupPlacement="top">
+                    <Tooltip title={o.tips}>
                       <i className="icon-info_outline Font16 Gray_bd mLeft3 TxtMiddle" />
                     </Tooltip>
                   )}
@@ -176,7 +177,7 @@ export default function (props) {
             {type === 'read' ? _l('额外包含下属加入的记录') : _l('额外包含下属拥有的记录')}
           </span>
           {type !== 'read' && (
-            <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')}</span>} popupPlacement="top">
+            <Tooltip title={_l('在组织管理【汇报关系】中管理用户的下属')}>
               <i className="icon-info_outline Font16 mLeft6 Gray_bd" />
             </Tooltip>
           )}

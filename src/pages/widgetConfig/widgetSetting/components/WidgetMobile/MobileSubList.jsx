@@ -1,9 +1,9 @@
 import React from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dropdown, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
 import { DisplayMode, SettingItem } from '../../../styled';
 import { getAdvanceSetting, getControlsSorts, handleAdvancedSettingChange } from '../../../util/setting';

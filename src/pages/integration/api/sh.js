@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var sh = {
-
+const sh = {
   /**
    * 获取中间库信息
    *
@@ -134,7 +133,7 @@ var sh = {
     base.ajaxOptions.url = base.server(options) + 'sh/delShByOne';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'shdelShByOne', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default sh;

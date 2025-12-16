@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Checkbox, Dialog, Radio, SortableList, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const SortableItemBox = styled.div`
   padding: 1px 0;

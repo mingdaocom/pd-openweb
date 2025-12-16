@@ -2,7 +2,8 @@ import React, { Fragment } from 'react';
 import { Checkbox, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, Tooltip } from 'ming-ui';
+import { Dialog, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { captcha } from 'ming-ui/functions';
 import account from 'src/api/account';
 import accountController from 'src/api/account';
@@ -394,7 +395,7 @@ export default class AccountChart extends React.Component {
 
   renderTips = key => {
     return (
-      <Tooltip popupPlacement="top" text={<span>{tipsConfig[key]}</span>}>
+      <Tooltip placement="top" title={tipsConfig[key]}>
         <span className="icon-help Gray_bd Hand mLeft5 Font15"></span>
       </Tooltip>
     );
@@ -587,7 +588,7 @@ export default class AccountChart extends React.Component {
                       <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
                     )}
                     {data.isBind && key === 'workBind' && <span>{_l('账号ID：')}</span>}
-                    <Tooltip text={data.nickName || ''} disable={!data.isBind}>
+                    <Tooltip title={!data.isBind ? '' : data.nickName || ''}>
                       <span className="text overflow_ellipsis flex">
                         {data.isBind ? data.nickName || label : label}
                       </span>

@@ -49,7 +49,7 @@ class MessageView extends Component {
       },
       'up',
     ).then(res => {
-      res = $.isArray(res) ? res.reverse() : [];
+      res = _.isArray(res) ? res.reverse() : [];
       const isAddUnreadLine = topUnread && unreadCount;
       if (isAddUnreadLine && res[res.length - unreadCount]) {
         res[res.length - unreadCount].unreadLine = true;
@@ -232,7 +232,7 @@ class MessageView extends Component {
         },
         'up',
       ).then(res => {
-        res = $.isArray(res) ? res.reverse() : [];
+        res = _.isArray(res) ? res.reverse() : [];
         this.props.dispatch(actions.addPageMessage(session.id, utils.formatMessages(res)));
       });
     } else if (scrollTop === maxScrollTop && isDownLoadingMessage) {
@@ -307,7 +307,7 @@ class MessageView extends Component {
         },
         'up',
       ).then(res => {
-        res = $.isArray(res) ? res.reverse() : [];
+        res = _.isArray(res) ? res.reverse() : [];
         this.props.dispatch(actions.resetMessage(session.id, utils.formatMessages(res)));
       });
     } else {
@@ -410,7 +410,7 @@ class MessageView extends Component {
     const messageList = messages[session.id] || [];
     if (errorParam) {
       this.getMessage(errorParam, 'up').then(res => {
-        res = $.isArray(res) ? res.reverse() : [];
+        res = _.isArray(res) ? res.reverse() : [];
         if (messageList.length) {
           this.props.dispatch(actions.addPageMessage(session.id, utils.formatMessages(res)));
         } else {

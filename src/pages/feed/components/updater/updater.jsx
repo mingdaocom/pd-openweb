@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { Tooltip } from 'ming-ui/antd-components';
 import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import Emotion from 'src/components/emotion/emotion';
 import UploadFiles from 'src/components/UploadFiles';
@@ -221,21 +222,29 @@ class Updater extends React.Component {
 
                 <div className="Relative">
                   <div className="Absolute Hidden" id="updateCloseContainer" style={{ right: '0px', top: '15px' }}>
-                    <span className="update_close ThemeBGColor3" style={{ margin: '5px' }} data-tip={_l('关闭')}>
-                      <i className="icon-delete ThemeColor3" />
-                    </span>
+                    <Tooltip title={_l('关闭')}>
+                      <span className="update_close ThemeBGColor3" style={{ margin: '5px' }}>
+                        <i className="icon-delete ThemeColor3" />
+                      </span>
+                    </Tooltip>
                   </div>
 
                   <div className="myUpdateType mTop12">
-                    <span className="inlineBlock mRight20" data-tip={_l('添加附件')}>
-                      <a className="icon-attachment Font18 NoUnderLine" data-targetdiv="#Attachment_updater" />
-                    </span>
-                    <span className="inlineBlock mRight20" data-tip={_l('链接')}>
-                      <a className="icon-link Font18 NoUnderLine" data-targetdiv="#Link_updater" />
-                    </span>
-                    <span className="inlineBlock" data-tip={_l('投票')}>
-                      <a className="icon-votenobg Font18 NoUnderLine" data-targetdiv="#Vote_updater" />
-                    </span>
+                    <Tooltip title={_l('添加附件')}>
+                      <span className="inlineBlock mRight20">
+                        <a className="icon-attachment Font18 NoUnderLine" data-targetdiv="#Attachment_updater" />
+                      </span>
+                    </Tooltip>
+                    <Tooltip title={_l('链接')}>
+                      <span className="inlineBlock mRight20">
+                        <a className="icon-link Font18 NoUnderLine" data-targetdiv="#Link_updater" />
+                      </span>
+                    </Tooltip>
+                    <Tooltip title={_l('投票')}>
+                      <span className="inlineBlock">
+                        <a className="icon-votenobg Font18 NoUnderLine" data-targetdiv="#Vote_updater" />
+                      </span>
+                    </Tooltip>
                   </div>
 
                   <div id="Attachment_updater" className="middleContent mBottom5 Hidden">

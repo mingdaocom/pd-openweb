@@ -725,7 +725,7 @@ export default class Detail extends React.Component {
                         // 返回列表并重新加载
                         returnCallback(true);
                       } else {
-                        return Promise.reject();
+                        throw new Error();
                       }
                     })
                     .catch(() => {

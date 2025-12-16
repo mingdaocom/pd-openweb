@@ -123,8 +123,7 @@ export default props => {
               >
                 <div className="flexRow alignItemsCenter">
                   <div className="flex">
-                    {_l('原始语言')}
-                    {app.originalLang && `(${_.get(langList[app.originalLang], 'localLang')})`}
+                    {app.originalLang ? _.get(langList[app.originalLang], 'localLang') : _l('基准语言')}
                   </div>
                   {!md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font19" />}
                 </div>

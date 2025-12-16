@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Dialog, Icon, Radio, ScrollView, Tooltip } from 'ming-ui';
+import { Button, Dialog, Icon, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import './index.less';
@@ -177,8 +178,7 @@ export default class ImportConfig extends Component {
   renderTooltip(item) {
     return (
       <Tooltip
-        autoCloseDelay={0}
-        text={
+        title={
           <span>
             {item.state
               ? _l(
@@ -188,7 +188,7 @@ export default class ImportConfig extends Component {
               : _l('当前工作表剩余总行数不足，无法导入此sheet。')}
           </span>
         }
-        popupPlacement="bottom"
+        placement="bottom"
       >
         <span className="icon-error1 Font18" />
       </Tooltip>
@@ -262,14 +262,16 @@ export default class ImportConfig extends Component {
                     <span className="columnNumber mLeft8 mRight10">
                       {_l('共%0列有效', _.isEmpty(selectRow) ? 0 : selectRow.cells.length)}
                     </span>
-                    <span
-                      className="label"
-                      data-tip={_l(
+                    <Tooltip
+                      title={_l(
                         '只有表头下方的数据才会被导入;表头字段不得为空，否则将导致空值字段之后的字段无法被导入。',
                       )}
+                      placement="bottom"
                     >
-                      <Icon icon="error1" className="Font15 Gray_9e" />
-                    </span>
+                      <span className="label">
+                        <Icon icon="error1" className="Font15 Gray_9e" />
+                      </span>
+                    </Tooltip>
                     {this.renderSelectLine()}
                   </div>
                   <div className="flex mTop15">

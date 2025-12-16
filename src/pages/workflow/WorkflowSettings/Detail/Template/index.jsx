@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import {
   CustomTextarea,
@@ -156,12 +157,9 @@ export default class Template extends Component {
       <Fragment>
         <div className="mTop20 bold">
           {_l('发送给')}
-          <span
-            className="workflowDetailTipsWidth mLeft5 Gray_9e tip-bottom-right"
-            data-tip={_l('发送对象必须是已关注当前服务号的外部用户')}
-          >
-            <i className="Font16 icon-info" />
-          </span>
+          <Tooltip title={_l('发送对象必须是已关注当前服务号的外部用户')}>
+            <i className="Font16 icon-info mLeft5 Gray_9e" />
+          </Tooltip>
         </div>
         <Member
           companyId={this.props.companyId}
@@ -215,12 +213,11 @@ export default class Template extends Component {
       <Fragment>
         <div className="mTop20 bold">
           {_l('选择模板')}
-          <span
-            className="workflowDetailTipsWidth mLeft5 Gray_9e tip-bottom-right"
-            data-tip={_l('请严格按照模板消息的运营规范配置，防止模板消息被封。如未添加消息模板，请先去服务号中配置。')}
+          <Tooltip
+            title={_l('请严格按照模板消息的运营规范配置，防止模板消息被封。如未添加消息模板，请先去服务号中配置。')}
           >
-            <i className="Font16 icon-info" />
-          </span>
+            <i className="Font16 icon-info mLeft5 Gray_9e" />
+          </Tooltip>
         </div>
         <Dropdown
           className="flowDropdown mTop10"

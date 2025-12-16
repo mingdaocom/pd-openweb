@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 
 export function getAppNavigateUrl(appId, pcNaviStyle, selectAppItmeType = 2) {

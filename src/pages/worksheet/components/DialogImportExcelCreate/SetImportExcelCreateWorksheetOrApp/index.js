@@ -4,7 +4,8 @@ import { Select } from 'antd';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, Support, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, Icon, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget.js';
 import { canSetAsTitle } from 'src/pages/widgetConfig/util';
 import { FILEDS_TYPE_INFO } from '../util';
@@ -109,7 +110,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                 <span className="ellipsis flex">{item.value}</span>
                 {isTitle && (
                   <span>
-                    <Tooltip text={<span>{_l('标题字段无法取消')}</span>} action={['hover']}>
+                    <Tooltip title={_l('标题字段无法取消')}>
                       <Icon icon="info_outline" className="Gray_bd Hand Font15" />
                     </Tooltip>
                   </span>
@@ -247,7 +248,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
             <div className="flex">{_l('不导入此列')}</div>
             <span>
               {isTitle && (
-                <Tooltip text={<span>{_l('标题字段无法取消')}</span>} action={['hover']}>
+                <Tooltip title={_l('标题字段无法取消')}>
                   <Icon icon="info_outline" className="Gray_bd Hand Font15 disabledCellIcon" />
                 </Tooltip>
               )}
@@ -469,15 +470,9 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                         : ''}
                     </Select>
                     <Tooltip
-                      autoCloseDelay={0}
-                      text={
-                        <span>
-                          {_l(
-                            '只有表头下方的数据才会被导入;表头字段不得为空，否则将导致空值字段之后的字段无法被导入。',
-                          )}
-                        </span>
-                      }
-                      action={['hover']}
+                      title={_l(
+                        '只有表头下方的数据才会被导入;表头字段不得为空，否则将导致空值字段之后的字段无法被导入。',
+                      )}
                     >
                       <Icon icon="info_outline" className="Gray_bd mLeft8 Hand Font16" />
                     </Tooltip>

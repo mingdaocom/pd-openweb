@@ -8,6 +8,7 @@ import flowNode from '../../../api/flowNode';
 import { APP_TYPE, DATE_TYPE, TRIGGER_ID } from '../../enum';
 import { checkConditionsIsNull, checkJSON, clearFlowNodeMapParameter, getIcons, getStartNodeColor } from '../../utils';
 import { DetailFooter, DetailHeader } from '../components';
+import AgentContent from './AgentContent';
 import ApprovalProcess from './ApprovalProcess';
 import CustomAction from './CustomAction';
 import DateContent from './DateContent';
@@ -149,7 +150,7 @@ export default class Start extends Component {
 
     if (!flowInfo.child) {
       if (!appId && (appType === APP_TYPE.SHEET || appType === APP_TYPE.DATE)) {
-        alert(_l('必须先选择一个工作表'), 2);
+        alert(_l('必须先选择一个表'), 2);
         return;
       }
 
@@ -468,6 +469,7 @@ export default class Start extends Component {
                 {data.appType === APP_TYPE.LOOP_PROCESS && (
                   <LoopProcessContent {...this.props} data={data} updateSource={this.updateSource} />
                 )}
+                {data.appType === APP_TYPE.CHATBOT && <AgentContent data={data} />}
               </Fragment>
             )}
           </ScrollView>
@@ -489,6 +491,7 @@ export default class Start extends Component {
                 APP_TYPE.PARAMETER,
                 APP_TYPE.APPROVAL_START,
                 APP_TYPE.LOOP_PROCESS,
+                APP_TYPE.CHATBOT,
               ],
               data.appType,
             )

@@ -1,6 +1,7 @@
 import _ from 'lodash';
+import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet.js';
-import { controlState, getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
+import { controlState, getCurrentValue } from 'src/components/Form/core/formUtils';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 
@@ -176,13 +177,7 @@ export const handleRelateRow = (control = {}, content, worksheetInfo, updateData
           return;
         }
         if (currentWorksheetId === worksheetId) {
-          getRelateData(
-            control,
-            content,
-            { appId, worksheetId, viewId, rowId, isShareLink: true },
-            worksheetInfo,
-            updateData,
-          );
+          getRelateData(control, content, { appId, worksheetId, viewId, rowId }, worksheetInfo, updateData);
         } else {
           alert(_l('无法关联，此记录不在可关联的范围内'), 3);
         }
@@ -213,27 +208,30 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
   const handleRelateResult = firstRow => {
     const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
     const nameValue = titleControl ? firstRow[titleControl.controlId] : undefined;
-    const relateDataInfo = {
-      isNew: true,
-      isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
-      sourcevalue: JSON.stringify(firstRow),
-      row: firstRow,
-      type: 8,
-      sid: firstRow.rowid,
-      name: getCurrentValue(titleControl, nameValue, { type: 2 }),
-    };
+    const relateDataInfo =
+      firstRow && !_.isEmpty(firstRow)
+        ? {
+            isNew: true,
+            isWorksheetQueryFill: _.get(control.advancedSetting || {}, 'showtype') === '1',
+            sourcevalue: JSON.stringify(firstRow),
+            row: firstRow,
+            type: 8,
+            sid: firstRow.rowid,
+            name: getCurrentValue(titleControl, nameValue, { type: 2 }),
+          }
+        : {};
     let isNoRepeat = true;
     const scanRelateRecordValues = localStorage.getItem('scanRelateRecordValues')
       ? JSON.parse(localStorage.getItem('scanRelateRecordValues'))
       : {};
-    if (!scanRelateRecordValues[control.controlId]) {
+    if (!scanRelateRecordValues[control.controlId] && !_.isEmpty(relateDataInfo)) {
       scanRelateRecordValues[control.controlId] = [relateDataInfo];
       localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
     } else {
       const currentRelateRecords = scanRelateRecordValues[control.controlId];
       isNoRepeat = _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1;
       scanRelateRecordValues[control.controlId] =
-        _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1
+        !_.isEmpty(relateDataInfo) && _.findIndex(currentRelateRecords || [], v => v.sid === relateDataInfo.sid) === -1
           ? currentRelateRecords.concat(relateDataInfo)
           : currentRelateRecords;
       localStorage.setItem('scanRelateRecordValues', JSON.stringify(scanRelateRecordValues));
@@ -252,6 +250,7 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
       title: getCurrentValue(titleControl, nameValue, { type: 2 }),
       rowId: firstRow.rowid,
       type: !isNoRepeat ? '3' : _.isEmpty(firstRow) ? '1' : undefined,
+      msg: !isNoRepeat ? undefined : _.isEmpty(firstRow) ? _l('无法关联，此记录不在可关联的范围内') : undefined,
     });
   };
 
@@ -300,7 +299,18 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
     isGetWorksheet: true,
     getType: 7,
     sortControls: [],
-    filterControls: [],
+    filterControls: rowId
+      ? [
+          {
+            controlId: 'rowid',
+            dataType: 2,
+            spliceType: 1,
+            filterType: 2,
+            dynamicSource: [],
+            values: [rowId],
+          },
+        ]
+      : [],
     keyWords: scancontrol === '1' && scancontrolid ? '' : content,
     langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     fastFilters:
@@ -321,7 +331,9 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
         : [],
   };
 
-  sheetAjax.getFilterRows(requestParams).then(res => {
+  const getFilterRowsPromise = window.isPublicWorksheet ? publicWorksheetAjax.getRelationRows : sheetAjax.getFilterRows;
+
+  getFilterRowsPromise(requestParams).then(res => {
     const firstRow = res.data && res.data.length ? res.data[0] : {};
     handleRelateResult(firstRow);
   });

@@ -69,6 +69,7 @@ export default class DepDropDown extends Component {
       keywords,
       pageIndex: 1,
       pageSize: 1000,
+      includeDisabled: false,
     });
 
     this.ajax

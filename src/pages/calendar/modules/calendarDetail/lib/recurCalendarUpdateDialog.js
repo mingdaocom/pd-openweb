@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import doT from 'dot';
+import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
 import tpl from './template/repeatCalendarOperator.html';
 import './css/recurUpdate.less';
@@ -24,7 +25,7 @@ export default function recurCalendarUpdate(
       children: <div dangerouslySetInnerHTML={{ __html: doT.template(tpl)({ isRecurChange, isEdit }) }}></div>,
       noFooter: true,
       handleClose: () => {
-        if ($.isFunction(callback)) {
+        if (_.isFunction(callback)) {
           // 拖拽时取消
           callback();
         }
@@ -60,7 +61,7 @@ export default function recurCalendarUpdate(
         recurCalendarUpdateFun(!isChildCalendar);
       },
       handleClose: () => {
-        if ($.isFunction(callback)) {
+        if (_.isFunction(callback)) {
           callback();
         }
         $('.repeatCalendarOperator').parent().remove();

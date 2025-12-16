@@ -1,6 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { ICON_ROLE_TYPE, sysRoleType } from 'src/pages/Role/config.js';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 
@@ -27,7 +28,7 @@ export default class Con extends React.Component {
             {item.name}
           </span>
           {item.hideAppForMembers && !isForPortal && (
-            <Tooltip popupPlacement="top" text={<span>{_l('隐藏应用')}</span>}>
+            <Tooltip placement="top" title={_l('隐藏应用')}>
               <span className={cx('mLeft7 arrowIconShow', {})}>
                 <Icon icon="public-folder-hidden" />
               </span>

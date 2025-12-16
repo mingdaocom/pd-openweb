@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Dropdown, Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Checkbox, Dropdown, Icon, LoadDiv, PriceTip, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { CustomTextarea, DetailFooter, DetailHeader, SelectNodeObject } from '../components';
 
@@ -170,12 +171,9 @@ export default class File extends Component {
 
         <div className="Font13 mTop20 bold">
           {_l('其他')}
-          <span
-            className="workflowDetailTipsWidth mLeft5 tip-top-right"
-            data-tip={_l('系统默认会生成 Word/Excel 文件，生成的文件后续流程节点可直接使用')}
-          >
-            <Icon className="Font14 Gray_9e" icon="info" />
-          </span>
+          <Tooltip title={_l('系统默认会生成 Word/Excel 文件，生成的文件后续流程节点可直接使用')}>
+            <Icon className="Font14 Gray_9e mLeft5" icon="info" />
+          </Tooltip>
         </div>
         <div className="mTop10 flexRow">
           <Checkbox
@@ -189,10 +187,7 @@ export default class File extends Component {
         {!data.wpsConfig && <div className="mTop5 Gray_75">{_l('未配置 PDF 转换服务')}</div>}
         {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && data.pdf && (
           <div className="mTop5 Gray_75">
-            {_l(
-              '生成PDF文件是由WPS提供的第三方服务，收费标准为%0/次，转换失败的文件将不收取费用。',
-              _.get(md, 'global.PriceConfig.PdfPrice'),
-            )}
+            <PriceTip text={_l('生成PDF文件的费用将自动从组织信用点中扣除')} />
           </div>
         )}
       </Fragment>

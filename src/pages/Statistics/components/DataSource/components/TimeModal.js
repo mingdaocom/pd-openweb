@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Button, Checkbox, DatePicker, Input, Modal, Select, Tooltip } from 'antd';
+import { Button, Checkbox, DatePicker, Input, Modal, Select } from 'antd';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import _ from 'lodash';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 import {
   dropdownScopeData,
@@ -151,7 +152,7 @@ export default class TimeModal extends Component {
                 </Select.Option>
               ))}
             </Select>
-            <TimeZoneTag appId={appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
+            <TimeZoneTag appId={appId} position={{ top: 1, bottom: 1 }} />
           </div>
           {rangeType == 20 && this.renderRangePicker()}
           {[4, 8, 11, 15, 18, 19].includes(rangeType) && (
@@ -233,9 +234,13 @@ export default class TimeModal extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.startCount}
-                onChange={() => {
+                onChange={event => {
                   const value = event.target.value;
                   changeDynamicFilter({ startCount: formatNumberFromInput(value).replace('-', '') });
+                }}
+                onBlur={event => {
+                  const value = event.target.value;
+                  changeDynamicFilter({ startCount: value ? Number(value) : 0 });
                 }}
               />
               <Select
@@ -279,9 +284,13 @@ export default class TimeModal extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.endCount}
-                onChange={() => {
+                onChange={event => {
                   const value = event.target.value;
                   changeDynamicFilter({ endCount: formatNumberFromInput(value).replace('-', '') });
+                }}
+                onBlur={event => {
+                  const value = event.target.value;
+                  changeDynamicFilter({ startCount: value ? Number(value) : 0 });
                 }}
               />
               <Select

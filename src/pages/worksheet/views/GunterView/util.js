@@ -684,3 +684,11 @@ export const getMaxTime = grouping => {
     ? grouping.map(data => data.endTime).reduce((max, date) => (new Date(date) > new Date(max) ? date : max))
     : undefined;
 };
+
+export const isTimeStyle = (data = {}) => {
+  let type = data.type;
+  if (type === 30) {
+    type = data.sourceControlType;
+  }
+  return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
+};

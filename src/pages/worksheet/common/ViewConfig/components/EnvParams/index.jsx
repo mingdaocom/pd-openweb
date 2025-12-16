@@ -114,7 +114,7 @@ export default function (props) {
             )
               return;
 
-            saveConfig(environmentparams);
+            saveConfig();
           }}
           className="saveBtn"
           disabled={

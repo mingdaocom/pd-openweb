@@ -1,10 +1,8 @@
 import _, { get, includes, isArray, isObject, isString } from 'lodash';
 import { isEmptyValue } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
-import { FROM } from '../../core/config';
 import { allSwitchKeys, HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
 import { controlState } from '../../core/formUtils';
-import { isPublicLink } from '../../core/utils';
 import { FIELD_SIZE_OPTIONS, TITLE_SIZE_OPTIONS } from './config';
 
 export const getTabTypeBySelectUser = (control = {}) => {
@@ -14,18 +12,6 @@ export const getTabTypeBySelectUser = (control = {}) => {
     : (advancedSetting.usertype || _.get(sourceControl.advancedSetting || {}, 'usertype')) === '2'
       ? 2
       : 1;
-};
-
-// 获取人员字段值
-export const getUserValue = value => {
-  if (!value) return [];
-  if (_.isArray(value)) return value;
-  if (value && typeof value === 'string') {
-    const dealValue = JSON.parse(value);
-    return _.isArray(dealValue) ? dealValue : [dealValue];
-  } else {
-    return [];
-  }
 };
 
 // 标题样式
@@ -57,7 +43,7 @@ export const getValueStyle = (data, isField = true) => {
   let { valuecolor, valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
   let SIZE_OPTIONS = isField ? FIELD_SIZE_OPTIONS : TITLE_SIZE_OPTIONS;
   if (item.type === 30) {
-    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || 'var(--color-secondary)';
+    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || 'var(--color-text-primary)';
     valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
     valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
     type = _.get(item, 'sourceControl.type');
@@ -68,7 +54,7 @@ export const getValueStyle = (data, isField = true) => {
         size: SIZE_OPTIONS[valuesize],
         valueStyle: isEmptyValue(item.value)
           ? ''
-          : `color: ${valuecolor || 'var(--color-secondary)'};${getTitleStyle(valuestyle)}`,
+          : `color: ${valuecolor || 'var(--color-text-primary)'};${getTitleStyle(valuestyle)}`,
       }
     : { type };
 };
@@ -302,19 +288,6 @@ export const isOpenPermit = (type, list = [], viewId) => {
   }
 
   return false;
-};
-
-export const showRefreshBtn = ({ disabledFunctions = [], from, recordId, item }) => {
-  return (
-    !disabledFunctions.includes('controlRefresh') &&
-    from !== FROM.DRAFT &&
-    !isPublicLink() &&
-    recordId &&
-    !recordId.includes('default') &&
-    !recordId.includes('temp') &&
-    md.global.Account.accountId &&
-    ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38, 53], item.type))
-  );
 };
 
 export const getCoverUrl = (coverId, record, controls) => {

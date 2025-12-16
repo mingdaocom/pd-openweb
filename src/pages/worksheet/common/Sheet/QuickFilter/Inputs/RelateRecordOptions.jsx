@@ -5,7 +5,7 @@ import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import Option from './StyledOption';
 
 const Con = styled.div`

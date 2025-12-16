@@ -35,6 +35,8 @@ export const orderRecordType = enumObj({
   AggregationTable: 28,
   AIGC: 29,
   Merchant: 100,
+  AIAgent: 31,
+  DocumentParsing: 30,
 });
 
 export const orderTypeText = {
@@ -68,6 +70,8 @@ export const orderTypeText = {
   AggregationTable: _l('聚合表数量购买'),
   AIGC: 'AIGC',
   Merchant: _l('产品功能'),
+  AIAgent: 'AI Agent',
+  DocumentParsing: _l('AI Agent-文档解析'),
 };
 
 export const enumInvoiceStatus = enumObj({
@@ -97,8 +101,8 @@ export const orderRecordText = {
   waiting: _l('等待支付'),
   success: _l('交易成功'),
   failure: _l('交易失败'),
-  cancel: _l('取消订单'),
-  overdue: _l('订单已取消'),
+  cancel: _l('订单已取消'),
+  overdue: _l('订单已超期'),
   // troubling: _l('质疑中'),
 };
 
@@ -111,7 +115,16 @@ export const enumOrderRecordStatus = enumObj(orderRecordStatus);
 export const PAID_RECORD_TYPE = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 28, 100,
 ];
-export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29];
+export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29, 31, 30];
+
+// 支付记录类型
+export const orderRecordPaidTypeDropdownData = [{ value: 0, text: _l('全部') }].concat(
+  PAID_RECORD_TYPE.map(item => ({ value: item, text: orderTypeText[orderRecordType[item]] })),
+);
+// 扣费记录类型
+export const orderRecordRechargeTypeDropdownData = [{ value: 0, text: _l('全部') }].concat(
+  RECHARGE_RECORD_TYPE.map(item => ({ value: item, text: orderTypeText[orderRecordType[item]] })),
+);
 
 export const invoiceConfig = [
   { key: 'taxNumber', text: _l('税务登记号'), require: true },
@@ -154,3 +167,12 @@ export const DATE_FILTER = [
   { id: 'prevMonth', text: _l('上月') },
   { id: 'custom', text: _l('自定义日期') },
 ];
+
+export const PAY_TYPE = {
+  1: _l('银行转账'),
+  2: _l('现金'),
+  3: _l('支票'),
+  4: _l('支付宝'),
+  5: _l('信用点'),
+  6: _l('微信'),
+};

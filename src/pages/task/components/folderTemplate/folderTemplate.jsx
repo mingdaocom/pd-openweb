@@ -2,6 +2,7 @@
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dialog, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import { errorMessage } from '../../utils/utils';
 import CreateFolder from '../createFolder/createFolder';
@@ -187,13 +188,11 @@ export default class FolderTemplate extends Component {
                       {tpl.templateId ? (
                         <div className="folderTemplateOperator">
                           {tpl.isCustom ? (
-                            <span
-                              className="ThemeColor3 tip-top"
-                              data-tip={_l('删除模板')}
-                              onClick={evt => this.delTemplate(tpl.templateId, evt)}
-                            >
-                              <i className="icon-trash" />
-                            </span>
+                            <Tooltip title={_l('删除模板')}>
+                              <span className="ThemeColor3" onClick={evt => this.delTemplate(tpl.templateId, evt)}>
+                                <i className="icon-trash" />
+                              </span>
+                            </Tooltip>
                           ) : undefined}
                         </div>
                       ) : undefined}

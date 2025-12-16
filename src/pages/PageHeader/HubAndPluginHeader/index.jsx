@@ -3,6 +3,7 @@ import { Motion, spring } from 'react-motion';
 import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui/antd-components';
 import { navigateTo } from 'src/router/navigateTo';
 import CommonUserHandle from '../components/CommonUserHandle';
 import IndexSide from '../components/IndexSide';
@@ -68,9 +69,11 @@ export default class HubAndPluginHeader extends Component {
       <Wrap className="nativeHeaderWrap flexRow">
         <div className="flex flexRow alignItemsCenter">
           <div className="nativeModuleLogo">
-            <HomeEntry data-tip={_l('工作台')} onClick={() => navigateTo('/dashboard')}>
-              <i className="icon-home_page Font18"></i>
-            </HomeEntry>
+            <Tooltip title={_l('工作台')}>
+              <HomeEntry onClick={() => navigateTo('/dashboard')}>
+                <i className="icon-home_page Font18"></i>
+              </HomeEntry>
+            </Tooltip>
             <div className="nativeTitle">{isPlugin ? _l('插件') : _l('集成')}</div>
           </div>
           <SwitchProject />

@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Dialog, Dropdown, LoadDiv, Menu, MenuItem, RadioGroup, Tooltip } from 'ming-ui';
+import { Dialog, Dropdown, LoadDiv, Menu, MenuItem, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
@@ -29,7 +30,22 @@ const RadioDisplay = [
     value: 0,
   },
   {
-    text: _l('不获取'),
+    text: _l('赋空值'),
+    value: 2,
+  },
+  {
+    text: _l('保留原值'),
+    value: 1,
+  },
+];
+
+const EmptyDisplay = [
+  {
+    text: _l('赋空值'),
+    value: 0,
+  },
+  {
+    text: _l('保留原值'),
     value: 1,
   },
 ];
@@ -94,6 +110,7 @@ export default class SearchWorksheetDialog extends Component {
       configs: [], //选择字段
       items: [],
       moreType: 0, // 获取第一条
+      recordsNotFound: 0, // 赋空值
       resultType: 0, // 结果条件成立时
       moreSort: [], // 排序
       queryCount: '', // 查询数量
@@ -138,6 +155,7 @@ export default class SearchWorksheetDialog extends Component {
         items: queryConfig.items,
         configs: queryConfig.configs,
         moreType: queryConfig.moreType || 0,
+        recordsNotFound: queryConfig.recordsNotFound || 0,
         resultType: queryConfig.resultType || 0,
         moreSort: queryConfig.moreSort,
         queryCount: queryConfig.queryCount,
@@ -196,16 +214,7 @@ export default class SearchWorksheetDialog extends Component {
   };
 
   handleSubmit = () => {
-    const {
-      globalSheetInfo = {},
-      from,
-      subListSheetId,
-      data = {},
-      onChange,
-      onClose,
-      updateQueryConfigs,
-      eventKey,
-    } = this.props;
+    const { globalSheetInfo = {}, from, subListSheetId, data = {}, onChange, onClose, updateQueryConfigs } = this.props;
     const {
       id = '',
       sheetId,
@@ -217,6 +226,7 @@ export default class SearchWorksheetDialog extends Component {
       appName,
       moreSort,
       moreType,
+      recordsNotFound,
       resultType,
       queryCount,
       emptyRule,
@@ -239,10 +249,11 @@ export default class SearchWorksheetDialog extends Component {
       }),
       configs,
       moreType,
+      recordsNotFound,
       resultType,
       moreSort,
       queryCount,
-      eventType: eventKey ? 1 : 0,
+      eventType: from === DYNAMIC_FROM_MODE.CUSTOM_EVENT ? 1 : from === DYNAMIC_FROM_MODE.RULES ? 2 : 0,
     };
     worksheetAjax.saveQuery(params).then(res => {
       const value = {
@@ -323,7 +334,7 @@ export default class SearchWorksheetDialog extends Component {
             <div className="mappingItem">
               <div className="mappingControlName overflow_ellipsis">
                 {_.get(selectControl, 'controlName') || (
-                  <Tooltip text={<span>{_l('ID: %0', item.cid)}</span>} popupPlacement="bottom">
+                  <Tooltip title={_l('ID: %0', item.cid)} placement="bottom">
                     <span className="Red">{_l('字段已删除')}</span>
                   </Tooltip>
                 )}
@@ -335,7 +346,7 @@ export default class SearchWorksheetDialog extends Component {
                 isAppendToBody
                 placeholder={
                   isDelete ? (
-                    <Tooltip text={<span>{_l('ID: %0', item.subCid)}</span>} popupPlacement="bottom">
+                    <Tooltip title={_l('ID: %0', item.subCid)} placement="bottom">
                       <span className="Red">{_l('字段已删除')}</span>
                     </Tooltip>
                   ) : (
@@ -386,6 +397,7 @@ export default class SearchWorksheetDialog extends Component {
       loading = false,
       isSheetDelete,
       moreType,
+      recordsNotFound,
       resultType,
       moreSort,
       queryCount,
@@ -507,6 +519,7 @@ export default class SearchWorksheetDialog extends Component {
                                         configs: [],
                                         moreSort: [],
                                         moreType: 0,
+                                        recordsNotFound: 0,
                                         resultType: 0,
                                         showMenu: false,
                                       },
@@ -606,58 +619,6 @@ export default class SearchWorksheetDialog extends Component {
             </SettingItem>
           ) : (
             <Fragment>
-              {/**普通、关联单条、级联 */}
-              {(normalField || (data.type === 29 && data.enumDefault === 1) || selfCascader) && (
-                <SettingItem className="mTop12">
-                  <div className="settingItemTitle">{_l('查询到多条时')}</div>
-                  <RadioGroup
-                    size="middle"
-                    checkedValue={moreType}
-                    data={RadioDisplay}
-                    onChange={value => this.setState({ moreType: value })}
-                  />
-                </SettingItem>
-              )}
-
-              <SettingItem className="mTop12">
-                <div className="settingItemTitle">{_l('排序规则')}</div>
-                <SortConditions
-                  className="searchWorksheetSort"
-                  helperClass="zIndex99999"
-                  columns={controls.filter(o => ![22, 43, 45, 49, 51, 52, 10010].includes(o.type))}
-                  sortConditions={moreSort}
-                  showSystemControls
-                  onChange={value =>
-                    this.setState({
-                      moreSort: value.map(i => ({
-                        ...i,
-                        dataType: _.get(
-                          _.find(controls, c => c.controlId === i.controlId),
-                          'type',
-                        ),
-                      })),
-                    })
-                  }
-                />
-              </SettingItem>
-
-              {/**关联多条、子表 */}
-              {(data.type === 34 || (data.type === 29 && data.enumDefault === 2)) && (
-                <SettingItem className="mTop12">
-                  <div className="settingItemTitle">{_l('查询数量')}</div>
-                  <InputValue
-                    className="w100"
-                    type={2}
-                    placeholder={getDefaultCount(data)}
-                    value={queryCount ? queryCount.toString() : undefined}
-                    onChange={value => this.setState({ queryCount: value })}
-                    onBlur={value => {
-                      this.setState({ queryCount: getDefaultCount(data, value) });
-                    }}
-                  />
-                </SettingItem>
-              )}
-
               <SettingItem className="mTop12">
                 <div className="settingItemTitle">{_l('赋值')}</div>
                 {normalField && (
@@ -670,10 +631,7 @@ export default class SearchWorksheetDialog extends Component {
                         isAppendToBody
                         placeholder={
                           isDelete ? (
-                            <Tooltip
-                              text={<span>{_l('ID: %0', _.get(configs[0] || {}, 'subCid'))}</span>}
-                              popupPlacement="bottom"
-                            >
+                            <Tooltip placement="bottom" title={_l('ID: %0', _.get(configs[0] || {}, 'subCid'))}>
                               <span className="Red">{_l('字段已删除')}</span>
                             </Tooltip>
                           ) : (
@@ -751,6 +709,68 @@ export default class SearchWorksheetDialog extends Component {
                     </Trigger>
                   </div>
                 )}
+              </SettingItem>
+
+              {/**普通、关联单条、级联 */}
+              {(normalField || (data.type === 29 && data.enumDefault === 1) || selfCascader) && (
+                <SettingItem className="mTop12">
+                  <div className="settingItemTitle">{_l('查询到多条时')}</div>
+                  <RadioGroup
+                    size="middle"
+                    checkedValue={moreType}
+                    data={RadioDisplay}
+                    onChange={value => this.setState({ moreType: value })}
+                  />
+                </SettingItem>
+              )}
+
+              {/**关联多条、子表 */}
+              {(data.type === 34 || (data.type === 29 && data.enumDefault === 2)) && (
+                <SettingItem className="mTop12">
+                  <div className="settingItemTitle">{_l('查询数量')}</div>
+                  <InputValue
+                    className="w100"
+                    type={2}
+                    placeholder={getDefaultCount(data)}
+                    value={queryCount ? queryCount.toString() : undefined}
+                    onChange={value => this.setState({ queryCount: value })}
+                    onBlur={value => {
+                      this.setState({ queryCount: getDefaultCount(data, value) });
+                    }}
+                  />
+                </SettingItem>
+              )}
+
+              <SettingItem className="mTop12">
+                <div className="settingItemSubTitle">{_l('排序规则')}</div>
+                <SortConditions
+                  className="searchWorksheetSort"
+                  helperClass="zIndex99999"
+                  columns={controls.filter(o => ![22, 43, 45, 49, 51, 52, 10010].includes(o.type))}
+                  sortConditions={moreSort}
+                  showSystemControls
+                  onChange={value =>
+                    this.setState({
+                      moreSort: value.map(i => ({
+                        ...i,
+                        dataType: _.get(
+                          _.find(controls, c => c.controlId === i.controlId),
+                          'type',
+                        ),
+                      })),
+                    })
+                  }
+                />
+              </SettingItem>
+
+              <SettingItem className="mTop12">
+                <div className="settingItemTitle">{_l('未查询到记录时')}</div>
+                <RadioGroup
+                  size="middle"
+                  checkedValue={recordsNotFound}
+                  data={EmptyDisplay}
+                  onChange={value => this.setState({ recordsNotFound: value })}
+                />
               </SettingItem>
             </Fragment>
           )}

@@ -78,8 +78,8 @@ export default function Side({
   return (
     <Con className={cx('t-flex t-flex-col', { 'un-expand': !visible })}>
       <div className="new-chat-btn t-flex t-items-center t-justify-center" onClick={handleNewChatClick}>
-        <i className="icon icon-newchat"></i>
-        <span>{_l('新建对话')}</span>
+        <i className="icon icon-new_chat"></i>
+        <span>{_l('新对话')}</span>
       </div>
       <div className="t-flex-1 t-overflow-hidden">
         <ChatHistoryContent

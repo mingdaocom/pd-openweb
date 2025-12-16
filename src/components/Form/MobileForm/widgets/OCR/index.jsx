@@ -1,10 +1,11 @@
 import React, { Fragment, useRef, useState } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { Icon, QiniuUpload } from 'ming-ui';
+import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
 import ajax from 'src/api/worksheet';
 import { upgradeVersionDialog } from 'src/components/upgradeVersion';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
+import { compatibleMDJS } from 'src/utils/project';
 import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from '../../../core/searchUtils';
 
 const OCR = props => {
@@ -28,6 +29,8 @@ const OCR = props => {
   const postList = useRef(null);
   const cacheFile = useRef([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [sessionId, setSessionId] = useState('');
+  const [mingDaoAppUploading, setMingDaoAppUploading] = useState(false);
 
   const handleClear = up => {
     setIsUploading(false);
@@ -79,12 +82,13 @@ const OCR = props => {
         upgradeVersionDialog({
           projectId,
           okText: _l('立即充值'),
-          hint: _l('余额不足，请联系管理员充值'),
+          hint: _l('信用点不足，请联系管理员充值'),
           explainText: <div></div>,
           onOk: () => {
             location.href = `/admin/valueaddservice/${projectId}`;
           },
         });
+        setMingDaoAppUploading(false);
         return;
       }
 
@@ -92,12 +96,14 @@ const OCR = props => {
         alert(res.message, 3);
         setIsUploading(false);
         up && up.disableBrowse(false);
+        setMingDaoAppUploading(false);
         return;
       }
 
       setIsUploading(false);
       up && up.disableBrowse(false);
       handleUpdate(res.apiQueryData);
+      setMingDaoAppUploading(false);
     });
   };
 
@@ -138,7 +144,9 @@ const OCR = props => {
       }
     }
 
-    const data = cacheFile.current.map(i => i.serverName + i.key);
+    const data = window.isMingDaoApp
+      ? cacheFile.current.map(i => `${i.serverName}/${i.key}`)
+      : cacheFile.current.map(i => i.serverName + i.key);
 
     ajax.ocr({ worksheetId, controlId, data, type: 1 }).then(result => {
       const ocrmap = JSON.parse(advancedSetting.ocrmap || '{}');
@@ -201,14 +209,42 @@ const OCR = props => {
           } else {
             newValue = item.value;
           }
-
+          setMingDaoAppUploading(false);
           onChange(newValue, item.controlId);
         });
       } else {
+        setMingDaoAppUploading(false);
         alert(result.errorMsg, 2);
       }
 
       handleClear(up);
+    });
+  };
+
+  // APP内网页集成调用原生上传附件，上传完后进行文本识别
+  const handleMingDaoAppChooseImage = () => {
+    cacheFile.current = [];
+    compatibleMDJS('chooseImage', {
+      sessionId,
+      knowledge: false,
+      worksheetId,
+      appId,
+      projectId,
+      watermark: advancedSetting.watermark,
+      sourceType: _.get(props, 'strDefault') === '10' ? ['camera'] : ['album', 'camera'],
+      mediaType: 'image',
+      count: 1,
+      success: res => {
+        setMingDaoAppUploading(true);
+        setSessionId(res.sessionId);
+        if (res.completed) {
+          const file = res.completed[0];
+          handleUploaded({ id: res.sessionId, files: [file], disableBrowse: () => {} }, file, file);
+        }
+      },
+      cancel: () => {
+        setMingDaoAppUploading(false);
+      },
     });
   };
 
@@ -251,6 +287,14 @@ const OCR = props => {
         }}
       >
         {renderContent()}
+      </div>
+    );
+  }
+
+  if (window.isMingDaoApp) {
+    return (
+      <div className="customFormControlBox customFormButton" onClick={handleMingDaoAppChooseImage}>
+        {mingDaoAppUploading ? <LoadDiv size="small" /> : renderContent()}
       </div>
     );
   }

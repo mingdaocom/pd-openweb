@@ -4,10 +4,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, Switch } from 'ming-ui';
+import merchantInvoiceApi from 'src/api/merchantInvoice';
 import orderController from 'src/api/order';
 import paymentAjax from 'src/api/payment';
 import projectAjax from 'src/api/project';
 import projectSetting from 'src/api/projectSetting';
+import { VersionProductType } from 'src/utils/enum';
 import { getCurrentProject } from 'src/utils/project';
 import Config from '../../../config';
 import PortalProgress from './PortalProgress';
@@ -25,6 +27,7 @@ const EXPAND_TYPE = {
   RENEWCOMPUTING: 'renewcomputing',
   AGGREGATIONTABLE: 'aggregationtable',
   MERCHANT: 'merchant',
+  INVOICE: 'invoice',
 };
 
 const PAGE_TITLE = {
@@ -38,6 +41,7 @@ const PAGE_TITLE = {
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: _l('开通商户号收款'),
+  invoice: { normal: _l('开票税号付费开通'), renew: _l('开票税号续费') },
 };
 
 //主操作标题名称
@@ -52,6 +56,7 @@ const HeaderTitle = {
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: { trial: _l('开通商户号收款试用'), normal: _l('开通商户号收款') },
+  invoice: { normal: _l('开票税号付费开通'), renew: _l('开票税号续费') },
 };
 
 //第一步标题名称
@@ -66,6 +71,7 @@ const HeaderSubTitle = {
   renewcomputing: _l('确认续费信息'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: _l('开通商户号收款'),
+  invoice: { normal: _l('开票税号付费开通'), renew: _l('开票税号续费') },
 };
 
 //总计接口
@@ -83,6 +89,7 @@ const GET_ORDER_PRICE = {
   renewcomputing: orderController.getComputingInstanceExtensionOrderPrice,
   aggregationtable: orderController.getAggregationTableOrderPrice,
   merchant: orderController.getMerchantPaymentOrderPrice,
+  invoice: orderController.getMerchantInvoiceOrderPrice,
 };
 
 //下单接口
@@ -101,6 +108,7 @@ const ADD_ORDER_PRICE = {
   aggregationtable: orderController.addAggregationTableOrder,
   computingPermanent: orderController.addPermanentComputingInstanceOrder,
   merchant: orderController.addMerchantPaymentOrder,
+  invoice: orderController.addMerchantInvoiceOrder,
 };
 
 const WORKFLOW_TYPE_LIST = [
@@ -182,6 +190,7 @@ export default class ExpansionService extends Component {
         currentLicense: {},
       },
       merchantType: 0,
+      invoiceInfo: {},
     };
   }
 
@@ -193,35 +202,29 @@ export default class ExpansionService extends Component {
 
     if (expandType === EXPAND_TYPE.WORKFLOW) {
       projectSetting.getAutoPurchaseWorkflowExtPack({ projectId: Config.projectId }).then(res => {
-        this.setState(
-          {
-            addUserCount: workflowType === 1 ? 10000 : 1000,
-            addUserStep: workflowType === 1 ? 10000 : 1000,
-            maxUserCount: 5000000,
-            balance: res.balance,
-            showWorkflowExtPack:
-              !_.includes([0, 2], licenseType) && !res.autoPurchaseWorkflowExtPack && !md.global.Config.IsLocal,
-            autoPurchaseWorkflowExtPack: res.autoPurchaseWorkflowExtPack,
-            loading: false,
-          },
-          () => this.computePrince(),
-        );
+        this.updataAndCompute({
+          addUserCount: workflowType === 1 ? 10000 : 1000,
+          addUserStep: workflowType === 1 ? 10000 : 1000,
+          maxUserCount: 5000000,
+          balance: res.balance,
+          showWorkflowExtPack:
+            !_.includes([0, 2], licenseType) && !res.autoPurchaseWorkflowExtPack && !md.global.Config.IsLocal,
+          autoPurchaseWorkflowExtPack: res.autoPurchaseWorkflowExtPack,
+          loading: false,
+        });
       });
     } else if (expandType === EXPAND_TYPE.DATASYNC) {
       projectSetting.getAutoPurchaseDataPipelineExtPack({ projectId: Config.projectId }).then(res => {
-        this.setState(
-          {
-            addUserCount: dataSyncType === 1 ? 100000 : 10000,
-            addUserStep: dataSyncType === 1 ? 100000 : 10000,
-            maxUserCount: 5000000,
-            balance: res.balance,
-            showDataSyncExtPack:
-              !_.includes([0, 2], licenseType) && !res.autoPurchaseDataPipelineExtPack && !md.global.Config.IsLocal,
-            autoPurchaseDataPipelineExtPack: res.autoPurchaseDataPipelineExtPack,
-            loading: false,
-          },
-          () => this.computePrince(),
-        );
+        this.updataAndCompute({
+          addUserCount: dataSyncType === 1 ? 100000 : 10000,
+          addUserStep: dataSyncType === 1 ? 100000 : 10000,
+          maxUserCount: 5000000,
+          balance: res.balance,
+          showDataSyncExtPack:
+            !_.includes([0, 2], licenseType) && !res.autoPurchaseDataPipelineExtPack && !md.global.Config.IsLocal,
+          autoPurchaseDataPipelineExtPack: res.autoPurchaseDataPipelineExtPack,
+          loading: false,
+        });
       });
     } else if (expandType === EXPAND_TYPE.USER) {
       Config.AdminController.expansionInfos({
@@ -236,16 +239,7 @@ export default class ExpansionService extends Component {
                 : data.workflowLimitNumber * 1000,
             10,
           ) || 0;
-        this.setState(
-          {
-            addUserCount: 5,
-            addUserStep: 5,
-            maxUserCount: 500,
-            limitNumber,
-            loading: false,
-          },
-          () => this.computePrince(),
-        );
+        this.updataAndCompute({ addUserCount: 5, addUserStep: 5, maxUserCount: 500, limitNumber, loading: false });
       });
     } else if (expandType === EXPAND_TYPE.COMPUTING) {
       Promise.all([
@@ -254,23 +248,20 @@ export default class ExpansionService extends Component {
           projectId: Config.projectId,
         }),
       ]).then(([res, data]) => {
-        this.setState(
-          {
-            addUserCount: 1,
-            addUserStep: 1,
-            maxUserCount: 1,
-            loading: false,
-            specsList: data,
-            exclusiveInfo: {
-              ...this.state.exclusiveInfo,
-              specs: (data.find(l => l.isDefault) || data[0] || {}).id,
-              currentLicense: {
-                ...res.currentLicense,
-              },
+        this.updataAndCompute({
+          addUserCount: 1,
+          addUserStep: 1,
+          maxUserCount: 1,
+          loading: false,
+          specsList: data,
+          exclusiveInfo: {
+            ...this.state.exclusiveInfo,
+            specs: (data.find(l => l.isDefault) || data[0] || {}).id,
+            currentLicense: {
+              ...res.currentLicense,
             },
           },
-          () => this.computePrince(),
-        );
+        });
       });
     } else if (expandType === EXPAND_TYPE.RENEWCOMPUTING) {
       Promise.all([
@@ -280,43 +271,37 @@ export default class ExpansionService extends Component {
           id: Config.params[Config.params.length - 1],
         }),
       ]).then(([versionInfo, res]) => {
-        this.setState(
-          {
-            addUserCount: 1,
-            addUserStep: 1,
-            maxUserCount: 1,
-            loading: false,
-            renewexclusiveInfo: {
-              name: res.name,
-              resourceId: res.resourceId, // 资源id
-              orderId: res.orderId, //订单id
-              productId: res.specification.id, //规格id
-              concurrency: res.specification.concurrency,
-              core: res.specification.core,
-              memory: res.specification.memory,
-              currentLicense: {
-                ...versionInfo.currentLicense,
-                expireDays: moment(versionInfo.currentLicense.endDate).diff(res.expirationDatetime, 'days'),
-              },
+        this.updataAndCompute({
+          addUserCount: 1,
+          addUserStep: 1,
+          maxUserCount: 1,
+          loading: false,
+          renewexclusiveInfo: {
+            name: res.name,
+            resourceId: res.resourceId, // 资源id
+            orderId: res.orderId, //订单id
+            productId: res.specification.id, //规格id
+            concurrency: res.specification.concurrency,
+            core: res.specification.core,
+            memory: res.specification.memory,
+            currentLicense: {
+              ...versionInfo.currentLicense,
+              expireDays: moment(versionInfo.currentLicense.endDate).diff(res.expirationDatetime, 'days'),
             },
           },
-          () => this.computePrince(),
-        );
+        });
       });
     } else if (expandType === EXPAND_TYPE.AGGREGATIONTABLE) {
-      this.setState({ addUserCount: 5, addUserStep: 5, maxUserCount: 1000000, loading: false }, this.computePrince);
+      this.updataAndCompute({ addUserCount: 5, addUserStep: 5, maxUserCount: 1000000, loading: false });
     } else if (this.isPortalUser) {
       projectAjax.getProjectLicenseSupportInfo({ projectId: Config.projectId }).then(res => {
-        this.setState(
-          {
-            addUserCount: expandType === 'portalupgrade' ? getFormatCount(res.effectiveExternalUserCount) : 100,
-            maxUserCount: 100000,
-            effectiveExternalUserCount: res.effectiveExternalUserCount,
-            licenseInfo: res,
-            loading: false,
-          },
-          () => this.computePrince(),
-        );
+        this.updataAndCompute({
+          addUserCount: expandType === 'portalupgrade' ? getFormatCount(res.effectiveExternalUserCount) : 100,
+          maxUserCount: 100000,
+          effectiveExternalUserCount: res.effectiveExternalUserCount,
+          licenseInfo: res,
+          loading: false,
+        });
       });
     } else if (expandType === EXPAND_TYPE.MERCHANT) {
       Promise.all([
@@ -326,30 +311,28 @@ export default class ExpansionService extends Component {
           projectId: Config.projectId,
         }),
       ]).then(([licenseInfo, merchantInfo]) => {
-        this.setState(
-          {
-            addUserCount: 1,
-            addUserStep: 1,
-            licenseInfo,
-            loading: false,
-            merchantInfo,
-          },
-          () => this.computePrince(),
-        );
+        this.updataAndCompute({ addUserCount: 1, addUserStep: 1, licenseInfo, loading: false, merchantInfo });
       });
+    } else if (expandType === EXPAND_TYPE.INVOICE) {
+      merchantInvoiceApi
+        .getTaxInfo({ taxNo: Config.params[4], projectId: Config.projectId })
+        .then(res => {
+          this.updataAndCompute({ addUserCount: 1, addUserStep: 1, loading: false, invoiceInfo: res });
+        })
+        .catch(() => {
+          this.updataAndCompute({ addUserCount: 1, addUserStep: 1, loading: false });
+        });
     } else {
-      this.setState(
-        {
-          addUserCount: 1,
-          addUserStep: 1,
-          maxUserCount: 1000000,
-          loading: false,
-        },
-        () => this.computePrince(),
-      );
+      this.updataAndCompute({ addUserCount: 1, addUserStep: 1, maxUserCount: 1000000, loading: false });
     }
 
-    Config.setPageTitle(PAGE_TITLE[expandType]);
+    Config.setPageTitle(
+      _.get(PAGE_TITLE, expandType === 'invoice' ? `${expandType}.${Config.params[5] || 'normal'}` : expandType),
+    );
+  }
+
+  updataAndCompute(updateObj) {
+    this.setState(updateObj, this.computePrince);
   }
 
   //计算金钱
@@ -378,6 +361,8 @@ export default class ExpansionService extends Component {
       param.orderId = orderId;
     } else if (expandType === EXPAND_TYPE.MERCHANT) {
       param = { ...param, ...this.getMerchantParam() };
+    } else if (expandType === EXPAND_TYPE.INVOICE) {
+      param = { ...param, ...this.getInvoiceParam() };
     }
 
     this.ajax = GET_ORDER_PRICE[actionType]({
@@ -386,10 +371,7 @@ export default class ExpansionService extends Component {
       ...param,
     });
     this.ajax.then(price => {
-      this.setState({
-        totalPrince: price,
-        totalNum: limitNumber + addUserCount,
-      });
+      this.setState({ totalPrince: price, totalNum: limitNumber + addUserCount });
     });
   }
 
@@ -444,6 +426,31 @@ export default class ExpansionService extends Component {
     };
   }
 
+  getInvoiceDate() {
+    const { planExpiredTime, planType } = this.state.invoiceInfo;
+
+    const startDate =
+      planType === 0 || moment(planExpiredTime).isBefore(moment())
+        ? moment().format('YYYY-MM-DD')
+        : moment(planExpiredTime).add(1, 'day').format('YYYY-MM-DD');
+
+    return {
+      startDate,
+      endDate: moment(startDate).add(1, 'year').subtract(1, 'day').format('YYYY-MM-DD'),
+    };
+  }
+
+  getInvoiceParam() {
+    const { taxNo } = this.state.invoiceInfo;
+
+    return {
+      productType: VersionProductType.invoice,
+      productOrderType: 5, //年付
+      productDetailId: taxNo,
+      ...this.getInvoiceDate(),
+    };
+  }
+
   handleBack() {
     this.props.history.go(-1);
   }
@@ -464,14 +471,7 @@ export default class ExpansionService extends Component {
       return;
     }
 
-    this.setState(
-      {
-        addUserCount: addUserCount > addUserStep ? addUserCount - addUserStep : addUserCount,
-      },
-      () => {
-        this.computePrince();
-      },
-    );
+    this.updataAndCompute({ addUserCount: addUserCount > addUserStep ? addUserCount - addUserStep : addUserCount });
   }
 
   // 加
@@ -482,14 +482,7 @@ export default class ExpansionService extends Component {
       return;
     }
 
-    this.setState(
-      {
-        addUserCount: addUserCount < maxUserCount ? addUserCount + addUserStep : addUserCount,
-      },
-      () => {
-        this.computePrince();
-      },
-    );
+    this.updataAndCompute({ addUserCount: addUserCount < maxUserCount ? addUserCount + addUserStep : addUserCount });
   }
 
   //输入
@@ -508,14 +501,7 @@ export default class ExpansionService extends Component {
     if (num % this.state.addUserStep !== 0) {
       num += this.state.addUserStep - (num % this.state.addUserStep);
     }
-    this.setState(
-      {
-        addUserCount: num,
-      },
-      () => {
-        this.computePrince();
-      },
-    );
+    this.updataAndCompute({ addUserCount: num });
   }
 
   // 下单
@@ -539,8 +525,12 @@ export default class ExpansionService extends Component {
       param.productId = this.state.renewexclusiveInfo.productId;
     } else if (expandType === EXPAND_TYPE.MERCHANT) {
       param = { ...param, ...this.getMerchantParam() };
+    } else if (expandType === EXPAND_TYPE.INVOICE) {
+      param = { ...param, ...this.getInvoiceParam() };
     }
+
     if (isNotPlatformLocal) actionType = 'computingPermanent';
+
     if (ADD_ORDER_PRICE[actionType]) {
       ADD_ORDER_PRICE[actionType]({
         projectId: Config.projectId,
@@ -550,16 +540,16 @@ export default class ExpansionService extends Component {
       }).then(function (data) {
         if (data) {
           const isTrial = Config.params[5] === 'trial';
-          alert(
-            isTrial || isNotPlatformLocal ? _l('订单已创建成功') : _l('订单已创建成功，正在转到付款页...'),
-            1,
-            500,
-            function () {
+
+          alert({
+            msg: isTrial ? _l('订单已创建成功') : _l('订单已创建成功，正在转到付款页...'),
+            duration: 500,
+            onClose: function () {
               window.location.href = isNotPlatformLocal
                 ? `/admin/computing/${Config.projectId}`
                 : '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
             },
-          );
+          });
         } else {
           _this.setState({ isPay: false });
           alert(_l('操作失败'), 2);
@@ -634,15 +624,12 @@ export default class ExpansionService extends Component {
                 className={cx('workflowTypeItem', { active: workflowType === item.key })}
                 key={item.key}
                 onClick={() =>
-                  this.setState(
-                    {
-                      workflowType: item.key,
-                      dataSyncType: item.key,
-                      addUserCount: item.key === 1 ? 10000 : 1000,
-                      addUserStep: item.key === 1 ? 10000 : 1000,
-                    },
-                    () => this.computePrince(),
-                  )
+                  this.updataAndCompute({
+                    workflowType: item.key,
+                    dataSyncType: item.key,
+                    addUserCount: item.key === 1 ? 10000 : 1000,
+                    addUserStep: item.key === 1 ? 10000 : 1000,
+                  })
                 }
               >
                 <div className="Font15 Gray Bold">{item.title}</div>
@@ -681,14 +668,11 @@ export default class ExpansionService extends Component {
                 className={cx('workflowTypeItem', { active: dataSyncType === item.key })}
                 key={item.key}
                 onClick={() =>
-                  this.setState(
-                    {
-                      dataSyncType: item.key,
-                      addUserCount: item.key === 1 ? 100000 : 10000,
-                      addUserStep: item.key === 1 ? 100000 : 10000,
-                    },
-                    () => this.computePrince(),
-                  )
+                  this.updataAndCompute({
+                    dataSyncType: item.key,
+                    addUserCount: item.key === 1 ? 100000 : 10000,
+                    addUserStep: item.key === 1 ? 100000 : 10000,
+                  })
                 }
               >
                 <div className="Font15 Gray Bold">{item.title}</div>
@@ -764,15 +748,7 @@ export default class ExpansionService extends Component {
               className={cx('exclusiveSpecsCard', { active: exclusiveInfo.specs === item.id })}
               key={`exclusiveSpecsCard-${item.id}`}
               onClick={() => {
-                this.setState(
-                  {
-                    exclusiveInfo: {
-                      ...exclusiveInfo,
-                      specs: item.id,
-                    },
-                  },
-                  () => this.computePrince(),
-                );
+                this.updataAndCompute({ exclusiveInfo: { ...exclusiveInfo, specs: item.id } });
               }}
             >
               <div className="Font15 Gray Bold">
@@ -797,15 +773,7 @@ export default class ExpansionService extends Component {
                 })}
                 key={`exclusiveTypeCard-${item.key}`}
                 onClick={() => {
-                  this.setState(
-                    {
-                      exclusiveInfo: {
-                        ...exclusiveInfo,
-                        type: item.key,
-                      },
-                    },
-                    () => this.computePrince(),
-                  );
+                  this.updataAndCompute({ exclusiveInfo: { ...exclusiveInfo, type: item.key } });
                 }}
               >
                 <div className="Font15 bold Gray">{item.title}</div>
@@ -892,7 +860,7 @@ export default class ExpansionService extends Component {
                 key={`merchantTypeCard-${index}`}
                 onClick={() => {
                   if (disable) return;
-                  this.setState({ merchantType: index }, () => this.computePrince());
+                  this.updataAndCompute({ merchantType: index });
                 }}
               >
                 <div className="Font15 bold Gray">{item.title}</div>
@@ -928,6 +896,35 @@ export default class ExpansionService extends Component {
     );
   }
 
+  renderInvoiceContent() {
+    const { taxNo } = this.state.invoiceInfo;
+
+    return (
+      <Fragment>
+        <div className="mTop24">
+          <span className="mRight24 Gray_75">{_l('税号')}</span>
+          <span>{taxNo}</span>
+        </div>
+        <div className="mTop24">
+          <span className="mRight24 Gray_75">{_l('单价')}</span>
+          <span>{_l('1500元/年/税号')}</span>
+        </div>
+        <div className="mTop24">
+          <div className="mRight24 Gray_75 mBottom16">{_l('购买时长')}</div>
+          <div className="invoiceTypeCard active flexColumn justifyContentCenter">
+            <div className="Font15 bold Gray">{_l('1年期')}</div>
+          </div>
+        </div>
+        <div className="mTop24 mBottom24">
+          <span className="mRight24 Gray_75">{_l('购买时间')}</span>
+          <span>{moment(this.getInvoiceDate().startDate).format(_l('YYYY年MM月DD日'))}</span>
+          <span className="mLeft6 mRight6">-</span>
+          <span>{moment(this.getInvoiceDate().endDate).format(_l('YYYY年MM月DD日'))}</span>
+        </div>
+      </Fragment>
+    );
+  }
+
   //类型选择操作
   renderOptionStyle() {
     switch (this.expandType) {
@@ -950,7 +947,7 @@ export default class ExpansionService extends Component {
             {..._.pick(this.state, ['payType', 'addUserCount', 'effectiveExternalUserCount'])}
             licenseInfo={payType === 'portalupgrade' ? nextLicense : currentLicense}
             handleChange={(key, value) => {
-              this.setState({ [key]: value }, () => this.computePrince());
+              this.updataAndCompute({ [key]: value });
             }}
           />
         );
@@ -962,6 +959,8 @@ export default class ExpansionService extends Component {
         return this.renderPlusInput({ desc: _l('100元/个/年（版本剩余时间）') });
       case EXPAND_TYPE.MERCHANT:
         return this.renderMerchantContent();
+      case EXPAND_TYPE.INVOICE:
+        return this.renderInvoiceContent();
     }
   }
 
@@ -1104,16 +1103,11 @@ export default class ExpansionService extends Component {
                   })
                   .then(res => {
                     if (res) {
-                      this.setState(
-                        {
-                          autoPurchaseWorkflowExtPack: !checked,
-                        },
-                        () => {
-                          if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
-                            alert('当前账户余额不足100元，该功能可能无法正常运行', 3);
-                          }
-                        },
-                      );
+                      this.setState({ autoPurchaseWorkflowExtPack: !checked }, () => {
+                        if (this.state.autoPurchaseWorkflowExtPack && this.state.balance < 100) {
+                          alert('当前账户信用点不足100信用点，该功能可能无法正常运行', 3);
+                        }
+                      });
                     } else {
                       alert(_l('操作失败'), 2);
                     }
@@ -1127,16 +1121,11 @@ export default class ExpansionService extends Component {
                 })
                 .then(res => {
                   if (res) {
-                    this.setState(
-                      {
-                        autoPurchaseDataPipelineExtPack: !checked,
-                      },
-                      () => {
-                        if (this.state.autoPurchaseDataPipelineExtPack && this.state.balance < 100) {
-                          alert('当前账户余额不足100元，该功能可能无法正常运行', 3);
-                        }
-                      },
-                    );
+                    this.setState({ autoPurchaseDataPipelineExtPack: !checked }, () => {
+                      if (this.state.autoPurchaseDataPipelineExtPack && this.state.balance < 100) {
+                        alert('当前账户信用点不足100信用点，该功能可能无法正常运行', 3);
+                      }
+                    });
                   } else {
                     alert(_l('操作失败'), 2);
                   }
@@ -1146,10 +1135,10 @@ export default class ExpansionService extends Component {
           <span className="Gray_75 mTop10">
             {showWorkflowExtPack
               ? _l(
-                  '开启后，当月剩余执行额度为2%时，自动购买100元/1万次的单月包，从账户余额中扣款（开启后仍可以在组织管理后台的工作流处关闭）',
+                  '开启后，当月剩余执行额度为2%时，自动购买100信用点/1万次的单月包，自动从企业账务中心扣除（开启后仍可以在组织管理后台的工作流处关闭）',
                 )
               : _l(
-                  '开启后，当月剩余执行额度为2%时，自动购买 100元/10万行 的单月包，从账户余额中扣款。（开启后可以在数据集成的同步任务中关闭）',
+                  '开启后，当月剩余执行额度为2%时，自动购买 100信用点/10万行 的单月包，自动从企业账务中心扣除。（开启后可以在数据集成的同步任务中关闭）',
                 )}
           </span>
         </div>
@@ -1191,7 +1180,12 @@ export default class ExpansionService extends Component {
         <div className="valueAddServerHeader">
           <Icon icon="backspace" className="Hand mRight18 TxtMiddle Font24" onClick={() => this.handleBack()}></Icon>
           <span className="Font17 Bold">
-            {_.get(HeaderTitle, expandType === 'merchant' ? `merchant.${Config.params[5] || 'normal'}` : expandType)}
+            {_.get(
+              HeaderTitle,
+              ['merchant', 'invoice'].includes(expandType)
+                ? `${expandType}.${Config.params[5] || 'normal'}`
+                : expandType,
+            )}
           </span>
         </div>
         <div style={{ flex: 1, overflow: 'scroll' }}>
@@ -1202,7 +1196,12 @@ export default class ExpansionService extends Component {
                   <span className="Bold Font12">1</span>
                 </div>
               )}
-              <span>{HeaderSubTitle[expandType]}</span>
+              <span>
+                {_.get(
+                  HeaderSubTitle,
+                  expandType === 'invoice' ? `${expandType}.${Config.params[5] || 'normal'}` : expandType,
+                )}
+              </span>
             </div>
             <div className={cx('Gray_9 Font13 Normal mTop10', { Hidden: step !== 1 })}>
               {this.renderSubTitleSummary()}

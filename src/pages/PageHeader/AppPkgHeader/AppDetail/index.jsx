@@ -10,7 +10,8 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { func, oneOf } from 'prop-types';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, Skeleton, SvgIcon, Tooltip, UpgradeIcon } from 'ming-ui';
+import { Icon, Menu, MenuItem, Skeleton, SvgIcon, UpgradeIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import DragMask from 'worksheet/common/DragMask';
 import { refreshSheetList } from 'worksheet/redux/actions/sheetList';
@@ -33,9 +34,9 @@ import {
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
 import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
 import { navigateTo } from 'src/router/navigateTo';
-import { getTranslateInfo } from 'src/utils/app';
-import { getAppFeaturesVisible } from 'src/utils/app';
-import { setFavicon } from 'src/utils/app';
+import { getAppFeaturesVisible, getTranslateInfo, setFavicon } from 'src/utils/app';
+import { emitter } from 'src/utils/common';
+import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { getSheetListFirstId } from 'src/utils/worksheet';
 import CommonUserHandle, { LeftCommonUserHandle } from '../../components/CommonUserHandle';
@@ -127,7 +128,7 @@ export default class AppInfo extends Component {
     };
     appCacheData &&
       this.props.syncAppDetail({
-        ..._.pick(this.state.data, ['currentPcNaviStyle']),
+        ..._.pick(this.state.data, ['currentPcNaviStyle', 'iconColor']),
       });
     this.checkNavigationStyle(_.get(this.state.data, 'currentPcNaviStyle'));
   }
@@ -223,6 +224,7 @@ export default class AppInfo extends Component {
       },
       { silent: true },
     );
+    emitter.emit('UPDATE_GLOBAL_STORE', 'appInfo', data);
 
     const { langInfo } = data;
     if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
@@ -243,6 +245,7 @@ export default class AppInfo extends Component {
       checkRecordInfo(location.pathname) || !_.find(pcNavList, { value: data.pcNaviStyle }) ? 0 : data.pcNaviStyle;
     data.themeType = this.getThemeType(data.iconColor, data.navColor);
     data.needUpdate = Date.now();
+    data.workflowAgentFeatureType = getFeatureStatus(data.projectId, VersionProductType.workflowAgent);
     this.props.setAppStatus(data.appStatus);
 
     this.setState({ data });
@@ -273,6 +276,7 @@ export default class AppInfo extends Component {
       'displayIcon',
       'goodsId',
       'license',
+      'workflowAgentFeatureType',
     ]);
     window[`timeZone_${appId}`] = data.timeZone; //记录应用时区
     syncAppDetail(appDetail);
@@ -311,7 +315,15 @@ export default class AppInfo extends Component {
 
   updateAppDetail = obj => {
     const { appId, groupId } = this.ids;
-    const current = _.pick(this.state.data, ['projectId', 'iconColor', 'navColor', 'icon', 'description', 'name']);
+    const current = _.pick(this.state.data, [
+      'projectId',
+      'iconColor',
+      'navColor',
+      'icon',
+      'description',
+      'name',
+      'shortDesc',
+    ]);
     if (!obj.name) obj = _.omit(obj, 'name');
     const para = { ...current, ...obj };
     api.editAppInfo({ appId, ...para }).then(({ data }) => {
@@ -431,6 +443,10 @@ export default class AppInfo extends Component {
           e.stopPropagation();
           this.setState({ appConfigVisible: false });
 
+          if (type === 'editIntro') {
+            this.setState({ editAppIntroVisible: true, isEditing: true });
+            return;
+          }
           if (_.includes(['appAnalytics', 'appLogs'], type) && getFeatureStatus(projectId, rest.featureId) === '2') {
             buriedUpgradeVersionDialog(projectId, rest.featureId);
             return;
@@ -671,16 +687,17 @@ export default class AppInfo extends Component {
               </div>
             )}
           {(!isHaveCharge(permissionType) ? description : false) && (isNormalApp || isMigrate) && (
-            <div
-              className="appIntroWrap pointer"
-              data-tip={_l('应用说明')}
-              onClick={e => {
-                mousePosition = { x: e.pageX, y: e.pageY };
-                this.setState({ editAppIntroVisible: true, isEditing: false });
-              }}
-            >
-              <Icon className="appIntroIcon Font16" icon="info" />
-            </div>
+            <Tooltip title={_l('应用说明')}>
+              <div
+                className="appIntroWrap pointer"
+                onClick={e => {
+                  mousePosition = { x: e.pageX, y: e.pageY };
+                  this.setState({ editAppIntroVisible: true, isEditing: false });
+                }}
+              >
+                <Icon className="appIntroIcon Font16" icon="info" />
+              </div>
+            </Tooltip>
           )}
           {modifyAppIconAndNameVisible && (
             <SelectIcon
@@ -724,7 +741,7 @@ export default class AppInfo extends Component {
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
             {!window.isPublicApp && ss && !md.global.Account.isPortal && (
-              <Tooltip text={_l('超级搜索(F)')}>
+              <Tooltip title={_l('超级搜索')} shortcut="F">
                 <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={this.openGlobalSearch}>
                   <Icon icon="search" className="Font18" />
                 </div>
@@ -905,6 +922,7 @@ export default class AppInfo extends Component {
               cacheKey="appIntroDescription"
               data={data}
               description={isEditing ? description : getTranslateInfo(appId, null, appId).description || description}
+              remark={data.shortDesc}
               permissionType={permissionType}
               isLock={isLock}
               // isEditing={!description && isAuthorityApp}
@@ -917,8 +935,13 @@ export default class AppInfo extends Component {
                   hasChange: true,
                 });
               }}
-              onSave={value => {
-                this.handleEditApp('', { description: !value ? (this.state.hasChange ? value : description) : value });
+              onSave={data => {
+                const value = data.description;
+                const shortDesc = data.remark;
+                this.handleEditApp('', {
+                  description: !value ? (this.state.hasChange ? value : description) : value,
+                  shortDesc,
+                });
                 this.setState({
                   hasChange: false,
                 });

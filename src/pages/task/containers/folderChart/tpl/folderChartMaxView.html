@@ -4,8 +4,8 @@ it.listSize * 30 + 'px;margin-top: 0;"';}} {{?}}
     <div class="folderChartBoxModel flexRow">
         <div class="flex">
             <div class="folderChartBoxTitle">
-                <span class="overflow_ellipsis">{{=it.title}}</span
-                ><span data-tip="{{=it.tipTitle}}"><i class="icon-error1"></i></span>
+                <span class="overflow_ellipsis">{{=it.title}}</span><span title="{{=it.tipTitle}}"><i
+                        class="icon-error1"></i></span>
             </div>
             {{?it.type === 1 || it.type === 4}}
             <ul class="folderChartTime" id="maxViewUpdateTime">
@@ -19,33 +19,23 @@ it.listSize * 30 + 'px;margin-top: 0;"';}} {{?}}
                 <li class="{{=it.activeBtn === 2 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}" data-type="29">
                     30{{= _l('天')}}
                 </li>
-                <li
-                    class="{{=it.activeBtn === 3 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}"
-                    data-type="custom"
-                >
+                <li class="{{=it.activeBtn === 3 ? 'activeClass ThemeBorderColor3 ThemeBGColor3' : ''}}"
+                    data-type="custom">
                     {{= _l('自定义')}}
                 </li>
             </ul>
             {{?}} {{?it.type === 2}}
             <div class="folderChartChargeBox">
                 <i
-                    class="{{=it.sort === 'desc' ? 'icon-descending-order' : 'icon-ascending-order'}} folderChartChargeSort"
-                ></i>
-                <span class="folderChartChargeBtn"
-                    ><span class="folderChartChargeTxt"
-                        >{{=it.isAuto ? _l('所有负责人') : _l('已选择%0人', it.chargeAccountIDs.length)}}</span
-                    ><i class="icon-arrow-down-border"></i
-                ></span>
+                    class="{{=it.sort === 'desc' ? 'icon-descending-order' : 'icon-ascending-order'}} folderChartChargeSort"></i>
+                <span class="folderChartChargeBtn"><span class="folderChartChargeTxt">{{=it.isAuto ? _l('所有负责人') :
+                        _l('已选择%0人', it.chargeAccountIDs.length)}}</span><i class="icon-arrow-down-border"></i></span>
             </div>
             {{?}} {{?isScroll}}
             <div class="folderChartMaxHeight">
                 {{?}}
-                <div
-                    class="folderChartModel {{=it.type === 3 ? 'folderChartUpdateHeight' : ''}}"
-                    id="folderChartsMax"
-                    {{="maxH"
-                    }}
-                ></div>
+                <div class="folderChartModel {{=it.type === 3 ? 'folderChartUpdateHeight' : ''}}" id="folderChartsMax"
+                    {{="maxH" }}></div>
                 {{?isScroll}}
             </div>
             {{?}}

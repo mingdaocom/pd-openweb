@@ -5,7 +5,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, LoadDiv, ScrollView, SvgIcon, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import WorksheetEmpty from 'worksheet/common/WorksheetEmpty/WorksheetEmpty';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
@@ -93,11 +94,7 @@ const WorkSheetPortal = props => {
       }
       return (
         [2, 3, 4].includes(item.status) && (
-          <Tooltip
-            popupPlacement="bottom"
-            autoCloseDelay={0}
-            text={<span>{_l('仅系统角色可见（包含管理员、开发者）')}</span>}
-          >
+          <Tooltip placement="bottom" title={_l('仅系统角色可见（包含管理员、开发者）')}>
             <Icon className="Font16 mLeft10 pointer visibilityIcon" icon={icon} style={{ color: '#ee6f09' }} />
           </Tooltip>
         )
@@ -133,7 +130,7 @@ const WorkSheetPortal = props => {
                   <SvgIcon
                     size={20}
                     url={
-                      item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}customIcon/${item.icon}.svg`
+                      item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${item.icon}.svg`
                     }
                     fill={'#151515'}
                     className="mRight5"
@@ -215,6 +212,7 @@ const WorkSheetPortal = props => {
               groupId={groupId}
               sheetListActions={sheetListActions}
               getSheetList={getSheetList}
+              appPkg={appPkg}
             />
           </div>
         </div>

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import variableApi from 'src/api/variable';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getIconByType } from 'src/pages/widgetConfig/util';

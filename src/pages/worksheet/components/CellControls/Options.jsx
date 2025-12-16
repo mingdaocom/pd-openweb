@@ -7,10 +7,10 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Textarea } from 'ming-ui';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
-import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
-import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
-import Radio from 'src/components/newCustomFields/widgets/Radio';
+import { formatControlToServer } from 'src/components/Form/core/utils';
+import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
+import Dropdown from 'src/components/Form/DesktopForm/widgets/Dropdown';
+import Radio from 'src/components/Form/DesktopForm/widgets/Radio';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { isLightColor } from 'src/utils/control';
 import { getSelectedOptions } from 'src/utils/control';
@@ -454,9 +454,7 @@ export default class Options extends React.Component {
                   }
                 },
                 onChange: value => {
-                  if (_.isObject(value)) {
-                    value = value.value;
-                  }
+                  value = _.isArray(value) ? _.get(_.last(value), 'value') : _.get(value, 'value');
                   this.handleChange(value);
                 },
               }}
@@ -518,7 +516,7 @@ export default class Options extends React.Component {
                   <span
                     className="cellOption ellipsis"
                     key={index}
-                    style={Object.assign({}, { ...getOptionStyle(option, cell), maxWidth: style.width - 14 })}
+                    style={Object.assign({}, { ...getOptionStyle(option, cell) })}
                   >
                     {this.getShowValue(option)}
                   </span>

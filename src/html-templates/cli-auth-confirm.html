@@ -77,28 +77,6 @@
     </head>
 
     <body>
-        <script>
-            var accountId;
-            var config = JSON.parse(atob(new URL(location.href).searchParams.get('p')));
-            fetch((__api_server__.main + '/Global/GetGlobalMeta').replace(/\/\/Global/g, '/Global'), {
-                headers: {
-                    'content-type': 'application/json',
-                },
-                credentials: 'include',
-                method: 'POST',
-                body: '{}',
-            })
-                .then(res => res.json())
-                .then(res => {
-                    try {
-                        accountId = res.data['md.global'].Account.accountId;
-                        const cookie = document.cookie.match(/md_pss_id=(\w+)/)[1];
-                        location.href = config.url + '?t=' + btoa(cookie);
-                    } catch (err) {
-                        console.log(err);
-                        location.href = '/login?ReturnUrl=' + encodeURIComponent(location.href);
-                    }
-                });
-        </script>
+        <script src="webpack[single]?src/pages/Mdye/Auth.js"></script>
     </body>
 </html>

@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import copper_crown from 'statistics/assets/topChart/copper_crown.png';
 import copper_medal from 'statistics/assets/topChart/copper_medal.png';
 import gold_crown from 'statistics/assets/topChart/gold_crown.png';
@@ -365,9 +366,9 @@ export default class extends Component {
         {displaySetup.showTotal ? (
           <div className="summaryWrap pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         <div className={displaySetup.showTotal ? 'showTotalHeight' : 'h100'}>{this.renderTopChart()}</div>

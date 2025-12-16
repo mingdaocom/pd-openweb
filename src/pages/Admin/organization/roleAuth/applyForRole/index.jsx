@@ -42,7 +42,7 @@ export default class ApplyForRole extends React.Component {
             isLoading: false,
           });
         } else {
-          return Promise.reject();
+          throw new Error();
         }
       })
       .catch(() => {
@@ -88,7 +88,7 @@ export default class ApplyForRole extends React.Component {
                             alert(_l('操作成功'), 1);
                             this.fetchData();
                           } else {
-                            return Promise.reject();
+                            throw new Error();
                           }
                         })
                         .catch(function () {
@@ -111,7 +111,7 @@ export default class ApplyForRole extends React.Component {
                             alert(_l('操作成功'), 1);
                             this.fetchData();
                           } else {
-                            return Promise.reject();
+                            throw new Error();
                           }
                         })
                         .catch(function () {

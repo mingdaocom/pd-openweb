@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
+import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
 import SearchWorksheetDialog from '../../../SearchWorksheet/SearchWorksheetDialog';
 
 export default function SearchWorksheet(props) {
@@ -23,7 +24,7 @@ export default function SearchWorksheet(props) {
       dynamicData={dynamicData}
       queryConfig={queryConfig}
       customTitle={_l('配置查询工作表条件')}
-      fromCustom={true}
+      from={DYNAMIC_FROM_MODE.CUSTOM_EVENT}
       onChange={newData => {
         handleOk({
           valueType,

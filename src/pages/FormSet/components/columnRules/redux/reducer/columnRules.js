@@ -13,6 +13,16 @@ export function loading(state = true, action) {
   }
 }
 
+export function copyLoading(state = false, action) {
+  switch (action.type) {
+    case 'COLUMNRULES_COPY_START':
+    case 'COLUMNRULES_COPY_END':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
 // worksheetId
 export function worksheetId(state = '', action) {
   switch (action.type) {
@@ -63,6 +73,15 @@ export function worksheetRuleControls(state = [], action) {
   }
 }
 
+export function worksheetRelationSearch(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_RELATION_SEARCH':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
 // 当前正在编辑的筛选
 export function filters(state = [], action) {
   switch (action.type) {
@@ -92,14 +111,26 @@ export function activeTab(state = 0, action) {
   }
 }
 
+export function queryConfigs(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_QUERY_CONFIGS':
+      return action.data;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   columnRulesListData,
   loading,
+  copyLoading,
   filters,
   selectRules,
   worksheetRuleControls,
+  worksheetRelationSearch,
   ruleError,
   activeTab,
   worksheetId,
   worksheetInfo,
+  queryConfigs,
 });

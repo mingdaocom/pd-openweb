@@ -278,6 +278,23 @@ export default {
     return mdyAPI('Download', 'ExportOrgOperateLogs', args, options);
   },
   /**
+   * 导出组织账务导出
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {} args.status
+   * @param {array} args.recordTypes 消费记录类型
+   * @param {string} args.startDate 开始时间
+   * @param {string} args.endDate 结束时间
+   * @param {string} args.fileName 文件名称
+   * @param {integer} args.exportType 导出类型 0是支付 1是扣费
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  exportTransactionRecords: function (args, options = {}) {
+    return mdyAPI('Download', 'ExportTransactionRecords', args, options);
+  },
+  /**
    * 导出应用汇总概览分析日志
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id

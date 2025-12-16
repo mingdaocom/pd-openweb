@@ -80,9 +80,7 @@ export function getUsers(args) {
         result = [
           {
             accountId: 'user-self',
-            avatar:
-              md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-              '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
+            avatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90',
             fullname: _l('当前用户'),
           },
         ].concat(result);

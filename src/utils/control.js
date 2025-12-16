@@ -2,22 +2,25 @@ import { TinyColor } from '@ctrl/tinycolor';
 import copy from 'copy-to-clipboard';
 import dayjs from 'dayjs';
 import update from 'immutability-helper';
-import _, { filter, find, get, includes, isEmpty } from 'lodash';
+import _, { filter, find, get, includes, isArray, isEmpty } from 'lodash';
 import moment from 'moment';
 import nzh from 'nzh';
 import { ToWords } from 'to-words';
 import { v4 as uuidv4 } from 'uuid';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { CONTROL_EDITABLE_WHITELIST } from 'worksheet/constants/enum';
+import { FROM } from 'src/components/Form/core/config';
 import { DEFAULT_TEXT } from 'src/components/Form/core/enum';
-import { FROM } from 'src/components/newCustomFields/tools/config';
+import { OPTION_COLORS_LIST } from 'src/pages/widgetConfig/config';
 import { TITLE_SIZE_OPTIONS, UNIT_TO_TEXT, UNIT_TYPE } from 'src/pages/widgetConfig/config/setting';
 import { SYSTEM_CONTROL_WITH_UAID, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { canSetWidgetStyle, getDateToEn, getShowFormat, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { RELATION_TYPE_NAME } from 'src/pages/worksheet/components/CellControls/enum';
+import { getTemporaryAttachmentFromUrl } from 'src/utils/common';
 import { accMul, browserIsMobile, countChar, domFilterHtmlScript } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToUserZone } from 'src/utils/project';
@@ -51,7 +54,7 @@ export const getControlStateAndCheckSectionControl = (data, from, formData) => {
     return controlState(data, from);
   }
   const stateOfControl = controlState(data, from);
-  const stateOfSectionControl = controlState(sectionControl, from);
+  const stateOfSectionControl = controlState({ ...sectionControl, controlPermissions: '111' }, from);
   return {
     ...stateOfControl,
     editable: stateOfControl.editable && stateOfSectionControl.editable,
@@ -593,8 +596,8 @@ export function formatControlValue(cell) {
 }
 
 function transformLat(lng, lat) {
-  var pi = 3.14159265358979324;
-  var dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
+  let pi = 3.14159265358979324;
+  let dLat = -100.0 + 2.0 * lng + 3.0 * lat + 0.2 * lat * lat + 0.1 * lng * lat + 0.2 * Math.sqrt(Math.abs(lng));
   dLat += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLat += ((20.0 * Math.sin(lat * pi) + 40.0 * Math.sin((lat / 3.0) * pi)) * 2.0) / 3.0;
   dLat += ((160.0 * Math.sin((lat / 12.0) * pi) + 320 * Math.sin((lat * pi) / 30.0)) * 2.0) / 3.0;
@@ -602,8 +605,8 @@ function transformLat(lng, lat) {
 }
 
 function transformLng(lng, lat) {
-  var pi = 3.14159265358979324;
-  var dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
+  let pi = 3.14159265358979324;
+  let dLng = 300.0 + lng + 2.0 * lat + 0.1 * lng * lng + 0.1 * lng * lat + 0.1 * Math.sqrt(Math.abs(lng));
   dLng += ((20.0 * Math.sin(6.0 * lng * pi) + 20.0 * Math.sin(2.0 * lng * pi)) * 2.0) / 3.0;
   dLng += ((20.0 * Math.sin(lng * pi) + 40.0 * Math.sin((lng / 3.0) * pi)) * 2.0) / 3.0;
   dLng += ((150.0 * Math.sin((lng / 12.0) * pi) + 300.0 * Math.sin((lng / 30.0) * pi)) * 2.0) / 3.0;
@@ -611,21 +614,21 @@ function transformLng(lng, lat) {
 }
 
 export function wgs84togcj02(longitude, latitude) {
-  var lng = parseFloat(longitude);
-  var lat = parseFloat(latitude);
-  var a = 6378245.0;
-  var ee = 0.00669342162296594323;
-  var pi = 3.14159265358979324;
-  var dLat = transformLat(lng - 105.0, lat - 35.0);
-  var dLng = transformLng(lng - 105.0, lat - 35.0);
-  var radLat = (lat / 180.0) * pi;
-  var magic = Math.sin(radLat);
+  let lng = parseFloat(longitude);
+  let lat = parseFloat(latitude);
+  let a = 6378245.0;
+  let ee = 0.00669342162296594323;
+  let pi = 3.14159265358979324;
+  let dLat = transformLat(lng - 105.0, lat - 35.0);
+  let dLng = transformLng(lng - 105.0, lat - 35.0);
+  let radLat = (lat / 180.0) * pi;
+  let magic = Math.sin(radLat);
   magic = 1 - ee * magic * magic;
-  var sqrtMagic = Math.sqrt(magic);
+  let sqrtMagic = Math.sqrt(magic);
   dLat = (dLat * 180.0) / (((a * (1 - ee)) / (magic * sqrtMagic)) * pi);
   dLng = (dLng * 180.0) / ((a / sqrtMagic) * Math.cos(radLat) * pi);
-  var mgLat = lat + dLat;
-  var mgLng = lng + dLng;
+  let mgLat = lat + dLat;
+  let mgLng = lng + dLng;
   return [mgLng, mgLat];
 }
 
@@ -715,6 +718,9 @@ function parseCardStyle(control, value, type) {
 }
 
 export function getRecordCardStyle(control) {
+  if (!control) {
+    return {};
+  }
   const {
     cardtitlestyle, // 字段标题 direction: 1 水平 2 垂直
     cardvaluestyle, // 字段值
@@ -795,7 +801,7 @@ export function renderText(cell, options = {}) {
     if (!cell) {
       return '';
     }
-    if (cell.controlId === 'rowid' && /^(temp|default|public-temp|deleterowids)/.test(cell.value)) {
+    if (cell.controlId === 'rowid' && /^(temp|empty|default|public-temp|deleterowids)/.test(cell.value)) {
       return '';
     }
     let { type, value = '', unit, advancedSetting = {} } = cell;
@@ -851,7 +857,7 @@ export function renderText(cell, options = {}) {
       case 7: // CRED_INPUT 身份证
       case 25: // MONEY_CN 大写金额
       case 33: // AUTOID 自动编号
-      case 37: // SUBTOTAL 汇总 TODO
+      case 37: // SUBTOTAL 汇总
       case 49: // API 查询
       case 50: // API 查询
         value = cell.enumDefault === 0 || cell.enumDefault === 2 ? (value || '').replace(/\r\n|\n/g, ' ') : value;
@@ -1159,13 +1165,15 @@ export const formatNumberToWords = (control = {}, relateControl = {}) => {
   const value = relateControl.value || '';
   if (!value.toString()) return '';
   const { currency, currencynames } = relateControl.advancedSetting || {};
+  // 转换最多两位小数，先四舍五入在转
+  const dot = relateControl.dot > 2 ? 2 : relateControl.dot;
   const { currencycode, symbol } = safeParse(currency || '{}');
   const currencytype = getAdvanceSetting(control, 'currencytype');
   // 繁体前缀，主单位单复数、辅助单位单复数
   const { 0: zhTw, 1: pluralCode, 2: code, 3: subPluralCode, 4: subCode } = safeParse(currencynames || '{}') || {};
   const isSpecialArea = _.includes(['CNY', 'HKD', 'TWD', 'MOP'], currencycode);
   if (currencytype === 3) {
-    const tempValue = nzh.hk.toMoney(parseFloat(value), { outSymbol: false });
+    const tempValue = nzh.hk.toMoney(parseFloat(toFixed(value, dot)), { outSymbol: false });
     return (isSpecialArea ? zhTw || '' : '') + tempValue;
   } else if (currencytype === 1) {
     const toWords = new ToWords({
@@ -1194,7 +1202,7 @@ export const formatNumberToWords = (control = {}, relateControl = {}) => {
     const tempValue = toWords.convert(parseFloat(value));
     return tempValue ? 'SAY ' + tempValue.toLocaleUpperCase() : '';
   } else {
-    return nzh.cn.toMoney(parseFloat(value), { outSymbol: false });
+    return nzh.cn.toMoney(parseFloat(toFixed(value, dot)), { outSymbol: false });
   }
 };
 
@@ -1331,8 +1339,8 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
         let filePath = isLinkFile ? fileUrl : (url.pathname || '').slice(1).replace(fileName + item.ext, '');
         const IsLocal = md.global.Config.IsLocal;
         const host = RegExpValidator.fileIsPicture(item.ext)
-          ? md.global.FileStoreConfig.pictureHost
-          : md.global.FileStoreConfig.documentHost;
+          ? md.global.FileStoreConfig.pictureHost + '/'
+          : md.global.FileStoreConfig.documentHost + '/';
         let searchParams = '';
         let extAttr = {};
 
@@ -1553,9 +1561,361 @@ export function checkTypeSupportForFunction(control) {
     return !isSheetDisplay(control);
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
     // 他表存储 30
-    return (
-      (_.get(control, 'strDefault') || '10')[0] !== '1' &&
-      checkTypeSupportForFunction({ ...control, type: control.sourceControlType })
-    );
+    return checkTypeSupportForFunction({ ...control, type: control.sourceControlType });
+  }
+}
+
+export function convertAiRecommendControlToControlData(recommendControl, { worksheetId, allWidgets = [] } = {}) {
+  const {
+    id,
+    type,
+    name,
+    isRequired,
+    isHeading,
+    col,
+    row,
+    size,
+    description,
+    code,
+    formulaExpression,
+    optionColor,
+    options = [],
+    isMultiple,
+    displayField = [],
+    relatedWorksheet = {},
+  } = recommendControl;
+  let control = {
+    controlName: name,
+    controlId: id || uuidv4(),
+    required: isRequired,
+    col,
+    row,
+    size,
+    hint: description,
+    alias: code,
+    attribute: isHeading ? 1 : 0,
+    source: recommendControl,
+  };
+
+  if (['text', 'longText'].includes(recommendControl.type)) {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.TEXT;
+  } else if (recommendControl.type === 'longText') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.TEXT;
+    control.enumDefault = 2;
+  } else if (type === 'number') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.NUMBER;
+  } else if (recommendControl.type === 'amount') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.MONEY;
+  } else if (type === 'region') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE;
+  } else if (type === 'location') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.LOCATION;
+  } else if (type === 'date') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.DATE;
+  } else if (type === 'dateTime') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.DATE_TIME;
+  } else if (type === 'boolean') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.SWITCH;
+  } else if (type === 'dropdown') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN;
+  } else if (type === 'radio') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU;
+  } else if (type === 'checkbox') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT;
+  } else if (type === 'autoid') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.AUTO_ID;
+  } else if (type === 'member') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.USER_PICKER;
+  } else if (type === 'department') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT;
+  } else if (type === 'phone') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE;
+  } else if (type === 'email') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.EMAIL;
+  } else if (type === 'attachment') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT;
+  } else if (type === 'formula') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER;
+  } else if (type === 'subform') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.SUB_LIST;
+  } else if (type === 'section') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.SPLIT_LINE;
+  } else if (type === 'tab') {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.SECTION;
+  } else if (includes(['related', 'multiRelated', 'relatedTable'], type)) {
+    control.type = WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET;
+  }
+  const defaultData = DEFAULT_DATA[enumWidgetType[control.type]] || {};
+  control = {
+    ...defaultData,
+    ...{
+      ...control,
+      advancedSetting: {
+        ...(control.advancedSetting || defaultData.advancedSetting || {}),
+      },
+    },
+  };
+  if (!control.advancedSetting) {
+    control.advancedSetting = {};
+  }
+  if (includes(['related', 'multiRelated', 'relatedTable'], type)) {
+    control.dataSource = relatedWorksheet === 'self' ? worksheetId : relatedWorksheet?.id;
+    control.showControls = displayField.map(item => item.fieldID);
+    if (type === 'related') {
+      control.advancedSetting.showtype = String(RELATE_RECORD_SHOW_TYPE.DROPDOWN);
+    } else if (type === 'multiRelated') {
+      control.enumDefault = 2;
+      control.advancedSetting.showtype = String(RELATE_RECORD_SHOW_TYPE.CARD);
+    } else if (type === 'relatedTable') {
+      control.enumDefault = 2;
+      control.advancedSetting.showtype = String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE);
+    }
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER && formulaExpression) {
+    let expression = formulaExpression;
+    allWidgets.forEach(widget => {
+      if (widget.code) {
+        expression = expression.replace(new RegExp(widget.code, 'g'), `\$${widget.id}\$`);
+      }
+    });
+    control.dataSource = expression;
+  }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
+    const relationControls = (recommendControl.subFields || []).map(convertAiRecommendControlToControlData);
+    control.dataSource = uuidv4();
+    control.relationControls = relationControls;
+    control.showControls = relationControls.map(item => item.controlId);
+  }
+  // 处理人员、部门字段多选属性
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER || control.type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+    control.enumDefault = isMultiple ? 1 : 0;
+  }
+  // 选项
+  if (
+    _.includes(
+      [WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN],
+      control.type,
+    )
+  ) {
+    if (options.length) {
+      control.options = (options || []).map((item, index) => ({
+        key: uuidv4(),
+        value: item.label,
+        isDeleted: false,
+        index,
+        checked: item.isDefault,
+        color: item.color || OPTION_COLORS_LIST[(index + 1) % OPTION_COLORS_LIST.length],
+      }));
+    }
+    const defaultOption = find(control.options, { checked: true });
+    if (defaultOption) {
+      control.advancedSetting.defsource = JSON.stringify([
+        {
+          rcid: '',
+          cid: '',
+          staticValue: defaultOption.key,
+        },
+      ]);
+    }
+    if (optionColor) {
+      control.enumDefault2 = 1;
+    }
+  }
+  return control;
+}
+
+export function convertControlTypeToAiRecommendControlType(type) {
+  if (type === WIDGETS_TO_API_TYPE_ENUM.TEXT) {
+    return 'text';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.LONG_TEXT) {
+    return 'longText';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.NUMBER) {
+    return 'number';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.MONEY) {
+    return 'amount';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE) {
+    return 'region';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.LOCATION) {
+    return 'location';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.DATE) {
+    return 'date';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.DATE_TIME) {
+    return 'dateTime';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
+    return 'boolean';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN) {
+    return 'dropdown';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU) {
+    return 'radio';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT) {
+    return 'checkbox';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.AUTOID) {
+    return 'autoid';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+    return 'member';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+    return 'department';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE) {
+    return 'phone';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.EMAIL) {
+    return 'email';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT) {
+    return 'attachment';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.FORMULA) {
+    return 'formula';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
+    return 'subform';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.RELATE) {
+    return 'related';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.MULTI_RELATED) {
+    return 'multiRelated';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.RELATED_TABLE) {
+    return 'relatedTable';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.SPLIT_LINE) {
+    return 'section';
+  } else if (type === WIDGETS_TO_API_TYPE_ENUM.TAB) {
+    return 'tab';
+  }
+  return null;
+}
+
+/**
+ * existingControls是已存在的字段列表，字段属性 alias aiGeneratedControls 是AI生成的字段列表，字段属性 code 是别名
+ * aiGeneratedControls 会被加入到字段列表里，但是别名是不可以重复的
+ * 这个函数的目的就是处理 aiGeneratedControls 的 code 属性，当这个 别名在 existingControls 里存在时，自动在 code 后面加上 _1, _2, _3, ...
+ */
+export function changeCodeOfAIGenControl(existingControls, aiGeneratedControls) {
+  return aiGeneratedControls;
+  // if (!aiGeneratedControls || !Array.isArray(aiGeneratedControls)) {
+  //   return aiGeneratedControls;
+  // }
+
+  // // 获取所有已存在字段的别名
+  // const existingAliases = new Set();
+  // if (existingControls && Array.isArray(existingControls)) {
+  //   existingControls.forEach(control => {
+  //     if (control.alias) {
+  //       existingAliases.add(control.alias);
+  //     }
+  //   });
+  // }
+
+  // // 处理AI生成的字段
+  // return aiGeneratedControls.map(control => {
+  //   if (!control.code) {
+  //     return control;
+  //   }
+
+  //   let newCode = control.code;
+  //   let counter = 1;
+
+  //   // 检查是否已存在，如果存在则添加后缀
+  //   // 第一次出现时不修改，第二次出现时才添加 _1
+  //   if (existingAliases.has(newCode)) {
+  //     newCode = `${control.code}_${counter}`;
+  //     counter++;
+
+  //     // 如果添加后缀后仍然存在，继续递增
+  //     while (existingAliases.has(newCode)) {
+  //       newCode = `${control.code}_${counter}`;
+  //       counter++;
+  //     }
+  //   }
+
+  //   // 将新的别名添加到已存在的别名集合中，避免AI生成字段之间的重复
+  //   existingAliases.add(newCode);
+
+  //   return {
+  //     ...control,
+  //     code: newCode,
+  //   };
+  // });
+}
+
+export function formatAiGenControlValue(control, value = '') {
+  try {
+    const { type } = control;
+    let result = value;
+    if (type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT) {
+      result = isArray(value)
+        ? {
+            attachments: value.map(({ ext, name, url }) =>
+              getTemporaryAttachmentFromUrl({
+                fileUrl: url,
+                fileName: name,
+                fileSize: 40,
+                fileExt: ext ? '.' + ext : '',
+              }),
+            ),
+            attachmentData: [],
+            knowledgeAtts: [],
+          }
+        : [];
+    } else if (
+      type === WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN ||
+      type === WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT ||
+      type === WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU
+    ) {
+      const matchedValues = typeof value === 'string' ? value.split(',') : value;
+      const matchedOptions = get(control, 'options', []).filter(option =>
+        find(matchedValues, value => option.value === value),
+      );
+      result = matchedOptions.map(item => item.key);
+    } else if (type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+      result = isArray(value)
+        ? value.slice(0, control.enumDefault === 0 ? 1 : undefined).map(item => {
+            return {
+              fullname: item.name,
+              accountId: item.id,
+              avatar: item.avatar,
+            };
+          })
+        : [];
+    } else if (type === WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE) {
+      result = isArray(value)
+        ? value.slice(0, control.enumDefault === 0 ? 1 : undefined).map(item => {
+            return {
+              organizeName: item.name,
+              organizeId: item.id,
+            };
+          })
+        : [];
+    } else if (type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+      result = isArray(value)
+        ? value.slice(0, control.enumDefault === 0 ? 1 : undefined).map(item => {
+            return {
+              departmentName: item.name,
+              departmentId: item.id,
+            };
+          })
+        : [];
+    } else if (type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET || type === WIDGETS_TO_API_TYPE_ENUM.CASCADER) {
+      result = isArray(value)
+        ? value.map(item => {
+            return {
+              name: item.name,
+              sid: item.id || item.sid,
+            };
+          })
+        : [];
+    } else if (type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST) {
+      result = (value || []).map(row => {
+        const newRow = {};
+        Object.keys(row).forEach(controlId => {
+          const matchedControl = get(control, 'relationControls', []).find(c => c.controlId === controlId);
+          if (matchedControl) {
+            newRow[controlId] = formatAiGenControlValue(matchedControl, row[controlId]);
+          }
+        });
+        return newRow;
+      });
+    }
+    if (type === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
+      return result ? '1' : '0';
+    }
+    return typeof result === 'string' ? result : JSON.stringify(result);
+  } catch (err) {
+    console.error(err);
+    return;
   }
 }

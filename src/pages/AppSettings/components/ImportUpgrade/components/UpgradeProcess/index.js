@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Steps } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Checkbox, Dialog, LoadDiv, QiniuUpload, Radio, Support, SvgIcon, Tooltip } from 'ming-ui';
+import { Button, Checkbox, Dialog, LoadDiv, QiniuUpload, Radio, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
@@ -43,7 +44,7 @@ export default class UpgradeProcess extends Component {
       errTip: _l('导入文件不在允许升级范围内'),
       compareLoading: false,
       isEncrypt: false,
-      expandTypeList: ['worksheets', 'pages', 'roles', 'workflows'],
+      expandTypeList: ['worksheets', 'pages', 'roles', 'workflows', 'chatBots', 'aggregations'],
       worksheetDetailData: {},
       worksheetDetailParams: {},
       backupCurrentVersion: true,
@@ -56,12 +57,12 @@ export default class UpgradeProcess extends Component {
       currentAppIndex: 0,
       addFilesLoading: false,
       batchCheckUpgradeLoading: false,
-      upgradeName: false,
-      upgradeHide: false,
-      upgradeStyle: false,
-      upgradeLang: false,
-      upgradeTimeZone: false,
-      modelType: 0,
+      upgradeName: true,
+      upgradeHide: true,
+      upgradeStyle: true,
+      upgradeLang: true,
+      upgradeTimeZone: true,
+      modelType: 1, // 默认覆盖更新
     };
   }
 
@@ -167,7 +168,7 @@ export default class UpgradeProcess extends Component {
         await appManagementAjax.batchImportCheck({
           projectId,
           batchId,
-          url: md.global.FileStoreConfig.documentHost + l.key,
+          url: md.global.FileStoreConfig.documentHost + '/' + l.key,
           password: l.password,
         }),
       );
@@ -190,7 +191,7 @@ export default class UpgradeProcess extends Component {
           return !ERROR_CODE[l.code] && !_.find(files, m => _.get(m, 'fileName') === _.get(l, 'fileName'));
         })
         .map(l => ({
-          url: md.global.FileStoreConfig.documentHost + checkFiles[l.i].key,
+          url: md.global.FileStoreConfig.documentHost + '/' + checkFiles[l.i].key,
           ...l,
           ..._.pick(checkFiles[l.i], ['key', 'password', 'fileName', 'name']),
           code: l.apps.length > 1 ? 1 : l.code,
@@ -271,7 +272,7 @@ export default class UpgradeProcess extends Component {
       this.setState(
         {
           file: file,
-          url: md.global.FileStoreConfig.documentHost + key,
+          url: md.global.FileStoreConfig.documentHost + '/' + key,
           errTip: '',
           analyzeLoading: false,
         },
@@ -525,47 +526,51 @@ export default class UpgradeProcess extends Component {
       ['upgradeName', 'upgradeHide', 'upgradeStyle', 'upgradeLang', 'upgradeTimeZone'],
       item => !this.state[item],
     );
+    // 批量导入且均为生成新应用
+    const isAllNew = batchUpdate && files.every(item => item.type === 1);
 
     return (
       <div className={cx('pBottom68', { h100: batchCheckUpgradeLoading })}>
         <div className="Font14 mBottom20">
           {_l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')}
         </div>
-        <div className="flexRow updateMethodWrap mBottom20">
-          {UPDATE_METHOD.map((item, index) => (
-            <div className={`updateMethodItem ${index === 0 ? 'mRight12' : ''}`} key={item.modelType}>
-              <Radio
-                className="bold"
-                text={item.text}
-                checked={modelType === item.modelType}
-                onClick={() =>
-                  this.setState({
-                    modelType: item.modelType,
-                    upgradeName: item.modelType ? true : upgradeName,
-                    upgradeHide: item.modelType ? true : upgradeHide,
-                    upgradeStyle: item.modelType ? true : upgradeStyle,
-                    upgradeLang: item.modelType ? true : upgradeLang,
-                    upgradeTimeZone: item.modelType ? true : upgradeTimeZone,
-                    matchOffice: item.modelType ? true : matchOffice,
-                    backupCurrentVersion: item.modelType ? true : backupCurrentVersion,
-                  })
-                }
-              />
-              <div className="Gray_75 Font12 mTop8 mLeft30">
-                {' '}
-                {!item.desc ? (
-                  <Fragment>
-                    {_l('新增目标应用中缺失项，更新已有项，')}
-                    <span className="Red">{_l('删除多余项')}</span>
-                    {_l('。升级后应用与源应用结构完全一致')}
-                  </Fragment>
-                ) : (
-                  item.desc
-                )}
+        {isAllNew ? null : (
+          <div className="flexRow updateMethodWrap mBottom20">
+            {UPDATE_METHOD.map((item, index) => (
+              <div className={`updateMethodItem ${index === 0 ? 'mRight12' : ''}`} key={item.modelType}>
+                <Radio
+                  className="bold"
+                  text={item.text}
+                  checked={modelType === item.modelType}
+                  onClick={() =>
+                    this.setState({
+                      modelType: item.modelType,
+                      upgradeName: item.modelType ? true : upgradeName,
+                      upgradeHide: item.modelType ? true : upgradeHide,
+                      upgradeStyle: item.modelType ? true : upgradeStyle,
+                      upgradeLang: item.modelType ? true : upgradeLang,
+                      upgradeTimeZone: item.modelType ? true : upgradeTimeZone,
+                      matchOffice: item.modelType ? true : matchOffice,
+                      backupCurrentVersion: item.modelType ? true : backupCurrentVersion,
+                    })
+                  }
+                />
+                <div className="Gray_75 Font12 mTop8 mLeft30">
+                  {' '}
+                  {!item.desc ? (
+                    <Fragment>
+                      {_l('新增目标应用中缺失项，更新已有项，')}
+                      <span className="Red">{_l('删除多余项')}</span>
+                      {_l('。升级后应用与源应用结构完全一致')}
+                    </Fragment>
+                  ) : (
+                    item.desc
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
         <div className="settingsWrap">
           <div className="flexRow itemTitle">
             <i className="icon-admin-apps Gray_9e Font18 mRight7 TxtMiddle" />
@@ -580,18 +585,14 @@ export default class UpgradeProcess extends Component {
             {SETTINGS.map(v => (
               <li className="mRight24 flexRow alignItemsCenter" key={v.key}>
                 <Checkbox
-                  disabled={modelType === 1}
-                  checked={this.state[v.key]}
+                  disabled={modelType === 1 || isAllNew}
+                  checked={isAllNew ? true : this.state[v.key]}
                   onClick={checked => this.setState({ [v.key]: !checked })}
                 />
                 <span className="">{modelType === 1 && v.coverName ? v.coverName : v.name}</span>
 
                 {v.desc && (
-                  <Tooltip
-                    text={modelType === 1 && v.coverdesc ? v.coverdesc : v.desc}
-                    popupPlacement="bottom"
-                    autoCloseDelay={0}
-                  >
+                  <Tooltip title={modelType === 1 && v.coverdesc ? v.coverdesc : v.desc} placement="bottom">
                     <i className="icon icon-info_outline mLeft5 Gray_75 Font16" />
                   </Tooltip>
                 )}
@@ -745,9 +746,11 @@ export default class UpgradeProcess extends Component {
   };
 
   renderFooter = () => {
-    const { current, batchUpdate, batchCheckUpgradeLoading, modelType } = this.state;
+    const { current, batchUpdate, batchCheckUpgradeLoading, modelType, files } = this.state;
     const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
     const isUpgradeScope = items[current].key === 'renderUpgradeScope';
+    const isAllNew = batchUpdate && files.every(item => item.type === 1);
+
     if (!batchUpdate && !isUpgradeScope) return null;
 
     return (
@@ -761,10 +764,10 @@ export default class UpgradeProcess extends Component {
         ) : (
           <div className="actionContent">
             <ul className="flexRow">
-              {AdvancedConfig.map(l => (
+              {AdvancedConfig.filter(l => (isAllNew ? l.key === 'matchOffice' : true)).map(l => (
                 <li className="flexRow alignItemsCenter mLeft24" key={`upgradeScopeAdvancedConfig-${l.key}`}>
                   <Checkbox
-                    disabled={modelType === 1}
+                    disabled={modelType === 1 && !isAllNew}
                     checked={this.state[l.key]}
                     onClick={checked => {
                       this.setState({ [l.key]: !checked });

@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
-import { Switch, Tooltip } from 'antd';
+import { Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import bg from 'staticfiles/images/plugin_bg.png';
 import styled from 'styled-components';
 import { Dropdown, Icon, LoadDiv, ScrollView, Support, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -317,7 +318,6 @@ export default function PluginComponent(props) {
                   ? _l('启用时全组织可用，关闭后不影响已创建工作流')
                   : _l('启用时全组织可用，关闭后不影响已创建视图')
               }
-              autoCloseDelay={0}
             >
               <Icon icon="info_outline" className="Gray_bd mLeft4 pointer" />
             </Tooltip>

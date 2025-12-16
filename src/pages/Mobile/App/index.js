@@ -5,10 +5,11 @@ import { Collapse, Dialog, List, SpinLoading, TabBar } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, PullToRefreshWrapper, SvgIcon, WaterMark } from 'ming-ui';
+import { Chatbot } from 'mobile/Chatbot';
 import CustomPage from 'mobile/CustomPage';
 import RecordList from 'mobile/RecordList';
 import WorksheetUnNormal from 'mobile/RecordList/State';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import UpgradeContent from 'src/components/UpgradeContent';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -37,6 +38,7 @@ const getWorksheetList = (appSection = [], viewHideNavi, isAuthorityApp) => {
         if (sheet.type === 2) {
           let temp = (_.find(item.childSections, v => v.appSectionId === sheet.workSheetId) || {}).workSheetInfo;
           (temp || []).forEach(it => {
+            it.appSectionId = item.appSectionId;
             childData.push(it);
           });
         }
@@ -144,6 +146,7 @@ class App extends Component {
       modal = null;
     }
     this.setState({ appMoreActionVisible: false });
+    safeLocalStorageSetItem('preventBrowserBack', true);
     window.removeEventListener('popstate', this.handleSetScrollTop);
   }
 
@@ -262,6 +265,9 @@ class App extends Component {
       } else {
         this.navigateTo(`/mobile/customPage/${params.appId}/${data.appSectionId}/${item.workSheetId}`);
       }
+    }
+    if (item.type === 3) {
+      this.navigateTo(`/mobile/chatbot/${params.appId}/${data.appSectionId}/${item.workSheetId}`);
     }
   };
 
@@ -589,6 +595,7 @@ class App extends Component {
     const {
       fixed,
       webMobileDisplay,
+      appDisplay,
       fixAccount,
       fixRemark,
       permissionType,
@@ -630,6 +637,7 @@ class App extends Component {
     const { childSections = [], workSheetInfo = [] } = appSection;
     const isEmptyAppSection = appSection.length === 1 && childSections.length && workSheetInfo.length;
     const hasDebugRoles = debugRole.canDebug && !_.isEmpty(debugRoles);
+    const isNoPublish = window.isMingDaoApp ? appDisplay : webMobileDisplay;
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
     } else if ([4, 20].includes(status)) {
@@ -641,16 +649,14 @@ class App extends Component {
           {params.isNewApp && this.renderGuide()}
           <div
             className="flexColumn h100"
-            style={
-              (fixed && permissionType !== APP_ROLE_TYPE.ADMIN_ROLE) || webMobileDisplay ? { background: '#fff' } : {}
-            }
+            style={(fixed && permissionType !== APP_ROLE_TYPE.ADMIN_ROLE) || isNoPublish ? { background: '#fff' } : {}}
           >
             {this.renderAppHeader()}
-            {isUpgrade || (fixed && !isAuthorityApp) || webMobileDisplay ? (
+            {isUpgrade || (fixed && !isAuthorityApp) || isNoPublish ? (
               isUpgrade ? (
                 <UpgradeContent appPkg={detail} isMobile={true} />
               ) : (
-                <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />
+                <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={isNoPublish} />
               )
             ) : (
               <div
@@ -777,6 +783,20 @@ class App extends Component {
             match={this.props.match}
           />
         </div>
+      );
+    }
+    if (type === 3) {
+      const { appId, worksheetId, viewId } = this.props.match.params;
+      return (
+        <Chatbot
+          match={{
+            params: {
+              appId,
+              chatbotId: worksheetId,
+              conversationId: viewId,
+            },
+          }}
+        />
       );
     }
   }

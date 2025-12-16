@@ -3,7 +3,8 @@ import { Drawer } from 'antd';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, Tooltip, UpgradeIcon } from 'ming-ui';
+import { Icon, UpgradeIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { VersionProductType } from 'src/utils/enum';
@@ -253,7 +254,7 @@ export default function ManageBackupFiles(props) {
                   </span>
                 </Trigger>
                 {backupTask.status === 1 && (
-                  <Tooltip text={_l('凌晨时段自动执行备份')}>
+                  <Tooltip title={_l('凌晨时段自动执行备份')}>
                     <i className="icon icon-info_outline Gray_9e Font16 Hand" />
                   </Tooltip>
                 )}

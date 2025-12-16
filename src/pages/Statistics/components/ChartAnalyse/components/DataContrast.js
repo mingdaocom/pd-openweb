@@ -50,7 +50,7 @@ export default class DataContrast extends Component {
             {_l('环比')}
           </Checkbox>
         </div>
-        {(!!contrastTypes.length || [4, 8, 11].includes(filter.rangeType)) && (
+        {(!!contrastTypes.length || [4, 8, 11, 21].includes(filter.rangeType)) && (
           <div className="flexRow mBottom8">
             <Checkbox
               checked={displaySetup.contrastType}

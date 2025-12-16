@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { APP_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
+import { APP_TYPE, NODE_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
 import { getIcons } from '../../../utils';
+import selectToolsFields from './selectToolsFields';
 import './index.less';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
@@ -30,6 +31,8 @@ export default class ActionFields extends Component {
         appTypeName: PropTypes.any,
         actionId: PropTypes.string,
         nAlias: PropTypes.any,
+        toolsFunction: PropTypes.func,
+        subFlowNodeApps: PropTypes.array,
         items: PropTypes.arrayOf(
           PropTypes.shape({
             type: PropTypes.number,
@@ -153,7 +156,10 @@ export default class ActionFields extends Component {
                       className="Gray_75"
                     />
                     <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
-                    {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.WORKSHEET_LOG], item.appType) && (
+                    {_.includes(
+                      [APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.WORKSHEET_LOG, APP_TYPE.AGGREGATION_SHEET],
+                      item.appType,
+                    ) && (
                       <div
                         className="mLeft15 mRight10 Gray_75 ellipsis"
                         style={{ maxWidth: 150 }}
@@ -199,6 +205,26 @@ export default class ActionFields extends Component {
                           </div>
                         </li>
                       ))}
+                      {item.nodeTypeId === NODE_TYPE.AGENT && (
+                        <Fragment>
+                          <div className="divider"></div>
+                          <li
+                            className="flexRow ThemeHoverBGColor3 agentField"
+                            onClick={() => {
+                              selectToolsFields({
+                                subFlowNodeApps: item.subFlowNodeApps,
+                                toolsFunction: item.toolsFunction,
+                                onOk: handleFieldClick,
+                              });
+                              onClose();
+                            }}
+                          >
+                            <div className="ellipsis">
+                              <span>{_l('工具调用的工作表字段')}</span>
+                            </div>
+                          </li>
+                        </Fragment>
+                      )}
                     </ul>
                   }
                 </div>

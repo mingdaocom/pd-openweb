@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { string } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, LoadDiv, Modal } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../api/flowNode';
 import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
@@ -355,25 +356,31 @@ export class FlowChart extends Component {
         )}
 
         <div className={cx('workflowEditBtn', { mobile: isMobile })}>
-          <span data-tip={isMobile ? '' : _l('缩小')}>
-            <i
-              className={cx('icon-minus', { ThemeHoverColor3: !isMobile }, { disabled: scale === 50 })}
-              onClick={() => scale > 50 && this.setState({ scale: scale - 10 })}
-            />
-          </span>
+          <Tooltip title={isMobile ? '' : _l('缩小')}>
+            <span>
+              <i
+                className={cx('icon-minus', { ThemeHoverColor3: !isMobile }, { disabled: scale === 50 })}
+                onClick={() => scale > 50 && this.setState({ scale: scale - 10 })}
+              />
+            </span>
+          </Tooltip>
           <span className="Font14 mRight8 TxtCenter" style={{ width: 40 }}>
             {scale}%
           </span>
-          <span data-tip={isMobile ? '' : _l('放大')}>
-            <i
-              className={cx('icon-add', { ThemeHoverColor3: !isMobile }, { disabled: scale === 100 })}
-              onClick={() => scale < 100 && this.setState({ scale: scale + 10 })}
-            />
-          </span>
+          <Tooltip title={isMobile ? '' : _l('放大')}>
+            <span>
+              <i
+                className={cx('icon-add', { ThemeHoverColor3: !isMobile }, { disabled: scale === 100 })}
+                onClick={() => scale < 100 && this.setState({ scale: scale + 10 })}
+              />
+            </span>
+          </Tooltip>
 
-          <span data-tip={isMobile ? '' : _l('适应高度')}>
-            <i className={cx('icon-settings_overscan', { ThemeHoverColor3: !isMobile })} onClick={this.fullDisplay} />
-          </span>
+          <Tooltip title={isMobile ? '' : _l('适应高度')}>
+            <span>
+              <i className={cx('icon-settings_overscan', { ThemeHoverColor3: !isMobile })} onClick={this.fullDisplay} />
+            </span>
+          </Tooltip>
 
           {!isMobile && (
             <Fragment>

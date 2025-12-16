@@ -2,6 +2,7 @@ import _ from 'lodash';
 import filterXSS from 'xss';
 import { initIntlTelInput, telIsValidNumber } from 'ming-ui/components/intlTelInput';
 import { getRequest } from 'src/utils/common';
+import { browserIsMobile } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { mdAppResponse } from 'src/utils/project';
 
@@ -24,6 +25,10 @@ export const getDataByFilterXSS = url => {
     const domain = data.hostname;
     // 检查域名是否包含mingdao或者是否与当前域名相同
     if (domain.indexOf('mingdao') < 0 && domain !== location.hostname) {
+      return '/dashboard';
+    }
+    // 如果 pathname 只有 '/'，返回 '/dashboard'
+    if (data.pathname === '/') {
       return '/dashboard';
     }
     return filterXSS(data.href);
@@ -113,13 +118,27 @@ export const getAccountTypes = isLogin => {
 //下载的地址，登录后关闭
 export const checkReturnUrl = url => {
   const returnUrl = decodeURIComponent(url).toLowerCase();
-  ['file/downchatfile', 'file/downdocument', 'download/appfile'].map(o => {
+  ['file/downchatfile', 'file/downdocument', 'download/appfile'].forEach(o => {
     if (returnUrl.indexOf(o) >= 0) {
       setTimeout(() => {
         window.close();
       }, 3000);
     }
   });
+};
+
+// 登录成功后跳转
+export const loginSuccessRedirect = () => {
+  const request = getRequest();
+
+  if (request.ReturnUrl) {
+    checkReturnUrl(request.ReturnUrl);
+    const safeUrl = getDataByFilterXSS(request.ReturnUrl);
+    location.replace(safeUrl);
+    return;
+  }
+
+  toMDPage();
 };
 
 export const validation = ({ isForSendCode, keys = [], type, info }) => {

@@ -3,6 +3,7 @@ import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon, Menu, MenuItem, Popup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import UploadNewVersion from 'src/pages/kc/components/UploadNewVersion.jsx';
 import { browserIsMobile } from 'src/utils/common';
 import EditableBlock from '../../editableBlock';
@@ -151,14 +152,16 @@ export default function CommonHeader(props) {
 
         {showKcVersionPanel && (
           <div className="historyPanel historyVersion relative">
-            <span className="normal" data-tip={_l('查看历史版本')}>
-              <Icon
-                icon="restore2"
-                className="Hand Font16"
-                ref={eleKcVersionList}
-                onClick={() => setShowKcVersionList(!showKcVersionList)}
-              />
-            </span>
+            <Tooltip title={_l('查看历史版本')}>
+              <span className="normal">
+                <Icon
+                  icon="restore2"
+                  className="Hand Font16"
+                  ref={eleKcVersionList}
+                  onClick={() => setShowKcVersionList(!showKcVersionList)}
+                />
+              </span>
+            </Tooltip>
             {showKcVersionList && (
               <Popup
                 withMask
@@ -188,10 +191,12 @@ export default function CommonHeader(props) {
       <div className="flexRow btns">
         {showKcVersionPanel && attachment.sourceNode.canEdit && (
           <div className="historyPanel">
-            <span className="normal" data-tip={_l('上传新版本')}>
-              <UploadNewVersion item={attachment.sourceNode} callback={item => uploadNewVersion(item)} />
-              <i className="icon-upload_file Hand" onClick={clickShare} />
-            </span>
+            <Tooltip title={_l('上传新版本')}>
+              <span className="normal">
+                <UploadNewVersion item={attachment.sourceNode} callback={item => uploadNewVersion(item)} />
+                <i className="icon-upload_file Hand" onClick={clickShare} />
+              </span>
+            </Tooltip>
           </div>
         )}
         {addKc && (
@@ -242,36 +247,46 @@ export default function CommonHeader(props) {
             popupAlign={{ offset: [-80, -5] }}
           >
             <div className="saveTo">
-              <span className="normal" data-tip={_l('添加到知识文件')}>
-                <Icon icon="add-files" className="Hand" onClick={() => setShowSaveTo(!showSaveTo)} />
-              </span>
+              <Tooltip title={_l('添加到知识文件')}>
+                <span className="normal">
+                  <Icon icon="add-files" className="Hand" onClick={() => setShowSaveTo(!showSaveTo)} />
+                </span>
+              </Tooltip>
             </div>
           </Trigger>
         )}
         {showOpenNewPage && (
           <div className="openNewPage">
-            <span className="normal" data-tip={_l('新页面打开')}>
-              <i className="icon-launch Font20 Hand" onClick={clickOpenNewPage} />
-            </span>
+            <Tooltip title={_l('新页面打开')}>
+              <span className="normal">
+                <i className="icon-launch Font20 Hand" onClick={clickOpenNewPage} />
+              </span>
+            </Tooltip>
           </div>
         )}
         {showShare && (
           <div className="shareNode">
-            <span className="normal" data-tip={_l('分享')}>
-              <i className="icon-share Hand" onClick={clickShare} />
-            </span>
+            <Tooltip title={_l('分享')}>
+              <span className="normal">
+                <i className="icon-share Hand" onClick={clickShare} />
+              </span>
+            </Tooltip>
           </div>
         )}
         {showDownload && (
-          <div className="download relative Hand" onClick={clickDownLoad} data-tip={_l('下载')}>
-            <Icon icon="download" className="valignWrapper mTop1" />
-          </div>
+          <Tooltip title={_l('下载')}>
+            <div className="download relative Hand" onClick={clickDownLoad}>
+              <Icon icon="download" className="valignWrapper mTop1" />
+            </div>
+          </Tooltip>
         )}
         {showRefresh && (
           <div className="refreshNode" onClick={clickRefresh}>
-            <span class="normal" data-tip={_l('刷新')}>
-              <Icon icon="rotate" className="" />
-            </span>
+            <Tooltip title={_l('刷新')}>
+              <span className="normal">
+                <Icon icon="rotate" className="" />
+              </span>
+            </Tooltip>
           </div>
         )}
         {onClose && (
@@ -282,9 +297,11 @@ export default function CommonHeader(props) {
               onClose();
             }}
           >
-            <span className="normal" data-tip={_l('关闭')}>
-              <i className="icon-delete" />
-            </span>
+            <Tooltip title={_l('关闭')}>
+              <span className="normal">
+                <i className="icon-delete" />
+              </span>
+            </Tooltip>
           </div>
         )}
       </div>

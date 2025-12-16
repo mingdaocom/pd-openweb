@@ -31,6 +31,7 @@ import { checkCellIsEmpty, isEmptyValue } from 'src/utils/control';
 import { dateConvertToServerZone, dateConvertToUserZone, getContactInfo } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, TIME_UNIT } from './config';
+import { handleSetValueActions } from './customEvent';
 
 export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
   const filterRegex = safeParse(_.get(data, 'advancedSetting.filterregex') || '[]');
@@ -266,6 +267,91 @@ export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
   return '';
 };
 
+/**
+ * 验证身份证校验码
+ */
+const validateIdCardCheckCode = idCard => {
+  const first17 = idCard.substring(0, 17);
+  // 校验码（第18位）
+  const checkCode = idCard.substring(17, 18).toUpperCase();
+
+  // 权重数组
+  const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+  // 校验码对应表
+  const checkCodeMap = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+
+  // 计算加权和
+  let sum = 0;
+  for (let i = 0; i < 17; i++) {
+    sum += parseInt(first17[i], 10) * weights[i];
+  }
+
+  // 计算余数
+  const remainder = sum % 11;
+  // 获取正确的校验码
+  const correctCheckCode = checkCodeMap[remainder];
+
+  return checkCode === correctCheckCode;
+};
+
+/**
+ * 验证身份证出生日期是否有效
+ */
+const validateIdCardBirthDate = idCard => {
+  const year = parseInt(idCard.substring(6, 10), 10);
+  const month = parseInt(idCard.substring(10, 12), 10);
+  const day = parseInt(idCard.substring(12, 14), 10);
+
+  // 验证年份范围（1900-当前年份）
+  const currentYear = new Date().getFullYear();
+  if (year < 1900 || year > currentYear) {
+    return false;
+  }
+
+  // 验证月份
+  if (month < 1 || month > 12) {
+    return false;
+  }
+
+  // 验证日期
+  const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  // 判断是否为闰年
+  const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  if (isLeapYear) {
+    daysInMonth[1] = 29; // 闰年2月有29天
+  }
+
+  if (day < 1 || day > daysInMonth[month - 1]) {
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * 严格验证大陆身份证号码
+ * 包含地址码、出生日期、顺序码和校验码的完整验证
+ */
+const validateMainlandIdCard = idCard => {
+  const result = Reg.idCardNumber.test(idCard);
+
+  if (!result) {
+    return false;
+  }
+
+  // 验证出生日期
+  if (!validateIdCardBirthDate(idCard)) {
+    return false;
+  }
+
+  // 验证校验码（第18位）
+  if (!validateIdCardCheckCode(idCard)) {
+    return false;
+  }
+
+  return true;
+};
+
 const Reg = {
   // 座机号码
   telPhoneNumber: /^[+]?([\d\s()-]+)$/,
@@ -273,7 +359,7 @@ const Reg = {
   emailAddress: /^[\w-+]+(\.[\w-+]+)*@[\w-+]+(\.[\w-+]+)*\.[\w-+]+$/i,
   // 身份证号码
   idCardNumber:
-    /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
+    /^(?!\d{14}0000$)(?:11|12|13|14|15|21|22|23|31|32|33|34|35|36|37|41|42|43|44|45|46|50|51|52|53|54|61|62|63|64|65|71|81|82|91)\d{4}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/,
   hkCardNumber: /^[A-Z]{1}(\d{6})(\(\d\)|\d)?$/,
   moCardNumber: /^[A-Z]{1}\d{6}([A-Z]|\d)?$/,
   twCardNumber: /^[A-Z][1-2]\d{8}$/,
@@ -293,12 +379,11 @@ export const Validator = {
     return Reg.emailAddress.test(str);
   },
   isIdCardNumber: str => {
-    return (
-      Reg.idCardNumber.test(str) ||
-      Reg.hkCardNumber.test(str) ||
-      Reg.moCardNumber.test(str) ||
-      Reg.twCardNumber.test(str)
-    );
+    // 身份证严格校验
+    if (validateMainlandIdCard(str)) {
+      return true;
+    }
+    return Reg.hkCardNumber.test(str) || Reg.moCardNumber.test(str) || Reg.twCardNumber.test(str);
   },
   isPassportNumber: str => {
     return Reg.passportNumber.test(str);
@@ -479,7 +564,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
         // 关联表
         if (_.includes([29, 35], currentItem.type)) {
           try {
-            return JSON.stringify(safeParse(sourcevalue).filter(r => r.sid));
+            return JSON.stringify(safeParse(sourcevalue, 'array').filter(r => r.sid));
           } catch (err) {
             console.log(err);
             return '';
@@ -1717,6 +1802,9 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
 
     if (_.isArray(compareValues)) {
       compareValues = compareValues.filter(i => !isEmptyValue(i));
+      if (control.type === 5) {
+        compareValues = compareValues.map(i => i.toLowerCase());
+      }
     }
 
     // 时间类显示类型
@@ -1743,16 +1831,23 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     }
 
     // value精度处理(公式、汇总计算)
-    function formatValueByUnit(v, con = {}) {
-      const isNumShow = (con.advancedSetting || {}).numshow === '1';
-      return (con.originType === 37 || con.type === 31 || (con.originType === 30 && con.sourceControltype === 37)) &&
+    // 邮箱value忽略大小写
+    function formatControlValue(v, con = {}) {
+      if (
+        (con.originType === 37 || con.type === 31 || (con.originType === 30 && con.sourceControltype === 37)) &&
         v &&
         /^\d+\.\d+$/.test(`${v}`)
-        ? accDiv(parseFloat(toFixed(accMul(parseFloat(v), 100), isNumShow ? con.dot + 2 : con.dot)), 100)
-        : v;
+      ) {
+        const isNumShow = (con.advancedSetting || {}).numshow === '1';
+        return accDiv(parseFloat(toFixed(accMul(parseFloat(v), 100), isNumShow ? con.dot + 2 : con.dot)), 100);
+      }
+      if (con.type === 5 && v) {
+        return v.toLowerCase();
+      }
+      return v;
     }
-    value = formatValueByUnit(value, control);
-    compareValue = formatValueByUnit(compareValue, currentControl);
+    value = formatControlValue(value, control);
+    compareValue = formatControlValue(compareValue, currentControl);
 
     let store, state;
 
@@ -1802,7 +1897,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
               }
 
               const { code } = safeParse(value || '{}');
-              const areaValues = compareValues.map(it => safeParse(it, '{}').id);
+              const areaValues = compareValues.map(it => safeParse(it, '{}').id || safeParse(it, '{}').code);
               return _.includes(areaValues, code);
               // 部门
             } else if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
@@ -1990,7 +2085,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
                 return !!value;
               }
               const { code } = safeParse(value || '{}');
-              const areaValues = compareValues.map(it => safeParse(it, '{}').id);
+              const areaValues = compareValues.map(it => safeParse(it, '{}').id || safeParse(it, '{}').code);
               return !_.includes(areaValues, code);
               // 部门
             } else if (dataType === API_ENUM_TO_TYPE.GROUP_PICKER) {
@@ -2782,11 +2877,11 @@ export const checkValueAvailable = (rule = {}, data = [], recordId, from) => {
 //判断所有业务规则是否满足条件
 export const checkAllValueAvailable = (rules = [], data = [], recordId, from) => {
   let errors = [];
-  const filterRules = getAvailableFilters(rules, data, recordId);
-  if (filterRules && filterRules.length > 0) {
-    filterRules.map(rule => {
-      rule.ruleItems.map(item => {
-        if (item.type === 6 && rule.checkType !== 2) {
+  const { errorRules = [] } = getAvailableFilters(rules, data, recordId);
+  if (errorRules.length > 0) {
+    errorRules.forEach(rule => {
+      rule.ruleItems.forEach(item => {
+        if (rule.checkType !== 2) {
           const { isAvailable } = checkValueAvailable(rule, data, recordId, from);
           isAvailable && errors.push({ errorMessage: item.message, ignoreErrorMessage: rule.checkType === 3 });
         }
@@ -2803,12 +2898,12 @@ export const getRuleErrorInfo = (rules = [], badData = []) => {
       const errorInfo = [];
       const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
 
-      rules.map(rule => {
+      rules.forEach(rule => {
         if (rule.ruleId === ruleId && _.find(_.get(rule, 'ruleItems') || [], r => r.type === 6)) {
-          _.get(rule, 'ruleItems').map(item => {
+          _.get(rule, 'ruleItems').forEach(item => {
             const errorIds = (_.get(item, 'controls') || []).map(c => c.controlId);
             const curErrorIds = errorIds.length > 0 ? errorIds : _.flatten((rule.filters || []).map(i => getIds(i)));
-            curErrorIds.map(c => {
+            curErrorIds.forEach(c => {
               errorInfo.push({
                 controlId: c,
                 errorMessage: item.message,
@@ -2830,9 +2925,9 @@ export const getRuleErrorInfo = (rules = [], badData = []) => {
 //判断所有业务规则是否有锁定状态
 export const checkRuleLocked = (rules = [], data = [], recordId) => {
   let isLocked = false;
-  const filterRules = getAvailableFilters(rules, data, recordId);
-  if (filterRules && filterRules.length > 0) {
-    filterRules.forEach(rule => {
+  const { defaultRules = [] } = getAvailableFilters(rules, data, recordId);
+  if (defaultRules.length > 0) {
+    defaultRules.forEach(rule => {
       if (isLocked) return;
       rule.ruleItems.map(item => {
         if (item.type === 7) {
@@ -2933,6 +3028,7 @@ export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item 
   if (_.includes(types, 8)) {
     disabled = false;
   }
+
   it.fieldPermission = fieldPermission;
   it.required = required;
   it.disabled = disabled;
@@ -2943,7 +3039,7 @@ const getAvailableFilters = (rules = [], formatData = [], recordId) => {
   //过滤禁用规则及单个且数组中字段全部删除情况
   // 注意如果是记录id，data里不包含系统字段，所以必须recordId存在才生效
   let filterRules = [];
-  rules.map(o => {
+  rules.forEach(o => {
     if (!o.disabled) {
       let filterTrs = [];
       (o.filters || []).map(tr => {
@@ -2960,12 +3056,13 @@ const getAvailableFilters = (rules = [], formatData = [], recordId) => {
       filterTrs.length > 0 && filterRules.push({ ...o, filters: filterTrs });
     }
   });
-  return filterRules;
+
+  return { defaultRules: filterRules.filter(i => i.type === 0), errorRules: filterRules.filter(i => i.type === 1) };
 };
 
 // 移除必填错误
 const removeRequireError = (controls = [], checkRuleValidator = () => {}) => {
-  controls.map(con => {
+  controls.forEach(con => {
     const { controlId = '', childControlIds = [] } = con;
     if (!childControlIds.length) {
       checkRuleValidator(controlId, FORM_ERROR_TYPE.RULE_REQUIRED, '');
@@ -2976,17 +3073,22 @@ const removeRequireError = (controls = [], checkRuleValidator = () => {}) => {
 };
 
 // 字段显示规则计算
-export const updateRulesData = ({
-  rules = [],
-  data = [],
-  recordId,
-  checkRuleValidator = () => {},
-  from,
-  checkAllUpdate = false,
-  updateControlIds = [],
-  ignoreHideControl = false,
-  verifyAllControls = false,
-}) => {
+export const updateRulesData = props => {
+  const {
+    rules = [],
+    data = [],
+    recordId,
+    from,
+    checkAllUpdate = false,
+    updateControlIds = [],
+    currentRuleControlIds = [],
+    searchConfig = [],
+    ignoreHideControl = false,
+    verifyAllControls = false,
+    handleChange,
+    checkRuleValidator = () => {},
+    disabledRuleSet = false,
+  } = props;
   let formatData = data.map(item => {
     return {
       ...item,
@@ -3000,58 +3102,71 @@ export const updateRulesData = ({
     formatData = formatData.filter(da => controlState(da, from).visible);
   }
 
+  // 存放各类操作具体执行内容
   let relateRuleType = {
     parent: {},
     child: {},
     errorMsg: {},
+    dynamic: {},
   };
 
   function pushType(key, id, obj) {
     relateRuleType[key][id] ? relateRuleType[key][id].push(obj) : (relateRuleType[key][id] = [obj]);
   }
 
-  const filterRules = getAvailableFilters(rules, formatData, recordId);
+  const { defaultRules = [], errorRules = [] } = getAvailableFilters(rules, formatData, recordId);
 
-  if (filterRules && filterRules.length > 0) {
-    filterRules.map(rule => {
-      rule.ruleItems.map(({ type, controls = [] }) => {
-        let { isAvailable } = checkValueAvailable(rule, formatData, recordId);
-        let currentType = type;
-        //显示隐藏无论满足条件与否都要操作
-        if (currentType === 1) {
-          currentType = isAvailable ? 1 : 2;
-        } else if (currentType === 2) {
-          currentType = isAvailable ? 2 : 1;
-        }
+  if (defaultRules.length > 0 || errorRules.length > 0) {
+    // 交互类业务规则捞取各类操作具体执行内容
+    if (defaultRules.length > 0) {
+      defaultRules.forEach(rule => {
+        rule.ruleItems.forEach(({ type, controls = [] }) => {
+          let { isAvailable, availableControlIds = [] } = checkValueAvailable(rule, formatData, recordId);
+          let currentType = type;
+          //显示隐藏无论满足条件与否都要操作
+          if (currentType === 1) {
+            currentType = isAvailable ? 1 : 2;
+          } else if (currentType === 2) {
+            currentType = isAvailable ? 2 : 1;
+          }
 
-        // 条件变更需要移除必填错误
-        if (currentType === 5 && !isAvailable) {
-          removeRequireError(controls, checkRuleValidator);
-        }
+          // 条件变更需要移除必填错误
+          if (currentType === 5 && !isAvailable) {
+            removeRequireError(controls, checkRuleValidator);
+          }
 
-        if (!_.includes([1, 2], currentType) && !isAvailable) {
-          return;
-        }
+          if (!_.includes([1, 2], currentType) && !isAvailable) {
+            return;
+          }
 
-        const attrObj = { type: currentType };
+          const attrObj = { type: currentType };
 
-        if (_.includes([7, 8], currentType)) {
-          formatData.map(item => {
-            pushType('parent', item.controlId, attrObj);
-          });
-        } else if (!_.includes([6], currentType)) {
-          controls.map(con => {
-            const { controlId = '', childControlIds = [], permission, isCustom } = con;
-            if (!childControlIds.length) {
-              pushType('parent', controlId, { ...attrObj, ...(isCustom ? { permission } : {}) });
-            } else {
-              childControlIds.map(child => pushType('child', `${controlId}-${child}`, attrObj));
+          if (_.includes([7, 8], currentType)) {
+            formatData.map(item => {
+              pushType('parent', item.controlId, attrObj);
+            });
+          } else if (currentType === 9) {
+            // 条件字段有变更才更新值
+            if (_.some(availableControlIds, a => _.includes(currentRuleControlIds, a))) {
+              controls.forEach(con => {
+                pushType('dynamic', con.controlId, { ..._.pick(con, ['type', 'value']) });
+              });
             }
-          });
-        }
+          } else {
+            controls.forEach(con => {
+              const { controlId = '', childControlIds = [], permission, isCustom } = con;
+              if (!childControlIds.length) {
+                pushType('parent', controlId, { ...attrObj, ...(isCustom ? { permission } : {}) });
+              } else {
+                childControlIds.map(child => pushType('child', `${controlId}-${child}`, attrObj));
+              }
+            });
+          }
+        });
       });
-    });
+    }
 
+    // 执行显隐等常规业务规则,由于事件规则会覆盖常规规则，所以这里必须执行
     formatData.forEach(it => {
       it.relationControls.forEach(re => {
         // 子表会出现控件id重复的情况
@@ -3072,55 +3187,85 @@ export const updateRulesData = ({
       });
     });
 
-    //走错误提示
-    filterRules.map(rule => {
-      // 前端校验才走
-      if (rule.checkType !== 2) {
-        rule.ruleItems.map(({ type, message, controls = [] }) => {
-          const {
-            filterControlIds = [],
-            availableControlIds = [],
-            isAvailable,
-          } = checkValueAvailable(rule, formatData, recordId, from);
-          if (_.includes([6], type)) {
-            const errorIds = controls.map(i => i.controlId);
-            const curErrorIds = rule.type === 1 && errorIds.length > 0 ? errorIds : filterControlIds;
-            //过滤已经塞进去的错误
-            (rule.type === 1 ? curErrorIds : filterControlIds).map(id =>
-              checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule),
-            );
-            if (isAvailable) {
-              availableControlIds.map(controlId => {
-                if (!relateRuleType['errorMsg'][controlId]) {
-                  //错误提示(checkAllUpdate为true全操作，
-                  // 有变更时，ruleType === 1 指定字段直接塞错误
-                  //否则操作变更的字段updateControlIds
+    // 执行验证业务规则
+    if (errorRules.length > 0) {
+      errorRules.forEach(rule => {
+        // 前端校验才走
+        if (rule.checkType !== 2) {
+          rule.ruleItems.forEach(({ type, message, controls = [] }) => {
+            const {
+              filterControlIds = [],
+              availableControlIds = [],
+              isAvailable,
+            } = checkValueAvailable(rule, formatData, recordId, from);
+            if (_.includes([6], type)) {
+              const errorIds = controls.map(i => i.controlId);
+              const curErrorIds = rule.type === 1 && errorIds.length > 0 ? errorIds : filterControlIds;
+              //过滤已经塞进去的错误
+              (rule.type === 1 ? curErrorIds : filterControlIds).map(id =>
+                checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule),
+              );
+              if (isAvailable) {
+                availableControlIds.forEach(controlId => {
+                  if (!relateRuleType['errorMsg'][controlId]) {
+                    //错误提示(checkAllUpdate为true全操作，
+                    // 有变更时，ruleType === 1 指定字段直接塞错误
+                    //否则操作变更的字段updateControlIds
 
-                  const pushError = (id, msg) => {
-                    pushType('errorMsg', id, msg);
-                    if (_.find(formatData, fo => fo.controlId === id)) {
-                      const errorMsg = relateRuleType['errorMsg'][id] || [];
-                      checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule);
-                    }
-                  };
+                    const pushError = (id, msg) => {
+                      pushType('errorMsg', id, msg);
+                      if (_.find(formatData, fo => fo.controlId === id)) {
+                        const errorMsg = relateRuleType['errorMsg'][id] || [];
+                        checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule);
+                      }
+                    };
 
-                  if (
-                    checkAllUpdate ||
-                    (updateControlIds.length > 0 && (rule.type === 1 || _.includes(updateControlIds, controlId)))
-                  ) {
-                    if (rule.type === 1 && errorIds.length > 0) {
-                      errorIds.map(e => pushError(e, message));
-                    } else {
-                      pushError(controlId, message);
+                    if (
+                      checkAllUpdate ||
+                      (updateControlIds.length > 0 && (rule.type === 1 || _.includes(updateControlIds, controlId)))
+                    ) {
+                      if (rule.type === 1 && errorIds.length > 0) {
+                        errorIds.forEach(e => {
+                          pushError(e, message);
+                        });
+                      } else {
+                        pushError(controlId, message);
+                      }
                     }
                   }
-                }
-              });
+                });
+              }
             }
+          });
+        }
+      });
+    }
+
+    // 执行设置值业务规则
+    if (!_.isEmpty(relateRuleType.dynamic) && !disabledRuleSet) {
+      Object.keys(relateRuleType.dynamic).map(async (key, index) => {
+        const dynamicSettings = relateRuleType.dynamic[key];
+        // 同个id赋值逻辑，取最后一个
+        const lastSetting = _.last(dynamicSettings);
+        if (lastSetting && _.isFunction(handleChange)) {
+          try {
+            await handleSetValueActions([{ ...lastSetting, controlId: key }], {
+              formData: formatData,
+              from,
+              recordId,
+              searchConfig,
+              isSetValueFromRule: true,
+              handleChange: (value, cid, item, searchByChange) => {
+                const setComplete = index === Object.keys(relateRuleType.dynamic).length - 1;
+                handleChange(value, cid, item, searchByChange, setComplete);
+              },
+            });
+          } catch (error) {
+            console.log(error);
           }
-        });
-      }
-    });
+        }
+      });
+    }
   } else {
     //没有业务规则，还是要合并自定义事件
     formatData.forEach(it => {

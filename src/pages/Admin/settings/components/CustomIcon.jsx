@@ -88,7 +88,12 @@ export default class CustomIcon extends Component {
 
   startLoading = () => {
     this.uploadLoadingKey = +new Date();
-    alert(_l('上传中，请耐心等待...'), 5, 0, undefined, this.uploadLoadingKey);
+    alert({
+      msg: _l('上传中，请耐心等待...'),
+      type: 5,
+      duration: 0,
+      key: this.uploadLoadingKey,
+    });
   };
 
   render() {

@@ -428,8 +428,13 @@ export default function SheetWorkflow(props) {
         signature,
         files,
         nextUserRange,
-      }).then(() => {
-        alert(_l('操作成功'));
+      }).then(data => {
+        const { flowNodes } = data;
+        if (['pass', 'overrule'].includes(action) && flowNodes[0]) {
+          alert(_l('操作成功，流程已流传至【%0】', flowNodes[0].name));
+        } else {
+          alert(_l('操作成功'));
+        }
         setActionVisible(false);
         handleCloseDrawer();
         getList().then(list => {
@@ -463,6 +468,12 @@ export default function SheetWorkflow(props) {
     let { id, workId, revokeWorkId } = currentWorkflow.cardData || {};
     if (action === 'revoke') {
       workId = revokeWorkId;
+    }
+    if (action === 'pass') {
+      return instanceVersion.pass2({ id, workId, ...restPara });
+    }
+    if (action === 'overrule') {
+      return instanceVersion.overrule2({ id, workId, ...restPara });
     }
     return instance[action]({ id, workId, ...restPara });
   };
@@ -726,6 +737,7 @@ export default function SheetWorkflow(props) {
           currentWork={currentWork}
           onClose={handleCloseDrawer}
           isApproval
+          hideStep={props.hideStep}
         />
         {!!parentCurrents.length && (
           <div className="branchNode" style={{ margin: isMobile ? '3px 0px 6px 35px' : '3px 0px 6px 55px' }}>

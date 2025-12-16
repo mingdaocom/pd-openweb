@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape, string } from 'prop-types';
-import { getCurrentValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getCurrentValue } from 'src/components/Form/core/formUtils';
 import { selectRecords } from 'src/components/SelectRecords';
 import { DynamicInput, OtherFieldList, SelectOtherField } from '../components';
 import { DynamicValueInputWrap } from '../styled';

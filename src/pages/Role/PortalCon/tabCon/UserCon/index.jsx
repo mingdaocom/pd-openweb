@@ -5,7 +5,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
-import { Dialog, Tooltip } from 'ming-ui';
+import { Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import externalPortalAjax from 'src/api/externalPortal';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
@@ -284,7 +285,7 @@ class Con extends React.Component {
                       {num > 0 && <span className="num">{num}</span>}
                     </div>
                     {!!o.description && (
-                      <Tooltip text={<span>{o.description}</span>} popupPlacement="top">
+                      <Tooltip title={o.description}>
                         <i className="icon-info_outline Font16 Gray_9e mLeft7" />
                       </Tooltip>
                     )}

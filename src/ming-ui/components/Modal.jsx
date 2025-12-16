@@ -3,41 +3,16 @@ import { Modal } from 'antd';
 import _ from 'lodash';
 import PropTypes, { string } from 'prop-types';
 import styled from 'styled-components';
-import { Button } from 'ming-ui';
+import { BgIconButton, Button } from 'ming-ui';
 import ErrorWrapper from './ErrorWrapper';
 import './less/Modal.less';
 
-const ModalButtonCon = styled.div`
+const ModalButtonCon = styled(BgIconButton.Group)`
   z-index: 2;
   position: absolute;
-  right: 40px;
+  right: 42px;
+  margin-top: 10px;
   top: 0;
-  .draftEntry {
-    margin-right: 10px !important;
-  }
-`;
-
-const ModalButton = styled.div`
-  cursor: pointer;
-  font-size: 20px;
-  line-height: 40px;
-  text-align: center;
-  color: #9e9e9e;
-  span {
-    color: #757575;
-  }
-  &:hover {
-    color: #1677ff;
-    span {
-      color: #1677ff;
-    }
-  }
-`;
-
-const TipCon = styled.div`
-  height: 30px;
-  width: 40px;
-  text-align: center;
 `;
 
 const ConfirmCon = styled.div`
@@ -57,6 +32,7 @@ export default function MdModal(props) {
     closeIcon,
     okDisabled,
     onCancel,
+    headerComp = null,
   } = props;
   const locateRef = useRef();
   let { width } = props;
@@ -184,29 +160,24 @@ export default function MdModal(props) {
       }}
     >
       <div ref={locateRef}></div>
-      <ModalButtonCon className="flexRow">
-        {iconButtons.map((btn, i) => (
-          <ModalButton key={i} onClick={btn.onClick}>
-            {btn.ele ? (
-              btn.ele
-            ) : (
-              <TipCon data-tip={btn.tip}>
-                <i className={`icon ${btn.icon}`}></i>
-              </TipCon>
-            )}
-          </ModalButton>
-        ))}
+      {headerComp}
+      <ModalButtonCon gap={8}>
+        {iconButtons.map(
+          (btn, i) =>
+            btn.ele || (
+              <BgIconButton style={{ width: 32 }} key={i} icon={btn.icon} tooltip={btn.tip} onClick={btn.onClick} />
+            ),
+        )}
         {allowScale && (
-          <ModalButton
+          <BgIconButton
+            style={{ width: 32 }}
+            icon={isLarge ? 'worksheet_narrow' : 'worksheet_enlarge'}
+            tooltip={isLarge ? _l('缩小') : _l('放大')}
             onClick={() => {
               safeLocalStorageSetItem('NEW_RECORD_IS_LARGE', !isLarge);
               setIsLarge(!isLarge);
             }}
-          >
-            <TipCon data-tip={isLarge ? _l('缩小') : _l('放大')}>
-              <i className={`icon icon-${isLarge ? 'worksheet_narrow' : 'worksheet_enlarge'}`}></i>
-            </TipCon>
-          </ModalButton>
+          />
         )}
       </ModalButtonCon>
       <ErrorWrapper>{props.children}</ErrorWrapper>

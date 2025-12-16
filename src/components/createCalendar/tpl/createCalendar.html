@@ -1,11 +1,13 @@
 ﻿<div class="createCalendarBox createCalendarTitle">
     <div class="createCalendarLabel">{{= _l('日程标题')}}</div>
-    <input
-        type="text"
-        id="txtCalendarName"
-        placeholder="{{= _l('请输入日程标题…')}}"
-        class="box-sizing boderRadAll_3 ThemeBorderColor3 Font14 infoInput"
-    />
+    <form>
+        <input
+            type="text"
+            id="txtCalendarName"
+            placeholder="{{= _l('请输入日程标题…')}}"
+            class="box-sizing boderRadAll_3 Font14 infoInput"
+        />
+    </form>
     <div
         class="calendarColorModel boderRadAll_3 calendarColorBlue"
         title="{{=_l('工作日程')}}"
@@ -36,7 +38,7 @@
     <span class="InlineBlock" id="remindSelectCreateBox" style="margin-top: -5px; margin-left: -12px"></span>
     <div class="telRemindLabel InlineBlock mLeft25 Gray_9e">
         <label class="Hand"> <span class="chekboxIcon"></span> {{= _l('电话提醒')}} </label>
-        <span class="iconHelp" data-tip="{{= _l('勾选电话提醒，将以电话语音形式通知日程参与人员') }}">
+        <span class="iconHelp" title="{{= _l('勾选电话提醒，将以电话语音形式通知日程参与人员') }}">
             <i class="icon-help"></i>
         </span>
     </div>
@@ -61,7 +63,7 @@
     <input
         type="text"
         id="txtAddress"
-        class="txtAddress box-sizing boderRadAll_3 ThemeBorderColor3 infoInput"
+        class="txtAddress box-sizing boderRadAll_3 infoInput"
         value=""
         placeholder="{{= _l('添加会议地点…')}}"
     />
@@ -71,7 +73,7 @@
     <textarea
         type="text"
         id="txtDesc"
-        class="createCalendarDesc box-sizing boderRadAll_3 ThemeBorderColor3 infoInput"
+        class="createCalendarDesc box-sizing boderRadAll_3 infoInput"
         value=""
         placeholder="{{= _l('填写描述')}}"
     ></textarea>
@@ -83,7 +85,7 @@
 </div>
 <div class="createCalendarBox Font14 calendarPrivate" id="calendarPrivate">
     <label class="pointer isPrivateLabel"> <span class="chekboxIcon"></span> {{= _l('私密日程')}} </label>
-    <span class="iconHelp" data-tip="{{= _l('日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。') }}">
+    <span class="iconHelp" title="{{= _l('日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。')}}">
         <i class="icon-help"></i>
     </span>
 </div>
@@ -170,6 +172,5 @@
             <div class="createCalendarLabel">{{= _l('结果')}}</div>
             <div id="repeatReault" class="Font14"></div>
         </li>
-
     </ul>
 </div>

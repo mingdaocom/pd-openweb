@@ -362,7 +362,6 @@ export default connect(
     } = state;
     const {
       departmentId,
-      root,
       projectId,
       typeNum,
       typeCursor,
@@ -372,14 +371,12 @@ export default connect(
       userStatus,
       noDepartmentUsers,
     } = current;
-    const isRoot = departmentId === root;
     const { departments } = state.entities;
     let departmentInfos = departments[departmentId];
     return {
       typeNum,
       typeCursor,
       selectedAccountIds,
-      isRoot,
       departmentId,
       projectId,
       isSearch: userList && userList.isSearchResult,

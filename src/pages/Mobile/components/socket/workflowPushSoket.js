@@ -44,7 +44,8 @@ export default () => {
           alert({
             msg: content,
             type: promptType,
-            timeout: duration * 1000,
+            duration: duration * 1000,
+            isPcAlert: true,
           });
         }
 

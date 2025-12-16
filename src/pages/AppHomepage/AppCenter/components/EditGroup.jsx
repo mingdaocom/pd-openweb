@@ -101,7 +101,7 @@ function IconInput(props) {
           <SvgIcon
             className="changeIconBtn"
             size={18}
-            url={`${md.global.FileStoreConfig.pubHost.replace(/\/$/, '')}/customIcon/${icon}.svg`}
+            url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
             fill="#757575"
           />
         </span>

@@ -1,6 +1,6 @@
 ﻿import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import { Button, Dialog, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/taskCenter';
 import './less/setFolder.less';
 
@@ -251,7 +251,6 @@ export default class SetFolder extends Component {
               <div className="mBottom10">
                 <span>{_l('1、项目看板的编辑权限')}</span>
                 <Tooltip
-                  autoCloseDelay={0}
                   title={() => {
                     return (
                       <Fragment>
@@ -275,12 +274,11 @@ export default class SetFolder extends Component {
             <div className="Font13 mBottom20">
               <div className="mBottom10">
                 <span>{_l('3、成员对项目下任务的可见权限')}</span>
-                <span
-                  className="msgTip tip-top"
-                  data-tip={_l('仅影响项目成员和在公开范围内人员，管理员固定为对项目下所有任务可见且可查看详情')}
-                >
-                  <i className="icon-error1" />
-                </span>
+                <Tooltip title={_l('仅影响项目成员和在公开范围内人员，管理员固定为对项目下所有任务可见且可查看详情')}>
+                  <span className="msgTip">
+                    <i className="icon-error1" />
+                  </span>
+                </Tooltip>
               </div>
               <RadioGroup {...folderSetting} />
             </div>

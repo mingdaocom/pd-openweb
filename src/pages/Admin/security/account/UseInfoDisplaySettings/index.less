@@ -58,6 +58,9 @@
 
     .previewCard {
       width: 340px;
+      max-height: 345px;
+      overflow-x: hidden;
+      overflow-y: auto;
       padding: 16px;
       background: #ffffff;
       border-radius: 4px;
@@ -77,6 +80,10 @@
     .cardItem {
       height: 36px;
       line-height: 36px;
+      &.departmentItem {
+        height: unset !important;
+        min-height: 36px;
+      }
     }
     .arrow {
       width: 0;

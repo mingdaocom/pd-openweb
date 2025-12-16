@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv, Radio, ScrollView, Support, TagTextarea, Tooltip } from 'ming-ui';
+import { LoadDiv, PriceTip, Radio, ScrollView, Support, TagTextarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SmsSignSet from 'src/components/SmsSignSet';
 import { getCurrentProject } from 'src/utils/project';
@@ -167,11 +168,10 @@ export default class Message extends Component {
         {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
           <div className="Gray_75 workflowDetailDesc">
             <span className="TxtMiddle">
-              {_l(
-                '短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
-                _.get(md, 'global.PriceConfig.SmsPrice'),
+              <PriceTip text={_l('短信费用自动从组织信用点中扣除')} />
+              {!_.get(md, 'global.Config.IsLocal') && (
+                <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
               )}
-              {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
             </span>
             <Support
               type={3}
@@ -228,10 +228,10 @@ export default class Message extends Component {
         <div className="mTop10 flowTplBox">
           {status === 2 && (
             <div className="flowTplHeader flexRow alignItemsCenter red">
-              <span className="workflowDetailTipsWidth" data-tip={data.messageTemplate.failCause}>
+              <Tooltip title={data.messageTemplate.failCause}>
                 <i className="Font16 icon-workflow_failure" />
-              </span>
-              <div className="mLeft10 flex bold">{_l('已拒绝')}</div>
+              </Tooltip>
+              <div className="mLeft10 flex bold">{_l('审核失败')}</div>
             </div>
           )}
 
@@ -500,7 +500,7 @@ export default class Message extends Component {
         </div>
         {MESSAGE_TYPES.map(item => (
           <div className="mTop15" key={item.value}>
-            <Tooltip popupPlacement="top" autoCloseDelay={0} text={item.desc}>
+            <Tooltip title={item.desc}>
               <span>
                 <Radio
                   text={item.text}
@@ -755,34 +755,36 @@ export default class Message extends Component {
     this.currentMapId = currentMapId;
 
     if (!this.state.fieldsData.length) {
-      flowNode
-        .getFlowNodeAppDtos({
+      const interfaceFunc = obj =>
+        flowNode.getFlowNodeAppDtos({
+          ...obj,
           processId,
-          nodeId: selectNodeId,
           type: 2,
-        })
-        .then(result => {
-          const fieldsData = result.map(obj => {
-            return {
-              text: obj.nodeName,
-              id: obj.nodeId,
-              nodeTypeId: obj.nodeTypeId,
-              appName: obj.appName,
-              appType: obj.appType,
-              appTypeName: obj.appTypeName,
-              actionId: obj.actionId,
-              items: obj.controls.map(o => {
-                return {
-                  type: o.type,
-                  value: o.controlId,
-                  field: getControlTypeName(o),
-                  text: o.controlName,
-                };
-              }),
-            };
-          });
-          this.setState({ fieldsData, fieldsVisible: true });
         });
+
+      interfaceFunc({ nodeId: selectNodeId }).then(result => {
+        const fieldsData = result.map(obj => {
+          return {
+            text: obj.nodeName,
+            id: obj.nodeId,
+            nodeTypeId: obj.nodeTypeId,
+            appName: obj.appName,
+            appType: obj.appType,
+            appTypeName: obj.appTypeName,
+            actionId: obj.actionId,
+            toolsFunction: () => interfaceFunc({ nodeId: obj.nodeId, tool: true }),
+            items: obj.controls.map(o => {
+              return {
+                type: o.type,
+                value: o.controlId,
+                field: getControlTypeName(o),
+                text: o.controlName,
+              };
+            }),
+          };
+        });
+        this.setState({ fieldsData, fieldsVisible: true });
+      });
     } else {
       this.setState({ fieldsVisible: true });
     }

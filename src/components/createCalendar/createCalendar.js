@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
-import { DatePicker, Dialog, Dropdown, Tooltip, UserCard } from 'ming-ui';
+import { DatePicker, Dialog, Dropdown, UserCard } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/calendar';
 import 'src/components/autoTextarea/autoTextarea';
@@ -966,7 +967,7 @@ CreateCalendar.methods = {
         weekDay.push(weeks);
       }
 
-      weekDay = weekDay.sort();
+      weekDay = weekDay.sort((a, b) => a - b);
       if (weekDay.length === 5 && weekDay[0] == 1 && weekDay[4] == 5) {
         messages += _l('在 工作日');
       } else {
@@ -1076,12 +1077,8 @@ CreateCalendar.methods = {
             root.render(
               <Tooltip
                 placement="bottom"
-                themeColor="white"
-                tooltipStyle={{
-                  width: 280,
-                }}
-                autoCloseDelay={0}
-                text={
+                type="white"
+                title={
                   <div className="memberBusyCalendarsWrap">
                     <div
                       style={{
@@ -1192,7 +1189,7 @@ CreateCalendar.methods = {
       return false;
     }
 
-    var eventName = $.trim($('#txtCalendarName').val());
+    var eventName = $('#txtCalendarName').val().trim();
 
     // 日程名称是否为空
     if (eventName === '') {
@@ -1202,8 +1199,8 @@ CreateCalendar.methods = {
       return false;
     }
 
-    var address = $.trim($('#txtAddress').val());
-    var desc = $.trim($('#txtDesc').val());
+    var address = $('#txtAddress').val().trim();
+    var desc = $('#txtDesc').val().trim();
     var startDate = settings.Start;
     var endDate = settings.End;
     var isAll = $('#allDay').prop('checked');
@@ -1336,7 +1333,7 @@ CreateCalendar.methods = {
           source.data.isRecur = isRecur;
           $('.createCalendar_container').parent().remove();
 
-          if ($.isFunction(settings.callback)) {
+          if (_.isFunction(settings.callback)) {
             settings.callback(source.data);
           }
         } else if (source.code === 9) {

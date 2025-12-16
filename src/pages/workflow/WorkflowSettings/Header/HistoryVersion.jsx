@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, MenuItem, ScrollView, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import process from '../../api/process';
 
 const HistoryBox = styled.span`
@@ -262,13 +262,11 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
       {customBtn ? (
         <div onClick={() => setVisible(true)}>{customBtn()}</div>
       ) : (
-        <HistoryBox
-          className="ThemeHoverColor3 ThemeHoverBorderColor3"
-          data-tip={_l('查看历史版本')}
-          onClick={() => setVisible(true)}
-        >
-          {_l('版本')}
-        </HistoryBox>
+        <Tooltip title={_l('查看历史版本')}>
+          <HistoryBox className="ThemeHoverColor3 ThemeHoverBorderColor3" onClick={() => setVisible(true)}>
+            {_l('版本')}
+          </HistoryBox>
+        </Tooltip>
       )}
 
       {visible && (

@@ -1,9 +1,9 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem, Progress } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ResetNamePopup from '../ResetNamePopup';
 import { handleDownload, handleShare, loadImage } from '../utils';
 import './index.less';
@@ -60,7 +60,7 @@ const SmallCard = props => {
       {allowNewPage && (
         <MenuItem
           key="newPage"
-          icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
+          icon={<Icon icon="rectangle_2" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
             onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1757324261153') format('woff2'),
-       url('iconfont.woff?t=1757324261153') format('woff'),
-       url('iconfont.ttf?t=1757324261153') format('truetype');
+  src: url('iconfont.woff2?t=1765250615523') format('woff2'),
+       url('iconfont.woff?t=1765250615523') format('woff'),
+       url('iconfont.ttf?t=1765250615523') format('truetype');
 }
 
 .MD_Icon {
@@ -13,11 +13,43 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-hdp:before {
+  content: "\ed0d";
+}
+
+.icon-card_style:before {
+  content: "\ed0c";
+}
+
+.icon-design-services:before {
+  content: "\ed0b";
+}
+
+.icon-image:before {
+  content: "\ed0a";
+}
+
+.icon-get_help:before {
+  content: "\ed09";
+}
+
+.icon-agent_loading:before {
+  content: "\ed08";
+}
+
+.icon-new_chat:before {
+  content: "\ed07";
+}
+
+.icon-auto_one_star:before {
+  content: "\ed06";
+}
+
 .icon-article:before {
   content: "\e694";
 }
 
-.icon-routine_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24:before {
+.icon-dark-mode:before {
   content: "\ed05";
 }
 
@@ -335,10 +367,6 @@
 
 .icon-subheader:before {
   content: "\e6ae";
-}
-
-.icon-design-services:before {
-  content: "\e6aa";
 }
 
 .icon-custom-01:before {

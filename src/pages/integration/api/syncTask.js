@@ -1,9 +1,8 @@
 import base, { controllerName } from './base';
 
-var syncTask = {
-
+const syncTask = {
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.flowId No comments found.
@@ -69,7 +68,7 @@ var syncTask = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {string} args.name No comments found.
@@ -100,7 +99,7 @@ var syncTask = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {object} args.jobIds No comments found.,[array of string]
@@ -115,7 +114,7 @@ var syncTask = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo No comments found.
@@ -178,7 +177,7 @@ var syncTask = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -192,7 +191,7 @@ var syncTask = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {Object} options 配置参数
@@ -283,7 +282,7 @@ var syncTask = {
   },
 
   /**
-   * 
+   *
    *
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo No comments found.
@@ -311,7 +310,7 @@ var syncTask = {
     base.ajaxOptions.url = base.server(options) + 'syncTask/createOnlySyncTaskPreCheck';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'syncTaskcreateOnlySyncTaskPreCheck', args, $.extend(base, options));
-  }
+  },
 };
 
 export default syncTask;

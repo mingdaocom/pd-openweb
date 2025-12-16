@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import { useState } from 'react';
-import { Select, Tooltip } from 'antd';
+import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Icon, Input, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { ALL_OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
 import { canSetAsTitle, getIconByType } from 'src/pages/widgetConfig/util';
 import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
@@ -472,9 +473,11 @@ export default function FieldMappingList(props) {
                   </span>
                 )}
                 {sourceField.isPk && (
-                  <div data-tip={_l('主键')} className="tip-top">
-                    <Icon icon="key1" className="Gray_bd mLeft5" />
-                  </div>
+                  <Tooltip title={_l('主键')}>
+                    <div>
+                      <Icon icon="key1" className="Gray_bd mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
                 {sourceField.disabled && (
                   <Support
@@ -485,14 +488,18 @@ export default function FieldMappingList(props) {
                   />
                 )}
                 {sourceField.isDelete && (
-                  <div data-tip={_l('字段已删除')} className="tip-top">
-                    <Icon icon="info" className="Red mLeft5" />
-                  </div>
+                  <Tooltip title={_l('字段已删除')}>
+                    <div>
+                      <Icon icon="info" className="Red mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
                 {isNotSupport && (
-                  <div data-tip={_l('暂不支持同步')} className="tip-top">
-                    <Icon icon="info" className="Gray_bd mLeft5" />
-                  </div>
+                  <Tooltip title={_l('暂不支持同步')}>
+                    <div>
+                      <Icon icon="info" className="Gray_bd mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
               </div>
             );
@@ -548,9 +555,11 @@ export default function FieldMappingList(props) {
                   </span>
                 )}
                 {sourceField.isPk && (
-                  <div data-tip={_l('主键')} className="tip-top">
-                    <Icon icon="key1" className="Gray_bd mLeft5" />
-                  </div>
+                  <Tooltip title={_l('主键')}>
+                    <div>
+                      <Icon icon="key1" className="Gray_bd mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
                 {sourceField.disabled && (
                   <Support
@@ -561,9 +570,11 @@ export default function FieldMappingList(props) {
                   />
                 )}
                 {sourceField.isDelete && (
-                  <div data-tip={_l('字段已删除')} className="tip-top">
-                    <Icon icon="info" className="Red mLeft5" />
-                  </div>
+                  <Tooltip title={_l('字段已删除')}>
+                    <div>
+                      <Icon icon="info" className="Red mLeft5" />
+                    </div>
+                  </Tooltip>
                 )}
                 {isNotSupport && (
                   <Support
@@ -610,9 +621,11 @@ export default function FieldMappingList(props) {
               const sourceField = data.sourceField || {};
               //存在多表连接主键，joinPk显示主键，原主键字段不显示主键标识
               return (isExistJoinPk ? sourceField.isUniquePk : destField.isPk) ? (
-                <div data-tip={_l('主键')} className="tip-top">
-                  <Icon icon="key1" className="Font16 Gray_bd" />
-                </div>
+                <Tooltip title={_l('主键')}>
+                  <div>
+                    <Icon icon="key1" className="Font16 Gray_bd" />
+                  </div>
+                </Tooltip>
               ) : (
                 ''
               );
@@ -626,9 +639,11 @@ export default function FieldMappingList(props) {
               const item = data.destField || {};
               return (
                 <div className={cx('isOperateCommonIcon', { isActive: !!item.comment })}>
-                  <div className="tip-left" data-tip={item.comment ? item.comment : _l('设置字段注释')}>
-                    <SetComment itemData={data} updateFieldsMapping={updateFieldsMapping} />
-                  </div>
+                  <Tooltip title={item.comment ? item.comment : _l('设置字段注释')} placement="left">
+                    <div>
+                      <SetComment itemData={data} updateFieldsMapping={updateFieldsMapping} />
+                    </div>
+                  </Tooltip>
                 </div>
               );
             },
@@ -641,7 +656,7 @@ export default function FieldMappingList(props) {
             dataIndex: 'name_dest',
             title: _l('字段名称(目标)'),
             flex: 6,
-            render: (item, column) => renderInputName(item, column),
+            render: item => renderInputName(item),
           },
           {
             dataIndex: 'dataType_dest',
@@ -658,27 +673,26 @@ export default function FieldMappingList(props) {
               const sourceField = data.sourceField || {};
               const canSetTitle = canSetAsTitle({ type: destField.mdType });
               return canSetTitle ? (
-                <div
-                  className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}
-                  data-tip={destField.isTitle ? _l('取消设为标题') : _l('设为标题')}
-                >
-                  <Icon
-                    icon="ic_title"
-                    className="Font16"
-                    onClick={() => {
-                      const newFieldsMapping = fieldsMapping.map(item => {
-                        return {
-                          sourceField: item.sourceField,
-                          destField: {
-                            ...item.destField,
-                            isTitle: item.sourceField.id === sourceField.id ? !destField.isTitle : false,
-                          },
-                        };
-                      });
-                      setFieldsMapping && setFieldsMapping(newFieldsMapping);
-                    }}
-                  />
-                </div>
+                <Tooltip title={destField.isTitle ? _l('取消设为标题') : _l('设为标题')}>
+                  <div className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}>
+                    <Icon
+                      icon="ic_title"
+                      className="Font16"
+                      onClick={() => {
+                        const newFieldsMapping = fieldsMapping.map(item => {
+                          return {
+                            sourceField: item.sourceField,
+                            destField: {
+                              ...item.destField,
+                              isTitle: item.sourceField.id === sourceField.id ? !destField.isTitle : false,
+                            },
+                          };
+                        });
+                        setFieldsMapping && setFieldsMapping(newFieldsMapping);
+                      }}
+                    />
+                  </div>
+                </Tooltip>
               ) : null;
             },
           },
@@ -704,27 +718,26 @@ export default function FieldMappingList(props) {
                 //如果存在joinPk，joinPk字段不允许设为标题，否则rowid不允许设为标题
                 (isExistJoinPk ? !sourceField.isUniquePk : (sourceField.oid || '').split('_')[1] !== 'rowid');
               return canSetTitle ? (
-                <div
-                  className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}
-                  data-tip={destField.isTitle ? _l('取消设为标题') : _l('设为标题')}
-                >
-                  <Icon
-                    icon="ic_title"
-                    className="Font16"
-                    onClick={() => {
-                      const newFieldsMapping = fieldsMapping.map(item => {
-                        return {
-                          sourceField: item.sourceField,
-                          destField: {
-                            ...item.destField,
-                            isTitle: item.sourceField.id === sourceField.id ? !destField.isTitle : false,
-                          },
-                        };
-                      });
-                      setFieldsMapping && setFieldsMapping(newFieldsMapping);
-                    }}
-                  />
-                </div>
+                <Tooltip title={destField.isTitle ? _l('取消设为标题') : _l('设为标题')}>
+                  <div className={cx('isOperateCommonIcon', { isActive: destField.isTitle })}>
+                    <Icon
+                      icon="ic_title"
+                      className="Font16"
+                      onClick={() => {
+                        const newFieldsMapping = fieldsMapping.map(item => {
+                          return {
+                            sourceField: item.sourceField,
+                            destField: {
+                              ...item.destField,
+                              isTitle: item.sourceField.id === sourceField.id ? !destField.isTitle : false,
+                            },
+                          };
+                        });
+                        setFieldsMapping && setFieldsMapping(newFieldsMapping);
+                      }}
+                    />
+                  </div>
+                </Tooltip>
               ) : null;
             },
           },

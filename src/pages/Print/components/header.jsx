@@ -16,8 +16,6 @@ class Header extends React.Component {
     };
   }
 
-  componentWillMount() {}
-
   richTextImgHandle = () => {
     let richTextImgList = document.querySelectorAll('#printContent .richText img');
 
@@ -110,7 +108,7 @@ class Header extends React.Component {
         })
         .then(data => {
           this.setState({ exportLoading: false });
-          const fileName = `${printData.name || printData.formName || '打印'}${new Date().getTime()}`;
+          const fileName = `${printData.name || printData.formName || '打印'}${new Date().getTime()}.docx`;
           saveAs(data, fileName);
         });
     });
@@ -152,7 +150,6 @@ class Header extends React.Component {
     }
 
     window.print();
-    return false;
   };
 
   render() {

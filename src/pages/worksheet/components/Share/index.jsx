@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _, { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { Button, Modal, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Bold600, Hr, Tip99 } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
@@ -54,6 +55,7 @@ export default function Share(props) {
     getShareLinkTxt,
     width,
   } = props;
+  const isFromWorksheetApi = from === 'worksheetApi';
   const [url, setUrl] = useState();
   const [urlVisible, setUrlVisible] = useState(false);
   const [isPublic, setIsPublic] = useState(props.isPublic);
@@ -62,15 +64,20 @@ export default function Share(props) {
   const privateVisible =
     from === 'report'
       ? params.privateVisible
-      : ['view', 'recordInfo', 'newRecord'].includes(from)
+      : ['view', 'recordInfo', 'newRecord', 'chatbot'].includes(from)
         ? privateShare
         : !_.includes(['worksheetApi', 'pay'], from);
   const isEmbed = _.includes(['view', 'customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
   let disabledTip;
   if (!isCharge) {
-    disabledTip =
-      from === 'recordInfo' ? _l('记录拥有者才能操作') : _l('系统角色（包含管理员、运营者、开发者）才能操作');
+    if (from === 'recordInfo') {
+      disabledTip = _l('记录拥有者才能操作');
+    } else if (from === 'chatbot') {
+      disabledTip = _l('会话拥有者才能操作');
+    } else {
+      disabledTip = _l('系统角色（包含管理员、运营者、开发者）才能操作');
+    }
   }
   const handleChangePageTitle = () => {
     if (_.includes(['view'], from)) {
@@ -79,7 +86,7 @@ export default function Share(props) {
         ...shareData,
       });
     }
-    if (_.includes(['customPage'], from)) {
+    if (_.includes(['customPage', 'chatbot'], from)) {
       editEntityShare(shareData);
     }
   };
@@ -175,26 +182,44 @@ export default function Share(props) {
       )}
       {!hidePublicShare && (
         <React.Fragment>
-          {from === 'worksheetApi' ? (
+          {isFromWorksheetApi ? (
             <Tip99 className="">{_l('启用后，将 API 文档公开发布给应用外的用户查看使用')}</Tip99>
           ) : (
-            <React.Fragment>
-              {!hidePublicTitle && <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>}
-              <Tip99 className={cx({ mTop10: !isPayShare, Gray_75: isPayShare })}>
-                {publicShareDesc || _l('获得链接的所有人都可以查看')}
-              </Tip99>
-            </React.Fragment>
+            <div className="flexRow alignItemsCenter">
+              <div className="flex">
+                {!hidePublicTitle && <Bold600 className="Font15">{_l('对外公开分享')}</Bold600>}
+                <Tip99 className={cx({ mTop10: !isPayShare, Gray_75: isPayShare })}>
+                  {publicShareDesc || _l('获得链接的所有人都可以查看')}
+                </Tip99>
+              </div>
+              {!isPayShare && (
+                <Tooltip title={disabledTip} placement="right">
+                  <span>
+                    <Switch
+                      disabled={from === 'chatbot' ? false : !isCharge}
+                      checked={isPublic}
+                      onClick={() => updatePublicShare(!isPublic)}
+                    />
+                  </span>
+                </Tooltip>
+              )}
+            </div>
           )}
           {isPayShare && !!publicUrl && urlVisible ? (
             ''
           ) : (
-            <div className={cx('mTop15 flexRow flexCenter', { mTop24: isPayShare })}>
-              {!isPayShare && (
-                <span className="tip-right" data-tip={disabledTip}>
+            <div
+              className={cx('flexRow flexCenter', {
+                mTop24: isPayShare,
+                mTop15: !urlVisible || isFromWorksheetApi,
+              })}
+            >
+              {isFromWorksheetApi && (
+                <Fragment>
                   <Switch disabled={!isCharge} checked={isPublic} onClick={() => updatePublicShare(!isPublic)} />
-                </span>
+                  <div className="flex"></div>
+                </Fragment>
               )}
-              <div className="flex"></div>
               {isPublic && !urlVisible && (
                 <Fragment>
                   {isPayShare && (
@@ -254,7 +279,7 @@ export default function Share(props) {
                   {_l('编辑公开表单')}
                 </a>
               )}
-              {_.includes(['view', 'customPage'], from) && (
+              {_.includes(['view', 'customPage', 'chatbot'], from) && (
                 <div className="flex flexRow alignItemsCenter mTop16 validityDateConfig">
                   <div className="labelName mRight8">{_l('页面标题')}</div>
                   <Input
@@ -275,7 +300,7 @@ export default function Share(props) {
                   />
                 </div>
               )}
-              {_.includes(['view', 'recordInfo', 'customPage', 'worksheetApi'], from) && (
+              {_.includes(['view', 'recordInfo', 'customPage', 'worksheetApi', 'chatbot'], from) && (
                 <Validity
                   data={shareData}
                   onChange={data => {
@@ -290,7 +315,7 @@ export default function Share(props) {
                         ...data,
                       });
                     }
-                    if (_.includes(['customPage', 'worksheetApi'], from)) {
+                    if (_.includes(['customPage', 'worksheetApi', 'chatbot'], from)) {
                       editEntityShare(data);
                     }
                   }}

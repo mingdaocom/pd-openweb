@@ -8,6 +8,7 @@ import { FIELD_TYPE_LIST } from '../../../enum';
 
 const OutputListItem = styled.div(
   ({ isHeader }) => `
+  font-size: 13px;
   height: 36px;
   display: flex;
   align-items: center;
@@ -53,6 +54,7 @@ const getDefaultParameters = () => {
 const OUTPUT_TYPE = {
   JSON_PARSE: 1,
   AI: 2,
+  AGENT: 3,
 };
 
 export default class OutputList extends Component {
@@ -228,7 +230,7 @@ export default class OutputList extends Component {
             : value;
 
         // 更新jsonpath值
-        if (outputType === OUTPUT_TYPE.AI && isBlur && action === 'controlName') {
+        if (_.includes([OUTPUT_TYPE.AI, OUTPUT_TYPE.AGENT], outputType) && isBlur && action === 'controlName') {
           item.jsonPath = item.dataSource ? `@.${item.controlName}` : `$.${item.controlName}`;
         }
       }
@@ -304,21 +306,21 @@ export default class OutputList extends Component {
   }
 
   render() {
-    const { data, updateSource } = this.props;
+    const { data, updateSource, outputType } = this.props;
 
     return (
       <Fragment>
         {data.outputs && !!data.outputs.length && this.renderOutputList()}
         <div className="mTop15">
           <div
-            className="InlineBlock pointer ThemeColor3 ThemeHoverColor2"
+            className="InlineBlock pointer ThemeColor3 ThemeHoverColor2 Font13"
             onClick={() =>
               updateSource({
                 outputs: (data.outputs || []).concat([getDefaultParameters()]),
               })
             }
           >
-            {_l('+ 输出参数')}
+            {outputType === OUTPUT_TYPE.AGENT ? _l('+ 自定义参数') : _l('+ 输出参数')}
           </div>
         </div>
       </Fragment>

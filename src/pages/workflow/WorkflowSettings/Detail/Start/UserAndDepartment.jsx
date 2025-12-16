@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { TRIGGER_ID } from '../../enum';
 import { TriggerCondition } from '../components';
 
@@ -52,13 +53,11 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
               onClick={() => updateSource({ triggerId: item.value, operateCondition: [] })}
             />
             {item.value === TRIGGER_ID.DELETE && (
-              <span
-                className="Gray_75"
-                data-tip={_l('包括用户自行注销或被管理员注销')}
-                style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}
-              >
-                <i className="Font14 icon-help Gray_9e" />
-              </span>
+              <Tooltip title={_l('包括用户自行注销或被管理员注销')}>
+                <span className="Gray_75" style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}>
+                  <i className="Font14 icon-help Gray_9e" />
+                </span>
+              </Tooltip>
             )}
           </div>
         ))}

@@ -35,12 +35,12 @@ export const identityInterception = (projectId, isPersonal) => {
 };
 
 export const checkCertification = props => {
-  const { projectId, checkSuccess, isPersonal } = props;
+  const { projectId, checkSuccess, isPersonal, forceCheck = false } = props;
   const paidProjects = (_.get(md, 'global.Account.projects') || []).filter(
     project => _.get(project, 'licenseType') === 1,
   );
 
-  if (isPersonal ? !paidProjects.length : [0, 2].includes(getCurrentProject(projectId).licenseType)) {
+  if (isPersonal ? !paidProjects.length : [0, 2].includes(getCurrentProject(projectId).licenseType) || forceCheck) {
     const isCert = certificationApi.checkIsCert(
       isPersonal ? { certSource: 0, authType: 1 } : { certSource: 1, projectId, authType: 1 },
       { ajaxOptions: { sync: true } },

@@ -146,6 +146,7 @@ function Option(props) {
         {
           id: id,
           ...info,
+          companyId: currentProjectId || info.companyId,
         },
         { isIntegration: true },
       )
@@ -432,7 +433,11 @@ function List(props) {
                 return (
                   <MdLink className="conTr Hand stopPropagation" to={`/integrationConnect/${item.id}`}>
                     {keys.map(o => {
-                      return <div className={`${o.key}`}>{o.render ? o.render(item, props) : item[o.key]}</div>;
+                      return (
+                        <div className={`${o.key}`} onClick={e => e.stopPropagation()}>
+                          {o.render ? o.render(item, props) : item[o.key]}
+                        </div>
+                      );
                     })}
                   </MdLink>
                 );

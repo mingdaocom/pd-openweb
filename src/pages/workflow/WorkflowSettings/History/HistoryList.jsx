@@ -1,19 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { any, array, bool, func, string } from 'prop-types';
 import styled from 'styled-components';
 import { Checkbox, Dialog, LoadDiv, Menu, MenuItem, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import processVersion from '../../api/processVersion';
 import { SUPPORT_HREF } from '../enum';
 import HistoryListItem from './components/HistoryListItem';
 import { STATUS2COLOR } from './config';
 
 const HISTORY_TITLE = [
-  { id: 'status', text: _l('状态') },
   { id: 'triggerData', text: _l('触发流程数据') },
+  { id: 'status', text: _l('状态') },
   { id: 'cause', text: _l('原因') },
   { id: 'time', text: _l('触发时间') },
   { id: 'retry', text: '' },
@@ -225,13 +225,17 @@ export default class HistoryList extends Component {
   }
 
   render() {
-    const { data, ...res } = this.props;
+    const { data, isChatbot, ...res } = this.props;
 
     return (
       <div className="historyListWrap">
         <ul className="historyListTitle">
           <li style={{ fontWeight: 600 }} className="Gray_75 Font14 batch">
-            <Tooltip placement="bottomLeft" align={{ offset: [-10, 0] }} title={_l('全选已加载列表')}>
+            <Tooltip
+              placement="bottomLeft"
+              align={{ offset: [-10, 0] }}
+              title={_l('全选当前可见数据（不含未加载出的数据）')}
+            >
               <span className="InlineBlock" style={{ width: 18 }}>
                 <Checkbox
                   checked={!!res.batchIds.length}
@@ -263,7 +267,7 @@ export default class HistoryList extends Component {
                 style={{ fontWeight: 600 }}
                 className={cx('Gray_75 Font14', id, { flex: _.includes(['cause', 'triggerData'], id) })}
               >
-                {text}
+                {isChatbot && id === 'triggerData' ? _l('用户消息') : text}
               </li>
             );
           })}

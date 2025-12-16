@@ -34,9 +34,7 @@ const collections = () => {
           id: 'api',
           text: _l('API文档'),
           icon: 'worksheet_API',
-          href: `https://apidoc.mingdao.com/${
-            lang === 'zh-Hans' ? 'zh-Hans' : 'en'
-          }/#tag/user/operation/addUserRelation`,
+          href: `https://apidoc.mingdao.com/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}`,
         },
       ],
     },

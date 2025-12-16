@@ -4,6 +4,7 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { DatePicker, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import './DateCalcPicker.less';
 
@@ -167,16 +168,17 @@ export default class DateCalcPicker extends Component {
         <div className="dropdownHead">
           {pickDate && this.renderDatePicker(value)}
           {!pickDate && value && this.renderSelected(selected)}
-          <span
-            className="rightIcon Right Hand ThemeHoverColor3"
-            data-tip={_l('选择字段')}
-            ref={btn => (this.btn = btn)}
-            onClick={() => {
-              this.setState({ showMenu: true });
-            }}
-          >
-            <i className="icon icon-workflow_other"></i>
-          </span>
+          <Tooltip title={_l('选择字段')} placement="bottom">
+            <span
+              className="rightIcon Right Hand ThemeHoverColor3"
+              ref={btn => (this.btn = btn)}
+              onClick={() => {
+                this.setState({ showMenu: true });
+              }}
+            >
+              <i className="icon icon-workflow_other"></i>
+            </span>
+          </Tooltip>
           {value && (
             <i
               className="icon icon-close remove Hand Right"

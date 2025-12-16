@@ -11,7 +11,7 @@ const AddBtnWrap = styled.div`
   align-items: center;
   width: 100%;
   height: 36px;
-  background-color: var(--color-third);
+  background-color: var(--color-background-primary);
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
   border-radius: 3px;
 
@@ -84,7 +84,7 @@ const AddRecordBtn = props => {
   };
 
   return (
-    <AddBtnWrap className={className} onClick={handleClick}>
+    <AddBtnWrap className={`addBoardRecord ${className}`} onClick={handleClick}>
       <i className="icon icon-add"></i>
     </AddBtnWrap>
   );

@@ -6,6 +6,7 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import fixedDataController from 'src/api/fixedData';
+import { COMMON_DEFAULT_COUNTRY } from 'src/pages/widgetConfig/config/setting';
 import { browserIsMobile } from 'src/utils/common';
 import MobileCityPicker from './MobileCityPciker';
 import 'rc-trigger/assets/index.css';
@@ -83,10 +84,12 @@ export default function CityPicker(props) {
     id = 'CityPicker',
     level = 3,
     chooserange = 'CN',
+    commcountries,
     projectId,
     search,
     placeholder = _l('选择地区'),
     defaultValue = '',
+    selectCode = '',
     popupParentNode = document.body,
     className = '',
     children,
@@ -104,6 +107,7 @@ export default function CityPicker(props) {
     showConfirmBtn,
     handleVisible = () => {},
   } = props;
+  const countrySortData = _.isUndefined(commcountries) ? COMMON_DEFAULT_COUNTRY : safeParse(commcountries || '[]');
 
   const isMobile = browserIsMobile();
   const cityPickerRef = useRef(null);
@@ -137,9 +141,14 @@ export default function CityPicker(props) {
   }, [id]);
 
   useEffect(() => {
-    if (visible && !search && (!data.length || !_.isArray(data[0]))) {
-      getCitys({ parentId: chooserange || '' });
-      return;
+    if (visible && !search) {
+      if (selectCode) {
+        getAllPathCitysByID();
+      } else {
+        if (!data.length || !_.isArray(data[0])) {
+          getCitys({ parentId: chooserange || '' });
+        }
+      }
     }
   }, [visible]);
 
@@ -167,6 +176,60 @@ export default function CityPicker(props) {
     handleVisible(value);
   };
 
+  const getSortCitys = citys => {
+    if (!chooserange) {
+      const orderMap = new Map();
+      countrySortData.forEach((id, index) => orderMap.set(id, index));
+      return _.sortBy(citys || [], s => orderMap.get(s.id));
+    }
+
+    return citys;
+  };
+
+  const getAllPathCitysByID = () => {
+    if (loadingId) return;
+
+    setLoadingId('all');
+    fixedDataController
+      .getAllPathCitysByID({
+        cityId: selectCode,
+        textSplit: '/',
+        projectId: projectId,
+        isGetCounty: !chooserange,
+        langType: getCurrentLangCode(),
+        isChooseCounty: !chooserange,
+      })
+      .then(res => {
+        setLoadingId(false);
+
+        function transformArray(arr, selectData = [], result = [], index = 0) {
+          (arr || []).forEach(item => {
+            const { childs, ...rest } = item;
+            if (!result[index]) {
+              result[index] = [];
+            }
+            result[index].push(rest);
+
+            if (item.id === selectCode) {
+              selectData.push(rest);
+              return;
+            }
+            if (childs && childs.length > 0) {
+              selectData.push(rest);
+              transformArray(item.childs, selectData, result, index + 1);
+            }
+          });
+          return { result, selectData };
+        }
+
+        const sortData = getSortCitys(res);
+        const { result, selectData } = transformArray(sortData);
+        setData(result);
+        setSelect(selectData);
+        activeItemsScrollView();
+      });
+  };
+
   const getCitys = (param = {}, key = 0) => {
     const { parentId = 'CN', keywords = '' } = param;
 
@@ -184,7 +247,7 @@ export default function CityPicker(props) {
       })
       .then(res => {
         setLoadingId(false);
-        keywords ? setData(res.citys) : setData(data.slice(0, key).concat([res.citys]));
+        keywords ? setData(res.citys) : setData(data.slice(0, key).concat([getSortCitys(res.citys)]));
       });
   };
 
@@ -253,6 +316,17 @@ export default function CityPicker(props) {
         lastActiveItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }, 500);
+  };
+
+  const activeItemsScrollView = () => {
+    setTimeout(() => {
+      const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
+      if (items.length > 0) {
+        items.forEach(item => {
+          item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
+    }, 0);
   };
 
   const handleClick = (item, key, autoClose = true) => {
@@ -469,6 +543,10 @@ CityPicker.propTypes = {
    * 默认显示的地址，可以是 string 和 object，如果是 object 组件会检测 id 定位到指定的城市
    */
   defaultValue: PropTypes.any,
+  /**
+   * 默认选中的城市code, 根据code展开面板并定位制定城市
+   */
+  selectCode: PropTypes.string,
   /**
    * 是否禁用
    */

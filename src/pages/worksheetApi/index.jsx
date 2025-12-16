@@ -4,7 +4,8 @@ import JsonView from 'react-json-view';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
-import { Avatar, Dialog, Icon, LoadDiv, ScrollView, Textarea, Tooltip } from 'ming-ui';
+import { Avatar, Dialog, Icon, LoadDiv, ScrollView, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 import homeApp from 'src/api/homeApp';
 import ajaxRequest from 'src/api/worksheet';
@@ -15,11 +16,13 @@ import preall from 'src/common/preall';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
-import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { setFavicon } from 'src/utils/app';
+import { getTranslateInfo, setFavicon } from 'src/utils/app';
 import FiltersGenerate from './components/FiltersGenerate';
 import Header from './components/Header';
+import Mcp from './components/Mcp';
+import MoreOption from './components/MoreOption';
 import RequestFormat from './components/RequestFormat';
+import SecretKey from './components/SecretKey';
 import Summary from './components/Summary';
 import WorkAliasDialog from './components/WorkAliasDialog';
 import {
@@ -41,9 +44,7 @@ import {
   WORKSHEETINFO_SUCCESS_DATA,
 } from './core/applicationConfig';
 import { MENU_LIST_MAP, SIDEBAR_LIST_MAP, TAB_TYPE } from './core/enum';
-import noDataImg from './img/lock.png';
-import MoreOption from './MoreOption';
-import SecretKey from './SecretKey';
+import { convertControl } from './core/utils';
 import './index.less';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([
@@ -94,6 +95,7 @@ class WorksheetApi extends Component {
     };
     this.canScroll = true;
     this.contentScrollRef = React.createRef();
+    this.handleGetId = this.getId.bind(this);
   }
 
   componentDidMount() {
@@ -142,6 +144,7 @@ class WorksheetApi extends Component {
           homeApp.getApp(
             {
               appId: this.getId(),
+              getLang: true,
             },
             {
               silent: true,
@@ -150,7 +153,7 @@ class WorksheetApi extends Component {
           appManagementAjax.getAuthorizes({ appId: this.getId() }),
         ];
 
-    Promise.all(promiseList).then(res => {
+    Promise.all(promiseList).then(async res => {
       let resArr = isSharePage ? res.concat([undefined, undefined]) : res;
       const [
         worksheetList = [],
@@ -161,6 +164,17 @@ class WorksheetApi extends Component {
         dataApp = {},
         authorizes = [],
       ] = resArr;
+      const { langInfo, id: appId, projectId } = dataApp;
+
+      if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+        const lang = await appManagementAjax.getAppLangDetail({
+          projectId,
+          appId,
+          appLangId: langInfo.appLangId,
+        });
+        window[`langData-${appId}`] = lang.items;
+        window[`langVersion-${appId}`] = langInfo.version;
+      }
 
       if (isSharePage) {
         dataApp.iconUrl = shareData.appIcon;
@@ -170,6 +184,10 @@ class WorksheetApi extends Component {
         dataApp.projectId = shareData.projectId;
         dataApp.navColor = shareData.appNavColor;
       }
+
+      worksheetList.forEach(item => {
+        item.workSheetName = getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName;
+      });
 
       setFavicon(dataApp.iconUrl, dataApp.iconColor);
 
@@ -393,13 +411,14 @@ class WorksheetApi extends Component {
           </div>
           {isSelect
             ? list.map(o => {
+                const id = `${prefix}${worksheetId}${o.id}`;
                 return (
                   <div
                     key={worksheetId + o.id}
                     className={cx('worksheetApiMenuItem pLeft58 overflow_ellipsis', {
-                      active: selectId === `${prefix}${worksheetId}${o.id}`,
+                      active: selectId === id,
                     })}
-                    onClick={() => this.setSelectId({ selectId: `${prefix}${worksheetId}${o.id}` })}
+                    onClick={() => this.setSelectId({ selectId: id })}
                   >
                     {o.title}
                   </div>
@@ -678,6 +697,7 @@ class WorksheetApi extends Component {
           }),
           successData: appSuccessData,
           errorData: appRoleErrorData,
+          enableClipboard: true,
         })}
       </Fragment>
     );
@@ -1038,7 +1058,7 @@ class WorksheetApi extends Component {
         {MENU_LIST_APPROLE.map(({ id, isGet, title, data = [], apiName, successData, errorData }, i) => {
           const url = appInfo.apiUrl + apiName;
           let dataObj = {};
-          data.map(({ name, desc, example }) => {
+          data.forEach(({ name, desc, example }) => {
             dataObj[name] = _.includes(['appKey', 'sign'], name)
               ? (this.state.data[0] || {})[name] || { appKey: 'YOUR_APP_KEY', sign: 'YOUR_SIGN' }[name]
               : example || desc;
@@ -1096,6 +1116,7 @@ class WorksheetApi extends Component {
    * 渲染附录内容
    */
   renderAppendixContent(list) {
+    const { tabIndex } = this.state;
     const getWidth = (headerData, key) => _.get(_.find(headerData, headerObj => headerObj.key === key) || {}, 'width');
     const data = list || MENU_LIST_APPENDIX;
 
@@ -1175,7 +1196,7 @@ class WorksheetApi extends Component {
                   />
                 </div>
               ) : (
-                <div className="worksheetApiContent2" />
+                tabIndex === TAB_TYPE.API_V2 && <div className="worksheetApiContent2" />
               )}
             </div>
           );
@@ -1197,6 +1218,7 @@ class WorksheetApi extends Component {
       dialogType,
       dataApp,
       sheetSwitchPermit,
+      tabIndex,
     } = this.state;
     const isFieldTable = i === 0;
     const data = item[this.MENU_LIST[i].type === 'control' ? 'controls' : 'views'];
@@ -1257,23 +1279,34 @@ class WorksheetApi extends Component {
           {(isFieldTable ? item.controls : item.views).map((o, index) => {
             return (
               <div key={`${o.controlId || o.viewId}-${index}`} className="flexRow worksheetApiLine flexRowHeight">
-                {this.MENU_LIST[i].fields.map(field => (
-                  <div key={`data-${field.key}`} className={field.className}>
-                    {['controlId', 'viewId'].includes(field.key) && (
-                      <React.Fragment>
-                        <div>{o[field.key]}</div>
-                        {o.alias && <div>({o.alias})</div>}
-                      </React.Fragment>
-                    )}
+                {this.MENU_LIST[i].fields.map(field => {
+                  let type = null;
+                  if (field.key === 'controlType') {
+                    type = _.get(
+                      _.find(templateControls, numberType => numberType.controlId === o.controlId) || {},
+                      'type',
+                    );
+                  }
 
-                    {field.key === 'numberType' &&
-                      _.get(_.find(templateControls, numberType => numberType.controlId === o.controlId) || {}, 'type')}
+                  return (
+                    <div key={`data-${field.key}`} className={field.className}>
+                      {['controlId', 'viewId'].includes(field.key) && (
+                        <React.Fragment>
+                          <div>{o[field.key]}</div>
+                          {o.alias && <div>({o.alias})</div>}
+                        </React.Fragment>
+                      )}
 
-                    {field.key === 'viewType' && (_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[o.type] }) || {}).text}
+                      {field.key === 'controlType' &&
+                        `${o.type.replace(/（/g, '(').replace(/）/g, ')')}(${type} | ${convertControl(type)})`}
 
-                    {!['controlId', 'viewId', 'numberType', 'viewType'].includes(field.key) && o[field.key]}
-                  </div>
-                ))}
+                      {field.key === 'viewType' &&
+                        (_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[o.type] }) || {}).text}
+
+                      {!['controlId', 'viewId', 'controlType', 'viewType'].includes(field.key) && o[field.key]}
+                    </div>
+                  );
+                })}
               </div>
             );
           })}
@@ -1307,7 +1340,7 @@ class WorksheetApi extends Component {
             }}
           />
         )}
-        <div className="worksheetApiContent2" />
+        {tabIndex === TAB_TYPE.API_V2 && <div className="worksheetApiContent2" />}
       </Fragment>
     );
   }
@@ -1316,14 +1349,14 @@ class WorksheetApi extends Component {
    * 授权管理
    */
   renderAuthorizationManagement = () => {
-    const { authorizes = [], addSecretKey, visibleAppKeys, visibleSigns } = this.state;
+    const { authorizes = [], addSecretKey, visibleAppKeys, visibleSigns, tabIndex } = this.state;
 
     const renderIconRow = (visibleState, text) => {
       const visible = this.state[visibleState].includes(text);
 
       return (
         <div className="flexRow alignItemsCenter mTop4">
-          <Tooltip text={visible ? _l('隐藏') : _l('显示')}>
+          <Tooltip title={visible ? _l('隐藏') : _l('显示')}>
             <Icon
               icon={visible ? 'visibility_off' : 'eye_off'}
               className="Font16 pointer Gray_75 ThemeHoverColor2"
@@ -1336,7 +1369,7 @@ class WorksheetApi extends Component {
               }}
             />
           </Tooltip>
-          <Tooltip text={_l('复制')}>
+          <Tooltip title={_l('复制')}>
             <Icon
               icon="copy"
               className="Font16 pointer Gray_75 ThemeHoverColor2 mLeft8"
@@ -1421,7 +1454,7 @@ class WorksheetApi extends Component {
             />
           )}
         </div>
-        <div className="worksheetApiContent2" />
+        {tabIndex === TAB_TYPE.API_V2 && <div className="worksheetApiContent2" />}
       </Fragment>
     );
   };
@@ -1452,7 +1485,7 @@ class WorksheetApi extends Component {
    * IP 白名单
    */
   renderWhiteList = () => {
-    const { dataApp, whiteListDialog } = this.state;
+    const { dataApp, whiteListDialog, tabIndex } = this.state;
 
     return (
       <Fragment>
@@ -1474,7 +1507,7 @@ class WorksheetApi extends Component {
             </span>
           </div>
         </div>
-        <div className="worksheetApiContent2" />
+        {tabIndex === TAB_TYPE.API_V2 && <div className="worksheetApiContent2" />}
 
         {whiteListDialog && (
           <Dialog
@@ -1604,11 +1637,35 @@ class WorksheetApi extends Component {
   /**
    * 渲染通用的右内容
    */
-  renderRightContent({ data, successData, errorData, outputData }) {
+  renderRightContent({ data, successData, errorData, outputData, enableClipboard = false }) {
     return (
       <div className="worksheetApiContent2">
         <div className="mBottom16 Font14 Gray_bd">{_l('提交数据提示')}</div>
-        <JsonView src={data} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
+
+        {enableClipboard ? (
+          <JsonView
+            src={data}
+            theme="brewer"
+            displayDataTypes={false}
+            displayObjectSize={false}
+            name={null}
+            enableClipboard={({ namespace = [], src }) => {
+              let copyData = null;
+              switch (namespace.length) {
+                case 2:
+                  copyData = src;
+                  break;
+                default:
+                  copyData = JSON.stringify(src);
+                  break;
+              }
+              navigator.clipboard.writeText(copyData);
+            }}
+          />
+        ) : (
+          <JsonView src={data} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
+        )}
+
         {successData ? (
           <Fragment>
             <div className="mTop16 mBottom16 Font14 Gray_bd">{_l('返回数据示例')}</div>
@@ -1645,11 +1702,14 @@ class WorksheetApi extends Component {
    * 设置通用的请求参数
    */
   setCommonPostParameters(item, otherOptions) {
+    const { rowId, ...restOptions } = otherOptions || {};
+
     return {
       appKey: item.appKey || 'YOUR_APP_KEY',
       sign: item.sign || 'YOUR_SIGN',
       worksheetId: item.alias || item.worksheetId,
-      ...otherOptions,
+      ...(rowId ? { rowId } : {}), // 如果有 rowId，放到前面
+      ...restOptions,
     };
   }
 
@@ -1829,9 +1889,18 @@ class WorksheetApi extends Component {
     );
   }
 
-  updateTabIndex = tabIndex => {
+  updateTabIndex = nexTabIndex => {
+    const { selectId, expandIds, tabIndex } = this.state;
+    // 存储当前tab下菜单的位置
+    sessionStorage.setItem(
+      `ApiTabIndex-${tabIndex}`,
+      JSON.stringify({
+        selectId,
+        expandIds,
+      }),
+    );
     let targetId = '';
-    switch (tabIndex) {
+    switch (nexTabIndex) {
       case TAB_TYPE.APPLICATION:
         targetId = 'authorizationInstr';
         break;
@@ -1841,18 +1910,32 @@ class WorksheetApi extends Component {
       default:
         break;
     }
-    if (this.contentScrollRef?.current) {
-      this.contentScrollRef.current.scrollTo();
-    }
-    this.setState({
-      tabIndex,
-      selectId: targetId,
-      expandIds: [],
-    });
+    // 获取目标tab下菜单的位置
+    const targetPosition = JSON.parse(sessionStorage.getItem(`ApiTabIndex-${nexTabIndex}`)) || {};
+    this.setState(
+      {
+        tabIndex: nexTabIndex,
+        selectId: targetPosition.selectId || targetId,
+        expandIds: targetPosition.expandIds || [],
+      },
+      () => {
+        this.scrollToFixedPosition();
+      },
+    );
   };
 
   render() {
-    const { data = [], loading, selectId, dataApp, errorCode, appInfo, dataPipelineData = [], tabIndex } = this.state;
+    const {
+      data = [],
+      loading,
+      selectId,
+      dataApp,
+      errorCode,
+      appInfo,
+      dataPipelineData = [],
+      tabIndex,
+      authorizes,
+    } = this.state;
     const { isSharePage } = this.props;
     const appId = this.getId();
     const sidebarList = SIDEBAR_LIST_MAP[tabIndex] || [];
@@ -1885,7 +1968,7 @@ class WorksheetApi extends Component {
           appInfo={appInfo}
           tabIndex={tabIndex}
           updateTabIndex={this.updateTabIndex}
-          getId={this.getId}
+          getId={this.handleGetId}
         />
         <div className="flex flexRow minHeight0 WhiteBG">
           {tabIndex === TAB_TYPE.API_V3 ? (
@@ -1895,16 +1978,11 @@ class WorksheetApi extends Component {
               style={{ border: 'none' }}
               allowTransparency={true}
               allowFullScreen
-              src={`${md.global.Config.OpenApiDocUrl}${lang === 'zh-Hans' ? 'zh-Hans/' : 'en/'}?ts=${Date.now()}`}
+              src={`${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}`}
             />
           ) : (
             <Fragment>
               <div className="worksheetApiSide h100">
-                {/* {data.length <= 0 ? (
-                  <div className="flexColumn h100">
-                    <Skeleton active={true} itemStyle={{ background: '#ddd' }} />
-                  </div>
-                ) */}
                 <ScrollView>
                   {sidebarList.map(({ key, title, render, args }, index) => {
                     return render ? (
@@ -1930,6 +2008,7 @@ class WorksheetApi extends Component {
                       <div className="flexRow worksheetApiLi" id="authorizationInstr-content">
                         {this.renderAuthorizationManagement()}
                       </div>
+                      <Mcp authorizes={authorizes} appInfo={appInfo} />
                       {/* IP白名单 */}
                       <div className="flexRow worksheetApiLi" id="whiteList-content">
                         {this.renderWhiteList()}
@@ -1938,9 +2017,6 @@ class WorksheetApi extends Component {
                       <div id="dataPipeline-content">
                         {dataPipelineData.map((item, i) => this.renderContent(item, i, 'dataPipeline'))}
                       </div>
-                      {/* <div className="flexRow worksheetApiLi" id="workflowInfo-content">
-                          {this.renderWorkflowInfo()}
-                        </div> */}
                     </Fragment>
                   )}
                   {/* API 2.0 */}

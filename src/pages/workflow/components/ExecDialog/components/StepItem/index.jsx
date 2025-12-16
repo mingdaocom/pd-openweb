@@ -5,7 +5,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import { array, bool, func, number, object, string } from 'prop-types';
 import filterXSS from 'xss';
-import { Icon, Linkify, Tooltip, UserHead } from 'ming-ui';
+import { Icon, Linkify, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
 import { browserIsMobile, getIconNameByExt } from 'src/utils/common';
@@ -279,13 +280,14 @@ export default class StepItem extends Component {
 
     return (
       <Fragment>
-        <span
-          data-tip={_l('查看更新记录')}
-          className="pointer mLeft5 Gray_75 ThemeHoverColor3 flexRow"
-          onClick={() => this.setState({ showLogDialog: true })}
-        >
-          <Icon type="visibility" className="Font16" />
-        </span>
+        <Tooltip title={_l('查看更新记录')}>
+          <span
+            className="pointer mLeft5 Gray_75 ThemeHoverColor3 flexRow"
+            onClick={() => this.setState({ showLogDialog: true })}
+          >
+            <Icon type="visibility" className="Font16" />
+          </span>
+        </Tooltip>
         {showLogDialog && (
           <WorksheetRecordLogDialog
             appId={appId}
@@ -320,10 +322,8 @@ export default class StepItem extends Component {
             <span className="Font14 ThemeColor3">{_l('填写%0个字段', fields.length)}</span>
             {!!fields.length && !browserIsMobile() && (
               <Tooltip
-                tooltipClass="workflowStepFieldsWrap "
-                popupPlacement={'bottom'}
-                autoCloseDelay={0}
-                text={
+                placement="bottom"
+                title={
                   <ul>
                     {fields.map(({ name, toValue }, index) => (
                       <li key={index} className="writeFields">
@@ -467,9 +467,9 @@ export default class StepItem extends Component {
     }
 
     return (
-      <span
-        className="tip-top-left"
-        data-tip={
+      <Tooltip
+        placement="topLeft"
+        title={
           autoPass
             ? ''
             : maxEndTimeConsuming > 0
@@ -477,17 +477,19 @@ export default class StepItem extends Component {
               : _l('提前 %0 完成', this.covertTime(maxEndTimeConsuming))
         }
       >
-        <span
-          className="stepTimeConsuming flexRow"
-          style={{
-            color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
-            backgroundColor: maxEndTimeConsuming > 0 ? '#FCE4E3' : '#eef7ee',
-          }}
-        >
-          <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
-          {_l('耗时：%0', this.covertTime(maxTimeConsuming) || _l('1秒'))}
+        <span>
+          <span
+            className="stepTimeConsuming flexRow"
+            style={{
+              color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
+              backgroundColor: maxEndTimeConsuming > 0 ? '#FCE4E3' : '#eef7ee',
+            }}
+          >
+            <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
+            {_l('耗时：%0', this.covertTime(maxTimeConsuming) || _l('1秒'))}
+          </span>
         </span>
-      </span>
+      </Tooltip>
     );
   }
 

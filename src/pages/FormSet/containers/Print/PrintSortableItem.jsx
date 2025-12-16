@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import { formatValuesOfCondition, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
@@ -202,8 +203,11 @@ export default function PrintSortableItem(props) {
   const onCopy = id => {
     sheetAjax.copyPrint({ id }).then(res => {
       if (res) {
-        alert(_l('复制成功'), 1, 1000, () => {
-          loadPrint({ worksheetId });
+        alert({
+          msg: _l('复制成功'),
+          onClose: () => {
+            loadPrint({ worksheetId });
+          },
         });
       } else {
         alert(_l('复制失败'), 2);
@@ -349,7 +353,7 @@ export default function PrintSortableItem(props) {
               onBlur={editPrintName}
             />
           ) : (
-            <Tooltip text={item.name}>
+            <Tooltip title={item.name}>
               <span className="overflow_ellipsis printName Font13">{item.name}</span>
             </Tooltip>
           )}

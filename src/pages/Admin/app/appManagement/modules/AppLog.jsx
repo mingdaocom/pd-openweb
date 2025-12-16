@@ -3,7 +3,8 @@ import ClipboardButton from 'react-clipboard.js';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Icon, LoadDiv, ScrollView, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import ajaxRequest from 'src/api/appManagement';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
 import createLinksForMessage from 'src/utils/createLinksForMessage';
@@ -175,7 +176,7 @@ export default class AppLog extends React.Component {
                   />
                 }
               >
-                <Tooltip popupPlacement="top" text={<span>{_l('按日期筛选')}</span>}>
+                <Tooltip placement="top" title={_l('按日期筛选')}>
                   <span className="Font18 Gray_9e Hover_49 icon-event Hand"></span>
                 </Tooltip>
               </Trigger>
@@ -187,7 +188,7 @@ export default class AppLog extends React.Component {
               </div>
             ) : null}
 
-            <Tooltip popupPlacement="top" text={<span>{_l('搜索')}</span>}>
+            <Tooltip placement="top" title={_l('搜索')}>
               <span
                 className="mLeft24 Font18 Hover_49 Gray_9e icon-search Hand"
                 onClick={() => this.setState({ searchVisible: true }, () => this.search.focus())}
@@ -299,15 +300,16 @@ export default class AppLog extends React.Component {
             ref={input => (this.input = input)}
             onFocus={() => this.input.select()}
           />
-          <ClipboardButton
-            className="adminHoverColor Hand tip-top"
-            component="span"
-            data-clipboard-text={item.password}
-            onSuccess={() => alert(_l('复制成功'))}
-            data-tip={_l('复制密码')}
-          >
-            <span className="icon-content-copy mLeft15 Gray_9e Hover_49 Hand LineHeight36"></span>
-          </ClipboardButton>
+          <Tooltip title={_l('复制密码')} placement="top">
+            <ClipboardButton
+              className="adminHoverColor Hand"
+              component="span"
+              data-clipboard-text={item.password}
+              onSuccess={() => alert(_l('复制成功'))}
+            >
+              <span className="icon-content-copy mLeft15 Gray_9e Hover_49 Hand LineHeight36"></span>
+            </ClipboardButton>
+          </Tooltip>
         </div>
       </div>
     );

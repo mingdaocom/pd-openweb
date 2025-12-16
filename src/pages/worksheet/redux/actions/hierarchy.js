@@ -13,7 +13,7 @@ let hierarchyPromiseViewIds = [];
 
 const getTotalDataIds = (hierarchyViewData = {}, total = 0) => {
   let totalIds = [];
-  Object.values(hierarchyViewData).map(item => {
+  Object.values(hierarchyViewData).forEach(item => {
     if (item) {
       totalIds.push(item.rowid);
     }
@@ -205,8 +205,8 @@ export const expandMultiLevelHierarchyDataOfMultiRelate = level => {
   };
 };
 
-export const addHierarchyRecord = args => dispatch => {
-  const { path, pathId, data } = args;
+export const addHierarchyRecord = args => (dispatch, getState) => {
+  const { path, pathId, data, reGetData = false } = args;
   dispatch({
     type: 'CHANGE_HIERARCHY_VIEW_DATA',
     data: dealData([data]),
@@ -216,6 +216,20 @@ export const addHierarchyRecord = args => dispatch => {
     // 添加顶级记录
     dispatch({ type: 'ADD_TOP_LEVEL_STATE', data: [data] });
   } else {
+    const { sheet } = getState();
+    const { hierarchyView } = sheet;
+    const { hierarchyViewState = [] } = hierarchyView || {};
+    const recordIndex = path[0];
+    // 分页数据
+    if (reGetData && recordIndex >= 50) {
+      const curRecord = hierarchyViewState[recordIndex];
+      const children = curRecord.children || [];
+      // 只有未展开且没有展开过的时候才处理
+      if (children?.length && typeof children[0] === 'string') {
+        dispatch({ type: 'ADD_RECORD_CHILDREN_WITH_ONLY_PAGINATION', data: { index: recordIndex, rowId: data.rowid } });
+        return;
+      }
+    }
     dispatch(addHierarchyChildrenRecord({ data, path, pathId }));
   }
 };

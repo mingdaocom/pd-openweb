@@ -131,8 +131,14 @@
 }
 
 .textMarkdownTipsContainer {
-  &.ant-tooltip {
-    max-width: 370px !important;
+  &.ant-popover {
+    max-width: 380px !important;
+    .ant-popover-arrow-content::before {
+      background: linear-gradient(to left, black 50%, black 50%) no-repeat -5px -5px;
+    }
+    .ant-popover-inner {
+      border-radius: 3px;
+    }
   }
 }
 

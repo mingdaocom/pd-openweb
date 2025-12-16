@@ -342,6 +342,7 @@ export default class GlobalSearchAllContent extends Component {
       onlyTitle,
       filterCount,
     } = this.state;
+    const { allowSuperSearch } = getCurrentProject(appProjectId);
 
     if (leftLoading || loadAppData) {
       return (
@@ -412,7 +413,8 @@ export default class GlobalSearchAllContent extends Component {
             }
           />
         )}
-        {
+
+        {isApp && searchScope === 'record' && !allowSuperSearch ? null : (
           <AppList
             data={recordData}
             dataKey={'record'}
@@ -497,7 +499,7 @@ export default class GlobalSearchAllContent extends Component {
               this.getAppData({ type: 8 });
             }}
           />
-        }
+        )}
         {content}
       </React.Fragment>
     );

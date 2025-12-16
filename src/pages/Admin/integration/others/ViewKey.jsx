@@ -84,7 +84,7 @@ export default class ViewKey extends Component {
         ) : (
           <Dialog
             visible={this.props.visible}
-            title={<span>{_l('查看密钥')}</span>}
+            title={_l('查看密钥')}
             width="480"
             footer={null}
             overlayClosable={false}

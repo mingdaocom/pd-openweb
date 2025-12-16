@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import intlTelInput, { initIntlTelInput } from 'ming-ui/components/intlTelInput';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import { addBehaviorLog } from 'src/utils/project.js';
 import { ADD_EVENT_ENUM } from '../../../core/enum';
 
 const CustomFormControlPhone = styled.div`
@@ -26,7 +25,7 @@ const CustomFormControlPhone = styled.div`
     border-color: transparent !important;
   }
   .phoneEditReadonly {
-    background: var(--gray-f9) !important;
+    background: var(--color-background-secondary) !important;
   }
   input {
     ${props => (props.hiddenCountry ? 'padding-left: 12px !important;' : '')};
@@ -43,8 +42,6 @@ const CustomFormControlPhone = styled.div`
 const MobilePhone = props => {
   const {
     hint,
-    flag,
-    maskPermissions,
     enumDefault = 0,
     value = '',
     advancedSetting = {},
@@ -52,6 +49,9 @@ const MobilePhone = props => {
     disabled,
     formDisabled,
     onBlur = () => {},
+    renderMaskContent = () => {},
+    handleMaskClick = () => {},
+    showMaskValue = false,
   } = props;
   const boxRef = useRef(null);
   const inputRef = useRef(null);
@@ -59,13 +59,8 @@ const MobilePhone = props => {
   const destroy = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [originValue, setOriginValue] = useState('');
-  const [maskStatus, setMaskStatus] = useState(advancedSetting.datamask === '1');
   const [hideCountry, setHideCountry] = useState(false);
   const [itiWidth, setItiWidth] = useState(0);
-
-  const isMask = useMemo(() => {
-    return maskPermissions && value && maskStatus;
-  }, [maskPermissions, value, maskStatus]);
 
   const hiddenCountry = useMemo(() => {
     return enumDefault === 1 || hideCountry;
@@ -103,7 +98,7 @@ const MobilePhone = props => {
 
   const getShowValue = () => {
     const val = getItiInputValue(value) || '';
-    return val && maskStatus ? dealMaskValue({ ...props, value: val }) : val || hint;
+    return val && showMaskValue ? dealMaskValue({ ...props, value: val }) : val || hint;
   };
 
   const onFocus = () => {
@@ -160,10 +155,6 @@ const MobilePhone = props => {
   }, [value]);
 
   useEffect(() => {
-    setMaskStatus(_.get(props, 'advancedSetting.datamask') === '1');
-  }, [flag]);
-
-  useEffect(() => {
     if (inputRef.current) {
       $(inputRef.current).on('close:countrydropdown keyup paste', () => {
         if (destroy.current) return;
@@ -202,20 +193,9 @@ const MobilePhone = props => {
           inputRef.current.focus();
         }}
       >
-        <span
-          className={cx({ overflowEllipsis: !value })}
-          onClick={() => {
-            if (disabled && isMask) {
-              addBehaviorLog('worksheetDecode', props.worksheetId, {
-                rowId: props.recordId,
-                controlId: props.controlId,
-              });
-              setMaskStatus(false);
-            }
-          }}
-        >
+        <span className={cx({ overflowEllipsis: !value })} onClick={handleMaskClick}>
           {getShowValue()}
-          {isMask && <Icon icon="eye_off" className={cx('commonFormIcon', disabled ? 'mLeft7' : 'maskIcon')} />}
+          {renderMaskContent()}
         </span>
       </div>
       <input
@@ -227,12 +207,12 @@ const MobilePhone = props => {
         ref={inputRef}
         onFocus={onFocus}
         onBlur={() => {
-          onBlur(originValue);
           setIsEditing(false);
+          onBlur(originValue);
         }}
       />
       {/* 有掩码并有解码权限 || 无掩码时可拨打电话 */}
-      {(maskPermissions || (!isMask && !maskStatus)) && value && formDisabled && (
+      {!(showMaskValue && !renderMaskContent()) && value && formDisabled && (
         <a href={`tel:${value}`} className="customFormControlTelBtn">
           <Icon icon="phone22" className="Font16 ThemeColor3" />
         </a>
@@ -244,8 +224,6 @@ const MobilePhone = props => {
 MobilePhone.propTypes = {
   className: PropTypes.string,
   hint: PropTypes.string,
-  flag: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  maskPermissions: PropTypes.bool,
   enumDefault: PropTypes.number,
   value: PropTypes.string,
   advancedSetting: PropTypes.object,
@@ -255,5 +233,8 @@ MobilePhone.propTypes = {
 };
 
 export default memo(MobilePhone, (prevProps, nextProps) => {
-  return _.isEqual(_.pick(prevProps, ['value', 'disabled']), _.pick(nextProps, ['value', 'disabled']));
+  return _.isEqual(
+    _.pick(prevProps, ['value', 'disabled', 'showMaskValue', 'formDisabled']),
+    _.pick(nextProps, ['value', 'disabled', 'showMaskValue', 'formDisabled']),
+  );
 });

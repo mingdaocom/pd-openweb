@@ -7,10 +7,11 @@ import EditAppIntro from 'src/pages/PageHeader/AppPkgHeader/AppDetail/EditIntro'
 export default class SheetDesc extends Component {
   constructor(props) {
     super(props);
-    const { desc, resume } = props;
+    const { desc, resume, remark } = props;
     this.state = {
       desc,
       resume,
+      remark,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -21,8 +22,8 @@ export default class SheetDesc extends Component {
   handleSave = () => {
     const value = this.state.desc || '';
     const desc = value.trim();
-    const resume = this.state.resume;
-    if (desc !== this.props.desc || resume !== this.props.resume) {
+    const { resume, remark } = this.state;
+    if (desc !== this.props.desc || resume !== this.props.resume || remark !== this.props.remark) {
       const { worksheetId } = this.props;
       if (worksheetId) {
         sheetApi
@@ -30,6 +31,7 @@ export default class SheetDesc extends Component {
             worksheetId,
             dec: desc,
             resume,
+            remark,
           })
           .then(() => {
             this.props.onSave(desc, resume);
@@ -44,8 +46,8 @@ export default class SheetDesc extends Component {
     }
   };
   render() {
-    const { worksheetId, title, visible, onClose, isEditing, setDescIsEditing, permissionType } = this.props;
-    const { desc, resume } = this.state;
+    const { cacheKey, title, visible, onClose, isEditing, setDescIsEditing, permissionType, data } = this.props;
+    const { desc, resume, remark } = this.state;
     return (
       <Modal
         zIndex={1000}
@@ -65,20 +67,26 @@ export default class SheetDesc extends Component {
       >
         <EditAppIntro
           title={title}
-          cacheKey={worksheetId ? 'sheetIntroDescription' : 'pageIntroDescription'}
+          cacheKey={cacheKey}
           description={desc}
           resume={resume}
           permissionType={permissionType}
           // isEditing={!desc}
+          data={data}
+          remark={remark}
           isEditing={isEditing}
           changeSetting={() => {}}
           changeEditState={setDescIsEditing}
-          onSave={(value, resume) => {
+          onSave={data => {
+            const value = data.description;
+            const resume = data.resume;
+            const remark = data.remark;
             setDescIsEditing(false);
             this.setState(
               {
                 desc: value === null ? this.props.desc : value,
                 resume,
+                remark,
               },
               this.handleSave,
             );

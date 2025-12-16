@@ -118,7 +118,7 @@ export default class Action extends Component {
     let hasError = false;
 
     if (actionId === ACTION_ID.ADD && !appId && appType !== APP_TYPE.CALENDAR) {
-      alert(_l('必须先选择一个工作表'), 2);
+      alert(_l('必须先选择一个表'), 2);
       return;
     } else if (
       actionId !== ACTION_ID.ADD &&

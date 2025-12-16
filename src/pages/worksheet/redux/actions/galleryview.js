@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { browserIsMobile } from 'src/utils/common';
 import { getFilledRequestParams } from 'src/utils/common';
 import { formatQuickFilter } from 'src/utils/filter';
 import { getGroupControlId } from 'src/utils/worksheet';
@@ -15,11 +14,9 @@ const pageSize = 100;
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters, controls, views = [] } = getState().sheet;
-    const { filterControls, mobileNavGroupFilters } = getState().mobile;
     const { appId, viewId, worksheetId, chartId, maxCount } = base;
     let { gallery } = galleryview;
     const currentView = views.find(o => viewId === o.viewId);
-    const isMobile = browserIsMobile();
 
     if (index <= 1) {
       dispatch({ type: 'CHANGE_GALLERY_VIEW_LOADING', loading: true });
@@ -30,17 +27,15 @@ export const fetch = index => {
     const groupControl = _.find(controls, { controlId: groupControlId });
     const args = {
       worksheetId,
-      pageSize: _.get(currentView, 'advancedSetting.groupsetting') ? pageSizeForGroup : isMobile ? 10 : pageSize,
+      pageSize: _.get(currentView, 'advancedSetting.groupsetting') ? pageSizeForGroup : pageSize,
       pageIndex: index,
       status: 1,
       appId,
       viewId,
       reportId: chartId || undefined,
       ...filters,
-      fastFilters: isMobile
-        ? formatQuickFilter(_.get(getState(), 'mobile.quickFilter') || [])
-        : formatQuickFilter(quickFilter),
-      navGroupFilters: isMobile ? mobileNavGroupFilters : navGroupFilters,
+      fastFilters: formatQuickFilter(quickFilter),
+      navGroupFilters: navGroupFilters,
       relationWorksheetId: _.get(currentView, 'advancedSetting.groupsetting') ? groupControl?.dataSource : '',
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
@@ -53,9 +48,6 @@ export const fetch = index => {
       args.pageSize = maxCount;
     }
 
-    if (isMobile) {
-      args.filterControls = filterControls;
-    }
     if (
       getGalleryRequest &&
       getGalleryRequest.abort &&

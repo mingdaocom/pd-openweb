@@ -1,18 +1,43 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { useKey } from 'react-use';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
-import { Button, Checkbox, Dialog, LoadDiv, Modal, ScrollView } from 'ming-ui';
+import styled from 'styled-components';
+import { BgIconButton, Button, Checkbox, Dialog, LoadDiv, Modal, ScrollView } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
+import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
 import { browserIsMobile } from 'src/utils/common';
 import { removeTempRecordValueFromLocal } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import NewRecordContent from './NewRecordContent';
+
+const HeaderComp = styled.div`
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  width: 100%;
+  background: #fff;
+  .title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+`;
 
 function NewRecord(props) {
   const {
     visible,
+    isMingoCreate,
+    noDisableClick,
+    allowShowMingoCreate,
     appId,
     worksheetId,
     title,
@@ -36,6 +61,7 @@ function NewRecord(props) {
   const scrollViewRef = useRef(null);
   const recordContentRef = useRef(null);
   const [shareVisible, setShareVisible] = useState();
+  const [newTitle, setNewTitle] = useState(title);
   const [modalClassName] = useState(Math.random().toString().slice(2));
   const [abnormal, setAbnormal] = useState();
   const [autoFill, setAutoFill] = useState(advancedSetting.autoreserve === '1');
@@ -52,6 +78,13 @@ function NewRecord(props) {
     !isDraft &&
     (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1');
   const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
+  const showMingoCreate =
+    allowShowMingoCreate &&
+    !isMingoCreate &&
+    !window.isPublicApp &&
+    !md.global.Account.isPortal &&
+    !_.isEmpty(worksheetInfo) &&
+    String(get(worksheetInfo, 'advancedSetting.aifillin')) !== '1';
 
   const {
     confirmMsg = _l('您确认提交表单？'),
@@ -111,9 +144,10 @@ function NewRecord(props) {
       title={advancedSetting.title || title}
       notDialog={notDialog}
       autoFill={autoFill}
-      showTitle
+      showTitle={notDialog}
       onCancel={hideNewRecord}
       shareVisible={shareVisible}
+      updateTitle={setNewTitle}
       setShareVisible={setShareVisible}
       onManualWidgetChange={() => (cache.current.formChanged = true)}
       onSubmitBegin={() => setLoading(true)}
@@ -121,6 +155,48 @@ function NewRecord(props) {
       onError={() => setAbnormal(true)}
     />
   );
+  const submitNextCreate = () => {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+    function submit() {
+      newRecordContent.current.newRecord({
+        isContinue: true,
+        autoFill: autoFill && advancedSetting.autoFillVisible,
+        actionType: advancedSetting.continueEndAction,
+        rowStatus: 1,
+      });
+      if (notDialog) {
+        scrollViewRef.current?.scrollTo({ top: 0 });
+      } else {
+        $(`.${modalClassName}`).find('.scrollViewContainer .scroll-viewport')[0]?.scrollTo({ top: 0 });
+      }
+    }
+    if (needConfirm) {
+      handleConfirm(submit);
+    } else {
+      submit();
+    }
+  };
+  const submitRecord = () => {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+    function submit() {
+      newRecordContent.current.newRecord({
+        autoFill,
+        actionType: advancedSetting.submitEndAction,
+        rowStatus: 1,
+      });
+    }
+    if (needConfirm) {
+      handleConfirm(submit);
+    } else {
+      submit();
+    }
+  };
   const footer = !abnormal && (
     <div className="footerBox flexRow" onClick={e => e.stopPropagation()}>
       {loading && (
@@ -151,57 +227,25 @@ function NewRecord(props) {
         </button>
       )}
       {continueAddVisible && (
+        <Tooltip title={_l('提交后继续创建')} shortcut={window.isMacOs ? '⌘⇧↵' : 'Ctrl+Shift+Enter'}>
+          <button
+            type="button"
+            className="ming Button--medium Button saveAndContinueBtn ellipsis"
+            onClick={submitNextCreate}
+          >
+            {advancedSetting.continueBtnText || _l('提交并继续创建')}
+          </button>
+        </Tooltip>
+      )}
+      <Tooltip title={_l('提交')} shortcut={window.isMacOs ? '⌘S' : 'Ctrl+S'}>
         <button
           type="button"
-          className="ming Button--medium Button saveAndContinueBtn ellipsis"
-          onClick={() => {
-            if (window.isPublicApp) {
-              alert(_l('预览模式下，不能操作'), 3);
-              return;
-            }
-            function submit() {
-              newRecordContent.current.newRecord({
-                isContinue: true,
-                autoFill: autoFill && advancedSetting.autoFillVisible,
-                actionType: advancedSetting.continueEndAction,
-                rowStatus: 1,
-              });
-              if (notDialog) {
-                scrollViewRef.current?.scrollTo({ top: 0 });
-              } else {
-                $(`.${modalClassName}`).find('.scrollViewContainer .scroll-viewport')[0]?.scrollTo({ top: 0 });
-              }
-            }
-            if (needConfirm) {
-              handleConfirm(submit);
-            } else {
-              submit();
-            }
-          }}
+          className="ming Button--medium Button--primary Button mLeft12 ellipsis"
+          onClick={submitRecord}
         >
-          {advancedSetting.continueBtnText || _l('提交并继续创建')}
+          {advancedSetting.submitBtnText || _l('提交')}
         </button>
-      )}
-      <button
-        type="button"
-        className="ming Button--medium Button--primary Button mLeft12 ellipsis"
-        onClick={() => {
-          if (window.isPublicApp) {
-            alert(_l('预览模式下，不能操作'), 3);
-            return;
-          }
-          function submit() {
-            newRecordContent.current.newRecord({ autoFill, actionType: advancedSetting.submitEndAction, rowStatus: 1 });
-          }
-          if (needConfirm) {
-            handleConfirm(submit);
-          } else {
-            submit();
-          }
-        }}
-      >
-        {advancedSetting.submitBtnText || _l('提交')}
-      </button>
+      </Tooltip>
     </div>
   );
   const draftProps = {
@@ -211,26 +255,62 @@ function NewRecord(props) {
     sheetSwitchPermit,
     isCharge,
     addNewRecord: props.addNewRecord,
-    isNewRecord: true,
-    totalNumStyle: {
-      lineHeight: '24px',
-      padding: '0 6px',
-    },
   };
   const iconButtons = [
     {
-      ele: <WorksheetDraft {...draftProps} />,
+      type: 'mingoCreate',
+      ele: (
+        <BgIconButton
+          className="mingoCreate"
+          text={_l('AI 填写')}
+          iconComponent={<img src={mingoCreateIcon} />}
+          onClick={() => {
+            hideNewRecord();
+            window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT };
+            emitter.emit('SET_MINGO_VISIBLE');
+          }}
+        />
+      ),
+    },
+    {
+      type: 'draft',
+      ele: <BgIconButton iconComponent={<WorksheetDraft {...draftProps} />} />,
       onClick: () => {},
     },
     {
-      icon: 'icon-share',
+      type: 'share',
+      icon: 'share',
       tip: _l('分享'),
       onClick: () => {
         setShareVisible(true);
       },
     },
   ];
+
+  // 根据条件获取要显示的图标按钮
+  const getVisibleIconButtons = () => {
+    const allowedTypes = [];
+    if (showMingoCreate && !md.global.SysSettings.hideAIBasicFun) {
+      allowedTypes.push('mingoCreate');
+    }
+
+    if (showDraftList) {
+      allowedTypes.push('draft');
+    }
+
+    if (showShare && !isEmbed && !md.global.Account.isPortal) {
+      allowedTypes.push('share');
+    }
+
+    return iconButtons.filter(button => allowedTypes.includes(button.type));
+  };
   const dialogProps = {
+    headerComp: (
+      <HeaderComp>
+        <div className="title">{newTitle}</div>
+      </HeaderComp>
+    ),
+    closeStyle: { marginTop: 5 },
     className: cx('workSheetNewRecord', className, modalClassName),
     type: 'fixed',
     verticalAlign: 'bottom',
@@ -279,22 +359,47 @@ function NewRecord(props) {
     },
     footer,
     visible,
-    iconButtons:
-      showDraftList && showShare && !isEmbed && !md.global.Account.isPortal
-        ? iconButtons
-        : showDraftList
-          ? iconButtons.slice(0, 1)
-          : showShare && !isEmbed && !md.global.Account.isPortal
-            ? iconButtons.slice(1)
-            : [],
+    iconButtons: getVisibleIconButtons(),
   };
   useEffect(() => {
     setAutoFill(advancedSetting.autoreserve === '1');
   }, [advancedSetting.autoreserve]);
+
+  // 使用 useKey Hook 处理快捷键
+  // 延时处理，文本框类先失焦校验完
+  useKey(
+    e => {
+      // Mac: Command+Shift+Enter, Windows: Ctrl+Shift+Enter
+      return (window.isMacOs ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === 'Enter';
+    },
+    e => {
+      e.preventDefault();
+      !abnormal && continueAddVisible && setTimeout(() => submitNextCreate(), 50);
+    },
+    { event: 'keydown' },
+    [abnormal, continueAddVisible],
+  );
+
+  useKey(
+    e => {
+      // Mac: Command+S, Windows: Ctrl+S
+      return (window.isMacOs ? e.metaKey : e.ctrlKey) && ['s', 'S'].includes(e.key);
+    },
+    e => {
+      e.preventDefault();
+      !abnormal && setTimeout(() => submitRecord(), 50);
+    },
+    { event: 'keydown' },
+    [abnormal],
+  );
+
   return (
     <Fragment>
       {notDialog ? (
-        <div className={cx('workSheetNewRecord', className, modalClassName)} onClick={e => e.stopPropagation()}>
+        <div
+          className={cx('workSheetNewRecord', className, modalClassName)}
+          onClick={noDisableClick ? _.noop : e => e.stopPropagation()}
+        >
           <ScrollView options={{ overflow: { x: 'hidden' } }}>{content}</ScrollView>
           {footer}
         </div>
@@ -303,7 +408,7 @@ function NewRecord(props) {
           <Modal
             {...dialogProps}
             allowScale
-            bodyStyle={{ paddingBottom: 0, padding: '32px 24px' }}
+            bodyStyle={{ paddingBottom: 0, paddingTop: 50 }}
             transitionName="none"
             maskTransitionName="none"
           >

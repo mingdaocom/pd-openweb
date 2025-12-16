@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, formatterTooltipTitle, isFormatNumber, isTimeControl } from 'statistics/common';
 import { toFixed } from 'src/utils/control';
 import {
@@ -51,7 +52,7 @@ const mergeData = (data, contrastData) => {
   return notFindData.concat(result);
 };
 
-export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, splitControlId) => {
+export const formatChartData = (data, yaxisList, { isPile, isAccumulate, accumulatePerPile }, splitControlId) => {
   if (_.isEmpty(data)) return [];
   const result = [];
   const cloneData = _.cloneDeep(data);
@@ -61,6 +62,20 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, split
       item.value.map((n, index) => {
         const lastn = item.value[index - 1];
         n.v = n.v + (lastn ? lastn.v : 0);
+        return n;
+      });
+      return item;
+    });
+  }
+  if (accumulatePerPile) {
+    const { ydot = 2 } = yaxisList[0];
+    cloneData.map(item => {
+      const count = item.value.reduce((count, item) => count + (item.v || 0), 0);
+      item.value.map((n, index) => {
+        const lastn = item.value[index - 1];
+        n.lastnValue = n.v + (lastn ? lastn.lastnValue : 0);
+        const value = (n.lastnValue / count) * 100;
+        n.v = Number(toFixed(value, Number.isInteger(value) ? 0 : ydot));
         return n;
       });
       return item;
@@ -181,6 +196,7 @@ export default class extends Component {
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       displaySetup.isPile !== oldDisplaySetup.isPile ||
       displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
+      displaySetup.accumulatePerPile !== oldDisplaySetup.accumulatePerPile ||
       displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
       nextProps.isLinkageData !== this.props.isLinkageData
     ) {
@@ -305,7 +321,8 @@ export default class extends Component {
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const isDark = pageStyleType === 'dark' && isThumbnail;
     const { map, contrastMap, displaySetup, xaxes, yaxisList, split } = reportData;
-    const { isPile, isPerPile, isAccumulate, xdisplay, ydisplay, legendType, auxiliaryLines } = displaySetup;
+    const { isPile, isPerPile, isAccumulate, accumulatePerPile, xdisplay, ydisplay, legendType, auxiliaryLines } =
+      displaySetup;
     const styleConfig = reportData.style || {};
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
@@ -332,7 +349,7 @@ export default class extends Component {
     const ChartComponent = displaySetup.showChartType === 2 ? Area : Line;
     const colors = getChartColors(style, themeColor, projectId);
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, sortData, {
-      yaxisList: isPile || isPerPile || isAccumulate ? [] : yaxisList,
+      yaxisList: isPile || isPerPile || isAccumulate || accumulatePerPile ? [] : yaxisList,
       colors,
     });
 
@@ -360,7 +377,7 @@ export default class extends Component {
         },
       },
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       connectNulls: xaxes.emptyType !== 3,
       smooth: displaySetup.showChartType,
@@ -401,6 +418,9 @@ export default class extends Component {
         label: ydisplay.showDial
           ? {
               formatter: value => {
+                if (accumulatePerPile) {
+                  return `${value}%`;
+                }
                 return value ? formatrChartAxisValue(Number(value), isPercentStackedArea, newYaxisList) : null;
               },
               style: {
@@ -496,6 +516,9 @@ export default class extends Component {
             ],
             content: ({ value, controlId }) => {
               const render = () => {
+                if (accumulatePerPile) {
+                  return `${value}%`;
+                }
                 const id = split.controlId ? newYaxisList[0].controlId : controlId;
                 return formatrChartValue(value, isPercentStackedArea, newYaxisList, value ? undefined : id);
               };
@@ -541,7 +564,7 @@ export default class extends Component {
           item.key = lastDateText;
           return item;
         }),
-        yaxisList,
+        yaxisList.map(item => ({ ...item, rename: '' })),
         displaySetup,
         split.controlId,
       );
@@ -620,9 +643,9 @@ export default class extends Component {
       return (
         <Fragment>
           <span>{formatSummaryName(data)}: </span>
-          <span data-tip={originalCount ? originalCount : null} className="count Font22">
-            {count || 0}
-          </span>
+          <Tooltip title={originalCount ? originalCount : null}>
+            <span className="count Font22">{count || 0}</span>
+          </Tooltip>
         </Fragment>
       );
     };

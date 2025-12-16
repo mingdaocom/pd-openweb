@@ -3,7 +3,8 @@ import 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Dropdown, Radio, SortableList, Tooltip } from 'ming-ui';
+import { Dropdown, Radio, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import userAjax from 'src/api/user';
 import DepartmentFullName from 'src/components/UserInfoComponents/DepartmentFullName.jsx';
 import { getFieldsData, maskValue } from '../../utils';
@@ -190,7 +191,7 @@ export default class UserBaseInfoSetting extends Component {
                 })}
               />
             ) : (
-              <Tooltip popupPlacement="top" text={item.isMask ? _l('取消掩码显示') : _l('设为掩码显示')}>
+              <Tooltip placement="top" title={item.isMask ? _l('取消掩码显示') : _l('设为掩码显示')}>
                 <span
                   className={cx('Hand icon icon-workflow_hide mLeft12', {
                     Gray_bd: !item.isMask,
@@ -298,7 +299,21 @@ export default class UserBaseInfoSetting extends Component {
         );
         break;
       case 'currentDepartmentFullName':
-        content = <DepartmentFullName currentDepartmentFullName={userInfo[item.id]} />;
+      case 'currentDepartmentName':
+        content = (
+          <DepartmentFullName
+            noPath={item.id === 'currentDepartmentName'}
+            projectId={this.props.projectId}
+            departmentInfos={userInfo.departmentInfos}
+          />
+        );
+        break;
+      case 'currentJobTitleName':
+        content = (
+          <span title={(userInfo.jobInfos || []).map(item => item.jobName).join(';')}>
+            {(userInfo.jobInfos || []).map(item => item.jobName).join(';')}
+          </span>
+        );
         break;
       default:
         content = userInfo[item.id];
@@ -378,7 +393,12 @@ export default class UserBaseInfoSetting extends Component {
                 </div>
               </div>
               {previewFields.map(item => (
-                <div key={item.id} className="cardItem flexRow">
+                <div
+                  key={item.id}
+                  className={cx('cardItem flexRow', {
+                    departmentItem: item.id === 'currentDepartmentFullName',
+                  })}
+                >
                   <span className="Gray_75 mRight8">{item.text}</span>
                   <span className="flex ellipsis">{this.renderPreviewValue(item)}</span>
                 </div>

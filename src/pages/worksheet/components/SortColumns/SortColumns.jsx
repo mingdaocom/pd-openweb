@@ -63,6 +63,7 @@ export default class SortColumns extends React.Component {
       disabled = false,
       showOperate = true,
       forbiddenScroll = false,
+      disableDropdown = false,
     } = this.props;
     const columns = this.props.columns.filter(c => !_.find(ghostControlIds, gcid => gcid === c.controlId));
     const displayControls = showControls.filter(dcid => _.find(columns, fc => fc.controlId === dcid));
@@ -70,7 +71,7 @@ export default class SortColumns extends React.Component {
       return (
         <DropdownWrapper
           className="sortColumnWrap"
-          disabled={disabled}
+          disabled={disableDropdown}
           downElement={
             this.props.downElement || (
               <ChangeColumn
@@ -96,6 +97,7 @@ export default class SortColumns extends React.Component {
                 showTabs={showTabs}
                 showOperate={showOperate}
                 hideReset
+                disabled={disabled}
               />
             )
           }
@@ -133,6 +135,7 @@ export default class SortColumns extends React.Component {
             isShowColumns={isShowColumns}
             sortAutoChange={sortAutoChange}
             showTabs={showTabs}
+            disabled={disabled}
           />
         </div>
       );

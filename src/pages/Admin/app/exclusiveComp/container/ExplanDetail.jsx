@@ -284,7 +284,7 @@ function ExplanDetail(props) {
             showSearch
             defaultValue={filters.apkId}
             options={appList}
-            onFocus={() => appList.length === 1 && getAppList(projectId)}
+            onFocus={() => appList.length === 1 && getAppList()}
             filterOption={(inputValue, option) =>
               appList
                 .find(item => item.value === option.value)
@@ -293,7 +293,7 @@ function ExplanDetail(props) {
             }
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
-            onSearch={_.debounce(val => this.setState({ keyword: val }, () => this.getAppList(projectId)), 500)}
+            onSearch={_.debounce(val => this.setState({ keyword: val }, () => getAppList()), 500)}
             onChange={value =>
               setFilters({
                 ...filters,

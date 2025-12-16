@@ -241,6 +241,7 @@ export function DeptSelect(props) {
       projectId: projectId,
       returnCount: returnCount,
       [isAnalysis && departrangetype === '0' ? 'keyword' : 'keywords']: keywords.trim(),
+      includeDisabled: false,
     };
     let usePageDepartment = !keywords;
 
@@ -345,6 +346,7 @@ export function DeptSelect(props) {
       } else {
         let param = {
           projectId: projectId,
+          includeDisabled: false,
         };
         let moreData = departmentMoreIds.find(o => o.departmentId === department.departmentId);
         let pageIndex = moreData ? moreData.pageIndex + 1 : 1;
@@ -692,7 +694,9 @@ export default function quickSelectDept(target, props = {}) {
 
   function destory() {
     root.unmount();
-    document.body.removeChild($con);
+    if ($con && $con.parentNode === document.body && document.body.contains($con)) {
+      document.body.removeChild($con);
+    }
   }
 
   root.render(
@@ -710,4 +714,8 @@ export default function quickSelectDept(target, props = {}) {
       }}
     />,
   );
+
+  return {
+    destory,
+  };
 }

@@ -209,6 +209,20 @@ function GroupFilter(props) {
       });
     };
 
+    const formatDataWithSearch = (data = []) => {
+      if (searchRef.current.value) {
+        const keyStr = _.toLower(searchRef.current.value);
+        data = data.filter(o => {
+          const str =
+            o?.txt && _.isString(o.txt) && o.txt.startsWith('{') && [26, 27, 48].includes(source.type)
+              ? safeParse(o.txt)[TYPES[source.type].name]
+              : o.txt;
+          return _.toLower(str).includes(keyStr);
+        });
+      }
+      return data;
+    };
+
     //关联 级联
     if ([29, 35].includes(source.type)) {
       if (source.type === 29 && navshow === '1' && !searchRef.current.value) {
@@ -229,25 +243,16 @@ function GroupFilter(props) {
     ) {
       loadFromApi();
     } else if ([26, 27, 48].includes(source.type) && navshow === '1') {
+      const data = formatDataWithSearch(transformCountsToData(navGroupCounts));
       //人员 部门 组织 显示有数据的项
       updateNavGroupData({
         filterData: navGroupData,
-        data: transformCountsToData(navGroupCounts),
+        data,
         rowId,
         cb,
       });
     } else {
-      let data = formatData(source, navGroup, controls, view);
-      if (searchRef.current.value) {
-        const keyStr = _.toLower(searchRef.current.value);
-        data = data.filter(o => {
-          const str =
-            o?.txt && _.isString(o.txt) && o.txt.startsWith('{') && [26, 27, 48].includes(source.type)
-              ? safeParse(o.txt)[TYPES[source.type].name]
-              : o.txt;
-          return _.toLower(str).includes(keyStr);
-        });
-      }
+      const data = formatDataWithSearch(formatData(source, navGroup, controls, view));
       setGroupFilterData(data);
       setLoading(false);
     }

@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Checkbox, Radio, Textarea } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import { checkJSON } from '../../utils';
 import { CustomTextarea, KeyPairs, ParameterList } from '../components';
@@ -203,12 +204,9 @@ export default class WebhookContent extends Component {
                       text={_l('生成Body全文参数')}
                       onClick={checked => updateSource({ hooksBody: !checked }, onSave)}
                     />
-                    <span
-                      className="workflowDetailTipsWidth mLeft5 Gray_75 tip-top"
-                      data-tip={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}
-                    >
-                      <i className="Font14 icon-help Gray_9e" />
-                    </span>
+                    <Tooltip title={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}>
+                      <i className="Font14 icon-help Gray_9e mLeft5" />
+                    </Tooltip>
                   </Fragment>
                 )}
               </div>

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
@@ -6,12 +6,12 @@ import { every } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { ColorPicker, SortableList, Tooltip } from 'ming-ui';
+import { ColorPicker, SortableList } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import 'src/pages/widgetConfig/styled/style.less';
 import { getUnUniqName } from 'src/utils/common';
 import { isLightColor } from 'src/utils/control';
 import { MAX_OPTIONS_COUNT, OPTION_COLORS_LIST } from '../../../config';
-import { getAdvanceSetting } from '../../../util/setting';
 import AssignValue from './AssignValue';
 import BatchAdd from './BatchAdd';
 import 'rc-trigger/assets/index.css';
@@ -169,9 +169,9 @@ function OptionItem({
       setIndex(-1);
       return false;
     }
-    const exitsOptions = options.filter(o => o.key !== key && o.value === value);
+    const exitsOptions = options.filter(o => o.key !== key && o.value === value && !o.isDeleted);
     if (exitsOptions.length) {
-      alert(_l('不得与已有选项（包括回收站）重复'), 3);
+      alert(_l('不得与选项列表重复'), 3);
       return false;
     }
     return true;
@@ -197,48 +197,50 @@ function OptionItem({
                 </div>
               </ColorPicker>
             )}
-            <div
-              className={cx('optionName', { repeatError: !!noDelRepeat.length })}
-              {...(noDelRepeat.length ? { 'data-tip': _l('选项重复') } : {})}
-            >
-              <input
-                id={key}
-                autoFocus={isFocus}
-                value={value}
-                onFocus={() => setIndex(index)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !isOther) {
-                    if (handleBlurCheck()) {
-                      addOption(false, index + 1);
+            <Tooltip title={noDelRepeat.length ? _l('选项重复') : ''}>
+              <div className={cx('optionName', { repeatError: !!noDelRepeat.length })}>
+                <input
+                  id={key}
+                  autoFocus={isFocus}
+                  value={value}
+                  onFocus={() => setIndex(index)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && !isOther) {
+                      if (handleBlurCheck()) {
+                        addOption(false, index + 1);
+                      }
                     }
-                  }
-                  // focus上、下
-                  if (e.which === 38 || e.which === 40) {
-                    if (handleBlurCheck()) {
-                      let nextIndex =
-                        e.which === 38
-                          ? focusIndex === 0
-                            ? options.length - 1
-                            : focusIndex - 1
-                          : focusIndex === options.length - 1
-                            ? 0
-                            : focusIndex + 1;
-                      setIndex(nextIndex);
-                      const timer = setTimeout(() => {
-                        const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
-                        optionEl && optionEl.select();
-                        clearTimeout(timer);
-                      }, 50);
+                    // focus上、下
+                    if (e.which === 38 || e.which === 40) {
+                      if (handleBlurCheck()) {
+                        let nextIndex =
+                          e.which === 38
+                            ? focusIndex === 0
+                              ? options.length - 1
+                              : focusIndex - 1
+                            : focusIndex === options.length - 1
+                              ? 0
+                              : focusIndex + 1;
+                        setIndex(nextIndex);
+                        const timer = setTimeout(() => {
+                          const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
+                          optionEl && optionEl.select();
+                          clearTimeout(timer);
+                        }, 50);
+                      }
                     }
-                  }
-                }}
-                onChange={e => updateOption(index, { value: e.target.value })}
-                onBlur={() => {
-                  if (handleBlurCheck()) setIndex(-1);
-                }}
-              />
-            </div>
-            <Tooltip text={_l('删除')} popupPlacement="bottom">
+                  }}
+                  onChange={e => updateOption(index, { value: e.target.value })}
+                  onBlur={e => {
+                    if (handleBlurCheck()) {
+                      setIndex(-1);
+                      updateOption(index, { value: e.target.value, key }, true);
+                    }
+                  }}
+                />
+              </div>
+            </Tooltip>
+            <Tooltip title={_l('删除')} placement="bottom">
               <div className="deleteWrap pointer" onClick={() => updateOption(index, { isDeleted: true })}>
                 <i className="icon-delete Font18"></i>
               </div>
@@ -250,10 +252,9 @@ function OptionItem({
   );
 }
 
-export default function SelectOptions(props) {
+function SelectOptions(props, ref) {
   const { onChange, options, data = {}, showAssign = false, fromPortal, enableScore, className, isDialog } = props;
   const [focusIndex, setIndex] = useState(-1);
-  const { showtype } = getAdvanceSetting(data);
   const [isDrag, setIsDrag] = useState(false);
   const [focusIndexs, setIndexs] = useState([]);
   const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
@@ -270,14 +271,18 @@ export default function SelectOptions(props) {
     setIndexs([...focusIndexs, focusIndex]);
   }, [focusIndex]);
 
+  useImperativeHandle(ref, () => ({
+    addOption,
+  }));
+
   const addOption = (isOther, nextIndex) => {
     if (notAdd) {
       alert(_l('选项不得超过%0个', MAX_OPTIONS_COUNT), 3);
       return;
     }
 
-    if (isOther && _.find(options, o => o.key !== 'other' && o.value === _l('其他'))) {
-      alert(_l('不得与已有选项（包括回收站）重复'), 3);
+    if (isOther && _.find(noDelOptions, o => o.key !== 'other' && o.value === _l('其他'))) {
+      alert(_l('不得与选项列表重复'), 3);
       return;
     }
 
@@ -290,6 +295,7 @@ export default function SelectOptions(props) {
       value: isOther ? _l('其他') : getUnUniqName(options, _l('选项%0', newIndex + 1), 'value'),
       isDeleted: false,
       index: newIndex + 1,
+      isNew: true,
       color: isOther ? '#D3D3D3' : OPTION_COLORS_LIST[(nextIndex || colorIndex + 1) % OPTION_COLORS_LIST.length],
     };
 
@@ -311,13 +317,33 @@ export default function SelectOptions(props) {
     }, 50);
   };
 
-  const updateOption = (index, obj) => {
-    const nextOptions = update(options, { [index]: { $apply: item => ({ ...item, ...obj }) } });
+  const updateOption = (index, obj, isBlur = false) => {
+    const isDeleteExtIndex = options.findIndex(
+      item =>
+        item.isDeleted &&
+        item.value === obj.value &&
+        (obj.key === 'other' ? item.key === 'other' : item.key !== 'other'),
+    );
+    delete obj.key;
+    let nextOptions = [].concat(options);
+    const isNew = _.get(nextOptions[index], 'isNew');
+    // 新增的选项删除直接删除
+    if (isNew && _.isBoolean(obj.isDeleted)) {
+      nextOptions.splice(index, 1);
+    } else if (isNew && isBlur && isDeleteExtIndex > -1) {
+      // 新增选项失焦时回收站有重复直接恢复
+      const oldItem = nextOptions[isDeleteExtIndex];
+      nextOptions.splice(index, 1, { ...oldItem, ...obj, isDeleted: false });
+      nextOptions.splice(isDeleteExtIndex, 1);
+    } else {
+      nextOptions = update(nextOptions, { [index]: { $apply: item => ({ ...item, ...obj }) } });
+    }
+
     if (every(nextOptions, item => item.isDeleted)) {
       alert(_l('最少保留一个选项'), 3);
       return;
     }
-    onChange({ options: nextOptions });
+    onChange({ options: nextOptions.map((item, idx) => ({ ...item, index: idx + 1 })) });
   };
 
   const onSortEnd = (newItems = []) => {
@@ -391,16 +417,6 @@ export default function SelectOptions(props) {
         >
           {_l('批量添加')}
         </div>
-        <div className="mLeft12 Gray_d">|</div>
-        <div
-          className={cx('otherAdd hoverText mLeft12', { disabled: hasOther, Hidden: showtype === '2' })}
-          onClick={() => {
-            if (hasOther) return;
-            addOption(true);
-          }}
-        >
-          {_l('添加其他')}
-        </div>
         {!fromPortal && showAssign && (
           <div className="assignValue hoverText flex TxtRight" onClick={() => updateVisible('assignValue')}>
             {_l('赋分值')}
@@ -432,3 +448,5 @@ export default function SelectOptions(props) {
     </OptionsWrap>
   );
 }
+
+export default forwardRef(SelectOptions);

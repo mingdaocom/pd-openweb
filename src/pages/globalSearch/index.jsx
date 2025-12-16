@@ -10,7 +10,7 @@ import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import { getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import AppList from './components/AppList';
 import DateFilter from './components/DateFilter';
 import FilterPosition from './components/FilterPosition';
@@ -592,6 +592,8 @@ export default class GlobalSearch extends Component {
       projectId: proId,
     });
 
+    const { allowSuperSearch, companyName } = getCurrentProject(projectId);
+
     return (
       <WaterMark projectId={getCurrentProjectId()}>
         <div className="GlobalSearch">
@@ -679,11 +681,13 @@ export default class GlobalSearch extends Component {
                         active={true}
                       >
                         <p className="allCount mTop16 Gray_9e mLeft10">
-                          {searchAppResCode === 2 && searchType === 'record'
-                            ? _l('数据正在初始化，请耐心等待')
-                            : ['app', 'record'].indexOf(searchType) < 0
-                              ? _l('搜索到 %0 个结果', total)
-                              : null}
+                          {searchType === 'record' && !allowSuperSearch
+                            ? _l('“%0”功能不可用', companyName)
+                            : searchAppResCode === 2 && searchType === 'record'
+                              ? _l('数据正在初始化，请耐心等待')
+                              : ['app', 'record'].indexOf(searchType) < 0
+                                ? _l('搜索到 %0 个结果', total)
+                                : null}
                         </p>
                       </Skeleton>
                     )}

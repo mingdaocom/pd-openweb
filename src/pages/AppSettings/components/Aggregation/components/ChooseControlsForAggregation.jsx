@@ -77,7 +77,7 @@ function ChooseWorksheet(props) {
       </React.Fragment>
     );
   };
-  return <Wrap className="">{renderDrop(props)}</Wrap>;
+  return <Wrap className="">{renderDrop()}</Wrap>;
 }
 
 export default function ChooseControlsForAggregation(props) {

@@ -1,7 +1,6 @@
 import base, { controllerName } from './base';
 
-var job = {
-
+const job = {
   /**
    * 创建job
    *
@@ -42,7 +41,7 @@ var job = {
     base.ajaxOptions.url = base.server(options) + 'job/run';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'jobrun', JSON.stringify(args), $.extend(base, options));
-  }
+  },
 };
 
 export default job;

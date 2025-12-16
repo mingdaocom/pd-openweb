@@ -1,11 +1,13 @@
 ﻿import React, { Component, Fragment } from 'react';
-import { Button, Divider, Tooltip } from 'antd';
+import { Button, Divider } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { ColorPicker, Icon, Input, RadioGroup, RichText, SvgIcon, UserHead } from 'ming-ui';
+import { ColorPicker, Icon, Input, LoadDiv, RadioGroup, RichText, SvgIcon, Textarea, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
+import mingoApi from 'src/api/mingo';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import './index.less';
 
@@ -17,7 +19,38 @@ const Wrap = styled.div`
     flex-shrink: 0;
     min-width: 0;
   }
+  .createRemarkWrap {
+    .ming.Textarea {
+      padding: 5px 12px;
+      line-height: 24px;
+    }
+    .withdraw,
+    .active {
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    .withdraw:hover {
+      background: #f5f5f5;
+    }
+    .active {
+      cursor: pointer;
+      color: #9709f2;
+      &:hover {
+        background: #9709f20f;
+      }
+    }
+    .error {
+      .ming.Textarea {
+        border-color: red !important;
+      }
+      .TxtRight {
+        color: red;
+      }
+    }
+  }
 `;
+
+const remarkMaxLength = 150;
 
 export default class Editor extends Component {
   static propTypes = {
@@ -47,15 +80,18 @@ export default class Editor extends Component {
 
   constructor(props) {
     super(props);
-    const { resume } = props;
+    const { resume, remark = '' } = props;
     const resumeInfo = resume ? JSON.parse(resume) : {};
     this.state = {
       showCache: false,
       bindCreateUpload: false,
       clearCacheLoading: false,
+      aiCreateLoading: false,
       showType: resume ? 1 : 0,
       resume: resumeInfo.value || '',
       resumeColor: resumeInfo.color || '#151515',
+      remark,
+      sourceAi: false,
     };
   }
 
@@ -144,7 +180,9 @@ export default class Editor extends Component {
     const { cacheKey } = this.props;
     const cacheSummary = localStorage.getItem('mdEditor_' + cacheKey);
 
-    this.props.onSave(cacheSummary);
+    this.props.onSave({
+      description: cacheSummary,
+    });
     this.setState({ showCache: false });
   };
 
@@ -154,21 +192,32 @@ export default class Editor extends Component {
   clearStorage = () => {
     const { cacheKey } = this.props;
     localStorage.removeItem('mdEditor_' + cacheKey);
-    this.setState({ showCache: false });
+    this.setState({ showCache: false, sourceAi: false });
   };
 
   /**
    * onSave
    */
   onSave = () => {
-    const { showType, resume, resumeColor } = this.state;
+    const { showType, resume, resumeColor, remark, aiCreateLoading } = this.state;
     const { cacheKey, onSave, changeEditState } = this.props;
     const content = localStorage.getItem('mdEditor_' + cacheKey);
     const resumeInfo = JSON.stringify({
       value: resume,
       color: resumeColor,
     });
-    onSave(content, showType ? resumeInfo : '');
+    if (aiCreateLoading) {
+      return;
+    }
+    if (remark && remark.length > remarkMaxLength) {
+      alert(_l('描述文字超出上限'), 2);
+      return;
+    }
+    onSave({
+      description: content,
+      resume: showType ? resumeInfo : '',
+      remark,
+    });
     if (cacheKey === 'sheetIntroDescription' && !content && resume) {
       this.props.onCancel();
     }
@@ -176,8 +225,79 @@ export default class Editor extends Component {
     this.clearStorage();
   };
 
+  handleCreateAi = () => {
+    const { cacheKey, data } = this.props;
+    const { remark } = this.state;
+    const isApp = cacheKey === 'appIntroDescription';
+    const isSheet = cacheKey === 'sheetIntroDescription';
+    const param = {
+      langType: getCurrentLangCode(),
+      desc: remark,
+    };
+    if (isApp) {
+      param.name = data.name;
+      param.appId = data.id;
+      param.type = 1;
+    }
+    if (isSheet) {
+      param.name = data.name;
+      param.worksheetId = data.worksheetId;
+      param.type = 2;
+    }
+    this.setState({ aiCreateLoading: true, remark: '', lastRemark: this.state.remark });
+    mingoApi
+      .generateAppOrWorksheetDescription(param)
+      .then(data => {
+        const { isSuccess, content, errorMsg } = data;
+        if (!isSuccess) {
+          alert(errorMsg, 3);
+        }
+        this.setState({
+          sourceAi: true,
+          aiCreateLoading: false,
+          remark: content.value,
+        });
+      })
+      .catch(() => {
+        this.setState({
+          aiCreateLoading: false,
+        });
+      });
+  };
+
+  renderState = () => {
+    const { aiCreateLoading, remark, lastRemark, sourceAi } = this.state;
+    if (aiCreateLoading) {
+      return (
+        <div className="flexRow alignItemsCenter">
+          <LoadDiv className="mRight5" size="small" />
+          {_l('AI 生成中...')}
+        </div>
+      );
+    }
+    if (remark && sourceAi && !aiCreateLoading) {
+      return (
+        <div
+          className="flexRow alignItemsCenter Gray_9e withdraw pointer"
+          onClick={() => {
+            this.setState({ sourceAi: undefined, remark: lastRemark || '' });
+          }}
+        >
+          <Icon icon="back" className="Font17 mRight2" />
+          {_l('撤销')}
+        </div>
+      );
+    }
+    return (
+      <div className="flexRow alignItemsCenter active" onClick={this.handleCreateAi}>
+        <span className="mRight4 bold">{_l('AI 生成')}</span>
+        <Icon icon="auto_awesome" />
+      </div>
+    );
+  };
+
   render() {
-    const { showType } = this.state;
+    const { showType, remark, aiCreateLoading } = this.state;
     const {
       isEditing,
       auth,
@@ -203,6 +323,7 @@ export default class Editor extends Component {
     const clientHeight = document.body.clientHeight;
     const distance = isEditing ? (isSheetIntroDescription ? 380 : 198) : 135;
     const richTextHeight = isAppIntroDescription && !isEditing ? 0 : clientHeight - distance;
+    const isError = remark.length > remarkMaxLength;
 
     if (!isEditing) {
       const { name, iconUrl, iconColor, projectId, managers } = data;
@@ -348,31 +469,90 @@ export default class Editor extends Component {
           <div className="flex" />
           {!isSheetIntroDescription && renderFooter()}
         </div>
+        {(isAppIntroDescription || isSheetIntroDescription) && (
+          <div className="pLeft24 pRight24 pBottom10 createRemarkWrap">
+            <div className="flexRow alignItemsCenter justifyContentBetween pBottom10">
+              <div className="flexRow alignItemsCenter">
+                <span className="bold">{_l('描述')}</span>
+                <Tooltip
+                  title={
+                    isAppIntroDescription
+                      ? _l(
+                          '用于概括应用的主要用途和业务定位，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
+                        )
+                      : _l(
+                          '用于定义工作表的用途和业务背景，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
+                        )
+                  }
+                >
+                  <Icon icon="info_outline" className="Gray_9e Font15 pointer mLeft5" />
+                </Tooltip>
+              </div>
+              {!md.global.SysSettings.hideAIBasicFun && this.renderState()}
+            </div>
+            <div className={cx('w100', { error: isError })}>
+              <Textarea
+                minHeight={36}
+                maxHeight={36 * 2}
+                value={remark}
+                disabled={aiCreateLoading}
+                placeholder={
+                  aiCreateLoading
+                    ? _l('AI 生成中...')
+                    : isAppIntroDescription
+                      ? _l('例如: 跟进销售线索的客户管理系统')
+                      : _l('例如：记录和管理订单信息的数据表')
+                }
+                onChange={value => {
+                  this.setState({
+                    remark: value,
+                    sourceAi: false,
+                  });
+                }}
+              />
+              <div className="TxtRight">{isError ? `${remark.length} / ${remarkMaxLength}` : ''}</div>
+            </div>
+          </div>
+        )}
+        <div className="flexRow alignItemsCenter pLeft24 pRight24 pBottom10">
+          <span className="bold">{_l('说明')}</span>
+          <Tooltip
+            title={
+              isAppIntroDescription
+                ? _l('用于向使用者介绍应用的功能、使用方法和注意事项。填写的内容会在用户首次打开应用时展示。')
+                : _l('用于向使用者介绍应用项的功能、使用方法和注意事项')
+            }
+          >
+            <Icon icon="info_outline" className="Gray_9e Font15 pointer mLeft5" />
+          </Tooltip>
+        </div>
         {isSheetIntroDescription && (
           <div className="sheetIntroInfo">
-            <div className="mBottom10 bold Font13">{_l('显示方式')}</div>
-            <RadioGroup
-              size="middle"
-              data={[
-                {
-                  text: _l('图标'),
-                  value: 0,
-                },
-                {
-                  text: _l('文字'),
-                  value: 1,
-                },
-              ]}
-              checkedValue={showType}
-              onChange={value => {
-                this.setState({ showType: value });
-              }}
-            />
+            <div className="mBottom10 flexRow alignItemsCenter">
+              <div className="Font13 mRight20">{_l('显示方式')}</div>
+              <RadioGroup
+                size="middle"
+                data={[
+                  {
+                    text: _l('图标'),
+                    value: 0,
+                  },
+                  {
+                    text: _l('文字'),
+                    value: 1,
+                  },
+                ]}
+                checkedValue={showType}
+                onChange={value => {
+                  this.setState({ showType: value });
+                }}
+              />
+            </div>
             {!!showType && (
               <div className="mTop10 mBottom10 flexRow alignItemsCenter">
                 <div className="flex mRight20">
                   <div className="flexRow alignItemsCenter mBottom10 Font13">
-                    <span className="bold mRight3">{_l('摘要')}</span>
+                    <span className="mRight3">{_l('摘要')}</span>
                     <span>（{_l('在标题下方显示文案')}）</span>
                   </div>
                   <div className="flex Relative">
@@ -387,7 +567,7 @@ export default class Editor extends Component {
                   </div>
                 </div>
                 <div>
-                  <div className="bold Font13 mBottom10">{_l('文字颜色')}</div>
+                  <div className="Font13 mBottom10">{_l('文字颜色')}</div>
                   <ColorPicker
                     value={this.state.resumeColor}
                     sysColor={true}
@@ -405,8 +585,8 @@ export default class Editor extends Component {
                 </div>
               </div>
             )}
-            <div className="flexRow alignItemsCenter Font13 mTop20 mBottom10">
-              <span className="bold mRight3">{_l('详细说明')}</span>
+            <div className="flexRow alignItemsCenter Font13 mTop10 mBottom10">
+              <span className="mRight3">{_l('详细说明')}</span>
               {showType === 1 && <span>（{_l('在摘要后显示详情按钮，点击查看。可不填')}）</span>}
             </div>
           </div>

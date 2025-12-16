@@ -8,7 +8,7 @@ import smartSearchAjax from 'src/api/smartSearch';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import { renderText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
-import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
+import { addBehaviorLog, getCurrentProject, getFeatureStatus } from 'src/utils/project';
 import { GLOBAL_SEARCH_LIST_SETTING, SEARCH_APP_ITEM_TYPE } from '../enum';
 import { getAppResultCodeText } from '../utils';
 import TextHeightLine from './TextHeightLine';
@@ -371,6 +371,11 @@ export default function AppList(props) {
 
     const needUpdate =
       dataKey === 'record' && getFeatureStatus(currentProjectId, VersionProductType.globalSearch) !== '1';
+
+    const { allowSuperSearch } = getCurrentProject(currentProjectId);
+    if (dataKey === 'record' && !allowSuperSearch) {
+      return <div className="noData">{_l('“%0”功能不可用', currentProjectName)}</div>;
+    }
 
     if ((resultCode && [3, 2].indexOf(resultCode) > -1) || needUpdate) {
       return <div className="noData">{getAppResultCodeText(needUpdate ? 3 : resultCode, currentProjectName)}</div>;

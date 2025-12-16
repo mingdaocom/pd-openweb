@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import { FILTER_VALUE_TYPE, getActionDisplay, SPLICE_TYPE_ENUM } from '../config';
 import renderCustomAction from '../CustomAction';

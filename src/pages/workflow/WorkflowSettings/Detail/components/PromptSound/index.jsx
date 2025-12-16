@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Dropdown, QiniuUpload, Radio } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import { LANGUAGE_BCP47 } from '../../../enum';
@@ -238,9 +239,11 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
               }}
             >
               {promptSound.file ? (
-                <span className="pointer" data-tip={_l('重新上传')}>
-                  <i className="Font20 icon-file_upload Gray_75 ThemeHoverColor3" />
-                </span>
+                <Tooltip title={_l('重新上传')}>
+                  <span className="pointer">
+                    <i className="Font20 icon-file_upload Gray_75 ThemeHoverColor3" />
+                  </span>
+                </Tooltip>
               ) : (
                 <AudioBox className="mTop0">
                   <i className="Font16 mRight5 icon-add" />
@@ -250,20 +253,22 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
             </QiniuUpload>
 
             {promptSound.file && (
-              <span className="mLeft25 pointer" data-tip={_l('删除')}>
-                <DelBtn
-                  className="Font20 icon-hr_delete Gray_75"
-                  onClick={() =>
-                    updateSource({
-                      promptSound: {
-                        ...promptSound,
-                        preset: '',
-                        file: '',
-                      },
-                    })
-                  }
-                />
-              </span>
+              <Tooltip title={_l('删除')}>
+                <span className="mLeft25 pointer">
+                  <DelBtn
+                    className="Font20 icon-hr_delete Gray_75"
+                    onClick={() =>
+                      updateSource({
+                        promptSound: {
+                          ...promptSound,
+                          preset: '',
+                          file: '',
+                        },
+                      })
+                    }
+                  />
+                </span>
+              </Tooltip>
             )}
           </div>
 

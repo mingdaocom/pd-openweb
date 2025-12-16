@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { Checkbox, Radio, Switch } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
-import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { getSwitchItemNames, renderText as renderCellText } from 'src/utils/control';
 import { portalBaseControl } from './config';
 
@@ -29,7 +29,7 @@ export const COLORS = [
 ];
 export const BGTYPE = [_l('颜色'), _l('背景图')];
 
-export const SYSPORTAL = ['name', 'mobilephone', 'avatar', 'firstLoginTime', 'roleid', 'status'];
+export const SYSPORTAL = ['name', 'mobilephone', 'avatar', 'firstLoginTime', 'portal_logintime', 'roleid', 'status'];
 
 export const renderContent = data => {
   const { value, advancedSetting = {} } = data;

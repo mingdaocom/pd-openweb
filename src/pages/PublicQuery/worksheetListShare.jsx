@@ -2,8 +2,8 @@ import React, { Fragment } from 'react';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Tooltip } from 'ming-ui';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { Tooltip } from 'ming-ui/antd-components';
+import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
@@ -126,7 +126,7 @@ class WorksheetListShare extends React.Component {
                     return (
                       <div className={cx('controlName flex Hand', { title: control.attribute })} key={i}>
                         {control.attribute === 1 ? (
-                          <Tooltip popupPlacement="bottom" text={<span>{dataTitle}</span>} autoCloseDelay={0}>
+                          <Tooltip placement="bottom" title={dataTitle}>
                             <i className="icon icon-ic_title"></i>
                           </Tooltip>
                         ) : (

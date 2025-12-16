@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { ActionSheet, List, SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-import { PullToRefreshWrapper } from 'ming-ui';
+import { MobilePersonalInfo, PullToRefreshWrapper } from 'ming-ui';
 import { Icon } from 'ming-ui';
 import AttachmentFiles from 'mobile/components/AttachmentFiles';
 import { dateConvertToUserZone } from 'src/utils/project';
@@ -19,6 +19,8 @@ class DiscussList extends Component {
       loading: true,
       isMore: true,
       pageIndex: 1,
+      personalInfoVisible: false,
+      accountId: null,
     };
   }
   componentDidMount() {
@@ -95,9 +97,18 @@ class DiscussList extends Component {
     this.getSheetDiscussion(1, true);
     if (refreshDiscussCount) refreshDiscussCount();
   };
+  openPersonalInfoPopup = ({ accountId }) => {
+    this.setState({
+      personalInfoVisible: true,
+      accountId,
+    });
+  };
   renderItem(item) {
     return (
-      <List.Item key={item.discussionId} prefix={<img src={item.createAccount.avatar} />}>
+      <List.Item
+        key={item.discussionId}
+        prefix={<img src={item.createAccount.avatar} onClick={() => this.openPersonalInfoPopup(item.createAccount)} />}
+      >
         <div className="flexRow alignItemsCenter">
           <div className="flex Font14 Gray bold breakAll">
             <span>{item.createAccount.fullname}</span>
@@ -119,7 +130,7 @@ class DiscussList extends Component {
           </div>
         </div>
         <div className="content Font14 Gray mTop6 mBottom6">
-          <Message item={item} />
+          <Message item={item} openPersonalInfoPopup={this.openPersonalInfoPopup} />
         </div>
         {!!item.attachments.length && <AttachmentFiles attachments={item.attachments} width="49%" />}
         <div className="Gray_9e Font12">{createTimeSpan(dateConvertToUserZone(item.createTime))}</div>
@@ -135,8 +146,9 @@ class DiscussList extends Component {
     );
   }
   render() {
-    const { loading, isMore } = this.state;
-    const { sheetDiscussions } = this.props;
+    const { loading, isMore, personalInfoVisible, accountId } = this.state;
+    const { sheetDiscussions, appId, projectId } = this.props;
+
     return (
       <Fragment>
         {_.isEmpty(sheetDiscussions) ? (
@@ -163,6 +175,19 @@ class DiscussList extends Component {
               )}
             </PullToRefreshWrapper>
           </div>
+        )}
+        {sheetDiscussions?.length > 0 && (
+          <MobilePersonalInfo
+            visible={personalInfoVisible}
+            accountId={accountId}
+            appId={appId}
+            projectId={projectId}
+            onClose={() =>
+              this.setState({
+                personalInfoVisible: false,
+              })
+            }
+          />
         )}
       </Fragment>
     );

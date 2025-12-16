@@ -35,10 +35,10 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
               const { accountId, fullname, avatar, name } = value;
               let userSrc = _.includes(avatar, 'UserAvatar')
                 ? avatar
-                : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`;
+                : `${md.global.FileStoreConfig.pictureHost}/UserAvatar/${avatar}`;
 
               if (accountId === 'user-self') {
-                userSrc = `${md.global.FileStoreConfig.pictureHost}UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90`;
+                userSrc = `${md.global.FileStoreConfig.pictureHost}/UserAvatar/user-self.png?imageView2/1/w/100/h/100/q/90`;
               }
               return (
                 <FieldInfo key={accountId} title={fullname || name}>

@@ -4,7 +4,8 @@ import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled, { css } from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter } from 'worksheet/styled';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
 import 'src/pages/worksheet/views/GunterView/Chart/components/ToolBar/index.less';
@@ -210,13 +211,10 @@ export default class ToolBar extends Component {
           </SelectWrap>
         )}
         {isMobile && <div className="line"></div>}
-        {/* <div data-tip={_l('回到原点')} className="toolItem toOrigin" onClick={() => onClick('toOrigin')}>
-          <Icon className="Font16 Gray_75" icon="Position" />
-        </div> */}
         {allowAdjustScale && (
           <div className="toolItem adjustScale">
             {!isMobile ? <div className="scale">{`${scale}%`}</div> : null}
-            <Tooltip text={isMobile ? null : <span>{_l('缩小')}</span>}>
+            <Tooltip title={isMobile ? null : <span>{_l('缩小')}</span>}>
               <Icon
                 className={cx('Font19 Gray_75 pointer mRight12 mLeft12', {
                   disableAdjustSize: scale <= SCALE_LIMIT.min,
@@ -225,7 +223,7 @@ export default class ToolBar extends Component {
                 onClick={() => scale > SCALE_LIMIT.min && this.adjustSize('shrink')}
               />
             </Tooltip>
-            <Tooltip text={isMobile ? null : <span>{_l('放大')}</span>}>
+            <Tooltip title={isMobile ? null : <span>{_l('放大')}</span>}>
               <Icon
                 className={cx('Font19 Gray_75 pointer mLeft6', {
                   disableAdjustSize: scale >= SCALE_LIMIT.max,
@@ -257,7 +255,7 @@ export default class ToolBar extends Component {
           </div>
         )}
         {initExport && hierarchyTopLevelDataCount < 200 && allowExportAsImage && !isMobile && (
-          <Tooltip text={<span>{_l('导出为图片')}</span>}>
+          <Tooltip title={_l('导出为图片')}>
             <Icon icon="download" className="Gray_75 Font18 pointer mLeft24" onClick={() => onClick('genScreenshot')} />
           </Tooltip>
         )}

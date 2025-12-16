@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Icon, Skeleton, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import UpgradeContent from 'src/components/UpgradeContent';
 import CommonUserHandle from 'src/pages/PageHeader/components/CommonUserHandle';
 import HomepageIcon from 'src/pages/PageHeader/components/HomepageIcon';
@@ -139,9 +140,6 @@ const Wrap = styled.div`
       width: 100%;
       box-sizing: border-box;
     }
-    [data-tip]:after {
-      display: none;
-    }
   }
 `;
 
@@ -192,9 +190,11 @@ export default class UpgradeStatus extends Component {
         </div>
         <div className="isUpgrade">{_l('升级中')}</div>
         {description && (
-          <div className="appIntroWrap pointer" data-tip={_l('应用说明')}>
-            <Icon className="appIntroIcon Font16" icon="info" />
-          </div>
+          <Tooltip title={pcNaviStyle === 1 ? '' : _l('应用说明')}>
+            <div className="appIntroWrap pointer">
+              <Icon className="appIntroIcon Font16" icon="info" />
+            </div>
+          </Tooltip>
         )}
       </Fragment>
     );
@@ -202,10 +202,14 @@ export default class UpgradeStatus extends Component {
 
   renderAppInfoWrap = () => {
     const { appPkg = {} } = this.props;
-    const { pcNaviStyle } = appPkg;
+    const { pcNaviStyle, appStatus } = appPkg;
 
     if (pcNaviStyle === 1) {
       const renderContent = ({ count, waitingExamine }, onClick) => {
+        if (appStatus === 4) {
+          return <div className="flexRow alignItemsCenter pointer White backlogWrap"></div>;
+        }
+
         return (
           <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={onClick}>
             <Icon icon="task_alt" className="Font18" />

@@ -1,5 +1,6 @@
 import JsBarcode from 'jsbarcode';
 import _ from 'lodash';
+import { getCompressedFontSize } from './util';
 
 const BAR_FONT_SIZE = 15;
 
@@ -236,13 +237,6 @@ export class BarLabel {
     ctx.font = fontSize + 'px sans-serif';
     return ctx.measureText(value).width;
   }
-  getCompressedFontSize(value, width) {
-    let count = 0;
-    value.split('').forEach(char => {
-      count += /[0x00-0x7F]/.test(char) ? 1.1 : 2;
-    });
-    return (width / count) * 2;
-  }
   drawTexts() {
     let { isPreview, firstIsTitle, codePosition, texts, showBarValue } = this.options;
     const { paddingX, paddingY, height, fontSize } = this.layout;
@@ -283,7 +277,7 @@ export class BarLabel {
       if (forceInLine) {
         const contentWidth = this.measureTextWidth(text, textFontSize);
         if (contentWidth > textWidth) {
-          textFontSize = this.getCompressedFontSize(text, textWidth);
+          textFontSize = getCompressedFontSize(text, textWidth);
         } else {
           forceInLine = false;
         }

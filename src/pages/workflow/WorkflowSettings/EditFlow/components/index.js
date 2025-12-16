@@ -8,3 +8,4 @@ export { default as NodeWrap } from './NodeWrap';
 export { default as SimplifyNode } from './SimplifyNode';
 export { default as Thumbnail } from './Thumbnail';
 export { default as WhiteNode } from './WhiteNode';
+export { default as WorksheetMessage } from './WorksheetMessage';

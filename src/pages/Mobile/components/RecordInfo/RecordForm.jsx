@@ -10,17 +10,16 @@ import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils.js';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
+import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import RecordPay from 'src/components/RecordPay';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { selectUser } from 'src/pages/Mobile/components/SelectUser';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
-import { updateRecordOwner } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
 import { getRequest } from 'src/utils/common';
-import { compatibleMDJS, handleReplaceState } from 'src/utils/project';
+import { handleReplaceState } from 'src/utils/project';
+import RecordOwner from './components/RecordOwner';
 
 const LockWrap = styled.div`
   .lockContent {
@@ -30,7 +29,7 @@ const LockWrap = styled.div`
 
     .lockIcon {
       font-size: 16px;
-      color: var(--gray-75);
+      color: var(--color-text-secondary);
 
       i {
         margin-right: 12px;
@@ -161,6 +160,10 @@ export default class RecordForm extends Component {
                   worksheetId={recordBase.worksheetId}
                   recordId={recordBase.recordId}
                   controls={formData}
+                  hideStep={
+                    (recordInfo.switchPermit || []).find(o => o.type === permitList.approveDetailsSwitch)
+                      ?.displayFlowChart === 1
+                  }
                 />
               </div>
             ),
@@ -253,7 +256,7 @@ export default class RecordForm extends Component {
               }
               window.mobileNavigateTo &&
                 window.mobileNavigateTo(
-                  `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
+                  `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}${recordBase.viewId ? '/' + recordBase.viewId : ''}`,
                 );
               onClose && onClose();
             }}
@@ -263,68 +266,17 @@ export default class RecordForm extends Component {
         )}
         <div className="flex"></div>
         {showOwner && (
-          <div
-            className="owner sheetName bold mLeft6"
-            onClick={() => {
-              if (!ownerEditable || isRecordLock) return;
-
-              const handleUpdateOwner = async users => {
-                try {
-                  const { account, record } = await updateRecordOwner({
-                    worksheetId,
-                    recordId,
-                    accountId:
-                      users[0].accountId === 'user-self'
-                        ? _.get(md, ['global', 'Account', 'accountId'])
-                        : users[0].accountId,
-                  });
-                  updateRecordDialogOwner(account, record);
-                  alert(_l('修改成功'));
-                } catch (err) {
-                  if (err && err.resultCode === 72) {
-                    alert(_l('%0已锁定，修改失败', entityName), 3);
-                    return;
-                  }
-                  console.log(err);
-                  alert(_l('修改失败'), 2);
-                }
-              };
-
-              compatibleMDJS(
-                'chooseUsers',
-                {
-                  projectId, // 网络ID, 默认为空, 不限制
-                  count: 1, // 默认为空, 不限制数量
-                  selected: [],
-                  success: function (res) {
-                    // 最终选择结果, 完全替换已有数据
-                    if (_.isEmpty(res.results)) {
-                      return;
-                    }
-                    handleUpdateOwner(res.results);
-                  },
-                  cancel: function () {
-                    // 用户取消
-                  },
-                },
-                () => {
-                  selectUser({
-                    type: 'user',
-                    projectId,
-                    appId,
-                    onlyOne: true,
-                    hideClearBtn: true,
-                    userType: 3,
-                    filterAccountIds: [ownerAccount.accountId],
-                    includeUndefinedAndMySelf: true,
-                    onSave: users => handleUpdateOwner(users),
-                  });
-                },
-              );
-            }}
-          >
-            <span className="ellipsis">{_l('拥有者：%0', ownerAccount.fullname)}</span>
-          </div>
+          <RecordOwner
+            projectId={projectId}
+            appId={appId}
+            worksheetId={worksheetId}
+            recordId={recordId}
+            isRecordLock={isRecordLock}
+            ownerEditable={ownerEditable}
+            ownerAccount={ownerAccount}
+            entityName={entityName}
+            updateRecordDialogOwner={updateRecordDialogOwner}
+          />
         )}
       </Fragment>
     );
@@ -424,7 +376,11 @@ export default class RecordForm extends Component {
           view={view}
           data={formData.filter(item => {
             return (
-              (isEditRecord ? true : item.type !== 43) &&
+              (isEditRecord
+                ? true
+                : recordBase.workId && recordBase.instanceId
+                  ? !(item.type === 43 && !controlState(item, from).editable)
+                  : item.type !== 43) &&
               !(_.get(window, 'shareState.isPublicForm') && _.includes(NOT_LOGIN_HIDDEN_TYPES, item.type))
             );
           })}
@@ -530,7 +486,9 @@ export default class RecordForm extends Component {
             )}
 
             <div className="flex">{this.renderCustomFields()}</div>
-            {!_.includes([29, 51], currentTab.type) && workflow && workflow({ formData })}
+            {!_.includes([29, 51], currentTab.type) &&
+              workflow &&
+              workflow({ formData, hideStep: this.props.hideStep })}
           </PullToRefreshWrapper>
         </div>
       </Fragment>

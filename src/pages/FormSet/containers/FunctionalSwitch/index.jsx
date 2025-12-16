@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Dialog, Icon, LoadDiv, ScrollView, Switch, Tooltip } from 'ming-ui';
+import { Dialog, Icon, LoadDiv, ScrollView, Switch } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
 import DelDialog from '../../components/DelAutoIdDialog';
 import Range from '../../components/Range';
@@ -291,14 +292,14 @@ function FunctionalSwitch(props) {
                                   </span>
                                 )}
                                 {helpList.includes(oo) && (
-                                  <Tooltip popupPlacement="bottom" text={<span>{tipStr[oo]}</span>}>
+                                  <Tooltip placement="bottom" title={tipStr[oo]}>
                                     <Icon icon="help" className="Font14 Gray_9e mLeft4" />
                                   </Tooltip>
                                 )}
                                 {o.roleType === 100 && o.state && (
                                   <Tooltip
-                                    popupPlacement="bottom"
-                                    text={<span>{_l('仅系统角色可见（包含管理员、运营者、开发者）')}</span>}
+                                    placement="bottom"
+                                    title={_l('仅系统角色可见（包含管理员、运营者、开发者）')}
                                   >
                                     <Icon icon="visibility_off" className="" />
                                   </Tooltip>
@@ -379,6 +380,13 @@ function FunctionalSwitch(props) {
                 }}
                 views={views.filter(l => l.viewId !== l.worksheetId)}
                 data={info.showData}
+                otherSet={41 === info.showData.type}
+                changeOtherSet={otherSet => {
+                  edit({
+                    ...info.showData,
+                    ...otherSet,
+                  });
+                }}
               />
             )}
             {!closeAutoID && (
@@ -390,9 +398,8 @@ function FunctionalSwitch(props) {
                       <div className="">
                         {_l('系统编号')}
                         <Tooltip
-                          popupPlacement="bottom"
-                          autoCloseDelay={0}
-                          text={
+                          placement="bottom"
+                          title={
                             <span>
                               {_l(
                                 '系统编号为之前创建的工作表中用于生成序号的系统字段，每增加一条记录时自动+1，仅在工作流中可以使用此字段。现在已被自动编号字段代替，新创建的工作表不再包含此字段。如果你未使用过此字段，可以删除以提升在大数据量时的工作表性能',

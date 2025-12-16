@@ -559,7 +559,7 @@ export default function GroupCon(props) {
                     {isSameType([26], viewControlData)
                       ? renderAccount(o.name)
                       : isSameType([27, 48], viewControlData)
-                        ? renderName(o)
+                        ? renderName()
                         : isSameType([29], viewControlData)
                           ? renderRelate(o)
                           : o.name}

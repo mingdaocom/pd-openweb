@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Dropdown, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import RichText from 'ming-ui/components/RichText';
 import Textarea from 'ming-ui/components/Textarea';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
@@ -144,7 +144,6 @@ class TaskBasic extends Component {
         ) : (
           <Fragment>
             <Tooltip
-              autoCloseDelay={0}
               title={_l(
                 '所属组织：%0',
                 (this.props.taskDetails[this.props.taskId] || { data: {} }).data.projectName || _l('个人'),
@@ -168,13 +167,14 @@ class TaskBasic extends Component {
             </div>
             <div className="flex" />
             {!data.ancestors.length && (
-              <span
-                className="folderBtn ThemeColor3 tip-bottom-left pointer"
-                data-tip={_l('重新关联项目')}
-                onClick={() => this.props.showRelationControl(RELATION_TYPES.folder)}
-              >
-                <i className="icon-edit" />
-              </span>
+              <Tooltip title={_l('重新关联项目')}>
+                <span
+                  className="folderBtn ThemeColor3 pointer"
+                  onClick={() => this.props.showRelationControl(RELATION_TYPES.folder)}
+                >
+                  <i className="icon-edit" />
+                </span>
+              </Tooltip>
             )}
           </Fragment>
         )}
@@ -230,20 +230,22 @@ class TaskBasic extends Component {
         <div className="flex" />
         {showBtn && (
           <Fragment>
-            <span
-              className="parentBtn ThemeColor3 tip-bottom-left pointer"
-              data-tip={_l('取消关联任务')}
-              onClick={() => this.props.relationOnSubmit('', RELATION_TYPES.task)}
-            >
-              <i className="icon-delete" />
-            </span>
-            <span
-              className="parentBtn ThemeColor3 tip-bottom-left pointer"
-              data-tip={_l('重新关联母任务')}
-              onClick={() => this.props.showRelationControl(RELATION_TYPES.task)}
-            >
-              <i className="icon-edit" />
-            </span>
+            <Tooltip title={_l('取消关联任务')}>
+              <span
+                className="parentBtn ThemeColor3 pointer"
+                onClick={() => this.props.relationOnSubmit('', RELATION_TYPES.task)}
+              >
+                <i className="icon-delete" />
+              </span>
+            </Tooltip>
+            <Tooltip title={_l('重新关联母任务')}>
+              <span
+                className="parentBtn ThemeColor3 pointer"
+                onClick={() => this.props.showRelationControl(RELATION_TYPES.task)}
+              >
+                <i className="icon-edit" />
+              </span>
+            </Tooltip>
           </Fragment>
         )}
       </li>
@@ -507,7 +509,7 @@ class TaskBasic extends Component {
       const userIdArr = [];
       const specialAccounts = {}; // 外部用户
 
-      if ($.isFunction(callbackInviteResult)) {
+      if (_.isFunction(callbackInviteResult)) {
         users.forEach(item => {
           specialAccounts[item.account] = item.fullname;
         });
@@ -635,13 +637,11 @@ class TaskBasic extends Component {
               onKeyDown={this.updateTaskNameKeyDown}
               onBlur={this.updateTaskName}
             />
-            <span
-              className="detailStar tip-bottom-left"
-              data-tip={data.star ? _l('移除星标') : _l('添加星标')}
-              onClick={this.updateTaskMemberStar}
-            >
-              <i className={data.star ? 'icon-task-star' : 'icon-star-hollow'} />
-            </span>
+            <Tooltip title={data.star ? _l('移除星标') : _l('添加星标')}>
+              <span className="detailStar" onClick={this.updateTaskMemberStar}>
+                <i className={data.star ? 'icon-task-star' : 'icon-star-hollow'} />
+              </span>
+            </Tooltip>
           </div>
           <div className="taskContentBoxBG mTop10">
             <div className="detailSummary">
@@ -743,19 +743,19 @@ class TaskBasic extends Component {
               />
             </div>
             <div className="taskMembers">
-              <span className="taskContentIcon tip-bottom-right" data-tip={_l('任务参与者')}>
-                <i className="icon-group" />
-              </span>
+              <Tooltip title={_l('任务参与者')}>
+                <span className="taskContentIcon">
+                  <i className="icon-group" />
+                </span>
+              </Tooltip>
               <div className="membersList">
                 {data.member.map((item, i) => this.renderMemberItem(item, i, hasAuth))}
                 {hasAuth && (
-                  <span
-                    className="ThemeColor3 detailAddMember"
-                    data-tip={_l('添加任务参与者')}
-                    onClick={this.addMembers}
-                  >
-                    <i className="icon-task-add-member-circle" />
-                  </span>
+                  <Tooltip title={_l('添加任务参与者')}>
+                    <span className="ThemeColor3 detailAddMember" onClick={this.addMembers}>
+                      <i className="icon-task-add-member-circle" />
+                    </span>
+                  </Tooltip>
                 )}
               </div>
             </div>

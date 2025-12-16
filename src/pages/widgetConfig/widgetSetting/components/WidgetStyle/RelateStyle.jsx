@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
@@ -50,7 +50,6 @@ export default function RelateStyle(props) {
           {_l('交互方式')}{' '}
           <Tooltip
             placement="bottom"
-            autoCloseDelay={0}
             title={
               <span>
                 {_l('经典模式：点整行打开记录')}
@@ -73,22 +72,15 @@ export default function RelateStyle(props) {
 
       <SettingItem>
         <div className="settingItemTitle">{_l('冻结列')}</div>
-        <AnimationWrap>
-          {DISPLAY_FROZEN_LIST.map(({ text, value }) => {
-            return (
-              <div
-                className={cx('animaItem overflow_ellipsis', { active: (freezeIds[0] || '0') === value })}
-                onClick={() =>
-                  onChange(
-                    handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }),
-                  )
-                }
-              >
-                {text}
-              </div>
-            );
-          })}
-        </AnimationWrap>
+        <Dropdown
+          border
+          value={freezeIds[0] || '0'}
+          maxHeight={250}
+          data={DISPLAY_FROZEN_LIST}
+          onChange={value => {
+            onChange(handleAdvancedSettingChange(data, { freezeids: value === '0' ? '' : JSON.stringify([value]) }));
+          }}
+        />
       </SettingItem>
 
       {data.type === 29 && _.includes(['5', '6'], showtype) && (
@@ -96,7 +88,7 @@ export default function RelateStyle(props) {
           <div className="settingItemTitle">
             {_l('树形表格')}
             {isUnSupport && (
-              <Tooltip popupPlacement="bottom" title={_l('该关联记录字段不是一对多关系')}>
+              <Tooltip placement="bottom" title={_l('该关联记录字段不是一对多关系')}>
                 <Icon className="Font20 mLeft8 Red" icon="error1" />
               </Tooltip>
             )}
@@ -174,19 +166,20 @@ export default function RelateStyle(props) {
             <AnimationWrap style={{ width: '112px' }}>
               {DISPLAY_RC_TITLE_STYLE.map(({ icon, value, text }) => {
                 return (
-                  <div
-                    className={cx('animaItem', { active: rctitlestyle === value })}
-                    data-tip={text}
-                    onClick={() => {
-                      onChange(
-                        handleAdvancedSettingChange(data, {
-                          rctitlestyle: value,
-                        }),
-                      );
-                    }}
-                  >
-                    <Icon icon={icon} className="Font18" />
-                  </div>
+                  <Tooltip title={text}>
+                    <div
+                      className={cx('animaItem', { active: rctitlestyle === value })}
+                      onClick={() => {
+                        onChange(
+                          handleAdvancedSettingChange(data, {
+                            rctitlestyle: value,
+                          }),
+                        );
+                      }}
+                    >
+                      <Icon icon={icon} className="Font18" />
+                    </div>
+                  </Tooltip>
                 );
               })}
             </AnimationWrap>

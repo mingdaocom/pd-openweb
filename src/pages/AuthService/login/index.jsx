@@ -9,11 +9,11 @@ import privateSysSetting from 'src/api/privateSysSetting';
 import projectApi from 'src/api/project';
 import Footer from 'src/pages/AuthService/components/Footer.jsx';
 import 'src/pages/AuthService/components/form.less';
-import { browserIsMobile, getRequest } from 'src/utils/sso';
+import { getRequest } from 'src/utils/sso';
 import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
-import { checkReturnUrl, getDataByFilterXSS, isTel } from '../util';
+import { isTel, loginSuccessRedirect } from '../util';
 import Container from './Container';
 import { loginCallback, ssoLogin } from './util';
 
@@ -64,12 +64,7 @@ export default function Login() {
     //检测是否已登录
     loginController.checkLogin().then(data => {
       if (data) {
-        if (request.ReturnUrl) {
-          checkReturnUrl(request.ReturnUrl);
-          location.replace(getDataByFilterXSS(request.ReturnUrl));
-          return;
-        }
-        location.href = browserIsMobile() ? `/mobile/dashboard` : `/dashboard`;
+        loginSuccessRedirect();
         return;
       }
     });

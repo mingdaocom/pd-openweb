@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import { VersionProductType } from 'src/utils/enum';
@@ -57,11 +58,9 @@ export default class UseAnalytics extends Component {
           <div className="extraInfo">
             {_l('截止到今天0点的最新数据')}
             <Tooltip
-              tooltipClass="analyticsTooltip"
-              popupPlacement="bottom"
-              autoCloseDelay={0}
-              text={
-                <span className="tooltipCon">
+              placement="bottom"
+              title={
+                <span className="tooltipCon InlineBlock" style={{ width: '180px' }}>
                   {_l(
                     '保留最近一年的使用分析数据，使用分析上线后隔天对使用数据进行分析，且只有开通相应的版本方可使用此功能',
                   )}

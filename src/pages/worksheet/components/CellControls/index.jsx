@@ -3,9 +3,10 @@ import _, { get, includes, isUndefined } from 'lodash';
 import PropTypes from 'prop-types';
 import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { onValidator } from 'src/components/newCustomFields/tools/formUtils';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/Form/core/config';
+import DataFormat from 'src/components/Form/core/DataFormat';
+import { onValidator } from 'src/components/Form/core/formUtils';
+import 'src/components/Form/DesktopForm/style.less';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { accDiv } from 'src/utils/common';
 import {
@@ -295,7 +296,7 @@ export default class CellControl extends React.Component {
       row: rowForCheckRule,
       validateRealtime: true,
     });
-    if (ruleError) {
+    if (ruleError && ruleError?.errorType !== 'RULE_REQUIRED') {
       this.setState({ error: ruleError.errorMessage, ignoreErrorMessage: ruleError.ignoreErrorMessage });
       return ruleError;
     }
@@ -383,7 +384,7 @@ export default class CellControl extends React.Component {
         break;
       case ' ':
         if (!isediting) {
-          onClick();
+          onClick({ isSpace: true });
         }
         break;
       case 'Enter':
@@ -452,6 +453,7 @@ export default class CellControl extends React.Component {
       cellUniqueValidate,
       scrollTo,
       onCellFocus = () => {},
+      setActiveRow,
     } = this.props;
     const { error } = this;
     onCellFocus(isediting);
@@ -476,6 +478,7 @@ export default class CellControl extends React.Component {
       }
       if (isediting) {
         enterEditing();
+        setActiveRow(row?.rowid || null);
       }
       setTimeout(
         () => {
@@ -515,6 +518,7 @@ export default class CellControl extends React.Component {
       console.error(err);
     }
     const {
+      row,
       tableType,
       clickEnterEditing,
       cell,
@@ -524,8 +528,10 @@ export default class CellControl extends React.Component {
       triggerClickImmediate,
       onFocusCell,
       onMouseDown,
+      setActiveRow,
     } = this.props;
     onMouseDown();
+    setActiveRow(row.rowid);
     const haveEditingStatus = this.haveEditingStatus(cell);
     if (tableType === 'classic') {
       if (!_.isUndefined(cache.focusIndex) && cache.focusIndex === cellIndex && haveEditingStatus) {
@@ -600,6 +606,7 @@ export default class CellControl extends React.Component {
       onFocusCell,
       chatButton,
       isDraft,
+      setActiveRow,
     } = this.props;
     // style.transform = `translate3d(${style.left}px, ${style.top}px, 0)`;
     // style.left = 0;
@@ -619,6 +626,9 @@ export default class CellControl extends React.Component {
     }
     if (isediting) {
       className += ' isediting';
+    }
+    if (className.indexOf('highlight') < 0 && String(window[`activeRowIndex-${tableId}`]) === String(rowIndex)) {
+      className += ' highlight';
     }
     if (
       cache &&
@@ -723,6 +733,7 @@ export default class CellControl extends React.Component {
       disableDownload,
       isCharge,
       onFocusCell,
+      setActiveRow,
       fromEmbed: _.get(this.context, 'config.fromEmbed'),
     };
     if (isTextControl) {

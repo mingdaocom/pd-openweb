@@ -267,7 +267,7 @@ class FolderChart extends Component {
     $('#taskList').on('click', '.folderChartModel', function () {
       const $folderChartBoxTitle = $(this).siblings('.folderChartBoxTitle');
       const title = $folderChartBoxTitle.text();
-      const tipTitle = $folderChartBoxTitle.find('span:last').attr('data-tip');
+      const tipTitle = $folderChartBoxTitle.find('span:last').attr('title');
       const activeTime = $('#taskList').find('.folderChartTimeTxt').html();
       const activeBtn = $('#taskList').find('.activeClass').index() - 1;
 

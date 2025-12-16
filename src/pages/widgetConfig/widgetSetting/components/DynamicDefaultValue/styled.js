@@ -357,6 +357,14 @@ export const SearchWorksheetWrap = styled.div`
       font-weight: 700 !important;
     }
   }
+  .settingItemTitle {
+    color: #151515;
+  }
+  .settingItemSubTitle {
+    color: #515151;
+    font-weight: unset;
+  }
+
   .searchRadio .ming.Radio {
     line-height: 28px !important;
   }

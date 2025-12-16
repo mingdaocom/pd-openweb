@@ -3,7 +3,7 @@ import { ConfigProvider, Empty, Table } from 'antd';
 import _ from 'lodash';
 import { ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { controlState } from 'src/components/newCustomFields/tools/utils';
+import { controlState } from 'src/components/Form/core/utils';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { renderText } from 'src/utils/control';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';

@@ -4,7 +4,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Checkbox, Tooltip } from 'ming-ui';
+import { Checkbox } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import NoData from './NoData';
 import User from './User';
 import './css/user.less';
@@ -72,8 +73,13 @@ export default class DepartmentGroupUserList extends Component {
                       />
                     </div>
                     <Tooltip
-                      text={tabType === 'department' ? _l('部门下所有人已加入') : _l('群组下所有人已加入')}
-                      disable={!isAllSelectedAccountIds}
+                      title={
+                        !isAllSelectedAccountIds
+                          ? ''
+                          : tabType === 'department'
+                            ? _l('部门下所有人已加入')
+                            : _l('群组下所有人已加入')
+                      }
                     >
                       <span>
                         <Checkbox

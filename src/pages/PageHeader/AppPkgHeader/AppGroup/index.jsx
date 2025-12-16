@@ -5,6 +5,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { func, oneOf } from 'prop-types';
 import { Icon, VCenterIconText } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { convertColor } from 'worksheet/common/WorkSheetLeft/WorkSheetItem';
 import { updateAppPkgData, updateIsCharge } from 'worksheet/redux/actions';
 import MyProcessEntry from 'src/pages/PageHeader/components/MyProcessEntry';
@@ -370,25 +371,26 @@ export default class extends Component {
 
     const renderContent = ({ count, waitingExamine }, onClick) => {
       return (
-        <VCenterIconText
-          data-tip={_l('流程待办')}
-          onClick={onClick}
-          className="appExtensionItem"
-          icon="task_alt"
-          iconSize={20}
-          textSize={14}
-          iconStyle={{ margin: 0 }}
-          text={
-            <Fragment>
-              {!!count && (
-                <div className="flexRow alignItemsCenter mLeft6">
-                  <div className="count">{count}</div>
-                </div>
-              )}
-              {!!waitingExamine && !count && <div className="weakCount"></div>}
-            </Fragment>
-          }
-        />
+        <Tooltip title={_l('流程待办')}>
+          <VCenterIconText
+            onClick={onClick}
+            className="appExtensionItem"
+            icon="task_alt"
+            iconSize={20}
+            textSize={14}
+            iconStyle={{ margin: 0 }}
+            text={
+              <Fragment>
+                {!!count && (
+                  <div className="flexRow alignItemsCenter mLeft6">
+                    <div className="count">{count}</div>
+                  </div>
+                )}
+                {!!waitingExamine && !count && <div className="weakCount"></div>}
+              </Fragment>
+            }
+          />
+        </Tooltip>
       );
     };
 

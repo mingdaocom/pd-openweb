@@ -156,8 +156,11 @@ export const SORT_TYPE = {
   DESC: 'DESC',
 };
 
-export const isValidName = name => {
-  return /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/.test(name);
+export const isValidName = (name, allowDash = false) => {
+  const pattern = allowDash
+    ? /^[^`~!@#$%^&*()+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/
+    : /^[^`~!@#$%^&*()\-+=<>?:"{}|,./;'[\]·！￥…（）—《》？：“”【】、；‘，。\s\\]+$/;
+  return pattern.test(name);
 };
 
 export const TRIGGER_WORKFLOW_CHECKBOX_OPTIONS = [

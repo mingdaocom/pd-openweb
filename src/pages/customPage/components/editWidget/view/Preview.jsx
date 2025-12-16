@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import homeAppApi from 'src/api/homeApp';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
@@ -50,7 +51,13 @@ const ViewWrap = styled.div`
     }
   }
   .SingleViewName {
-    color: var(--title-color);
+    .name {
+      color: var(--widget-title-color);
+    }
+    .icon {
+      pointer-events: initial;
+      color: var(--widget-icon-color) !important;
+    }
   }
   .SingleViewName + div {
     display: none;
@@ -75,6 +82,11 @@ const ViewWrap = styled.div`
   &.hideAddRecord .gunterDirectory .addCoin,
   &.hideAddRecord .hierarchyViewLeftBoundary > div,
   &.hideAddRecord .resourceView .groupTableCon .addCoin,
+  &.hideAddRecord .sheetViewTable .control-rowHead .hoverShow:last-child,
+  &.hideAddRecord .groupBoardWrap .groupByControl .hoverShow:last-child,
+  &.hideAddRecord .groupBoardContent .secondGroupItemWrap .addBoardRecord,
+  &.hideAddRecord .galleryViewContentWrap .groupByControlForGallery .hoverShow:last-child,
+  &.hideAddRecord .sheetViewTable .addChildBtn.hoverShow,
   &.hideSearchRecord .icon-search,
   &.hideSearchRecord .searchWrapper,
   &.hideSearchRecord .mapSearchRecordAutoComplete {
@@ -137,6 +149,7 @@ export function View(props) {
   const isMobileLayout = isMobile || layoutType === 'mobile';
   const translateInfo = getTranslateInfo(appId, null, id);
   const [Component, setComponent] = useState(null);
+  const showTitle = config.showTitle ?? true;
 
   useEffect(() => {
     if (isMobileLayout) {
@@ -172,7 +185,7 @@ export function View(props) {
       })}
     >
       <Component
-        showHeader
+        showHeader={showTitle}
         ref={singleViewRef}
         appId={apkId || appId}
         worksheetId={value}
@@ -183,9 +196,9 @@ export function View(props) {
         filtersGroup={filtersGroup}
         config={config}
         headerLeft={
-          <div className="SingleViewName flex ellipsis">
+          <div className="SingleViewName flexRow alignItemsCenter flex">
             <span
-              className={cx('Font15 bold', { pointer: config.openView })}
+              className={cx('Font15 bold ellipsis name', { pointer: config.openView })}
               onClick={() => {
                 if (config.openView) {
                   navigateToView(value, viewId);
@@ -194,6 +207,11 @@ export function View(props) {
             >
               {translateInfo.name || config.name}
             </span>
+            {config.desc && (
+              <Tooltip title={config.desc} placement="bottom">
+                <Icon icon="info" className="Font18 pointer Gray_9e mLeft7" />
+              </Tooltip>
+            )}
           </div>
         }
       />

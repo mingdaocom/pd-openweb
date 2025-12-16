@@ -64,7 +64,7 @@ class PrivacyOrAgreen extends React.Component {
       logoImageUrl: '',
       customizeName: '',
       appColor: '#00bcd4',
-      appLogoUrl: md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
+      appLogoUrl: md.global.FileStoreConfig.pubHost + '/customIcon/0_lego.svg',
       loading: true,
     };
   }
@@ -77,10 +77,7 @@ class PrivacyOrAgreen extends React.Component {
       this.ajax = externalPortalAjax.getPrivacyTerms({ AppId: appId });
     }
     this.ajax.then(res => {
-      const {
-        appColor = '#00bcd4',
-        appLogoUrl = md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg',
-      } = res;
+      const { appColor = '#00bcd4', appLogoUrl = md.global.FileStoreConfig.pubHost + '/customIcon/0_lego.svg' } = res;
       document.title =
         (location.pathname.indexOf('privacy') < 0 ? _l('用户协议') : _l('隐私政策')) +
         ' - ' +

@@ -35,6 +35,28 @@ export const Wrap = styled.div`
       background-color: #e7e8e9;
     }
   }
+  .accountStatus {
+    height: 32px;
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 10px 12px;
+    cursor: pointer;
+    margin: 16px 20px 0;
+    width: calc(100% - 24px);
+    max-width: unset !important;
+    &:hover {
+      background-color: #ddd;
+    }
+  }
+  .shortcutKey {
+    padding: 0px 5px;
+    margin-right: -5px;
+    text-align: center;
+    border-radius: 3px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    font-family: -apple-system、Segoe UI Variable Display、Segoe UI-MONOSPACE;
+  }
 `;
 
 export const PopoverWrap = styled.div`

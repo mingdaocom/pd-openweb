@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, Support, Tooltip } from 'ming-ui';
+import { Icon, LoadDiv, Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { CreateIndex } from 'worksheet/common';
 import MoreOption from '../components/MoreOption';
@@ -386,7 +387,7 @@ function FormIndexSetting(props) {
                             }}
                           />
                         ) : (
-                          <Tooltip text={item.customeIndexName}>
+                          <Tooltip title={item.customeIndexName}>
                             <span className="overflow_ellipsis"> {item.customeIndexName}</span>
                           </Tooltip>
                         )}

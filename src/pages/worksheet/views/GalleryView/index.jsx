@@ -8,12 +8,12 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import worksheetAjax from 'src/api/worksheet';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import * as actions from 'worksheet/redux/actions/galleryview';
-import { getEmbedValue } from 'src/components/newCustomFields/tools/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import GroupByControl, { getDefaultValue } from 'src/pages/worksheet/components/GroupByControl.jsx';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
-import { browserIsMobile, emitter } from 'src/utils/common';
+import { emitter } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
@@ -26,7 +26,6 @@ import RecordInfoForGallery from './RecordInfoForGallery';
 import { canEditForGroupControl, getDataWithFormat, getWidth } from './util';
 import './index.less';
 
-const isMobile = browserIsMobile();
 const notFetchAttr = [
   'name',
   'worksheetName',
@@ -51,7 +50,7 @@ const LoadingIndicator = ({ loading }) =>
 
 // 提取的空状态组件
 const EmptyState = ({ filters, isFiltered }) => {
-  if (filters.keyWords || !isEmpty(filters.filterControls) || isMobile) {
+  if (filters.keyWords || !isEmpty(filters.filterControls)) {
     return <ViewEmpty filters={filters} />;
   }
   return <NoRecords sheetIsFiltered={isFiltered} />;
@@ -287,11 +286,6 @@ export default class RecordGallery extends Component {
       abstractControl: abstract ? { ...abstractData, value: item[abstract] } : '',
     };
 
-    const mobileStyle =
-      window.innerWidth > 480 && _.get(currentView, 'advancedSetting.rowcolumns') === '2'
-        ? { width: '50%', padding: '5px' }
-        : { width: '100%', padding: '5px 0px' };
-
     let groupInfo = {};
 
     const { groupsetting } = getAdvanceSetting(currentView);
@@ -308,8 +302,8 @@ export default class RecordGallery extends Component {
     return (
       <div
         key={item.rowid}
-        className={cx('galleryItem', { mobile: isMobile })}
-        style={isMobile ? mobileStyle : { width: getWidth(this.props) }}
+        className={cx('galleryItem')}
+        style={{ width: getWidth(this.props) }}
         onClick={() => this.handleRecordClick(currentView, item, rowKey)}
       >
         <GalleryItem
@@ -340,7 +334,16 @@ export default class RecordGallery extends Component {
   };
 
   renderAddCard = rowKey => {
-    const { base = {}, views = [], worksheetInfo, isCharge, updateRow, controls = [], galleryview = {} } = this.props;
+    const {
+      base = {},
+      views = [],
+      worksheetInfo,
+      isCharge,
+      updateRow,
+      controls = [],
+      galleryview = {},
+      allowAddNewRecord = true,
+    } = this.props;
     const currentView = views.find(o => o.viewId === base.viewId) || {};
     const { gallery = [] } = galleryview;
     const { groupsetting } = getAdvanceSetting(currentView);
@@ -365,10 +368,11 @@ export default class RecordGallery extends Component {
         },
       });
     };
-    const allowAdd = canEditForGroupControl({
-      allowAdd: worksheetInfo?.allowAdd,
-      control,
-    });
+    const allowAdd =
+      canEditForGroupControl({
+        allowAdd: worksheetInfo?.allowAdd,
+        control,
+      }) && allowAddNewRecord;
     if (!allowAdd) {
       return <div className="Gray_75 Font16 pTop20 pBottom20 TxtCenter">{_l('该分组下无记录')}</div>;
     }

@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
 import { Dialog } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import { errorMessage } from '../../../utils/utils';
@@ -161,9 +162,11 @@ export default class CopyTask extends Component {
               <div className="checked checkOperation" id="copySubTask">
                 <i className="operationCheckbox icon-ok ThemeBGColor3 ThemeBorderColor3" />
                 {_l('子任务')}
-                <span className="mLeft5 copyTip" data-tip={_l('子任务将包含以上所选的复制内容')}>
-                  <i className="icon-info" />
-                </span>
+                <Tooltip title={_l('子任务将包含以上所选的复制内容')}>
+                  <span className="mLeft5 copyTip">
+                    <i className="icon-info" />
+                  </span>
+                </Tooltip>
               </div>
             </li>
             <li>

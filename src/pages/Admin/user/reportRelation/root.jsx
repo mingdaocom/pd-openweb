@@ -1,7 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
-import { Tooltip } from 'ming-ui';
+import 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Checkbox from 'ming-ui/components/Checkbox';
 import projectSettingController from 'src/api/projectSetting';
 import Config from '../../config';
@@ -70,8 +71,7 @@ class Root extends Component {
             <div className="Font17 flex Bold">
               {_l('汇报关系')}
               <Tooltip
-                autoCloseDelay={0}
-                text={
+                title={
                   <span className="White">
                     {_l(
                       '在工作表和工作流的汇报关系检索时，若当前用户的所有下级用户总数超过2000（含），系统将默认仅获取当前用户的“直属下一级”所有用户。',
@@ -79,30 +79,27 @@ class Root extends Component {
                     <div>{_l('注：用户离职时不会被移出汇报关系，您可以手动移除')}</div>
                   </span>
                 }
-                action={['hover']}
-                popupPlacement="top"
+                placement="top"
               >
                 <i className="icon-info_outline Gray_9e mLeft5" />
               </Tooltip>
             </div>
 
             <Fragment>
-              <span
-                data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')}
-                className="rootBoardHeaderTips"
-              >
-                <Checkbox checked={allowStructureSelfEdit} onClick={this.changeSubordinate} className="mLeft15">
-                  {_l('允许员工自行管理下属')}
-                </Checkbox>
-              </span>
-              <span
-                data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')}
-                className="rootBoardHeaderTips"
-              >
-                <Checkbox checked={authForAll} onClick={this.changeReporting} className="mLeft15">
-                  {_l('全员可以查看汇报关系')}
-                </Checkbox>
-              </span>
+              <Tooltip title={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')} placement="top">
+                <span className="rootBoardHeaderTips">
+                  <Checkbox checked={allowStructureSelfEdit} onClick={this.changeSubordinate} className="mLeft15">
+                    {_l('允许员工自行管理下属')}
+                  </Checkbox>
+                </span>
+              </Tooltip>
+              <Tooltip title={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')} placement="top">
+                <span className="rootBoardHeaderTips">
+                  <Checkbox checked={authForAll} onClick={this.changeReporting} className="mLeft15">
+                    {_l('全员可以查看汇报关系')}
+                  </Checkbox>
+                </span>
+              </Tooltip>
             </Fragment>
           </div>
         )}

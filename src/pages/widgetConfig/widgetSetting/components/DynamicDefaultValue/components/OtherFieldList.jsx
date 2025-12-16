@@ -100,7 +100,7 @@ export default ({
                           src={
                             _.includes(avatar, 'UserAvatar')
                               ? avatar
-                              : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`
+                              : `${md.global.FileStoreConfig.pictureHost}/UserAvatar/${avatar}`
                           }
                         />
                       )}

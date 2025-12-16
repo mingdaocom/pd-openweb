@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
-import { ConfigProvider, Table, Tooltip } from 'antd';
+import { ConfigProvider, Table } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
 import { Dropdown, Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import { dialogSelectUser } from 'ming-ui/functions';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';

@@ -4,7 +4,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Support, Tooltip } from 'ming-ui';
+import { Support } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import { formatNumberThousand, formatStrZero } from 'src/utils/control';
 
@@ -12,10 +13,10 @@ const Tips = styled.div`
   max-width: 230;
   max-height: 200;
   overflow-y: auto;
-  color: var(--color-third);
+  color: var(--color-background-primary);
   white-space: pre-wrap;
   .customSubtotalMessage {
-    color: var(--color-third) !important;
+    color: var(--color-background-primary) !important;
   }
 `;
 
@@ -65,7 +66,7 @@ const Subtotal = props => {
       >
         {_l('超出汇总数量上限')}
         <Tooltip
-          text={
+          title={
             <Tips>
               {_l('最大支持汇总1000行数据。如需要汇总更多数据，请通过配置工作流运算写入。')}
               <Support
@@ -76,10 +77,9 @@ const Subtotal = props => {
               />
             </Tips>
           }
-          action={['click']}
-          popupPlacement={'top'}
-          offset={[0, 0]}
-          autoCloseDelay={0}
+          trigger={['click']}
+          placement="top"
+          align={{ offset: [0, 0] }}
         >
           <i className="icon-info_outline mLeft5" />
         </Tooltip>

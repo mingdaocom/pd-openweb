@@ -3,6 +3,7 @@ import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { browserIsMobile } from 'src/utils/common';
 import {
@@ -87,7 +88,7 @@ export default class extends Component {
       displaySetup.showChartType !== oldDisplaySetup.showChartType ||
       nextProps.isLinkageData !== this.props.isLinkageData
     ) {
-      this.PieChart.destroy();
+      this.PieChart && this.PieChart.destroy();
       this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(nextProps));
       this.PieChart.render();
     }
@@ -263,7 +264,7 @@ export default class extends Component {
         },
       },
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: data => {
         const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
@@ -433,9 +434,9 @@ export default class extends Component {
         {showTotal && showChartType === 2 ? (
           <div className="pBottom10">
             <span>{formatSummaryName(summary)}: </span>
-            <span data-tip={originalCount ? originalCount : null} className="count">
-              {count}
-            </span>
+            <Tooltip title={originalCount ? originalCount : null}>
+              <span className="count">{count}</span>
+            </Tooltip>
           </div>
         ) : null}
         <div

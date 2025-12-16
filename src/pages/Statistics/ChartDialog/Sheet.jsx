@@ -1,13 +1,16 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'statistics/redux/actions';
+import { permitList } from 'src/pages/FormSet/config.js';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SingleView from 'src/pages/worksheet/common/SingleView';
+import { emitter } from 'src/utils/common';
 import charts from '../Charts';
 import { reportTypes } from '../Charts/common';
 import { WithoutData } from '../components/ChartStatus';
@@ -172,9 +175,11 @@ export default class ChartSheet extends Component {
     }
   }
   renderHeaderAction() {
-    const { base, currentReport, worksheetInfo, onClose } = this.props;
+    const { base, reportSingleCacheLoading, currentReport, worksheetInfo, onClose } = this.props;
+    const { appType = 1 } = currentReport || {};
     const viewId = _.get(currentReport, ['filter', 'viewId']);
     const view = _.find(worksheetInfo.views, { viewId });
+    const showExport = isOpenPermit(permitList.export, worksheetInfo.switches, viewId);
     return (
       <div className="valignWrapper">
         {base.reportSingleCacheId && <div className="actionDivider" />}
@@ -183,6 +188,19 @@ export default class ChartSheet extends Component {
             <Icon className="Font20 Gray_9e pointer hoverHighlight mLeft12" icon="launch" onClick={this.handleToView} />
           </Tooltip>
         )}
+        {appType === 1 &&
+          base.reportSingleCacheId &&
+          !reportSingleCacheLoading &&
+          showExport &&
+          !window.publicAppAuthorization && (
+            <Icon
+              icon="download"
+              className="Font22 Gray_9e pointer mLeft12 hoverHighlight"
+              onClick={() => {
+                emitter.emit('EXPORT_CURRENT_VIEW_AS_EXCEL', { allowExportStatistics: false });
+              }}
+            />
+          )}
         <Icon
           icon="close"
           className="Font22 Gray_9e pointer mLeft12 hoverHighlight"

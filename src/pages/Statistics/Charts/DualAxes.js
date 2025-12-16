@@ -3,7 +3,9 @@ import { Dropdown, Menu } from 'antd';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { formatSummaryName, formatterTooltipTitle, isFormatNumber } from 'statistics/common';
+import { toFixed } from 'src/utils/control';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
 import {
   formatControlInfo,
@@ -101,6 +103,7 @@ export default class extends Component {
       rightYDisplay.title !== oldRightYDisplay.title ||
       rightYDisplay.minValue !== oldRightYDisplay.minValue ||
       rightYDisplay.maxValue !== oldRightYDisplay.maxValue ||
+      rightYDisplay.showNumber !== oldRightYDisplay.showNumber ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
@@ -113,17 +116,18 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
-      this.DualAxes.update(config);
+      this.DualAxes && this.DualAxes.update(config);
     }
     // 堆叠 & 累计
     if (
       displaySetup.isPile !== oldDisplaySetup.isPile ||
       displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
       rightY.display.isAccumulate !== oldRightY.display.isAccumulate ||
+      rightY.display.accumulatePerPile !== oldRightY.display.accumulatePerPile ||
       rightY.display.isPile !== oldRightY.display.isPile ||
       nextProps.isLinkageData !== this.props.isLinkageData
     ) {
-      this.DualAxes.destroy();
+      this.DualAxes && this.DualAxes.destroy();
       this.renderDualAxesChart(nextProps);
     }
   }
@@ -164,6 +168,7 @@ export default class extends Component {
     const isLeftSort = splitId || !_.isEmpty(leftSorts);
     const isRightSort = rightY.splitId || !_.isEmpty(rightSorts);
     const rightYDisplay = rightY.display.ydisplay;
+    const accumulatePerPile = _.get(rightY.display, 'accumulatePerPile');
     const colors = getChartColors(style, themeColor, projectId);
     const rightYColors = _.clone(colors).reverse();
 
@@ -174,7 +179,7 @@ export default class extends Component {
         : formatBarChartData(map, yaxisList, splitId, xaxesId);
     let lineData = _.isEmpty(contrastMap)
       ? []
-      : formatLineChartData(contrastMap, rightY.yaxisList, { ...rightY.display }, _.get(rightY, 'split.controlId'));
+      : formatLineChartData(contrastMap, rightY.yaxisList, {}, _.get(rightY, 'split.controlId'));
     let names = [];
 
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -216,6 +221,25 @@ export default class extends Component {
         .sort((a, b) => a.sortIndex - b.sortIndex);
     }
 
+    if (_.get(rightY.display, 'isAccumulate')) {
+      lineData = lineData.map((n, index) => {
+        const lastn = lineData[index - 1];
+        n.value = n.value + (lastn ? lastn.value : 0);
+        return n;
+      });
+    }
+    if (_.get(rightY.display, 'accumulatePerPile')) {
+      const { ydot = 2 } = newYaxisList[0];
+      const count = lineData.reduce((count, item) => count + (item.value || 0), 0);
+      lineData = lineData.map((n, index) => {
+        const lastn = lineData[index - 1];
+        n.lastnValue = n.value + (lastn ? lastn.lastnValue : 0);
+        const value = (n.lastnValue / count) * 100;
+        n.value = Number(toFixed(value, Number.isInteger(value) ? 0 : ydot));
+        return n;
+      });
+    }
+
     this.setState({ newYaxisList, newRightYaxisList });
 
     this.lineData = lineData;
@@ -248,7 +272,7 @@ export default class extends Component {
       seriesField: 'groupName',
       rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
       theme: {
-        background: isDark ? widgetBgColor : '#ffffffcc',
+        background: isDark || widgetBgColor === 'transparent' ? widgetBgColor : '#ffffffcc',
       },
       color: data => {
         const controlId = formatControlInfo(data.groupName).id;
@@ -305,27 +329,32 @@ export default class extends Component {
         lineWidth: 3,
       },
       color: rightYColors,
-      point: displaySetup.showNumber
-        ? {
-            shape: 'point',
-            size: 3,
-          }
-        : false,
-      label: displaySetup.showNumber
-        ? {
-            layout: [displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null],
-            content: ({ rightValue, value, groupName }) => {
-              const { id } = formatControlInfo(groupName);
-              const contentValue = rightValue || value;
-              const yaxisList = rightValue ? newRightYaxisList : newYaxisList;
-              const controlId = _.get(rightY, 'split.controlId') ? yaxisList[0].controlId : id;
-              return formatrChartValue(contentValue, false, yaxisList, contentValue ? undefined : controlId);
-            },
-            style: {
-              fill: isDark ? '#ffffff61' : undefined,
-            },
-          }
-        : false,
+      point:
+        (rightYDisplay.showNumber ?? true)
+          ? {
+              shape: 'point',
+              size: 3,
+            }
+          : false,
+      label:
+        (rightYDisplay.showNumber ?? true)
+          ? {
+              layout: [displaySetup.hideOverlapText ? { type: 'hide-overlap' } : null],
+              content: ({ rightValue, value, groupName }) => {
+                const { id } = formatControlInfo(groupName);
+                const contentValue = rightValue || value;
+                if (accumulatePerPile) {
+                  return `${contentValue}%`;
+                }
+                const yaxisList = rightValue ? newRightYaxisList : newYaxisList;
+                const controlId = _.get(rightY, 'split.controlId') ? yaxisList[0].controlId : id;
+                return formatrChartValue(contentValue, false, yaxisList, contentValue ? undefined : controlId);
+              },
+              style: {
+                fill: isDark ? '#ffffff61' : undefined,
+              },
+            }
+          : false,
     };
 
     lineData.forEach(item => {
@@ -396,6 +425,9 @@ export default class extends Component {
           label: rightYDisplay.showDial
             ? {
                 formatter: value => {
+                  if (accumulatePerPile) {
+                    return `${value}%`;
+                  }
                   return value ? formatrChartAxisValue(Number(value), false, newRightYaxisList) : null;
                 },
                 style: {
@@ -435,6 +467,12 @@ export default class extends Component {
           if (_.isNumber(rightValue)) {
             const { dot } = _.find(rightY.yaxisList, { controlId: id }) || {};
             const labelValue = formatrChartValue(rightValue, false, newRightYaxisList, value ? undefined : id);
+            if (accumulatePerPile) {
+              return {
+                name,
+                value: `${rightValue}%`,
+              };
+            }
             return {
               name,
               value: _.isNumber(rightValue)
@@ -663,9 +701,9 @@ export default class extends Component {
       return (
         <Fragment>
           <span>{formatSummaryName(data)}: </span>
-          <span data-tip={originalCount ? originalCount : null} className="count Font22">
-            {count || 0}
-          </span>
+          <Tooltip title={originalCount ? originalCount : null}>
+            <span className="count Font22">{count || 0}</span>
+          </Tooltip>
         </Fragment>
       );
     };

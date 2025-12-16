@@ -9,6 +9,7 @@ import Sheet from 'worksheet/common/Sheet/Sheet';
 import { loadWorksheet, openNewRecord, refreshSheet, updateFilters, updateSearchRecord } from 'worksheet/redux/actions';
 import { changePageIndex, changePageSize } from 'worksheet/redux/actions/sheetview';
 import { getSearchData } from 'worksheet/views/util';
+import { emitter } from 'src/utils/common';
 import Header from './Header';
 
 const Con = styled.div`
@@ -43,7 +44,6 @@ function ViewComp(props) {
   } = props;
   const { changePageIndex, changePageSize, updateFilters, updateSearchRecord, refreshSheet, openNewRecord } = props;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
-
   return (
     <Con className="SingleViewWrap">
       {showPageTitle && worksheetInfo.name && (
@@ -70,11 +70,15 @@ function ViewComp(props) {
           fromEmbed={config.fromEmbed}
           isDraft={config.isDraft}
           updateFiltersWithView={value => updateFilters(value, view)}
+          onExport={() => {
+            emitter.emit('EXPORT_CURRENT_VIEW_AS_EXCEL', { allowExportStatistics: false });
+          }}
         />
       )}
       <ViewCon className="SingleViewBody">
         <Sheet
           type="single"
+          emitter={emitter}
           chartId={chartId}
           showControlIds={showControlIds}
           showAsSheetView={showAsSheetView}

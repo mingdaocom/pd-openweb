@@ -58,7 +58,6 @@ export default class PortalMg extends Component {
       '.mdModal',
       '.ChatPanel-Trigger',
       '.attachmentsPreview',
-      '.Tooltip',
       '.mui-dialog-container',
       '.confirm',
       '.PositionContainer-wrapper',

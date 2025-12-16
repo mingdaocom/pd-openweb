@@ -5,7 +5,8 @@ import classNames from 'classnames';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Checkbox, Dialog, Input, Menu, MenuItem, Tooltip, UserHead } from 'ming-ui';
+import { Checkbox, Dialog, Input, Menu, MenuItem, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import departmentController from 'src/api/department';
 import userController from 'src/api/user';
@@ -215,9 +216,16 @@ class UserItem extends Component {
 
   // 设为/取消部门负责人
   setAndCancelCharge = e => {
-    let { typeCursor, projectId, departmentId, user = {} } = this.props;
+    let { typeCursor, projectId, departmentId, user = {}, departments } = this.props;
+    const department = _.find(departments, d => d.departmentId === departmentId);
 
     this.clickEvent(e);
+
+    if (department.disabled) {
+      alert(user.isDepartmentChargeUser ? _l('已停用，无法取消部门负责人') : _l('已停用，无法设置部门负责人'), 3);
+      return;
+    }
+
     departmentController
       .editDepartmentSingleChargeUser({
         projectId,
@@ -495,7 +503,7 @@ class UserItem extends Component {
                   {user.fullname}
                 </a>
                 {isDepartmentChargeUser ? (
-                  <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
+                  <Tooltip title={_l('部门负责人')}>
                     <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
                   </Tooltip>
                 ) : null}
@@ -512,18 +520,18 @@ class UserItem extends Component {
                 }}
               >
                 <Tooltip
-                  action={['hover']}
-                  tooltipClass="departmentFullNametip"
-                  popupPlacement="bottom"
-                  autoCloseDelay={0}
-                  text={
+                  placement="bottom"
+                  title={
                     <div>
                       {(departmentData || []).map((it, depIndex) => {
                         const fullName = (fullDepartmentInfo[it.id] || fullDepartmentInfo[it.departmentId] || '').split(
                           '/',
                         );
                         return (
-                          <div className={cx({ mBottom8: depIndex < departmentData.length - 1 })}>
+                          <div
+                            key={it.id || it.departmentId}
+                            className={cx({ mBottom8: depIndex < departmentData.length - 1 })}
+                          >
                             {fullName.map((n, i) => (
                               <span>
                                 {n}
@@ -618,7 +626,7 @@ class UserItem extends Component {
               onPopupVisibleChange={optListVisible => this.setState({ optListVisible })}
               popup={this.renderAction}
             >
-              <span className="tip-top Hand" onClick={e => e.stopPropagation()}>
+              <span className="Hand" onClick={e => e.stopPropagation()}>
                 <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
               </span>
             </Trigger>
@@ -650,6 +658,7 @@ class UserItem extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const {
+    entities: { departments },
     current: { projectId, departmentId, activeAccountId, selectedAccountIds, typeCursor, isSelectAll },
     pagination: {
       userList: { pageIndex },
@@ -666,6 +675,7 @@ const mapStateToProps = (state, ownProps) => {
     pageIndex,
     typeCursor,
     selectCount: selectedAccountIds.length,
+    departments,
   };
 };
 

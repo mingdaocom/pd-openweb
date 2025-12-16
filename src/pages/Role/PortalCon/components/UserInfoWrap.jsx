@@ -3,7 +3,7 @@ import { Drawer } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
 import Icon from 'ming-ui/components/Icon';
-import CustomFields from 'src/components/newCustomFields';
+import CustomFields from 'src/components/Form';
 
 const Wrap = styled.div(
   ({ width }) => `
@@ -99,7 +99,7 @@ export default function UserInfoWrap(props) {
             <Icon className="Gray_9e Font22 Hand ThemeHoverColor3" icon="close" onClick={() => setShow(false)} />
           )}
         </div>
-        <UserInfoDialogWrap className="flex userInfoCon">
+        <UserInfoDialogWrap className="flex userInfoCon pLeft24 pRight24">
           <CustomFields
             disableRules
             ref={customwidget}

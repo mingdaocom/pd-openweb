@@ -12,14 +12,12 @@ import moment from 'moment';
 import { Icon, LoadDiv } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import worksheetAjax from 'src/api/worksheet';
-import CurrentDateInfo from 'mobile/RecordList/View/CalendarView/components/CurrentDateInfo';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { browserIsMobile } from 'src/utils/common';
 import { getAdvanceSetting } from 'src/utils/control';
 import { isLightColor } from 'src/utils/control';
 import { addBehaviorLog, dateConvertToServerZone } from 'src/utils/project';
@@ -101,17 +99,14 @@ class RecordCalendar extends Component {
     const { initialView } = calendarData;
     if (nextProps.height !== this.props.height) {
       $('.boxCalendar,.calendarCon,.fc-daygrid-body,.fc-scrollgrid-sync-table,.fc-col-header ').width('100%');
-      this.setState({
-        height: height,
-      });
+      this.setState({ height });
     }
     if (!_.isEqual(calendarFormatData, (this.props.calendarview || {}).calendarFormatData)) {
       this.getFormatData(nextProps);
     }
     if (viewId !== this.props.base.viewId || !_.isEqual(currentView, preView)) {
       nextProps.getCalendarData();
-      this.calendarComponentRef.current &&
-        this.calendarComponentRef.current.getApi().changeView(browserIsMobile() ? 'dayGridMonth' : initialView); // 更改视图类型
+      this.calendarComponentRef.current && this.calendarComponentRef.current.getApi().changeView(initialView); // 更改视图类型
       nextProps.fetchExternal();
       this.getEventsFn();
       this.setState({ fullCalendarKey: JSON.stringify(Math.random()) });
@@ -126,12 +121,9 @@ class RecordCalendar extends Component {
       // 切换视图，或更改开始时间字段 重新更新排期数据
       nextProps.refreshEventList();
       nextProps.fetchExternal();
-      this.setState({
-        isSearch: false,
-      });
+      this.setState({ isSearch: false });
     }
     if (
-      !browserIsMobile() &&
       !_.isEqual(initialView, this.props.calendarview.calendarData.initialView) &&
       this.calendarComponentRef.current
     ) {
@@ -149,10 +141,6 @@ class RecordCalendar extends Component {
       safeLocalStorageSetItem('CalendarViewType', JSON.stringify(data));
     }
   }
-
-  browserIsMobile = () => {
-    return browserIsMobile() || !_.isEmpty(this.props.mobileCalendarSetting);
-  };
 
   dbClickDay = () => {
     if (clickData) {
@@ -176,17 +164,11 @@ class RecordCalendar extends Component {
         .querySelector(`.boxCalendar_${random} .fc-view-harness-active`)
         .addEventListener('dblclick', this.dbClickDay, true);
     }
-    if (this.browserIsMobile()) {
-      $(`.boxCalendar_${random} .fc-toolbar-chunk`).on('click', () => {
+    $(`.boxCalendar_${random} .fc-toolbar-chunk`)
+      .last()
+      .on('click', () => {
         this.getEventsFn();
       });
-    } else {
-      $(`.boxCalendar_${random} .fc-toolbar-chunk`)
-        .last()
-        .on('click', () => {
-          this.getEventsFn();
-        });
-    }
   };
 
   getEventsFn = () => {
@@ -284,19 +266,18 @@ class RecordCalendar extends Component {
         controlId: startData.controlId,
         controlName: startData.controlName,
         type: startData.type,
-        value: dateConvertToServerZone(startTime),
+        value: isTimeStyle(startData) ? dateConvertToServerZone(startTime) : startTime,
       },
     ];
     if (endData && calendar.end) {
       // 开始时间与拖拽时间的时间差
       let l = moment(startTime).valueOf() - moment(calendar.start).valueOf();
+      const endTime = moment(moment(calendar.end).valueOf() + l).format(_.get(info, ['data', 'endFormat']));
       control.push({
         controlId: endData.controlId,
         controlName: endData.controlName,
         type: endData.type,
-        value: dateConvertToServerZone(
-          moment(moment(calendar.end).valueOf() + l).format(_.get(info, ['data', 'endFormat'])),
-        ),
+        value: isTimeStyle(endData) ? dateConvertToServerZone(endTime) : endTime,
       });
     }
     this.updateData(control, rowId, data => {
@@ -342,26 +323,6 @@ class RecordCalendar extends Component {
     return false;
   };
 
-  // 获取点击日期当天数据
-  getMoreClickData = date => {
-    let { calendarFormatData } = this.state;
-    let tempData = [];
-    calendarFormatData.forEach(item => {
-      const { start, end } = item;
-      if (start && end && moment(date).isBetween(moment(start), moment(end).subtract(1, 'days'))) {
-        tempData.push(item);
-      } else if (
-        start &&
-        moment(moment(date).format('YYYY-MM-DD')).isSame(moment(moment(start).format('YYYY-MM-DD')))
-      ) {
-        tempData.push(item);
-      }
-    });
-    let currentDate = moment(date).format('YYYY.MM.DD');
-    this.props.changeMobileCurrentDate(currentDate);
-    this.props.changeMobileCurrentData(tempData);
-  };
-
   showChooseTrigger = data => {
     setTimeout(() => {
       const { random, canNew } = this.state;
@@ -397,6 +358,12 @@ class RecordCalendar extends Component {
     );
   };
 
+  refreshCalendarData = () => {
+    this.getEventsFn();
+    this.props.refreshEventList();
+    this.props.fetchExternal();
+  };
+
   render() {
     const {
       toCustomWidget,
@@ -406,7 +373,6 @@ class RecordCalendar extends Component {
       controls = [],
       base,
       calendarview = {},
-      mobileCalendarSetting = {},
       setViewConfigVisible,
     } = this.props;
     const { calendarData = {}, calenderEventList = {} } = calendarview;
@@ -541,36 +507,34 @@ class RecordCalendar extends Component {
             boldEvent: _.get(currentView, 'advancedSetting.rowHeight') === '1',
           })}
         >
-          {!this.browserIsMobile() && (
-            <div
-              className={cx('scheduleBtn Hand', { show: this.state.showExternal })}
-              onClick={() => {
-                let showExternalData = getShowExternalData() || [];
-                if (!this.state.showExternal) {
-                  showExternalData.push(`${worksheetId}-${viewId}`);
-                } else {
-                  showExternalData = showExternalData.filter(o => o !== `${worksheetId}-${viewId}`);
-                }
-                safeLocalStorageSetItem('CalendarShowExternal', JSON.stringify(showExternalData));
-                this.setState(
-                  {
-                    showExternal: !this.state.showExternal,
-                  },
-                  () => {
-                    this.props.fetchExternal();
-                  },
-                );
-              }}
-            >
-              <Icon className="Font16 Hand" icon="abstract" />
-              <span className="mLeft7 Bold">{_l('排期')}</span>
-              {/* 未排期数量 */}
-              {!this.state.showExternal && calenderEventList.eventNoScheduledCount > 0 && (
-                <span className="num mLeft7">{`( ${_l('%0未排期', calenderEventList.eventNoScheduledCount)} )`}</span>
-              )}
-              {this.state.showExternal && <Icon className="Font16 mLeft7 Hand" icon="close" />}
-            </div>
-          )}
+          <div
+            className={cx('scheduleBtn Hand', { show: this.state.showExternal })}
+            onClick={() => {
+              let showExternalData = getShowExternalData() || [];
+              if (!this.state.showExternal) {
+                showExternalData.push(`${worksheetId}-${viewId}`);
+              } else {
+                showExternalData = showExternalData.filter(o => o !== `${worksheetId}-${viewId}`);
+              }
+              safeLocalStorageSetItem('CalendarShowExternal', JSON.stringify(showExternalData));
+              this.setState(
+                {
+                  showExternal: !this.state.showExternal,
+                },
+                () => {
+                  this.props.fetchExternal();
+                },
+              );
+            }}
+          >
+            <Icon className="Font16 Hand" icon="abstract" />
+            <span className="mLeft7 Bold">{_l('排期')}</span>
+            {/* 未排期数量 */}
+            {!this.state.showExternal && calenderEventList.eventNoScheduledCount > 0 && (
+              <span className="num mLeft7">{`( ${_l('%0未排期', calenderEventList.eventNoScheduledCount)} )`}</span>
+            )}
+            {this.state.showExternal && <Icon className="Font16 mLeft7 Hand" icon="close" />}
+          </div>
           {!isLoading ? (
             <FullCalendar
               key={this.state.fullCalendarKey}
@@ -578,10 +542,10 @@ class RecordCalendar extends Component {
               themeSystem="bootstrap"
               height={height}
               ref={this.calendarComponentRef}
-              initialView={!this.browserIsMobile() ? initialView : 'dayGridMonth'} // 选中的日历模式
+              initialView={initialView} // 选中的日历模式
               headerToolbar={{
-                right: this.browserIsMobile() ? 'today' : btnList,
-                center: this.browserIsMobile() ? 'prev,title next' : 'title',
+                right: btnList,
+                center: 'title',
                 left: '',
               }}
               eventDragStart={() => {
@@ -624,19 +588,14 @@ class RecordCalendar extends Component {
                   });
               }}
               dayHeaderContent={item => {
-                let st = item.text.indexOf('/') >= 0 ? item.text.split('/')[1] : item.text;
-                let index = st.indexOf('周');
-                if (index >= 0) {
-                  st = st.slice(0, index) + ' ' + _l(st.slice(index));
-                } else if (st.indexOf('星期') >= 0) {
-                  index = st.indexOf('星期');
-                  st = st.slice(0, index) + ' ' + _l(st.slice(index));
-                }
+                const date = new Date(item.date);
+                const day = date.getDate();
+                const weekday = date.toLocaleDateString(window.getCurrentLang() || 'zh-cn', { weekday: 'short' });
                 return (
                   <React.Fragment>
-                    {item.view.type !== 'dayGridMonth' && !this.browserIsMobile() && this.getLunar(item)}
+                    {item.view.type !== 'dayGridMonth' && this.getLunar(item)}
                     <div className="num">
-                      {st}
+                      {item.view.type !== 'dayGridMonth' ? `${day} ${weekday}` : weekday}
                       {['timeGridDay', 'timeGridWeek'].includes(item.view.type) && this.renderCalendarItem(item)}
                     </div>
                   </React.Fragment>
@@ -648,7 +607,7 @@ class RecordCalendar extends Component {
                 });
               }}
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              locale="zh-cn"
+              locale={window.getCurrentLang() || 'zh-cn'}
               buttonText={CALENDAR_BUTTON_TEXT}
               allDayText={_l('全天')}
               hiddenDays={
@@ -691,7 +650,6 @@ class RecordCalendar extends Component {
               eventDidMount={info =>
                 eventDidMount(
                   info,
-                  this.browserIsMobile(),
                   currentView,
                   controls,
                   worksheetInfo,
@@ -761,12 +719,7 @@ class RecordCalendar extends Component {
               moreLinkContent={info => {
                 return <div className="w100" title={_l('查看其他%0个', info.num)}>{`+${info.num}`}</div>;
               }}
-              moreLinkClick={info => {
-                if (this.browserIsMobile()) {
-                  this.getMoreClickData(info.date);
-                  this.props.mobileIsShowMoreClick(true);
-                  return;
-                }
+              moreLinkClick={() => {
                 const setMorePoper = () => {
                   if ($('.fc-more-popover').length > 0) {
                     let h = $('.fc-more-popover').height();
@@ -892,7 +845,6 @@ class RecordCalendar extends Component {
                     });
                 }
               }}
-              {...mobileCalendarSetting}
               {...others}
             />
           ) : (
@@ -928,16 +880,12 @@ class RecordCalendar extends Component {
                 (enddate && updated[enddate]) ||
                 (attribute && updated[attribute.controlId])
               ) {
-                this.getEventsFn();
-                this.props.refreshEventList();
-                this.props.fetchExternal();
+                this.refreshCalendarData();
               }
             }}
             onDeleteSuccess={() => {
               // 删除行数据后重新加载页面
-              this.getEventsFn();
-              this.props.refreshEventList();
-              this.props.fetchExternal();
+              this.refreshCalendarData();
               this.setState({
                 rows: [],
                 showPrevNext: false,
@@ -945,26 +893,19 @@ class RecordCalendar extends Component {
               });
             }}
             hideRows={() => {
-              this.getEventsFn();
-              this.props.refreshEventList();
-              this.props.fetchExternal();
+              this.refreshCalendarData();
               this.setState({
                 rows: [],
                 showPrevNext: false,
               });
             }}
             handleAddSheetRow={() => {
-              this.getEventsFn();
-              this.props.refreshEventList();
-              this.props.fetchExternal();
+              this.refreshCalendarData();
               this.setState({ recordInfoVisible: false });
             }}
           />
         )}
-        {!this.browserIsMobile() && this.state.canNew && <div id="mytips">{_l('双击创建记录')}</div>}
-        {this.props.mobileMoreClickVisible && (
-          <CurrentDateInfo visible={this.props.mobileMoreClickVisible} view={currentView} />
-        )}
+        {this.state.canNew && <div id="mytips">{_l('双击创建记录')}</div>}
       </div>
     );
   }
@@ -974,7 +915,6 @@ export default connect(
     ...state.sheet,
     sheetSwitchPermit: state.sheet.sheetSwitchPermit || [],
     worksheetInfo: state.sheet.worksheetInfo,
-    mobileMoreClickVisible: state.sheet.calendarview.mobileMoreClickVisible,
     sheetButtons: state.sheet.sheetButtons,
     printList: state.sheet.printList,
   }),

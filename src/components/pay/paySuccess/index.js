@@ -99,7 +99,11 @@ function PaySuccess() {
         if (data) {
           setResResultData(data);
         } else {
-          alert(_l('加载失败'), 2, false);
+          alert({
+            msg: _l('加载失败'),
+            type: 2,
+            duration: 0,
+          });
         }
       });
   };

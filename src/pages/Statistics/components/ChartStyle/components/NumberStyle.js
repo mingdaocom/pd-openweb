@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
-import { Checkbox, Collapse, Input, Select, Switch, Tooltip } from 'antd';
+import { Checkbox, Collapse, Input, Select, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { ColorPicker, Icon, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { replaceColor } from 'statistics/Charts/NumberChart';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { defaultNumberChartStyle, normTypes, sizeTypes } from '../../../enum';
@@ -235,7 +236,7 @@ const IconSetting = props => {
           }
         >
           <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10">
-            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
+            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
           </EntranceWrapper>
         </Trigger>
         <ColorPicker
@@ -585,7 +586,7 @@ export function numberSummaryPanelGenerator(props) {
               {
                 summary: {
                   ...summary,
-                  name: event.target.value,
+                  name: event.target.value.slice(0, 20),
                 },
               },
               false,

@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const SCALE_LIMIT = {
   min: 50,
@@ -65,11 +66,11 @@ export default class ToolBar extends Component {
     const { scale, onClick, isOpenEdit } = this.props;
     return (
       <ToolBarWrap className={cx('flexRow valignWrappe', { isOpenEdit })}>
-        <Tooltip text={<span>{_l('导出为图片')}</span>}>
+        <Tooltip title={_l('导出为图片')}>
           <Icon icon="download" className="Gray_75 Font18 mRight14 pointer" onClick={() => onClick('genScreenshot')} />
         </Tooltip>
         <div className="toolItem adjustScale mLeft16">
-          <Tooltip text={<span>{_l('放大')}</span>}>
+          <Tooltip title={_l('放大')}>
             <Icon
               className={cx('Font19 Gray_75 pointer', {
                 disableAdjustSize: scale >= SCALE_LIMIT.max,
@@ -78,7 +79,7 @@ export default class ToolBar extends Component {
               onClick={() => scale < SCALE_LIMIT.max && this.adjustSize('enlarge')}
             />
           </Tooltip>
-          <Tooltip text={<span>{_l('缩小')}</span>}>
+          <Tooltip title={_l('缩小')}>
             <Icon
               className={cx('Font19 Gray_75 pointer bL', {
                 disableAdjustSize: scale <= SCALE_LIMIT.min,
