@@ -184,7 +184,7 @@ const SecretDetailItem = styled.div`
 
 function SecretKeyDialog(props) {
   const { data, onClose } = props;
-  const { password, projects, servers, validityPeriod } = data;
+  const { password, projects, validityPeriod } = data;
   const nowDate = moment().format('YYYY-MM-DD');
   const expireDays = validityPeriod && moment(validityPeriod).diff(moment(nowDate), 'days');
 
@@ -227,13 +227,6 @@ function SecretKeyDialog(props) {
               <div>{item}</div>
             ))}
           </div>
-        </SecretDetailItem>
-      )}
-
-      {!!servers.length && (
-        <SecretDetailItem>
-          <div className="labelText">{_l('授权给指定服务器')}</div>
-          <div className="flex">{servers[0]}</div>
         </SecretDetailItem>
       )}
     </Dialog>

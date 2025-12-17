@@ -216,19 +216,6 @@ function ExportPlugin(props) {
               }}
             />
           </FormItem>
-          <FormItem>
-            <div className="labelText">
-              <span> {_l('授权给指定服务器（私有部署）')}</span>
-              <Tooltip title={_l('指定后仅该服务器可导入，留空则不限制')}>
-                <Icon icon="info_outline" />
-              </Tooltip>
-            </div>
-            <Input
-              placeholder={_l('输入私有部署服务器ID')}
-              value={(data.servers || [])[0]}
-              onChange={value => setData({ servers: [value] })}
-            />
-          </FormItem>
         </React.Fragment>
       )}
     </Dialog>

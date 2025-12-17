@@ -130,7 +130,10 @@ export default class Header extends Component {
       }
     };
 
-    if ((_.includes(['overrule', 'return'], id) && ignoreRequired) || _.includes(['transferApprove', 'transfer'], id)) {
+    if (
+      (_.includes(['overrule', 'return'], id) && ignoreRequired) ||
+      _.includes(['transferApprove', 'transfer', 'before'], id)
+    ) {
       openOperatorDialog();
     } else {
       onSubmit({

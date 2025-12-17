@@ -193,7 +193,6 @@ export default class ConfigControl extends Component {
    */
   async disposeInitSource(data) {
     const { isCharge, appId, worksheetId, selectRow } = this.props;
-
     const { relateSource, userControls, departmentControls } = this.state;
     const controlMapping = [];
     const relateArr = [];
@@ -488,7 +487,7 @@ export default class ConfigControl extends Component {
             (_.findIndex(relationControls, rel => rel.value === sourceConfig.controlId) === -1 &&
               sourceConfig.controlId !== recordObj.value))
         )
-          throw !isCharge && edited ? _l('导入配置存在错误，匹配字段被删除，请联系管理员处理') : message;
+          throw !isCharge && edited ? _l('导入配置存在错误，匹配字段异常，请联系管理员处理') : message;
         if (type == 26 && !matchId) throw message;
       }
 
@@ -501,7 +500,7 @@ export default class ConfigControl extends Component {
           _.findIndex(worksheetControls, item => item.controlId === repeatConfig.controlId) === -1
         ) {
           throw !isCharge && edited
-            ? _l('导入配置存在错误，依据字段被删除，请联系管理员处理')
+            ? _l('导入配置存在错误，依据字段异常，请联系管理员处理')
             : _l('请设置重复记录的依据字段');
         }
 
@@ -775,7 +774,7 @@ export default class ConfigControl extends Component {
                     !repeatConfig.controlId
                       ? () => <span className="Gray_9e">{_l('请选择')}</span>
                       : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
-                        ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                        ? () => <span className="repeatConfigError">{_l('无权限或已删除')}</span>
                         : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
                   }
                   border
@@ -1020,7 +1019,7 @@ export default class ConfigControl extends Component {
               !currentSourceConfig.controlId
                 ? () => <span className="Gray_9e">{_l('请选择')}</span>
                 : currentSourceConfig.controlId && !_.find(controls, o => o.value === currentSourceConfig.controlId)
-                  ? () => <span className="repeatConfigError">{_l('已删除')}</span>
+                  ? () => <span className="repeatConfigError">{_l('无权限或已删除')}</span>
                   : () => <span>{_.find(controls, o => o.value === currentSourceConfig.controlId).text}</span>
             }
             isAppendToBody
