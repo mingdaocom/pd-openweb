@@ -491,7 +491,7 @@ export default class RowBlock extends Component {
       ? _.find(controls, { controlId: view.coverCid }) || {}
       : _.find(controls, { type: 14 }) || {};
     const cover = row[coverControl.controlId];
-    const showControls = _.isEmpty(view.showControls) ? [viewConfig.startId, viewConfig.endId] : view.showControls;
+    const showControls = [viewConfig.startId, viewConfig.endId].concat(view.showControls);
     const formData = sortControlByIds(
       controls.map(c => {
         return {

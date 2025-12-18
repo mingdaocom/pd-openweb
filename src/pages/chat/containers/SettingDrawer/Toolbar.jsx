@@ -26,7 +26,6 @@ export default props => {
     commonAppOpenType,
     messageListShowType,
   } = accountSettings;
-  const isLocal = md.global.Config.IsLocal && !location.hostname.includes('nocoly.com');
 
   return (
     <div className="flex">
@@ -55,7 +54,7 @@ export default props => {
         <Icon icon="search" className="Font22 Gray_75 mLeft10" />
         <span className="mLeft5 mRight10">{_l('超级搜索')}</span>
       </div>
-      {!md.global.SysSettings.hideAIBasicFun && !isLocal && (
+      {!md.global.SysSettings.hideAIBasicFun && (
         <div className="flexRow alignItemsCenter widthMaxContent mBottom15">
           <Switch
             checked={isOpenMingoAI}

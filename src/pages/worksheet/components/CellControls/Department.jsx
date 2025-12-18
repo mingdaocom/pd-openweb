@@ -12,6 +12,12 @@ import EditableCellCon from '../EditableCellCon';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
+// 反转文本用于 RTL 显示（实现从头省略）
+const reverseTextForRTL = text => {
+  if (!text) return text;
+  return text.split('').reverse().join('');
+};
+
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
   static propTypes = {
@@ -168,6 +174,8 @@ export default class Text extends React.Component {
 
   renderDepartmentTag(department, allowDelete) {
     const { style, isediting, cell = {} } = this.props;
+    const needRTL = _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete;
+    const displayName = needRTL ? reverseTextForRTL(department.departmentName) : department.departmentName;
 
     return (
       <span
@@ -180,13 +188,9 @@ export default class Text extends React.Component {
         <div className="flexRow">
           <div
             className="departmentName flex ellipsis"
-            style={
-              _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete
-                ? { direction: 'rtl', unicodeBidi: 'normal' }
-                : {}
-            }
+            style={needRTL ? { direction: 'rtl', unicodeBidi: 'bidi-override' } : {}}
           >
-            {department.departmentName}
+            {displayName}
             {department.deleteCount > 1 && <span className="Gray mLeft5">{department.deleteCount}</span>}
           </div>
           {isediting && allowDelete && (

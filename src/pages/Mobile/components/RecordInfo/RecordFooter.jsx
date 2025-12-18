@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ActionSheet, Button, Toast } from 'antd-mobile';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
@@ -19,7 +20,7 @@ import CustomButtons from './RecordAction/CustomButtons';
 export const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
   const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
 
-  navigator.clipboard.writeText(shareUrl);
+  copy(shareUrl);
   alert(_l('复制成功'));
 };
 
@@ -47,7 +48,7 @@ export const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId, isP
     .then(data => {
       Toast.clear();
 
-      navigator.clipboard.writeText(data.shareLink);
+      copy(data.shareLink);
       alert(_l('复制成功'));
 
       // 在H5上执行对外公开分享，默认需要打开PC对外公开分享的链接开关

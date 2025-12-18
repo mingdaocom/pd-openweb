@@ -150,7 +150,7 @@ export default class MobilePhone extends React.Component {
       if (window.tempCopyForSheetView) {
         setKeyboardValue(window.tempCopyForSheetView);
       } else {
-        navigator.clipboard.readText().then(setKeyboardValue);
+        navigator.clipboard?.readText?.().then(setKeyboardValue);
       }
       return;
     }

@@ -1,4 +1,5 @@
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { useKey } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import { bool, func, number, shape, string } from 'prop-types';
@@ -68,7 +69,7 @@ function OptionsSteps(props, ref) {
     updateCell,
   } = props;
   const { options, enumDefault2, value } = cell;
-
+  const cache = useRef({});
   useImperativeHandle(ref, () => ({
     handleTableKeyDown(e) {
       const selectedIndex = _.findIndex(options, { key: safeParse(value)[0] });
@@ -95,6 +96,14 @@ function OptionsSteps(props, ref) {
       }
     },
   }));
+  useEffect(() => {
+    cache.current.isediting = isediting;
+  }, [isediting]);
+  useKey('Backspace', () => {
+    if (editable && cache.current.isediting && !cell.required) {
+      updateCell({ value: '' });
+    }
+  });
 
   if (from === FROM.CARD || mode === 'mobileSub') {
     const option = _.find(options, op => op.key === JSON.parse(value || '[]')[0]) || {};

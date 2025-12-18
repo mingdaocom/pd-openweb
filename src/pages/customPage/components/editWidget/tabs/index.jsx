@@ -398,7 +398,7 @@ export const Tabs = props => {
                       backgroundColor: widgetConfig.widgetBgColor,
                     }}
                   >
-                    <div className="flex">
+                    <div className="flex" style={{ height: 'inherit' }}>
                       {WidgetDisplay &&
                         (isMobile ? (
                           <WidgetDisplay.default

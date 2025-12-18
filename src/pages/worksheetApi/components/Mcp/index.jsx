@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import JsonView from 'react-json-view';
 import { Empty, Select } from 'antd';
+import copy from 'copy-to-clipboard';
 import { Support } from 'ming-ui';
 
 const maskString = (str, startW, endW, middleW) => {
@@ -85,7 +86,8 @@ const Mcp = ({ authorizes = [] }) => {
                   copyData = JSON.stringify({ [`hap-mcp-${appName}`]: { url: realUrl } });
                   break;
               }
-              navigator.clipboard.writeText(copyData);
+              copy(copyData);
+              alert(_l('已复制'));
             }}
           />
         </div>

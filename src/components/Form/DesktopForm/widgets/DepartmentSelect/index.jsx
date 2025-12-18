@@ -10,6 +10,12 @@ import { dealRenderValue, dealUserRange } from '../../../core/utils';
 import QuickOperate from '../UserSelect/QuickOperate';
 import DepartmentTooltip from './DepartmentTooltip';
 
+// 反转文本用于 RTL 显示（实现从头省略）
+const reverseTextForRTL = text => {
+  if (!text) return text;
+  return text.split('').reverse().join('');
+};
+
 const DepartmentSelect = props => {
   const { disabled, value, projectId, enumDefault, onChange, advancedSetting = {}, formData, formItemId } = props;
 
@@ -118,6 +124,8 @@ const DepartmentSelect = props => {
     const { allpath } = advancedSetting;
     const disablePopover = disabled || dragging || isLayer || item.isDelete;
     const showMenu = showId === item.departmentId && !disablePopover;
+    const needRTL = allpath === '1' && !item.isDelete;
+    const displayName = needRTL ? reverseTextForRTL(item.departmentName) : item.departmentName;
 
     return (
       <Popover
@@ -155,10 +163,10 @@ const DepartmentSelect = props => {
               className="ellipsis"
               style={{
                 ...(enumDefault === 1 ? { maxWidth: 200 } : {}),
-                ...(allpath === '1' && !item.isDelete ? { direction: 'rtl', unicodeBidi: 'normal' } : {}),
+                ...(needRTL ? { direction: 'rtl', unicodeBidi: 'bidi-override' } : {}),
               }}
             >
-              {item.departmentName}
+              {displayName}
               {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
             </span>
 

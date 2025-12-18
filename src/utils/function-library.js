@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 
 /** 获取选项 */
@@ -186,6 +186,13 @@ export function formatControlValue(cell) {
         return JSON.parse(cell.value).map(department => {
           if (typeof department === 'string') {
             return department;
+          }
+          if (isArray(department.departmentPath)) {
+            return department.departmentPath
+              .reverse()
+              .map(path => path.departmentName)
+              .concat([department.departmentName])
+              .join('/');
           }
           return department.departmentName ? department.departmentName : _l('该部门已删除');
         });

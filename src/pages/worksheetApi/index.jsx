@@ -1281,20 +1281,22 @@ class WorksheetApi extends Component {
               <div key={`${o.controlId || o.viewId}-${index}`} className="flexRow worksheetApiLine flexRowHeight">
                 {this.MENU_LIST[i].fields.map(field => {
                   let type = null;
-                  if (field.key === 'controlType') {
-                    type = _.get(
-                      _.find(templateControls, numberType => numberType.controlId === o.controlId) || {},
-                      'type',
-                    );
+                  let options = [];
+                  if (field.key === 'controlType' || field.key === 'desc') {
+                    const control = _.find(templateControls, numberType => numberType.controlId === o.controlId) || {};
+                    type = control.type;
+                    if ([9, 10, 11].includes(type)) {
+                      options = (control.options || [])?.map(({ key, value }) => ({ key, value }));
+                    }
                   }
 
                   return (
                     <div key={`data-${field.key}`} className={field.className}>
                       {['controlId', 'viewId'].includes(field.key) && (
-                        <React.Fragment>
+                        <Fragment>
                           <div>{o[field.key]}</div>
                           {o.alias && <div>({o.alias})</div>}
-                        </React.Fragment>
+                        </Fragment>
                       )}
 
                       {field.key === 'controlType' &&
@@ -1303,7 +1305,14 @@ class WorksheetApi extends Component {
                       {field.key === 'viewType' &&
                         (_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[o.type] }) || {}).text}
 
-                      {!['controlId', 'viewId', 'controlType', 'viewType'].includes(field.key) && o[field.key]}
+                      {field.key === 'desc' && (
+                        <div className="descBox">
+                          <div>{o.desc}</div>
+                          {options?.length > 0 && <pre className="descPre">{JSON.stringify(options, null, 2)}</pre>}
+                        </div>
+                      )}
+
+                      {!['controlId', 'viewId', 'controlType', 'viewType', 'desc'].includes(field.key) && o[field.key]}
                     </div>
                   );
                 })}
@@ -1659,7 +1668,7 @@ class WorksheetApi extends Component {
                   copyData = JSON.stringify(src);
                   break;
               }
-              navigator.clipboard.writeText(copyData);
+              this.onCopy(copyData);
             }}
           />
         ) : (

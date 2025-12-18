@@ -906,16 +906,20 @@ export const parseDateFormula = (data, currentItem, recordCreateTime) => {
         return;
       } else {
         let timestr;
-        if (_.includes([15, 16, 46, 30], column.type)) {
+        let columnType = column.type;
+        if (column.type === 37) {
+          columnType = column.enumDefault2;
+        }
+        if (_.includes([15, 16, 46, 30], columnType)) {
           timestr = column.value;
         }
-        if (column.type === 29) {
+        if (columnType === 29) {
           timestr = _.get(safeParse(column.value), '0.name');
         }
         if (!timestr) {
           return;
         }
-        if (column.type === 15 || (column.type === 30 && column.sourceControlType === 15)) {
+        if (columnType === 15 || (columnType === 30 && column.sourceControlType === 15)) {
           if (pos === 'start') {
             timestr = moment(timestr).set({
               hour: 0,
@@ -931,7 +935,7 @@ export const parseDateFormula = (data, currentItem, recordCreateTime) => {
               millisecond: 0,
             });
           }
-        } else if (column.type === 46) {
+        } else if (columnType === 46) {
           timestr = moment('2000/1/1 ' + timestr);
         }
         return timestr;
