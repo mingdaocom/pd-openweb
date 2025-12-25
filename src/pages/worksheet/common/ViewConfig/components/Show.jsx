@@ -55,7 +55,7 @@ export default class Show extends React.Component {
       height: document.documentElement.clientHeight - 323,
       customShowControls: getAdvanceSetting(view, 'customShowControls') || showControls || [],
       showControls: view.showControls || [],
-      customdisplay: customdisplay === '1' || showControls.length > 0 ? '1' : '0', // 是否配置自定义显示列
+      customdisplay: customdisplay === '1' ? '1' : '0', // 是否配置自定义显示列
     });
   };
   getHeight = () => {

@@ -116,6 +116,36 @@ class RelationList extends Component {
     updatePageIndex(1, { keywords });
   }, 500);
 
+  updateRelateRecord = cells => {
+    const { relationRows, updateRelationRows = () => {} } = this.props;
+    const targetRow = cells.find(item => item.controlId === 'rowid') || {};
+    const targetRowId = targetRow.value;
+
+    if (!targetRowId) return;
+
+    const valueObj = {};
+    cells.forEach(({ controlId, value }) => {
+      if (controlId !== 'rowid') {
+        valueObj[controlId] = value;
+      }
+    });
+
+    const updatedRecords = relationRows.map(item => {
+      if (item.rowid === targetRowId) {
+        const newItem = { ...item };
+        Object.keys(newItem).forEach(key => {
+          if (key !== 'rowid' && _.has(valueObj, key)) {
+            newItem[key] = valueObj[key];
+          }
+        });
+        return newItem;
+      }
+      return item;
+    });
+
+    updateRelationRows(updatedRecords, 0);
+  };
+
   render() {
     const { rowInfo, controlId, relationRow, relationRows, loadParams, actionParams, permissionInfo } = this.props;
     const { count } = this.props.control || {};
@@ -179,6 +209,7 @@ class RelationList extends Component {
                 rowId={previewRecordId}
                 isSubList={_.get(permissionInfo, 'isSubList')}
                 editable={_.get(permissionInfo, 'controlPermission.editable')}
+                updateRelateRecord={this.updateRelateRecord}
                 onClose={() => {
                   this.setState({
                     previewRecordId: undefined,
@@ -203,7 +234,14 @@ export default connect(
   }),
   dispatch =>
     bindActionCreators(
-      _.pick(actions, ['updateBase', 'loadRow', 'updateActionParams', 'updatePageIndex', 'reset']),
+      _.pick(actions, [
+        'updateBase',
+        'loadRow',
+        'updateActionParams',
+        'updatePageIndex',
+        'reset',
+        'updateRelationRows',
+      ]),
       dispatch,
     ),
 )(RelationList);

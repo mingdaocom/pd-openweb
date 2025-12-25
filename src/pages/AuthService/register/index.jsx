@@ -289,7 +289,12 @@ export default function () {
         <div className="loginContainer">
           <Header
             lineLoading={state.lineLoading}
-            logo={state.logo}
+            logo={
+              state.logo ||
+              (state.step === 'create'
+                ? `${_.get(md, 'global.FileStoreConfig.pictureHost')}/ProjectLogo/default_hap.png`
+                : '')
+            }
             hasGetLogo={state.hasGetLogo}
             isDefaultLogo={state.isDefaultLogo}
             loading={state.loading}

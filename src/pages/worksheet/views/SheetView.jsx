@@ -873,9 +873,6 @@ class TableView extends React.Component {
       );
     let { showControls = [] } = view || {};
     let { customdisplay = '0', sysids = '[]', syssort = '[]' } = getAdvanceSetting(view); // '0':表格显示列与表单中的字段保持一致 '1':自定义显示列
-    if (showControls.length) {
-      customdisplay = '1';
-    }
 
     if (customdisplay === '1') {
       columns = _.uniqBy(showControls)

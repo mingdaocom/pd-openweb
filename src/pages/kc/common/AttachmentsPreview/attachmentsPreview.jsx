@@ -360,7 +360,11 @@ class AttachmentsPreview extends React.Component {
                           this.refImageViewer = imageViewer;
                         }}
                         canDownload={showDownload && canDownload}
-                        src={viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')}
+                        src={
+                          ext === 'HEIC'
+                            ? viewUrl
+                            : viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
+                        }
                         con={this.refPreviewCon}
                         toggleFullscreen={this.props.actions.toggleFullScreen}
                         fullscreen={isFullScreen}

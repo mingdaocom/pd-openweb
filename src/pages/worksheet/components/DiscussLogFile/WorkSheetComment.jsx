@@ -101,7 +101,7 @@ export default class WorkSheetComment extends React.Component {
         d =>
           !(
             ['user-undefined', 'user-publicform', md.global.Account.accountId].includes(d.accountId) ||
-            d.accountId.indexOf('user-') >= 0
+            d.accountId?.indexOf('user-') >= 0
           ),
       );
     data = data.filter(
@@ -109,7 +109,7 @@ export default class WorkSheetComment extends React.Component {
         !(
           disType === 1 &&
           (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) &&
-          d.accountId.indexOf('a#') >= 0
+          d.accountId?.indexOf('a#') >= 0
         ),
       //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
     );
