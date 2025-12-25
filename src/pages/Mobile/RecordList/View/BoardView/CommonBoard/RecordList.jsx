@@ -105,7 +105,7 @@ const RecordList = props => {
         </ScrollView>
       </div>
       {allowOperation && showAdd && (
-        <div className={cx('mLeft10 mRight10', { mTop10: itemFirstGroup.rows?.length })}>
+        <div className={cx('mRight10', { mTop10: itemFirstGroup.rows?.length })}>
           <AddRecordBtn
             view={view}
             appId={appId}

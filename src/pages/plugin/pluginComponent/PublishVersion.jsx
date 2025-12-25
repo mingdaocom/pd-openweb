@@ -111,25 +111,37 @@ export default function PublishVersion(props) {
     setFormData({ [objName]: isNaN(parseInt(value)) ? 0 : parseInt(value) });
   };
 
-  const onValidate = () => {
-    const versionNum = formData.v1 * 100 + formData.v2 * 10 + formData.v3;
-    const latestVersionNum =
-      parseInt(latestVersion.split('.')[0]) * 100 +
-      parseInt(latestVersion.split('.')[1]) * 10 +
-      parseInt(latestVersion.split('.')[2]);
+  // 比较版本号
+  const compareVersion = (newVersion, oldVersion) => {
+    const newParts = newVersion.split('.').map(part => parseInt(part) || 0);
+    const oldParts = oldVersion.split('.').map(part => parseInt(part) || 0);
 
+    for (let i = 0; i < 3; i++) {
+      if (newParts[i] !== oldParts[i]) {
+        return newParts[i] > oldParts[i];
+      }
+    }
+    return false; // 版本号相同
+  };
+
+  const onValidate = () => {
     if (!isWorkflowPlugin && !formData.commitId) {
       alert(_l('请选择一个已提交的代码'), 3);
       return;
     }
-    if (!versionNum || _.includes([formData.v1, formData.v2, formData.v3], '')) {
+    if (_.includes([formData.v1, formData.v2, formData.v3], '')) {
       alert(_l('请正确填写版本号'), 3);
       return;
     }
-    if (latestVersion && versionNum <= latestVersionNum) {
-      alert(_l(`版本号必须大于${latestVersion}`), 3);
-      return;
+
+    if (latestVersion) {
+      const newVersion = [formData.v1, formData.v2, formData.v3].join('.');
+      if (!compareVersion(newVersion, latestVersion)) {
+        alert(_l(`版本号必须大于${latestVersion}`), 3);
+        return;
+      }
     }
+
     if (!formData.description) {
       alert(_l('发布说明不能为空'), 3);
       return;

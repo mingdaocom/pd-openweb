@@ -147,7 +147,7 @@ export function ShowFormat(props) {
       {isCustom ? (
         <EditInfo className="pointer" onClick={() => setVisible(true)}>
           <div className="overflow_ellipsis Gray">
-            {_l('自定义')}（{moment().format(showformat)}）
+            {_l('自定义')}（{getDateToEn(showformat)}）
           </div>
           <div className="flexCenter">
             <div

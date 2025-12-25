@@ -167,7 +167,7 @@ export default class FillWorksheet extends React.Component {
         smsVerification && item.controlId === smsVerificationFiled
           ? {
               ...item,
-              value: item.value.startsWith('+')
+              value: item.value?.startsWith('+')
                 ? item.value
                 : `+${this.customwidget.current.state.dialCode}${item.value}`,
             }

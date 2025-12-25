@@ -148,7 +148,7 @@ export default function Item(props) {
         {
           processId: info.id,
           actionId: id,
-          name: '代码块',
+          name: _l('代码块'),
           prveId: props.prveId,
           typeId: typeInfo.typeId,
           appId,

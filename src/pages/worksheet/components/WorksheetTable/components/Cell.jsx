@@ -72,7 +72,9 @@ const CellCon = styled.div`
 const TreeExpandCell = styled.div`
   padding: 0px;
   display: flex;
-  align-items: center;
+  &.verticalCenter {
+    align-items: center;
+  }
 `;
 
 const TreeExpandIcon = styled.div`
@@ -600,6 +602,7 @@ function Cell(props) {
               oddRow: rowIndex % 2 === 1,
               highlightFromProps: sheetViewHighlightRows[row.rowid],
               highlight: needHightLight,
+              verticalCenter: rowHeight === 34,
             },
           )}
           style={{

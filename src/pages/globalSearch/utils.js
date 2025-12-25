@@ -5,7 +5,7 @@ export const getAppResultCodeText = (code, name) => {
     return _l('数据正在初始化，请耐心等待');
   }
   if (code === 3) {
-    return `”${name}“ ${_l('当前版本没有此功能，请升级版本')}`;
+    return `“${name}” ${_l('当前版本没有此功能，请升级版本')}`;
   }
   return null;
 };

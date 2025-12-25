@@ -67,7 +67,7 @@ const CopySheetConfirmDescription = props => {
     return (
       <div className={type ? 'mTop10' : 'mTop24'}>
         <div className="mBottom10 Font14 Gray">{_l('副本名称')}</div>
-        <Input className="w100 Gray" value={name} onChange={value => setName(value.trim().slice(0, 100))} />
+        <Input className="w100 Gray" value={name} onChange={value => setName(value.slice(0, 100))} />
       </div>
     );
   };
@@ -242,6 +242,7 @@ const handleCopyWorkSheet = props => {
     relationControlIds: [],
   };
   const onOk = () => {
+    copyArgs.name = copyArgs.name.trim();
     if (!copyArgs.name) {
       alert(_l('请填写名称'), 3);
       return;

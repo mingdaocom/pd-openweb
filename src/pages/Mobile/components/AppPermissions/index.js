@@ -167,10 +167,10 @@ const appPermissions = Component => {
           .then(data => {
             const { wsType } = data;
             if (wsType === 1) {
-              window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}`, true);
+              window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}${location.search}`, true);
             }
             if (wsType === 3) {
-              window.mobileNavigateTo(`/mobile/chatbot/${appId}/${params.groupId}/${params.worksheetId}`, true);
+              window.mobileNavigateTo(`/mobile/chatbot/${appId}/${params.groupId}/${params.worksheetId}${location.search}`, true);
             }
           });
       }

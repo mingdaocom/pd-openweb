@@ -524,7 +524,7 @@ export default class RecordInfo extends Component {
           refreshBtnNeedLoading: false,
           widgetStyle: data.advancedSetting || this.state.widgetStyle,
           ...(needReLoadSheetSwitch ? { sheetSwitchPermit } : {}),
-          ...(!isRefresh ? { formDidMountFlag: Math.random().toString() } : {}),
+          formDidMountFlag: Math.random().toString(),
           isRecordLock: data.isLock,
         },
         (...args) => {

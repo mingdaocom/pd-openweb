@@ -40,7 +40,8 @@ export default class ExclusiveComp extends Component {
     const projectId = _.get(match, 'params.projectId');
     const computingFeature = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
     const databaseFeature =
-      getFeatureStatus(projectId, VersionProductType.dataBase) && !md.global.Config.IsPlatformLocal;
+      getFeatureStatus(projectId, VersionProductType.dataBase) &&
+      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
 
     return (
       <div className="exclusiveHeader">
@@ -71,7 +72,8 @@ export default class ExclusiveComp extends Component {
     const { refresh, activeKey } = this.state;
     const projectId = _.get(this.props, 'match.params.projectId');
     const hasDataBase =
-      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
     const hasComputing = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
 
     return (

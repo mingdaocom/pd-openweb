@@ -4,7 +4,7 @@ import { includes } from 'lodash';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
+import { getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { formatFormulaDate, formatStrZero, toFixed } from 'src/utils/control';
 import { dateConvertToUserZone } from 'src/utils/project';
 
@@ -29,11 +29,11 @@ const DateCalc = ({ value, enumDefault, unit, advancedSetting, dot }) => {
     const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
     if (includes(showFormat, ':')) {
       content = moment(value).year()
-        ? moment(dateConvertToUserZone(moment(moment(value), showFormat))).format(showFormat)
+        ? getDateToEn(showFormat, dateConvertToUserZone(moment(moment(value), showFormat)), advancedSetting.showformat)
         : moment(dateConvertToUserZone(moment(value, showFormat))).format(showFormat);
     } else {
       content = moment(value).year()
-        ? moment(moment(moment(value), showFormat)).format(showFormat)
+        ? getDateToEn(showFormat, value, advancedSetting.showformat)
         : moment(moment(value, showFormat)).format(showFormat);
     }
   }

@@ -2353,6 +2353,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
                   moment(filterData.minValue).format(formatMode),
                   moment(filterData.maxValue).format(formatMode),
                   timeLevel,
+                  '[]',
                 )
               : false;
           case CONTROL_FILTER_WHITELIST.TIME.value:
@@ -2361,6 +2362,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
                   moment(filterData.minValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
                   moment(filterData.maxValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
                   timeLevel,
+                  '[]',
                 )
               : false;
           case CONTROL_FILTER_WHITELIST.OPTIONS.value:
@@ -2400,6 +2402,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
                   moment(filterData.minValue).format(formatMode),
                   moment(filterData.maxValue).format(formatMode),
                   timeLevel,
+                  '[]',
                 )
               : false;
           case CONTROL_FILTER_WHITELIST.TIME.value:
@@ -2408,6 +2411,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
                   moment(filterData.minValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
                   moment(filterData.maxValue, formatMode).format(`YYYY-MM-DD ${formatMode}`),
                   timeLevel,
+                  '[]',
                 )
               : false;
           case CONTROL_FILTER_WHITELIST.OPTIONS.value:

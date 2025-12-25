@@ -989,7 +989,7 @@ export default class CreateNodeDialog extends Component {
             },
           ],
         },
-      ].filter(o => !(_.get(window, 'md.global.SysSettings.hideAIGCNode') && o.id === 'ai')),
+      ],
       selectItem: null,
       selectSecond: false,
       branchDialogModel: 0,

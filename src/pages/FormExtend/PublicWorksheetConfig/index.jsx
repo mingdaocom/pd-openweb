@@ -113,13 +113,17 @@ function PublicWorksheetConfig(props) {
   }
   return (
     <div class="publicWorksheetEnablePanel">
-      <h1>{_l('公开表单')}</h1>
+      <div className="flexRow alignCenter">
+        <h1 className="flex">{_l('公开表单')}</h1>
+        <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
+        <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
+      </div>
+
       <div className="description">
         {_l('启用后，将表单公开发布给应用外的用户填写，为你的工作表收集数据')}
         <Support type={3} href="https://help.mingdao.com/worksheet/public-form" text={_l('帮助')} />
       </div>
-      <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
-      <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
+
       {enabled && (
         <React.Fragment>
           {isDisplayPromptText(worksheetSettings) && (

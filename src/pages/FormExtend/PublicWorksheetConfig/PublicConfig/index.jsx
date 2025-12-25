@@ -438,7 +438,7 @@ class PublicConfig extends React.Component {
       return;
     }
 
-    const configs = safeParse(extendDatas.pageConfigs);
+    const configs = safeParse(extendDatas?.pageConfigs);
     this.handleChange('sourceKeys', update(sourceKeys, { $push: [value] }), () => {
       this.keyinput.value = '';
     });

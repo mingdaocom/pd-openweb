@@ -61,12 +61,16 @@ export default function PublicQuery(props) {
 
   return (
     <div class="publicWorksheetEnablePanel">
-      <h1>{_l('公开查询')}</h1>
+      <div className="flexRow alignItemsCenter">
+        <h1 className="flex">{_l('公开查询')}</h1>
+        <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
+        <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
+      </div>
+
       <div className="description">
         {_l('启用后，生成用于公开查询数据的链接，用于订单查询、成绩查询、登记信息查询等场景')}
       </div>
-      <Switch className="publishSwitch" checked={enabled} onClick={onSwitchChange} />
-      <span className="status">{enabled ? _l('启用') : _l('关闭')}</span>
+
       {enabled && (
         <React.Fragment>
           <ShareUrl

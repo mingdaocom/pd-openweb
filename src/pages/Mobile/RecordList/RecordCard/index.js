@@ -376,6 +376,7 @@ export default class RecordCard extends Component {
       data.allowedit &&
       controlState(showCheckItem).editable; // 当前快速编辑检查项字段是否可编辑
     const { coverPosition } = getCoverStyle(view);
+    const showCover = !!view.coverCid;
 
     return (
       <div
@@ -388,7 +389,7 @@ export default class RecordCard extends Component {
         {mark && <div className="mark">{mark}</div>}
         {recordColor && recordColorConfig.showLine && (
           <div
-            className={cx('colorTag', { colorTagRight: coverPosition === '1' })}
+            className={cx('colorTag', { colorTagRight: showCover && coverPosition === '1' })}
             style={{ backgroundColor: recordColor.color }}
           ></div>
         )}

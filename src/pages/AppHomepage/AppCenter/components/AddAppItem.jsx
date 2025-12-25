@@ -128,7 +128,8 @@ export default class AddAppItem extends Component {
           closeDialog={params => {
             this.setState({ importAppDialog: false, importAppParams: params });
             const hasDataBase =
-              getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+              getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+              (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
             if (hasDataBase && hasAppResourceAuth) {
               return this.getMyDbInstances('importApp');
             }
@@ -253,7 +254,7 @@ export default class AddAppItem extends Component {
                       if (id === 'createFromEmpty') {
                         const hasDataBase =
                           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                          !md.global.Config.IsPlatformLocal;
+                          (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
                         if (hasDataBase && hasAppResourceAuth) {
                           this.getMyDbInstances('createFromEmpty');
                           return;

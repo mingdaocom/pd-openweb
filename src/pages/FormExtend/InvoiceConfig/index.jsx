@@ -132,7 +132,7 @@ export default class InvoiceConfig extends Component {
           <div className="configTitle">{_l('开票')}</div>
           <div className="configDesc">
             {_l('支付订单及工作表的电子开票配置')}
-            <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/org/payment" />
+            <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/org/invoice#invoice-setting" />
           </div>
           <div className="configContent">
             <ul className="enableScene">

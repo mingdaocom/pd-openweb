@@ -180,7 +180,8 @@ export default function BackupFiles(props) {
       ),
       onOk: () => {
         const hasDataBase =
-          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+          (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
         const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
         if (hasDataBase && hasAppResourceAuth) {

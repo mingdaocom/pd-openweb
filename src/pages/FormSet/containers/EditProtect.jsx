@@ -72,13 +72,8 @@ export default function EditProtect(props) {
 
   return (
     <Wrapper>
-      <div className="flex bold Font17">{_l('编辑保护')}</div>
-      <div className="Gray_9e mTop8">
-        {_l(
-          '开启后，不能多人同时编辑同一条记录。当有用户在详情页触发编辑时，该记录即进入保护状态，仅当前用户可编辑记录，其他用户仅能查看。当该用户提交记录或超过保护时长，其他用户方可编辑。',
-        )}
-      </div>
-      <div className="flexRow alignItemsCenter mTop12">
+      <div className="flexRow alignItemsCenter">
+        <div className="flex bold Font17">{_l('编辑保护')}</div>
         <Switch
           checked={lock.isopen === '1'}
           onClick={() => {
@@ -94,6 +89,12 @@ export default function EditProtect(props) {
           }}
         />
         <span className="mLeft8">{lock.isopen === '1' ? _l('启用') : _l('关闭')}</span>
+      </div>
+
+      <div className="Gray_9e mTop10">
+        {_l(
+          '开启后，不能多人同时编辑同一条记录。当有用户在详情页触发编辑时，该记录即进入保护状态，仅当前用户可编辑记录，其他用户仅能查看。当该用户提交记录或超过保护时长，其他用户方可编辑。',
+        )}
       </div>
 
       {lock.isopen === '1' && (

@@ -260,7 +260,7 @@ export default function WidgetIntro(props) {
     // 他表字段
     if (type === 30) {
       onChange({
-        ..._.omit(sourceControl, ['controlId', 'controlName']),
+        ..._.omit(sourceControl, ['controlId', 'controlName', 'default']),
         attribute: 0,
         ..._.pick(data, ['sectionId', 'row', 'col']),
       });

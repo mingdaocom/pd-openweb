@@ -357,7 +357,7 @@ function APISetting(props) {
         explain: '',
         iconColor: '#455a64',
         iconName: md.global.FileStoreConfig.pubHost + '/customIcon/10_13_rocket.svg',
-        name: '未命名 API',
+        name: _l('未命名 API'),
         relationId: props.id,
         relationType: 40, //props.startAppType, //startAppType
         startEventAppType: 0,
@@ -368,7 +368,7 @@ function APISetting(props) {
       ...res,
       iconColor: '#455a64',
       iconName: md.global.FileStoreConfig.pubHost + '/customIcon/10_13_rocket.svg',
-      name: '未命名 API',
+      name: _l('未命名 API'),
       type: 1,
       ownerAccount: {
         ...res.ownerAccount,

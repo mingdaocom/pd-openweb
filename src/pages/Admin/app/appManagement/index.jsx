@@ -89,7 +89,8 @@ export default class AppManagement extends Component {
     const queryString = this.props.location.search && this.props.location.search.slice(1);
     const query = qs.parse(queryString);
     let _hasDataBase =
-      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
 
     this.setState(
       {

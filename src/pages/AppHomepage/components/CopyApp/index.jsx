@@ -73,7 +73,8 @@ export default class CopyApp extends Component {
     const { projectId, myPermissions = [] } = this.props;
 
     const hasDataBase =
-      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
     const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     if (hasDataBase && hasAppResourceAuth) {

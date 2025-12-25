@@ -138,7 +138,7 @@ const RadioWidget = props => {
         <div
           ref={radioRef}
           className={cx('RadioGroupCon', {
-            flexColumn: vertical,
+            flexColumn: vertical || direction === '1',
           })}
         >
           {displayOptions.map((item, index) => {
