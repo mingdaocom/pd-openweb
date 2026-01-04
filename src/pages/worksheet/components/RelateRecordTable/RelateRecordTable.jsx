@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { v4 } from 'uuid';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
+import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import Operate from './Operate';
 import * as actions from './redux/action';
 import TableComp from './TableComp';
@@ -49,13 +50,18 @@ function RelateRecordTable(props) {
   } = props;
   const { updateWorksheetControls } = props;
   const { updateRecord, deleteRecords, refresh, updateBase, updateTableConfigByControl } = props;
-  const { isTab, isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
+  const { isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
+
+  const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
+    get(control, 'advancedSetting.showtype'),
+  );
   const tableCache = useRef({});
   const tableConRef = useRef();
   const [tableId] = useState(v4());
   const { width, recordbase = {}, iseditting } = useContext(RecordFormContext) || {};
   const { recordTitle } = recordbase;
   const smallMode = width < 500;
+  tableCache.current.refresh = refresh;
   const handleOpenRecordInfo = useCallback(
     args => {
       const { recordId, activeRelateTableControlId } = args;
@@ -131,7 +137,12 @@ function RelateRecordTable(props) {
     [],
   );
   useEffect(() => {
-    if (isFunction(control.addRefreshEvents)) {
+    if (isFunction(control.addRefreshEvents) && isTab) {
+      control.addRefreshEvents('activeTabTable', tableCache.current.refresh);
+    }
+  }, [control.controlId]);
+  useEffect(() => {
+    if (isFunction(control.addRefreshEvents) && !isTab) {
       control.addRefreshEvents(control.controlId, refresh);
     }
   }, []);

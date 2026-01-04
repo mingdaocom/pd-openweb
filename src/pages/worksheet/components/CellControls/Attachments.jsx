@@ -717,15 +717,11 @@ function Attachment(props) {
         ) : (
           <AttachmentDoc
             className={`fileIcon ${getClassNameByExt(attachment.ext)}`}
-            title={attachment.originalFilename + (attachment.ext || '')}
             style={{ width: fileWidth, height: fileHeight }}
           />
         )}
         {showFileName && (
-          <AttachmentDocFileName
-            className={cx('ellipsis', { isSingleFile })}
-            title={attachment.originalFilename + (attachment.ext || '')}
-          >
+          <AttachmentDocFileName className={cx('ellipsis', { isSingleFile })}>
             <span className="name ellipsis">{attachment.originalFilename}</span>
             <span className="ext ellipsis">{attachment.ext || ''}</span>
           </AttachmentDocFileName>

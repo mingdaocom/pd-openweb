@@ -158,6 +158,7 @@ class ColumnHead extends Component {
       type = '',
       worksheetId = '',
       disabled,
+      showRequired,
       count,
       style,
       isLast,
@@ -215,6 +216,7 @@ class ColumnHead extends Component {
     const allowSetAlign = WORKSHEET_ALLOW_SET_ALIGN_CONTROLS.includes(control.type);
     return (
       <BaseColumnHead
+        showRequired={showRequired}
         rows={rows}
         worksheetId={worksheetId}
         disabled={disabled}

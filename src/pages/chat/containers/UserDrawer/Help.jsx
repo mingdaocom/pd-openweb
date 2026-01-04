@@ -65,7 +65,7 @@ const renderProjectsPopover = () => {
                     key={v.id}
                     onClick={() => {
                       if (v.id === 'partnerSupport') {
-                        window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open();
+                        window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
                       }
                     }}
                   >

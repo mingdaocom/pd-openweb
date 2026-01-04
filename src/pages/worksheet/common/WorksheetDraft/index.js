@@ -4,7 +4,6 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import withEscClose from 'ming-ui/decorators/withEscClose';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import BaseColumnHead from 'worksheet/components/BaseColumnHead';
@@ -210,6 +209,7 @@ function DraftModal(props) {
         type="fixed"
         bodyStyle={{ paddingTop: 0, position: 'relative' }}
         closeStyle={{ margin: '16px', width: '30px', height: '30px', lineHeight: '30px' }}
+        onCancel={onCancel}
       >
         <Con>
           <WorksheetDraftOperate
@@ -334,8 +334,7 @@ function DraftModal(props) {
     </BrowserRouter>
   );
 }
-export const openWorkSheetDraft = props =>
-  functionWrap(withEscClose(DraftModal), { ...props, closeFnName: 'onCancel' });
+export const openWorkSheetDraft = props => functionWrap(DraftModal, { ...props, closeFnName: 'onCancel' });
 
 let request = null;
 function WorksheetDraft(props) {

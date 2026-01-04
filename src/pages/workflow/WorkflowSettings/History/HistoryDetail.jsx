@@ -434,7 +434,10 @@ export default class HistoryDetail extends Component {
                     )}
 
                     <div className="flowItemHistory flexRow">
-                      <HistoryStatus config={NODE_STATUS} statusCode={status} />
+                      <HistoryStatus
+                        config={NODE_STATUS}
+                        statusCode={data.status === 1 && index === works.length - 1 && status === 2 ? 1 : status}
+                      />
                       {!!(logs || []).length && (
                         <span className="mLeft8">
                           <div className="historyDetailRetryResult">{_l('重试') + '#' + logs.length}</div>

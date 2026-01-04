@@ -421,11 +421,14 @@ function FixedTable(props, ref) {
     tablehammer.current.on('panmove', handlePanMove);
     tablehammer.current.on('panend', handlePanEnd);
     // ---
-    if (defaultScrollLeft) {
-      if (conRef.current.querySelector('.scroll-x .scroll-viewport')) {
-        conRef.current.querySelector('.scroll-x .scroll-viewport').scrollLeft = defaultScrollLeft;
+    setTimeout(() => {
+      if (defaultScrollLeft) {
+        if (conRef.current.querySelector('.scroll-x .scroll-viewport')) {
+          setScrollX(cache, defaultScrollLeft);
+          conRef.current.querySelector('.scroll-x .scroll-viewport').scrollLeft = defaultScrollLeft;
+        }
       }
-    }
+    }, 0);
     return () => {
       conRef.current.removeEventListener('wheel', handleMouseWheel);
       if (tablehammer.current) {

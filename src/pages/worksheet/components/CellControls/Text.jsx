@@ -245,6 +245,11 @@ export default class Text extends React.Component {
       value,
     });
     updateEditingStatus(false, undefined, { value });
+    clearTimeout(window.cellTextIsBlurTimer);
+    window.cellTextIsBlurring = true;
+    window.cellTextIsBlurringTimer = setTimeout(() => {
+      window.cellTextIsBlurring = false;
+    }, 100);
   };
 
   handleChange = value => {

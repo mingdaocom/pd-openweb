@@ -183,7 +183,14 @@ export default function DateTime(props) {
           <MdAntDateRangePicker
             className="customAntPicker"
             value={minValue && maxValue ? [moment(minValue, valueFormat), moment(maxValue, valueFormat)] : []}
-            showTime={timeFormat ? { format: timeFormat } : false}
+            showTime={
+              timeFormat
+                ? {
+                    format: timeFormat,
+                    defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('23:59:59', 'HH:mm:ss')],
+                  }
+                : false
+            }
             picker={getPicker(showType)}
             format={showValueFormat}
             open={pickerVisible}

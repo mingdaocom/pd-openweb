@@ -599,7 +599,7 @@ export default class extends Component {
               overlayInnerStyle={{ textAlign: 'center' }}
             >
               <div className="contentWrapper textWrap flexColumn">
-                {name && (
+                {name && (oneNumber ? displaySetup.showTitle : true) && (
                   <div className="flexRow valignWrapper w100 mBottom2">
                     <div className="flex ellipsis name" style={{ fontSize: titleFontSize, color: getTitleColor }}>
                       {name}

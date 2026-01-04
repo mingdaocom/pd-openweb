@@ -238,9 +238,10 @@ export default class Workwx extends React.Component {
                 type="text"
                 className="inputBox"
                 onChange={e => {
+                  const value = (e.target.value || '').trim();
                   this.setState({
-                    [strId]: e.target.value,
-                    [`${strId}Format`]: this.formatStr(e.target.value),
+                    [strId]: value,
+                    [`${strId}Format`]: this.formatStr(value),
                   });
                 }}
                 value={this.state[strId]}

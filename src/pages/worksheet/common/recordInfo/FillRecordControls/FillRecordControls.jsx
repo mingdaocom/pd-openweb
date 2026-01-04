@@ -213,6 +213,7 @@ class FillRecordControls extends React.Component {
       formData: controls,
       showError: false,
     };
+    this.onSave = this.onSave.bind(this);
   }
 
   needRunFunctionsAfterDataReady = [];
@@ -364,7 +365,9 @@ class FillRecordControls extends React.Component {
                 formData: data,
               });
             }}
-            onSave={this.onSave.bind(this)}
+            onSave={(...args) => {
+              setTimeout(() => this.onSave(...args), window.cellTextIsBlurring ? 1000 : 0);
+            }}
             onFormDataReady={() => {
               try {
                 this.needRunFunctionsAfterDataReady.forEach(fn => fn());

@@ -566,7 +566,6 @@ function NewRecordForm(props) {
 
         setOriginFormdata(newFormdata);
         cache.current.originFormdata = newFormdata;
-        setFormdata(newFormdata);
         // 离线缓存;
         if (offlineUpload === '1') {
           compatibleMDJS('offlineDataUpload', {
@@ -599,6 +598,7 @@ function NewRecordForm(props) {
             },
           });
         } else {
+          setFormdata(newFormdata);
           handleAPPScanCodeFunc(newFormdata);
         }
 

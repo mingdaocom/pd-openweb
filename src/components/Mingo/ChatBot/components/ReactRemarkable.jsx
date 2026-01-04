@@ -139,7 +139,8 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
   };
 
   const handleMarkdownClick = e => {
-    const urlObj = e.target.href && new URL(e.target.href);
+    let linkTarget = e.target.closest('a');
+    const urlObj = linkTarget && linkTarget.href && new URL(linkTarget.href);
     if (urlObj && urlObj.pathname.startsWith('/md_tag_record/')) {
       e.preventDefault();
       e.stopPropagation();
@@ -156,8 +157,8 @@ export default function ({ className, isStreaming, style = {}, markdown, renderC
       }
       return;
     }
-    if (e.target.tagName.toLowerCase() === 'a') {
-      window.open(e.target.href);
+    if (linkTarget) {
+      window.open(linkTarget.href);
       e.preventDefault();
       e.stopPropagation();
     }

@@ -18,6 +18,7 @@ export const setPssId = (id, verification = false) => {
       verification ||
       window.isDingTalk ||
       window.isMiniProgram ||
+      window.isFeiShu ||
       process.env.NODE_ENV === 'development' ||
       location.href.indexOf('localhost') > -1
     ) {

@@ -253,7 +253,7 @@ function MingoContent(props, ref) {
         // console.log('parsedData', parsedData);
         setPreviewTempData(parsedData);
       }
-      if (cache.current.currentMessage.includes('\n```') && cache.current.JSONLIsPiping) {
+      if (/\n```(\n|$)/.test(cache.current.currentMessage) && cache.current.JSONLIsPiping) {
         cache.current.JSONLIsPiping = false;
         setPreviewTempData([]);
         setMessageIdOfIsGeneratingMoreData(undefined);

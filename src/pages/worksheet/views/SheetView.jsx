@@ -1150,6 +1150,7 @@ class TableView extends React.Component {
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, this.sheetSwitchPermit);
     return (
       <ColumnHead
+        showRequired
         isDraft={isDraft}
         isCharge={isCharge}
         count={sheetViewData.count}
@@ -1225,7 +1226,7 @@ class TableView extends React.Component {
           });
         }}
         updateDefaultScrollLeft={() => {
-          const scrollX = document.querySelector(`.id-${tableId}-id .scroll-x`);
+          const scrollX = document.querySelector(`.id-${tableId}-id .scroll-x .scroll-viewport`);
           if (scrollX) {
             updateDefaultScrollLeft(scrollX.scrollLeft);
           }

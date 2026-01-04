@@ -340,7 +340,7 @@ class PrintForm extends React.Component {
             filterControls: newFilter,
             getType: 5,
           })
-        : [];
+        : {};
     });
 
     let _printData = _.cloneDeep(printData);
@@ -348,8 +348,7 @@ class PrintForm extends React.Component {
     Promise.all(promiseList).then(res => {
       printData.receiveControls.forEach((item, index) => {
         let _index = controls.findIndex(l => l.controlId === item.controlId);
-
-        if (_index > -1 && item.type === 51) {
+        if (_index > -1 && item.type === 51 && !_.isEmpty(res[_index])) {
           res[_index].template.controls = replaceControlsTranslateInfo(
             res[_index].worksheet.appId,
             res[_index].worksheet.worksheetId,

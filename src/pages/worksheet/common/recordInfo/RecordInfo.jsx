@@ -537,6 +537,12 @@ export default class RecordInfo extends Component {
         onError(res);
       }
 
+      if (res.resultCode === 4) {
+        if (from !== RECORD_INFO_FROM.WORKSHEET_ROW_LAND) {
+          hideRecordInfo();
+        }
+        return;
+      }
       this.setState({
         abnormal: true,
         loading: false,
@@ -794,7 +800,7 @@ export default class RecordInfo extends Component {
           this.recordform.current.submitFormData({ ignoreAlert, silent, ignoreDialog });
         }
       },
-      this.hasFocusingRelateRecordTags ? 1000 : 0,
+      this.hasFocusingRelateRecordTags || window.cellTextIsBlurring ? 1000 : 0,
     );
   };
 

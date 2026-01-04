@@ -100,10 +100,10 @@ export default class Con extends React.Component {
         .then(({ shareLink }) => {
           let url = shareLink;
 
-          if (type === typeForCon.PREVIEW && isDefault && printId && printType === 'worksheet') {
-            url = url.replace('public/record', 'public/print');
-            url = `${url}&&${printId}&&${projectId}`;
-          }
+          // if (type === typeForCon.PREVIEW && isDefault && printId && printType === 'worksheet') {
+          //   url = url.replace('public/record', 'public/print');
+          //   url = `${url}&&${printId}&&${projectId}`;
+          // }
           this.setState({
             shareUrl: url,
           });

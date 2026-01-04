@@ -502,7 +502,7 @@ export default class DingSyncCourse extends React.Component {
               type="primary"
               className="goDingSetting"
               onClick={() => {
-                window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open();
+                window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
               }}
             >
               {_l('联系客服')}

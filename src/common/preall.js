@@ -186,8 +186,8 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
     md.global.SysSettings.forbidSuites = md.global.SysSettings.forbidSuites.replace('5', '');
   }
 
-  // 加载KF5
-  !md.global.Account.isPortal && window.mdKF5 && window.mdKF5();
+  // 加载云客服
+  !md.global.Account.isPortal && window.mdCustomerService && window.mdCustomerService();
 
   // 设置md_pss_id
   setPssId(getPssId());

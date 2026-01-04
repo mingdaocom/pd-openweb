@@ -136,7 +136,7 @@ export default function HelpCollection(props) {
                     onClick={() => {
                       updatePopupVisible(false);
                       if (v.id === 'partnerSupport') {
-                        window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open();
+                        window.mdCustomerServiceOpen && window.mdCustomerServiceOpen();
                       }
                     }}
                   >

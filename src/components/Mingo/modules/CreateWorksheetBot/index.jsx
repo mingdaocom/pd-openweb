@@ -538,7 +538,7 @@ function MingoContent(props, ref) {
         <div className="sendCon" style={{ maxWidth: maxWidth + 16 * 2 }}>
           <Send
             disabled={sendDisabled}
-            allowUpload
+            allowUpload={taskStatus === MINGO_TASK_STATUS.CREATE_WORKSHEET_ASSIGNMENT_PREPARING_WORKSHEET_DESCRIPTION}
             isChatting={isChatting}
             loading={loading}
             isRequesting={isRequesting}

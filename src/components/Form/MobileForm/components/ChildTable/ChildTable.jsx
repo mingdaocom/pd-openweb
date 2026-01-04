@@ -398,17 +398,13 @@ class ChildTable extends React.Component {
   };
 
   getShowColumns() {
-    const { control } = this.props;
-
     const { controls } = this.state;
     const hiddenTypes = window.isPublicWorksheet ? [48] : [];
 
     let columns = controls
       .filter(
         c =>
-          _.find(control.showControls, scid => scid === c.controlId) &&
           c.type !== 34 &&
-          controlState(c).visible &&
           !isRelateRecordTableControl(c) &&
           !_.includes(hiddenTypes.concat(SHEET_VIEW_HIDDEN_TYPES), c.type),
       )
@@ -1080,7 +1076,10 @@ class ChildTable extends React.Component {
             controlPermission={controlPermission}
             rows={tableRows}
             tableRows={tableRows}
-            controls={columns}
+            controls={columns.map(c => ({
+              ...c,
+              hidden: !_.includes(control.showControls, c.controlId) ? true : c.hidden,
+            }))}
             onOpen={this.openDetail}
             isEdit={mobileIsEdit}
             onDelete={this.deleteRecord}

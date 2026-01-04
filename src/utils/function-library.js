@@ -1,6 +1,14 @@
 import dayjs from 'dayjs';
-import _, { isArray } from 'lodash';
-import { filterEmptyChildTableRows } from 'src/utils/record';
+import _, { isArray, isFunction } from 'lodash';
+
+function filterEmptyChildTableRows(rows = []) {
+  try {
+    return rows.filter(row => !(row.rowid || '').startsWith('empty'));
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
 
 /** 获取选项 */
 export function getSelectedOptions(options, value, control) {
@@ -225,9 +233,13 @@ export function formatControlValue(cell) {
         }
         return cell.enumDefault === 1 ? parsedData.slice(0, 1) : parsedData;
       case 34: // SUBLIST 子表
-        return _.isObject(value)
-          ? filterEmptyChildTableRows(_.get(value, 'rows', []))
-          : [...new Array(value ? Number(value) : 0)];
+        if (_.isObject(value)) {
+          return filterEmptyChildTableRows(_.get(value, 'rows', []));
+        } else if (isFunction(cell.store?.getState)) {
+          return filterEmptyChildTableRows(cell.store.getState()?.rows || []);
+        } else {
+          return [...new Array(value ? Number(value) : 0)];
+        }
       case 30: // SHEETFIELD 他表字段
         return formatControlValue(
           _.assign({}, cell, {

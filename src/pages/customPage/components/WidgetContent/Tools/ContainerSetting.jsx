@@ -198,7 +198,7 @@ export default props => {
                   });
                 }}
               />
-              {tabs.length < 10 && (
+              {tabs.length < 20 && (
                 <div
                   className="flexRow valignWrapper pointer ThemeColor mTop5"
                   onClick={() => {

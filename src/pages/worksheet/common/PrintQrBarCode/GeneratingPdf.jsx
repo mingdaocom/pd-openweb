@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import _, { includes } from 'lodash';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import worksheetAjax from 'src/api/worksheet';
+import { getFilledRequestParams } from 'src/utils/common';
 import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import GeneratingPopup from './GeneratingPopup';
 import { QrPdf } from './print';
@@ -38,17 +39,19 @@ export default function GeneratingPdf(props) {
   function loadData(pageIndex = 1, cb = () => {}) {
     setLoading(true);
     worksheetAjax
-      .getFilterRows({
-        worksheetId,
-        viewId,
-        pageSize: PAGE_SIZE,
-        pageIndex,
-        status: 1,
-        appId,
-        filterControls,
-        fastFilters,
-        navGroupFilters,
-      })
+      .getFilterRows(
+        getFilledRequestParams({
+          worksheetId,
+          viewId,
+          pageSize: PAGE_SIZE,
+          pageIndex,
+          status: 1,
+          appId,
+          filterControls,
+          fastFilters,
+          navGroupFilters,
+        }),
+      )
       .then(res => {
         rows.current = res.data;
         cb();
