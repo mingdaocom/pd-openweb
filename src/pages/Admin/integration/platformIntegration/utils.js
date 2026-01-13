@@ -43,3 +43,18 @@ export const checkClearIntergrationData = ({ projectId, onSave = () => {} }) => 
       }
     });
 };
+
+/**
+ * 企微/钉钉/飞书/Lark 集成首页地址
+ * @param {*} projectId
+ * @param {*} integrationType 集成类型 1:钉钉 3:企微 6:飞书
+ */
+export const getIntegrationHomeUrl = ({ projectId, integrationType }) => {
+  if (integrationType === 3) {
+    return `${md.global.Config.WebUrl}auth/workwx?p=${projectId}`;
+  } else if (integrationType === 1) {
+    return `${md.global.Config.WebUrl}sso/sso?t=2&p=${projectId}`;
+  } else if (integrationType === 6) {
+    return `${md.global.Config.WebUrl}auth/feishu?p=${projectId}`;
+  }
+};

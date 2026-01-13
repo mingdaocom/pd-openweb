@@ -7,6 +7,7 @@ import { compareProps } from 'pages/PageHeader/util.js';
 import qs from 'query-string';
 import { LoadDiv } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
+import { getIntegrationHomeUrl } from '../../utils';
 import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
 import fsImg4 from './img/4.png';
 import fsImg7 from './img/7.png';
@@ -23,7 +24,6 @@ export default class WorkwxSyncCourse extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      homeUrl: '',
       loading: true,
       scanSafeDomain: '',
       type: _.get(qs.parse(location.search), 'type') || 'feishu',
@@ -44,8 +44,8 @@ export default class WorkwxSyncCourse extends React.Component {
       apkId: match.params.apkId,
     }).then(result => {
       if (result) {
-        const { homeUrl, scanSafeDomain } = result;
-        this.setState({ loading: false, homeUrl, scanSafeDomain });
+        const { scanSafeDomain } = result;
+        this.setState({ loading: false, scanSafeDomain });
       } else {
         this.setState({ loading: false });
       }
@@ -65,7 +65,8 @@ export default class WorkwxSyncCourse extends React.Component {
   }
 
   renderDing = () => {
-    const { homeUrl, type } = this.state;
+    const { type } = this.state;
+    const homeUrl = getIntegrationHomeUrl({ projectId: this.props.match?.params?.projectId, integrationType: 6 });
     const isLark = type === 'lark';
 
     return (

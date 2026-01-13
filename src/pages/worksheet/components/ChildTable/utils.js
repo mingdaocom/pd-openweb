@@ -93,7 +93,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const hadValueRows = rows.filter(
         row =>
           typeof row[c.controlId] !== 'undefined' &&
-          !row[c.controlId].startsWith('deleteRowIds') &&
+          (!row[c.controlId] || '').startsWith('deleteRowIds') &&
           !checkCellIsEmpty(row[c.controlId]),
       );
       const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));

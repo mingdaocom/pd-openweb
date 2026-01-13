@@ -57,7 +57,7 @@ export default function AreaWidgets(props) {
     const index = last.path.split('/').length;
 
     // 必须选择最后一级
-    if (anylevel === '1' && !last.last && enumDefault2 < index) {
+    if (anylevel === '1' && !last.last && index < enumDefault2) {
       return;
     }
 

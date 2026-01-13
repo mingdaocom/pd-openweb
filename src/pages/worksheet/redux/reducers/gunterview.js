@@ -36,10 +36,7 @@ export function grouping(state = [], action) {
   }
 }
 
-export function groupingVisible(
-  state = localStorage.getItem('gunterGroupingVisible') === 'false' ? false : true,
-  action,
-) {
+export function groupingVisible(state = true, action) {
   switch (action.type) {
     case 'CHANGE_GUNTER_GROUPING_VISIBLE':
       return action.data;

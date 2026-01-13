@@ -155,10 +155,38 @@ function ChartWrapper(props) {
   const pageTitleStyles = pageConfig.titleStyles || {};
   const titleStyles = _.get(data, 'style.titleStyles') || { ...defaultTitleStyles, fontSize: 17 };
   const newTitleStyles = pageTitleStyles.index >= titleStyles.index ? pageTitleStyles : titleStyles;
+  const { titleStyle = 0, pageBgColor } = pageConfig;
+  const getBgColor = () => {
+    const { reportType, xaxes, yaxisList } = data;
+    const hideNumberChartName = [reportTypes.NumberChart].includes(reportType)
+      ? (yaxisList.length === 1 && !xaxes.controlId) || !showTitle
+      : !showTitle;
+    if (loading) {
+      return {};
+    }
+    if (titleStyle === 1) {
+      return {
+        '--title-color': hideNumberChartName ? undefined : '#fff',
+        '--icon-color': hideNumberChartName ? undefined : '#fff',
+        backgroundColor: themeColor,
+      };
+    }
+    if (titleStyle === 2) {
+      return {
+        '--title-color': hideNumberChartName ? undefined : '#fff',
+        '--icon-color': hideNumberChartName ? undefined : '#fff',
+        background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})`,
+      };
+    }
+    return {};
+  };
   return (
     <Fragment>
       {!loading && (
-        <div className={cx('mBottom10 flexRow valignWrapper chartHeader', { mRight20: isHorizontal })}>
+        <div
+          className={cx('mBottom10 flexRow valignWrapper chartHeader Relative', { mRight20: isHorizontal })}
+          style={getBgColor()}
+        >
           <div
             className={cx('ellipsis name flex', { centerAlign: newTitleStyles.textAlign === 'center' })}
             style={{
@@ -196,6 +224,12 @@ function ChartWrapper(props) {
                 )
               )}
             </Fragment>
+          )}
+          {titleStyle === 3 && showTitle && (
+            <div
+              className="headerBottomLine"
+              style={{ background: `linear-gradient(to right, ${themeColor}, ${pageBgColor})` }}
+            />
           )}
         </div>
       )}

@@ -514,12 +514,13 @@ export function ButtonList({
           showDraftsEntry={isMobile ? true : false}
           openRecord={
             isMobile
-              ? (recordId, viewId) => {
+              ? (recordId, viewId, extra) => {
                   setPreviewRecord({
                     appId,
                     worksheetId,
                     viewId,
                     rowId: recordId,
+                    enablePayment: extra?.enablePayment,
                   });
                 }
               : undefined
@@ -535,6 +536,7 @@ export function ButtonList({
           worksheetId={previewRecord.worksheetId}
           viewId={previewRecord.viewId}
           rowId={previewRecord.rowId}
+          enablePayment={previewRecord?.enablePayment}
           onClose={() => {
             setPreviewRecord({});
           }}

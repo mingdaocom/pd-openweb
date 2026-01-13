@@ -656,9 +656,10 @@ class ChildTable extends React.Component {
 
   copyRow(row) {
     const { addRow } = this.props;
+    const rowId = `temp-${uuidv4()}`;
     addRow(
       Object.assign({}, _.omit(copySublistRow(this.state.controls, row), ['updatedControlIds']), {
-        rowid: `temp-${uuidv4()}`,
+        rowid: rowId,
         allowedit: true,
         isCopy: true,
         pid: row.pid,
@@ -667,6 +668,15 @@ class ChildTable extends React.Component {
       row.rowid,
     );
     this.triggerCustomEvent();
+
+    setTimeout(() => {
+      const activeCell = this.worksheettable.current.table.refs.dom.current.querySelector(
+        '.cell.row-id-' + rowId + '.canedit',
+      );
+      if (activeCell) {
+        activeCell.click();
+      }
+    }, 100);
   }
   copyRows(rows) {
     const { addRows } = this.props;

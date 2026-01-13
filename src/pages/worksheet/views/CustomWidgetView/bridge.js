@@ -5,6 +5,7 @@ import { api, mainWebApi, utils } from './widgetFunctions';
 export default class WidgetBridge {
   constructor(options) {
     this.cache = options.cache;
+    this.containerId = options.containerId;
   }
   init(onLoad = () => {}, onLoadError = () => {}) {
     this.onLoad = onLoad;
@@ -50,6 +51,7 @@ export default class WidgetBridge {
       });
     } else if (e.data.action === 'call-md-api') {
       try {
+        if (e.data.containerId !== this.containerId) return;
         const { functionName, args } = e.data;
         if (!isFunction(api[functionName])) {
           throw new Error('not a md api function');
@@ -64,6 +66,7 @@ export default class WidgetBridge {
         });
       }
     } else if (e.data.action === 'call-md-util') {
+      if (e.data.containerId !== this.containerId) return;
       try {
         const { functionName, args } = e.data;
         if (!isFunction(utils[functionName])) {
@@ -90,6 +93,7 @@ export default class WidgetBridge {
     } else if (e.data.action === 'document-click-event') {
       document.body.dispatchEvent(new Event('mousedown'));
     } else if (e.data.action === 'call-main-web') {
+      if (e.data.containerId !== this.containerId) return;
       const { args = {} } = e.data;
       const { data } = args;
       let controller = args.controller;

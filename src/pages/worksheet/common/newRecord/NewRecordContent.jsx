@@ -423,7 +423,7 @@ function NewRecordForm(props) {
                 isContinue && offlineUpload !== '1' ? 'continueOpenRecordViewId' : 'submitOpenRecordViewId',
               );
               if (_.isFunction(openRecord)) {
-                openRecord(rowData.rowid, openViewId);
+                openRecord(rowData.rowid, openViewId, { enablePayment: worksheetInfo.enablePayment });
               } else if (isMobile) {
                 openMobileRecordInfo({
                   className: 'full',

@@ -1050,7 +1050,7 @@ export default class Condition extends Component {
             {conditionValues.map((list, index) => {
               return (
                 <li key={index} className="tagItem flexRow">
-                  <span className="tag" title={list.value.value}>
+                  <span className="tag ellipsis" title={list.value.value}>
                     {list.value.value}
                   </span>
                   <span

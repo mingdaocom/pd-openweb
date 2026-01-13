@@ -10,6 +10,7 @@ import projectAjax from 'src/api/project';
 import Ajax from 'src/api/workWeiXin';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
 import { navigateTo } from '../../../../../../router/navigateTo';
+import { getIntegrationHomeUrl } from '../../utils';
 import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
 import CreateLinkDialog from './CreateLinkDialog';
 import imgPng1 from './img/1.png';
@@ -48,7 +49,6 @@ export default class DingSyncCourse extends React.Component {
     this.state = {
       homeUrl: '',
       serverIp: '',
-      pcHomeUrl: '',
       addApp: false,
       iconUrl: null,
       iconColor: null,
@@ -58,7 +58,6 @@ export default class DingSyncCourse extends React.Component {
       apkId: null,
       isPassApply: false,
       isWX: false,
-      AgentId: null,
       Secret: null,
       baseUrl: '',
       scanSafeDomain: '',
@@ -123,7 +122,6 @@ export default class DingSyncCourse extends React.Component {
             // "status: 集成状态，主要通过该值展现：1代表申请通过并提供了使用；0代表提交了申请；-1代表拒绝申请；2代表之前集成过但关闭了集成"
             domainName: res.item1,
             homeUrlN: res.item2,
-            AgentId: res.item3,
             Secret: res.item4,
             baseUrl: res.item6,
           });
@@ -142,10 +140,7 @@ export default class DingSyncCourse extends React.Component {
         if (res) {
           this.setState({
             // "status: 集成状态，主要通过该值展现：1代表申请通过并提供了使用；0代表提交了申请；-1代表拒绝申请；2代表之前集成过但关闭了集成"
-            homeUrl: res.homeUrl,
             serverIp: res.ip,
-            pcHomeUrl: res.pcHomeUrl,
-            AgentId: res.agentId,
             baseUrl: res.baseUrl,
             scanSafeDomain: res.scanSafeDomain,
           });
@@ -301,6 +296,9 @@ export default class DingSyncCourse extends React.Component {
   };
 
   renderDing = () => {
+    const { projectId, isWX } = this.state;
+    const homeUrl = getIntegrationHomeUrl({ projectId, integrationType: isWX ? 3 : 1 });
+
     return (
       <React.Fragment>
         <h3 className="Font18 Gray mTop40">{_l('1. 前往钉钉管理后台 — 定位到“工作台”')}</h3>
@@ -340,8 +338,8 @@ export default class DingSyncCourse extends React.Component {
         </p>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('应用首页地址：')}</span>
-          <input type="text" className="inputBox" readOnly value={this.state.homeUrl} />
-          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.homeUrl)}>
+          <input type="text" className="inputBox" readOnly value={homeUrl} />
+          <span className="copyBtn" onClick={() => this.bindClipboard(homeUrl)}>
             {_l('复制')}
           </span>
         </div>
@@ -354,8 +352,8 @@ export default class DingSyncCourse extends React.Component {
         </div>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('PC端首页地址：')}</span>
-          <input type="text" className="inputBox" readOnly value={this.state.pcHomeUrl} />
-          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.pcHomeUrl)}>
+          <input type="text" className="inputBox" readOnly value={homeUrl} />
+          <span className="copyBtn" onClick={() => this.bindClipboard(homeUrl)}>
             {_l('复制')}
           </span>
         </div>
@@ -449,6 +447,9 @@ export default class DingSyncCourse extends React.Component {
   };
 
   render() {
+    const { projectId, isWX } = this.state;
+    const homeUrl = getIntegrationHomeUrl({ projectId, integrationType: isWX ? 3 : 1 });
+
     if (this.state.loading) {
       return (
         <div className="courseBox card">
@@ -456,6 +457,7 @@ export default class DingSyncCourse extends React.Component {
         </div>
       );
     }
+
     if (!this.state.isPassApply) {
       return (
         <div className="courseBox card TxtCenter">
@@ -541,7 +543,7 @@ export default class DingSyncCourse extends React.Component {
           <CreateLinkDialog
             visible={this.state.createLinkVisible}
             isWX={this.state.isWX}
-            baseUrl={this.state.homeUrl}
+            baseUrl={homeUrl}
             projectId={this.state.projectId}
             onCancel={() => {
               this.setState({ createLinkVisible: false });

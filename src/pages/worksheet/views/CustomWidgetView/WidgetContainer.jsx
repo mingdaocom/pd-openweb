@@ -3,6 +3,7 @@ import { get, pick } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import qs from 'query-string';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import filterXSS from 'xss';
 import { LoadDiv } from 'ming-ui';
 import { emitter } from 'src/utils/common';
@@ -58,7 +59,8 @@ export default function WidgetContainer(props) {
   } = props;
   const iframeRef = useRef();
   const cache = useRef({});
-  const bridge = useRef(new WidgetBridge({ cache: cache }));
+  const containerId = useRef(uuidv4());
+  const bridge = useRef(new WidgetBridge({ cache: cache, containerId: containerId.current }));
   const [reloadFlag, setReloadFlag] = useState(props.flag);
   const [RecordInfoComponent, setRecordInfoComponent] = useState(null);
   const [side, setSide] = useState();
@@ -67,6 +69,7 @@ export default function WidgetContainer(props) {
     isServerUrl,
     paramsMap,
     config: {
+      containerId: containerId.current,
       customWidgetViewVersion: 1,
       appId,
       projectId: worksheetInfo.projectId,

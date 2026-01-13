@@ -1,5 +1,4 @@
 import { get } from 'lodash';
-import moment from 'moment';
 
 /**
  * 设置 md_pss_id
@@ -7,20 +6,16 @@ import moment from 'moment';
  */
 export const setPssId = (id, verification = false) => {
   if (id) {
-    const isLocal = get(window, 'md.global.Config.IsLocal');
-    const sessionCookieExpireMinutes = get(window, 'md.global.Config.SessionCookieExpireMinutes');
     const httpOnly = get(window, 'md.global.Config.HttpOnly');
 
-    if (isLocal && sessionCookieExpireMinutes) {
-      const expireDate = moment().add(sessionCookieExpireMinutes, 'm').toDate();
-      window.setCookie('md_pss_id', id, expireDate);
-    } else if (
+    if (
       verification ||
       window.isDingTalk ||
       window.isMiniProgram ||
       window.isFeiShu ||
       process.env.NODE_ENV === 'development' ||
-      location.href.indexOf('localhost') > -1
+      location.href.indexOf('localhost') > -1 ||
+      location.href.indexOf('open_in_browser') > -1
     ) {
       window.setCookie('md_pss_id', id);
     }

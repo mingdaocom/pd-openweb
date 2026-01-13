@@ -45,7 +45,7 @@ const AvatarSetting = props => {
         onClose={() => setToolbarConfig({ userDrawerVisible: false })}
         getContainer={() => document.body}
         style={{
-          position: embed ? undefined : 'absolute',
+          // position: embed ? undefined : 'absolute',
           zIndex: 20,
           right: embed ? 0 : 52,
         }}

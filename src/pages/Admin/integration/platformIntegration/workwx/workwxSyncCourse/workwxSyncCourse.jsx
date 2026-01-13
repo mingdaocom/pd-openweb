@@ -12,6 +12,7 @@ import wxPng5 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyn
 import wxPng6 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/6.png';
 import wxPng7 from 'src/pages/Admin/integration/platformIntegration/ding/dingSyncCourse/img/wx/7.png';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
+import { getIntegrationHomeUrl } from '../../utils';
 import workwxPng1 from './img/1.png';
 import workwxPng2 from './img/2.png';
 import workwxPng3 from './img/3.png';
@@ -32,7 +33,6 @@ export default class WorkwxSyncCourse extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      homeUrl: '',
       scanUrl: '',
       loading: true,
     };
@@ -51,7 +51,6 @@ export default class WorkwxSyncCourse extends React.Component {
         this.setState({
           loading: false,
           domainName: result.item1,
-          homeUrl: result.item2,
           scanUrl: result.item5,
         });
         const hash = location.hash.replace('#', '');
@@ -136,7 +135,8 @@ export default class WorkwxSyncCourse extends React.Component {
   };
 
   renderDing = () => {
-    const { domainName, homeUrl } = this.state;
+    const { domainName } = this.state;
+    const homeUrl = getIntegrationHomeUrl({ projectId: this.props.match?.params?.projectId, integrationType: 3 });
     const url = encodeURIComponent(`${md.global.Config.WebUrl}dashboard`);
     // 图片加载需要时间，固定高度能让 hash 定位到指定的位置
     return (

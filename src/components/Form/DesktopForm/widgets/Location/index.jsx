@@ -177,8 +177,8 @@ const Widgets = props => {
               </div>
               {!disabled && !onlyCanAppUse && (
                 <div className="locationIcon">
-                  <Tooltip title={_l('编辑定位')}>
-                    <span>
+                  <span>
+                    <Tooltip title={_l('编辑定位')} placement="bottom">
                       <Icon
                         icon="Reposition-01"
                         className="Gray_9e ThemeHoverColor3 pointer Font30"
@@ -187,8 +187,8 @@ const Widgets = props => {
                           setVisible(true);
                         }}
                       />
-                    </span>
-                  </Tooltip>
+                    </Tooltip>
+                  </span>
                 </div>
               )}
             </div>

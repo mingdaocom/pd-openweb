@@ -50,6 +50,8 @@ export default class Gunter extends Component {
 
     updateViewConfig();
 
+    this.handleInitGroupingVisible(view.viewId);
+
     if (isGunterExport) {
       this.props.fetchRows();
     } else {
@@ -77,6 +79,9 @@ export default class Gunter extends Component {
     this.props.destroyGunterView();
   }
   componentWillReceiveProps({ view }) {
+    if (view.viewId !== this.props.view.viewId) {
+      this.handleInitGroupingVisible(view.viewId);
+    }
     if (
       view.viewId !== this.props.view.viewId ||
       view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow ||
@@ -129,6 +134,10 @@ export default class Gunter extends Component {
       }, 200);
     }
   }
+  handleInitGroupingVisible = viewId => {
+    const gunterGroupingVisible = localStorage.getItem(`gunterGroupingVisible-${viewId}`) === 'false' ? false : true;
+    this.props.updateGroupingVisible(isGunterExport ? true : gunterGroupingVisible);
+  };
   getDirectoryWidth(viewId) {
     const gunterDirectoryWidth = localStorage.getItem(`gunterDirectoryWidth-${viewId}`);
     const worksheetContentBoxEl = document.querySelector('.worksheetSheet');

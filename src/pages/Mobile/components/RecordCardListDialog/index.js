@@ -63,7 +63,7 @@ export default class RecordCardListDialog extends Component {
       list: [],
       controls: [],
       sortControls: [],
-      selectedRecords: [],
+      selectedRecords: props.selectedRecords || [],
       worksheet: {},
       pageIndex: 1,
       loadouted: false,

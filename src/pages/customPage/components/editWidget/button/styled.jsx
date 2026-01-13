@@ -34,6 +34,7 @@ export const GraphWrap = styled.div`
     }
     .nameWrap {
       font-size: 15px;
+      color: var(--widget-title-color) !important;
     }
   }
   &.row {

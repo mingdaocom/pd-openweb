@@ -406,7 +406,9 @@ export default class RecordCard extends Component {
               }}
             />
           )}
-          <div className="titleText Gray bold ellipsis">{titleText}</div>
+          <div className={cx('titleText Gray bold', view.viewType === 3 ? 'ellipsis' : 'titleTextEllipsis')}>
+            {titleText}
+          </div>
         </div>
         {advancedSetting.abstract && (
           <div className="Gray_9e mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>

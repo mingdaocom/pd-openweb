@@ -12,9 +12,6 @@ import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import DropDownItem from './DropDownItem';
 import './index.less';
 
-const allowConfigControlTypes = [
-  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
-];
 const recordObj = {
   text: _l('记录ID'),
   value: 'rowid',
@@ -217,12 +214,7 @@ export default class ConfigControl extends Component {
     for (const controlItem of data.template.controls) {
       const { type, controlName, advancedSetting, controlId, dataSource, appId, workSheetId } = controlItem;
 
-      // 过滤掉不支持匹配映射的字段
-      if (!_.includes(allowConfigControlTypes, type)) continue;
-
-      // 过滤掉列表展示关联记录多条
-      const isRealtionList = type == 29 && advancedSetting && advancedSetting.showtype == '2';
-      if (isRealtionList) continue;
+      if (this.notSupportFiled(controlItem)) continue;
 
       // 字段名称匹配默认
       const exact = [],
@@ -458,7 +450,7 @@ export default class ConfigControl extends Component {
       let requiredFiledNoSetArray = [];
 
       worksheetControls
-        .filter(o => o.type !== 30 && o.required === '1')
+        .filter(o => !this.notSupportFiled(o) && o.advancedSetting.required === '1')
         .forEach(o => {
           if (!controlMappingFilter.find(obj => obj.ControlId === o.controlId)) {
             requiredFiledNoSetArray.push(o.controlName);
@@ -466,7 +458,7 @@ export default class ConfigControl extends Component {
         });
 
       // 必填字段未设置
-      if (requiredFiledNoSetArray.length) {
+      if (requiredFiledNoSetArray.length && (!repeatRecord || repeatConfig.handleEnum !== 3)) {
         throw _l('请设置“%0”字段的映射关系', requiredFiledNoSetArray.join('、'));
       }
 
@@ -939,7 +931,9 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
-            {(showStar === controlItem.controlId || controlItem.required) && <span className="mLeft3 star">*</span>}
+            {(showStar === controlItem.controlId || controlItem.advancedSetting.required === '1') && (
+              <span className="mLeft3 star">*</span>
+            )}
           </div>
 
           {/** 提示文字 */}
@@ -992,7 +986,9 @@ export default class ConfigControl extends Component {
           <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
-            {(showStar === controlItem.controlId || controlItem.required) && <span className="mLeft3 star">*</span>}
+            {(showStar === controlItem.controlId || controlItem.advancedSetting.required === '1') && (
+              <span className="mLeft3 star">*</span>
+            )}
           </div>
 
           {/** 提示文字 */}
@@ -1036,6 +1032,19 @@ export default class ConfigControl extends Component {
     } else return null;
   }
 
+  notSupportFiled(o) {
+    const allowConfigControlTypes = [
+      2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
+    ];
+    // 是否为关联记录多条，列表展示
+    const isRealtionList = o.type === 29 && o.advancedSetting?.showtype == '2';
+
+    // 不支持映射的字段
+    const notSupport = !_.includes(allowConfigControlTypes, o.type) || isRealtionList;
+
+    return notSupport;
+  }
+
   render() {
     const { onCancel, isCharge } = this.props;
     const {
@@ -1077,14 +1086,11 @@ export default class ConfigControl extends Component {
                   {worksheetControls.map((controlItem, index) => {
                     const { type, advancedSetting } = controlItem;
 
-                    // 是否为关联记录多条，列表展示
-                    const isRealtionList = type == 29 && advancedSetting && advancedSetting.showtype == '2';
-
                     // 不支持映射的字段
-                    const notSupport = !_.includes(allowConfigControlTypes, type) || isRealtionList;
+                    const notSupport = this.notSupportFiled(controlItem);
 
                     // 外部成员字段
-                    const isExternal = type == 26 && advancedSetting && advancedSetting.usertype == '2';
+                    const isExternal = type == 26 && advancedSetting?.usertype == '2';
 
                     // 是否为关联字段 / 内部成员字段 / 部门字段
                     const isMapping = (type == 29 || (type == 26 && !isExternal) || type === 27) && !notSupport;
@@ -1184,7 +1190,7 @@ export default class ConfigControl extends Component {
                               <span className="mLeft10 ellipsis flex flexRow alignItemsCenter">
                                 {controlItem.controlName}
                                 {(showStar === controlItem.controlId ||
-                                  (controlItem.type !== 30 && controlItem.required === '1')) && (
+                                  (!notSupport && controlItem.advancedSetting.required === '1')) && (
                                   <span className="mLeft3 star">*</span>
                                 )}
                               </span>

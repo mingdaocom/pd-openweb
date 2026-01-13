@@ -58,7 +58,7 @@ export const wsexcelSocketInit = () => {
         antNotification.success({
           key: 'wsServiceErrorCountDialog',
           message: _l('导入完成'),
-          description: wsServiceErrorCount > 0 ? _l('导入完成，有部分数据未被导入,请删除重复值后重试') : title(),
+          description: wsServiceErrorCount > 0 ? _l('导入完成，部分数据未导入。请查看错误报告后重试') : title(),
           btnText: isErrorMsg ? _l('查看错误报告') : '',
           onBtnClick: () => {
             new ErrorDialog({ fileKey: id });

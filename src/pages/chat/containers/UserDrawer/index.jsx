@@ -199,7 +199,7 @@ export default props => {
           <Icon className="Gray_9e Font22" icon="sidebar" />
           <div className="flex mLeft15">{_l('右侧栏设置')}</div>
         </div>
-        {md.global.Config.HDPUrl && (
+        {md.global.Config.HDPUrl && md.global.Config.EnableHDP && (
           <div
             className="flexRow alignItemsCenter pointer itemWrap"
             onClick={() => {

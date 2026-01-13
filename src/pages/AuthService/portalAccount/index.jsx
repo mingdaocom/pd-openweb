@@ -343,7 +343,7 @@ function ContainerCon(props) {
     );
   };
   return (
-    <WrapCom>
+    <WrapCom className="h100">
       <Wrap
         style={
           baseSetInfo.backGroundType !== 6

@@ -2129,10 +2129,13 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
 
               if (dataType === API_ENUM_TO_TYPE.OPTIONS_10) {
                 let isEQ = true;
-                safeParse(value || '[]').forEach(singleValue => {
-                  if (_.includes(compareValues, singleValue)) {
-                    isEQ = false;
-                  }
+                _.map(compareValues, (it = {}) => {
+                  let valueN = safeParse(value || '[]');
+                  _.map(valueN, item => {
+                    if (it === item) {
+                      isEQ = false;
+                    }
+                  });
                 });
                 return isEQ;
               } else {
@@ -3319,3 +3322,16 @@ export function isRelateMoreList(control, condition) {
     _.includes([24, 25], condition.filterType || condition.type)
   );
 }
+
+export const mergeFormDataWidthSystem = (data = [], systemControlData = []) => {
+  const mergedData = [...data];
+  (systemControlData || []).forEach(systemItem => {
+    const existingIndex = mergedData.findIndex(d => d.controlId === systemItem.controlId);
+    if (existingIndex !== -1) {
+      mergedData[existingIndex] = { ...mergedData[existingIndex], ...systemItem };
+    } else {
+      mergedData.push(systemItem);
+    }
+  });
+  return mergedData;
+};

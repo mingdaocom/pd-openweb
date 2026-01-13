@@ -432,7 +432,7 @@ export default class CreateNodeDialog extends Component {
               actionId: '202',
               iconColor: '#1677ff',
               iconName: 'icon-workflow_email',
-              describe: _l('由 HAP 向指定邮箱代发自定义内容的邮件'),
+              describe: _l('向指定邮箱代发自定义内容的邮件'),
             },
             {
               type: 19,

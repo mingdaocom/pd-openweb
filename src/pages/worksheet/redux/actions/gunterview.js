@@ -201,11 +201,11 @@ export const updateRecordTimeBlockColor = () => {
   };
 };
 
-export const updateGroupingVisible = () => {
+export const updateGroupingVisible = data => {
   return (dispatch, getState) => {
-    const { gunterView } = getState().sheet;
-    const value = !gunterView.groupingVisible;
-    safeLocalStorageSetItem('gunterGroupingVisible', value);
+    const { base, gunterView } = getState().sheet;
+    const value = _.isBoolean(data) ? data : !gunterView.groupingVisible;
+    safeLocalStorageSetItem(`gunterGroupingVisible-${base.viewId}`, value);
     dispatch({ type: 'CHANGE_GUNTER_GROUPING_VISIBLE', data: value });
   };
 };

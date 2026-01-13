@@ -145,10 +145,13 @@ export default function MobileTable(props) {
   const customWidgetRefs = useRef([]);
 
   const showRows = isEdit || showExpand ? rows : rows.slice(0, maxShowLength);
+
+  const showFields = controls.filter(c => _.find(props.showControls || [], scid => scid === c.controlId));
+
   const showControlsFilter =
-    _.isEmpty(h5abstractids) || _.isEmpty(controls.filter(v => _.includes(h5abstractids, v.controlId)))
-      ? controls.slice(0, 3)
-      : controls.filter(v => _.includes(h5abstractids, v.controlId));
+    _.isEmpty(h5abstractids) || _.isEmpty(showFields.filter(v => _.includes(h5abstractids, v.controlId)))
+      ? showFields.slice(0, 3)
+      : showFields.filter(v => _.includes(h5abstractids, v.controlId));
 
   // 根据h5abstractids，重新排序
   const showControls = showControlsFilter.sort(

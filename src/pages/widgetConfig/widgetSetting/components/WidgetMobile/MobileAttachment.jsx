@@ -177,7 +177,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                     title={
                       <span className="WordBreak">
                         {_l(
-                          'Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及钉钉、企业微信等第三方平台的移动App）',
+                          'Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及第三方平台的移动App）',
                         )}
                       </span>
                     }

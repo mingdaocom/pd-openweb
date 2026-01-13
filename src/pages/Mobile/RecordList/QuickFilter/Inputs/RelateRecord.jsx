@@ -129,11 +129,10 @@ export default function RelateRecord(props) {
           defaultRelatedSheet={getDefaultRelateSheetValue()}
           controlId={controlId}
           visible={moreVisible}
+          selectedRecords={values}
           onClose={() => setMoreVisible(false)}
           onOk={newRecords => {
-            let selectedValue = values.map(item => item.rowid);
-            let result = newRecords.filter(item => !_.includes(selectedValue, item.rowid)).concat(values);
-            handleChange({ values: isMultiple ? result : newRecords });
+            handleChange({ values: newRecords });
           }}
           formData={filtersData}
           fastSearchControlArgs={

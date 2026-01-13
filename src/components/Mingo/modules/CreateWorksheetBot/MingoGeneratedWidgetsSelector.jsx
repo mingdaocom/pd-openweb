@@ -504,6 +504,7 @@ export default function MingoGeneratedWidgetsSelector({
       .map(item =>
         convertAiRecommendControlToControlData(item, {
           allWidgets: cache.current.allWidgets,
+          worksheetId,
         }),
       )
       .filter(c => {
@@ -527,7 +528,7 @@ export default function MingoGeneratedWidgetsSelector({
     const needDeleteWidgets = changes.deletedIds
       .map(id => cache.current.allWidgets.find(item => item.id === id))
       .filter(Boolean)
-      .map(item => convertAiRecommendControlToControlData(item))
+      .map(item => convertAiRecommendControlToControlData(item, { worksheetId }))
       .filter(c => !!c.type);
     if (!isEmpty(needDeleteWidgets)) {
       emitter.emit('WIDGET_CONFIG_DELETE_WIDGETS', { needDeleteWidgets }, { layoutOfAllWidgets }, () => {

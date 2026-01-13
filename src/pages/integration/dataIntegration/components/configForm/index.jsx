@@ -131,6 +131,7 @@ export default function ConfigForm(props) {
   const [testStatus, setTestStatus] = useState(TEST_STATUS.DEFAULT);
   const [sshEnable, setSshEnable] = useState(false);
   const fieldRef = useRef(null);
+  const connectorConfigDataRef = useRef(connectorConfigData);
 
   // 获取白名单
   useEffect(() => {
@@ -151,6 +152,10 @@ export default function ConfigForm(props) {
       });
     }
   }, [connectorConfigData[roleType].type]);
+
+  useEffect(() => {
+    connectorConfigDataRef.current = connectorConfigData;
+  }, [connectorConfigData]);
 
   useEffect(() => {
     setAllFieldDisabled(connectorConfigData[roleType].createType === CREATE_TYPE.SELECT_EXIST);
@@ -383,13 +388,16 @@ export default function ConfigForm(props) {
                 formData[element.controlId] = element.value;
               });
 
+              // 使用 ref 中的最新值，避免闭包问题（解决 sourceName 丢失问题）
+              const currentConfigData = connectorConfigDataRef.current || {};
+
               setConnectorConfigData({
-                [roleType]: Object.assign({}, connectorConfigData[roleType], {
+                [roleType]: Object.assign({}, currentConfigData[roleType], {
                   formData: {
-                    ...connectorConfigData[roleType].formData,
+                    ...(currentConfigData[roleType]?.formData || {}),
                     ...formData,
-                    id: (connectorConfigData[roleType].formData || {}).id,
-                    extraParams: getExtraParams(connectorConfigData[roleType].type, formData),
+                    id: (currentConfigData[roleType]?.formData || {}).id,
+                    extraParams: getExtraParams(currentConfigData[roleType]?.type, formData),
                   },
                 }),
               });

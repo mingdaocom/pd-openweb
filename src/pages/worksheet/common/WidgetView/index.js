@@ -49,7 +49,11 @@ window.callMd = (action, functionName, args) => {
         resolve(data.result);
       }
     };
-    window.parent.postMessage({ from: 'customwidget', action, functionName, args }, '*', [channel.port1]);
+    window.parent.postMessage(
+      { from: 'customwidget', containerId: window.config?.containerId, action, functionName, args },
+      '*',
+      [channel.port1],
+    );
   });
 };
 

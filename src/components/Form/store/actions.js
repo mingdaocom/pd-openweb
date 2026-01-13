@@ -14,6 +14,7 @@ import {
   checkAllValueAvailable,
   checkRequired,
   getRuleErrorInfo,
+  mergeFormDataWidthSystem,
   replaceStr,
   updateRulesData,
 } from '../core/formUtils';
@@ -85,7 +86,7 @@ export const getFilterDataByRuleAction = (
   let tempRenderData = updateRulesData({
     rules,
     recordId,
-    data: dataFormat.getDataSource().concat(systemControlData || []),
+    data: mergeFormDataWidthSystem(dataFormat.getDataSource(), systemControlData),
     from,
     updateControlIds: dataFormat.getUpdateRuleControlIds(),
     currentRuleControlIds: dataFormat.getCurrentRuleControlIds(),
@@ -267,18 +268,19 @@ export const getSubmitDataAction = (
   // 校验需要系统字段，提交不需要，防止数据被变更
   const ruleList = updateRulesData({
     rules,
-    data: data.concat(systemControlData || []),
+    data: mergeFormDataWidthSystem(data, systemControlData),
     recordId,
     checkAllUpdate: true,
     ignoreHideControl,
   });
-  // 过滤系统字段
-  const list = ruleList.filter(i => !_.find(systemControlData, s => s.controlId === i.controlId));
   // 保存时必走，防止无字段变更判断错误
   const errors =
     updateControlIds.length || !recordId || submitBegin || verifyAllControls
-      ? checkAllValueAvailable(rules, list, recordId, from)
+      ? checkAllValueAvailable(rules, ruleList, recordId, from)
       : [];
+
+  // checkAll等校验执行完过滤系统字段
+  const list = ruleList.filter(i => !_.find(systemControlData, s => s.controlId === i.controlId));
   const ids = verifyAllControls
     ? list
         .filter(item => controlState(item, from).visible && controlState(item, from).editable && item.type !== 52)
@@ -552,7 +554,7 @@ export const triggerCustomEventAction = (
   const customProps = {
     ...params,
     ..._.pick(props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId', 'isRecordLock']),
-    formData: dataFormat.getDataSource().concat(systemControlData || []),
+    formData: mergeFormDataWidthSystem(dataFormat.getDataSource(), systemControlData),
     renderData,
     searchConfig: searchConfig.filter(i => i.eventType === 1),
     checkRuleValidator: (controlId, errorType, errorMessage) => {
