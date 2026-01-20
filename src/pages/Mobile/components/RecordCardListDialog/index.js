@@ -164,7 +164,13 @@ export default class RecordCardListDialog extends Component {
       onClose = () => {},
       handleReplaceHistoryState = () => {},
       getFilterRowsGetType,
+      staticRecords = [],
     } = this.props;
+
+    if (!_.isEmpty(staticRecords)) {
+      return;
+    }
+
     const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch, ignoreAllFilters } = this.state;
     let getFilterRowsPromise, args;
     let filterControls;
@@ -402,6 +408,17 @@ export default class RecordCardListDialog extends Component {
   }
 
   handleSearch = _.debounce((value, isScanSearch) => {
+    const { staticRecords = [] } = this.props;
+    value = (value || '').trim();
+
+    if (!_.isEmpty(staticRecords)) {
+      this.setState({
+        keyWords: value,
+        list: staticRecords.filter(v => new RegExp(value, 'i').test(v.name)),
+      });
+      return;
+    }
+
     this.setState(
       {
         keyWords: value,
@@ -733,7 +750,7 @@ export default class RecordCardListDialog extends Component {
       <ScrollView
         className="recordCardList mTop10 flex"
         onScrollEnd={() => {
-          if (!loading && !loadouted) {
+          if (!loading && !loadouted && _.isEmpty(staticRecords)) {
             this.loadNext();
           }
         }}
@@ -794,16 +811,6 @@ export default class RecordCardListDialog extends Component {
         )}
         {list.length
           ? list.map((record, i) => {
-              if (!_.isEmpty(staticRecords)) {
-                return (
-                  <div
-                    className="worksheetRecordCard mobile noControls withoutCover"
-                    onClick={() => this.handleSelect(record, !selected)}
-                  >
-                    <p className="titleText ellipsis">{record.name}</p>
-                  </div>
-                );
-              }
               const selected = !!_.find(selectedRecords, r => r.rowid === record.rowid);
               return (
                 <div key={i} className="mLeft10 mRight10 mBottom10">

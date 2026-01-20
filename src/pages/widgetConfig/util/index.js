@@ -383,18 +383,21 @@ export const supportDisplayRow = item => {
 };
 
 // 关联记录、关联查询须过滤的字段
-export const getFilterRelateControls = (controls = [], showControls = []) => {
+export const getFilterRelateControls = ({ controls = [], showControls = [], data = {} }) => {
   const filterIds = [
     WIDGETS_TO_API_TYPE_ENUM.SPLIT_LINE,
     WIDGETS_TO_API_TYPE_ENUM.OCR,
     WIDGETS_TO_API_TYPE_ENUM.EMBED,
-    WIDGETS_TO_API_TYPE_ENUM.BAR_CODE,
     WIDGETS_TO_API_TYPE_ENUM.SEARCH_BTN,
     WIDGETS_TO_API_TYPE_ENUM.RELATION_SEARCH,
     WIDGETS_TO_API_TYPE_ENUM.SECTION,
     WIDGETS_TO_API_TYPE_ENUM.REMARK,
     ...SYS_CONTROLS,
   ];
+  // 列表形态支持条码
+  if (!isSheetDisplay(data)) {
+    filterIds.push(WIDGETS_TO_API_TYPE_ENUM.BAR_CODE);
+  }
   return _.filter(controls, item => !_.includes(filterIds, item.type) || _.includes(showControls, item.controlId));
 };
 

@@ -92,7 +92,11 @@ const AppItem = props => {
             {Content}
           </MdLink>
         )}
-        {(canEditApp(_.get(appPkg, ['permissionType'])) || canEditData(_.get(appPkg, ['permissionType']))) && (
+        {!(
+          !canEditApp(_.get(appPkg, ['permissionType'])) &&
+          !canEditData(_.get(appPkg, ['permissionType'])) &&
+          (window.isPublicApp || md.global.Account.isPortal)
+        ) && (
           <MoreOperation {...props}>
             <div className="moreIcon">
               <Icon icon="more_horiz" className="Font18 Gray_9e" />

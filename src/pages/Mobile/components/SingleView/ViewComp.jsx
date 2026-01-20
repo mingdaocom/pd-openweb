@@ -155,7 +155,7 @@ function ViewComp(props) {
         updateFiltersGroup(filtersGroup, view);
         return;
       }
-      if ([0, 3, 4, 6].includes(view.viewType)) {
+      if ([0, 1, 3, 4, 6].includes(view.viewType)) {
         updateFiltersGroup(filtersGroup, view);
       } else {
         updateFilters({ filtersGroup }, view);

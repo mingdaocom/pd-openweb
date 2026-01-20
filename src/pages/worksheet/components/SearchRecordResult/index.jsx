@@ -109,7 +109,7 @@ export default function SearchRecordResult({
               data={record}
               appId={appId}
               controls={controls}
-              showControls={getFilterRelateControls(controls)
+              showControls={getFilterRelateControls({ controls })
                 .filter(c => !includes([WIDGETS_TO_API_TYPE_ENUM.BAR_CODE], c.type) && controlState(c).visible)
                 .slice(0, 5)
                 .map(c => c.controlId)}

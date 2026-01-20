@@ -13,6 +13,7 @@ import DepartmentTooltip from './DepartmentTooltip';
 // 反转文本用于 RTL 显示（实现从头省略）
 const reverseTextForRTL = text => {
   if (!text) return text;
+  // 纯数字处理
   return text.split('').reverse().join('');
 };
 
@@ -125,7 +126,8 @@ const DepartmentSelect = props => {
     const disablePopover = disabled || dragging || isLayer || item.isDelete;
     const showMenu = showId === item.departmentId && !disablePopover;
     const needRTL = allpath === '1' && !item.isDelete;
-    const displayName = needRTL ? reverseTextForRTL(item.departmentName) : item.departmentName;
+    const isPureNumber = /^[\d\s\/]+$/.test(item.departmentName);
+    const displayName = needRTL && isPureNumber ? reverseTextForRTL(item.departmentName) : item.departmentName;
 
     return (
       <Popover
@@ -163,7 +165,7 @@ const DepartmentSelect = props => {
               className="ellipsis"
               style={{
                 ...(enumDefault === 1 ? { maxWidth: 200 } : {}),
-                ...(needRTL ? { direction: 'rtl', unicodeBidi: 'bidi-override' } : {}),
+                ...(needRTL ? { direction: 'rtl', unicodeBidi: isPureNumber ? 'bidi-override' : 'normal' } : {}),
               }}
             >
               {displayName}

@@ -16,6 +16,7 @@ import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVe
 import SortConditions from 'src/pages/worksheet/common/ViewConfig/components/SortConditions';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getDefaultCount } from 'src/utils/control';
 import { RESULT_DISPLAY } from '../CustomEvent/config';
 import { DYNAMIC_FROM_MODE } from '../DynamicDefaultValue/config';
 import { SearchWorksheetWrap, WorksheetListWrap } from '../DynamicDefaultValue/styled';
@@ -49,29 +50,6 @@ const EmptyDisplay = [
     value: 1,
   },
 ];
-
-export const getDefaultCount = (data = {}, value = 0) => {
-  value = parseInt(value);
-  if (value) {
-    // 下拉框50，卡片200，列表500
-    if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3') {
-      value = value > 50 ? 50 : value;
-    } else if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '1') {
-      value = value > 200 ? 200 : value;
-    } else if (value > 500) {
-      value = 500;
-    }
-  } else {
-    if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3') {
-      value = 50;
-    } else if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '1') {
-      value = 200;
-    } else {
-      value = 500;
-    }
-  }
-  return value;
-};
 
 // 关联记录、子表等他表字段需要处理controls
 const dealRelationControls = (controls = []) => {

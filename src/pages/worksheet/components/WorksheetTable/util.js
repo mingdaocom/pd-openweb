@@ -241,7 +241,7 @@ export function handleLifeEffect(
         (!(isSubList || isRelateRecordList) &&
           e.target.closest('.workSheetRecordInfo') &&
           !e.target.closest('.embedContainer')) ||
-        !e.target.isConnected) &&
+        (!e.target.isConnected && !e.target.closest('.customFormControlBox'))) &&
       !forceOutClick
     ) {
       return;

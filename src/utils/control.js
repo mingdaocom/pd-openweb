@@ -25,6 +25,38 @@ import { accMul, browserIsMobile, countChar, domFilterHtmlScript } from 'src/uti
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToUserZone } from 'src/utils/project';
 
+export const REQUIRED_SUPPORTED_WIDGET_TYPES = [
+  WIDGETS_TO_API_TYPE_ENUM.TEXT, // 2 - 文本
+  WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 3 - 手机
+  WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 4 - 座机
+  WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 5 - 邮箱
+  WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 6 - 数值
+  WIDGETS_TO_API_TYPE_ENUM.CRED, // 7 - 证件
+  WIDGETS_TO_API_TYPE_ENUM.MONEY, // 8 - 金额
+  WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, // 9 - 单选（平铺）
+  WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, // 10 - 多选
+  WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN, // 11 - 单选（下拉）
+  WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT, // 14 - 附件
+  WIDGETS_TO_API_TYPE_ENUM.DATE, // 15 - 日期
+  WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 16 - 日期时间
+  WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE, // 19 - 地区（省）
+  WIDGETS_TO_API_TYPE_ENUM.AREA_CITY, // 23 - 地区（省市）
+  WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY, // 24 - 地区（省市区）
+  WIDGETS_TO_API_TYPE_ENUM.USER_PICKER, // 26 - 成员
+  WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, // 27 - 部门
+  WIDGETS_TO_API_TYPE_ENUM.SCORE, // 28 - 等级
+  WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET, // 29 - 关联记录
+  WIDGETS_TO_API_TYPE_ENUM.SUB_LIST, // 34 - 子表
+  WIDGETS_TO_API_TYPE_ENUM.CASCADER, // 35 - 级联
+  WIDGETS_TO_API_TYPE_ENUM.SWITCH, // 36 - 检查框
+  WIDGETS_TO_API_TYPE_ENUM.LOCATION, // 40 - 定位
+  WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT, // 41 - 富文本
+  WIDGETS_TO_API_TYPE_ENUM.SIGNATURE, // 42 - 签名
+  WIDGETS_TO_API_TYPE_ENUM.TIME, // 46 - 时间
+  WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE, // 48 - 组织角色
+  WIDGETS_TO_API_TYPE_ENUM.SEARCH, // 50 - API查询
+];
+
 // 控件状态
 export const controlState = (data, from) => {
   if (!data) {
@@ -1587,7 +1619,6 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
   let control = {
     controlName: name,
     controlId: id || uuidv4(),
-    required: isRequired,
     col,
     row,
     size,
@@ -1645,6 +1676,11 @@ export function convertAiRecommendControlToControlData(recommendControl, { works
   } else if (includes(['related', 'multiRelated', 'relatedTable'], type)) {
     control.type = WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET;
   }
+
+  if (REQUIRED_SUPPORTED_WIDGET_TYPES.includes(control.type)) {
+    control.required = isRequired;
+  }
+
   const defaultData = DEFAULT_DATA[enumWidgetType[control.type]] || {};
   control = {
     ...defaultData,
@@ -1919,3 +1955,26 @@ export function formatAiGenControlValue(control, value = '') {
     return;
   }
 }
+
+export const getDefaultCount = (data = {}, value = 0) => {
+  value = parseInt(value);
+  if (value) {
+    // 下拉框50，卡片200，列表500
+    if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3') {
+      value = value > 50 ? 50 : value;
+    } else if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '1') {
+      value = value > 200 ? 200 : value;
+    } else if (value > 500) {
+      value = 500;
+    }
+  } else {
+    if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3') {
+      value = 50;
+    } else if (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '1') {
+      value = 200;
+    } else {
+      value = 500;
+    }
+  }
+  return value;
+};

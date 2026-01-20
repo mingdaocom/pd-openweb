@@ -21,6 +21,10 @@ const Con = styled.div`
   display: flex;
   padding: 6px 0;
   align-items: center;
+  button.addRecord {
+    border-color: var(--app-primary-color);
+    background: var(--app-primary-color);
+  }
 `;
 
 const Flex = styled.div`

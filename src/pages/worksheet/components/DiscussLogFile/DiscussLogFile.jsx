@@ -45,9 +45,12 @@ class DiscussLogFile extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.hiddenTabs !== this.props.hiddenTabs) {
+    if (nextProps.hiddenTabs !== this.props.hiddenTabs || nextProps.workflowStatus !== this.props.workflowStatus) {
       this.getShowTabs(nextProps);
-      if (!this.showTabs.find(o => this.state.status === o.id) && this.state.status) {
+      if (
+        (!this.showTabs.find(o => this.state.status === o.id) && this.state.status) ||
+        nextProps.workflowStatus !== this.props.workflowStatus
+      ) {
         this.setState({
           status: this.getActive(nextProps),
         });

@@ -73,6 +73,7 @@ export default function ViewLand() {
       setWorksheetInfo({
         worksheetName: worksheetInfo.name,
         viewName: view.name || '',
+        appColor: data.iconColor,
       });
       setLoading(false);
     });
@@ -86,7 +87,7 @@ export default function ViewLand() {
   }
 
   return (
-    <Con>
+    <Con style={{ '--app-primary-color': _.get(worksheetInfo, 'appColor') }}>
       <Component
         showPageTitle
         showHeader={showHeader}

@@ -42,12 +42,12 @@ export default class DepartmentGroupUserList extends Component {
     let { ID, NAME, COUNT } = this.props.getKeys(tabType);
     const { onlyJoinGroupChecked } = this.state;
 
-    if (list.length) {
-      return (
-        <div className="flexColumn flex">
-          <Checkbox className="mBottom10 pLeft7 mTop10" checked={onlyJoinGroupChecked} onClick={this.onlyShowJoinGroup}>
-            {_l('只看我加入的群组')}
-          </Checkbox>
+    return (
+      <div className="flexColumn flex">
+        <Checkbox className="mBottom10 pLeft7 mTop10" checked={onlyJoinGroupChecked} onClick={this.onlyShowJoinGroup}>
+          {_l('只看我加入的群组')}
+        </Checkbox>
+        {list.length > 0 ? (
           <div className="flex">
             {list.map(department => {
               const checked =
@@ -124,10 +124,10 @@ export default class DepartmentGroupUserList extends Component {
               );
             })}
           </div>
-        </div>
-      );
-    }
-
-    return <NoData>{this.props.keywords ? _l('无搜索结果') : _l('暂无成员')}</NoData>;
+        ) : (
+          <NoData>{this.props.keywords ? _l('无搜索结果') : _l('暂无成员')}</NoData>
+        )}
+      </div>
+    );
   }
 }

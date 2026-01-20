@@ -213,7 +213,7 @@ const getSplitChunksConfig = alonePath => {
   if (alonePath === 'single') return undefined;
 
   const baseConfig = {
-    chunks: 'all',
+    chunks: 'initial',
     minSize: 2000000,
     cacheGroups: {
       common: {
@@ -237,7 +237,6 @@ const getSplitChunksConfig = alonePath => {
 
   return {
     ...baseConfig,
-    chunks: 'initial',
     cacheGroups: {
       ...baseConfig.cacheGroups,
       core: {

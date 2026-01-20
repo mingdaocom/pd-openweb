@@ -14,11 +14,11 @@ import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'worksheet/constants/en
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { formatColumnToText } from 'src/pages/widgetConfig/util/data.js';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
 import { browserIsMobile } from 'src/utils/common';
 import {
   checkCellIsEmpty,
   formatNumberToWords,
+  getDefaultCount,
   isEmptyValue,
   isRelateRecordTableControl,
   toFixed,
@@ -97,6 +97,7 @@ export default class DataFormat {
     loadRowsWhenChildTableStoreCreated = false,
     searchConfig = [],
     embedData = {},
+    ignoreHiddenRequired = false,
     onAsyncChange = () => {},
     updateLoadingItems = () => {},
     activeTrigger = () => {},
@@ -369,8 +370,9 @@ export default class DataFormat {
       }
 
       const { errorType, errorText } = onValidator({ item, data, masterData, ignoreRequired, verifyAllControls });
-
-      if (errorType) {
+      const ignoreError =
+        ignoreHiddenRequired && errorType === FORM_ERROR_TYPE.REQUIRED && !controlState(item, from).visible;
+      if (errorType && !ignoreError) {
         _.remove(this.errorItems, obj => obj.controlId === item.controlId);
         this.errorItems.push({
           controlId: item.controlId,
@@ -677,14 +679,9 @@ export default class DataFormat {
               this.ruleControlIds.push(controlId);
             }
 
-            // 业务规则变更id集合
-            if (!isInit) {
-              const index = this.currentRuleControlIds.indexOf(controlId);
-              if (index !== -1) {
-                this.currentRuleControlIds.splice(index, 1);
-              } else {
-                this.currentRuleControlIds.push(controlId);
-              }
+            // 业务规则当前单次操作变更id集合
+            if (!_.includes(this.currentRuleControlIds, controlId) && !isInit) {
+              this.currentRuleControlIds.push(controlId);
             }
 
             // 变更控件的id集合
@@ -1089,6 +1086,13 @@ export default class DataFormat {
    */
   getCurrentRuleControlIds() {
     return this.currentRuleControlIds;
+  }
+
+  /**
+   * 业务规则更新操作完成，清除变更合集
+   */
+  resetCurrentRuleControlIds() {
+    this.currentRuleControlIds = [];
   }
 
   /**
@@ -1694,7 +1698,6 @@ export default class DataFormat {
         // 初始时由工作表查询引起的变更遗漏
         if (!_.includes(this.ruleControlIds, currentConfig.controlId) && searchType === 'init') {
           this.ruleControlIds.push(currentConfig.controlId);
-          this.currentRuleControlIds.push(currentConfig.controlId);
         }
 
         this.setLoadingInfo(currentConfig.controlId, false, true);

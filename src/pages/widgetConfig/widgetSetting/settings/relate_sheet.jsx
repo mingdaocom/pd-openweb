@@ -194,7 +194,7 @@ export default function RelateSheet(props) {
     }
   }, [dataSource, loading, data.controlId, enumDefault]);
 
-  const filterControls = getFilterRelateControls(relationControls, showControls);
+  const filterControls = getFilterRelateControls({ controls: relationControls, showControls, data });
   const titleControl = _.find(filterControls, item => item.attribute === 1);
   const RELATION_SHEET_DISPLAY = getDisplayType({ from, type: enumDefault });
   const setTitleControls = filterSysControls(filterControls).filter(i => _.includes(SUPPORT_RELATE_SEARCH, i.type));
@@ -221,13 +221,17 @@ export default function RelateSheet(props) {
     return _.includes(['2', '5', '6'], value || showtype);
   };
 
-  const getShowControls = controls => {
+  const getShowControls = (controls, showType) => {
     if (ddset !== '1' && showtype === '3') return [];
-    const feControls = getFilterRelateControls(controls);
+    const feControls = getFilterRelateControls({ controls, data });
     if (isEmpty(showControls) && controlId.indexOf('-') > -1) return feControls.slice(0, 4).map(item => item.controlId);
     // 删除掉showControls 中已经被删掉的控件
-    const allControlId = controls.map(item => item.controlId);
-    return showControls.filter(i => allControlId.includes(i));
+    return showControls.filter(i => {
+      const curItem = _.find(controls, c => c.controlId === i);
+      if (!curItem) return false;
+      if (curItem.type === 47) return isSheetDisplay(showType);
+      return true;
+    });
   };
 
   // 附加信息 + 显示字段
@@ -502,7 +506,7 @@ export default function RelateSheet(props) {
               let nextData = handleAdvancedSettingChange(data, { showtype: value });
               // 非卡片 铺满整行
               if (value !== '3') {
-                nextData = { ...nextData, showControls: getShowControls(nextData.relationControls) };
+                nextData = { ...nextData, showControls: getShowControls(nextData.relationControls, value) };
               } else {
                 // 下拉框清空
                 nextData = {

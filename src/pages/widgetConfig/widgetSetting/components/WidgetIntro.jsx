@@ -318,10 +318,12 @@ export default function WidgetIntro(props) {
               showtype: '5',
               dynamicsrc: '',
               defaulttype: '',
+              uniquecontrols: '',
             }),
             ..._.pick(data, ['showControls']),
             type: 29,
             enumDefault: 2,
+            required: false,
           });
         },
       });

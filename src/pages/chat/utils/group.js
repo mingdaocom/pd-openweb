@@ -9,6 +9,7 @@ const showInviteBox = options => {
     fromType: options.fromType,
     isChat: true,
     SelectUserSettings: {
+      projectId: options.projectId,
       filterAccountIds: options.filterList || [md.global.Account.accountId],
       callback(data) {
         if (typeof options.callback === 'function') {
@@ -23,7 +24,7 @@ const showInviteBox = options => {
 
 export const addGroupMembers = session => {
   const current = md.global.Account;
-  const { id, type } = session;
+  const { id, type, projectId } = session;
 
   const callback = userlist => {
     const accountIds = [];
@@ -77,6 +78,7 @@ export const addGroupMembers = session => {
     showInviteBox({
       sourceId: id,
       fromType: 1,
+      projectId,
       callback,
     });
   } else {

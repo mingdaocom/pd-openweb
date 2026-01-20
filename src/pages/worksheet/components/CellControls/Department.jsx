@@ -175,7 +175,9 @@ export default class Text extends React.Component {
   renderDepartmentTag(department, allowDelete) {
     const { style, isediting, cell = {} } = this.props;
     const needRTL = _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete;
-    const displayName = needRTL ? reverseTextForRTL(department.departmentName) : department.departmentName;
+    const isPureNumber = /^[\d\s\/]+$/.test(department.departmentName);
+    const displayName =
+      needRTL && isPureNumber ? reverseTextForRTL(department.departmentName) : department.departmentName;
 
     return (
       <span
@@ -188,7 +190,7 @@ export default class Text extends React.Component {
         <div className="flexRow">
           <div
             className="departmentName flex ellipsis"
-            style={needRTL ? { direction: 'rtl', unicodeBidi: 'bidi-override' } : {}}
+            style={needRTL ? { direction: 'rtl', unicodeBidi: isPureNumber ? 'bidi-override' : 'normal' } : {}}
           >
             {displayName}
             {department.deleteCount > 1 && <span className="Gray mLeft5">{department.deleteCount}</span>}

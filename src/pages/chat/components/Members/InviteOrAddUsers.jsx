@@ -22,13 +22,14 @@ export default class InviteOrAddUsers extends Component {
   }
 
   handleClick = ({ key }) => {
-    const { isAdmin, isForbidInvite, id, groupId, name } = this.props;
+    const { isAdmin, isForbidInvite, id, groupId, name, project = {} } = this.props;
 
     if (key === 'addUsers') {
       if (isAdmin || !isForbidInvite) {
         addGroupMembers({
           id: id,
           type: Constant.SESSIONTYPE_GROUP,
+          projectId: project.projectId,
         });
       } else {
         alert(_l('当前仅允许群主及管理员邀请新成员'), 2);

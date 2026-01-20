@@ -228,9 +228,12 @@ export default function DeskFormWidget(props) {
           !JSON.parse(item.value).length))
     ) {
       return (
-        <CustomFormItemControlWrap className="customFormItemControl">
+        <CustomFormItemControlWrap className="customFormItemControl" isShowRefreshBtn={isShowRefreshBtn}>
           <div className="customFormNull" />
           {!recordId && hintShowAsText && <WidgetsDesc item={item} from={from} />}
+          {isShowRefreshBtn && (
+            <RefreshBtn {..._.pick(props, ['worksheetId', 'recordId'])} item={item} onChange={handleChange} />
+          )}
         </CustomFormItemControlWrap>
       );
     }
@@ -282,7 +285,11 @@ export default function DeskFormWidget(props) {
         // 使用 ref 获取最新的 item，自动避开闭包问题
         const currentItem = itemRef.current;
         // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
-        const newValue = newVal || (`${currentItem.value || ''}` ? `${currentItem.value || ''}`.trim() : '');
+        const newValue = _.isUndefined(newVal)
+          ? `${currentItem.value || ''}`
+            ? `${currentItem.value || ''}`.trim()
+            : ''
+          : newVal;
         if (currentItem.unique && newValue) {
           checkControlUnique(controlId, currentItem.type, newValue);
         }
@@ -291,10 +298,10 @@ export default function DeskFormWidget(props) {
             control: { ...currentItem, value: newValue },
             searchType: 'onBlur',
           });
-          // 文本类失焦触发自定义事件
-          if (!isUnTextWidget(currentItem)) {
-            triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
-          }
+        }
+        // 文本类失焦触发自定义事件
+        if (newValue !== originValue && !isUnTextWidget(currentItem)) {
+          triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
         }
         onBlur(controlId);
         triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.BLUR });

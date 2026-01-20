@@ -43,8 +43,8 @@ const Entry = () => {
     getEntityShareById({
       clientId,
     }).then(async result => {
-      const { data } = result;
-      const { projectId } = data || {};
+      const { data = {} } = result;
+      const { projectId } = data;
       localStorage.setItem('currentProjectId', projectId);
       preall(
         { type: 'function' },
@@ -78,10 +78,10 @@ const Entry = () => {
     return new Promise(async resolve => {
       const result = await appManagementApi.getEntityShareById({ id, sourceType: 21, ...data });
       const clientId = _.get(result, 'data.clientId');
-      const { appId, projectId } = result.data;
       window.clientId = clientId;
       clientId && sessionStorage.setItem(id, clientId);
       if (result.resultCode === 1) {
+        const { appId, projectId } = result.data;
         const info = await shareGetAppLangDetail({
           appId,
           projectId,

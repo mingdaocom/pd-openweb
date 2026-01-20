@@ -34,7 +34,7 @@ export default function (props) {
       },
       zIndex: 10001,
       isDynamic: true,
-      filterAccountIds: [md.global.Account.accountId, 'user-self'],
+      filterAccountIds: ['user-self'],
       selectedAccountIds: valueRef.current.map(l => l.accountId),
       SelectUserSettings: {
         projectId,

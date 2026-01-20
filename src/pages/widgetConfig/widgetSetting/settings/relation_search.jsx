@@ -147,7 +147,7 @@ export default function RelationSearch(props) {
 
   const isDeleteWorksheet = !loading && !_.isEmpty(worksheetInfo) && _.isEmpty(controls);
 
-  const filterControls = getFilterRelateControls(relationControls);
+  const filterControls = getFilterRelateControls({ controls: relationControls, data });
   const isSheetDisplay = value => {
     return _.includes(['2', '5', '6'], value || showtype);
   };
@@ -249,7 +249,7 @@ export default function RelationSearch(props) {
         controlName: sheetName,
         sourceControlId,
         relationControls,
-        showControls: getShowControls(getFilterRelateControls(relationControls), true),
+        showControls: getShowControls(getFilterRelateControls({ controls: relationControls, data }), true),
       });
     },
   };

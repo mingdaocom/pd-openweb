@@ -17,6 +17,9 @@ const getRelateValue = control => {
 
 const getValue = (control = {}, type) => {
   if (!control.value) return '';
+  if (control.type === 30) {
+    control.type = control.sourceControlType;
+  }
   switch (control.type) {
     case 2:
       if (type === 10000007) {

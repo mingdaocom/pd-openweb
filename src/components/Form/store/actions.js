@@ -109,6 +109,7 @@ export const getFilterDataByRuleAction = (
         });
 
         if (setComplete) {
+          dataFormat.resetCurrentRuleControlIds();
           setTimeout(() => {
             // 禁止重新设置值
             getFilterDataByRuleAction(dispatch, { props, dataFormat, getState, disabledRuleSet: true });

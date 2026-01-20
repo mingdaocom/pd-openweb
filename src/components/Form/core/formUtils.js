@@ -1816,7 +1816,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
       formatMode = getFormatMode(control, currentControl, conditionGroupType);
       timeLevel = TIME_OPTIONS[TIME_MODE_OPTIONS[formatMode]];
 
-      if (!dynamicSource.length) {
+      if (!dynamicSource.length && control.type !== 46) {
         // 今天、昨天、明天，对比单位天
         if (_.includes([1, 2, 3, 10, 11], dateRange)) {
           timeLevel = 'day';

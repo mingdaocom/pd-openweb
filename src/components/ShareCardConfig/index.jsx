@@ -61,7 +61,7 @@ const initShareConfig = async props => {
           const info = {
             title: renderTxt(shareConfigValue.title) || title,
             desc: renderTxt(shareConfigValue.desc) || desc,
-            link: encodeURI(url),
+            link: encodeURI(location.href),
             imgUrl: getIconUrl(),
             success: function () {
               console.log('设置成功');

@@ -67,6 +67,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         return;
       }
       const formdata = new DataFormat({
+        ignoreHiddenRequired: true,
         data: controldata.map(c => ({ ...c, isSubList: true })),
         from: FROM.NEWRECORD,
       });

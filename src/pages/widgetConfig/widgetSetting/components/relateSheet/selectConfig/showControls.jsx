@@ -15,7 +15,7 @@ export default function ShowControls(props) {
   const { showControls = [] } = data;
   const { chooseshow = '0' } = getAdvanceSetting(data);
   const chooseshowids = getAdvanceSetting(data, 'chooseshowids') || [];
-  const filterControls = getFilterRelateControls(controls, data.showControls);
+  const filterControls = getFilterRelateControls({ controls, showControls, data });
 
   return (
     <Fragment>

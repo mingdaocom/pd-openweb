@@ -96,7 +96,6 @@ function View(props) {
     'sheetSwitchPermit',
     'noLoadAtDidMount',
     'printCharge',
-    'embedNeedUpdate',
   ]);
 
   if (_.isEmpty(view) && !props.chartId && !_.get(window, 'shareState.isPublicView')) {
@@ -159,6 +158,10 @@ function View(props) {
       }
     };
   }, [view.viewId, authRefreshTime]);
+
+  useEffect(() => {
+    props.embedNeedUpdate && refreshSheet(view, { isRefreshBtn: true });
+  }, [props.embedNeedUpdate]);
 
   useLayoutEffect(() => {
     cache.current.viewId = view.viewId;

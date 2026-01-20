@@ -205,11 +205,12 @@ function Filters(props, ref) {
   useImperativeHandle(ref, () => ({
     addFilterByControl: control => {
       cache.current.callFromColumn = true;
+      const newControl = redefineComplexControl(control);
       updateActiveTab(1);
       if (isNewEditing) {
-        addCondition(control, editingFilter.conditionsGroups.length - 1);
+        addCondition(newControl, editingFilter.conditionsGroups.length - 1);
       } else {
-        addFilter({ defaultCondition: getDefaultCondition(control) });
+        addFilter({ defaultCondition: getDefaultCondition(newControl) });
       }
     },
   }));

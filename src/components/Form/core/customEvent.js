@@ -13,8 +13,8 @@ import {
   SPLICE_TYPE_ENUM,
   VOICE_FILE_LIST,
 } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { getDefaultCount } from 'src/pages/widgetConfig/widgetSetting/components/SearchWorksheet/SearchWorksheetDialog.jsx';
 import { browserIsMobile } from 'src/utils/common';
+import { getDefaultCount } from 'src/utils/control';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
 import { FORM_ERROR_TYPE } from './config.js';
 import { replaceStr } from './formUtils';

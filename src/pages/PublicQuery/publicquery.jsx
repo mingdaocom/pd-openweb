@@ -124,14 +124,17 @@ class Publicquery extends React.Component {
     const { publicqueryRes = {}, querydata = {} } = this.props;
     const { Components } = this.state;
     const { queryControlIds = [], viewId, worksheet = {}, worksheetId = '', visibleType, title } = publicqueryRes;
-    const { projectId = '', template = {}, viewIds } = worksheet;
+    const { projectId = '', template = {}, views = [] } = worksheet;
     const controls = (template.controls || []).filter(o => queryControlIds.includes(o.controlId));
     const errCode =
       visibleType === 1
         ? 1
         : queryControlIds.length <= 0 || !viewId || controls.length <= 0
           ? 2
-          : !_.includes(viewIds, viewId)
+          : !_.includes(
+                views.map(o => o.viewId),
+                viewId,
+              )
             ? 3
             : 0;
 

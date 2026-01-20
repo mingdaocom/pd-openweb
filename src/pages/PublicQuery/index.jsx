@@ -11,8 +11,6 @@ import globalEvents from 'src/router/globalEvents';
 import { shareGetAppLangDetail } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import WorksheetShareHeader from './header';
-import PublicQuery from './publicquery';
-import WorksheetListShare from './worksheetListShare';
 import './index.less';
 
 class WorksheetSahre extends React.Component {
@@ -41,13 +39,58 @@ class WorksheetSahre extends React.Component {
       rowIds: [],
       controlsId: [],
       sheetSwitchPermit: [],
+      PublicQuery: null,
+      WorksheetListShare: null,
     };
+    // 防止重复加载的标记
+    this.loadingPublicQuery = false;
+    this.loadingWorksheetListShare = false;
   }
 
   componentDidMount() {
     $('html').addClass('WorksheetSharePage');
     this.getShareInfo(this.state.shareId);
+    if (this.state.isSearch) {
+      this.loadPublicQuery();
+    }
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.isSearch && !prevState.isSearch && !this.state.PublicQuery) {
+      this.loadPublicQuery();
+    }
+    if (!this.state.isSearch && prevState.isSearch && !this.state.WorksheetListShare) {
+      this.loadWorksheetListShare();
+    }
+  }
+
+  loadPublicQuery = () => {
+    if (!this.state.PublicQuery && !this.loadingPublicQuery) {
+      this.loadingPublicQuery = true;
+      import('./publicquery')
+        .then(res => {
+          this.loadingPublicQuery = false;
+          this.setState({ PublicQuery: res.default });
+        })
+        .catch(() => {
+          this.loadingPublicQuery = false;
+        });
+    }
+  };
+
+  loadWorksheetListShare = () => {
+    if (!this.state.WorksheetListShare && !this.loadingWorksheetListShare) {
+      this.loadingWorksheetListShare = true;
+      import('./worksheetListShare')
+        .then(res => {
+          this.loadingWorksheetListShare = false;
+          this.setState({ WorksheetListShare: res.default });
+        })
+        .catch(() => {
+          this.loadingWorksheetListShare = false;
+        });
+    }
+  };
 
   getShareInfo = id => {
     publicWorksheetAjax
@@ -214,6 +257,8 @@ class WorksheetSahre extends React.Component {
       controlsId,
       querydata = {},
       sheetSwitchPermit = [],
+      PublicQuery,
+      WorksheetListShare,
     } = this.state;
 
     if (loading) {
@@ -225,6 +270,13 @@ class WorksheetSahre extends React.Component {
     }
 
     if (isSearch) {
+      if (!PublicQuery) {
+        return (
+          <div className="centerLoad" style={{ height: window.innerHeight }}>
+            <LoadDiv />
+          </div>
+        );
+      }
       return (
         <PublicQuery
           publicqueryRes={publicqueryRes}
@@ -289,20 +341,26 @@ class WorksheetSahre extends React.Component {
           filterControls={querydata.controls}
         />
         <div className="shareConBox">
-          <WorksheetListShare
-            sheetSwitchPermit={sheetSwitchPermit}
-            viewIdForPermit={viewId}
-            cardControls={cardControls}
-            viewSet={viewSet}
-            rowsList={rowsList}
-            shareId={shareId}
-            dataTitle={dataTitle}
-            worksheetId={worksheetId}
-            appId={appId}
-            projectId={projectId}
-            worksheetName={worksheetName}
-            viewName={viewName}
-          />
+          {!WorksheetListShare ? (
+            <div className="centerLoad" style={{ height: window.innerHeight }}>
+              <LoadDiv />
+            </div>
+          ) : (
+            <WorksheetListShare
+              sheetSwitchPermit={sheetSwitchPermit}
+              viewIdForPermit={viewId}
+              cardControls={cardControls}
+              viewSet={viewSet}
+              rowsList={rowsList}
+              shareId={shareId}
+              dataTitle={dataTitle}
+              worksheetId={worksheetId}
+              appId={appId}
+              projectId={projectId}
+              worksheetName={worksheetName}
+              viewName={viewName}
+            />
+          )}
         </div>
       </React.Fragment>
     );

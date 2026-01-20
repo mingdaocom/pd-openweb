@@ -101,7 +101,7 @@ function InviteFailedDialog(props) {
   return (
     <Dialog
       visible={visible}
-      title={_l('%0 个成员邀请失败 ', failedTotal)}
+      title={_l('%0 个成员邀请失败', failedTotal)}
       description={_l('本次共邀请%0个成员，有%1个成员邀请失败', inviteTotal, failedTotal)}
       footer={null}
       onCancel={onClose}
