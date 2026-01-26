@@ -343,6 +343,10 @@ export default class RecordForm extends Component {
     const { from } = recordBase;
     const approveInfo = this.renderApprove();
     const NOT_LOGIN_HIDDEN_TYPES = [26, 27, 21, 48];
+    const ignoreLock =
+      from === RECORD_INFO_FROM.WORKFLOW ||
+      from === RECORD_INFO_FROM.DRAFT ||
+      location.href.indexOf('/public/workflow') > -1;
 
     return (
       <div
@@ -355,7 +359,7 @@ export default class RecordForm extends Component {
         <CustomFields
           ref={customwidget}
           isCharge={recordBase.isCharge}
-          ignoreLock={from === RECORD_INFO_FROM.WORKFLOW || from === RECORD_INFO_FROM.DRAFT}
+          ignoreLock={ignoreLock}
           showError={false}
           disabled={workflow ? (from === 6 ? !isEditRecord : !recordInfo.allowEdit) : !isEditRecord}
           from={from === 21 ? from : recordBase.recordId && !isEditRecord ? 3 : 6}

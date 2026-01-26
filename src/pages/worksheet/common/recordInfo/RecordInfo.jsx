@@ -1247,6 +1247,10 @@ export default class RecordInfo extends Component {
     const formWidth = width - (sideVisible ? sideWidth : 0) - formSectionWidth;
     const isDraft = from === RECORD_INFO_FROM.DRAFT && !isRelateRecord;
     const hideStep = sheetSwitchPermit?.find(o => o.type === permitList.approveDetailsSwitch)?.displayFlowChart === 1;
+    const ignoreLock =
+      from === RECORD_INFO_FROM.WORKFLOW ||
+      from === RECORD_INFO_FROM.DRAFT ||
+      location.href.indexOf('/public/workflow') > -1;
     return (
       <Con {...(useWaterMark ? { projectId: recordinfo.projectId } : {})}>
         <RecordInfoContext.Provider
@@ -1464,7 +1468,7 @@ export default class RecordInfo extends Component {
                 updatePayConfig={this.getPayConfig}
                 ignoreHeader={from === RECORD_INFO_FROM.WORKFLOW && renderHeader && viewId}
                 hideFormHeader={hideFormHeader}
-                ignoreLock={from === RECORD_INFO_FROM.WORKFLOW || from === RECORD_INFO_FROM.DRAFT}
+                ignoreLock={ignoreLock}
                 from={from}
                 isDraft={from === RECORD_INFO_FROM.DRAFT || this.props.isDraft || get(this.context, 'config.isDraft')}
                 isLock={isLock}

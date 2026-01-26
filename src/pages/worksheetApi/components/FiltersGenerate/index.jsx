@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import JsonView from 'react-json-view';
 import { Select } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
@@ -54,11 +55,42 @@ export default function FiltersGenerate(props) {
             Object.fromEntries(Object.entries(groupItem).filter(([, v]) => v !== undefined)),
           ),
         };
-      } else {
-        return Object.fromEntries(Object.entries(item).filter(([, v]) => v !== undefined));
       }
+      return Object.fromEntries(Object.entries(item).filter(([, v]) => v !== undefined));
     });
     return formatValue;
+  };
+
+  const normalizeValues = values => {
+    return _.isArray(values)
+      ? values.map(v => {
+          const parsed = safeParse(v);
+          return parsed?.id ?? v;
+        })
+      : values;
+  };
+
+  const formatFilter = filter => {
+    if (filter.dataType === 29) {
+      return {
+        ...filter,
+        values: normalizeValues(filter.values),
+      };
+    }
+    return filter;
+  };
+
+  const formatFiltersValue = (filters = []) => {
+    return filters.map(filter => {
+      if (filter.isGroup) {
+        return {
+          ...filter,
+          groupFilters: _.isArray(filter.groupFilters) ? filter.groupFilters.map(formatFilter) : filter.groupFilters,
+        };
+      }
+
+      return formatFilter(filter);
+    });
   };
 
   useEffect(() => {
@@ -102,12 +134,13 @@ export default function FiltersGenerate(props) {
                 conditions={filters}
                 filterResigned={false}
                 onConditionsChange={(conditions = []) => {
-                  const newFilters =
-                    conditions.length === 1 && conditions[0].isGroup && !conditions[0].groupFilters.length
-                      ? []
-                      : formatConditionsValue(conditions);
+                  const isEmptyGroup =
+                    conditions.length === 1 && conditions[0]?.isGroup && !conditions[0]?.groupFilters?.length;
 
-                  setFilters(newFilters);
+                  const baseFilters = isEmptyGroup ? [] : formatConditionsValue(conditions);
+                  const finalFilters = apiVersion === 'apiV2' ? formatFiltersValue(baseFilters) : baseFilters;
+
+                  setFilters(finalFilters);
                 }}
               />
             </div>

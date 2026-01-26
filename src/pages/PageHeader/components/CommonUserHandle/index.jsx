@@ -142,7 +142,7 @@ export default class CommonUserHandle extends Component {
                 data-tip={_l('平台授权已失效，点击查看')}
                 className="tip-bottom-left"
                 onClick={() => {
-                  location.href = md.global.Config.PlatformUrl + 'sysconfig/platform';
+                  location.href = md.global.Config.PlatformUrl + 'sysconfig/hap/platform';
                 }}
               >
                 <Icon icon="error1" className="Font20" style={{ color: '#f44336' }} />

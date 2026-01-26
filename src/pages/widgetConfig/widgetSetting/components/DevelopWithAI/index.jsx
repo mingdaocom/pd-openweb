@@ -411,7 +411,7 @@ export default function DevelopWithAI(props) {
                     <span
                       className="ThemeColor3 ThemeHoverColor3 Hand mLeft8"
                       onClick={() => {
-                        location.href = md.global.Config.PlatformUrl + 'sysconfig/hub';
+                        location.href = md.global.Config.PlatformUrl + 'sysconfig/hub/ai';
                       }}
                     >
                       {_l('去配置')}

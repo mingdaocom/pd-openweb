@@ -192,7 +192,7 @@ export default class DialogBatchEdit extends Component {
       >
         <div className="Gray_75 Bold ">{_l('选择编辑字段')}</div>
         <RadioGroup
-          data={options.filter(it => (!md.global.Config.IsLocal ? it.value !== 4 : true))}
+          data={options.filter(it => (md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? true : it.value !== 4))}
           onChange={this.changeRadio}
           checkedValue={filedValue}
         />
