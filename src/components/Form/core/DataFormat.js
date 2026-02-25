@@ -524,6 +524,13 @@ export default class DataFormat {
                 params.staticRows = parsedRows;
               }
               if (params.staticRows) {
+                const hasRequiredError = find(this.errorItems, {
+                  controlId: item.controlId,
+                  errorType: FORM_ERROR_TYPE.REQUIRED,
+                });
+                if (hasRequiredError) {
+                  _.remove(this.errorItems, obj => obj.controlId === item.controlId);
+                }
                 if (loading || (get(value, 'fireWhenLoaded') && this.recordId && !item.store.getState().base.loaded)) {
                   (get(value, 'fireWhenLoaded') && this.recordId && !item.store.getState().base.loaded
                     ? item.store.waitListForLoadRows

@@ -418,6 +418,9 @@ class ChildTable extends React.Component {
       if (!_.find(showControls, scid => control.controlId === scid)) {
         if (control.type === 52) {
           control.hidden = true;
+          if (isWorkflow) {
+            control.fieldPermission = (control.fieldPermission || '000').replace(/^(\d)\d(\d)$/, '$11$2');
+          }
         } else {
           control.fieldPermission = (control.fieldPermission || '000').replace(/^\d(\d)\d$/, '0$10');
         }
@@ -2230,7 +2233,17 @@ class ChildTable extends React.Component {
               onSwitch={this.handleSwitch}
               onSave={this.handleRowDetailSave}
               onDelete={deleteRow}
-              onClose={() => this.setState({ recordVisible: false, isEditCurrentRow: false })}
+              onClose={() => {
+                const { previewRowIndex } = this.state;
+                // 清理弹窗中编辑的行的缓存，确保行内编辑时使用最新数据
+                if (previewRowIndex > -1) {
+                  const row = tableData[previewRowIndex];
+                  if (row && row.rowid) {
+                    this.dataFormatCacheMap.delete(row.rowid);
+                  }
+                }
+                this.setState({ recordVisible: false, isEditCurrentRow: false, previewRowIndex: null });
+              }}
               rules={rules}
               openNextRecord={() => {
                 this.handleAddRowByLine();

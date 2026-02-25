@@ -81,9 +81,13 @@ export default class Gunter extends Component {
   componentWillReceiveProps({ view }) {
     if (view.viewId !== this.props.view.viewId) {
       this.handleInitGroupingVisible(view.viewId);
+      this.props.resetLoadGunterView();
+      this.setState({
+        directoryWidth: this.getDirectoryWidth(view.viewId),
+      });
+      return;
     }
     if (
-      view.viewId !== this.props.view.viewId ||
       view.advancedSetting.navshow !== this.props.view.advancedSetting.navshow ||
       view.advancedSetting.navfilters !== this.props.view.advancedSetting.navfilters ||
       !_.isEqual(view.moreSort, this.props.view.moreSort)

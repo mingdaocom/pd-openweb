@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import _ from 'lodash';
+import { Dialog } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import privateGuide from 'src/api/privateGuide';
 import preall from 'src/common/preall';

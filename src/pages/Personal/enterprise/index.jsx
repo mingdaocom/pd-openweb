@@ -151,7 +151,7 @@ export default class AccountChart extends React.Component {
     ) {
       window.open('/enterpriseRegister?type=create');
     } else {
-      alert('权限不足，无法创建组织', 3);
+      alert(_l('权限不足，无法创建组织'), 3);
     }
   }
 

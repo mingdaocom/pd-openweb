@@ -1,4 +1,4 @@
-import _, { get, isEmpty } from 'lodash';
+import _, { get, isEmpty, isNull, isUndefined } from 'lodash';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/Form/core/config';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { checkRuleLocked, checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
@@ -93,8 +93,9 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
     uniqueControls.forEach(c => {
       const hadValueRows = rows.filter(
         row =>
-          typeof row[c.controlId] !== 'undefined' &&
-          (!row[c.controlId] || '').startsWith('deleteRowIds') &&
+          !isUndefined(row[c.controlId]) &&
+          !isNull(row[c.controlId]) &&
+          !row[c.controlId].startsWith('deleteRowIds') &&
           !checkCellIsEmpty(row[c.controlId]),
       );
       const uniqueValueRows = _.uniqBy(hadValueRows, row => getControlCompareValue(c, row[c.controlId]));

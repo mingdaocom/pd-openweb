@@ -87,6 +87,9 @@ export default function EditingBar(props) {
   } = props;
   const cache = useRef({ saveShortCut, okDisabled });
   const handleSave = e => {
+    if (window.disableShortcutsSaveRecord) {
+      return;
+    }
     if (!cache.current.saveShortCut || !(window.isMacOs ? e.metaKey : e.ctrlKey)) return;
     e.stopPropagation();
     e.preventDefault();

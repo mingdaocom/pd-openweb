@@ -180,13 +180,14 @@ export default class ChartDialog extends Component {
       });
   };
   handleVerifySave = () => {
-    const { yaxisList, reportType } = this.props.currentReport;
-    const { status } = this.props.reportData;
+    const { loading, currentReport, reportData } = this.props;
+    const { yaxisList, reportType } = currentReport;
+    const { status } = reportData;
     if (!reportType) {
       alert(_l('请选择图表类型'), 2);
       return;
     }
-    if (status !== 1) {
+    if (status !== 1 && !loading) {
       if (status === -1) {
         alert(_l('无权限'), 2);
         return;

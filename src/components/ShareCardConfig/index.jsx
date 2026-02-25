@@ -2,7 +2,6 @@ import loadScript from 'load-script';
 import weixinApi from 'src/api/weixin';
 import sheetSetAjax from 'src/api/worksheetSetting';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
-import { SHARECARDTYPS, VIEW_TYPE_ICON_LIST, WX_ICON_LIST } from './config';
 
 // 微信脚本加载
 const loadWeiXinScript = () => {
@@ -20,7 +19,7 @@ const loadWeiXinScript = () => {
 
 // 微信分享卡片配置
 const initShareConfig = async props => {
-  const { title = '', desc = '', projectId, controls = [], worksheetId, type, viewType = 0 } = props;
+  const { title = '', desc = '', projectId, controls = [], worksheetId, type } = props;
   const renderTxt = value => {
     if (!value || !(value || '').startsWith('[')) {
       return value;
@@ -37,7 +36,7 @@ const initShareConfig = async props => {
     const shareConfigValue = res || {};
     const entryUrl = sessionStorage.getItem('entryUrl');
     const url = (window.isIphone ? entryUrl || location.href : location.href).split('#')[0];
-    weixinApi.getWeiXinConfig({ url: encodeURI(url), projectId }).then(({ data, code }) => {
+    weixinApi.getWeiXinConfig({ url, projectId }).then(({ data, code }) => {
       console.log({ data, code });
       if (code === 1) {
         window.wx.config({
@@ -50,19 +49,12 @@ const initShareConfig = async props => {
         });
 
         wx.ready(function () {
-          const getIconUrl = () => {
-            const { icon, iconUrl } = shareConfigValue || {};
-            if (icon) {
-              return icon.startsWith('http') ? icon : iconUrl;
-            }
-            const defaultIcon = type === SHARECARDTYPS.VIEW ? VIEW_TYPE_ICON_LIST[viewType] : WX_ICON_LIST[0];
-            return `${md.global.FileStoreConfig.pubHost}/${defaultIcon}`;
-          };
           const info = {
             title: renderTxt(shareConfigValue.title) || title,
             desc: renderTxt(shareConfigValue.desc) || desc,
-            link: encodeURI(location.href),
-            imgUrl: getIconUrl(),
+            // 分享链接使用原始 URL，微信会自动处理编码
+            link: location.href,
+            imgUrl: shareConfigValue?.iconUrl,
             success: function () {
               console.log('设置成功');
             },

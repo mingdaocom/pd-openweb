@@ -431,7 +431,7 @@ export default function DetailList(props) {
                     className="ThemeColor"
                     onClick={() => {
                       Dialog.confirm({
-                        title: _l(`切换到当前版本 （${item.versionCode}）`),
+                        title: _l(`切换到当前版本 （%0）`, item.versionCode),
                         onOk: () => {
                           pluginApi.rollback({ pluginId, releaseId: item.id, source }, API_EXTENDS).then(res => {
                             if (res) {

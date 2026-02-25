@@ -10,7 +10,6 @@ const RichTextWidget = props => {
   const {
     disabled,
     value,
-    onChange,
     width,
     type,
     flag,
@@ -28,6 +27,7 @@ const RichTextWidget = props => {
   const richTextInstanceRef = useRef(null);
   const valueRef = useRef(value);
   const focusRef = useRef(false);
+  const changeSettingRef = useRef(false);
 
   useEffect(() => {
     valueRef.current = value || '';
@@ -55,11 +55,16 @@ const RichTextWidget = props => {
     setCurrentWidth(width);
   }, [width]);
 
-  const onChangeDebounced = _.debounce(tempValue => {
-    if (valueRef.current !== tempValue && focusRef.current) {
-      onChange(tempValue);
-    }
-  }, 500);
+  const onChangeDebounced = useRef(
+    _.debounce(tempValue => {
+      // 防止非聚焦态被触发
+      if (valueRef.current !== tempValue && changeSettingRef.current) {
+        console.log('onChangeDebounced', tempValue);
+        props.onChange(tempValue);
+      }
+      changeSettingRef.current = false;
+    }, 500),
+  ).current;
 
   const handleBlur = () => {
     if (_.isFunction(triggerCustomEvent)) {
@@ -99,6 +104,7 @@ const RichTextWidget = props => {
       changeSetting={() => {
         if (focusRef.current) {
           setHasChange(true);
+          changeSettingRef.current = true;
         }
       }}
       onFocus={() => {

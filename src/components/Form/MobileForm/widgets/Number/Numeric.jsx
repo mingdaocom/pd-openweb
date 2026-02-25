@@ -191,6 +191,11 @@ const Numeric = props => {
 
   useEffect(() => {
     setCurrentValue(getEditValue());
+
+    if (suffix) {
+      return;
+    }
+
     if (inputRef.current) {
       inputRef.current.value = props.value ? props.value : '';
     }

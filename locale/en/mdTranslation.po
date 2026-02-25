@@ -63349,3 +63349,2983 @@ msgstr "Create a milestone"
 msgid "点击添加%0"
 msgstr "Click to add %0"
 
+#: Disabled references:1
+msgid "0.05信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "0.03信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "0.15信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "审核开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "组织角色已停用"
+msgstr ""
+
+#: Disabled references:1
+msgid "部门已停用"
+msgstr ""
+
+#: Disabled references:1
+msgid "反馈"
+msgstr ""
+
+#: Disabled references:1
+msgid "描述使用过程中遇到的问题，反馈通知给流程拥有者"
+msgstr ""
+
+#: Disabled references:1
+msgid "反馈给平台"
+msgstr ""
+
+#: Disabled references:1
+msgid "描述使用过程中遇到的问题，提交反馈至平台，会自动收集提问、AI 回答、工具请求参数，不会收集具体业务数据。"
+msgstr ""
+
+#: Disabled references:1
+msgid "反馈成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入描述"
+msgstr ""
+
+#: Disabled references:1
+msgid "发送效果：【吉信通】 您的验证码是123456，感谢您的使用（发自：%0）"
+msgstr ""
+
+#: Disabled references:1
+msgid "成员已离职，不能重复邀请"
+msgstr ""
+
+#: Disabled references:1
+msgid "成员已存在，不能重复邀请"
+msgstr ""
+
+#: Disabled references:1
+msgid "超过邀请数量限制，无法邀请"
+msgstr ""
+
+#: Disabled references:1
+msgid "账号来源类型受限，无法邀请"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 个成员邀请失败 "
+msgstr ""
+
+#: Disabled references:1
+msgid "本次共邀请%0个成员，有%1个成员邀请失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "受运营商政策影响，含链接的邀请短信可能被拦截。如未收到短信，请通过邮箱或邀请链接发送邀请"
+msgstr ""
+
+#: Disabled references:1
+msgid "详细"
+msgstr ""
+
+#: Disabled references:1
+msgid "包含附件"
+msgstr ""
+
+#: Disabled references:1
+msgid "且包含附件"
+msgstr ""
+
+#: Disabled references:1
+msgid "暂无%0的讨论"
+msgstr ""
+
+#: Disabled references:1
+msgid "查看扣费规则"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付与开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话机器人"
+msgstr ""
+
+#: Disabled references:1
+msgid "短信服务可分为验证码短信和自定义短信。自定义短信仅支持发往中国大陆手机号，按70字计一条计费，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。"
+msgstr ""
+
+#: Disabled references:1
+msgid "工作流的发送短信节点；公开表单短信验证；外部门户中验证码、邀请、审核等短信服务"
+msgstr ""
+
+#: Disabled references:1
+msgid "封"
+msgstr ""
+
+#: Disabled references:1
+msgid "一次邮件费用=(收件人与抄送人的总人数)* 单价"
+msgstr ""
+
+#: Disabled references:1
+msgid "工作流的发送邮件节点；外部门户中验证码、邀请、审核等邮件服务"
+msgstr ""
+
+#: Disabled references:1
+msgid "文本识别(OCR)"
+msgstr ""
+
+#: Disabled references:1
+msgid "按文件数量*单价计费"
+msgstr ""
+
+#: Disabled references:1
+msgid "文本识别字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "文档提取文本"
+msgstr ""
+
+#: Disabled references:1
+msgid "从文档中提取文本内容"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话机器人、工作流ai agent节点的文档提取文本能力"
+msgstr ""
+
+#: Disabled references:1
+msgid "联网搜索"
+msgstr ""
+
+#: Disabled references:1
+msgid "调用联网能力服务"
+msgstr ""
+
+#: Disabled references:1
+msgid "使用大模型联网搜索服务"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成 PDF"
+msgstr ""
+
+#: Disabled references:1
+msgid "转换失败的文件将不收取费用"
+msgstr ""
+
+#: Disabled references:1
+msgid "工作流中“获取记录打印文件”节点"
+msgstr ""
+
+#: Disabled references:1
+msgid "通义千问"
+msgstr ""
+
+#: Disabled references:1
+msgid "平台定价规则"
+msgstr ""
+
+#: Disabled references:1
+msgid "编辑对话机器人"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0不允许为空"
+msgstr ""
+
+#: Disabled references:1
+msgid "头像"
+msgstr ""
+
+#: Disabled references:1
+msgid "欢迎语"
+msgstr ""
+
+#: Disabled references:1
+msgid "机器人在对话开始时自动发送的问候或提示语"
+msgstr ""
+
+#: Disabled references:1
+msgid "预设提问"
+msgstr ""
+
+#: Disabled references:1
+msgid "预设提问用于引导用户，帮助用户快速选择提问方向并进入流程。预设提问按行展示，一行对应一个。预设提问最多可配置 5 个。"
+msgstr ""
+
+#: Disabled references:1
+msgid "预置提问最多设置5个"
+msgstr ""
+
+#: Disabled references:1
+msgid "上传文档"
+msgstr ""
+
+#: Disabled references:1
+msgid "分享对话"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前机器人可调用的工具，需在流程中配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "配置流程"
+msgstr ""
+
+#: Disabled references:1
+msgid "删除对话机器人 “%0”"
+msgstr ""
+
+#: Disabled references:1
+msgid "注意：对话机器人下所有配置和数据将被删除。"
+msgstr ""
+
+#: Disabled references:1
+msgid "请务必确认所有应用成员都不再需要此对话机器人后，再执行此操作。"
+msgstr ""
+
+#: Disabled references:1
+msgid "我确认删除对话机器人和所有数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "修改名称和图标"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话机器人说明"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI 填写"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付成功，表单已提交"
+msgstr ""
+
+#: Disabled references:1
+msgid "表单提交成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "可配置应用导航/分组、工作流、工作表、自定义页面、对话机器人、用户角色新增/编辑/删除（包含外部门角色）、外部门户设置（ 包含外部门户域名配置）"
+msgstr ""
+
+#: Disabled references:1
+msgid "地区(维度)"
+msgstr ""
+
+#: Disabled references:1
+msgid "“%0”功能不可用"
+msgstr ""
+
+#: Disabled references:1
+msgid "API 请求"
+msgstr ""
+
+#: Disabled references:1
+msgid "数电普票"
+msgstr ""
+
+#: Disabled references:1
+msgid "数电专票"
+msgstr ""
+
+#: Disabled references:1
+msgid "按类目汇总"
+msgstr ""
+
+#: Disabled references:1
+msgid "明细（开发中）"
+msgstr ""
+
+#: Disabled references:1
+msgid "修改开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票测试"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票申请中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "发票开具中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "发票开具成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "查看发票"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票开具失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "重新申请"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票已取消申请"
+msgstr ""
+
+#: Disabled references:1
+msgid "订单异常不支持开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "正在开票中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "开票成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "已取消申请开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票单号异常不支持开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "无审核开票权限"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点不足，请联系管理员充值"
+msgstr ""
+
+#: Disabled references:1
+msgid "短信信用点不足，请联系表单发布者"
+msgstr ""
+
+#: Disabled references:1
+msgid "统计图表：地图（全球）"
+msgstr ""
+
+#: Disabled references:1
+msgid "电子开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "1500元/税号/年"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI"
+msgstr ""
+
+#: Disabled references:1
+msgid "不区分大小写"
+msgstr ""
+
+#: Disabled references:1
+msgid "无地区数据，请联系管理员"
+msgstr ""
+
+#: Disabled references:1
+msgid "定位获取失败，请重试"
+msgstr ""
+
+#: Disabled references:1
+msgid "未能获取精确位置"
+msgstr ""
+
+#: Disabled references:1
+msgid "为提升定位准确性，可尝试："
+msgstr ""
+
+#: Disabled references:1
+msgid "当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试："
+msgstr ""
+
+#: Disabled references:1
+msgid "· 确认已开启系统定位服务及应用定位权限"
+msgstr ""
+
+#: Disabled references:1
+msgid "· 建议开启 Wi-Fi，可提升室内定位效果"
+msgstr ""
+
+#: Disabled references:1
+msgid "· 若正在使用 VPN / 代理，尝试关闭后再试"
+msgstr ""
+
+#: Disabled references:1
+msgid "您仍可以继续尝试定位，但结果可能存在偏差。"
+msgstr ""
+
+#: Disabled references:1
+msgid "仍要定位"
+msgstr ""
+
+#: Disabled references:1
+msgid "用量不足时自动消耗信用点增补"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI模型价格表"
+msgstr ""
+
+#: Disabled references:1
+msgid "百万 tokens"
+msgstr ""
+
+#: Disabled references:1
+msgid "千 tokens"
+msgstr ""
+
+#: Disabled references:1
+msgid "开发商"
+msgstr ""
+
+#: Disabled references:1
+msgid "价格 (信用点 / 百万 tokens)"
+msgstr ""
+
+#: Disabled references:1
+msgid "价格 (信用点 / 千 tokens)"
+msgstr ""
+
+#: Disabled references:1
+msgid "暂无AI模型数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "基础功能"
+msgstr ""
+
+#: Disabled references:1
+msgid "功能名称"
+msgstr ""
+
+#: Disabled references:1
+msgid "价格 (信用点/单位)"
+msgstr ""
+
+#: Disabled references:1
+msgid "费用产生的地方"
+msgstr ""
+
+#: Disabled references:1
+msgid "暂无基础功能数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前选择的商户不可用，请您重新选择！"
+msgstr ""
+
+#: Disabled references:1
+msgid "订单明细（注意：不能选择已在公开表单配置过映射的字段）"
+msgstr ""
+
+#: Disabled references:1
+msgid "对账 ID"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票基础信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票总额"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票内容"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票结果"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票单号"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "电子发票"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票申请已提交，将进入管理员审核，请您耐心等待！"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择开票主体"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付订单及工作表的电子开票配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "请先开启支付功能"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，用户在工作表记录/公开表单的场景中支付成功，即可申请电子发票。"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择开票主体"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建开票税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票金额"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票总金额，支持选择数值、金额、汇总、公式，限制小数点 2 位数；支付订单开票为订单金额"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择数值、金额、汇总、公式"
+msgstr ""
+
+#: Disabled references:1
+msgid "目前仅支持按类目汇总开具发票，税率与编码随类目自动匹配。"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择开票类目"
+msgstr ""
+
+#: Disabled references:1
+msgid "从组织后台的商品管理表选择默认开票类目，管理员审核时会依据编码/名称重新选择并以选择结果为准"
+msgstr ""
+
+#: Disabled references:1
+msgid "说明配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "申请开票后将进入管理员审核流程，您可在此自定义提示说明；用户在查看开票进度时可看到此内容"
+msgstr ""
+
+#: Disabled references:1
+msgid "将开票明细映射到当前记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示流转图"
+msgstr ""
+
+#: Disabled references:1
+msgid "基准语言"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话机器人不存在或者被删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "您没有权限关注此记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "关注成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "取消关注"
+msgstr ""
+
+#: Disabled references:1
+msgid "关注讨论"
+msgstr ""
+
+#: Disabled references:1
+msgid "关注"
+msgstr ""
+
+#: Disabled references:1
+msgid "关注中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "通知所有讨论"
+msgstr ""
+
+#: Disabled references:1
+msgid "关注后接收全部提醒，未关注仅@你或回复时通知"
+msgstr ""
+
+#: Disabled references:1
+msgid "备注不能为空"
+msgstr ""
+
+#: Disabled references:1
+msgid "请正确设置持续时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "修改完成"
+msgstr ""
+
+#: Disabled references:1
+msgid "设置完成"
+msgstr ""
+
+#: Disabled references:1
+msgid "我的状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "设置您的个人状态，让所有协作的同事及时知晓"
+msgstr ""
+
+#: Disabled references:1
+msgid "让同事知道你现在的状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "持续时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "添加您的个人状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "修改状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "设置状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 条执行完成"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 条异常"
+msgstr ""
+
+#: Disabled references:1
+msgid "返回值"
+msgstr ""
+
+#: Disabled references:1
+msgid "查看开票进度"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票金额不能为0"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入发票抬头"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "申请开票成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "管理员审核确认之后，发票将由合作服务商百望发送至您的邮箱"
+msgstr ""
+
+#: Disabled references:1
+msgid "没有搜索到该企业"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票金额："
+msgstr ""
+
+#: Disabled references:1
+msgid "抬头类型"
+msgstr ""
+
+#: Disabled references:1
+msgid "税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票类目"
+msgstr ""
+
+#: Disabled references:1
+msgid "确定取消申请该发票吗？"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票金额："
+msgstr ""
+
+#: Disabled references:1
+msgid "抬头类型："
+msgstr ""
+
+#: Disabled references:1
+msgid "发票抬头："
+msgstr ""
+
+#: Disabled references:1
+msgid "发票内容："
+msgstr ""
+
+#: Disabled references:1
+msgid "税号："
+msgstr ""
+
+#: Disabled references:1
+msgid "当前订单不存在或者订单编号错误"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前订单状态可能已退款或未支付成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "本操作将生成个人抬头的正式发票（非演示票），发票会入账并发送至您指定的邮箱。如不需要，请及时在电子税务局/百望进行红冲或作废"
+msgstr ""
+
+#: Disabled references:1
+msgid "审核确认后，发票将由合作服务商百望发送至用户填写的邮箱"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择开票类目"
+msgstr ""
+
+#: Disabled references:1
+msgid "审核成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "切换到当前版本 （%0）"
+msgstr ""
+
+#: Disabled references:1
+msgid "本月剩余执行额度到达2%时，自动购买100信用点/1万次的单月包，从账户信用点余额中扣款"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 %0 100信用点/1万次 %1 的单月包，从账户信用点中扣款"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取工作表结构"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取角色列表"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取角色详情"
+msgstr ""
+
+#: Disabled references:1
+msgid "查找成员"
+msgstr ""
+
+#: Disabled references:1
+msgid "查找部门"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取当前时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "集成API"
+msgstr ""
+
+#: Disabled references:1
+msgid "批量审批结果"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 条"
+msgstr ""
+
+#: Disabled references:1
+msgid "已完成批量操作，部分记录处理失败，请查看详情"
+msgstr ""
+
+#: Disabled references:1
+msgid "字段生成中"
+msgstr ""
+
+#: Disabled references:1
+msgid "已生成，请在对话中确认"
+msgstr ""
+
+#: Disabled references:1
+msgid "省/州"
+msgstr ""
+
+#: Disabled references:1
+msgid "市/郡"
+msgstr ""
+
+#: Disabled references:1
+msgid "所有层级"
+msgstr ""
+
+#: Disabled references:1
+msgid "点击或拖拽添加"
+msgstr ""
+
+#: Disabled references:1
+msgid "停用选项集 DELETE"
+msgstr ""
+
+#: Disabled references:1
+msgid "字段ID(别名)"
+msgstr ""
+
+#: Disabled references:1
+msgid "字段类型(编号|名称)"
+msgstr ""
+
+#: Disabled references:1
+msgid "MCP"
+msgstr ""
+
+#: Disabled references:1
+msgid "解析中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "开启新对话"
+msgstr ""
+
+#: Disabled references:1
+msgid "消耗 %0 个token"
+msgstr ""
+
+#: Disabled references:1
+msgid "我可以帮助您"
+msgstr ""
+
+#: Disabled references:1
+msgid "反馈成功，平台将尽快解决"
+msgstr ""
+
+#: Disabled references:1
+msgid "点击向平台反馈"
+msgstr ""
+
+#: Disabled references:1
+msgid "解析失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "仅支持上传图片，一次消息最多上传 %0 个附件"
+msgstr ""
+
+#: Disabled references:1
+msgid "模型调用失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "开始生成"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成中"
+msgstr ""
+
+#: Disabled references:1
+msgid "我可以为您解析文字或图片内容，智能填写到表单字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "请在下方输入 / 粘贴内容开始创建 👇"
+msgstr ""
+
+#: Disabled references:1
+msgid "下次试试在工作表页面直接粘贴剪贴板内容，可以自动激活智能创建，更方便喔～"
+msgstr ""
+
+#: Disabled references:1
+msgid "✨AI根据输入内容智能推测或联网搜索相关信息，为您补全尽可能多的字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI只填写输入内容中明确包含的字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "智能填写"
+msgstr ""
+
+#: Disabled references:1
+msgid "获取工作表图标"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成表单字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "开始创建"
+msgstr ""
+
+#: Disabled references:1
+msgid "已确认"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI推荐"
+msgstr ""
+
+#: Disabled references:1
+msgid "下一步，生成表单字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建关联表"
+msgstr ""
+
+#: Disabled references:1
+msgid "所选关联字段 <b>%0</b> 暂无已有工作表，将为您创建工作表后再继续添加字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "跳过，暂不创建"
+msgstr ""
+
+#: Disabled references:1
+msgid "新建关联表"
+msgstr ""
+
+#: Disabled references:1
+msgid "已保存%0个字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "已新建关联表 <b>%0</b>。点击开始为您继续生成关联表字段。"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成 <b>%0</b> 表字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "工作表名称：%0"
+msgstr ""
+
+#: Disabled references:1
+msgid "工作表描述：%0"
+msgstr ""
+
+#: Disabled references:1
+msgid "请告诉我您想创建的工作表，或上传参考图片 😉"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成示例数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "添加中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "添加到工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "我可以为您的工作表添加一些示例数据，方便你进行数据测试。如果您对添加的数据有具体要求也可以告诉我。"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成"
+msgstr ""
+
+#: Disabled references:1
+msgid "直接添加"
+msgstr ""
+
+#: Disabled references:1
+msgid "继续生成中，可点击下方暂停按钮暂停"
+msgstr ""
+
+#: Disabled references:1
+msgid "正在生成，可点击下方暂停按钮暂停"
+msgstr ""
+
+#: Disabled references:1
+msgid "已生成%0条数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "没有符合规则的数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "继续生成10条"
+msgstr ""
+
+#: Disabled references:1
+msgid "成功添加 %0 条记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "分享会话: %0"
+msgstr ""
+
+#: Disabled references:1
+msgid "配置完成，现在可以直接和机器人对话啦～ 若需进一步修改，请前往流程配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "正在调用工具：%0"
+msgstr ""
+
+#: Disabled references:1
+msgid "思考中"
+msgstr ""
+
+#: Disabled references:1
+msgid "将执行以下操作，请确认："
+msgstr ""
+
+#: Disabled references:1
+msgid "支持图片和文档类型的附件：PNG、JPG、JPEG、PDF、Word、Excel。一次消息最多上传 5 个附件"
+msgstr ""
+
+#: Disabled references:1
+msgid "仅支持文档类型的附件：PDF、Word、Excel。一次消息最多上传 5 个附件"
+msgstr ""
+
+#: Disabled references:1
+msgid "仅支持图片类型的附件：PNG、JPG、JPEG。一次消息最多上传 5 个附件"
+msgstr ""
+
+#: Disabled references:1
+msgid "可见终端"
+msgstr ""
+
+#: Disabled references:1
+msgid "重置应用的附件上传量"
+msgstr ""
+
+#: Disabled references:1
+msgid "确认将"
+msgstr ""
+
+#: Disabled references:1
+msgid "的已使用附件上传量重置为0?"
+msgstr ""
+
+#: Disabled references:1
+msgid "当月工作流执行数剩余2%时自动购买当月额度包，费用10信用点/1,000次"
+msgstr ""
+
+#: Disabled references:1
+msgid "当月同步任务算力剩余2%时自动购买当月额度包，费用10信用点/10,000行"
+msgstr ""
+
+#: Disabled references:1
+msgid "当年附件上传流量剩余2%时自动购买当年额度包，费用20信用点/1GB"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于工作流短信节点或外部门户短信邀请，费用%0信用点/条"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于工作流邮件节点或外部门户发送邮件，费用%0信用点/封"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于工作表文本识别字段，费用%0信用点/次"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于工作流获取打印文件节点，费用%0信用点/次"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前账户信用点不足100信用点，该功能可能无法正常运行"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点余额使用管理"
+msgstr ""
+
+#: Disabled references:1
+msgid "时间跨度不得超过6个月"
+msgstr ""
+
+#: Disabled references:1
+msgid "操作失败，已启用“钉钉”集成"
+msgstr ""
+
+#: Disabled references:1
+msgid "操作失败，已启用“企业微信”集成"
+msgstr ""
+
+#: Disabled references:1
+msgid "操作失败，已启用“Welink”集成"
+msgstr ""
+
+#: Disabled references:1
+msgid "操作失败，已启用“飞书”集成"
+msgstr ""
+
+#: Disabled references:1
+msgid "操作失败，已启用“Lark”集成"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "填写开票税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "完善开票配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "导入商品管理表"
+msgstr ""
+
+#: Disabled references:1
+msgid "已开票金额"
+msgstr ""
+
+#: Disabled references:1
+msgid "未开票金额"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票税号数量已达上限，请先购买"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付与开票 - ${(_.find(TABS, v => v.key === currentTab) || {}).label || '开票'}"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付与开票 - 商户"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付与开票 - ${(_.find(TABS, v => v.key === currentTab) || {}).label || '订单'}"
+msgstr ""
+
+#: Disabled references:1
+msgid "申请开票税号，搭建企业电子开票能力"
+msgstr ""
+
+#: Disabled references:1
+msgid "电子开票功能费：按税号收取，年费 1500元/税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "支付联动"
+msgstr ""
+
+#: Disabled references:1
+msgid "订单—发票闭环，减少手工操作"
+msgstr ""
+
+#: Disabled references:1
+msgid "降本增效"
+msgstr ""
+
+#: Disabled references:1
+msgid "流程在线化，减少人工与纸票成本"
+msgstr ""
+
+#: Disabled references:1
+msgid "客户友好"
+msgstr ""
+
+#: Disabled references:1
+msgid "客户可自助下载，开票状态实时通知"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入文字或选择变量组合（默认显示：姓名+手机/邮箱）"
+msgstr ""
+
+#: Disabled references:1
+msgid "超级搜索 - 搜索记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "删除后无法恢复，请谨慎操作"
+msgstr ""
+
+#: Disabled references:1
+msgid "恢复使用"
+msgstr ""
+
+#: Disabled references:1
+msgid "停用“%0”"
+msgstr ""
+
+#: Disabled references:1
+msgid "停用后，当前停用的角色将对用户隐藏，角色下的成员不会移除。"
+msgstr ""
+
+#: Disabled references:1
+msgid "已停用的角色在记录中将呈现如下的停用状态："
+msgstr ""
+
+#: Disabled references:1
+msgid "停用后，角色组下角色将对用户隐藏，角色下成员不会移除"
+msgstr ""
+
+#: Disabled references:1
+msgid "已停用的角色在记录中将呈现停用状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "停用成功"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示停用角色"
+msgstr ""
+
+#: Disabled references:1
+msgid "需要完成组织身份认证后才能进行信用点充值"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "账户余额已升级为“信用点”；信用点用于系统中发送邮件、短信等计费服务自动扣费。为避免系统功能不可用，请确保账户信用点余额充足。"
+msgstr ""
+
+#: Disabled references:1
+msgid "预警（<%0信用点）"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点余额预警"
+msgstr ""
+
+#: Disabled references:1
+msgid "认证组织+10信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI 生成中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "AI 生成"
+msgstr ""
+
+#: Disabled references:1
+msgid "从空白创建应用"
+msgstr ""
+
+#: Disabled references:1
+msgid "描述文字超出上限"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于概括应用的主要用途和业务定位，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。"
+msgstr ""
+
+#: Disabled references:1
+msgid "例如: 跟进销售线索的客户管理系统"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示全部字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "基准语言指搭建应用时使用的语言，eg:搭建应用时的文本语言(字段名称、标题等)为法语，则可以选择法语为您的基准语言。"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前企业账户信用点不足，无法发送短信/邮件"
+msgstr ""
+
+#: Disabled references:1
+msgid "对填写的手机号字段进行短信验证，以确保为本人有效手机号。短信服务费用将自动从组织信用点中扣除，信用点不足时无法获取验证码。"
+msgstr ""
+
+#: Disabled references:1
+msgid "讨论消息"
+msgstr ""
+
+#: Disabled references:1
+msgid "备注：此配置对关注者的新讨论通知，和成员字段【加人时发送通知】中的消息链接同样生效"
+msgstr ""
+
+#: Disabled references:1
+msgid "表名称-视图名称"
+msgstr ""
+
+#: Disabled references:1
+msgid "默认：表名称-视图名称"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI填写"
+msgstr ""
+
+#: Disabled references:1
+msgid "在表单中显示“AI填写”按钮。支持上传文字、图片或文档，AI 将自动解析并填写字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "模版最多支持 %0 个，您已超出上限"
+msgstr ""
+
+#: Disabled references:1
+msgid "业务规则开启大于%0个"
+msgstr ""
+
+#: Disabled references:1
+msgid "交互规则可根据条件控制字段的显隐、是否可编辑和是否必填，并支持为字段赋值。"
+msgstr ""
+
+#: Disabled references:1
+msgid "账户信用点不足"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前企业账户信用点不足，无法通过短信/邮件通知用户，请先充值"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前企业账户信用点不足，无法发送短信"
+msgstr ""
+
+#: Disabled references:1
+msgid "短信费用自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "邮件费用自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "发送邀请的费用自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "HDP 超级数据平台"
+msgstr ""
+
+#: Disabled references:1
+msgid "键盘快捷键"
+msgstr ""
+
+#: Disabled references:1
+msgid "快捷键"
+msgstr ""
+
+#: Disabled references:1
+msgid "在%0中发布了讨论"
+msgstr ""
+
+#: Disabled references:1
+msgid "4小时"
+msgstr ""
+
+#: Disabled references:1
+msgid "其他时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "请假"
+msgstr ""
+
+#: Disabled references:1
+msgid "生病"
+msgstr ""
+
+#: Disabled references:1
+msgid "会议中"
+msgstr ""
+
+#: Disabled references:1
+msgid "外出"
+msgstr ""
+
+#: Disabled references:1
+msgid "请勿打扰"
+msgstr ""
+
+#: Disabled references:1
+msgid "确认删除此状态？"
+msgstr ""
+
+#: Disabled references:1
+msgid "状态删除后，无法恢复"
+msgstr ""
+
+#: Disabled references:1
+msgid "添加状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "明天 %0"
+msgstr ""
+
+#: Disabled references:1
+msgid "MM月DD日 HH:mm"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择自定义时间"
+msgstr ""
+
+#: Disabled references:1
+msgid "状态未开始"
+msgstr ""
+
+#: Disabled references:1
+msgid "取消状态"
+msgstr ""
+
+#: Disabled references:1
+msgid "确认取消当前个人状态？"
+msgstr ""
+
+#: Disabled references:1
+msgid "当用户与机器人对话时运行流程"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话触发"
+msgstr ""
+
+#: Disabled references:1
+msgid "Agent"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI Agent"
+msgstr ""
+
+#: Disabled references:1
+msgid "全选当前可见数据（不含未加载出的数据）"
+msgstr ""
+
+#: Disabled references:1
+msgid "用户消息"
+msgstr ""
+
+#: Disabled references:1
+msgid "节点对象已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "操作成功，流程已流传至【%0】"
+msgstr ""
+
+#: Disabled references:1
+msgid "低"
+msgstr ""
+
+#: Disabled references:1
+msgid "高度通用，理解能力强，适合长对话及复杂推理任务，支持丰富的图像与工具交互。"
+msgstr ""
+
+#: Disabled references:1
+msgid "性价比高，适合快速响应的通用任务，处理高并发时表现优异。"
+msgstr ""
+
+#: Disabled references:1
+msgid "超低延迟，适合小任务和边缘场景"
+msgstr ""
+
+#: Disabled references:1
+msgid "稳健的通用模型，支持复杂工具操作和图像分析，适合多种高复杂度任务。"
+msgstr ""
+
+#: Disabled references:1
+msgid "轻量级通用多模态模型，适合对速度与稳定性有高要求的日常任务。"
+msgstr ""
+
+#: Disabled references:1
+msgid "支持文本、图像的多模态模型，适用于复杂推理和长对话任务。"
+msgstr ""
+
+#: Disabled references:1
+msgid "高性价比的多模态模型，适合日常任务和轻度推理，响应速度快。"
+msgstr ""
+
+#: Disabled references:1
+msgid "中型推理模型，支持多模态输入，适合一般推理任务和中等规模的数据处理。"
+msgstr ""
+
+#: Disabled references:1
+msgid "小型推理优化版，适合成本敏感的多模态任务，适用于轻量级推理场景。"
+msgstr ""
+
+#: Disabled references:1
+msgid "设计用于处理高并发任务，适合流量较大或需要快速响应的场景。"
+msgstr ""
+
+#: Disabled references:1
+msgid "专为文本生成任务设计，支持高效的工具调用，适合文本处理和对话场景。"
+msgstr ""
+
+#: Disabled references:1
+msgid "中高阶文本生成模型，中文能力强，适用于复杂文本生成任务。"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择模型"
+msgstr ""
+
+#: Disabled references:1
+msgid "性能："
+msgstr ""
+
+#: Disabled references:1
+msgid "系统会根据任务需求智能匹配最佳模型"
+msgstr ""
+
+#: Disabled references:1
+msgid "适合大多数用户"
+msgstr ""
+
+#: Disabled references:1
+msgid "该服务商下暂无可用模型"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择一个模型查看详情"
+msgstr ""
+
+#: Disabled references:1
+msgid "能力"
+msgstr ""
+
+#: Disabled references:1
+msgid "文本输入"
+msgstr ""
+
+#: Disabled references:1
+msgid "图片输入"
+msgstr ""
+
+#: Disabled references:1
+msgid "工具调用"
+msgstr ""
+
+#: Disabled references:1
+msgid "性能"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择一个模型"
+msgstr ""
+
+#: Disabled references:1
+msgid "从左侧列表拖拽或点击添加字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI生成字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "正在与AI对话生成字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成 API 可以直接用的筛选条件，可直接传入 filter 字段中"
+msgstr ""
+
+#: Disabled references:1
+msgid "MCP Server"
+msgstr ""
+
+#: Disabled references:1
+msgid "助力 AI 编程，选择密钥生成 MCP Server 配置，将下方 JSON 配置添加到 IDE 的 MCP 配置文件中，当 API 文档有更新时，Server也会同步更新，提示：必须安装 Node.js 环境（版本号 >= 18.0.0）。"
+msgstr ""
+
+#: Disabled references:1
+msgid "包含应用、工作表、聚合表、应用角色、选项集 API、工作流"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择密钥："
+msgstr ""
+
+#: Disabled references:1
+msgid "请先创建授权密钥"
+msgstr ""
+
+#: Disabled references:1
+msgid "记录超过1000条，将按照创建时间排序（旧的在前）"
+msgstr ""
+
+#: Disabled references:1
+msgid "刷新过于频繁，请稍后再试"
+msgstr ""
+
+#: Disabled references:1
+msgid "自定义页面%02006"
+msgstr ""
+
+#: Disabled references:1
+msgid "使用 AI 创建"
+msgstr ""
+
+#: Disabled references:1
+msgid "描述业务需求，智能生成工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "从 Excel 导入创建"
+msgstr ""
+
+#: Disabled references:1
+msgid "上传文件，自动生成工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "从空白开始创建"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于定义工作表的用途和业务背景，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。"
+msgstr ""
+
+#: Disabled references:1
+msgid "例如：记录和管理订单信息的工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "你希望创建什么样的对话机器人？"
+msgstr ""
+
+#: Disabled references:1
+msgid "尝试描述这个对话机器人的目标和功能，以及它为谁服务。例如:“订单统计助手，通过对话快速查询客户订单和明细，统计订单金额”"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI 将根据你的描述自动生成名称、欢迎语、预置提问、提示词等配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI 正在为您推荐，请稍候…"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话机器人下所有配置和历史对话将被删除。"
+msgstr ""
+
+#: Disabled references:1
+msgid "注意：%0下所有配置和数据将被删除。"
+msgstr ""
+
+#: Disabled references:1
+msgid "请务必确认所有应用成员都不再需要此%0后，再执行此操作。"
+msgstr ""
+
+#: Disabled references:1
+msgid "我确认删除对话机器人和所有历史对话"
+msgstr ""
+
+#: Disabled references:1
+msgid "复制%0 “%1”"
+msgstr ""
+
+#: Disabled references:1
+msgid "删除对话机器人"
+msgstr ""
+
+#: Disabled references:1
+msgid "未识别到有效信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "信息已填充"
+msgstr ""
+
+#: Disabled references:1
+msgid "识别失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "图片上传中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "识别中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "正在分析图片信息，请稍后。"
+msgstr ""
+
+#: Disabled references:1
+msgid "终止识别"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建工作表%12031"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建对话机器人%12032"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前版本单个sheet最多支持%0行"
+msgstr ""
+
+#: Disabled references:1
+msgid "⇧单击"
+msgstr ""
+
+#: Disabled references:1
+msgid "Shift+单击"
+msgstr ""
+
+#: Disabled references:1
+msgid "包含附件的讨论"
+msgstr ""
+
+#: Disabled references:1
+msgid "关注中"
+msgstr ""
+
+#: Disabled references:1
+msgid "通知所有讨论；取消关注仅@你或回复时通知。"
+msgstr ""
+
+#: Disabled references:1
+msgid "已关注 %0"
+msgstr ""
+
+#: Disabled references:1
+msgid "会话拥有者才能操作"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建对话机器人失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "使用系统集成的识别服务，费用自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "Chrome 最近限制了本地脚本的加载，出现这种情况时，请使用 Firefox 开发插件。"
+msgstr ""
+
+#: Disabled references:1
+msgid "等待上传"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启麦克风权限失败，权限设置了不允许或您的设备不支持该功能"
+msgstr ""
+
+#: Disabled references:1
+msgid "暂不支持当前设备"
+msgstr ""
+
+#: Disabled references:1
+msgid "服务调用失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "定位中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "定位后拍照"
+msgstr ""
+
+#: Disabled references:1
+msgid "正在获取经纬度，请稍后"
+msgstr ""
+
+#: Disabled references:1
+msgid "发件人"
+msgstr ""
+
+#: Disabled references:1
+msgid "钉钉扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "如何实现钉钉扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "企业微信扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "如何实现企业微信扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "飞书扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，在二级域名下使用飞书扫一扫，直接登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "如何实现飞书扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "Lark扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，在二级域名下使用Lark扫一扫，直接登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "如何实现Lark扫码登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启网络代理"
+msgstr ""
+
+#: Disabled references:1
+msgid "需在平台管理-安全中配置网络代理信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "请先开通飞书待办权限"
+msgstr ""
+
+#: Disabled references:1
+msgid "流程待办同步至Lark审批中心"
+msgstr ""
+
+#: Disabled references:1
+msgid "流程待办同步至飞书审批中心"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，我的流程中的待办（待审批、待填写）同时会进入Lark待办任务，处理状态会同步更新"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，我的流程中的待办（待审批、待填写）同时会进入飞书待办任务，处理状态会同步更新"
+msgstr ""
+
+#: Disabled references:1
+msgid "如何实现流程待办同步"
+msgstr ""
+
+#: Disabled references:1
+msgid "审批定义"
+msgstr ""
+
+#: Disabled references:1
+msgid "已认证主体"
+msgstr ""
+
+#: Disabled references:1
+msgid "已开通商户主体"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票主体不能为空"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入邮箱验证码"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入开票主体"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入企业税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入百望账号"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入百望密码"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入AppKey"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入AppSecret"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入用户盐值"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前税号已在其他组织开通"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前企业税号已在其他组织开通电子开票服务；每个税号仅能开通一次，当前组织不可重复开通。"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建开票税号失败"
+msgstr ""
+
+#: Disabled references:1
+msgid "税收服务简称"
+msgstr ""
+
+#: Disabled references:1
+msgid "税收服务编码"
+msgstr ""
+
+#: Disabled references:1
+msgid "含税标记"
+msgstr ""
+
+#: Disabled references:1
+msgid "含税"
+msgstr ""
+
+#: Disabled references:1
+msgid "不含税"
+msgstr ""
+
+#: Disabled references:1
+msgid "是否享受优惠政策"
+msgstr ""
+
+#: Disabled references:1
+msgid "商品UUID"
+msgstr ""
+
+#: Disabled references:1
+msgid "商品分类UUID"
+msgstr ""
+
+#: Disabled references:1
+msgid "简码"
+msgstr ""
+
+#: Disabled references:1
+msgid "增值税简易计税类型"
+msgstr ""
+
+#: Disabled references:1
+msgid "1、完成组织的企业认证或已有支付商户号即可创建开票税号。每个开票税号开通后，享有 7 天免费试用"
+msgstr ""
+
+#: Disabled references:1
+msgid "2、电子发票由知名数电开票合作服务商"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望"
+msgstr ""
+
+#: Disabled references:1
+msgid "提供。开票资料需与营业执照信息 保持一致，且真实有效"
+msgstr ""
+
+#: Disabled references:1
+msgid "3、已有百望账号？请联系组织管理员或平台客服人员，协助完成账号绑定"
+msgstr ""
+
+#: Disabled references:1
+msgid "4、开票税号创建流程可参考"
+msgstr ""
+
+#: Disabled references:1
+msgid "1、电子发票由合作服务商"
+msgstr ""
+
+#: Disabled references:1
+msgid "提供，开票资料需与营业执照信息一致、真实有效。"
+msgstr ""
+
+#: Disabled references:1
+msgid "2、填写信息前请联系平台顾问协助开通百望云账号。"
+msgstr ""
+
+#: Disabled references:1
+msgid "3、开票税号创建流程遇到问题可咨询平台顾问"
+msgstr ""
+
+#: Disabled references:1
+msgid "请您先在百望完成企业信息与登录验证等配置，否则无法开票。"
+msgstr ""
+
+#: Disabled references:1
+msgid "具体操作步骤请查看"
+msgstr ""
+
+#: Disabled references:1
+msgid "1、导入的“商品管理表”将作为开票时选择的商品类目/税收分类编码的数据来源。"
+msgstr ""
+
+#: Disabled references:1
+msgid "2、电子税局的商品管理表有更新时，请重新导入以同步最新税率与编码。"
+msgstr ""
+
+#: Disabled references:1
+msgid "请前往"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望发票-开放平台"
+msgstr ""
+
+#: Disabled references:1
+msgid "完成以下配置"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票主体(销方)"
+msgstr ""
+
+#: Disabled references:1
+msgid "完成组织认证"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建后不能更换且不能删除，"
+msgstr ""
+
+#: Disabled references:1
+msgid "请谨慎填写已付费的主体"
+msgstr ""
+
+#: Disabled references:1
+msgid "请谨慎选择"
+msgstr ""
+
+#: Disabled references:1
+msgid "企业税号(统一社会信用代码)"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望账户信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望账号"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望密码"
+msgstr ""
+
+#: Disabled references:1
+msgid "AppKey"
+msgstr ""
+
+#: Disabled references:1
+msgid "AppSecret"
+msgstr ""
+
+#: Disabled references:1
+msgid "用户盐值"
+msgstr ""
+
+#: Disabled references:1
+msgid "出于安全考虑，原始账号信息不能直接编辑，点击上方按钮进行替换更新"
+msgstr ""
+
+#: Disabled references:1
+msgid "联系邮箱"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于接收百望账号开通等消息通知，已有百望账号时不会发送账号信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "开通7天试用"
+msgstr ""
+
+#: Disabled references:1
+msgid "为当前开票税号开启 7 天免费试用，期间可正常开票；到期自动停用，购买后可继续使用。每个税号仅一次试用。"
+msgstr ""
+
+#: Disabled references:1
+msgid "开通中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "确认开通"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望账号信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "修改前请确保已在百望完成了重置密码"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入正确的账号密码"
+msgstr ""
+
+#: Disabled references:1
+msgid "百望开票平台"
+msgstr ""
+
+#: Disabled references:1
+msgid "1.登录百望："
+msgstr ""
+
+#: Disabled references:1
+msgid "使用邮件中的账号登录"
+msgstr ""
+
+#: Disabled references:1
+msgid "（账号与初始密码已发送至"
+msgstr ""
+
+#: Disabled references:1
+msgid "2.开票配置："
+msgstr ""
+
+#: Disabled references:1
+msgid "开启并确认开票登录验证（验证码/人脸认证）以保障自动开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "更新中..."
+msgstr ""
+
+#: Disabled references:1
+msgid "请先前往"
+msgstr ""
+
+#: Disabled references:1
+msgid "电子税局"
+msgstr ""
+
+#: Disabled references:1
+msgid "下载商品管理表，然后导入数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "输入发票号码"
+msgstr ""
+
+#: Disabled references:1
+msgid "输入发票抬头"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票金额(含税)"
+msgstr ""
+
+#: Disabled references:1
+msgid "发票税率"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票单号"
+msgstr ""
+
+#: Disabled references:1
+msgid "蓝字发票"
+msgstr ""
+
+#: Disabled references:1
+msgid "张"
+msgstr ""
+
+#: Disabled references:1
+msgid "1、每个开票税号开通后，到期后自动停用，付费开通后可继续使用"
+msgstr ""
+
+#: Disabled references:1
+msgid "1、每个开票税号开通后，享有 7 天免费试用，到期后自动停用，付费开通后可继续使用"
+msgstr ""
+
+#: Disabled references:1
+msgid "2、一个税号仅可绑定一个组织，不可重复开通"
+msgstr ""
+
+#: Disabled references:1
+msgid "3、用户提交开票申请后，需由管理员在 开票记录 审核并确认，用户才能下载发票"
+msgstr ""
+
+#: Disabled references:1
+msgid "4、审核操作通常由财务人员完成，建议在"
+msgstr ""
+
+#: Disabled references:1
+msgid "组织-管理员"
+msgstr ""
+
+#: Disabled references:1
+msgid "中配置财务角色，并将相关人员加入角色执行审核开票"
+msgstr ""
+
+#: Disabled references:1
+msgid "确认继续退款？"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前订单正在申请开票，全额退款后，系统会将开票状态改为已取消"
+msgstr ""
+
+#: Disabled references:1
+msgid "继续退款"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点不足,请前去充值"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI Agent-文档解析"
+msgstr ""
+
+#: Disabled references:1
+msgid "订单已超期"
+msgstr ""
+
+#: Disabled references:1
+msgid "现金"
+msgstr ""
+
+#: Disabled references:1
+msgid "支票"
+msgstr ""
+
+#: Disabled references:1
+msgid "异步执行的工作流扣费存在约 5 分钟延迟，同时系统会将 5 分钟内相同操作自动合并成一条扣费记录，如5分钟内相同流程的扣费信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "应付/结算"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票税号付费开通"
+msgstr ""
+
+#: Disabled references:1
+msgid "开票税号续费"
+msgstr ""
+
+#: Disabled references:1
+msgid "1500元/年/税号"
+msgstr ""
+
+#: Disabled references:1
+msgid "1年期"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买100信用点/1万次的单月包，自动从企业账务中心扣除（开启后仍可以在组织管理后台的工作流处关闭）"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 100信用点/10万行 的单月包，自动从企业账务中心扣除。（开启后可以在数据集成的同步任务中关闭）"
+msgstr ""
+
+#: Disabled references:1
+msgid "最多充值金额 999999 信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "充值信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择充值信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "请输入信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "购买后增值服务账户信用点余额：%0"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点付款"
+msgstr ""
+
+#: Disabled references:1
+msgid "确定以【信用点付款】方式进行本次付款？"
+msgstr ""
+
+#: Disabled references:1
+msgid "信用点不足"
+msgstr ""
+
+#: Disabled references:1
+msgid "开户名称："
+msgstr ""
+
+#: Disabled references:1
+msgid "开户银行："
+msgstr ""
+
+#: Disabled references:1
+msgid "银行账号："
+msgstr ""
+
+#: Disabled references:1
+msgid "对不起，您的信用点不足！请"
+msgstr ""
+
+#: Disabled references:1
+msgid "现有 %0 信用点，需扣减 %1 信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "LOGO"
+msgstr ""
+
+#: Disabled references:1
+msgid "门牌号"
+msgstr ""
+
+#: Disabled references:1
+msgid "编号(ID)"
+msgstr ""
+
+#: Disabled references:1
+msgid "试用、免费版需组织完成身份认证后可充值信用点；自定义短信签名等功能需完成组织身份认证（注意：非个人身份）"
+msgstr ""
+
+#: Disabled references:1
+msgid "编辑工作地点"
+msgstr ""
+
+#: Disabled references:1
+msgid "创建工作地点"
+msgstr ""
+
+#: Disabled references:1
+msgid "例如：记录和管理订单信息的数据表"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于向使用者介绍应用的功能、使用方法和注意事项。填写的内容会在用户首次打开应用时展示。"
+msgstr ""
+
+#: Disabled references:1
+msgid "用于向使用者介绍应用项的功能、使用方法和注意事项"
+msgstr ""
+
+#: Disabled references:1
+msgid "日%25011"
+msgstr ""
+
+#: Disabled references:1
+msgid "只勾选微信登录时首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。发送验证码的短信或邮件费用将自动从组织信用点中扣除。"
+msgstr ""
+
+#: Disabled references:1
+msgid "不支持定位字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "地图仅支持地区和定位字段可作为x轴维度"
+msgstr ""
+
+#: Disabled references:1
+msgid "维度和数值不能相同"
+msgstr ""
+
+#: Disabled references:1
+msgid "当组织信用点余额低于"
+msgstr ""
+
+#: Disabled references:1
+msgid "设置后，在扣款时若组织账户信用点低于预警值则会发送预警给通知人（每天仅发送 1 次预警，若重置预警值则会再次发送）"
+msgstr ""
+
+#: Disabled references:1
+msgid "记忆"
+msgstr ""
+
+#: Disabled references:1
+msgid "解析文件链接"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0min"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0s"
+msgstr ""
+
+#: Disabled references:1
+msgid "日志详情"
+msgstr ""
+
+#: Disabled references:1
+msgid "总 TOKEN 数"
+msgstr ""
+
+#: Disabled references:1
+msgid "费用"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 Tokens"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0 输入"
+msgstr ""
+
+#: Disabled references:1
+msgid "输出"
+msgstr ""
+
+#: Disabled references:1
+msgid "配置信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "系统处理异常，未返回有效内容"
+msgstr ""
+
+#: Disabled references:1
+msgid "发送文件"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择用于 AIGC 的大语言模型。Token 消耗将从组织信用点扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择用于 AIGC 的大语言模型。"
+msgstr ""
+
+#: Disabled references:1
+msgid "本次测试消耗 %0 tokens， 计费 %1 信用点"
+msgstr ""
+
+#: Disabled references:1
+msgid "本次测试消耗 %0 tokens"
+msgstr ""
+
+#: Disabled references:1
+msgid "向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信费用自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "根据此字段发送邀请短信"
+msgstr ""
+
+#: Disabled references:1
+msgid "必须先选择一个表"
+msgstr ""
+
+#: Disabled references:1
+msgid "应用所有工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "指定工作表"
+msgstr ""
+
+#: Disabled references:1
+msgid "查询范围"
+msgstr ""
+
+#: Disabled references:1
+msgid "定义模型的查询范围，未配置时默认查询工作表的全部数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "结构化输出"
+msgstr ""
+
+#: Disabled references:1
+msgid "记忆轮次"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI Agent 节点可参考的历史消息轮数。轮数越多，模型对上下文的理解能力越强，但同时会增加上下文处理负载与 Token 消耗"
+msgstr ""
+
+#: Disabled references:1
+msgid "使用系统预设的回复风格"
+msgstr ""
+
+#: Disabled references:1
+msgid "配置结构化输出后，无法使用预设风格"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，Agent 按系统预设的格式、语气与结构回复；关闭后，可在提示词中约束回复风格。"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择用于 AI Agent 的大语言模型。Token 消耗将从组织信用点扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择用于 AI Agent 的大语言模型。"
+msgstr ""
+
+#: Disabled references:1
+msgid "用户输入"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI Agent 节点在每次执行时接收的原始输入内容，通常来源于用户消息或流程变量"
+msgstr ""
+
+#: Disabled references:1
+msgid "文件链接"
+msgstr ""
+
+#: Disabled references:1
+msgid "附件可来自用户上传或工作表字段，Agent 会将附件内容作为上下文传递给模型。使用该功能可能产生较多费用。"
+msgstr ""
+
+#: Disabled references:1
+msgid "仅支持文档类型的附件，如PDF、Word、Excel。如需使用图片，请选择支持图片识别的模型。"
+msgstr ""
+
+#: Disabled references:1
+msgid "支持的附件格式：PNG、JPG、JPEG、PDF、Word、Excel"
+msgstr ""
+
+#: Disabled references:1
+msgid "描述 AI Agent 节点的角色定位、任务目标及注意事项。优质的提示词能显著提升回答准确性。可使用“AI 生成”辅助生成"
+msgstr ""
+
+#: Disabled references:1
+msgid "填写角色描述与回答要求。"
+msgstr ""
+
+#: Disabled references:1
+msgid "尝试描述：Agent 需要完成什么任务、服务什么用户、需要避免那些行为？"
+msgstr ""
+
+#: Disabled references:1
+msgid "附件上传未启用。前往“编辑对话机器人 > 其他”启用“上传附件”"
+msgstr ""
+
+#: Disabled references:1
+msgid "在下方配置AI Agent可以使用的工具。AI Agent将尝试调用工具完成任务"
+msgstr ""
+
+#: Disabled references:1
+msgid "按用户权限"
+msgstr ""
+
+#: Disabled references:1
+msgid "取消勾选后，工具执行时将忽略用户数据权限，Agent 可访问并返回超出用户权限范围的数据，谨慎操作。"
+msgstr ""
+
+#: Disabled references:1
+msgid "更多工具"
+msgstr ""
+
+#: Disabled references:1
+msgid "添加工具"
+msgstr ""
+
+#: Disabled references:1
+msgid "封装业务流程已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "对工作表数据进行分组统计汇总，帮助 Agent 在流程中自动完成统计分析与结果判断"
+msgstr ""
+
+#: Disabled references:1
+msgid "调用前需用户确认"
+msgstr ""
+
+#: Disabled references:1
+msgid "结构化输出用于定义 Agent 在执行后返回的字段与格式。你可以添加多个参数并为每个参数编写说明，Agent 将根据说明尝试生成结果，供后续流程引用。参数输出结果依赖大模型的理解能力，复杂场景下建议增加校验或人工复核。"
+msgstr ""
+
+#: Disabled references:1
+msgid "生成PDF文件的费用将自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表获取记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "其它应用下的聚合表"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择聚合表"
+msgstr ""
+
+#: Disabled references:1
+msgid "聚合表无效或已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当汇总他表字段或者数据频繁变更时可能有一定延时"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择聚合表"
+msgstr ""
+
+#: Disabled references:1
+msgid "暂无聚合表，请先在应用里创建"
+msgstr ""
+
+#: Disabled references:1
+msgid "模态窗口大小"
+msgstr ""
+
+#: Disabled references:1
+msgid "宽度（px）"
+msgstr ""
+
+#: Disabled references:1
+msgid "高度（px）"
+msgstr ""
+
+#: Disabled references:1
+msgid "对话触发后，系统将依序执行工作流中各节点。所有 AI Agent 节点的输出内容作为本轮对话的回复，依序展示给用户"
+msgstr ""
+
+#: Disabled references:1
+msgid "聚合表已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表获取多条记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表获得"
+msgstr ""
+
+#: Disabled references:1
+msgid "用户对话后立即执行"
+msgstr ""
+
+#: Disabled references:1
+msgid "查询聚合表"
+msgstr ""
+
+#: Disabled references:1
+msgid "根据查询条件从聚合表中获取一条记录"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表中按筛选条件选择符合的多条记录数据，供后续节点使用"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表汇总"
+msgstr ""
+
+#: Disabled references:1
+msgid "从聚合表中筛选符合条件的数据并进行汇总计算，如:记录数量、求和、平均、最大、最小等。注意:聚合表的数据有一定延时。"
+msgstr ""
+
+#: Disabled references:1
+msgid "向指定邮箱代发自定义内容的邮件"
+msgstr ""
+
+#: Disabled references:1
+msgid "导入完成，部分数据未导入。请查看错误报告后重试"
+msgstr ""
+
+#: Disabled references:1
+msgid "该sheet超过导入上限（上限%0行）"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI 生成示例数据"
+msgstr ""
+
+#: Disabled references:1
+msgid "每个选项单列一行。若选项与选项列表重复，保存时将忽略重复选项；若选项与回收站内选项重复，保存时将自动恢复回收站的选项"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示系统预设选项:其他。用户选择其他后,可输入补充信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示其他项"
+msgstr ""
+
+#: Disabled references:1
+msgid "按拼音Z-A排序"
+msgstr ""
+
+#: Disabled references:1
+msgid "将当前字段的所有选项复制为文本,用于为其他选项字段批量添加相同选项"
+msgstr ""
+
+#: Disabled references:1
+msgid "复制所有选项"
+msgstr ""
+
+#: Disabled references:1
+msgid "将自定义选项转换为选项集，实现在应用中统一维护，并被其他字段引用。"
+msgstr ""
+
+#: Disabled references:1
+msgid "查看已删除选项(%0)"
+msgstr ""
+
+#: Disabled references:1
+msgid "不得与选项列表重复"
+msgstr ""
+
+#: Disabled references:1
+msgid "赋空值"
+msgstr ""
+
+#: Disabled references:1
+msgid "保留原值"
+msgstr ""
+
+#: Disabled references:1
+msgid "未查询到记录时"
+msgstr ""
+
+#: Disabled references:1
+msgid "Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及第三方平台的移动App）"
+msgstr ""
+
+#: Disabled references:1
+msgid "允许从移动设备输入"
+msgstr ""
+
+#: Disabled references:1
+msgid "将字段值显示为掩码，应用管理员和有解码权限的用户可以点击后解码查看（解码权限需要在用户-角色-字段权限中配置）。"
+msgstr ""
+
+#: Disabled references:1
+msgid "n.查看、创建、更新、删除审批应用相关信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "o.查看、创建、更新、删除三方审批定义相关信息"
+msgstr ""
+
+#: Disabled references:1
+msgid "需要增加两个待办相关的权限，请前往Lark开放平台找到当前集成的应用，在权限管理-点击开通权限找到审批相关的以下两个权限，选择并确认开通权限。"
+msgstr ""
+
+#: Disabled references:1
+msgid "需要增加两个待办相关的权限，请前往飞书开放平台找到当前集成的应用，在权限管理-点击开通权限找到审批相关的以下两个权限,选择并确认开通权限。"
+msgstr ""
+
+#: Disabled references:1
+msgid "开通后需要重新发布版本，发布成功后才可生效。"
+msgstr ""
+
+#: Disabled references:1
+msgid "聚合表删除后不可恢复，确认删除吗？"
+msgstr ""
+
+#: Disabled references:1
+msgid "无法直接删除聚合表\"%0\""
+msgstr ""
+
+#: Disabled references:1
+msgid "此聚合表正在被引用，无法直接删除。请先解除引用关系后再删除聚合表。"
+msgstr ""
+
+#: Disabled references:1
+msgid "非通讯录联系人的，您可以通过邮件联系他们。"
+msgstr ""
+
+#: Disabled references:1
+msgid "开启后，当月剩余执行额度为2%时，自动购买 100信用点/10万行 的单月包，从账户信用点余额中扣款。"
+msgstr ""
+
+#: Disabled references:1
+msgid "工具调用的工作表字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "请选择工具"
+msgstr ""
+
+#: Disabled references:1
+msgid "当前暂无可引用的字段"
+msgstr ""
+
+#: Disabled references:1
+msgid "请前往目标节点配置后再试"
+msgstr ""
+
+#: Disabled references:1
+msgid "查看配置说明"
+msgstr ""
+
+#: Disabled references:1
+msgid "AI Agent工具"
+msgstr ""
+
+#: Disabled references:1
+msgid "选择工具"
+msgstr ""
+
+#: Disabled references:1
+msgid "启用后，待办消息同时会以邮件的形式发送给相关负责人。邮件费用自动从组织信用点中扣除"
+msgstr ""
+
+#: Disabled references:1
+msgid "+ 自定义参数"
+msgstr ""
+
+#: Disabled references:1
+msgid "模型未开启或已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "模型已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0（%1），升级方式：跟随应用升级"
+msgstr ""
+
+#: Disabled references:1
+msgid "%0（%1），升级方式：在插件中心单独升级，不随应用升级"
+msgstr ""
+
+#: Disabled references:1
+msgid "导入配置存在错误，匹配字段异常，请联系管理员处理"
+msgstr ""
+
+#: Disabled references:1
+msgid "导入配置存在错误，依据字段异常，请联系管理员处理"
+msgstr ""
+
+#: Disabled references:1
+msgid "无权限或已删除"
+msgstr ""
+
+#: Disabled references:1
+msgid "适合内容（当前列）"
+msgstr ""
+
+#: Disabled references:1
+msgid "适合内容（所有列）"
+msgstr ""
+
+#: Disabled references:1
+msgid "指定列宽"
+msgstr ""
+
+#: Disabled references:1
+msgid "默认定位到起始日期"
+msgstr ""
+
+#: Disabled references:1
+msgid "勾选后，打开时间选择器优先显示起始日期所在日期；未勾选时优先显示当前日期。"
+msgstr ""
+
+#: Disabled references:1
+msgid "勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表。若不勾选，通过工作流、API写入、批量导入等操作仍可将新的选项添加至选项列表。"
+msgstr ""
+
+#: Disabled references:1
+msgid "显示停用部门"
+msgstr ""
+
+#: Disabled references:1
+msgid "删除后将无法恢复，请谨慎操作"
+msgstr ""
+
+#: Disabled references:1
+msgid "停用后，当前停用的部门将对用户隐藏，部门下的成员不会移除。"
+msgstr ""
+
+#: Disabled references:1
+msgid "已停用的部门在记录中将呈现如下的停用状态："
+msgstr ""
+
+#: Disabled references:1
+msgid "存在未恢复的上级部门，请先恢复"
+msgstr ""
+
+#: Disabled references:1
+msgid "已停用，无法取消部门负责人"
+msgstr ""
+
+#: Disabled references:1
+msgid "已停用，无法设置部门负责人"
+msgstr ""
+
+#: Disabled references:1
+msgid "今日无日程"
+msgstr ""
+
+#: Disabled references:1
+msgid "无未排期日程"
+msgstr ""
+

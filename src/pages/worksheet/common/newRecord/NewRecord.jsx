@@ -386,6 +386,9 @@ function NewRecord(props) {
       return (window.isMacOs ? e.metaKey : e.ctrlKey) && ['s', 'S'].includes(e.key);
     },
     e => {
+      if (window.disableShortcutsSaveRecord) {
+        return;
+      }
       e.preventDefault();
       !abnormal && setTimeout(() => submitRecord(), 50);
     },

@@ -296,7 +296,6 @@ export default class extends Component {
         zoom: 1,
         maxZoom: 10,
         token: key,
-        languageCode: getCurrentLangCode() ? 'en' : 'zh',
       }),
       logoVisible: false,
     });

@@ -1150,7 +1150,6 @@ class TableView extends React.Component {
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, this.sheetSwitchPermit);
     return (
       <ColumnHead
-        showRequired
         isDraft={isDraft}
         isCharge={isCharge}
         count={sheetViewData.count}

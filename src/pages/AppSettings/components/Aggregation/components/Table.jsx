@@ -38,9 +38,9 @@ const Wrap = styled.div(
         background-color: #fafafa !important;
       }
       .emptyForResize {
-        width: 60px !important;
-        min-width: 60px !important;
-        max-width: 60px !important;
+        width: 10px !important;
+        min-width: 10px !important;
+        max-width: 10px !important;
         border-color: transparent !important;
         background: #fff !important;
       }
@@ -63,8 +63,8 @@ const Wrap = styled.div(
 );
 
 function Table(props) {
-  // const width = (props.width - 60 - 70) / props.controls.length;
-  const width = (props.width - 70) / props.controls.length;
+  // const width = (props.width - 10 - 70) / props.controls.length;
+  const width = (props.width - 20) / props.controls.length;
   return (
     <Wrap className="h100 flex flexColumn alignItemsCenter" width={width}>
       <div className="tableCon flex">
@@ -88,7 +88,7 @@ function Table(props) {
                 </div>
               );
             })}
-            {/* <div className="itemCon flex flexRow alignItemsCenter InlineBlock emptyForResize" width={60} /> */}
+            {/* <div className="itemCon flex flexRow alignItemsCenter InlineBlock emptyForResize" width={10} /> */}
           </div>
         )}
         {props.loading ? (
@@ -113,7 +113,7 @@ function Table(props) {
                       </div>
                     );
                   })}
-                  {/* <div className="flexRow alignItemsCenter itemCon InlineBlock emptyForResize" width={60} /> */}
+                  {/* <div className="flexRow alignItemsCenter itemCon InlineBlock emptyForResize" width={10} /> */}
                 </div>
               );
             })}

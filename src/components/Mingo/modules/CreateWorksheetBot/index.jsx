@@ -423,7 +423,9 @@ function MingoContent(props, ref) {
                             messageTaskStatus: taskStatus,
                             id: uuidv4(),
                             role: 'assistant',
-                            content: `已为你创建工作表\n\`\`\`custom_block_mingo_edit_worksheet_info\n
+                            content:
+                              _l('已为你创建工作表') +
+                              `\n\`\`\`custom_block_mingo_edit_worksheet_info\n
               {
                 "workSheetName": "${worksheetName}",
                 "worksheetId": "${data.workSheetId}",

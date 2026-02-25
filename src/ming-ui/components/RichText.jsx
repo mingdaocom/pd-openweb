@@ -336,6 +336,21 @@ const RichText = forwardRef((props, ref) => {
   const [MDEditor, setComponent] = useState(null);
   const editorDiv = useRef();
   let editorDom = useRef();
+  const lastSavedContentRef = useRef(data ?? '');
+
+  // 标准化 HTML 内容用于比对：移除 img src 中的 ?e= 及之后的内容
+  const normalizeContent = html => {
+    if (!html || typeof html !== 'string') return html ?? '';
+    try {
+      return html.replace(/<img([^>]*\s)src=(["'])([^"']*)\2/gi, (match, before, quote, src) => {
+        if (src == null || typeof src.replace !== 'function') return match;
+        const normalizedSrc = src.replace(/\?e=[^"']*/, '');
+        return `<img${before ?? ''}src=${quote ?? '"'}${normalizedSrc}${quote ?? '"'}`;
+      });
+    } catch {
+      return html;
+    }
+  };
 
   useImperativeHandle(ref, () => ({
     focus: () => {
@@ -396,12 +411,14 @@ const RichText = forwardRef((props, ref) => {
   }
 
   useEffect(() => {
-    if (disabled) {
-      $(editorDiv.current).find('a').attr('target', '_blank'); // 只读的情况下，a标签新开页处理
-    } else if (!MDEditor && !clickInit) {
+    if (!disabled && !MDEditor && !clickInit) {
       initEditor();
     }
   }, [disabled]);
+
+  useEffect(() => {
+    lastSavedContentRef.current = data ?? '';
+  }, [data]);
 
   let content;
   if (disabled || !MDEditor) {
@@ -431,6 +448,7 @@ const RichText = forwardRef((props, ref) => {
         id={id}
         config={{
           link: {
+            addTargetToExternalLinks: true,
             allowedProtocols: ['https?', 'http?', 'ftp?', 'ftps?', 'mailto', 'Notes'],
           },
           language: lang(),
@@ -607,16 +625,21 @@ const RichText = forwardRef((props, ref) => {
           }
         }}
         onChange={(event, editor) => {
-          const data = editor.getData();
+          const currentData = editor.getData();
+          if (normalizeContent(currentData) === normalizeContent(lastSavedContentRef.current)) return;
           changeSetting && changeSetting(true);
           if (onActualSave) {
-            onActualSave(data);
+            onActualSave(currentData);
           }
         }}
         onBlur={(event, editor) => {
+          window.disableShortcutsSaveRecord = false;
+          const currentData = editor.getData();
+          if (normalizeContent(currentData) === normalizeContent(lastSavedContentRef.current)) return;
+          changeSetting && changeSetting(true);
           if (onSave) {
-            const data = editor.getData();
-            onSave(data);
+            lastSavedContentRef.current = currentData;
+            onSave(currentData);
           }
           onBlur();
         }}
@@ -624,6 +647,7 @@ const RichText = forwardRef((props, ref) => {
           setTimeout(() => {
             !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
           }, 300);
+          window.disableShortcutsSaveRecord = true;
           onFocus();
         }}
       />

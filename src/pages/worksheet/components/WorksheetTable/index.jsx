@@ -311,7 +311,7 @@ function WorksheetTable(props, ref) {
     () =>
       [{ type: 'rowHead', width: showRowHead ? rowHeadWidth : 10, empty: !showRowHead }]
         .concat(columns.filter(c => c.type !== 'operates'))
-        .concat(showEmptyForResize ? { type: 'emptyForResize', width: 60 } : [])
+        .concat(showEmptyForResize ? { type: 'emptyForResize', width: 10 } : [])
         .concat(columns.filter(c => c.type === 'operates'))
         .filter(c => !_.includes(SHEET_VIEW_HIDDEN_TYPES, c.type)),
     [columns, rowHeadWidth],
